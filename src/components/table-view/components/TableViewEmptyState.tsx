@@ -1,0 +1,142 @@
+/**
+ * TableViewEmptyState Components
+ *
+ * Provides proper table structure wrapping for empty states.
+ * Users can use these for custom empty states with correct table markup.
+ */
+
+import React, { ReactNode } from 'react';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { TableVariant } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { EmptyState, EmptyStateActions, EmptyStateBody, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
+import CubesIcon from '@patternfly/react-icons/dist/js/icons/cubes-icon';
+
+// =============================================================================
+// Default Empty State Content Components
+// =============================================================================
+
+export interface DefaultEmptyStateNoDataProps {
+  /** Custom title */
+  title?: string;
+  /** Custom body text */
+  body?: string;
+}
+
+/**
+ * Default empty state content for when there is no data.
+ * Use this inside TableViewEmptyState or standalone.
+ */
+export const DefaultEmptyStateNoData: React.FC<DefaultEmptyStateNoDataProps> = ({
+  title = 'No data available',
+  body = 'There is no data to display.',
+}) => (
+  <EmptyState variant="lg">
+    <EmptyStateHeader titleText={title} headingLevel="h4" icon={<EmptyStateIcon icon={CubesIcon} />} />
+    <EmptyStateBody>{body}</EmptyStateBody>
+  </EmptyState>
+);
+
+export interface DefaultEmptyStateNoResultsProps {
+  /** Custom title */
+  title?: string;
+  /** Custom body text */
+  body?: string;
+  /** Callback to clear filters */
+  onClearFilters?: () => void;
+  /** Custom clear filters button text */
+  clearFiltersText?: string;
+}
+
+/**
+ * Default empty state content for when filters return no results.
+ * Use this inside TableViewEmptyState or standalone.
+ */
+export const DefaultEmptyStateNoResults: React.FC<DefaultEmptyStateNoResultsProps> = ({
+  title = 'No results found',
+  body = 'No results match the filter criteria. Clear all filters to show results.',
+  onClearFilters,
+  clearFiltersText = 'Clear all filters',
+}) => (
+  <EmptyState variant="lg">
+    <EmptyStateHeader titleText={title} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+    <EmptyStateBody>{body}</EmptyStateBody>
+    {onClearFilters && (
+      <EmptyStateFooter>
+        <EmptyStateActions>
+          <Button variant="link" onClick={onClearFilters}>
+            {clearFiltersText}
+          </Button>
+        </EmptyStateActions>
+      </EmptyStateFooter>
+    )}
+  </EmptyState>
+);
+
+// =============================================================================
+// Table Wrapper Component
+// =============================================================================
+
+export interface TableViewEmptyStateProps {
+  /** Empty state content to display */
+  children: ReactNode;
+  /** Column labels for table header */
+  columnLabels: string[];
+  /** Whether to show selection column */
+  hasSelection?: boolean;
+  /** Whether to show actions column */
+  hasActions?: boolean;
+  /** Table variant */
+  variant?: 'default' | 'compact';
+  /** ARIA label for the table */
+  ariaLabel: string;
+  /** OUIA ID for testing */
+  ouiaId?: string;
+}
+
+/**
+ * Wraps empty state content in proper table structure.
+ * Use this when you need a custom empty state with correct table markup.
+ *
+ * @example
+ * ```tsx
+ * <TableViewEmptyState
+ *   columnLabels={['Name', 'Description', 'Status']}
+ *   hasSelection
+ *   ariaLabel="My table"
+ * >
+ *   <MyCustomEmptyState onAction={handleAction} />
+ * </TableViewEmptyState>
+ * ```
+ */
+export const TableViewEmptyState: React.FC<TableViewEmptyStateProps> = ({
+  children,
+  columnLabels,
+  hasSelection = false,
+  hasActions = false,
+  variant = 'default',
+  ariaLabel,
+  ouiaId,
+}) => {
+  const columnCount = columnLabels.length + (hasSelection ? 1 : 0) + (hasActions ? 1 : 0);
+
+  return (
+    <Table aria-label={ariaLabel} variant={variant === 'compact' ? TableVariant.compact : undefined} ouiaId={ouiaId}>
+      <Thead>
+        <Tr>
+          {hasSelection && <Th screenReaderText="Select" />}
+          {columnLabels.map((label, idx) => (
+            <Th key={idx}>{label}</Th>
+          ))}
+          {hasActions && <Th screenReaderText="Actions" />}
+        </Tr>
+      </Thead>
+      <Tbody>
+        <Tr>
+          <Td colSpan={columnCount}>{children}</Td>
+        </Tr>
+      </Tbody>
+    </Table>
+  );
+};
