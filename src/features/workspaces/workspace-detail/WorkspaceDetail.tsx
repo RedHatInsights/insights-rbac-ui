@@ -13,7 +13,7 @@ import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
 import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
-import { Workspace } from '../../../redux/workspaces/reducer';
+import { RoleBindingBySubject, Workspace } from '../../../redux/workspaces/reducer';
 import { Group } from '../../../redux/groups/reducer';
 
 interface WorkspaceData {
@@ -136,8 +136,8 @@ export const WorkspaceDetail = () => {
 
       // Transform role bindings data to match the expected Group structure
       const transformedData: Group[] =
-        result.data?.map(
-          (binding): Group => ({
+        (result as any).data?.map(
+          (binding: RoleBindingBySubject): Group => ({
             uuid: binding.subject.id,
             name: binding.subject.group?.name || binding.subject.user?.username || 'Unknown',
             description: binding.subject.group?.description || '',
@@ -152,7 +152,7 @@ export const WorkspaceDetail = () => {
         ) || [];
 
       setRoleBindings(transformedData);
-      setRoleBindingsTotalCount(result.meta?.count || 0);
+      setRoleBindingsTotalCount((result as any).meta?.count || 0);
     } catch (error) {
       console.error('Error fetching role bindings:', error);
       setRoleBindings([]);
@@ -187,7 +187,7 @@ export const WorkspaceDetail = () => {
 
       // Transform and add inheritance information
       const groupsWithInheritance: GroupWithInheritance[] =
-        result.data?.map((binding) => ({
+        (result as any).data?.map((binding: RoleBindingBySubject) => ({
           uuid: binding.subject.id,
           name: binding.subject.group?.name || binding.subject.user?.username || 'Unknown',
           description: binding.subject.group?.description || '',
@@ -205,7 +205,7 @@ export const WorkspaceDetail = () => {
         })) || [];
 
       setParentGroups(groupsWithInheritance);
-      setParentGroupsTotalCount(result.meta?.count || 0);
+      setParentGroupsTotalCount((result as any).meta?.count || 0);
     } catch (error) {
       console.error('Error fetching parent groups:', error);
       setParentGroups([]);

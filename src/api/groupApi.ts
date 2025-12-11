@@ -11,15 +11,6 @@ import listGroups from '@redhat-cloud-services/rbac-client/ListGroups';
 import listRoles from '@redhat-cloud-services/rbac-client/ListRoles';
 import listRolesForGroup from '@redhat-cloud-services/rbac-client/ListRolesForGroup';
 import updateGroup from '@redhat-cloud-services/rbac-client/UpdateGroup';
-import {
-  AddRoleToGroup200Response,
-  AllPrincipalsPagination,
-  GroupOut,
-  GroupPagination,
-  GroupRolesPagination,
-  GroupWithPrincipalsAndRoles,
-  RolePagination,
-} from '@redhat-cloud-services/rbac-client/types';
 import { axiosInstance } from './axiosConfig';
 import { RBAC_API_BASE } from '../utilities/constants';
 
@@ -38,22 +29,7 @@ const groupApiEndpoints = {
   listRolesForGroup,
 };
 
-type groupApiEndpointsReturnTypes = {
-  listGroups: GroupPagination;
-  getGroup: GroupWithPrincipalsAndRoles;
-  updateGroup: GroupOut;
-  createGroup: GroupOut;
-  addPrincipalToGroup: GroupWithPrincipalsAndRoles;
-  addRoleToGroup: AddRoleToGroup200Response;
-  deleteGroup: void;
-  deletePrincipalFromGroup: void;
-  listRoles: RolePagination;
-  getPrincipalsFromGroup: AllPrincipalsPagination;
-  deleteRoleFromGroup: void;
-  listRolesForGroup: GroupRolesPagination;
-};
-
-const groupApi = APIFactory<typeof groupApiEndpoints, groupApiEndpointsReturnTypes>(RBAC_API_BASE, groupApiEndpoints, { axios: axiosInstance });
+const groupApi = APIFactory<typeof groupApiEndpoints>(RBAC_API_BASE, groupApiEndpoints, { axios: axiosInstance });
 
 export function getGroupApi() {
   return groupApi;

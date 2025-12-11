@@ -305,7 +305,8 @@ export async function fetchMembersForGroup(
 }
 
 export async function fetchMemberGroups(username: string): Promise<GroupPagination> {
-  return await groupApi.listGroups(
+  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+  return await (groupApi.listGroups as any)(
     20,
     0,
     '',
