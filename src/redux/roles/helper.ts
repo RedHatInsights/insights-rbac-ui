@@ -12,7 +12,8 @@ import {
 const roleApi = getRoleApi();
 
 export async function createRole(data: RoleIn): Promise<RoleWithAccess> {
-  return await roleApi.createRole(data, {});
+  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+  return await (roleApi.createRole as any)(data, {});
 }
 
 export interface FetchRolesParams {
@@ -36,7 +37,8 @@ export interface FetchRolesParams {
 export async function fetchRoles(params: FetchRolesParams): Promise<RolePaginationDynamic> {
   const { limit, offset, name, displayName, nameMatch, scope, orderBy, addFields, username, application, permission } = params;
 
-  return await roleApi.listRoles(
+  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+  return await (roleApi.listRoles as any)(
     limit as number,
     offset as number,
     name as string,
@@ -92,7 +94,8 @@ export async function fetchRolesWithPolicies(params: FetchRolesWithPoliciesParam
   // Convert string orderBy to enum
   const orderByEnum = orderBy as ListRolesOrderByEnum; // Cast needed due to rbac-client library type issues
 
-  const roles: RolePaginationDynamic = await roleApi.listRoles(
+  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+  const roles: RolePaginationDynamic = await (roleApi.listRoles as any)(
     limit as number,
     offset as number,
     filters.name as string,
@@ -113,7 +116,7 @@ export async function fetchRolesWithPolicies(params: FetchRolesWithPoliciesParam
   let resultOffset = isPaginationValid ? offset || 0 : getLastPageOffset(roles?.meta?.count || 0, limit || 20);
   let { data, meta } = isPaginationValid
     ? roles
-    : await roleApi.listRoles(
+    : await (roleApi.listRoles as any)(
         limit || 20,
         resultOffset,
         filters.name || '',
@@ -149,28 +152,33 @@ export async function fetchRolesWithPolicies(params: FetchRolesWithPoliciesParam
 }
 
 export async function fetchRole(uuid: string): Promise<RoleWithAccess> {
-  return await roleApi.getRole(uuid, 'org_id', {});
+  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+  return await (roleApi.getRole as any)(uuid, 'org_id', {});
 }
 
 export async function fetchRoleForPrincipal(uuid: string): Promise<RoleWithAccess> {
-  return await roleApi.getRole(uuid, 'principal', {});
+  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+  return await (roleApi.getRole as any)(uuid, 'principal', {});
 }
 
 export async function removeRole(roleId: string): Promise<void> {
-  return await roleApi.deleteRole(roleId, {});
+  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+  return await (roleApi.deleteRole as any)(roleId, {});
 }
 
 export const updateRole = async (roleId: string, data: RolePut, useCustomAccess?: boolean): Promise<RoleWithAccess> => {
   if (useCustomAccess) {
-    const accessResponse: AccessPagination = await roleApi.getRoleAccess(roleId, 10, 0, {});
+    // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+    const accessResponse: AccessPagination = await (roleApi.getRoleAccess as any)(roleId, 10, 0, {});
     const access = accessResponse.data;
-    return roleApi.updateRole(roleId, { ...data, access }, {});
+    return (roleApi.updateRole as any)(roleId, { ...data, access }, {});
   }
-  return roleApi.updateRole(roleId, data, {});
+  return (roleApi.updateRole as any)(roleId, data, {});
 };
 
 export const removeRolePermissions = async (role: RoleWithAccess, permissionsToRemove: string[]): Promise<RoleWithAccess> => {
-  const accessResponse: AccessPagination = await roleApi.getRoleAccess(role.uuid, 10, 0, {});
+  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+  const accessResponse: AccessPagination = await (roleApi.getRoleAccess as any)(role.uuid, 10, 0, {});
   const access = accessResponse.data;
   const filteredAccess = access.filter((item: Access) => !permissionsToRemove.includes(item.permission));
   const newRoleData: RolePut = {
@@ -179,9 +187,10 @@ export const removeRolePermissions = async (role: RoleWithAccess, permissionsToR
     description: role.description,
     access: filteredAccess,
   };
-  return roleApi.updateRole(role.uuid, newRoleData, {});
+  return (roleApi.updateRole as any)(role.uuid, newRoleData, {});
 };
 
 export const patchRole = async (roleId: string, data: Partial<RoleIn>): Promise<RoleWithAccess> => {
-  return roleApi.patchRole(roleId, data, {});
+  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
+  return (roleApi.patchRole as any)(roleId, data, {});
 };

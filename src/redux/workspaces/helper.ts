@@ -9,7 +9,7 @@ import { RoleBindingsListBySubjectParams } from '@redhat-cloud-services/rbac-cli
 const workspacesApi = getWorkspacesApi();
 
 export async function getWorkspaces(config: WorkspacesListParams = {}) {
-  return workspacesApi.listWorkspaces(config.limit ?? 10000, config.offset ?? 0, '', config.type ?? 'all', config.name ?? '', config.options ?? {});
+  return workspacesApi.listWorkspaces(config.limit ?? 10000, config.offset ?? 0, config.type ?? 'all', config.name ?? '', config.options ?? {});
 }
 
 export async function getWorkspace(workspaceId: string) {
@@ -17,14 +17,11 @@ export async function getWorkspace(workspaceId: string) {
 }
 
 export async function createWorkspace(config: WorkspaceCreateBody) {
-  return workspacesApi.createWorkspace(
-    {
-      parent_id: config.parent_id,
-      name: config.name,
-      description: config.description,
-    },
-    {},
-  );
+  return workspacesApi.createWorkspace({
+    parent_id: config.parent_id,
+    name: config.name,
+    description: config.description,
+  });
 }
 
 export async function updateWorkspace(config: WorkspacesPatchParams) {
@@ -41,12 +38,13 @@ export async function moveWorkspace(config: WorkspacesMoveParams) {
 
 export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjectParams) {
   return workspacesApi.roleBindingsListBySubject(
+    config.resourceId,
+    config.resourceType,
     config.limit ?? 10000,
     config.cursor ?? '',
-    config.resourceType ?? '',
-    config.resourceId ?? '',
     config.subjectType ?? '',
     config.subjectId ?? '',
+    config.parentRoleBindings ?? false,
     config.fields ?? '',
     config.orderBy ?? '',
     config.options ?? {},
