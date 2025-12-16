@@ -303,24 +303,3 @@ export async function fetchMembersForGroup(
   // Return response directly like original - responseInterceptor handles unwrapping
   return response as AllPrincipalsPagination;
 }
-
-export async function fetchMemberGroups(username: string): Promise<GroupPagination> {
-  // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
-  return await (groupApi.listGroups as any)(
-    20,
-    0,
-    '',
-    ListGroupsNameMatchEnum.Partial,
-    ListGroupsScopeEnum.Principal,
-    username,
-    '',
-    [],
-    [],
-    ListGroupsRoleDiscriminatorEnum.All,
-    ListGroupsOrderByEnum.Name,
-    false,
-    false,
-    false,
-    {},
-  );
-}

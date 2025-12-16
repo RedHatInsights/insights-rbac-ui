@@ -28,23 +28,6 @@ axiosInstance.interceptors.response.use(responseDataInterceptor);
 axiosInstance.interceptors.response.use(null, interceptor500);
 axiosInstance.interceptors.response.use(null, errorInterceptor);
 
-const customCreateWorkspace = async (workspaceRequest: any, options?: any) => {
-  // NOTE: Using (as any) to bypass broken @redhat-cloud-services/rbac-client types
-  const createWs = await (createWorkspace as any)(workspaceRequest, options);
-  return {
-    ...createWs,
-    options: {
-      ...createWs.options,
-      transformResponse: () => {
-        return {
-          // TODO: return normal data
-        };
-      },
-    },
-  };
-};
-
-// Type for the role bindings paginated response (after responseDataInterceptor unwraps it)
 export interface RoleBindingsPaginatedResponse {
   data: RoleBindingBySubject[];
   meta: {
@@ -56,7 +39,7 @@ export interface RoleBindingsPaginatedResponse {
 
 const workspacesApiEndpoints = {
   getWorkspace,
-  createWorkspace: customCreateWorkspace,
+  createWorkspace,
   updateWorkspace,
   deleteWorkspace,
   listWorkspaces,
