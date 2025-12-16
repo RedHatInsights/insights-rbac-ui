@@ -17,11 +17,7 @@ export async function getWorkspace(workspaceId: string) {
 }
 
 export async function createWorkspace(config: WorkspaceCreateBody) {
-  return workspacesApi.createWorkspace({
-    parent_id: config.parent_id,
-    name: config.name,
-    description: config.description,
-  });
+  return workspacesApi.createWorkspace(config, {});
 }
 
 export async function updateWorkspace(config: WorkspacesPatchParams) {
