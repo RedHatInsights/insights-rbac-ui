@@ -5,6 +5,7 @@ import { WorkspaceCreateBody } from './reducer';
 import { getWorkspacesApi } from './api';
 import { WorkspacesMoveParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
 import { RoleBindingsListBySubjectParams } from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
+import { RoleBindingsRoleBindingBySubjectListResponse } from '@redhat-cloud-services/rbac-client/v2/types';
 
 const workspacesApi = getWorkspacesApi();
 
@@ -44,5 +45,5 @@ export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjec
     config.fields ?? '',
     config.orderBy ?? '',
     config.options ?? {},
-  );
+  ) as unknown as RoleBindingsRoleBindingBySubjectListResponse;
 }

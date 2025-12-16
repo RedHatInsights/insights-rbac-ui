@@ -13,8 +13,9 @@ import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
 import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
-import { RoleBindingBySubject, Workspace } from '../../../redux/workspaces/reducer';
+import { Workspace } from '../../../redux/workspaces/reducer';
 import { Group } from '../../../redux/groups/reducer';
+import { RoleBindingsRoleBindingBySubject } from '@redhat-cloud-services/rbac-client/v2/types';
 
 interface WorkspaceData {
   name: string;
@@ -136,12 +137,12 @@ export const WorkspaceDetail = () => {
 
       // Transform role bindings data to match the expected Group structure
       const transformedData: Group[] =
-        (result as any).data?.map(
-          (binding: RoleBindingBySubject): Group => ({
-            uuid: binding.subject.id,
-            name: binding.subject.group?.name || binding.subject.user?.username || 'Unknown',
-            description: binding.subject.group?.description || '',
-            principalCount: binding.subject.group?.user_count || 0,
+        result.data?.map(
+          (binding: RoleBindingsRoleBindingBySubject): Group => ({
+            uuid: binding.subject?.id || '',
+            name: binding.resource?.name || 'Unknown',
+            description: binding?.subject?.type,
+            principalCount: 0,
             roleCount: binding.roles?.length || 0,
             created: binding.last_modified,
             modified: binding.last_modified,
@@ -152,7 +153,8 @@ export const WorkspaceDetail = () => {
         ) || [];
 
       setRoleBindings(transformedData);
-      setRoleBindingsTotalCount((result as any).meta?.count || 0);
+      // TODO: the meta does not contain total, let's calculate the total if next link exists
+      setRoleBindingsTotalCount(result?.links?.next ? perPage * page + 1 : perPage * page);
     } catch (error) {
       console.error('Error fetching role bindings:', error);
       setRoleBindings([]);
@@ -187,11 +189,11 @@ export const WorkspaceDetail = () => {
 
       // Transform and add inheritance information
       const groupsWithInheritance: GroupWithInheritance[] =
-        (result as any).data?.map((binding: RoleBindingBySubject) => ({
-          uuid: binding.subject.id,
-          name: binding.subject.group?.name || binding.subject.user?.username || 'Unknown',
-          description: binding.subject.group?.description || '',
-          principalCount: binding.subject.group?.user_count || 0,
+        result.data?.map((binding: RoleBindingsRoleBindingBySubject) => ({
+          uuid: binding.subject?.id || '',
+          name: binding?.resource?.type || 'Unknown',
+          description: '',
+          principalCount: 0,
           roleCount: binding.roles?.length || 0,
           created: binding.last_modified,
           modified: binding.last_modified,
@@ -205,7 +207,8 @@ export const WorkspaceDetail = () => {
         })) || [];
 
       setParentGroups(groupsWithInheritance);
-      setParentGroupsTotalCount((result as any).meta?.count || 0);
+      // TODO: the meta does not contain total, let's calculate the total if next link exists
+      setParentGroupsTotalCount(result?.links?.next ? parentPerPage * parentPage + 1 : parentPerPage * parentPage);
     } catch (error) {
       console.error('Error fetching parent groups:', error);
       setParentGroups([]);
