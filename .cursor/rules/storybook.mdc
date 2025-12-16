@@ -287,6 +287,7 @@ Before submitting stories, verify:
 - **NEVER** use `storeState` to pre-populate Redux in container stories
 - **NEVER** add internal test-targeting tags (removed: `workspaces`, `users-container`, `roles-container`, etc.)
 - **ALWAYS** use real API orchestration with MSW handlers for container testing
+- **See also**: "Autodocs Conflicts and Solutions" section for detailed explanation of MSW conflicts
 
 ### Story Structure Template
 
