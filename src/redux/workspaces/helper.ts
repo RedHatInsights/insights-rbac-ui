@@ -5,36 +5,47 @@ import { WorkspaceCreateBody } from './reducer';
 import { getWorkspacesApi } from './api';
 import { WorkspacesMoveParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
 import { RoleBindingsListBySubjectParams } from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
-import { RoleBindingsRoleBindingBySubjectListResponse } from '@redhat-cloud-services/rbac-client/v2/types';
 
 const workspacesApi = getWorkspacesApi();
 
 export async function getWorkspaces(config: WorkspacesListParams = {}) {
-  return workspacesApi.listWorkspaces(config.limit ?? 10000, config.offset ?? 0, config.type ?? 'all', config.name ?? '', config.options ?? {});
+  const response = await workspacesApi.listWorkspaces(
+    config.limit ?? 10000,
+    config.offset ?? 0,
+    config.type ?? 'all',
+    config.name ?? '',
+    config.options ?? {},
+  );
+  return response.data;
 }
 
 export async function getWorkspace(workspaceId: string) {
-  return workspacesApi.getWorkspace(workspaceId, false, {});
+  const response = await workspacesApi.getWorkspace(workspaceId, false, {});
+  return response.data;
 }
 
 export async function createWorkspace(config: WorkspaceCreateBody) {
-  return workspacesApi.createWorkspace(config, {});
+  const response = await workspacesApi.createWorkspace(config, {});
+  return response.data;
 }
 
 export async function updateWorkspace(config: WorkspacesPatchParams) {
-  return workspacesApi.updateWorkspace(config.id, config.workspacesPatchWorkspaceRequest, {});
+  const response = await workspacesApi.updateWorkspace(config.id, config.workspacesPatchWorkspaceRequest, {});
+  return response.data;
 }
 
 export async function deleteWorkspace(config: WorkspacesDeleteParams) {
-  return workspacesApi.deleteWorkspace(config.id, {});
+  const response = await workspacesApi.deleteWorkspace(config.id, {});
+  return response.data;
 }
 
 export async function moveWorkspace(config: WorkspacesMoveParams) {
-  return workspacesApi.moveWorkspaces(config.id, config.workspacesMoveWorkspaceRequest, {});
+  const response = await workspacesApi.moveWorkspaces(config.id, config.workspacesMoveWorkspaceRequest, {});
+  return response.data;
 }
 
 export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjectParams) {
-  return workspacesApi.roleBindingsListBySubject(
+  const response = await workspacesApi.roleBindingsListBySubject(
     config.resourceId,
     config.resourceType,
     config.limit ?? 10000,
@@ -45,5 +56,6 @@ export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjec
     config.fields ?? '',
     config.orderBy ?? '',
     config.options ?? {},
-  ) as unknown as RoleBindingsRoleBindingBySubjectListResponse;
+  );
+  return response.data;
 }

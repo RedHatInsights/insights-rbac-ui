@@ -141,7 +141,7 @@ export const WorkspaceDetail = () => {
           (binding: RoleBindingsRoleBindingBySubject): Group => ({
             uuid: binding.subject?.id || '',
             name: binding.resource?.name || 'Unknown',
-            description: binding?.subject?.type,
+            description: '',
             principalCount: 0,
             roleCount: binding.roles?.length || 0,
             created: binding.last_modified,
@@ -191,7 +191,7 @@ export const WorkspaceDetail = () => {
       const groupsWithInheritance: GroupWithInheritance[] =
         result.data?.map((binding: RoleBindingsRoleBindingBySubject) => ({
           uuid: binding.subject?.id || '',
-          name: binding?.resource?.type || 'Unknown',
+          name: binding?.resource?.name || 'Unknown',
           description: '',
           principalCount: 0,
           roleCount: binding.roles?.length || 0,
