@@ -1,3 +1,10 @@
+# [1.73.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.3...v1.73.0) (2025-12-16)
+
+
+### Features
+
+* **components:** add TableView component with type-safe API ([4fab761](https://github.com/RedHatInsights/insights-rbac-ui/commit/4fab7613c27923cf93798bd39d58489df4264912))
+
 ## [1.72.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.2...v1.72.3) (2025-12-01)
 
 
