@@ -1,79 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { UsersEmptyState } from './UsersEmptyState';
-import { DataViewState, DataViewTextFilter, DataViewTh, useDataViewSelection } from '@patternfly/react-data-view';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
 import { ResponsiveActions } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
-import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import { Split } from '@patternfly/react-core';
-import { SplitItem } from '@patternfly/react-core';
-import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
-import { ThProps } from '@patternfly/react-table';
-import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
+import { Split, SplitItem } from '@patternfly/react-core';
+
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView } from '../../../../../components/table-view';
+import { ActionDropdown } from '../../../../../components/ActionDropdown';
+import type { User } from '../../../../../redux/users/reducer';
 import messages from '../../../../../Messages';
-import { User } from '../../../../../redux/users/reducer';
-
-// User row actions component
-interface UserRowActionsProps {
-  user: User;
-  onDeleteUser: (user: User) => void;
-  orgAdmin: boolean;
-  isProd: boolean;
-  ouiaId?: string;
-}
-
-const UserRowActions: React.FC<UserRowActionsProps> = ({ user, onDeleteUser, orgAdmin, isProd, ouiaId }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const intl = useIntl();
-
-  // Delete should be disabled if not org admin or in production
-  const isDeleteDisabled = !orgAdmin || isProd;
-
-  return (
-    <Dropdown
-      isOpen={isOpen}
-      onOpenChange={setIsOpen}
-      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle
-          ref={toggleRef}
-          aria-label={`Actions for user ${user.username}`}
-          variant="plain"
-          onClick={() => setIsOpen(!isOpen)}
-          isExpanded={isOpen}
-          data-ouia-component-id={`${ouiaId}-menu-toggle`}
-        >
-          <EllipsisVIcon />
-        </MenuToggle>
-      )}
-      ouiaId={ouiaId}
-    >
-      <DropdownList>
-        <DropdownItem
-          key="delete"
-          onClick={() => {
-            setIsOpen(false);
-            onDeleteUser(user);
-          }}
-          isDisabled={isDeleteDisabled}
-          data-ouia-component-id={`${ouiaId}-delete`}
-        >
-          {intl.formatMessage(messages.delete)}
-        </DropdownItem>
-      </DropdownList>
-    </Dropdown>
-  );
-};
+import { type SortableColumnId, sortableColumns, useUsersTableConfig } from './useUsersTableConfig';
 
 interface UsersTableProps {
   // Data props
@@ -125,7 +65,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   authModel,
   orgAdmin,
   isProd,
-
   ouiaId = 'iam-users-table',
   onAddUserClick,
   onInviteUsersClick,
@@ -144,281 +83,241 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   perPage,
   onSetPage,
   onPerPageSelect,
-
   children,
 }) => {
   const intl = useIntl();
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
 
-  // Define columns based on authModel flag
-  const columns = useMemo(() => {
-    if (authModel) {
-      return [
-        { label: intl.formatMessage(messages.orgAdmin), key: 'is_org_admin', index: 0, sort: false },
-        { label: intl.formatMessage(messages.username), key: 'username', index: 1, sort: true },
-        { label: intl.formatMessage(messages.email), key: 'email', index: 2, sort: false },
-        { label: intl.formatMessage(messages.firstName), key: 'first_name', index: 3, sort: false },
-        { label: intl.formatMessage(messages.lastName), key: 'last_name', index: 4, sort: false },
-        { label: intl.formatMessage(messages.status), key: 'is_active', index: 5, sort: false },
-        { label: 'Actions', key: 'actions', index: 6, sort: false },
-      ];
-    } else {
-      return [
-        { label: intl.formatMessage(messages.username), key: 'username', index: 0, sort: true },
-        { label: intl.formatMessage(messages.email), key: 'email', index: 1, sort: false },
-        { label: intl.formatMessage(messages.firstName), key: 'first_name', index: 2, sort: false },
-        { label: intl.formatMessage(messages.lastName), key: 'last_name', index: 3, sort: false },
-        { label: intl.formatMessage(messages.status), key: 'is_active', index: 4, sort: false },
-        { label: intl.formatMessage(messages.orgAdmin), key: 'is_org_admin', index: 5, sort: false },
-        { label: 'Actions', key: 'actions', index: 6, sort: false },
-      ];
-    }
-  }, [authModel, intl]);
+  // Selection state (managed locally since this is a presentational component)
+  const [selectedRows, setSelectedRows] = React.useState<User[]>([]);
 
-  // All data view state is now managed by container - just compute derived values
-  const sortByIndex = useMemo(() => columns.findIndex((column) => column.key === (sortBy || 'username')), [sortBy, columns]);
-
-  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
-    sortBy: {
-      index: sortByIndex,
-      direction: direction || 'asc',
-      defaultDirection: 'asc',
-    },
-    onSort: (_event, index, direction) => onSort(_event, columns[index].key, direction),
-    columnIndex,
+  // Table configuration from hook - columns derived from authModel internally
+  const { columns, columnConfig, cellRenderers, filterConfig } = useUsersTableConfig({
+    intl,
+    authModel,
+    orgAdmin,
+    isProd,
+    focusedUser,
+    ouiaId,
+    onToggleUserStatus,
+    onToggleOrgAdmin,
   });
 
-  const sortableColumns: DataViewTh[] = columns.map((column, index) => ({
-    cell: column.label,
-    props: column.sort ? { sort: getSortParams(index) } : {},
-  }));
+  // Adapt sort state for TableView
+  const sort = useMemo(
+    () =>
+      sortBy
+        ? {
+            column: sortBy as SortableColumnId,
+            direction: (direction || 'asc') as 'asc' | 'desc',
+          }
+        : undefined,
+    [sortBy, direction],
+  );
 
-  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
-  const { selected, onSelect } = selection;
+  // Adapt sort handler for TableView
+  const handleSortChange = useCallback(
+    (column: SortableColumnId) => {
+      const newDirection = sortBy === column && direction === 'asc' ? 'desc' : 'asc';
+      onSort(undefined, column, newDirection);
+    },
+    [sortBy, direction, onSort],
+  );
 
-  // Transform users into table rows
-  const rows = useMemo(() => {
-    const handleRowClick = (event: any, user: User | undefined) => {
-      if (event.target.matches('td') || event.target.matches('tr')) {
-        onRowClick?.(user);
+  // Adapt pagination handlers for TableView - container callbacks expect events that we don't have
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      // Create a minimal event object to satisfy the container's callback signature
+      const syntheticEvent = {} as React.MouseEvent;
+      onSetPage(syntheticEvent, newPage);
+    },
+    [onSetPage],
+  );
+
+  const handlePerPageChange = useCallback(
+    (newPerPage: number) => {
+      // Create a minimal event object to satisfy the container's callback signature
+      const syntheticEvent = {} as React.MouseEvent;
+      onPerPageSelect(syntheticEvent, newPerPage);
+    },
+    [onPerPageSelect],
+  );
+
+  // Adapt filter handlers for TableView
+  const handleFiltersChange = useCallback(
+    (newFilters: Record<string, string | string[]>) => {
+      onSetFilters({
+        username: (newFilters.username as string) || '',
+        email: (newFilters.email as string) || '',
+      });
+    },
+    [onSetFilters],
+  );
+
+  // Selection handlers
+  const handleSelectRow = useCallback((user: User, selected: boolean) => {
+    setSelectedRows((prev) => {
+      if (selected) {
+        return prev.some((u) => u.id === user.id) ? prev : [...prev, user];
       }
-    };
+      return prev.filter((u) => u.id !== user.id);
+    });
+  }, []);
 
-    if (authModel) {
-      // Auth model column order: org_admin, username, email, first_name, last_name, status, actions
-      return users.map((user) => ({
-        id: String(user.id || user.username),
-        row: [
-          // Org admin column
-          <Switch
-            key={`${user.id}-org-admin`}
-            id={`${user.id}-org-admin-switch`}
-            aria-label={`Toggle org admin for ${user.username}`}
-            isChecked={user.is_org_admin || false}
-            isDisabled={!orgAdmin || !user.is_active || isProd}
-            onChange={(_, checked) => onToggleOrgAdmin(user, checked)}
-            ouiaId={`${ouiaId}-${user.id}-org-admin-switch`}
-          />,
-          // Username (bold if focused)
-          focusedUser?.id === user.id ? <strong key={`${user.id}-username`}>{user.username}</strong> : user.username,
-          // Email
-          user.email,
-          // First name
-          user.first_name,
-          // Last name
-          user.last_name,
-          // Status
-          <Switch
-            key={`${user.id}-status`}
-            id={`${user.id}-status-switch`}
-            aria-label={`Toggle status for ${user.username}`}
-            isChecked={user.is_active || false}
-            isDisabled={!user.is_active && !orgAdmin}
-            onChange={(_, checked) => onToggleUserStatus(user, checked)}
-            ouiaId={`${ouiaId}-${user.id}-status-switch`}
-          />,
-          // Actions column
-          <UserRowActions
-            key={`${user.id}-actions`}
-            user={user}
-            onDeleteUser={onDeleteUser}
-            orgAdmin={orgAdmin}
-            isProd={isProd}
-            ouiaId={`${ouiaId}-${user.id}-actions`}
-          />,
-        ],
-        props: {
-          isClickable: true,
-          onRowClick: (event: any) => handleRowClick(event, focusedUser?.id === user.id ? undefined : user),
-          isRowSelected: false,
-        },
-      }));
+  const handleSelectAll = useCallback((selected: boolean, rows: User[]) => {
+    if (selected) {
+      setSelectedRows((prev) => {
+        const newSelected = [...prev];
+        rows.forEach((user) => {
+          if (!newSelected.some((u) => u.id === user.id)) {
+            newSelected.push(user);
+          }
+        });
+        return newSelected;
+      });
     } else {
-      // Standard column order: username, email, first_name, last_name, status, org_admin, actions
-      return users.map((user) => ({
-        id: String(user.id || user.username),
-        row: [
-          // Username (bold if focused)
-          focusedUser?.id === user.id ? <strong key={`${user.id}-username`}>{user.username}</strong> : user.username,
-          // Email
-          user.email,
-          // First name
-          user.first_name,
-          // Last name
-          user.last_name,
-          // Status
-          <Switch
-            key={`${user.id}-status`}
-            id={`${user.id}-status-switch`}
-            aria-label={`Toggle status for ${user.username}`}
-            isChecked={user.is_active || false}
-            isDisabled={!user.is_active && !orgAdmin}
-            onChange={(_, checked) => onToggleUserStatus(user, checked)}
-            ouiaId={`${ouiaId}-${user.id}-status-switch`}
-          />,
-          // Org admin column
-          <Switch
-            key={`${user.id}-org-admin`}
-            id={`${user.id}-org-admin-switch`}
-            aria-label={`Toggle org admin for ${user.username}`}
-            isChecked={user.is_org_admin || false}
-            isDisabled={!orgAdmin || !user.is_active || isProd}
-            onChange={(_, checked) => onToggleOrgAdmin(user, checked)}
-            ouiaId={`${ouiaId}-${user.id}-org-admin-switch`}
-          />,
-          // Actions column
-          <UserRowActions
-            key={`${user.id}-actions`}
-            user={user}
-            onDeleteUser={onDeleteUser}
-            orgAdmin={orgAdmin}
-            isProd={isProd}
-            ouiaId={`${ouiaId}-${user.id}-actions`}
-          />,
-        ],
-        props: {
-          isClickable: true,
-          onRowClick: (event: any) => handleRowClick(event, focusedUser?.id === user.id ? undefined : user),
-          isRowSelected: false,
-        },
-      }));
+      setSelectedRows((prev) => prev.filter((u) => !rows.some((r) => r.id === u.id)));
     }
-  }, [users, focusedUser, orgAdmin, isProd, ouiaId, intl, onToggleUserStatus, onToggleOrgAdmin, onDeleteUser, authModel, onRowClick]);
+  }, []);
 
-  const handleBulkSelect = (value: BulkSelectValue) => {
-    if (value === BulkSelectValue.none) {
-      onSelect(false);
-    } else if (value === BulkSelectValue.page) {
-      onSelect(true, rows);
-    } else if (value === BulkSelectValue.nonePage) {
-      onSelect(false, rows);
-    }
-  };
+  // Row click handler
+  const handleRowClick = useCallback(
+    (user: User) => {
+      if (onRowClick) {
+        onRowClick(focusedUser?.id === user.id ? undefined : user);
+      }
+    },
+    [onRowClick, focusedUser],
+  );
 
-  const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.label)} />;
-  const loadingBody = <SkeletonTableBody rowsCount={perPage} columnsCount={columns.length} />;
+  // Check if user can be deleted
+  const isDeleteDisabled = !orgAdmin || isProd;
 
-  const activeState = isLoading ? DataViewState.loading : users.length === 0 ? DataViewState.empty : undefined;
+  // Toolbar actions with bulk status dropdown
+  const toolbarActions = useMemo(
+    () => (
+      <Split hasGutter>
+        <SplitItem>
+          <Dropdown
+            isOpen={isDropdownOpen}
+            onSelect={onBulkStatusChange}
+            onOpenChange={(isOpen: boolean) => setIsDropdownOpen(isOpen)}
+            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+              <MenuToggle
+                isDisabled={selectedRows.length === 0}
+                ref={toggleRef}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                isExpanded={isDropdownOpen}
+              >
+                {intl.formatMessage(messages.activateUsersButton)}
+              </MenuToggle>
+            )}
+            ouiaId={`${ouiaId}-status-dropdown`}
+            shouldFocusToggleOnSelect
+          >
+            <DropdownList>
+              <DropdownItem>{intl.formatMessage(messages.activateUsersButton)}</DropdownItem>
+              <DropdownItem>{intl.formatMessage(messages.deactivateUsersButton)}</DropdownItem>
+            </DropdownList>
+          </Dropdown>
+        </SplitItem>
+        <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-table-actions`}>
+          <ResponsiveAction
+            isPersistent
+            onClick={() => onAddUserClick(selectedRows)}
+            variant="primary"
+            isDisabled={selectedRows.length === 0}
+            ouiaId={`${ouiaId}-add-user-button`}
+          >
+            {intl.formatMessage(messages['addToUserGroup'])}
+          </ResponsiveAction>
+          <ResponsiveAction variant="primary" onClick={onInviteUsersClick}>
+            {intl.formatMessage(messages.inviteUsers)}
+          </ResponsiveAction>
+        </ResponsiveActions>
+      </Split>
+    ),
+    [intl, isDropdownOpen, selectedRows, onBulkStatusChange, onAddUserClick, onInviteUsersClick, ouiaId],
+  );
+
+  // Transform filters for TableView
+  const tableFilters = useMemo(() => ({ username: filters.username || '', email: filters.email || '' }), [filters]);
+
+  // Has active filters check
+  const hasActiveFilters = !!filters.username || !!filters.email;
 
   return (
     <>
       {children}
-      <DataView ouiaId={ouiaId} selection={selection} activeState={activeState}>
-        <DataViewToolbar
-          ouiaId={`${ouiaId}-header-toolbar`}
-          bulkSelect={
-            <BulkSelect
-              isDataPaginated
-              pageCount={users.length}
-              selectedCount={selected.length}
-              totalCount={totalCount}
-              onSelect={handleBulkSelect}
-            />
-          }
-          pagination={
-            <Pagination perPage={perPage} page={page} itemCount={totalCount} onSetPage={onSetPage} onPerPageSelect={onPerPageSelect} isCompact />
-          }
-          filters={
-            <DataViewFilters ouiaId={`${ouiaId}-filters`} onChange={(_e, values) => onSetFilters(values)} values={filters}>
-              <DataViewTextFilter
-                filterId="username"
-                title={intl.formatMessage(messages.username)}
-                placeholder={intl.formatMessage(messages.filterByUsername)}
-                ouiaId={`${ouiaId}-username-filter`}
-              />
-              <DataViewTextFilter
-                filterId="email"
-                title={intl.formatMessage(messages.email)}
-                placeholder={intl.formatMessage(messages.filterByUsername)}
-                ouiaId={`${ouiaId}-email-filter`}
-              />
-            </DataViewFilters>
-          }
-          clearAllFilters={clearAllFilters}
-          actions={
-            <Split hasGutter>
-              <SplitItem>
-                <Dropdown
-                  isOpen={isDropdownOpen}
-                  onSelect={onBulkStatusChange}
-                  onOpenChange={(isOpen: boolean) => setIsDropdownOpen(isOpen)}
-                  toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                    <MenuToggle
-                      isDisabled={selected.length === 0}
-                      ref={toggleRef}
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      isExpanded={isDropdownOpen}
-                    >
-                      {intl.formatMessage(messages.activateUsersButton)}
-                    </MenuToggle>
-                  )}
-                  ouiaId={`${ouiaId}-status-dropdown`}
-                  shouldFocusToggleOnSelect
-                >
-                  <DropdownList>
-                    <DropdownItem>{intl.formatMessage(messages.activateUsersButton)}</DropdownItem>
-                    <DropdownItem>{intl.formatMessage(messages.deactivateUsersButton)}</DropdownItem>
-                  </DropdownList>
-                </Dropdown>
-              </SplitItem>
-              <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-table-actions`}>
-                <ResponsiveAction
-                  isPersistent
-                  onClick={() => {
-                    const selectedUsers = selected
-                      .map((selectedRow) => {
-                        return users.find((user) => String(user.id || user.username) === selectedRow.id);
-                      })
-                      .filter((user): user is User => user !== undefined);
-                    onAddUserClick(selectedUsers);
-                  }}
-                  variant="primary"
-                  isDisabled={selected.length === 0}
-                  ouiaId={`${ouiaId}-add-user-button`}
-                >
-                  {intl.formatMessage(messages['addToUserGroup'])}
-                </ResponsiveAction>
-                <ResponsiveAction variant="primary" onClick={onInviteUsersClick}>
-                  {intl.formatMessage(messages.inviteUsers)}
-                </ResponsiveAction>
-              </ResponsiveActions>
-            </Split>
-          }
-        />
-        <DataViewTable
-          variant="compact"
-          aria-label="Users Table"
-          ouiaId={`${ouiaId}-table`}
-          columns={sortableColumns}
-          rows={rows}
-          headStates={{ loading: loadingHeader }}
-          bodyStates={{ loading: loadingBody, empty: <UsersEmptyState /> }}
-        />
-        <DataViewToolbar
-          ouiaId={`${ouiaId}-footer-toolbar`}
-          pagination={<Pagination perPage={perPage} page={page} itemCount={totalCount} onSetPage={onSetPage} onPerPageSelect={onPerPageSelect} />}
-        />
-      </DataView>
+      <TableView
+        // Columns from hook (derived based on authModel)
+        // Type assertions needed: hook returns union of column configs, TableView needs specific type
+        columns={columns as readonly string[]}
+        columnConfig={columnConfig as Record<string, { label: string; sortable?: boolean }>}
+        sortableColumns={sortableColumns}
+        // Data
+        data={isLoading ? undefined : users}
+        totalCount={totalCount}
+        getRowId={(user) => String(user.id || user.username)}
+        // Renderers
+        cellRenderers={cellRenderers as Record<string, (user: User) => React.ReactNode>}
+        // Selection
+        selectable={true}
+        isRowSelectable={() => true}
+        // Row click
+        isRowClickable={() => !!onRowClick}
+        onRowClick={handleRowClick}
+        // Row actions
+        renderActions={(user) => (
+          <ActionDropdown
+            ariaLabel={`Actions for user ${user.username}`}
+            ouiaId={`${ouiaId}-${user.id}-actions`}
+            items={[
+              {
+                key: 'delete',
+                label: intl.formatMessage(messages.delete),
+                onClick: () => onDeleteUser(user),
+                isDisabled: isDeleteDisabled,
+              },
+            ]}
+          />
+        )}
+        // Filtering
+        filterConfig={filterConfig}
+        // Toolbar
+        toolbarActions={toolbarActions}
+        // Empty states
+        emptyStateNoData={
+          <DefaultEmptyStateNoData
+            title={intl.formatMessage(messages.usersEmptyStateTitle)}
+            body={intl.formatMessage(messages.usersEmptyStateSubtitle)}
+          />
+        }
+        emptyStateNoResults={
+          <DefaultEmptyStateNoResults
+            title={intl.formatMessage(messages.usersEmptyStateTitle)}
+            body={intl.formatMessage(messages.usersEmptyStateSubtitle)}
+          />
+        }
+        // Config
+        variant="compact"
+        ouiaId={`${ouiaId}-table`}
+        ariaLabel="Users Table"
+        // State (passed directly, not from useTableState)
+        page={page}
+        perPage={perPage}
+        onPageChange={handlePageChange}
+        onPerPageChange={handlePerPageChange}
+        sort={sort}
+        onSortChange={handleSortChange}
+        filters={tableFilters}
+        onFiltersChange={handleFiltersChange}
+        clearAllFilters={clearAllFilters}
+        hasActiveFilters={hasActiveFilters}
+        selectedRows={selectedRows}
+        onSelectRow={handleSelectRow}
+        onSelectAll={handleSelectAll}
+      />
     </>
   );
 };
