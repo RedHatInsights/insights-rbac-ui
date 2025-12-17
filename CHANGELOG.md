@@ -1,3 +1,10 @@
+# [1.74.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.73.0...v1.74.0) (2025-12-17)
+
+
+### Features
+
+* **Groups:** use TableView to simplify the code ([e9e3df7](https://github.com/RedHatInsights/insights-rbac-ui/commit/e9e3df74aa32b0641ff6b6bf502313600223ded6))
+
 # [1.73.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.3...v1.73.0) (2025-12-16)
 
 
