@@ -42,6 +42,7 @@ export interface ServiceAccount {
   name: string;
   description?: string;
   clientId?: string;
+  owner?: string;
   time_created?: number;
   [key: string]: unknown;
 }
