@@ -1,123 +1,108 @@
-import React, { Fragment, Suspense, useContext, useMemo, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+/**
+ * Groups Page
+ *
+ * Displays a list of groups using the TableView component.
+ * All table state (pagination, sorting, filtering, selection, expansion)
+ * is managed by useTableState with URL synchronization.
+ */
+
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 
 // PatternFly imports
-import { DataView, DataViewState } from '@patternfly/react-data-view';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { DataViewTextFilter } from '@patternfly/react-data-view';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import { BulkSelect } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 
 // Red Hat components
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
-import { AppLink } from '../../components/navigation/AppLink';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
-// Redux imports
-import { fetchGroups } from '../../redux/groups/actions';
-import { selectGroupsFilters, selectGroupsPagination, selectIsGroupsLoading, selectMergedGroupsWithDefaults } from '../../redux/groups/selectors';
+// Internal components
+import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
+import { TableView, useTableState } from '../../components/table-view';
+import { ActionDropdown } from '../../components/ActionDropdown';
+import { GroupsEmptyState } from './components/GroupsEmptyState';
 
-// Helper imports
-import { defaultAdminSettings, defaultSettings } from '../../helpers/pagination';
+// Hooks
+import { useAppLink } from '../../hooks/useAppLink';
+import {
+  type CompoundColumnId,
+  type SortableColumnId,
+  columns,
+  compoundColumns,
+  sortableColumns,
+  useGroupsTableConfig,
+} from './useGroupsTableConfig';
+import { useGroupsFetcher } from './useGroupsFetcher';
+import { useGroupsMutationRefresh } from './useGroupsMutationRefresh';
+
+// Redux
+import { fetchMembersForExpandedGroup, fetchRolesForExpandedGroup } from '../../redux/groups/actions';
+import { selectGroupsPagination, selectIsGroupsLoading, selectMergedGroupsWithDefaults } from '../../redux/groups/selectors';
+
+// Helpers and utilities
 import { getBackRoute } from '../../helpers/navigation';
-
-// Context and types
 import PermissionsContext from '../../utilities/permissionsContext';
-import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import type { Group } from './types';
-import { GroupsEmptyState } from './components/GroupsEmptyState';
-import { GroupsTableContent } from './components/GroupsTableContent';
-import { GroupsSkeletonTable } from './components/GroupsSkeletonTable';
-// Custom hooks
-import { useGroupsHandlers } from './useGroupsHandlers';
-import { useUrlPaginationSync } from './useUrlPaginationSync';
-import { useUrlFiltersSync } from './useUrlFiltersSync';
-import { useInitialGroupsDataLoad } from './useInitialGroupsDataLoad';
-import { useRouteStateManagement } from './useRouteStateManagement';
-import { useTableColumns } from './useTableColumns';
+
 import './Groups.scss';
 
-// Types
-interface GroupsProps {}
+// =============================================================================
+// Groups Component
+// =============================================================================
 
-export const Groups: React.FC<GroupsProps> = () => {
+export const Groups: React.FC = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const chrome = useChrome();
-  const fetchData = (options: { limit?: number; offset?: number; filters?: Record<string, unknown>; sortBy?: string; orderBy?: string }) => {
-    // Convert orderBy string to enum if needed
-    const { orderBy, ...restOptions } = options;
-    const fetchOptions = {
-      ...restOptions,
-      usesMetaInURL: true,
-      chrome,
-      platformDefault: false,
-      adminDefault: false,
-      ...(orderBy && { orderBy: orderBy as any }), // Cast to any since @redhat-cloud-services/rbac-client has broken enum types
-    };
-    return dispatch(fetchGroups(fetchOptions));
-  };
+  const toAppLink = useAppLink();
 
-  // User permission context for admin/user access control
+  // Permissions
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
-  // Table column definitions
-  const columns = useTableColumns();
-
-  // Component state for table sorting and row selection
-  const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' as 'asc' | 'desc' });
-  const [selectedRows, setSelectedRows] = useState<Group[]>([]);
-  const [removeGroupsList, setRemoveGroupsList] = useState<Group[]>([]);
-  const [expanded, setExpanded] = useState<Record<string, number | boolean>>({});
-  const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false);
-
-  const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isAdmin)]?.key || 'name'}`;
-
-  // Redux state selectors for groups data and loading state
+  // Redux state
   const groups = useSelector(selectMergedGroupsWithDefaults);
-  const rawPagination = useSelector(selectGroupsPagination);
-  const filters = useSelector(selectGroupsFilters);
+  const pagination = useSelector(selectGroupsPagination);
   const isLoading = useSelector(selectIsGroupsLoading);
 
-  // Memoize pagination with defaults to prevent new object creation
-  const pagination = useMemo(
-    () => ({
-      limit: rawPagination?.limit ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
-      offset: rawPagination?.offset ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
-      count: rawPagination?.count ?? 0,
-      redirected: (rawPagination as any)?.redirected,
-    }),
-    [rawPagination, orgAdmin],
-  );
+  // Local state for route management
+  const [removeGroupsList, setRemoveGroupsList] = useState<Group[]>([]);
 
-  const [filterValue, setFilterValue] = useState(filters?.name || '');
-
-  // URL and route state management hooks
-  useUrlPaginationSync(pagination.limit, pagination.offset, pagination.count, pagination.redirected);
-  useUrlFiltersSync(filterValue);
-  useInitialGroupsDataLoad({
-    pagination,
-    filterValue,
-    onFilterValueChange: setFilterValue,
-    fetchData,
+  // Extract table configuration using hook
+  const { columnConfig, cellRenderers, expansionRenderers, filterConfig, isCellExpandable } = useGroupsTableConfig({
+    intl,
+    toAppLink,
   });
-  useRouteStateManagement(pagination, filterValue);
 
-  // Data transformation: merge admin/system groups for admin users, standard groups for others
+  // Data fetching using hook
+  const fetchData = useGroupsFetcher();
+
+  // Use the table state hook - handles pagination, sort, filters, selection, expansion with URL sync
+  const tableState = useTableState<typeof columns, Group, SortableColumnId, CompoundColumnId>({
+    columns,
+    sortableColumns,
+    compoundColumns,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: isAdmin ? 20 : 10,
+    getRowId: (group) => group.uuid,
+    isRowSelectable: (group) => !group.platform_default && !group.admin_default,
+    syncWithUrl: true,
+    onStaleData: fetchData,
+  });
+
+  // Mutation refresh helper
+  const refreshAfterMutation = useGroupsMutationRefresh(tableState, fetchData);
+
+  // Total count from Redux pagination
+  const totalCount = pagination?.count ?? 0;
+
+  // Transform data for display (default groups show "All" for member count)
   const data = useMemo(
     () =>
       groups.map((group: Group) =>
@@ -126,44 +111,86 @@ export const Groups: React.FC<GroupsProps> = () => {
     [groups],
   );
 
-  // Computed values that handlers need
-  const selectableItemsCount = data.filter((item) => !(item.platform_default || item.admin_default)).length;
-  const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
-  const totalCount = pagination.count || data.length;
-  const hasActiveFilters = filterValue !== '';
+  // Computed values for route management
+  const removingAllRows = totalCount === removeGroupsList.length;
+  const filters = { name: tableState.filters.name || '' };
 
-  // Use handlers hook
-  const {
-    onExpand,
-    handleSort,
-    handleBulkSelect,
-    handleEdit,
-    handleDelete,
-    handlePageChange,
-    handlePerPageChange,
-    handleFiltersChange,
-    handleClearAllFilters,
-  } = useGroupsHandlers({
-    isAdmin,
-    columns,
-    expanded,
-    onExpandedChange: setExpanded,
-    onSelectedRowsChange: setSelectedRows,
-    onRemoveGroupsChange: setRemoveGroupsList,
-    onSortChange: setSortByState,
-    onFilterValueChange: setFilterValue,
-    data,
-    pagination,
-    orderBy,
-    totalCount,
-    filterValue,
-    fetchData,
-  });
+  // Chrome nav on mount
+  useEffect(() => {
+    chrome.appNavClick({ id: 'groups', secondaryNav: true });
+  }, [chrome]);
 
-  // Bulk deletion state: determines if all rows are being removed to manage filter reset behavior
-  const removingAllRows = pagination.count === removeGroupsList.length;
+  // Handle expansion - fetch data for expanded row
+  const handleExpand = useCallback(
+    (group: Group, column: CompoundColumnId) => {
+      if (column === 'roles') {
+        dispatch(fetchRolesForExpandedGroup(group.uuid, { limit: 100 }) as any);
+      } else if (column === 'members') {
+        dispatch(fetchMembersForExpandedGroup(group.uuid, undefined, { limit: 100 }) as any);
+      }
+    },
+    [dispatch],
+  );
 
-  const activeState = isLoading ? DataViewState.loading : data.length === 0 ? DataViewState.empty : undefined;
+  // =============================================================================
+  // Action Handlers
+  // =============================================================================
+
+  const handleEdit = useCallback(
+    (groupId: string) => {
+      const editPath = (pathnames['edit-group'].link as string).replace(':groupId', groupId);
+      navigate(toAppLink(editPath));
+    },
+    [navigate, toAppLink],
+  );
+
+  const handleDelete = useCallback(
+    (groupsToDelete: Group[]) => {
+      setRemoveGroupsList(groupsToDelete);
+      const groupIds = groupsToDelete.map(({ uuid }) => uuid);
+      const removePath = (pathnames['remove-group'].link as string).replace(':groupId', groupIds.join(','));
+      navigate(toAppLink(removePath));
+      tableState.clearSelection();
+    },
+    [navigate, toAppLink, tableState],
+  );
+
+  // =============================================================================
+  // Toolbar Content
+  // =============================================================================
+
+  const toolbarActions = isAdmin ? (
+    <Link to={toAppLink(pathnames['add-group'].link)}>
+      <Button ouiaId="create-group-button" variant="primary">
+        {intl.formatMessage(messages.createGroup)}
+      </Button>
+    </Link>
+  ) : undefined;
+
+  const bulkActions =
+    isAdmin && tableState.selectedRows.length > 0 ? (
+      <ActionDropdown
+        ariaLabel="bulk actions"
+        ouiaId="groups-bulk-actions"
+        items={[
+          {
+            key: 'edit',
+            label: intl.formatMessage(messages.edit),
+            onClick: () => handleEdit(tableState.selectedRows[0].uuid),
+            isDisabled: tableState.selectedRows.length !== 1,
+          },
+          {
+            key: 'delete',
+            label: intl.formatMessage(messages.delete),
+            onClick: () => handleDelete(tableState.selectedRows),
+          },
+        ]}
+      />
+    ) : undefined;
+
+  // =============================================================================
+  // Render
+  // =============================================================================
 
   return (
     <Fragment>
@@ -175,154 +202,91 @@ export const Groups: React.FC<GroupsProps> = () => {
         </StackItem>
         <StackItem>
           <Section type="content" id="tab-groups">
-            <DataView activeState={activeState}>
-              <DataViewToolbar
-                bulkSelect={
-                  isAdmin && data.length > 0 ? (
-                    <BulkSelect selectedCount={selectedRows.length} totalCount={selectableItemsCount} onSelect={handleBulkSelect} />
-                  ) : undefined
-                }
-                actions={
-                  isAdmin && selectedRows.length > 0 ? (
-                    <Dropdown
-                      isOpen={isBulkActionsOpen}
-                      onOpenChange={setIsBulkActionsOpen}
-                      toggle={(toggleRef) => (
-                        <MenuToggle
-                          ref={toggleRef}
-                          aria-label="bulk actions toggle"
-                          variant="plain"
-                          onClick={() => setIsBulkActionsOpen(!isBulkActionsOpen)}
-                        >
-                          <EllipsisVIcon />
-                        </MenuToggle>
-                      )}
-                    >
-                      <DropdownList>
-                        <DropdownItem
-                          onClick={() => {
-                            if (selectedRows.length === 1) {
-                              handleEdit(selectedRows[0].uuid);
-                            }
-                            setIsBulkActionsOpen(false);
-                          }}
-                          isDisabled={selectedRows.length !== 1}
-                        >
-                          {intl.formatMessage(messages.edit)}
-                        </DropdownItem>
-                        <DropdownItem
-                          onClick={() => {
-                            handleDelete(selectedRows);
-                            setIsBulkActionsOpen(false);
-                          }}
-                          isDisabled={selectedRows.length === 0}
-                        >
-                          {intl.formatMessage(messages.delete)}
-                        </DropdownItem>
-                      </DropdownList>
-                    </Dropdown>
-                  ) : isAdmin ? (
-                    <AppLink to={pathnames['add-group'].link}>
-                      <Button ouiaId="create-group-button" variant="primary">
-                        {intl.formatMessage(messages.createGroup)}
-                      </Button>
-                    </AppLink>
-                  ) : undefined
-                }
-                pagination={
-                  totalCount > 0 ? (
-                    <Pagination
-                      perPageOptions={PER_PAGE_OPTIONS}
-                      itemCount={totalCount}
-                      page={currentPage}
-                      perPage={pagination.limit}
-                      onSetPage={(_event, page) => handlePageChange(page)}
-                      onPerPageSelect={(_event, perPage) => handlePerPageChange(perPage)}
-                    />
-                  ) : undefined
-                }
-                filters={
-                  <DataViewFilters onChange={(_event, values) => handleFiltersChange(values)} values={{ name: filterValue }}>
-                    <DataViewTextFilter
-                      filterId="name"
-                      title={intl.formatMessage(messages.name)}
-                      placeholder={`Filter by ${intl.formatMessage(messages.name).toLowerCase()}`}
-                    />
-                  </DataViewFilters>
-                }
-                clearAllFilters={handleClearAllFilters}
-              />
-
-              {/* Manual state handling for compound expansion */}
-              {isLoading ? (
-                <GroupsSkeletonTable isAdmin={isAdmin} rowsCount={10} />
-              ) : data.length === 0 ? (
+            <TableView<typeof columns, Group, SortableColumnId, CompoundColumnId>
+              // Columns
+              columns={columns}
+              columnConfig={columnConfig}
+              sortableColumns={sortableColumns}
+              // Data
+              data={isLoading ? undefined : data}
+              totalCount={totalCount}
+              getRowId={(group) => group.uuid}
+              // Renderers
+              cellRenderers={cellRenderers}
+              expansionRenderers={expansionRenderers}
+              // Selection
+              selectable={isAdmin}
+              isRowSelectable={(group) => !group.platform_default && !group.admin_default}
+              // Expansion
+              isCellExpandable={isCellExpandable}
+              onExpand={handleExpand}
+              // Row actions
+              renderActions={
+                isAdmin
+                  ? (group) =>
+                      !group.platform_default && !group.admin_default ? (
+                        <ActionDropdown
+                          ariaLabel={`${group.name} actions`}
+                          ouiaId={`group-${group.uuid}-actions`}
+                          items={[
+                            { key: 'edit', label: intl.formatMessage(messages.edit), onClick: () => handleEdit(group.uuid) },
+                            { key: 'delete', label: intl.formatMessage(messages.delete), onClick: () => handleDelete([group]) },
+                          ]}
+                        />
+                      ) : null
+                  : undefined
+              }
+              // Filtering
+              filterConfig={filterConfig}
+              // Toolbar
+              toolbarActions={toolbarActions}
+              bulkActions={bulkActions}
+              // Empty states
+              emptyStateNoData={
                 <GroupsEmptyState
-                  hasActiveFilters={hasActiveFilters}
+                  hasActiveFilters={false}
                   titleText={`Configure ${intl.formatMessage(messages.groups).toLowerCase()}`}
                   isAdmin={isAdmin}
                 />
-              ) : (
-                <GroupsTableContent
-                  data={data}
+              }
+              emptyStateNoResults={
+                <GroupsEmptyState
+                  hasActiveFilters={true}
+                  titleText={`Configure ${intl.formatMessage(messages.groups).toLowerCase()}`}
                   isAdmin={isAdmin}
-                  sortByState={sortByState}
-                  selectedRows={selectedRows}
-                  selectableItemsCount={selectableItemsCount}
-                  expanded={expanded}
-                  onExpandedChange={setExpanded}
-                  onSelectedRowsChange={setSelectedRows}
-                  onRemoveGroupsChange={setRemoveGroupsList}
-                  handleBulkSelect={handleBulkSelect}
-                  handleSort={handleSort}
-                  onExpand={onExpand}
                 />
-              )}
-
-              <DataViewToolbar
-                pagination={
-                  totalCount > 0 ? (
-                    <Pagination
-                      perPageOptions={PER_PAGE_OPTIONS}
-                      itemCount={totalCount}
-                      page={currentPage}
-                      perPage={pagination.limit}
-                      onSetPage={(_event, page) => handlePageChange(page)}
-                      onPerPageSelect={(_event, perPage) => handlePerPageChange(perPage)}
-                    />
-                  ) : undefined
-                }
-              />
-            </DataView>
+              }
+              // Config
+              variant="default"
+              ouiaId="groups-table"
+              ariaLabel={intl.formatMessage(messages.groups)}
+              // Spread all state from hook
+              {...tableState}
+            />
 
             <Suspense fallback={<div>Loading...</div>}>
               <Outlet
                 context={{
-                  pagination,
+                  pagination: { limit: tableState.apiParams.limit, offset: tableState.apiParams.offset },
                   filters,
                   [pathnames['add-group'].path]: {
-                    orderBy,
-                    postMethod: (config: Record<string, unknown>) => {
-                      setFilterValue('');
-                      fetchData(config);
-                    },
+                    orderBy: tableState.apiParams.orderBy,
+                    postMethod: () => refreshAfterMutation({ clearFilters: true }),
                   },
                   [pathnames['edit-group'].path]: {
-                    postMethod: (config: Record<string, unknown>) => {
-                      setFilterValue('');
-                      fetchData({ ...config, orderBy });
-                    },
-                    cancelRoute: getBackRoute(pathnames['groups'].link, pagination, filters),
-                    submitRoute: getBackRoute(pathnames['groups'].link, { ...pagination, offset: 0 }, filters),
+                    postMethod: () => refreshAfterMutation({ clearFilters: true }),
+                    cancelRoute: getBackRoute(pathnames['groups'].link, tableState.apiParams, filters),
+                    submitRoute: getBackRoute(pathnames['groups'].link, { ...tableState.apiParams, offset: 0 }, filters),
                   },
                   [pathnames['remove-group'].path]: {
-                    postMethod: (ids: string[], config: Record<string, unknown>) => {
-                      fetchData({ ...config, filters: { name: removingAllRows ? '' : filterValue }, orderBy });
-                      removingAllRows && setFilterValue('');
-                      setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
-                    },
-                    cancelRoute: getBackRoute(pathnames['groups'].link, pagination, filters),
-                    submitRoute: getBackRoute(pathnames['groups'].link, { ...pagination, offset: 0 }, removingAllRows ? {} : filters),
+                    postMethod: (ids: string[]) =>
+                      refreshAfterMutation({
+                        clearFilters: removingAllRows,
+                        resetPage: true,
+                        removedIds: ids,
+                      }),
+                    cancelRoute: getBackRoute(pathnames['groups'].link, tableState.apiParams, filters),
+                    submitRoute: getBackRoute(pathnames['groups'].link, { ...tableState.apiParams, offset: 0 }, removingAllRows ? {} : filters),
                   },
                 }}
               />
@@ -334,5 +298,4 @@ export const Groups: React.FC<GroupsProps> = () => {
   );
 };
 
-// Default export for routing
 export default Groups;
