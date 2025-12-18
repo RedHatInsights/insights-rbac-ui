@@ -109,7 +109,6 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
         filters: tableState.apiParams.filters,
       });
     }
-    // eslint-disable-next-line
   }, [actualGroupId]);
 
   // Handle default group changes
