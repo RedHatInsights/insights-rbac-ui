@@ -1,3 +1,17 @@
+# [1.76.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.75.0...v1.76.0) (2025-12-18)
+
+
+### Bug Fixes
+
+* **storybook:** adjust WS storybooks to match rolebinding endpoint ([3d2f01a](https://github.com/RedHatInsights/insights-rbac-ui/commit/3d2f01afa674e7e1f8e2a8656d4fb77258c7b77b))
+* **types:** use casting to unknown and to request type instead of any ([df6859b](https://github.com/RedHatInsights/insights-rbac-ui/commit/df6859b6205d5f48fe9e81fd393ad6d7686acd45))
+* **ws-detail:** do not use as any while going trough rolebinding response ([7372bbd](https://github.com/RedHatInsights/insights-rbac-ui/commit/7372bbdb67bc0f7be8cbff8157bd8e385fbc9910))
+
+
+### Features
+
+* **role-binding:** use new version of rbac client to support role binding ([aecbce9](https://github.com/RedHatInsights/insights-rbac-ui/commit/aecbce9c1c2dab4826d63b850aac62f7696f53b8))
+
 # [1.75.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.74.0...v1.75.0) (2025-12-18)
 
 
