@@ -1,3 +1,13 @@
+# [1.75.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.74.0...v1.75.0) (2025-12-18)
+
+
+### Features
+
+* **GroupRoles:** migrate to TableView ([6df9fd7](https://github.com/RedHatInsights/insights-rbac-ui/commit/6df9fd7c033578b2fb56e753e6dcb17be7a549a0))
+* **GroupServiceAccounts:** migrate to TableView ([adced0c](https://github.com/RedHatInsights/insights-rbac-ui/commit/adced0c5b9fb72b45989e10d7bf3e3af98aa3152))
+* **UserGroupsTable:** migrate to TableView ([29a38b9](https://github.com/RedHatInsights/insights-rbac-ui/commit/29a38b909cdcba757aab954b90396c7e262be62d))
+* **UsersTable:** migrate to TableView ([1aa3cb0](https://github.com/RedHatInsights/insights-rbac-ui/commit/1aa3cb063dfd31f5a839eeab45c02dfb70940983))
+
 # [1.74.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.73.0...v1.74.0) (2025-12-17)
 
 
