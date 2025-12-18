@@ -557,10 +557,13 @@ export const BulkSelection: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load and get first row checkbox
-    const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
+    // Wait for actual data to load (not just any grid - wait for content)
+    await canvas.findByText('Console Administrator', undefined, { timeout: 10000 });
+
+    // Now get the table with data
+    const table = canvas.getByRole('grid');
     const tableContext = within(table);
-    const firstRoleCheckbox = await tableContext.findByLabelText('Select row 0');
+    const firstRoleCheckbox = tableContext.getByLabelText('Select row 0');
 
     await userEvent.click(firstRoleCheckbox);
     expect(firstRoleCheckbox).toBeChecked();
@@ -634,12 +637,15 @@ export const BulkSelectionPaginated: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
+    // Wait for actual data to load (not just any grid - wait for content)
+    await canvas.findByText('Role 1', undefined, { timeout: 10000 });
+
+    // Now get the table with data
+    const table = canvas.getByRole('grid');
     const tableContext = within(table);
 
     // Select first role on page 1
-    const firstRoleCheckbox = await tableContext.findByLabelText('Select row 0');
+    const firstRoleCheckbox = tableContext.getByLabelText('Select row 0');
     await userEvent.click(firstRoleCheckbox);
     expect(firstRoleCheckbox).toBeChecked();
 
@@ -661,7 +667,12 @@ export const BulkSelectionPaginated: Story = {
     await userEvent.click(nextPageButtons[0]); // Click the first (top) pagination button
 
     // Wait for page 2 to load - should have 5 items (25 total - 20 on page 1)
-    const page2FirstCheckbox = await tableContext.findByLabelText('Select row 0');
+    await canvas.findByText('Role 21', undefined, { timeout: 10000 });
+
+    // Re-get table context after pagination
+    const page2Table = canvas.getByRole('grid');
+    const page2TableContext = within(page2Table);
+    const page2FirstCheckbox = page2TableContext.getByLabelText('Select row 0');
 
     // Page 2 items should NOT be selected (page-level selection only)
     expect(page2FirstCheckbox).not.toBeChecked();
@@ -878,7 +889,7 @@ Perfect for testing bulk operations and proper pluralization.
 
     await delay(200);
 
-    const kebabToggle = await canvas.findByLabelText(/bulk actions toggle/i);
+    const kebabToggle = await canvas.findByLabelText(/bulk actions/i);
     await userEvent.click(kebabToggle);
 
     await delay(200);

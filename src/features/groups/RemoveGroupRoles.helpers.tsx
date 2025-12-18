@@ -19,7 +19,7 @@ export async function removeSelectedRolesFromGroup(
   // Use the specific aria-label to distinguish it from row-level action menus
   const actionsToggle = await waitFor(
     async () => {
-      const button = canvas.getByRole('button', { name: /bulk actions toggle/i });
+      const button = canvas.getByRole('button', { name: /bulk actions/i });
       await expect(button).toBeEnabled();
       return button;
     },

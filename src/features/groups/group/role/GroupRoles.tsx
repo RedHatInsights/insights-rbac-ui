@@ -1,191 +1,320 @@
-import React, { Fragment, Suspense, useCallback, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
+/**
+ * GroupRoles Page
+ *
+ * Displays and manages roles assigned to a group using the TableView component.
+ * All table state (pagination, sorting, filtering, selection) is managed by useTableState.
+ */
+
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 
-// DataView imports
-import { DataView, DataViewState } from '@patternfly/react-data-view';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { DataViewTextFilter } from '@patternfly/react-data-view';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-
-// Component imports
-import { GroupRolesEmptyState } from './components/GroupRolesEmptyState';
-import { useGroupRoles } from './hooks/useGroupRoles';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, useTableState } from '../../../../components/table-view';
+import { ActionDropdown } from '../../../../components/ActionDropdown';
 import { RemoveGroupRoles } from './RemoveGroupRoles';
-import { fetchAddRolesForGroup } from '../../../../redux/groups/actions';
+
+import { columns, useGroupRolesTableConfig } from './useGroupRolesTableConfig';
+
+import { fetchAddRolesForGroup, fetchRolesForGroup, removeRolesFromGroup } from '../../../../redux/groups/actions';
+import {
+  selectGroupRoles,
+  selectGroupRolesMeta,
+  selectIsAdminDefaultGroup,
+  selectIsChangedDefaultGroup,
+  selectIsGroupRolesLoading,
+  selectIsPlatformDefaultGroup,
+  selectSelectedGroup,
+  selectShouldDisableAddRoles,
+  selectSystemGroupUUID,
+} from '../../../../redux/groups/selectors';
+
 import { getBackRoute } from '../../../../helpers/navigation';
+import PermissionsContext from '../../../../utilities/permissionsContext';
+import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
+import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
-import type { GroupRolesProps } from './types';
+import type { GroupRolesProps, Role } from './types';
+
 import './group-roles.scss';
 
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
+const generateOuiaID = (name: string) => {
+  return name.toLowerCase().includes('default access') ? 'dag-add-role-button' : 'add-role-button';
+};
+
+// =============================================================================
+// GroupRoles Component
+// =============================================================================
+
 export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
 
-  // Use custom hook for ALL business logic
-  const {
-    roles,
-    isLoading,
-    filters,
-    selection,
-    tableRows,
+  // Permissions
+  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
+  const hasPermissions = orgAdmin || userAccessAdministrator;
+
+  // Redux state
+  const roles = useSelector(selectGroupRoles);
+  const pagination = useSelector(selectGroupRolesMeta);
+  const isReduxLoading = useSelector(selectIsGroupRolesLoading);
+  const isPlatformDefault = useSelector(selectIsPlatformDefaultGroup);
+  const isAdminDefault = useSelector(selectIsAdminDefaultGroup);
+  const isChanged = useSelector(selectIsChangedDefaultGroup);
+  const disableAddRoles = useSelector(selectShouldDisableAddRoles);
+  const systemGroupUuid = useSelector(selectSystemGroupUUID);
+  const group = useSelector(selectSelectedGroup);
+
+  // Local state for remove modal
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+  const [rolesToRemove, setRolesToRemove] = useState<Role[]>([]);
+
+  // Resolve actual group ID (handle default access group)
+  const actualGroupId = useMemo(() => (groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId! : systemGroupUuid), [groupId, systemGroupUuid]);
+
+  // Table configuration
+  const { columnConfig, cellRenderers, filterConfig } = useGroupRolesTableConfig({
+    intl,
+    groupId: groupId!,
+  });
+
+  // Data fetching function
+  const fetchData = useCallback(
+    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
+      if (!actualGroupId) return;
+
+      const nameFilter = typeof params.filters.name === 'string' ? params.filters.name : '';
+
+      dispatch(
+        fetchRolesForGroup(actualGroupId, {
+          limit: params.limit,
+          offset: params.offset,
+          name: nameFilter || undefined,
+        }) as any,
+      );
+    },
+    [dispatch, actualGroupId],
+  );
+
+  // Table state hook (no sorting - API doesn't support it)
+  const tableState = useTableState<typeof columns, Role>({
     columns,
-    hasPermissions,
-    isPlatformDefault,
-    isAdminDefault,
-    isChanged,
-    pagination,
-    fetchData,
-    emptyStateProps,
-    toolbarButtons,
-    group,
-    systemGroupUuid,
-    onDefaultGroupChanged,
-    removeModalState,
-  } = useGroupRoles(props);
+    initialPerPage: 20,
+    getRowId: (role) => role.uuid,
+    syncWithUrl: false, // Don't sync with URL for sub-tab
+    onStaleData: fetchData,
+  });
 
-  // Filter change handler
-  const handleFilterChange = useCallback(
-    (_event: any, newFilters: Partial<{ name: string }>) => {
-      filters.onSetFilters(newFilters);
-      fetchData({ name: newFilters.name || '', offset: 0 });
-    },
-    [filters.onSetFilters, fetchData],
-  );
+  // Total count from Redux pagination
+  const totalCount = pagination?.count ?? 0;
 
-  // Wrap clearAllFilters to also trigger API call
-  const clearAllFilters = useCallback(() => {
-    filters.clearAllFilters();
-    fetchData({ name: '', offset: 0 });
-  }, [filters.clearAllFilters, fetchData]);
+  // Enable selection for non-admin-default groups with permissions
+  const selectable = hasPermissions && !isAdminDefault;
 
-  // Bulk select handler
-  const handleBulkSelect = useCallback(
-    (value: BulkSelectValue) => {
-      if (value === BulkSelectValue.none) {
-        selection.onSelect(false);
-      } else if (value === BulkSelectValue.page) {
-        // Select all items on current page
-        selection.onSelect(true, tableRows);
-      } else if (value === BulkSelectValue.nonePage) {
-        // Deselect all items on current page
-        selection.onSelect(false, tableRows);
-      }
-    },
-    [selection, tableRows],
-  );
+  // =============================================================================
+  // Effects
+  // =============================================================================
 
-  // Skeleton states
-  const loadingHeader = useMemo(() => <SkeletonTableHead columns={columns.map((col) => col.cell)} />, [columns]);
-
-  const loadingBody = useMemo(() => <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />, [columns.length]);
-
-  // Empty state component
-  const emptyState = useMemo(() => <GroupRolesEmptyState {...emptyStateProps} />, [emptyStateProps]);
-
-  // Bulk select component
-  const bulkSelectComponent = useMemo(() => {
-    if (!hasPermissions || isAdminDefault) {
-      return undefined;
+  // Fetch available roles for "Add Roles" button
+  useEffect(() => {
+    if (actualGroupId) {
+      dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
     }
+  }, [dispatch, actualGroupId]);
 
-    const selectedCount = selection.selected?.length || 0;
-    const currentPageCount = roles.length; // Items on current page
-    const totalCount = pagination.count || 0; // Total items across all pages
+  // Handle default group changes
+  useEffect(() => {
+    if (isChanged && props.onDefaultGroupChanged && group) {
+      props.onDefaultGroupChanged({ uuid: group.uuid, name: group.name });
+    }
+  }, [isChanged, group, props.onDefaultGroupChanged]);
 
-    // Calculate if all/some items on current page are selected
-    const selectedOnPage = tableRows.filter((row) => selection.selected?.some((sel) => sel.id === row.id)).length;
-    const pageSelected = selectedOnPage > 0 && selectedOnPage === currentPageCount;
-    const pagePartiallySelected = selectedOnPage > 0 && selectedOnPage < currentPageCount;
+  // =============================================================================
+  // Remove Modal Handlers
+  // =============================================================================
 
-    return (
-      <BulkSelect
-        isDataPaginated={true}
-        selectedCount={selectedCount}
-        totalCount={totalCount}
-        pageCount={currentPageCount}
-        pageSelected={pageSelected}
-        pagePartiallySelected={pagePartiallySelected}
-        onSelect={handleBulkSelect}
-      />
-    );
-  }, [hasPermissions, isAdminDefault, selection.selected, roles.length, pagination.count, tableRows, handleBulkSelect]);
+  const handleOpenRemoveModal = useCallback((roles: Role[]) => {
+    setRolesToRemove(roles);
+    setIsRemoveModalOpen(true);
+  }, []);
 
-  // Toolbar actions - use the buttons directly from the hook
+  const handleCloseRemoveModal = useCallback(() => {
+    setIsRemoveModalOpen(false);
+    setRolesToRemove([]);
+  }, []);
+
+  const handleConfirmRemoveRoles = useCallback(async () => {
+    if (rolesToRemove.length === 0 || !actualGroupId) return;
+
+    try {
+      const roleIds = rolesToRemove.map(({ uuid }) => uuid);
+      await dispatch(removeRolesFromGroup(actualGroupId, roleIds) as any);
+
+      tableState.clearSelection();
+      setIsRemoveModalOpen(false);
+      setRolesToRemove([]);
+
+      // Refresh data
+      fetchData({
+        offset: tableState.apiParams.offset,
+        limit: tableState.apiParams.limit,
+        orderBy: tableState.apiParams.orderBy,
+        filters: tableState.filters,
+      });
+
+      // Refresh available roles
+      dispatch(fetchAddRolesForGroup(actualGroupId!, { limit: 20, offset: 0 }) as any);
+    } catch (error) {
+      console.error('Failed to remove roles from group:', error);
+    }
+  }, [dispatch, actualGroupId, rolesToRemove, tableState, fetchData]);
+
+  // =============================================================================
+  // Toolbar Content
+  // =============================================================================
+
   const toolbarActions = useMemo(() => {
-    if (!hasPermissions || isAdminDefault) {
+    if (!hasPermissions || isAdminDefault) return undefined;
+
+    return (
+      <Button
+        variant="primary"
+        ouiaId={generateOuiaID(group?.name || '')}
+        isDisabled={disableAddRoles}
+        onClick={() => navigate(pathnames['group-add-roles'].link.replace(':groupId', groupId!))}
+      >
+        {intl.formatMessage(messages.addRole)}
+      </Button>
+    );
+  }, [hasPermissions, isAdminDefault, group?.name, disableAddRoles, navigate, groupId, intl]);
+
+  const bulkActions = useMemo(() => {
+    if (!hasPermissions || isAdminDefault || tableState.selectedRows.length === 0) {
       return undefined;
     }
-    return toolbarButtons;
-  }, [hasPermissions, isAdminDefault, toolbarButtons]);
 
-  // Pagination handlers
-  const handleSetPage = useCallback(
-    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
-      const offset = (newPage - 1) * pagination.limit;
-      fetchData({ offset, limit: pagination.limit });
-    },
-    [fetchData, pagination.limit],
-  );
-
-  const handlePerPageSelect = useCallback(
-    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number) => {
-      fetchData({ offset: 0, limit: newPerPage });
-    },
-    [fetchData],
-  );
-
-  // Pagination component
-  const paginationComponent = useMemo(() => {
-    const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
     return (
-      <Pagination
-        itemCount={pagination.count || 0}
-        perPage={pagination.limit}
-        page={currentPage}
-        onSetPage={handleSetPage}
-        onPerPageSelect={handlePerPageSelect}
-        isCompact
+      <ActionDropdown
+        ariaLabel="bulk actions"
+        ouiaId="group-roles-bulk-actions"
+        items={[
+          {
+            key: 'remove',
+            label: intl.formatMessage(messages.remove),
+            onClick: () => handleOpenRemoveModal(tableState.selectedRows),
+          },
+        ]}
       />
     );
-  }, [pagination.count, pagination.limit, pagination.offset, handleSetPage, handlePerPageSelect]);
+  }, [hasPermissions, isAdminDefault, tableState.selectedRows, intl, handleOpenRemoveModal]);
 
-  // Determine active state
-  const activeState = isLoading ? DataViewState.loading : roles.length === 0 ? DataViewState.empty : undefined;
+  // =============================================================================
+  // Remove Modal State
+  // =============================================================================
+
+  const removeModalState = useMemo(() => {
+    const isSingular = rolesToRemove.length === 1;
+    const roleNames = rolesToRemove.map((role) => role.display_name || role.name).join(', ');
+
+    return {
+      isOpen: isRemoveModalOpen,
+      title: intl.formatMessage(isSingular ? messages.removeRoleQuestion : messages.removeRolesQuestion),
+      text: isSingular ? (
+        <FormattedMessage
+          {...messages.removeRoleModalText}
+          values={{
+            b: (text: React.ReactNode) => <b>{text}</b>,
+            name: group?.name || '',
+            role: roleNames,
+          }}
+        />
+      ) : (
+        <FormattedMessage
+          {...messages.removeRolesModalText}
+          values={{
+            b: (text: React.ReactNode) => <b>{text}</b>,
+            name: group?.name || '',
+            roles: rolesToRemove.length,
+          }}
+        />
+      ),
+      confirmButtonLabel: intl.formatMessage(isSingular ? messages.removeRole : messages.removeRoles),
+    };
+  }, [isRemoveModalOpen, rolesToRemove, intl, group?.name]);
+
+  // =============================================================================
+  // Render
+  // =============================================================================
+
+  if (!groupId) {
+    return null;
+  }
 
   return (
     <Fragment>
       <Section type="content" id="tab-roles">
-        <DataView activeState={activeState} selection={hasPermissions && !isAdminDefault ? selection : undefined}>
-          <DataViewToolbar
-            bulkSelect={bulkSelectComponent}
-            pagination={paginationComponent}
-            filters={
-              <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
-                <DataViewTextFilter filterId="name" title="Name" placeholder="Filter by name" />
-              </DataViewFilters>
-            }
-            clearAllFilters={clearAllFilters}
-            actions={toolbarActions}
-          />
-          <DataViewTable
-            columns={columns}
-            rows={tableRows}
-            headStates={{ loading: loadingHeader }}
-            bodyStates={{
-              loading: loadingBody,
-              empty: emptyState,
-            }}
-          />
-          <DataViewToolbar pagination={paginationComponent} />
-        </DataView>
+        <TableView<typeof columns, Role>
+          // Columns
+          columns={columns}
+          columnConfig={columnConfig}
+          // Data - pass undefined when loading to show skeleton, otherwise pass roles
+          data={isReduxLoading ? undefined : roles}
+          totalCount={totalCount}
+          getRowId={(role) => role.uuid}
+          // Renderers
+          cellRenderers={cellRenderers}
+          // Selection
+          selectable={selectable}
+          // Row actions
+          renderActions={
+            hasPermissions && !isAdminDefault
+              ? (role) => (
+                  <ActionDropdown
+                    ariaLabel={`Actions for role ${role.display_name || role.name}`}
+                    ouiaId={`group-roles-table-${role.uuid}-actions`}
+                    items={[
+                      {
+                        key: 'remove',
+                        label: intl.formatMessage(messages.remove),
+                        onClick: () => handleOpenRemoveModal([role]),
+                      },
+                    ]}
+                  />
+                )
+              : undefined
+          }
+          // Filtering
+          filterConfig={filterConfig}
+          // Toolbar
+          toolbarActions={toolbarActions}
+          bulkActions={bulkActions}
+          // Empty states
+          emptyStateNoData={
+            <DefaultEmptyStateNoData
+              title={intl.formatMessage(messages.noGroupRoles)}
+              body={intl.formatMessage(isPlatformDefault ? messages.contactServiceTeamForRoles : messages.addRoleToThisGroup)}
+            />
+          }
+          emptyStateNoResults={
+            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noRolesFound)} body={intl.formatMessage(messages.noFilteredRoles)} />
+          }
+          // Config
+          variant="default"
+          ouiaId="group-roles-table"
+          ariaLabel={intl.formatMessage(messages.roles)}
+          // State from hook
+          {...tableState}
+        />
       </Section>
 
       <RemoveGroupRoles
@@ -193,62 +322,85 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
         text={removeModalState.text}
         isOpen={removeModalState.isOpen}
         confirmButtonLabel={removeModalState.confirmButtonLabel}
-        onClose={removeModalState.onClose}
-        onSubmit={removeModalState.onConfirm}
+        onClose={handleCloseRemoveModal}
+        onSubmit={handleConfirmRemoveRoles}
         isDefault={isPlatformDefault}
         isChanged={isChanged}
       />
 
-      {!isAdminDefault ? (
-        <Suspense>
+      {!isAdminDefault && (
+        <Suspense fallback={<div>Loading...</div>}>
           <Outlet
             context={{
               [pathnames['group-add-roles'].path]: {
                 isDefault: isPlatformDefault || isAdminDefault,
                 isChanged: isChanged,
-                onDefaultGroupChanged: onDefaultGroupChanged,
+                onDefaultGroupChanged: props.onDefaultGroupChanged,
                 fetchUuid: systemGroupUuid,
                 groupName: group?.name,
-                closeUrl: pathnames['group-detail-roles'].link.replace(':groupId', groupId!),
+                closeUrl: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
                 afterSubmit: () => {
-                  dispatch(fetchAddRolesForGroup(groupId!, { limit: 20, offset: 0 }));
-                  fetchData();
+                  if (actualGroupId) {
+                    dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
+                  }
+                  fetchData({
+                    offset: tableState.apiParams.offset,
+                    limit: tableState.apiParams.limit,
+                    orderBy: tableState.apiParams.orderBy,
+                    filters: tableState.filters,
+                  });
                 },
                 postMethod: (promise: Promise<unknown>) => {
-                  navigate(pathnames['group-detail-roles'].link.replace(':groupId', groupId!));
+                  navigate(pathnames['group-detail-roles'].link.replace(':groupId', groupId));
                   if (promise) {
                     promise.then(() => {
-                      dispatch(fetchAddRolesForGroup(groupId!, { limit: 20, offset: 0 }));
-                      fetchData();
+                      if (actualGroupId) {
+                        dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
+                      }
+                      fetchData({
+                        offset: tableState.apiParams.offset,
+                        limit: tableState.apiParams.limit,
+                        orderBy: tableState.apiParams.orderBy,
+                        filters: tableState.filters,
+                      });
                     });
                   }
                 },
               },
               [pathnames['group-roles-edit-group'].path]: {
                 group,
-                cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId!),
-                submitRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId!), // Stay on roles tab after edit
+                cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+                submitRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
               },
               [pathnames['group-roles-remove-group'].path]: {
                 postMethod: (promise: Promise<unknown>) => {
-                  const backRoute = getBackRoute(pathnames['group-detail-roles'].link.replace(':groupId', groupId!), pagination, {});
+                  const backRoute = getBackRoute(
+                    pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+                    { limit: tableState.apiParams.limit, offset: tableState.apiParams.offset },
+                    {},
+                  );
                   navigate(backRoute);
                   if (promise) {
                     promise.then(() => {
-                      dispatch(fetchAddRolesForGroup(groupId!, { limit: 20, offset: 0 }));
-                      fetchData();
+                      if (actualGroupId) {
+                        dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
+                      }
+                      fetchData({
+                        offset: tableState.apiParams.offset,
+                        limit: tableState.apiParams.limit,
+                        orderBy: tableState.apiParams.orderBy,
+                        filters: tableState.filters,
+                      });
                     });
                   }
                 },
-                // Add cancelRoute so cancel button takes user back to group roles tab
-                cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId!),
-                // Add submitRoute for consistent navigation after successful removal
-                submitRoute: getBackRoute(pathnames.groups.link, { ...pagination, offset: 0 }, {}),
+                cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+                submitRoute: getBackRoute(pathnames.groups.link, { limit: tableState.apiParams.limit, offset: 0 }, {}),
               },
             }}
           />
         </Suspense>
-      ) : null}
+      )}
     </Fragment>
   );
 };

@@ -163,6 +163,10 @@ const IGNORED_ERROR_PATTERNS = [
     /Warning: validateDOMNesting.*<div>.*tbody/,  // Popper in table
     /Selector selector returned a different result/,  // Redux selector instability in form
     /Warning: React does not recognize.*prop on a DOM element/,  // Invalid props passed to DOM elements
+    // PatternFly Modal/WarningModal accessibility warning - WarningModal doesn't expose all aria props
+    /Modal: Specify at least one of: title, aria-label, aria-labelledby/,
+    // React 18 deprecation warning for defaultProps - fix when migrating components to TypeScript with default params
+    /Warning:.*Support for defaultProps will be removed from function components/,
   ] : []),
   
   // PatternFly accessibility warnings (not critical, should be fixed incrementally)

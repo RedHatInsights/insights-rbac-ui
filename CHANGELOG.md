@@ -1,3 +1,48 @@
+# [1.77.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.76.0...v1.77.0) (2025-12-18)
+
+
+### Features
+
+* **storybook:** add comprehensive tests for remaining JS container components ([6530aed](https://github.com/RedHatInsights/insights-rbac-ui/commit/6530aedf81ff11e5a3c4be0bb009dcb2df27ee8e))
+
+# [1.76.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.75.0...v1.76.0) (2025-12-18)
+
+
+### Bug Fixes
+
+* **storybook:** adjust WS storybooks to match rolebinding endpoint ([3d2f01a](https://github.com/RedHatInsights/insights-rbac-ui/commit/3d2f01afa674e7e1f8e2a8656d4fb77258c7b77b))
+* **types:** use casting to unknown and to request type instead of any ([df6859b](https://github.com/RedHatInsights/insights-rbac-ui/commit/df6859b6205d5f48fe9e81fd393ad6d7686acd45))
+* **ws-detail:** do not use as any while going trough rolebinding response ([7372bbd](https://github.com/RedHatInsights/insights-rbac-ui/commit/7372bbdb67bc0f7be8cbff8157bd8e385fbc9910))
+
+
+### Features
+
+* **role-binding:** use new version of rbac client to support role binding ([aecbce9](https://github.com/RedHatInsights/insights-rbac-ui/commit/aecbce9c1c2dab4826d63b850aac62f7696f53b8))
+
+# [1.75.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.74.0...v1.75.0) (2025-12-18)
+
+
+### Features
+
+* **GroupRoles:** migrate to TableView ([6df9fd7](https://github.com/RedHatInsights/insights-rbac-ui/commit/6df9fd7c033578b2fb56e753e6dcb17be7a549a0))
+* **GroupServiceAccounts:** migrate to TableView ([adced0c](https://github.com/RedHatInsights/insights-rbac-ui/commit/adced0c5b9fb72b45989e10d7bf3e3af98aa3152))
+* **UserGroupsTable:** migrate to TableView ([29a38b9](https://github.com/RedHatInsights/insights-rbac-ui/commit/29a38b909cdcba757aab954b90396c7e262be62d))
+* **UsersTable:** migrate to TableView ([1aa3cb0](https://github.com/RedHatInsights/insights-rbac-ui/commit/1aa3cb063dfd31f5a839eeab45c02dfb70940983))
+
+# [1.74.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.73.0...v1.74.0) (2025-12-17)
+
+
+### Features
+
+* **Groups:** use TableView to simplify the code ([e9e3df7](https://github.com/RedHatInsights/insights-rbac-ui/commit/e9e3df74aa32b0641ff6b6bf502313600223ded6))
+
+# [1.73.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.3...v1.73.0) (2025-12-16)
+
+
+### Features
+
+* **components:** add TableView component with type-safe API ([4fab761](https://github.com/RedHatInsights/insights-rbac-ui/commit/4fab7613c27923cf93798bd39d58489df4264912))
+
 ## [1.72.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.2...v1.72.3) (2025-12-01)
 
 

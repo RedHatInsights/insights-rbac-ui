@@ -1,12 +1,10 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSearchParams, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { useDataViewFilters, useDataViewSelection } from '@patternfly/react-data-view';
+import { ActionDropdown } from '../../../../../components/ActionDropdown';
 import { fetchServiceAccountsForGroup } from '../../../../../redux/groups/actions';
 import {
   selectGroupServiceAccounts,
@@ -25,61 +23,6 @@ import messages from '../../../../../Messages';
 import pathnames from '../../../../../utilities/pathnames';
 // import { mergeToBasename } from '../../../../../helpers/mergeToBasename';
 import type { GroupServiceAccountsProps, ServiceAccount } from '../types';
-
-// Row actions dropdown for individual service accounts
-const ServiceAccountRowActions: React.FC<{
-  account: ServiceAccount;
-  onRemove: (account: ServiceAccount) => void;
-  hasPermissions: boolean;
-  isAdminDefault: boolean;
-}> = ({ account, onRemove, hasPermissions, isAdminDefault }) => {
-  const intl = useIntl();
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Default groups don't have actions
-  if (!hasPermissions || isAdminDefault) {
-    return null;
-  }
-
-  const onToggle = (isOpen: boolean) => {
-    setIsOpen(isOpen);
-  };
-
-  const onSelect = () => {
-    setIsOpen(false);
-  };
-
-  const handleRemove = () => {
-    onRemove(account);
-    onSelect();
-  };
-
-  return (
-    <Dropdown
-      isOpen={isOpen}
-      onSelect={onSelect}
-      onOpenChange={(isOpen: boolean) => onToggle(isOpen)}
-      toggle={(toggleRef) => (
-        <MenuToggle
-          ref={toggleRef}
-          aria-label={`Actions for service account ${account.name}`}
-          variant="plain"
-          onClick={() => onToggle(!isOpen)}
-          isExpanded={isOpen}
-        >
-          <EllipsisVIcon />
-        </MenuToggle>
-      )}
-      shouldFocusToggleOnSelect
-    >
-      <DropdownList>
-        <DropdownItem key="remove" onClick={handleRemove}>
-          {intl.formatMessage(messages.remove)}
-        </DropdownItem>
-      </DropdownList>
-    </Dropdown>
-  );
-};
 
 // Types
 interface GroupServiceAccountTableRow {
@@ -148,9 +91,6 @@ export const useGroupServiceAccounts = ({ groupId, onDefaultGroupChanged }: Grou
   const actualGroupId = groupId || paramGroupId;
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = orgAdmin || userAccessAdministrator;
-
-  // Dropdown state for bulk actions
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Redux selectors - using memoized selectors to prevent unnecessary re-renders
   const serviceAccounts = useSelector(selectGroupServiceAccounts);
@@ -286,12 +226,17 @@ export const useGroupServiceAccounts = ({ groupId, onDefaultGroupChanged }: Grou
         hasPermissions && !isAdminDefault && !isPlatformDefault
           ? [
               ...baseRow,
-              <ServiceAccountRowActions
+              <ActionDropdown
                 key={`${account.uuid}-actions`}
-                account={account}
-                onRemove={handleRemoveServiceAccount}
-                hasPermissions={hasPermissions}
-                isAdminDefault={isAdminDefault}
+                ariaLabel={`Actions for service account ${account.name}`}
+                ouiaId={`service-account-${account.uuid}-actions`}
+                items={[
+                  {
+                    key: 'remove',
+                    label: intl.formatMessage(messages.remove),
+                    onClick: () => handleRemoveServiceAccount(account),
+                  },
+                ]}
               />,
             ]
           : baseRow;
@@ -336,40 +281,22 @@ export const useGroupServiceAccounts = ({ groupId, onDefaultGroupChanged }: Grou
         </Button>,
       );
 
-      // Always show bulk actions dropdown for admins, but disable actions when no selection
+      // Bulk actions dropdown - disable actions when no selection
       const hasSelection = selection.selected && selection.selected.length > 0;
       buttons.push(
-        <Dropdown
+        <ActionDropdown
           key="bulk-actions"
-          isOpen={isDropdownOpen}
-          onSelect={() => setIsDropdownOpen(false)}
-          onOpenChange={setIsDropdownOpen}
-          toggle={(toggleRef) => (
-            <MenuToggle
-              ref={toggleRef}
-              aria-label="bulk actions toggle"
-              variant="plain"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              // Keep toggle enabled so users can always open dropdown
-            >
-              <EllipsisVIcon />
-            </MenuToggle>
-          )}
-          shouldFocusToggleOnSelect
-        >
-          <DropdownList>
-            <DropdownItem
-              key="remove"
-              onClick={() => {
-                handleRemoveSelectedServiceAccounts();
-                setIsDropdownOpen(false);
-              }}
-              isDisabled={!hasSelection}
-            >
-              {intl.formatMessage(messages.remove)}
-            </DropdownItem>
-          </DropdownList>
-        </Dropdown>,
+          ariaLabel="bulk actions"
+          ouiaId="service-accounts-bulk-actions"
+          items={[
+            {
+              key: 'remove',
+              label: intl.formatMessage(messages.remove),
+              onClick: handleRemoveSelectedServiceAccounts,
+              isDisabled: !hasSelection,
+            },
+          ]}
+        />,
       );
     }
 
@@ -382,7 +309,6 @@ export const useGroupServiceAccounts = ({ groupId, onDefaultGroupChanged }: Grou
     selection.selected?.length,
     intl,
     navigate,
-    isDropdownOpen,
     handleRemoveSelectedServiceAccounts,
   ]);
 

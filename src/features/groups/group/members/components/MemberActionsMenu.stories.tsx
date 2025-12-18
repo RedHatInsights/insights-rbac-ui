@@ -71,7 +71,7 @@ export const NoSelection: Story = {
     const canvas = within(canvasElement);
 
     // Should show the kebab menu button
-    const menuButton = canvas.getByLabelText('Kebab toggle');
+    const menuButton = canvas.getByRole('button');
     expect(menuButton).toBeInTheDocument();
 
     // Click to open the menu
@@ -80,7 +80,7 @@ export const NoSelection: Story = {
     // Should show "Remove" option disabled (no selection)
     const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
     expect(removeOption).toBeInTheDocument();
-    expect(removeOption).toHaveAttribute('disabled');
+    expect(removeOption).toBeDisabled();
   },
 };
 
@@ -94,7 +94,7 @@ export const WithSelection: Story = {
     const canvas = within(canvasElement);
 
     // Should show the kebab menu button
-    const menuButton = canvas.getByLabelText('Kebab toggle');
+    const menuButton = canvas.getByRole('button');
     expect(menuButton).toBeInTheDocument();
 
     // Click to open the menu
@@ -103,7 +103,7 @@ export const WithSelection: Story = {
     // Should show "Remove" option enabled (has selection)
     const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
     expect(removeOption).toBeInTheDocument();
-    expect(removeOption).not.toHaveAttribute('disabled');
+    expect(removeOption).not.toBeDisabled();
   },
 };
 
@@ -117,7 +117,7 @@ export const RemoveMembersInteraction: Story = {
     const canvas = within(canvasElement);
 
     // Open the menu
-    const menuButton = canvas.getByLabelText('Kebab toggle');
+    const menuButton = canvas.getByRole('button');
     await userEvent.click(menuButton);
 
     // Click "Remove" option
@@ -139,10 +139,10 @@ export const SingleSelection: Story = {
     const canvas = within(canvasElement);
 
     // Open the menu and verify remove option is available
-    const menuButton = canvas.getByLabelText('Kebab toggle');
+    const menuButton = canvas.getByRole('button');
     await userEvent.click(menuButton);
 
     const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
-    expect(removeOption).not.toHaveAttribute('disabled');
+    expect(removeOption).not.toBeDisabled();
   },
 };
