@@ -255,7 +255,16 @@ export const useChrome = () => {
       }
     },
     auth: chromeConfig.auth || { 
-      getUser: () => Promise.resolve({ username: 'test-user', email: 'test@redhat.com' }), 
+      getUser: () => Promise.resolve({ 
+        identity: { 
+          user: { 
+            username: 'test-user', 
+            email: 'test@redhat.com',
+            is_org_admin: true,
+            is_internal: false
+          } 
+        } 
+      }), 
       getToken: () => Promise.resolve('mock-jwt-token-12345') 
     },
     getBundle: () => 'iam',
