@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter, useLocation } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import UsersListNotSelectable from './users-list-not-selectable';
@@ -9,6 +9,18 @@ import UsersListNotSelectable from './users-list-not-selectable';
 const fetchUsersSpy = fn();
 const filterSpy = fn();
 const sortSpy = fn();
+const usersPaginationSpy = fn();
+
+// Router location spy (used by pagination URL sync stories)
+const RouterLocationSpy: React.FC = () => {
+  const location = useLocation();
+  return (
+    <pre data-testid="router-location" style={{ display: 'none' }}>
+      {location.pathname}
+      {location.search}
+    </pre>
+  );
+};
 
 // Mock user data
 const mockUsers = [
@@ -44,6 +56,20 @@ const mockUsers = [
   },
 ];
 
+const mockUsersLarge = Array.from({ length: 55 }, (_v, idx) => {
+  const i = idx + 1;
+  return {
+    id: String(i),
+    username: `user${i}`,
+    email: `user${i}@example.com`,
+    first_name: `First${i}`,
+    last_name: `Last${i}`,
+    is_active: true,
+    is_org_admin: false,
+    external_source_id: i,
+  };
+});
+
 // Standard args for the component
 const defaultArgs = {
   userLinks: true,
@@ -54,14 +80,23 @@ const defaultArgs = {
   },
 };
 
-// Router decorator for components that use navigation
-const withRouter = (Story: any) => (
-  <BrowserRouter>
-    <div style={{ minHeight: '600px' }}>
-      <Story />
-    </div>
-  </BrowserRouter>
-);
+// Router decorator for components that use navigation.
+// If a story provides `parameters.routerInitialEntries`, use MemoryRouter (safe for Storybook iframe);
+// otherwise use BrowserRouter (default behavior).
+const withRouter = (Story: any, context: any) => {
+  const initialEntries = context?.parameters?.routerInitialEntries as string[] | undefined;
+  const Wrapper: React.FC<React.PropsWithChildren> = ({ children }) =>
+    initialEntries ? <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter> : <BrowserRouter>{children}</BrowserRouter>;
+
+  return (
+    <Wrapper>
+      <div style={{ minHeight: '600px' }}>
+        <RouterLocationSpy />
+        <Story />
+      </div>
+    </Wrapper>
+  );
+};
 
 const meta: Meta<typeof UsersListNotSelectable> = {
   component: UsersListNotSelectable,
@@ -548,5 +583,152 @@ export const AdminUserWithUsersTableContent: Story = {
     expect(inactiveLabels).toHaveLength(1); // bob.smith
 
     console.log('SB: 🧪 TABLE CONTENT: Table content test completed');
+  },
+};
+
+export const PaginationUrlSync: Story = {
+  tags: ['perm:org-admin', 'sbtest:users-pagination'],
+  args: defaultArgs,
+  parameters: {
+    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    routerInitialEntries: ['/iam/user-access/users?page=1&per_page=20'],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/principals/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          usersPaginationSpy({ limit, offset });
+
+          return HttpResponse.json({
+            data: mockUsersLarge.slice(offset, offset + limit),
+            meta: { count: mockUsersLarge.length, limit, offset },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+
+    usersPaginationSpy.mockClear();
+
+    await delay(500);
+    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+
+    const locEl = canvas.getByTestId('router-location');
+    let search = (locEl.textContent || '').split('?')[1] || '';
+    let params = new URLSearchParams(search);
+    expect(params.get('page')).toBe('1');
+    expect(params.get('per_page')).toBe('20');
+
+    // Change per-page to 5
+    const toggle =
+      (document.querySelector('#options-menu-top-toggle') as HTMLElement | null) ||
+      (document.querySelector('#options-menu-bottom-toggle') as HTMLElement | null);
+
+    if (toggle) {
+      await userEvent.click(toggle);
+    } else {
+      const perPageToggle = await body.findByRole('button', { name: /items per page/i });
+      await userEvent.click(perPageToggle);
+    }
+
+    const listbox = body.queryByRole('listbox');
+    if (listbox) {
+      const opt5 = within(listbox)
+        .getAllByRole('option')
+        .find((o) => (o.textContent || '').trim().startsWith('5'));
+      if (!opt5) throw new Error('Could not find per-page option "5"');
+      await userEvent.click(opt5);
+    } else {
+      const menu = await body.findByRole('menu');
+      const item5 = within(menu)
+        .getAllByRole('menuitem')
+        .find((i) => (i.textContent || '').trim().startsWith('5') || (i.textContent || '').includes(' 5'));
+      if (!item5) throw new Error('Could not find per-page menu item containing "5"');
+      await userEvent.click(item5);
+    }
+
+    await waitFor(() => {
+      search = (locEl.textContent || '').split('?')[1] || '';
+      params = new URLSearchParams(search);
+      expect(params.get('page')).toBe('1');
+      expect(params.get('per_page')).toBe('5');
+    });
+
+    await waitFor(() => {
+      expect(usersPaginationSpy).toHaveBeenCalled();
+      const last = usersPaginationSpy.mock.calls[usersPaginationSpy.mock.calls.length - 1][0];
+      expect(last.limit).toBe(5);
+      expect(last.offset).toBe(0);
+    });
+
+    // Next page
+    const nextButtons = canvas.getAllByLabelText('Go to next page');
+    await userEvent.click(nextButtons[0]);
+
+    await waitFor(() => {
+      search = (locEl.textContent || '').split('?')[1] || '';
+      params = new URLSearchParams(search);
+      expect(params.get('page')).toBe('2');
+      expect(params.get('per_page')).toBe('5');
+    });
+
+    await waitFor(() => {
+      const last = usersPaginationSpy.mock.calls[usersPaginationSpy.mock.calls.length - 1][0];
+      expect(last.limit).toBe(5);
+      expect(last.offset).toBe(5);
+    });
+  },
+};
+
+export const PaginationOutOfRangeClampsToLastPage: Story = {
+  tags: ['perm:org-admin', 'sbtest:users-pagination'],
+  args: defaultArgs,
+  parameters: {
+    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    routerInitialEntries: ['/iam/user-access/users?page=10000&per_page=20'],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/principals/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          usersPaginationSpy({ limit, offset });
+
+          return HttpResponse.json({
+            data: mockUsersLarge.slice(offset, offset + limit),
+            meta: { count: mockUsersLarge.length, limit, offset },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    usersPaginationSpy.mockClear();
+    await delay(600);
+
+    // For 55 items and perPage=20, last page is page 3 and last offset is 40.
+    await waitFor(
+      () => {
+        // Depending on timing, the "invalid offset" request may happen before play() starts.
+        // The stable signal we want is: the final request should use the last-page offset.
+        expect(usersPaginationSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
+      const last = usersPaginationSpy.mock.calls[usersPaginationSpy.mock.calls.length - 1][0];
+      expect(last.limit).toBe(20);
+      expect(last.offset).toBe(40);
+      },
+      { timeout: 5000 },
+    );
+
+    const locEl = canvas.getByTestId('router-location');
+    const search = (locEl.textContent || '').split('?')[1] || '';
+    const params = new URLSearchParams(search);
+    expect(params.get('per_page')).toBe('20');
+    expect(params.get('page')).toBe('3');
   },
 };
