@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useContext, useEffect, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
@@ -225,6 +225,16 @@ const User = () => {
     { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
   ];
 
+  // Memoize fetchData to prevent debounce cancellation on re-renders
+  // Note: debouncedFetch is a module-level singleton, intentionally stable across renders.
+  // It's excluded from deps because it's defined at module level, not inside the component.
+  const handleFetchData = useCallback(
+    ({ limit, offset, name }) => {
+      debouncedFetch(limit, offset, name, ['groups_in'], username);
+    },
+    [username],
+  );
+
   const toolbarButtons = () => [
     ...(isAdmin
       ? [
@@ -291,9 +301,7 @@ const User = () => {
                 data={roles.data}
                 filterValue={filter}
                 ouiaId="user-details-table"
-                fetchData={({ limit, offset, name }) => {
-                  debouncedFetch(limit, offset, name, ['groups_in'], username);
-                }}
+                fetchData={handleFetchData}
                 setFilterValue={({ name }) => setFilter(name)}
                 isLoading={isLoadingRoles}
                 toolbarButtons={toolbarButtons}
