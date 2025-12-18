@@ -45,17 +45,6 @@ export async function moveWorkspace(config: WorkspacesMoveParams) {
 }
 
 export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjectParams) {
-  const response = await workspacesApi.roleBindingsListBySubject(
-    config.resourceId,
-    config.resourceType,
-    config.limit ?? 10000,
-    config.cursor ?? '',
-    config.subjectType ?? '',
-    config.subjectId ?? '',
-    config.parentRoleBindings ?? false,
-    config.fields ?? '',
-    config.orderBy ?? '',
-    config.options ?? {},
-  );
+  const response = await workspacesApi.roleBindingsListBySubject(config);
   return response.data;
 }
