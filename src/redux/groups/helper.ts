@@ -303,23 +303,3 @@ export async function fetchMembersForGroup(
   // Return response directly like original - responseInterceptor handles unwrapping
   return response as AllPrincipalsPagination;
 }
-
-export async function fetchMemberGroups(username: string): Promise<GroupPagination> {
-  return await groupApi.listGroups(
-    20,
-    0,
-    '',
-    ListGroupsNameMatchEnum.Partial,
-    ListGroupsScopeEnum.Principal,
-    username,
-    '',
-    [],
-    [],
-    ListGroupsRoleDiscriminatorEnum.All,
-    ListGroupsOrderByEnum.Name,
-    false,
-    false,
-    false,
-    {},
-  );
-}

@@ -21,18 +21,35 @@ declare global {
   };
 }
 
+// Mock global insights object for libraries that access it directly (e.g. RBACHook)
+const mockInsightsChrome = {
+  getEnvironment: () => 'prod',
+  getUserPermissions: () => Promise.resolve([
+    { permission: 'inventory:hosts:read', resourceDefinitions: [] },
+    { permission: 'inventory:hosts:write', resourceDefinitions: [] },
+    { permission: 'inventory:groups:write', resourceDefinitions: [] },
+    { permission: 'cost-management:*:*', resourceDefinitions: [] },
+    { permission: 'rbac:*:*', resourceDefinitions: [] },
+  ]),
+  auth: {
+    getUser: () => Promise.resolve({
+      identity: {
+        user: {
+          username: 'test-user',
+          email: 'test@redhat.com',
+          is_org_admin: true,
+          is_internal: false,
+        },
+      },
+    }),
+    getToken: () => Promise.resolve('mock-jwt-token-12345'),
+  },
+};
+
 if (typeof global !== 'undefined') {
-  (global as any).insights = {
-    chrome: {
-      getEnvironment: () => 'prod',
-    },
-  };
+  (global as any).insights = { chrome: mockInsightsChrome };
 } else if (typeof window !== 'undefined') {
-  (window as any).insights = {
-    chrome: {
-      getEnvironment: () => 'prod',
-    },
-  };
+  (window as any).insights = { chrome: mockInsightsChrome };
 }
 
 const preview: Preview = {
