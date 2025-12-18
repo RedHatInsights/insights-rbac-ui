@@ -1,3 +1,10 @@
+# [1.77.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.76.0...v1.77.0) (2025-12-18)
+
+
+### Features
+
+* **storybook:** add comprehensive tests for remaining JS container components ([6530aed](https://github.com/RedHatInsights/insights-rbac-ui/commit/6530aedf81ff11e5a3c4be0bb009dcb2df27ee8e))
+
 # [1.76.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.75.0...v1.76.0) (2025-12-18)
 
 
