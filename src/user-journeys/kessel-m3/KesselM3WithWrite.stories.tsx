@@ -1,6 +1,6 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
@@ -368,6 +368,20 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
 
     // Verify the role assignments table shows workspace-specific groups
     // Production workspace should show only Production Admins and Viewers
+    // Wait for the table to load completely with data
+    await canvas.findByLabelText('Role Assignments Table', {}, { timeout: 10000 });
+
+    // Wait for data to load - look for either loading state to disappear or data to appear
+    await waitFor(
+      async () => {
+        const loadingElements = canvas.queryAllByText(/loading/i);
+        const hasData = canvas.queryByText('Production Admins') || canvas.queryByText('Viewers');
+        expect(loadingElements.length === 0 || hasData).toBe(true);
+      },
+      { timeout: 10000 },
+    );
+
+    // The table should now have data loaded
     await canvas.findByText('Production Admins');
     await canvas.findByText('Viewers');
 

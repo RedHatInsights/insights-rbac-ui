@@ -765,6 +765,8 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     http.get('/api/rbac/v2/role-bindings/by-subject', ({ request }) => {
       const url = new URL(request.url);
       const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
+      const resourceType = url.searchParams.get('resourceType') || url.searchParams.get('resource_type');
+      const subjectType = url.searchParams.get('subjectType') || url.searchParams.get('subject_type');
       const limit = parseInt(url.searchParams.get('limit') || '10000');
       const offset = parseInt(url.searchParams.get('offset') || '0');
       
