@@ -5,7 +5,7 @@
  * All table state (pagination, sorting, filtering, selection) is managed by useTableState.
  */
 
-import React, { Fragment, Suspense, useContext, useEffect, useMemo } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
