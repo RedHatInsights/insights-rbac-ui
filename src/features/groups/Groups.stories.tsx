@@ -130,8 +130,8 @@ const meta: Meta<typeof Groups> = {
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const name = url.searchParams.get('name') || '';
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           const adminDefault = url.searchParams.get('admin_default');
           const platformDefault = url.searchParams.get('platform_default');
 
@@ -267,8 +267,8 @@ export const NonAdminUserView: Story = {
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const name = url.searchParams.get('name') || '';
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           const adminDefault = url.searchParams.get('admin_default');
           const platformDefault = url.searchParams.get('platform_default');
 
@@ -481,6 +481,243 @@ export const MembersExpansion: Story = {
   },
 };
 
+// Filtering interaction
+export const FilteringInteraction: Story = {
+  tags: ['env:stage', 'perm:org-admin'],
+  parameters: {
+    chrome: { environment: 'stage' },
+    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    msw: {
+      handlers: [
+        // Override the main handler to test filtering
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const name = url.searchParams.get('name') || '';
+          const adminDefault = url.searchParams.get('admin_default');
+          const platformDefault = url.searchParams.get('platform_default');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+
+          // Call the spy with API parameters
+          groupsApiCallSpy({
+            name,
+            limit: limit.toString(),
+            offset: offset.toString(),
+            order_by: url.searchParams.get('order_by'),
+          });
+
+          // Handle admin default groups query
+          if (adminDefault === 'true') {
+            return HttpResponse.json({
+              data: [mockAdminGroup],
+              meta: { count: 1, limit, offset },
+            });
+          }
+
+          // Handle platform default groups query
+          if (platformDefault === 'true') {
+            return HttpResponse.json({
+              data: [mockSystemGroup],
+              meta: { count: 1, limit, offset },
+            });
+          }
+
+          // Return filtered mock data based on name parameter
+          let filteredGroups = mockGroups;
+          if (name) {
+            filteredGroups = mockGroups.filter((group) => group.name.toLowerCase().includes(name.toLowerCase()));
+          }
+
+          return HttpResponse.json({
+            data: filteredGroups,
+            meta: {
+              count: filteredGroups.length,
+              limit,
+              offset,
+            },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300); // Required for MSW
+    const canvas = within(canvasElement);
+
+    // Initial load should call API without filter
+    await waitFor(() => {
+      expect(groupsApiCallSpy).toHaveBeenCalled();
+      const lastCall = groupsApiCallSpy.mock.calls[groupsApiCallSpy.mock.calls.length - 1][0];
+      expect(lastCall.name).toBe('');
+    });
+
+    // Wait for data to load
+    const group1Elements = await canvas.findAllByText('Test Group 1');
+    expect(group1Elements.length).toBeGreaterThan(0);
+    const group2Elements = await canvas.findAllByText('Test Group 2');
+    expect(group2Elements.length).toBeGreaterThan(0);
+
+    // Find and use the name filter input
+    const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
+
+    // Reset spy before testing filter
+    groupsApiCallSpy.mockClear();
+
+    // Type in filter
+    await userEvent.type(filterInput, 'Test Group 1');
+
+    // Verify filter API call (debounced)
+    await waitFor(
+      () => {
+        expect(groupsApiCallSpy).toHaveBeenCalled();
+        const lastCall = groupsApiCallSpy.mock.calls[groupsApiCallSpy.mock.calls.length - 1][0];
+        expect(lastCall.name).toBe('Test Group 1');
+      },
+      { timeout: 2000 }, // Account for debounce
+    );
+  },
+};
+
+// Sorting interaction
+export const SortingInteraction: Story = {
+  tags: ['env:stage', 'perm:org-admin'],
+  parameters: {
+    chrome: { environment: 'stage' },
+    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    msw: {
+      handlers: [
+        // Override the main handler to test sorting
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const name = url.searchParams.get('name') || '';
+          const adminDefault = url.searchParams.get('admin_default');
+          const platformDefault = url.searchParams.get('platform_default');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+
+          // Call the spy with API parameters
+          groupsApiCallSpy({
+            name,
+            limit: limit.toString(),
+            offset: offset.toString(),
+            order_by: url.searchParams.get('order_by'),
+          });
+
+          // Handle admin default groups query
+          if (adminDefault === 'true') {
+            return HttpResponse.json({
+              data: [mockAdminGroup],
+              meta: { count: 1, limit, offset },
+            });
+          }
+
+          // Handle platform default groups query
+          if (platformDefault === 'true') {
+            return HttpResponse.json({
+              data: [mockSystemGroup],
+              meta: { count: 1, limit, offset },
+            });
+          }
+
+          return HttpResponse.json({
+            data: mockGroups,
+            meta: {
+              count: mockGroups.length,
+              limit,
+              offset,
+            },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300); // Required for MSW
+    const canvas = within(canvasElement);
+
+    // Initial load should call API with default sorting
+    await waitFor(() => {
+      expect(groupsApiCallSpy).toHaveBeenCalled();
+      const calls = groupsApiCallSpy.mock.calls;
+      // Look for any call that has order_by set to 'name' (initial load)
+      const hasNameSort = calls.some((call) => call[0].order_by === 'name');
+      expect(hasNameSort).toBe(true);
+    });
+
+    // Wait for data to load and table to be fully rendered (not skeleton)
+    expect(await canvas.findByText('Test Group 2')).toBeInTheDocument();
+
+    // Wait for table to finish loading - look for actual table grid instead of skeleton
+    await waitFor(
+      () => {
+        const tableGrid = canvasElement.querySelector('[role="grid"]');
+        expect(tableGrid).toBeInTheDocument();
+
+        // Ensure we can find the actual column headers we need
+        const nameHeader = canvas.queryByRole('columnheader', { name: /name/i });
+        const modifiedHeader = canvas.queryByRole('columnheader', { name: /last modified/i });
+        expect(nameHeader).toBeInTheDocument();
+        expect(modifiedHeader).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // Test clicking Name column header for descending sort
+    const nameHeader = await canvas.findByRole('columnheader', { name: /name/i });
+
+    // Try to find button within the header, with fallback to clicking the header itself
+    let nameButton;
+    try {
+      nameButton = await within(nameHeader).findByRole('button');
+    } catch {
+      // If no button found, the header itself might be clickable
+      nameButton = nameHeader;
+    }
+
+    await userEvent.click(nameButton);
+
+    // Wait for API call and verify descending sort
+    await waitFor(
+      () => {
+        expect(groupsApiCallSpy).toHaveBeenCalled();
+        const calls = groupsApiCallSpy.mock.calls;
+        // Check if any recent call has the expected sort order (not just the very last one)
+        const recentCalls = calls.slice(-5); // Check last 5 calls
+        const hasDescendingSort = recentCalls.some((call) => call[0].order_by === '-name');
+        expect(hasDescendingSort).toBe(true);
+      },
+      { timeout: 2000 },
+    );
+
+    // Test clicking Last Modified column header
+    const modifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
+
+    // Try to find button within the header, with fallback to clicking the header itself
+    let modifiedButton;
+    try {
+      modifiedButton = await within(modifiedHeader).findByRole('button');
+    } catch {
+      // If no button found, the header itself might be clickable
+      modifiedButton = modifiedHeader;
+    }
+
+    await userEvent.click(modifiedButton);
+
+    // Wait for API call and verify modified sort
+    await waitFor(
+      () => {
+        expect(groupsApiCallSpy).toHaveBeenCalled();
+        const calls = groupsApiCallSpy.mock.calls;
+        // Check if any recent call has the expected sort order (not just the very last one)
+        const recentCalls = calls.slice(-5); // Check last 5 calls
+        const hasModifiedSort = recentCalls.some((call) => call[0].order_by === 'modified');
+        expect(hasModifiedSort).toBe(true);
+      },
+      { timeout: 2000 },
+    );
+  },
+};
+
 // Default groups behavior (admin and platform default)
 // Tests: non-selectable rows, no actions, "All" member count, members not expandable
 export const DefaultGroupsBehavior: Story = {
@@ -592,8 +829,8 @@ export const ProductionBugReproduction: Story = {
         // 🚨 PRODUCTION BUG SIMULATION: 403 on groups API for user in org with LOTS of groups
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '50');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
+          const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
           console.log('SB: 🚨 PRODUCTION BUG TEST - Groups API called:', {
             limit: limit,
@@ -739,8 +976,8 @@ export const PaginationUrlSync: Story = {
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const name = url.searchParams.get('name') || '';
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           const adminDefault = url.searchParams.get('admin_default');
           const platformDefault = url.searchParams.get('platform_default');
 
@@ -857,8 +1094,8 @@ export const PaginationOutOfRangeClampsToLastPage: Story = {
       handlers: [
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           const adminDefault = url.searchParams.get('admin_default');
           const platformDefault = url.searchParams.get('platform_default');
 
