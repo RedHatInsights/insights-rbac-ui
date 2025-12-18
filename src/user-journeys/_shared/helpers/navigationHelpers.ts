@@ -117,7 +117,7 @@ export async function confirmDeleteModal(user: ReturnType<typeof userEvent.setup
   // Wait for modal to close
   await waitFor(() => {
     const modal = document.querySelector('[role="dialog"]');
-    expect(modal).not.toBeInTheDocument();
+    expect(modal).toBeNull();
   });
 }
 
@@ -132,8 +132,8 @@ export async function verifySuccessNotification() {
     // Verify no error or warning notifications
     const errorNotification = document.querySelector('.pf-v5-c-alert.pf-m-danger');
     const warningNotification = document.querySelector('.pf-v5-c-alert.pf-m-warning');
-    expect(errorNotification).not.toBeInTheDocument();
-    expect(warningNotification).not.toBeInTheDocument();
+    expect(errorNotification).toBeNull();
+    expect(warningNotification).toBeNull();
   });
 }
 
