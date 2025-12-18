@@ -20,7 +20,12 @@ module.exports = {
   // File transformation
   transform: {
     '^.+\\.jsx?$': 'babel-jest',
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        isolatedModules: true, // Skip type checking for faster tests
+      },
+    ],
   },
   transformIgnorePatterns: [],
 
