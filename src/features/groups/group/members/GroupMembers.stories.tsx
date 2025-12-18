@@ -902,6 +902,83 @@ Perfect for testing bulk operations and proper pluralization.
 };
 
 // =============================================================================
+// Error Handling Stories - Shared Helpers
+// =============================================================================
+
+// Factory for creating error delete handlers for member removal
+const createRemoveMemberErrorHandlers = (status: number, detail: string) => [
+  ...createMockHandlers(),
+  http.get('/api/rbac/v1/groups/', () =>
+    HttpResponse.json({
+      data: [mockGroup],
+      meta: { count: 1, limit: 50, offset: 0 },
+    }),
+  ),
+  http.delete('/api/rbac/v1/groups/:groupId/principals/', async () => {
+    await delay(200);
+    return new HttpResponse(JSON.stringify({ errors: [{ detail }] }), { status });
+  }),
+];
+
+// Shared play function for remove member error scenarios
+type RemoveMemberErrorPlayArgs = {
+  canvasElement: HTMLElement;
+  alertVariantClass: string;
+  expectedTitle: string;
+};
+
+async function playRemoveMemberError({ canvasElement, alertVariantClass, expectedTitle }: RemoveMemberErrorPlayArgs) {
+  await delay(500);
+  const canvas = within(canvasElement);
+
+  // Wait for table to load
+  await canvas.findByText('alice.johnson');
+
+  // Click kebab menu on first member
+  const aliceRow = (await canvas.findByText('alice.johnson')).closest('tr');
+  if (!aliceRow) throw new Error('Could not find alice.johnson row');
+
+  const kebabButton = await within(aliceRow).findByRole('button', { name: 'Actions for alice.johnson' });
+  await userEvent.click(kebabButton);
+
+  await delay(200);
+
+  // Click Remove
+  const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+  await userEvent.click(removeMenuItem);
+
+  // Modal should appear
+  const body = within(document.body);
+  const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
+  expect(modal).toBeInTheDocument();
+
+  // Click confirm to trigger the error
+  const confirmButton = within(modal).getByRole('button', { name: /Remove member/i });
+  await userEvent.click(confirmButton);
+
+  // Wait for API call and error handling
+  await delay(500);
+
+  // Verify notification portal exists and contains expected notification
+  await waitFor(
+    async () => {
+      const notificationPortal = document.querySelector('.notifications-portal');
+      expect(notificationPortal).toBeInTheDocument();
+
+      const alert = notificationPortal?.querySelector(`.pf-v5-c-alert.${alertVariantClass}`);
+      expect(alert).toBeInTheDocument();
+
+      const alertTitle = alert?.querySelector('.pf-v5-c-alert__title');
+      expect(alertTitle).toHaveTextContent(expectedTitle);
+    },
+    { timeout: 5000 },
+  );
+
+  // Modal should be closed
+  expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+}
+
+// =============================================================================
 // Error Handling Stories
 // =============================================================================
 
@@ -930,77 +1007,15 @@ This prevents confusing error messages when concurrent users modify the same gro
       userAccessAdministrator: false,
     },
     msw: {
-      handlers: [
-        ...createMockHandlers(),
-        http.get('/api/rbac/v1/groups/', () => {
-          return HttpResponse.json({
-            data: [mockGroup],
-            meta: { count: 1, limit: 50, offset: 0 },
-          });
-        }),
-        // Mock 404 error - member was already removed
-        http.delete('/api/rbac/v1/groups/:groupId/principals/', async () => {
-          await delay(200);
-          return new HttpResponse(
-            JSON.stringify({
-              errors: [{ detail: 'Member not found in group' }],
-            }),
-            { status: 404 },
-          );
-        }),
-      ],
+      handlers: createRemoveMemberErrorHandlers(404, 'Member not found in group'),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
-    const canvas = within(canvasElement);
-
-    // Wait for table to load
-    await canvas.findByText('alice.johnson');
-
-    // Click kebab menu on first member
-    const aliceRow = (await canvas.findByText('alice.johnson')).closest('tr');
-    if (!aliceRow) throw new Error('Could not find alice.johnson row');
-
-    const kebabButton = await within(aliceRow).findByRole('button', { name: 'Actions for alice.johnson' });
-    await userEvent.click(kebabButton);
-
-    await delay(200);
-
-    // Click Remove
-    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
-    await userEvent.click(removeMenuItem);
-
-    // Modal should appear
-    const body = within(document.body);
-    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
-    expect(modal).toBeInTheDocument();
-
-    // Click confirm to trigger the 404 error
-    const confirmButton = within(modal).getByRole('button', { name: /Remove member/i });
-    await userEvent.click(confirmButton);
-
-    // Wait for API call and error handling
-    await delay(500);
-
-    // Verify notification portal exists and contains warning notification
-    await waitFor(
-      async () => {
-        const notificationPortal = document.querySelector('.notifications-portal');
-        expect(notificationPortal).toBeInTheDocument();
-
-        const warningAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-warning');
-        expect(warningAlert).toBeInTheDocument();
-
-        const alertTitle = warningAlert?.querySelector('.pf-v5-c-alert__title');
-        expect(alertTitle).toHaveTextContent('Item already removed');
-      },
-      { timeout: 5000 },
-    );
-
-    // Modal should be closed
-    expect(body.queryByRole('dialog')).not.toBeInTheDocument();
-  },
+  play: ({ canvasElement }) =>
+    playRemoveMemberError({
+      canvasElement,
+      alertVariantClass: 'pf-m-warning',
+      expectedTitle: 'Item already removed',
+    }),
 };
 
 export const RemoveMemberError403: Story = {
@@ -1028,77 +1043,15 @@ This provides clear feedback when permissions change during a session.
       userAccessAdministrator: false,
     },
     msw: {
-      handlers: [
-        ...createMockHandlers(),
-        http.get('/api/rbac/v1/groups/', () => {
-          return HttpResponse.json({
-            data: [mockGroup],
-            meta: { count: 1, limit: 50, offset: 0 },
-          });
-        }),
-        // Mock 403 error - permission denied
-        http.delete('/api/rbac/v1/groups/:groupId/principals/', async () => {
-          await delay(200);
-          return new HttpResponse(
-            JSON.stringify({
-              errors: [{ detail: 'You do not have permission to modify this group' }],
-            }),
-            { status: 403 },
-          );
-        }),
-      ],
+      handlers: createRemoveMemberErrorHandlers(403, 'You do not have permission to modify this group'),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
-    const canvas = within(canvasElement);
-
-    // Wait for table to load
-    await canvas.findByText('alice.johnson');
-
-    // Click kebab menu on first member
-    const aliceRow = (await canvas.findByText('alice.johnson')).closest('tr');
-    if (!aliceRow) throw new Error('Could not find alice.johnson row');
-
-    const kebabButton = await within(aliceRow).findByRole('button', { name: 'Actions for alice.johnson' });
-    await userEvent.click(kebabButton);
-
-    await delay(200);
-
-    // Click Remove
-    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
-    await userEvent.click(removeMenuItem);
-
-    // Modal should appear
-    const body = within(document.body);
-    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
-    expect(modal).toBeInTheDocument();
-
-    // Click confirm to trigger the 403 error
-    const confirmButton = within(modal).getByRole('button', { name: /Remove member/i });
-    await userEvent.click(confirmButton);
-
-    // Wait for API call and error handling
-    await delay(500);
-
-    // Verify notification portal exists and contains danger notification
-    await waitFor(
-      async () => {
-        const notificationPortal = document.querySelector('.notifications-portal');
-        expect(notificationPortal).toBeInTheDocument();
-
-        const dangerAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-danger');
-        expect(dangerAlert).toBeInTheDocument();
-
-        const alertTitle = dangerAlert?.querySelector('.pf-v5-c-alert__title');
-        expect(alertTitle).toHaveTextContent('Insufficient permissions');
-      },
-      { timeout: 5000 },
-    );
-
-    // Modal should be closed
-    expect(body.queryByRole('dialog')).not.toBeInTheDocument();
-  },
+  play: ({ canvasElement }) =>
+    playRemoveMemberError({
+      canvasElement,
+      alertVariantClass: 'pf-m-danger',
+      expectedTitle: 'Insufficient permissions',
+    }),
 };
 
 export const RemoveMemberGenericError: Story = {
@@ -1126,75 +1079,13 @@ This ensures users get feedback even for unexpected errors.
       userAccessAdministrator: false,
     },
     msw: {
-      handlers: [
-        ...createMockHandlers(),
-        http.get('/api/rbac/v1/groups/', () => {
-          return HttpResponse.json({
-            data: [mockGroup],
-            meta: { count: 1, limit: 50, offset: 0 },
-          });
-        }),
-        // Mock 500 error - server error
-        http.delete('/api/rbac/v1/groups/:groupId/principals/', async () => {
-          await delay(200);
-          return new HttpResponse(
-            JSON.stringify({
-              errors: [{ detail: 'Internal server error occurred' }],
-            }),
-            { status: 500 },
-          );
-        }),
-      ],
+      handlers: createRemoveMemberErrorHandlers(500, 'Internal server error occurred'),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
-    const canvas = within(canvasElement);
-
-    // Wait for table to load
-    await canvas.findByText('alice.johnson');
-
-    // Click kebab menu on first member
-    const aliceRow = (await canvas.findByText('alice.johnson')).closest('tr');
-    if (!aliceRow) throw new Error('Could not find alice.johnson row');
-
-    const kebabButton = await within(aliceRow).findByRole('button', { name: 'Actions for alice.johnson' });
-    await userEvent.click(kebabButton);
-
-    await delay(200);
-
-    // Click Remove
-    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
-    await userEvent.click(removeMenuItem);
-
-    // Modal should appear
-    const body = within(document.body);
-    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
-    expect(modal).toBeInTheDocument();
-
-    // Click confirm to trigger the 500 error
-    const confirmButton = within(modal).getByRole('button', { name: /Remove member/i });
-    await userEvent.click(confirmButton);
-
-    // Wait for API call and error handling
-    await delay(500);
-
-    // Verify notification portal exists and contains danger notification
-    await waitFor(
-      async () => {
-        const notificationPortal = document.querySelector('.notifications-portal');
-        expect(notificationPortal).toBeInTheDocument();
-
-        const dangerAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-danger');
-        expect(dangerAlert).toBeInTheDocument();
-
-        const alertTitle = dangerAlert?.querySelector('.pf-v5-c-alert__title');
-        expect(alertTitle).toHaveTextContent('Removal failed');
-      },
-      { timeout: 5000 },
-    );
-
-    // Modal should be closed
-    expect(body.queryByRole('dialog')).not.toBeInTheDocument();
-  },
+  play: ({ canvasElement }) =>
+    playRemoveMemberError({
+      canvasElement,
+      alertVariantClass: 'pf-m-danger',
+      expectedTitle: 'Removal failed',
+    }),
 };

@@ -191,6 +191,8 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
     pluralConfirmLabel: messages.remove,
     getItemLabel: (member) => member.username,
     bodyValues: { group: group?.name || '' },
+    // The removeMembersText ICU message uses {name} for the count
+    pluralCountKey: 'name',
   });
 
   // Create table rows from members data

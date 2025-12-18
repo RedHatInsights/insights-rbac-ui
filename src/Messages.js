@@ -2990,7 +2990,7 @@ export default defineMessages({
   itemAlreadyRemovedDescription: {
     id: 'itemAlreadyRemovedDescription',
     description: 'Notification description when item was already removed by another user',
-    defaultMessage: 'This item was already removed. The page will refresh to show the current state.',
+    defaultMessage: 'This item was already removed by another user or no longer exists.',
   },
   insufficientPermissionsTitle: {
     id: 'insufficientPermissionsTitle',

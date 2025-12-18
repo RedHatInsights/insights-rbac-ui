@@ -24,10 +24,63 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { FormattedMessage, MessageDescriptor, useIntl } from 'react-intl';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 
 import messages from '../Messages';
+
+/**
+ * API error shape for type-safe error handling
+ */
+export interface ApiError {
+  response?: { status?: number };
+  errors?: Array<{ detail?: string }>;
+}
+
+/**
+ * Default error handler that shows notifications based on HTTP status codes.
+ * Can be overridden by passing a custom `onError` to the hook config.
+ */
+function createDefaultErrorHandler(intl: ReturnType<typeof useIntl>, dispatch: ReturnType<typeof useDispatch>) {
+  return (error: unknown) => {
+    const apiError = error as ApiError;
+    const status = apiError?.response?.status;
+
+    if (status === 404) {
+      // Item(s) were already removed by another user
+      dispatch(
+        addNotification({
+          variant: 'warning',
+          title: intl.formatMessage(messages.itemAlreadyRemovedTitle),
+          description: intl.formatMessage(messages.itemAlreadyRemovedDescription),
+          dismissable: true,
+        }),
+      );
+    } else if (status === 403) {
+      // Permission denied
+      dispatch(
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.insufficientPermissionsTitle),
+          description: intl.formatMessage(messages.insufficientPermissionsDescription),
+          dismissable: true,
+        }),
+      );
+    } else {
+      // Generic error
+      const errorDetail = apiError?.errors?.[0]?.detail;
+      dispatch(
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.removeItemErrorTitle),
+          description: errorDetail || intl.formatMessage(messages.removeItemErrorDescription),
+          dismissable: true,
+        }),
+      );
+    }
+  };
+}
 
 /**
  * Configuration options for the useConfirmItemsModal hook
@@ -45,6 +98,14 @@ export interface UseConfirmItemsModalConfig<T> {
    * Use this to refresh data, clear selections, etc.
    */
   onSuccess?: () => void;
+
+  /**
+   * Optional callback to handle errors with custom logic.
+   * If not provided, the default error handler shows notifications based on HTTP status.
+   * @param error - The caught error from onConfirm
+   * @param items - The items that were being removed when the error occurred
+   */
+  onError?: (error: unknown, items: T[]) => void;
 
   /**
    * Message descriptor for singular item title (e.g., "Remove role?")
@@ -86,7 +147,7 @@ export interface UseConfirmItemsModalConfig<T> {
    * Additional values to pass to FormattedMessage for body text.
    * Common values like {b} for bold are automatically included.
    */
-  bodyValues?: Record<string, unknown>;
+  bodyValues?: Record<string, React.ReactNode>;
 
   /**
    * Key name for the item label in singular body message (default: 'name')
@@ -146,6 +207,7 @@ export function useConfirmItemsModal<T>(config: UseConfirmItemsModalConfig<T>): 
   const {
     onConfirm,
     onSuccess,
+    onError,
     singularTitle,
     pluralTitle,
     singularBody,
@@ -159,6 +221,7 @@ export function useConfirmItemsModal<T>(config: UseConfirmItemsModalConfig<T>): 
   } = config;
 
   const intl = useIntl();
+  const dispatch = useDispatch();
 
   // Modal state
   const [isOpen, setIsOpen] = useState(false);
@@ -190,54 +253,27 @@ export function useConfirmItemsModal<T>(config: UseConfirmItemsModalConfig<T>): 
 
     setIsSubmitting(true);
 
+    // Use custom error handler if provided, otherwise use default
+    const handleError = onError ?? createDefaultErrorHandler(intl, dispatch);
+
     try {
       await onConfirm(itemsToRemove);
 
       // Close modal on success
-      setIsOpen(false);
-      setItemsToRemove([]);
+      closeRemoveModal();
 
       // Call success callback if provided
       onSuccess?.();
     } catch (error: unknown) {
-      // Handle specific error cases
-      const apiError = error as { response?: { status?: number }; errors?: Array<{ detail?: string }> };
-      const status = apiError?.response?.status;
-
-      if (status === 404) {
-        // Item(s) were already removed by another user
-        addNotification({
-          variant: 'warning',
-          title: intl.formatMessage(messages.itemAlreadyRemovedTitle),
-          description: intl.formatMessage(messages.itemAlreadyRemovedDescription),
-          dismissable: true,
-        });
-      } else if (status === 403) {
-        // Permission denied
-        addNotification({
-          variant: 'danger',
-          title: intl.formatMessage(messages.insufficientPermissionsTitle),
-          description: intl.formatMessage(messages.insufficientPermissionsDescription),
-          dismissable: true,
-        });
-      } else {
-        // Generic error
-        const errorDetail = apiError?.errors?.[0]?.detail;
-        addNotification({
-          variant: 'danger',
-          title: intl.formatMessage(messages.removeItemErrorTitle),
-          description: errorDetail || intl.formatMessage(messages.removeItemErrorDescription),
-          dismissable: true,
-        });
-      }
+      // Handle error using the configured handler
+      handleError(error, itemsToRemove);
 
       // Close modal on error
-      setIsOpen(false);
-      setItemsToRemove([]);
+      closeRemoveModal();
     } finally {
       setIsSubmitting(false);
     }
-  }, [itemsToRemove, isSubmitting, onConfirm, onSuccess, intl]);
+  }, [itemsToRemove, isSubmitting, onConfirm, onSuccess, onError, intl, dispatch, closeRemoveModal]);
 
   /**
    * Memoized modal state for rendering
