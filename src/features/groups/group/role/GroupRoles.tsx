@@ -5,8 +5,8 @@
  * All table state (pagination, sorting, filtering, selection) is managed by useTableState.
  */
 
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import React, { Fragment, Suspense, useContext, useEffect, useMemo } from 'react';
+import { useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -20,6 +20,7 @@ import { RemoveGroupRoles } from './RemoveGroupRoles';
 import { columns, useGroupRolesTableConfig } from './useGroupRolesTableConfig';
 
 import { fetchAddRolesForGroup, fetchRolesForGroup, removeRolesFromGroup } from '../../../../redux/groups/actions';
+import { useConfirmItemsModal } from '../../../../hooks/useConfirmItemsModal';
 import {
   selectGroupRoles,
   selectGroupRolesMeta,
@@ -74,10 +75,6 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   const disableAddRoles = useSelector(selectShouldDisableAddRoles);
   const systemGroupUuid = useSelector(selectSystemGroupUUID);
   const group = useSelector(selectSelectedGroup);
-
-  // Local state for remove modal
-  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
-  const [rolesToRemove, setRolesToRemove] = useState<Role[]>([]);
 
   // Resolve actual group ID (handle default access group)
   const actualGroupId = useMemo(() => (groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId! : systemGroupUuid), [groupId, systemGroupUuid]);
@@ -140,30 +137,17 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   }, [isChanged, group, props.onDefaultGroupChanged]);
 
   // =============================================================================
-  // Remove Modal Handlers
+  // Remove Modal (using generic hook)
   // =============================================================================
 
-  const handleOpenRemoveModal = useCallback((roles: Role[]) => {
-    setRolesToRemove(roles);
-    setIsRemoveModalOpen(true);
-  }, []);
-
-  const handleCloseRemoveModal = useCallback(() => {
-    setIsRemoveModalOpen(false);
-    setRolesToRemove([]);
-  }, []);
-
-  const handleConfirmRemoveRoles = useCallback(async () => {
-    if (rolesToRemove.length === 0 || !actualGroupId) return;
-
-    try {
+  const { openRemoveModal: handleOpenRemoveModal, removeModalState } = useConfirmItemsModal<Role>({
+    onConfirm: async (rolesToRemove) => {
+      if (!actualGroupId) return;
       const roleIds = rolesToRemove.map(({ uuid }) => uuid);
       await dispatch(removeRolesFromGroup(actualGroupId, roleIds) as any);
-
+    },
+    onSuccess: () => {
       tableState.clearSelection();
-      setIsRemoveModalOpen(false);
-      setRolesToRemove([]);
-
       // Refresh data
       fetchData({
         offset: tableState.apiParams.offset,
@@ -171,13 +155,22 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
         orderBy: tableState.apiParams.orderBy,
         filters: tableState.filters,
       });
-
       // Refresh available roles
-      dispatch(fetchAddRolesForGroup(actualGroupId!, { limit: 20, offset: 0 }) as any);
-    } catch (error) {
-      console.error('Failed to remove roles from group:', error);
-    }
-  }, [dispatch, actualGroupId, rolesToRemove, tableState, fetchData]);
+      if (actualGroupId) {
+        dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
+      }
+    },
+    singularTitle: messages.removeRoleQuestion,
+    pluralTitle: messages.removeRolesQuestion,
+    singularBody: messages.removeRoleModalText,
+    pluralBody: messages.removeRolesModalText,
+    singularConfirmLabel: messages.removeRole,
+    pluralConfirmLabel: messages.removeRoles,
+    getItemLabel: (role) => role.display_name || role.name,
+    bodyValues: { name: group?.name || '' },
+    singularLabelKey: 'role',
+    pluralCountKey: 'roles',
+  });
 
   // =============================================================================
   // Toolbar Content
@@ -217,40 +210,6 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
       />
     );
   }, [hasPermissions, isAdminDefault, tableState.selectedRows, intl, handleOpenRemoveModal]);
-
-  // =============================================================================
-  // Remove Modal State
-  // =============================================================================
-
-  const removeModalState = useMemo(() => {
-    const isSingular = rolesToRemove.length === 1;
-    const roleNames = rolesToRemove.map((role) => role.display_name || role.name).join(', ');
-
-    return {
-      isOpen: isRemoveModalOpen,
-      title: intl.formatMessage(isSingular ? messages.removeRoleQuestion : messages.removeRolesQuestion),
-      text: isSingular ? (
-        <FormattedMessage
-          {...messages.removeRoleModalText}
-          values={{
-            b: (text: React.ReactNode) => <b>{text}</b>,
-            name: group?.name || '',
-            role: roleNames,
-          }}
-        />
-      ) : (
-        <FormattedMessage
-          {...messages.removeRolesModalText}
-          values={{
-            b: (text: React.ReactNode) => <b>{text}</b>,
-            name: group?.name || '',
-            roles: rolesToRemove.length,
-          }}
-        />
-      ),
-      confirmButtonLabel: intl.formatMessage(isSingular ? messages.removeRole : messages.removeRoles),
-    };
-  }, [isRemoveModalOpen, rolesToRemove, intl, group?.name]);
 
   // =============================================================================
   // Render
@@ -322,8 +281,8 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
         text={removeModalState.text}
         isOpen={removeModalState.isOpen}
         confirmButtonLabel={removeModalState.confirmButtonLabel}
-        onClose={handleCloseRemoveModal}
-        onSubmit={handleConfirmRemoveRoles}
+        onClose={removeModalState.onClose}
+        onSubmit={removeModalState.onConfirm}
         isDefault={isPlatformDefault}
         isChanged={isChanged}
       />

@@ -2979,4 +2979,37 @@ export default defineMessages({
     description: 'Message when no groups are available for selection',
     defaultMessage: 'No groups available',
   },
+  // =============================================================================
+  // Error handling messages for removal operations
+  // =============================================================================
+  itemAlreadyRemovedTitle: {
+    id: 'itemAlreadyRemovedTitle',
+    description: 'Notification title when item was already removed by another user',
+    defaultMessage: 'Item already removed',
+  },
+  itemAlreadyRemovedDescription: {
+    id: 'itemAlreadyRemovedDescription',
+    description: 'Notification description when item was already removed by another user',
+    defaultMessage: 'This item was already removed. The page will refresh to show the current state.',
+  },
+  insufficientPermissionsTitle: {
+    id: 'insufficientPermissionsTitle',
+    description: 'Notification title when user lacks permission for an action',
+    defaultMessage: 'Insufficient permissions',
+  },
+  insufficientPermissionsDescription: {
+    id: 'insufficientPermissionsDescription',
+    description: 'Notification description when user lacks permission for an action',
+    defaultMessage: 'You do not have permission to perform this action. Please contact your administrator.',
+  },
+  removeItemErrorTitle: {
+    id: 'removeItemErrorTitle',
+    description: 'Generic error title when removal fails',
+    defaultMessage: 'Removal failed',
+  },
+  removeItemErrorDescription: {
+    id: 'removeItemErrorDescription',
+    description: 'Generic error description when removal fails',
+    defaultMessage: 'The item could not be removed. Please try again.',
+  },
 });

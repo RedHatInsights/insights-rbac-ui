@@ -1017,3 +1017,325 @@ Perfect for testing filter state management and API integration.
     expect(filterInput).toHaveValue('');
   },
 };
+
+// =============================================================================
+// Error Handling Stories
+// =============================================================================
+
+export const RemoveRoleError404: Story = {
+  tags: ['perm:user-access-admin'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Error Handling: 404 Not Found**
+
+Tests the scenario where a role was already removed by another user (race condition).
+
+**Flow**:
+1. User clicks to remove a role
+2. API returns 404 (role no longer exists)
+3. User sees "Item already removed" warning notification
+4. Modal closes gracefully
+
+This prevents confusing error messages when concurrent users modify the same group.
+        `,
+      },
+    },
+    permissions: {
+      userAccessAdministrator: true,
+      orgAdmin: false,
+    },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/:groupId/', () => {
+          return HttpResponse.json(mockGroup);
+        }),
+        http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
+          return HttpResponse.json({
+            data: mockRoles,
+            meta: { count: mockRoles.length, limit: 20, offset: 0 },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 50, offset: 0 },
+          });
+        }),
+        // Mock 404 error - role was already removed
+        http.delete('/api/rbac/v1/groups/:groupId/roles/', async () => {
+          await delay(200);
+          return new HttpResponse(
+            JSON.stringify({
+              errors: [{ detail: 'Role not found in group' }],
+            }),
+            { status: 404 },
+          );
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(500);
+    const canvas = within(canvasElement);
+
+    // Wait for table to load
+    await canvas.findByText('Console Administrator');
+
+    // Click kebab menu on first role
+    const firstRow = (await canvas.findByText('Console Administrator')).closest('tr');
+    if (!firstRow) throw new Error('Could not find first role row');
+
+    const kebabButton = within(firstRow).getByLabelText(/Actions for role/i);
+    await userEvent.click(kebabButton);
+
+    await delay(200);
+
+    // Click Remove
+    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+    await userEvent.click(removeMenuItem);
+
+    // Modal should appear
+    const body = within(document.body);
+    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
+    expect(modal).toBeInTheDocument();
+
+    // Click confirm to trigger the 404 error
+    const confirmButton = within(modal).getByRole('button', { name: /Remove role/i });
+    await userEvent.click(confirmButton);
+
+    // Wait for API call and error handling
+    await delay(500);
+
+    // Verify notification portal exists and contains warning notification
+    await waitFor(
+      async () => {
+        const notificationPortal = document.querySelector('.notifications-portal');
+        expect(notificationPortal).toBeInTheDocument();
+
+        const warningAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-warning');
+        expect(warningAlert).toBeInTheDocument();
+
+        const alertTitle = warningAlert?.querySelector('.pf-v5-c-alert__title');
+        expect(alertTitle).toHaveTextContent('Item already removed');
+      },
+      { timeout: 5000 },
+    );
+
+    // Modal should be closed
+    expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+  },
+};
+
+export const RemoveRoleError403: Story = {
+  tags: ['perm:user-access-admin'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Error Handling: 403 Forbidden**
+
+Tests the scenario where user doesn't have permission to remove roles.
+
+**Flow**:
+1. User clicks to remove a role
+2. API returns 403 (permission denied)
+3. User sees "Insufficient permissions" danger notification
+4. Modal closes gracefully
+
+This provides clear feedback when permissions change during a session.
+        `,
+      },
+    },
+    permissions: {
+      userAccessAdministrator: true,
+      orgAdmin: false,
+    },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/:groupId/', () => {
+          return HttpResponse.json(mockGroup);
+        }),
+        http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
+          return HttpResponse.json({
+            data: mockRoles,
+            meta: { count: mockRoles.length, limit: 20, offset: 0 },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 50, offset: 0 },
+          });
+        }),
+        // Mock 403 error - permission denied
+        http.delete('/api/rbac/v1/groups/:groupId/roles/', async () => {
+          await delay(200);
+          return new HttpResponse(
+            JSON.stringify({
+              errors: [{ detail: 'You do not have permission to modify this group' }],
+            }),
+            { status: 403 },
+          );
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(500);
+    const canvas = within(canvasElement);
+
+    // Wait for table to load
+    await canvas.findByText('Console Administrator');
+
+    // Click kebab menu on first role
+    const firstRow = (await canvas.findByText('Console Administrator')).closest('tr');
+    if (!firstRow) throw new Error('Could not find first role row');
+
+    const kebabButton = within(firstRow).getByLabelText(/Actions for role/i);
+    await userEvent.click(kebabButton);
+
+    await delay(200);
+
+    // Click Remove
+    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+    await userEvent.click(removeMenuItem);
+
+    // Modal should appear
+    const body = within(document.body);
+    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
+    expect(modal).toBeInTheDocument();
+
+    // Click confirm to trigger the 403 error
+    const confirmButton = within(modal).getByRole('button', { name: /Remove role/i });
+    await userEvent.click(confirmButton);
+
+    // Wait for API call and error handling
+    await delay(500);
+
+    // Verify notification portal exists and contains danger notification
+    await waitFor(
+      async () => {
+        const notificationPortal = document.querySelector('.notifications-portal');
+        expect(notificationPortal).toBeInTheDocument();
+
+        const dangerAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-danger');
+        expect(dangerAlert).toBeInTheDocument();
+
+        const alertTitle = dangerAlert?.querySelector('.pf-v5-c-alert__title');
+        expect(alertTitle).toHaveTextContent('Insufficient permissions');
+      },
+      { timeout: 5000 },
+    );
+
+    // Modal should be closed
+    expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+  },
+};
+
+export const RemoveRoleGenericError: Story = {
+  tags: ['perm:user-access-admin'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Error Handling: Generic Server Error**
+
+Tests the scenario where an unexpected server error occurs.
+
+**Flow**:
+1. User clicks to remove a role
+2. API returns 500 (internal server error)
+3. User sees "Removal failed" danger notification with error details
+4. Modal closes gracefully
+
+This ensures users get feedback even for unexpected errors.
+        `,
+      },
+    },
+    permissions: {
+      userAccessAdministrator: true,
+      orgAdmin: false,
+    },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/:groupId/', () => {
+          return HttpResponse.json(mockGroup);
+        }),
+        http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
+          return HttpResponse.json({
+            data: mockRoles,
+            meta: { count: mockRoles.length, limit: 20, offset: 0 },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 50, offset: 0 },
+          });
+        }),
+        // Mock 500 error - server error
+        http.delete('/api/rbac/v1/groups/:groupId/roles/', async () => {
+          await delay(200);
+          return new HttpResponse(
+            JSON.stringify({
+              errors: [{ detail: 'Internal server error occurred' }],
+            }),
+            { status: 500 },
+          );
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(500);
+    const canvas = within(canvasElement);
+
+    // Wait for table to load
+    await canvas.findByText('Console Administrator');
+
+    // Click kebab menu on first role
+    const firstRow = (await canvas.findByText('Console Administrator')).closest('tr');
+    if (!firstRow) throw new Error('Could not find first role row');
+
+    const kebabButton = within(firstRow).getByLabelText(/Actions for role/i);
+    await userEvent.click(kebabButton);
+
+    await delay(200);
+
+    // Click Remove
+    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+    await userEvent.click(removeMenuItem);
+
+    // Modal should appear
+    const body = within(document.body);
+    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
+    expect(modal).toBeInTheDocument();
+
+    // Click confirm to trigger the 500 error
+    const confirmButton = within(modal).getByRole('button', { name: /Remove role/i });
+    await userEvent.click(confirmButton);
+
+    // Wait for API call and error handling
+    await delay(500);
+
+    // Verify notification portal exists and contains danger notification
+    await waitFor(
+      async () => {
+        const notificationPortal = document.querySelector('.notifications-portal');
+        expect(notificationPortal).toBeInTheDocument();
+
+        const dangerAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-danger');
+        expect(dangerAlert).toBeInTheDocument();
+
+        const alertTitle = dangerAlert?.querySelector('.pf-v5-c-alert__title');
+        expect(alertTitle).toHaveTextContent('Removal failed');
+      },
+      { timeout: 5000 },
+    );
+
+    // Modal should be closed
+    expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+  },
+};
