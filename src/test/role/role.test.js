@@ -397,12 +397,10 @@ describe('role', () => {
       );
     });
     expect(() => screen.getByText('Remove permission?')).toThrow();
+    // TableView uses direct action buttons instead of kebab toggles
+    // Click the first "Remove" button in the row actions
     await act(async () => {
-      await screen.getAllByLabelText('Kebab toggle')[0].click();
-    });
-
-    await act(async () => {
-      await fireEvent.click(screen.getByText('Remove'));
+      await fireEvent.click(screen.getAllByText('Remove')[0]);
     });
 
     expect(screen.getByText('Remove permission?')).toBeInTheDocument();
@@ -437,18 +435,17 @@ describe('role', () => {
       );
     });
 
+    // Select the first row
     await act(async () => {
       await fireEvent.click(screen.getByLabelText('Select row 0'));
     });
 
+    // TableView shows a bulk "Remove (1)" button when rows are selected
     await act(async () => {
-      await fireEvent.click(screen.getByLabelText('kebab dropdown toggle'));
+      fireEvent.click(screen.getByText(/Remove.*\(1\)/));
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByText('Remove'));
-    });
-
+    // Confirm removal in modal
     await act(async () => {
       await fireEvent.click(screen.getByText('Remove permission'));
     });
