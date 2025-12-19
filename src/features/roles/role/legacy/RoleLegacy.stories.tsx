@@ -745,19 +745,27 @@ export const FilterByApplicationApplied: Story = {
     expect(canvas.getAllByText('inventory').length).toBe(2);
     expect(canvas.getAllByText('cost-management').length).toBe(2);
 
-    // Open filter dropdown
-    const filterToggle = await canvas.findByText('Filter by application');
-    await userEvent.click(filterToggle);
+    // Open filter dropdown - DataViewCheckboxFilter shows title directly
+    // Use getAllByRole and click the first one (the menu toggle, not chips)
+    const filterToggles = await canvas.findAllByRole('button', { name: /Application/i });
+    await userEvent.click(filterToggles[0]);
 
-    await delay(300);
+    // Wait for dropdown menu to open and find inventory option
+    await waitFor(
+      async () => {
+        const inventoryCheckbox = canvas.queryByRole('menuitem', { name: /inventory/i });
+        expect(inventoryCheckbox).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
     // Select only "inventory" application
-    const inventoryCheckbox = await canvas.findByRole('checkbox', { name: /inventory/i });
+    const inventoryCheckbox = await canvas.findByRole('menuitem', { name: /inventory/i });
     await userEvent.click(inventoryCheckbox);
 
     await delay(800);
 
-    // Close dropdown by pressing Escape
+    // Close dropdown by clicking outside or pressing Escape
     await userEvent.keyboard('{Escape}');
 
     await delay(500);
@@ -827,29 +835,15 @@ export const FilterByResourceApplied: Story = {
       { timeout: 3000 },
     );
 
-    // Click on conditional filter to change to Resources
-    const conditionalFilterButton = canvas.getByText('Applications');
-    await userEvent.click(conditionalFilterButton);
+    // With TableView, filters are separate dropdowns (Application, Resource type, Operation)
+    // Open the Resource type filter dropdown directly
+    const resourceFilterToggles = await canvas.findAllByRole('button', { name: /Resource type/i });
+    await userEvent.click(resourceFilterToggles[0]);
 
     await delay(300);
 
-    // Select "Resources" from dropdown
-    const resourcesOption = await canvas.findByRole('menuitem', { name: /Resources/i });
-    await userEvent.click(resourcesOption);
-
-    await delay(500);
-
-    // Now the filter should show "Resources" and dropdown should say "Filter by resource type"
-    expect(await canvas.findByText('Resources')).toBeInTheDocument();
-
-    // Open the resource filter dropdown
-    const resourceFilterToggle = await canvas.findByText('Filter by resource type');
-    await userEvent.click(resourceFilterToggle);
-
-    await delay(300);
-
-    // Select "host" resource
-    const hostCheckbox = await canvas.findByRole('checkbox', { name: /^host$/i });
+    // Select "host" resource - MenuItem with hasCheckbox uses role="menuitem"
+    const hostCheckbox = await canvas.findByRole('menuitem', { name: /^host$/i });
     await userEvent.click(hostCheckbox);
 
     await delay(800);
@@ -904,29 +898,15 @@ export const FilterByOperationApplied: Story = {
       { timeout: 3000 },
     );
 
-    // Click on conditional filter to change to Operations
-    const conditionalFilterButton = canvas.getByText('Applications');
-    await userEvent.click(conditionalFilterButton);
+    // With TableView, filters are separate dropdowns (Application, Resource type, Operation)
+    // Open the Operation filter dropdown directly
+    const operationFilterToggles = await canvas.findAllByRole('button', { name: /Operation/i });
+    await userEvent.click(operationFilterToggles[0]);
 
     await delay(300);
 
-    // Select "Operations" from dropdown
-    const operationsOption = await canvas.findByRole('menuitem', { name: /Operations/i });
-    await userEvent.click(operationsOption);
-
-    await delay(500);
-
-    // Now the filter should show "Operations"
-    expect(await canvas.findByText('Operations')).toBeInTheDocument();
-
-    // Open the operation filter dropdown
-    const operationFilterToggle = await canvas.findByText('Filter by operation');
-    await userEvent.click(operationFilterToggle);
-
-    await delay(300);
-
-    // Select "read" operation
-    const readCheckbox = await canvas.findByRole('checkbox', { name: /^read$/i });
+    // Select "read" operation - MenuItem with hasCheckbox uses role="menuitem"
+    const readCheckbox = await canvas.findByRole('menuitem', { name: /^read$/i });
     await userEvent.click(readCheckbox);
 
     await delay(800);
@@ -981,33 +961,28 @@ export const BulkSelectPermissions: Story = {
       { timeout: 3000 },
     );
 
-    // Find all checkboxes (bulk select + 6 row checkboxes = 7 total)
-    const allCheckboxes = await canvas.findAllByRole('checkbox');
-    expect(allCheckboxes.length).toBe(7); // 1 bulk + 6 rows
-
-    // Find the bulk select checkbox (should be first)
-    const bulkSelectCheckbox = await canvas.findByLabelText(/Select all/i);
-    expect(bulkSelectCheckbox).toBeInTheDocument();
+    // Find all row checkboxes (bulk select uses a different pattern now)
+    const rowCheckboxes = await canvas.findAllByLabelText(/Select row/i);
+    expect(rowCheckboxes.length).toBe(6); // 6 rows
 
     // Verify row checkboxes are initially unchecked
-    const rowCheckboxes = allCheckboxes.slice(1); // All except bulk select
     rowCheckboxes.forEach((checkbox) => {
       expect(checkbox).not.toBeChecked();
     });
+
+    // Find the bulk select checkbox (TableView uses "Select page" from PatternFly BulkSelect)
+    const bulkSelectCheckbox = await canvas.findByLabelText(/Select page/i);
+    expect(bulkSelectCheckbox).toBeInTheDocument();
 
     // Click bulk select
     await userEvent.click(bulkSelectCheckbox);
 
     await delay(1000); // Give time for state update
 
-    // Verify bulk checkbox is checked
-    expect(bulkSelectCheckbox).toBeChecked();
-
     // Re-query checkboxes after state update and verify all row checkboxes are now checked
     await waitFor(
       () => {
-        const updatedCheckboxes = canvas.getAllByRole('checkbox');
-        const updatedRowCheckboxes = updatedCheckboxes.slice(1);
+        const updatedRowCheckboxes = canvas.getAllByLabelText(/Select row/i);
         updatedRowCheckboxes.forEach((checkbox) => {
           expect(checkbox).toBeChecked();
         });
