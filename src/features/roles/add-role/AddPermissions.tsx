@@ -13,7 +13,7 @@ import { fetchResourceDefinitions } from '../../../redux/cost-management/actions
 import { fetchRole } from '../../../redux/roles/actions';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import '../role/legacy/role-permissions.scss';
+import '../role-permissions.scss';
 import type { RBACStore } from '../../../redux/store.d';
 import type { ColumnConfigMap, FilterConfig } from '../../../components/table-view/types';
 

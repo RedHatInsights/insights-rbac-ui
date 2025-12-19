@@ -116,7 +116,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const [wizardContextValue, setWizardContextValue] = useState<{
     success: boolean;
     submitting: boolean;
-    error: unknown | undefined;
+    error: boolean | undefined;
     hideForm: boolean;
   }>({
     success: false,
@@ -157,7 +157,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
     });
   };
 
-  const setWizardError = (error: unknown) => setWizardContextValue((prev) => ({ ...prev, error }));
+  const setWizardError = (error: boolean | undefined) => setWizardContextValue((prev) => ({ ...prev, error }));
   const setWizardSuccess = (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm: boolean) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
 

@@ -21,7 +21,7 @@ import { AppLink } from '../../../../components/navigation/AppLink';
 import { getDateFormat } from '../../../../helpers/stringUtilities';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
-import '../legacy/role-permissions.scss';
+import '../../role-permissions.scss';
 
 interface FilteredPermission {
   uuid: string;
