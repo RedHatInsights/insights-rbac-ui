@@ -1,4 +1,4 @@
-import { errorInterceptor, interceptor500 } from '@redhat-cloud-services/frontend-components-utilities/interceptors';
+import { errorInterceptor, interceptor500, responseDataInterceptor } from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
 import createWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesCreate';
 import deleteWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesDelete';
@@ -24,9 +24,15 @@ const axiosInstance = axios.create();
 
 axiosInstance.interceptors.response.use(null, interceptor404);
 
+axiosInstance.interceptors.response.use(responseDataInterceptor);
 axiosInstance.interceptors.response.use(null, interceptor500);
 axiosInstance.interceptors.response.use(null, errorInterceptor);
 
+// TODO: This wrapper was attempting to modify response transform but was broken.
+// Using the base createWorkspace for now - may need to revisit if custom response handling is needed.
+const customCreateWorkspace = createWorkspace;
+
+// Type for the role bindings paginated response (after responseDataInterceptor unwraps it)
 export interface RoleBindingsPaginatedResponse {
   data: RoleBindingBySubject[];
   meta: {
@@ -38,7 +44,7 @@ export interface RoleBindingsPaginatedResponse {
 
 const workspacesApiEndpoints = {
   getWorkspace,
-  createWorkspace,
+  createWorkspace: customCreateWorkspace,
   updateWorkspace,
   deleteWorkspace,
   listWorkspaces,

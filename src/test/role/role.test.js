@@ -6,7 +6,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import promiseMiddleware from 'redux-promise-middleware';
-import Role from '../../features/roles/role/legacy/role-legacy';
+import { RoleLegacy as Role } from '../../features/roles/role/legacy/RoleLegacy';
 import { FETCH_ROLE, UPDATE_ROLE } from '../../redux/roles/action-types';
 import { FETCH_GROUP, FETCH_SYSTEM_GROUP } from '../../redux/groups/action-types';
 
@@ -14,7 +14,7 @@ import * as RoleActions from '../../redux/roles/actions';
 import * as GroupActions from '../../redux/groups/actions';
 import { getRoleApi } from '../../api/roleApi';
 import { defaultSettings } from '../../helpers/pagination';
-import RemoveRoleModal from '../../features/roles/remove-role-modal';
+import { RemoveRoleModal } from '../../features/roles/RemoveRoleModal';
 import * as useUserDataModule from '../../hooks/useUserData';
 
 describe('role', () => {

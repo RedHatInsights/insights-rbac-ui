@@ -2,49 +2,61 @@ import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/v2/Wo
 import { WorkspacesListParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
 import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesPatch';
 import { WorkspaceCreateBody } from './reducer';
-import { getWorkspacesApi } from './api';
+import { RoleBindingsPaginatedResponse, getWorkspacesApi } from './api';
 import { WorkspacesMoveParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
 import { RoleBindingsListBySubjectParams } from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
 
 const workspacesApi = getWorkspacesApi();
 
 export async function getWorkspaces(config: WorkspacesListParams = {}) {
-  const response = await workspacesApi.listWorkspaces(
-    config.limit ?? 10000,
-    config.offset ?? 0,
-    config.type ?? 'all',
-    config.name ?? '',
-    config.options ?? {},
-  );
-  return response.data;
+  return workspacesApi.listWorkspaces({
+    limit: config.limit ?? 10000,
+    offset: config.offset ?? 0,
+    type: config.type ?? 'all',
+    name: config.name,
+    options: config.options,
+  });
 }
 
 export async function getWorkspace(workspaceId: string) {
-  const response = await workspacesApi.getWorkspace(workspaceId, false, {});
-  return response.data;
+  return workspacesApi.getWorkspace(workspaceId, false, {});
 }
 
 export async function createWorkspace(config: WorkspaceCreateBody) {
-  const response = await workspacesApi.createWorkspace(config, {});
-  return response.data;
+  return workspacesApi.createWorkspace(
+    {
+      parent_id: config.parent_id,
+      name: config.name,
+      description: config.description,
+    },
+    {},
+  );
 }
 
 export async function updateWorkspace(config: WorkspacesPatchParams) {
-  const response = await workspacesApi.updateWorkspace(config.id, config.workspacesPatchWorkspaceRequest, {});
-  return response.data;
+  return workspacesApi.updateWorkspace(config.id, config.workspacesPatchWorkspaceRequest, {});
 }
 
 export async function deleteWorkspace(config: WorkspacesDeleteParams) {
-  const response = await workspacesApi.deleteWorkspace(config.id, {});
-  return response.data;
+  return workspacesApi.deleteWorkspace(config.id, {});
 }
 
 export async function moveWorkspace(config: WorkspacesMoveParams) {
-  const response = await workspacesApi.moveWorkspaces(config.id, config.workspacesMoveWorkspaceRequest, {});
-  return response.data;
+  return workspacesApi.moveWorkspaces(config.id, config.workspacesMoveWorkspaceRequest, {});
 }
 
-export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjectParams) {
-  const response = await workspacesApi.roleBindingsListBySubject(config);
-  return response.data;
+export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjectParams): Promise<RoleBindingsPaginatedResponse> {
+  // The responseDataInterceptor unwraps the AxiosResponse, so we cast to the expected type
+  return workspacesApi.roleBindingsListBySubject({
+    resourceId: config.resourceId,
+    resourceType: config.resourceType,
+    limit: config.limit ?? 10000,
+    cursor: config.cursor,
+    subjectType: config.subjectType,
+    subjectId: config.subjectId,
+    parentRoleBindings: config.parentRoleBindings,
+    fields: config.fields,
+    orderBy: config.orderBy,
+    options: config.options,
+  }) as unknown as Promise<RoleBindingsPaginatedResponse>;
 }
