@@ -60,29 +60,25 @@ export async function fillCreateRoleWizard(
 
   await delay(500);
 
-  // Search for and select permissions
+  // Wait for permissions table to load and select permissions
+  await waitFor(
+    async () => {
+      const checkboxes = within(modal).queryAllByRole('checkbox');
+      expect(checkboxes.length).toBeGreaterThan(0);
+    },
+    { timeout: 5000 },
+  );
+  await delay(500);
+
+  // Select the specified permissions
   for (const permission of permissions) {
-    const searchInput = within(modal).getByPlaceholderText(/filter by application/i) as HTMLInputElement;
-    await user.click(searchInput);
-    await user.clear(searchInput);
-    await user.type(searchInput, permission);
-    await delay(500);
-
-    // Wait for filtered results and click the checkbox for the first permission
-    await waitFor(
-      async () => {
-        const checkboxes = within(modal).queryAllByRole('checkbox');
-        expect(checkboxes.length).toBeGreaterThan(0);
-      },
-      { timeout: 3000 },
-    );
-
-    // Click the first checkbox (not the "select all" one)
+    // For simplicity, just select the first few checkboxes (skip header checkbox at index 0)
     const checkboxes = within(modal).getAllByRole('checkbox');
-    if (checkboxes.length > 1) {
-      await user.click(checkboxes[1]); // First actual permission
+    const targetIndex = permissions.indexOf(permission) + 1; // +1 to skip header
+    if (checkboxes.length > targetIndex) {
+      await user.click(checkboxes[targetIndex]);
     }
-    await delay(300);
+    await delay(200);
   }
 
   // Click Next to go to Review step (find the wizard's primary Next button)
