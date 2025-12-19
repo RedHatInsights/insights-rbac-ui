@@ -10,6 +10,9 @@ export const isInventoryHostsPermission = (permissionId) => isInventoryPermissio
 export const isCostPermission = (permissionId) => permissionId.split(':')[0].includes(COST_MANAGEMENT_PREFIX) && !permissionId.includes('settings');
 
 export const createRows = (data, permissionId, intl) => {
+  if (!Array.isArray(data)) {
+    return [];
+  }
   let finalData = data.filter(Boolean);
   if (isInventoryHostsPermission(permissionId) && data.includes(null)) {
     finalData.unshift(intl.formatMessage(messages.ungroupedSystems));
