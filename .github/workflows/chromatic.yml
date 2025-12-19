@@ -45,6 +45,7 @@ jobs:
 
   # Test Storybook against deployed Chromatic build (for push events)
   test-storybook-push:
+    name: test-storybook
     if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     needs: [chromatic-deployment-push]
@@ -135,6 +136,8 @@ jobs:
 
   # Test Storybook against deployed Chromatic build (for PR events)
   test-storybook-pr:
+    name: test-storybook
+    if: github.event_name == 'pull_request_target' && needs.check-permissions.outputs.has-access == 'true'
     runs-on: ubuntu-24.04
     needs: [chromatic-deployment-pr]
     steps:
