@@ -5,7 +5,7 @@ import { LevelItem } from '@patternfly/react-core';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { TableView } from '../../components/table-view/TableView';
 import { useTableState } from '../../components/table-view/hooks/useTableState';
@@ -44,21 +44,18 @@ const RoleResourceDefinitions: React.FC = () => {
   const isInventoryHosts = useMemo(() => isInventoryHostsPermission(permissionId!), [permissionId]);
   const toAppLink = useAppLink();
 
-  const { role, permission, isRoleLoading, rolesPagination, rolesFilters, inventoryGroupsDetails, isLoadingInventoryDetails } = useSelector(
-    (state: RBACStore) => ({
-      role: state.roleReducer.selectedRole,
-      permission: state.roleReducer.selectedRole?.access
-        ? {
-            ...state.roleReducer.selectedRole?.access.find((a: { permission: string }) => a.permission === permissionId),
-          }
-        : {},
-      isRoleLoading: state.roleReducer.isRecordLoading,
-      rolesPagination: state.roleReducer?.roles?.pagination || defaultSettings,
-      rolesFilters: state.roleReducer?.roles?.filters || {},
-      inventoryGroupsDetails: state.inventoryReducer?.inventoryGroupsDetails,
-      isLoadingInventoryDetails: state.inventoryReducer?.isLoading,
-    }),
-    shallowEqual,
+  // Use individual selectors to avoid creating new object references on each render
+  const role = useSelector((state: RBACStore) => state.roleReducer.selectedRole);
+  const isRoleLoading = useSelector((state: RBACStore) => state.roleReducer.isRecordLoading);
+  const rolesPagination = useSelector((state: RBACStore) => state.roleReducer?.roles?.pagination) || defaultSettings;
+  const rolesFilters = useSelector((state: RBACStore) => state.roleReducer?.roles?.filters) || {};
+  const inventoryGroupsDetails = useSelector((state: RBACStore) => state.inventoryReducer?.inventoryGroupsDetails);
+  const isLoadingInventoryDetails = useSelector((state: RBACStore) => state.inventoryReducer?.isLoading);
+
+  // Derive permission from role - memoized to avoid creating new object references
+  const permission = useMemo(
+    () => role?.access?.find((a: { permission: string }) => a.permission === permissionId) || {},
+    [role?.access, permissionId],
   );
 
   const fetchInventoryGroupNames = (inventoryGroupsIds: string[]) =>
@@ -116,7 +113,7 @@ const RoleResourceDefinitions: React.FC = () => {
 
   // Column config
   const columnConfig: ColumnConfigMap<typeof COLUMNS> = {
-    resource: { label: '' },
+    resource: { label: intl.formatMessage(messages.resource) },
   };
 
   // Cell renderers
