@@ -26,7 +26,7 @@ import { processResourceDefinitions } from '../../redux/inventory/helper';
 import messages from '../../Messages';
 import type { RBACStore } from '../../redux/store.d';
 import type { ColumnConfigMap, FilterConfig } from '../../components/table-view/types';
-import './role/legacy/role-permissions.scss';
+import './role-permissions.scss';
 
 interface ResourceDefinitionRow {
   id: string;

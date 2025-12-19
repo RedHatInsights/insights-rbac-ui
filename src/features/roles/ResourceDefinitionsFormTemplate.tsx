@@ -4,7 +4,7 @@ import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
-import './role/legacy/role-permissions.scss';
+import './role-permissions.scss';
 
 interface ModalProps {
   onClose: (values: Record<string, unknown>) => void;

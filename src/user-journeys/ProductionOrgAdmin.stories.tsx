@@ -1533,8 +1533,9 @@ Tests adding a user to groups from the user detail page.
     const modalContent = within(modal);
 
     // Wait for groups to load and select one
-    await modalContent.findByText('Platform Admins');
-    const groupCheckbox = modalContent.getByRole('checkbox', { name: /select row 0/i });
+    const groupRow = await modalContent.findByText('Platform Admins');
+    const row = groupRow.closest('tr');
+    const groupCheckbox = within(row as HTMLElement).getByRole('checkbox');
     await user.click(groupCheckbox);
     await delay(200);
 

@@ -20,7 +20,7 @@ import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import { isInventoryHostsPermission, isInventoryPermission } from './roleResourceDefinitionsTableHelpers';
 import messages from '../../Messages';
 import type { RBACStore } from '../../redux/store.d';
-import './role/legacy/role-permissions.scss';
+import './role-permissions.scss';
 
 interface InventoryGroup {
   id: string;
