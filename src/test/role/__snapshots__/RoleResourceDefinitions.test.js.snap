@@ -23,7 +23,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
         scope="col"
         tabindex="-1"
       >
-        resource
+        Resource
       </th>
     </tr>
   </thead>
@@ -39,7 +39,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -58,7 +58,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -77,7 +77,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -96,7 +96,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -115,7 +115,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -134,7 +134,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -153,7 +153,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -172,7 +172,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -191,7 +191,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -210,7 +210,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -229,7 +229,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -248,7 +248,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -267,7 +267,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -286,7 +286,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -305,7 +305,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -324,7 +324,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -343,7 +343,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -362,7 +362,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -381,7 +381,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -400,7 +400,7 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         test
@@ -433,7 +433,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         scope="col"
         tabindex="-1"
       >
-        resource
+        Resource
       </th>
     </tr>
   </thead>
@@ -449,7 +449,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Ungrouped systems
@@ -468,7 +468,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for A
@@ -487,7 +487,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for B
@@ -506,7 +506,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for C
@@ -525,7 +525,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Ungrouped systems
@@ -544,7 +544,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for A
@@ -563,7 +563,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for B
@@ -582,7 +582,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for C
@@ -601,7 +601,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Ungrouped systems
@@ -620,7 +620,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for A
@@ -639,7 +639,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for B
@@ -658,7 +658,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for C
@@ -677,7 +677,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Ungrouped systems
@@ -696,7 +696,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for A
@@ -715,7 +715,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for B
@@ -734,7 +734,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for C
@@ -753,7 +753,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Ungrouped systems
@@ -772,7 +772,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for A
@@ -791,7 +791,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for B
@@ -810,7 +810,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-label="resource"
+        data-label="Resource"
         tabindex="-1"
       >
         Test name for C
