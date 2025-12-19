@@ -1,0 +1,142 @@
+import React from 'react';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { Grid } from '@patternfly/react-core';
+import { GridItem } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
+import './review.scss';
+import { useFlag } from '@unleash/proxy-client-react';
+
+interface Row {
+  cells: string[];
+}
+
+const stickyTable = (columns: string[], rows: Row[]) => (
+  <div className="rbac-c-sticky">
+    <Grid className="rbac-c-sticky--title">
+      {columns.map((col) => (
+        <GridItem span={(12 / columns.length) as 1 | 2 | 3 | 4 | 6 | 12} key={col}>
+          {col}
+        </GridItem>
+      ))}
+    </Grid>
+    <Grid className="rbac-c-sticky--data">
+      {rows.map((row, rowIndex) =>
+        row.cells.map((cell, cellIndex) => (
+          <GridItem span={(12 / columns.length) as 1 | 2 | 3 | 4 | 6 | 12} key={`${rowIndex}-${cellIndex}-${cell}`}>
+            {cell}
+          </GridItem>
+        )),
+      )}
+    </Grid>
+  </div>
+);
+
+const ReviewStep: React.FC = () => {
+  const intl = useIntl();
+  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const formOptions = useFormApi();
+  const {
+    'role-name': name,
+    'role-description': description,
+    'role-copy-name': copyName,
+    'role-copy-description': copyDescription,
+    'add-permissions-table': permissions,
+    'resource-definitions': resourceDefinitions,
+    'has-cost-resources': hasCostResources,
+    'inventory-group-permissions': inventoryGroupPermissions,
+    'role-type': type,
+  } = formOptions.getState().values;
+  const columns = [intl.formatMessage(messages.application), intl.formatMessage(messages.resourceType), intl.formatMessage(messages.operation)];
+  const rows = (permissions as { uuid: string }[]).map((permission) => ({
+    cells: permission.uuid.split(':'),
+  }));
+
+  const resourceDefinitionsRows = ((resourceDefinitions as { permission: string; resources: string[] }[]) || []).map(({ permission, resources }) => ({
+    cells: [permission, resources.join(', ')],
+  }));
+
+  const groupPermissionsRows = ((inventoryGroupPermissions as { permission: string; groups?: { id: string | null; name?: string }[] }[]) || []).map(
+    ({ permission, groups }) => ({
+      cells: [
+        permission,
+        groups?.map((group) => (group?.id === null ? intl.formatMessage(messages.ungroupedSystems) : group?.name)).join(', ') || '',
+      ],
+    }),
+  );
+
+  return (
+    <React.Fragment>
+      <Stack>
+        <StackItem className="rbac-l-stack__item-summary">
+          <Grid>
+            <GridItem sm={12} md={2}>
+              <Text component={TextVariants.h4} className="rbac-bold-text">
+                {intl.formatMessage(messages.name)}
+              </Text>
+            </GridItem>
+            <GridItem sm={12} md={10}>
+              <Text component={TextVariants.p}>{type === 'create' ? name : copyName}</Text>
+            </GridItem>
+          </Grid>
+          <Grid>
+            <GridItem sm={12} md={2}>
+              <Text component={TextVariants.h4} className="rbac-bold-text">
+                {intl.formatMessage(messages.description)}
+              </Text>
+            </GridItem>
+            <GridItem sm={12} md={10}>
+              <Text component={TextVariants.p}>{type === 'create' ? description : copyDescription}</Text>
+            </GridItem>
+          </Grid>
+          <Grid>
+            <GridItem sm={12} md={2}>
+              <Text component={TextVariants.h4} className="rbac-bold-text">
+                {intl.formatMessage(messages.permissions)}
+              </Text>
+            </GridItem>
+            <GridItem sm={12} md={10}>
+              {stickyTable(columns, rows)}
+            </GridItem>
+          </Grid>
+          {inventoryGroupPermissions && (
+            <Grid>
+              <GridItem sm={12} md={2}>
+                <Text component={TextVariants.h4} className="rbac-bold-text">
+                  {intl.formatMessage(messages.resourceDefinitions)}
+                </Text>
+              </GridItem>
+              <GridItem sm={12} md={10}>
+                {stickyTable(
+                  [
+                    intl.formatMessage(messages.permission),
+                    intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesDefinition : messages.groupDefinition),
+                  ],
+                  groupPermissionsRows,
+                )}
+              </GridItem>
+            </Grid>
+          )}
+          {hasCostResources && (
+            <Grid>
+              <GridItem sm={12} md={2}>
+                <Text component={TextVariants.h4} className="rbac-bold-text">
+                  {intl.formatMessage(messages.resourceDefinitions)}
+                </Text>
+              </GridItem>
+              <GridItem sm={12} md={10}>
+                {stickyTable([intl.formatMessage(messages.permission), intl.formatMessage(messages.resourceDefinitions)], resourceDefinitionsRows)}
+              </GridItem>
+            </Grid>
+          )}
+        </StackItem>
+      </Stack>
+    </React.Fragment>
+  );
+};
+
+export default ReviewStep;
