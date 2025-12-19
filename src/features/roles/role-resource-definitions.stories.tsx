@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, fn, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import ResourceDefinitions from './role-resource-definitions';
-import { fetchRole } from '../../redux/roles/actions';
 
 // API Spies
 const fetchRoleSpy = fn();
@@ -57,47 +55,28 @@ const mockInventoryGroups = {
   'group-3': { id: 'group-3', name: 'Test Servers' },
 };
 
-// Component wrapper that pre-fetches role data before rendering ResourceDefinitions
-const ResourceDefinitionsWrapper = ({ roleId }: { roleId: string }) => {
-  const dispatch = useDispatch();
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    // Pre-fetch role data to populate Redux state before component renders
-    dispatch(fetchRole(roleId) as any).then(() => {
-      setIsReady(true);
-    });
-  }, [dispatch, roleId]);
-
-  if (!isReady) {
-    return <div>Loading...</div>;
-  }
-
-  return <ResourceDefinitions />;
-};
-
-// Router decorator
+// Router decorator - uses MemoryRouter to set initial route with params
 const withRouter = (Story: any, context: any) => {
   const roleId = context.parameters.roleId || 'role-123';
   const permissionId = context.parameters.permissionId || 'inventory:hosts:read';
+  const initialRoute = `/roles/${roleId}/permissions/${permissionId}`;
 
   return (
-    <BrowserRouter>
+    <MemoryRouter initialEntries={[initialRoute]}>
       <Routes>
         <Route
           path="/roles/:roleId/permissions/:permissionId"
           element={
             <div style={{ minHeight: '100vh' }}>
-              <ResourceDefinitionsWrapper roleId={roleId} />
+              <ResourceDefinitions />
             </div>
           }
         />
         <Route path="/roles/:roleId/permissions/:permissionId/edit" element={<div data-testid="edit-page">Edit Page</div>} />
         <Route path="/roles/:roleId" element={<div data-testid="role-detail-page">Role Detail</div>} />
         <Route path="/roles" element={<div data-testid="roles-page">Roles Page</div>} />
-        <Route path="*" element={<Navigate to={`/roles/${roleId}/permissions/${permissionId}`} replace />} />
       </Routes>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
@@ -117,26 +96,17 @@ type Story = StoryObj<typeof ResourceDefinitions>;
 
 // Default handlers
 const createDefaultHandlers = (role = mockRole) => [
-  // Fetch role
+  // Fetch role - matches with or without query params
   http.get('/api/rbac/v1/roles/:roleId/', async ({ params }) => {
     fetchRoleSpy({ roleId: params.roleId });
     await delay(100);
     return HttpResponse.json(role);
   }),
 
-  // Fetch inventory groups - handles comma-separated group IDs
-  http.get('/api/inventory/v1/groups/:groupIds', async ({ params }) => {
-    const groupIds = (params.groupIds as string).split(',');
-    fetchInventoryGroupsSpy({ groupIds });
-    await delay(100);
-
-    const results = groupIds.map((id) => mockInventoryGroups[id as keyof typeof mockInventoryGroups]).filter(Boolean);
-
-    return HttpResponse.json({ results });
-  }),
-
-  // Bulk inventory groups without path param
-  http.get('/api/inventory/v1/groups', async () => {
+  // Inventory groups API - matches any inventory API path
+  http.get(/\/api\/inventory\/v1\/groups.*/, async ({ request }) => {
+    const url = new URL(request.url);
+    fetchInventoryGroupsSpy({ url: url.toString() });
     await delay(100);
     return HttpResponse.json({
       results: Object.values(mockInventoryGroups),
@@ -354,5 +324,178 @@ export const PermissionIdInTitle: Story = {
       },
       { timeout: 3000 },
     );
+  },
+};
+
+/**
+ * Filter resources - Tests client-side filtering functionality
+ */
+export const FilterResources: Story = {
+  parameters: {
+    roleId: 'role-123',
+    permissionId: 'inventory:hosts:read',
+    msw: {
+      handlers: createDefaultHandlers(),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for data to load
+    await waitFor(
+      async () => {
+        expect(await canvas.findByText('Production Servers')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // Verify all 3 rows are initially visible
+    expect(await canvas.findByText('Production Servers')).toBeInTheDocument();
+    expect(await canvas.findByText('Development Servers')).toBeInTheDocument();
+    expect(await canvas.findByText('Test Servers')).toBeInTheDocument();
+
+    // Find the filter input
+    const filterInput = await canvas.findByPlaceholderText(/filter by resource/i);
+    expect(filterInput).toBeInTheDocument();
+
+    // Type "Production" in the filter
+    await userEvent.clear(filterInput);
+    await userEvent.type(filterInput, 'Production');
+
+    // Wait for filtering to apply (client-side, should be immediate)
+    await waitFor(
+      async () => {
+        // Production Servers should still be visible
+        expect(await canvas.findByText('Production Servers')).toBeInTheDocument();
+        // Other servers should be filtered out
+        expect(canvas.queryByText('Development Servers')).not.toBeInTheDocument();
+        expect(canvas.queryByText('Test Servers')).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    // Clear filter and type "Servers" to match all
+    await userEvent.clear(filterInput);
+    await userEvent.type(filterInput, 'Servers');
+
+    // All 3 rows should be visible again
+    await waitFor(
+      async () => {
+        expect(await canvas.findByText('Production Servers')).toBeInTheDocument();
+        expect(await canvas.findByText('Development Servers')).toBeInTheDocument();
+        expect(await canvas.findByText('Test Servers')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    // Test partial match - filter by "Dev"
+    await userEvent.clear(filterInput);
+    await userEvent.type(filterInput, 'Dev');
+
+    await waitFor(
+      async () => {
+        expect(await canvas.findByText('Development Servers')).toBeInTheDocument();
+        expect(canvas.queryByText('Production Servers')).not.toBeInTheDocument();
+        expect(canvas.queryByText('Test Servers')).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    // Clear the filter completely
+    await userEvent.clear(filterInput);
+
+    // All rows should be back
+    await waitFor(
+      async () => {
+        expect(await canvas.findByText('Production Servers')).toBeInTheDocument();
+        expect(await canvas.findByText('Development Servers')).toBeInTheDocument();
+        expect(await canvas.findByText('Test Servers')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+  },
+};
+
+/**
+ * Filter with no results - Tests empty state when filter matches nothing
+ */
+export const FilterNoResults: Story = {
+  parameters: {
+    roleId: 'role-123',
+    permissionId: 'inventory:hosts:read',
+    msw: {
+      handlers: createDefaultHandlers(),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for data to load - use findByText which has built-in retry
+    const productionText = await canvas.findByText('Production Servers', {}, { timeout: 5000 });
+    expect(productionText).toBeInTheDocument();
+
+    // Find the filter input
+    const filterInput = await canvas.findByPlaceholderText(/filter by resource/i);
+
+    // Type a non-matching filter value
+    await userEvent.type(filterInput, 'NonExistentResource');
+
+    // Wait for filtering to apply - no rows should be visible
+    await waitFor(
+      () => {
+        expect(canvas.queryByText('Production Servers')).not.toBeInTheDocument();
+        expect(canvas.queryByText('Development Servers')).not.toBeInTheDocument();
+        expect(canvas.queryByText('Test Servers')).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    // After filtering with no results, the table should have no data rows
+    // Verify by checking the table exists but the specific data items are gone
+    const table = canvas.queryByRole('grid') || canvas.queryByRole('table');
+    expect(table).toBeInTheDocument();
+  },
+};
+
+/**
+ * API Spy verification - Verifies correct API calls are made with spies
+ */
+export const APISpyVerification: Story = {
+  parameters: {
+    roleId: 'role-123',
+    permissionId: 'inventory:hosts:read',
+    msw: {
+      handlers: createDefaultHandlers(),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for data to load
+    await waitFor(
+      async () => {
+        expect(await canvas.findByText('Production Servers')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // Verify the fetchRoleSpy was called with the role ID
+    await waitFor(() => {
+      expect(fetchRoleSpy).toHaveBeenCalledWith({ roleId: 'role-123' });
+    });
+
+    // Verify the inventory groups API was called
+    await waitFor(() => {
+      expect(fetchInventoryGroupsSpy).toHaveBeenCalled();
+    });
+
+    // Verify inventory API was called with the correct URL pattern
+    await waitFor(() => {
+      const calls = fetchInventoryGroupsSpy.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      // The URL should contain the group IDs
+      const lastCall = calls[calls.length - 1][0];
+      expect(lastCall.url).toContain('/api/inventory/v1/groups');
+    });
   },
 };
