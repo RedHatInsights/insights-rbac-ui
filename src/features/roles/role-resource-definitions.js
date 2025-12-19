@@ -5,7 +5,7 @@ import { LevelItem } from '@patternfly/react-core';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { TableToolbarView } from '../../components/tables/TableToolbarView';
 import { createRows, isInventoryPermission } from './role-resource-definitions-table-helpers';
@@ -14,6 +14,13 @@ import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/Page
 import { ToolbarTitlePlaceholder } from '../../components/ui-states/LoaderPlaceholders';
 import { defaultSettings } from '../../helpers/pagination';
 import { fetchRole } from '../../redux/roles/actions';
+import {
+  selectIsRoleRecordLoading,
+  selectRolePermissionById,
+  selectRolesFilters,
+  selectRolesPagination,
+  selectSelectedRole,
+} from '../../redux/roles/selectors';
 import paths from '../../utilities/pathnames';
 import { AppLink } from '../../components/navigation/AppLink';
 import { useAppLink } from '../../hooks/useAppLink';
@@ -41,22 +48,16 @@ const ResourceDefinitions = () => {
   const isInventory = useMemo(() => isInventoryPermission(permissionId), [permissionId]);
   const toAppLink = useAppLink();
 
-  const { role, permission, isRoleLoading, rolesPagination, rolesFilters, inventoryGroupsDetails, isLoadingInventoryDetails } = useSelector(
-    (state) => ({
-      role: state.roleReducer.selectedRole,
-      permission: state.roleReducer.selectedRole.access
-        ? {
-            ...state.roleReducer.selectedRole?.access.find((a) => a.permission === permissionId),
-          }
-        : {},
-      isRoleLoading: state.roleReducer.isRecordLoading,
-      rolesPagination: state.roleReducer?.roles?.pagination || defaultSettings,
-      rolesFilters: state.roleReducer?.roles?.filters || {},
-      inventoryGroupsDetails: state.inventoryReducer?.inventoryGroupsDetails,
-      isLoadingInventoryDetails: state.inventoryReducer?.isLoading,
-    }),
-    shallowEqual,
-  );
+  // Use memoized selectors to prevent unnecessary re-renders
+  const role = useSelector(selectSelectedRole);
+  const permissionSelector = useMemo(() => selectRolePermissionById(permissionId), [permissionId]);
+  const permission = useSelector(permissionSelector) || {};
+  const isRoleLoading = useSelector(selectIsRoleRecordLoading);
+  const rolesPagination = useSelector(selectRolesPagination);
+  const rolesFilters = useSelector(selectRolesFilters);
+  // Inventory selectors (simple direct access, stable references)
+  const inventoryGroupsDetails = useSelector((state) => state.inventoryReducer?.inventoryGroupsDetails);
+  const isLoadingInventoryDetails = useSelector((state) => state.inventoryReducer?.isLoading);
 
   const fetchInventoryGroupNames = (inventoryGroupsIds) => dispatch(fetchInventoryGroupsDetails(inventoryGroupsIds));
 
@@ -76,13 +77,13 @@ const ResourceDefinitions = () => {
       ...config,
       pagination: {
         ...config.pagination,
-        count: role.access ? role.access.length : 0,
+        count: role?.access ? role.access.length : 0,
       },
     });
   }, [role]);
 
   const toolbarButtons = () =>
-    !role.system
+    role && !role.system
       ? [
           <Fragment key="edit-resource-definitions">
             <AppLink to={paths['role-detail-permission-edit'].link.replace(':roleId', roleId).replace(':permissionId', permissionId)}>
@@ -102,7 +103,7 @@ const ResourceDefinitions = () => {
           !isInventory || item == null ? item : inventoryGroupsDetails?.[item]?.name,
         )) ||
       [],
-    [permissionId, isRoleLoading, isLoadingInventoryDetails],
+    [permission.resourceDefinitions, isInventory, isRoleLoading, isLoadingInventoryDetails, inventoryGroupsDetails],
   );
   const filteredData = useMemo(() => allData.filter((value) => (filter ? value?.includes(filter) || value === null : true)), [allData, filter]);
   const data = useMemo(

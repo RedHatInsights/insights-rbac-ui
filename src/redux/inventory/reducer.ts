@@ -80,9 +80,11 @@ const setResourceTypes = (state: InventoryState, action?: ReduxAction<PayloadWit
 const setInventoryGroupsDetails = (state: InventoryState, action?: ReduxAction<PayloadWithResults>): InventoryState => {
   if (!action) return state;
   const { payload } = action;
+  // Guard against undefined results - API might return empty or malformed response
+  const results = payload?.results || [];
   return {
     ...state,
-    inventoryGroupsDetails: payload.results.reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {} as InventoryGroupsDetailsMap),
+    inventoryGroupsDetails: results.reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {} as InventoryGroupsDetailsMap),
     isLoading: false,
   };
 };
