@@ -19,7 +19,7 @@ import { EmptyWithAction } from '../ui-states/EmptyState';
 import './TableToolbarView.scss';
 import { ISortBy } from '@patternfly/react-table';
 import { OnSort } from '@patternfly/react-table';
-import { CellObject, CellType, SelectCell } from '../../features/users/user-table-helpers';
+import { CellObject, CellType, SelectCell } from '../../features/users/userTableHelpers';
 
 interface FilterProps {
   username?: string;

@@ -156,58 +156,295 @@ exports[`<User /> should render user 1`] = `
         class="rbac-c-user-roles ins-l-content"
       >
          
-        <div>
+        <div
+          data-ouia-component-id="user-details-table"
+          data-testid="table-view"
+        >
           <div
-            class="pf-v5-c-empty-state pf-m-sm"
+            class="pf-v5-c-toolbar"
+            data-ouia-component-id="user-details-table-top-toolbar"
+            data-ouia-component-type="PF5/Toolbar"
+            data-ouia-safe="true"
+            id="pf-random-id-0"
           >
             <div
-              class="pf-v5-c-empty-state__content"
+              class="pf-v5-c-toolbar__content"
             >
               <div
-                class="pf-v5-c-empty-state__header"
+                class="pf-v5-c-toolbar__content-section"
               >
                 <div
-                  class="pf-v5-c-empty-state__icon"
+                  class="pf-v5-c-toolbar__item pf-m-search-filter"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v5-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 512 512"
-                    width="1em"
+                  <div
+                    class="pf-v5-c-toolbar__group pf-m-toggle-group pf-m-show-on-xl"
+                    data-ouia-component-id="DataViewFilters"
                   >
-                    <path
-                      d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                    />
-                  </svg>
-                </div>
-                <div
-                  class="pf-v5-c-empty-state__title"
-                >
-                  <h4
-                    class="pf-v5-c-empty-state__title-text"
-                  >
-                    Configure {items}
-                  </h4>
+                    <div
+                      class="pf-v5-c-toolbar__toggle"
+                    >
+                      <button
+                        aria-disabled="false"
+                        aria-haspopup="false"
+                        aria-label="Show Filters"
+                        class="pf-v5-c-button pf-m-plain"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-1"
+                        data-ouia-component-type="PF5/Button"
+                        data-ouia-safe="true"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="pf-v5-svg"
+                          fill="currentColor"
+                          height="1em"
+                          role="img"
+                          viewBox="0 0 512 512"
+                          width="1em"
+                        >
+                          <path
+                            d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                    <div
+                      class="pf-v5-c-toolbar__group pf-m-filter-group"
+                    >
+                      <div>
+                        <button
+                          aria-expanded="false"
+                          class="pf-v5-c-menu-toggle"
+                          data-ouia-component-id="OUIA-Generated-MenuToggle-1"
+                          data-ouia-component-type="PF5/MenuToggle"
+                          data-ouia-safe="true"
+                          type="button"
+                        >
+                          <span
+                            class="pf-v5-c-menu-toggle__icon"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="pf-v5-svg"
+                              fill="currentColor"
+                              height="1em"
+                              role="img"
+                              viewBox="0 0 512 512"
+                              width="1em"
+                            >
+                              <path
+                                d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                              />
+                            </svg>
+                          </span>
+                          <span
+                            class="pf-v5-c-menu-toggle__text"
+                          >
+                            Search
+                          </span>
+                          <span
+                            class="pf-v5-c-menu-toggle__controls"
+                          >
+                            <span
+                              class="pf-v5-c-menu-toggle__toggle-icon"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                class="pf-v5-svg"
+                                fill="currentColor"
+                                height="1em"
+                                role="img"
+                                viewBox="0 0 320 512"
+                                width="1em"
+                              >
+                                <path
+                                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                />
+                              </svg>
+                            </span>
+                          </span>
+                        </button>
+                      </div>
+                      <div
+                        class="pf-v5-c-toolbar__item"
+                        data-ouia-component-id="DataViewTextFilter"
+                      >
+                        <div
+                          class="pf-v5-c-text-input-group"
+                          data-ouia-component-id="DataViewTextFilter-input"
+                        >
+                          <div
+                            class="pf-v5-c-text-input-group__main pf-m-icon"
+                          >
+                            <span
+                              class="pf-v5-c-text-input-group__text"
+                            >
+                              <span
+                                class="pf-v5-c-text-input-group__icon"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="pf-v5-svg"
+                                  fill="currentColor"
+                                  height="1em"
+                                  role="img"
+                                  viewBox="0 0 512 512"
+                                  width="1em"
+                                >
+                                  <path
+                                    d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                                  />
+                                </svg>
+                              </span>
+                              <input
+                                aria-label="Search filter"
+                                class="pf-v5-c-text-input-group__text-input"
+                                id="name"
+                                placeholder="role name"
+                                type="text"
+                                value=""
+                              />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+            <div
+              class="pf-v5-c-toolbar__content pf-m-hidden"
+              hidden=""
+            >
               <div
-                class="pf-v5-c-empty-state__body pf-v5-u-mb-md"
-              >
-                To configure user access to applications
-                 
-                <br />
-                create at least one {item}
-                 
-                <br />
-              </div>
-              <div
-                class="pf-v5-c-empty-state__footer"
+                class="pf-v5-c-toolbar__group"
               />
+              <div
+                class="pf-v5-c-toolbar__item"
+              >
+                <button
+                  aria-disabled="false"
+                  class="pf-v5-c-button pf-m-link pf-m-inline"
+                  data-ouia-component-id="user-details-table-top-toolbar-clear-all-filters"
+                  data-ouia-component-type="PF5/Button"
+                  data-ouia-safe="true"
+                  type="button"
+                >
+                  Clear filters
+                </button>
+              </div>
             </div>
           </div>
+          <table
+            aria-label="Roles"
+            class="pf-v5-c-table pf-m-grid-md"
+            data-ouia-component-id="user-details-table"
+            data-ouia-component-type="PF5/Table"
+            data-ouia-safe="true"
+            role="grid"
+          >
+            <thead
+              class="pf-v5-c-table__thead"
+            >
+              <tr
+                class="pf-v5-c-table__tr"
+                data-ouia-component-id="OUIA-Generated-TableRow-1"
+                data-ouia-component-type="PF5/TableRow"
+                data-ouia-safe="true"
+              >
+                <th
+                  class="pf-v5-c-table__th"
+                  scope="col"
+                  tabindex="-1"
+                >
+                  Roles
+                </th>
+                <th
+                  class="pf-v5-c-table__th"
+                  scope="col"
+                  tabindex="-1"
+                >
+                  Groups
+                </th>
+                <th
+                  class="pf-v5-c-table__th"
+                  scope="col"
+                  tabindex="-1"
+                >
+                  Permissions
+                </th>
+                <th
+                  class="pf-v5-c-table__th"
+                  scope="col"
+                  tabindex="-1"
+                >
+                  Last modified
+                </th>
+              </tr>
+            </thead>
+            <tbody
+              class="pf-v5-c-table__tbody"
+              role="rowgroup"
+            >
+              <tr
+                class="pf-v5-c-table__tr"
+                data-ouia-component-id="OUIA-Generated-TableRow-2"
+                data-ouia-component-type="PF5/TableRow"
+                data-ouia-safe="true"
+              >
+                <td
+                  class="pf-v5-c-table__td"
+                  colspan="4"
+                  tabindex="-1"
+                >
+                  <div
+                    class="pf-v5-c-empty-state pf-m-lg"
+                  >
+                    <div
+                      class="pf-v5-c-empty-state__content"
+                    >
+                      <div
+                        class="pf-v5-c-empty-state__header"
+                      >
+                        <div
+                          class="pf-v5-c-empty-state__icon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="pf-v5-svg"
+                            fill="currentColor"
+                            height="1em"
+                            role="img"
+                            viewBox="0 0 512 512"
+                            width="1em"
+                          >
+                            <path
+                              d="M488.6 250.2L392 214V105.5c0-15-9.3-28.4-23.4-33.7l-100-37.5c-8.1-3.1-17.1-3.1-25.3 0l-100 37.5c-14.1 5.3-23.4 18.7-23.4 33.7V214l-96.6 36.2C9.3 255.5 0 268.9 0 283.9V394c0 13.6 7.7 26.1 19.9 32.2l100 50c10.1 5.1 22.1 5.1 32.2 0l103.9-52 103.9 52c10.1 5.1 22.1 5.1 32.2 0l100-50c12.2-6.1 19.9-18.6 19.9-32.2V283.9c0-15-9.3-28.4-23.4-33.7zM358 214.8l-85 31.9v-68.2l85-37v73.3zM154 104.1l102-38.2 102 38.2v.6l-102 41.4-102-41.4v-.6zm84 291.1l-85 42.5v-79.1l85-38.8v75.4zm0-112l-102 41.4-102-41.4v-.6l102-38.2 102 38.2v.6zm240 112l-85 42.5v-79.1l85-38.8v75.4zm0-112l-102 41.4-102-41.4v-.6l102-38.2 102 38.2v.6z"
+                            />
+                          </svg>
+                        </div>
+                        <div
+                          class="pf-v5-c-empty-state__title"
+                        >
+                          <h4
+                            class="pf-v5-c-empty-state__title-text"
+                          >
+                            No roles found
+                          </h4>
+                        </div>
+                      </div>
+                      <div
+                        class="pf-v5-c-empty-state__body"
+                      >
+                        No roles match your current search criteria.
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
          
       </section>

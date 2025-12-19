@@ -23,6 +23,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
           id: 'group-3',
           type: 'group',
           group: {
+            name: 'Viewers',
             description: 'Read-only access to production',
             user_count: 25,
           },
@@ -35,7 +36,6 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
         ],
         resource: {
           id: 'root-1',
-          name: 'Viewers',
           type: 'workspace',
           workspace: {
             name: 'Default Workspace',
@@ -57,6 +57,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
           id: 'group-1',
           type: 'group',
           group: {
+            name: 'Production Admins',
             description: 'Administrators for production environment',
             user_count: 5,
           },
@@ -74,7 +75,6 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
         resource: {
           id: 'ws-1',
           type: 'workspace',
-          name: 'Production Admins',
           workspace: {
             name: 'Production',
             type: 'standard',
@@ -88,6 +88,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
           id: 'group-3',
           type: 'group',
           group: {
+            name: 'Viewers',
             description: 'Read-only access to production',
             user_count: 25,
           },
@@ -101,7 +102,6 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
         resource: {
           id: 'ws-1',
           type: 'workspace',
-          name: 'Viewers',
           workspace: {
             name: 'Production',
             type: 'standard',
@@ -122,6 +122,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
           id: 'group-2',
           type: 'group',
           group: {
+            name: 'Development Team',
             description: 'Development environment access',
             user_count: 12,
           },
@@ -133,7 +134,6 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
           },
         ],
         resource: {
-          name: 'Development Team',
           id: 'ws-2',
           type: 'workspace',
           workspace: {
@@ -149,6 +149,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
           id: 'group-3',
           type: 'group',
           group: {
+            name: 'Viewers',
             description: 'Read-only access to production',
             user_count: 25,
           },
@@ -161,7 +162,6 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
         ],
         resource: {
           id: 'ws-2',
-          name: 'Viewers',
           type: 'workspace',
           workspace: {
             name: 'Development',
@@ -183,6 +183,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
           id: 'group-3',
           type: 'group',
           group: {
+            name: 'Viewers',
             description: 'Read-only access to production',
             user_count: 25,
           },
@@ -196,7 +197,6 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
         resource: {
           id: 'ws-3',
           type: 'workspace',
-          name: 'Viewers',
           workspace: {
             name: 'Staging',
             type: 'standard',
@@ -217,6 +217,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
           id: 'group-4',
           type: 'group',
           group: {
+            name: 'Marketing Team',
             description: 'Marketing department access',
             user_count: 8,
           },
@@ -230,7 +231,6 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
         resource: {
           id: 'ws-4',
           type: 'workspace',
-          name: 'Marketing Team',
           workspace: {
             name: 'Marketing',
             type: 'standard',

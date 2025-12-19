@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
 import { useFlag } from '@unleash/proxy-client-react';
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import UsersListNotSelectable from './users-list-not-selectable';
+import UsersListNotSelectable from './UsersListNotSelectable';
 import { Users as UsersWithDrawer } from '../access-management/users-and-user-groups/users/Users';
 import { ActiveUsers } from '../../components/user-management/ActiveUsers';
 import PermissionsContext, { PermissionsContextType } from '../../utilities/permissionsContext';

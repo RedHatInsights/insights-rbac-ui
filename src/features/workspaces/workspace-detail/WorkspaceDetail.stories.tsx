@@ -147,7 +147,6 @@ const workspaceDetailHandlers = [
         ],
         resource: {
           id: resourceId || 'workspace-2',
-          name: 'Platform Team',
           type: 'workspace',
           workspace: {
             name: 'Web Services',
@@ -176,7 +175,6 @@ const workspaceDetailHandlers = [
         resource: {
           id: resourceId || 'workspace-2',
           type: 'workspace',
-          name: 'QE Team',
           workspace: {
             name: 'Web Services',
             type: 'standard',

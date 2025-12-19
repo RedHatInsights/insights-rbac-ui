@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import * as groupActions from '../../../redux/groups/actions';
-import AddUserToGroup from '../../../features/users/add-user-to-group/add-user-to-group';
+import { AddUserToGroup } from '../../../features/users/add-user-to-group/AddUserToGroup';
 import { ADD_MEMBERS_TO_GROUP, FETCH_GROUPS } from '../../../redux/groups/action-types';
 import PermissionsContext from '../../../utilities/permissionsContext';
 import messages from '../../../Messages';
@@ -151,7 +151,6 @@ describe('Add User to Group Wizard', () => {
       expect(addNotification).toHaveBeenCalledWith({
         variant: 'warning',
         title: messages.addingGroupMemberTitle.defaultMessage,
-        dismissDelay: 8000,
         description: messages.addingGroupMemberCancelled.defaultMessage,
       }),
     );
