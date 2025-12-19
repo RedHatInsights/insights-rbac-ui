@@ -72,10 +72,11 @@ objects:
           description: Authenticate and connect securely to APIs from multiple services.
           icon: ServicesIcon
       bundleSegments:
-        - segmentId: module-rbac-ui
+        # New navigation structure (when platform.rbac.workspaces-organization-management is true)
+        - segmentId: rbac-overview
           bundleId: iam
+          position: 100
           navItems:
-            # New navigation structure with platform.rbac.workspaces-organization-management feature flag
             - id: overview
               title: Overview
               href: /iam/user-access/overview
@@ -90,6 +91,10 @@ objects:
                     - true
                 - method: isOrgAdmin
               product: Identity & Access Management
+        - segmentId: rbac-my-access
+          bundleId: iam
+          position: 200
+          navItems:
             - id: my-access
               title: My Access
               href: /iam/my-user-access
@@ -98,6 +103,10 @@ objects:
                   args:
                     - platform.rbac.workspaces-organization-management
                     - true
+        - segmentId: rbac-access-management
+          bundleId: iam
+          position: 300
+          navItems:
             - id: access-management
               title: Access Management
               expandable: true
@@ -141,6 +150,10 @@ objects:
                       args:
                         - - 'inventory:groups:read'
                   product: Identity & Access Management
+        - segmentId: rbac-organization-management
+          bundleId: iam
+          position: 400
+          navItems:
             - id: organization-management
               title: Organization Management
               expandable: true
@@ -175,6 +188,10 @@ objects:
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
+        - segmentId: rbac-learning-resources
+          bundleId: iam
+          position: 500
+          navItems:
             - id: learning-resources
               title: Learning Resources
               href: /iam/learning-resources
@@ -183,7 +200,11 @@ objects:
                   args:
                     - platform.rbac.workspaces-organization-management
                     - true
-            # Legacy navigation structure (when new feature flag is off)
+        # Legacy navigation structure (when new feature flag is off)
+        - segmentId: rbac-my-user-access-legacy
+          bundleId: iam
+          position: 100
+          navItems:
             - id: my-user-access
               title: My User Access
               href: /iam/my-user-access
@@ -192,6 +213,10 @@ objects:
                   args:
                     - platform.rbac.workspaces-organization-management
                     - false
+        - segmentId: rbac-user-access-legacy
+          bundleId: iam
+          position: 200
+          navItems:
             - id: user-access
               title: User Access
               expandable: true
@@ -254,7 +279,6 @@ objects:
                 - segmentRef:
                     frontendName: access-requests
                     segmentId: iam-access-requests
-          position: 100
       module:
         manifestLocation: /apps/rbac/fed-mods.json
         defaultDocumentTitle: User Access | Identity & Access Management
