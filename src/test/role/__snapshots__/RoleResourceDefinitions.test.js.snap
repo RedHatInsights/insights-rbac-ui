@@ -2,16 +2,15 @@
 
 exports[`RoleResourceDefinitions - Cost management should render resource definitions table 1`] = `
 <table
-  aria-label="resources table"
+  aria-label="Resource definitions"
   class="pf-v5-c-table pf-m-grid-md pf-m-compact"
-  data-ouia-component-id="OUIA-Generated-Table-2"
+  data-ouia-component-id="role-resource-definitions-table"
   data-ouia-component-type="PF5/Table"
   data-ouia-safe="true"
   role="grid"
 >
-  <tbody
-    class="pf-v5-c-table__tbody"
-    role="rowgroup"
+  <thead
+    class="pf-v5-c-table__thead"
   >
     <tr
       class="pf-v5-c-table__tr"
@@ -19,14 +18,19 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
       data-ouia-component-type="PF5/TableRow"
       data-ouia-safe="true"
     >
-      <td
-        class="pf-v5-c-table__td"
-        data-key="0"
+      <th
+        class="pf-v5-c-table__th"
+        scope="col"
         tabindex="-1"
       >
-        test
-      </td>
+        resource
+      </th>
     </tr>
+  </thead>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-2"
@@ -35,12 +39,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-3"
@@ -49,12 +58,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-4"
@@ -63,12 +77,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-5"
@@ -77,12 +96,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-6"
@@ -91,12 +115,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-7"
@@ -105,12 +134,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-8"
@@ -119,12 +153,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-9"
@@ -133,12 +172,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-10"
@@ -147,12 +191,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-11"
@@ -161,12 +210,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-12"
@@ -175,12 +229,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-13"
@@ -189,12 +248,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-14"
@@ -203,12 +267,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-15"
@@ -217,12 +286,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-16"
@@ -231,12 +305,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-17"
@@ -245,12 +324,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-18"
@@ -259,12 +343,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-19"
@@ -273,12 +362,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         test
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-20"
@@ -287,7 +381,26 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
+        tabindex="-1"
+      >
+        test
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-21"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
         tabindex="-1"
       >
         test
@@ -299,87 +412,35 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
 
 exports[`RoleResourceDefinitions - Inventory should render resource definitions table 1`] = `
 <table
-  aria-label="resources table"
+  aria-label="Resource definitions"
   class="pf-v5-c-table pf-m-grid-md pf-m-compact"
-  data-ouia-component-id="OUIA-Generated-Table-8"
+  data-ouia-component-id="role-resource-definitions-table"
   data-ouia-component-type="PF5/Table"
   data-ouia-safe="true"
   role="grid"
 >
-  <tbody
-    class="pf-v5-c-table__tbody"
-    role="rowgroup"
+  <thead
+    class="pf-v5-c-table__thead"
   >
-    <tr
-      class="pf-v5-c-table__tr"
-      data-ouia-component-id="OUIA-Generated-TableRow-61"
-      data-ouia-component-type="PF5/TableRow"
-      data-ouia-safe="true"
-    >
-      <td
-        class="pf-v5-c-table__td"
-        data-key="0"
-        tabindex="-1"
-      >
-        Ungrouped systems
-      </td>
-    </tr>
-    <tr
-      class="pf-v5-c-table__tr"
-      data-ouia-component-id="OUIA-Generated-TableRow-62"
-      data-ouia-component-type="PF5/TableRow"
-      data-ouia-safe="true"
-    >
-      <td
-        class="pf-v5-c-table__td"
-        data-key="0"
-        tabindex="-1"
-      >
-        Test name for A
-      </td>
-    </tr>
-    <tr
-      class="pf-v5-c-table__tr"
-      data-ouia-component-id="OUIA-Generated-TableRow-63"
-      data-ouia-component-type="PF5/TableRow"
-      data-ouia-safe="true"
-    >
-      <td
-        class="pf-v5-c-table__td"
-        data-key="0"
-        tabindex="-1"
-      >
-        Test name for B
-      </td>
-    </tr>
-    <tr
-      class="pf-v5-c-table__tr"
-      data-ouia-component-id="OUIA-Generated-TableRow-64"
-      data-ouia-component-type="PF5/TableRow"
-      data-ouia-safe="true"
-    >
-      <td
-        class="pf-v5-c-table__td"
-        data-key="0"
-        tabindex="-1"
-      >
-        Test name for C
-      </td>
-    </tr>
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-65"
       data-ouia-component-type="PF5/TableRow"
       data-ouia-safe="true"
     >
-      <td
-        class="pf-v5-c-table__td"
-        data-key="0"
+      <th
+        class="pf-v5-c-table__th"
+        scope="col"
         tabindex="-1"
       >
-        Test name for A
-      </td>
+        resource
+      </th>
     </tr>
+  </thead>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-66"
@@ -388,12 +449,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
-        Test name for B
+        Ungrouped systems
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-67"
@@ -402,12 +468,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
-        Test name for C
+        Test name for A
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-68"
@@ -416,12 +487,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
-        Test name for A
+        Test name for B
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-69"
@@ -430,12 +506,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
-        Test name for B
+        Test name for C
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-70"
@@ -444,12 +525,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
-        Test name for C
+        Ungrouped systems
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-71"
@@ -458,12 +544,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         Test name for A
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-72"
@@ -472,12 +563,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         Test name for B
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-73"
@@ -486,12 +582,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
         Test name for C
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-74"
@@ -500,12 +601,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
-        Test name for A
+        Ungrouped systems
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-75"
@@ -514,12 +620,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
         tabindex="-1"
       >
-        Test name for B
+        Test name for A
       </td>
     </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
     <tr
       class="pf-v5-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-76"
@@ -528,7 +639,178 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     >
       <td
         class="pf-v5-c-table__td"
-        data-key="0"
+        data-label="resource"
+        tabindex="-1"
+      >
+        Test name for B
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-77"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
+        tabindex="-1"
+      >
+        Test name for C
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-78"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
+        tabindex="-1"
+      >
+        Ungrouped systems
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-79"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
+        tabindex="-1"
+      >
+        Test name for A
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-80"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
+        tabindex="-1"
+      >
+        Test name for B
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-81"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
+        tabindex="-1"
+      >
+        Test name for C
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-82"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
+        tabindex="-1"
+      >
+        Ungrouped systems
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-83"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
+        tabindex="-1"
+      >
+        Test name for A
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-84"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
+        tabindex="-1"
+      >
+        Test name for B
+      </td>
+    </tr>
+  </tbody>
+  <tbody
+    class="pf-v5-c-table__tbody"
+    role="rowgroup"
+  >
+    <tr
+      class="pf-v5-c-table__tr"
+      data-ouia-component-id="OUIA-Generated-TableRow-85"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+    >
+      <td
+        class="pf-v5-c-table__td"
+        data-label="resource"
         tabindex="-1"
       >
         Test name for C
