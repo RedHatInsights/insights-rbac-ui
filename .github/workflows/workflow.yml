@@ -6,12 +6,19 @@ on:
   push:
     branches:
       - master
+  workflow_run:
+    workflows: ["Chromatic Deployment"]
+    branches: [master]
+    types:
+      - completed
 
 permissions:
   contents: read
 
 jobs:
   install:
+    # Run on PR and push events only (not workflow_run)
+    if: github.event_name != 'workflow_run'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +29,8 @@ jobs:
         run: npm ci
   commitlint:
     needs: [install]
+    # Run on PR and push events only (not workflow_run)
+    if: github.event_name != 'workflow_run'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -41,7 +50,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: npx commitlint --from ${{ github.event.pull_request.head.sha }}~${{ github.event.pull_request.commits }} --to ${{ github.event.pull_request.head.sha }} --verbose
   release:
-    needs: [install, commitlint]
+    # Only run after Chromatic Deployment workflow completes successfully on master
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     permissions:
       contents: write # to be able to publish a GitHub release
