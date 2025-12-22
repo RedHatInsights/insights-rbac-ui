@@ -1,34 +1,77 @@
 import React, { useMemo } from 'react';
 import { Access, Role } from '../../redux/roles/reducer';
-import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { useIntl } from 'react-intl';
 import Messages from '../../Messages';
+import { TableView } from '../../components/table-view/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '../../components/table-view/types';
 
 interface RolePermissionsTableProps {
   viewedRole?: Role;
 }
 
-const transformRow = (access: Access) => {
-  const [application, resource, operation] = access.permission.split(':');
-  return [application, resource, operation];
-};
+interface PermissionRow {
+  permission: string;
+  application: string;
+  resource: string;
+  operation: string;
+}
+
+// Column definition
+const columns = ['application', 'resource', 'operation'] as const;
 
 export const RolePermissionsTable: React.FunctionComponent<RolePermissionsTableProps> = ({ viewedRole }) => {
   const intl = useIntl();
 
-  const COLUMNS: string[] = [
-    intl.formatMessage(Messages.application),
-    intl.formatMessage(Messages.resourceType),
-    intl.formatMessage(Messages.operation),
-  ];
+  // Transform access to permission rows
+  const rows: PermissionRow[] = useMemo(
+    () =>
+      (viewedRole?.access ?? []).map((access: Access) => {
+        const [application, resource, operation] = access.permission.split(':');
+        return {
+          permission: access.permission,
+          application,
+          resource,
+          operation,
+        };
+      }),
+    [viewedRole?.access],
+  );
 
-  const rows = useMemo(() => (viewedRole?.access ?? []).map((access: Access) => transformRow(access)), [viewedRole?.access]);
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      application: { label: intl.formatMessage(Messages.application) },
+      resource: { label: intl.formatMessage(Messages.resourceType) },
+      operation: { label: intl.formatMessage(Messages.operation) },
+    }),
+    [intl],
+  );
+
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, PermissionRow> = useMemo(
+    () => ({
+      application: (row) => row.application,
+      resource: (row) => row.resource,
+      operation: (row) => row.operation,
+    }),
+    [],
+  );
 
   return (
-    <DataView ouiaId="role-permissions-table">
-      <DataViewTable columns={COLUMNS} rows={rows} />
-    </DataView>
+    <TableView<typeof columns, PermissionRow>
+      columns={columns}
+      columnConfig={columnConfig}
+      data={rows}
+      totalCount={rows.length}
+      getRowId={(row) => row.permission}
+      cellRenderers={cellRenderers}
+      page={1}
+      perPage={rows.length || 10}
+      onPageChange={() => {}}
+      onPerPageChange={() => {}}
+      ariaLabel="Role permissions table"
+      ouiaId="role-permissions-table"
+    />
   );
 };
 

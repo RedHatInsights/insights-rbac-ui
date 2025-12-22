@@ -12,6 +12,8 @@ export interface UseRowSelectionOptions<TRow> {
   getRowId: (row: TRow) => string;
   /** Optional predicate to determine if row can be selected */
   isRowSelectable?: (row: TRow) => boolean;
+  /** Initial selected rows (optional) */
+  initialSelectedRows?: TRow[];
 }
 
 export interface UseRowSelectionReturn<TRow> {
@@ -36,11 +38,16 @@ export interface UseRowSelectionReturn<TRow> {
  *   useRowSelection({
  *     getRowId: (row) => row.uuid,
  *     isRowSelectable: (row) => !row.system,
+ *     initialSelectedRows: preSelectedItems,
  *   });
  * ```
  */
-export function useRowSelection<TRow>({ getRowId, isRowSelectable = () => true }: UseRowSelectionOptions<TRow>): UseRowSelectionReturn<TRow> {
-  const [selectedRows, setSelectedRows] = useState<TRow[]>([]);
+export function useRowSelection<TRow>({
+  getRowId,
+  isRowSelectable = () => true,
+  initialSelectedRows = [],
+}: UseRowSelectionOptions<TRow>): UseRowSelectionReturn<TRow> {
+  const [selectedRows, setSelectedRows] = useState<TRow[]>(initialSelectedRows);
 
   const onSelectRow = useCallback(
     (row: TRow, selected: boolean) => {

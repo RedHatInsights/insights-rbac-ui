@@ -1,10 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { BrowserRouter } from 'react-router-dom';
-import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Thead } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Th } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { RolesEmptyState } from './RolesEmptyState';
 import { fn } from 'storybook/test';
 
@@ -20,7 +16,14 @@ const meta: Meta<typeof RolesEmptyState> = {
 - **No Data State**: Shows when no roles exist at all
 - **Filtered State**: Shows when filtering results in no matches
 - **Admin Actions**: Provides "Create Role" button for admin users
-- **Table Context**: Renders as \`<Tbody>\` to work within PatternFly table structure
+
+### Usage with TableView
+\`\`\`tsx
+<TableView
+  emptyStateNoData={<RolesEmptyState hasActiveFilters={false} isAdmin={isAdmin} />}
+  emptyStateNoResults={<RolesEmptyState hasActiveFilters={true} isAdmin={isAdmin} onClearFilters={handleClear} />}
+/>
+\`\`\`
         `,
       },
     },
@@ -28,18 +31,7 @@ const meta: Meta<typeof RolesEmptyState> = {
   decorators: [
     (Story) => (
       <BrowserRouter>
-        <Table aria-label="Empty state demo">
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Description</Th>
-              <Th>Groups</Th>
-              <Th>Permissions</Th>
-              <Th>Last Modified</Th>
-            </Tr>
-          </Thead>
-          <Story />
-        </Table>
+        <Story />
       </BrowserRouter>
     ),
   ],
@@ -50,7 +42,6 @@ type Story = StoryObj<typeof RolesEmptyState>;
 
 export const NoRoles: Story = {
   args: {
-    colSpan: 5,
     hasActiveFilters: false,
     isAdmin: false,
   },
@@ -65,7 +56,6 @@ export const NoRoles: Story = {
 
 export const NoRolesAdmin: Story = {
   args: {
-    colSpan: 6,
     hasActiveFilters: false,
     isAdmin: true,
   },
@@ -80,7 +70,6 @@ export const NoRolesAdmin: Story = {
 
 export const NoMatchingRoles: Story = {
   args: {
-    colSpan: 5,
     hasActiveFilters: true,
     isAdmin: false,
     onClearFilters: fn(),
@@ -96,7 +85,6 @@ export const NoMatchingRoles: Story = {
 
 export const NoMatchingRolesAdmin: Story = {
   args: {
-    colSpan: 6,
     hasActiveFilters: true,
     isAdmin: true,
     onClearFilters: fn(),

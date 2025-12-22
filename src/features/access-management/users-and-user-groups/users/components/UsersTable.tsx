@@ -243,9 +243,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   // Transform filters for TableView
   const tableFilters = useMemo(() => ({ username: filters.username || '', email: filters.email || '' }), [filters]);
 
-  // Has active filters check
-  const hasActiveFilters = !!filters.username || !!filters.email;
-
   return (
     <>
       {children}
@@ -313,7 +310,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         filters={tableFilters}
         onFiltersChange={handleFiltersChange}
         clearAllFilters={clearAllFilters}
-        hasActiveFilters={hasActiveFilters}
         selectedRows={selectedRows}
         onSelectRow={handleSelectRow}
         onSelectAll={handleSelectAll}

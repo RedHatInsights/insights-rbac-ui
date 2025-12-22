@@ -1780,3 +1780,130 @@ await waitFor(() => {
     });
   },
 };
+
+// =============================================================================
+// Initial Selection Test Component
+// =============================================================================
+
+interface InitialSelectionTableProps {
+  ouiaId?: string;
+}
+
+/**
+ * Component that demonstrates useTableState with initialSelectedRows.
+ */
+const InitialSelectionTable: React.FC<InitialSelectionTableProps> = ({ ouiaId = 'initial-selection-table' }) => {
+  const [data, setData] = useState<Role[] | undefined>(undefined);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Pre-select first two roles
+  const initialSelectedRows = [allMockRoles[0], allMockRoles[1]];
+
+  const handleStaleData = useCallback(async (apiParams: RolesApiParams) => {
+    setData(undefined);
+    try {
+      const json = await fetchRolesData(apiParams);
+      setData(json.data);
+      setTotalCount(json.meta.count);
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
+      setData([]);
+      setTotalCount(0);
+    }
+  }, []);
+
+  const tableState = useTableState<typeof columns, Role, SortableColumnId, CompoundColumnId>({
+    columns,
+    sortableColumns,
+    compoundColumns: ['permissions'] as const,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: 10,
+    getRowId: (role) => role.uuid,
+    isRowSelectable: (role) => !role.system,
+    initialSelectedRows,
+    onStaleData: handleStaleData,
+  });
+
+  return (
+    <TableView
+      columns={columns}
+      columnConfig={columnConfigWithExpansion}
+      sortableColumns={sortableColumns}
+      data={data}
+      totalCount={totalCount}
+      getRowId={(role) => role.uuid}
+      cellRenderers={cellRenderers}
+      expansionRenderers={expansionRenderers}
+      ariaLabel="Roles table with initial selection"
+      ouiaId={ouiaId}
+      selectable
+      bulkActions={
+        tableState.selectedRows.length > 0 ? (
+          <Button variant="secondary" onClick={() => tableState.clearSelection()}>
+            Clear selection ({tableState.selectedRows.length})
+          </Button>
+        ) : undefined
+      }
+      {...tableState}
+    />
+  );
+};
+
+/**
+ * Test story for initialSelectedRows functionality.
+ *
+ * Verifies that:
+ * - Rows passed to initialSelectedRows are selected on mount
+ * - Selection count displays correctly
+ * - Clear selection works
+ */
+export const InitialSelectionTest: StoryObj<typeof InitialSelectionTable> = {
+  render: (args) => <InitialSelectionTable {...args} />,
+  args: {},
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Initial Selection
+
+Use \`initialSelectedRows\` in \`useTableState\` to pre-select rows on mount.
+Useful for edit forms where existing selections need to be restored.
+
+\`\`\`typescript
+const tableState = useTableState({
+  columns,
+  getRowId: (row) => row.id,
+  initialSelectedRows: existingSelections,
+  onStaleData: handleStaleData,
+});
+\`\`\`
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for data to load
+    await waitFor(() => {
+      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+    });
+
+    // Verify initial selection - 2 rows should be selected
+    const clearButton = canvas.getByRole('button', { name: /clear selection \(2\)/i });
+    expect(clearButton).toBeInTheDocument();
+
+    // Verify checkboxes are checked for initial rows
+    const checkboxes = canvas.getAllByRole('checkbox');
+    // First row (Administrator 1) should be checked
+    expect(checkboxes[1]).toBeChecked(); // [0] is bulk select
+
+    // Clear selection
+    await userEvent.click(clearButton);
+
+    // Verify selection is cleared
+    await waitFor(() => {
+      expect(canvas.queryByRole('button', { name: /clear selection/i })).not.toBeInTheDocument();
+    });
+  },
+};

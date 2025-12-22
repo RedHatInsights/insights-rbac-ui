@@ -168,9 +168,8 @@ export const Loading: Story = {
     await delay(300);
     const canvas = within(canvasElement);
 
-    // Should show loading spinner while API call is in progress
-    await expect(canvas.findByLabelText('Loading user groups', {}, { timeout: 10000 })).resolves.toBeInTheDocument();
-    await expect(canvas.queryByRole('grid')).not.toBeInTheDocument(); // No table during loading
+    // Should show skeleton loading state while API call is in progress (TableView uses SkeletonTable)
+    await expect(canvas.findByLabelText('UserGroupsView', {}, { timeout: 10000 })).resolves.toBeInTheDocument();
     await expect(canvas.queryByText('Platform Administrators')).not.toBeInTheDocument();
   },
 };

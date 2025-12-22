@@ -320,6 +320,23 @@ const TestHelpers = {
    * Verify table shows expected permissions
    */
   async verifyTablePermissions(canvas: ReturnType<typeof within>, expectedPermissions: string[], unexpectedPermissions: string[] = []) {
+    // Wait for table to appear and data to load (TableView shows skeleton while loading)
+    await waitFor(
+      async () => {
+        const table = canvas.queryByRole('grid');
+        if (!table) {
+          throw new Error('Table not found');
+        }
+        // Check that at least one expected permission is visible
+        const firstPermission = expectedPermissions[0];
+        const text = within(table).queryByText(firstPermission);
+        if (!text) {
+          throw new Error(`Permission "${firstPermission}" not found in table`);
+        }
+      },
+      { timeout: 5000 },
+    );
+
     const table = await canvas.findByRole('grid');
     const tableContent = within(table);
 
@@ -339,17 +356,20 @@ const TestHelpers = {
    * Apply filter and verify chip appears
    */
   async applyFilter(canvas: ReturnType<typeof within>, filterValue: string) {
-    // Find and click the filter dropdown
-    const applicationFilterButton = canvas.getByText('Filter by application...');
-    await userEvent.click(applicationFilterButton);
+    // Find Application buttons: [0] = category selector, [1] = filter values dropdown
+    const applicationButtons = await canvas.findAllByRole('button', { name: /Application/i });
+    // Click the filter values dropdown (second button)
+    await userEvent.click(applicationButtons[1]);
 
-    // Wait for dropdown to open and select the filter option
-    const filterCheckbox = await canvas.findByRole('menuitem', { name: new RegExp(filterValue, 'i') });
+    // Wait for dropdown to open
+    await delay(300);
+
+    // Find the menu and then the filter checkbox within it
+    const filterMenu = await canvas.findByRole('menu');
+    const filterCheckbox = await within(filterMenu).findByRole('checkbox', { name: new RegExp(filterValue, 'i') });
     expect(filterCheckbox).toBeInTheDocument();
 
-    // Click the checkbox input directly, not the label
-    const checkboxInput = within(filterCheckbox).getByRole('checkbox');
-    await userEvent.click(checkboxInput);
+    await userEvent.click(filterCheckbox);
 
     // Close dropdown
     await userEvent.keyboard('{Escape}');
@@ -831,14 +851,16 @@ Tests that filters are properly reset when navigating between bundles.
     await TestHelpers.verifyFilterReset(canvas);
 
     // Double-check checkbox is unchecked - now that table is fully loaded
-    const applicationFilterButton = canvas.getByText('Filter by application...');
-    await userEvent.click(applicationFilterButton);
+    // Open the filter dropdown - [0] = category selector, [1] = filter values dropdown
+    const applicationButtons = await canvas.findAllByRole('button', { name: /Application/i });
+    await userEvent.click(applicationButtons[1]);
 
-    await waitFor(async () => {
-      const advisorCheckbox = canvas.getByRole('menuitem', { name: /advisor/i });
-      const advisorCheckboxInput = within(advisorCheckbox).getByRole('checkbox');
-      expect(advisorCheckboxInput).not.toBeChecked();
-    });
+    await delay(300);
+    // Find the menu and verify advisor checkbox is visible and unchecked
+    const verifyMenu = await canvas.findByRole('menu');
+    const advisorCheckbox = await within(verifyMenu).findByRole('checkbox', { name: /advisor/i });
+    expect(advisorCheckbox).toBeInTheDocument();
+    expect(advisorCheckbox).not.toBeChecked();
 
     await userEvent.keyboard('{Escape}');
     console.log('SB: ✅ Filter reset test completed');

@@ -1,24 +1,18 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch } from 'react-redux';
-import { DataView, DataViewState } from '@patternfly/react-data-view';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { DataViewTextFilter } from '@patternfly/react-data-view';
-import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { TableVariant } from '@patternfly/react-table';
-import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Td } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Th } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Thead } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { ExpandableRowContent } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Checkbox } from '@patternfly/react-core/dist/dynamic/components/Checkbox';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { SearchIcon } from '@patternfly/react-icons/dist/dynamic/icons/search-icon';
+import { TableView } from '../../../../components/table-view/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
+import type {
+  CellRendererMap,
+  ColumnConfigMap,
+  ExpandedCell,
+  ExpansionRendererMap,
+  FilterConfig,
+  FilterState,
+  SortState,
+} from '../../../../components/table-view/types';
 import { Group } from '../../../../redux/groups/reducer';
 import { fetchMembersForExpandedGroup } from '../../../../redux/groups/actions';
 import messages from '../../../../Messages';
@@ -52,6 +46,12 @@ interface UserGroupsSelectionTableProps {
   isLoading?: boolean;
 }
 
+// Column definition
+const columns = ['name', 'members'] as const;
+type CompoundColumn = 'members';
+type SortableColumn = 'name' | 'members';
+const sortableColumns = ['name', 'members'] as const;
+
 export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> = ({
   groups,
   selectedGroups,
@@ -60,245 +60,177 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
 }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
-  const [expandedCells, setExpandedCells] = useState<Record<string, string>>({});
-  const [searchValue, setSearchValue] = useState('');
-  const [sortByState, setSortByState] = useState({ index: 1, direction: 'asc' as 'asc' | 'desc' });
+  const [expandedCell, setExpandedCell] = useState<ExpandedCell<CompoundColumn> | null>(null);
+  const [filters, setFilters] = useState<FilterState>({ name: '' });
+  const [sort, setSort] = useState<SortState<SortableColumn>>({ column: 'name', direction: 'asc' });
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
 
-  const columns: Array<{ title: string; key: string; screenReaderText?: string }> = [
-    { title: '', key: 'selection', screenReaderText: 'Row selection' },
-    { title: intl.formatMessage(messages.name), key: 'name' },
-    { title: intl.formatMessage(messages.members), key: 'members' },
-  ];
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      name: { label: intl.formatMessage(messages.name), sortable: true },
+      members: { label: intl.formatMessage(messages.members), sortable: true, isCompound: true },
+    }),
+    [intl],
+  );
 
-  const handleRowSelect = (group: Group, isChecking: boolean) => {
-    if (isChecking) {
-      onGroupSelection([...selectedGroups, group.uuid]);
-    } else {
-      onGroupSelection(selectedGroups.filter((id) => id !== group.uuid));
-    }
-  };
+  const cellRenderers: CellRendererMap<typeof columns, Group> = useMemo(
+    () => ({
+      name: (group) => group.name,
+      members: (group) => group.principalCount || 0,
+    }),
+    [],
+  );
 
-  const isRowSelected = (group: Group) => {
-    return selectedGroups.includes(group.uuid);
-  };
+  const expansionRenderers: ExpansionRendererMap<CompoundColumn, Group> = useMemo(
+    () => ({
+      members: (group) => <MembersList group={group} />,
+    }),
+    [],
+  );
 
-  const isRowSelectable = (group: Group) => {
-    return !(group.platform_default || group.admin_default);
-  };
-
-  const handleExpansion = (groupId: string, columnKey: string, isExpanding: boolean) => {
-    setExpandedCells((prev) => {
-      if (isExpanding) {
-        if (columnKey === 'members') {
-          dispatch(fetchMembersForExpandedGroup(groupId, undefined, { limit: 100 }));
-        }
-        return { ...prev, [groupId]: columnKey };
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { [groupId]: _, ...rest } = prev;
-        return rest;
-      }
-    });
-  };
-
-  const compoundExpandParams = (group: Group, columnKey: string, rowIndex: number, columnIndex: number) => ({
-    isExpanded: expandedCells[group.uuid] === columnKey,
-    onToggle: () => handleExpansion(group.uuid, columnKey, expandedCells[group.uuid] !== columnKey),
-    expandId: `compound-${columnKey}-${group.uuid}`,
-    rowIndex,
-    columnIndex,
-  });
-
-  const handleSort = (_event: React.MouseEvent, index: number, direction: 'asc' | 'desc') => {
-    setSortByState({ index, direction });
-  };
-
-  const getSortParams = (columnIndex: number) => ({
-    sort: {
-      sortBy: {
-        index: sortByState.index,
-        direction: sortByState.direction,
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        type: 'text',
+        id: 'name',
+        label: 'User group name',
+        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.name) }),
       },
-      onSort: (_event: React.MouseEvent, index: number, direction: 'asc' | 'desc') => handleSort(_event, index, direction),
-      columnIndex,
-    },
-  });
+    ],
+    [intl],
+  );
 
-  const { totalCount, paginatedGroups } = React.useMemo(() => {
+  // Filter and sort groups
+  const { totalCount, paginatedGroups } = useMemo(() => {
+    const searchValue = (filters.name as string) || '';
+
     // Filter groups based on search
     let filtered = searchValue ? groups.filter((group) => group.name.toLowerCase().includes(searchValue.toLowerCase())) : groups;
 
     // Sort the filtered groups
     const sorted = [...filtered].sort((a, b) => {
-      const { index, direction } = sortByState;
-
-      if (index === 1) {
-        // Sort by name
+      if (sort.column === 'name') {
         const aVal = a.name || '';
         const bVal = b.name || '';
-        return direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-      } else if (index === 2) {
-        // Sort by member count
+        return sort.direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else if (sort.column === 'members') {
         const aVal = Number(a.principalCount) || 0;
         const bVal = Number(b.principalCount) || 0;
-        return direction === 'asc' ? aVal - bVal : bVal - aVal;
+        return sort.direction === 'asc' ? aVal - bVal : bVal - aVal;
       }
-
       return 0;
     });
 
-    // Paginate the sorted results
+    // Paginate
     const startIndex = (page - 1) * perPage;
-    const endIndex = startIndex + perPage;
-    const paginated = sorted.slice(startIndex, endIndex);
+    const paginated = sorted.slice(startIndex, startIndex + perPage);
 
-    return {
-      totalCount: sorted.length,
-      paginatedGroups: paginated,
-    };
-  }, [groups, searchValue, sortByState, page, perPage]);
+    return { totalCount: sorted.length, paginatedGroups: paginated };
+  }, [groups, filters.name, sort, page, perPage]);
 
-  const hasSearchFilter = searchValue !== '';
+  // Selection - convert between Group objects and string IDs
+  const selectedRows = useMemo(() => groups.filter((g) => selectedGroups.includes(g.uuid)), [groups, selectedGroups]);
 
-  const handlePageChange = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handlePerPageChange = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number) => {
-    setPerPage(newPerPage);
-    setPage(1);
-  };
-
-  const handleFilterChange = (_key: string, newFilters: Partial<{ name: string }>) => {
-    const newFilterValue = newFilters.name || '';
-    setSearchValue(newFilterValue);
-    setPage(1);
-  };
-
-  const handleClearFilters = () => {
-    setSearchValue('');
-    setPage(1);
-  };
-
-  const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.title)} />;
-  const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />;
-
-  const emptyState = (
-    <EmptyState>
-      <EmptyStateHeader
-        titleText={hasSearchFilter ? intl.formatMessage(messages.noGroupsFound) : intl.formatMessage(messages.noGroupsAvailable)}
-        headingLevel="h4"
-        icon={<EmptyStateIcon icon={SearchIcon} />}
-      />
-      <EmptyStateBody>
-        {hasSearchFilter ? intl.formatMessage(messages.noGroupsFoundDescription) : intl.formatMessage(messages.noGroupsAvailable)}
-      </EmptyStateBody>
-    </EmptyState>
+  const handleSelectRow = useCallback(
+    (group: Group, selected: boolean) => {
+      if (selected) {
+        onGroupSelection([...selectedGroups, group.uuid]);
+      } else {
+        onGroupSelection(selectedGroups.filter((id) => id !== group.uuid));
+      }
+    },
+    [selectedGroups, onGroupSelection],
   );
 
-  const activeState = isLoading ? DataViewState.loading : totalCount === 0 ? DataViewState.empty : undefined;
-
-  const paginationComponent = (
-    <Pagination itemCount={totalCount} page={page} perPage={perPage} onSetPage={handlePageChange} onPerPageSelect={handlePerPageChange} isCompact />
+  const handleSelectAll = useCallback(
+    (selected: boolean, rows: Group[]) => {
+      const selectableRows = rows.filter((g) => !(g.platform_default || g.admin_default));
+      if (selected) {
+        const newIds = selectableRows.map((g) => g.uuid).filter((id) => !selectedGroups.includes(id));
+        onGroupSelection([...selectedGroups, ...newIds]);
+      } else {
+        const rowIds = new Set(selectableRows.map((g) => g.uuid));
+        onGroupSelection(selectedGroups.filter((id) => !rowIds.has(id)));
+      }
+    },
+    [selectedGroups, onGroupSelection],
   );
+
+  const isRowSelectable = useCallback((group: Group) => !(group.platform_default || group.admin_default), []);
+
+  // Compound expansion - only non-default groups can expand
+  const isCellExpandable = useCallback((group: Group) => !(group.platform_default || group.admin_default), []);
+
+  const handleToggleExpand = useCallback((rowId: string, column: CompoundColumn) => {
+    setExpandedCell((prev) => (prev?.rowId === rowId && prev?.column === column ? null : { rowId, column }));
+  }, []);
+
+  const handleExpand = useCallback(
+    (group: Group) => {
+      // Fetch members when expanding
+      dispatch(fetchMembersForExpandedGroup(group.uuid, undefined, { limit: 100 }));
+    },
+    [dispatch],
+  );
+
+  const handleSortChange = useCallback((column: SortableColumn, direction: 'asc' | 'desc') => {
+    setSort({ column, direction });
+  }, []);
+
+  const handleFiltersChange = useCallback((newFilters: FilterState) => {
+    setFilters(newFilters);
+    setPage(1);
+  }, []);
+
+  const clearAllFilters = useCallback(() => {
+    setFilters({ name: '' });
+    setPage(1);
+  }, []);
 
   return (
-    <DataView activeState={activeState}>
-      <DataViewToolbar
-        pagination={paginationComponent}
-        filters={
-          <DataViewFilters onChange={handleFilterChange} values={{ name: searchValue }}>
-            <DataViewTextFilter
-              filterId="name"
-              title="User group name"
-              placeholder={intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.name) })}
-            />
-          </DataViewFilters>
-        }
-        clearAllFilters={hasSearchFilter ? handleClearFilters : undefined}
-      />
-
-      {/* Custom table for compound expandable rows */}
-      {isLoading ? (
-        <Table aria-label="Loading user groups">
-          {loadingHeader}
-          {loadingBody}
-        </Table>
-      ) : totalCount === 0 ? (
-        <Table aria-label="Empty user groups">
-          <Thead>
-            <Tr>
-              {columns.map((column, index) => (
-                <Th key={index} screenReaderText={column.screenReaderText || (column.title !== '' ? column.title : undefined)}>
-                  {column.title}
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            <Tr>
-              <Td colSpan={columns.length}>{emptyState}</Td>
-            </Tr>
-          </Tbody>
-        </Table>
-      ) : (
-        <Table isExpandable aria-label={intl.formatMessage(messages.selectUserGroups)} variant={TableVariant.compact} borders={false}>
-          <Thead>
-            <Tr>
-              <Th className="pf-v5-c-table__check" screenReaderText="Row selection">
-                {/* Empty header for row selection column */}
-              </Th>
-              <Th {...getSortParams(1)}>{columns[1].title}</Th>
-              <Th {...getSortParams(2)}>{columns[2].title}</Th>
-            </Tr>
-          </Thead>
-          {paginatedGroups.map((group, rowIndex) => {
-            const canSelect = isRowSelectable(group);
-            const isSelected = isRowSelected(group);
-            const expandedCellKey = expandedCells[group.uuid];
-            const isRowExpanded = !!expandedCellKey;
-
-            return (
-              <Tbody key={group.uuid} isExpanded={isRowExpanded}>
-                <Tr>
-                  <Td className="pf-v5-c-table__check">
-                    {canSelect ? (
-                      <Checkbox
-                        id={`select-${group.uuid}`}
-                        isChecked={isSelected}
-                        onChange={(_event, isChecking) => handleRowSelect(group, isChecking)}
-                        aria-label={`Select ${group.name}`}
-                      />
-                    ) : null}
-                  </Td>
-
-                  <Td dataLabel={columns[1].title}>{group.name}</Td>
-
-                  <Td
-                    dataLabel={columns[2].title}
-                    {...(group.platform_default || group.admin_default
-                      ? { className: 'rbac-c-not-expandable-cell' }
-                      : { compoundExpand: compoundExpandParams(group, 'members', rowIndex, 1) })}
-                  >
-                    {group.principalCount || 0}
-                  </Td>
-                </Tr>
-                <Tr isExpanded={isRowExpanded && expandedCellKey === 'members'}>
-                  <Td dataLabel="Members" noPadding colSpan={columns.length}>
-                    <ExpandableRowContent>
-                      <MembersList group={group} />
-                    </ExpandableRowContent>
-                  </Td>
-                </Tr>
-              </Tbody>
-            );
-          })}
-        </Table>
-      )}
-
-      <DataViewToolbar pagination={paginationComponent} />
-    </DataView>
+    <TableView<typeof columns, Group, SortableColumn, CompoundColumn>
+      columns={columns}
+      columnConfig={columnConfig}
+      sortableColumns={sortableColumns}
+      data={isLoading ? undefined : paginatedGroups}
+      totalCount={totalCount}
+      getRowId={(group) => group.uuid}
+      cellRenderers={cellRenderers}
+      expansionRenderers={expansionRenderers}
+      sort={sort}
+      onSortChange={handleSortChange}
+      page={page}
+      perPage={perPage}
+      onPageChange={setPage}
+      onPerPageChange={(newPerPage) => {
+        setPerPage(newPerPage);
+        setPage(1);
+      }}
+      selectable={true}
+      selectedRows={selectedRows}
+      onSelectRow={handleSelectRow}
+      onSelectAll={handleSelectAll}
+      isRowSelectable={isRowSelectable}
+      expandedCell={expandedCell}
+      onToggleExpand={handleToggleExpand}
+      isCellExpandable={isCellExpandable}
+      onExpand={handleExpand}
+      filterConfig={filterConfig}
+      filters={filters}
+      onFiltersChange={handleFiltersChange}
+      clearAllFilters={clearAllFilters}
+      variant="compact"
+      ariaLabel={intl.formatMessage(messages.selectUserGroups)}
+      ouiaId="user-groups-selection-table"
+      emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noGroupsAvailable)} />}
+      emptyStateNoResults={
+        <DefaultEmptyStateNoResults
+          title={intl.formatMessage(messages.noGroupsFound)}
+          body={intl.formatMessage(messages.noGroupsFoundDescription)}
+          onClearFilters={clearAllFilters}
+        />
+      }
+    />
   );
 };

@@ -153,7 +153,6 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
         filters={tableState.filters}
         onFiltersChange={tableState.onFiltersChange}
         clearAllFilters={tableState.clearAllFilters}
-        hasActiveFilters={tableState.hasActiveFilters}
         // Empty states
         emptyStateNoData={
           <DefaultEmptyStateNoData

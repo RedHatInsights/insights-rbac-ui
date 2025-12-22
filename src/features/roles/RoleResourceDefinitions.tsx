@@ -191,7 +191,6 @@ const RoleResourceDefinitions: React.FC = () => {
           filters={tableState.filters}
           onFiltersChange={tableState.onFiltersChange}
           clearAllFilters={tableState.clearAllFilters}
-          hasActiveFilters={tableState.hasActiveFilters}
           // Toolbar
           toolbarActions={toolbarActions}
           // Empty states

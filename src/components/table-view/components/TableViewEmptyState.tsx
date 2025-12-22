@@ -21,8 +21,8 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclama
 export interface DefaultEmptyStateNoDataProps {
   /** Custom title */
   title?: string;
-  /** Custom body text */
-  body?: string;
+  /** Custom body text or element */
+  body?: React.ReactNode;
 }
 
 /**
@@ -42,8 +42,8 @@ export const DefaultEmptyStateNoData: React.FC<DefaultEmptyStateNoDataProps> = (
 export interface DefaultEmptyStateNoResultsProps {
   /** Custom title */
   title?: string;
-  /** Custom body text */
-  body?: string;
+  /** Custom body text or element */
+  body?: React.ReactNode;
   /** Callback to clear filters */
   onClearFilters?: () => void;
   /** Custom clear filters button text */

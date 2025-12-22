@@ -4,7 +4,7 @@
  * Manages filter state with optional URL synchronization.
  */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { FilterState } from '../types';
 import { clearFiltersInUrl, getFiltersFromUrl, updateFiltersInUrl } from './tableUrlState';
 
@@ -30,8 +30,6 @@ export interface UseFiltersStateReturn {
   onFiltersChange: (filters: FilterState) => void;
   /** Clear all filters */
   clearAllFilters: () => void;
-  /** Whether any filters are active */
-  hasActiveFilters: boolean;
 }
 
 /**
@@ -69,12 +67,9 @@ export function useFiltersState({
     onFiltersChanged?.();
   }, [shouldSyncUrl, setSearchParams, onFiltersChanged]);
 
-  const hasActiveFilters = useMemo(() => Object.values(filters).some((v) => (Array.isArray(v) ? v.length > 0 : v !== '')), [filters]);
-
   return {
     filters,
     onFiltersChange,
     clearAllFilters,
-    hasActiveFilters,
   };
 }

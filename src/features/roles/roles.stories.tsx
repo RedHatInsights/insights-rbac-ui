@@ -112,7 +112,7 @@ const meta: Meta<typeof Roles> = {
 - **API Orchestration**: Dispatches \`fetchRolesWithPolicies\` and \`fetchAdminGroup\` actions
 - **Permission Context**: Uses \`orgAdmin\` and \`userAccessAdministrator\` from PermissionsContext
 - **URL Synchronization**: Manages pagination and filters in URL parameters
-- **Table Management**: Provides data and callbacks to TableToolbarView component
+- **Table Management**: Provides data and callbacks to TableView component
 
 ## Known Issue (TO BE FIXED)
 This component currently makes unauthorized API calls for non-admin users, causing 403 error toast spam.
@@ -159,11 +159,13 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
           const limit = parseInt(url.searchParams.get('limit') || '20', 10);
           const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           const displayNameFilter = url.searchParams.get('display_name');
+          const orderBy = url.searchParams.get('order_by');
 
           console.log('SB: 🔍 MSW: Roles API called', {
             url: request.url,
             displayNameFilter:
               displayNameFilter === null ? 'NULL (no parameter)' : displayNameFilter === '' ? 'EMPTY STRING' : `"${displayNameFilter}"`,
+            orderBy,
             limit,
             offset,
           });
@@ -173,10 +175,10 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
           // Apply display_name filtering ONLY if provided and not empty
           // Note: mappedProps filters out empty strings, so when clearing filters,
           // the display_name parameter won't be in the URL at all (displayNameFilter will be null)
-          let filteredRoles = mockRoles;
+          let filteredRoles = [...mockRoles];
           if (displayNameFilter && displayNameFilter.trim() !== '') {
             console.log('SB: 🔍 MSW: Applying display_name filter:', displayNameFilter);
-            filteredRoles = mockRoles.filter(
+            filteredRoles = filteredRoles.filter(
               (role) =>
                 role.name.toLowerCase().includes(displayNameFilter.toLowerCase()) ||
                 (role.display_name && role.display_name.toLowerCase().includes(displayNameFilter.toLowerCase())) ||
@@ -185,6 +187,29 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
             console.log('SB: 🔍 MSW: Filtered roles count:', filteredRoles.length);
           } else {
             console.log('SB: 🔍 MSW: No filter (displayNameFilter is null or empty), returning all', mockRoles.length, 'roles');
+          }
+
+          // Apply sorting based on order_by parameter
+          if (orderBy) {
+            const isDescending = orderBy.startsWith('-');
+            const sortField = isDescending ? orderBy.slice(1) : orderBy;
+
+            filteredRoles.sort((a, b) => {
+              let aVal: string | number = '';
+              let bVal: string | number = '';
+
+              if (sortField === 'display_name' || sortField === 'name') {
+                aVal = (a.display_name || a.name || '').toLowerCase();
+                bVal = (b.display_name || b.name || '').toLowerCase();
+              } else if (sortField === 'modified') {
+                aVal = new Date(a.modified || 0).getTime();
+                bVal = new Date(b.modified || 0).getTime();
+              }
+
+              if (aVal < bVal) return isDescending ? 1 : -1;
+              if (aVal > bVal) return isDescending ? -1 : 1;
+              return 0;
+            });
           }
 
           const response = {
@@ -420,7 +445,7 @@ export const EmptyRoles: Story = {
     // Wait for debounced functions to settle
     await delay(300);
 
-    // Should show empty state message for no roles
+    // Should show empty state message for no roles - "Configure roles"
     await expect(canvas.findByText(/Configure roles/i)).resolves.toBeInTheDocument();
   },
 };
@@ -533,19 +558,25 @@ export const AdminUserWithRolesFiltering: Story = {
     console.log('SB: 🧪 FILTERING: Typing "vulner" filter');
     await userEvent.type(filterInput, 'vulner');
 
-    // Wait for debounce to complete (250ms debounce + buffer)
-    await delay(400);
+    // Wait for debounce + Redux state update + re-render
+    await waitFor(
+      () => {
+        expect(filterSpy).toHaveBeenCalledWith('vulner');
+      },
+      { timeout: 3000 },
+    );
 
-    await waitFor(() => {
-      expect(filterSpy).toHaveBeenCalledWith('vulner');
-    });
+    // Wait for the filtered data to render - Platform Administrator should disappear
+    await waitFor(
+      () => {
+        expect(canvas.queryByText('Platform Administrator')).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
     // Verify only Vulnerability Administrator is visible
     expect(await canvas.findByText('Vulnerability Administrator')).toBeInTheDocument();
-    await waitFor(() => {
-      expect(canvas.queryByText('Platform Administrator')).not.toBeInTheDocument();
-      expect(canvas.queryByText('Cost Management Viewer')).not.toBeInTheDocument();
-    });
+    expect(canvas.queryByText('Cost Management Viewer')).not.toBeInTheDocument();
 
     // Test 2: Clear filter by clicking the Clear filters button
     console.log('SB: 🧪 FILTERING: Clicking clear filters button');
@@ -696,10 +727,33 @@ export const AdminUserWithRolesSorting: Story = {
             sortSpy(orderBy);
           }
 
-          // Return roles (sorting would be handled server-side in real app)
+          // Actually sort the data based on order_by parameter
+          let sortedRoles = [...mockRoles];
+          if (orderBy) {
+            const isDescending = orderBy.startsWith('-');
+            const sortField = isDescending ? orderBy.slice(1) : orderBy;
+
+            sortedRoles.sort((a, b) => {
+              let aVal: string | number = '';
+              let bVal: string | number = '';
+
+              if (sortField === 'display_name' || sortField === 'name') {
+                aVal = (a.display_name || a.name || '').toLowerCase();
+                bVal = (b.display_name || b.name || '').toLowerCase();
+              } else if (sortField === 'modified') {
+                aVal = new Date(a.modified || 0).getTime();
+                bVal = new Date(b.modified || 0).getTime();
+              }
+
+              if (aVal < bVal) return isDescending ? 1 : -1;
+              if (aVal > bVal) return isDescending ? -1 : 1;
+              return 0;
+            });
+          }
+
           return HttpResponse.json({
-            data: mockRoles,
-            meta: { count: mockRoles.length, limit: 20, offset: 0 },
+            data: sortedRoles,
+            meta: { count: sortedRoles.length, limit: 20, offset: 0 },
           });
         }),
 
@@ -855,95 +909,5 @@ export const AdminUserWithRolesPrimaryActions: Story = {
     await userEvent.click(firstRowKebab);
 
     console.log('SB: 🧪 ACTIONS: Primary actions test completed');
-  },
-};
-
-// Sorting interaction test
-export const SortingInteraction: Story = {
-  tags: ['env:stage', 'perm:org-admin'],
-  parameters: {
-    chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
-    msw: {
-      handlers: [
-        // Override to spy on API calls
-        http.get('/api/rbac/v1/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          const orderBy = url.searchParams.get('order_by');
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-
-          // Call the spy
-          fetchRolesSpy({ order_by: orderBy, limit, offset });
-
-          return HttpResponse.json({
-            meta: { count: mockRoles.length, limit, offset },
-            data: mockRoles,
-          });
-        }),
-        http.get('/api/rbac/v1/groups/', () => {
-          fetchAdminGroupSpy();
-          return HttpResponse.json({
-            meta: { count: 1, limit: 20, offset: 0 },
-            data: [{ uuid: 'admin-group', name: 'Default admin access', platform_default: false, admin_default: true, system: false }],
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Initial load should call API with default sorting
-    await waitFor(() => {
-      expect(fetchRolesSpy).toHaveBeenCalled();
-      const { calls } = fetchRolesSpy.mock;
-      const hasDefaultSort = calls.some((call) => call[0].order_by === 'display_name');
-      expect(hasDefaultSort).toBe(true);
-    });
-
-    // Wait for data to load
-    expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
-
-    // Wait for skeleton loading to complete and real content to appear
-    const nameHeaderCheck = await canvas.findByRole('columnheader', { name: /name/i });
-    const buttons = within(nameHeaderCheck).queryAllByRole('button');
-    expect(buttons.length).toBeGreaterThan(0);
-
-    // Test clicking Name column header for descending sort
-    const nameHeader = await canvas.findByRole('columnheader', { name: /name/i });
-    const nameButton = await within(nameHeader).findByRole('button');
-
-    fetchRolesSpy.mockClear();
-    await userEvent.click(nameButton);
-
-    // Wait for API call and verify descending sort
-    await waitFor(
-      () => {
-        expect(fetchRolesSpy).toHaveBeenCalled();
-        const { calls } = fetchRolesSpy.mock;
-        const hasDescendingSort = calls.some((call) => call[0].order_by === '-display_name');
-        expect(hasDescendingSort).toBe(true);
-      },
-      { timeout: 2000 },
-    );
-
-    // Test clicking Last Modified column header
-    const modifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
-    const modifiedButton = await within(modifiedHeader).findByRole('button');
-
-    fetchRolesSpy.mockClear();
-    await userEvent.click(modifiedButton);
-
-    // Wait for API call and verify modified sort
-    await waitFor(
-      () => {
-        expect(fetchRolesSpy).toHaveBeenCalled();
-        const { calls } = fetchRolesSpy.mock;
-        const hasModifiedSort = calls.some((call) => call[0].order_by === 'modified');
-        expect(hasModifiedSort).toBe(true);
-      },
-      { timeout: 2000 },
-    );
   },
 };
