@@ -1,3 +1,24 @@
+# [1.78.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.77.0...v1.78.0) (2025-12-22)
+
+
+### Bug Fixes
+
+* inventory API integration and add filtering tests ([a8f8edf](https://github.com/RedHatInsights/insights-rbac-ui/commit/a8f8edf13487f65eead76cf7f22ff798098a5e5f))
+* remove legacy role components and fix Storybook test selectors ([73b302f](https://github.com/RedHatInsights/insights-rbac-ui/commit/73b302fd5aa5551c623e80c3ebb11b948c94488b))
+* remove redundant User Jest test (covered by 15 Storybook tests) ([e2fcf0e](https://github.com/RedHatInsights/insights-rbac-ui/commit/e2fcf0e504e8b6f1f4470f6c49561ec5e2a34384))
+* **RoleResourceDefinitions:** optimize selectors to prevent re-renders ([5a78f48](https://github.com/RedHatInsights/insights-rbac-ui/commit/5a78f48da77e7b9d36348868effade73fdc6dfcb))
+* **rolewizard:** clean up some types ([023f76d](https://github.com/RedHatInsights/insights-rbac-ui/commit/023f76d068e5f20161e6bfe9b7c9a4ddd502a803))
+* **rolewizard:** convert add role wizard to typescript ([a7b627b](https://github.com/RedHatInsights/insights-rbac-ui/commit/a7b627b3e918242f1ea9c0f8594cb6747927b424))
+* **rolewizard:** delete js version of wizard context ([632004d](https://github.com/RedHatInsights/insights-rbac-ui/commit/632004df20177f69030427a693bf26c241b88657))
+* **storybook:** fix failing M3 workspace details test ([af00806](https://github.com/RedHatInsights/insights-rbac-ui/commit/af008068303d5b0e2a7decae5b94306dfd20fb9d))
+* **storybook:** fix navigation test null console error ([4754e17](https://github.com/RedHatInsights/insights-rbac-ui/commit/4754e17a7078d4fccd4cc2308bae41e33439197b))
+* update tests for TableView migration ([b0f17fe](https://github.com/RedHatInsights/insights-rbac-ui/commit/b0f17fe02ca924b6700fcc1590c78603bf8ba38b))
+
+
+### Features
+
+* convert roles and users JS components to TypeScript with TableView migration ([c3f86a7](https://github.com/RedHatInsights/insights-rbac-ui/commit/c3f86a75e1cc7299f3ee7040a8b934afcb658a38))
+
 # [1.77.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.76.0...v1.77.0) (2025-12-18)
 
 
