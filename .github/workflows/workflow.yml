@@ -50,8 +50,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: npx commitlint --from ${{ github.event.pull_request.head.sha }}~${{ github.event.pull_request.commits }} --to ${{ github.event.pull_request.head.sha }} --verbose
   release:
-    # Only run after Chromatic Deployment workflow completes successfully on master
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    # Only run after Chromatic Deployment workflow completes successfully on master push (not PR)
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
     runs-on: ubuntu-24.04
     permissions:
       contents: write # to be able to publish a GitHub release
