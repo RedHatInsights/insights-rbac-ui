@@ -745,9 +745,11 @@ export const FilterByApplicationApplied: Story = {
     expect(canvas.getAllByText('inventory').length).toBe(2);
     expect(canvas.getAllByText('cost-management').length).toBe(2);
 
-    // Open filter dropdown
-    const filterToggle = await canvas.findByText('Filter by application');
-    await userEvent.click(filterToggle);
+    // With DataViewFilters having multiple filters, there's a conditional filter selector.
+    // The filter dropdown button is the second "Applications" button (the first is the category selector)
+    const applicationButtons = await canvas.findAllByRole('button', { name: /Applications/i });
+    // The second button is the filter dropdown toggle
+    await userEvent.click(applicationButtons[1]);
 
     await delay(300);
 
@@ -827,21 +829,22 @@ export const FilterByResourceApplied: Story = {
       { timeout: 3000 },
     );
 
-    // Click on conditional filter to change to Resource type
-    const conditionalFilterButton = await canvas.findByText('Applications');
-    await userEvent.click(conditionalFilterButton);
+    // With DataViewFilters having multiple filters, there's a conditional filter selector.
+    // First click the category selector (shows "Applications" by default)
+    const applicationButtons = await canvas.findAllByRole('button', { name: /Applications/i });
+    await userEvent.click(applicationButtons[0]); // First button is the category selector
 
     await delay(300);
 
-    // Select "Resource type" from dropdown
+    // Select "Resource type" from the dropdown
     const resourceTypeOption = await canvas.findByRole('menuitem', { name: /Resource type/i });
     await userEvent.click(resourceTypeOption);
 
-    await delay(500);
+    await delay(300);
 
-    // Now click the filter dropdown toggle
-    const resourceFilterToggle = await canvas.findByText('Filter by resource type');
-    await userEvent.click(resourceFilterToggle);
+    // Now click the filter dropdown toggle (second "Resource type" button - first is category selector)
+    const resourceButtons = await canvas.findAllByRole('button', { name: /Resource type/i });
+    await userEvent.click(resourceButtons[1]);
 
     await delay(300);
 
@@ -901,21 +904,22 @@ export const FilterByOperationApplied: Story = {
       { timeout: 3000 },
     );
 
-    // Click on conditional filter to change to Operation
-    const conditionalFilterButton = await canvas.findByText('Applications');
-    await userEvent.click(conditionalFilterButton);
+    // With DataViewFilters having multiple filters, there's a conditional filter selector.
+    // First click the category selector (shows "Applications" by default)
+    const applicationButtons = await canvas.findAllByRole('button', { name: /Applications/i });
+    await userEvent.click(applicationButtons[0]); // First button is the category selector
 
     await delay(300);
 
-    // Select "Operation" from dropdown
+    // Select "Operation" from the dropdown
     const operationOption = await canvas.findByRole('menuitem', { name: /Operation/i });
     await userEvent.click(operationOption);
 
-    await delay(500);
+    await delay(300);
 
-    // Now click the filter dropdown toggle
-    const operationFilterToggle = await canvas.findByText('Filter by operation');
-    await userEvent.click(operationFilterToggle);
+    // Now click the filter dropdown toggle (second "Operation" button - first is category selector)
+    const operationButtons = await canvas.findAllByRole('button', { name: /Operation/i });
+    await userEvent.click(operationButtons[1]);
 
     await delay(300);
 

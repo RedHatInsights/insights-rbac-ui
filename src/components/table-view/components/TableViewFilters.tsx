@@ -66,7 +66,15 @@ export const TableViewFilters: React.FC<TableViewFiltersProps> = ({ filterConfig
             value: opt.id,
             label: opt.label,
           }));
-          return <DataViewCheckboxFilter key={config.id} filterId={config.id} title={config.label} options={mappedOptions} />;
+          return (
+            <DataViewCheckboxFilter
+              key={config.id}
+              filterId={config.id}
+              title={config.label}
+              placeholder={config.placeholder || `Filter by ${config.label.toLowerCase()}...`}
+              options={mappedOptions}
+            />
+          );
         }
         return null;
       })}

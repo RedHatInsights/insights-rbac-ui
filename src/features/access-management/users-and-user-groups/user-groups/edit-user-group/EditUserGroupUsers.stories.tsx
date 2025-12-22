@@ -126,9 +126,9 @@ export const Default: Story = {
     const johnRow = (await canvas.findByText('john.doe')).closest('tr');
     await expect(johnRow).toBeInTheDocument();
 
-    // Check pagination is present
-    const pagination = await canvas.findByLabelText(/pagination/i);
-    await expect(pagination).toBeInTheDocument();
+    // Check pagination is present (find first matching element)
+    const paginations = await canvas.findAllByLabelText(/pagination/i);
+    await expect(paginations.length).toBeGreaterThan(0);
   },
 };
 

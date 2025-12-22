@@ -889,10 +889,17 @@ Perfect for testing bulk operations and proper pluralization.
 
     await delay(300);
 
-    const removeButton = await canvas.findByRole('button', { name: /Remove \(\d+\)/i });
-    expect(removeButton).toBeInTheDocument();
+    // Click the bulk actions kebab menu
+    const bulkActionsButton = await canvas.findByRole('button', { name: 'Member bulk actions' });
+    expect(bulkActionsButton).toBeInTheDocument();
+    await userEvent.click(bulkActionsButton);
 
-    await userEvent.click(removeButton);
+    // Find and click the "Remove" menuitem
+    const removeMenuItem = await canvas.findByRole('menuitem', { name: 'Remove' });
+    expect(removeMenuItem).toBeInTheDocument();
+    expect(removeMenuItem).toBeEnabled(); // Should be enabled now that rows are selected
+
+    await userEvent.click(removeMenuItem);
 
     const body = within(document.body);
     const modal = await body.findByRole('dialog', {}, { timeout: 5000 });

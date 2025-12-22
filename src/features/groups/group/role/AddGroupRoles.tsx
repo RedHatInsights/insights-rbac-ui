@@ -162,7 +162,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
                 <Alert variant="info" isInline title="Select roles to add to this group" />
               </StackItem>
               <StackItem isFilled>
-                <RolesList initialSelectedRoles={selectedRoles || []} onSelect={handleRoleSelection} rolesExcluded={true} />
+                <RolesList initialSelectedRoles={selectedRoles || []} onSelect={handleRoleSelection} rolesExcluded={true} groupId={groupId} />
               </StackItem>
             </>
           )}

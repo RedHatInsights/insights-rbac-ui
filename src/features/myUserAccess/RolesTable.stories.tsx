@@ -337,8 +337,8 @@ export const FilteringInteraction: Story = {
       { timeout: 1000 },
     );
 
-    // Test clear all filters
-    const clearAllFilters = await canvas.findByText('Clear filters');
+    // Test clear all filters - use role selector to avoid matching empty state "Clear filters" link
+    const clearAllFilters = await canvas.findByRole('button', { name: /clear filters/i });
 
     // Reset spy
     apiCallSpy.mockClear();

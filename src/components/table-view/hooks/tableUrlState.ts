@@ -58,7 +58,14 @@ export function getFiltersFromUrl(searchParams: URLSearchParams, initialFilters:
 
     const existing = urlFilters[key];
     if (existing === undefined) {
-      urlFilters[key] = value;
+      // Check if the initial value for this key is an array - if so, wrap in array
+      // This ensures checkbox filters get array values even for single URL values
+      const initialValue = initialFilters[key];
+      if (Array.isArray(initialValue)) {
+        urlFilters[key] = [value];
+      } else {
+        urlFilters[key] = value;
+      }
     } else if (Array.isArray(existing)) {
       existing.push(value);
     } else {

@@ -34,7 +34,7 @@ This guide explains the enhanced Storybook setup for the RBAC UI project and com
 
 ### **Focus on the Component, Not Wrappers**
 - ✅ Stories should document the **actual component** being developed
-- ❌ Don't let stories document complex wrapper components (like `TableToolbarView`)
+- ❌ Don't let stories document complex wrapper components (like legacy `TableToolbarView`)
 - ✅ Use Storybook's **autotitle feature** - don't set custom `title` in meta
 - ✅ Set `component: ActualComponent` in meta object
 
@@ -101,7 +101,7 @@ const meta: Meta<typeof ComponentName> = {
 ## 🚫 Common Pitfalls to Avoid
 
 ### **Complex Story Wrappers**
-- ❌ Don't use `TableToolbarView` or similar complex components in stories
+- ❌ Don't use legacy table components or similar complex wrappers in stories
 - ❌ Avoid components that cause React hooks issues
 - ✅ Use minimal, focused wrappers that showcase the component
 

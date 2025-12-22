@@ -1,239 +1,230 @@
 import { UseFieldApiConfig, useFieldApi, useFormApi } from '@data-driven-forms/react-form-renderer';
-import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import {
-  DataView,
-  DataViewState,
-  DataViewTable,
-  DataViewTextFilter,
-  DataViewTh,
-  DataViewToolbar,
-  useDataViewFilters,
-  useDataViewPagination,
-  useDataViewSelection,
-} from '@patternfly/react-data-view';
-import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import messages from '../../../Messages';
 import { PER_PAGE_OPTIONS } from '../../../helpers/pagination';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { listPermissions } from '../../../redux/permissions/actions';
 import { selectPermissionsFullState } from '../../../redux/permissions/selectors';
-
-interface PermissionsFilters {
-  application: string;
-  resourceType: string;
-  operation: string;
-}
+import { TableView } from '../../../components/table-view/TableView';
+import { useTableState } from '../../../components/table-view/hooks/useTableState';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../components/table-view/components/TableViewEmptyState';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig, FilterState } from '../../../components/table-view/types';
 
 interface ExtendedUseFieldApiConfig extends UseFieldApiConfig {
   roleId?: string;
+  initialValue?: string[];
 }
 
-const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
-  <tbody>
-    <tr>
-      <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
-        <EmptyState>
-          <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-        </EmptyState>
-      </td>
-    </tr>
-  </tbody>
-);
+interface Permission {
+  permission: string;
+  application: string;
+  resource_type: string;
+  verb: string;
+}
+
+// Column definition
+const columns = ['application', 'resourceType', 'operation'] as const;
 
 export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const intl = useIntl();
-  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const formOptions = useFormApi();
   const { input } = useFieldApi({ ...props, formOptions });
 
-  const columns = [
-    {
-      label: intl.formatMessage(messages.application),
-      key: 'application',
-    },
-    {
-      label: intl.formatMessage(messages.resourceType),
-      key: 'resourceType',
-    },
-    { label: intl.formatMessage(messages.operation), key: 'operation' },
-  ];
+  const { permissions, totalCount, isLoading } = useSelector(selectPermissionsFullState);
 
-  const sortableColumns: DataViewTh[] = columns.map((column) => ({
-    cell: column.label,
-  }));
+  // Build initial selected rows from prop values (placeholder objects)
+  const initialSelectedRows = useMemo(
+    () =>
+      (props.initialValue || []).map(
+        (permission: string) =>
+          ({
+            permission,
+            application: '',
+            resource_type: '',
+            verb: '',
+          }) as Permission,
+      ),
+    [props.initialValue],
+  );
 
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<PermissionsFilters>({
-    initialFilters: {
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      application: { label: intl.formatMessage(messages.application) },
+      resourceType: { label: intl.formatMessage(messages.resourceType) },
+      operation: { label: intl.formatMessage(messages.operation) },
+    }),
+    [intl],
+  );
+
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, Permission> = useMemo(
+    () => ({
+      application: (row) => row.application,
+      resourceType: (row) => row.resource_type,
+      operation: (row) => row.verb,
+    }),
+    [],
+  );
+
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        type: 'text',
+        id: 'application',
+        label: intl.formatMessage(messages.application),
+        placeholder: intl.formatMessage(messages.searchByApplicationPlaceholder),
+      },
+      {
+        type: 'text',
+        id: 'resourceType',
+        label: intl.formatMessage(messages.resourceType),
+        placeholder: intl.formatMessage(messages.searchByResourceTypePlaceholder),
+      },
+      {
+        type: 'text',
+        id: 'operation',
+        label: intl.formatMessage(messages.operation),
+        placeholder: intl.formatMessage(messages.searchByOperationPlaceholder),
+      },
+    ],
+    [intl],
+  );
+
+  // Initialize filter state from URL params (intentionally only on mount)
+  const initialFilters: FilterState = useMemo(
+    () => ({
       application: searchParams.get('application') || '',
       resourceType: searchParams.get('resourceType') || '',
       operation: searchParams.get('operation') || '',
-    },
-    searchParams,
-    setSearchParams,
-  });
+    }),
+    [],
+  );
 
-  const pagination = useDataViewPagination({
-    perPage: 10,
-    searchParams,
-    setSearchParams,
-  });
-  const { page, perPage, onSetPage, onPerPageSelect } = pagination;
-
-  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
-  const { selected, onSelect, isSelected } = selection;
-
-  const { permissions, totalCount, isLoading } = useSelector(selectPermissionsFullState);
-
-  const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.label)} />;
-  const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />;
-
-  const fetchData = useCallback(
-    (apiProps: { count: number; limit: number; offset: number; filters?: PermissionsFilters }) => {
-      const { limit, offset, filters } = apiProps;
+  // useTableState handles ALL state including selection
+  const tableState = useTableState<typeof columns, Permission>({
+    columns,
+    getRowId: (row) => row.permission,
+    initialPerPage: 10,
+    perPageOptions: PER_PAGE_OPTIONS.map((opt) => opt.value),
+    initialFilters,
+    initialSelectedRows,
+    syncWithUrl: true,
+    onStaleData: (params) => {
       dispatch(
         listPermissions({
-          limit,
-          offset,
-          application: filters?.application || '',
-          resourceType: filters?.resourceType || '',
-          verb: filters?.operation || '',
+          limit: params.limit,
+          offset: params.offset,
+          application: (params.filters.application as string) || '',
+          resourceType: (params.filters.resourceType as string) || '',
+          verb: (params.filters.operation as string) || '',
           allowed_only: false,
         }),
       );
     },
-    [dispatch],
-  );
+  });
 
-  useEffect(() => {
-    fetchData({
-      limit: perPage,
-      offset: (page - 1) * perPage,
-      count: totalCount || 0,
-      filters,
-    });
-  }, [fetchData, page, perPage, filters, totalCount]);
-
-  useEffect(() => {
-    input.onChange(selected.map((permission) => permission.id));
-  }, [selected]);
-
-  useEffect(() => {
-    if (isLoading) {
-      setActiveState(DataViewState.loading);
-    } else {
-      setActiveState(totalCount === 0 ? DataViewState.empty : undefined);
-    }
-  }, [totalCount, isLoading]);
-
-  const handleBulkSelect = (value: BulkSelectValue) => {
-    if (value === BulkSelectValue.none) {
-      onSelect(false);
-    } else if (value === BulkSelectValue.page) {
-      onSelect(true, rows);
-    } else if (value === BulkSelectValue.nonePage) {
-      onSelect(false, rows);
-    }
-  };
-
-  useEffect(() => {
-    onSelect(false);
-    if (props.initialValue) {
-      onSelect(
-        true,
-        props.initialValue.map((permission: string) => ({ id: permission })),
-      );
-    }
-  }, [props.initialValue]);
-
-  const rows = useMemo(() => {
-    return permissions.map((permission: any) => ({
-      id: permission.permission,
-      row: [permission.application, permission.resource_type, permission.verb],
+  // Map permissions data to rows
+  const rows: Permission[] = useMemo(() => {
+    return (permissions as any[]).map((permission: any) => ({
+      permission: permission.permission,
+      application: permission.application,
+      resource_type: permission.resource_type,
+      verb: permission.verb,
     }));
   }, [permissions]);
 
-  const pageSelected = rows.length > 0 && rows.every(isSelected);
-  const pagePartiallySelected = !pageSelected && rows.some(isSelected);
+  // Keep ref to input to avoid stale closure
+  const inputRef = useRef(input);
+  inputRef.current = input;
 
-  const paginationComponent = (
-    <Pagination
-      perPageOptions={PER_PAGE_OPTIONS}
-      itemCount={totalCount}
-      page={page}
-      perPage={perPage}
-      onSetPage={onSetPage}
-      onPerPageSelect={onPerPageSelect}
-    />
+  // Handle filter change - also sync to URL
+  const handleFilterChange = useCallback(
+    (newFilters: FilterState) => {
+      tableState.onFiltersChange(newFilters);
+      // Sync to URL
+      const newParams = new URLSearchParams(searchParams);
+      Object.entries(newFilters).forEach(([key, value]) => {
+        if (value && typeof value === 'string') {
+          newParams.set(key, value);
+        } else {
+          newParams.delete(key);
+        }
+      });
+      setSearchParams(newParams);
+    },
+    [tableState, searchParams, setSearchParams],
+  );
+
+  // Clear all filters - also clear URL
+  const handleClearAllFilters = useCallback(() => {
+    tableState.clearAllFilters();
+    setSearchParams(new URLSearchParams());
+  }, [tableState, setSearchParams]);
+
+  // Wrap selection handlers to also call input.onChange
+  const handleSelectRow = useCallback(
+    (row: Permission, isSelected: boolean) => {
+      tableState.onSelectRow(row, isSelected);
+      // Compute new selection
+      const currentIds = tableState.selectedRows.map((r) => r.permission);
+      const newIds = isSelected ? [...currentIds, row.permission] : currentIds.filter((id) => id !== row.permission);
+      inputRef.current.onChange(newIds);
+    },
+    [tableState],
+  );
+
+  const handleSelectAll = useCallback(
+    (isSelected: boolean, currentRows: Permission[]) => {
+      tableState.onSelectAll(isSelected, currentRows);
+      // Compute new selection
+      const currentIds = new Set(tableState.selectedRows.map((r) => r.permission));
+      const rowIds = currentRows.map((r) => r.permission);
+      let newIds: string[];
+      if (isSelected) {
+        rowIds.forEach((id) => currentIds.add(id));
+        newIds = Array.from(currentIds);
+      } else {
+        newIds = Array.from(currentIds).filter((id) => !rowIds.includes(id));
+      }
+      inputRef.current.onChange(newIds);
+    },
+    [tableState],
   );
 
   return (
     <React.Fragment>
       <FormGroup label="Select permissions" fieldId="role-permissions">
-        <DataView ouiaId="edit-role-permissions" selection={selection} activeState={activeState}>
-          <DataViewToolbar
-            ouiaId="edit-role-permissions-toolbar"
-            bulkSelect={
-              <BulkSelect
-                isDataPaginated
-                pageCount={rows.length}
-                selectedCount={selected.length}
-                totalCount={totalCount}
-                pageSelected={pageSelected}
-                pagePartiallySelected={pagePartiallySelected}
-                onSelect={handleBulkSelect}
-              />
-            }
-            pagination={React.cloneElement(paginationComponent, { isCompact: true })}
-            filters={
-              <DataViewFilters ouiaId="edit-role-permissions-filters" onChange={(_e, values) => onSetFilters(values)} values={filters}>
-                <DataViewTextFilter
-                  filterId="application"
-                  title={intl.formatMessage(messages.application)}
-                  placeholder={intl.formatMessage(messages.searchByApplicationPlaceholder)}
-                  ouiaId="application-filter"
-                />
-                <DataViewTextFilter
-                  filterId="resourceType"
-                  title={intl.formatMessage(messages.resourceType || { id: 'resourceType', defaultMessage: 'Resource Type' })}
-                  placeholder={intl.formatMessage(messages.searchByResourceTypePlaceholder)}
-                  ouiaId="resource-type-filter"
-                />
-                <DataViewTextFilter
-                  filterId="operation"
-                  title={intl.formatMessage(messages.operation)}
-                  placeholder={intl.formatMessage(messages.searchByOperationPlaceholder)}
-                  ouiaId="operation-filter"
-                />
-              </DataViewFilters>
-            }
-            clearAllFilters={clearAllFilters}
-          />
-          <DataViewTable
-            variant="compact"
-            aria-label="Permissions Table"
-            ouiaId="permissions-table"
-            columns={sortableColumns}
-            rows={rows}
-            headStates={{ loading: loadingHeader }}
-            bodyStates={{
-              loading: loadingBody,
-              empty: <EmptyTable titleText={intl.formatMessage(messages.noPermissions)} />,
-            }}
-          />
-          <DataViewToolbar ouiaId="edit-role-permissions-footer-toolbar" pagination={paginationComponent} />
-        </DataView>
+        <TableView<typeof columns, Permission>
+          columns={columns}
+          columnConfig={columnConfig}
+          data={isLoading ? undefined : rows}
+          totalCount={totalCount || 0}
+          getRowId={(row) => row.permission}
+          cellRenderers={cellRenderers}
+          filterConfig={filterConfig}
+          variant="compact"
+          ariaLabel="Permissions Table"
+          ouiaId="edit-role-permissions"
+          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noPermissions)} />}
+          emptyStateNoResults={
+            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noPermissions)} onClearFilters={handleClearAllFilters} />
+          }
+          selectable
+          {...tableState}
+          // Override filter handlers for URL sync
+          onFiltersChange={handleFilterChange}
+          clearAllFilters={handleClearAllFilters}
+          // Override selection handlers to also call input.onChange
+          onSelectRow={handleSelectRow}
+          onSelectAll={handleSelectAll}
+        />
       </FormGroup>
     </React.Fragment>
   );

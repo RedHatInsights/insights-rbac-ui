@@ -1,20 +1,12 @@
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateActions } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import React, { useState } from 'react';
-import { DataViewTh } from '@patternfly/react-data-view';
-import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { SearchInput } from '@patternfly/react-core/dist/dynamic/components/SearchInput';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import messages from '../../../Messages';
 import type { ResourceDefinition } from '../types';
+import { TableView } from '../../../components/table-view/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../components/table-view/components/TableViewEmptyState';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../components/table-view/types';
 
 interface ResourceDefinitionsModalProps {
   isOpen?: boolean;
@@ -23,87 +15,76 @@ interface ResourceDefinitionsModalProps {
   resourceDefinitions: ResourceDefinition[];
 }
 
+interface ResourceRow {
+  id: string;
+  value: string;
+}
+
+// Column definition
+const columns = ['value'] as const;
+
 export const ResourceDefinitionsModal: React.FC<ResourceDefinitionsModalProps> = ({ isOpen, handleClose, permission, resourceDefinitions }) => {
   const intl = useIntl();
   const [filterValue, setFilterValue] = useState('');
 
-  const columns: DataViewTh[] = [{ cell: intl.formatMessage(messages.resourceDefinition), props: { key: 'value' } }];
-
   // Convert resource definitions to filterable data
-  const allRows = resourceDefinitions
-    .map(({ attributeFilter }) => attributeFilter.value)
-    .filter((value): value is string => typeof value === 'string')
-    .map((value, index) => ({
-      id: index.toString(),
-      value,
-    }));
+  const allRows: ResourceRow[] = useMemo(
+    () =>
+      resourceDefinitions
+        .map(({ attributeFilter }) => attributeFilter.value)
+        .filter((value): value is string => typeof value === 'string')
+        .map((value, index) => ({
+          id: index.toString(),
+          value,
+        })),
+    [resourceDefinitions],
+  );
 
   // Apply filtering
-  const filteredRows = filterValue ? allRows.filter((row) => row.value.toLowerCase().includes(filterValue.toLowerCase())) : allRows;
+  const filteredRows = useMemo(
+    () => (filterValue ? allRows.filter((row) => row.value.toLowerCase().includes(filterValue.toLowerCase())) : allRows),
+    [allRows, filterValue],
+  );
 
-  // Convert to DataView table format
-  const rows = filteredRows.map((row) => ({
-    id: row.id,
-    row: [row.value],
-  }));
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      value: { label: intl.formatMessage(messages.resourceDefinition) },
+    }),
+    [intl],
+  );
 
-  const handleFilterChange = (_event: any, value: string) => {
-    setFilterValue(value);
-  };
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, ResourceRow> = useMemo(
+    () => ({
+      value: (row) => row.value,
+    }),
+    [],
+  );
 
-  const handleClearFilter = () => {
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        type: 'search',
+        id: 'value',
+        placeholder: intl.formatMessage(messages.filterByKey, {
+          key: intl.formatMessage(messages.resourceDefinition).toLowerCase(),
+        }),
+      },
+    ],
+    [intl],
+  );
+
+  // Handle filter change
+  const handleFilterChange = useCallback((newFilters: Record<string, string | string[]>) => {
+    setFilterValue((newFilters.value as string) || '');
+  }, []);
+
+  // Handle clear filter
+  const handleClearFilter = useCallback(() => {
     setFilterValue('');
-  };
-
-  // Determine DataView state
-  const isEmpty = allRows.length === 0;
-  const isFilteredEmpty = filteredRows.length === 0;
-
-  // Empty state components (wrapped for table context)
-  const EmptyNoData = () => (
-    <tbody>
-      <tr>
-        <td colSpan={1} style={{ textAlign: 'center', padding: '2rem' }}>
-          <EmptyState>
-            <EmptyStateHeader titleText="No resource definitions" headingLevel="h4" />
-            <EmptyStateBody>{intl.formatMessage(messages.noResourceDefinitions, { permission })}</EmptyStateBody>
-          </EmptyState>
-        </td>
-      </tr>
-    </tbody>
-  );
-
-  const EmptyWithFilters = () => (
-    <tbody>
-      <tr>
-        <td colSpan={1} style={{ textAlign: 'center', padding: '2rem' }}>
-          <EmptyState>
-            <EmptyStateHeader titleText={intl.formatMessage(messages.noResultsFound)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-            <EmptyStateBody>
-              {intl.formatMessage(messages.filterMatchesNoItems, { items: 'resource definitions' })} {intl.formatMessage(messages.tryChangingFilters)}
-            </EmptyStateBody>
-            <EmptyStateActions>
-              <Button variant="link" onClick={handleClearFilter}>
-                Clear filter
-              </Button>
-            </EmptyStateActions>
-          </EmptyState>
-        </td>
-      </tr>
-    </tbody>
-  );
-
-  let activeState: DataViewState | undefined;
-  if (isEmpty) {
-    // We have no data at all - show general empty state
-    activeState = DataViewState.empty;
-  } else if (isFilteredEmpty) {
-    // We have data but filtering results in no matches - show filtered empty state
-    activeState = DataViewState.empty;
-  } else {
-    // We have data to display
-    activeState = undefined;
-  }
+  }, []);
 
   return (
     <Modal
@@ -126,32 +107,34 @@ export const ResourceDefinitionsModal: React.FC<ResourceDefinitionsModalProps> =
         />
       }
     >
-      <DataView activeState={activeState}>
-        <DataViewToolbar
-          filters={
-            <SearchInput
-              placeholder={intl.formatMessage(messages.filterByKey, {
-                key: intl.formatMessage(messages.resourceDefinition).toLowerCase(),
-              })}
-              value={filterValue}
-              onChange={handleFilterChange}
-              onClear={handleClearFilter}
-              aria-label={intl.formatMessage(messages.filterByKey, {
-                key: intl.formatMessage(messages.resourceDefinitions).toLowerCase(),
-              })}
-            />
-          }
-        />
-        <DataViewTable
-          aria-label={intl.formatMessage(messages.resourceDefinitions)}
-          columns={columns}
-          rows={rows}
-          variant="compact"
-          bodyStates={{
-            empty: isEmpty ? <EmptyNoData /> : <EmptyWithFilters />,
-          }}
-        />
-      </DataView>
+      <TableView<typeof columns, ResourceRow>
+        columns={columns}
+        columnConfig={columnConfig}
+        data={filteredRows}
+        totalCount={filteredRows.length}
+        getRowId={(row) => row.id}
+        cellRenderers={cellRenderers}
+        page={1}
+        perPage={filteredRows.length || 10}
+        onPageChange={() => {}}
+        onPerPageChange={() => {}}
+        filterConfig={filterConfig}
+        filters={{ value: filterValue }}
+        onFiltersChange={handleFilterChange}
+        clearAllFilters={handleClearFilter}
+        variant="compact"
+        ariaLabel={intl.formatMessage(messages.resourceDefinitions)}
+        emptyStateNoData={
+          <DefaultEmptyStateNoData title="No resource definitions" body={intl.formatMessage(messages.noResourceDefinitions, { permission })} />
+        }
+        emptyStateNoResults={
+          <DefaultEmptyStateNoResults
+            title={intl.formatMessage(messages.noResultsFound)}
+            body={`${intl.formatMessage(messages.filterMatchesNoItems, { items: 'resource definitions' })} ${intl.formatMessage(messages.tryChangingFilters)}`}
+            onClearFilters={handleClearFilter}
+          />
+        }
+      />
     </Modal>
   );
 };

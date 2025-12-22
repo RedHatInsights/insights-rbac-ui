@@ -41,17 +41,11 @@ function useRouterParams(): UseOptionalSearchParamsReturn {
 }
 
 /**
- * Hook for components that are NOT inside Router context.
+ * Hook for components that don't want to use the URL.
  * Uses local state - changes are NOT persisted to URL.
  */
 function useLocalParams(): UseOptionalSearchParamsReturn {
-  // Initialize from current URL if available
-  const [searchParams, setLocalParams] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return new URLSearchParams(window.location.search);
-    }
-    return new URLSearchParams();
-  });
+  const [searchParams, setLocalParams] = useState(() => new URLSearchParams());
 
   const setSearchParams = useCallback<SetSearchParams>((fn) => {
     setLocalParams((prev) => fn(prev));

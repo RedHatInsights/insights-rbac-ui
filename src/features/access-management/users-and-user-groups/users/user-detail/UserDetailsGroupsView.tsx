@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { mappedProps } from '../../../../../helpers/dataUtilities';
@@ -14,16 +12,35 @@ import { fetchGroups } from '../../../../../redux/groups/actions';
 import { selectGroups, selectGroupsErrorState, selectIsGroupsLoading } from '../../../../../redux/groups/selectors';
 import messages from '../../../../../Messages';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
+import { TableView } from '../../../../../components/table-view/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 
 interface UserGroupsViewProps {
   userId: string;
   ouiaId: string;
 }
 
+interface GroupData {
+  uuid: string;
+  name: string;
+  principalCount?: number;
+}
+
+const columns = ['name', 'users'] as const;
+
 const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ userId, ouiaId }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-  const columns: string[] = [intl.formatMessage(messages.userGroup), intl.formatMessage(messages.users)];
+
+  const columnConfig: ColumnConfigMap<typeof columns> = {
+    name: { label: intl.formatMessage(messages.userGroup) },
+    users: { label: intl.formatMessage(messages.users) },
+  };
+
+  const cellRenderers: CellRendererMap<typeof columns, GroupData> = {
+    name: (group) => group.name,
+    users: (group) => group.principalCount || '?', // TODO: update once API provides principalCount [RHCLOUD-35963]
+  };
 
   const groups = useSelector(selectGroups);
   const isLoading = useSelector(selectIsGroupsLoading);
@@ -37,15 +54,6 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
     fetchData();
   }, [fetchData]);
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="pf-v5-u-pt-md pf-v5-u-text-align-center">
-        <Spinner size="lg" aria-label="Loading user groups" />
-      </div>
-    );
-  }
-
   // Show error state
   if (error) {
     return (
@@ -58,27 +66,37 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
     );
   }
 
-  // Show empty state when no groups
-  if (groups.length === 0) {
-    return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="No groups found" icon={<EmptyStateIcon icon={UsersIcon} />} headingLevel="h4" />
-          <EmptyStateBody>This user is not a member of any groups.</EmptyStateBody>
-        </EmptyState>
-      </div>
-    );
-  }
+  const emptyState = (
+    <EmptyState variant="sm">
+      <EmptyStateHeader titleText="No groups found" icon={<EmptyStateIcon icon={UsersIcon} />} headingLevel="h4" />
+      <EmptyStateBody>This user is not a member of any groups.</EmptyStateBody>
+    </EmptyState>
+  );
 
-  const rows = groups.map((group: any) => ({
-    row: [group.name, group.principalCount || '?'], // TODO: update once API provides principalCount [RHCLOUD-35963]
+  const groupData: GroupData[] = groups.map((group: any) => ({
+    uuid: group.uuid,
+    name: group.name,
+    principalCount: group.principalCount,
   }));
 
   return (
     <div className="pf-v5-u-pt-md">
-      <DataView ouiaId={ouiaId}>
-        <DataViewTable variant="compact" aria-label="UserGroupsView" ouiaId={`${ouiaId}-table`} columns={columns} rows={rows} />
-      </DataView>
+      <TableView<typeof columns, GroupData>
+        columns={columns}
+        columnConfig={columnConfig}
+        data={isLoading ? undefined : groupData}
+        totalCount={groupData.length}
+        getRowId={(group) => group.uuid}
+        cellRenderers={cellRenderers}
+        page={1}
+        perPage={groupData.length || 10}
+        onPageChange={() => {}}
+        onPerPageChange={() => {}}
+        ariaLabel="UserGroupsView"
+        ouiaId={ouiaId}
+        emptyStateNoData={emptyState}
+        emptyStateNoResults={emptyState}
+      />
     </div>
   );
 };

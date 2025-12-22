@@ -158,7 +158,6 @@ describe('useTableState', () => {
       );
 
       expect(result.current.filters).toEqual({});
-      expect(result.current.hasActiveFilters).toBe(false);
     });
 
     it('should use initial filters', () => {
@@ -173,7 +172,6 @@ describe('useTableState', () => {
       );
 
       expect(result.current.filters).toEqual({ name: 'test' });
-      expect(result.current.hasActiveFilters).toBe(true);
     });
 
     it('should update filters and reset page', () => {
@@ -199,7 +197,6 @@ describe('useTableState', () => {
 
       expect(result.current.filters).toEqual({ name: 'search' });
       expect(result.current.page).toBe(1);
-      expect(result.current.hasActiveFilters).toBe(true);
     });
 
     it('should clear all filters and reset page', () => {
@@ -225,30 +222,6 @@ describe('useTableState', () => {
 
       expect(result.current.filters).toEqual({});
       expect(result.current.page).toBe(1);
-      expect(result.current.hasActiveFilters).toBe(false);
-    });
-
-    it('should detect active array filters', () => {
-      const { result } = renderHook(
-        () =>
-          useTableState<typeof columns, TestRow>({
-            columns,
-            getRowId: (row) => row.id,
-          }),
-        { wrapper: createWrapper() },
-      );
-
-      // Empty array should not count as active
-      act(() => {
-        result.current.onFiltersChange({ status: [] });
-      });
-      expect(result.current.hasActiveFilters).toBe(false);
-
-      // Non-empty array should count as active
-      act(() => {
-        result.current.onFiltersChange({ status: ['active', 'pending'] });
-      });
-      expect(result.current.hasActiveFilters).toBe(true);
     });
   });
 

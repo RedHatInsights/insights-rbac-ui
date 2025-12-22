@@ -76,7 +76,7 @@ const meta: Meta<typeof ModalWrapper> = {
 
 ## Features
 - **Modal Dialog**: Uses PatternFly Modal with large variant for spacious display
-- **Searchable Table**: TableToolbarView with built-in filtering capabilities
+- **Searchable Table**: TableView with built-in filtering capabilities
 - **Permission Context**: Shows permission name in modal description with formatted message
 - **Dynamic Content**: Handles empty states and variable numbers of resource definitions
 - **Pagination**: Built-in pagination support for large resource definition lists

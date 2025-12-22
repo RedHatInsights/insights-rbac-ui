@@ -1,19 +1,26 @@
-import React, { Fragment, useCallback, useMemo } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
-// DataView imports
-import { DataView, DataViewState } from '@patternfly/react-data-view';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { DataViewTextFilter } from '@patternfly/react-data-view';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import { PER_PAGE_OPTIONS } from '../../../../../helpers/pagination';
-
-// Component imports
+import { TableView, useTableState } from '../../../../../components/table-view';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../components/table-view/types';
+import { defaultSettings } from '../../../../../helpers/pagination';
+import { mappedProps } from '../../../../../helpers/dataUtilities';
+import { fetchRolesWithPolicies } from '../../../../../redux/roles/actions';
+import { fetchAddRolesForGroup } from '../../../../../redux/groups/actions';
+import { selectIsRolesLoading, selectRoles, selectRolesMeta } from '../../../../../redux/roles/selectors';
 import { RolesListEmptyState } from './RolesListEmptyState';
-import { useRolesList } from './useRolesList';
+import type { RBACStore } from '../../../../../redux/store';
+import { createSelector } from 'reselect';
+
+// Memoized selectors for addRoles data from groups reducer (when rolesExcluded=true)
+const selectGroupReducer = (state: RBACStore) => state.groupReducer;
+const selectSelectedGroup = createSelector([selectGroupReducer], (groupReducer) => groupReducer?.selectedGroup);
+const selectAddRoles = createSelector([selectSelectedGroup], (selectedGroup) => selectedGroup?.addRoles);
+
+const selectAddRolesForGroup = createSelector([selectAddRoles], (addRoles) => addRoles?.roles || []);
+const selectAddRolesMetaForGroup = createSelector([selectAddRoles], (addRoles) => addRoles?.pagination || { count: 0 });
+const selectAddRolesLoading = createSelector([selectAddRoles], (addRoles) => !addRoles?.loaded);
 
 // Types
 interface Role {
@@ -25,146 +32,125 @@ interface Role {
 
 interface RolesListProps {
   initialSelectedRoles: Role[];
-  onSelect: (selectedRoles: Role[]) => void; // Consumers handle selection changes
+  onSelect: (selectedRoles: Role[]) => void;
   rolesExcluded?: boolean;
   groupId?: string;
   usesMetaInURL?: boolean;
 }
 
-export const RolesList: React.FC<RolesListProps> = (props) => {
-  // Use custom hook for ALL business logic
-  const { roles, isLoading, filters, selection, tableRows, columns, hasActiveFilters, fetchData, debouncedFetchData, emptyStateProps, pagination } =
-    useRolesList({
-      rolesExcluded: props.rolesExcluded,
-      groupId: props.groupId,
-      usesMetaInURL: props.usesMetaInURL,
-      initialSelectedRoles: props.initialSelectedRoles,
-      onSelect: props.onSelect,
-    });
+// Column definitions
+const columns = ['name', 'description'] as const;
 
-  // Pagination calculations
-  const calculatePage = (limit: number, offset: number) => Math.floor(offset / limit) + 1;
-  const calculateOffset = (page: number, limit: number) => (page - 1) * limit;
+export const RolesList: React.FC<RolesListProps> = ({ initialSelectedRoles, onSelect, rolesExcluded = false, groupId, usesMetaInURL = false }) => {
+  const chrome = useChrome();
+  const dispatch = useDispatch();
 
-  const currentPage = calculatePage(pagination.limit, pagination.offset);
+  // Redux selectors - use different selectors based on whether we're fetching excluded roles
+  const rolesFromRolesReducer = useSelector(selectRoles);
+  const metaFromRolesReducer = useSelector(selectRolesMeta);
+  const isLoadingFromRolesReducer = useSelector(selectIsRolesLoading);
 
-  // Pagination handlers
-  const onSetPage = useCallback(
-    (_event: any, page: number) => {
-      fetchData({ offset: calculateOffset(page, pagination.limit) });
-    },
-    [fetchData, pagination.limit],
+  const rolesFromGroupsReducer = useSelector(selectAddRolesForGroup);
+  const metaFromGroupsReducer = useSelector(selectAddRolesMetaForGroup);
+  const isLoadingFromGroupsReducer = useSelector(selectAddRolesLoading);
+
+  // Select correct data source based on rolesExcluded flag
+  const roles = rolesExcluded && groupId ? rolesFromGroupsReducer : rolesFromRolesReducer;
+  const meta = rolesExcluded && groupId ? metaFromGroupsReducer : metaFromRolesReducer;
+  const isLoading = rolesExcluded && groupId ? isLoadingFromGroupsReducer : isLoadingFromRolesReducer;
+  const totalCount = meta.count || 0;
+
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      name: { label: 'Name' },
+      description: { label: 'Description' },
+    }),
+    [],
   );
 
-  const onPerPageSelect = useCallback(
-    (_event: any, perPage: number) => {
-      fetchData({ limit: perPage, offset: 0 });
-    },
-    [fetchData],
-  );
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(() => [{ id: 'name', label: 'Role name', type: 'text', placeholder: 'Filter by role name' }], []);
 
-  // Filter change handler - use debounced fetch for better performance
-  const handleFilterChange = useCallback(
-    (key: string, newValues: Partial<{ name: string }>) => {
-      const newFilters = { ...filters.filters, ...newValues };
-      filters.onSetFilters(newFilters);
-      // Pass the new filter value directly to avoid stale closure issues
-      debouncedFetchData({ offset: 0 }, newFilters.name);
-    },
-    [filters, debouncedFetchData], // Include dependencies for stable references
-  );
+  // Handle data fetching via onStaleData
+  const handleStaleData = useCallback(
+    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
+      const nameFilter = params.filters.name as string | undefined;
 
-  // Clear all filters - match exact pattern from working AccessTable and RolesTable
-  const clearAllFilters = useCallback(() => {
-    filters.clearAllFilters();
-    // Trigger API call with default parameters after clearing filters (match AccessTable pattern)
-    debouncedFetchData({
-      limit: pagination.limit,
-      offset: 0,
-    });
-  }, [filters.clearAllFilters, debouncedFetchData, pagination.limit]);
-
-  // Bulk select handler (avoid unstable dependencies)
-  const handleBulkSelect = useCallback(
-    (value: BulkSelectValue) => {
-      if (value === BulkSelectValue.none) {
-        selection.onSelect(false);
-      } else if (value === BulkSelectValue.page) {
-        selection.onSelect(true, tableRows);
-      } else if (value === BulkSelectValue.nonePage) {
-        selection.onSelect(false, tableRows);
+      if (rolesExcluded && groupId) {
+        // Group-specific roles fetching
+        dispatch(
+          fetchAddRolesForGroup(groupId, {
+            limit: params.limit,
+            offset: params.offset,
+            ...(nameFilter && nameFilter.trim() ? { name: nameFilter } : {}),
+          }),
+        );
+      } else {
+        // General roles fetching
+        dispatch(
+          fetchRolesWithPolicies(
+            mappedProps({
+              limit: params.limit,
+              offset: params.offset,
+              usesMetaInURL,
+              ...(nameFilter && nameFilter.trim() ? { filters: { name: nameFilter } } : {}),
+            }),
+          ),
+        );
       }
     },
-    [], // Remove unstable dependencies to prevent infinite loops - rely on closure
+    [dispatch, rolesExcluded, groupId, usesMetaInURL],
   );
 
-  // Skeleton states
-  const loadingHeader = useMemo(() => <SkeletonTableHead columns={columns.map((col) => col.cell)} />, [columns]);
+  // useTableState for all state management
+  const tableState = useTableState<typeof columns, Role>({
+    columns,
+    initialPerPage: defaultSettings.limit || 20,
+    perPageOptions: [10, 20, 50, 100],
+    getRowId: (role) => role.uuid,
+    initialSelectedRows: initialSelectedRoles,
+    onStaleData: handleStaleData,
+  });
 
-  const loadingBody = useMemo(() => <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />, [columns.length]);
+  // Propagate selection changes to parent
+  useEffect(() => {
+    onSelect(tableState.selectedRows);
+  }, [tableState.selectedRows, onSelect]);
 
-  // Empty state component
-  const emptyState = useMemo(() => <RolesListEmptyState {...emptyStateProps} />, [emptyStateProps]);
+  // Chrome global filter setup
+  useEffect(() => {
+    chrome?.hideGlobalFilter?.(true);
+    return () => chrome?.hideGlobalFilter?.(false);
+  }, [chrome]);
 
-  // Selection is now handled by useEffect hooks for bidirectional sync
-
-  // Memoize bulkSelect component to remove dependency on handleBulkSelect (prevent loops)
-  const bulkSelectComponent = useMemo(
-    () => <BulkSelect pageCount={roles.length} selectedCount={selection.selected.length} onSelect={handleBulkSelect} />,
-    [roles.length, selection.selected.length], // Only re-create when counts change
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(
+    () => ({
+      name: (role) => role.display_name || role.name,
+      description: (role) => role.description || '—',
+    }),
+    [],
   );
-
-  // Determine active state
-  const activeState = isLoading ? DataViewState.loading : roles.length === 0 ? DataViewState.empty : undefined;
 
   return (
     <Fragment>
-      <DataView activeState={activeState} selection={selection}>
-        <DataViewToolbar
-          bulkSelect={bulkSelectComponent}
-          pagination={
-            <Pagination
-              perPageOptions={PER_PAGE_OPTIONS}
-              itemCount={pagination.count || 0}
-              page={currentPage}
-              perPage={pagination.limit}
-              onSetPage={onSetPage}
-              onPerPageSelect={onPerPageSelect}
-              isCompact
-            />
-          }
-          filters={
-            <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
-              <DataViewTextFilter filterId="name" title="Role name" placeholder="Filter by role name" />
-            </DataViewFilters>
-          }
-          clearAllFilters={clearAllFilters}
-        />
-        <DataViewTable
-          columns={columns}
-          rows={tableRows}
-          headStates={{ loading: loadingHeader }}
-          bodyStates={{
-            loading: loadingBody,
-            empty: emptyState,
-          }}
-          variant="compact"
-        />
-        <DataViewToolbar
-          clearAllFilters={hasActiveFilters ? clearAllFilters : undefined}
-          pagination={
-            <Pagination
-              perPageOptions={PER_PAGE_OPTIONS}
-              itemCount={pagination.count || 0}
-              page={currentPage}
-              perPage={pagination.limit}
-              onSetPage={onSetPage}
-              onPerPageSelect={onPerPageSelect}
-              isCompact
-            />
-          }
-        />
-      </DataView>
+      <TableView<typeof columns, Role>
+        columns={columns}
+        columnConfig={columnConfig}
+        data={isLoading ? undefined : roles}
+        totalCount={totalCount}
+        getRowId={(role) => role.uuid}
+        cellRenderers={cellRenderers}
+        filterConfig={filterConfig}
+        selectable
+        emptyStateNoData={<RolesListEmptyState hasActiveFilters={false} />}
+        emptyStateNoResults={<RolesListEmptyState hasActiveFilters={true} />}
+        variant="compact"
+        ariaLabel="Roles list table"
+        ouiaId="roles-list-table"
+        {...tableState}
+      />
     </Fragment>
   );
 };

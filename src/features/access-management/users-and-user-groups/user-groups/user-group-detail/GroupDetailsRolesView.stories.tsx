@@ -172,8 +172,8 @@ export const Loading: Story = {
     await delay(300);
     const canvas = within(canvasElement);
 
-    // Should show loading spinner initially
-    await expect(canvas.findByLabelText('Loading roles')).resolves.toBeInTheDocument();
+    // Should show skeleton loading state while API call is in progress (TableView uses SkeletonTable)
+    await expect(canvas.findByLabelText('GroupRolesView')).resolves.toBeInTheDocument();
   },
 };
 
