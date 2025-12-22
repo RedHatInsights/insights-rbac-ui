@@ -193,9 +193,6 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
   // Transform filters for TableView
   const tableFilters = useMemo(() => ({ name: filters.name || '' }), [filters.name]);
 
-  // Has active filters check
-  const hasActiveFilters = !!filters.name;
-
   return (
     <>
       <TableView<typeof columns, Group, SortableColumnId>
@@ -271,7 +268,6 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
         filters={tableFilters}
         onFiltersChange={handleFiltersChange}
         clearAllFilters={clearAllFilters}
-        hasActiveFilters={hasActiveFilters}
         selectedRows={selectedRows}
         onSelectRow={handleSelectRow}
         onSelectAll={handleSelectAll}

@@ -271,7 +271,6 @@ const User: React.FC = () => {
                 filterConfig={filterConfig}
                 filters={{ name: filter }}
                 onFiltersChange={handleFilterChange}
-                hasActiveFilters={filter.length > 0}
                 clearAllFilters={() => handleFilterChange({ name: '' })}
                 toolbarActions={toolbarActions}
                 ariaLabel={intl.formatMessage(messages.roles)}

@@ -1,70 +1,201 @@
-import React, { Fragment, Suspense, useCallback, useMemo, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
-import { DataView, DataViewState } from '@patternfly/react-data-view';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { DataViewTextFilter } from '@patternfly/react-data-view';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import { BulkSelect } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { BulkSelectValue } from '@patternfly/react-component-groups';
-import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Thead } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { Th } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { TableVariant } from '@patternfly/react-table';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
+import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import Section from '@redhat-cloud-services/frontend-components/Section';
+
+import { TableView, useTableState } from '../../components/table-view';
+import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../components/table-view/types';
 import { ActionDropdown } from '../../components/ActionDropdown';
-import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
 import { AppLink } from '../../components/navigation/AppLink';
+import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
 import { useAppLink } from '../../hooks/useAppLink';
-import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 import { getBackRoute } from '../../helpers/navigation';
+import { getDateFormat } from '../../helpers/stringUtilities';
+import { defaultAdminSettings, defaultSettings } from '../../helpers/pagination';
+import { mappedProps } from '../../helpers/dataUtilities';
+import { fetchRolesWithPolicies } from '../../redux/roles/actions';
+import { fetchAdminGroup } from '../../redux/groups/actions';
+import PermissionsContext from '../../utilities/permissionsContext';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
-import { useRoles } from './useRoles';
-import { useDispatch } from 'react-redux';
-import { updateRolesFilters } from '../../redux/roles/actions';
 import { RolesEmptyState } from './components/RolesEmptyState';
-import { RolesTable } from './components/RolesTable';
+import type { Access, Role, RoleGroup } from '../../redux/roles/reducer';
+import type { Group } from '../../redux/groups/reducer';
+import type { RBACStore } from '../../redux/store';
 import './roles.scss';
 
+// Column definitions
+const columns = ['name', 'description', 'groups', 'permissions', 'modified'] as const;
+type SortableColumnId = 'name' | 'modified';
+type CompoundColumnId = 'groups' | 'permissions';
+
+// Nested table for groups
+const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ role, adminGroup }) => {
+  const intl = useIntl();
+
+  const groupColumns = [intl.formatMessage(messages.groupName), intl.formatMessage(messages.description), ''];
+
+  return (
+    <Table aria-label={`Groups for role ${role.display_name}`} variant={TableVariant.compact} ouiaId={`compound-groups-${role.uuid}`}>
+      <Thead>
+        <Tr>
+          {groupColumns.map((col, index) => (
+            <Th key={index}>{col}</Th>
+          ))}
+        </Tr>
+      </Thead>
+      <Tbody>
+        {role.groups_in && role.groups_in.length > 0 ? (
+          role.groups_in.map((group: RoleGroup, index: number) => (
+            <Tr key={`${role.uuid}-group-${group.uuid || index}`}>
+              <Td dataLabel={groupColumns[0]}>
+                <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink>
+              </Td>
+              <Td dataLabel={groupColumns[1]}>{group.description}</Td>
+              <Td dataLabel={groupColumns[2]} className="pf-v5-u-text-align-right">
+                {adminGroup?.uuid !== group.uuid && (
+                  <AppLink
+                    to={pathnames['roles-add-group-roles'].link.replace(':roleId', role.uuid).replace(':groupId', group.uuid)}
+                    state={{ name: group.name }}
+                  >
+                    {intl.formatMessage(messages.addRoleToThisGroup)}
+                  </AppLink>
+                )}
+              </Td>
+            </Tr>
+          ))
+        ) : (
+          <Tr>
+            <Td colSpan={groupColumns.length}>
+              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>
+            </Td>
+          </Tr>
+        )}
+      </Tbody>
+    </Table>
+  );
+};
+
+// Nested table for permissions
+const PermissionsTable: React.FC<{ role: Role }> = ({ role }) => {
+  const intl = useIntl();
+
+  const permissionColumns = [
+    intl.formatMessage(messages.application),
+    intl.formatMessage(messages.resourceType),
+    intl.formatMessage(messages.operation),
+    intl.formatMessage(messages.lastModified),
+  ];
+
+  return (
+    <Table aria-label={`Permissions for role ${role.display_name}`} variant={TableVariant.compact} ouiaId={`compound-permissions-${role.uuid}`}>
+      <Thead>
+        <Tr>
+          {permissionColumns.map((col, index) => (
+            <Th key={index}>{col}</Th>
+          ))}
+        </Tr>
+      </Thead>
+      <Tbody>
+        {role.access && role.access.length > 0 ? (
+          role.access.map((access: Access, index: number) => {
+            const [appName, type, operation] = access.permission.split(':');
+            return (
+              <Tr key={`${role.uuid}-permission-${index}`}>
+                <Td dataLabel={permissionColumns[0]}>{appName}</Td>
+                <Td dataLabel={permissionColumns[1]}>{type}</Td>
+                <Td dataLabel={permissionColumns[2]}>{operation}</Td>
+                <Td dataLabel={permissionColumns[3]}>
+                  <DateFormat date={role.modified} type={getDateFormat(role.modified)} />
+                </Td>
+              </Tr>
+            );
+          })
+        ) : (
+          <Tr>
+            <Td colSpan={permissionColumns.length}>
+              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
+            </Td>
+          </Tr>
+        )}
+      </Tbody>
+    </Table>
+  );
+};
+
+// Row actions dropdown
+const RoleRowActions: React.FC<{
+  role: Role;
+  onEditRole: (roleId: string) => void;
+  onDeleteRole: (roleIds: string[]) => void;
+}> = ({ role, onEditRole, onDeleteRole }) => {
+  const intl = useIntl();
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dropdown
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      toggle={(toggleRef) => (
+        <MenuToggle ref={toggleRef} aria-label={`Actions for role ${role.display_name}`} variant="plain" onClick={() => setIsOpen(!isOpen)}>
+          <EllipsisVIcon />
+        </MenuToggle>
+      )}
+    >
+      <DropdownList>
+        <DropdownItem onClick={() => onEditRole(role.uuid)}>{intl.formatMessage(messages.edit)}</DropdownItem>
+        <DropdownItem onClick={() => onDeleteRole([role.uuid])}>{intl.formatMessage(messages.delete)}</DropdownItem>
+      </DropdownList>
+    </Dropdown>
+  );
+};
+
+/**
+ * Roles list component with compound expandable rows using TableView.
+ */
 export const Roles: React.FC = () => {
   const intl = useIntl();
   const navigate = useNavigate();
   const toAppLink = useAppLink();
   const dispatch = useDispatch();
+  const chrome = useChrome();
 
-  // Get all data and handlers from custom hook
+  // Permissions
+  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const isAdmin = orgAdmin || userAccessAdministrator;
+
+  // Redux selectors
   const {
     roles,
+    pagination: rawPagination,
     isLoading,
-    totalCount,
-    isAdmin,
-    filterValue,
-    setFilterValue,
-    hasActiveFilters,
-    page,
-    perPage,
-    setPage,
-    setPerPage,
-    sortByState,
-    setSortByState,
-    expandedCells,
-    setExpandedCells,
-    selectedRows,
-    setSelectedRows,
-    columns,
-    isSelectable,
-    fetchData,
-    handleClearFilters,
     adminGroup,
-  } = useRoles();
+  } = useSelector(
+    (state: RBACStore) => ({
+      adminGroup: state.groupReducer?.adminGroup,
+      roles: state.roleReducer?.roles?.data || [],
+      pagination: state.roleReducer?.roles?.pagination || {},
+      isLoading: state.roleReducer?.isLoading || false,
+    }),
+    shallowEqual,
+  );
 
-  // Local state for UI
+  const paginationDefaults = orgAdmin ? defaultAdminSettings : defaultSettings;
+  const totalCount = rawPagination.count || 0;
+
+  // Local state for remove roles modal
   const [removeRolesList, setRemoveRolesList] = useState<Array<{ uuid: string; label: string }>>([]);
 
   // Show NotAuthorized component for users without proper permissions
@@ -77,68 +208,86 @@ export const Roles: React.FC = () => {
     );
   }
 
-  // Filter change handler with debounce
-  const handleFilterChange = useCallback(
-    (_key: string, newFilters: Partial<{ display_name: string }>) => {
-      const newFilterValue = newFilters.display_name || '';
-      // Update redux filters immediately to guard against stale request races in reducer
-      dispatch(updateRolesFilters({ display_name: newFilterValue }));
-      setFilterValue(newFilterValue);
-
-      // Fetch with new filter and reset to page 1
-      fetchData({ filters: { display_name: newFilterValue }, offset: 0 });
-      // Update URL to page 1 without triggering a second fetch that could use stale filters
-      setPage(1, { skipFetch: true });
-    },
-    [dispatch, setFilterValue, fetchData, setPage],
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      name: { label: intl.formatMessage(messages.name), sortable: true },
+      description: { label: intl.formatMessage(messages.description) },
+      groups: { label: intl.formatMessage(messages.groups), isCompound: true },
+      permissions: { label: intl.formatMessage(messages.permissions), isCompound: true },
+      modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+    }),
+    [intl],
   );
 
-  // Sort handler
-  const handleSort = useCallback(
-    (_event: React.MouseEvent, index: number, direction: 'asc' | 'desc') => {
-      setSortByState({ index, direction });
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(() => [{ id: 'display_name', label: 'Name', type: 'text', placeholder: 'Filter by name' }], []);
 
-      // Calculate orderBy from sort state
-      const columnIndex = index - Number(isSelectable);
-      const column = columns[columnIndex];
-      const newOrderBy = `${direction === 'desc' ? '-' : ''}${column?.key || 'display_name'}`;
+  // Handle data fetching via onStaleData
+  const handleStaleData = useCallback(
+    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
+      const nameFilter = params.filters.display_name as string | undefined;
 
-      // Fetch with new sort
-      fetchData({ orderBy: newOrderBy, offset: 0 });
-    },
-    [setSortByState, columns, isSelectable, fetchData],
-  );
-
-  // Expansion handler
-  const handleExpansion = useCallback(
-    (roleUuid: string, columnKey: 'groups' | 'permissions', isExpanding: boolean) => {
-      const newExpandedCells = { ...expandedCells };
-      if (isExpanding) {
-        newExpandedCells[roleUuid] = columnKey;
-      } else {
-        delete newExpandedCells[roleUuid];
+      // Map column IDs to API sort parameters
+      // The column ID is 'name' but API expects 'display_name'
+      let apiOrderBy = params.orderBy;
+      if (apiOrderBy) {
+        apiOrderBy = apiOrderBy.replace(/^(-?)name$/, '$1display_name');
       }
-      setExpandedCells(newExpandedCells);
+
+      const apiParams = {
+        limit: params.limit,
+        offset: params.offset,
+        orderBy: apiOrderBy,
+        ...(nameFilter && nameFilter.trim() ? { filters: { display_name: nameFilter } } : {}),
+      };
+
+      dispatch(fetchRolesWithPolicies({ ...mappedProps(apiParams as Record<string, unknown>), usesMetaInURL: true, chrome }));
     },
-    [expandedCells, setExpandedCells],
+    [dispatch, chrome],
   );
 
-  // Bulk select handler
-  const handleBulkSelect = useCallback(
-    (value: BulkSelectValue) => {
-      if (value === BulkSelectValue.none) {
-        setSelectedRows([]);
-      } else if (value === BulkSelectValue.page) {
-        // Select all selectable roles on current page
-        const selectableRoles = roles
-          .filter((role) => !(role.platform_default || role.admin_default || role.system))
-          .map((role) => ({ uuid: role.uuid, label: role.name }));
-        setSelectedRows(selectableRoles);
-      } else if (value === BulkSelectValue.nonePage) {
-        setSelectedRows([]);
-      }
-    },
-    [roles, setSelectedRows],
+  // useTableState for all state management with URL sync
+  const tableState = useTableState<typeof columns, Role, SortableColumnId, CompoundColumnId>({
+    columns,
+    sortableColumns: ['name', 'modified'] as const,
+    compoundColumns: ['groups', 'permissions'] as const,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: paginationDefaults.limit,
+    perPageOptions: [10, 20, 50, 100],
+    getRowId: (role) => role.uuid,
+    isRowSelectable: (role) => !(role.platform_default || role.admin_default || role.system),
+    syncWithUrl: true,
+    onStaleData: handleStaleData,
+  });
+
+  // Initialize permissions check and fetch admin group on mount
+  useEffect(() => {
+    chrome.appNavClick?.({ id: 'roles', secondaryNav: true });
+    if (orgAdmin || userAccessAdministrator) {
+      dispatch(fetchAdminGroup({ chrome }));
+    }
+  }, []);
+
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(
+    () => ({
+      name: (role) => <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.display_name || role.name}</AppLink>,
+      description: (role) => role.description || '—',
+      groups: (role) => role.groups_in_count,
+      permissions: (role) => role.accessCount,
+      modified: (role) => <DateFormat date={role.modified} type={getDateFormat(role.modified)} />,
+    }),
+    [],
+  );
+
+  // Expansion renderers for compound expansion
+  const expansionRenderers: ExpansionRendererMap<CompoundColumnId, Role> = useMemo(
+    () => ({
+      groups: (role) => <GroupsTable role={role} adminGroup={adminGroup} />,
+      permissions: (role) => <PermissionsTable role={role} />,
+    }),
+    [adminGroup],
   );
 
   // Navigation handlers
@@ -158,66 +307,19 @@ export const Roles: React.FC = () => {
     [roles, navigate, toAppLink],
   );
 
-  // Pagination handlers
-  const handleSetPage = useCallback(
-    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
-      setPage(newPage);
+  // Row actions renderer
+  const renderActions = useCallback(
+    (role: Role) => {
+      if (role.platform_default || role.admin_default || role.system) {
+        return null;
+      }
+      return <RoleRowActions role={role} onEditRole={handleEditRole} onDeleteRole={handleDeleteRole} />;
     },
-    [setPage],
-  );
-
-  const handlePerPageSelect = useCallback(
-    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number) => {
-      setPerPage(newPerPage);
-    },
-    [setPerPage],
+    [handleEditRole, handleDeleteRole],
   );
 
   // Computed values
-  const selectableItemsCount = roles.filter((role) => !(role.platform_default || role.admin_default || role.system)).length;
   const removingAllRows = totalCount === removeRolesList.length;
-
-  // Pagination component
-  const paginationComponent = useMemo(
-    () =>
-      totalCount > 0 ? (
-        <Pagination
-          perPageOptions={PER_PAGE_OPTIONS}
-          itemCount={totalCount}
-          page={page}
-          perPage={perPage}
-          onSetPage={handleSetPage}
-          onPerPageSelect={handlePerPageSelect}
-        />
-      ) : undefined,
-    [totalCount, page, perPage, handleSetPage, handlePerPageSelect],
-  );
-
-  // Bulk select component
-  const bulkSelectComponent = useMemo(() => {
-    if (!isAdmin || roles.length === 0) {
-      return undefined;
-    }
-
-    return <BulkSelect selectedCount={selectedRows.length} totalCount={selectableItemsCount} onSelect={handleBulkSelect} />;
-  }, [isAdmin, roles.length, selectedRows.length, selectableItemsCount, handleBulkSelect]);
-
-  // Loading states
-  const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.title)} />;
-  const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={columns.length + (isAdmin ? 2 : 0)} />;
-
-  // Empty state
-  const emptyState = (
-    <RolesEmptyState
-      colSpan={columns.length + (isAdmin ? 2 : 0)}
-      hasActiveFilters={hasActiveFilters}
-      isAdmin={isAdmin}
-      onClearFilters={handleClearFilters}
-    />
-  );
-
-  // Determine active state
-  const activeState = isLoading ? DataViewState.loading : roles.length === 0 ? DataViewState.empty : undefined;
 
   return (
     <Fragment>
@@ -229,122 +331,116 @@ export const Roles: React.FC = () => {
         </StackItem>
         <StackItem>
           <Section type="content" id="tab-roles">
-            <DataView activeState={activeState}>
-              <DataViewToolbar
-                bulkSelect={bulkSelectComponent}
-                actions={
-                  isAdmin ? (
-                    <Fragment>
-                      {selectedRows.length > 0 ? (
-                        <ActionDropdown
-                          ariaLabel="bulk actions"
-                          ouiaId="roles-bulk-actions"
-                          items={[
-                            {
-                              key: 'edit',
-                              label: intl.formatMessage(messages.edit),
-                              onClick: () => handleEditRole(selectedRows[0].uuid),
-                              isDisabled: selectedRows.length !== 1,
-                            },
-                            {
-                              key: 'delete',
-                              label: intl.formatMessage(messages.delete),
-                              onClick: () => handleDeleteRole(selectedRows.map((row) => row.uuid)),
-                            },
-                          ]}
-                        />
-                      ) : (
-                        <AppLink to={pathnames['add-role'].link}>
-                          <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
-                            {intl.formatMessage(messages.createRole)}
-                          </Button>
-                        </AppLink>
-                      )}
-                    </Fragment>
-                  ) : undefined
-                }
-                pagination={paginationComponent}
-                filters={
-                  <DataViewFilters onChange={handleFilterChange} values={{ display_name: filterValue }}>
-                    <DataViewTextFilter filterId="display_name" title="Name" placeholder="Filter by name" />
-                  </DataViewFilters>
-                }
-                clearAllFilters={handleClearFilters}
-              />
-
-              {/* Custom table for compound expandable rows */}
-              {isLoading ? (
-                <Table aria-label="Loading roles">
-                  {loadingHeader}
-                  {loadingBody}
-                </Table>
-              ) : roles.length === 0 ? (
-                <Table aria-label="Empty roles">
-                  <Thead>
-                    <Tr>
-                      {isAdmin && <Th />}
-                      {columns.map((column, index) => (
-                        <Th key={index}>{column.title}</Th>
-                      ))}
-                      {isAdmin && <Th />}
-                    </Tr>
-                  </Thead>
-                  {emptyState}
-                </Table>
-              ) : (
-                <RolesTable
-                  roles={roles}
-                  isAdmin={isAdmin}
-                  isSelectable={isSelectable}
-                  selectedRows={selectedRows}
-                  expandedCells={expandedCells}
-                  sortByState={sortByState}
-                  onRowSelection={setSelectedRows}
-                  onExpansion={handleExpansion}
-                  onSort={handleSort}
-                  onEditRole={handleEditRole}
-                  onDeleteRole={handleDeleteRole}
-                  adminGroup={adminGroup}
-                />
-              )}
-
-              <DataViewToolbar pagination={paginationComponent} />
-            </DataView>
+            <TableView<typeof columns, Role, SortableColumnId, CompoundColumnId>
+              columns={columns}
+              columnConfig={columnConfig}
+              sortableColumns={['name', 'modified'] as const}
+              data={isLoading ? undefined : roles}
+              totalCount={totalCount}
+              getRowId={(role) => role.uuid}
+              cellRenderers={cellRenderers}
+              expansionRenderers={expansionRenderers}
+              filterConfig={filterConfig}
+              selectable={isAdmin}
+              isRowSelectable={(role) => !(role.platform_default || role.admin_default || role.system)}
+              renderActions={isAdmin ? renderActions : undefined}
+              toolbarActions={
+                isAdmin ? (
+                  <AppLink to={pathnames['add-role'].link}>
+                    <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
+                      {intl.formatMessage(messages.createRole)}
+                    </Button>
+                  </AppLink>
+                ) : undefined
+              }
+              bulkActions={
+                isAdmin && tableState.selectedRows.length > 0 ? (
+                  <ActionDropdown
+                    ariaLabel="bulk actions"
+                    ouiaId="roles-bulk-actions"
+                    items={[
+                      {
+                        key: 'edit',
+                        label: intl.formatMessage(messages.edit),
+                        onClick: () => handleEditRole(tableState.selectedRows[0].uuid),
+                        isDisabled: tableState.selectedRows.length !== 1,
+                      },
+                      {
+                        key: 'delete',
+                        label: intl.formatMessage(messages.delete),
+                        onClick: () => handleDeleteRole(tableState.selectedRows.map((row) => row.uuid)),
+                      },
+                    ]}
+                  />
+                ) : undefined
+              }
+              emptyStateNoData={<RolesEmptyState hasActiveFilters={false} isAdmin={isAdmin} onClearFilters={() => {}} />}
+              emptyStateNoResults={<RolesEmptyState hasActiveFilters={true} isAdmin={isAdmin} onClearFilters={tableState.clearAllFilters} />}
+              ariaLabel="Roles table"
+              ouiaId="roles-table"
+              {...tableState}
+            />
 
             <Suspense>
               <Outlet
                 context={{
                   [pathnames['add-role'].path]: {
-                    pagination: { limit: perPage, offset: (page - 1) * perPage, count: totalCount },
-                    filters: { display_name: filterValue },
+                    pagination: { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage, count: totalCount },
+                    filters: { display_name: (tableState.filters.display_name as string) || '' },
                   },
                   [pathnames['remove-role'].path]: {
                     isLoading,
-                    cancelRoute: getBackRoute(pathnames.roles.link, { limit: perPage, offset: (page - 1) * perPage }, { display_name: filterValue }),
+                    cancelRoute: getBackRoute(
+                      pathnames.roles.link,
+                      { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
+                      { display_name: (tableState.filters.display_name as string) || '' },
+                    ),
                     submitRoute: getBackRoute(
                       pathnames.roles.link,
-                      { limit: perPage, offset: 0 },
-                      removingAllRows ? {} : { display_name: filterValue },
+                      { limit: tableState.perPage, offset: 0 },
+                      removingAllRows ? {} : { display_name: (tableState.filters.display_name as string) || '' },
                     ),
                     afterSubmit: () => {
-                      fetchData({ ...{ limit: perPage, offset: 0 }, filters: removingAllRows ? {} : { display_name: filterValue } });
-                      removingAllRows && setFilterValue('');
-                      setSelectedRows([]);
+                      handleStaleData({
+                        limit: tableState.perPage,
+                        offset: 0,
+                        orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
+                        filters: removingAllRows ? {} : tableState.filters,
+                      });
+                      tableState.clearSelection();
                     },
-                    setFilterValue,
+                    setFilterValue: (value: string) => tableState.onFiltersChange({ display_name: value }),
                   },
                   [pathnames['edit-role'].path]: {
                     isLoading,
-                    cancelRoute: getBackRoute(pathnames.roles.link, { limit: perPage, offset: (page - 1) * perPage }, { display_name: filterValue }),
+                    cancelRoute: getBackRoute(
+                      pathnames.roles.link,
+                      { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
+                      { display_name: (tableState.filters.display_name as string) || '' },
+                    ),
                     afterSubmit: () => {
-                      fetchData({ offset: 0, filters: { display_name: filterValue } });
-                      setSelectedRows([]);
+                      handleStaleData({
+                        offset: 0,
+                        limit: tableState.perPage,
+                        orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
+                        filters: tableState.filters,
+                      });
+                      tableState.clearSelection();
                     },
                   },
                   [pathnames['roles-add-group-roles'].path]: {
-                    closeUrl: getBackRoute(pathnames.roles.link, { limit: perPage, offset: (page - 1) * perPage }, { display_name: filterValue }),
+                    closeUrl: getBackRoute(
+                      pathnames.roles.link,
+                      { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
+                      { display_name: (tableState.filters.display_name as string) || '' },
+                    ),
                     afterSubmit: () => {
-                      fetchData({ offset: 0, filters: { display_name: filterValue } });
+                      handleStaleData({
+                        offset: 0,
+                        limit: tableState.perPage,
+                        orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
+                        filters: tableState.filters,
+                      });
                     },
                   },
                 }}

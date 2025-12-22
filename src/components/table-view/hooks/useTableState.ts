@@ -39,6 +39,7 @@ export function useTableState<
     initialPerPage = 20,
     perPageOptions = [10, 20, 50, 100],
     initialFilters = {},
+    initialSelectedRows = [],
     getRowId,
     isRowSelectable = () => true,
     syncWithUrl = false,
@@ -84,7 +85,7 @@ export function useTableState<
   // -------------------------------------------------------------------------
   // Filters State
   // -------------------------------------------------------------------------
-  const { filters, onFiltersChange, clearAllFilters, hasActiveFilters } = useFiltersState({
+  const { filters, onFiltersChange, clearAllFilters } = useFiltersState({
     initialFilters,
     shouldSyncUrl,
     searchParams,
@@ -98,6 +99,7 @@ export function useTableState<
   const { selectedRows, onSelectRow, onSelectAll, clearSelection, isRowSelected } = useRowSelection({
     getRowId,
     isRowSelectable,
+    initialSelectedRows,
   });
 
   // -------------------------------------------------------------------------
@@ -148,7 +150,6 @@ export function useTableState<
     filters,
     onFiltersChange,
     clearAllFilters,
-    hasActiveFilters,
     // Utilities
     isRowSelected,
     isCellExpanded,

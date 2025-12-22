@@ -254,7 +254,7 @@ export const EmptyState: Story = {
       { timeout: 10000 },
     );
 
-    // Verify empty state content is displayed (TableToolbarView might render this differently)
+    // Verify empty state content is displayed (TableView might render this differently)
     await waitFor(
       () => {
         // Look for any empty state indication - could be rendered as various elements

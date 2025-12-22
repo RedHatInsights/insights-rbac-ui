@@ -1,38 +1,35 @@
-import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { createSelector } from 'reselect';
 import { mappedProps } from '../../helpers/dataUtilities';
-import { TableComposableToolbarView } from '../../components/tables/TableComposableToolbarView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView } from '../../components/table-view';
+import { useTableState } from '../../components/table-view/hooks/useTableState';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../components/table-view/types';
 import { changeUsersStatus, fetchUsers, updateUsersFilters } from '../../redux/users/actions';
-import { UsersRow } from './components/UsersRow';
 import paths from '../../utilities/pathnames';
-import {
-  applyPaginationToUrl,
-  defaultAdminSettings,
-  defaultSettings,
-  isPaginationPresentInUrl,
-  syncDefaultPaginationWithUrl,
-} from '../../helpers/pagination';
-import { areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/urlFilters';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import PermissionsContext, { PermissionsContextType } from '../../utilities/permissionsContext';
-import { UserProps, createRows } from './userTableHelpers';
-import { ISortBy } from '@patternfly/react-table';
-import { UserFilters } from '../../redux/users/reducer';
-import { AppLink } from '../../components/navigation/AppLink';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ButtonVariant } from '@patternfly/react-core';
-import { List } from '@patternfly/react-core/dist/dynamic/components/List';
-import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { WarningModal } from '@patternfly/react-component-groups';
 import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
+import { AppLink } from '../../components/navigation/AppLink';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { ButtonVariant, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
+import { List } from '@patternfly/react-core/dist/dynamic/components/List';
+import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
+import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
+import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
+import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
+import OrgAdminDropdown from './OrgAdminDropdown';
+import { ActivateToggle } from './components/ActivateToggle';
+import pathnames from '../../utilities/pathnames';
 
-interface UsersListNotSelectable {
+interface UsersListNotSelectableProps {
   userLinks: boolean;
   usesMetaInURL: boolean;
   props: {
@@ -41,38 +38,50 @@ interface UsersListNotSelectable {
   };
 }
 
+// User type from Redux
+interface User {
+  id?: string;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  is_active: boolean;
+  is_org_admin: boolean;
+  uuid: string;
+  external_source_id?: number;
+}
+
 // Memoized selectors to prevent unnecessary re-renders
 const selectUserState = (state: any) => state.userReducer.users;
 const selectIsUserDataLoading = (state: any) => state.userReducer.isUserDataLoading;
 
 // Memoized selector for user data
 const selectUsersData = createSelector([selectUserState, selectIsUserDataLoading], (users, isUserDataLoading) => ({
-  users: users.data?.map?.((data: any) => ({ ...data, uuid: data.username })),
+  users: (users.data?.map?.((data: any) => ({ ...data, uuid: data.username })) || []) as User[],
   isLoading: isUserDataLoading,
-  reduxFilters: users.filters || {},
+  pagination: users.pagination || { limit: 20, offset: 0, count: 0 },
 }));
 
-const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, props, usesMetaInURL }) => {
+// Column definitions
+const columns = ['org_admin', 'username', 'email', 'first_name', 'last_name', 'status'] as const;
+
+const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLinks, props, usesMetaInURL }) => {
   const intl = useIntl();
-  const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
   const { orgAdmin } = useContext(PermissionsContext) as PermissionsContextType;
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
   const { getBundle, getApp, isProd, auth } = useChrome();
   const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
-  // use for text filter to focus
-  const innerRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-  const authModel = useFlag('platform.rbac.common-auth-model');
+  const isITLess = useFlag('platform.rbac.itless');
+
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
-  const [checkedStates, setCheckedStates] = useState(false);
   const [currAccountId, setCurrAccountId] = useState<string | undefined>();
-  const isITLess = useFlag('platform.rbac.itless');
 
+  // Get token and account ID on mount
   useEffect(() => {
     const getToken = async () => {
       setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
@@ -83,170 +92,239 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
   }, [auth]);
 
   // Use memoized selectors
-  const { users, isLoading, reduxFilters } = useSelector(selectUsersData);
+  const { users, isLoading, pagination } = useSelector(selectUsersData);
+  const totalCount = pagination.count || 0;
 
-  // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
-  const userState = useSelector(selectUserState);
-  const pagination = {
-    limit: (usesMetaInURL ? userState.pagination.limit : userState.meta.limit) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
-    offset: (usesMetaInURL ? userState.pagination.offset : userState.meta.offset) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
-    count: (usesMetaInURL ? userState.pagination.count : userState.meta.count) ?? 0,
-    redirected: usesMetaInURL && userState.pagination.redirected,
-    itemCount: 0,
-  };
+  // Get user ID for row identification
+  const getUserId = useCallback((user: User) => user.username, []);
 
-  const stateFilters = location.search.length > 0 || Object.keys(reduxFilters).length > 0 ? reduxFilters : { status: ['Active'] };
+  // Handle user status toggle
+  const handleToggle = useCallback(
+    async (isActive: boolean, updatedUser: User) => {
+      if (loading) return;
+      setLoading(true);
 
-  const fetchData = useCallback((apiProps: Parameters<typeof fetchUsers>[0]) => dispatch(fetchUsers(apiProps)), [dispatch]);
-  const updateStateFilters = useCallback((filters: Parameters<typeof updateUsersFilters>[0]) => dispatch(updateUsersFilters(filters)), [dispatch]);
-
-  const [sortByState, setSortByState] = useState<ISortBy>({ index: 1, direction: 'asc' });
-
-  const [filters, setFilters] = useState<UserFilters>(
-    usesMetaInURL
-      ? stateFilters
-      : {
-          username: '',
-          email: '',
-          status: [intl.formatMessage(messages.active)],
-        },
-  );
-
-  // Sync pagination to URL - only limit/offset affect URL params, count/redirected are metadata
-  useEffect(() => {
-    usesMetaInURL && applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
-  }, [pagination.offset, pagination.limit, usesMetaInURL]);
-
-  useEffect(() => {
-    const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
-    const newFilters: UserFilters = usesMetaInURL
-      ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
-      : { status: filters.status };
-    if (typeof newFilters.status !== 'undefined' && !Array.isArray(newFilters.status)) {
-      newFilters.status = [newFilters.status];
-    }
-    setFilters(newFilters);
-
-    // Only make API calls if user has proper permissions
-    if (orgAdmin) {
-      fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
-    }
-  }, [orgAdmin]);
-
-  useEffect(() => {
-    if (usesMetaInURL) {
-      isPaginationPresentInUrl(location) || applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
-      Object.values(filters).some((filter: unknown[]) => filter?.length > 0) &&
-        !areFiltersPresentInUrl(location, Object.keys(filters)) &&
-        syncDefaultFiltersWithUrl(location, navigate, Object.keys(filters), filters);
-    }
-  });
-
-  const updateFilters = (payload: Partial<UserFilters>) => {
-    usesMetaInURL && updateStateFilters(payload);
-    setFilters({ username: '', ...payload });
-  };
-
-  // Wrapper for fetchData with focus management
-  // Kept inline since it's specific to this component's filter structure
-  // Note: URL sync happens separately in useEffect hooks, not here
-  interface FetchConfig {
-    username?: string;
-    email?: string;
-    status?: string[];
-    count?: number;
-    limit?: number;
-    offset?: number;
-    orderBy?: string;
-  }
-
-  const wrappedFetchData = useCallback(
-    async (config: FetchConfig) => {
-      const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
-      const { username, email, count, limit = 0, offset = 0, orderBy } = config;
-
-      await fetchData({
-        ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }),
-        usesMetaInURL,
-      });
-
-      // Focus management after successful fetch
-      if (innerRef?.current) {
-        innerRef.current.focus();
+      const usersList = [{ ...updatedUser, id: updatedUser.external_source_id, is_active: isActive }] as any;
+      try {
+        await dispatch(changeUsersStatus(usersList, { isProd: isProd(), token, accountId }, isITLess) as any);
+        // Refetch will happen via onStaleData
+      } catch (error) {
+        console.error('Failed to update status: ', error);
+      } finally {
+        setLoading(false);
       }
     },
-    [filters.status, fetchData, usesMetaInURL, innerRef],
+    [loading, dispatch, isProd, token, accountId, isITLess],
   );
 
-  const columns = [
-    ...(isCommonAuthModel ? [{ title: '', key: 'select', screenReaderText: 'Row selection' }] : []),
-    { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin' },
-    { title: intl.formatMessage(messages.username), key: 'username', sortable: true },
-    { title: intl.formatMessage(messages.email) },
-    { title: intl.formatMessage(messages.firstName) },
-    { title: intl.formatMessage(messages.lastName) },
-    { title: intl.formatMessage(messages.status) },
-  ];
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      org_admin: { label: intl.formatMessage(messages.orgAdministrator) },
+      username: { label: intl.formatMessage(messages.username), sortable: true },
+      email: { label: intl.formatMessage(messages.email) },
+      first_name: { label: intl.formatMessage(messages.firstName) },
+      last_name: { label: intl.formatMessage(messages.lastName) },
+      status: { label: intl.formatMessage(messages.status) },
+    }),
+    [intl],
+  );
 
-  const toolbarButtons = () =>
-    orgAdmin && isCommonAuthModel
-      ? [
-          <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
-            <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
-              {intl.formatMessage(messages.inviteUsers)}
-            </Button>
-          </AppLink>,
-          {
-            label: intl.formatMessage(messages.activateUsersButton),
-            props: {},
-            onClick: () => setIsActivateModalOpen(true),
-          },
-          {
-            label: intl.formatMessage(messages.deactivateUsersButton),
-            props: {},
-            onClick: () => setIsDeactivateModalOpen(true),
-          },
-        ]
-      : [];
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, User> = useMemo(
+    () => ({
+      org_admin: (user) => {
+        if (isCommonAuthModel && orgAdmin) {
+          return (
+            <OrgAdminDropdown
+              key={`dropdown-${user.username}`}
+              isOrgAdmin={user.is_org_admin}
+              username={user.username}
+              intl={intl}
+              userId={user.external_source_id}
+              fetchData={() => {
+                /* Will be triggered by table refetch */
+              }}
+            />
+          );
+        }
+        return user.is_org_admin ? (
+          <Fragment>
+            <CheckIcon key="yes-icon" className="pf-v5-u-mr-sm" />
+            <span key="yes">{intl.formatMessage(messages.yes)}</span>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <CloseIcon key="no-icon" className="pf-v5-u-mr-sm" />
+            <span key="no">{intl.formatMessage(messages.no)}</span>
+          </Fragment>
+        );
+      },
+      username: (user) =>
+        userLinks ? <AppLink to={pathnames['user-detail'].link.replace(':username', user.username)}>{user.username}</AppLink> : user.username,
+      email: (user) => user.email,
+      first_name: (user) => user.first_name,
+      last_name: (user) => user.last_name,
+      status: (user) => {
+        if (isCommonAuthModel && orgAdmin) {
+          return (
+            <ActivateToggle key="active-toggle" user={user as any} onToggle={(isActive) => handleToggle(isActive, user)} accountId={currAccountId} />
+          );
+        }
+        return (
+          <Label key="status" color={user.is_active ? 'green' : 'grey'}>
+            {intl.formatMessage(user.is_active ? messages.active : messages.inactive)}
+          </Label>
+        );
+      },
+    }),
+    [intl, isCommonAuthModel, orgAdmin, userLinks, currAccountId, handleToggle],
+  );
 
-  const [selectedUsers, setSelectedUsernames] = React.useState<UserProps[]>([]);
-  const onSelectUser = (user: UserProps, isSelecting: boolean) => {
-    setUserSelected(user, isSelecting);
-  };
-  const setUserSelected = (user: UserProps, isSelecting = true) => {
-    setSelectedUsernames((prevSelected: UserProps[]) => {
-      const otherSelectedUserNames = prevSelected.filter((r) => r.username !== user.username);
-      user.isSelected = isSelecting;
-      return isSelecting ? [...otherSelectedUserNames, user] : otherSelectedUserNames;
-    });
-  };
-  const isUserSelected = (user: UserProps) => selectedUsers.some((r) => r.username === user.username);
-  const setCheckedItems = () => {
-    users?.forEach((user: UserProps) => setUserSelected(user, !checkedStates));
-    setCheckedStates(!checkedStates);
-  };
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        type: 'text',
+        id: 'username',
+        label: intl.formatMessage(messages.username),
+        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
+      },
+      {
+        type: 'text',
+        id: 'email',
+        label: intl.formatMessage(messages.email),
+        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
+      },
+      {
+        type: 'checkbox',
+        id: 'status',
+        label: intl.formatMessage(messages.status),
+        options: [
+          { id: 'Active', label: intl.formatMessage(messages.active) },
+          { id: 'Inactive', label: intl.formatMessage(messages.inactive) },
+        ],
+      },
+    ],
+    [intl],
+  );
 
-  const handleToggle = async (ev: unknown, isActive: boolean, updatedUsers: any[]) => {
-    if (loading) return;
-    setLoading(true);
+  // Handle data fetching
+  const handleStaleData = useCallback(
+    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
+      if (!orgAdmin) return;
 
-    const usersList = updatedUsers.map((user) => ({ ...user, id: user.external_source_id, is_active: isActive }));
-    try {
-      await dispatch(changeUsersStatus(usersList, { isProd: isProd(), token, accountId }, isITLess));
-      fetchData({ ...pagination, filters, usesMetaInURL });
-    } catch (error) {
-      console.error('Failed to update status: ', error);
-    } finally {
-      setLoading(false);
-    }
+      const username = params.filters.username as string | undefined;
+      const email = params.filters.email as string | undefined;
+      const statusFilter = params.filters.status as string[] | undefined;
 
-    setToken(token);
-  };
+      dispatch(updateUsersFilters({ username, email, status: statusFilter }));
 
-  const handleBulkActivation = (userStatus: boolean) => {
-    handleToggle(null, userStatus, selectedUsers);
-    userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
-  };
+      dispatch(
+        fetchUsers({
+          ...mappedProps({
+            limit: params.limit,
+            offset: params.offset,
+            orderBy: params.orderBy,
+            filters: { username, email, status: statusFilter },
+          }),
+          usesMetaInURL,
+        }),
+      );
+    },
+    [dispatch, orgAdmin, usesMetaInURL],
+  );
+
+  // Table state management
+  const tableState = useTableState<typeof columns, User, 'username'>({
+    columns,
+    sortableColumns: ['username'] as const,
+    getRowId: getUserId,
+    initialPerPage: 20,
+    perPageOptions: [10, 20, 50, 100],
+    initialSort: { column: 'username', direction: 'asc' },
+    initialFilters: { status: ['Active'] },
+    syncWithUrl: usesMetaInURL,
+    onStaleData: handleStaleData,
+  });
+
+  // Handle bulk status change
+  const handleBulkActivation = useCallback(
+    async (userStatus: boolean) => {
+      if (loading) return;
+      setLoading(true);
+
+      const usersList = tableState.selectedRows.map((user) => ({
+        ...user,
+        id: user.external_source_id,
+        is_active: userStatus,
+      })) as any;
+
+      try {
+        await dispatch(changeUsersStatus(usersList, { isProd: isProd(), token, accountId }, isITLess) as any);
+        tableState.clearSelection();
+        // Refetch via onStaleData
+      } catch (error) {
+        console.error('Failed to update status: ', error);
+      } finally {
+        setLoading(false);
+      }
+
+      userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
+    },
+    [loading, tableState, dispatch, isProd, token, accountId, isITLess],
+  );
+
+  // Toolbar buttons
+  const toolbarActions = useMemo(() => {
+    if (!orgAdmin || !isCommonAuthModel) return null;
+    return (
+      <>
+        <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
+          <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
+            {intl.formatMessage(messages.inviteUsers)}
+          </Button>
+        </AppLink>
+      </>
+    );
+  }, [orgAdmin, isCommonAuthModel, intl]);
+
+  // Kebab menu state for bulk actions
+  const [isKebabOpen, setIsKebabOpen] = useState(false);
+
+  // Bulk actions as kebab dropdown menu
+  const bulkActions = useMemo(() => {
+    if (!orgAdmin || !isCommonAuthModel) return null;
+    return (
+      <Dropdown
+        isOpen={isKebabOpen}
+        onSelect={() => setIsKebabOpen(false)}
+        onOpenChange={(isOpen) => setIsKebabOpen(isOpen)}
+        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+          <MenuToggle
+            ref={toggleRef}
+            aria-label="kebab dropdown toggle"
+            variant="plain"
+            onClick={() => setIsKebabOpen(!isKebabOpen)}
+            isExpanded={isKebabOpen}
+            isDisabled={tableState.selectedRows.length === 0}
+          >
+            <EllipsisVIcon />
+          </MenuToggle>
+        )}
+        shouldFocusToggleOnSelect
+      >
+        <DropdownList>
+          <DropdownItem key="activate" onClick={() => setIsActivateModalOpen(true)}>
+            {intl.formatMessage(messages.activateUsersButton)}
+          </DropdownItem>
+          <DropdownItem key="deactivate" onClick={() => setIsDeactivateModalOpen(true)}>
+            {intl.formatMessage(messages.deactivateUsersButton)}
+          </DropdownItem>
+        </DropdownList>
+      </Dropdown>
+    );
+  }, [orgAdmin, isCommonAuthModel, intl, tableState.selectedRows.length, isKebabOpen]);
 
   // Show NotAuthorized component for users without proper permissions
   if (!orgAdmin) {
@@ -257,7 +335,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
     <React.Fragment>
       {isActivateModalOpen && (
         <WarningModal
-          ouiaId={`toggle-status-modal`}
+          ouiaId="toggle-status-modal"
           isOpen={isActivateModalOpen}
           title={intl.formatMessage(messages.activateUsersConfirmationModalTitle)}
           confirmButtonLabel={intl.formatMessage(messages.activateUsersConfirmationButton)}
@@ -270,17 +348,15 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
           {intl.formatMessage(messages.activateUsersConfirmationModalDescription)}
 
           <List isPlain isBordered className="pf-u-p-md">
-            {selectedUsers.map((user) => (
-              <>
-                <ListItem key={user.uuid}>{user.uuid}</ListItem>
-              </>
+            {tableState.selectedRows.map((user) => (
+              <ListItem key={user.username}>{user.username}</ListItem>
             ))}
           </List>
         </WarningModal>
       )}
       {isDeactivateModalOpen && (
         <WarningModal
-          ouiaId={`toggle-status-modal`}
+          ouiaId="toggle-status-modal"
           isOpen={isDeactivateModalOpen}
           title={intl.formatMessage(messages.deactivateUsersConfirmationModalTitle)}
           confirmButtonLabel={intl.formatMessage(messages.deactivateUsersConfirmationButton)}
@@ -293,88 +369,47 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
           {intl.formatMessage(messages.deactivateUsersConfirmationModalDescription)}
 
           <List isPlain isBordered className="pf-u-p-md">
-            {selectedUsers.map((user) => (
-              <>
-                <ListItem key={user.uuid}>{user.uuid}</ListItem>
-              </>
+            {tableState.selectedRows.map((user) => (
+              <ListItem key={user.username}>{user.username}</ListItem>
             ))}
           </List>
         </WarningModal>
       )}
-      <TableComposableToolbarView
-        setCheckedItems={setCheckedItems}
-        toolbarButtons={toolbarButtons}
-        borders={false}
+      <TableView<typeof columns, User, 'username'>
         columns={columns}
-        checkedRows={selectedUsers}
-        rows={createRows(
-          userLinks,
-          users?.map((user: UserProps) => ({ ...user, isSelected: isUserSelected(user) })),
-          intl,
-          undefined,
-          undefined,
-          onSelectUser,
-          handleToggle,
-          authModel,
-          orgAdmin,
-          () => fetchData({ ...pagination, filters, usesMetaInURL }),
-          currAccountId,
-        )}
-        sortBy={sortByState}
-        onSort={(e, index, direction) => {
-          const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
-          setSortByState({ index, direction });
-          fetchData({ ...pagination, filters, usesMetaInURL, orderBy });
-        }}
+        columnConfig={columnConfig}
+        sortableColumns={['username'] as const}
+        data={isLoading ? undefined : users}
+        totalCount={totalCount}
+        getRowId={getUserId}
+        cellRenderers={cellRenderers}
+        filterConfig={filterConfig}
+        selectable={isCommonAuthModel && orgAdmin}
+        toolbarActions={toolbarActions}
+        bulkActions={bulkActions}
+        emptyStateNoData={
+          <DefaultEmptyStateNoData
+            title={intl.formatMessage(messages.configureItems, { items: intl.formatMessage(messages.users) })}
+            body={`${intl.formatMessage(messages.toConfigureUserAccess)} ${intl.formatMessage(messages.createAtLeastOneItem, { item: intl.formatMessage(messages.user) })}`}
+          />
+        }
+        emptyStateNoResults={
+          <DefaultEmptyStateNoResults
+            title={intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.users) })}
+            body={`${intl.formatMessage(messages.filterMatchesNoItems, { items: intl.formatMessage(messages.users) })} ${intl.formatMessage(messages.tryChangingFilters)}`}
+          />
+        }
+        variant={props.isCompact ? 'compact' : undefined}
         ouiaId="users-table"
-        fetchData={wrappedFetchData}
-        emptyFilters={{ username: '', email: '', status: [] }}
-        setFilterValue={({ username, email, status }) => {
-          updateFilters({
-            username: typeof username === 'undefined' ? filters.username : username,
-            email: typeof email === 'undefined' ? filters.email : email,
-            status: typeof status === 'undefined' || status === filters.status ? filters.status : status,
-          });
-        }}
-        isLoading={isLoading}
-        pagination={pagination}
-        rowWrapper={UsersRow}
-        title={{ singular: intl.formatMessage(messages.user), plural: intl.formatMessage(messages.users).toLowerCase() }}
-        filters={[
-          {
-            key: 'username',
-            value: typeof filters?.username === 'object' || typeof filters?.username === 'undefined' ? '' : filters.username,
-            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
-            innerRef,
-          },
-          {
-            key: 'email',
-            value: filters.email || '',
-            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
-            innerRef,
-          },
-          {
-            key: 'status',
-            value: filters.status || [],
-            label: intl.formatMessage(messages.status),
-            type: 'checkbox',
-            items: [
-              { label: intl.formatMessage(messages.active), value: 'Active' },
-              { label: intl.formatMessage(messages.inactive), value: 'Inactive' },
-            ],
-          },
-        ]}
-        tableId="users-list"
-        {...props}
+        ariaLabel="users table"
+        {...tableState}
       />
       <Suspense>
         <Outlet
           context={{
-            fetchData: (isSubmit: boolean) => {
+            fetchData: () => {
               appNavigate(paths['users'].link);
-              if (isSubmit) {
-                fetchData({ ...pagination, filters, usesMetaInURL });
-              }
+              // Refetch will happen automatically via URL change and onStaleData
             },
           }}
         />

@@ -3,165 +3,189 @@ import React, { useState } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { HttpResponse, http } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { UsersList } from './UsersList';
 
-// Mock data for users
+// Mock users data - use uuid field that Redux expects
 const mockUsers = [
-  { username: 'alice.doe', email: 'alice.doe@example.com', first_name: 'Alice', last_name: 'Doe', is_active: true, is_org_admin: true },
-  { username: 'bob.smith', email: 'bob.smith@example.com', first_name: 'Bob', last_name: 'Smith', is_active: true, is_org_admin: false },
-  { username: 'charlie.brown', email: 'charlie.brown@example.com', first_name: 'Charlie', last_name: 'Brown', is_active: false, is_org_admin: false },
-  { username: 'diana.prince', email: 'diana.prince@example.com', first_name: 'Diana', last_name: 'Prince', is_active: true, is_org_admin: false },
+  {
+    username: 'alice.doe',
+    email: 'alice.doe@example.com',
+    first_name: 'Alice',
+    last_name: 'Doe',
+    is_active: true,
+    is_org_admin: true,
+    uuid: 'alice.doe',
+  },
+  {
+    username: 'bob.smith',
+    email: 'bob.smith@example.com',
+    first_name: 'Bob',
+    last_name: 'Smith',
+    is_active: true,
+    is_org_admin: false,
+    uuid: 'bob.smith',
+  },
+  {
+    username: 'charlie.brown',
+    email: 'charlie.brown@example.com',
+    first_name: 'Charlie',
+    last_name: 'Brown',
+    is_active: false,
+    is_org_admin: false,
+    uuid: 'charlie.brown',
+  },
+  {
+    username: 'diana.prince',
+    email: 'diana.prince@example.com',
+    first_name: 'Diana',
+    last_name: 'Prince',
+    is_active: true,
+    is_org_admin: false,
+    uuid: 'diana.prince',
+  },
+  {
+    username: 'eve.inactive',
+    email: 'eve.inactive@example.com',
+    first_name: 'Eve',
+    last_name: 'Inactive',
+    is_active: false,
+    is_org_admin: false,
+    uuid: 'eve.inactive',
+  },
+  {
+    username: 'frank.admin',
+    email: 'frank.admin@company.com',
+    first_name: 'Frank',
+    last_name: 'Admin',
+    is_active: true,
+    is_org_admin: true,
+    uuid: 'frank.admin',
+  },
+  {
+    username: 'grace.user',
+    email: 'grace.user@company.com',
+    first_name: 'Grace',
+    last_name: 'User',
+    is_active: false,
+    is_org_admin: false,
+    uuid: 'grace.user',
+  },
 ];
 
-// Simplified wrapper that shows what the UsersList would look like
-const UsersListWithData: React.FC<{
-  selectedUsers?: any[];
-  setSelectedUsers?: (users: any) => void;
-  userLinks?: boolean;
-  usesMetaInURL?: boolean;
-  displayNarrow?: boolean;
-  orgAdmin?: boolean;
-  mockData?: any[];
-}> = ({
-  selectedUsers = [],
-  setSelectedUsers = () => {},
-  userLinks = false,
-  usesMetaInURL = false,
-  displayNarrow = false,
-  orgAdmin = false,
-  mockData = mockUsers,
-}) => {
-  const [internalSelectedUsers, setInternalSelectedUsers] = useState(selectedUsers);
+// API spy for tracking calls
+const usersApiSpy = fn();
 
-  const handleSetSelectedUsers = (newSelection: any) => {
-    setInternalSelectedUsers(newSelection);
-    setSelectedUsers(newSelection);
+// Wrapper to capture selection changes
+const UsersListWrapper: React.FC<{ onSelect?: (users: any[]) => void; initialSelectedUsers?: any[] }> = ({
+  onSelect = () => {},
+  initialSelectedUsers = [],
+}) => {
+  const [selectedUsers, setSelectedUsers] = useState<any[]>(initialSelectedUsers);
+
+  const handleSelect = (users: any[]) => {
+    setSelectedUsers(users);
+    onSelect(users);
   };
 
   return (
-    <MemoryRouter>
-      <div style={{ padding: '20px', maxWidth: '800px' }}>
-        <h2>Add Members</h2>
-        <p>This step would normally show the UsersList component for selecting users to add to the group.</p>
-
-        <div style={{ padding: '15px', backgroundColor: '#f5f5f5', borderRadius: '4px', margin: '15px 0' }}>
-          <strong>UsersList Component Features:</strong>
-          <ul>
-            <li>User selection with multi-select checkboxes</li>
-            <li>Filtering by username, email, and status</li>
-            <li>Sorting by any column</li>
-            <li>Pagination for large user lists</li>
-            <li>URL parameter synchronization {usesMetaInURL && '(enabled)'}</li>
-            <li>User profile links {userLinks && '(enabled)'}</li>
-            <li>Organization admin view {orgAdmin && '(enabled)'}</li>
-            {displayNarrow && <li>Narrow display mode (enabled)</li>}
-          </ul>
+    <div style={{ padding: '20px' }}>
+      <UsersList usesMetaInURL={false} displayNarrow={false} initialSelectedUsers={selectedUsers} onSelect={handleSelect} />
+      {selectedUsers.length > 0 && (
+        <div data-testid="selected-users" style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+          <strong>Selected ({selectedUsers.length}):</strong> {selectedUsers.map((u) => u.username).join(', ')}
         </div>
-
-        {mockData && (
-          <div style={{ padding: '10px', backgroundColor: '#e8f4f8', borderRadius: '4px', margin: '10px 0' }}>
-            <strong>Available Users ({mockData.length}):</strong>
-            <ul>
-              {mockData.slice(0, 3).map((user) => (
-                <li key={user.username}>
-                  {user.first_name} {user.last_name} ({user.username}) - {user.is_active ? 'Active' : 'Inactive'}
-                  {user.is_org_admin && ' [Org Admin]'}
-                </li>
-              ))}
-              {mockData.length > 3 && <li>... and {mockData.length - 3} more users</li>}
-            </ul>
-          </div>
-        )}
-
-        {internalSelectedUsers.length > 0 && (
-          <div style={{ padding: '10px', backgroundColor: '#d4edda', borderRadius: '4px', margin: '10px 0' }}>
-            <strong>Selected Users ({internalSelectedUsers.length}):</strong>
-            <ul>
-              {internalSelectedUsers.map((user, index) => (
-                <li key={index}>{user.username || `User ${index + 1}`}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div style={{ marginTop: '20px' }}>
-          <button
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#0066cc',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginRight: '10px',
-            }}
-            onClick={() => handleSetSelectedUsers([mockData[0], mockData[1]])}
-          >
-            Simulate User Selection
-          </button>
-          <button
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-            onClick={() => handleSetSelectedUsers([])}
-          >
-            Clear Selection
-          </button>
-        </div>
-      </div>
-    </MemoryRouter>
+      )}
+    </div>
   );
 };
 
-const meta: Meta<typeof UsersListWithData> = {
+// MSW handler that matches the API format
+const createUsersHandler = (users = mockUsers) =>
+  http.get('/api/rbac/v1/principals/', ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '50');
+    const offset = parseInt(url.searchParams.get('offset') || '0');
+    const usernameFilter = url.searchParams.get('usernames') || ''; // API uses 'usernames' plural
+    const emailFilter = url.searchParams.get('email') || '';
+    const status = url.searchParams.get('status') || '';
+    const sortOrder = url.searchParams.get('sort_order') || 'asc';
+
+    usersApiSpy({
+      limit: limit.toString(),
+      offset: offset.toString(),
+      username: usernameFilter,
+      email: emailFilter,
+      status,
+      sort_order: sortOrder,
+    });
+
+    let filteredUsers = [...users];
+
+    // Filter by username
+    if (usernameFilter) {
+      filteredUsers = filteredUsers.filter((u) => u.username.toLowerCase().includes(usernameFilter.toLowerCase()));
+    }
+
+    // Filter by email
+    if (emailFilter) {
+      filteredUsers = filteredUsers.filter((u) => u.email.toLowerCase().includes(emailFilter.toLowerCase()));
+    }
+
+    // Filter by status - API receives mapped values: 'enabled', 'disabled', or 'all'
+    // (component sends Active/Inactive but fetchUsers maps to enabled/disabled)
+    if (status === 'enabled') {
+      filteredUsers = filteredUsers.filter((u) => u.is_active);
+    } else if (status === 'disabled') {
+      filteredUsers = filteredUsers.filter((u) => !u.is_active);
+    }
+    // 'all' or empty shows all users
+
+    // Sort by username (the only sortable column)
+    filteredUsers.sort((a, b) => {
+      const comparison = a.username.localeCompare(b.username);
+      return sortOrder === 'desc' ? -comparison : comparison;
+    });
+
+    const paginatedUsers = filteredUsers.slice(offset, offset + limit);
+
+    return HttpResponse.json({
+      data: paginatedUsers,
+      meta: { count: filteredUsers.length, limit, offset },
+    });
+  });
+
+const meta: Meta<typeof UsersListWrapper> = {
   title: 'Features/Groups/AddGroup/UsersList',
-  component: UsersListWithData,
+  component: UsersListWrapper,
+  decorators: [
+    (Story) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
   parameters: {
     docs: {
       description: {
         component: `
 ## UsersList Component
 
-The UsersList component is used in the Add Group wizard to allow users to select which users should be added to a group.
+The UsersList component displays a list of users for selection in the Add Group wizard.
 
 ### Features
-
-- **User Selection**: Checkbox-based selection of users with multi-select capability
-- **Filtering**: Filter users by username, email, and status (Active/Inactive)
-- **Sorting**: Sort users by any column (username, email, first name, last name, status)
-- **Pagination**: Support for large user lists with pagination controls
-- **URL Management**: Optional URL parameter synchronization for filters and pagination
-- **Accessibility**: Full keyboard navigation and screen reader support
-
-### Usage in Add Group Wizard
-
-This component is used in the "Add members" step of the group creation wizard, allowing administrators to:
-1. Browse available users
-2. Filter users by various criteria
-3. Select multiple users to add to the new group
-4. Preview selected users before proceeding
+- **Selection**: Multi-select checkboxes for user selection
+- **Filtering**: Filter by username, email, and status (Active/Inactive)
+- **Pagination**: Support for large user lists
+- **Status Display**: Shows Active/Inactive status for each user
         `,
       },
     },
     msw: {
-      handlers: [
-        // Users API
-        http.get('/api/rbac/v1/principals/', ({ request }) => {
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-
-          return HttpResponse.json({
-            data: mockUsers.slice(offset, offset + limit),
-            meta: { count: mockUsers.length, limit, offset },
-          });
-        }),
-      ],
+      handlers: [createUsersHandler()],
     },
+  },
+  beforeEach: () => {
+    usersApiSpy.mockClear();
   },
 };
 
@@ -171,116 +195,273 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   tags: ['autodocs'],
   args: {
-    selectedUsers: [],
-    setSelectedUsers: fn(),
+    onSelect: fn(),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Test basic simplified component renders
-    expect(await canvas.findByRole('heading', { name: 'Add Members' })).toBeInTheDocument();
-    expect(await canvas.findByText('UsersList Component Features:')).toBeInTheDocument();
-    expect(await canvas.findByText('Available Users (4):')).toBeInTheDocument();
-    expect(await canvas.findByText('Alice Doe (alice.doe) - Active [Org Admin]')).toBeInTheDocument();
+    // Wait for table to render with users
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    // Verify users are displayed
+    expect(await canvas.findByText('alice.doe')).toBeInTheDocument();
+    expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+
+    // Verify status column shows Active/Inactive
+    const activeLabels = await canvas.findAllByText('Active');
+    expect(activeLabels.length).toBeGreaterThan(0);
   },
 };
 
-export const WithLinks: Story = {
+export const SelectUsers: Story = {
   args: {
-    selectedUsers: [],
-    setSelectedUsers: fn(),
-    userLinks: true,
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Test basic simplified component renders with links enabled
-    expect(await canvas.findByRole('heading', { name: 'Add Members' })).toBeInTheDocument();
-    expect(await canvas.findByText('User profile links (enabled)')).toBeInTheDocument();
-  },
-};
-
-export const OrgAdmin: Story = {
-  tags: ['perm:org-admin'],
-  args: {
-    selectedUsers: [],
-    setSelectedUsers: fn(),
-    orgAdmin: true,
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Test basic simplified component renders with org admin view
-    expect(await canvas.findByRole('heading', { name: 'Add Members' })).toBeInTheDocument();
-    expect(await canvas.findByText('Organization admin view (enabled)')).toBeInTheDocument();
-  },
-};
-
-export const WithFiltering: Story = {
-  args: {
-    selectedUsers: [],
-    setSelectedUsers: fn(),
-    usesMetaInURL: true,
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Test basic simplified component renders with URL meta
-    expect(await canvas.findByRole('heading', { name: 'Add Members' })).toBeInTheDocument();
-    expect(await canvas.findByText('URL parameter synchronization (enabled)')).toBeInTheDocument();
-  },
-};
-
-export const WithSelection: Story = {
-  args: {
-    selectedUsers: [mockUsers[0], mockUsers[1]],
-    setSelectedUsers: fn(),
+    onSelect: fn(),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
-    // Test basic simplified component renders with selected users
-    expect(await canvas.findByRole('heading', { name: 'Add Members' })).toBeInTheDocument();
-    expect(await canvas.findByText('Selected Users (2):')).toBeInTheDocument();
-    expect(await canvas.findByText('alice.doe')).toBeInTheDocument();
-    expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+    // Wait for table to render
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
-    // Test selection simulation
-    const selectButton = await canvas.findByRole('button', { name: 'Simulate User Selection' });
-    await userEvent.click(selectButton);
+    // Wait for users to load
+    await canvas.findByText('alice.doe');
 
-    // Verify setSelectedUsers was called
+    // Find and click first user's checkbox
+    const checkboxes = await canvas.findAllByRole('checkbox');
+    // First checkbox is bulk select, second is first row
+    await userEvent.click(checkboxes[1]);
+
+    // Verify onSelect was called
     await waitFor(() => {
-      expect(args.setSelectedUsers).toHaveBeenCalled();
+      expect(args.onSelect).toHaveBeenCalled();
     });
+
+    // Verify selected users display
+    expect(await canvas.findByTestId('selected-users')).toBeInTheDocument();
+  },
+};
+
+export const FilterByUsername: Story = {
+  args: {
+    onSelect: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for table to render
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    await canvas.findByText('alice.doe');
+
+    // Find username filter input and type
+    const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
+    await userEvent.type(filterInput, 'alice');
+
+    // Wait for filter to apply (debounced)
+    await waitFor(
+      () => {
+        expect(usersApiSpy).toHaveBeenCalled();
+        const lastCall = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0];
+        expect(lastCall.username).toBe('alice');
+      },
+      { timeout: 2000 },
+    );
+
+    // Verify filtered results
+    expect(await canvas.findByText('alice.doe')).toBeInTheDocument();
+  },
+};
+
+export const FilterByStatus: Story = {
+  args: {
+    onSelect: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for table to render
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    await canvas.findByText('alice.doe');
+
+    // Find filter container and switch to Status filter
+    const filterContainer = canvasElement.querySelector('[data-ouia-component-id="DataViewFilters"]');
+    expect(filterContainer).toBeTruthy();
+    const filterCanvas = within(filterContainer as HTMLElement);
+
+    // Find the filter type dropdown button (shows current filter type)
+    const filterTypeButtons = filterCanvas.getAllByRole('button');
+    const filterDropdownButton = filterTypeButtons.find((btn) => btn.textContent?.includes('Username'));
+    expect(filterDropdownButton).toBeTruthy();
+    await userEvent.click(filterDropdownButton!);
+
+    // Select "Status" from the dropdown menu
+    const statusOption = await canvas.findByRole('menuitem', { name: /status/i });
+    await userEvent.click(statusOption);
+
+    // Open status filter checkbox dropdown (uses DataViewCheckboxFilter)
+    const statusFilterToggle = canvasElement.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement;
+    expect(statusFilterToggle).toBeTruthy();
+    await userEvent.click(statusFilterToggle);
+
+    // Select "Inactive" checkbox from the dropdown menu
+    const inactiveMenuItem = await canvas.findByRole('menuitem', { name: /inactive/i });
+    const inactiveCheckbox = within(inactiveMenuItem).getByRole('checkbox');
+    await userEvent.click(inactiveCheckbox);
+
+    // Wait for filter to apply - both Active and Inactive are now selected, which maps to 'all'
+    await waitFor(
+      () => {
+        expect(usersApiSpy).toHaveBeenCalled();
+        const lastCall = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0];
+        expect(lastCall.status).toBe('all');
+      },
+      { timeout: 2000 },
+    );
+
+    // Verify inactive users are shown
+    expect(await canvas.findByText('charlie.brown')).toBeInTheDocument();
+  },
+};
+
+export const SortByUsername: Story = {
+  args: {
+    onSelect: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for table to render with data sorted ascending by default
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    // Wait for data to load
+    await canvas.findByText('alice.doe');
+
+    // Helper function to get usernames from table - re-queries DOM each time
+    // Note: td:nth-child(3) because columns are: checkbox, orgAdmin, username, ...
+    const getUsernames = () => {
+      const rows = canvasElement.querySelectorAll('table tbody tr');
+      return Array.from(rows)
+        .map((row) => row.querySelector('td:nth-child(3)')?.textContent?.trim())
+        .filter(Boolean);
+    };
+
+    // Verify initial sort is ascending (alice < bob < charlie alphabetically)
+    let usernames = getUsernames();
+    expect(usernames[0]).toBe('alice.doe');
+
+    // Helper to find the sort button
+    const getSortButton = async () => {
+      const header = await canvas.findByRole('columnheader', { name: /username/i });
+      return within(header).findByRole('button');
+    };
+
+    // Find and click the username column header to sort
+    const sortButton = await getSortButton();
+    expect(sortButton).toBeInTheDocument();
+
+    // Click to sort descending
+    await userEvent.click(sortButton);
+
+    // Wait for data to re-sort and verify descending order
+    // Note: Default filter is 'Active', so only active users are shown: alice, bob, diana, frank
+    // When sorted descending: frank > diana > bob > alice
+    await waitFor(
+      () => {
+        usernames = getUsernames();
+        expect(usernames[0]).toBe('frank.admin');
+      },
+      { timeout: 3000 },
+    );
+
+    // Re-find the button and click again to sort ascending
+    const sortButton2 = await getSortButton();
+    await userEvent.click(sortButton2);
+
+    // Verify ascending order again
+    await waitFor(
+      () => {
+        usernames = getUsernames();
+        expect(usernames[0]).toBe('alice.doe');
+      },
+      { timeout: 3000 },
+    );
   },
 };
 
 export const EmptyState: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/principals/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 50, offset: 0 },
+          });
+        }),
+      ],
+    },
+  },
   args: {
-    selectedUsers: [],
-    setSelectedUsers: fn(),
-    mockData: [],
+    onSelect: fn(),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Test basic simplified component renders with no users
-    expect(await canvas.findByRole('heading', { name: 'Add Members' })).toBeInTheDocument();
-    expect(await canvas.findByText('UsersList Component Features:')).toBeInTheDocument();
+    // Wait for empty state to render - shows "No users match your search" because Active filter is set by default
+    await waitFor(
+      () => {
+        expect(canvas.getByText(/no users match your search/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
   },
 };
 
-export const Loading: Story = {
+export const WithInitialSelection: Story = {
   args: {
-    selectedUsers: [],
-    setSelectedUsers: fn(),
+    onSelect: fn(),
+    initialSelectedUsers: [mockUsers[0], mockUsers[1]],
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Test basic simplified component renders
-    expect(await canvas.findByRole('heading', { name: 'Add Members' })).toBeInTheDocument();
-    expect(await canvas.findByText('UsersList Component Features:')).toBeInTheDocument();
+    // Wait for table to render
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    // Verify selected users display shows initial selection
+    const selectedDisplay = await canvas.findByTestId('selected-users');
+    expect(selectedDisplay).toHaveTextContent('alice.doe');
+    expect(selectedDisplay).toHaveTextContent('bob.smith');
   },
 };

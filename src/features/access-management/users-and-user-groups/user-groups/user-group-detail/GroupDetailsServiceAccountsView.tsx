@@ -1,9 +1,7 @@
-import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import ServiceIcon from '@patternfly/react-icons/dist/js/icons/service-icon';
 import { useIntl } from 'react-intl';
@@ -17,20 +15,38 @@ import {
   selectIsGroupServiceAccountsLoading,
 } from '../../../../../redux/groups/selectors';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
+import { TableView } from '../../../../../components/table-view/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 
 interface GroupDetailsServiceAccountsViewProps {
   groupId: string;
   ouiaId: string;
 }
 
+interface ServiceAccountData {
+  uuid: string;
+  name: string;
+  clientId?: string;
+  owner?: string;
+}
+
+const columns = ['name', 'clientId', 'owner'] as const;
+
 const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServiceAccountsViewProps> = ({ groupId, ouiaId }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-  const GROUP_SERVICE_ACCOUNTS_COLUMNS: string[] = [
-    intl.formatMessage(messages.name),
-    intl.formatMessage(messages.clientId),
-    intl.formatMessage(messages.owner),
-  ];
+
+  const columnConfig: ColumnConfigMap<typeof columns> = {
+    name: { label: intl.formatMessage(messages.name) },
+    clientId: { label: intl.formatMessage(messages.clientId) },
+    owner: { label: intl.formatMessage(messages.owner) },
+  };
+
+  const cellRenderers: CellRendererMap<typeof columns, ServiceAccountData> = {
+    name: (account) => account.name,
+    clientId: (account) => account.clientId || '',
+    owner: (account) => account.owner || '',
+  };
 
   const serviceAccounts = useSelector(selectGroupServiceAccounts);
   const isLoading = useSelector(selectIsGroupServiceAccountsLoading);
@@ -44,15 +60,6 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
     fetchData();
   }, [fetchData]);
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="pf-v5-u-pt-md pf-v5-u-text-align-center">
-        <Spinner size="lg" aria-label="Loading service accounts" />
-      </div>
-    );
-  }
-
   // Show error state
   if (error) {
     return (
@@ -65,33 +72,38 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
     );
   }
 
-  // Show empty state when no service accounts
-  if (serviceAccounts.length === 0) {
-    return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="No service accounts found" icon={<EmptyStateIcon icon={ServiceIcon} />} headingLevel="h4" />
-          <EmptyStateBody>This group currently has no service accounts assigned to it.</EmptyStateBody>
-        </EmptyState>
-      </div>
-    );
-  }
+  const emptyState = (
+    <EmptyState variant="sm">
+      <EmptyStateHeader titleText="No service accounts found" icon={<EmptyStateIcon icon={ServiceIcon} />} headingLevel="h4" />
+      <EmptyStateBody>This group currently has no service accounts assigned to it.</EmptyStateBody>
+    </EmptyState>
+  );
 
-  const rows = serviceAccounts.map((serviceAccount: any) => ({
-    row: [serviceAccount.name, serviceAccount.clientId, serviceAccount.owner],
+  const serviceAccountData: ServiceAccountData[] = serviceAccounts.map((account: any) => ({
+    uuid: account.uuid,
+    name: account.name,
+    clientId: account.clientId,
+    owner: account.owner,
   }));
 
   return (
     <div className="pf-v5-u-pt-md">
-      <DataView ouiaId={ouiaId}>
-        <DataViewTable
-          variant="compact"
-          aria-label="GroupServiceAccountsView"
-          ouiaId={`${ouiaId}-table`}
-          columns={GROUP_SERVICE_ACCOUNTS_COLUMNS}
-          rows={rows}
-        />
-      </DataView>
+      <TableView<typeof columns, ServiceAccountData>
+        columns={columns}
+        columnConfig={columnConfig}
+        data={isLoading ? undefined : serviceAccountData}
+        totalCount={serviceAccountData.length}
+        getRowId={(account) => account.uuid}
+        cellRenderers={cellRenderers}
+        page={1}
+        perPage={serviceAccountData.length || 10}
+        onPageChange={() => {}}
+        onPerPageChange={() => {}}
+        ariaLabel="GroupServiceAccountsView"
+        ouiaId={ouiaId}
+        emptyStateNoData={emptyState}
+        emptyStateNoResults={emptyState}
+      />
     </div>
   );
 };

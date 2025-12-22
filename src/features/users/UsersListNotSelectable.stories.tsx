@@ -5,10 +5,8 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import UsersListNotSelectable from './UsersListNotSelectable';
 
-// Spy functions to track API calls
+// Spy function to track API calls
 const fetchUsersSpy = fn();
-const filterSpy = fn();
-const sortSpy = fn();
 
 // Mock user data
 const mockUsers = [
@@ -38,9 +36,19 @@ const mockUsers = [
     email: 'bob.smith@redhat.com',
     first_name: 'Bob',
     last_name: 'Smith',
-    is_active: false,
+    is_active: true,
     is_org_admin: false,
     external_source_id: 345678,
+  },
+  {
+    id: '4',
+    username: 'alice.inactive',
+    email: 'alice.inactive@redhat.com',
+    first_name: 'Alice',
+    last_name: 'Inactive',
+    is_active: false,
+    is_org_admin: false,
+    external_source_id: 456789,
   },
 ];
 
@@ -63,6 +71,53 @@ const withRouter = (Story: any) => (
   </BrowserRouter>
 );
 
+// Default MSW handler for users API - includes filtering, sorting, and pagination
+const createDefaultUsersHandler = (users = mockUsers) =>
+  http.get('/api/rbac/v1/principals/', ({ request }) => {
+    fetchUsersSpy(request);
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+    const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+    const sortOrder = url.searchParams.get('sort_order') || 'asc';
+    const usernameFilter = url.searchParams.get('usernames') || '';
+    const emailFilter = url.searchParams.get('email') || '';
+    const status = url.searchParams.get('status') || '';
+
+    let filteredUsers = [...users];
+
+    // Filter by username
+    if (usernameFilter) {
+      filteredUsers = filteredUsers.filter((u) => u.username.toLowerCase().includes(usernameFilter.toLowerCase()));
+    }
+
+    // Filter by email
+    if (emailFilter) {
+      filteredUsers = filteredUsers.filter((u) => u.email.toLowerCase().includes(emailFilter.toLowerCase()));
+    }
+
+    // Filter by status
+    if (status === 'enabled') {
+      filteredUsers = filteredUsers.filter((u) => u.is_active);
+    } else if (status === 'disabled') {
+      filteredUsers = filteredUsers.filter((u) => !u.is_active);
+    }
+
+    // Sort users by username
+    filteredUsers.sort((a, b) => {
+      const comparison = a.username.localeCompare(b.username);
+      return sortOrder === 'desc' ? -comparison : comparison;
+    });
+
+    return HttpResponse.json({
+      data: filteredUsers.slice(offset, offset + limit),
+      meta: {
+        count: filteredUsers.length,
+        limit,
+        offset,
+      },
+    });
+  });
+
 const meta: Meta<typeof UsersListNotSelectable> = {
   component: UsersListNotSelectable,
   decorators: [withRouter],
@@ -84,6 +139,15 @@ This component currently makes unauthorized API calls for non-admin users, causi
 The stories below test both the bug scenario and expected behavior after fix.
         `,
       },
+    },
+    // Default MSW handlers for all stories
+    msw: {
+      handlers: [
+        createDefaultUsersHandler(),
+        http.put('/api/rbac/v1/users/:userId/', () => {
+          return HttpResponse.json({ success: true });
+        }),
+      ],
     },
   },
   argTypes: {
@@ -135,32 +199,7 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
       orgAdmin: true,
       userAccessAdministrator: false,
     },
-    msw: {
-      handlers: [
-        // Users API (principals endpoint) - successful response for admin users
-        http.get('/api/rbac/v1/principals/', ({ request }) => {
-          console.log('SB: 🔍 MSW: Principals API called by admin user');
-          fetchUsersSpy(request);
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
-          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
-
-          return HttpResponse.json({
-            data: mockUsers.slice(offset, offset + limit),
-            meta: {
-              count: mockUsers.length,
-              limit,
-              offset,
-            },
-          });
-        }),
-
-        // User status update API
-        http.put('/api/rbac/v1/users/:userId/', () => {
-          return HttpResponse.json({ success: true });
-        }),
-      ],
-    },
+    // Uses default MSW handlers from meta
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -336,29 +375,7 @@ export const AdminUserWithUsersFiltering: Story = {
       orgAdmin: true,
       userAccessAdministrator: false,
     },
-    msw: {
-      handlers: [
-        http.get('/api/rbac/v1/principals/', ({ request }) => {
-          const url = new URL(request.url);
-          const usernames = url.searchParams.get('usernames');
-
-          console.log('SB: 🔍 MSW: Users API called with usernames filter:', usernames);
-          fetchUsersSpy(request);
-
-          if (usernames) {
-            filterSpy(usernames);
-          }
-
-          // Return filtered results (in real app, server would filter)
-          const filteredUsers = usernames ? mockUsers.filter((user) => user.username.includes(usernames)) : mockUsers;
-
-          return HttpResponse.json({
-            data: filteredUsers,
-            meta: { count: filteredUsers.length, limit: 20, offset: 0 },
-          });
-        }),
-      ],
-    },
+    // Uses default MSW handlers from meta (includes filtering and sorting)
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -376,16 +393,20 @@ export const AdminUserWithUsersFiltering: Story = {
     await userEvent.clear(filterInput);
     await userEvent.type(filterInput, 'john');
 
+    // Wait for filtered results - only john.doe should be visible
     await waitFor(() => {
-      expect(filterSpy).toHaveBeenCalledWith('john');
+      expect(canvas.getByText('john.doe')).toBeInTheDocument();
+      expect(canvas.queryByText('jane.admin')).not.toBeInTheDocument();
     });
 
     // Test 2: Filter by "admin"
     await userEvent.clear(filterInput);
     await userEvent.type(filterInput, 'admin');
 
+    // Wait for filtered results - only jane.admin should be visible
     await waitFor(() => {
-      expect(filterSpy).toHaveBeenCalledWith('admin');
+      expect(canvas.getByText('jane.admin')).toBeInTheDocument();
+      expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
     });
 
     // Test 3: Clear filter
@@ -401,83 +422,69 @@ export const AdminUserWithUsersSorting: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests Username column sorting functionality with spy verification.',
+        story: 'Tests Username column sorting functionality - verifies data is sorted correctly.',
       },
     },
     permissions: {
       orgAdmin: true,
       userAccessAdministrator: false,
     },
-    msw: {
-      handlers: [
-        http.get('/api/rbac/v1/principals/', ({ request }) => {
-          const url = new URL(request.url);
-          const sortOrder = url.searchParams.get('sort_order');
-
-          console.log('SB: 🔍 MSW: Users API called with sort_order:', sortOrder);
-          fetchUsersSpy(request);
-
-          if (sortOrder) {
-            sortSpy(sortOrder);
-          }
-
-          // Return users (sorting would be handled server-side in real app)
-          return HttpResponse.json({
-            data: mockUsers,
-            meta: { count: mockUsers.length, limit: 20, offset: 0 },
-          });
-        }),
-      ],
-    },
+    // Uses default MSW handlers from meta (includes sorting)
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     console.log('SB: 🧪 SORTING: Starting username column sorting test');
 
-    // Wait for initial data load
-    expect(await canvas.findByText('john.doe')).toBeInTheDocument();
+    // Wait for initial data load (sorted ascending by default)
+    expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
 
-    // Wait for table to be fully interactive - ensure sorting button is available
-    let usernameColumnHeader: HTMLElement;
-    let usernameButton: HTMLElement;
-    await waitFor(async () => {
-      usernameColumnHeader = await canvas.findByRole('columnheader', { name: /username/i });
-      usernameButton = await within(usernameColumnHeader).findByRole('button');
-      expect(usernameButton).toBeInTheDocument();
-    });
+    // Helper function to get usernames from table - re-queries DOM each time
+    const getUsernames = () => {
+      const rows = canvasElement.querySelectorAll('table tbody tr');
+      return Array.from(rows)
+        .map((row) => row.querySelector('td:nth-child(2)')?.textContent?.trim())
+        .filter(Boolean);
+    };
 
-    // Test sorting by Username column (default sorted ascending)
-    console.log('SB: 🧪 Testing Username column sorting...');
+    // Verify initial sort is ascending (bob < jane < john alphabetically)
+    let usernames = getUsernames();
+    expect(usernames[0]).toBe('bob.smith');
 
-    // Reset spy
-    sortSpy.mockClear();
+    // Helper to find the sort button - re-queries DOM each time
+    const getSortButton = async () => {
+      const header = await canvas.findByRole('columnheader', { name: /username/i });
+      return within(header).findByRole('button');
+    };
 
-    // Click to sort descending (reverses default ascending)
-    await userEvent.click(usernameButton!);
+    // Wait for table to be fully interactive
+    const sortButton = await getSortButton();
+    expect(sortButton).toBeInTheDocument();
 
-    // Verify sort API was called with descending sort
-    await waitFor(() => {
-      expect(sortSpy).toHaveBeenCalledWith('desc');
-    });
+    // Click to sort descending
+    await userEvent.click(sortButton);
 
-    // Re-find the button after table re-render
-    await waitFor(async () => {
-      usernameColumnHeader = await canvas.findByRole('columnheader', { name: /username/i });
-      usernameButton = await within(usernameColumnHeader).findByRole('button');
-      expect(usernameButton).toBeInTheDocument();
-    });
+    // Wait for data to re-sort and verify descending order
+    await waitFor(
+      () => {
+        usernames = getUsernames();
+        expect(usernames[0]).toBe('john.doe'); // john > jane > bob alphabetically
+      },
+      { timeout: 3000 },
+    );
 
-    // Reset spy
-    sortSpy.mockClear();
+    // Re-find the button after table re-render and click again to sort ascending
+    const sortButton2 = await getSortButton();
+    await userEvent.click(sortButton2);
 
-    // Click again to sort ascending
-    await userEvent.click(usernameButton!);
-
-    // Verify sort API was called with ascending sort
-    await waitFor(() => {
-      expect(sortSpy).toHaveBeenCalledWith('asc');
-    });
+    // Verify ascending order again
+    await waitFor(
+      () => {
+        usernames = getUsernames();
+        expect(usernames[0]).toBe('bob.smith');
+      },
+      { timeout: 3000 },
+    );
 
     console.log('SB: 🧪 SORTING: Username column sorting test completed');
   },
@@ -496,17 +503,7 @@ export const AdminUserWithUsersTableContent: Story = {
       orgAdmin: true,
       userAccessAdministrator: false,
     },
-    msw: {
-      handlers: [
-        http.get('/api/rbac/v1/principals/', () => {
-          fetchUsersSpy();
-          return HttpResponse.json({
-            data: mockUsers,
-            meta: { count: mockUsers.length, limit: 20, offset: 0 },
-          });
-        }),
-      ],
-    },
+    // Uses default MSW handlers from meta - default filter is Active, so only active users shown
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -517,10 +514,13 @@ export const AdminUserWithUsersTableContent: Story = {
     const table = await canvas.findByRole('grid', { name: /users table/i });
     expect(table).toBeInTheDocument();
 
-    // Test user data is rendered correctly
+    // Test user data is rendered correctly (only active users shown due to default filter)
     expect(await canvas.findByText('john.doe')).toBeInTheDocument();
     expect(await canvas.findByText('jane.admin')).toBeInTheDocument();
     expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+
+    // alice.inactive is not shown because the default filter is Active
+    expect(canvas.queryByText('alice.inactive')).not.toBeInTheDocument();
 
     // Test email addresses
     expect(await canvas.findByText('john.doe@redhat.com')).toBeInTheDocument();
@@ -535,17 +535,16 @@ export const AdminUserWithUsersTableContent: Story = {
     expect(await canvas.findByText('Admin')).toBeInTheDocument();
     expect(await canvas.findByText('Smith')).toBeInTheDocument();
 
-    // Test org admin indicators (Yes/No)
+    // Test org admin indicators (Yes/No) - only 3 active users shown
     const yesTexts = await canvas.findAllByText('Yes');
     const noTexts = await canvas.findAllByText('No');
     expect(yesTexts).toHaveLength(1); // jane.admin is org admin
     expect(noTexts).toHaveLength(2); // john.doe and bob.smith are not
 
-    // Test status labels
+    // Test status labels - all shown users are Active
+    // Note: "Active" also appears in the filter, so we check for at least 3 (the users) + 1 (filter label)
     const activeLabels = await canvas.findAllByText('Active');
-    const inactiveLabels = await canvas.findAllByText('Inactive');
-    expect(activeLabels).toHaveLength(2); // john.doe and jane.admin
-    expect(inactiveLabels).toHaveLength(1); // bob.smith
+    expect(activeLabels.length).toBeGreaterThanOrEqual(3); // john.doe, jane.admin, bob.smith + filter checkbox
 
     console.log('SB: 🧪 TABLE CONTENT: Table content test completed');
   },

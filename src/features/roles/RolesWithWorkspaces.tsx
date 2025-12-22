@@ -1,19 +1,11 @@
 import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
 import { ButtonVariant } from '@patternfly/react-core';
 import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import { ActionsColumn } from '@patternfly/react-table';
-import { TableVariant } from '@patternfly/react-table';
-import { ThProps } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import { removeRole } from '../../redux/roles/actions';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -22,72 +14,46 @@ import { Role } from '../../redux/roles/reducer';
 import { Outlet } from 'react-router-dom';
 import paths from '../../utilities/pathnames';
 import RolesDetails from './RolesWithWorkspacesDetails';
-import {
-  ResponsiveAction,
-  ResponsiveActions,
-  SkeletonTable,
-  SkeletonTableBody,
-  SkeletonTableHead,
-  WarningModal,
-} from '@patternfly/react-component-groups';
-import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject } from '@patternfly/react-data-view';
+import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/react-component-groups';
 import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 import pathnames from '../../utilities/pathnames';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { useRoles } from './useRolesWithWorkspaces';
 import { RolesEmptyState } from './components/RolesEmptyState';
+import { TableView } from '../../components/table-view/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig, SortDirection } from '../../components/table-view/types';
 
 const ouiaId = 'RolesTable';
 
+// Column definition
+const columns = ['display_name', 'description', 'accessCount', 'workspaces', 'user_groups', 'modified'] as const;
+type SortableColumn = 'display_name' | 'modified';
+const sortableColumns = ['display_name', 'modified'] as const;
+
 interface RolesTableProps {
   selectedRole?: Role;
+  onRoleClick: (role: Role | undefined) => void;
 }
 
-const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) => {
+const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, onRoleClick }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentRoles, setCurrentRoles] = useState<Role[]>([]);
 
   // Use the custom hook for all Roles business logic
-  const {
-    roles,
-    isLoading,
-    totalCount,
-    filters,
-    sortBy,
-    direction,
-    onSort,
-    pagination,
-    selection,
-
-    handleRowClick: hookHandleRowClick,
-    clearAllFilters,
-    onSetFilters,
-  } = useRoles({ enableAdminFeatures: true });
-
-  const { trigger } = useDataViewEventsContext();
+  const { roles, isLoading, totalCount, filters, sortBy, direction, onSort, pagination, selection, clearAllFilters, onSetFilters } = useRoles({
+    enableAdminFeatures: true,
+  });
 
   const intl = useIntl();
   const dispatch = useDispatch();
-
-  const handleModalToggle = (roles: Role[]) => {
-    setCurrentRoles(roles);
-    setIsDeleteModalOpen(!isDeleteModalOpen);
-  };
-
-  const COLUMNHEADERS = [
-    { label: intl.formatMessage(messages.name), key: 'display_name', index: 0, isSortable: true },
-    { label: intl.formatMessage(messages.description), key: 'description', index: 1, isSortable: false },
-    { label: intl.formatMessage(messages.permissions), key: 'accessCount', index: 2, isSortable: false },
-    { label: intl.formatMessage(messages.workspaces), key: 'workspaces', index: 3, isSortable: false },
-    { label: intl.formatMessage(messages.userGroups), key: 'user_groups', index: 4, isSortable: false },
-    { label: intl.formatMessage(messages.lastModified), key: 'modified', index: 5, isSortable: true },
-  ];
-
   const navigate = useAppNavigate();
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
-  const { selected, onSelect, isSelected } = selection;
+  const { selected, onSelect } = selection;
 
-  // Note: Data fetching and state management is now handled by the useRoles hook automatically
+  const handleModalToggle = (rolesToDelete: Role[]) => {
+    setCurrentRoles(rolesToDelete);
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
 
   const handleEditRole = useCallback(
     (role: Role) => {
@@ -99,83 +65,155 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     [navigate],
   );
 
-  const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => (item.isSortable ? item.key === sortBy : '')), [sortBy]);
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      display_name: { label: intl.formatMessage(messages.name), sortable: true },
+      description: { label: intl.formatMessage(messages.description) },
+      accessCount: { label: intl.formatMessage(messages.permissions) },
+      workspaces: { label: intl.formatMessage(messages.workspaces) },
+      user_groups: { label: intl.formatMessage(messages.userGroups) },
+      modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+    }),
+    [intl],
+  );
 
-  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
-    sortBy: {
-      index: sortByIndex,
-      direction,
-      defaultDirection: 'asc',
-    },
-    onSort: (_event, index, direction) => {
-      onSort(_event, COLUMNHEADERS[index].key, direction);
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(
+    () => ({
+      display_name: (row) => row.display_name,
+      description: (row) => row.description,
+      accessCount: (row) => row.accessCount,
+      workspaces: () => '',
+      user_groups: () => '',
+      modified: (row) => row.modified,
+    }),
+    [],
+  );
+
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        type: 'search',
+        id: 'display_name',
+        placeholder: intl.formatMessage(messages.nameFilterPlaceholder),
+      },
+    ],
+    [intl],
+  );
+
+  // Sort handling
+  const currentSort = useMemo(
+    () =>
+      sortBy
+        ? {
+            column: sortBy as SortableColumn,
+            direction: direction as SortDirection,
+          }
+        : null,
+    [sortBy, direction],
+  );
+
+  const handleSortChange = useCallback(
+    (column: SortableColumn, newDirection: SortDirection) => {
+      onSort(undefined, column, newDirection);
       onSetPage(undefined, 1);
     },
-    columnIndex,
-  });
+    [onSort, onSetPage],
+  );
 
-  const columns: DataViewTh[] = COLUMNHEADERS.map((column, index) => ({
-    cell: column.label,
-    props: column.isSortable ? { sort: getSortParams(index) } : {},
-  }));
+  // Handle filter change
+  const handleFilterChange = useCallback(
+    (newFilters: Record<string, string | string[]>) => {
+      onSetFilters({ display_name: newFilters.display_name as string });
+      onSetPage(undefined, 1);
+    },
+    [onSetFilters, onSetPage],
+  );
 
-  const rows: DataViewTr[] = useMemo(() => {
-    const handleRowClick = (event: any, role: Role | undefined) => {
-      (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, role);
-      // Also use the hook's handler
-      if (role) {
-        hookHandleRowClick(role);
+  // Selection handlers
+  const handleSelectRow = useCallback(
+    (row: Role, isRowSelected: boolean) => {
+      const rowObj = { id: row.uuid, row: [] };
+      if (isRowSelected) {
+        onSelect(true, [rowObj]);
+      } else {
+        onSelect(false, [rowObj]);
       }
-    };
+    },
+    [onSelect],
+  );
 
-    return roles.map((role: Role) => ({
-      id: role.uuid,
-      row: Object.values({
-        display_name: role.display_name,
-        description: role.description,
-        permissions: role.accessCount,
-        workspaces: '',
-        user_groups: '',
-        last_modified: role.modified,
-        rowActions: {
-          cell: (
-            <ActionsColumn
-              items={[
-                { title: 'Edit role', onClick: () => handleEditRole(role) },
-                {
-                  title: 'Delete role',
-                  isDisabled: role.system,
-                  onClick: () => handleModalToggle([role]),
-                },
-              ]}
-            />
-          ),
-          props: { isActionCell: true },
-        },
-      }),
-      props: {
-        isClickable: true,
-        onRowClick: (event: any) => handleRowClick(event, selectedRole?.uuid === role.uuid ? undefined : role),
-        isRowSelected: selectedRole?.name === role.name,
-      },
-    }));
-  }, [roles, handleModalToggle, trigger, selectedRole, hookHandleRowClick, handleEditRole]);
+  const handleSelectAll = useCallback(
+    (isAllSelected: boolean, currentRows: Role[]) => {
+      const rowObjs = currentRows.map((r) => ({ id: r.uuid, row: [] }));
+      onSelect(isAllSelected, rowObjs);
+    },
+    [onSelect],
+  );
 
-  const handleBulkSelect = (value: BulkSelectValue) => {
-    value === BulkSelectValue.none && onSelect(false);
-    value === BulkSelectValue.page && onSelect(true, rows);
-    value === BulkSelectValue.nonePage && onSelect(false, rows);
-  };
+  // Map selected objects to Role objects
+  const selectedRows = useMemo(() => {
+    return roles.filter((role: Role) => selected.some((sel: any) => sel.id === role.uuid));
+  }, [roles, selected]);
 
-  const pageSelected = rows.length > 0 && rows.every(isSelected);
-  const pagePartiallySelected = !pageSelected && rows.some(isSelected);
-
-  const isRowSystemOrPlatformDefault = (selectedRow: any) => {
-    const role = roles.find((role: Role) => role.uuid === selectedRow.id);
+  // Check if role is system or platform default
+  const isRowSystemOrPlatformDefault = (role: Role) => {
     return role?.platform_default || role?.system;
   };
 
-  const activeState = isLoading ? DataViewState.loading : roles.length === 0 ? DataViewState.empty : undefined;
+  // Render actions
+  const renderActions = useCallback(
+    (row: Role) => (
+      <ActionsColumn
+        items={[
+          { title: 'Edit role', onClick: () => handleEditRole(row) },
+          {
+            title: 'Delete role',
+            isDisabled: row.system,
+            onClick: () => handleModalToggle([row]),
+          },
+        ]}
+      />
+    ),
+    [handleEditRole],
+  );
+
+  // Toolbar actions
+  const toolbarActions = useMemo(
+    () => (
+      <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
+        <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(`roles/${paths['add-role'].path}`)} isPinned>
+          {intl.formatMessage(messages.createRole)}
+        </ResponsiveAction>
+      </ResponsiveActions>
+    ),
+    [navigate, intl],
+  );
+
+  // Bulk actions
+  const bulkActions = useMemo(
+    () => (
+      <ResponsiveAction
+        isDisabled={selectedRows.length === 0 || selectedRows.some(isRowSystemOrPlatformDefault)}
+        onClick={() => {
+          handleModalToggle(selectedRows);
+        }}
+      >
+        {intl.formatMessage(messages.deleteRolesAction)}
+      </ResponsiveAction>
+    ),
+    [selectedRows, intl],
+  );
+
+  // Handle row click for drawer
+  const handleRowClick = useCallback(
+    (role: Role) => {
+      onRoleClick(selectedRole?.uuid === role.uuid ? undefined : role);
+    },
+    [selectedRole, onRoleClick],
+  );
 
   return (
     <React.Fragment>
@@ -209,88 +247,43 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             />
           </WarningModal>
         )}
-        <DataView ouiaId={ouiaId} selection={selection} activeState={activeState}>
-          <DataViewToolbar
-            ouiaId={`${ouiaId}-header-toolbar`}
-            clearAllFilters={clearAllFilters}
-            bulkSelect={
-              <BulkSelect
-                isDataPaginated
-                pageCount={roles.length}
-                totalCount={totalCount}
-                selectedCount={selected.length}
-                pageSelected={pageSelected}
-                pagePartiallySelected={pagePartiallySelected}
-                onSelect={handleBulkSelect}
-              />
-            }
-            actions={
-              <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
-                <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(`roles/${paths['add-role'].path}`)} isPinned>
-                  {intl.formatMessage(messages.createRole)}
-                </ResponsiveAction>
-                <ResponsiveAction
-                  isDisabled={selected.length === 0 || selected.some(isRowSystemOrPlatformDefault)}
-                  onClick={() => {
-                    handleModalToggle(roles.filter((role: Role) => selected.some((selectedRow: DataViewTrObject) => selectedRow.id === role.uuid)));
-                  }}
-                >
-                  {intl.formatMessage(messages.deleteRolesAction)}
-                </ResponsiveAction>
-              </ResponsiveActions>
-            }
-            pagination={
-              <Pagination
-                perPageOptions={PER_PAGE_OPTIONS}
-                itemCount={totalCount}
-                page={page}
-                perPage={perPage}
-                onSetPage={onSetPage}
-                onPerPageSelect={onPerPageSelect}
-              />
-            }
-            filters={
-              <DataViewTextFilter
-                filterId="display_name"
-                title={intl.formatMessage(messages.name)}
-                placeholder={intl.formatMessage(messages.nameFilterPlaceholder)}
-                ouiaId={`${ouiaId}-name-filter`}
-                onChange={(_e, value) => {
-                  onSetFilters({ display_name: value });
-                  onSetPage(undefined, 1);
-                }}
-                value={filters['display_name']}
-              />
-            }
-          />
-          {isLoading ? (
-            <SkeletonTable rowsCount={10} columns={columns} variant={TableVariant.compact} />
-          ) : (
-            <DataViewTable
-              columns={columns}
-              rows={rows}
-              ouiaId={`${ouiaId}-table`}
-              headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
-              bodyStates={{
-                loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-                empty: <RolesEmptyState colSpan={columns.length} hasActiveFilters={false} />,
-              }}
-            />
-          )}
-          <DataViewToolbar
-            ouiaId={`${ouiaId}-footer-toolbar`}
-            pagination={
-              <Pagination
-                perPageOptions={PER_PAGE_OPTIONS}
-                itemCount={totalCount}
-                page={page}
-                perPage={perPage}
-                onSetPage={onSetPage}
-                onPerPageSelect={onPerPageSelect}
-              />
-            }
-          />
-        </DataView>
+        <TableView<typeof columns, Role, SortableColumn>
+          columns={columns}
+          columnConfig={columnConfig}
+          sortableColumns={sortableColumns}
+          data={isLoading ? undefined : roles}
+          totalCount={totalCount}
+          getRowId={(row) => row.uuid}
+          cellRenderers={cellRenderers}
+          sort={currentSort}
+          onSortChange={handleSortChange}
+          page={page}
+          perPage={perPage}
+          perPageOptions={PER_PAGE_OPTIONS.map((opt) => opt.value)}
+          onPageChange={(newPage) => onSetPage(undefined, newPage)}
+          onPerPageChange={(newPerPage) => {
+            onPerPageSelect(undefined, newPerPage);
+            onSetPage(undefined, 1);
+          }}
+          selectable={true}
+          selectedRows={selectedRows}
+          onSelectRow={handleSelectRow}
+          onSelectAll={handleSelectAll}
+          filterConfig={filterConfig}
+          filters={{ display_name: filters.display_name || '' }}
+          onFiltersChange={handleFilterChange}
+          clearAllFilters={clearAllFilters}
+          toolbarActions={toolbarActions}
+          bulkActions={bulkActions}
+          renderActions={renderActions}
+          onRowClick={handleRowClick}
+          isRowClickable={() => true}
+          variant="compact"
+          ariaLabel={intl.formatMessage(messages.roles)}
+          ouiaId={ouiaId}
+          emptyStateNoData={<RolesEmptyState hasActiveFilters={false} />}
+          emptyStateNoResults={<RolesEmptyState hasActiveFilters={true} />}
+        />
         <Suspense>
           <Outlet
             context={{
@@ -311,15 +304,13 @@ export const RolesPage: React.FunctionComponent = () => {
   const drawerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <DataViewEventsProvider>
-      <Drawer isExpanded={Boolean(selectedRole)} onExpand={() => drawerRef.current?.focus()} data-ouia-component-id={`${ouiaId}-detail-drawer`}>
-        <DrawerContent panelContent={<RolesDetails selectedRole={selectedRole} setSelectedRole={setSelectedRole} />}>
-          <DrawerContentBody>
-            <RolesTable selectedRole={selectedRole} />
-          </DrawerContentBody>
-        </DrawerContent>
-      </Drawer>
-    </DataViewEventsProvider>
+    <Drawer isExpanded={Boolean(selectedRole)} onExpand={() => drawerRef.current?.focus()} data-ouia-component-id={`${ouiaId}-detail-drawer`}>
+      <DrawerContent panelContent={<RolesDetails selectedRole={selectedRole} setSelectedRole={setSelectedRole} />}>
+        <DrawerContentBody>
+          <RolesTable selectedRole={selectedRole} onRoleClick={setSelectedRole} />
+        </DrawerContentBody>
+      </DrawerContent>
+    </Drawer>
   );
 };
 

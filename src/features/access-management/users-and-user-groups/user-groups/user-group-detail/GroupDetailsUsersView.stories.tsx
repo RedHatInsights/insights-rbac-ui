@@ -161,9 +161,8 @@ export const Loading: Story = {
     await delay(300);
     const canvas = within(canvasElement);
 
-    // Should show loading spinner while API call is in progress
-    await expect(canvas.findByLabelText('Loading group members', {}, { timeout: 10000 })).resolves.toBeInTheDocument();
-    await expect(canvas.queryByRole('grid')).not.toBeInTheDocument(); // No table during loading
+    // Should show skeleton loading state while API call is in progress (TableView uses SkeletonTable)
+    await expect(canvas.findByLabelText('GroupDetailsUsersView', {}, { timeout: 10000 })).resolves.toBeInTheDocument();
     await expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
   },
 };
@@ -195,12 +194,11 @@ export const EmptyGroup: Story = {
     await delay(300);
     const canvas = within(canvasElement);
 
-    // Should show empty state
+    // Should show empty state inside TableView
     await expect(canvas.findByText('No users found')).resolves.toBeInTheDocument();
 
     // Should show empty state message
     await expect(canvas.findByText('This group currently has no users assigned to it.')).resolves.toBeInTheDocument();
-    await expect(canvas.queryByRole('grid')).not.toBeInTheDocument(); // No table for empty state
     await expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
     await expect(canvas.queryByText('Unable to load users')).not.toBeInTheDocument(); // No error
   },

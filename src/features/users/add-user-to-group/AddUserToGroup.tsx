@@ -172,7 +172,6 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
           filters={tableState.filters}
           onFiltersChange={tableState.onFiltersChange}
           clearAllFilters={tableState.clearAllFilters}
-          hasActiveFilters={tableState.hasActiveFilters}
           // Empty states
           emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noGroups)} />}
           emptyStateNoResults={

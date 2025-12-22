@@ -428,7 +428,6 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
             verb: '',
           });
         }}
-        hasActiveFilters={tableState.hasActiveFilters}
         // Empty states
         emptyStateNoData={
           <DefaultEmptyStateNoData

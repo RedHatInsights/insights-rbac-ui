@@ -105,6 +105,7 @@ export type FilterConfig =
       type: 'checkbox';
       id: string;
       label: string;
+      placeholder?: string;
       options: Array<{ id: string; label: string }>;
     };
 
@@ -185,6 +186,9 @@ export interface UseTableStateOptions<
   /** Function to determine if a row can be selected (default: all selectable) */
   isRowSelectable?: (row: TRow) => boolean;
 
+  /** Initial selected rows (optional) */
+  initialSelectedRows?: TRow[];
+
   /** Whether to sync state with URL search params */
   syncWithUrl?: boolean;
 
@@ -260,8 +264,6 @@ export interface UseTableStateReturn<
   onFiltersChange: (filters: FilterState) => void;
   /** Clear all filters */
   clearAllFilters: () => void;
-  /** Whether any filters are active */
-  hasActiveFilters: boolean;
 
   // -------------------------------------------------------------------------
   // Utility functions for cell-level checks
@@ -399,8 +401,6 @@ export interface TableViewProps<
   onFiltersChange?: (filters: FilterState) => void;
   /** Clear all filters callback */
   clearAllFilters?: () => void;
-  /** Whether any filters are active (from hook, avoids recomputation) */
-  hasActiveFilters?: boolean;
 
   // -------------------------------------------------------------------------
   // Toolbar content

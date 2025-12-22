@@ -14,7 +14,7 @@ insights-rbac-ui/
 │   ├── components/                 # Truly shared components across features
 │   │   ├── forms/                  # FormRenderer, ModalFormTemplate
 │   │   ├── layout/                 # PageLayout
-│   │   ├── tables/                 # TableToolbarView, Toolbar
+│   │   ├── tables/                 # TableView, Toolbar
 │   │   ├── navigation/             # AppLink, AppTabs, Breadcrumbs
 │   │   ├── ui-states/              # EmptyState, LoaderPlaceholders
 │   │   ├── data-display/           # CustomDataListItem
@@ -118,14 +118,14 @@ Only move components to `src/components/` when they are:
 
 ```jsx
 // Shared component example - genuinely reusable
-const TableToolbarView = ({ 
+const TableView = ({ 
   columns, 
   filters, 
   pagination, 
   onFilterChange,
   children 
 }) => {
-  // Generic table toolbar logic
+  // Generic table view logic
   return (
     <Toolbar>
       <ToolbarContent>

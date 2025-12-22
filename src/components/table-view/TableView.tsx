@@ -94,7 +94,6 @@ export function TableView<
     filters = {},
     onFiltersChange,
     clearAllFilters,
-    hasActiveFilters: hasActiveFiltersProp,
 
     // Toolbar
     toolbarActions,
@@ -120,8 +119,12 @@ export function TableView<
   const isLoading = data === undefined && !error;
   const hasError = !!error;
   const isEmpty = !isLoading && !hasError && data !== undefined && data.length === 0;
-  // Use prop from hook if provided, otherwise compute
-  const hasActiveFilters = hasActiveFiltersProp ?? Object.values(filters).some((v) => (Array.isArray(v) ? v.length > 0 : v !== ''));
+  // Compute hasActiveFilters based on filterConfig to only consider known filter IDs
+  const knownFilterIds = useMemo(() => new Set(filterConfig.map((f) => f.id)), [filterConfig]);
+  const hasActiveFilters = useMemo(
+    () => Object.entries(filters).some(([key, v]) => knownFilterIds.has(key) && (Array.isArray(v) ? v.length > 0 : v !== '')),
+    [filters, knownFilterIds],
+  );
   const columnCount = columns.length + (selectable ? 1 : 0) + (renderActions ? 1 : 0);
   const columnLabels = columns.map((col) => columnConfig[col as keyof typeof columnConfig]?.label || col);
 
@@ -184,10 +187,11 @@ export function TableView<
     filterConfig.length > 0 ? <TableViewFilters filterConfig={filterConfig} filters={filters} onFiltersChange={onFiltersChange} /> : null;
 
   // Actions (only for top toolbar)
+  // bulkActions is always rendered if provided (the component itself handles disabling when no selection)
   const actionsElement =
-    toolbarActions || (bulkActions && selectedRows.length > 0) ? (
+    toolbarActions || bulkActions ? (
       <>
-        {selectedRows.length > 0 && bulkActions}
+        {bulkActions}
         {toolbarActions}
       </>
     ) : null;

@@ -1,29 +1,18 @@
-import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useIntl } from 'react-intl';
+import React, { Fragment, useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
-import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { DataViewTh, DataViewTr } from '@patternfly/react-data-view';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import { SkeletonTable, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { TableVariant } from '@patternfly/react-table';
-import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
+import { useIntl } from 'react-intl';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
+
+import { TableView, useTableState } from '../../../../../components/table-view';
+import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 import { LAST_PAGE } from '../../../../../redux/service-accounts/constants';
 import { ServiceAccount } from '../../../../../redux/service-accounts/types';
 import { getDateFormat } from '../../../../../helpers/stringUtilities';
 import messages from '../../../../../Messages';
 import { fetchServiceAccounts } from '../../../../../redux/service-accounts/actions';
-import { PaginationProps } from '../../../group/service-account/AddGroupServiceAccounts';
-import { PER_PAGE_OPTIONS } from '../../../../../helpers/pagination';
 import { selectServiceAccountsFullState, selectServiceAccountsLimit } from '../../../../../redux/service-accounts/selectors';
+import { PER_PAGE_OPTIONS } from '../../../../../helpers/pagination';
 import './serviceAccountsList.scss';
 
 interface ServiceAccountsListProps {
@@ -32,198 +21,105 @@ interface ServiceAccountsListProps {
   groupId?: string;
 }
 
-const EmptyTable: React.FunctionComponent<{ titleText: string; bodyText: string }> = ({ titleText, bodyText }) => {
-  return (
-    <tbody>
-      <tr>
-        <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
-          <EmptyState>
-            <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<SearchIcon />} />
-            <EmptyStateBody>{bodyText}</EmptyStateBody>
-          </EmptyState>
-        </td>
-      </tr>
-    </tbody>
-  );
-};
+// Column definitions
+const columns = ['name', 'description', 'clientId', 'owner', 'timeCreated'] as const;
 
 export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ initialSelectedServiceAccounts, onSelect, groupId }) => {
   const { auth, getEnvironmentDetails } = useChrome();
-  const { serviceAccounts, status, offset, isLoading } = useSelector(selectServiceAccountsFullState);
-  const limit = useSelector(selectServiceAccountsLimit);
-  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
-
   const dispatch = useDispatch();
   const intl = useIntl();
 
-  const pagination = useDataViewPagination({ perPage: limit || 20 });
-  const { page, perPage, onSetPage, onPerPageSelect } = pagination;
+  // Redux selectors
+  const { serviceAccounts, status, offset, isLoading } = useSelector(selectServiceAccountsFullState);
+  const limit = useSelector(selectServiceAccountsLimit);
 
-  const selection = useDataViewSelection({
-    matchOption: (a, b) => a.id === b.id,
-    initialSelected: initialSelectedServiceAccounts.map((serviceAccount) => ({ id: serviceAccount.uuid })),
-  });
-  const { selected: dataViewSelected, onSelect: dataViewOnSelect, isSelected } = selection;
+  // Calculate total count - service accounts API doesn't return total, so we estimate
+  const totalCount = status === LAST_PAGE ? offset + serviceAccounts.length : offset + serviceAccounts.length + 1;
 
-  useEffect(() => {
-    const selectedServiceAccounts = serviceAccounts.filter((serviceAccount) =>
-      dataViewSelected.some((selected) => selected.id === serviceAccount.uuid),
-    );
-    onSelect(selectedServiceAccounts);
-  }, [dataViewSelected, serviceAccounts, onSelect]);
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      name: { label: intl.formatMessage(messages.name) },
+      description: { label: intl.formatMessage(messages.description) },
+      clientId: { label: intl.formatMessage(messages.clientId) },
+      owner: { label: intl.formatMessage(messages.owner) },
+      timeCreated: { label: intl.formatMessage(messages.timeCreated) },
+    }),
+    [intl],
+  );
 
-  useEffect(() => {
-    const dataViewItems = serviceAccounts.map((serviceAccount) => ({ id: serviceAccount.uuid }));
-    const selectedItems = dataViewItems.filter((item) => initialSelectedServiceAccounts.some((serviceAccount) => serviceAccount.uuid === item.id));
-    if (selectedItems.length !== dataViewSelected.length || !selectedItems.every((item) => dataViewSelected.some((s) => s.id === item.id))) {
-      dataViewOnSelect(false);
-      if (selectedItems.length > 0) {
-        dataViewOnSelect(true, selectedItems);
-      }
-    }
-  }, [initialSelectedServiceAccounts]);
-
-  const fetchAccounts = useCallback(
-    async (props?: PaginationProps) => {
+  // Handle data fetching via onStaleData
+  const handleStaleData = useCallback(
+    async (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
       const env = getEnvironmentDetails();
       const token = await auth.getToken();
       dispatch(
         fetchServiceAccounts({
-          limit: props?.limit ?? perPage,
-          offset: props?.offset ?? (page - 1) * perPage,
+          limit: params.limit,
+          offset: params.offset,
           token,
           sso: env?.sso,
           groupId,
         }),
       );
     },
-    [perPage, page, groupId],
+    [auth, getEnvironmentDetails, dispatch, groupId],
   );
 
+  // useTableState for all state management
+  const tableState = useTableState<typeof columns, ServiceAccount>({
+    columns,
+    initialPerPage: limit || 20,
+    perPageOptions: PER_PAGE_OPTIONS.map((opt) => opt.value),
+    getRowId: (sa) => sa.uuid,
+    initialSelectedRows: initialSelectedServiceAccounts,
+    isRowSelectable: (sa) => !sa.assignedToSelectedGroup,
+    onStaleData: handleStaleData,
+  });
+
+  // Propagate selection changes to parent
   useEffect(() => {
-    fetchAccounts({ limit: perPage, offset: (page - 1) * perPage });
-  }, [fetchAccounts]);
+    onSelect(tableState.selectedRows);
+  }, [tableState.selectedRows, onSelect]);
 
-  useEffect(() => {
-    if (isLoading) {
-      setActiveState(DataViewState.loading);
-    } else {
-      serviceAccounts.length === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
-    }
-  }, [serviceAccounts.length, isLoading]);
-
-  const COLUMN_HEADERS = [
-    { label: intl.formatMessage(messages.name), key: 'name', index: 0 },
-    { label: intl.formatMessage(messages.description), key: 'description', index: 1 },
-    { label: intl.formatMessage(messages.clientId), key: 'clientId', index: 2 },
-    { label: intl.formatMessage(messages.owner), key: 'owner', index: 3 },
-    { label: intl.formatMessage(messages.timeCreated), key: 'timeCreated', index: 4 },
-  ];
-
-  const columns: DataViewTh[] = COLUMN_HEADERS.map((column) => ({
-    cell: column.label,
-    props: {},
-  }));
-
-  const rows: DataViewTr[] = useMemo(() => {
-    return serviceAccounts.map((serviceAccount: ServiceAccount) => ({
-      id: serviceAccount.uuid,
-      row: Object.values({
-        name: serviceAccount.name,
-        description: serviceAccount.description || '',
-        clientId: serviceAccount.clientId,
-        owner: serviceAccount.createdBy,
-        timeCreated: <DateFormat date={serviceAccount.createdAt} type={getDateFormat(String(serviceAccount.createdAt))} />,
-      }),
-      props: {
-        isRowSelected: initialSelectedServiceAccounts.some((selectedServiceAccount) => selectedServiceAccount.uuid === serviceAccount.uuid),
-      },
-    }));
-  }, [serviceAccounts, initialSelectedServiceAccounts]);
-
-  const handleBulkSelect = (value: BulkSelectValue) => {
-    const selectableServiceAccounts = serviceAccounts.filter((serviceAccount) => !serviceAccount.assignedToSelectedGroup);
-
-    if (value === BulkSelectValue.none) {
-      onSelect([]);
-      dataViewOnSelect(false);
-    } else if (value === BulkSelectValue.page) {
-      onSelect(selectableServiceAccounts);
-      const dataViewItems = selectableServiceAccounts.map((sa) => ({ id: sa.uuid }));
-      dataViewOnSelect(true, dataViewItems);
-    } else if (value === BulkSelectValue.nonePage) {
-      onSelect([]);
-      dataViewOnSelect(false);
-    }
-  };
-
-  const pageSelected = rows.length > 0 && rows.every(isSelected);
-  const pagePartiallySelected = !pageSelected && rows.some(isSelected);
-  const totalCount = status === LAST_PAGE ? offset + serviceAccounts.length : offset + serviceAccounts.length + 1;
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, ServiceAccount> = useMemo(
+    () => ({
+      name: (sa) => sa.name,
+      description: (sa) => sa.description || '—',
+      clientId: (sa) => sa.clientId,
+      owner: (sa) => sa.createdBy,
+      timeCreated: (sa) => <DateFormat date={sa.createdAt} type={getDateFormat(String(sa.createdAt))} />,
+    }),
+    [],
+  );
 
   const ouiaId = 'group-add-service-accounts';
 
   return (
     <div className="rbac-service-accounts-list">
-      <DataView ouiaId={ouiaId} selection={selection} activeState={activeState}>
-        <DataViewToolbar
-          ouiaId={`${ouiaId}-header-toolbar`}
-          bulkSelect={
-            <BulkSelect
-              isDataPaginated
-              pageCount={serviceAccounts.length}
-              totalCount={totalCount}
-              selectedCount={dataViewSelected.length}
-              pageSelected={pageSelected}
-              pagePartiallySelected={pagePartiallySelected}
-              onSelect={handleBulkSelect}
-            />
-          }
-          pagination={
-            <Pagination
-              perPageOptions={PER_PAGE_OPTIONS}
-              itemCount={totalCount}
-              page={page}
-              perPage={perPage}
-              onSetPage={onSetPage}
-              onPerPageSelect={onPerPageSelect}
-            />
-          }
-        />
-        {isLoading ? (
-          <SkeletonTable rowsCount={10} columns={columns} variant={TableVariant.compact} />
-        ) : (
-          <DataViewTable
-            variant="compact"
-            columns={columns}
-            rows={rows}
-            ouiaId={`${ouiaId}-table`}
-            headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
-            bodyStates={{
-              loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-              empty: (
-                <EmptyTable
-                  titleText={intl.formatMessage(messages.noServiceAccountsFound)}
-                  bodyText={intl.formatMessage(messages.groupServiceAccountEmptyStateBody)}
-                />
-              ),
-            }}
-          />
-        )}
-        <DataViewToolbar
-          ouiaId={`${ouiaId}-footer-toolbar`}
-          pagination={
-            <Pagination
-              perPageOptions={PER_PAGE_OPTIONS}
-              itemCount={totalCount}
-              page={page}
-              perPage={perPage}
-              onSetPage={onSetPage}
-              onPerPageSelect={onPerPageSelect}
-            />
-          }
-        />
-      </DataView>
+      <TableView<typeof columns, ServiceAccount>
+        columns={columns}
+        columnConfig={columnConfig}
+        data={isLoading ? undefined : serviceAccounts}
+        totalCount={totalCount}
+        getRowId={(sa) => sa.uuid}
+        cellRenderers={cellRenderers}
+        selectable
+        isRowSelectable={(sa) => !sa.assignedToSelectedGroup}
+        emptyStateNoData={
+          <Fragment>
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <h4>{intl.formatMessage(messages.noServiceAccountsFound)}</h4>
+              <p>{intl.formatMessage(messages.groupServiceAccountEmptyStateBody)}</p>
+            </div>
+          </Fragment>
+        }
+        variant="compact"
+        ariaLabel="Service accounts list table"
+        ouiaId={ouiaId}
+        {...tableState}
+      />
     </div>
   );
 };
