@@ -32,6 +32,7 @@ import { DefaultMembersCard } from '../../components/DefaultMembersCard';
 import { RemoveGroupMembers } from './RemoveGroupMembers';
 import { GroupMembersEmptyState } from './components/GroupMembersEmptyState';
 import { MemberActionsMenu } from './components/MemberActionsMenu';
+import { getMemberRemovalConfig } from './useMemberRemovalConfig';
 import type { Member, MemberTableRow } from './types';
 
 interface GroupMembersProps {
@@ -63,32 +64,6 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   const systemGroupUuid = useSelector(selectSystemGroupUUID);
   const groupsPagination = useSelector(selectGroupsPagination);
   const groupsFilters = useSelector(selectGroupsFilters);
-
-  // Remove modal using shared hook
-  const { openModal: handleOpenRemoveModal, modalState: removeModalState } = useConfirmItemsModal<Member>({
-    onConfirm: async (members) => {
-      const usernames = members.map((m) => m.username);
-      await dispatch(removeMembersFromGroup(groupId!, usernames));
-      tableState.clearSelection();
-      // Refresh data
-      handleStaleData({
-        offset: 0,
-        limit: tableState.perPage,
-        filters: tableState.filters,
-      });
-      dispatch(fetchGroups({ usesMetaInURL: true }));
-    },
-    singularTitle: messages.removeMemberQuestion,
-    pluralTitle: messages.removeMembersQuestion,
-    singularBody: messages.removeMemberText,
-    pluralBody: messages.removeMembersText,
-    singularConfirmLabel: messages.removeMember,
-    pluralConfirmLabel: messages.remove,
-    getItemLabel: (member) => member.username,
-    extraValues: { group: group?.name || '' },
-    itemValueKey: 'name',
-    countValueKey: 'name',
-  });
 
   // Show default cards for default groups
   const showDefaultCard = (adminDefault || platformDefault) && group?.system;
@@ -141,6 +116,27 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
     perPageOptions: [10, 20, 50, 100],
     getRowId: (member) => member.username,
     onStaleData: handleStaleData,
+  });
+
+  // Remove modal using shared hook with centralized member config
+  const memberRemovalConfig = getMemberRemovalConfig({ groupName: group?.name || '' });
+  const { openModal: handleOpenRemoveModal, modalState: removeModalState } = useConfirmItemsModal<Member>({
+    ...memberRemovalConfig,
+    onConfirm: async (members) => {
+      // Guard against missing groupId (could happen in transient state)
+      if (!groupId) return;
+
+      const usernames = members.map((m) => m.username);
+      await dispatch(removeMembersFromGroup(groupId, usernames));
+      tableState.clearSelection();
+      // Refresh data
+      handleStaleData({
+        offset: 0,
+        limit: tableState.perPage,
+        filters: tableState.filters,
+      });
+      dispatch(fetchGroups({ usesMetaInURL: true }));
+    },
   });
 
   // Fetch group details on mount

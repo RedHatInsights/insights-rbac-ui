@@ -76,37 +76,6 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   const systemGroupUuid = useSelector(selectSystemGroupUUID);
   const group = useSelector(selectSelectedGroup);
 
-  // Remove modal using shared hook
-  const { openModal: handleOpenRemoveModal, modalState: removeModalState } = useConfirmItemsModal<Role>({
-    onConfirm: async (roles) => {
-      const roleIds = roles.map(({ uuid }) => uuid);
-      await dispatch(removeRolesFromGroup(actualGroupId!, roleIds) as any);
-
-      tableState.clearSelection();
-
-      // Refresh data
-      fetchData({
-        offset: tableState.apiParams.offset,
-        limit: tableState.apiParams.limit,
-        orderBy: tableState.apiParams.orderBy,
-        filters: tableState.filters,
-      });
-
-      // Refresh available roles
-      dispatch(fetchAddRolesForGroup(actualGroupId!, { limit: 20, offset: 0 }) as any);
-    },
-    singularTitle: messages.removeRoleQuestion,
-    pluralTitle: messages.removeRolesQuestion,
-    singularBody: messages.removeRoleModalText,
-    pluralBody: messages.removeRolesModalText,
-    singularConfirmLabel: messages.removeRole,
-    pluralConfirmLabel: messages.removeRoles,
-    getItemLabel: (role) => role.display_name || role.name,
-    extraValues: { name: group?.name || '' },
-    itemValueKey: 'role',
-    countValueKey: 'roles',
-  });
-
   // Resolve actual group ID (handle default access group)
   const actualGroupId = useMemo(() => (groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId! : systemGroupUuid), [groupId, systemGroupUuid]);
 
@@ -148,6 +117,40 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
 
   // Enable selection for non-admin-default groups with permissions
   const selectable = hasPermissions && !isAdminDefault;
+
+  // Remove modal using shared hook
+  const { openModal: handleOpenRemoveModal, modalState: removeModalState } = useConfirmItemsModal<Role>({
+    onConfirm: async (roles) => {
+      // Guard against missing actualGroupId (could happen in transient state)
+      if (!actualGroupId) return;
+
+      const roleIds = roles.map(({ uuid }) => uuid);
+      await dispatch(removeRolesFromGroup(actualGroupId, roleIds) as any);
+
+      tableState.clearSelection();
+
+      // Refresh data
+      fetchData({
+        offset: tableState.apiParams.offset,
+        limit: tableState.apiParams.limit,
+        orderBy: tableState.apiParams.orderBy,
+        filters: tableState.filters,
+      });
+
+      // Refresh available roles
+      dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
+    },
+    singularTitle: messages.removeRoleQuestion,
+    pluralTitle: messages.removeRolesQuestion,
+    singularBody: messages.removeRoleModalText,
+    pluralBody: messages.removeRolesModalText,
+    singularConfirmLabel: messages.removeRole,
+    pluralConfirmLabel: messages.removeRoles,
+    getItemLabel: (role) => role.display_name || role.name,
+    extraValues: { name: group?.name || '' },
+    itemValueKey: 'role',
+    countValueKey: 'roles',
+  });
 
   // =============================================================================
   // Effects
