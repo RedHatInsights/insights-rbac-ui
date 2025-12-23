@@ -13,6 +13,7 @@ import { Group } from '../../../../redux/groups/reducer';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import { useConfirmItemsModal } from '../../../../hooks/useConfirmItemsModal';
 import messages from '../../../../Messages';
+import { getMemberRemovalConfig } from './useMemberRemovalConfig';
 import type { GroupMembersFilters, Member, MemberTableRow, SortByState } from './types';
 import {
   selectGroupMembers,
@@ -168,26 +169,21 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
     [dispatch, groupId], // REMOVED pagination dependency to prevent infinite loops
   );
 
-  // Remove modal using shared hook
+  // Remove modal using shared hook with centralized member config
+  const memberRemovalConfig = getMemberRemovalConfig({ groupName: group?.name || '' });
   const { openModal: handleRemoveMembers, modalState: removeModalState } = useConfirmItemsModal<Member>({
+    ...memberRemovalConfig,
     onConfirm: async (members) => {
+      // Guard against missing groupId (could happen in transient state)
+      if (!groupId) return;
+
       const usernames = members.map((member) => member.username);
-      await dispatch(removeMembersFromGroup(groupId!, usernames));
+      await dispatch(removeMembersFromGroup(groupId, usernames));
       selection.onSelect(false); // Clear all selections
       // Reset offset to 0 after removal, fetchData will use current pagination from Redux
       fetchData(undefined, { offset: 0 });
       dispatch(fetchGroups({ usesMetaInURL: true }));
     },
-    singularTitle: messages.removeMemberQuestion,
-    pluralTitle: messages.removeMembersQuestion,
-    singularBody: messages.removeMemberText,
-    pluralBody: messages.removeMembersText,
-    singularConfirmLabel: messages.removeMember,
-    pluralConfirmLabel: messages.remove,
-    getItemLabel: (member) => member.username,
-    extraValues: { group: group?.name || '' },
-    itemValueKey: 'name',
-    countValueKey: 'name',
   });
 
   // Create table rows from members data
