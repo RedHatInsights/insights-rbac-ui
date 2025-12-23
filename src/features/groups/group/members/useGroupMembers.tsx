@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
@@ -11,9 +11,8 @@ import { fetchGroups, fetchMembersForGroup, removeMembersFromGroup } from '../..
 import { FetchMembersForGroupParams } from '../../../../redux/groups/helper';
 import { Group } from '../../../../redux/groups/reducer';
 import PermissionsContext from '../../../../utilities/permissionsContext';
-import { useConfirmItemsModal } from '../../../../hooks/useConfirmItemsModal';
+import { useGroupRemoveModal } from '../../hooks/useGroupRemoveModal';
 import messages from '../../../../Messages';
-import { getMemberRemovalConfig } from './useMemberRemovalConfig';
 import type { GroupMembersFilters, Member, MemberTableRow, SortByState } from './types';
 import {
   selectGroupMembers,
@@ -169,22 +168,34 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
     [dispatch, groupId], // REMOVED pagination dependency to prevent infinite loops
   );
 
-  // Remove modal using shared hook with centralized member config
-  const memberRemovalConfig = getMemberRemovalConfig({ groupName: group?.name || '' });
-  const { openModal: handleRemoveMembers, modalState: removeModalState } = useConfirmItemsModal<Member>({
-    ...memberRemovalConfig,
-    onConfirm: async (members) => {
-      // Guard against missing groupId (could happen in transient state)
+  // Track members to remove (needed for the confirm callback)
+  const membersToRemoveRef = useRef<Member[]>([]);
+
+  // Remove modal with simple API
+  const removeModal = useGroupRemoveModal({
+    itemType: 'member',
+    groupName: group?.name || '',
+    onConfirm: async () => {
       if (!groupId) return;
 
-      const usernames = members.map((member) => member.username);
+      const usernames = membersToRemoveRef.current.map((m) => m.username);
       await dispatch(removeMembersFromGroup(groupId, usernames));
-      selection.onSelect(false); // Clear all selections
-      // Reset offset to 0 after removal, fetchData will use current pagination from Redux
+      selection.onSelect(false);
       fetchData(undefined, { offset: 0 });
       dispatch(fetchGroups({ usesMetaInURL: true }));
     },
   });
+
+  // Helper to open modal with members
+  const handleRemoveMembers = useCallback(
+    (members: Member[]) => {
+      membersToRemoveRef.current = members;
+      removeModal.openModal(members.map((m) => m.username));
+    },
+    [removeModal],
+  );
+
+  const removeModalState = removeModal.modalState;
 
   // Create table rows from members data
   const tableRows = useMemo((): MemberTableRow[] => {

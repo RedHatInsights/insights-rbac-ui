@@ -5,7 +5,7 @@
  * All table state (pagination, sorting, filtering, selection) is managed by useTableState.
  */
 
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,7 +36,7 @@ import { getBackRoute } from '../../../../helpers/navigation';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
-import { useConfirmItemsModal } from '../../../../hooks/useConfirmItemsModal';
+import { useGroupRemoveModal } from '../../hooks/useGroupRemoveModal';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
 import type { GroupRolesProps, Role } from './types';
@@ -118,39 +118,40 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   // Enable selection for non-admin-default groups with permissions
   const selectable = hasPermissions && !isAdminDefault;
 
-  // Remove modal using shared hook
-  const { openModal: handleOpenRemoveModal, modalState: removeModalState } = useConfirmItemsModal<Role>({
-    onConfirm: async (roles) => {
-      // Guard against missing actualGroupId (could happen in transient state)
+  // Track roles to remove (needed for the confirm callback)
+  const rolesToRemoveRef = useRef<Role[]>([]);
+
+  // Remove modal with simple API
+  const removeModal = useGroupRemoveModal({
+    itemType: 'role',
+    groupName: group?.name || '',
+    onConfirm: async () => {
       if (!actualGroupId) return;
 
-      const roleIds = roles.map(({ uuid }) => uuid);
+      const roleIds = rolesToRemoveRef.current.map(({ uuid }) => uuid);
       await dispatch(removeRolesFromGroup(actualGroupId, roleIds) as any);
 
       tableState.clearSelection();
-
-      // Refresh data
       fetchData({
         offset: tableState.apiParams.offset,
         limit: tableState.apiParams.limit,
         orderBy: tableState.apiParams.orderBy,
         filters: tableState.filters,
       });
-
-      // Refresh available roles
       dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
     },
-    singularTitle: messages.removeRoleQuestion,
-    pluralTitle: messages.removeRolesQuestion,
-    singularBody: messages.removeRoleModalText,
-    pluralBody: messages.removeRolesModalText,
-    singularConfirmLabel: messages.removeRole,
-    pluralConfirmLabel: messages.removeRoles,
-    getItemLabel: (role) => role.display_name || role.name,
-    extraValues: { name: group?.name || '' },
-    itemValueKey: 'role',
-    countValueKey: 'roles',
   });
+
+  // Helper to open modal with roles
+  const handleOpenRemoveModal = useCallback(
+    (roles: Role[]) => {
+      rolesToRemoveRef.current = roles;
+      removeModal.openModal(roles.map((r) => r.display_name || r.name));
+    },
+    [removeModal],
+  );
+
+  const removeModalState = removeModal.modalState;
 
   // =============================================================================
   // Effects
