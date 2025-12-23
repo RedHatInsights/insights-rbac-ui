@@ -1,8 +1,7 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
-import { FormattedMessage } from 'react-intl';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 
@@ -26,6 +25,7 @@ import {
 } from '../../../../redux/groups/selectors';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
+import { useConfirmItemsModal } from '../../../../hooks/useConfirmItemsModal';
 import pathnames from '../../../../utilities/pathnames';
 import messages from '../../../../Messages';
 import { DefaultMembersCard } from '../../components/DefaultMembersCard';
@@ -64,9 +64,31 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   const groupsPagination = useSelector(selectGroupsPagination);
   const groupsFilters = useSelector(selectGroupsFilters);
 
-  // Local state for remove modal
-  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
-  const [membersToRemove, setMembersToRemove] = useState<Member[]>([]);
+  // Remove modal using shared hook
+  const { openModal: handleOpenRemoveModal, modalState: removeModalState } = useConfirmItemsModal<Member>({
+    onConfirm: async (members) => {
+      const usernames = members.map((m) => m.username);
+      await dispatch(removeMembersFromGroup(groupId!, usernames));
+      tableState.clearSelection();
+      // Refresh data
+      handleStaleData({
+        offset: 0,
+        limit: tableState.perPage,
+        filters: tableState.filters,
+      });
+      dispatch(fetchGroups({ usesMetaInURL: true }));
+    },
+    singularTitle: messages.removeMemberQuestion,
+    pluralTitle: messages.removeMembersQuestion,
+    singularBody: messages.removeMemberText,
+    pluralBody: messages.removeMembersText,
+    singularConfirmLabel: messages.removeMember,
+    pluralConfirmLabel: messages.remove,
+    getItemLabel: (member) => member.username,
+    extraValues: { group: group?.name || '' },
+    itemValueKey: 'name',
+    countValueKey: 'name',
+  });
 
   // Show default cards for default groups
   const showDefaultCard = (adminDefault || platformDefault) && group?.system;
@@ -157,17 +179,14 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
             {
               key: 'remove',
               label: intl.formatMessage(messages.remove),
-              onClick: () => {
-                setMembersToRemove([member]);
-                setIsRemoveModalOpen(true);
-              },
+              onClick: () => handleOpenRemoveModal([member]),
               ouiaId: `member-actions-${member.username}-remove`,
             },
           ]}
         />
       );
     },
-    [isAdmin, adminDefault, platformDefault, intl],
+    [isAdmin, adminDefault, platformDefault, intl, handleOpenRemoveModal],
   );
 
   // Handle add members
@@ -176,67 +195,6 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
       navigate(pathnames['group-add-members'].link.replace(':groupId', groupId));
     }
   }, [navigate, groupId]);
-
-  // Handle close remove modal
-  const handleCloseRemoveModal = useCallback(() => {
-    setIsRemoveModalOpen(false);
-    setMembersToRemove([]);
-  }, []);
-
-  // Handle confirm remove
-  const handleConfirmRemove = useCallback(async () => {
-    if (!groupId || membersToRemove.length === 0) return;
-
-    const usernames = membersToRemove.map((m) => m.username);
-    try {
-      await dispatch(removeMembersFromGroup(groupId, usernames));
-      tableState.clearSelection();
-      setIsRemoveModalOpen(false);
-      setMembersToRemove([]);
-      // Refresh data
-      handleStaleData({
-        offset: 0,
-        limit: tableState.perPage,
-        filters: tableState.filters,
-      });
-      dispatch(fetchGroups({ usesMetaInURL: true }));
-    } catch (error) {
-      console.error('Failed to remove members:', error);
-    }
-  }, [dispatch, groupId, membersToRemove, tableState, handleStaleData]);
-
-  // Remove modal state
-  const removeModalState = useMemo(() => {
-    const isSingular = membersToRemove.length === 1;
-    const memberNames = membersToRemove.map((m) => m.username).join(', ');
-
-    return {
-      isOpen: isRemoveModalOpen,
-      title: intl.formatMessage(isSingular ? messages.removeMemberQuestion : messages.removeMembersQuestion),
-      text: isSingular ? (
-        <FormattedMessage
-          {...messages.removeMemberText}
-          values={{
-            b: (text: React.ReactNode) => <b>{text}</b>,
-            name: memberNames,
-            group: group?.name || '',
-          }}
-        />
-      ) : (
-        <FormattedMessage
-          {...messages.removeMembersText}
-          values={{
-            b: (text: React.ReactNode) => <b>{text}</b>,
-            name: membersToRemove.length,
-            group: group?.name || '',
-          }}
-        />
-      ),
-      confirmButtonLabel: intl.formatMessage(isSingular ? messages.removeMember : messages.remove),
-      onClose: handleCloseRemoveModal,
-      onSubmit: handleConfirmRemove,
-    };
-  }, [isRemoveModalOpen, membersToRemove, intl, group?.name, handleCloseRemoveModal, handleConfirmRemove]);
 
   if (!groupId) {
     return null;
@@ -268,10 +226,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
             isAdmin ? (
               <MemberActionsMenu
                 selectedRows={tableState.selectedRows.map((m) => ({ member: m }) as MemberTableRow)}
-                onRemoveMembers={(members) => {
-                  setMembersToRemove(members);
-                  setIsRemoveModalOpen(true);
-                }}
+                onRemoveMembers={(members) => handleOpenRemoveModal(members)}
               />
             ) : undefined
           }
@@ -290,7 +245,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
         isOpen={removeModalState.isOpen}
         confirmButtonLabel={removeModalState.confirmButtonLabel}
         onClose={removeModalState.onClose}
-        onSubmit={removeModalState.onSubmit}
+        onSubmit={removeModalState.onConfirm}
         isDefault={platformDefault}
         isChanged={isChanged}
       />
