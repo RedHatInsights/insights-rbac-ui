@@ -854,7 +854,6 @@ Tests the full flow of removing members from a group.
  */
 export const AddRolesToGroupJourney: Story = {
   name: 'Groups / Add roles',
-  tags: ['test-skip'], // TODO: Fix test isolation issue - checkbox selector fails after test pollution
   args: {
     initialRoute: '/iam/my-user-access',
   },

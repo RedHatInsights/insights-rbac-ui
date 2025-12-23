@@ -1,12 +1,45 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { AddGroupMembers } from './AddGroupMembers';
 
 // API spy for tracking filter and search calls
 const usersApiSpy = fn();
+
+// Shared MSW handlers for group-related API calls
+// These are needed because the component now properly receives groupId from useParams()
+const sharedGroupHandlers = [
+  // Single group fetch handler (for fetchGroup action)
+  http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
+    return HttpResponse.json({
+      uuid: params.groupId,
+      name: 'Test Group',
+      description: 'A test group for adding members',
+      principalCount: 0,
+      roleCount: 0,
+    });
+  }),
+  // Group members fetch handler (for fetchMembersForGroup action)
+  http.get('/api/rbac/v1/groups/:groupId/principals/', () => {
+    return HttpResponse.json({
+      data: [],
+      meta: { count: 0, limit: 20, offset: 0 },
+    });
+  }),
+  // Groups list handler (for fetchGroups action)
+  http.get('/api/rbac/v1/groups/', () => {
+    return HttpResponse.json({
+      data: [],
+      meta: { count: 0 },
+    });
+  }),
+  // Add members to group handler
+  http.post('/api/rbac/v1/groups/:groupId/principals/', () => {
+    return HttpResponse.json({ message: 'Members added successfully' });
+  }),
+];
 
 // Mock users data for testing
 const mockUsers = [
@@ -69,7 +102,13 @@ const meta: Meta<any> = {
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={['/groups/detail/test-group-id/members']}>
-        <Story />
+        <Routes>
+          <Route path="/groups/detail/:groupId/members" element={<Story />} />
+          {/* Route for navigation after cancel/submit */}
+          <Route path="/groups/detail/:groupId/members/*" element={<Story />} />
+          {/* Route for useAppNavigate with /iam/user-access basename */}
+          <Route path="/iam/user-access/groups/detail/:groupId/members" element={<div data-testid="group-members-page">Group Members Page</div>} />
+        </Routes>
       </MemoryRouter>
     ),
   ],
@@ -135,17 +174,8 @@ const meta: Meta<any> = {
             },
           });
         }),
-        // Add members API handler
-        http.post('/api/rbac/v1/groups/:groupId/principals/', () => {
-          return HttpResponse.json({ message: 'Members added successfully' });
-        }),
-        // Groups API handler (for fetchGroups action)
-        http.get('/api/rbac/v1/groups/', () => {
-          return HttpResponse.json({
-            data: [],
-            meta: { count: 0 },
-          });
-        }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -271,6 +301,8 @@ export const WithUsers: Story = {
             },
           });
         }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -375,6 +407,8 @@ export const WithFiltering: Story = {
             },
           });
         }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -614,6 +648,8 @@ export const WithPagination: Story = {
             },
           });
         }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -681,6 +717,8 @@ export const Loading: Story = {
         // Make users API never resolve to show loading state
         http.get('/api/rbac/v1/users/', () => new Promise(() => {})), // Never resolves
         http.get('/api/rbac/v1/principals/', () => new Promise(() => {})), // Never resolves
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -767,6 +805,8 @@ export const ITLessMode: Story = {
             },
           });
         }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -852,6 +892,25 @@ export const SubmitNotification: Story = {
           return HttpResponse.json({
             data: [{ uuid: 'test-group-id', name: 'Test Group' }],
             meta: { count: 1 },
+          });
+        }),
+
+        // Single group fetch handler
+        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
+          return HttpResponse.json({
+            uuid: params.groupId,
+            name: 'Test Group',
+            description: 'A test group for adding members',
+            principalCount: 0,
+            roleCount: 0,
+          });
+        }),
+
+        // Group members/principals fetch handler
+        http.get('/api/rbac/v1/groups/:groupId/principals/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 20, offset: 0 },
           });
         }),
       ],
@@ -951,7 +1010,6 @@ export const SubmitNotification: Story = {
 };
 
 export const CancelNotification: Story = {
-  tags: ['test-skip'], // TODO: Fix test isolation issue - groupId is undefined from useParams
   parameters: {
     docs: {
       description: {
@@ -960,6 +1018,8 @@ export const CancelNotification: Story = {
     },
   },
   play: async ({ canvasElement }) => {
+    // Reset spy to ensure clean state for this test
+    usersApiSpy.mockClear();
     const canvas = within(canvasElement);
 
     // 🎯 MODAL TESTING: Click button to open modal
