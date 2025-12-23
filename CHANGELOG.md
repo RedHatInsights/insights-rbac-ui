@@ -1,3 +1,10 @@
+# [1.79.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.78.0...v1.79.0) (2025-12-23)
+
+
+### Features
+
+* migrate DataView components to TableView with useTableState ([a1f33d5](https://github.com/RedHatInsights/insights-rbac-ui/commit/a1f33d586964018e0cb430d9c3d5b04274630172))
+
 # [1.78.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.77.0...v1.78.0) (2025-12-22)
 
 
