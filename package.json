@@ -57,6 +57,7 @@
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@cypress/code-coverage": "^3.14.4",
+    "@jest/test-sequencer": "^30.2.0",
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^3.0.0",
     "@redhat-cloud-services/frontend-components-config": "^6.7.1",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.4",

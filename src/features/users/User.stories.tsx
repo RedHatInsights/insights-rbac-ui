@@ -277,18 +277,21 @@ export const Loading: Story = {
   },
 };
 
-// NOTE: UserNotFound story skipped - testing Redux BAD_UUID error states with MSW is complex.
-// The error state requires the roles API to return a 400 error with specific format that triggers
-// the BAD_UUID error in roleReducer. This will be properly tested in integration/E2E tests.
-// The error state logic exists in user.js at line 70: userExists: error !== BAD_UUID
+/**
+ * UserNotFound - Tests empty state when user doesn't exist
+ *
+ * The roles API returns a 400 error with `source: 'detail'` which triggers
+ * BAD_UUID handling in roleReducer. The component then shows "User not found" empty state.
+ */
 export const UserNotFound: Story = {
-  tags: ['skip-test'],
   parameters: {
     docs: {
       description: {
         story: `
-**Note**: This story demonstrates the User Not Found empty state.
-Testing BAD_UUID error states with MSW is complex - this scenario is better covered in E2E tests.
+**User Not Found**: Demonstrates the empty state when navigating to a non-existent user.
+
+The roles API returns a 400 error which triggers BAD_UUID handling, causing the component
+to display the "User not found" empty state with a back button.
         `,
       },
     },
@@ -318,6 +321,21 @@ Testing BAD_UUID error states with MSW is complex - this scenario is better cove
         ),
       ],
     },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300);
+    const canvas = within(canvasElement);
+
+    // Wait for "User not found" empty state to appear
+    const notFoundTitle = await canvas.findByText('User not found', undefined, { timeout: 10000 });
+    expect(notFoundTitle).toBeInTheDocument();
+
+    // Verify the description contains the username (formatted message includes username)
+    expect(await canvas.findByText(/does not exist/i)).toBeInTheDocument();
+
+    // Verify back button is present
+    const backButton = await canvas.findByRole('button', { name: /back to previous page/i });
+    expect(backButton).toBeInTheDocument();
   },
 };
 

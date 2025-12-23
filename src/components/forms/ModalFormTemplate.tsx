@@ -8,6 +8,7 @@ import { ActionGroup } from '@patternfly/react-core/dist/js/components/Form/Acti
 import { Button } from '@patternfly/react-core/dist/js/components/Button';
 import { Form } from '@patternfly/react-core/dist/js/components/Form/Form';
 import messages from '../../Messages';
+import { getModalContainer } from '../../helpers/modal-container';
 
 /**
  * This id is required to submit form by a button outside of the form element
@@ -74,7 +75,7 @@ export const ModalFormTemplate: React.FC<ModalFormTemplateProps> = ({ ModalProps
   const { formFields, schema, ...otherProps } = props;
 
   return (
-    <Modal {...ModalProps} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
+    <Modal {...ModalProps} appendTo={getModalContainer()} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
       {alert?.()}
       <FormTemplate formFields={formFields} schema={schema} {...otherProps} showFormControls={false} FormWrapper={CustomFormWrapper} />
     </Modal>
