@@ -2531,4 +2531,117 @@ When updating existing stories:
 
 **I MUST NOT proceed without completing this checklist for every .stories.tsx file.**
 
+## TableView DOM Reference Stability (CRITICAL)
+
+### The Problem: Stale DOM References
+**CRITICAL**: `TableView` does NOT guarantee stable DOM references across state changes. When the component transitions between states (loading → loaded → filtered → sorted), the DOM is re-rendered and old element references become **stale**.
+
+### Why This Happens
+- `TableView` completely re-renders its content on state changes
+- References obtained before a state change point to old/removed DOM nodes
+- Queries against stale references return 0 results or fail silently
+- This is especially problematic for modal-based flows where the table loads data asynchronously
+
+### The Solution: Query Fresh Pattern
+
+#### ❌ WRONG: Holding DOM References Across State Changes
+```typescript
+play: async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  
+  // Get table reference during loading state
+  const table = await modalContent.findByRole('grid', undefined, { timeout: 5000 });
+  
+  // Wait for data to load - TABLE RE-RENDERS HERE!
+  await waitFor(() => {
+    expect(modalContent.getByText('Auditor')).toBeInTheDocument();
+  });
+  
+  // ❌ FAILS: `table` reference is now STALE - points to old DOM node
+  const checkboxes = within(table).getAllByRole('checkbox');
+  expect(checkboxes.length).toBeGreaterThan(0); // Returns 0!
+};
+```
+
+#### ✅ CORRECT: Query Fresh After State Changes
+```typescript
+play: async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  
+  // Step 1: Wait for actual content to appear (proves data is loaded)
+  await waitFor(
+    () => {
+      expect(modalContent.getByText('Auditor')).toBeInTheDocument();
+    },
+    { timeout: 10000 },
+  );
+  
+  // Step 2: Query FRESH for elements AFTER data loads
+  const table = modalContent.getByRole('grid');  // Fresh reference
+  const checkboxes = within(table).getAllByRole('checkbox');  // Works!
+  expect(checkboxes.length).toBeGreaterThan(0);
+};
+```
+
+### Key Principles
+
+1. **Wait for Content First**: Always wait for actual content (text, data) to appear before querying for interactive elements
+   ```typescript
+   // Wait for real data, not just the table structure
+   await waitFor(() => {
+     expect(modalContent.getByText('Expected Data')).toBeInTheDocument();
+   });
+   ```
+
+2. **Query Fresh After Waits**: After any `waitFor`, `delay`, or state change, re-query for elements
+   ```typescript
+   await delay(500);  // State may have changed
+   const freshTable = modalContent.getByRole('grid');  // Get fresh reference
+   ```
+
+3. **Don't Cache Table References**: Never store table references in variables that persist across state changes
+   ```typescript
+   // ❌ Bad: Caching reference
+   const table = await canvas.findByRole('grid');
+   // ... state changes ...
+   within(table).getAllByRole('checkbox');  // Stale!
+   
+   // ✅ Good: Query fresh each time
+   within(canvas.getByRole('grid')).getAllByRole('checkbox');  // Fresh!
+   ```
+
+4. **Apply to Modal Flows**: This is especially critical for modals that load data asynchronously
+   ```typescript
+   // Open modal
+   await userEvent.click(openButton);
+   const modal = await within(modalContainer).findByRole('dialog');
+   const modalContent = within(modal);
+   
+   // Wait for modal's data to load
+   await waitFor(() => {
+     expect(modalContent.getByText('Expected Content')).toBeInTheDocument();
+   });
+   
+   // NOW query for interactive elements with fresh references
+   const table = modalContent.getByRole('grid');
+   const rows = within(table).getAllByRole('row');
+   ```
+
+### Common Scenarios
+
+| Scenario | Solution |
+|----------|----------|
+| Table loads data async | Wait for content text, then query fresh |
+| Filter changes results | Wait for new results, then query fresh |
+| Sort reorders rows | Wait for sort to complete, then query fresh |
+| Pagination changes | Wait for new page, then query fresh |
+| Modal opens with table | Wait for modal content, then query fresh |
+
+### Debugging Tips
+
+If tests fail with "expected X to be greater than 0" or "element not found":
+1. Check if you're holding a stale reference from before a state change
+2. Add a `console.log` of the element to see if it's connected to the document
+3. Move your query AFTER the `waitFor` that confirms content is loaded
+
 

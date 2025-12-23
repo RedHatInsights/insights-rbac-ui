@@ -29,8 +29,7 @@ import {
 } from './helper';
 import { locale } from '../../locales/locale';
 import { RoleIn, RolePut, RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
-
-const BAD_UUID = 'BAD_UUID';
+import { BAD_UUID } from '../../helpers/dataUtilities';
 
 export const createRole = (roleData: RoleIn) => {
   const cache = createIntlCache();
@@ -51,20 +50,39 @@ export const createRole = (roleData: RoleIn) => {
   };
 };
 
-export const fetchRole = (roleId: string) => ({
-  type: FETCH_ROLE,
-  payload: fetchRoleHelper(roleId).catch((err: { errors?: Array<{ status?: string; source?: string }> }) => {
-    const error = err?.errors?.[0] || {};
+// Handle role fetch errors - check multiple error formats (axios vs direct)
+const handleRoleError = (err: any) => {
+  // Handle 404 errors (non-existent role with valid UUID)
+  if (err?.status === 404 || err?.response?.status === 404) {
+    return { error: BAD_UUID };
+  }
+
+  // Handle 400 errors from axios (check response.data.errors)
+  if (err?.response?.status === 400) {
+    const errorData = err.response.data;
+    const error = errorData?.errors?.[0] || {};
     if (error.status === '400' && error.source === 'detail') {
       return { error: BAD_UUID };
     }
-    throw err;
-  }),
+  }
+
+  // Handle 400 errors from direct ErrorResponse format
+  const error = err?.errors?.[0] || {};
+  if (error.status === '400' && error.source === 'detail') {
+    return { error: BAD_UUID };
+  }
+
+  throw err;
+};
+
+export const fetchRole = (roleId: string) => ({
+  type: FETCH_ROLE,
+  payload: fetchRoleHelper(roleId).catch(handleRoleError),
 });
 
 export const fetchRoles = (options: FetchRolesParams = {}) => ({
   type: FETCH_ROLES,
-  payload: fetchRolesHelper(options),
+  payload: fetchRolesHelper(options).catch(handleRoleError),
 });
 
 export const fetchRolesWithPolicies = (options: FetchRolesWithPoliciesParams = {}) => ({
