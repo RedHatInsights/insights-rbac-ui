@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
@@ -25,14 +25,13 @@ import {
 } from '../../../../redux/groups/selectors';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
-import { useConfirmItemsModal } from '../../../../hooks/useConfirmItemsModal';
+import { useGroupRemoveModal } from '../../hooks/useGroupRemoveModal';
 import pathnames from '../../../../utilities/pathnames';
 import messages from '../../../../Messages';
 import { DefaultMembersCard } from '../../components/DefaultMembersCard';
 import { RemoveGroupMembers } from './RemoveGroupMembers';
 import { GroupMembersEmptyState } from './components/GroupMembersEmptyState';
 import { MemberActionsMenu } from './components/MemberActionsMenu';
-import { getMemberRemovalConfig } from './useMemberRemovalConfig';
 import type { Member, MemberTableRow } from './types';
 
 interface GroupMembersProps {
@@ -118,18 +117,19 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
     onStaleData: handleStaleData,
   });
 
-  // Remove modal using shared hook with centralized member config
-  const memberRemovalConfig = getMemberRemovalConfig({ groupName: group?.name || '' });
-  const { openModal: handleOpenRemoveModal, modalState: removeModalState } = useConfirmItemsModal<Member>({
-    ...memberRemovalConfig,
-    onConfirm: async (members) => {
-      // Guard against missing groupId (could happen in transient state)
+  // Track members to remove (needed for the confirm callback)
+  const membersToRemoveRef = useRef<Member[]>([]);
+
+  // Remove modal with simple API
+  const removeModal = useGroupRemoveModal({
+    itemType: 'member',
+    groupName: group?.name || '',
+    onConfirm: async () => {
       if (!groupId) return;
 
-      const usernames = members.map((m) => m.username);
+      const usernames = membersToRemoveRef.current.map((m) => m.username);
       await dispatch(removeMembersFromGroup(groupId, usernames));
       tableState.clearSelection();
-      // Refresh data
       handleStaleData({
         offset: 0,
         limit: tableState.perPage,
@@ -138,6 +138,17 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
       dispatch(fetchGroups({ usesMetaInURL: true }));
     },
   });
+
+  // Helper to open modal with members
+  const handleOpenRemoveModal = useCallback(
+    (members: Member[]) => {
+      membersToRemoveRef.current = members;
+      removeModal.openModal(members.map((m) => m.username));
+    },
+    [removeModal],
+  );
+
+  const removeModalState = removeModal.modalState;
 
   // Fetch group details on mount
   useEffect(() => {
