@@ -1,3 +1,10 @@
+## [1.79.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.0...v1.79.1) (2026-01-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @formatjs/cli to v6.8.8 ([e1a60ad](https://github.com/RedHatInsights/insights-rbac-ui/commit/e1a60ad95565a71bcda7a56f3e31b35d53b4a2d6))
+
 # [1.79.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.78.0...v1.79.0) (2025-12-23)
 
 
