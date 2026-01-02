@@ -1,3 +1,10 @@
+## [1.79.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.2...v1.79.3) (2026-01-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @redhat-cloud-services/host-inventory-client to v4.1.7 ([f84a6e0](https://github.com/RedHatInsights/insights-rbac-ui/commit/f84a6e08e7ca97fd8a4f7e3ac77594026ad82a90))
+
 ## [1.79.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.1...v1.79.2) (2026-01-02)
 
 
