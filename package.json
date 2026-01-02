@@ -11,7 +11,7 @@
     "@babel/runtime": "^7.23.2",
     "@babel/types": "^7.23.3",
     "@data-driven-forms/pf4-component-mapper": "^3.23.5",
-    "@data-driven-forms/react-form-renderer": "^3.23.5",
+    "@data-driven-forms/react-form-renderer": "^4.0.0",
     "@formatjs/cli": "6.8.8",
     "@patternfly/patternfly": "^5.0.0",
     "@patternfly/quickstarts": "^5.1.0",
