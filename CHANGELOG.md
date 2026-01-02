@@ -1,3 +1,11 @@
+## [1.79.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.1...v1.79.2) (2026-01-02)
+
+
+### Bug Fixes
+
+* **deps:** update babel monorepo to v7.28.5 ([24b371e](https://github.com/RedHatInsights/insights-rbac-ui/commit/24b371efc9ff6fb507173a9e7da1b38ad7dab97b))
+* **deps:** update dependency react-router-dom to v6.30.2 ([dd8fdd5](https://github.com/RedHatInsights/insights-rbac-ui/commit/dd8fdd57b7cde1f2108dafe3d7fd6ec85f140e6c))
+
 ## [1.79.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.0...v1.79.1) (2026-01-02)
 
 
