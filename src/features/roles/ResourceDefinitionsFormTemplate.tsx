@@ -4,7 +4,6 @@ import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
-import './role-permissions.scss';
 
 interface ModalProps {
   onClose: (values: Record<string, unknown>) => void;
@@ -33,7 +32,7 @@ const ResourceDefinitionsFormTemplate: React.FC<ResourceDefinitionsFormTemplateP
           ? undefined
           : () => (
               <div className="rbac-m-resource-definitions">
-                <Alert className="pf-v5-c-modal__alert" variant="danger" isInline title={intl.formatMessage(messages.defineAtLeastOneResource)} />
+                <Alert className="pf-v6-c-modal__alert" variant="danger" isInline title={intl.formatMessage(messages.defineAtLeastOneResource)} />
               </div>
             )
       }

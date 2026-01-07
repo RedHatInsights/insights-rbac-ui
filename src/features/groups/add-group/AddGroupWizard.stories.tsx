@@ -310,7 +310,7 @@ export const ServiceAccountsEnabled: Story = {
     await waitFor(
       () => {
         // Check wizard navigation for service accounts step
-        const navItems = Array.from(document.querySelectorAll('.pf-v5-c-wizard__nav-link, .pf-v5-c-wizard__toggle-list-item'));
+        const navItems = Array.from(document.querySelectorAll('.pf-v6-c-wizard__nav-link, .pf-v6-c-wizard__toggle-list-item'));
         const hasServiceAccountsStep = navItems.some((item) => item.textContent?.toLowerCase().includes('service account'));
 
         expect(hasServiceAccountsStep).toBeTruthy();
@@ -365,7 +365,7 @@ export const WorkspacesEnabled: Story = {
       () => {
         const allNextButtons = body.queryAllByRole('button', { name: /next/i });
         const wizardNextButton = allNextButtons.find((btn) => {
-          const isNotPagination = !btn.closest('.pf-v5-c-pagination');
+          const isNotPagination = !btn.closest('.pf-v6-c-pagination');
           const isEnabled = !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true';
           return isNotPagination && isEnabled;
         });
@@ -381,7 +381,7 @@ export const WorkspacesEnabled: Story = {
     await waitFor(
       () => {
         // Look specifically for the step title using document.querySelector
-        const stepTitle = document.querySelector('h1[class*="pf-v5-c-title"]');
+        const stepTitle = document.querySelector('h1[class*="pf-v6-c-title"]');
         expect(stepTitle).toBeTruthy();
         expect(stepTitle?.textContent?.toLowerCase()).toContain('member');
       },

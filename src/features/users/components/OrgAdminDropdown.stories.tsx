@@ -62,8 +62,8 @@ export const OrgAdminUser: Story = {
     await userEvent.click(toggle);
 
     // Should show both options - find the actual button elements
-    const yesButton = await canvas.findByRole('menuitem', { name: 'Yes' });
-    const noButton = await canvas.findByRole('menuitem', { name: 'No' });
+    const yesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
+    const noButton = await within(document.body).findByRole('menuitem', { name: 'No' });
     await expect(yesButton).toBeInTheDocument();
     await expect(noButton).toBeInTheDocument();
 
@@ -104,8 +104,8 @@ export const RegularUser: Story = {
     await userEvent.click(toggle);
 
     // Should show both options - find the actual button elements
-    const yesButton = await canvas.findByRole('menuitem', { name: 'Yes' });
-    const noButton = await canvas.findByRole('menuitem', { name: 'No' });
+    const yesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
+    const noButton = await within(document.body).findByRole('menuitem', { name: 'No' });
     await expect(yesButton).toBeInTheDocument();
     await expect(noButton).toBeInTheDocument();
 
@@ -200,8 +200,8 @@ export const InteractiveDemo: Story = {
     await userEvent.click(toggle);
 
     // Both options should be visible
-    const yesButton = await canvas.findByRole('menuitem', { name: 'Yes' });
-    const noButton = await canvas.findByRole('menuitem', { name: 'No' });
+    const yesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
+    const noButton = await within(document.body).findByRole('menuitem', { name: 'No' });
     await expect(yesButton).toBeInTheDocument();
     await expect(noButton).toBeInTheDocument();
 
@@ -214,7 +214,7 @@ export const InteractiveDemo: Story = {
     await userEvent.click(toggle);
 
     // Find the buttons again after reopening
-    const newYesButton = await canvas.findByRole('menuitem', { name: 'Yes' });
+    const newYesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
     await userEvent.click(newYesButton);
 
     // Verify onToggle was called with correct parameters

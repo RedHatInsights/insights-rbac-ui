@@ -7,7 +7,6 @@ import { Flex } from '@patternfly/react-core';
 import { FlexItem } from '@patternfly/react-core';
 import { SearchInput } from '@patternfly/react-core/dist/dynamic/components/SearchInput';
 import * as React from 'react';
-import './WorkspaceSelector.scss';
 
 export interface WorkspaceSelectorProps<T extends TreeViewDataItem> {
   isMenuExpanded: boolean;

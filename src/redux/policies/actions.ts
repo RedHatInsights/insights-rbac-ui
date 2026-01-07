@@ -34,13 +34,11 @@ export const createPolicy = (policyData: PolicyIn) => {
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.addPolicySuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.addPolicySuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.addPolicyErrorTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.addPolicyErrorDescription),
         },
       },
@@ -59,7 +57,6 @@ export const removePolicy = (uuid: string) => {
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.removePolicySuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.removePolicySuccessDescription),
         },
       },
@@ -78,13 +75,11 @@ export const updatePolicy = (uuid: string, policyData: PolicyIn) => {
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.editPolicySuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.editPolicySuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.editPolicyErrorTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.editPolicyErrorDescription),
         },
       },

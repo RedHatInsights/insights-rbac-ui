@@ -12,15 +12,14 @@ import { processResourceDefinitions } from '../../redux/inventory/helper';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { Bullseye } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import { isInventoryHostsPermission, isInventoryPermission } from './roleResourceDefinitionsTableHelpers';
 import messages from '../../Messages';
 import type { RBACStore } from '../../redux/store.d';
-import './role-permissions.scss';
 
 interface InventoryGroup {
   id: string;

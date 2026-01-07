@@ -395,7 +395,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
 
     // Verify the drawer opens - scope queries to the drawer panel
     await delay(300); // Wait for drawer animation
-    const drawerPanel = document.querySelector('.pf-v5-c-drawer__panel') as HTMLElement;
+    const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
     expect(drawerPanel).toBeInTheDocument();
     const drawer = within(drawerPanel);
 
@@ -428,7 +428,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     await delay(500);
 
     // Verify the drawer is closed (component unmounted)
-    const drawerAfterSwitch = document.querySelector('.pf-v5-c-drawer__panel');
+    const drawerAfterSwitch = document.querySelector('.pf-v6-c-drawer__panel');
     expect(drawerAfterSwitch).not.toBeInTheDocument();
 
     // Verify parent workspace role bindings (inherited from Default Workspace/root-1)
@@ -443,7 +443,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     await delay(500);
 
     // Verify the drawer opens for Viewers group
-    const viewersDrawerPanel = document.querySelector('.pf-v5-c-drawer__panel') as HTMLElement;
+    const viewersDrawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
     expect(viewersDrawerPanel).toBeInTheDocument();
     const viewersDrawer = within(viewersDrawerPanel);
 

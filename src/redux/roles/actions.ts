@@ -42,7 +42,6 @@ export const createRole = (roleData: RoleIn) => {
         rejected: (payload: { errors?: Array<{ detail?: string }> }) => ({
           variant: 'danger',
           title: intl.formatMessage(messages.createRoleErrorTitle),
-          dismissDelay: 8000,
           description: payload?.errors?.[0]?.detail || intl.formatMessage(messages.createRoleErrorDescription),
         }),
       },
@@ -101,13 +100,11 @@ export const removeRole = (uuid: string) => {
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.removeRoleSuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.removeRoleSuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.removeRoleErrorTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.removeRoleErrorDescription),
         },
       },
@@ -144,13 +141,11 @@ export const updateRole = (roleId: string, data: RolePut, useCustomAccess: boole
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.editRoleSuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.editRoleSuccessDescription),
         },
         rejected: (payload: { errors?: Array<{ detail?: string }> }) => ({
           variant: 'danger',
           title: intl.formatMessage(messages.editRoleErrorTitle),
-          dismissDelay: 8000,
           description: payload?.errors?.[0]?.detail || intl.formatMessage(messages.editRoleErrorDescription),
         }),
       },
@@ -169,7 +164,6 @@ export const patchRole = (roleId: string, data: Partial<RolePut>) => {
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.editRoleSuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.editRoleSuccessDescription),
         },
       },

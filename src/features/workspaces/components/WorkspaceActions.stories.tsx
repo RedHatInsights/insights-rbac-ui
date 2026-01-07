@@ -116,8 +116,8 @@ export const Default: Story = {
     await userEvent.click(actionsButton);
 
     // Verify some core menu items are present (not testing all to avoid flakiness)
-    await expect(canvas.findByText('Edit workspace')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Delete workspace')).resolves.toBeInTheDocument();
+    await expect(within(document.body).findByText('Edit workspace')).resolves.toBeInTheDocument();
+    await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
   },
 };
 
@@ -166,7 +166,7 @@ export const WithAssets: Story = {
     await userEvent.click(actionsButton);
 
     // Verify the delete action is present - the actual modal behavior requires full app context
-    await expect(canvas.findByText('Delete workspace')).resolves.toBeInTheDocument();
+    await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
   },
 };
 
@@ -191,7 +191,7 @@ export const DeleteConfirmation: Story = {
     await userEvent.click(actionsButton);
 
     // Verify the delete action is present - the modal behavior requires full app context
-    await expect(canvas.findByText('Delete workspace')).resolves.toBeInTheDocument();
+    await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
   },
 };
 
@@ -216,7 +216,7 @@ export const DrilldownMenuInteraction: Story = {
     await userEvent.click(actionsButton);
 
     // Find the main menu item for "Manage integrations" (avoid breadcrumb)
-    const menuItems = canvas.getAllByText('Manage integrations');
+    const menuItems = within(document.body).getAllByText('Manage integrations');
     const manageIntegrationsMenuItem =
       menuItems.find(
         (el) => el.closest('[role="menuitem"]') && !el.closest('[role="menuitem"]')?.getAttribute('aria-label')?.includes('breadcrumb'),
@@ -224,10 +224,10 @@ export const DrilldownMenuInteraction: Story = {
 
     await userEvent.click(manageIntegrationsMenuItem);
 
-    // Should show the drill-down menu items
-    await expect(canvas.findByText('Menu Item 1')).resolves.toBeInTheDocument();
-
-    await expect(canvas.findByText('Menu Item 2')).resolves.toBeInTheDocument();
+    // Should show the drill-down menu items (rendered in portal)
+    const body = within(document.body);
+    await expect(body.findByText('Menu Item 1')).resolves.toBeInTheDocument();
+    await expect(body.findByText('Menu Item 2')).resolves.toBeInTheDocument();
   },
 };
 
@@ -255,8 +255,8 @@ export const SubWorkspace: Story = {
     await userEvent.click(actionsButton);
 
     // All actions should still be available for sub-workspaces
-    await expect(canvas.findByText('Edit workspace')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Delete workspace')).resolves.toBeInTheDocument();
+    await expect(within(document.body).findByText('Edit workspace')).resolves.toBeInTheDocument();
+    await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
   },
 };
 
@@ -280,12 +280,13 @@ export const ExternalLinkAction: Story = {
     const actionsButton = await canvas.findByRole('button', { name: /actions/i });
     await userEvent.click(actionsButton);
 
-    // Look for the manage notifications item with external link icon
-    const manageNotifications = await canvas.findByText('Manage notifications');
+    // Look for the manage notifications item with external link icon (rendered in portal)
+    const body = within(document.body);
+    const manageNotifications = await body.findByText('Manage notifications');
     await expect(manageNotifications).toBeInTheDocument();
 
-    // Should have an external link icon (aria-hidden)
-    const externalIcon = canvasElement.querySelector('[aria-label="Manage Notifications"]');
+    // The external link icon should be in the menu (document.body, not canvas)
+    const externalIcon = document.body.querySelector('[aria-label="Manage Notifications"]');
     await expect(externalIcon).toBeInTheDocument();
   },
 };
@@ -316,7 +317,7 @@ export const MenuNavigation: Story = {
     await expect(actionsButton).toHaveAttribute('aria-expanded', 'true');
 
     // Verify menu content is visible
-    await expect(canvas.findByText('Edit workspace')).resolves.toBeInTheDocument();
+    await expect(within(document.body).findByText('Edit workspace')).resolves.toBeInTheDocument();
 
     // Close by clicking button again
     await userEvent.click(actionsButton);

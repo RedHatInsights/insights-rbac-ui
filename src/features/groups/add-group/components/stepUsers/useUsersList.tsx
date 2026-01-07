@@ -193,7 +193,7 @@ export const useUsersList = ({ usesMetaInURL = false, initialSelectedUsers, onSe
         row: [
           // Org Admin column with icons
           <Fragment key={`org-admin-${user.uuid || user.username}`}>
-            {user.is_org_admin ? <CheckIcon key="yes-icon" className="pf-v5-u-mr-sm" /> : <CloseIcon key="no-icon" className="pf-v5-u-mr-sm" />}
+            {user.is_org_admin ? <CheckIcon key="yes-icon" className="pf-v6-u-mr-sm" /> : <CloseIcon key="no-icon" className="pf-v6-u-mr-sm" />}
             <span key="text">{user.is_org_admin ? 'Yes' : 'No'}</span>
           </Fragment>,
           user.username,

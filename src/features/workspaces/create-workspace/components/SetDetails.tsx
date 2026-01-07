@@ -7,7 +7,7 @@ import { Grid } from '@patternfly/react-core';
 import { GridItem } from '@patternfly/react-core';
 import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import { useFlag } from '@unleash/proxy-client-react';
 import React, { useEffect } from 'react';
@@ -88,17 +88,17 @@ export const SetDetails = () => {
   };
 
   return (
-    <Grid hasGutter className="pf-v5-u-my-lg">
+    <Grid hasGutter className="pf-v6-u-my-lg">
       <GridItem span={enableBillingFeatures ? 6 : 12}>
         <FormGroup
           label={intl.formatMessage(messages.parentWorkspace)}
           isRequired
-          labelIcon={
+          labelHelp={
             <InputHelpPopover
               bodyContent={
                 <>
-                  <Text>{intl.formatMessage(messages.workspaceParentHelperText)}</Text>
-                  <Button className="pf-v5-u-mt-xs" variant="link" href="#" isInline>
+                  <Content component="p">{intl.formatMessage(messages.workspaceParentHelperText)}</Content>
+                  <Button className="pf-v6-u-mt-xs" variant="link" href="#" isInline>
                     {intl.formatMessage(messages.learnMore)}
                   </Button>
                 </>
@@ -115,12 +115,12 @@ export const SetDetails = () => {
           <FormGroup
             label={intl.formatMessage(messages.billingAccount)}
             isRequired
-            labelIcon={
+            labelHelp={
               <InputHelpPopover
                 bodyContent={
                   <>
-                    <Text>{intl.formatMessage(messages.workspaceBillingAccountHelperText)}</Text>
-                    <Button className="pf-v5-u-mt-xs" variant="link" href="#" isInline>
+                    <Content component="p">{intl.formatMessage(messages.workspaceBillingAccountHelperText)}</Content>
+                    <Button className="pf-v6-u-mt-xs" variant="link" href="#" isInline>
                       {intl.formatMessage(messages.learnMore)}
                     </Button>
                   </>

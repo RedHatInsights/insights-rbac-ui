@@ -48,13 +48,11 @@ export const createWorkspace = (config: WorkspaceCreateBody) => {
         rejected: (payload?: { detail: string }) => ({
           variant: 'danger',
           title: intl.formatMessage(messages.createWorkspaceErrorTitle, { name: config.name }),
-          dismissDelay: 8000,
           description: payload?.detail || intl.formatMessage(messages.createWorkspaceErrorDescription),
         }),
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: config.name }),
-          dismissDelay: 8000,
         },
       },
     },
@@ -73,14 +71,12 @@ export const updateWorkspace = (workspaceData: WorkspacesPatchParams) => {
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.editWorkspaceSuccessTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.editWorkspaceSuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.editGroupErrorTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.editGroupErrorDescription),
         },
@@ -101,14 +97,12 @@ export const deleteWorkspace = (workspaceData: WorkspacesDeleteParams, { name }:
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.deleteWorkspaceSuccessTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.deleteWorkspaceSuccessDescription, { workspace: name }),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.deleteWorkspaceErrorTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.deleteWorkspaceErrorDescription, { workspace: name }),
         },
@@ -129,14 +123,12 @@ export const moveWorkspace = (workspaceData: WorkspacesMoveParams, { name }: { n
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.moveWorkspaceSuccessTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.moveWorkspaceSuccessDescription, { name }),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.moveWorkspaceErrorTitle, { name }),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.moveWorkspaceErrorDescription, { workspace: name }),
         },

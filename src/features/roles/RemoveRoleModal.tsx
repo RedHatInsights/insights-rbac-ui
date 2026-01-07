@@ -4,10 +4,10 @@ import { useParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { ButtonVariant } from '@patternfly/react-core';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+
 import { removeRole } from '../../redux/roles/actions';
 import { fetchRole } from '../../redux/roles/helper';
 import { roleNameSelector } from './roleSelectors';
@@ -44,6 +44,7 @@ const RemoveRoleModal: React.FC<RemoveRoleModalProps> = ({ cancelRoute, submitRo
   const [internalRoleName, setInternalRoleName] = useState<string | number | undefined>(roleName);
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
+  const addNotification = useAddNotification();
 
   useEffect(() => {
     if (roles && roleName) {
@@ -52,13 +53,28 @@ const RemoveRoleModal: React.FC<RemoveRoleModalProps> = ({ cancelRoute, submitRo
       fetchRole(roles[0])
         .then((role) => setInternalRoleName(role.display_name))
         .catch((error: { errors?: { detail?: string }[] }) =>
-          dispatch(addNotification({ variant: 'danger', title: 'Could not get role', description: error?.errors?.[0]?.detail })),
+          addNotification({ variant: 'danger', title: 'Could not get role', description: error?.errors?.[0]?.detail }),
         );
     }
   }, [roleName, roles.join(',')]);
 
-  const onSubmit = () => {
-    Promise.all(roles.map((id) => dispatch(removeRole(id) as unknown as { type: string }))).then(() => afterSubmit());
+  const onSubmit = async () => {
+    try {
+      await Promise.all(roles.map((id) => (dispatch(removeRole(id)) as any).payload));
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.removeRoleSuccessTitle),
+        description: intl.formatMessage(messages.removeRoleSuccessDescription),
+      });
+      afterSubmit();
+    } catch (error) {
+      console.error('Failed to remove role:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.removeRoleErrorTitle),
+        description: intl.formatMessage(messages.removeRoleErrorDescription),
+      });
+    }
     navigate(submitRoute);
   };
 
@@ -78,8 +94,8 @@ const RemoveRoleModal: React.FC<RemoveRoleModalProps> = ({ cancelRoute, submitRo
       confirmButtonLabel={intl.formatMessage(messages.deleteRole)}
       confirmButtonVariant={ButtonVariant.danger}
     >
-      <TextContent>
-        <Text component={TextVariants.p}>
+      <Content>
+        <Content component={ContentVariants.p}>
           <FormattedMessage
             {...messages.roleWilBeRemovedWithPermissions}
             values={{
@@ -88,8 +104,8 @@ const RemoveRoleModal: React.FC<RemoveRoleModalProps> = ({ cancelRoute, submitRo
               count: roles.length,
             }}
           />
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </WarningModal>
   );
 };

@@ -812,7 +812,7 @@ Perfect for code review and UX validation.
 
     await delay(200);
 
-    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+    const removeMenuItem = await within(document.body).findByRole('menuitem', { name: /Remove/i });
     expect(removeMenuItem).toBeInTheDocument();
 
     await userEvent.click(removeMenuItem);
@@ -894,7 +894,7 @@ Perfect for testing bulk operations and proper pluralization.
 
     await delay(200);
 
-    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+    const removeMenuItem = await within(document.body).findByRole('menuitem', { name: /Remove/i });
     await userEvent.click(removeMenuItem);
 
     const body = within(document.body);

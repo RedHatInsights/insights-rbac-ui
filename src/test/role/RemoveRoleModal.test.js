@@ -6,7 +6,6 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { RemoveRoleModal } from '../../features/roles/RemoveRoleModal';
 
 import * as RoleHelper from '../../redux/roles/helper';
@@ -36,7 +35,7 @@ describe('<RemoveRoleModal />', () => {
     cancelRoute: '/cancel',
     afterSubmit: jest.fn(),
   };
-  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const middlewares = [thunk, promiseMiddleware];
   const mockStore = configureStore(middlewares);
 
   const fetchRoleSpy = jest.spyOn(RoleHelper, 'fetchRole');

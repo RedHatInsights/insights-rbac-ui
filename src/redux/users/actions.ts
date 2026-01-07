@@ -76,7 +76,6 @@ export const addUsers = (usersData: AddUsersData, config: Config, itless: boolea
             return {
               variant: 'warning',
               title: intl.formatMessage(messages.inviteUsersErrorTitle),
-              dismissDelay: 8000,
               dismissable: true,
               description: payload.message || 'Unknown error',
             };
@@ -85,7 +84,6 @@ export const addUsers = (usersData: AddUsersData, config: Config, itless: boolea
             return {
               variant: 'danger',
               title: intl.formatMessage(messages.inviteUsersErrorTitle),
-              dismissDelay: 8000,
               dismissable: true,
               description: intl.formatMessage(messages.inviteUsersConflictDescription),
             };
@@ -93,7 +91,6 @@ export const addUsers = (usersData: AddUsersData, config: Config, itless: boolea
           return {
             variant: 'danger',
             title: intl.formatMessage(messages.inviteUsersErrorTitle),
-            dismissDelay: 8000,
             dismissable: true,
             description: intl.formatMessage(messages.inviteUsersErrorDescription),
           };
@@ -121,14 +118,12 @@ export const updateUserIsOrgAdminStatus = (
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.editUserSuccessTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.editUserSuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.editUserErrorTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.editUserErrorDescription),
         },
@@ -151,14 +146,12 @@ export const changeUsersStatus = (userList: User[], config: Config, itless: bool
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.editUserSuccessTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.editUserSuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.editUserErrorTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.editUserErrorDescription),
         },

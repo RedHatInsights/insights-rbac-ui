@@ -121,16 +121,14 @@ export const ActionDropdownOpen: Story = {
     isDropdownOpen: true,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
     // Open the dropdown
     const kebabToggle = canvasElement.querySelector('#role-actions-dropdown');
     if (!kebabToggle) throw new Error('Kebab toggle not found');
     await userEvent.click(kebabToggle);
 
     // Verify Edit and Delete actions are visible
-    expect(await canvas.findByText('Edit')).toBeInTheDocument();
-    expect(await canvas.findByText('Delete')).toBeInTheDocument();
+    expect(await within(document.body).findByText('Edit')).toBeInTheDocument();
+    expect(await within(document.body).findByText('Delete')).toBeInTheDocument();
   },
 };
 

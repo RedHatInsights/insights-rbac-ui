@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import type { Schema } from '@data-driven-forms/react-form-renderer';
 import type { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
 import useAppNavigate from '../../hooks/useAppNavigate';
@@ -44,6 +44,7 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
   const isMounted = useIsMounted();
   const navigate = useAppNavigate();
   const dispatch = useDispatch();
+  const addNotification = useAddNotification();
 
   const { roleId } = useParams<{ roleId: string }>();
   const role = useSelector((state: RBACStore) => roleSelector(state, roleId ?? ''));
@@ -112,24 +113,35 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
   };
 
   const onCancel = () => {
-    dispatch(
-      addNotification({
-        variant: 'warning',
-        title: intl.formatMessage(messages.editingRoleTitle),
-        description: intl.formatMessage(messages.editingRoleCanceledDescription),
-      }),
-    );
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(messages.editingRoleTitle),
+      description: intl.formatMessage(messages.editingRoleCanceledDescription),
+    });
     navigate(cancelRoute, { replace: true });
   };
 
-  const handleSubmit = (data: FormValues) => {
+  const handleSubmit = async (data: FormValues) => {
     // description is optional - however API only honors an empty description set to null (and not omitted or undefined or empty string)
     // Cast to any needed because API actually expects null for clearing, but types say string | undefined
     const roleData = { name: data.name, display_name: data.name, description: data.description || (null as unknown as string) };
-    return (dispatch(patchRole(roleId!, roleData)) as unknown as Promise<void>).then(() => {
+    try {
+      await (dispatch(patchRole(roleId!, roleData)) as unknown as Promise<void>);
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.editRoleSuccessTitle),
+        description: intl.formatMessage(messages.editRoleSuccessDescription),
+      });
       afterSubmit();
       navigate(submitRoute);
-    });
+    } catch (error) {
+      console.error('Failed to edit role:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.editRoleErrorTitle),
+        description: intl.formatMessage(messages.editRoleErrorDescription),
+      });
+    }
   };
 
   return initialValues ? (

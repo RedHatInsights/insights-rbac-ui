@@ -1,6 +1,6 @@
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import React, { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,6 +26,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
   const workspaceId = params.workspaceId;
   const workspace = useSelector(selectSelectedWorkspace);
   const allWorkspaces = useSelector(selectWorkspaces);
+  const addNotification = useAddNotification();
 
   // Derive initial form data from workspace (no setState needed)
   const initialFormData = useMemo(() => {
@@ -86,13 +87,11 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
   );
 
   const handleCancel = () => {
-    dispatch(
-      addNotification({
-        variant: 'warning',
-        title: intl.formatMessage(messages.editingWorkspaceTitle),
-        description: intl.formatMessage(messages.editingWorkspaceCanceledDescription),
-      }),
-    );
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(messages.editingWorkspaceTitle),
+      description: intl.formatMessage(messages.editingWorkspaceCanceledDescription),
+    });
     if (onCancel) {
       onCancel();
     } else {

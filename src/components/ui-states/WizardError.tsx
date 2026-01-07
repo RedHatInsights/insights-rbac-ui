@@ -22,8 +22,8 @@ export const WizardError: React.FC<WizardErrorProps> = ({ context, title, text, 
 
   return (
     <ErrorState
-      errorTitle={title}
-      errorDescription={text}
+      titleText={title}
+      bodyText={text}
       customFooter={
         customFooter || (
           <Button

@@ -1,12 +1,11 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
+import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { TableVariant } from '@patternfly/react-table';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
@@ -19,7 +18,7 @@ import { TableView, useTableState } from '../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../components/table-view/types';
 import { ActionDropdown } from '../../components/ActionDropdown';
 import { AppLink } from '../../components/navigation/AppLink';
-import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
+import { PageLayout } from '../../components/layout/PageLayout';
 import { useAppLink } from '../../hooks/useAppLink';
 import { getBackRoute } from '../../helpers/navigation';
 import { getDateFormat } from '../../helpers/stringUtilities';
@@ -34,7 +33,6 @@ import { RolesEmptyState } from './components/RolesEmptyState';
 import type { Access, Role, RoleGroup } from '../../redux/roles/reducer';
 import type { Group } from '../../redux/groups/reducer';
 import type { RBACStore } from '../../redux/store';
-import './roles.scss';
 
 // Column definitions
 const columns = ['name', 'description', 'groups', 'permissions', 'modified'] as const;
@@ -64,7 +62,7 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
                 <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink>
               </Td>
               <Td dataLabel={groupColumns[1]}>{group.description}</Td>
-              <Td dataLabel={groupColumns[2]} className="pf-v5-u-text-align-right">
+              <Td dataLabel={groupColumns[2]} className="pf-v6-u-text-align-right">
                 {adminGroup?.uuid !== group.uuid && (
                   <AppLink
                     to={pathnames['roles-add-group-roles'].link.replace(':roleId', role.uuid).replace(':groupId', group.uuid)}
@@ -79,7 +77,9 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
         ) : (
           <Tr>
             <Td colSpan={groupColumns.length}>
-              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>
+              <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+                {intl.formatMessage(messages.noGroups)}
+              </Content>
             </Td>
           </Tr>
         )}
@@ -126,7 +126,9 @@ const PermissionsTable: React.FC<{ role: Role }> = ({ role }) => {
         ) : (
           <Tr>
             <Td colSpan={permissionColumns.length}>
-              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
+              <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+                {intl.formatMessage(messages.noPermissions)}
+              </Content>
             </Td>
           </Tr>
         )}
@@ -198,12 +200,12 @@ export const Roles: React.FC = () => {
   // Local state for remove roles modal
   const [removeRolesList, setRemoveRolesList] = useState<Array<{ uuid: string; label: string }>>([]);
 
-  // Show NotAuthorized component for users without proper permissions
+  // Show UnauthorizedAccess component for users without proper permissions
   if (!isAdmin) {
     return (
-      <NotAuthorized
+      <UnauthorizedAccess
         serviceName="User Access Administration"
-        description="You need User Access Administrator or Organization Administrator permissions to view roles."
+        bodyText="You need User Access Administrator or Organization Administrator permissions to view roles."
       />
     );
   }
@@ -322,134 +324,125 @@ export const Roles: React.FC = () => {
   const removingAllRows = totalCount === removeRolesList.length;
 
   return (
-    <Fragment>
-      <Stack className="rbac-c-roles">
-        <StackItem>
-          <PageLayout>
-            <PageTitle title={intl.formatMessage(messages.roles)} />
-          </PageLayout>
-        </StackItem>
-        <StackItem>
-          <Section type="content" id="tab-roles">
-            <TableView<typeof columns, Role, SortableColumnId, CompoundColumnId>
-              columns={columns}
-              columnConfig={columnConfig}
-              sortableColumns={['name', 'modified'] as const}
-              data={isLoading ? undefined : roles}
-              totalCount={totalCount}
-              getRowId={(role) => role.uuid}
-              cellRenderers={cellRenderers}
-              expansionRenderers={expansionRenderers}
-              filterConfig={filterConfig}
-              selectable={isAdmin}
-              isRowSelectable={(role) => !(role.platform_default || role.admin_default || role.system)}
-              renderActions={isAdmin ? renderActions : undefined}
-              toolbarActions={
-                isAdmin ? (
-                  <AppLink to={pathnames['add-role'].link}>
-                    <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
-                      {intl.formatMessage(messages.createRole)}
-                    </Button>
-                  </AppLink>
-                ) : undefined
-              }
-              bulkActions={
-                isAdmin && tableState.selectedRows.length > 0 ? (
-                  <ActionDropdown
-                    ariaLabel="bulk actions"
-                    ouiaId="roles-bulk-actions"
-                    items={[
-                      {
-                        key: 'edit',
-                        label: intl.formatMessage(messages.edit),
-                        onClick: () => handleEditRole(tableState.selectedRows[0].uuid),
-                        isDisabled: tableState.selectedRows.length !== 1,
-                      },
-                      {
-                        key: 'delete',
-                        label: intl.formatMessage(messages.delete),
-                        onClick: () => handleDeleteRole(tableState.selectedRows.map((row) => row.uuid)),
-                      },
-                    ]}
-                  />
-                ) : undefined
-              }
-              emptyStateNoData={<RolesEmptyState hasActiveFilters={false} isAdmin={isAdmin} onClearFilters={() => {}} />}
-              emptyStateNoResults={<RolesEmptyState hasActiveFilters={true} isAdmin={isAdmin} onClearFilters={tableState.clearAllFilters} />}
-              ariaLabel="Roles table"
-              ouiaId="roles-table"
-              {...tableState}
-            />
-
-            <Suspense>
-              <Outlet
-                context={{
-                  [pathnames['add-role'].path]: {
-                    pagination: { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage, count: totalCount },
-                    filters: { display_name: (tableState.filters.display_name as string) || '' },
+    <PageLayout title={{ title: intl.formatMessage(messages.roles) }}>
+      <Section type="content" id="tab-roles">
+        <TableView<typeof columns, Role, SortableColumnId, CompoundColumnId>
+          columns={columns}
+          columnConfig={columnConfig}
+          sortableColumns={['name', 'modified'] as const}
+          data={isLoading ? undefined : roles}
+          totalCount={totalCount}
+          getRowId={(role) => role.uuid}
+          cellRenderers={cellRenderers}
+          expansionRenderers={expansionRenderers}
+          filterConfig={filterConfig}
+          selectable={isAdmin}
+          isRowSelectable={(role) => !(role.platform_default || role.admin_default || role.system)}
+          renderActions={isAdmin ? renderActions : undefined}
+          toolbarActions={
+            isAdmin ? (
+              <AppLink to={pathnames['add-role'].link}>
+                <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
+                  {intl.formatMessage(messages.createRole)}
+                </Button>
+              </AppLink>
+            ) : undefined
+          }
+          bulkActions={
+            isAdmin && tableState.selectedRows.length > 0 ? (
+              <ActionDropdown
+                ariaLabel="bulk actions"
+                ouiaId="roles-bulk-actions"
+                items={[
+                  {
+                    key: 'edit',
+                    label: intl.formatMessage(messages.edit),
+                    onClick: () => handleEditRole(tableState.selectedRows[0].uuid),
+                    isDisabled: tableState.selectedRows.length !== 1,
                   },
-                  [pathnames['remove-role'].path]: {
-                    isLoading,
-                    cancelRoute: getBackRoute(
-                      pathnames.roles.link,
-                      { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
-                      { display_name: (tableState.filters.display_name as string) || '' },
-                    ),
-                    submitRoute: getBackRoute(
-                      pathnames.roles.link,
-                      { limit: tableState.perPage, offset: 0 },
-                      removingAllRows ? {} : { display_name: (tableState.filters.display_name as string) || '' },
-                    ),
-                    afterSubmit: () => {
-                      handleStaleData({
-                        limit: tableState.perPage,
-                        offset: 0,
-                        orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
-                        filters: removingAllRows ? {} : tableState.filters,
-                      });
-                      tableState.clearSelection();
-                    },
-                    setFilterValue: (value: string) => tableState.onFiltersChange({ display_name: value }),
+                  {
+                    key: 'delete',
+                    label: intl.formatMessage(messages.delete),
+                    onClick: () => handleDeleteRole(tableState.selectedRows.map((row) => row.uuid)),
                   },
-                  [pathnames['edit-role'].path]: {
-                    isLoading,
-                    cancelRoute: getBackRoute(
-                      pathnames.roles.link,
-                      { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
-                      { display_name: (tableState.filters.display_name as string) || '' },
-                    ),
-                    afterSubmit: () => {
-                      handleStaleData({
-                        offset: 0,
-                        limit: tableState.perPage,
-                        orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
-                        filters: tableState.filters,
-                      });
-                      tableState.clearSelection();
-                    },
-                  },
-                  [pathnames['roles-add-group-roles'].path]: {
-                    closeUrl: getBackRoute(
-                      pathnames.roles.link,
-                      { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
-                      { display_name: (tableState.filters.display_name as string) || '' },
-                    ),
-                    afterSubmit: () => {
-                      handleStaleData({
-                        offset: 0,
-                        limit: tableState.perPage,
-                        orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
-                        filters: tableState.filters,
-                      });
-                    },
-                  },
-                }}
+                ]}
               />
-            </Suspense>
-          </Section>
-        </StackItem>
-      </Stack>
-    </Fragment>
+            ) : undefined
+          }
+          emptyStateNoData={<RolesEmptyState hasActiveFilters={false} isAdmin={isAdmin} onClearFilters={() => {}} />}
+          emptyStateNoResults={<RolesEmptyState hasActiveFilters={true} isAdmin={isAdmin} onClearFilters={tableState.clearAllFilters} />}
+          ariaLabel="Roles table"
+          ouiaId="roles-table"
+          {...tableState}
+        />
+
+        <Suspense>
+          <Outlet
+            context={{
+              [pathnames['add-role'].path]: {
+                pagination: { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage, count: totalCount },
+                filters: { display_name: (tableState.filters.display_name as string) || '' },
+              },
+              [pathnames['remove-role'].path]: {
+                isLoading,
+                cancelRoute: getBackRoute(
+                  pathnames.roles.link,
+                  { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
+                  { display_name: (tableState.filters.display_name as string) || '' },
+                ),
+                submitRoute: getBackRoute(
+                  pathnames.roles.link,
+                  { limit: tableState.perPage, offset: 0 },
+                  removingAllRows ? {} : { display_name: (tableState.filters.display_name as string) || '' },
+                ),
+                afterSubmit: () => {
+                  handleStaleData({
+                    limit: tableState.perPage,
+                    offset: 0,
+                    orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
+                    filters: removingAllRows ? {} : tableState.filters,
+                  });
+                  tableState.clearSelection();
+                },
+                setFilterValue: (value: string) => tableState.onFiltersChange({ display_name: value }),
+              },
+              [pathnames['edit-role'].path]: {
+                isLoading,
+                cancelRoute: getBackRoute(
+                  pathnames.roles.link,
+                  { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
+                  { display_name: (tableState.filters.display_name as string) || '' },
+                ),
+                afterSubmit: () => {
+                  handleStaleData({
+                    offset: 0,
+                    limit: tableState.perPage,
+                    orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
+                    filters: tableState.filters,
+                  });
+                  tableState.clearSelection();
+                },
+              },
+              [pathnames['roles-add-group-roles'].path]: {
+                closeUrl: getBackRoute(
+                  pathnames.roles.link,
+                  { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
+                  { display_name: (tableState.filters.display_name as string) || '' },
+                ),
+                afterSubmit: () => {
+                  handleStaleData({
+                    offset: 0,
+                    limit: tableState.perPage,
+                    orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
+                    filters: tableState.filters,
+                  });
+                },
+              },
+            }}
+          />
+        </Suspense>
+      </Section>
+    </PageLayout>
   );
 };
 

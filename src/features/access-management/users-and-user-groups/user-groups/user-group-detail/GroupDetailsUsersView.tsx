@@ -1,7 +1,6 @@
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import React, { useCallback, useEffect } from 'react';
@@ -58,9 +57,8 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
   // Show error state
   if (error) {
     return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="Unable to load users" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+      <div className="pf-v6-u-pt-md">
+        <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load users" variant="sm">
           <EmptyStateBody>{extractErrorMessage(error)}</EmptyStateBody>
         </EmptyState>
       </div>
@@ -68,8 +66,7 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
   }
 
   const emptyState = (
-    <EmptyState variant="sm">
-      <EmptyStateHeader titleText="No users found" icon={<EmptyStateIcon icon={UsersIcon} />} headingLevel="h4" />
+    <EmptyState headingLevel="h4" icon={UsersIcon} titleText="No users found" variant="sm">
       <EmptyStateBody>{intl.formatMessage(messages.groupNoUsersAssigned)}</EmptyStateBody>
     </EmptyState>
   );
@@ -81,7 +78,7 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
   }));
 
   return (
-    <div className="pf-v5-u-pt-md">
+    <div className="pf-v6-u-pt-md">
       <TableView<typeof columns, MemberData>
         columns={columns}
         columnConfig={columnConfig}

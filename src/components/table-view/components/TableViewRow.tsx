@@ -113,7 +113,7 @@ export function TableViewRow<TColumns extends readonly string[], TRow, TCompound
       <Tr isClickable={isClickable} isRowSelected={isSelected} onRowClick={isClickable && onRowClick ? handleRowClick : undefined}>
         {selectable && (
           <Td
-            className={!canSelect ? 'pf-v5-c-table__check' : undefined}
+            className={!canSelect ? 'pf-v6-c-table__check' : undefined}
             select={
               canSelect && onSelectRow
                 ? {

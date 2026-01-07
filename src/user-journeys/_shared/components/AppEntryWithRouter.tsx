@@ -4,7 +4,9 @@ import AppEntry from '../../../AppEntry';
 import MyUserAccess from '../../../features/myUserAccess/MyUserAccess';
 import { FakeAddressBar } from './FakeAddressBar';
 import { LeftNavigation } from './LeftNavigation';
-import { Masthead, MastheadMain, Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
+import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
+import { ProductionHeader } from './ProductionHeader';
+import { GlobalBreadcrumb } from './GlobalBreadcrumb';
 
 interface AppEntryWithRouterProps {
   initialRoute?: string;
@@ -25,13 +27,7 @@ export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialR
   return (
     <MemoryRouter initialEntries={[initialRoute]}>
       <Page
-        header={
-          <Masthead>
-            <MastheadMain>
-              <FakeAddressBar />
-            </MastheadMain>
-          </Masthead>
-        }
+        masthead={<ProductionHeader />}
         sidebar={
           <PageSidebar>
             <PageSidebarBody>
@@ -40,6 +36,8 @@ export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialR
           </PageSidebar>
         }
       >
+        <FakeAddressBar />
+        <GlobalBreadcrumb />
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
             <Route
@@ -50,7 +48,7 @@ export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialR
                 </div>
               }
             />
-            <Route path="/iam/user-access/*" element={<AppEntry />} />
+            <Route path="/iam/user-access/*" element={<AppEntry withNotificationPortal={false} />} />
           </Routes>
         </Suspense>
       </Page>

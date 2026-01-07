@@ -1,12 +1,14 @@
 import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { ButtonVariant } from '@patternfly/react-core';
+import { ButtonVariant, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
 import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { ActionsColumn } from '@patternfly/react-table';
-import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
+import EllipsisVIcon from '@patternfly/react-icons/dist/dynamic/icons/ellipsis-v-icon';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+
+import PageHeader from '@patternfly/react-component-groups/dist/esm/PageHeader';
 import { removeRole } from '../../redux/roles/actions';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
@@ -38,6 +40,7 @@ interface RolesTableProps {
 const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, onRoleClick }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentRoles, setCurrentRoles] = useState<Role[]>([]);
+  const [actionsDropdownOpen, setActionsDropdownOpen] = useState<string | null>(null);
 
   // Use the custom hook for all Roles business logic
   const { roles, isLoading, totalCount, filters, sortBy, direction, onSort, pagination, selection, clearAllFilters, onSetFilters } = useRoles({
@@ -47,6 +50,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
+  const addNotification = useAddNotification();
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
   const { selected, onSelect } = selection;
 
@@ -166,18 +170,30 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
   // Render actions
   const renderActions = useCallback(
     (row: Role) => (
-      <ActionsColumn
-        items={[
-          { title: 'Edit role', onClick: () => handleEditRole(row) },
-          {
-            title: 'Delete role',
-            isDisabled: row.system,
-            onClick: () => handleModalToggle([row]),
-          },
-        ]}
-      />
+      <Dropdown
+        isOpen={actionsDropdownOpen === row.uuid}
+        onOpenChange={(isOpen) => setActionsDropdownOpen(isOpen ? row.uuid : null)}
+        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+          <MenuToggle
+            ref={toggleRef}
+            aria-label={`Actions for role ${row.display_name}`}
+            variant="plain"
+            onClick={() => setActionsDropdownOpen(actionsDropdownOpen === row.uuid ? null : row.uuid)}
+          >
+            <EllipsisVIcon />
+          </MenuToggle>
+        )}
+        popperProps={{ position: 'right' }}
+      >
+        <DropdownList>
+          <DropdownItem onClick={() => handleEditRole(row)}>{intl.formatMessage(messages.edit)}</DropdownItem>
+          <DropdownItem isDisabled={row.system} onClick={() => handleModalToggle([row])}>
+            {intl.formatMessage(messages.delete)}
+          </DropdownItem>
+        </DropdownList>
+      </Dropdown>
     ),
-    [handleEditRole],
+    [handleEditRole, actionsDropdownOpen, intl],
   );
 
   // Toolbar actions
@@ -217,8 +233,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
 
   return (
     <React.Fragment>
-      <ContentHeader title="Roles" subtitle={''} />
-      <PageSection isWidthLimited>
+      <PageHeader title="Roles" subtitle="" />
+      <PageSection hasBodyWrapper isWidthLimited>
         {isDeleteModalOpen && (
           <WarningModal
             ouiaId={`${ouiaId}-remove-role-modal`}
@@ -229,10 +245,22 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
             withCheckbox
             checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
             onClose={() => setIsDeleteModalOpen(false)}
-            onConfirm={() => {
-              currentRoles.forEach((role) => {
-                dispatch(removeRole(role.uuid));
-              });
+            onConfirm={async () => {
+              try {
+                await Promise.all(currentRoles.map((role) => dispatch(removeRole(role.uuid))));
+                addNotification({
+                  variant: 'success',
+                  title: intl.formatMessage(messages.removeRoleSuccessTitle),
+                  description: intl.formatMessage(messages.removeRoleSuccessDescription),
+                });
+              } catch (error) {
+                console.error('Failed to remove roles:', error);
+                addNotification({
+                  variant: 'danger',
+                  title: intl.formatMessage(messages.removeRoleErrorTitle),
+                  description: intl.formatMessage(messages.removeRoleErrorDescription),
+                });
+              }
               setIsDeleteModalOpen(false);
             }}
           >

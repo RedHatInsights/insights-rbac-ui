@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio } from '@patternfly/react-core/dist/dynamic/components/Radio';
+import { Radio, Stack, StackItem } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
@@ -24,25 +24,28 @@ const TypeSelector: React.FC<TypeSelectorProps> = (props) => {
   };
 
   return (
-    <div>
-      <Radio
-        isChecked={checked === 'create'}
-        className="pf-v5-u-mb-sm"
-        name="role-type-create"
-        onChange={() => handleChange('create')}
-        label={intl.formatMessage(messages.createRoleFromScratch)}
-        id="role-type-create"
-        value="create"
-      />
-      <Radio
-        isChecked={checked === 'copy'}
-        name="role-type-copy"
-        onChange={() => handleChange('copy')}
-        label={intl.formatMessage(messages.copyAnExistingRole)}
-        id="role-type-copy"
-        value="copy"
-      />
-    </div>
+    <Stack>
+      <StackItem className="pf-v6-u-mb-sm">
+        <Radio
+          isChecked={checked === 'create'}
+          name="role-type-create"
+          onChange={() => handleChange('create')}
+          label={intl.formatMessage(messages.createRoleFromScratch)}
+          id="role-type-create"
+          value="create"
+        />
+      </StackItem>
+      <StackItem>
+        <Radio
+          isChecked={checked === 'copy'}
+          name="role-type-copy"
+          onChange={() => handleChange('copy')}
+          label={intl.formatMessage(messages.copyAnExistingRole)}
+          id="role-type-copy"
+          value="copy"
+        />
+      </StackItem>
+    </Stack>
   );
 };
 

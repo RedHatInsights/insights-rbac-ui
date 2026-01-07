@@ -240,7 +240,7 @@ For testing specific scenarios, see these additional stories:
     await userEvent.click(kebabButton);
 
     await expect(canvas.findByText(/Add to user group/i)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/Invite users/i)).resolves.toBeInTheDocument();
+    await expect(within(document.body).findByText(/Invite users/i)).resolves.toBeInTheDocument();
 
     // Close the menu
     await userEvent.keyboard('{Escape}');
@@ -455,7 +455,7 @@ export const DeleteUserModalIntegration: Story = {
     await userEvent.click(kebabMenuButton);
 
     // Find the delete option in the opened dropdown
-    const deleteButton = await canvas.findByText('Delete');
+    const deleteButton = await within(document.body).findByText('Delete');
     await expect(deleteButton).toBeInTheDocument();
 
     await userEvent.click(deleteButton);
@@ -529,7 +529,7 @@ export const BulkDeactivateModalIntegration: Story = {
     await userEvent.click(statusDropdownButton);
 
     // Look for deactivate option in the dropdown
-    const bulkDeactivateButton = await canvas.findByText(/Deactivate users/i); // This should match deactivateUsersButton message
+    const bulkDeactivateButton = await within(document.body).findByText(/Deactivate users/i); // This should match deactivateUsersButton message
     await expect(bulkDeactivateButton).toBeInTheDocument();
 
     // Click bulk deactivate
@@ -679,7 +679,7 @@ export const UserDetailsIntegration: Story = {
     await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
 
     // Get drawer panel reference (always exists in DOM)
-    const drawerPanel = canvasElement.querySelector('.pf-v5-c-drawer__panel') as HTMLElement;
+    const drawerPanel = canvasElement.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
     await expect(drawerPanel).toBeInTheDocument();
     const drawer = within(drawerPanel);
 

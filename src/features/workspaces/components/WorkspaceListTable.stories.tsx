@@ -161,9 +161,9 @@ export const NoPermissions: Story = {
     await userEvent.click(productionKebab);
 
     // Wait for menu to open and then check for disabled state
-    const editButton = await canvas.findByText('Edit workspace');
-    const deleteButton = await canvas.findByText('Delete workspace');
-    const moveButton = await canvas.findByText('Move workspace');
+    const editButton = await within(document.body).findByText('Edit workspace');
+    const deleteButton = await within(document.body).findByText('Delete workspace');
+    const moveButton = await within(document.body).findByText('Move workspace');
 
     // All actions should be disabled due to insufficient permissions
     await expect(editButton.closest('button')).toHaveAttribute('disabled');
@@ -191,8 +191,6 @@ export const RestrictedPermissions: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
     // Wait for skeleton loading to complete first
     await waitForSkeletonToDisappear(canvasElement);
 
@@ -203,9 +201,9 @@ export const RestrictedPermissions: Story = {
 
     await userEvent.click(productionKebab);
 
-    const editButton = await canvas.findByText('Edit workspace');
-    const deleteButton = await canvas.findByText('Delete workspace');
-    const moveButton = await canvas.findByText('Move workspace');
+    const editButton = await within(document.body).findByText('Edit workspace');
+    const deleteButton = await within(document.body).findByText('Delete workspace');
+    const moveButton = await within(document.body).findByText('Move workspace');
 
     // Should be enabled for workspace '1' (standard type + has permission)
     await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
@@ -221,9 +219,9 @@ export const RestrictedPermissions: Story = {
 
     await userEvent.click(developmentKebab);
 
-    const editButton2 = await canvas.findByText('Edit workspace');
-    const deleteButton2 = await canvas.findByText('Delete workspace');
-    const moveButton2 = await canvas.findByText('Move workspace');
+    const editButton2 = await within(document.body).findByText('Edit workspace');
+    const deleteButton2 = await within(document.body).findByText('Delete workspace');
+    const moveButton2 = await within(document.body).findByText('Move workspace');
 
     // Should be disabled for workspace '2' (no permission for this workspace)
     await expect(editButton2.closest('button')).toHaveAttribute('disabled');
@@ -249,8 +247,6 @@ export const RootWorkspaceRestrictions: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
     // Wait for skeleton loading to complete first
     await waitForSkeletonToDisappear(canvasElement);
 
@@ -261,9 +257,9 @@ export const RootWorkspaceRestrictions: Story = {
 
     await userEvent.click(rootKebab);
 
-    const editButton = await canvas.findByText('Edit workspace');
-    const deleteButton = await canvas.findByText('Delete workspace');
-    const moveButton = await canvas.findByText('Move workspace');
+    const editButton = await within(document.body).findByText('Edit workspace');
+    const deleteButton = await within(document.body).findByText('Delete workspace');
+    const moveButton = await within(document.body).findByText('Move workspace');
 
     // All actions should be disabled for root workspace (type 'root' not in allowed types)
     await expect(editButton.closest('button')).toHaveAttribute('disabled');
@@ -289,8 +285,6 @@ export const FullPermissions: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
     // Wait for skeleton loading to complete first
     await waitForSkeletonToDisappear(canvasElement);
 
@@ -301,9 +295,9 @@ export const FullPermissions: Story = {
 
     await userEvent.click(productionKebab);
 
-    const editButton = await canvas.findByText('Edit workspace');
-    const deleteButton = await canvas.findByText('Delete workspace');
-    const moveButton = await canvas.findByText('Move workspace');
+    const editButton = await within(document.body).findByText('Edit workspace');
+    const deleteButton = await within(document.body).findByText('Delete workspace');
+    const moveButton = await within(document.body).findByText('Move workspace');
 
     // All actions should be enabled for standard workspace with full permissions
     await expect(editButton.closest('button')).not.toHaveAttribute('disabled');

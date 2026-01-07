@@ -1,8 +1,7 @@
 import React from 'react';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { useIntl } from 'react-intl';
@@ -15,8 +14,7 @@ export const EmptyGroupsState: React.FC<EmptyGroupsStateProps> = ({ hasActiveFil
   if (hasActiveFilters) {
     // Empty state with active filters
     return (
-      <EmptyState>
-        <EmptyStateHeader titleText="No groups found" headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyState headingLevel="h4" icon={SearchIcon} titleText="No groups found">
         <EmptyStateBody>No groups match the filter criteria. Remove all filters or clear all to show results.</EmptyStateBody>
       </EmptyState>
     );
@@ -24,8 +22,7 @@ export const EmptyGroupsState: React.FC<EmptyGroupsStateProps> = ({ hasActiveFil
 
   // Empty state with no data
   return (
-    <EmptyState>
-      <EmptyStateHeader titleText="Configure groups" headingLevel="h4" icon={<EmptyStateIcon icon={UsersIcon} />} />
+    <EmptyState headingLevel="h4" icon={UsersIcon} titleText="Configure groups">
       <EmptyStateBody>
         {intl.formatMessage(messages.toConfigureUserAccess)}{' '}
         {intl.formatMessage(messages.createAtLeastOneItem, {

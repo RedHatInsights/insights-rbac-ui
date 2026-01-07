@@ -11,8 +11,7 @@ import { DrawerHead } from '@patternfly/react-core/dist/dynamic/components/Drawe
 import { DrawerPanelContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
@@ -170,7 +169,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
               <AppLink
                 to={`/workspaces/detail/${groupWithInheritance.inheritedFrom.workspaceId}`}
                 linkBasename="/iam/access-management"
-                className="pf-v5-c-button pf-m-link pf-m-inline"
+                className="pf-v6-c-button pf-m-link pf-m-inline"
               >
                 {groupWithInheritance.inheritedFrom.workspaceName}
               </AppLink>
@@ -187,14 +186,14 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
               <AppLink
                 to={`/workspaces/detail/${currentWorkspace.id}`}
                 linkBasename="/iam/access-management"
-                className="pf-v5-c-button pf-m-link pf-m-inline"
+                className="pf-v6-c-button pf-m-link pf-m-inline"
               >
                 {currentWorkspace.name}
               </AppLink>
             </Tooltip>
           );
         }
-        return <div className="pf-v5-u-color-400">-</div>;
+        return <div className="pf-v6-u-color-400">-</div>;
       },
     }),
     [intl, group, currentWorkspace],
@@ -214,7 +213,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   const roleCellRenderersWithInheritance: CellRendererMap<typeof roleColumnsWithInheritance, RoleWithAccess> = useMemo(
     () => ({
       role: (row) => (
-        <AppLink to={`/roles/detail/${row.uuid}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+        <AppLink to={`/roles/detail/${row.uuid}`} className="pf-v6-c-button pf-m-link pf-m-inline">
           {row.display_name || row.name || ''}
         </AppLink>
       ),
@@ -227,13 +226,13 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                 workspaceName: groupWithInheritance.inheritedFrom.workspaceName,
               })}
             >
-              <a href={`#/workspaces/${groupWithInheritance.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+              <a href={`#/workspaces/${groupWithInheritance.inheritedFrom.workspaceId}`} className="pf-v6-c-button pf-m-link pf-m-inline">
                 {groupWithInheritance.inheritedFrom.workspaceName}
               </a>
             </Tooltip>
           );
         }
-        return <div className="pf-v5-u-color-400">-</div>;
+        return <div className="pf-v6-u-color-400">-</div>;
       },
     }),
     [intl, group],
@@ -243,7 +242,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   const roleCellRenderersWithoutInheritance: CellRendererMap<typeof roleColumnsWithoutInheritance, RoleWithAccess> = useMemo(
     () => ({
       role: (row) => (
-        <AppLink to={`/roles/detail/${row.uuid}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+        <AppLink to={`/roles/detail/${row.uuid}`} className="pf-v6-c-button pf-m-link pf-m-inline">
           {row.display_name || row.name || ''}
         </AppLink>
       ),
@@ -256,7 +255,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     // Show loading state
     if (membersLoading) {
       return (
-        <div className="pf-v5-u-pt-md pf-v5-u-text-align-center">
+        <div className="pf-v6-u-pt-md pf-v6-u-text-align-center">
           <Spinner size="lg" aria-label="Loading group members" />
         </div>
       );
@@ -265,9 +264,8 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     // Show error state
     if (membersError) {
       return (
-        <div className="pf-v5-u-pt-md">
-          <EmptyState variant="sm">
-            <EmptyStateHeader titleText="Unable to load users" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+        <div className="pf-v6-u-pt-md">
+          <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load users" variant="sm">
             <EmptyStateBody>{extractErrorMessage(membersError)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -277,13 +275,8 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     // Show empty state when no users
     if (members.length === 0) {
       return (
-        <div className="pf-v5-u-pt-md">
-          <EmptyState variant="sm">
-            <EmptyStateHeader
-              titleText={intl.formatMessage(messages.usersEmptyStateTitle)}
-              icon={<EmptyStateIcon icon={UsersIcon} />}
-              headingLevel="h4"
-            />
+        <div className="pf-v6-u-pt-md">
+          <EmptyState headingLevel="h4" icon={UsersIcon} titleText={intl.formatMessage(messages.usersEmptyStateTitle)} variant="sm">
             <EmptyStateBody>{intl.formatMessage(messages.groupNoUsersAssigned)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -291,7 +284,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     }
 
     return (
-      <div className="pf-v5-u-pt-md">
+      <div className="pf-v6-u-pt-md">
         {showInheritance ? (
           <TableView<typeof userColumnsWithInheritance, UserRow>
             columns={userColumnsWithInheritance}
@@ -345,7 +338,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     // Show loading state
     if (rolesLoading) {
       return (
-        <div className="pf-v5-u-pt-md pf-v5-u-text-align-center">
+        <div className="pf-v6-u-pt-md pf-v6-u-text-align-center">
           <Spinner size="lg" aria-label="Loading roles" />
         </div>
       );
@@ -354,9 +347,8 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     // Show error state
     if (rolesError) {
       return (
-        <div className="pf-v5-u-pt-md">
-          <EmptyState variant="sm">
-            <EmptyStateHeader titleText="Unable to load roles" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+        <div className="pf-v6-u-pt-md">
+          <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load roles" variant="sm">
             <EmptyStateBody>{extractErrorMessage(rolesError)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -366,13 +358,8 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     // Show empty state when no roles
     if (roles.length === 0) {
       return (
-        <div className="pf-v5-u-pt-md">
-          <EmptyState variant="sm">
-            <EmptyStateHeader
-              titleText={intl.formatMessage(messages.rolesEmptyStateTitle)}
-              icon={<EmptyStateIcon icon={KeyIcon} />}
-              headingLevel="h4"
-            />
+        <div className="pf-v6-u-pt-md">
+          <EmptyState headingLevel="h4" icon={KeyIcon} titleText={intl.formatMessage(messages.rolesEmptyStateTitle)} variant="sm">
             <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -380,7 +367,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     }
 
     return (
-      <div className="pf-v5-u-pt-md">
+      <div className="pf-v6-u-pt-md">
         {showInheritance ? (
           <TableView<typeof roleColumnsWithInheritance, RoleWithAccess>
             columns={roleColumnsWithInheritance}
@@ -448,10 +435,10 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
               </DrawerHead>
               <Tabs activeKey={activeTab} onSelect={(_, tabIndex) => setActiveTab(tabIndex)} isFilled>
                 <Tab eventKey={0} title={intl.formatMessage(messages.roles)}>
-                  <div className="pf-v5-u-p-md">{activeTab === 0 && renderRolesTab()}</div>
+                  <div className="pf-v6-u-p-md">{activeTab === 0 && renderRolesTab()}</div>
                 </Tab>
                 <Tab eventKey={1} title={intl.formatMessage(messages.users)}>
-                  <div className="pf-v5-u-p-md">{activeTab === 1 && renderUsersTab()}</div>
+                  <div className="pf-v6-u-p-md">{activeTab === 1 && renderUsersTab()}</div>
                 </Tab>
               </Tabs>
             </DrawerPanelContent>

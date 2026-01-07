@@ -1,11 +1,10 @@
-import { ContentHeader, ErrorState, SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
+import { ErrorState, PageHeader, SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ButtonVariant } from '@patternfly/react-core';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import {
   DataView,
@@ -79,8 +78,7 @@ const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ 
     <tbody>
       <tr>
         <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
-          <EmptyState>
-            <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+          <EmptyState headingLevel="h4" icon={SearchIcon} titleText={titleText}>
             <EmptyStateBody>
               <FormattedMessage
                 {...messages['workspaceEmptyStateSubtitle']}
@@ -101,7 +99,7 @@ const ErrorStateTable: React.FunctionComponent<{ errorTitle: string; errorDescri
     <tbody>
       <tr>
         <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
-          <ErrorState errorTitle={errorTitle} errorDescription={errorDescription} />
+          <ErrorState titleText={errorTitle} bodyText={errorDescription} />
         </td>
       </tr>
     </tbody>
@@ -288,7 +286,8 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
 
   return (
     <React.Fragment>
-      <ContentHeader
+      <PageHeader
+        data-codemods
         title={intl.formatMessage(messages.workspaces)}
         subtitle={intl.formatMessage(messages.workspacesSubtitle)}
         linkProps={{
@@ -297,7 +296,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
           isExternal: true,
         }}
       />
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         {isDeleteModalOpen && (
           <WarningModal
             ouiaId={'remove-workspaces-modal'}

@@ -551,7 +551,7 @@ export const ServiceAccountsFilteringWithData: Story = {
     const filterDropdown = canvas.getByRole('button', { name: /client id/i });
     await userEvent.click(filterDropdown);
 
-    const nameOption = canvas.getByRole('menuitem', { name: 'Name' });
+    const nameOption = within(document.body).getByRole('menuitem', { name: 'Name' });
     await userEvent.click(nameOption);
 
     const nameFilterInput = canvas.getByLabelText('Name filter');
@@ -762,7 +762,7 @@ export const BulkActionsTest: Story = {
     await userEvent.click(bulkActionButton);
 
     // Verify Remove option is present
-    const removeOption = await canvas.findByRole('menuitem', { name: /remove/i });
+    const removeOption = await within(document.body).findByRole('menuitem', { name: /remove/i });
     expect(removeOption).toBeInTheDocument();
     console.log('SB: ✅ Remove option found in bulk actions dropdown');
 
@@ -1013,7 +1013,7 @@ export const ActionsTest: Story = {
       await userEvent.click(bulkActionButton);
 
       // 7. Verify Remove option in bulk actions dropdown
-      const removeOption = await canvas.findByText('Remove');
+      const removeOption = await within(document.body).findByText('Remove');
       expect(removeOption).toBeInTheDocument();
       console.log('SB: ✅ Remove option found in bulk actions dropdown');
     }

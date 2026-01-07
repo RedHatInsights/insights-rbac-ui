@@ -13,6 +13,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import { MANAGE_SUBSCRIPTIONS_VIEW_ALL, MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL, MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER } from '../../../redux/users/helper';
 import { useOutletContext } from 'react-router-dom';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 const ExpandableCheckboxComponent = 'expandable-checkbox';
 const InlineErrorComponent = 'inline-error';
@@ -41,6 +42,7 @@ const InviteUsers = () => {
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
   const { auth, isProd } = useChrome();
   const dispatch = useDispatch();
+  const addNotification = useAddNotification();
   const onCancel = () => {
     fetchData(false);
   };
@@ -67,6 +69,11 @@ const InviteUsers = () => {
     );
     action.payload.then(async (response) => {
       if (response.status === 200 || response.status === 204) {
+        addNotification({
+          variant: 'success',
+          title: 'Invitation sent successfully',
+          dismissable: true,
+        });
         fetchData(true);
       } else {
         const data = await response.json();
@@ -74,6 +81,12 @@ const InviteUsers = () => {
           title: data.title,
           description: data.detail,
           url: data.type,
+        });
+        addNotification({
+          variant: 'danger',
+          title: data.title || 'Failed to send invitation',
+          dismissable: true,
+          description: data.detail || 'Unknown error',
         });
       }
     });

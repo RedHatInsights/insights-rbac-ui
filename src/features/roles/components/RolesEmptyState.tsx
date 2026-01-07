@@ -2,8 +2,7 @@ import React from 'react';
 import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import { EmptyStateFooter } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateActions } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -26,8 +25,7 @@ export const RolesEmptyState: React.FC<RolesEmptyStateFullProps> = ({ hasActiveF
     // Empty state with active filters
     return (
       <Bullseye>
-        <EmptyState>
-          <EmptyStateHeader titleText={intl.formatMessage(messages.noRolesFound)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+        <EmptyState headingLevel="h4" icon={SearchIcon} titleText={intl.formatMessage(messages.noRolesFound)}>
           <EmptyStateBody>{intl.formatMessage(messages.noFilteredRoles)}</EmptyStateBody>
           {onClearFilters && (
             <EmptyStateFooter>
@@ -46,8 +44,7 @@ export const RolesEmptyState: React.FC<RolesEmptyStateFullProps> = ({ hasActiveF
   // Empty state with no data
   return (
     <Bullseye>
-      <EmptyState>
-        <EmptyStateHeader titleText={intl.formatMessage(messages.configureRoles)} headingLevel="h4" icon={<EmptyStateIcon icon={CubesIcon} />} />
+      <EmptyState headingLevel="h4" icon={CubesIcon} titleText={intl.formatMessage(messages.configureRoles)}>
         <EmptyStateBody>
           {intl.formatMessage(messages.toConfigureUserAccess)}{' '}
           {intl.formatMessage(messages.createAtLeastOneItem, {

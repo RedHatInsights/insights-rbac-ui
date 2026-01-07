@@ -10,7 +10,6 @@ import { AddUserToGroup } from '../../../features/users/add-user-to-group/AddUse
 import { ADD_MEMBERS_TO_GROUP, FETCH_GROUPS } from '../../../redux/groups/action-types';
 import PermissionsContext from '../../../utilities/permissionsContext';
 import messages from '../../../Messages';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 
 // Mock the groups actions module
 jest.mock('../../../redux/groups/actions', () => ({
@@ -21,6 +20,14 @@ jest.mock('../../../redux/groups/actions', () => ({
 
 // Import the mocked functions after mock setup
 import { fetchGroups, addMembersToGroup } from '../../../redux/groups/actions';
+
+// Mock for addNotification (returned by useAddNotification hook)
+const mockAddNotification = jest.fn();
+
+jest.mock('@redhat-cloud-services/frontend-components-notifications/hooks', () => ({
+  ...jest.requireActual('@redhat-cloud-services/frontend-components-notifications/hooks'),
+  useAddNotification: () => mockAddNotification,
+}));
 
 const mockStore = configureMockStore([thunk, promiseMiddleware]);
 const initialState = {
@@ -48,14 +55,6 @@ const renderComponent = (userName = 'testuser', store, isAdmin = true) => {
     </Provider>,
   );
 };
-
-jest.mock('@redhat-cloud-services/frontend-components-notifications/', () => ({
-  ...jest.requireActual('@redhat-cloud-services/frontend-components-notifications/'),
-  addNotification: jest.fn((notification) => ({
-    type: '@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION',
-    payload: notification,
-  })),
-}));
 
 const testGroups = [
   {
@@ -161,7 +160,7 @@ describe('Add User to Group Wizard', () => {
     await userEvent.click(screen.getByLabelText('Cancel'));
 
     await waitFor(() =>
-      expect(addNotification).toHaveBeenCalledWith({
+      expect(mockAddNotification).toHaveBeenCalledWith({
         variant: 'warning',
         title: messages.addingGroupMemberTitle.defaultMessage,
         description: messages.addingGroupMemberCancelled.defaultMessage,

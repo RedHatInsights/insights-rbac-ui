@@ -433,7 +433,7 @@ export const InviteUsers: Story = {
     await userEvent.click(kebabButton);
 
     // Now find and click "Invite users" in the opened dropdown
-    const inviteButton = await canvas.findByText(/Invite users/i);
+    const inviteButton = await within(document.body).findByText(/Invite users/i);
     await expect(inviteButton).toBeInTheDocument();
 
     await userEvent.click(inviteButton);

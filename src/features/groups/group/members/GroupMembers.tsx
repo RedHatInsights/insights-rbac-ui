@@ -2,6 +2,7 @@ import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo,
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 
@@ -46,6 +47,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
+  const addNotification = useAddNotification();
 
   // Permissions
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
@@ -129,6 +131,12 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
 
       const usernames = membersToRemoveRef.current.map((m) => m.username);
       await dispatch(removeMembersFromGroup(groupId, usernames));
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.removeGroupMembersSuccessTitle),
+        description: intl.formatMessage(messages.removeGroupMembersSuccessDescription),
+        dismissable: true,
+      });
       tableState.clearSelection();
       handleStaleData({
         offset: 0,

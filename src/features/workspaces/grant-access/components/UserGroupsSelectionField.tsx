@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { RBACStore } from '../../../../redux/store';
 import { fetchGroups } from '../../../../redux/groups/actions';
 import { UserGroupsSelectionTable } from './UserGroupsSelectionTable';
@@ -44,7 +44,9 @@ const UserGroupsSelectionField: React.FC<UserGroupsSelectionFieldProps> = ({ nam
       <Form>
         <Stack>
           <StackItem>
-            <Text className="pf-v5-u-mb-md">{intl.formatMessage(messages.selectUserGroupsDescription)}</Text>
+            <Content component="p" className="pf-v6-u-mb-md">
+              {intl.formatMessage(messages.selectUserGroupsDescription)}
+            </Content>
           </StackItem>
           <StackItem>
             <FormGroup fieldId="user-groups-selection-table">

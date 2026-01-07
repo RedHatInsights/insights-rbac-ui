@@ -191,7 +191,7 @@ export const Error: Story = {
     await waitFor(
       async () => {
         // First check that we're not in loading state anymore
-        const skeletons = canvasElement.querySelectorAll('.pf-v5-c-skeleton');
+        const skeletons = canvasElement.querySelectorAll('.pf-v6-c-skeleton');
         await expect(skeletons.length).toBe(0);
       },
       { timeout: 5000 },
@@ -261,9 +261,9 @@ export const PermissionIntegration: Story = {
     await userEvent.click(kebabButtons[0]);
 
     // Verify menu structure exists
-    await expect(canvas.getByText('Edit workspace')).toBeInTheDocument();
-    await expect(canvas.getByText('Delete workspace')).toBeInTheDocument();
-    await expect(canvas.getByText('Move workspace')).toBeInTheDocument();
+    await expect(within(document.body).getByText('Edit workspace')).toBeInTheDocument();
+    await expect(within(document.body).getByText('Delete workspace')).toBeInTheDocument();
+    await expect(within(document.body).getByText('Move workspace')).toBeInTheDocument();
   },
 };
 
@@ -335,9 +335,9 @@ export const MoveWorkspaceModal: Story = {
     await user.click(actionsButton);
 
     // Wait for the menu to open and find "Move workspace" action
-    await expect(canvas.findByText('Move workspace')).resolves.toBeInTheDocument();
+    await expect(within(document.body).findByText('Move workspace')).resolves.toBeInTheDocument();
 
-    const moveAction = await canvas.findByText('Move workspace');
+    const moveAction = await within(document.body).findByText('Move workspace');
     await user.click(moveAction);
 
     // Verify move modal opened (search in document body since modal is rendered in portal)
@@ -354,7 +354,7 @@ export const MoveWorkspaceModal: Story = {
     // Find all buttons and look for the one with menu toggle text containing "Root Workspace"
     const buttons = await modalCanvas.findAllByRole('button');
     const menuToggleButton = buttons.find((button) => {
-      const menuToggleText = button.querySelector('.pf-v5-c-menu-toggle__text');
+      const menuToggleText = button.querySelector('.pf-v6-c-menu-toggle__text');
       return menuToggleText?.textContent === 'Root Workspace';
     });
     await expect(menuToggleButton).toBeTruthy();
@@ -371,7 +371,7 @@ export const MoveWorkspaceModal: Story = {
     // Now find the tree view and expand the Root Workspace to see children
     const treeViewElement = await modalCanvas.findByRole('tree');
     // Find the toggle button by its class instead of name since it doesn't have "toggle" in accessible name
-    const expandButton = treeViewElement.querySelector('.pf-v5-c-tree-view__node-toggle') as HTMLElement;
+    const expandButton = treeViewElement.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLElement;
     await user.click(expandButton);
 
     // Wait for the tree to expand and show children within the tree view
@@ -600,10 +600,10 @@ export const M2_WithWritePermission: Story = {
     await user.click(kebabButtons[0]);
 
     // Verify M2 CRUD actions exist in the kebab menu
-    await canvas.findByText('Edit workspace');
-    await canvas.findByText('Create subworkspace');
-    await canvas.findByText('Move workspace');
-    await canvas.findByText('Delete workspace');
+    await within(document.body).findByText('Edit workspace');
+    await within(document.body).findByText('Create subworkspace');
+    await within(document.body).findByText('Move workspace');
+    await within(document.body).findByText('Delete workspace');
 
     // Verify the kebab menu has its own "Create workspace" option
     const menuItems = document.querySelectorAll('[role="menuitem"]');

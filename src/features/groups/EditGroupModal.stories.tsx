@@ -332,13 +332,13 @@ export const FormSubmission: Story = {
         const notificationPortal = document.querySelector('.notifications-portal');
         await expect(notificationPortal).toBeInTheDocument();
 
-        const successAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-success');
+        const successAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-success');
         await expect(successAlert).toBeInTheDocument();
 
-        const alertTitle = successAlert?.querySelector('.pf-v5-c-alert__title');
+        const alertTitle = successAlert?.querySelector('.pf-v6-c-alert__title');
         await expect(alertTitle).toHaveTextContent('Success updating group');
 
-        const alertDescription = successAlert?.querySelector('.pf-v5-c-alert__description');
+        const alertDescription = successAlert?.querySelector('.pf-v6-c-alert__description');
         await expect(alertDescription).toHaveTextContent('The group was updated successfully.');
       },
       { timeout: 5000 },
@@ -522,13 +522,13 @@ export const ErrorNotification: Story = {
         const notificationPortal = document.querySelector('.notifications-portal');
         await expect(notificationPortal).toBeInTheDocument();
 
-        const errorAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-danger');
+        const errorAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-danger');
         await expect(errorAlert).toBeInTheDocument();
 
-        const alertTitle = errorAlert?.querySelector('.pf-v5-c-alert__title');
+        const alertTitle = errorAlert?.querySelector('.pf-v6-c-alert__title');
         await expect(alertTitle).toHaveTextContent('Failed updating group');
 
-        const alertDescription = errorAlert?.querySelector('.pf-v5-c-alert__description');
+        const alertDescription = errorAlert?.querySelector('.pf-v6-c-alert__description');
         await expect(alertDescription).toHaveTextContent('The group was not updated successfuly.');
       },
       { timeout: 5000 },

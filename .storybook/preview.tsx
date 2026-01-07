@@ -4,7 +4,7 @@ import '@patternfly/patternfly/patternfly-addons.css';
 import React, { Fragment } from 'react';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
-import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
+import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
@@ -152,8 +152,9 @@ const preview: Preview = {
                 <PermissionsContext.Provider value={permissions}>
                   <IntlProvider locale={locale} messages={messages[locale]}>
                     <Fragment>
-                      <NotificationPortal />
-                      <Story />
+                      <NotificationsProvider>
+                        <Story />
+                      </NotificationsProvider>
                     </Fragment>
                   </IntlProvider>
                 </PermissionsContext.Provider>

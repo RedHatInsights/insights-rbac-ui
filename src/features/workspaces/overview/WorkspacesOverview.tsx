@@ -1,5 +1,5 @@
 import React from 'react';
-import { ContentHeader, ServiceCard } from '@patternfly/react-component-groups';
+import { PageHeader, ServiceCard } from '@patternfly/react-component-groups';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ButtonVariant } from '@patternfly/react-core';
 import { DataList } from '@patternfly/react-core/dist/dynamic/components/DataList';
@@ -9,8 +9,8 @@ import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { List } from '@patternfly/react-core/dist/dynamic/components/List';
 import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import {} from '@patternfly/react-core';
 import messages from '../../../Messages';
@@ -40,7 +40,8 @@ export const WorkspacesOverview = () => {
 
   return (
     <>
-      <ContentHeader
+      <PageHeader
+        data-codemods
         title={intl.formatMessage(messages.workspacesOverviewTitle)}
         // to do - add url for viewing assets once available
         subtitle={intl.formatMessage(messages.workspacesOverviewSubtitle)}
@@ -51,11 +52,11 @@ export const WorkspacesOverview = () => {
           // isExternal removed - PatternFly ContentHeader doesn't properly handle this prop
         }}
       />
-      <PageSection>
-        <Title headingLevel="h2" className="pf-v5-u-mb-md" data-ouia-component-id="header-title">
+      <PageSection hasBodyWrapper={false}>
+        <Title headingLevel="h2" className="pf-v6-u-mb-md" data-ouia-component-id="header-title">
           {intl.formatMessage(messages.workspacesOverviewTitle)}
         </Title>
-        <Text component={TextVariants.p}>{intl.formatMessage(messages.workspacesPageSubtitle)} </Text>
+        <Content component={ContentVariants.p}>{intl.formatMessage(messages.workspacesPageSubtitle)} </Content>
         <br></br>
 
         <br />
@@ -67,7 +68,7 @@ export const WorkspacesOverview = () => {
               title="Workspaces"
               subtitle=""
               description={intl.formatMessage(messages.workspacesServiceCardDescription)}
-              icon={<InfrastructureIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
+              icon={<InfrastructureIcon className="pf-v6-u-primary-color-100 pf-v6-c-icon pf-m-lg" />}
               footer={
                 <Button
                   variant={ButtonVariant.primary}
@@ -91,7 +92,7 @@ export const WorkspacesOverview = () => {
               title="Groups"
               subtitle=""
               description={intl.formatMessage(messages.groupsServiceCardDescription)}
-              icon={<UsersIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
+              icon={<UsersIcon className="pf-v6-u-primary-color-100 pf-v6-c-icon pf-m-lg" />}
               footer={
                 <Button
                   variant={ButtonVariant.secondary}
@@ -115,7 +116,7 @@ export const WorkspacesOverview = () => {
               title="Role"
               subtitle=""
               description={intl.formatMessage(messages.roleServiceCardDescription)}
-              icon={<IdBadgeIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
+              icon={<IdBadgeIcon className="pf-v6-u-primary-color-100 pf-v6-c-icon pf-m-lg" />}
               footer={
                 <Button
                   variant={ButtonVariant.secondary}
@@ -139,7 +140,7 @@ export const WorkspacesOverview = () => {
               title="Bindings"
               subtitle=""
               description={intl.formatMessage(messages.bindingsServiceCardDescription)}
-              icon={<LinkIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
+              icon={<LinkIcon className="pf-v6-u-primary-color-100 pf-v6-c-icon pf-m-lg" />}
               footer={
                 <Button
                   variant={ButtonVariant.secondary}
@@ -161,13 +162,13 @@ export const WorkspacesOverview = () => {
 
         <br></br>
 
-        <Title headingLevel="h2" className="pf-v5-u-mb-md" data-ouia-component-id="understanding-access-title">
+        <Title headingLevel="h2" className="pf-v6-u-mb-md" data-ouia-component-id="understanding-access-title">
           Understanding access
         </Title>
 
-        <DataList aria-label="understanding access" className="pf-v5-u-mb-md">
+        <DataList aria-label="understanding access" className="pf-v6-u-mb-md">
           <CustomDataListItem
-            icon={<UsersIcon className="pf-v5-u-primary-color-100" />}
+            icon={<UsersIcon className="pf-v6-u-primary-color-100" />}
             isExpanded
             heading="Default groups"
             linkTitle="View your default groups"
@@ -185,7 +186,7 @@ export const WorkspacesOverview = () => {
             }
           />
           <CustomDataListItem
-            icon={<KeyIcon className="pf-v5-u-primary-color-100" />}
+            icon={<KeyIcon className="pf-v6-u-primary-color-100" />}
             heading="Granting access in workspaces"
             linkTitle="Grant access"
             linkTarget={GRANT_ACCESS}
@@ -208,18 +209,18 @@ export const WorkspacesOverview = () => {
           />
         </DataList>
 
-        <Title headingLevel="h2" className="pf-v5-u-mb-md" data-ouia-component-id="recommended-content-title">
+        <Title headingLevel="h2" className="pf-v6-u-mb-md" data-ouia-component-id="recommended-content-title">
           Recommended content
         </Title>
 
-        <Table aria-label="Recommended content" className="pf-v5-u-mb-lg">
+        <Table aria-label="Recommended content" className="pf-v6-u-mb-lg">
           <Tbody>
             <Tr className="noti-c-table-border-top">
               <Td>Create a workspace and grant access</Td>
               <Td>
                 <Label color="green">Quick start</Label>
               </Td>
-              <Td className="pf-v5-u-text-align-right">
+              <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
                 <a href="">
                   Begin Quick start <ExternalLinkAltIcon />
@@ -231,7 +232,7 @@ export const WorkspacesOverview = () => {
               <Td>
                 <Label color="orange">Documentation</Label>
               </Td>
-              <Td className="pf-v5-u-text-align-right">
+              <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
                 <a href="">
                   View documentation <ExternalLinkAltIcon />
@@ -243,7 +244,7 @@ export const WorkspacesOverview = () => {
               <Td>
                 <Label color="orange">Documentation</Label>
               </Td>
-              <Td className="pf-v5-u-text-align-right">
+              <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
                 <a href="">
                   View documentation <ExternalLinkAltIcon />
@@ -255,7 +256,7 @@ export const WorkspacesOverview = () => {
               <Td>
                 <Label color="orange">Documentation</Label>
               </Td>
-              <Td className="pf-v5-u-text-align-right">
+              <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
                 <a href="">
                   View documentation <ExternalLinkAltIcon />
@@ -265,7 +266,7 @@ export const WorkspacesOverview = () => {
           </Tbody>
         </Table>
 
-        <a href={`/settings/learning-resources`} className="pf-v5-u-mb-lg">
+        <a href={`/settings/learning-resources`} className="pf-v6-u-mb-lg">
           View all Identity and Access Management Learning resources
         </a>
       </PageSection>

@@ -3,9 +3,9 @@
 exports[`<ActiveUsers /> should render correctly 1`] = `
 <div>
   <h6
-    class="pf-v5-u-mt-0"
-    data-ouia-component-id="OUIA-Generated-Text-1"
-    data-ouia-component-type="PF5/Text"
+    class="pf-v6-c-content--h6 pf-v6-u-mt-0"
+    data-ouia-component-id="OUIA-Generated-Content-1"
+    data-ouia-component-type="PF6/Content"
     data-ouia-safe="true"
     data-pf-content="true"
   >
@@ -17,9 +17,9 @@ exports[`<ActiveUsers /> should render correctly 1`] = `
 exports[`<ActiveUsers /> should render correctly with link description 1`] = `
 <div>
   <h6
-    class="pf-v5-u-mt-0"
-    data-ouia-component-id="OUIA-Generated-Text-2"
-    data-ouia-component-type="PF5/Text"
+    class="pf-v6-c-content--h6 pf-v6-u-mt-0"
+    data-ouia-component-id="OUIA-Generated-Content-2"
+    data-ouia-component-type="PF6/Content"
     data-ouia-safe="true"
     data-pf-content="true"
   >
@@ -31,9 +31,9 @@ exports[`<ActiveUsers /> should render correctly with link description 1`] = `
 exports[`<ActiveUsers /> should render correctly with link title 1`] = `
 <div>
   <h6
-    class="pf-v5-u-mt-0"
-    data-ouia-component-id="OUIA-Generated-Text-3"
-    data-ouia-component-type="PF5/Text"
+    class="pf-v6-c-content--h6 pf-v6-u-mt-0"
+    data-ouia-component-id="OUIA-Generated-Content-3"
+    data-ouia-component-type="PF6/Content"
     data-ouia-safe="true"
     data-pf-content="true"
   >

@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useMemo, useRef, useState } from 'react
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { useDataViewFilters, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 
@@ -88,6 +89,7 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
   const intl = useIntl();
   const dispatch = useDispatch();
   const { groupId } = useParams<{ groupId: string }>();
+  const addNotification = useAddNotification();
 
   // Get permissions from context (not Redux)
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
@@ -180,6 +182,12 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
 
       const usernames = membersToRemoveRef.current.map((m) => m.username);
       await dispatch(removeMembersFromGroup(groupId, usernames));
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.removeGroupMembersSuccessTitle),
+        description: intl.formatMessage(messages.removeGroupMembersSuccessDescription),
+        dismissable: true,
+      });
       selection.onSelect(false);
       fetchData(undefined, { offset: 0 });
       dispatch(fetchGroups({ usesMetaInURL: true }));

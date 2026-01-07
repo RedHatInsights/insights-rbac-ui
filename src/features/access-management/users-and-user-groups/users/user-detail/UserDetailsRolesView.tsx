@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import { useDispatch, useSelector } from 'react-redux';
@@ -60,9 +59,8 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
   // Show error state
   if (error) {
     return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="Unable to load roles" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+      <div className="pf-v6-u-pt-md">
+        <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load roles" variant="sm">
           <EmptyStateBody>{extractErrorMessage(error)}</EmptyStateBody>
         </EmptyState>
       </div>
@@ -70,8 +68,7 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
   }
 
   const emptyState = (
-    <EmptyState variant="sm">
-      <EmptyStateHeader titleText="No roles found" icon={<EmptyStateIcon icon={KeyIcon} />} headingLevel="h4" />
+    <EmptyState headingLevel="h4" icon={KeyIcon} titleText="No roles found" variant="sm">
       <EmptyStateBody>This user has no roles assigned.</EmptyStateBody>
     </EmptyState>
   );
@@ -82,7 +79,7 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
   }));
 
   return (
-    <div className="pf-v5-u-pt-md">
+    <div className="pf-v6-u-pt-md">
       <TableView<typeof columns, RoleData>
         columns={columns}
         columnConfig={columnConfig}

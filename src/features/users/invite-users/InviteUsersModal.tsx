@@ -1,16 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Checkbox } from '@patternfly/react-core/dist/dynamic/components/Checkbox';
 import { ExpandableSection } from '@patternfly/react-core/dist/dynamic/components/ExpandableSection';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { useDispatch } from 'react-redux';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import messages from '../../../Messages';
 import { addUsers } from '../../../redux/users/actions';
@@ -26,6 +27,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
   const intl = useIntl();
   const navigate = useNavigate();
   const toAppLink = useAppLink();
+  const addNotification = useAddNotification();
 
   const [isCheckboxLabelExpanded, setIsCheckboxLabelExpanded] = useState(false);
   const [areNewUsersAdmins, setAreNewUsersAdmins] = useState(false);
@@ -37,11 +39,22 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
     const newUsersData = { emails: userEmailList, isAdmin: areNewUsersAdmins };
     (dispatch(addUsers(newUsersData, {} as Parameters<typeof addUsers>[1], false) as unknown as { type: string }) as unknown as Promise<void>)
       .then(() => {
+        addNotification({
+          variant: 'success',
+          title: 'Invitation sent successfully',
+          dismissable: true,
+        });
         fetchData();
         navigate(toAppLink(paths.users.link) as string);
       })
       .catch((err: Error) => {
         console.error(err);
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.inviteUsersErrorTitle),
+          dismissable: true,
+          description: err.message || 'Unknown error',
+        });
       });
   };
 
@@ -62,13 +75,11 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
   };
 
   const redirectToUsers = () => {
-    dispatch(
-      addNotification({
-        variant: 'warning',
-        title: intl.formatMessage(messages.inviteUsers),
-        description: intl.formatMessage(messages.inviteUsersCancelled),
-      }),
-    );
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(messages.inviteUsers),
+      description: intl.formatMessage(messages.inviteUsersCancelled),
+    });
     navigate(toAppLink(paths.users.link) as string);
   };
 
@@ -96,7 +107,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
         actions={[
           <Button
             aria-label="Save"
-            className="pf-v5-u-mr-sm"
+            className="pf-v6-u-mr-sm"
             ouiaId="primary-save-button"
             variant="primary"
             key="save"

@@ -33,7 +33,7 @@ export const GroupDefaultChangedAlert: React.FC<GroupDefaultChangedAlertProps> =
       isInline
       title={intl.formatMessage(messages.defaultAccessGroupChanged)}
       actionClose={<AlertActionCloseButton onClose={onClose} />}
-      className="pf-v5-u-mb-lg pf-v5-u-mt-sm"
+      className="pf-v6-u-mb-lg pf-v6-u-mt-sm"
     >
       <FormattedMessage
         {...messages.defaultAccessGroupNameChanged}

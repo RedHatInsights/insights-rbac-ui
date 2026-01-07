@@ -189,7 +189,7 @@ export const Default: Story = {
     // The modal should be rendered - look for it in the document body (PatternFly modals portal)
     await waitFor(
       () => {
-        const modal = document.querySelector('[class*="pf-v5-c-modal-box"]') || document.querySelector('[class*="modal"]');
+        const modal = document.querySelector('[class*="pf-v6-c-modal-box"]') || document.querySelector('[class*="modal"]');
         expect(modal).toBeTruthy();
       },
       { timeout: 5000 },
@@ -198,7 +198,7 @@ export const Default: Story = {
     // Verify the modal title
     await waitFor(
       () => {
-        const title = document.querySelector('[class*="pf-v5-c-modal-box__title"]');
+        const title = document.querySelector('[class*="pf-v6-c-modal-box__title"]');
         expect(title?.textContent).toContain('Edit resource definitions');
       },
       { timeout: 5000 },
@@ -246,7 +246,7 @@ export const Loading: Story = {
     // Should show spinner during loading (inside modal)
     await waitFor(
       () => {
-        const spinner = document.querySelector('[class*="pf-v5-c-spinner"]') || document.querySelector('[class*="spinner"]');
+        const spinner = document.querySelector('[class*="pf-v6-c-spinner"]') || document.querySelector('[class*="spinner"]');
         expect(spinner).toBeTruthy();
       },
       { timeout: 5000 },
@@ -312,21 +312,21 @@ export const AddResourceAndSave: Story = {
     // Wait for the modal to be fully loaded (no spinner)
     await waitFor(
       () => {
-        const spinner = document.querySelector('[class*="pf-v5-c-spinner"]');
+        const spinner = document.querySelector('[class*="pf-v6-c-spinner"]');
         expect(spinner).toBeFalsy();
       },
       { timeout: 10000 },
     );
 
     // Get the modal content
-    const modal = document.querySelector('[class*="pf-v5-c-modal-box"]');
+    const modal = document.querySelector('[class*="pf-v6-c-modal-box"]');
     expect(modal).toBeTruthy();
     const modalContent = within(modal as HTMLElement);
 
     // Verify the modal title
     await waitFor(
       () => {
-        const title = document.querySelector('[class*="pf-v5-c-modal-box__title"]');
+        const title = document.querySelector('[class*="pf-v6-c-modal-box__title"]');
         expect(title?.textContent).toContain('Edit resource definitions');
       },
       { timeout: 5000 },
@@ -341,14 +341,14 @@ export const AddResourceAndSave: Story = {
     );
 
     // Find the dual-list selector
-    const dualList = modal?.querySelector('[class*="pf-v5-c-dual-list-selector"]');
+    const dualList = modal?.querySelector('[class*="pf-v6-c-dual-list-selector"]');
     expect(dualList).toBeTruthy();
     const dualListContent = within(dualList as HTMLElement);
 
     // Step 1: Select "Staging Servers" by clicking on the item element
     const stagingOption = dualListContent.getByText('Staging Servers');
     const stagingLi = stagingOption.closest('li');
-    const stagingItem = stagingLi?.querySelector('.pf-v5-c-dual-list-selector__item');
+    const stagingItem = stagingLi?.querySelector('.pf-v6-c-dual-list-selector__item');
     await userEvent.click(stagingItem as HTMLElement);
 
     // Step 2: Click "Add selected" button
@@ -415,13 +415,13 @@ export const CancelWithoutChanges: Story = {
 
     await waitFor(
       () => {
-        const spinner = document.querySelector('[class*="pf-v5-c-spinner"]');
+        const spinner = document.querySelector('[class*="pf-v6-c-spinner"]');
         expect(spinner).toBeFalsy();
       },
       { timeout: 10000 },
     );
 
-    const modal = document.querySelector('[class*="pf-v5-c-modal-box"]');
+    const modal = document.querySelector('[class*="pf-v6-c-modal-box"]');
     expect(modal).toBeTruthy();
     const modalContent = within(modal as HTMLElement);
 

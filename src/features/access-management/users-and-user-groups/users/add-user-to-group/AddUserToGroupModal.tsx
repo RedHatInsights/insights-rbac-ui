@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { useDataViewSelection } from '@patternfly/react-data-view';
 import { UserGroupsTable } from '../../user-groups/components/UserGroupsTable';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,6 +37,7 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
   // Selection is now handled by the selection object
   const dispatch = useDispatch();
   const intl = useIntl();
+  const addNotification = useAddNotification();
 
   // Fetch groups when modal opens
   React.useEffect(() => {
@@ -79,11 +81,26 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
 
   const handleCloseModal = () => setIsOpen(false);
 
-  const handleAddUsers = () => {
+  const handleAddUsers = async () => {
     const selectedUsernames = selectedUsers.map((user) => ({ username: user.username }));
-    selection.selected.forEach((selectedRow: any) => {
-      dispatch(addMembersToGroup(selectedRow.id, selectedUsernames)); // Use selectedRow.id instead of group.uuid
-    });
+    const multipleMembers = selectedUsernames.length > 1;
+    try {
+      for (const selectedRow of selection.selected) {
+        await dispatch(addMembersToGroup(selectedRow.id, selectedUsernames)); // Use selectedRow.id instead of group.uuid
+      }
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(multipleMembers ? messages.addGroupMembersSuccessTitle : messages.addGroupMemberSuccessTitle),
+        description: intl.formatMessage(multipleMembers ? messages.addGroupMembersSuccessDescription : messages.addGroupMemberSuccessDescription),
+      });
+    } catch (error) {
+      console.error('Failed to add users to group:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(multipleMembers ? messages.addGroupMembersErrorTitle : messages.addGroupMemberErrorTitle),
+        description: intl.formatMessage(multipleMembers ? messages.addGroupMembersErrorDescription : messages.addGroupMemberErrorDescription),
+      });
+    }
     setIsOpen(false);
   };
 

@@ -3,23 +3,23 @@
 exports[`RoleResourceDefinitions - Cost management should render resource definitions table 1`] = `
 <table
   aria-label="Resource definitions"
-  class="pf-v5-c-table pf-m-grid-md pf-m-compact"
+  class="pf-v6-c-table pf-m-grid-md pf-m-compact"
   data-ouia-component-id="role-resource-definitions-table"
-  data-ouia-component-type="PF5/Table"
+  data-ouia-component-type="PF6/Table"
   data-ouia-safe="true"
   role="grid"
 >
   <thead
-    class="pf-v5-c-table__thead"
+    class="pf-v6-c-table__thead"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-1"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <th
-        class="pf-v5-c-table__th"
+        class="pf-v6-c-table__th"
         scope="col"
         tabindex="-1"
       >
@@ -28,17 +28,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </thead>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-2"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -47,17 +47,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-3"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -66,17 +66,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-4"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -85,17 +85,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-5"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -104,17 +104,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-6"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -123,17 +123,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-7"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -142,17 +142,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-8"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -161,17 +161,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-9"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -180,17 +180,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-10"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -199,17 +199,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-11"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -218,17 +218,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-12"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -237,17 +237,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-13"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -256,17 +256,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-14"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -275,17 +275,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-15"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -294,17 +294,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-16"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -313,17 +313,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-17"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -332,17 +332,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-18"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -351,17 +351,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-19"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -370,17 +370,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-20"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -389,17 +389,17 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-21"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -413,23 +413,23 @@ exports[`RoleResourceDefinitions - Cost management should render resource defini
 exports[`RoleResourceDefinitions - Inventory should render resource definitions table 1`] = `
 <table
   aria-label="Resource definitions"
-  class="pf-v5-c-table pf-m-grid-md pf-m-compact"
+  class="pf-v6-c-table pf-m-grid-md pf-m-compact"
   data-ouia-component-id="role-resource-definitions-table"
-  data-ouia-component-type="PF5/Table"
+  data-ouia-component-type="PF6/Table"
   data-ouia-safe="true"
   role="grid"
 >
   <thead
-    class="pf-v5-c-table__thead"
+    class="pf-v6-c-table__thead"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-65"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <th
-        class="pf-v5-c-table__th"
+        class="pf-v6-c-table__th"
         scope="col"
         tabindex="-1"
       >
@@ -438,17 +438,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </thead>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-66"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -457,17 +457,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-67"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -476,17 +476,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-68"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -495,17 +495,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-69"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -514,17 +514,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-70"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -533,17 +533,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-71"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -552,17 +552,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-72"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -571,17 +571,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-73"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -590,17 +590,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-74"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -609,17 +609,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-75"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -628,17 +628,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-76"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -647,17 +647,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-77"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -666,17 +666,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-78"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -685,17 +685,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-79"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -704,17 +704,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-80"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -723,17 +723,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-81"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -742,17 +742,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-82"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -761,17 +761,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-83"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -780,17 +780,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-84"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >
@@ -799,17 +799,17 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
     </tr>
   </tbody>
   <tbody
-    class="pf-v5-c-table__tbody"
+    class="pf-v6-c-table__tbody"
     role="rowgroup"
   >
     <tr
-      class="pf-v5-c-table__tr"
+      class="pf-v6-c-table__tr"
       data-ouia-component-id="OUIA-Generated-TableRow-85"
-      data-ouia-component-type="PF5/TableRow"
+      data-ouia-component-type="PF6/TableRow"
       data-ouia-safe="true"
     >
       <td
-        class="pf-v5-c-table__td"
+        class="pf-v6-c-table__td"
         data-label="Resource"
         tabindex="-1"
       >

@@ -12,7 +12,6 @@ import { StackItem } from '@patternfly/react-core';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useFlag } from '@unleash/proxy-client-react';
 import { bundleData } from '../bundleData';
-import './BundleCard.scss';
 
 export type EntitlementTuple = [string, { is_entitled: boolean }];
 export type Entitlements = EntitlementTuple[];
@@ -51,12 +50,7 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
           {header}
         </Title>
       )}
-      <Stack
-        className={classNames({
-          'pf-v5-u-mt-lg': !header,
-        })}
-        hasGutter
-      >
+      <Stack hasGutter>
         {entitlements &&
           bundles?.map((data) => {
             const entitlementEntry = entitlements.find(([key]) => data.entitlement === key);
@@ -66,17 +60,17 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
               <StackItem key={key} className="rbac-c-mua-cardWrapper">
                 <NavLink
                   aria-label="card-link"
-                  className={classNames('rbac-c-mua-bundles__cardlink', { 'pf-v5-u-background-color-disabled-color-300': isDisabled })}
+                  className={classNames({ 'pf-v6-u-background-color-disabled-color-300': isDisabled })}
                   to={{ pathname: location.pathname, search: `bundle=${key}` }}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <Card
                     ouiaId={`${data.title}-card`}
                     key={data.title}
-                    isFlat={isDisabled || key !== currentBundle}
                     isSelectable={!isDisabled}
                     isSelected={!isDisabled && key === currentBundle}
                     className={classNames({
-                      'pf-v5-u-background-color-disabled-color-300': isDisabled,
+                      'pf-v6-u-background-color-disabled-color-300': isDisabled,
                     })}
                   >
                     <CardHeader
@@ -90,7 +84,7 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
                     >
                       <CardTitle
                         id={`bundle-card-title-${key}`}
-                        className="pf-v5-u-font-weight-light"
+                        className="pf-v6-u-font-weight-light"
                         data-ouia-component-id={`${data.title}-card-title`}
                       >
                         {data.title}
@@ -98,7 +92,7 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
                     </CardHeader>
 
                     <CardBody data-ouia-component-id={`${data.title}-card-body`}>
-                      <List className="pf-v5-u-color-400 pf-v5-u-font-size-sm rbac-c-mua-bundles__card--applist" isPlain>
+                      <List className="pf-v6-u-color-400 pf-v6-u-font-size-sm rbac-c-mua-bundles__card--applist" isPlain>
                         {Object.entries(data.apps || {}).map(([appName]) => (
                           <ListItem key={appName}> {getAppDisplayName(appName)} </ListItem>
                         ))}

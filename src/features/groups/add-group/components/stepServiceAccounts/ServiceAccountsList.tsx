@@ -13,7 +13,6 @@ import messages from '../../../../../Messages';
 import { fetchServiceAccounts } from '../../../../../redux/service-accounts/actions';
 import { selectServiceAccountsFullState, selectServiceAccountsLimit } from '../../../../../redux/service-accounts/selectors';
 import { PER_PAGE_OPTIONS } from '../../../../../helpers/pagination';
-import './serviceAccountsList.scss';
 
 interface ServiceAccountsListProps {
   initialSelectedServiceAccounts: ServiceAccount[];

@@ -9,6 +9,7 @@ import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo,
 import { useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -41,8 +42,6 @@ import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
 import type { GroupRolesProps, Role } from './types';
 
-import './group-roles.scss';
-
 // =============================================================================
 // Helper Functions
 // =============================================================================
@@ -60,6 +59,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
+  const addNotification = useAddNotification();
 
   // Permissions
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
@@ -130,6 +130,12 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
 
       const roleIds = rolesToRemoveRef.current.map(({ uuid }) => uuid);
       await dispatch(removeRolesFromGroup(actualGroupId, roleIds) as any);
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.removeGroupRolesSuccessTitle),
+        description: intl.formatMessage(messages.removeGroupRolesSuccessDescription),
+        dismissable: true,
+      });
 
       tableState.clearSelection();
       fetchData({

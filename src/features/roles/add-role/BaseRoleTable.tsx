@@ -77,7 +77,7 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
 
   // Column config
   const columnConfig: ColumnConfigMap<typeof COLUMNS> = {
-    radio: { label: '' },
+    radio: { label: ' ' },
     name: { label: intl.formatMessage(messages.name), sortable: true },
     description: { label: intl.formatMessage(messages.description) },
   };
@@ -130,7 +130,7 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
 
   return (
     <div>
-      <Alert variant="info" isInline title={intl.formatMessage(messages.granularPermissionsWillBeCopied)} />
+      <Alert variant="info" isInline title={intl.formatMessage(messages.granularPermissionsWillBeCopied)} className="pf-v6-u-mb-md" />
       <TableView
         columns={COLUMNS}
         columnConfig={columnConfig}

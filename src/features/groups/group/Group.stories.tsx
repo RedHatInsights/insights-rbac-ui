@@ -317,7 +317,6 @@ export const DropdownInteractions: Story = {
   },
   play: async ({ canvasElement }) => {
     await delay(300); // Required for MSW
-    const canvas = within(canvasElement);
 
     // Test dropdown opens
     const kebabButton = canvasElement.querySelector('#group-actions-dropdown');
@@ -325,8 +324,8 @@ export const DropdownInteractions: Story = {
     await userEvent.click(kebabButton!);
 
     // Test dropdown items appear
-    expect(await canvas.findByText('Edit')).toBeInTheDocument();
-    expect(await canvas.findByText('Delete')).toBeInTheDocument();
+    expect(await within(document.body).findByText('Edit')).toBeInTheDocument();
+    expect(await within(document.body).findByText('Delete')).toBeInTheDocument();
   },
 };
 

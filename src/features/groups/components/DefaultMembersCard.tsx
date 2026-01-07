@@ -1,28 +1,17 @@
 import React from 'react';
-import { Card, CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
-import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
-import { Text, TextContent, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
-interface DefaultMembersCardProps {
+interface DefaultMembersAlertProps {
   isAdminDefault: boolean;
 }
 
-export const DefaultMembersCard: React.FC<DefaultMembersCardProps> = ({ isAdminDefault }) => {
+export const DefaultMembersAlert: React.FC<DefaultMembersAlertProps> = ({ isAdminDefault }) => {
   const intl = useIntl();
 
-  return (
-    <Card>
-      <CardBody>
-        <Bullseye>
-          <TextContent>
-            <Text component={TextVariants.h1}>
-              {intl.formatMessage(isAdminDefault ? messages.allOrgAdminsAreMembers : messages.allUsersAreMembers)}
-            </Text>
-          </TextContent>
-        </Bullseye>
-      </CardBody>
-    </Card>
-  );
+  return <Alert variant="info" isInline title={intl.formatMessage(isAdminDefault ? messages.allOrgAdminsAreMembers : messages.allUsersAreMembers)} />;
 };
+
+// Keep old name as alias for backwards compatibility during migration
+export const DefaultMembersCard = DefaultMembersAlert;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
-import { ContentHeader } from '@patternfly/react-component-groups';
+import { PageHeader } from '@patternfly/react-component-groups';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
 import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
@@ -45,13 +45,14 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
 
   return (
     <>
-      <ContentHeader
+      <PageHeader
+        data-codemods
         title={isLoading ? <Skeleton width="170px" /> : workspace?.name}
         subtitle={isLoading ? <Skeleton width="250px" /> : workspace?.description}
         actionMenu={workspace ? <WorkspaceActions currentWorkspace={workspace} hasAssets={hasAssets} /> : undefined}
       >
-        <div className="pf-v5-u-mt-md">
-          <span className="pf-v5-u-font-weight-bold pf-v5-u-mr-sm">{intl.formatMessage(messages.workspacesDetailBreadcrumbTitle)}</span>
+        <div className="pf-v6-u-mt-md">
+          <span className="pf-v6-u-font-weight-bold pf-v6-u-mr-sm">{intl.formatMessage(messages.workspacesDetailBreadcrumbTitle)}</span>
           <Breadcrumb>
             {workspaceHierarchy.map((workspaceItem, index) => {
               const isActive = index === workspaceHierarchy.length - 1;
@@ -67,7 +68,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
             })}
           </Breadcrumb>
         </div>
-      </ContentHeader>
+      </PageHeader>
       {showChildContextAlert && (
         <Alert
           variant="info"
@@ -76,7 +77,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
             childWorkspaceName: decodeURIComponent(fromChildName),
             parentWorkspaceName: workspace?.name || '',
           })}
-          className="pf-v5-u-mt-md"
+          className="pf-v6-u-mt-md"
           role="alert"
         />
       )}

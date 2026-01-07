@@ -265,8 +265,8 @@ For testing specific scenarios, see these additional stories:
     await userEvent.click(kebabToggle);
 
     // Verify Edit and Delete actions are available
-    expect(await canvas.findByText('Edit')).toBeInTheDocument();
-    expect(await canvas.findByText('Delete')).toBeInTheDocument();
+    expect(await within(document.body).findByText('Edit')).toBeInTheDocument();
+    expect(await within(document.body).findByText('Delete')).toBeInTheDocument();
   },
 };
 
@@ -580,19 +580,19 @@ export const ActionDropdown: Story = {
     // Verify actions appear - use queryByText for better error handling
     await waitFor(
       () => {
-        const editAction = canvas.queryByText('Edit');
+        const editAction = within(document.body).queryByText('Edit');
         expect(editAction).toBeTruthy();
       },
       { timeout: 3000 },
     );
 
-    const editAction = canvas.getByText('Edit');
+    const editAction = within(document.body).getByText('Edit');
     const editLink = editAction.closest('a');
     expect(editLink).toBeTruthy();
     // Check for role-123/edit (href includes full path /iam/user-access/roles/detail/)
     expect(editLink?.getAttribute('href')).toContain('role-123/edit');
 
-    const deleteAction = canvas.getByText('Delete');
+    const deleteAction = within(document.body).getByText('Delete');
     const deleteLink = deleteAction.closest('a');
     expect(deleteLink).toBeTruthy();
     expect(deleteLink?.getAttribute('href')).toContain('role-123/remove');
@@ -754,7 +754,7 @@ export const FilterByApplicationApplied: Story = {
     await delay(300);
 
     // Select only "inventory" application
-    const inventoryCheckbox = await canvas.findByRole('checkbox', { name: /inventory/i });
+    const inventoryCheckbox = await within(document.body).findByRole('checkbox', { name: /inventory/i });
     await userEvent.click(inventoryCheckbox);
 
     await delay(800);
@@ -837,7 +837,7 @@ export const FilterByResourceApplied: Story = {
     await delay(300);
 
     // Select "Resource type" from the dropdown
-    const resourceTypeOption = await canvas.findByRole('menuitem', { name: /Resource type/i });
+    const resourceTypeOption = await within(document.body).findByRole('menuitem', { name: /Resource type/i });
     await userEvent.click(resourceTypeOption);
 
     await delay(300);
@@ -849,7 +849,7 @@ export const FilterByResourceApplied: Story = {
     await delay(300);
 
     // Select "host" resource checkbox
-    const hostCheckbox = await canvas.findByRole('checkbox', { name: /host/i });
+    const hostCheckbox = await within(document.body).findByRole('checkbox', { name: /host/i });
     await userEvent.click(hostCheckbox);
 
     await delay(800);
@@ -912,7 +912,7 @@ export const FilterByOperationApplied: Story = {
     await delay(300);
 
     // Select "Operation" from the dropdown
-    const operationOption = await canvas.findByRole('menuitem', { name: /Operation/i });
+    const operationOption = await within(document.body).findByRole('menuitem', { name: /Operation/i });
     await userEvent.click(operationOption);
 
     await delay(300);
@@ -924,7 +924,7 @@ export const FilterByOperationApplied: Story = {
     await delay(300);
 
     // Select "read" operation checkbox
-    const readCheckbox = await canvas.findByRole('checkbox', { name: /read/i });
+    const readCheckbox = await within(document.body).findByRole('checkbox', { name: /read/i });
     await userEvent.click(readCheckbox);
 
     await delay(800);
@@ -1107,7 +1107,7 @@ export const PaginationWithMultiplePages: Story = {
     // Verify pagination shows "1 - 20" and "25" (they're in separate elements)
     await waitFor(
       () => {
-        const paginationElements = canvasElement.querySelectorAll('.pf-v5-c-pagination__total-items');
+        const paginationElements = canvasElement.querySelectorAll('.pf-v6-c-pagination__total-items');
         expect(paginationElements.length).toBeGreaterThan(0);
       },
       { timeout: 2000 },

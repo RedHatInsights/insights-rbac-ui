@@ -222,9 +222,9 @@ This story includes automated verification:
     const mainElement = document.querySelector('main') || context.canvasElement;
     const mainContent = within(mainElement as HTMLElement);
 
-    // Verify the page loaded - look for the unique subtitle text
-    const subtitle = await mainContent.findByText(/select applications to view your personal/i);
-    expect(subtitle).toBeInTheDocument();
+    // Verify the page loaded - look for the page title
+    const pageTitle = await mainContent.findByText(/my user access/i);
+    expect(pageTitle).toBeInTheDocument();
 
     // Verify the table is present with actual data
     const table = await mainContent.findByRole('grid');
@@ -816,7 +816,7 @@ Tests the full flow of removing members from a group.
     await user.click(bulkActionsBtn);
 
     // Click "Remove" in the dropdown
-    const removeMenuItem = canvas.getByRole('menuitem', { name: 'Remove' });
+    const removeMenuItem = within(document.body).getByRole('menuitem', { name: 'Remove' });
     await user.click(removeMenuItem);
 
     const body = within(document.body);

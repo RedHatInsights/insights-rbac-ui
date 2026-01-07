@@ -2,7 +2,7 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { SkeletonTableBody } from '@patternfly/react-component-groups';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { AppLink } from '../../../components/navigation/AppLink';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import { getDateFormat } from '../../../helpers/stringUtilities';
@@ -63,7 +63,9 @@ export const GroupsRolesTable: React.FC<GroupsRolesTableProps> = ({ group }) => 
         ) : (
           <Tr>
             <Td colSpan={compoundRolesCells.length}>
-              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroupRoles)}</Text>
+              <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+                {intl.formatMessage(messages.noGroupRoles)}
+              </Content>
             </Td>
           </Tr>
         )}

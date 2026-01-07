@@ -1,9 +1,10 @@
-import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
-import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { PageSectionVariants } from '@patternfly/react-core/dist/dynamic/components/Page';
+import PageHeader from '@patternfly/react-component-groups/dist/esm/PageHeader';
+import { PageSection } from '@patternfly/react-core';
+
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import Messages from '../../../../../Messages';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
@@ -26,6 +27,7 @@ interface EditUserGroupProps {
 export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ createNewGroup }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
+  const addNotification = useAddNotification();
   const params = useParams();
   const groupId = params.groupId;
   const navigate = useAppNavigate();
@@ -167,35 +169,53 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   };
 
   const handleSubmit = async (values: Record<string, any>) => {
-    if (createNewGroup) {
-      dispatch(addGroup({ name: values.name, description: values.description }));
-    } else if (groupId && (values.name !== group?.name || values.description !== group?.description)) {
-      dispatch(updateGroup({ uuid: groupId, name: values.name, description: values.description }));
-    }
+    try {
+      if (createNewGroup) {
+        await dispatch(addGroup({ name: values.name, description: values.description }));
+        addNotification({
+          variant: 'success',
+          title: 'Group created successfully',
+          description: 'The group has been created.',
+        });
+      } else if (groupId && (values.name !== group?.name || values.description !== group?.description)) {
+        await dispatch(updateGroup({ uuid: groupId, name: values.name, description: values.description }));
+        addNotification({
+          variant: 'success',
+          title: intl.formatMessage(Messages.editGroupSuccessTitle),
+          description: intl.formatMessage(Messages.editGroupSuccessDescription),
+        });
+      }
 
-    if (values['users-and-service-accounts']) {
-      const { users, serviceAccounts } = values['users-and-service-accounts'];
-      if (users.updated.length > 0) {
-        const addedUsers = users.updated.filter((user: string) => !users.initial.includes(user));
-        const removedUsers = users.initial.filter((user: string) => !users.updated.includes(user));
-        console.log(`Users added: ${addedUsers} and removed: ${removedUsers}`);
+      if (values['users-and-service-accounts']) {
+        const { users, serviceAccounts } = values['users-and-service-accounts'];
+        if (users.updated.length > 0) {
+          const addedUsers = users.updated.filter((user: string) => !users.initial.includes(user));
+          const removedUsers = users.initial.filter((user: string) => !users.updated.includes(user));
+          console.log(`Users added: ${addedUsers} and removed: ${removedUsers}`);
+        }
+        if (serviceAccounts.updated.length > 0) {
+          const addedServiceAccounts = serviceAccounts.updated.filter((serviceAccount: string) => !serviceAccounts.initial.includes(serviceAccount));
+          const removedServiceAccounts = serviceAccounts.initial.filter(
+            (serviceAccount: string) => !serviceAccounts.updated.includes(serviceAccount),
+          );
+          console.log(`Service accounts added: ${addedServiceAccounts} and removed: ${removedServiceAccounts}`);
+        }
+        returnToPreviousPage();
       }
-      if (serviceAccounts.updated.length > 0) {
-        const addedServiceAccounts = serviceAccounts.updated.filter((serviceAccount: string) => !serviceAccounts.initial.includes(serviceAccount));
-        const removedServiceAccounts = serviceAccounts.initial.filter((serviceAccount: string) => !serviceAccounts.updated.includes(serviceAccount));
-        console.log(`Service accounts added: ${addedServiceAccounts} and removed: ${removedServiceAccounts}`);
-      }
-      returnToPreviousPage();
+    } catch (error) {
+      console.error('Failed to save group:', error);
+      addNotification({
+        variant: 'danger',
+        title: createNewGroup ? 'Error creating group' : intl.formatMessage(Messages.editGroupErrorTitle),
+        description: createNewGroup ? 'There was an error creating the group.' : intl.formatMessage(Messages.editGroupErrorDescription),
+      });
     }
   };
 
   return (
     <React.Fragment>
-      <section className="pf-v5-c-page__main-breadcrumb">
-        <RbacBreadcrumbs breadcrumbs={breadcrumbsList} />
-      </section>
-      <ContentHeader title={pageTitle} />
-      <PageSection data-ouia-component-id="edit-user-group-form" className="pf-v5-u-m-lg-on-lg" variant={PageSectionVariants.light} isWidthLimited>
+      <PageHeader title={pageTitle} breadcrumbs={<RbacBreadcrumbs breadcrumbs={breadcrumbsList} />} />
+      <PageSection hasBodyWrapper data-ouia-component-id="edit-user-group-form" className="pf-v6-u-m-lg-on-lg" isWidthLimited>
         {isLoading || !initialFormData ? (
           <div style={{ textAlign: 'center' }}>
             <Spinner />
