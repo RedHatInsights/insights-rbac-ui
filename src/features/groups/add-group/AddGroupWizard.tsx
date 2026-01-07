@@ -145,11 +145,26 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
       );
       navigate('/groups');
     } catch (error) {
+      let description = 'There was an error creating the group. Please try again.';
+
+      const rawMessage = error instanceof Error ? error.message : typeof error === 'string' ? error : undefined;
+
+      if (rawMessage) {
+        const lowerMessage = rawMessage.toLowerCase();
+
+        if (lowerMessage.includes('service account') && lowerMessage.includes('invalid')) {
+          description = 'The service account configuration is invalid. Please verify its credentials and permissions.';
+        } else if (lowerMessage.includes('validation')) {
+          description = 'Some of the group details are invalid. Please review the form fields and try again.';
+        }
+      }
+      console.error('Error creating group:', error);
+
       dispatch(
         addNotification({
           variant: 'danger',
           title: 'Error creating group',
-          description: error instanceof Error && error.message ? error.message : 'There was an error creating the group. Please try again.',
+          description: description,
         }),
       );
     }
