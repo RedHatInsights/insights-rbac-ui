@@ -1,3 +1,10 @@
+## [1.79.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.3...v1.79.4) (2026-01-07)
+
+
+### Bug Fixes
+
+* address skipped Storybook tests ([8d84829](https://github.com/RedHatInsights/insights-rbac-ui/commit/8d848294883b95a8fb9324c0524a84496391e4b6))
+
 ## [1.79.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.2...v1.79.3) (2026-01-02)
 
 
