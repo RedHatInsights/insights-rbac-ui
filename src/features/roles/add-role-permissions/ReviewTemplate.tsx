@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { Bullseye } from '@patternfly/react-core';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import '../add-role/review.scss';
 import { AddRolePermissionWizardContext } from './AddRolePermissionWizardContext';
 
 interface ReviewTemplateProps {

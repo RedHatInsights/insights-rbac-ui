@@ -318,7 +318,7 @@ export const WorkspaceDetail = () => {
       <WorkspaceHeader workspace={selectedWorkspace} isLoading={isLoading} workspaceHierarchy={workspaceHierarchy} hasAssets={hasAssets} />
       <Divider />
       <Tabs
-        className="pf-v5-u-background-color-100"
+        className="pf-v6-u-background-color-100"
         activeKey={WORKSPACE_TABS[activeTabString as keyof typeof WORKSPACE_TABS]}
         onSelect={handleTabSelect}
         inset={{ default: 'insetNone', md: 'insetSm', xl: 'insetLg' }}
@@ -341,7 +341,7 @@ export const WorkspaceDetail = () => {
           ouiaId="assets-tab-button"
         />
       </Tabs>
-      <PageSection isFilled={activeTabString !== 'assets'}>
+      <PageSection hasBodyWrapper={false} isFilled={activeTabString !== 'assets'}>
         {activeTabString === 'assets' ? (
           <AssetsCards workspaceName={selectedWorkspace?.name || ''} />
         ) : (
@@ -351,7 +351,7 @@ export const WorkspaceDetail = () => {
                 activeKey={ROLE_ASSIGNMENT_TABS[activeRoleAssignmentTabString as keyof typeof ROLE_ASSIGNMENT_TABS]}
                 onSelect={handleRoleAssignmentTabSelect}
                 inset={{ default: 'insetNone', md: 'insetSm', xl: 'insetLg' }}
-                className="pf-v5-u-background-color-100"
+                className="pf-v6-u-background-color-100"
               >
                 <Tab
                   eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-workspace']}

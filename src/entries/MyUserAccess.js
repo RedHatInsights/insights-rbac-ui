@@ -15,8 +15,6 @@ import useUserData from '../hooks/useUserData';
 
 const MyUserAccess = lazy(() => import('../features/myUserAccess/MyUserAccess'));
 
-import '../App.scss';
-
 export const locale = 'en';
 
 const MuaApp = () => {

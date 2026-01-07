@@ -69,7 +69,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
               }}
             />
           ) : (
-            <Td className="pf-v5-c-table__check" />
+            <Td className="pf-v6-c-table__check" />
           ))}
         {/* Name */}
         <Td dataLabel="Name">

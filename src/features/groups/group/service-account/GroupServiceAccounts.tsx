@@ -10,7 +10,7 @@ import Section from '@redhat-cloud-services/frontend-components/Section';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, useTableState } from '../../../../components/table-view';
 import { ActionDropdown } from '../../../../components/ActionDropdown';
 import { AppLink } from '../../../../components/navigation/AppLink';
-import { DefaultServiceAccountsCard } from '../../components/DefaultServiceAccountsCard';
+import { DefaultServiceAccountsAlert } from '../../components/DefaultServiceAccountsAlert';
 
 import { columns, useGroupServiceAccountsTableConfig } from './useGroupServiceAccountsTableConfig';
 
@@ -32,8 +32,6 @@ import useAppNavigate from '../../../../hooks/useAppNavigate';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
 import type { GroupServiceAccountsProps, ServiceAccount } from './types';
-
-import './group-service-accounts.scss';
 
 export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props) => {
   const intl = useIntl();
@@ -184,7 +182,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
   if ((isAdminDefault || isPlatformDefault) && group?.system) {
     return (
       <Section type="content" id="tab-service-accounts">
-        <DefaultServiceAccountsCard isPlatformDefault={isPlatformDefault} />
+        <DefaultServiceAccountsAlert isPlatformDefault={isPlatformDefault} />
       </Section>
     );
   }
@@ -193,10 +191,9 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     <Fragment>
       <Section type="content" id="tab-service-accounts">
         <Alert
-          className="rbac-service-accounts-alert"
+          className="pf-v6-u-mb-md"
           variant="info"
           isInline
-          isPlain
           title={intl.formatMessage(messages.visitServiceAccountsPage, {
             link: (
               <AppLink to="/service-accounts" linkBasename="/iam">

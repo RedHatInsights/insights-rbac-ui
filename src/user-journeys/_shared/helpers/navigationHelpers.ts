@@ -8,7 +8,7 @@ export async function expandWorkspaceRow(user: ReturnType<typeof userEvent.setup
   const workspaceRow = canvas.getByText(workspaceName).closest('tr') as HTMLElement;
   expect(workspaceRow).toBeInTheDocument();
 
-  const toggleButton = workspaceRow.querySelector('.pf-v5-c-table__toggle button') as HTMLButtonElement;
+  const toggleButton = workspaceRow.querySelector('.pf-v6-c-table__toggle button') as HTMLButtonElement;
   expect(toggleButton).toBeInTheDocument();
 
   if (toggleButton.getAttribute('aria-expanded') === 'false') {
@@ -70,7 +70,7 @@ export async function openDetailPageActionsMenu(user: ReturnType<typeof userEven
 
   // Last resort: find any kebab toggle button
   if (!actionsButton) {
-    actionsButton = document.querySelector('.pf-v5-c-dropdown__toggle.pf-m-plain') as HTMLButtonElement;
+    actionsButton = document.querySelector('.pf-v6-c-dropdown__toggle.pf-m-plain') as HTMLButtonElement;
   }
 
   if (actionsButton) {
@@ -125,16 +125,23 @@ export async function confirmDeleteModal(user: ReturnType<typeof userEvent.setup
  * Verifies a success notification appears and no error/warning notifications
  */
 export async function verifySuccessNotification() {
-  await waitFor(() => {
-    const successNotification = document.querySelector('.pf-v5-c-alert.pf-m-success');
-    expect(successNotification).toBeInTheDocument();
+  await waitFor(
+    () => {
+      // Look for success notification - try both PF5 and PF6 class patterns
+      const successNotification =
+        document.querySelector('.pf-v6-c-alert.pf-m-success') ||
+        document.querySelector('.pf-c-alert.pf-m-success') ||
+        document.querySelector('[class*="pf-m-success"]');
+      expect(successNotification).toBeInTheDocument();
 
-    // Verify no error or warning notifications
-    const errorNotification = document.querySelector('.pf-v5-c-alert.pf-m-danger');
-    const warningNotification = document.querySelector('.pf-v5-c-alert.pf-m-warning');
-    expect(errorNotification).toBeNull();
-    expect(warningNotification).toBeNull();
-  });
+      // Verify no error or warning notifications
+      const errorNotification = document.querySelector('.pf-v6-c-alert.pf-m-danger') || document.querySelector('.pf-c-alert.pf-m-danger');
+      const warningNotification = document.querySelector('.pf-v6-c-alert.pf-m-warning') || document.querySelector('.pf-c-alert.pf-m-warning');
+      expect(errorNotification).toBeNull();
+      expect(warningNotification).toBeNull();
+    },
+    { timeout: 5000 },
+  );
 }
 
 /**

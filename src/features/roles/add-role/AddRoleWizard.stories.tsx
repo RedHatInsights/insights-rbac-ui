@@ -331,7 +331,7 @@ export const WizardStepIndicators: Story = {
     await body.findAllByRole('dialog');
 
     // Step nav should show step names - check for wizard step structure
-    const wizardNav = document.querySelector('.pf-v5-c-wizard__nav');
+    const wizardNav = document.querySelector('.pf-v6-c-wizard__nav');
     expect(wizardNav).toBeInTheDocument();
   },
 };

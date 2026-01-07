@@ -7,7 +7,6 @@ import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { UsersList } from './UsersList';
 import { ActiveUsers } from '../../../../../components/user-management/ActiveUsers';
 import type { User } from './types';
-import '../../../../../App.scss';
 
 interface SetUsersProps {
   name: string;

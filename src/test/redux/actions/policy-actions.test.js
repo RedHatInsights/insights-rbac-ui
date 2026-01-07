@@ -3,12 +3,11 @@ import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import { fetchGroupPolicies } from '../../../redux/policies/actions';
 import { FETCH_GROUP_POLICIES } from '../../../redux/policies/action-types';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
 import * as PolicyHelper from '../../../redux/policies/helper';
 
 describe('policy actions', () => {
-  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const middlewares = [thunk, promiseMiddleware];
   let mockStore;
 
   const fetchGroupPoliciesSpy = jest.spyOn(PolicyHelper, 'fetchGroupPolicies');

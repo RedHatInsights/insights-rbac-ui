@@ -449,8 +449,8 @@ export const RoleLinks: Story = {
     expect(userManagerRoleLink.getAttribute('href')).toContain('/roles/detail/2');
 
     // Verify links have correct styling classes
-    expect(adminRoleLink).toHaveClass('pf-v5-c-button', 'pf-m-link', 'pf-m-inline');
-    expect(userManagerRoleLink).toHaveClass('pf-v5-c-button', 'pf-m-link', 'pf-m-inline');
+    expect(adminRoleLink).toHaveClass('pf-v6-c-button', 'pf-m-link', 'pf-m-inline');
+    expect(userManagerRoleLink).toHaveClass('pf-v6-c-button', 'pf-m-link', 'pf-m-inline');
 
     // Verify role text content matches expected values
     expect(adminRoleLink).toHaveTextContent('Administrator');

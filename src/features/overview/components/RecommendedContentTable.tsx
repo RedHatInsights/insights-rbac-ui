@@ -19,7 +19,7 @@ export const RecommendedContentTable: React.FC<RecommendedContentTableProps> = (
 
   return (
     <>
-      <Title headingLevel="h2" className="pf-v5-u-mb-md" data-ouia-component-id="recommended-title">
+      <Title headingLevel="h2" className="pf-v6-u-mb-md" data-ouia-component-id="recommended-title">
         {intl.formatMessage(messages.recommendedContentTitle)}
       </Title>
       <Table aria-label="Recommended content table" className={className} data-ouia-component-id="recommended-table">
@@ -29,7 +29,7 @@ export const RecommendedContentTable: React.FC<RecommendedContentTableProps> = (
             <Td dataLabel="Recommended content category">
               <Label color="green">{intl.formatMessage(messages.labelQuickStart)}</Label>
             </Td>
-            <Td dataLabel="Recommended content link" className="pf-v5-u-text-align-right">
+            <Td dataLabel="Recommended content link" className="pf-v6-u-text-align-right">
               <a
                 href="https://console.redhat.com/iam/user-access/overview?quickstart=rbac-admin-vuln-permissions"
                 title="Link to Quick start - Restricting access to a service to a team"
@@ -43,7 +43,7 @@ export const RecommendedContentTable: React.FC<RecommendedContentTableProps> = (
             <Td dataLabel="Recommended content category">
               <Label color="green">{intl.formatMessage(messages.labelQuickStart)}</Label>
             </Td>
-            <Td dataLabel="Recommended content link" className="pf-v5-u-text-align-right">
+            <Td dataLabel="Recommended content link" className="pf-v6-u-text-align-right">
               <a
                 href="http://console.redhat.com/iam/user-access/overview?quickstart=rbac-granular-malware-rhel-access"
                 title="Link to Quick start - Configuring granular permissions by service"
@@ -57,7 +57,7 @@ export const RecommendedContentTable: React.FC<RecommendedContentTableProps> = (
             <Td dataLabel="Recommended content category">
               <Label color="green">{intl.formatMessage(messages.labelQuickStart)}</Label>
             </Td>
-            <Td dataLabel="Recommended content link" className="pf-v5-u-text-align-right">
+            <Td dataLabel="Recommended content link" className="pf-v6-u-text-align-right">
               <a
                 href="http://console.redhat.com/iam/user-access/overview?quickstart=rbac-read-only-vuln-permissions"
                 title="Link to Quick start - Configuring read-only permissions for a team"
@@ -71,7 +71,7 @@ export const RecommendedContentTable: React.FC<RecommendedContentTableProps> = (
             <Td dataLabel="Recommended content category">
               <Label color="green">{intl.formatMessage(messages.labelQuickStart)}</Label>
             </Td>
-            <Td dataLabel="Recommended content link" className="pf-v5-u-text-align-right">
+            <Td dataLabel="Recommended content link" className="pf-v6-u-text-align-right">
               <a
                 href="http://console.redhat.com/iam/user-access/overview?quickstart=rbac-reducing-permissions"
                 title="Link to Quick start - Reducing permissions across my organization"
@@ -85,7 +85,7 @@ export const RecommendedContentTable: React.FC<RecommendedContentTableProps> = (
             <Td dataLabel="Recommended content category">
               <Label color="orange">{intl.formatMessage(messages.labelDocumentation)}</Label>
             </Td>
-            <Td dataLabel="Recommended content link" className="pf-v5-u-text-align-right">
+            <Td dataLabel="Recommended content link" className="pf-v6-u-text-align-right">
               <a
                 href="https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index"
                 title="Link to User Access Configuration Guide for RBAC"
@@ -101,7 +101,7 @@ export const RecommendedContentTable: React.FC<RecommendedContentTableProps> = (
             <Td dataLabel="Recommended content category">
               <Label color="purple">{intl.formatMessage(messages.labelOtherResource)}</Label>
             </Td>
-            <Td dataLabel="Recommended content link" className="pf-v5-u-text-align-right">
+            <Td dataLabel="Recommended content link" className="pf-v6-u-text-align-right">
               <a href="https://developers.redhat.com/api-catalog/api/rbac" title="Link to RBAC API" target="_blank" rel="noreferrer">
                 {intl.formatMessage(messages.viewApiSiteLink)} <ExternalLinkAltIcon />
               </a>
@@ -112,7 +112,7 @@ export const RecommendedContentTable: React.FC<RecommendedContentTableProps> = (
             <Td dataLabel="Recommended content category">
               <Label color="purple">{intl.formatMessage(messages.labelOtherResource)}</Label>
             </Td>
-            <Td dataLabel="Recommended content link" className="pf-v5-u-text-align-right">
+            <Td dataLabel="Recommended content link" className="pf-v6-u-text-align-right">
               <a
                 href="https://www.redhat.com/en/blog/role-based-access-control-red-hat-hybrid-cloud-console"
                 title="Link to Red Hat blog post on Console RBAC"

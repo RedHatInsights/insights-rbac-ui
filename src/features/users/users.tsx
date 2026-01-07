@@ -1,9 +1,7 @@
 import React, { useContext, useEffect } from 'react';
-import { Stack } from '@patternfly/react-core';
-import { StackItem } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useIntl } from 'react-intl';
-import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
+import { PageLayout } from '../../components/layout/PageLayout';
 import { useFlag } from '@unleash/proxy-client-react';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import UsersListNotSelectable from './UsersListNotSelectable';
@@ -39,18 +37,11 @@ const Users: React.FC = () => {
   };
 
   return (
-    <Stack>
-      <StackItem>
-        <PageLayout>
-          <PageTitle title={intl.formatMessage(messages.users)} description={description} />
-        </PageLayout>
-      </StackItem>
-      <StackItem>
-        <Section type="content" id="users">
-          {commonUsersTable ? <UsersWithDrawer /> : <UsersListNotSelectable {...usersListProps} />}
-        </Section>
-      </StackItem>
-    </Stack>
+    <PageLayout title={{ title: intl.formatMessage(messages.users), description }}>
+      <Section type="content" id="users">
+        {commonUsersTable ? <UsersWithDrawer /> : <UsersListNotSelectable {...usersListProps} />}
+      </Section>
+    </PageLayout>
   );
 };
 export default Users;

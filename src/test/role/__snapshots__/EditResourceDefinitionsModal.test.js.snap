@@ -5,76 +5,79 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
   aria-describedby="pf-modal-part-3"
   aria-labelledby="pf-modal-part-2"
   aria-modal="true"
-  class="pf-v5-c-modal-box pf-m-lg"
+  class="pf-v6-c-modal-box pf-m-lg"
   data-ouia-component-id="OUIA-Generated-Modal-large-1"
-  data-ouia-component-type="PF5/ModalContent"
+  data-ouia-component-type="PF6/ModalContent"
   data-ouia-safe="true"
   id="pf-modal-part-1"
   role="dialog"
 >
   <div
-    class="pf-v5-c-modal-box__close"
+    class="pf-v6-c-modal-box__close"
   >
     <button
-      aria-disabled="false"
       aria-label="Close"
-      class="pf-v5-c-button pf-m-plain"
+      class="pf-v6-c-button pf-m-plain"
       data-ouia-component-id="OUIA-Generated-Modal-large-1-ModalBoxCloseButton"
-      data-ouia-component-type="PF5/Button"
+      data-ouia-component-type="PF6/Button"
       data-ouia-safe="true"
       type="button"
     >
-      <svg
-        aria-hidden="true"
-        class="pf-v5-svg"
-        fill="currentColor"
-        height="1em"
-        role="img"
-        viewBox="0 0 352 512"
-        width="1em"
+      <span
+        class="pf-v6-c-button__icon"
       >
-        <path
-          d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-        />
-      </svg>
+        <svg
+          aria-hidden="true"
+          class="pf-v6-svg"
+          fill="currentColor"
+          height="1em"
+          role="img"
+          viewBox="0 0 352 512"
+          width="1em"
+        >
+          <path
+            d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+          />
+        </svg>
+      </span>
     </button>
   </div>
   <header
-    class="pf-v5-c-modal-box__header"
+    class="pf-v6-c-modal-box__header"
   >
     <h1
-      class="pf-v5-c-modal-box__title"
+      class="pf-v6-c-modal-box__title"
       id="pf-modal-part-2"
     >
       <span
-        class="pf-v5-c-modal-box__title-text"
+        class="pf-v6-c-modal-box__title-text"
       >
         Edit resource definitions
       </span>
     </h1>
     <div
-      class="pf-v5-c-modal-box__description"
+      class="pf-v6-c-modal-box__description"
       id="pf-modal-part-3"
     >
       Give or remove permissions to specific resources using the arrows below.
     </div>
   </header>
   <div
-    class="pf-v5-c-modal-box__body"
+    class="pf-v6-c-modal-box__body"
   >
     <form
-      class="pf-v5-c-form"
+      class="pf-v6-c-form"
       id="modal-form"
       novalidate=""
     >
       <div
-        class="pf-v5-c-form__group"
+        class="pf-v6-c-form__group"
       >
         <div
-          class="pf-v5-c-form__group-control"
+          class="pf-v6-c-form__group-control"
         >
           <div
-            class="pf-v5-c-dual-list-selector"
+            class="pf-v6-c-dual-list-selector"
             filteroptionstitle="Filter by resource..."
             filtervaluetitle="Filter by resource..."
             id="dual-list-select"
@@ -82,42 +85,42 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
             righttitle="Resources defined for the permission"
           >
             <div
-              class="pf-v5-c-dual-list-selector__pane pf-m-available"
+              class="pf-v6-c-dual-list-selector__pane pf-m-available"
             >
               <div
-                class="pf-v5-c-dual-list-selector__header"
+                class="pf-v6-c-dual-list-selector__header"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__title"
+                  class="pf-v6-c-dual-list-selector__title"
                 >
                   <div
-                    class="pf-v5-c-dual-list-selector__title-text"
+                    class="pf-v6-c-dual-list-selector__title-text"
                   >
                     Available options
                   </div>
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__tools"
+                class="pf-v6-c-dual-list-selector__tools"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__tools-filter"
+                  class="pf-v6-c-dual-list-selector__tools-filter"
                 >
                   <div
-                    class="pf-v5-c-text-input-group"
+                    class="pf-v6-c-text-input-group"
                   >
                     <div
-                      class="pf-v5-c-text-input-group__main pf-m-icon"
+                      class="pf-v6-c-text-input-group__main pf-m-icon"
                     >
                       <span
-                        class="pf-v5-c-text-input-group__text"
+                        class="pf-v6-c-text-input-group__text"
                       >
                         <span
-                          class="pf-v5-c-text-input-group__icon"
+                          class="pf-v6-c-text-input-group__icon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="pf-v5-svg"
+                            class="pf-v6-svg"
                             fill="currentColor"
                             height="1em"
                             role="img"
@@ -131,7 +134,7 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
                         </span>
                         <input
                           aria-label="Available search input"
-                          class="pf-v5-c-text-input-group__text-input"
+                          class="pf-v6-c-text-input-group__text-input"
                           type="text"
                           value=""
                         />
@@ -141,184 +144,200 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__status"
+                class="pf-v6-c-dual-list-selector__status"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__status-text"
+                  class="pf-v6-c-dual-list-selector__status-text"
                   id="dual-list-select-available-pane-status"
                 >
                   0 of 0 items selected
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__menu"
+                class="pf-v6-c-dual-list-selector__menu"
                 tabindex="0"
               >
                 <ul
-                  class="pf-v5-c-dual-list-selector__list"
+                  class="pf-v6-c-dual-list-selector__list"
                 />
               </div>
             </div>
             <div
               aria-label="Selector controls"
-              class="pf-v5-c-dual-list-selector__controls"
+              class="pf-v6-c-dual-list-selector__controls"
               role="group"
               tabindex="0"
             >
               <div
-                class="pf-v5-c-dual-list-selector__controls-item"
+                class="pf-v6-c-dual-list-selector__controls-item"
               >
                 <button
                   aria-disabled="true"
                   aria-label="Add selected"
-                  class="pf-v5-c-button pf-m-plain pf-m-disabled"
+                  class="pf-v6-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-2"
-                  data-ouia-component-type="PF5/Button"
+                  data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   disabled=""
                   tabindex="-1"
                   type="button"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v5-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 256 512"
-                    width="1em"
+                  <span
+                    class="pf-v6-c-button__text"
                   >
-                    <path
-                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-                    />
-                  </svg>
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v6-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 256 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                      />
+                    </svg>
+                  </span>
                 </button>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__controls-item"
+                class="pf-v6-c-dual-list-selector__controls-item"
               >
                 <button
                   aria-disabled="true"
                   aria-label="Add all"
-                  class="pf-v5-c-button pf-m-plain pf-m-disabled"
+                  class="pf-v6-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-3"
-                  data-ouia-component-type="PF5/Button"
+                  data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   disabled=""
                   tabindex="-1"
                   type="button"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v5-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 448 512"
-                    width="1em"
+                  <span
+                    class="pf-v6-c-button__text"
                   >
-                    <path
-                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
-                    />
-                  </svg>
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v6-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 448 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
+                      />
+                    </svg>
+                  </span>
                 </button>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__controls-item"
+                class="pf-v6-c-dual-list-selector__controls-item"
               >
                 <button
                   aria-disabled="true"
                   aria-label="Remove all"
-                  class="pf-v5-c-button pf-m-plain pf-m-disabled"
+                  class="pf-v6-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-4"
-                  data-ouia-component-type="PF5/Button"
+                  data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   disabled=""
                   tabindex="-1"
                   type="button"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v5-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 448 512"
-                    width="1em"
+                  <span
+                    class="pf-v6-c-button__text"
                   >
-                    <path
-                      d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
-                    />
-                  </svg>
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v6-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 448 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
+                      />
+                    </svg>
+                  </span>
                 </button>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__controls-item"
+                class="pf-v6-c-dual-list-selector__controls-item"
               >
                 <button
                   aria-disabled="true"
                   aria-label="Remove selected"
-                  class="pf-v5-c-button pf-m-plain pf-m-disabled"
+                  class="pf-v6-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-5"
-                  data-ouia-component-type="PF5/Button"
+                  data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   disabled=""
                   tabindex="-1"
                   type="button"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v5-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 256 512"
-                    width="1em"
+                  <span
+                    class="pf-v6-c-button__text"
                   >
-                    <path
-                      d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
-                    />
-                  </svg>
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v6-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 256 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+                      />
+                    </svg>
+                  </span>
                 </button>
               </div>
             </div>
             <div
-              class="pf-v5-c-dual-list-selector__pane pf-m-chosen"
+              class="pf-v6-c-dual-list-selector__pane pf-m-chosen"
             >
               <div
-                class="pf-v5-c-dual-list-selector__header"
+                class="pf-v6-c-dual-list-selector__header"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__title"
+                  class="pf-v6-c-dual-list-selector__title"
                 >
                   <div
-                    class="pf-v5-c-dual-list-selector__title-text"
+                    class="pf-v6-c-dual-list-selector__title-text"
                   >
                     Chosen options
                   </div>
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__tools"
+                class="pf-v6-c-dual-list-selector__tools"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__tools-filter"
+                  class="pf-v6-c-dual-list-selector__tools-filter"
                 >
                   <div
-                    class="pf-v5-c-text-input-group"
+                    class="pf-v6-c-text-input-group"
                   >
                     <div
-                      class="pf-v5-c-text-input-group__main pf-m-icon"
+                      class="pf-v6-c-text-input-group__main pf-m-icon"
                     >
                       <span
-                        class="pf-v5-c-text-input-group__text"
+                        class="pf-v6-c-text-input-group__text"
                       >
                         <span
-                          class="pf-v5-c-text-input-group__icon"
+                          class="pf-v6-c-text-input-group__icon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="pf-v5-svg"
+                            class="pf-v6-svg"
                             fill="currentColor"
                             height="1em"
                             role="img"
@@ -332,7 +351,7 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
                         </span>
                         <input
                           aria-label="Chosen search input"
-                          class="pf-v5-c-text-input-group__text-input"
+                          class="pf-v6-c-text-input-group__text-input"
                           type="text"
                           value=""
                         />
@@ -342,21 +361,21 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__status"
+                class="pf-v6-c-dual-list-selector__status"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__status-text"
+                  class="pf-v6-c-dual-list-selector__status-text"
                   id="dual-list-select-chosen-pane-status"
                 >
                   0 of 0 items selected
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__menu"
+                class="pf-v6-c-dual-list-selector__menu"
                 tabindex="0"
               >
                 <ul
-                  class="pf-v5-c-dual-list-selector__list"
+                  class="pf-v6-c-dual-list-selector__list"
                 />
               </div>
             </div>
@@ -366,42 +385,48 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
     </form>
   </div>
   <footer
-    class="pf-v5-c-modal-box__footer"
+    class="pf-v6-c-modal-box__footer"
   >
     <div
-      class="pf-v5-c-form"
+      class="pf-v6-c-form"
     >
       <div
-        class="pf-v5-c-form__group pf-m-action pf-v5-u-mt-0"
+        class="pf-v6-c-form__group pf-m-action pf-v6-u-mt-0"
       >
         <div
-          class="pf-v5-c-form__group-control"
+          class="pf-v6-c-form__group-control"
         >
           <div
-            class="pf-v5-c-form__actions"
+            class="pf-v6-c-form__actions"
           >
             <button
-              aria-disabled="true"
-              class="pf-v5-c-button pf-m-primary pf-m-disabled"
+              class="pf-v6-c-button pf-m-primary"
               data-ouia-component-id="primary-save-button"
-              data-ouia-component-type="PF5/Button"
+              data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               disabled=""
               form="modal-form"
               type="submit"
             >
-              Save
+              <span
+                class="pf-v6-c-button__text"
+              >
+                Save
+              </span>
             </button>
             <button
-              aria-disabled="false"
-              class="pf-v5-c-button pf-m-link"
+              class="pf-v6-c-button pf-m-link"
               data-ouia-component-id="secondary-cancel-button"
-              data-ouia-component-type="PF5/Button"
+              data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               id="cancel-modal"
               type="button"
             >
-              Cancel
+              <span
+                class="pf-v6-c-button__text"
+              >
+                Cancel
+              </span>
             </button>
           </div>
         </div>
@@ -416,76 +441,79 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
   aria-describedby="pf-modal-part-19"
   aria-labelledby="pf-modal-part-18"
   aria-modal="true"
-  class="pf-v5-c-modal-box pf-m-lg"
+  class="pf-v6-c-modal-box pf-m-lg"
   data-ouia-component-id="OUIA-Generated-Modal-large-12"
-  data-ouia-component-type="PF5/ModalContent"
+  data-ouia-component-type="PF6/ModalContent"
   data-ouia-safe="true"
   id="pf-modal-part-17"
   role="dialog"
 >
   <div
-    class="pf-v5-c-modal-box__close"
+    class="pf-v6-c-modal-box__close"
   >
     <button
-      aria-disabled="false"
       aria-label="Close"
-      class="pf-v5-c-button pf-m-plain"
+      class="pf-v6-c-button pf-m-plain"
       data-ouia-component-id="OUIA-Generated-Modal-large-12-ModalBoxCloseButton"
-      data-ouia-component-type="PF5/Button"
+      data-ouia-component-type="PF6/Button"
       data-ouia-safe="true"
       type="button"
     >
-      <svg
-        aria-hidden="true"
-        class="pf-v5-svg"
-        fill="currentColor"
-        height="1em"
-        role="img"
-        viewBox="0 0 352 512"
-        width="1em"
+      <span
+        class="pf-v6-c-button__icon"
       >
-        <path
-          d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-        />
-      </svg>
+        <svg
+          aria-hidden="true"
+          class="pf-v6-svg"
+          fill="currentColor"
+          height="1em"
+          role="img"
+          viewBox="0 0 352 512"
+          width="1em"
+        >
+          <path
+            d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+          />
+        </svg>
+      </span>
     </button>
   </div>
   <header
-    class="pf-v5-c-modal-box__header"
+    class="pf-v6-c-modal-box__header"
   >
     <h1
-      class="pf-v5-c-modal-box__title"
+      class="pf-v6-c-modal-box__title"
       id="pf-modal-part-18"
     >
       <span
-        class="pf-v5-c-modal-box__title-text"
+        class="pf-v6-c-modal-box__title-text"
       >
         Edit resource definitions
       </span>
     </h1>
     <div
-      class="pf-v5-c-modal-box__description"
+      class="pf-v6-c-modal-box__description"
       id="pf-modal-part-19"
     >
       Give or remove permissions to specific resources using the arrows below.
     </div>
   </header>
   <div
-    class="pf-v5-c-modal-box__body"
+    class="pf-v6-c-modal-box__body"
   >
     <form
-      class="pf-v5-c-form"
+      class="pf-v6-c-form"
       id="modal-form"
       novalidate=""
     >
       <div
-        class="pf-v5-c-form__group"
+        class="pf-v6-c-form__group"
       >
         <div
-          class="pf-v5-c-form__group-control"
+          class="pf-v6-c-form__group-control"
         >
           <div
-            class="pf-v5-c-dual-list-selector"
+            class="pf-v6-c-dual-list-selector"
             filteroptionstitle="Filter by resource..."
             filtervaluetitle="Filter by resource..."
             id="dual-list-select"
@@ -493,42 +521,42 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
             righttitle="Resources defined for the permission"
           >
             <div
-              class="pf-v5-c-dual-list-selector__pane pf-m-available"
+              class="pf-v6-c-dual-list-selector__pane pf-m-available"
             >
               <div
-                class="pf-v5-c-dual-list-selector__header"
+                class="pf-v6-c-dual-list-selector__header"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__title"
+                  class="pf-v6-c-dual-list-selector__title"
                 >
                   <div
-                    class="pf-v5-c-dual-list-selector__title-text"
+                    class="pf-v6-c-dual-list-selector__title-text"
                   >
                     Available options
                   </div>
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__tools"
+                class="pf-v6-c-dual-list-selector__tools"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__tools-filter"
+                  class="pf-v6-c-dual-list-selector__tools-filter"
                 >
                   <div
-                    class="pf-v5-c-text-input-group"
+                    class="pf-v6-c-text-input-group"
                   >
                     <div
-                      class="pf-v5-c-text-input-group__main pf-m-icon"
+                      class="pf-v6-c-text-input-group__main pf-m-icon"
                     >
                       <span
-                        class="pf-v5-c-text-input-group__text"
+                        class="pf-v6-c-text-input-group__text"
                       >
                         <span
-                          class="pf-v5-c-text-input-group__icon"
+                          class="pf-v6-c-text-input-group__icon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="pf-v5-svg"
+                            class="pf-v6-svg"
                             fill="currentColor"
                             height="1em"
                             role="img"
@@ -542,7 +570,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                         </span>
                         <input
                           aria-label="Available search input"
-                          class="pf-v5-c-text-input-group__text-input"
+                          class="pf-v6-c-text-input-group__text-input"
                           type="text"
                           value=""
                         />
@@ -552,44 +580,44 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__status"
+                class="pf-v6-c-dual-list-selector__status"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__status-text"
+                  class="pf-v6-c-dual-list-selector__status-text"
                   id="dual-list-select-available-pane-status"
                 >
                   0 of 4 items selected
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__menu"
+                class="pf-v6-c-dual-list-selector__menu"
                 tabindex="0"
               >
                 <ul
                   aria-activedescendant=""
                   aria-labelledby="dual-list-select-available-pane-status"
                   aria-multiselectable="true"
-                  class="pf-v5-c-dual-list-selector__list"
+                  class="pf-v6-c-dual-list-selector__list"
                   role="listbox"
                 >
                   <li
                     aria-selected="false"
-                    class="pf-v5-c-dual-list-selector__list-item"
+                    class="pf-v6-c-dual-list-selector__list-item"
                     id="dual-list-select-available-pane-list-option-0"
                     role="option"
                     tabindex="-1"
                   >
                     <div
-                      class="pf-v5-c-dual-list-selector__list-item-row"
+                      class="pf-v6-c-dual-list-selector__list-item-row"
                     >
                       <span
-                        class="pf-v5-c-dual-list-selector__item"
+                        class="pf-v6-c-dual-list-selector__item"
                       >
                         <span
-                          class="pf-v5-c-dual-list-selector__item-main"
+                          class="pf-v6-c-dual-list-selector__item-main"
                         >
                           <span
-                            class="pf-v5-c-dual-list-selector__item-text"
+                            class="pf-v6-c-dual-list-selector__item-text"
                           >
                             <span
                               data-value="test1ID"
@@ -603,22 +631,22 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                   </li>
                   <li
                     aria-selected="false"
-                    class="pf-v5-c-dual-list-selector__list-item"
+                    class="pf-v6-c-dual-list-selector__list-item"
                     id="dual-list-select-available-pane-list-option-1"
                     role="option"
                     tabindex="-1"
                   >
                     <div
-                      class="pf-v5-c-dual-list-selector__list-item-row"
+                      class="pf-v6-c-dual-list-selector__list-item-row"
                     >
                       <span
-                        class="pf-v5-c-dual-list-selector__item"
+                        class="pf-v6-c-dual-list-selector__item"
                       >
                         <span
-                          class="pf-v5-c-dual-list-selector__item-main"
+                          class="pf-v6-c-dual-list-selector__item-main"
                         >
                           <span
-                            class="pf-v5-c-dual-list-selector__item-text"
+                            class="pf-v6-c-dual-list-selector__item-text"
                           >
                             <span
                               data-value="test2ID"
@@ -632,22 +660,22 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                   </li>
                   <li
                     aria-selected="false"
-                    class="pf-v5-c-dual-list-selector__list-item"
+                    class="pf-v6-c-dual-list-selector__list-item"
                     id="dual-list-select-available-pane-list-option-2"
                     role="option"
                     tabindex="-1"
                   >
                     <div
-                      class="pf-v5-c-dual-list-selector__list-item-row"
+                      class="pf-v6-c-dual-list-selector__list-item-row"
                     >
                       <span
-                        class="pf-v5-c-dual-list-selector__item"
+                        class="pf-v6-c-dual-list-selector__item"
                       >
                         <span
-                          class="pf-v5-c-dual-list-selector__item-main"
+                          class="pf-v6-c-dual-list-selector__item-main"
                         >
                           <span
-                            class="pf-v5-c-dual-list-selector__item-text"
+                            class="pf-v6-c-dual-list-selector__item-text"
                           >
                             <span
                               data-value="test3ID"
@@ -661,22 +689,22 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                   </li>
                   <li
                     aria-selected="false"
-                    class="pf-v5-c-dual-list-selector__list-item"
+                    class="pf-v6-c-dual-list-selector__list-item"
                     id="dual-list-select-available-pane-list-option-3"
                     role="option"
                     tabindex="-1"
                   >
                     <div
-                      class="pf-v5-c-dual-list-selector__list-item-row"
+                      class="pf-v6-c-dual-list-selector__list-item-row"
                     >
                       <span
-                        class="pf-v5-c-dual-list-selector__item"
+                        class="pf-v6-c-dual-list-selector__item"
                       >
                         <span
-                          class="pf-v5-c-dual-list-selector__item-main"
+                          class="pf-v6-c-dual-list-selector__item-main"
                         >
                           <span
-                            class="pf-v5-c-dual-list-selector__item-text"
+                            class="pf-v6-c-dual-list-selector__item-text"
                           >
                             <span
                               data-value="test4ID"
@@ -693,162 +721,178 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
             </div>
             <div
               aria-label="Selector controls"
-              class="pf-v5-c-dual-list-selector__controls"
+              class="pf-v6-c-dual-list-selector__controls"
               role="group"
               tabindex="0"
             >
               <div
-                class="pf-v5-c-dual-list-selector__controls-item"
+                class="pf-v6-c-dual-list-selector__controls-item"
               >
                 <button
                   aria-disabled="true"
                   aria-label="Add selected"
-                  class="pf-v5-c-button pf-m-plain pf-m-disabled"
+                  class="pf-v6-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-49"
-                  data-ouia-component-type="PF5/Button"
+                  data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   disabled=""
                   tabindex="-1"
                   type="button"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v5-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 256 512"
-                    width="1em"
+                  <span
+                    class="pf-v6-c-button__text"
                   >
-                    <path
-                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-                    />
-                  </svg>
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v6-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 256 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                      />
+                    </svg>
+                  </span>
                 </button>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__controls-item"
+                class="pf-v6-c-dual-list-selector__controls-item"
               >
                 <button
                   aria-disabled="false"
                   aria-label="Add all"
-                  class="pf-v5-c-button pf-m-plain"
+                  class="pf-v6-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-50"
-                  data-ouia-component-type="PF5/Button"
+                  data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   tabindex="-1"
                   type="button"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v5-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 448 512"
-                    width="1em"
+                  <span
+                    class="pf-v6-c-button__text"
                   >
-                    <path
-                      d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
-                    />
-                  </svg>
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v6-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 448 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
+                      />
+                    </svg>
+                  </span>
                 </button>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__controls-item"
+                class="pf-v6-c-dual-list-selector__controls-item"
               >
                 <button
                   aria-disabled="false"
                   aria-label="Remove all"
-                  class="pf-v5-c-button pf-m-plain"
+                  class="pf-v6-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-51"
-                  data-ouia-component-type="PF5/Button"
+                  data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   tabindex="-1"
                   type="button"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v5-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 448 512"
-                    width="1em"
+                  <span
+                    class="pf-v6-c-button__text"
                   >
-                    <path
-                      d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
-                    />
-                  </svg>
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v6-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 448 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
+                      />
+                    </svg>
+                  </span>
                 </button>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__controls-item"
+                class="pf-v6-c-dual-list-selector__controls-item"
               >
                 <button
                   aria-disabled="true"
                   aria-label="Remove selected"
-                  class="pf-v5-c-button pf-m-plain pf-m-disabled"
+                  class="pf-v6-c-button pf-m-plain"
                   data-ouia-component-id="OUIA-Generated-Button-plain-52"
-                  data-ouia-component-type="PF5/Button"
+                  data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   disabled=""
                   tabindex="-1"
                   type="button"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v5-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 256 512"
-                    width="1em"
+                  <span
+                    class="pf-v6-c-button__text"
                   >
-                    <path
-                      d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
-                    />
-                  </svg>
+                    <svg
+                      aria-hidden="true"
+                      class="pf-v6-svg"
+                      fill="currentColor"
+                      height="1em"
+                      role="img"
+                      viewBox="0 0 256 512"
+                      width="1em"
+                    >
+                      <path
+                        d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+                      />
+                    </svg>
+                  </span>
                 </button>
               </div>
             </div>
             <div
-              class="pf-v5-c-dual-list-selector__pane pf-m-chosen"
+              class="pf-v6-c-dual-list-selector__pane pf-m-chosen"
             >
               <div
-                class="pf-v5-c-dual-list-selector__header"
+                class="pf-v6-c-dual-list-selector__header"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__title"
+                  class="pf-v6-c-dual-list-selector__title"
                 >
                   <div
-                    class="pf-v5-c-dual-list-selector__title-text"
+                    class="pf-v6-c-dual-list-selector__title-text"
                   >
                     Chosen options
                   </div>
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__tools"
+                class="pf-v6-c-dual-list-selector__tools"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__tools-filter"
+                  class="pf-v6-c-dual-list-selector__tools-filter"
                 >
                   <div
-                    class="pf-v5-c-text-input-group"
+                    class="pf-v6-c-text-input-group"
                   >
                     <div
-                      class="pf-v5-c-text-input-group__main pf-m-icon"
+                      class="pf-v6-c-text-input-group__main pf-m-icon"
                     >
                       <span
-                        class="pf-v5-c-text-input-group__text"
+                        class="pf-v6-c-text-input-group__text"
                       >
                         <span
-                          class="pf-v5-c-text-input-group__icon"
+                          class="pf-v6-c-text-input-group__icon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="pf-v5-svg"
+                            class="pf-v6-svg"
                             fill="currentColor"
                             height="1em"
                             role="img"
@@ -862,7 +906,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                         </span>
                         <input
                           aria-label="Chosen search input"
-                          class="pf-v5-c-text-input-group__text-input"
+                          class="pf-v6-c-text-input-group__text-input"
                           type="text"
                           value=""
                         />
@@ -872,44 +916,44 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__status"
+                class="pf-v6-c-dual-list-selector__status"
               >
                 <div
-                  class="pf-v5-c-dual-list-selector__status-text"
+                  class="pf-v6-c-dual-list-selector__status-text"
                   id="dual-list-select-chosen-pane-status"
                 >
                   0 of 1 items selected
                 </div>
               </div>
               <div
-                class="pf-v5-c-dual-list-selector__menu"
+                class="pf-v6-c-dual-list-selector__menu"
                 tabindex="0"
               >
                 <ul
                   aria-activedescendant=""
                   aria-labelledby="dual-list-select-chosen-pane-status"
                   aria-multiselectable="true"
-                  class="pf-v5-c-dual-list-selector__list"
+                  class="pf-v6-c-dual-list-selector__list"
                   role="listbox"
                 >
                   <li
                     aria-selected="false"
-                    class="pf-v5-c-dual-list-selector__list-item"
+                    class="pf-v6-c-dual-list-selector__list-item"
                     id="dual-list-select-chosen-pane-list-option-0"
                     role="option"
                     tabindex="-1"
                   >
                     <div
-                      class="pf-v5-c-dual-list-selector__list-item-row"
+                      class="pf-v6-c-dual-list-selector__list-item-row"
                     >
                       <span
-                        class="pf-v5-c-dual-list-selector__item"
+                        class="pf-v6-c-dual-list-selector__item"
                       >
                         <span
-                          class="pf-v5-c-dual-list-selector__item-main"
+                          class="pf-v6-c-dual-list-selector__item-main"
                         >
                           <span
-                            class="pf-v5-c-dual-list-selector__item-text"
+                            class="pf-v6-c-dual-list-selector__item-text"
                           >
                             Ungrouped systems
                           </span>
@@ -926,42 +970,48 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
     </form>
   </div>
   <footer
-    class="pf-v5-c-modal-box__footer"
+    class="pf-v6-c-modal-box__footer"
   >
     <div
-      class="pf-v5-c-form"
+      class="pf-v6-c-form"
     >
       <div
-        class="pf-v5-c-form__group pf-m-action pf-v5-u-mt-0"
+        class="pf-v6-c-form__group pf-m-action pf-v6-u-mt-0"
       >
         <div
-          class="pf-v5-c-form__group-control"
+          class="pf-v6-c-form__group-control"
         >
           <div
-            class="pf-v5-c-form__actions"
+            class="pf-v6-c-form__actions"
           >
             <button
-              aria-disabled="true"
-              class="pf-v5-c-button pf-m-primary pf-m-disabled"
+              class="pf-v6-c-button pf-m-primary"
               data-ouia-component-id="primary-save-button"
-              data-ouia-component-type="PF5/Button"
+              data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               disabled=""
               form="modal-form"
               type="submit"
             >
-              Save
+              <span
+                class="pf-v6-c-button__text"
+              >
+                Save
+              </span>
             </button>
             <button
-              aria-disabled="false"
-              class="pf-v5-c-button pf-m-link"
+              class="pf-v6-c-button pf-m-link"
               data-ouia-component-id="secondary-cancel-button"
-              data-ouia-component-type="PF5/Button"
+              data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               id="cancel-modal"
               type="button"
             >
-              Cancel
+              <span
+                class="pf-v6-c-button__text"
+              >
+                Cancel
+              </span>
             </button>
           </div>
         </div>

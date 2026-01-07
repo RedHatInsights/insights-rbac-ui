@@ -1,51 +1,26 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
-import { PageLayout, PageTitle } from './PageLayout';
+import { PageLayout } from './PageLayout';
 
-interface BreadcrumbItemProps {
-  title?: string;
-  to?: string;
-  isActive?: boolean;
-}
-
-// Combined component for showcasing both toolbar components
-const CombinedToolbar: React.FC<{
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  breadcrumbs?: BreadcrumbItemProps[];
-  renderTitleTag?: () => React.ReactNode;
-  children?: React.ReactNode;
-}> = ({ title, description, breadcrumbs, renderTitleTag, children }) => (
-  <PageLayout breadcrumbs={breadcrumbs}>
-    <PageTitle title={title} description={description} renderTitleTag={renderTitleTag}>
-      {children}
-    </PageTitle>
-  </PageLayout>
-);
-
-const meta: Meta<typeof CombinedToolbar> = {
-  component: CombinedToolbar,
+const meta: Meta<typeof PageLayout> = {
+  component: PageLayout,
   tags: ['autodocs'],
   parameters: {
     docs: {
       description: {
         component: `
-PageLayout and PageTitle are layout components that provide consistent page headers throughout the RBAC application.
-
-## Components
-
-- **PageLayout**: Main container that handles breadcrumbs and page header layout
-- **PageTitle**: Title section with support for descriptions, tags, and additional content
+PageLayout is a layout component that provides consistent page structure throughout the RBAC application.
 
 ## Features
 - Integrates with RBAC breadcrumb navigation
 - Supports page titles with loading placeholders
 - Flexible description content (string or ReactNode)
-- Custom title tags and additional content areas
-- Consistent styling with Red Hat design system
+- Label/tag support for status indicators
+- Action menu support for page-level actions
+- Content area with proper spacing
+- Wraps PageHeader from @patternfly/react-component-groups
         `,
       },
     },
@@ -61,25 +36,18 @@ PageLayout and PageTitle are layout components that provide consistent page head
   ],
   argTypes: {
     title: {
-      control: 'text',
-      description: 'Page title text or ReactNode',
-    },
-    description: {
-      control: 'text',
-      description: 'Page description (string or ReactNode)',
+      control: 'object',
+      description: 'Page title configuration object with title, description, label, and actionMenu',
     },
     breadcrumbs: {
       control: 'object',
       description: 'Breadcrumb navigation object',
     },
-    renderTitleTag: {
-      description: 'Function that returns a tag component to display next to the title',
-    },
     children: {
-      description: 'Additional content to display below title and description',
+      description: 'Page content that appears below the title',
     },
   },
-} satisfies Meta<typeof CombinedToolbar>;
+} satisfies Meta<typeof PageLayout>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -89,7 +57,9 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   args: {
-    title: 'User Access Management',
+    title: {
+      title: 'User Access Management',
+    },
   },
 };
 
@@ -98,8 +68,10 @@ export const Default: Story = {
  */
 export const WithBreadcrumbs: Story = {
   args: {
-    title: 'Groups',
-    description: 'Manage user groups and their access permissions.',
+    title: {
+      title: 'Groups',
+      description: 'Manage user groups and their access permissions.',
+    },
     breadcrumbs: [
       {
         title: 'User Access',
@@ -117,15 +89,17 @@ export const WithBreadcrumbs: Story = {
 /**
  * Page header with title tag/badge
  */
-export const WithTitleTag: Story = {
+export const WithLabel: Story = {
   args: {
-    title: 'Beta Features',
-    description: 'Try out new functionality before it becomes generally available.',
-    renderTitleTag: () => (
-      <Label color="blue" isCompact>
-        Beta
-      </Label>
-    ),
+    title: {
+      title: 'Beta Features',
+      description: 'Try out new functionality before it becomes generally available.',
+      label: (
+        <Label color="blue" isCompact>
+          Beta
+        </Label>
+      ),
+    },
   },
 };
 
@@ -134,8 +108,15 @@ export const WithTitleTag: Story = {
  */
 export const DeepNavigation: Story = {
   args: {
-    title: 'Engineering Team',
-    description: 'Manage members and permissions for the Engineering team group.',
+    title: {
+      title: 'Engineering Team',
+      description: 'Manage members and permissions for the Engineering team group.',
+      label: (
+        <Label color="grey" isCompact>
+          12 members
+        </Label>
+      ),
+    },
     breadcrumbs: [
       {
         title: 'User Access',
@@ -152,11 +133,6 @@ export const DeepNavigation: Story = {
         isActive: true,
       },
     ],
-    renderTitleTag: () => (
-      <Label color="grey" isCompact>
-        12 members
-      </Label>
-    ),
   },
 };
 
@@ -165,13 +141,16 @@ export const DeepNavigation: Story = {
  */
 export const ComplexDescription: Story = {
   args: {
-    title: 'Service Accounts',
-    description: (
-      <div>
-        <p>Service accounts provide programmatic access to Red Hat services.</p>
-        <p style={{ marginTop: '8px', fontSize: '14px', color: '#666' }}>Create and manage service accounts for automated integrations.</p>
-      </div>
-    ),
+    title: {
+      title: 'Service Accounts',
+      description: (
+        <>
+          <span>Service accounts provide programmatic access to Red Hat services.</span>
+          <br />
+          <span style={{ marginTop: '8px', fontSize: '14px', color: '#666' }}>Create and manage service accounts for automated integrations.</span>
+        </>
+      ),
+    },
     breadcrumbs: [
       {
         title: 'User Access',
@@ -187,41 +166,14 @@ export const ComplexDescription: Story = {
 };
 
 /**
- * With additional content/actions
- */
-export const WithActions: Story = {
-  args: {
-    title: 'Roles',
-    description: 'Define custom roles and permissions for your organization.',
-    breadcrumbs: [
-      {
-        title: 'User Access',
-        to: '/',
-        isActive: false,
-      },
-      {
-        title: 'Roles',
-        isActive: true,
-      },
-    ],
-    children: (
-      <div style={{ marginTop: '16px' }}>
-        <Button variant="primary" style={{ marginRight: '8px' }}>
-          Create role
-        </Button>
-        <Button variant="link">View documentation</Button>
-      </div>
-    ),
-  },
-};
-
-/**
  * Loading state (title will show placeholder)
  */
 export const LoadingTitle: Story = {
   args: {
-    title: undefined, // Will show ToolbarTitlePlaceholder
-    description: 'Loading page information...',
+    title: {
+      title: undefined, // Will show ToolbarTitlePlaceholder
+      description: 'Loading page information...',
+    },
     breadcrumbs: [
       {
         title: 'User Access',
@@ -241,53 +193,29 @@ export const LoadingTitle: Story = {
  */
 export const Minimal: Story = {
   args: {
-    title: 'Dashboard',
-  },
-};
-
-/**
- * Individual PageLayout component
- */
-export const ToolbarOnly: StoryObj<typeof PageLayout> = {
-  render: () => (
-    <PageLayout
-      breadcrumbs={[
-        { title: 'User Access', to: '/', isActive: false },
-        { title: 'Settings', isActive: true },
-      ]}
-    >
-      <div style={{ padding: '16px', background: '#f0f0f0', borderRadius: '4px' }}>Custom toolbar content goes here</div>
-    </PageLayout>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'PageLayout used independently with custom content.',
-      },
+    title: {
+      title: 'Dashboard',
     },
   },
 };
 
 /**
- * Individual PageTitle component
+ * With page content
  */
-export const TitleOnly: StoryObj<typeof PageTitle> = {
-  render: () => (
-    <div style={{ padding: '20px' }}>
-      <PageTitle
-        title="Standalone Title"
-        description="This title component can be used outside of PageLayout."
-        renderTitleTag={() => <Label color="green">Active</Label>}
-      >
-        <div style={{ marginTop: '16px', padding: '12px', background: '#f5f5f5', borderRadius: '4px' }}>Additional content area</div>
-      </PageTitle>
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'PageTitle used independently for custom layouts.',
-      },
+export const WithContent: Story = {
+  args: {
+    title: {
+      title: 'Settings',
+      description: 'Manage your application settings.',
     },
+    breadcrumbs: [
+      { title: 'User Access', to: '/', isActive: false },
+      { title: 'Settings', isActive: true },
+    ],
+    children: (
+      <div style={{ padding: '16px', background: '#f0f0f0', borderRadius: '4px' }}>
+        Page content goes here. The spacing between the title and this content is handled automatically by PageLayout.
+      </div>
+    ),
   },
 };

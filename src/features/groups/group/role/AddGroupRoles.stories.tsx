@@ -674,13 +674,13 @@ export const CancelNotification: Story = {
           const notificationPortal = document.querySelector('.notifications-portal');
           expect(notificationPortal).toBeInTheDocument();
 
-          const warningAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-warning');
+          const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
           expect(warningAlert).toBeInTheDocument();
 
-          const alertTitle = warningAlert?.querySelector('.pf-v5-c-alert__title');
+          const alertTitle = warningAlert?.querySelector('.pf-v6-c-alert__title');
           expect(alertTitle).toHaveTextContent(/cancel/i);
 
-          const alertDescription = warningAlert?.querySelector('.pf-v5-c-alert__description');
+          const alertDescription = warningAlert?.querySelector('.pf-v6-c-alert__description');
           expect(alertDescription).toHaveTextContent(/cancelled/i);
         },
         { timeout: 5000 },
@@ -1198,7 +1198,7 @@ export const AddRolesToGroupAPITest: Story = {
         const notificationPortal = document.querySelector('.notifications-portal');
         expect(notificationPortal).toBeInTheDocument();
 
-        const successAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-success');
+        const successAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-success');
         expect(successAlert).toBeInTheDocument();
       },
       { timeout: 5000 },

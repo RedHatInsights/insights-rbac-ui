@@ -4,7 +4,6 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { FETCH_ROLE } from '../../redux/roles/action-types';
@@ -14,7 +13,7 @@ import * as InventoryActions from '../../redux/inventory/actions';
 import * as RoleActions from '../../redux/roles/actions';
 
 describe('RoleResourceDefinitions - Cost management', () => {
-  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const middlewares = [thunk, promiseMiddleware];
   const mockStore = configureStore(middlewares);
   let initialState;
 
@@ -115,7 +114,7 @@ describe('RoleResourceDefinitions - Cost management', () => {
 });
 
 describe('RoleResourceDefinitions - Inventory', () => {
-  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const middlewares = [thunk, promiseMiddleware];
   const mockStore = configureStore(middlewares);
   let initialState;
 

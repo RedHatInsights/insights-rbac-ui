@@ -8,8 +8,7 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useDispatch } from 'react-redux';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import messages from '../../../Messages';
 
 type ItemType = 'role' | 'member';
@@ -112,7 +111,7 @@ export function useGroupRemoveModal(config: UseGroupRemoveModalConfig): UseGroup
   const { itemType, groupName, onConfirm } = config;
 
   const intl = useIntl();
-  const dispatch = useDispatch();
+  const addNotification = useAddNotification();
 
   const [isOpen, setIsOpen] = useState(false);
   const [names, setNames] = useState<string[]>([]);
@@ -137,29 +136,25 @@ export function useGroupRemoveModal(config: UseGroupRemoveModalConfig): UseGroup
       closeModal();
     } catch (error) {
       if (isNotFoundError(error)) {
-        dispatch(
-          addNotification({
-            variant: 'warning',
-            title: intl.formatMessage(messages.itemAlreadyRemovedTitle),
-            description: intl.formatMessage(messages.itemAlreadyRemovedDescription),
-            dismissable: true,
-          }),
-        );
+        addNotification({
+          variant: 'warning',
+          title: intl.formatMessage(messages.itemAlreadyRemovedTitle),
+          description: intl.formatMessage(messages.itemAlreadyRemovedDescription),
+          dismissable: true,
+        });
       } else if (isForbiddenError(error)) {
-        dispatch(
-          addNotification({
-            variant: 'danger',
-            title: intl.formatMessage(messages.insufficientPermissionsTitle),
-            description: intl.formatMessage(messages.insufficientPermissionsDescription),
-            dismissable: true,
-          }),
-        );
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.insufficientPermissionsTitle),
+          description: intl.formatMessage(messages.insufficientPermissionsDescription),
+          dismissable: true,
+        });
       }
       closeModal();
     } finally {
       setIsLoading(false);
     }
-  }, [names, onConfirm, closeModal, dispatch, intl]);
+  }, [names, onConfirm, closeModal, addNotification, intl]);
 
   const modalState = useMemo(() => {
     const isSingular = names.length === 1;

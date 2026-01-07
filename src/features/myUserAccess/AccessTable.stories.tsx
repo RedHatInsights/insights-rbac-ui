@@ -231,9 +231,9 @@ export const FilteringInteraction: Story = {
     // Wait for dropdown menu to appear
     await delay(300);
 
-    // Find the menu and then the advisor checkbox within it
-    const filterMenu = await canvas.findByRole('menu');
-    const advisorCheckbox = await within(filterMenu).findByRole('checkbox', { name: /advisor/i });
+    // Find the advisor checkbox in the dropdown (rendered in portal)
+    const body = within(document.body);
+    const advisorCheckbox = await body.findByRole('checkbox', { name: /advisor/i });
 
     // Reset spy before click
     accessApiCallSpy.mockClear();
@@ -260,7 +260,7 @@ export const FilteringInteraction: Story = {
     });
 
     // Test adding second application (multi-select) - dropdown should still be open
-    const complianceCheckbox = await within(filterMenu).findByRole('checkbox', { name: /compliance/i });
+    const complianceCheckbox = await body.findByRole('checkbox', { name: /compliance/i });
 
     // Reset spy
     accessApiCallSpy.mockClear();
@@ -284,7 +284,7 @@ export const FilteringInteraction: Story = {
     );
 
     // Test removing one application filter - click advisor again to uncheck it
-    const advisorCheckboxToRemove = await within(filterMenu).findByRole('checkbox', { name: /advisor/i });
+    const advisorCheckboxToRemove = await body.findByRole('checkbox', { name: /advisor/i });
 
     // Reset spy
     accessApiCallSpy.mockClear();
@@ -331,9 +331,8 @@ export const FilteringInteraction: Story = {
     await userEvent.click(applicationButtonsAfterClear[1]);
     await delay(300);
 
-    // All checkboxes should be unchecked after clear
-    const filterMenuAfterClear = await canvas.findByRole('menu');
-    const allOptions = await within(filterMenuAfterClear).findAllByRole('checkbox');
+    // All checkboxes should be unchecked after clear - find in portal (reuse body)
+    const allOptions = await body.findAllByRole('checkbox');
     allOptions.forEach((checkbox) => {
       expect(checkbox).not.toBeChecked();
     });
@@ -514,8 +513,9 @@ export const SortingInteraction: Story = {
     await userEvent.click(applicationButtonsForSort[1]); // [1] = filter values dropdown
     await delay(300);
 
-    const filterMenuForSort = await canvas.findByRole('menu');
-    const advisorCheckboxForSort = await within(filterMenuForSort).findByRole('checkbox', { name: /advisor/i });
+    // Find checkbox in dropdown (rendered in portal)
+    const bodyForSort = within(document.body);
+    const advisorCheckboxForSort = await bodyForSort.findByRole('checkbox', { name: /advisor/i });
     await userEvent.click(advisorCheckboxForSort);
 
     // Verify filtering + sorting works together

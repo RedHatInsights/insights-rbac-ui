@@ -3,12 +3,11 @@ import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import { fetchRoles } from '../../../redux/roles/actions';
 import { FETCH_ROLES } from '../../../redux/roles/action-types';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
 import * as RoleHelper from '../../../redux/roles/helper';
 
 describe('role actions', () => {
-  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const middlewares = [thunk, promiseMiddleware];
   let mockStore;
 
   const fetchRolesSpy = jest.spyOn(RoleHelper, 'fetchRoles');

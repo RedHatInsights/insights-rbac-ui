@@ -3,8 +3,7 @@ import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { mappedProps } from '../../../../../helpers/dataUtilities';
@@ -57,9 +56,8 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
   // Show error state
   if (error) {
     return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="Unable to load groups" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+      <div className="pf-v6-u-pt-md">
+        <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load groups" variant="sm">
           <EmptyStateBody>{extractErrorMessage(error)}</EmptyStateBody>
         </EmptyState>
       </div>
@@ -67,8 +65,7 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
   }
 
   const emptyState = (
-    <EmptyState variant="sm">
-      <EmptyStateHeader titleText="No groups found" icon={<EmptyStateIcon icon={UsersIcon} />} headingLevel="h4" />
+    <EmptyState headingLevel="h4" icon={UsersIcon} titleText="No groups found" variant="sm">
       <EmptyStateBody>This user is not a member of any groups.</EmptyStateBody>
     </EmptyState>
   );
@@ -80,7 +77,7 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
   }));
 
   return (
-    <div className="pf-v5-u-pt-md">
+    <div className="pf-v6-u-pt-md">
       <TableView<typeof columns, GroupData>
         columns={columns}
         columnConfig={columnConfig}

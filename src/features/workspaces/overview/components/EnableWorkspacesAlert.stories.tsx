@@ -177,8 +177,8 @@ export const EligibleNotEnabled: StoryObj<FeatureFlagContextArgs> = {
     ).resolves.toBeInTheDocument();
     await expect(canvas.queryByTestId('component-hidden-message')).not.toBeInTheDocument();
 
-    // Should show the switch
-    const switchElement = await canvas.findByRole('checkbox');
+    // Should show the switch (PF6 uses role="switch")
+    const switchElement = await canvas.findByRole('switch');
     await expect(switchElement).toBeInTheDocument();
     await expect(switchElement).not.toBeChecked();
   },
@@ -219,7 +219,7 @@ export const InteractiveDemo: Story = {
     await expect(
       canvas.findByText('You are qualified to opt into the workspace user access model for your organization.'),
     ).resolves.toBeInTheDocument();
-    const switchElement = await canvas.findByRole('checkbox');
+    const switchElement = await canvas.findByRole('switch');
     await expect(switchElement).toBeInTheDocument();
     await expect(switchElement).not.toBeChecked();
 

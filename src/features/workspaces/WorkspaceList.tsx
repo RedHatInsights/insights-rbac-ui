@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { WorkspaceListTable } from './components/WorkspaceListTable';
 import { deleteWorkspace, fetchWorkspaces, moveWorkspace } from '../../redux/workspaces/actions';
 import { Workspace } from '../../redux/workspaces/reducer';
@@ -8,6 +10,7 @@ import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { MoveWorkspaceDialog } from './components/MoveWorkspaceDialog';
 import { TreeViewWorkspaceItem } from './components/managed-selector/TreeViewWorkspaceItem';
 import WorkspaceType from './components/managed-selector/WorkspaceType';
+import messages from '../../Messages';
 
 interface Permission {
   permission: string;
@@ -25,6 +28,8 @@ const convertToTreeViewItem = (workspace: Workspace): TreeViewWorkspaceItem => (
 export const WorkspaceList = () => {
   const dispatch = useDispatch();
   const chrome = useChrome();
+  const intl = useIntl();
+  const addNotification = useAddNotification();
 
   // All Redux selectors moved from WorkspaceListTable - using memoized selectors
   const workspaces = useSelector(selectWorkspaces);
@@ -59,10 +64,24 @@ export const WorkspaceList = () => {
   // Action handlers with the actual complex logic from WorkspaceListTable
   const handleDeleteWorkspaces = useCallback(
     async (workspaces: Workspace[]) => {
-      await Promise.all(workspaces.map(async ({ id, name }) => await dispatch(deleteWorkspace({ id }, { name }))));
-      dispatch(fetchWorkspaces());
+      try {
+        await Promise.all(workspaces.map(async ({ id, name }) => await dispatch(deleteWorkspace({ id }, { name }))));
+        addNotification({
+          variant: 'success',
+          title: intl.formatMessage(messages.deleteWorkspaceSuccessTitle),
+          description: intl.formatMessage(messages.deleteWorkspaceSuccessDescription, { workspace: workspaces.map((w) => w.name).join(', ') }),
+        });
+        dispatch(fetchWorkspaces());
+      } catch (error) {
+        console.error('Failed to delete workspaces:', error);
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.deleteWorkspaceErrorTitle),
+          description: intl.formatMessage(messages.deleteWorkspaceErrorDescription, { workspace: workspaces.map((w) => w.name).join(', ') }),
+        });
+      }
     },
-    [dispatch],
+    [dispatch, addNotification, intl],
   );
 
   const handleMoveWorkspace = useCallback(
@@ -86,12 +105,22 @@ export const WorkspaceList = () => {
             { name: workspace.name },
           ),
         );
+        addNotification({
+          variant: 'success',
+          title: intl.formatMessage(messages.moveWorkspaceSuccessTitle),
+          description: intl.formatMessage(messages.moveWorkspaceSuccessDescription, { name: workspace.name }),
+        });
         dispatch(fetchWorkspaces());
       } catch (error) {
         console.error('Failed to move workspace:', error);
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.moveWorkspaceErrorTitle, { name: workspace.name }),
+          description: intl.formatMessage(messages.moveWorkspaceErrorDescription, { workspace: workspace.name }),
+        });
       }
     },
-    [dispatch],
+    [dispatch, addNotification, intl],
   );
 
   const handleMoveWorkspaceConfirm = useCallback(

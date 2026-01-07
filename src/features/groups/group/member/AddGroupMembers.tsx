@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { useFlag } from '@unleash/proxy-client-react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { addMembersToGroup, fetchGroup, fetchGroups, fetchMembersForGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
 import { UsersList } from '../../add-group/components/stepUsers/UsersList';
@@ -35,6 +36,7 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
   const { groupId: uuid } = useParams<{ groupId: string }>();
   const dispatch = useDispatch();
   const isITLess = useFlag('platform.rbac.itless');
+  const addNotification = useAddNotification();
 
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -61,22 +63,36 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
   const handleAddMembers = () => {
     const userList = selectedUsers.map((user) => ({ username: user.username || user.label }));
     if (userList.length > 0) {
-      dispatch(
-        addNotification({
-          variant: 'info',
-          title: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
-          description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
-        }) as any,
-      );
-      (dispatch(addMembersToGroup(groupId!, userList)) as any).then(() => {
-        // If we just modified a default group, re-fetch to get the updated name
-        if (isDefault && !isChanged) {
-          dispatch(fetchGroup(groupId!));
-        }
-        dispatch(fetchMembersForGroup(groupId!));
-        dispatch(fetchGroups({ usesMetaInURL: true, chrome }));
-        afterSubmit && afterSubmit();
+      addNotification({
+        variant: 'info',
+        title: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
+        description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
       });
+      (dispatch(addMembersToGroup(groupId!, userList)) as any)
+        .then(() => {
+          addNotification({
+            variant: 'success',
+            title: intl.formatMessage(userList.length > 1 ? messages.addGroupMembersSuccessTitle : messages.addGroupMemberSuccessTitle),
+            description: intl.formatMessage(
+              userList.length > 1 ? messages.addGroupMembersSuccessDescription : messages.addGroupMemberSuccessDescription,
+            ),
+          });
+          // If we just modified a default group, re-fetch to get the updated name
+          if (isDefault && !isChanged) {
+            dispatch(fetchGroup(groupId!));
+          }
+          dispatch(fetchMembersForGroup(groupId!));
+          dispatch(fetchGroups({ usesMetaInURL: true, chrome }));
+          afterSubmit && afterSubmit();
+        })
+        .catch((error: Error) => {
+          addNotification({
+            variant: 'danger',
+            title: intl.formatMessage(userList.length > 1 ? messages.addGroupMembersErrorTitle : messages.addGroupMemberErrorTitle),
+            description: intl.formatMessage(userList.length > 1 ? messages.addGroupMembersErrorDescription : messages.addGroupMemberErrorDescription),
+          });
+          console.error('Failed to add members to group:', error);
+        });
     }
     navigate(cancelRoute);
   };
@@ -92,13 +108,11 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
   };
 
   const onCancel = () => {
-    dispatch(
-      addNotification({
-        variant: 'warning',
-        title: intl.formatMessage(messages.addingGroupMembersCancelled),
-        description: 'Adding members to group has been cancelled.',
-      }) as any,
-    );
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(messages.addingGroupMembersCancelled),
+      description: 'Adding members to group has been cancelled.',
+    });
     navigate(cancelRoute);
   };
 
@@ -121,9 +135,9 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
       >
         <Stack hasGutter>
           <StackItem>
-            <TextContent>
+            <Content>
               <ActiveUsers {...(!isITLess && { linkDescription: intl.formatMessage(messages.toManageUsersText) })} />
-            </TextContent>
+            </Content>
           </StackItem>
           <StackItem isFilled>
             {isITLess ? (

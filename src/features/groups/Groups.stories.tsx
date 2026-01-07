@@ -483,8 +483,8 @@ export const DefaultGroupsBehavior: Story = {
     const systemGroupCells = within(systemGroupRow).getAllByRole('cell');
 
     // First cell should be a checkbox cell but without actual checkbox input
-    expect(adminGroupCells[0]).toHaveClass('pf-v5-c-table__check');
-    expect(systemGroupCells[0]).toHaveClass('pf-v5-c-table__check');
+    expect(adminGroupCells[0]).toHaveClass('pf-v6-c-table__check');
+    expect(systemGroupCells[0]).toHaveClass('pf-v6-c-table__check');
 
     // But no actual checkbox inputs should be present in default group rows
     expect(within(adminGroupRow).queryByRole('checkbox')).not.toBeInTheDocument();

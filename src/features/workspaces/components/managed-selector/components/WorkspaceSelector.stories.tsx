@@ -78,25 +78,24 @@ const baseArgs = {
 
 export const DropdownWithWorkspaces: Story = {
   args: baseArgs,
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement);
+  play: async ({ args }) => {
+    const body = within(document.body);
 
-    // Wait for component to fully render
-    await expect(canvas.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
-    // Wait for search input to appear
-    const searchInput = await canvas.findByPlaceholderText('Find a workspace by name');
+    // Wait for component to fully render - search input is in portal
+    await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
+    const searchInput = await body.findByPlaceholderText('Find a workspace by name');
     await expect(searchInput).toBeInTheDocument();
 
-    // Wait for tree view workspaces to appear
-    await expect(canvas.findByText('Production')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Development')).resolves.toBeInTheDocument();
+    // Wait for tree view workspaces to appear (rendered in portal)
+    await expect(body.findByText('Production')).resolves.toBeInTheDocument();
+    await expect(body.findByText('Development')).resolves.toBeInTheDocument();
 
-    // Wait for action button to appear
-    const actionButton = await canvas.findByText('View list');
+    // Wait for action button to appear (in portal)
+    const actionButton = await body.findByText('View list');
     await expect(actionButton).toBeInTheDocument();
 
     // Test tree view selection
-    await userEvent.click(await canvas.findByText('Production'));
+    await userEvent.click(await body.findByText('Production'));
     await expect(args.onSelectItem).toHaveBeenCalled();
 
     // Test action button click
@@ -134,21 +133,21 @@ export const DropdownFiltered: Story = {
     areElementsFiltered: true,
     filteredTreeElements: [mockWorkspaces[0]], // Only Production workspace
   },
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement);
+  play: async ({ args }) => {
+    const body = within(document.body);
 
-    // Wait for component to fully render with search value
-    await expect(canvas.findByDisplayValue('prod')).resolves.toBeInTheDocument();
+    // Wait for component to fully render with search value (in portal)
+    await expect(body.findByDisplayValue('prod')).resolves.toBeInTheDocument();
 
     // Wait for search input with value to appear
-    const searchInput = await canvas.findByDisplayValue('prod');
+    const searchInput = await body.findByDisplayValue('prod');
     await expect(searchInput).toBeInTheDocument();
 
-    // Wait for filtered workspace to appear
-    await expect(canvas.findByText('Production')).resolves.toBeInTheDocument();
+    // Wait for filtered workspace to appear (in portal)
+    await expect(body.findByText('Production')).resolves.toBeInTheDocument();
 
     // Verify Development is not shown (filtered out)
-    await expect(canvas.queryByText('Development')).not.toBeInTheDocument();
+    await expect(body.queryByText('Development')).not.toBeInTheDocument();
 
     // Test search input interaction
     await userEvent.clear(searchInput);

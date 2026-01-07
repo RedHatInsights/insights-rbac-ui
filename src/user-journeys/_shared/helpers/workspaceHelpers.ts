@@ -37,7 +37,7 @@ export async function openWorkspaceWizard(user: ReturnType<typeof userEvent.setu
   await body.findByText(/create new workspace/i);
 
   // Find the wizard container
-  const wizard = document.querySelector('.pf-v5-c-wizard, .pf-c-wizard');
+  const wizard = document.querySelector('.pf-v6-c-wizard, .pf-c-wizard');
   expect(wizard).toBeInTheDocument();
 
   return within(wizard as HTMLElement);
@@ -118,7 +118,7 @@ export async function expandWorkspaceInTree(
   expect(workspaceNode).toBeInTheDocument();
 
   // Find the toggle button (expand/collapse) by its class
-  const toggleButton = workspaceNode?.querySelector('.pf-v5-c-tree-view__node-toggle');
+  const toggleButton = workspaceNode?.querySelector('.pf-v6-c-tree-view__node-toggle');
   expect(toggleButton).toBeInTheDocument();
 
   // Click to expand
@@ -145,10 +145,23 @@ export async function selectWorkspaceFromTree(
   await user.click(workspaceButton);
   await delay(300);
 
-  // Click the "Select Workspace" button to confirm
-  const selectButton = await treePanelScope.findByRole('button', { name: /select workspace$/i });
+  // Click the "Select Workspace" button to confirm (may be in portal)
+  // The button might be labeled "Select Workspace" or just contain that text
+  const body = within(document.body);
+
+  // Try to find the button by its text content
+  // Use flexible regex that matches "Select Workspace" or "Select workspace" anywhere
+  const selectButton = await body.findByRole('button', { name: /select workspace/i }).catch(async () => {
+    // Fallback: find by text content if role search fails
+    const buttonByText = await body.findByText(/select workspace/i);
+    const button = buttonByText.closest('button');
+    return button;
+  });
+
   expect(selectButton).toBeInTheDocument();
-  await user.click(selectButton);
+  if (selectButton) {
+    await user.click(selectButton);
+  }
   await delay(500);
 }
 
@@ -243,7 +256,7 @@ export async function findModal(expectedHeading: string | RegExp) {
   }
 
   // Find the modal container
-  const modal = document.querySelector('.pf-v5-c-modal-box, .pf-c-modal-box');
+  const modal = document.querySelector('.pf-v6-c-modal-box, .pf-c-modal-box');
   expect(modal).toBeInTheDocument();
 
   return within(modal as HTMLElement);

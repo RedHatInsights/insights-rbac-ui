@@ -57,7 +57,7 @@ const SetName: React.FC<SetNameProps> = (props) => {
   const roleDescriptionValid = roleDescriptionValidated(roleDescription);
   return (
     <Stack hasGutter>
-      <StackItem className="rbac-l-stack__item-summary">
+      <StackItem>
         <FormGroup label={intl.formatMessage(messages.roleName)} isRequired>
           <TextInput
             id="role-name"

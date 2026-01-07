@@ -16,7 +16,6 @@ import { useGroupDataLoad } from './useGroupDataLoad';
 import { useGroupNavigation } from './useGroupNavigation';
 import { useGroupActions } from './useGroupActions';
 import { useDefaultGroupChangedAlert } from './useDefaultGroupChangedAlert';
-import './group.scss';
 
 export const Group: React.FC = () => {
   // Data and configuration

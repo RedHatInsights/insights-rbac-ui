@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
@@ -24,7 +25,6 @@ import useAppNavigate from '../../../hooks/useAppNavigate';
 import { SilentErrorBoundary } from '../../../components/ui-states/SilentErrorBoundary';
 import messages from '../../../Messages';
 import paths from '../../../utilities/pathnames';
-import './add-role-wizard.scss';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import { RoleIn } from '@redhat-cloud-services/rbac-client/types';
 
@@ -112,6 +112,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const navigate = useAppNavigate();
   const chrome = useChrome();
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const addNotification = useAddNotification();
 
   const [wizardContextValue, setWizardContextValue] = useState<{
     success: boolean;
@@ -141,12 +142,10 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
 
   const onCancel = () => {
     if (!wizardContextValue.success) {
-      dispatch(
-        addNotification({
-          variant: 'warning',
-          title: intl.formatMessage(messages.creatingRoleCanceled),
-        }),
-      );
+      addNotification({
+        variant: 'warning',
+        title: intl.formatMessage(messages.creatingRoleCanceled),
+      });
     }
 
     setCancelWarningVisible(false);
@@ -228,10 +227,16 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
         if (result.error) {
           throw result.error;
         }
+        // Success is shown via RoleCreationSuccess wizard step, no notification needed
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
         dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true, chrome }) as unknown as { type: string });
       })
-      .catch(() => {
+      .catch((error: { errors?: Array<{ detail?: string }> }) => {
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.createRoleErrorTitle),
+          description: error?.errors?.[0]?.detail || intl.formatMessage(messages.createRoleErrorDescription),
+        });
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
         dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true, chrome }) as unknown as { type: string });
         onClose();

@@ -83,7 +83,7 @@ const GroupDetailsDrawer: React.FunctionComponent<GroupDetailsDrawerProps> = ({
                       headerContent={intl.formatMessage(messages.assignedRoles)}
                       bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
                     >
-                      <Icon className="pf-v5-u-pl-sm" isInline>
+                      <Icon className="pf-v6-u-pl-sm" isInline>
                         <OutlinedQuestionCircleIcon />
                       </Icon>
                     </Popover>

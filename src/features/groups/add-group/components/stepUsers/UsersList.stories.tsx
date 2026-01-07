@@ -316,7 +316,7 @@ export const FilterByStatus: Story = {
     await userEvent.click(filterDropdownButton!);
 
     // Select "Status" from the dropdown menu
-    const statusOption = await canvas.findByRole('menuitem', { name: /status/i });
+    const statusOption = await within(document.body).findByRole('menuitem', { name: /status/i });
     await userEvent.click(statusOption);
 
     // Open status filter checkbox dropdown (uses DataViewCheckboxFilter)
@@ -325,7 +325,7 @@ export const FilterByStatus: Story = {
     await userEvent.click(statusFilterToggle);
 
     // Select "Inactive" checkbox from the dropdown menu
-    const inactiveMenuItem = await canvas.findByRole('menuitem', { name: /inactive/i });
+    const inactiveMenuItem = await within(document.body).findByRole('menuitem', { name: /inactive/i });
     const inactiveCheckbox = within(inactiveMenuItem).getByRole('checkbox');
     await userEvent.click(inactiveCheckbox);
 

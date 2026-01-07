@@ -163,14 +163,12 @@ export const updateGroup = (groupData: Group & { uuid: string }): ReduxAction<Pr
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.editGroupSuccessTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.editGroupSuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.editGroupErrorTitle),
-          dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.editGroupErrorDescription),
         },
@@ -189,12 +187,10 @@ export const removeGroups = (uuids: string[]): ReduxAction<Promise<unknown>> => 
       notifications: {
         fulfilled: {
           variant: 'success',
-          dismissDelay: 8000,
           title: intl.formatMessage(uuids.length > 1 ? messages.removeGroupsSuccess : messages.removeGroupSuccess),
         },
         rejected: {
           variant: 'danger',
-          dismissDelay: 8000,
           title: intl.formatMessage(uuids.length > 1 ? messages.removeGroupsError : messages.removeGroupError),
         },
       },
@@ -219,13 +215,11 @@ export const addMembersToGroup = (groupId: string, members: PrincipalIn[]): Redu
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(singleMember ? messages.addGroupMembersSuccessTitle : messages.addGroupMemberSuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(singleMember ? messages.addGroupMembersSuccessDescription : messages.addGroupMemberSuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(singleMember ? messages.addGroupMemberErrorTitle : messages.addGroupMembersErrorTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(singleMember ? messages.addGroupMemberErrorDescription : messages.addGroupMembersErrorDescription),
         },
       },
@@ -244,13 +238,11 @@ export const removeMembersFromGroup = (groupId: string, members: string[]): Redu
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.removeGroupMembersSuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.removeGroupMembersSuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.removeGroupMembersErrorTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.removeGroupMembersErrorDescription),
         },
       },
@@ -316,7 +308,6 @@ export const addServiceAccountsToGroup = (groupId: string, serviceAccounts: Arra
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.addGroupServiceAccountsSuccessTitle, { count: serviceAccounts.length }),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.addGroupServiceAccountsSuccessDescription, {
             count: serviceAccounts.length,
           }),
@@ -324,7 +315,6 @@ export const addServiceAccountsToGroup = (groupId: string, serviceAccounts: Arra
         rejected: (payload: ErrorResponse) => ({
           variant: 'danger',
           title: intl.formatMessage(messages.addGroupServiceAccountsErrorTitle, { count: serviceAccounts.length }),
-          dismissDelay: 8000,
           description: intl.formatMessage(
             Number(payload?.errors?.[0]?.status) === 404 ? messages.groupDoesNotExist : messages.addGroupServiceAccountsErrorDescription,
             { count: serviceAccounts.length, id: groupId },
@@ -348,7 +338,6 @@ export const removeServiceAccountFromGroup = (groupId: string, serviceAccountsId
           title: intl.formatMessage(messages.removeGroupServiceAccountsSuccessTitle, {
             count: serviceAccountsIds.length,
           }),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.removeGroupServiceAccountsSuccessDescription, {
             count: serviceAccountsIds.length,
           }),
@@ -356,7 +345,6 @@ export const removeServiceAccountFromGroup = (groupId: string, serviceAccountsId
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.removeGroupServiceAccountsErrorTitle, { count: serviceAccountsIds.length }),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.removeGroupServiceAccountsErrorDescription, {
             count: serviceAccountsIds.length,
           }),
@@ -382,13 +370,11 @@ export const addRolesToGroup = (groupId: string, roles: string[]): ReduxAction<P
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.addGroupRolesSuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.addGroupRolesSuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.addGroupRolesErrorTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.addGroupRolesErrorDescription),
         },
       },
@@ -407,13 +393,11 @@ export const removeRolesFromGroup = (groupId: string, roles: string[]): ReduxAct
         fulfilled: {
           variant: 'success',
           title: intl.formatMessage(messages.removeGroupRolesSuccessTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.removeGroupRolesSuccessDescription),
         },
         rejected: {
           variant: 'danger',
           title: intl.formatMessage(messages.removeGroupRolesErrorTitle),
-          dismissDelay: 8000,
           description: intl.formatMessage(messages.removeGroupRolesErrorDescription),
         },
       },

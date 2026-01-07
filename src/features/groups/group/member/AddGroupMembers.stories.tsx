@@ -574,8 +574,8 @@ export const WithFiltering: Story = {
     await userEvent.click(statusFilterToggle);
     await delay(200);
 
-    // Select "Inactive" checkbox from the dropdown menu
-    const inactiveMenuItem = await within(modal).findByRole('menuitem', { name: /inactive/i });
+    // Select "Inactive" checkbox from the dropdown menu (renders via portal)
+    const inactiveMenuItem = await within(document.body).findByRole('menuitem', { name: /inactive/i });
     const inactiveCheckbox = within(inactiveMenuItem).getByRole('checkbox');
     await userEvent.click(inactiveCheckbox);
     await delay(600);
@@ -985,13 +985,13 @@ export const SubmitNotification: Story = {
             const notificationPortal = document.querySelector('.notifications-portal');
             expect(notificationPortal).toBeInTheDocument();
 
-            const infoAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-info');
+            const infoAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-info');
             expect(infoAlert).toBeInTheDocument();
 
-            const alertTitle = infoAlert?.querySelector('.pf-v5-c-alert__title');
+            const alertTitle = infoAlert?.querySelector('.pf-v6-c-alert__title');
             expect(alertTitle).toHaveTextContent(/adding.*member/i);
 
-            const alertDescription = infoAlert?.querySelector('.pf-v5-c-alert__description');
+            const alertDescription = infoAlert?.querySelector('.pf-v6-c-alert__description');
             expect(alertDescription).toHaveTextContent(/adding.*member/i);
           },
           { timeout: 2000 }, // Reduced timeout
@@ -1046,13 +1046,13 @@ export const CancelNotification: Story = {
           const notificationPortal = document.querySelector('.notifications-portal');
           expect(notificationPortal).toBeInTheDocument();
 
-          const warningAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-warning');
+          const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
           expect(warningAlert).toBeInTheDocument();
 
-          const alertTitle = warningAlert?.querySelector('.pf-v5-c-alert__title');
+          const alertTitle = warningAlert?.querySelector('.pf-v6-c-alert__title');
           expect(alertTitle).toHaveTextContent(/cancel/i);
 
-          const alertDescription = warningAlert?.querySelector('.pf-v5-c-alert__description');
+          const alertDescription = warningAlert?.querySelector('.pf-v6-c-alert__description');
           expect(alertDescription).toHaveTextContent(/cancelled/i);
         },
         { timeout: 5000 },

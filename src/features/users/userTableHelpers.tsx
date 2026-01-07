@@ -94,12 +94,12 @@ export const createRows = (
             />
           ) : isOrgAdmin ? (
             <Fragment>
-              <CheckIcon key="yes-icon" className="pf-v5-u-mr-sm" />
+              <CheckIcon key="yes-icon" className="pf-v6-u-mr-sm" />
               <span key="yes">{intl.formatMessage(messages.yes)}</span>
             </Fragment>
           ) : (
             <Fragment>
-              <CloseIcon key="no-icon" className="pf-v5-u-mr-sm" />
+              <CloseIcon key="no-icon" className="pf-v6-u-mr-sm" />
               <span key="no">{intl.formatMessage(messages.no)}</span>
             </Fragment>
           ),

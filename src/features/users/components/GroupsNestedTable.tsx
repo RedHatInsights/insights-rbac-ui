@@ -2,7 +2,7 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { TableVariant } from '@patternfly/react-table';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { AppLink } from '../../../components/navigation/AppLink';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
@@ -30,11 +30,19 @@ export const GroupsNestedTable: React.FC<GroupsNestedTableProps> = ({ groups, us
   const intl = useIntl();
 
   if (isLoading) {
-    return <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.loading)}</Text>;
+    return (
+      <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+        {intl.formatMessage(messages.loading)}
+      </Content>
+    );
   }
 
   if (!groups || groups.length === 0) {
-    return <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>;
+    return (
+      <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+        {intl.formatMessage(messages.noGroups)}
+      </Content>
+    );
   }
 
   return (
@@ -55,7 +63,7 @@ export const GroupsNestedTable: React.FC<GroupsNestedTableProps> = ({ groups, us
                 <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink>
               </Td>
               <Td dataLabel={intl.formatMessage(messages.description)}>{group.description}</Td>
-              <Td className="pf-v5-u-text-align-right">
+              <Td className="pf-v6-u-text-align-right">
                 {!adminGroup || !group.uuid || adminGroup.uuid === group.uuid ? null : (
                   <AppLink
                     to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', group.uuid)}

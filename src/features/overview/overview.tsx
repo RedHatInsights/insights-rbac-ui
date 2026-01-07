@@ -1,6 +1,6 @@
 import React from 'react';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { useIntl } from 'react-intl';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useWorkspacesFlag } from '../../hooks/useWorkspacesFlag';
@@ -9,7 +9,6 @@ import { EnableWorkspacesAlert } from '../workspaces/overview/components/EnableW
 import { GetStartedCard } from './components/GetStartedCard';
 import { SupportingFeaturesSection } from './components/SupportingFeaturesSection';
 import { RecommendedContentTable } from './components/RecommendedContentTable';
-import './overview.scss';
 
 const Overview: React.FC = () => {
   const intl = useIntl();
@@ -19,23 +18,22 @@ const Overview: React.FC = () => {
   return (
     <React.Fragment>
       {isWorkspacesEligible && !isWorkspacesFlag && <EnableWorkspacesAlert />}
-      <ContentHeader
+      <PageHeader
         title={intl.formatMessage(messages.overview)}
         subtitle={intl.formatMessage(messages.overviewSubtitle)}
         icon={<img src="/apps/frontend-assets/technology-icons/iam.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />}
         linkProps={{
           label: intl.formatMessage(messages.learnMore),
           href: 'https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index',
-          // isExternal removed - PatternFly ContentHeader doesn't properly handle this prop
         }}
       />
-      <PageSection>
-        <GetStartedCard className="pf-v5-u-mb-lg" />
-        <SupportingFeaturesSection className="pf-v5-u-mb-lg" />
-        <RecommendedContentTable className="pf-v5-u-mb-lg" />
+      <PageSection hasBodyWrapper={false}>
+        <GetStartedCard className="pf-v6-u-mb-lg" />
+        <SupportingFeaturesSection className="pf-v6-u-mb-lg" />
+        <RecommendedContentTable className="pf-v6-u-mb-lg" />
         <a
           href="https://console.redhat.com/iam/learning-resources"
-          className="pf-v5-u-mb-lg"
+          className="pf-v6-u-mb-lg"
           data-ouia-component-id="overview-view-all-resources-button"
         >
           {intl.formatMessage(messages.iamLearningResourcesLink)}

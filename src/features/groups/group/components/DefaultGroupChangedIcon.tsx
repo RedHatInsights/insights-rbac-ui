@@ -24,9 +24,11 @@ export const DefaultGroupChangedIcon: React.FC<DefaultGroupChangedIconProps> = (
           />
         }
       >
-        <Button variant="plain" aria-label="More information about default group changes">
-          <OutlinedQuestionCircleIcon className="rbac-default-group-info-icon" />
-        </Button>
+        <Button
+          icon={<OutlinedQuestionCircleIcon className="rbac-default-group-info-icon" />}
+          variant="plain"
+          aria-label="More information about default group changes"
+        />
       </Popover>
     </div>
   );

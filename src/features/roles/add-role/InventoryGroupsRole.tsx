@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { Badge } from '@patternfly/react-core';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Chip } from '@patternfly/react-core/dist/dynamic/components/Chip';
-import { ChipGroup } from '@patternfly/react-core/dist/dynamic/components/Chip';
+import { Chip } from '@patternfly/react-core/dist/dynamic/deprecated/components/Chip';
+import { ChipGroup } from '@patternfly/react-core/dist/dynamic/deprecated/components/Chip';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Grid } from '@patternfly/react-core';
@@ -12,11 +12,11 @@ import { Select } from '@patternfly/react-core';
 import { SelectList } from '@patternfly/react-core';
 import { SelectOption } from '@patternfly/react-core';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { TextInputGroup } from '@patternfly/react-core';
 import { TextInputGroupMain } from '@patternfly/react-core';
 import { TextInputGroupUtilities } from '@patternfly/react-core';
-import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
@@ -26,7 +26,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { fetchInventoryGroups } from '../../../redux/inventory/actions';
 import { debounce } from '../../../utilities/debounce';
 import messages from '../../../Messages';
-import './cost-resources.scss';
 import { useFlag } from '@unleash/proxy-client-react';
 import type { RBACStore } from '../../../redux/store.d';
 
@@ -282,6 +281,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
           <TextInputGroupUtilities>
             {(state[permissionID]?.filterValue?.length || 0) > 0 && (
               <Button
+                icon={<TimesIcon aria-hidden />}
                 variant="plain"
                 aria-label="Clear input value"
                 onClick={(e) => {
@@ -289,9 +289,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
                   e.preventDefault();
                   onTextInputChange(e, '', permissionID);
                 }}
-              >
-                <TimesIcon aria-hidden />
-              </Button>
+              />
             )}
           </TextInputGroupUtilities>
         </TextInputGroup>
@@ -321,7 +319,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
             >
               <SelectList>
                 {options?.length > 0 ? (
-                  <SelectOption className="pf-v5-u-link-color" key={`${permissionID}-all`} value="select-all">
+                  <SelectOption className="pf-v6-u-link-color" key={`${permissionID}-all`} value="select-all">
                     <FormattedMessage
                       {...messages.selectAll}
                       values={{
@@ -385,14 +383,14 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
   return (
     <Grid hasGutter>
       <GridItem md={3} className="rbac-m-hide-on-sm">
-        <Text component={TextVariants.h4} className="rbac-bold-text pf-v5-u-mt-sm">
+        <Content component={ContentVariants.h4} className="pf-v6-u-mt-sm">
           {intl.formatMessage(messages.permissions)}
-        </Text>
+        </Content>
       </GridItem>
       <GridItem lg={9} md={6} className="rbac-m-hide-on-sm">
-        <Text component={TextVariants.h4} className="rbac-bold-text pf-v5-u-mt-sm">
+        <Content component={ContentVariants.h4} className="pf-v6-u-mt-sm">
           {intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesDefinition : messages.groupDefinition)}
-        </Text>
+        </Content>
       </GridItem>
       {permissions.map(makeRow)}
     </Grid>

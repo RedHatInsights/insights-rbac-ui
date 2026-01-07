@@ -1,4 +1,4 @@
-import { Text, TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -24,16 +24,16 @@ export const DefaultGroupChangeModal: React.FC<DefaultGroupChangeModalProps> = (
       onConfirm={onSubmit}
       appendTo={getModalContainer()}
     >
-      <TextContent>
-        <Text>
+      <Content>
+        <Content component="p">
           <FormattedMessage
             {...messages.defaultAccessGroupEditWarning}
             values={{
               b: (text) => <b>{text}</b>,
             }}
           />
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </WarningModal>
   );
 };

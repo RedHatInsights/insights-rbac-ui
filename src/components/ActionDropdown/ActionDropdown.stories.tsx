@@ -95,11 +95,11 @@ export const Default: Story = {
     await userEvent.click(toggle);
 
     // Verify dropdown items are visible
-    expect(canvas.getByRole('menuitem', { name: /edit/i })).toBeInTheDocument();
-    expect(canvas.getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
+    expect(within(document.body).getByRole('menuitem', { name: /edit/i })).toBeInTheDocument();
+    expect(within(document.body).getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
 
     // Click edit and verify callback
-    await userEvent.click(canvas.getByRole('menuitem', { name: /edit/i }));
+    await userEvent.click(within(document.body).getByRole('menuitem', { name: /edit/i }));
     expect(onEditSpy).toHaveBeenCalledTimes(1);
   },
 };
@@ -117,7 +117,7 @@ export const SingleAction: Story = {
     const canvas = within(canvasElement);
 
     await userEvent.click(canvas.getByRole('button', { name: /actions for member/i }));
-    await userEvent.click(canvas.getByRole('menuitem', { name: /remove/i }));
+    await userEvent.click(within(document.body).getByRole('menuitem', { name: /remove/i }));
 
     expect(onRemoveSpy).toHaveBeenCalledTimes(1);
   },
@@ -141,11 +141,11 @@ export const WithDisabledActions: Story = {
     await userEvent.click(canvas.getByRole('button', { name: /actions for row/i }));
 
     // Verify edit item is disabled
-    const editItem = canvas.getByRole('menuitem', { name: /edit/i });
+    const editItem = within(document.body).getByRole('menuitem', { name: /edit/i });
     expect(editItem).toBeDisabled();
 
     // Verify delete item is enabled
-    const deleteItem = canvas.getByRole('menuitem', { name: /delete/i });
+    const deleteItem = within(document.body).getByRole('menuitem', { name: /delete/i });
     expect(deleteItem).not.toBeDisabled();
   },
 };
@@ -168,7 +168,7 @@ export const WithDangerAction: Story = {
     await userEvent.click(canvas.getByRole('button', { name: /actions for row/i }));
 
     // Delete should have danger styling
-    const deleteItem = canvas.getByRole('menuitem', { name: /delete/i });
+    const deleteItem = within(document.body).getByRole('menuitem', { name: /delete/i });
     expect(deleteItem).toBeInTheDocument();
 
     await userEvent.click(deleteItem);
@@ -193,8 +193,8 @@ export const WithDescriptions: Story = {
 
     await userEvent.click(canvas.getByRole('button', { name: /actions for row/i }));
 
-    expect(canvas.getByText('Modify this item')).toBeInTheDocument();
-    expect(canvas.getByText('Permanently remove')).toBeInTheDocument();
+    expect(within(document.body).getByText('Modify this item')).toBeInTheDocument();
+    expect(within(document.body).getByText('Permanently remove')).toBeInTheDocument();
   },
 };
 
@@ -254,8 +254,8 @@ export const BulkActions: Story = {
     await userEvent.click(canvas.getByRole('button', { name: /bulk actions/i }));
 
     // Edit should be disabled, delete should be enabled
-    expect(canvas.getByRole('menuitem', { name: /edit/i })).toBeDisabled();
-    expect(canvas.getByRole('menuitem', { name: /delete selected/i })).not.toBeDisabled();
+    expect(within(document.body).getByRole('menuitem', { name: /edit/i })).toBeDisabled();
+    expect(within(document.body).getByRole('menuitem', { name: /delete selected/i })).not.toBeDisabled();
   },
 };
 
@@ -281,7 +281,7 @@ export const WithOuiaIds: Story = {
     await userEvent.click(toggle);
 
     // Menu items should be visible
-    expect(canvas.getByRole('menuitem', { name: /edit/i })).toBeInTheDocument();
-    expect(canvas.getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
+    expect(within(document.body).getByRole('menuitem', { name: /edit/i })).toBeInTheDocument();
+    expect(within(document.body).getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
   },
 };

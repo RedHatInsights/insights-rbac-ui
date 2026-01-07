@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
@@ -13,7 +14,6 @@ import { fetchResourceDefinitions } from '../../../redux/cost-management/actions
 import { fetchRole } from '../../../redux/roles/actions';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import '../role-permissions.scss';
 import type { RBACStore } from '../../../redux/store.d';
 import type { ColumnConfigMap, FilterConfig } from '../../../components/table-view/types';
 
@@ -45,36 +45,65 @@ interface AddPermissionsTableProps {
 
 const COLUMNS = ['application', 'resourceType', 'operation'] as const;
 
-const selector = ({
-  permissionReducer: {
+// Input selectors - extract raw data from store
+const selectPermissionData = (state: RBACStore) => state.permissionReducer.permission;
+const selectIsLoading = (state: RBACStore) => state.permissionReducer.isLoading;
+const selectApplicationOptions = (state: RBACStore) => state.permissionReducer.options.application;
+const selectResourceOptions = (state: RBACStore) => state.permissionReducer.options.resource;
+const selectOperationOptions = (state: RBACStore) => state.permissionReducer.options.operation;
+const selectExpandSplatsData = (state: RBACStore) => state.permissionReducer.expandSplats;
+const selectIsLoadingExpandSplats = (state: RBACStore) => state.permissionReducer.isLoadingExpandSplats;
+const selectIsRecordLoading = (state: RBACStore) => state.roleReducer.isRecordLoading;
+const selectSelectedRole = (state: RBACStore) => state.roleReducer.selectedRole;
+const selectResourceTypes = (state: RBACStore) => state.costReducer.resourceTypes;
+
+// Memoized selector - only recomputes when inputs change
+const selector = createSelector(
+  [
+    selectPermissionData,
+    selectIsLoading,
+    selectApplicationOptions,
+    selectResourceOptions,
+    selectOperationOptions,
+    selectExpandSplatsData,
+    selectIsLoadingExpandSplats,
+    selectIsRecordLoading,
+    selectSelectedRole,
+    selectResourceTypes,
+  ],
+  (
     permission,
     isLoading,
-    options: { application, operation, resource },
-    expandSplats: expandSplatsData,
+    application,
+    resource,
+    operation,
+    expandSplatsData,
     isLoadingExpandSplats,
-  },
-  roleReducer: { isRecordLoading, selectedRole },
-  costReducer: { resourceTypes },
-}: RBACStore) => ({
-  permissions: (
-    (permission as { data?: { application?: string; resource_type?: string; verb?: string; permission?: string; requires?: string[] }[] })?.data || []
-  ).map(({ application, resource_type: resource, verb, permission: perm, requires } = {}) => ({
-    application: application || '',
-    resource: resource || '',
-    operation: verb || '',
-    uuid: perm || '',
-    requires,
-  })) as Permission[],
-  pagination: (permission as { meta?: { count?: number; limit?: number; offset?: number } })?.meta || { count: 0, limit: 20, offset: 0 },
-  isLoading: isLoading || isRecordLoading,
-  baseRole: selectedRole as { uuid?: string; access?: { permission: string }[] } | undefined,
-  applicationOptions: ((application as { data?: string[] })?.data || []).filter((app: string) => app !== '*'),
-  resourceOptions: ((resource as { data?: string[] })?.data || []).filter((app: string) => app !== '*'),
-  operationOptions: ((operation as { data?: string[] })?.data || []).filter((app: string) => app !== '*'),
-  expandedPermissions: ((expandSplatsData as { data?: { permission: string }[] })?.data || []).map(({ permission }) => permission),
-  isLoadingExpandSplats,
-  resourceTypes: ((resourceTypes as unknown as { data?: ResourceType[] })?.data || []) as ResourceType[],
-});
+    isRecordLoading,
+    selectedRole,
+    resourceTypes,
+  ) => ({
+    permissions: (
+      (permission as { data?: { application?: string; resource_type?: string; verb?: string; permission?: string; requires?: string[] }[] })?.data ||
+      []
+    ).map(({ application, resource_type: resource, verb, permission: perm, requires } = {}) => ({
+      application: application || '',
+      resource: resource || '',
+      operation: verb || '',
+      uuid: perm || '',
+      requires,
+    })) as Permission[],
+    pagination: (permission as { meta?: { count?: number; limit?: number; offset?: number } })?.meta || { count: 0, limit: 20, offset: 0 },
+    isLoading: isLoading || isRecordLoading,
+    baseRole: selectedRole as { uuid?: string; access?: { permission: string }[] } | undefined,
+    applicationOptions: ((application as { data?: string[] })?.data || []).filter((app: string) => app !== '*'),
+    resourceOptions: ((resource as { data?: string[] })?.data || []).filter((app: string) => app !== '*'),
+    operationOptions: ((operation as { data?: string[] })?.data || []).filter((app: string) => app !== '*'),
+    expandedPermissions: ((expandSplatsData as { data?: { permission: string }[] })?.data || []).map(({ permission }) => permission),
+    isLoadingExpandSplats,
+    resourceTypes: ((resourceTypes as unknown as { data?: ResourceType[] })?.data || []) as ResourceType[],
+  }),
+);
 
 const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const [isOrgAdmin, setIsOrgAdmin] = useState<boolean | null>(null);
@@ -107,7 +136,7 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
     expandedPermissions,
     isLoadingExpandSplats,
     resourceTypes,
-  } = useSelector(selector, shallowEqual);
+  } = useSelector(selector);
   const { input } = useFieldApi(props as { name: string });
   const formOptions = useFormApi();
   const roleType = formOptions.getState().values['role-type'];

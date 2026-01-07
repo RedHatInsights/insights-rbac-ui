@@ -1,6 +1,6 @@
-import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
+import PageHeader from '@patternfly/react-component-groups/dist/esm/PageHeader';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { PageSectionVariants } from '@patternfly/react-core/dist/dynamic/components/Page';
+
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -119,8 +119,8 @@ export const EditRole: FunctionComponent = () => {
 
   return (
     <React.Fragment>
-      <ContentHeader title={`${pageTitle} ${selectedRole?.display_name || ''}`} />
-      <PageSection data-ouia-component-id="edit-role-form" className="pf-v5-u-m-lg-on-lg" variant={PageSectionVariants.light} isWidthLimited>
+      <PageHeader data-codemods title={`${pageTitle} ${selectedRole?.display_name || ''}`} />
+      <PageSection hasBodyWrapper data-ouia-component-id="edit-role-form" className="pf-v6-u-m-lg-on-lg" isWidthLimited>
         {isLoading || !initialFormData ? (
           <div style={{ textAlign: 'center' }}>
             <Spinner />

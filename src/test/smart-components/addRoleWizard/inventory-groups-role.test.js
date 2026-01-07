@@ -132,7 +132,7 @@ describe('Inventory groups role', () => {
     expect(screen.getByText('fooBar')).toBeInTheDocument();
     fireEvent.click(screen.getByText('fooBar'));
 
-    const badgesAfterSelection = screen.getAllByText('1', { selector: '.pf-v5-c-badge' });
+    const badgesAfterSelection = screen.getAllByText('1', { selector: '.pf-v6-c-badge' });
     expect(badgesAfterSelection).toHaveLength(1);
 
     // Opening the second groups selection
@@ -140,7 +140,7 @@ describe('Inventory groups role', () => {
     expect(screen.getAllByLabelText('Select workspaces to add permissions for')[1]);
     fireEvent.click(screen.getAllByLabelText('Select workspaces to add permissions for')[1]);
 
-    const badgesAfterCopyAll = screen.getAllByText('1', { selector: '.pf-v5-c-badge' });
+    const badgesAfterCopyAll = screen.getAllByText('1', { selector: '.pf-v6-c-badge' });
     expect(badgesAfterCopyAll).toHaveLength(2);
   });
 
@@ -157,7 +157,7 @@ describe('Inventory groups role', () => {
     expect(renderedResults.getByText('fooBar')).toBeInTheDocument();
     fireEvent.click(screen.getByText('fooBar'));
 
-    const badgesBeforeClear = screen.getAllByText('1', { selector: '.pf-v5-c-badge' });
+    const badgesBeforeClear = screen.getAllByText('1', { selector: '.pf-v6-c-badge' });
     expect(badgesBeforeClear).toHaveLength(1);
 
     await waitFor(() => {

@@ -277,8 +277,8 @@ export const SystemGroupActions: Story = {
     const kebabButton = await canvas.findByLabelText('Actions for group System Group');
     await userEvent.click(kebabButton);
 
-    const editAction = await canvas.findByText(/edit/i);
-    const deleteAction = await canvas.findByText(/delete/i);
+    const editAction = await within(document.body).findByText(/edit/i);
+    const deleteAction = await within(document.body).findByText(/delete/i);
     await expect(editAction).toBeInTheDocument();
     await expect(deleteAction).toBeInTheDocument();
   },
@@ -304,8 +304,8 @@ export const RegularGroupActions: Story = {
     const kebabButton = await canvas.findByLabelText('Actions for group Administrators');
     await userEvent.click(kebabButton);
 
-    const editAction = await canvas.findByText(/edit/i);
-    const deleteAction = await canvas.findByText(/delete/i);
+    const editAction = await within(document.body).findByText(/edit/i);
+    const deleteAction = await within(document.body).findByText(/delete/i);
 
     await expect(editAction.closest('[role="menuitem"]')).not.toHaveAttribute('aria-disabled');
     await expect(deleteAction.closest('[role="menuitem"]')).not.toHaveAttribute('aria-disabled');
@@ -336,7 +336,7 @@ export const DeleteGroupAction: Story = {
     const kebabButton = await canvas.findByLabelText('Actions for group Developers');
     await userEvent.click(kebabButton);
 
-    const deleteAction = await canvas.findByText(/delete/i);
+    const deleteAction = await within(document.body).findByText(/delete/i);
     await userEvent.click(deleteAction);
 
     // Verify delete callback was called
@@ -500,7 +500,7 @@ export const MixedGroupTypes: Story = {
     const systemKebab = await canvas.findByLabelText('Actions for group System Group');
     await userEvent.click(systemKebab);
 
-    const systemDeleteAction = await canvas.findByText(/delete/i);
+    const systemDeleteAction = await within(document.body).findByText(/delete/i);
     await expect(systemDeleteAction).toBeInTheDocument();
   },
 };

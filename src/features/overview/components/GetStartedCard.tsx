@@ -34,7 +34,7 @@ export const GetStartedCard: React.FC<GetStartedCardProps> = ({ className }) => 
             </Title>
           </CardTitle>
           <CardBody>
-            <p className="pf-v5-u-mb-sm">{intl.formatMessage(messages.overviewHeroSubtitle)}</p>
+            <p className="pf-v6-u-mb-sm">{intl.formatMessage(messages.overviewHeroSubtitle)}</p>
             <List>
               <ListItem>{intl.formatMessage(messages.overviewHeroListItem1)}</ListItem>
               <ListItem>{intl.formatMessage(messages.overviewHeroListItem2)}</ListItem>
@@ -60,7 +60,7 @@ export const GetStartedCard: React.FC<GetStartedCardProps> = ({ className }) => 
             </ActionList>
           </CardFooter>
         </GridItem>
-        <GridItem md={6} lg={4} className="pf-v5-u-display-none pf-v5-u-display-block-on-md pf-c-card__cover-image"></GridItem>
+        <GridItem md={6} lg={4} className="pf-v6-u-display-none pf-v6-u-display-block-on-md pf-c-card__cover-image"></GridItem>
       </Grid>
     </Card>
   );

@@ -196,11 +196,6 @@ export function TableView<
       </>
     ) : null;
 
-  // Empty state content
-  const emptyStateContent = hasActiveFilters
-    ? emptyStateNoResults || <DefaultEmptyStateNoResults onClearFilters={clearAllFilters} />
-    : emptyStateNoData || <DefaultEmptyStateNoData />;
-
   // Error state content
   const errorStateContent = emptyStateError || <DefaultEmptyStateError error={error} />;
 
@@ -240,8 +235,12 @@ export function TableView<
       )}
 
       {/* Error State */}
-      {hasError && (
+      {hasError && <TableViewEmptyState>{errorStateContent}</TableViewEmptyState>}
+
+      {/* Empty State - No Results (with filters) shows table headers */}
+      {!isLoading && !hasError && isEmpty && hasActiveFilters && (
         <TableViewEmptyState
+          showHeaders
           columnLabels={columnLabels}
           hasSelection={selectable}
           hasActions={!!renderActions}
@@ -249,22 +248,13 @@ export function TableView<
           ariaLabel={ariaLabel}
           ouiaId={ouiaId}
         >
-          {errorStateContent}
+          {emptyStateNoResults || <DefaultEmptyStateNoResults onClearFilters={clearAllFilters} />}
         </TableViewEmptyState>
       )}
 
-      {/* Empty State */}
-      {!isLoading && !hasError && isEmpty && (
-        <TableViewEmptyState
-          columnLabels={columnLabels}
-          hasSelection={selectable}
-          hasActions={!!renderActions}
-          variant={variant}
-          ariaLabel={ariaLabel}
-          ouiaId={ouiaId}
-        >
-          {emptyStateContent}
-        </TableViewEmptyState>
+      {/* Empty State - No Data (without filters) hides table headers */}
+      {!isLoading && !hasError && isEmpty && !hasActiveFilters && (
+        <TableViewEmptyState>{emptyStateNoData || <DefaultEmptyStateNoData />}</TableViewEmptyState>
       )}
 
       {/* Data Table */}
@@ -272,7 +262,7 @@ export function TableView<
         <Table aria-label={ariaLabel} variant={variant === 'compact' ? TableVariant.compact : undefined} ouiaId={ouiaId}>
           <Thead>
             <Tr>
-              {selectable && <Th screenReaderText="Select" />}
+              {selectable && <Th screenReaderText="Select" modifier="fitContent" />}
               {columns.map((col, index) => {
                 const config = columnConfig[col as keyof typeof columnConfig];
                 const isSortable = sortableColumnSet.has(col);
@@ -297,7 +287,7 @@ export function TableView<
                   </Th>
                 );
               })}
-              {renderActions && <Th screenReaderText="Actions" />}
+              {renderActions && <Th screenReaderText="Actions" modifier="fitContent" />}
             </Tr>
           </Thead>
 

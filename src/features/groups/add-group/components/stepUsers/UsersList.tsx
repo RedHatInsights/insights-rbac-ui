@@ -108,7 +108,7 @@ export const UsersList: React.FC<UsersListProps> = ({ usesMetaInURL = false, dis
     () => ({
       orgAdmin: (user) => (
         <Fragment>
-          {user.is_org_admin ? <CheckIcon className="pf-v5-u-mr-sm" /> : <CloseIcon className="pf-v5-u-mr-sm" />}
+          {user.is_org_admin ? <CheckIcon className="pf-v6-u-mr-sm" /> : <CloseIcon className="pf-v6-u-mr-sm" />}
           <span>{user.is_org_admin ? 'Yes' : 'No'}</span>
         </Fragment>
       ),

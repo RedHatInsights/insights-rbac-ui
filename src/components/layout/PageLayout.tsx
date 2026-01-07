@@ -1,14 +1,7 @@
 import React, { Fragment, ReactNode } from 'react';
-import { Flex } from '@patternfly/react-core';
-import { FlexItem } from '@patternfly/react-core';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { ToolbarTitlePlaceholder } from '../ui-states/LoaderPlaceholders';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { RbacBreadcrumbs } from '../navigation/Breadcrumbs';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
-
-import './PageLayout.scss';
+import { ToolbarTitlePlaceholder } from '../ui-states/LoaderPlaceholders';
 
 interface BreadcrumbItemProps {
   title?: string;
@@ -16,41 +9,37 @@ interface BreadcrumbItemProps {
   isActive?: boolean;
 }
 
-interface PageLayoutProps {
-  children: ReactNode;
-  breadcrumbs?: BreadcrumbItemProps[];
-}
-
-export const PageLayout: React.FC<PageLayoutProps> = ({ children, breadcrumbs }) => (
-  <Fragment>
-    {breadcrumbs && (
-      <section className="pf-v5-c-page__main-breadcrumb">
-        <RbacBreadcrumbs breadcrumbs={breadcrumbs} />
-      </section>
-    )}
-    <PageHeader className="rbac-page-header">{children}</PageHeader>
-  </Fragment>
-);
-
 interface PageTitleProps {
   title?: ReactNode;
-  renderTitleTag?: () => ReactNode;
   description?: ReactNode;
+  label?: ReactNode;
+  actionMenu?: ReactNode;
+}
+
+interface PageLayoutProps {
+  /** Breadcrumb navigation items */
+  breadcrumbs?: BreadcrumbItemProps[];
+  /** Page title configuration */
+  title?: PageTitleProps;
+  /** Page content that appears below the title */
   children?: ReactNode;
 }
 
-export const PageTitle: React.FC<PageTitleProps> = ({ title, renderTitleTag, description, children }) => (
+/**
+ * PageLayout provides a consistent page structure with:
+ * - Optional breadcrumbs
+ * - Page header with title, description, label, and actions
+ * - Content area
+ */
+export const PageLayout: React.FC<PageLayoutProps> = ({ breadcrumbs, title, children }) => (
   <Fragment>
-    <Flex>
-      <FlexItem className="pf-v5-u-mb-sm">
-        <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="rbac-page-header__title" />
-      </FlexItem>
-      <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>{renderTitleTag && renderTitleTag()}</FlexItem>
-    </Flex>
-    {description && (
-      <TextContent className="rbac-page-header__description">
-        {typeof description === 'string' ? <Text component={TextVariants.p}>{description}</Text> : description}
-      </TextContent>
+    {breadcrumbs && (
+      <section className="pf-v6-c-page__main-breadcrumb">
+        <RbacBreadcrumbs breadcrumbs={breadcrumbs} />
+      </section>
+    )}
+    {title && (
+      <PageHeader title={title.title || <ToolbarTitlePlaceholder />} subtitle={title.description} label={title.label} actionMenu={title.actionMenu} />
     )}
     {children}
   </Fragment>

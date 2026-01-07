@@ -310,7 +310,7 @@ export const EmptyGroups: Story = {
     // Empty state should show
     await waitFor(
       async () => {
-        const emptyState = document.querySelector('.pf-v5-c-empty-state');
+        const emptyState = document.querySelector('.pf-v6-c-empty-state');
         expect(emptyState).toBeInTheDocument();
       },
       { timeout: 3000 },

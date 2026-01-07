@@ -15,7 +15,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { WarningModal } from '@patternfly/react-component-groups';
-import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
+import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { AppLink } from '../../components/navigation/AppLink';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ButtonVariant, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
@@ -28,6 +28,7 @@ import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon
 import OrgAdminDropdown from './OrgAdminDropdown';
 import { ActivateToggle } from './components/ActivateToggle';
 import pathnames from '../../utilities/pathnames';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 interface UsersListNotSelectableProps {
   userLinks: boolean;
@@ -68,6 +69,7 @@ const columns = ['org_admin', 'username', 'email', 'first_name', 'last_name', 's
 const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLinks, props, usesMetaInURL }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
+  const addNotification = useAddNotification();
   const { orgAdmin } = useContext(PermissionsContext) as PermissionsContextType;
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
   const { getBundle, getApp, isProd, auth } = useChrome();
@@ -150,12 +152,12 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         }
         return user.is_org_admin ? (
           <Fragment>
-            <CheckIcon key="yes-icon" className="pf-v5-u-mr-sm" />
+            <CheckIcon key="yes-icon" className="pf-v6-u-mr-sm" />
             <span key="yes">{intl.formatMessage(messages.yes)}</span>
           </Fragment>
         ) : (
           <Fragment>
-            <CloseIcon key="no-icon" className="pf-v5-u-mr-sm" />
+            <CloseIcon key="no-icon" className="pf-v6-u-mr-sm" />
             <span key="no">{intl.formatMessage(messages.no)}</span>
           </Fragment>
         );
@@ -262,17 +264,29 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
 
       try {
         await dispatch(changeUsersStatus(usersList, { isProd: isProd(), token, accountId }, isITLess) as any);
+        addNotification({
+          variant: 'success',
+          title: intl.formatMessage(messages.editUserSuccessTitle),
+          dismissable: true,
+          description: intl.formatMessage(messages.editUserSuccessDescription),
+        });
         tableState.clearSelection();
         // Refetch via onStaleData
       } catch (error) {
         console.error('Failed to update status: ', error);
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.editUserErrorTitle),
+          dismissable: true,
+          description: intl.formatMessage(messages.editUserErrorDescription),
+        });
       } finally {
         setLoading(false);
       }
 
       userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
     },
-    [loading, tableState, dispatch, isProd, token, accountId, isITLess],
+    [loading, tableState, dispatch, isProd, token, accountId, isITLess, addNotification, intl],
   );
 
   // Toolbar buttons
@@ -326,9 +340,9 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
     );
   }, [orgAdmin, isCommonAuthModel, intl, tableState.selectedRows.length, isKebabOpen]);
 
-  // Show NotAuthorized component for users without proper permissions
+  // Show UnauthorizedAccess component for users without proper permissions
   if (!orgAdmin) {
-    return <NotAuthorized serviceName="User Access Administration" description="You need Organization Administrator permissions to view users." />;
+    return <UnauthorizedAccess serviceName="User Access Administration" bodyText="You need Organization Administrator permissions to view users." />;
   }
 
   return (
