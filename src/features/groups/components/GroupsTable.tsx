@@ -13,7 +13,7 @@ import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dro
 import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { useIntl } from 'react-intl';
@@ -79,7 +79,9 @@ const RolesTable: React.FC<{ group: Group }> = ({ group }) => {
         ) : (
           <Tr>
             <Td colSpan={compoundRolesCells.length}>
-              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroupRoles)}</Text>
+              <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+                {intl.formatMessage(messages.noGroupRoles)}
+              </Content>
             </Td>
           </Tr>
         )}
@@ -140,7 +142,9 @@ const MembersTable: React.FC<{ group: Group }> = ({ group }) => {
         ) : (
           <Tr>
             <Td colSpan={compoundMembersCells.length}>
-              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroupMembers)}</Text>
+              <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+                {intl.formatMessage(messages.noGroupMembers)}
+              </Content>
             </Td>
           </Tr>
         )}
@@ -317,7 +321,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
       <Thead>
         <Tr>
           {isAdmin && (
-            <Th className="pf-v5-c-table__check" screenReaderText="Row selection">
+            <Th className="pf-v6-c-table__check" screenReaderText="Row selection">
               {/* Empty header for row selection column - select all is in toolbar */}
             </Th>
           )}
@@ -338,7 +342,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
           <Tbody key={group.uuid} isExpanded={isRowExpanded}>
             <Tr>
               {isAdmin && (
-                <Td className="pf-v5-c-table__check">
+                <Td className="pf-v6-c-table__check">
                   {canSelect ? (
                     <Checkbox
                       id={`select-${group.uuid}`}
@@ -385,7 +389,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
               <Td dataLabel={columns[3].title}>{group.modified ? <DateFormat date={group.modified} type={getDateFormat(group.modified)} /> : '-'}</Td>
 
               {isAdmin && (
-                <Td className="pf-v5-c-table__action">
+                <Td className="pf-v6-c-table__action">
                   <GroupRowActions group={group} onEditGroup={onEditGroup} onDeleteGroups={onDeleteGroups} />
                 </Td>
               )}

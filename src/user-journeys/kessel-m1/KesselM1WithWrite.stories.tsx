@@ -354,7 +354,7 @@ Tests the M1 create workspace journey.
 
     // Verify wizard closes after submission
     await waitFor(() => {
-      const wizard = document.querySelector('.pf-v5-c-wizard, .pf-c-wizard');
+      const wizard = document.querySelector('.pf-v6-c-wizard, .pf-c-wizard');
       expect(wizard).not.toBeInTheDocument();
     });
 

@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { ButtonVariant } from '@patternfly/react-core';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { fetchGroup, removeGroups } from '../../redux/groups/actions';
+import messages from '../../Messages';
 import { FormItemLoader } from '../../components/ui-states/LoaderPlaceholders';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { getModalContainer } from '../../helpers/modal-container';
@@ -18,8 +21,10 @@ interface RemoveGroupModalProps {
 }
 
 export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, pagination, cancelRoute, submitRoute = cancelRoute }) => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
+  const addNotification = useAddNotification();
   const { groupId = '' } = useParams<{ groupId: string }>();
   const groupsToRemove = groupId.split(',');
   const multipleGroups = groupsToRemove.length > 1;
@@ -41,6 +46,11 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
       // Remove groups and wait for completion
       await dispatch(removeGroups(groupsToRemove));
 
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(multipleGroups ? messages.removeGroupsSuccess : messages.removeGroupSuccess),
+      });
+
       // Call postMethod to refresh data
       await postMethod(groupsToRemove, { limit: pagination?.limit });
 
@@ -52,6 +62,10 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
       }
     } catch (error) {
       console.error('Failed to remove groups:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(multipleGroups ? messages.removeGroupsError : messages.removeGroupError),
+      });
       // Still navigate back even if refresh fails
       try {
         if (submitRoute) {
@@ -103,8 +117,8 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
       onConfirm={onSubmit}
       appendTo={getModalContainer()}
     >
-      <TextContent>
-        <Text>
+      <Content>
+        <Content component="p">
           {multipleGroups ? (
             `This action will permanently delete ${groupsToRemove.length} groups and their associated data. This action cannot be undone.`
           ) : (
@@ -113,8 +127,8 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
               undone.
             </>
           )}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </WarningModal>
   );
 };

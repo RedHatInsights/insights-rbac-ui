@@ -7,7 +7,6 @@ import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import Users from '../../../features/users/users';
-import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { usersInitialState } from '../../../redux/users/reducer';
 import * as UserHelper from '../../../redux/users/helper';
 import { defaultSettings } from '../../../helpers/pagination';
@@ -15,7 +14,7 @@ import PermissionsContext from '../../../utilities/permissionsContext';
 
 describe('<Users />', () => {
   let enhanceState;
-  const middlewares = [promiseMiddleware, notificationsMiddleware()];
+  const middlewares = [promiseMiddleware];
   let mockStore;
   let initialState;
   const adminPermissions = {

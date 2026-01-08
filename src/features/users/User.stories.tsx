@@ -277,18 +277,21 @@ export const Loading: Story = {
   },
 };
 
-// NOTE: UserNotFound story skipped - testing Redux BAD_UUID error states with MSW is complex.
-// The error state requires the roles API to return a 400 error with specific format that triggers
-// the BAD_UUID error in roleReducer. This will be properly tested in integration/E2E tests.
-// The error state logic exists in user.js at line 70: userExists: error !== BAD_UUID
+/**
+ * UserNotFound - Tests empty state when user doesn't exist
+ *
+ * The roles API returns a 400 error with `source: 'detail'` which triggers
+ * BAD_UUID handling in roleReducer. The component then shows "User not found" empty state.
+ */
 export const UserNotFound: Story = {
-  tags: ['skip-test'],
   parameters: {
     docs: {
       description: {
         story: `
-**Note**: This story demonstrates the User Not Found empty state.
-Testing BAD_UUID error states with MSW is complex - this scenario is better covered in E2E tests.
+**User Not Found**: Demonstrates the empty state when navigating to a non-existent user.
+
+The roles API returns a 400 error which triggers BAD_UUID handling, causing the component
+to display the "User not found" empty state with a back button.
         `,
       },
     },
@@ -318,6 +321,21 @@ Testing BAD_UUID error states with MSW is complex - this scenario is better cove
         ),
       ],
     },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300);
+    const canvas = within(canvasElement);
+
+    // Wait for "User not found" empty state to appear
+    const notFoundTitle = await canvas.findByText('User not found', undefined, { timeout: 10000 });
+    expect(notFoundTitle).toBeInTheDocument();
+
+    // Verify the description contains the username (formatted message includes username)
+    expect(await canvas.findByText(/does not exist/i)).toBeInTheDocument();
+
+    // Verify back button is present
+    const backButton = await canvas.findByRole('button', { name: /back to previous page/i });
+    expect(backButton).toBeInTheDocument();
   },
 };
 
@@ -547,7 +565,7 @@ export const InactiveUser: Story = {
     expect(inactiveLabel).toBeInTheDocument();
 
     // The label should NOT have green color class for inactive users
-    const labelElement = inactiveLabel.closest('.pf-v5-c-label');
+    const labelElement = inactiveLabel.closest('.pf-v6-c-label');
     expect(labelElement).not.toHaveClass('pf-m-green');
   },
 };
@@ -572,7 +590,7 @@ export const ActiveUser: Story = {
     expect(activeLabel).toBeInTheDocument();
 
     // The label should have green color class for active users
-    const labelElement = activeLabel.closest('.pf-v5-c-label');
+    const labelElement = activeLabel.closest('.pf-v6-c-label');
     expect(labelElement).toHaveClass('pf-m-green');
   },
 };
@@ -602,14 +620,10 @@ export const OrgAdminUser: Story = {
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
 
     // Test org admin indicator section exists (text is "Org. Administrator: Yes")
-    // The text content includes both the label and "Yes" text
     await waitFor(
       async () => {
-        // Look for the combined text in the TextContent component
-        const textContent = canvasElement.querySelector('.pf-v5-c-content');
-        expect(textContent).toBeTruthy();
-        expect(textContent?.textContent).toContain('Org. Administrator');
-        expect(textContent?.textContent).toContain('Yes');
+        // Find the text containing "Org. Administrator" and "Yes"
+        expect(await canvas.findByText(/Org\. Administrator.*Yes/)).toBeInTheDocument();
       },
       { timeout: 3000 },
     );
@@ -632,14 +646,10 @@ export const NonOrgAdminUser: Story = {
     expect(usernameElements.length).toBeGreaterThan(0);
 
     // Test org admin indicator section exists (text is "Org. Administrator: No")
-    // The text content includes both the label and "No" text
     await waitFor(
       async () => {
-        // Look for the combined text in the TextContent component
-        const textContent = canvasElement.querySelector('.pf-v5-c-content');
-        expect(textContent).toBeTruthy();
-        expect(textContent?.textContent).toContain('Org. Administrator');
-        expect(textContent?.textContent).toContain('No');
+        // Find the text containing "Org. Administrator" and "No"
+        expect(await canvas.findByText(/Org\. Administrator.*No/)).toBeInTheDocument();
       },
       { timeout: 3000 },
     );
@@ -706,7 +716,7 @@ export const Pagination: Story = {
     expect(await canvas.findByText('Role 1')).toBeInTheDocument();
 
     // Find pagination controls
-    const paginationNav = canvasElement.querySelector('.pf-v5-c-pagination');
+    const paginationNav = canvasElement.querySelector('.pf-v6-c-pagination');
     expect(paginationNav).toBeInTheDocument();
 
     // Clear spy to track pagination calls
@@ -750,7 +760,7 @@ export const BreadcrumbNavigation: Story = {
     expect(usersBreadcrumb).toHaveAttribute('href', '/iam/user-access/users');
 
     // Test current breadcrumb shows username (find in breadcrumb nav)
-    const breadcrumbNav = canvasElement.querySelector('.pf-v5-c-breadcrumb');
+    const breadcrumbNav = canvasElement.querySelector('.pf-v6-c-breadcrumb');
     expect(breadcrumbNav).toBeInTheDocument();
     expect(within(breadcrumbNav as HTMLElement).getByText('john.doe')).toBeInTheDocument();
   },
@@ -798,7 +808,7 @@ export const EmptyRoles: Story = {
     await waitFor(
       async () => {
         // The empty state should contain the search icon and "No matching" text
-        const emptyState = canvasElement.querySelector('.pf-v5-c-empty-state');
+        const emptyState = canvasElement.querySelector('.pf-v6-c-empty-state');
         expect(emptyState).toBeInTheDocument();
       },
       { timeout: 3000 },

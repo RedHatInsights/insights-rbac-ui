@@ -5,10 +5,11 @@
  * All table state (pagination, sorting, filtering, selection) is managed by useTableState.
  */
 
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -36,11 +37,10 @@ import { getBackRoute } from '../../../../helpers/navigation';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
+import { useGroupRemoveModal } from '../../hooks/useGroupRemoveModal';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
 import type { GroupRolesProps, Role } from './types';
-
-import './group-roles.scss';
 
 // =============================================================================
 // Helper Functions
@@ -59,6 +59,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
+  const addNotification = useAddNotification();
 
   // Permissions
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
@@ -74,10 +75,6 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   const disableAddRoles = useSelector(selectShouldDisableAddRoles);
   const systemGroupUuid = useSelector(selectSystemGroupUUID);
   const group = useSelector(selectSelectedGroup);
-
-  // Local state for remove modal
-  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
-  const [rolesToRemove, setRolesToRemove] = useState<Role[]>([]);
 
   // Resolve actual group ID (handle default access group)
   const actualGroupId = useMemo(() => (groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId! : systemGroupUuid), [groupId, systemGroupUuid]);
@@ -121,6 +118,47 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   // Enable selection for non-admin-default groups with permissions
   const selectable = hasPermissions && !isAdminDefault;
 
+  // Track roles to remove (needed for the confirm callback)
+  const rolesToRemoveRef = useRef<Role[]>([]);
+
+  // Remove modal with simple API
+  const removeModal = useGroupRemoveModal({
+    itemType: 'role',
+    groupName: group?.name || '',
+    onConfirm: async () => {
+      if (!actualGroupId) return;
+
+      const roleIds = rolesToRemoveRef.current.map(({ uuid }) => uuid);
+      await dispatch(removeRolesFromGroup(actualGroupId, roleIds) as any);
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.removeGroupRolesSuccessTitle),
+        description: intl.formatMessage(messages.removeGroupRolesSuccessDescription),
+        dismissable: true,
+      });
+
+      tableState.clearSelection();
+      fetchData({
+        offset: tableState.apiParams.offset,
+        limit: tableState.apiParams.limit,
+        orderBy: tableState.apiParams.orderBy,
+        filters: tableState.filters,
+      });
+      dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
+    },
+  });
+
+  // Helper to open modal with roles
+  const handleOpenRemoveModal = useCallback(
+    (roles: Role[]) => {
+      rolesToRemoveRef.current = roles;
+      removeModal.openModal(roles.map((r) => r.display_name || r.name));
+    },
+    [removeModal],
+  );
+
+  const removeModalState = removeModal.modalState;
+
   // =============================================================================
   // Effects
   // =============================================================================
@@ -138,46 +176,6 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
       props.onDefaultGroupChanged({ uuid: group.uuid, name: group.name });
     }
   }, [isChanged, group, props.onDefaultGroupChanged]);
-
-  // =============================================================================
-  // Remove Modal Handlers
-  // =============================================================================
-
-  const handleOpenRemoveModal = useCallback((roles: Role[]) => {
-    setRolesToRemove(roles);
-    setIsRemoveModalOpen(true);
-  }, []);
-
-  const handleCloseRemoveModal = useCallback(() => {
-    setIsRemoveModalOpen(false);
-    setRolesToRemove([]);
-  }, []);
-
-  const handleConfirmRemoveRoles = useCallback(async () => {
-    if (rolesToRemove.length === 0 || !actualGroupId) return;
-
-    try {
-      const roleIds = rolesToRemove.map(({ uuid }) => uuid);
-      await dispatch(removeRolesFromGroup(actualGroupId, roleIds) as any);
-
-      tableState.clearSelection();
-      setIsRemoveModalOpen(false);
-      setRolesToRemove([]);
-
-      // Refresh data
-      fetchData({
-        offset: tableState.apiParams.offset,
-        limit: tableState.apiParams.limit,
-        orderBy: tableState.apiParams.orderBy,
-        filters: tableState.filters,
-      });
-
-      // Refresh available roles
-      dispatch(fetchAddRolesForGroup(actualGroupId!, { limit: 20, offset: 0 }) as any);
-    } catch (error) {
-      console.error('Failed to remove roles from group:', error);
-    }
-  }, [dispatch, actualGroupId, rolesToRemove, tableState, fetchData]);
 
   // =============================================================================
   // Toolbar Content
@@ -217,40 +215,6 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
       />
     );
   }, [hasPermissions, isAdminDefault, tableState.selectedRows, intl, handleOpenRemoveModal]);
-
-  // =============================================================================
-  // Remove Modal State
-  // =============================================================================
-
-  const removeModalState = useMemo(() => {
-    const isSingular = rolesToRemove.length === 1;
-    const roleNames = rolesToRemove.map((role) => role.display_name || role.name).join(', ');
-
-    return {
-      isOpen: isRemoveModalOpen,
-      title: intl.formatMessage(isSingular ? messages.removeRoleQuestion : messages.removeRolesQuestion),
-      text: isSingular ? (
-        <FormattedMessage
-          {...messages.removeRoleModalText}
-          values={{
-            b: (text: React.ReactNode) => <b>{text}</b>,
-            name: group?.name || '',
-            role: roleNames,
-          }}
-        />
-      ) : (
-        <FormattedMessage
-          {...messages.removeRolesModalText}
-          values={{
-            b: (text: React.ReactNode) => <b>{text}</b>,
-            name: group?.name || '',
-            roles: rolesToRemove.length,
-          }}
-        />
-      ),
-      confirmButtonLabel: intl.formatMessage(isSingular ? messages.removeRole : messages.removeRoles),
-    };
-  }, [isRemoveModalOpen, rolesToRemove, intl, group?.name]);
 
   // =============================================================================
   // Render
@@ -322,8 +286,8 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
         text={removeModalState.text}
         isOpen={removeModalState.isOpen}
         confirmButtonLabel={removeModalState.confirmButtonLabel}
-        onClose={handleCloseRemoveModal}
-        onSubmit={handleConfirmRemoveRoles}
+        onClose={removeModalState.onClose}
+        onSubmit={removeModalState.onConfirm}
         isDefault={isPlatformDefault}
         isChanged={isChanged}
       />

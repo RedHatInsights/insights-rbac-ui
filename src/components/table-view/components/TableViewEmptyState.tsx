@@ -9,7 +9,7 @@ import React, { ReactNode } from 'react';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { TableVariant } from '@patternfly/react-table';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { EmptyState, EmptyStateActions, EmptyStateBody, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core';
+import { EmptyState, EmptyStateActions, EmptyStateBody, EmptyStateFooter } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import CubesIcon from '@patternfly/react-icons/dist/js/icons/cubes-icon';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
@@ -33,8 +33,7 @@ export const DefaultEmptyStateNoData: React.FC<DefaultEmptyStateNoDataProps> = (
   title = 'No data available',
   body = 'There is no data to display.',
 }) => (
-  <EmptyState variant="lg">
-    <EmptyStateHeader titleText={title} headingLevel="h4" icon={<EmptyStateIcon icon={CubesIcon} />} />
+  <EmptyState headingLevel="h4" icon={CubesIcon} titleText={title} variant="lg">
     <EmptyStateBody>{body}</EmptyStateBody>
   </EmptyState>
 );
@@ -60,8 +59,7 @@ export const DefaultEmptyStateNoResults: React.FC<DefaultEmptyStateNoResultsProp
   onClearFilters,
   clearFiltersText = 'Clear all filters',
 }) => (
-  <EmptyState variant="lg">
-    <EmptyStateHeader titleText={title} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+  <EmptyState headingLevel="h4" icon={SearchIcon} titleText={title} variant="lg">
     <EmptyStateBody>{body}</EmptyStateBody>
     {onClearFilters && (
       <EmptyStateFooter>
@@ -99,12 +97,7 @@ export const DefaultEmptyStateError: React.FC<DefaultEmptyStateErrorProps> = ({
   onRetry,
   retryText = 'Retry',
 }) => (
-  <EmptyState variant="lg">
-    <EmptyStateHeader
-      titleText={title}
-      headingLevel="h4"
-      icon={<EmptyStateIcon icon={ExclamationCircleIcon} color="var(--pf-v5-global--danger-color--100)" />}
-    />
+  <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText={title} variant="lg">
     <EmptyStateBody>
       {body}
       {error?.message && (
@@ -133,8 +126,10 @@ export const DefaultEmptyStateError: React.FC<DefaultEmptyStateErrorProps> = ({
 export interface TableViewEmptyStateProps {
   /** Empty state content to display */
   children: ReactNode;
-  /** Column labels for table header */
-  columnLabels: string[];
+  /** Whether to show table headers (for "no results" state) */
+  showHeaders?: boolean;
+  /** Column labels for table header (required when showHeaders is true) */
+  columnLabels?: string[];
   /** Whether to show selection column */
   hasSelection?: boolean;
   /** Whether to show actions column */
@@ -142,46 +137,61 @@ export interface TableViewEmptyStateProps {
   /** Table variant */
   variant?: 'default' | 'compact';
   /** ARIA label for the table */
-  ariaLabel: string;
+  ariaLabel?: string;
   /** OUIA ID for testing */
   ouiaId?: string;
 }
 
 /**
- * Wraps empty state content in proper table structure.
- * Use this when you need a custom empty state with correct table markup.
+ * Renders empty state content with optional table headers.
+ * - For "no data" state: renders content without table structure
+ * - For "no results" state: renders content within table structure with headers
  *
  * @example
  * ```tsx
+ * // No data - no headers
+ * <TableViewEmptyState>
+ *   <DefaultEmptyStateNoData />
+ * </TableViewEmptyState>
+ *
+ * // No results - with headers
  * <TableViewEmptyState
+ *   showHeaders
  *   columnLabels={['Name', 'Description', 'Status']}
  *   hasSelection
  *   ariaLabel="My table"
  * >
- *   <MyCustomEmptyState onAction={handleAction} />
+ *   <DefaultEmptyStateNoResults />
  * </TableViewEmptyState>
  * ```
  */
 export const TableViewEmptyState: React.FC<TableViewEmptyStateProps> = ({
   children,
-  columnLabels,
+  showHeaders = false,
+  columnLabels = [],
   hasSelection = false,
   hasActions = false,
   variant = 'default',
-  ariaLabel,
+  ariaLabel = 'Table',
   ouiaId,
 }) => {
+  // No headers mode - just render content
+  if (!showHeaders) {
+    return <>{children}</>;
+  }
+
+  // With headers mode - render full table structure
   const columnCount = columnLabels.length + (hasSelection ? 1 : 0) + (hasActions ? 1 : 0);
 
   return (
     <Table aria-label={ariaLabel} variant={variant === 'compact' ? TableVariant.compact : undefined} ouiaId={ouiaId}>
       <Thead>
         <Tr>
-          {hasSelection && <Th screenReaderText="Select" />}
+          {hasSelection && <Th screenReaderText="Select" modifier="fitContent" />}
           {columnLabels.map((label, idx) => (
             <Th key={idx}>{label}</Th>
           ))}
-          {hasActions && <Th screenReaderText="Actions" />}
+          {hasActions && <Th screenReaderText="Actions" modifier="fitContent" />}
         </Tr>
       </Thead>
       <Tbody>

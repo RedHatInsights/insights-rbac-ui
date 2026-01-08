@@ -1,12 +1,5 @@
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import {
-  EmptyState,
-  EmptyStateActions,
-  EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
-} from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyState, EmptyStateActions, EmptyStateFooter, EmptyStateVariant } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import CheckCircleIcon from '@patternfly/react-icons/dist/js/icons/check-circle-icon';
 import React from 'react';
 import { useIntl } from 'react-intl';
@@ -20,12 +13,12 @@ interface GroupCreationSuccessProps {
 export const GroupCreationSuccess: React.FC<GroupCreationSuccessProps> = ({ onClose, onCreateAnother }) => {
   const intl = useIntl();
   return (
-    <EmptyState variant={EmptyStateVariant.lg}>
-      <EmptyStateHeader
-        titleText={<>{intl.formatMessage(messages.groupCreatedSuccessfully)}</>}
-        icon={<EmptyStateIcon className="pf-v5-u-mt-xl" color="green" icon={CheckCircleIcon} />}
-        headingLevel="h4"
-      />
+    <EmptyState
+      headingLevel="h4"
+      icon={CheckCircleIcon}
+      titleText={<>{intl.formatMessage(messages.groupCreatedSuccessfully)}</>}
+      variant={EmptyStateVariant.lg}
+    >
       <EmptyStateFooter>
         <Button onClick={onClose} variant="primary">
           {intl.formatMessage(messages.exit)}

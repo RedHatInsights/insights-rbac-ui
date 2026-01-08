@@ -2,7 +2,6 @@ import React from 'react';
 import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './AppTabs.scss';
 
 /**
  * Tab item structure for AppTabs component
@@ -55,7 +54,7 @@ export interface AppTabsProps {
  * />
  * ```
  */
-const AppTabs: React.FC<AppTabsProps> = ({ tabItems, isHeader = false }) => {
+const AppTabs: React.FC<AppTabsProps> = ({ tabItems }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const activeTab = tabItems.find(({ name }) => pathname.includes(name));
@@ -68,7 +67,7 @@ const AppTabs: React.FC<AppTabsProps> = ({ tabItems, isHeader = false }) => {
   };
 
   return (
-    <Tabs className={isHeader ? 'rbac-page-header__tabs' : ''} activeKey={activeTab ? activeTab.eventKey : 0} onSelect={handleTabClick}>
+    <Tabs activeKey={activeTab ? activeTab.eventKey : 0} onSelect={handleTabClick}>
       {tabItems.map((item) => (
         <Tab title={item.title} key={item.eventKey} eventKey={item.eventKey} name={item.name} />
       ))}

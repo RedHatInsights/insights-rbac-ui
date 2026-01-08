@@ -215,9 +215,9 @@ This story includes automated verification:
     const mainElement = document.querySelector('main') || context.canvasElement;
     const mainContent = within(mainElement as HTMLElement);
 
-    // Verify the page loaded - look for the unique subtitle text
-    const subtitle = await mainContent.findByText(/select applications to view your personal/i);
-    expect(subtitle).toBeInTheDocument();
+    // Verify the page loaded - look for the page title
+    const title = await mainContent.findByText(/My user access/i);
+    expect(title).toBeInTheDocument();
 
     // Verify the table is present with actual data
     const table = await mainContent.findByRole('grid');

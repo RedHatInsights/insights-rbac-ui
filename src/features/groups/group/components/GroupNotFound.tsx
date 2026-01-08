@@ -35,7 +35,7 @@ export const GroupNotFound: React.FC<GroupNotFoundProps> = ({ groupId, breadcrum
 
   return (
     <Fragment>
-      <section className="pf-v5-c-page__main-breadcrumb pf-v5-u-pb-md">
+      <section className="pf-v6-c-page__main-breadcrumb pf-v6-u-pb-md">
         <RbacBreadcrumbs breadcrumbs={breadcrumbsList} />
       </section>
       <EmptyWithAction
@@ -44,7 +44,7 @@ export const GroupNotFound: React.FC<GroupNotFoundProps> = ({ groupId, breadcrum
         actions={[
           <Button
             key="back-button"
-            className="pf-v5-u-mt-xl"
+            className="pf-v6-u-mt-xl"
             ouiaId="back-button"
             variant="primary"
             aria-label="Back to previous page"

@@ -42,7 +42,7 @@ export async function fillAddGroupWizardForm(
   const getWizardNextButton = () => {
     const allNextButtons = dialog.queryAllByRole('button', { name: /next/i });
     return allNextButtons.find((btn) => {
-      const isNotPagination = !btn.closest('.pf-v5-c-pagination');
+      const isNotPagination = !btn.closest('.pf-v6-c-pagination');
       const isEnabled = !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true';
       return isNotPagination && isEnabled;
     });
@@ -350,7 +350,7 @@ export async function fillAddGroupWizardForm(
     await waitFor(
       () => {
         const successNotification =
-          document.querySelector('.pf-v5-c-alert--success') ||
+          document.querySelector('.pf-v6-c-alert--success') ||
           document.querySelector('.notifications-portal') ||
           dialog.queryByText(/success/i) ||
           dialog.queryByText(/created successfully/i) ||

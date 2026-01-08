@@ -275,7 +275,7 @@ export const FilterRoles: Story = {
           nameFilter = canvas.getByPlaceholderText(/name/i);
         } catch {
           // Last resort: find any text input in the toolbar area
-          const toolbar = canvasElement.querySelector('.pf-v5-c-toolbar, .ins-c-primary-toolbar');
+          const toolbar = canvasElement.querySelector('.pf-v6-c-toolbar, .ins-c-primary-toolbar');
           if (toolbar) {
             nameFilter = toolbar.querySelector('input[type="text"]');
           }
@@ -367,7 +367,7 @@ export const EmptyRolesList: Story = {
           canvas.queryByText(/no.*results/i) ||
           canvas.queryByText(/no.*found/i) ||
           canvas.queryByText(/empty/i) ||
-          canvasElement.querySelector('.pf-v5-c-empty-state') ||
+          canvasElement.querySelector('.pf-v6-c-empty-state') ||
           canvasElement.querySelector('[class*="empty"]');
 
         if (emptyMessage) {

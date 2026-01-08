@@ -6,6 +6,7 @@ import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { useDispatch, useSelector } from 'react-redux';
 import { AddGroupRoles } from './AddGroupRoles';
 import { fetchAddRolesForGroup, fetchGroup } from '../../../../redux/groups/actions';
+import { resetRegistry } from '../../../../utilities/store';
 
 const mockRoles = [
   {
@@ -216,6 +217,11 @@ const meta: Meta<any> = {
         // Add roles endpoint
         http.post('/api/rbac/v1/groups/:groupId/roles/', () => {
           return HttpResponse.json({ message: 'Roles added successfully' });
+        }),
+
+        // Reset state endpoint for resetStoryState helper
+        http.post('/api/test/reset-state', () => {
+          return HttpResponse.json({ success: true });
         }),
 
         // 🎯 CRITICAL: Group roles handlers for fetchAddRolesForGroup (excluded roles)
@@ -488,6 +494,12 @@ export const DefaultGroup: Story = {
       },
       { timeout: 3000 },
     );
+
+    // CLEANUP: Clear modals after test to prevent pollution of subsequent stories
+    const modalContainer = document.getElementById('storybook-modals');
+    if (modalContainer) {
+      modalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+    }
   },
 };
 
@@ -662,13 +674,13 @@ export const CancelNotification: Story = {
           const notificationPortal = document.querySelector('.notifications-portal');
           expect(notificationPortal).toBeInTheDocument();
 
-          const warningAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-warning');
+          const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
           expect(warningAlert).toBeInTheDocument();
 
-          const alertTitle = warningAlert?.querySelector('.pf-v5-c-alert__title');
+          const alertTitle = warningAlert?.querySelector('.pf-v6-c-alert__title');
           expect(alertTitle).toHaveTextContent(/cancel/i);
 
-          const alertDescription = warningAlert?.querySelector('.pf-v5-c-alert__description');
+          const alertDescription = warningAlert?.querySelector('.pf-v6-c-alert__description');
           expect(alertDescription).toHaveTextContent(/cancelled/i);
         },
         { timeout: 5000 },
@@ -680,10 +692,21 @@ export const CancelNotification: Story = {
   },
 };
 
-// 🎯 NEW: Test story for role filtering with API spies
+// 🎯 Test story for role filtering with API spies
 export const RoleFilteringTest: Story = {
   name: 'Role Filtering with API Spies',
-  tags: ['test-skip'], // TODO: Fix test isolation issue - works in isolation but fails in full suite
+  decorators: [
+    (Story) => {
+      // Reset Redux and clear modals before component mounts
+      resetRegistry();
+      const modalContainer = document.getElementById('storybook-modals');
+      if (modalContainer) {
+        modalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+      }
+      // Unique key forces React to remount the component fresh
+      return <Story key={`filtering-${Date.now()}`} />;
+    },
+  ],
   render: () => (
     <AddGroupRolesWithData
       title="Add roles to group - Filtering Test"
@@ -785,40 +808,51 @@ export const RoleFilteringTest: Story = {
         http.post('/api/rbac/v1/groups/:groupId/roles/', () => {
           return HttpResponse.json({ message: 'Roles added successfully' });
         }),
+
+        // Reset state endpoint for resetStoryState helper
+        http.post('/api/test/reset-state', () => {
+          return HttpResponse.json({ success: true });
+        }),
       ],
     },
   },
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    await delay(300); // Wait for MSW handlers to initialize
+    // Clear modal container from any previous story's leftover modals
+    const existingModalContainer = document.getElementById('storybook-modals');
+    if (existingModalContainer) {
+      existingModalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+    }
+    postRolesSpy.mockClear();
+
     const canvas = within(canvasElement);
+
+    // Wait for component to load data (shows "Loading group data..." until ready)
+    await canvas.findByRole('button', { name: 'Open Add Roles Modal' }, { timeout: 10000 });
 
     // Click the button to open the modal
     const openButton = await canvas.findByRole('button', { name: 'Open Add Roles Modal' });
     await userEvent.click(openButton);
 
-    // Wait for the modal to load - use within(document.body) instead of screen
-    const modal = await within(document.body).findByRole('dialog', undefined, { timeout: 10000 });
+    // Wait for the modal to load - use modal container for Storybook
+    const modalContainer = document.getElementById('storybook-modals') || document.body;
+    const modal = await within(modalContainer).findByRole('dialog', undefined, { timeout: 10000 });
     expect(modal).toBeInTheDocument();
-
-    // Wait for the roles grid to load within the modal (DataViewTable uses role="grid")
     const modalContent = within(modal);
-    const table = await modalContent.findByRole('grid', undefined, { timeout: 5000 });
-    expect(table).toBeInTheDocument();
 
-    // Find the filter input within the modal - need to wait for it to appear
-    const filterInput = await modalContent.findByPlaceholderText('Filter by role name', undefined, { timeout: 5000 });
-    expect(filterInput).toBeInTheDocument();
-
-    // Wait for data to fully load
+    // Wait for data to fully load (proves table rendered with data)
     await waitFor(
       () => {
         expect(modalContent.getByText('Auditor')).toBeInTheDocument();
       },
-      { timeout: 5000 },
+      { timeout: 10000 },
     );
 
-    // Get initial role count within the modal
-    const initialRows = await modalContent.findAllByRole('row');
+    // Query fresh for elements (don't hold stale references - TableView re-renders)
+    const filterInput = modalContent.getByPlaceholderText('Filter by role name');
+    expect(filterInput).toBeInTheDocument();
+
+    // Get initial role count - query fresh
+    const initialRows = modalContent.getAllByRole('row');
     const initialRowCount = initialRows.length - 1; // Subtract header row
     expect(initialRowCount).toBeGreaterThan(0);
 
@@ -986,10 +1020,21 @@ export const ClearFiltersButtonTest = {
   },
 };
 
-// 🎯 NEW: Test story for POST API call with spies
+// 🎯 Test story for POST API call with spies
 export const AddRolesToGroupAPITest: Story = {
   name: 'Add Roles API Call with Spies',
-  tags: ['test-skip'], // TODO: Fix test isolation issue - works in isolation but fails in full suite
+  decorators: [
+    (Story) => {
+      // Reset Redux and clear modals before component mounts
+      resetRegistry();
+      const modalContainer = document.getElementById('storybook-modals');
+      if (modalContainer) {
+        modalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+      }
+      // Unique key forces React to remount the component fresh
+      return <Story key={`api-${Date.now()}`} />;
+    },
+  ],
   render: () => (
     <AddGroupRolesWithData
       title="Add roles to group - API Test"
@@ -1007,8 +1052,8 @@ export const AddRolesToGroupAPITest: Story = {
     docs: { disable: true }, // Hide from docs as this is a test story
     msw: {
       handlers: [
-        // Mock group endpoint
-        http.get('/api/rbac/v1/groups/:groupId', ({ params }) => {
+        // Mock group endpoint (with trailing slash to match API client)
+        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
           return HttpResponse.json({
             uuid: params.groupId,
             name: 'Test Group for API Calls',
@@ -1018,23 +1063,27 @@ export const AddRolesToGroupAPITest: Story = {
           });
         }),
 
-        // Mock available roles for selection
+        // 🎯 SPY-ENABLED: Group roles handler (same as RoleFilteringTest)
         http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
           const url = new URL(request.url);
-          const exclude = url.searchParams.get('excluded') || url.searchParams.get('exclude');
+          // API client uses 'exclude' param (not 'excluded')
+          const exclude = url.searchParams.get('exclude');
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
 
           if (exclude === 'true') {
             // Return available roles to add
+            const paginatedRoles = mockAvailableRoles.slice(offset, offset + limit);
             return HttpResponse.json({
-              data: mockAvailableRoles.slice(0, 3), // Return first 3 for testing
-              meta: { count: 3, limit: 20, offset: 0 },
+              data: paginatedRoles,
+              meta: { count: mockAvailableRoles.length, limit, offset },
             });
           }
 
           // Return current group roles (for refresh after POST)
           return HttpResponse.json({
             data: mockRoles,
-            meta: { count: mockRoles.length, limit: 20, offset: 0 },
+            meta: { count: mockRoles.length, limit, offset },
           });
         }),
 
@@ -1066,31 +1115,48 @@ export const AddRolesToGroupAPITest: Story = {
             meta: { count: mockAvailableRoles.length, limit: 20, offset: 0 },
           });
         }),
+
+        // Reset state endpoint for resetStoryState helper
+        http.post('/api/test/reset-state', () => {
+          return HttpResponse.json({ success: true });
+        }),
       ],
     },
   },
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    await delay(300); // Wait for MSW handlers to initialize
+    // Clear modal container from any previous story's leftover modals
+    const existingModalContainer = document.getElementById('storybook-modals');
+    if (existingModalContainer) {
+      existingModalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+    }
+    postRolesSpy.mockClear();
+
     const canvas = within(canvasElement);
 
-    // 🔍 Reset spy before test
-    postRolesSpy.mockClear();
+    // Wait for component to load data (shows "Loading group data..." until ready)
+    await canvas.findByRole('button', { name: 'Open Add Roles Modal' }, { timeout: 10000 });
 
     // Click the button to open the modal
     const openButton = await canvas.findByRole('button', { name: 'Open Add Roles Modal' });
     await userEvent.click(openButton);
 
-    // Wait for the modal to load
-    const modal = await screen.findByRole('dialog', undefined, { timeout: 10000 });
+    // Wait for the modal to load - use modal container for Storybook
+    const modalContainer = document.getElementById('storybook-modals') || document.body;
+    const modal = await within(modalContainer).findByRole('dialog', undefined, { timeout: 10000 });
     const modalContent = within(modal);
 
-    // Wait for the roles grid to load within the modal (DataViewTable uses role="grid")
-    const table = await modalContent.findByRole('grid', undefined, { timeout: 5000 });
+    // Wait for data to fully load - look for actual content (proves table is rendered with data)
+    await waitFor(
+      () => {
+        expect(modalContent.getByText('Auditor')).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
-    // Select the first available role by clicking its checkbox
-    // Scope checkbox query to the table - findAllByRole waits for checkboxes to be available
-    const tableContext = within(table);
-    const checkboxes = await tableContext.findAllByRole('checkbox');
+    // Query fresh for the table and checkboxes (don't hold stale references)
+    const table = modalContent.getByRole('grid');
+    const checkboxes = within(table).getAllByRole('checkbox');
+    expect(checkboxes.length).toBeGreaterThan(0);
     const firstRoleCheckbox = checkboxes[0];
 
     await userEvent.click(firstRoleCheckbox);
@@ -1132,7 +1198,7 @@ export const AddRolesToGroupAPITest: Story = {
         const notificationPortal = document.querySelector('.notifications-portal');
         expect(notificationPortal).toBeInTheDocument();
 
-        const successAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-success');
+        const successAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-success');
         expect(successAlert).toBeInTheDocument();
       },
       { timeout: 5000 },

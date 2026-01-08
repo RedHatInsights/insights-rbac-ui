@@ -171,7 +171,7 @@ export const ExpandAdminDescription: Story = {
     // Description should be visible after expansion
     await waitFor(() => {
       // The description text about org admin privileges should appear
-      const expandedContent = document.querySelector('.pf-v5-c-expandable-section__content');
+      const expandedContent = document.querySelector('.pf-v6-c-expandable-section__content');
       expect(expandedContent).toBeInTheDocument();
     });
   },

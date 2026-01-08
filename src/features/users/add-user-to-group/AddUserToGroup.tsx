@@ -3,10 +3,11 @@ import { useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import PermissionsContext from '../../../utilities/permissionsContext';
@@ -38,6 +39,7 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const navigate = useAppNavigate();
+  const addNotification = useAddNotification();
 
   const { groups, pagination, isLoading } = useSelector(
     ({ groupReducer: { groups, isLoading } }: RBACStore) => ({
@@ -70,23 +72,35 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
     fetchData({ limit: 20, offset: 0, filters: { name: '' } });
   }, []);
 
-  const onSubmit = () => {
-    tableState.selectedRows.forEach((group) => {
-      dispatch(addMembersToGroup(group.uuid, [{ username: username! }]) as unknown as { type: string });
-    });
+  const onSubmit = async () => {
+    try {
+      for (const group of tableState.selectedRows) {
+        await (dispatch(addMembersToGroup(group.uuid, [{ username: username! }])) as any).payload;
+      }
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.addGroupMemberSuccessTitle),
+        description: intl.formatMessage(messages.addGroupMemberSuccessDescription),
+      });
+    } catch (error) {
+      console.error('Failed to add user to group:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.addGroupMemberErrorTitle),
+        description: intl.formatMessage(messages.addGroupMemberErrorDescription),
+      });
+    }
     navigate(pathnames['user-detail'].link.replace(':username', username!), { state: { username } });
   };
 
   const onCancel = () => (tableState.selectedRows.length > 0 && setCancelWarningVisible(true)) || redirectToUserDetail();
 
   const redirectToUserDetail = () => {
-    dispatch(
-      addNotification({
-        variant: 'warning',
-        title: intl.formatMessage(messages.addingGroupMemberTitle),
-        description: intl.formatMessage(messages.addingGroupMemberCancelled),
-      }),
-    );
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(messages.addingGroupMemberTitle),
+      description: intl.formatMessage(messages.addingGroupMemberCancelled),
+    });
     navigate(pathnames['user-detail'].link.replace(':username', username!));
   };
 
@@ -133,7 +147,7 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
         actions={[
           <Button
             aria-label="Save"
-            className="pf-v5-u-mr-sm"
+            className="pf-v6-u-mr-sm"
             ouiaId="primary-save-button"
             variant="primary"
             key="save"
@@ -147,7 +161,7 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
           </Button>,
         ]}
       >
-        <Alert variant="info" isInline isPlain title={intl.formatMessage(messages.onlyNonUserGroupsVisible)} />
+        <Alert variant="info" isInline title={intl.formatMessage(messages.onlyNonUserGroupsVisible)} className="pf-v6-u-mb-md" />
         <TableView
           columns={COLUMNS}
           columnConfig={columnConfig}

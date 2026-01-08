@@ -601,7 +601,7 @@ export const AddMemberButton: Story = {
     await userEvent.click(toolbarKebab);
 
     // Verify "Remove" option is present but disabled (no members selected)
-    const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
+    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
     expect(removeOption).toBeInTheDocument();
     expect(removeOption).toBeDisabled();
 
@@ -695,7 +695,7 @@ export const ToolbarActionsState: Story = {
     await userEvent.click(toolbarKebab);
 
     // Verify initial state: Remove disabled when no selection
-    const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
+    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
     expect(removeOption).toBeDisabled(); // Disabled when no selection
 
     // Verify "Add member" is NOT in the kebab menu
@@ -717,7 +717,7 @@ export const ToolbarActionsState: Story = {
     await userEvent.click(toolbarKebab);
 
     // Verify state with selection: Remove should now be enabled
-    const removeAfter = await canvas.findByRole('menuitem', { name: 'Remove' });
+    const removeAfter = await within(document.body).findByRole('menuitem', { name: 'Remove' });
     expect(removeAfter).not.toBeDisabled(); // Now enabled with selection
 
     // Verify "Add member" is still NOT in the kebab menu
@@ -760,7 +760,7 @@ export const RowActions: Story = {
     await userEvent.click(rowKebab);
 
     // Verify "Remove" action is available
-    const removeAction = await canvas.findByRole('menuitem', { name: 'Remove' });
+    const removeAction = await within(document.body).findByRole('menuitem', { name: 'Remove' });
     expect(removeAction).toBeInTheDocument();
     expect(removeAction).not.toBeDisabled();
 
@@ -823,7 +823,7 @@ Perfect for code review and UX validation.
 
     await delay(200);
 
-    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+    const removeMenuItem = await within(document.body).findByRole('menuitem', { name: /Remove/i });
     expect(removeMenuItem).toBeInTheDocument();
 
     await userEvent.click(removeMenuItem);
@@ -895,7 +895,7 @@ Perfect for testing bulk operations and proper pluralization.
     await userEvent.click(bulkActionsButton);
 
     // Find and click the "Remove" menuitem
-    const removeMenuItem = await canvas.findByRole('menuitem', { name: 'Remove' });
+    const removeMenuItem = await within(document.body).findByRole('menuitem', { name: 'Remove' });
     expect(removeMenuItem).toBeInTheDocument();
     expect(removeMenuItem).toBeEnabled(); // Should be enabled now that rows are selected
 

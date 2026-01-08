@@ -42,7 +42,7 @@ export async function resetStoryState(): Promise<void> {
   await response.json(); // Ensure the request completes fully
 
   // Clear any lingering notifications from previous runs
-  const existingNotifications = document.querySelectorAll('.pf-v5-c-alert');
+  const existingNotifications = document.querySelectorAll('.pf-v6-c-alert');
   existingNotifications.forEach((notification) => notification.remove());
 
   // Clear any lingering modals from previous stories

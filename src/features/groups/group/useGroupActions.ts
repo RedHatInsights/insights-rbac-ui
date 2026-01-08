@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { fetchGroup, fetchSystemGroup, removeGroups } from '../../../redux/groups/actions';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
 import messages from '../../../Messages';
@@ -33,6 +34,7 @@ export const useGroupActions = ({
 }: UseGroupActionsProps) => {
   const intl = useIntl();
   const dispatch = useDispatch();
+  const addNotification = useAddNotification();
 
   // Generate URLs for dropdown actions
   const getEditUrl = useCallback(() => {
@@ -52,19 +54,31 @@ export const useGroupActions = ({
   // Handle reset warning confirmation
   const handleResetConfirm = useCallback(async () => {
     if (systemGroupUuid) {
-      await dispatch(removeGroups([systemGroupUuid]));
-      await dispatch(fetchSystemGroup({ chrome }));
-      // Fetch the restored group detail to update Redux state
-      await dispatch(fetchGroup('system-default'));
-      onDefaultGroupChangedHide();
+      try {
+        await dispatch(removeGroups([systemGroupUuid]));
+        addNotification({
+          variant: 'success',
+          title: intl.formatMessage(messages.removeGroupSuccess),
+        });
+        await dispatch(fetchSystemGroup({ chrome }));
+        // Fetch the restored group detail to update Redux state
+        await dispatch(fetchGroup('system-default'));
+        onDefaultGroupChangedHide();
 
-      // Navigate to the restored system default group
-      // After deletion, the system will recreate the default group with UUID 'system-default'
-      // Since we're already on this route, the fetchGroup above ensures the state is updated
-      navigateToGroup('system-default');
+        // Navigate to the restored system default group
+        // After deletion, the system will recreate the default group with UUID 'system-default'
+        // Since we're already on this route, the fetchGroup above ensures the state is updated
+        navigateToGroup('system-default');
+      } catch (error) {
+        console.error('Failed to reset group:', error);
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.removeGroupError),
+        });
+      }
     }
     onResetWarningHide();
-  }, [systemGroupUuid, dispatch, chrome, onDefaultGroupChangedHide, onResetWarningHide, navigateToGroup]);
+  }, [systemGroupUuid, dispatch, chrome, onDefaultGroupChangedHide, onResetWarningHide, navigateToGroup, addNotification, intl]);
 
   return {
     // Action URLs and labels

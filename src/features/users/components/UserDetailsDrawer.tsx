@@ -12,8 +12,8 @@ import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover'
 import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { TabTitleText } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import {} from '@patternfly/react-core';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
@@ -51,9 +51,9 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
             {`${focusedUser?.first_name} ${focusedUser?.last_name}`}
           </span>
         </Title>
-        <TextContent>
-          <Text>{focusedUser?.email}</Text>
-        </TextContent>
+        <Content>
+          <Content component="p">{focusedUser?.email}</Content>
+        </Content>
         <DrawerActions>
           <DrawerCloseButton onClick={onClose} />
         </DrawerActions>
@@ -73,7 +73,7 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
                 headerContent={intl.formatMessage(messages.assignedRoles)}
                 bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
               >
-                <Icon className="pf-v5-u-pl-sm" isInline>
+                <Icon className="pf-v6-u-pl-sm" isInline>
                   <OutlinedQuestionCircleIcon />
                 </Icon>
               </Popover>

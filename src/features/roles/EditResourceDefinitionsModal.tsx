@@ -12,15 +12,14 @@ import { processResourceDefinitions } from '../../redux/inventory/helper';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { Bullseye } from '@patternfly/react-core';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import { isInventoryHostsPermission, isInventoryPermission } from './roleResourceDefinitionsTableHelpers';
 import messages from '../../Messages';
 import type { RBACStore } from '../../redux/store.d';
-import './role-permissions.scss';
 
 interface InventoryGroup {
   id: string;
@@ -48,9 +47,12 @@ interface EditResourceDefinitionsModalProps {
   cancelRoute: string;
 }
 
+// IMPORTANT: data-driven-forms DualListSelect has a design flaw where it uses labels
+// for form values when NOT using getValueFromNode. So we must use getValueFromNode
+// for inventory to maintain proper ID-based values.
 const createOptions = (resources: Record<string, InventoryGroup> | Resources | undefined, permissionId: string) =>
   isInventoryPermission(permissionId)
-    ? // options for inventory
+    ? // options for inventory - use JSX with getValueFromNode to maintain proper ID values
       [
         ...(isInventoryHostsPermission(permissionId) ? [<FormattedMessage key="ungrouped" data-value="null" {...messages.ungroupedSystems} />] : []),
         ...Object.values((resources as Record<string, InventoryGroup>) || {}).map((inventoryGroup) => (
@@ -59,7 +61,7 @@ const createOptions = (resources: Record<string, InventoryGroup> | Resources | u
           </span>
         )),
       ]
-    : // options for cost-management
+    : // options for cost-management - value === label so standard format works
       Object.entries(resources as Resources).reduce(
         (acc: { value: string; path: string; label: string }[], [key, value]) => [
           ...acc,
@@ -91,6 +93,9 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+// Helper to extract value from JSX option elements
+const extractValueFromNode = (option: { props: { 'data-value': string } }) => option.props['data-value'];
+
 const createEditResourceDefinitionsSchema = (
   resources: Resources | undefined,
   resourcesPath: string | undefined,
@@ -110,9 +115,14 @@ const createEditResourceDefinitionsSchema = (
         options: [...((resourcesPath || isInventory) && resources ? options : [])],
         validate: [{ type: 'validate-resources' }],
         isSearchable: true,
+        // For inventory: use getValueFromNode with JSX options to extract IDs
+        // For cost-management: standard format works because value === label
+        // TODO (PF6 UPGRADE): data-driven-forms@3.x has a bug with DualListSelect where
+        // addSelected callback receives wrong params. Check if fixed in v4.x.
+        // See AddResourceAndSave story in EditResourceDefinitionsModal.stories.tsx
         ...(isInventory
           ? {
-              getValueFromNode: (option: { props: { 'data-value': string } }) => option.props['data-value'],
+              getValueFromNode: extractValueFromNode,
             }
           : {}),
       },
@@ -263,7 +273,10 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
     });
   };
 
-  const options = createOptions(isInventory ? inventoryGroups[permissionId!] : (resources as Resources), permissionId!);
+  const options = useMemo(
+    () => createOptions(isInventory ? inventoryGroups[permissionId!] : (resources as Resources), permissionId!),
+    [isInventory, inventoryGroups, permissionId, resources],
+  );
 
   return (
     <React.Fragment>

@@ -1,5 +1,5 @@
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';

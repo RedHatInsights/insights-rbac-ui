@@ -4,19 +4,18 @@ import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ButtonVariant } from '@patternfly/react-core';
 import { Checkbox } from '@patternfly/react-core/dist/dynamic/components/Checkbox';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
 import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { TitleSizes } from '@patternfly/react-core';
 import {} from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
-import './EnableWorkspacesAlert.scss';
 
 export const EnableWorkspacesAlert: React.FC = () => {
   const [checked, setChecked] = React.useState<boolean>(false);
@@ -39,9 +38,9 @@ export const EnableWorkspacesAlert: React.FC = () => {
       <Title ouiaId="enable-workspaces-modal-header" headingLevel="h1" size={TitleSizes['2xl']}>
         {intl.formatMessage(messages.enableWorkspacesWizardTitle)}
       </Title>
-      <Text component={TextVariants.p} ouiaId="enable-workspaces-modal-description">
+      <Content component={ContentVariants.p} ouiaId="enable-workspaces-modal-description">
         {intl.formatMessage(messages.enableWorkspacesWizardDesc)}
-      </Text>
+      </Content>
     </React.Fragment>
   );
 
@@ -113,7 +112,7 @@ export const EnableWorkspacesAlert: React.FC = () => {
           className="enable-workspace-alert"
         >
           <Switch
-            className="pf-v5-u-mt-xs"
+            className="pf-v6-u-mt-xs"
             label={intl.formatMessage(messages.workspacesAlertSwitchLabel)}
             isChecked={isModalOpen || isConfirmed}
             ouiaId="enable-workspaces-switch"

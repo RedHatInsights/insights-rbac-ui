@@ -3,11 +3,12 @@ import { useIntl } from 'react-intl';
 import FormSpy from '@data-driven-forms/react-form-renderer/form-spy';
 import FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { Modal } from '@patternfly/react-core/dist/js/components/Modal';
+import { Modal } from '@patternfly/react-core/dist/js/deprecated/components/Modal';
 import { ActionGroup } from '@patternfly/react-core/dist/js/components/Form/ActionGroup';
 import { Button } from '@patternfly/react-core/dist/js/components/Button';
 import { Form } from '@patternfly/react-core/dist/js/components/Form/Form';
 import messages from '../../Messages';
+import { getModalContainer } from '../../helpers/modal-container';
 
 /**
  * This id is required to submit form by a button outside of the form element
@@ -32,8 +33,8 @@ const CustomButtons: React.FC<CustomButtonsProps> = ({ saveLabel, cancelLabel })
   return (
     <FormSpy>
       {({ pristine, invalid, validating, submitting }) => (
-        <div className="pf-v5-c-form">
-          <ActionGroup className="pf-v5-u-mt-0">
+        <div className="pf-v6-c-form">
+          <ActionGroup className="pf-v6-u-mt-0">
             <Button
               ouiaId="primary-save-button"
               variant="primary"
@@ -74,7 +75,7 @@ export const ModalFormTemplate: React.FC<ModalFormTemplateProps> = ({ ModalProps
   const { formFields, schema, ...otherProps } = props;
 
   return (
-    <Modal {...ModalProps} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
+    <Modal {...ModalProps} appendTo={getModalContainer()} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
       {alert?.()}
       <FormTemplate formFields={formFields} schema={schema} {...otherProps} showFormControls={false} FormWrapper={CustomFormWrapper} />
     </Modal>

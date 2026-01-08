@@ -129,9 +129,9 @@ export const WithAlert: Story = {
       modalTitle="Warning Required"
       modalVariant="large"
       alert={() => (
-        <div className="pf-v5-c-alert pf-m-warning pf-v5-u-mb-md" role="alert">
-          <div className="pf-v5-c-alert__icon">⚠️</div>
-          <div className="pf-v5-c-alert__title">Please review your changes carefully</div>
+        <div className="pf-v6-c-alert pf-m-warning pf-v6-u-mb-md" role="alert">
+          <div className="pf-v6-c-alert__icon">⚠️</div>
+          <div className="pf-v6-c-alert__title">Please review your changes carefully</div>
         </div>
       )}
     />

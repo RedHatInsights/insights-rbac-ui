@@ -3,8 +3,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateFooter } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import CheckCircleIcon from '@patternfly/react-icons/dist/js/icons/check-circle-icon';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
@@ -22,12 +21,7 @@ const AddRolePermissionSuccess: React.FC<AddRolePermissionSuccessProps> = ({ cur
   const dispatch = useDispatch();
   return (
     <>
-      <EmptyState>
-        <EmptyStateHeader
-          titleText={<>{intl.formatMessage(messages.permissionsAddedSuccessfully)}</>}
-          icon={<EmptyStateIcon color="green" icon={CheckCircleIcon} />}
-          headingLevel="h4"
-        />
+      <EmptyState headingLevel="h4" icon={CheckCircleIcon} titleText={<>{intl.formatMessage(messages.permissionsAddedSuccessfully)}</>}>
         <EmptyStateBody />
         <EmptyStateFooter>
           <AppLink to={pathnames['role-detail'].link.replace(':roleId', currentRoleID)}>

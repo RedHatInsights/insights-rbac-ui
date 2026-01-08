@@ -117,19 +117,19 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
             <span>{row.description.length > 23 ? `${row.description.slice(0, 20)}...` : row.description}</span>
           </Tooltip>
         ) : (
-          <div className="pf-v5-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
         ),
       principalCount: (row) => row.principalCount,
       roleCount: (row) => row.roleCount,
       inheritedFrom: (row) => {
         if (isGroupWithInheritance(row) && row.inheritedFrom) {
           return (
-            <AppLink to={`#/workspaces/${row.inheritedFrom.workspaceId}`} linkBasename="/iam" className="pf-v5-c-button pf-m-link pf-m-inline">
+            <AppLink to={`#/workspaces/${row.inheritedFrom.workspaceId}`} linkBasename="/iam" className="pf-v6-c-button pf-m-link pf-m-inline">
               {row.inheritedFrom.workspaceName}
             </AppLink>
           );
         }
-        return <div className="pf-v5-u-color-400">-</div>;
+        return <div className="pf-v6-u-color-400">-</div>;
       },
       modified: (row) => (row.modified ? formatDistanceToNow(new Date(row.modified), { addSuffix: true }) : ''),
     }),
@@ -146,7 +146,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
             <span>{row.description.length > 23 ? `${row.description.slice(0, 20)}...` : row.description}</span>
           </Tooltip>
         ) : (
-          <div className="pf-v5-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
         ),
       principalCount: (row) => row.principalCount,
       roleCount: (row) => row.roleCount,

@@ -1,6 +1,6 @@
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React from 'react';
 import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
 import { useSelector } from 'react-redux';
@@ -67,13 +67,13 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
               {
                 name: 'details-title',
                 component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v5-c-title pf-m-xl',
+                className: 'pf-v6-c-title pf-m-xl',
                 label: intl.formatMessage(messages.workspaceDetailsTitle),
               },
               {
                 name: 'details-description',
                 component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v5-u-my-md',
+                className: 'pf-v6-u-my-md',
                 label: intl.formatMessage(messages.workspaceDetailsDescription),
               },
               {
@@ -85,7 +85,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                   labelIcon: (
                     <InputHelpPopover
                       bodyContent={
-                        <Text>
+                        <Content component="p">
                           <FormattedMessage
                             id={messages.workspaceNamingGuidelines.id}
                             defaultMessage={messages.workspaceNamingGuidelines.defaultMessage}
@@ -98,7 +98,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                               // ),
                             }}
                           />
-                        </Text>
+                        </Content>
                       }
                       field="workspace name"
                     />
@@ -157,7 +157,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                 FormGroupProps: {
                   labelIcon: (
                     <InputHelpPopover
-                      bodyContent={<Text>{intl.formatMessage(messages.workspaceDescriptionMaxLength, { count: 255 })}</Text>}
+                      bodyContent={<Content component="p">{intl.formatMessage(messages.workspaceDescriptionMaxLength, { count: 255 })}</Content>}
                       field="workspace description"
                     />
                   ),
@@ -181,14 +181,14 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
             fields: [
               {
                 name: 'features-description',
-                className: 'pf-v5-u-my-md',
+                className: 'pf-v6-u-my-md',
                 component: componentTypes.PLAIN_TEXT,
                 label:
                   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
               },
               {
                 name: 'workspace-features',
-                className: 'pf-v5-u-my-sm',
+                className: 'pf-v6-u-my-sm',
                 component: componentTypes.CHECKBOX,
                 options: BUNDLES,
               },

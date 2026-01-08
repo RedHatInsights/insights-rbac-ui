@@ -1,10 +1,5 @@
-import React, { Fragment, Suspense, useEffect, useMemo } from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Level } from '@patternfly/react-core';
-import { LevelItem } from '@patternfly/react-core';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import React, { Suspense, useEffect, useMemo } from 'react';
+import { Button, PageSection } from '@patternfly/react-core';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { TableView } from '../../components/table-view/TableView';
@@ -12,8 +7,6 @@ import { useTableState } from '../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../components/table-view/components/TableViewEmptyState';
 import { isInventoryHostsPermission, isInventoryPermission } from './roleResourceDefinitionsTableHelpers';
 import { PageLayout } from '../../components/layout/PageLayout';
-import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
-import { ToolbarTitlePlaceholder } from '../../components/ui-states/LoaderPlaceholders';
 import { defaultSettings } from '../../helpers/pagination';
 import { fetchRole } from '../../redux/roles/actions';
 import paths from '../../utilities/pathnames';
@@ -26,7 +19,6 @@ import { processResourceDefinitions } from '../../redux/inventory/helper';
 import messages from '../../Messages';
 import type { RBACStore } from '../../redux/store.d';
 import type { ColumnConfigMap, FilterConfig } from '../../components/table-view/types';
-import './role-permissions.scss';
 
 interface ResourceDefinitionRow {
   id: string;
@@ -145,34 +137,25 @@ const RoleResourceDefinitions: React.FC = () => {
   ) : null;
 
   return (
-    <Fragment>
-      <PageLayout
-        breadcrumbs={[
-          {
-            title: intl.formatMessage(messages.roles),
-            to: getBackRoute(
-              toAppLink(paths['roles'].link) as string,
-              rolesPagination as { limit: number; offset: number },
-              rolesFilters,
-            ) as unknown as string,
-          },
-          {
-            title: isRoleLoading ? undefined : role && (role.display_name || role.name),
-            to: toAppLink(paths['role-detail'].link.replace(':roleId', roleId!)) as string,
-          },
-          { title: permissionId, isActive: true },
-        ]}
-      >
-        <Level>
-          <LevelItem>
-            <PageHeaderTitle title={permissionId || <ToolbarTitlePlaceholder />} className="rbac-page-header__title" />
-          </LevelItem>
-        </Level>
-      </PageLayout>
-      <section className="pf-v5-c-page__main-section rbac-c-role__permissions">
-        <TextContent>
-          <Text component={TextVariants.h1}>{intl.formatMessage(messages.definedResources)}</Text>
-        </TextContent>
+    <PageLayout
+      breadcrumbs={[
+        {
+          title: intl.formatMessage(messages.roles),
+          to: getBackRoute(
+            toAppLink(paths['roles'].link) as string,
+            rolesPagination as { limit: number; offset: number },
+            rolesFilters,
+          ) as unknown as string,
+        },
+        {
+          title: isRoleLoading ? undefined : role && (role.display_name || role.name),
+          to: toAppLink(paths['role-detail'].link.replace(':roleId', roleId!)) as string,
+        },
+        { title: permissionId, isActive: true },
+      ]}
+      title={{ title: permissionId, description: intl.formatMessage(messages.definedResources) }}
+    >
+      <PageSection hasBodyWrapper={false}>
         <TableView
           columns={COLUMNS}
           columnConfig={columnConfig}
@@ -216,8 +199,8 @@ const RoleResourceDefinitions: React.FC = () => {
             }}
           />
         </Suspense>
-      </section>
-    </Fragment>
+      </PageSection>
+    </PageLayout>
   );
 };
 

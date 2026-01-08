@@ -901,7 +901,7 @@ export const Loading: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v5-c-skeleton');
+    const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
     expect(skeletonElements.length).toBeGreaterThan(0);
   },
 };
@@ -1112,9 +1112,9 @@ export const RowActionsWithCallbacks: Story = {
 
     // Click Edit
     await waitFor(() => {
-      expect(canvas.getByText('Edit')).toBeInTheDocument();
+      expect(within(document.body).getByText('Edit')).toBeInTheDocument();
     });
-    await userEvent.click(canvas.getByText('Edit'));
+    await userEvent.click(within(document.body).getByText('Edit'));
 
     // Verify edit callback was called with correct role data
     await waitFor(() => {
@@ -1133,9 +1133,9 @@ export const RowActionsWithCallbacks: Story = {
     // Open menu again and click Delete
     await userEvent.click(actionsToggle);
     await waitFor(() => {
-      expect(canvas.getByText('Delete')).toBeInTheDocument();
+      expect(within(document.body).getByText('Delete')).toBeInTheDocument();
     });
-    await userEvent.click(canvas.getByText('Delete'));
+    await userEvent.click(within(document.body).getByText('Delete'));
 
     // Verify delete callback was called with correct role data
     await waitFor(() => {
@@ -1276,7 +1276,7 @@ export const MultipleFiltersWithChips: Story = {
     await userEvent.click(filterDropdownButton!);
 
     // Wait for dropdown menu and select "Type" option
-    const typeOption = await canvas.findByRole('menuitem', { name: /Type/i });
+    const typeOption = await within(document.body).findByRole('menuitem', { name: /Type/i });
     await userEvent.click(typeOption);
 
     // 3. Now interact with the Type filter checkbox dropdown
@@ -1286,7 +1286,7 @@ export const MultipleFiltersWithChips: Story = {
     await userEvent.click(typeFilterToggle);
 
     // Select "Custom" checkbox option from the dropdown
-    const customMenuItem = await canvas.findByRole('menuitem', { name: /Custom/i });
+    const customMenuItem = await within(document.body).findByRole('menuitem', { name: /Custom/i });
     const customCheckbox = within(customMenuItem).getByRole('checkbox');
 
     apiCallSpy.mockClear();

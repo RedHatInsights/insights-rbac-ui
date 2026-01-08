@@ -46,7 +46,7 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
             <span>{group.description.length > 23 ? `${group.description.slice(0, 20)}...` : group.description}</span>
           </Tooltip>
         ) : (
-          <div className="pf-v5-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
         ),
       principalCount: (group) => group.principalCount ?? 0,
       serviceAccountCount: () => '?', // not currently in API

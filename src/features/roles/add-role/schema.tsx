@@ -1,6 +1,7 @@
 import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import AddPermissionTemplate from './AddPermissionTemplate';
+import CreateRoleStepTemplate from './CreateRoleStepTemplate';
 import ReviewTemplate from './ReviewTemplate';
 import CostResourcesTemplate from './CostResourcesTemplate';
 import { ValidatorReset, debouncedAsyncValidator } from './validators';
@@ -40,6 +41,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
           {
             title: intl.formatMessage(messages.createRole),
             name: 'step-1',
+            StepTemplate: CreateRoleStepTemplate,
             nextStep: {
               when: 'role-type',
               stepMapper: {
@@ -174,7 +176,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
                 component: 'plain-text',
                 name: 'cost-resources',
                 label: (
-                  <p className="pf-v5-u-mb-md">
+                  <p className="pf-v6-u-mb-md">
                     {intl.formatMessage(featureFlag ? messages.applyWorkspacesRolePermission : messages.applyInventoryGroupsRolePermission)}
                   </p>
                 ),
@@ -200,7 +202,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
               {
                 component: 'plain-text',
                 name: 'text-description',
-                label: <p className="pf-v5-u-mb-md">{intl.formatMessage(messages.applyCostPermissionText)}</p>,
+                label: <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.applyCostPermissionText)}</p>,
               },
               {
                 component: 'cost-resources',

@@ -78,7 +78,7 @@ export const NoSelection: Story = {
     await userEvent.click(menuButton);
 
     // Should show "Remove" option disabled (no selection)
-    const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
+    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
     expect(removeOption).toBeInTheDocument();
     expect(removeOption).toBeDisabled();
   },
@@ -101,7 +101,7 @@ export const WithSelection: Story = {
     await userEvent.click(menuButton);
 
     // Should show "Remove" option enabled (has selection)
-    const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
+    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
     expect(removeOption).toBeInTheDocument();
     expect(removeOption).not.toBeDisabled();
   },
@@ -121,7 +121,7 @@ export const RemoveMembersInteraction: Story = {
     await userEvent.click(menuButton);
 
     // Click "Remove" option
-    const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
+    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
     await userEvent.click(removeOption);
 
     // Verify the callback was called with the member data (not full rows)
@@ -142,7 +142,7 @@ export const SingleSelection: Story = {
     const menuButton = canvas.getByRole('button');
     await userEvent.click(menuButton);
 
-    const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
+    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
     expect(removeOption).not.toBeDisabled();
   },
 };

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { RBACStore } from '../../../../redux/store';
 import { fetchRolesForWizard } from '../../../../redux/roles/actions';
 import { RolesSelectionTable } from './RolesSelectionTable';
@@ -42,7 +42,9 @@ const RolesSelectionField: React.FC<RolesSelectionFieldProps> = ({ name }) => {
       <Form>
         <Stack>
           <StackItem>
-            <Text className="pf-v5-u-mb-md">{intl.formatMessage(messages.selectRolesDescription)}</Text>
+            <Content component="p" className="pf-v6-u-mb-md">
+              {intl.formatMessage(messages.selectRolesDescription)}
+            </Content>
           </StackItem>
           <StackItem>
             <FormGroup fieldId="roles-selection-table">

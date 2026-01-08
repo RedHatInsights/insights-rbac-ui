@@ -215,7 +215,6 @@ export const InteractiveEdit: Story = {
 };
 
 export const CancelOperation: Story = {
-  tags: ['test-skip'], // TODO: Fix test isolation issue - onCancel not being called in full suite
   args: {
     afterSubmit: fn(),
     onCancel: fn(),
@@ -332,10 +331,10 @@ export const CancelNotification: Story = {
         () => {
           const notificationPortal = document.querySelector('.notifications-portal');
           if (notificationPortal) {
-            const warningAlert = notificationPortal.querySelector('.pf-v5-c-alert.pf-m-warning');
+            const warningAlert = notificationPortal.querySelector('.pf-v6-c-alert.pf-m-warning');
             if (warningAlert) {
-              const alertTitle = warningAlert.querySelector('.pf-v5-c-alert__title');
-              const alertDescription = warningAlert.querySelector('.pf-v5-c-alert__description');
+              const alertTitle = warningAlert.querySelector('.pf-v6-c-alert__title');
+              const alertDescription = warningAlert.querySelector('.pf-v6-c-alert__description');
               expect(warningAlert).toBeInTheDocument();
               if (alertTitle) expect(alertTitle).toHaveTextContent(/edit.*workspace/i);
               if (alertDescription) expect(alertDescription).toHaveTextContent(/cancel/i);

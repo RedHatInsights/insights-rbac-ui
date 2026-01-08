@@ -330,8 +330,8 @@ export const InteractiveRowActions: Story = {
     await userEvent.click(actionsToggle);
 
     // Verify dropdown is open and contains actions
-    const editButton = await canvas.findByText('Edit');
-    const deleteButton = await canvas.findByText('Delete');
+    const editButton = await within(document.body).findByText('Edit');
+    const deleteButton = await within(document.body).findByText('Delete');
     expect(editButton).toBeInTheDocument();
     expect(deleteButton).toBeInTheDocument();
 

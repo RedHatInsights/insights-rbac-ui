@@ -276,7 +276,7 @@ export const LoadingWorkspaces: Story = {
 
     // Look for loading indicators in the wizard
     const loadingElements = body.queryAllByText(/loading/i);
-    const skeletons = document.body.querySelectorAll('.pf-c-skeleton, .pf-v5-c-skeleton');
+    const skeletons = document.body.querySelectorAll('.pf-c-skeleton, .pf-v6-c-skeleton');
 
     // Either loading text or skeleton elements should be present
     await expect(loadingElements.length > 0 || skeletons.length > 0).toBe(true);
@@ -444,10 +444,10 @@ export const CancelNotification: Story = {
           () => {
             const notificationPortal = document.querySelector('.notifications-portal');
             if (notificationPortal) {
-              const warningAlert = notificationPortal.querySelector('.pf-v5-c-alert.pf-m-warning');
+              const warningAlert = notificationPortal.querySelector('.pf-v6-c-alert.pf-m-warning');
               if (warningAlert) {
-                const alertTitle = warningAlert.querySelector('.pf-v5-c-alert__title');
-                const alertDescription = warningAlert.querySelector('.pf-v5-c-alert__description');
+                const alertTitle = warningAlert.querySelector('.pf-v6-c-alert__title');
+                const alertDescription = warningAlert.querySelector('.pf-v6-c-alert__description');
                 expect(warningAlert).toBeInTheDocument();
                 if (alertTitle) expect(alertTitle).toHaveTextContent(/create.*workspace/i);
                 if (alertDescription) expect(alertDescription).toHaveTextContent(/cancel/i);

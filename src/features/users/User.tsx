@@ -1,14 +1,11 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
-import { Stack } from '@patternfly/react-core';
-import { StackItem } from '@patternfly/react-core';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
@@ -19,7 +16,6 @@ import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-componen
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { AppLink } from '../../components/navigation/AppLink';
 import { useAppLink } from '../../hooks/useAppLink';
-import { RbacBreadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { EmptyWithAction } from '../../components/ui-states/EmptyState';
 import PermissionsContext from '../../utilities/permissionsContext';
 import messages from '../../Messages';
@@ -27,7 +23,7 @@ import pathnames from '../../utilities/pathnames';
 import { TableView } from '../../components/table-view/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../components/table-view/components/TableViewEmptyState';
 import type { ColumnConfigMap, ExpandedCell, ExpansionRendererMap, FilterConfig } from '../../components/table-view/types';
-import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
+import { PageLayout } from '../../components/layout/PageLayout';
 import { fetchRoleForUser, fetchRoles } from '../../redux/roles/actions';
 import { fetchUsers } from '../../redux/users/actions';
 import { BAD_UUID } from '../../helpers/dataUtilities';
@@ -38,7 +34,6 @@ import { GroupsNestedTable } from './components/GroupsNestedTable';
 import { PermissionsNestedTable } from './components/PermissionsNestedTable';
 import type { RBACStore } from '../../redux/store.d';
 import type { Access, RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
-import './user.scss';
 
 interface GroupIn {
   uuid: string;
@@ -93,22 +88,31 @@ const User: React.FC = () => {
   const chrome = useChrome();
   const toAppLink = useAppLink();
 
-  const selector = ({
-    roleReducer: { error, roles, isLoading: isLoadingRoles, rolesWithAccess },
-    userReducer: {
-      users: { data },
-      isUserDataLoading: isLoadingUsers,
-    },
-    groupReducer: { adminGroup },
-  }: RBACStore) => ({
-    adminGroup: adminGroup as AdminGroup | undefined,
-    roles: roles as { data?: RoleWithGroupsIn[]; meta?: { count?: number; limit?: number; offset?: number } },
-    isLoadingRoles: isLoadingRoles as boolean,
-    rolesWithAccess: rolesWithAccess as RolesWithAccess | undefined,
-    user: data && (data as UserData[]).filter((user) => user.username === username)[0],
-    isLoadingUsers: isLoadingUsers as boolean,
-    userExists: error !== BAD_UUID,
-  });
+  // Memoized selector - only recreated when username changes
+  const selector = useMemo(
+    () =>
+      createSelector(
+        [
+          (state: RBACStore) => state.roleReducer.error,
+          (state: RBACStore) => state.roleReducer.roles,
+          (state: RBACStore) => state.roleReducer.isLoading,
+          (state: RBACStore) => state.roleReducer.rolesWithAccess,
+          (state: RBACStore) => state.userReducer.users.data,
+          (state: RBACStore) => state.userReducer.isUserDataLoading,
+          (state: RBACStore) => state.groupReducer.adminGroup,
+        ],
+        (error, roles, isLoadingRoles, rolesWithAccess, usersData, isLoadingUsers, adminGroup) => ({
+          adminGroup: adminGroup as AdminGroup | undefined,
+          roles: roles as { data?: RoleWithGroupsIn[]; meta?: { count?: number; limit?: number; offset?: number } },
+          isLoadingRoles: isLoadingRoles as boolean,
+          rolesWithAccess: rolesWithAccess as RolesWithAccess | undefined,
+          user: usersData && (usersData as UserData[]).find((user) => user.username === username),
+          isLoadingUsers: isLoadingUsers as boolean,
+          userExists: error !== BAD_UUID,
+        }),
+      ),
+    [username],
+  );
 
   const { roles, isLoadingRoles, rolesWithAccess, user, isLoadingUsers, userExists, adminGroup } = useSelector(selector);
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
@@ -215,108 +219,93 @@ const User: React.FC = () => {
   return (
     <Fragment>
       {userExists ? (
-        <Stack>
-          <StackItem>
-            <PageLayout breadcrumbs={breadcrumbsList}>
-              <PageTitle
-                title={username}
-                renderTitleTag={() =>
-                  isLoadingUsers ? (
-                    <Skeleton size="xs" className="rbac-c-user__label-skeleton"></Skeleton>
-                  ) : (
-                    <Label color={user?.is_active ? 'green' : undefined}>
-                      {intl.formatMessage(user?.is_active ? messages.active : messages.inactive)}
-                    </Label>
-                  )
-                }
-              >
-                {!isLoadingUsers && user ? (
-                  <Fragment>
-                    <TextContent>
-                      {`${intl.formatMessage(messages.orgAdministrator)}: `}
-                      {user?.is_org_admin ? (
-                        <CheckIcon key="yes-icon" className="pf-v5-u-mx-sm" />
-                      ) : (
-                        <CloseIcon key="no-icon" className="pf-v5-u-mx-sm" />
-                      )}
-                      {intl.formatMessage(user?.is_org_admin ? messages.yes : messages.no)}
-                    </TextContent>
-                    {user?.email && <Text component={TextVariants.p}>{`${intl.formatMessage(messages.email)}: ${user.email}`}</Text>}
-                    {user?.username && (
-                      <TextContent>
-                        <Text component={TextVariants.p}>{`${intl.formatMessage(messages.username)}: ${user.username}`}</Text>
-                      </TextContent>
+        <PageLayout
+          breadcrumbs={breadcrumbsList}
+          title={{
+            title: username,
+            label: isLoadingUsers ? (
+              <Skeleton size="xs" className="rbac-c-user__label-skeleton"></Skeleton>
+            ) : (
+              <Label color={user?.is_active ? 'green' : undefined}>{intl.formatMessage(user?.is_active ? messages.active : messages.inactive)}</Label>
+            ),
+            description:
+              !isLoadingUsers && user ? (
+                <Fragment>
+                  <span>
+                    {`${intl.formatMessage(messages.orgAdministrator)}: `}
+                    {user?.is_org_admin ? (
+                      <CheckIcon key="yes-icon" className="pf-v6-u-mx-sm" />
+                    ) : (
+                      <CloseIcon key="no-icon" className="pf-v6-u-mx-sm" />
                     )}
-                  </Fragment>
-                ) : null}
-              </PageTitle>
-            </PageLayout>
-          </StackItem>
-          <StackItem>
-            <Section type="content" className="rbac-c-user-roles">
-              <TableView<typeof columns, RoleWithGroupsIn, never, CompoundColumnId>
-                columns={columns}
-                columnConfig={columnConfig}
-                data={isLoadingRoles ? undefined : roles.data}
-                totalCount={roles.meta?.count ?? 0}
-                getRowId={(row) => row.uuid!}
-                cellRenderers={cellRenderers}
-                expansionRenderers={expansionRenderers}
-                expandedCell={expandedCell}
-                onToggleExpand={handleToggleExpand}
-                page={page}
-                perPage={perPage}
-                onPageChange={handlePageChange}
-                onPerPageChange={handlePerPageChange}
-                filterConfig={filterConfig}
-                filters={{ name: filter }}
-                onFiltersChange={handleFilterChange}
-                clearAllFilters={() => handleFilterChange({ name: '' })}
-                toolbarActions={toolbarActions}
-                ariaLabel={intl.formatMessage(messages.roles)}
-                ouiaId="user-details-table"
-                emptyStateNoData={
-                  <DefaultEmptyStateNoData
-                    title={intl.formatMessage(messages.noRolesFound)}
-                    body={intl.formatMessage(messages.noRolesFoundDescription)}
-                  />
-                }
-                emptyStateNoResults={
-                  <DefaultEmptyStateNoResults
-                    title={intl.formatMessage(messages.noResultsFound)}
-                    body={intl.formatMessage(messages.noRolesFoundDescription)}
-                  />
-                }
-              />
-              <Suspense>
-                <Outlet
-                  context={{
-                    // add user to group:
-                    username,
-                    // add group roles:
-                    selectedRoles: selectedAddRoles,
-                    setSelectedRoles: setSelectedAddRoles,
-                    closeUrl: pathnames['user-detail'].link.replace(':username', username!),
-                    addRolesToGroup: (groupId: string, rolesArg: string[]) =>
-                      dispatch(addRolesToGroup(groupId, rolesArg) as unknown as { type: string }),
-                  }}
+                    {intl.formatMessage(user?.is_org_admin ? messages.yes : messages.no)}
+                  </span>
+                  {user?.email && <span>{` | ${intl.formatMessage(messages.email)}: ${user.email}`}</span>}
+                  {user?.username && <span>{` | ${intl.formatMessage(messages.username)}: ${user.username}`}</span>}
+                </Fragment>
+              ) : undefined,
+          }}
+        >
+          <Section type="content" className="rbac-c-user-roles">
+            <TableView<typeof columns, RoleWithGroupsIn, never, CompoundColumnId>
+              columns={columns}
+              columnConfig={columnConfig}
+              data={isLoadingRoles ? undefined : roles.data}
+              totalCount={roles.meta?.count ?? 0}
+              getRowId={(row) => row.uuid!}
+              cellRenderers={cellRenderers}
+              expansionRenderers={expansionRenderers}
+              expandedCell={expandedCell}
+              onToggleExpand={handleToggleExpand}
+              page={page}
+              perPage={perPage}
+              onPageChange={handlePageChange}
+              onPerPageChange={handlePerPageChange}
+              filterConfig={filterConfig}
+              filters={{ name: filter }}
+              onFiltersChange={handleFilterChange}
+              clearAllFilters={() => handleFilterChange({ name: '' })}
+              toolbarActions={toolbarActions}
+              ariaLabel={intl.formatMessage(messages.roles)}
+              ouiaId="user-details-table"
+              emptyStateNoData={
+                <DefaultEmptyStateNoData
+                  title={intl.formatMessage(messages.noRolesFound)}
+                  body={intl.formatMessage(messages.noRolesFoundDescription)}
                 />
-              </Suspense>
-            </Section>
-          </StackItem>
-        </Stack>
+              }
+              emptyStateNoResults={
+                <DefaultEmptyStateNoResults
+                  title={intl.formatMessage(messages.noResultsFound)}
+                  body={intl.formatMessage(messages.noRolesFoundDescription)}
+                />
+              }
+            />
+            <Suspense>
+              <Outlet
+                context={{
+                  // add user to group:
+                  username,
+                  // add group roles:
+                  selectedRoles: selectedAddRoles,
+                  setSelectedRoles: setSelectedAddRoles,
+                  closeUrl: pathnames['user-detail'].link.replace(':username', username!),
+                  addRolesToGroup: (groupId: string, rolesArg: string[]) =>
+                    dispatch(addRolesToGroup(groupId, rolesArg) as unknown as { type: string }),
+                }}
+              />
+            </Suspense>
+          </Section>
+        </PageLayout>
       ) : (
-        <Fragment>
-          <section className="pf-v5-c-page__main-breadcrumb pf-v5-u-pb-md">
-            <RbacBreadcrumbs breadcrumbs={breadcrumbsList} />
-          </section>
+        <PageLayout breadcrumbs={breadcrumbsList}>
           <EmptyWithAction
             title={intl.formatMessage(messages.userNotFound)}
             description={[intl.formatMessage(messages.userNotFoundDescription, { username })]}
             actions={[
               <Button
                 key="back-button"
-                className="pf-v5-u-mt-xl"
+                className="pf-v6-u-mt-xl"
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
@@ -326,7 +315,7 @@ const User: React.FC = () => {
               </Button>,
             ]}
           />
-        </Fragment>
+        </PageLayout>
       )}
     </Fragment>
   );

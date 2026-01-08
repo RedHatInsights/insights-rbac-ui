@@ -3,8 +3,8 @@ import { useIntl } from 'react-intl';
 import { NumberInput } from '@patternfly/react-core/dist/dynamic/components/NumberInput';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import useFieldApi, { UseFieldApiConfig } from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
@@ -19,26 +19,26 @@ export const SetEarMark = ({ feature, ...props }: UseFieldApiConfig) => {
   return (
     <Stack hasGutter>
       <StackItem>
-        <Title headingLevel="h1" size="xl" className="pf-v5-u-mb-sm">
+        <Title headingLevel="h1" size="xl" className="pf-v6-u-mb-sm">
           {intl.formatMessage(messages.setEarmark, { bundle: feature.label })}
         </Title>
-        <TextContent className="pf-v5-u-mb-md">
-          <Text>
+        <Content className="pf-v6-u-mb-md">
+          <Content component="p">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
             minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-          </Text>
-        </TextContent>
-        <TextContent className="pf-v5-u-mb-md">
-          <Text>
+          </Content>
+        </Content>
+        <Content className="pf-v6-u-mb-md">
+          <Content component="p">
             {intl.formatMessage(messages.totalAccountAvailability, {
               billingAccount: formOptions.getState().values[WORKSPACE_ACCOUNT] ?? 'XXX',
               count: input.value || 0,
             })}
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
       </StackItem>
       <StackItem>
-        <NumberInput className="pf-v5-u-mr-sm" /> <b>{intl.formatMessage(messages.cores)}</b>
+        <NumberInput className="pf-v6-u-mr-sm" /> <b>{intl.formatMessage(messages.cores)}</b>
       </StackItem>
     </Stack>
   );

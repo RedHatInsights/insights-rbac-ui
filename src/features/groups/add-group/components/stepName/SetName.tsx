@@ -78,15 +78,9 @@ export const SetName: React.FC<SetNameProps> = (props) => {
           />
           <FormHelperText>
             <HelperText>
-              {groupNameError && (
-                <HelperTextItem variant="error" hasIcon>
-                  {groupNameError}
-                </HelperTextItem>
-              )}
+              {groupNameError && <HelperTextItem variant="error">{groupNameError}</HelperTextItem>}
               {groupName?.length > 150 && (
-                <HelperTextItem variant="error" hasIcon>
-                  {intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}
-                </HelperTextItem>
+                <HelperTextItem variant="error">{intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}</HelperTextItem>
               )}
               {!groupNameError && groupName?.length <= 150 && <HelperTextItem>{'Provide a unique name for the group'}</HelperTextItem>}
             </HelperText>
@@ -110,9 +104,7 @@ export const SetName: React.FC<SetNameProps> = (props) => {
           <FormHelperText>
             <HelperText>
               {(groupDescription?.length ?? 0) > 150 && (
-                <HelperTextItem variant="error" hasIcon>
-                  {intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}
-                </HelperTextItem>
+                <HelperTextItem variant="error">{intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}</HelperTextItem>
               )}
               {(groupDescription?.length ?? 0) <= 150 && <HelperTextItem>{'Optional field'}</HelperTextItem>}
             </HelperText>

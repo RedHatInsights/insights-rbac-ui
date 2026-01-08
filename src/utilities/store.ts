@@ -1,5 +1,3 @@
-import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
-import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications/redux';
 import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/ReducerRegistry';
 import { createContext } from 'react';
 import { compose } from 'redux';
@@ -24,11 +22,8 @@ export const RegistryContext = createContext({
 const middlewares = [
   thunk,
   promiseMiddleware,
-  notificationsMiddleware({
-    errorTitleKey: ['statusText', 'message', 'errors[0].status'],
-    errorDescriptionKey: ['errors[0].detail', 'errors', 'stack'],
-  }),
-  // reduxLogger,
+  // Note: Notifications middleware was removed in @redhat-cloud-services/frontend-components-notifications v6
+  // Notifications are now handled via React Context/Hooks (useAddNotification)
 ].filter((middleware) => typeof middleware === 'function');
 
 const composeEnhancers =
@@ -53,7 +48,6 @@ export function registryFactory() {
     costReducer: applyReducerHash(costReducer, costInitialState),
     serviceAccountReducer: applyReducerHash(serviceAccountReducer, serviceAccountsInitialState),
     errorReducer: applyReducerHash(errorReducer),
-    notifications: notificationsReducer,
   });
 
   return registry;

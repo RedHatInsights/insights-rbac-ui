@@ -3,9 +3,9 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
@@ -30,22 +30,20 @@ const customComponentMapper = {
 };
 
 export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> = ({ workspaceName, afterSubmit, onCancel }) => {
-  const dispatch = useDispatch();
   const intl = useIntl();
   const navigate = useAppNavigate();
+  const addNotification = useAddNotification();
 
   const defaultAfterSubmit = () => {
     navigate(pathnames.workspaces.link);
   };
 
   const defaultOnCancel = () => {
-    dispatch(
-      addNotification({
-        variant: 'warning',
-        title: intl.formatMessage(messages.grantAccess),
-        description: 'Grant access cancelled',
-      }),
-    );
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(messages.grantAccess),
+      description: 'Grant access cancelled',
+    });
     navigate(pathnames.workspaces.link);
   };
 

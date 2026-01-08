@@ -1,7 +1,6 @@
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import ServiceIcon from '@patternfly/react-icons/dist/js/icons/service-icon';
 import { useIntl } from 'react-intl';
@@ -63,9 +62,8 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
   // Show error state
   if (error) {
     return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="Unable to load service accounts" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+      <div className="pf-v6-u-pt-md">
+        <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load service accounts" variant="sm">
           <EmptyStateBody>{extractErrorMessage(error)}</EmptyStateBody>
         </EmptyState>
       </div>
@@ -73,8 +71,7 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
   }
 
   const emptyState = (
-    <EmptyState variant="sm">
-      <EmptyStateHeader titleText="No service accounts found" icon={<EmptyStateIcon icon={ServiceIcon} />} headingLevel="h4" />
+    <EmptyState headingLevel="h4" icon={ServiceIcon} titleText="No service accounts found" variant="sm">
       <EmptyStateBody>This group currently has no service accounts assigned to it.</EmptyStateBody>
     </EmptyState>
   );
@@ -87,7 +84,7 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
   }));
 
   return (
-    <div className="pf-v5-u-pt-md">
+    <div className="pf-v6-u-pt-md">
       <TableView<typeof columns, ServiceAccountData>
         columns={columns}
         columnConfig={columnConfig}

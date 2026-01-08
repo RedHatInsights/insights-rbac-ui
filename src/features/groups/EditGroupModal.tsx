@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import useAppNavigate from '../../hooks/useAppNavigate';
+import messages from '../../Messages';
 import { ModalFormTemplate } from '../../components/forms/ModalFormTemplate';
 import FormRenderer from '../../components/forms/FormRenderer';
 import { fetchGroup, updateGroup } from '../../redux/groups/actions';
@@ -28,7 +31,9 @@ interface EditGroupModalProps {
 }
 
 export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, submitRoute = cancelRoute, group, onClose }) => {
+  const intl = useIntl();
   const navigate = useAppNavigate();
+  const addNotification = useAddNotification();
   const { groupId } = useParams<{ groupId: string }>();
   const dispatch = useDispatch();
 
@@ -50,11 +55,14 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
       description: formData.description,
     };
 
-    console.log('🚀 Submitting group update:', userData);
-
     try {
-      // Use standard dispatch pattern - redux-promise-middleware handles notifications automatically
       await dispatch(updateGroup(userData));
+
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.editGroupSuccessTitle),
+        description: intl.formatMessage(messages.editGroupSuccessDescription),
+      });
 
       // Refresh the group data after successful update
       if (selectedGroup?.uuid) {
@@ -63,11 +71,14 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
 
       // Navigate to submitRoute or cancelRoute as fallback
       const route = submitRoute || cancelRoute || '/groups';
-      console.log('🔍 Navigating after successful update to:', route);
       navigate(route);
     } catch (error) {
-      // Error notifications are handled automatically by redux-promise-middleware
       console.error('Error updating group:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.editGroupErrorTitle),
+        description: intl.formatMessage(messages.editGroupErrorDescription),
+      });
       // Don't navigate on error - let user retry or manually cancel
     }
   };

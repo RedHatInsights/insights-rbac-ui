@@ -454,7 +454,7 @@ Tests that admins can create a subworkspace from a parent's action menu in Kesse
 
     // Wait for wizard to appear
     await body.findByText(/create new workspace/i);
-    const wizard = document.querySelector('.pf-v5-c-wizard, .pf-c-wizard');
+    const wizard = document.querySelector('.pf-v6-c-wizard, .pf-c-wizard');
     expect(wizard).toBeInTheDocument();
     const wizardScope = within(wizard as HTMLElement);
 

@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import { fetchRole, removeRolePermissions } from '../../../redux/roles/actions';
 import { Role as RoleType } from '../../../redux/roles/reducer';
 import { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
 import pathnames from '../../../utilities/pathnames';
+import messages from '../../../Messages';
 
 interface RootState {
   roleReducer: {
@@ -35,6 +38,8 @@ interface UseRolePermissionsReturn {
 export const useRolePermissions = (filters: { applications: string[]; resources: string[]; operations: string[] }): UseRolePermissionsReturn => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
+  const intl = useIntl();
+  const addNotification = useAddNotification();
 
   const { role, isRecordLoading } = useSelector(
     (state: RootState) => ({
@@ -105,9 +110,23 @@ export const useRolePermissions = (filters: { applications: string[]; resources:
     if (!role) return;
 
     const permissionsToRemove = permissions.map((p) => p.uuid);
-    // Cast role to RoleWithAccess since our Role type is compatible
-    await dispatch(removeRolePermissions(role as any as RoleWithAccess, permissionsToRemove) as any);
-    await dispatch(fetchRole(role.uuid) as any);
+    try {
+      // Cast role to RoleWithAccess since our Role type is compatible
+      await dispatch(removeRolePermissions(role as any as RoleWithAccess, permissionsToRemove) as any);
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.editRoleSuccessTitle),
+        description: intl.formatMessage(messages.editRoleSuccessDescription),
+      });
+      await dispatch(fetchRole(role.uuid) as any);
+    } catch (error) {
+      console.error('Failed to remove permissions:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.editRoleErrorTitle),
+        description: intl.formatMessage(messages.editRoleErrorDescription),
+      });
+    }
   };
 
   // Navigate to add permissions wizard

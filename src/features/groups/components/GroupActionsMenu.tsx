@@ -10,7 +10,7 @@ export const GroupActionsMenu: React.FC<GroupActionsMenuProps> = ({ selectedRows
   const intl = useIntl();
 
   return (
-    <div className="pf-v5-u-display-flex pf-v5-u-gap-sm pf-v5-u-align-items-center">
+    <div className="pf-v6-u-display-flex pf-v6-u-gap-sm pf-v6-u-align-items-center">
       {/* Create Group button - always visible for admins */}
       <Button variant="primary" icon={<PlusIcon />} onClick={onCreateGroup} ouiaId="create-group-button">
         {intl.formatMessage(messages.createGroup)}

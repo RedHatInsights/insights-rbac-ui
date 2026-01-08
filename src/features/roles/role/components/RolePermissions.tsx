@@ -1,7 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ButtonVariant } from '@patternfly/react-core';
-import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
+import { Button, ButtonVariant, PageSection, Tooltip } from '@patternfly/react-core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { ResponsiveAction, ResponsiveActions } from '@patternfly/react-component-groups';
@@ -14,7 +12,6 @@ import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../..
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view/types';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
-import '../../role-permissions.scss';
 
 interface FilteredPermission {
   uuid: string;
@@ -328,7 +325,7 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
   const enableSelection = !isSystemRole && !cantAddPermissions;
 
   return (
-    <section className="pf-v5-c-page__main-section rbac-c-role__permissions">
+    <PageSection hasBodyWrapper={false}>
       <WarningModal
         title={deleteInfo.title}
         isOpen={showRemoveModal}
@@ -413,6 +410,6 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
           }
         />
       )}
-    </section>
+    </PageSection>
   );
 };

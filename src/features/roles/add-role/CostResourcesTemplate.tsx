@@ -11,7 +11,7 @@ const CostResourcesTemplate: React.FC<CostResourcesTemplateProps> = ({ formField
   const intl = useIntl();
   return (
     <div className="rbac">
-      <Title headingLevel="h1" size="xl" className="pf-v5-u-mb-lg">
+      <Title headingLevel="h1" size="xl" className="pf-v6-u-mb-lg">
         {intl.formatMessage(messages.defineCostResources)}
       </Title>
       {formFields}

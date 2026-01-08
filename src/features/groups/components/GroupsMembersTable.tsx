@@ -2,8 +2,8 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { SkeletonTableBody } from '@patternfly/react-component-groups';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import messages from '../../../Messages';
@@ -54,14 +54,14 @@ export const GroupsMembersTable: React.FC<GroupsMembersTableProps> = ({ group })
           group.members.map((member: any, index: number) => (
             <Tr key={`${group.uuid}-member-${member.username || member.email || index}`}>
               <Td dataLabel={compoundMembersCells[0]}>
-                <TextContent>
+                <Content>
                   {member?.is_org_admin ? (
-                    <CheckIcon key="yes-icon" className="pf-v5-u-mx-sm" />
+                    <CheckIcon key="yes-icon" className="pf-v6-u-mx-sm" />
                   ) : (
-                    <CloseIcon key="no-icon" className="pf-v5-u-mx-sm" />
+                    <CloseIcon key="no-icon" className="pf-v6-u-mx-sm" />
                   )}
                   {intl.formatMessage(member?.is_org_admin ? messages.yes : messages.no)}
-                </TextContent>
+                </Content>
               </Td>
               <Td dataLabel={compoundMembersCells[1]}>{member.first_name}</Td>
               <Td dataLabel={compoundMembersCells[2]}>{member.last_name}</Td>
@@ -73,7 +73,9 @@ export const GroupsMembersTable: React.FC<GroupsMembersTableProps> = ({ group })
         ) : (
           <Tr>
             <Td colSpan={compoundMembersCells.length}>
-              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroupMembers)}</Text>
+              <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+                {intl.formatMessage(messages.noGroupMembers)}
+              </Content>
             </Td>
           </Tr>
         )}

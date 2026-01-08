@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
@@ -20,6 +20,7 @@ import { AddGroupSuccess } from './AddGroupSuccess';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
 import { AddGroupWizardContext } from './add-group-wizard-context';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 const FormTemplate = (props: React.ComponentProps<typeof Pf4FormTemplate>) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
@@ -41,6 +42,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const chrome = useChrome();
+  const addNotification = useAddNotification();
 
   // Feature flags for wizard configuration
   const enableServiceAccounts =
@@ -140,13 +142,11 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
       }
 
       // Success! Show notification
-      dispatch(
-        addNotification({
-          variant: 'success',
-          title: 'Group created successfully',
-          description: 'The group has been created and configured successfully.',
-        }),
-      );
+      addNotification({
+        variant: 'success',
+        title: 'Group created successfully',
+        description: 'The group has been created and configured successfully.',
+      });
       navigate('/groups');
     } catch (error) {
       let description = 'There was an error creating the group. Please try again.';
@@ -164,13 +164,11 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
       }
       console.error('Error creating group:', error);
 
-      dispatch(
-        addNotification({
-          variant: 'danger',
-          title: 'Error creating group',
-          description: description,
-        }),
-      );
+      addNotification({
+        variant: 'danger',
+        title: 'Error creating group',
+        description: description,
+      });
     }
   };
 

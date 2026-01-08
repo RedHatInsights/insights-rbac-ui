@@ -249,7 +249,7 @@ export const WizardStepNavigation: Story = {
     await body.findAllByRole('dialog');
 
     // Step nav should be present
-    const wizardNav = document.querySelector('.pf-v5-c-wizard__nav');
+    const wizardNav = document.querySelector('.pf-v6-c-wizard__nav');
     expect(wizardNav).toBeInTheDocument();
   },
 };

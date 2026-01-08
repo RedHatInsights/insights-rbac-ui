@@ -4,10 +4,9 @@ import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+
 import { RolesList } from './RolesList';
-import '../../../../../App.scss';
 
 interface Role {
   uuid: string;
@@ -44,9 +43,9 @@ export const SetRoles: React.FC<SetRolesProps> = (props) => {
     <Fragment>
       <Stack hasGutter>
         <StackItem>
-          <TextContent>
-            <Text>{'Select roles to assign to this group'}</Text>
-          </TextContent>
+          <Content>
+            <Content component="p">{'Select roles to assign to this group'}</Content>
+          </Content>
         </StackItem>
         <StackItem>
           <FormGroup fieldId="select-role">

@@ -1,32 +1,3 @@
-## [1.79.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.2...v1.79.3) (2026-01-02)
-
-
-### Bug Fixes
-
-* **deps:** update dependency @redhat-cloud-services/host-inventory-client to v4.1.7 ([f84a6e0](https://github.com/RedHatInsights/insights-rbac-ui/commit/f84a6e08e7ca97fd8a4f7e3ac77594026ad82a90))
-
-## [1.79.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.1...v1.79.2) (2026-01-02)
-
-
-### Bug Fixes
-
-* **deps:** update babel monorepo to v7.28.5 ([24b371e](https://github.com/RedHatInsights/insights-rbac-ui/commit/24b371efc9ff6fb507173a9e7da1b38ad7dab97b))
-* **deps:** update dependency react-router-dom to v6.30.2 ([dd8fdd5](https://github.com/RedHatInsights/insights-rbac-ui/commit/dd8fdd57b7cde1f2108dafe3d7fd6ec85f140e6c))
-
-## [1.79.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.0...v1.79.1) (2026-01-02)
-
-
-### Bug Fixes
-
-* **deps:** update dependency @formatjs/cli to v6.8.8 ([e1a60ad](https://github.com/RedHatInsights/insights-rbac-ui/commit/e1a60ad95565a71bcda7a56f3e31b35d53b4a2d6))
-
-# [1.79.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.78.0...v1.79.0) (2025-12-23)
-
-
-### Features
-
-* migrate DataView components to TableView with useTableState ([a1f33d5](https://github.com/RedHatInsights/insights-rbac-ui/commit/a1f33d586964018e0cb430d9c3d5b04274630172))
-
 # [1.78.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.77.0...v1.78.0) (2025-12-22)
 
 

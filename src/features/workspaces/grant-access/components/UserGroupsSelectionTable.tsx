@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch } from 'react-redux';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { TableView } from '../../../../components/table-view/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
 import type {
@@ -22,11 +22,19 @@ const MembersList: React.FC<{ group: Group }> = ({ group }) => {
   const intl = useIntl();
 
   if (!group.members || group.isLoadingMembers) {
-    return <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">Loading members...</Text>;
+    return (
+      <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+        Loading members...
+      </Content>
+    );
   }
 
   if (group.members.length === 0) {
-    return <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroupMembers)}</Text>;
+    return (
+      <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+        {intl.formatMessage(messages.noGroupMembers)}
+      </Content>
+    );
   }
 
   const memberNames = group.members.map((member: any) => {
@@ -36,7 +44,11 @@ const MembersList: React.FC<{ group: Group }> = ({ group }) => {
     return member.username || member.email || 'Unknown';
   });
 
-  return <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{memberNames.join(', ')}</Text>;
+  return (
+    <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+      {memberNames.join(', ')}
+    </Content>
+  );
 };
 
 interface UserGroupsSelectionTableProps {

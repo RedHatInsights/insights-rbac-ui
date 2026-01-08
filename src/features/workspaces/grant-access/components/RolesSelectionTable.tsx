@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { TableView } from '../../../../components/table-view/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
 import type {
@@ -20,15 +20,19 @@ const PermissionsList: React.FC<{ role: Role }> = ({ role }) => {
   const intl = useIntl();
 
   if (!role.access || role.access.length === 0) {
-    return <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>;
+    return (
+      <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+        {intl.formatMessage(messages.noPermissions)}
+      </Content>
+    );
   }
 
   return (
-    <div className="pf-v5-u-mx-lg pf-v5-u-my-sm">
+    <div className="pf-v6-u-mx-lg pf-v6-u-my-sm">
       {role.access.map((access, index) => (
-        <Text key={index} component="p" className="pf-v5-u-mb-xs">
+        <Content key={index} component="p" className="pf-v6-u-mb-xs">
           {access.permission}
-        </Text>
+        </Content>
       ))}
     </div>
   );

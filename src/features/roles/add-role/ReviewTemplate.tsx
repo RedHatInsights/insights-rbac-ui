@@ -1,11 +1,6 @@
 import React, { useContext, useEffect } from 'react';
-import { Bullseye } from '@patternfly/react-core';
-import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Bullseye, Spinner, Stack, StackItem, Title } from '@patternfly/react-core';
 import { asyncValidator } from './validators';
-import './review.scss';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { WizardError } from '../../../components/ui-states/WizardError';
 import { useIntl } from 'react-intl';
@@ -46,15 +41,17 @@ const ReviewTemplate: React.FC<ReviewTemplateProps> = ({ formFields }) => {
   }
 
   return (
-    <div className="rbac">
-      <Title headingLevel="h1" size="xl" className="pf-v5-u-mb-sm">
-        {intl.formatMessage(messages.reviewDetails)}
-      </Title>
-      <TextContent className="pf-v5-u-mb-md">
-        <Text>{intl.formatMessage(messages.reviewRoleDetails)}</Text>
-      </TextContent>
-      {formFields?.[0]?.[0]}
-    </div>
+    <Stack hasGutter>
+      <StackItem>
+        <Title headingLevel="h1" size="xl">
+          {intl.formatMessage(messages.reviewDetails)}
+        </Title>
+      </StackItem>
+      <StackItem>
+        <p>{intl.formatMessage(messages.reviewRoleDetails)}</p>
+      </StackItem>
+      <StackItem isFilled>{formFields?.[0]?.[0]}</StackItem>
+    </Stack>
   );
 };
 

@@ -1,30 +1,21 @@
 import React, { useState } from 'react';
-import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Chip } from '@patternfly/react-core/dist/dynamic/components/Chip';
-import { ChipGroup } from '@patternfly/react-core/dist/dynamic/components/Chip';
-import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
+import { Chip, ChipGroup } from '@patternfly/react-core/deprecated';
+import { Popover } from '@patternfly/react-core';
+import { Stack, StackItem, Title } from '@patternfly/react-core';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import './add-role-wizard.scss';
 
 interface Permission {
   uuid: string;
   requires?: string[];
 }
 
-interface FormField {
-  props: Record<string, unknown>;
-}
-
 interface AddPermissionTemplateProps {
-  formFields: FormField[][];
+  formFields: React.ReactNode[][];
 }
 
 const AddPermissionTemplate: React.FC<AddPermissionTemplateProps> = ({ formFields }) => {
@@ -38,11 +29,20 @@ const AddPermissionTemplate: React.FC<AddPermissionTemplateProps> = ({ formField
     (formOptions.getState().values?.['copy-base-role'] as { applications?: string[] })?.applications?.filter(
       (app) => !selectedPermissions?.find(({ uuid }) => uuid.includes(app)),
     ) || [];
-  const addPermissions = formFields[0][0];
+
+  // Get the add-permissions-table form field and clone it with the selected permissions props
+  const addPermissionsField = formFields?.[0]?.[0];
+  const permissionsTable = React.isValidElement(addPermissionsField)
+    ? React.cloneElement(addPermissionsField as React.ReactElement, {
+        selectedPermissions,
+        setSelectedPermissions,
+      })
+    : addPermissionsField;
+
   return (
-    <div className="rbac">
-      {selectedPermissions.length > 0 ? (
-        <div className="rbac-c-selected-chips">
+    <Stack hasGutter>
+      {selectedPermissions.length > 0 && (
+        <StackItem>
           <ChipGroup categoryName={intl.formatMessage(messages.selectedPermissions)}>
             {/* immutable reverse */}
             {selectedPermissions
@@ -53,47 +53,40 @@ const AddPermissionTemplate: React.FC<AddPermissionTemplateProps> = ({ formField
                 </Chip>
               ))}
           </ChipGroup>
-        </div>
-      ) : null}
-      <Title headingLevel="h1" size="xl" className="rbac-c-add-permission-title">
-        {intl.formatMessage(messages.addPermissions)}
-      </Title>
-      <TextContent>
-        <Text>
+        </StackItem>
+      )}
+      <StackItem>
+        <Title headingLevel="h1" size="xl">
+          {intl.formatMessage(messages.addPermissions)}
+        </Title>
+      </StackItem>
+      <StackItem>
+        <p>
           {intl.formatMessage(messages.selectPermissionsForRole)}
           {unresolvedSplats.length !== 0 && (
             <Popover
               headerContent={intl.formatMessage(messages.onlyGranularPermissions)}
               bodyContent={intl.formatMessage(messages.noWildcardPermissions)}
             >
-              <Button variant="link">
-                {intl.formatMessage(messages.whyNotSeeingAllPermissions)} <QuestionCircleIcon />
+              <Button icon={<QuestionCircleIcon />} variant="link">
+                {intl.formatMessage(messages.whyNotSeeingAllPermissions)}
               </Button>
             </Popover>
           )}
-        </Text>
-      </TextContent>
-      {notAllowedBasePermissions && notAllowedBasePermissions.length > 0 && !alertClosed ? (
-        <Alert
-          variant="custom"
-          isInline
-          title={`${intl.formatMessage(messages.followingPermissionsCannotBeAdded)} ${notAllowedBasePermissions.join(', ')}`}
-          actionClose={<AlertActionCloseButton onClose={() => setAlertClosed(true)} />}
-        />
-      ) : null}
-      {[
-        [
-          {
-            ...addPermissions,
-            props: {
-              ...addPermissions.props,
-              selectedPermissions,
-              setSelectedPermissions,
-            },
-          },
-        ],
-      ]}
-    </div>
+        </p>
+      </StackItem>
+      {notAllowedBasePermissions && notAllowedBasePermissions.length > 0 && !alertClosed && (
+        <StackItem>
+          <Alert
+            variant="custom"
+            isInline
+            title={`${intl.formatMessage(messages.followingPermissionsCannotBeAdded)} ${notAllowedBasePermissions.join(', ')}`}
+            actionClose={<AlertActionCloseButton onClose={() => setAlertClosed(true)} />}
+          />
+        </StackItem>
+      )}
+      <StackItem isFilled>{permissionsTable}</StackItem>
+    </Stack>
   );
 };
 
