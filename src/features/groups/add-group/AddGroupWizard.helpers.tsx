@@ -314,7 +314,7 @@ export async function fillAddGroupWizardForm(
       () => {
         // Build expected group data to match actual form submission
         // Note: AddGroupWizard always includes user_list and roles_list (even if empty)
-        const expectedGroupData: any = {
+        const expectedGroupData: Record<string, unknown> = {
           name: data.name,
           description: data.description,
           user_list: data.selectUsers ? [{ username: 'alice.johnson' }] : [],

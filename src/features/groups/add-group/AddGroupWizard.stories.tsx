@@ -108,7 +108,7 @@ const createMockHandlersWithSpies = (spies: APISpies = {}) => [
 
   // Group creation API
   http.post('/api/rbac/v1/groups/', async ({ request }) => {
-    const body = (await request.json()) as any;
+    const body = (await request.json()) as Record<string, unknown>;
 
     // Call spy function if provided
     if (spies?.groupCreationSpy) {
@@ -138,7 +138,7 @@ const createMockHandlersWithSpies = (spies: APISpies = {}) => [
 
   // Role assignment API - assign roles to group
   http.post('/api/rbac/v1/groups/:groupId/roles/', async ({ request, params }) => {
-    const body = (await request.json()) as any;
+    const body = (await request.json()) as Record<string, unknown>;
     // Role Assignment API Called
 
     // Call spy function if provided
@@ -151,7 +151,7 @@ const createMockHandlersWithSpies = (spies: APISpies = {}) => [
 
   // Principal assignment API - assign users to group
   http.post('/api/rbac/v1/groups/:groupId/principals/', async ({ request, params }) => {
-    const body = (await request.json()) as any;
+    const body = (await request.json()) as Record<string, unknown>;
     // Principal Assignment API Called
 
     // Call spy function if provided
@@ -164,8 +164,8 @@ const createMockHandlersWithSpies = (spies: APISpies = {}) => [
 
   // Service account assignment API
   http.post('/api/rbac/v1/groups/:groupId/service-accounts/', async ({ request, params }) => {
-    const body = (await request.json()) as any;
-    
+    const body = (await request.json()) as Record<string, unknown>;
+
     // Call spy function if provided
     if (spies?.serviceAccountAssignmentSpy) {
       spies.serviceAccountAssignmentSpy(params.groupId, body);
@@ -643,8 +643,8 @@ export const ServiceAccountIntegration: Story = {
       {
         name: 'Service Account Test Group',
         description: 'Testing service account integration',
-        selectRoles: false, 
-        selectUsers: false, 
+        selectRoles: false,
+        selectUsers: false,
         selectServiceAccounts: false, // Simplified test - just test group creation works
       },
       fullWizardFlowSpies,
@@ -668,8 +668,8 @@ export const BasicGroupCreation: Story = {
         ...createMockHandlersWithSpies(fullWizardFlowSpies),
         // Override service account assignment to simulate failure
         http.post('/api/rbac/v1/groups/:groupId/service-accounts/', async ({ request, params }) => {
-          const body = (await request.json()) as any;
-          
+          const body = (await request.json()) as Record<string, unknown>;
+
           // Call spy function if provided
           if (fullWizardFlowSpies?.serviceAccountAssignmentSpy) {
             fullWizardFlowSpies.serviceAccountAssignmentSpy(params.groupId, body);
@@ -677,16 +677,18 @@ export const BasicGroupCreation: Story = {
 
           // Simulate API failure
           return new HttpResponse(
-            JSON.stringify({ 
-              errors: [{ 
-                detail: 'Service account assignment failed',
-                status: '500'
-              }]
-            }), 
+            JSON.stringify({
+              errors: [
+                {
+                  detail: 'Service account assignment failed',
+                  status: '500',
+                },
+              ],
+            }),
             {
               status: 500,
               headers: { 'Content-Type': 'application/json' },
-            }
+            },
           );
         }),
       ],

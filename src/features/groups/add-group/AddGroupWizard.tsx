@@ -111,27 +111,31 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
       }
 
       // Create group with all data in one call
-      const newGroupAction = dispatch(addGroup(groupData)) as unknown as Promise<any>;
+      const newGroupAction = dispatch(addGroup(groupData)) as unknown as Promise<Group | { value?: Group; [key: string]: unknown }>;
       const newGroup = await newGroupAction;
 
       // Extract the created group data from redux-promise-middleware response structure
-      const createdGroup = newGroup?.value || newGroup;
+      const createdGroup = (newGroup as { value?: Group })?.value || (newGroup as Group);
 
       // Check if group creation actually succeeded
       if (!createdGroup) {
         throw new Error('Group creation failed: No group returned');
       }
-      if (createdGroup?.error) {
+
+      // Cast to handle both Group and error response types
+      const groupResponse = createdGroup as Group & { error?: boolean; uuid?: string };
+
+      if (groupResponse?.error) {
         throw new Error('Group creation returned error: ' + JSON.stringify(createdGroup));
       }
-      if (!createdGroup.uuid) {
+      if (!groupResponse.uuid) {
         throw new Error('Group creation failed: No UUID returned. Response: ' + JSON.stringify(createdGroup));
       }
 
       // Handle service accounts separately (if enabled)
       if (serviceAccounts && serviceAccounts.length > 0) {
         const serviceAccountObjects = serviceAccounts.map((sa) => ({ uuid: sa.uuid }));
-        const serviceAccountAction = dispatch(addServiceAccountsToGroup(createdGroup.uuid, serviceAccountObjects)) as { payload: Promise<unknown> };
+        const serviceAccountAction = dispatch(addServiceAccountsToGroup(groupResponse.uuid, serviceAccountObjects)) as { payload: Promise<unknown> };
         await serviceAccountAction.payload;
       }
 
