@@ -10,7 +10,6 @@ import {
   PAGINATION_TEST_TOTAL_ITEMS,
   expectLocationParams,
   getLastCallArg,
-  getLastPageNumber,
   getLastPageOffset,
   openPerPageMenu,
   selectPerPage,
@@ -839,7 +838,6 @@ export const PaginationOutOfRangeClampsToLastPage: Story = {
 
     // For 55 items and perPage=20, last page is page 3 and last offset is 40.
     const lastOffset = getLastPageOffset(PAGINATION_TEST_TOTAL_ITEMS, PAGINATION_TEST_DEFAULT_PER_PAGE);
-    const lastPage = getLastPageNumber(PAGINATION_TEST_TOTAL_ITEMS, PAGINATION_TEST_DEFAULT_PER_PAGE);
     await waitFor(() => {
       expect(groupsPaginationSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
       const last = getLastCallArg<{ limit: number; offset: number }>(groupsPaginationSpy);
