@@ -89,7 +89,7 @@
     "chromatic": "^13.0.1",
     "cross-fetch": "^4.0.0",
     "css-loader": "^6.8.1",
-    "cypress": "^13.6.1",
+    "cypress": "^15.0.0",
     "cypress-localstorage-commands": "^2.2.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-storybook": "^9.0.12",
