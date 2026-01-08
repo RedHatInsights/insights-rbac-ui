@@ -26,7 +26,7 @@ const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ n
   useEffect(() => {
     input.onChange(selectedAccounts);
     formOptions.change('service-accounts-list', selectedAccounts);
-  }, [selectedAccounts]);
+  }, [selectedAccounts]); // Remove unstable formOptions and input dependencies
 
   return (
     <Fragment>
