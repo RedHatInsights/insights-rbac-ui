@@ -1,3 +1,14 @@
+## [1.79.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.4...v1.79.5) (2026-01-08)
+
+
+### Bug Fixes
+
+* **addGroup:** incorporate pf6 to branch ([3c1436a](https://github.com/RedHatInsights/insights-rbac-ui/commit/3c1436a48f1750170a2a2065c595be5b18e30105))
+* **AddGroupWizard:** ensure service accounts are properly added ([6393cd6](https://github.com/RedHatInsights/insights-rbac-ui/commit/6393cd650b7a03eba4aaa2f34962e5ac224b9ff2))
+* **AddGroupWizard:** fix lint ([61fd6e3](https://github.com/RedHatInsights/insights-rbac-ui/commit/61fd6e3b75a19ab82168bbece5e5b436df12c0aa))
+* **CreateGroupWizard:** display user friendly error messages ([9ffdc9d](https://github.com/RedHatInsights/insights-rbac-ui/commit/9ffdc9d1191eada8b48ce4f5e7ecc7e3fe1e138e))
+* **CreateGroupWizard:** extend tests to verify service accounts creation ([d422ada](https://github.com/RedHatInsights/insights-rbac-ui/commit/d422adaa345b0656d96c918df62741533238a7aa))
+
 # [1.78.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.77.0...v1.78.0) (2025-12-22)
 
 
