@@ -70,7 +70,7 @@
     "@storybook/addon-docs": "^9.1.17",
     "@storybook/addon-webpack5-compiler-swc": "^3.0.0",
     "@storybook/react-webpack5": "^9.1.17",
-    "@storybook/test-runner": "^0.23.0",
+    "@storybook/test-runner": "^0.24.0",
     "@testing-library/dom": "^9.3.3",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.0",
