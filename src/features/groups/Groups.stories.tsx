@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
 import { Groups } from './Groups';
 import { chromeAppNavClickSpy } from '../../../.storybook/context-providers';
@@ -86,7 +86,35 @@ const mockSystemGroup = {
 
 // Track API calls for parameter verification
 const groupsApiCallSpy = fn();
+const groupsPaginationSpy = fn();
 
+// Router location spy (used by pagination URL sync stories)
+const RouterLocationSpy: React.FC = () => {
+  const location = useLocation();
+  return (
+    <pre data-testid="router-location" style={{ display: 'none' }}>
+      {location.pathname}
+      {location.search}
+    </pre>
+  );
+};
+
+const mockGroupsLarge = Array.from({ length: 55 }, (_v, idx) => {
+  const i = idx + 1;
+  return {
+    uuid: `group-${i}`,
+    name: `Group ${i}`,
+    description: `Group description ${i}`,
+    principalCount: 0,
+    roleCount: 0,
+    policyCount: 0,
+    platform_default: false,
+    admin_default: false,
+    system: false,
+    created: '2024-01-01T00:00:00Z',
+    modified: '2024-01-02T00:00:00Z',
+  };
+});
 // ❌ REMOVED: createMockStore violates global provider + MSW rules
 // Stories now use global Redux provider + MSW handlers
 
@@ -186,6 +214,7 @@ const meta: Meta<typeof Groups> = {
       const initialEntries = parameters.routerInitialEntries || ['/groups'];
       return (
         <MemoryRouter initialEntries={initialEntries}>
+          <RouterLocationSpy />
           <Routes>
             <Route path="/groups" element={<Story />} />
           </Routes>
@@ -697,3 +726,178 @@ export const ProductionBugReproduction: Story = {
 
 // Alias for backwards compatibility (old test name)
 export const ApiError403Loop = ProductionBugReproduction;
+
+export const PaginationUrlSync: Story = {
+  tags: ['perm:org-admin', 'sbtest:groups-pagination'],
+  parameters: {
+    chrome: { environment: 'stage' },
+    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    routerInitialEntries: ['/groups?page=1&per_page=20'],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const name = url.searchParams.get('name') || '';
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
+          const adminDefault = url.searchParams.get('admin_default');
+          const platformDefault = url.searchParams.get('platform_default');
+
+          // Track pagination for assertions (main list calls).
+          // Note: the app may pass admin_default=false/platform_default=false in the URL, so only treat "true" as default-group fetches.
+          if (adminDefault !== 'true' && platformDefault !== 'true') {
+            groupsPaginationSpy({ limit, offset });
+          }
+
+          // Preserve existing behavior for default group fetches
+          if (adminDefault === 'true') {
+            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1, limit, offset } });
+          }
+          if (platformDefault === 'true') {
+            return HttpResponse.json({ data: [mockSystemGroup], meta: { count: 1, limit, offset } });
+          }
+
+          let filtered = mockGroupsLarge;
+          if (name) {
+            filtered = mockGroupsLarge.filter((g) => g.name.toLowerCase().includes(name.toLowerCase()));
+          }
+
+          return HttpResponse.json({
+            data: filtered.slice(offset, offset + limit),
+            meta: { count: filtered.length, limit, offset },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+
+    groupsPaginationSpy.mockClear();
+
+    await delay(300);
+    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+
+    const locEl = canvas.getByTestId('router-location');
+    let search = (locEl.textContent || '').split('?')[1] || '';
+    let params = new URLSearchParams(search);
+    expect(params.get('page')).toBe('1');
+    expect(params.get('per_page')).toBe('20');
+
+    // Change per-page to 5
+    const toggle =
+      (document.querySelector('#options-menu-top-toggle') as HTMLElement | null) ||
+      (document.querySelector('#options-menu-bottom-toggle') as HTMLElement | null);
+
+    if (toggle) {
+      await userEvent.click(toggle);
+    } else {
+      const perPageToggle = await body.findByRole('button', { name: /items per page/i });
+      await userEvent.click(perPageToggle);
+    }
+
+    const listbox = body.queryByRole('listbox');
+    if (listbox) {
+      const opt5 = within(listbox)
+        .getAllByRole('option')
+        .find((o) => (o.textContent || '').trim().startsWith('5'));
+      if (!opt5) throw new Error('Could not find per-page option "5"');
+      await userEvent.click(opt5);
+    } else {
+      const menu = await body.findByRole('menu');
+      const item5 = within(menu)
+        .getAllByRole('menuitem')
+        .find((i) => (i.textContent || '').trim().startsWith('5') || (i.textContent || '').includes(' 5'));
+      if (!item5) throw new Error('Could not find per-page menu item containing "5"');
+      await userEvent.click(item5);
+    }
+
+    await waitFor(() => {
+      search = (locEl.textContent || '').split('?')[1] || '';
+      params = new URLSearchParams(search);
+      expect(params.get('page')).toBe('1');
+      expect(params.get('per_page')).toBe('5');
+    });
+
+    await waitFor(() => {
+      expect(groupsPaginationSpy).toHaveBeenCalled();
+      const last = groupsPaginationSpy.mock.calls[groupsPaginationSpy.mock.calls.length - 1][0];
+      expect(last.limit).toBe(5);
+      expect(last.offset).toBe(0);
+    });
+
+    // Next page
+    const nextButtons = canvas.getAllByLabelText('Go to next page');
+    await userEvent.click(nextButtons[0]);
+
+    await waitFor(() => {
+      search = (locEl.textContent || '').split('?')[1] || '';
+      params = new URLSearchParams(search);
+      expect(params.get('page')).toBe('2');
+      expect(params.get('per_page')).toBe('5');
+    });
+
+    await waitFor(() => {
+      const last = groupsPaginationSpy.mock.calls[groupsPaginationSpy.mock.calls.length - 1][0];
+      expect(last.limit).toBe(5);
+      expect(last.offset).toBe(5);
+    });
+  },
+};
+
+export const PaginationOutOfRangeClampsToLastPage: Story = {
+  tags: ['perm:org-admin', 'sbtest:groups-pagination'],
+  parameters: {
+    chrome: { environment: 'stage' },
+    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    routerInitialEntries: ['/groups?page=10000&per_page=20'],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          const adminDefault = url.searchParams.get('admin_default');
+          const platformDefault = url.searchParams.get('platform_default');
+
+          if (adminDefault !== 'true' && platformDefault !== 'true') {
+            groupsPaginationSpy({ limit, offset });
+          }
+
+          if (adminDefault === 'true') {
+            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1, limit, offset } });
+          }
+          if (platformDefault === 'true') {
+            return HttpResponse.json({ data: [mockSystemGroup], meta: { count: 1, limit, offset } });
+          }
+
+          return HttpResponse.json({
+            data: mockGroupsLarge.slice(offset, offset + limit),
+            meta: { count: mockGroupsLarge.length, limit, offset },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    groupsPaginationSpy.mockClear();
+    await delay(400);
+
+    // For 55 items and perPage=20, last page is page 3 and last offset is 40.
+    await waitFor(() => {
+      expect(groupsPaginationSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+      const last = groupsPaginationSpy.mock.calls[groupsPaginationSpy.mock.calls.length - 1][0];
+      expect(last.limit).toBe(20);
+      expect(last.offset).toBe(40);
+    });
+
+    const locEl = canvas.getByTestId('router-location');
+    const search = (locEl.textContent || '').split('?')[1] || '';
+    const params = new URLSearchParams(search);
+    expect(params.get('per_page')).toBe('20');
+    expect(params.get('page')).toBe('3');
+  },
+};
