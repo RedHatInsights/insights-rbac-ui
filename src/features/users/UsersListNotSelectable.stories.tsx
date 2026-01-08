@@ -1,24 +1,24 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { BrowserRouter, MemoryRouter, useLocation } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import UsersListNotSelectable from './UsersListNotSelectable';
+import { withRouter as withRouterDecorator } from '../../../.storybook/helpers/router-test-utils';
+import {
+  PAGINATION_TEST_DEFAULT_PER_PAGE,
+  PAGINATION_TEST_SMALL_PER_PAGE,
+  PAGINATION_TEST_TOTAL_ITEMS,
+  expectLocationParams,
+  getLastCallArg,
+  getLastPageOffset,
+  openPerPageMenu,
+  selectPerPage,
+} from '../../../.storybook/helpers/pagination-test-utils';
 
 // Spy function to track API calls
 const fetchUsersSpy = fn();
 const usersPaginationSpy = fn();
 
-// Router location spy (used by pagination URL sync stories)
-const RouterLocationSpy: React.FC = () => {
-  const location = useLocation();
-  return (
-    <pre data-testid="router-location" style={{ display: 'none' }}>
-      {location.pathname}
-      {location.search}
-    </pre>
-  );
-};
+// RouterLocationSpy provided by shared Storybook router helper.
 
 // Mock user data
 const mockUsers = [
@@ -64,7 +64,7 @@ const mockUsers = [
   },
 ];
 
-const mockUsersLarge = Array.from({ length: 55 }, (_v, idx) => {
+const mockUsersLarge = Array.from({ length: PAGINATION_TEST_TOTAL_ITEMS }, (_v, idx) => {
   const i = idx + 1;
   return {
     id: String(i),
@@ -86,24 +86,6 @@ const defaultArgs = {
     isSelectable: false, // Component is UsersListNotSelectable - no row selection
     isCompact: false,
   },
-};
-
-// Router decorator for components that use navigation.
-// If a story provides `parameters.routerInitialEntries`, use MemoryRouter (safe for Storybook iframe);
-// otherwise use BrowserRouter (default behavior).
-const withRouter = (Story: any, context: any) => {
-  const initialEntries = context?.parameters?.routerInitialEntries as string[] | undefined;
-  const Wrapper: React.FC<React.PropsWithChildren> = ({ children }) =>
-    initialEntries ? <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter> : <BrowserRouter>{children}</BrowserRouter>;
-
-  return (
-    <Wrapper>
-      <div style={{ minHeight: '600px' }}>
-        <RouterLocationSpy />
-        <Story />
-      </div>
-    </Wrapper>
-  );
 };
 
 // Default MSW handler for users API - includes filtering, sorting, and pagination
@@ -155,7 +137,7 @@ const createDefaultUsersHandler = (users = mockUsers) =>
 
 const meta: Meta<typeof UsersListNotSelectable> = {
   component: UsersListNotSelectable,
-  decorators: [withRouter],
+  decorators: [withRouterDecorator],
   parameters: {
     docs: {
       description: {
@@ -590,12 +572,12 @@ export const PaginationUrlSync: Story = {
   args: defaultArgs,
   parameters: {
     permissions: { orgAdmin: true, userAccessAdministrator: false },
-    routerInitialEntries: ['/iam/user-access/users?page=1&per_page=20'],
+    routerInitialEntries: [`/iam/user-access/users?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
     msw: {
       handlers: [
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
           const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           usersPaginationSpy({ limit, offset });
 
@@ -613,54 +595,20 @@ export const PaginationUrlSync: Story = {
 
     usersPaginationSpy.mockClear();
 
-    await delay(500);
     await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
 
     const locEl = canvas.getByTestId('router-location');
-    let search = (locEl.textContent || '').split('?')[1] || '';
-    let params = new URLSearchParams(search);
-    expect(params.get('page')).toBe('1');
-    expect(params.get('per_page')).toBe('20');
+    await expectLocationParams(locEl, { page: null, perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE) });
 
-    // Change per-page to 5
-    const toggle =
-      (document.querySelector('#options-menu-top-toggle') as HTMLElement | null) ||
-      (document.querySelector('#options-menu-bottom-toggle') as HTMLElement | null);
+    await openPerPageMenu(body);
+    await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
 
-    if (toggle) {
-      await userEvent.click(toggle);
-    } else {
-      const perPageToggle = await body.findByRole('button', { name: /items per page/i });
-      await userEvent.click(perPageToggle);
-    }
-
-    const listbox = body.queryByRole('listbox');
-    if (listbox) {
-      const opt5 = within(listbox)
-        .getAllByRole('option')
-        .find((o) => (o.textContent || '').trim().startsWith('5'));
-      if (!opt5) throw new Error('Could not find per-page option "5"');
-      await userEvent.click(opt5);
-    } else {
-      const menu = await body.findByRole('menu');
-      const item5 = within(menu)
-        .getAllByRole('menuitem')
-        .find((i) => (i.textContent || '').trim().startsWith('5') || (i.textContent || '').includes(' 5'));
-      if (!item5) throw new Error('Could not find per-page menu item containing "5"');
-      await userEvent.click(item5);
-    }
-
-    await waitFor(() => {
-      search = (locEl.textContent || '').split('?')[1] || '';
-      params = new URLSearchParams(search);
-      expect(params.get('page')).toBe('1');
-      expect(params.get('per_page')).toBe('5');
-    });
+    await expectLocationParams(locEl, { page: null, perPage: String(PAGINATION_TEST_SMALL_PER_PAGE) });
 
     await waitFor(() => {
       expect(usersPaginationSpy).toHaveBeenCalled();
-      const last = usersPaginationSpy.mock.calls[usersPaginationSpy.mock.calls.length - 1][0];
-      expect(last.limit).toBe(5);
+      const last = getLastCallArg<{ limit: number; offset: number }>(usersPaginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
       expect(last.offset).toBe(0);
     });
 
@@ -668,17 +616,12 @@ export const PaginationUrlSync: Story = {
     const nextButtons = canvas.getAllByLabelText('Go to next page');
     await userEvent.click(nextButtons[0]);
 
-    await waitFor(() => {
-      search = (locEl.textContent || '').split('?')[1] || '';
-      params = new URLSearchParams(search);
-      expect(params.get('page')).toBe('2');
-      expect(params.get('per_page')).toBe('5');
-    });
+    await expectLocationParams(locEl, { page: '2', perPage: String(PAGINATION_TEST_SMALL_PER_PAGE) });
 
     await waitFor(() => {
-      const last = usersPaginationSpy.mock.calls[usersPaginationSpy.mock.calls.length - 1][0];
-      expect(last.limit).toBe(5);
-      expect(last.offset).toBe(5);
+      const last = getLastCallArg<{ limit: number; offset: number }>(usersPaginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
     });
   },
 };
@@ -688,12 +631,12 @@ export const PaginationOutOfRangeClampsToLastPage: Story = {
   args: defaultArgs,
   parameters: {
     permissions: { orgAdmin: true, userAccessAdministrator: false },
-    routerInitialEntries: ['/iam/user-access/users?page=10000&per_page=20'],
+    routerInitialEntries: [`/iam/user-access/users?page=10000&perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
     msw: {
       handlers: [
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
           const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           usersPaginationSpy({ limit, offset });
 
@@ -709,7 +652,7 @@ export const PaginationOutOfRangeClampsToLastPage: Story = {
     const canvas = within(canvasElement);
 
     usersPaginationSpy.mockClear();
-    await delay(600);
+    const lastOffset = getLastPageOffset(PAGINATION_TEST_TOTAL_ITEMS, PAGINATION_TEST_DEFAULT_PER_PAGE);
 
     // For 55 items and perPage=20, last page is page 3 and last offset is 40.
     await waitFor(
@@ -717,17 +660,14 @@ export const PaginationOutOfRangeClampsToLastPage: Story = {
         // Depending on timing, the "invalid offset" request may happen before play() starts.
         // The stable signal we want is: the final request should use the last-page offset.
         expect(usersPaginationSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
-        const last = usersPaginationSpy.mock.calls[usersPaginationSpy.mock.calls.length - 1][0];
-        expect(last.limit).toBe(20);
-        expect(last.offset).toBe(40);
+        const last = getLastCallArg<{ limit: number; offset: number }>(usersPaginationSpy);
+        expect(last.limit).toBe(PAGINATION_TEST_DEFAULT_PER_PAGE);
+        expect(last.offset).toBe(lastOffset);
       },
       { timeout: 5000 },
     );
 
     const locEl = canvas.getByTestId('router-location');
-    const search = (locEl.textContent || '').split('?')[1] || '';
-    const params = new URLSearchParams(search);
-    expect(params.get('per_page')).toBe('20');
-    expect(params.get('page')).toBe('3');
+    await expectLocationParams(locEl, { perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE) });
   },
 };
