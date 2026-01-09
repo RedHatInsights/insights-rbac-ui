@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addMembersToGroup, fetchGroups } from '../../../../../redux/groups/actions';
 import { selectGroups, selectGroupsTotalCount, selectIsGroupsLoading } from '../../../../../redux/groups/selectors';
 import messages from '../../../../../Messages';
+import { getModalContainer } from '../../../../../helpers/modal-container';
 
 interface AddUserToGroupModalProps {
   isOpen: boolean;
@@ -106,6 +107,7 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
 
   return (
     <Modal
+      appendTo={getModalContainer()}
       variant={ModalVariant.medium}
       title={intl.formatMessage(messages['addToUserGroup'])}
       isOpen={isOpen}

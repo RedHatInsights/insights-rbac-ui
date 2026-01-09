@@ -6,7 +6,6 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { AddGroupWizard } from './AddGroupWizard';
 import { type APISpies, fillAddGroupWizardForm } from './AddGroupWizard.helpers';
 import { mockRoles, mockServiceAccounts, mockUsers } from './AddGroupWizard.mocks';
-
 // Mock data imported from AddGroupWizard.mocks - all data is now imported above
 
 // Inner component that uses navigate hook

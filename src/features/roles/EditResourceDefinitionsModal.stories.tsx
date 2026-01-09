@@ -264,28 +264,11 @@ export const Loading: Story = {
  * 4. Clicks Save (now enabled after changes)
  * 5. Verifies the updateRole API is called with the new resource added
  *
- * **SKIPPED**: Bug in @data-driven-forms/pf4-component-mapper@3.23.5 DualListSelect.
- *
- * Investigation findings:
- * - PatternFly DualListSelector correctly updates its UI state (items move visually)
- * - PatternFly calls BOTH addSelected(avail, chosen) AND onListChange(event, avail, chosen)
- * - data-driven-forms passes same handler to both, but signatures differ:
- *   - addSelected receives 2 params, handler expects 3, so chosen = undefined
- *   - onListChange receives 3 params correctly
- * - Both calls trigger input.onChange(), but form value doesn't update
- *
- * Attempted workarounds:
- * - Standard { value, label } format: Fails because lib uses labels for form values
- * - Override handlers with undefined: Props get merged, doesn't work
- *
- * The component works in production - this is a test environment timing issue.
- *
- * **TODO (PF6 UPGRADE)**: When upgrading to PatternFly 6 + @data-driven-forms v4.x,
- * revisit this test. The bug may be fixed in newer versions, or the API may have changed.
- * Remove the test-skip tag and verify the interaction test works correctly.
+ * This test was previously skipped due to a bug in @data-driven-forms DualListSelect
+ * where addSelected/removeSelected callbacks have different signatures than onListChange.
+ * Fixed by using FixedDualListSelect component via custom componentMapper.
  */
 export const AddResourceAndSave: Story = {
-  tags: ['test-skip'],
   parameters: {
     roleId: 'role-123',
     permissionId: 'inventory:hosts:read',

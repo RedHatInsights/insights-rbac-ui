@@ -41,6 +41,15 @@ module.exports = defineConfig(
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error'],
       '@typescript-eslint/no-explicit-any': 1,
+      // Enforce appendTo={getModalContainer()} on Modal components to ensure proper portal rendering
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'JSXOpeningElement[name.name="Modal"]:not(:has(JSXAttribute[name.name="appendTo"][value.type="JSXExpressionContainer"][value.expression.type="CallExpression"][value.expression.callee.name="getModalContainer"]))',
+          message: 'Modal must have appendTo={getModalContainer()} prop for proper portal rendering in Storybook and production.',
+        },
+      ],
     },
   },
   {

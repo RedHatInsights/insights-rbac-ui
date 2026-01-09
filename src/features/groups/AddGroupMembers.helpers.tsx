@@ -3,14 +3,12 @@ import { userEvent, waitFor, within } from 'storybook/test';
 /**
  * Helper function to fill and submit the Add Group Members modal
  *
- * NOTE: This modal is rendered in the #storybook-modals container in Storybook,
- * or at document.body level in production.
- *
  * @param user - userEvent instance from the test
  * @param memberUsernames - Array of usernames to select (by row index based on order in table)
  */
 export async function fillAddGroupMembersModal(user: ReturnType<typeof userEvent.setup>, memberUsernames: string[]) {
-  // Modal is rendered at body level or in #storybook-modals container
+  // In Storybook, modals render to #storybook-modals (from preview-body.html)
+  // In production/user journeys, modals render to document.body
   const modalContainer = document.getElementById('storybook-modals') || document.body;
 
   // Wait for "Add members" modal to be visible and find the specific modal by its heading
@@ -27,16 +25,11 @@ export async function fillAddGroupMembersModal(user: ReturnType<typeof userEvent
         }) as HTMLElement) || null;
 
       if (!addMembersModal) {
-        const debugInfo = {
-          dialogsFound: allDialogs.length,
-          containerUsed: modalContainer === document.body ? 'document.body' : '#storybook-modals',
-          allHeadingsInContainer: Array.from(modalContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')).map((h) => h.textContent),
-        };
-        throw new Error(`Add members modal not found. Debug info: ${JSON.stringify(debugInfo, null, 2)}`);
+        throw new Error('Add members modal not found');
       }
     },
     { timeout: 10000 },
-  ); // Wait up to 10 seconds for modal to appear
+  );
 
   const modal = within(addMembersModal!);
 

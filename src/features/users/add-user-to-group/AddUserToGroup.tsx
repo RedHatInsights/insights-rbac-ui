@@ -18,6 +18,7 @@ import { addMembersToGroup, fetchGroups } from '../../../redux/groups/actions';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import type { RBACStore } from '../../../redux/store.d';
+import { getModalContainer } from '../../../helpers/modal-container';
 import type { ColumnConfigMap, FilterConfig } from '../../../components/table-view/types';
 
 interface AddUserToGroupProps {
@@ -140,6 +141,7 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
         {intl.formatMessage(messages.changesWillBeLost)}
       </WarningModal>
       <Modal
+        appendTo={getModalContainer()}
         variant={ModalVariant.medium}
         isOpen={!cancelWarningVisible}
         title={intl.formatMessage(messages.addSpecificUserToGroup, { username })}

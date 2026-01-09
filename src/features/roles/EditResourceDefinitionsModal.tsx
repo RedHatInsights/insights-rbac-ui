@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useReducer } from 'react';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
-import FormRenderer from '../../components/forms/FormRenderer';
+import pf4ComponentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import ReactFormRender from '@data-driven-forms/react-form-renderer/form-renderer';
+import FixedDualListSelect from '../../components/forms/FixedDualListSelect';
 import flatten from 'lodash/flattenDeep';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
@@ -9,8 +11,16 @@ import { fetchRole, updateRole } from '../../redux/roles/actions';
 import { fetchResource, fetchResourceDefinitions } from '../../redux/cost-management/actions';
 import { fetchInventoryGroups, fetchInventoryGroupsDetails } from '../../redux/inventory/actions';
 import { processResourceDefinitions } from '../../redux/inventory/helper';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
+import { getModalContainer } from '../../helpers/modal-container';
+
+// Create a custom component mapper with our fixed DualListSelect
+// This fixes a bug in @data-driven-forms/pf4-component-mapper where addSelected/removeSelected
+// callbacks receive different parameters than onListChange, causing form values to not update
+const componentMapper = {
+  ...pf4ComponentMapper,
+  [componentTypes.DUAL_LIST_SELECT]: FixedDualListSelect,
+};
 import { Bullseye } from '@patternfly/react-core';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
@@ -117,9 +127,9 @@ const createEditResourceDefinitionsSchema = (
         isSearchable: true,
         // For inventory: use getValueFromNode with JSX options to extract IDs
         // For cost-management: standard format works because value === label
-        // TODO (PF6 UPGRADE): data-driven-forms@3.x has a bug with DualListSelect where
-        // addSelected callback receives wrong params. Check if fixed in v4.x.
-        // See AddResourceAndSave story in EditResourceDefinitionsModal.stories.tsx
+        // NOTE: We use FixedDualListSelect (via custom componentMapper) to work around
+        // a bug in @data-driven-forms where addSelected/removeSelected callbacks have
+        // different signatures than onListChange.
         ...(isInventory
           ? {
               getValueFromNode: extractValueFromNode,
@@ -243,6 +253,8 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
         },
       ],
     };
+    // useCustomAccess=false because we're providing our own access array
+    // When useCustomAccess=true, the helper fetches current access from API and overwrites our changes
     (
       dispatch(
         updateRole(
@@ -251,7 +263,7 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
             ...role,
             access: [...(role?.access || []).filter((item: { permission: string }) => item.permission !== permissionId), newAccess],
           } as unknown as Parameters<typeof updateRole>[1],
-          true,
+          false,
         ) as unknown as { type: string },
       ) as unknown as Promise<void>
     ).then(() => {
@@ -292,6 +304,7 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
       </WarningModal>
       {(isLoading || isLoadingResources || isLoadingInventory) && state.loadingStateVisible ? (
         <Modal
+          appendTo={getModalContainer()}
           variant={ModalVariant.large}
           className="rbac-m-resource-definitions"
           isOpen={true}
@@ -306,7 +319,7 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
           </Bullseye>
         </Modal>
       ) : (
-        <FormRenderer
+        <ReactFormRender
           schema={createEditResourceDefinitionsSchema(resources as Resources, state.resourcesPath, options, isInventory, intl)}
           componentMapper={componentMapper}
           initialValues={{ 'dual-list-select': state.changedResources || definedResources || [] }}

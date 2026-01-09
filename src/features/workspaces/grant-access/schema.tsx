@@ -2,6 +2,8 @@ import { createIntl, createIntlCache } from 'react-intl';
 import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
+import WizardButtons from '../../../components/wizard/WizardButtons';
+import { getModalContainer } from '../../../helpers/modal-container';
 
 export interface GrantAccessFormValues {
   // Add form fields here when needed
@@ -21,11 +23,13 @@ export const schemaBuilder = (workspaceName: string) => {
         inModal: true,
         showTitles: true,
         disableForwardJumping: true,
+        container: getModalContainer(),
         title: intl.formatMessage(messages.grantAccessInWorkspace, { workspaceName }),
         fields: [
           {
             title: intl.formatMessage(messages.selectUserGroups),
             name: 'select-user-groups',
+            buttons: WizardButtons,
             nextStep: 'select-roles',
             fields: [
               {
@@ -38,6 +42,7 @@ export const schemaBuilder = (workspaceName: string) => {
           {
             title: intl.formatMessage(messages.selectRoles),
             name: 'select-roles',
+            buttons: WizardButtons,
             nextStep: 'review',
             fields: [
               {
@@ -50,6 +55,7 @@ export const schemaBuilder = (workspaceName: string) => {
           {
             title: intl.formatMessage(messages.review),
             name: 'review',
+            buttons: WizardButtons,
             fields: [
               {
                 name: 'review-selection',

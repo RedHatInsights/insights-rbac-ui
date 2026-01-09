@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
@@ -127,11 +127,10 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   });
 
   const [cancelWarningVisible, setCancelWarningVisible] = useState<boolean>(false);
-  const container = useRef<HTMLDivElement>(document.createElement('div'));
   const [schema, setSchema] = useState<any>();
 
   useEffect(() => {
-    setSchema(schemaBuilder(container.current, enableWorkspacesNameChange));
+    setSchema(schemaBuilder(enableWorkspacesNameChange));
   }, [enableWorkspacesNameChange]);
 
   const onClose = () =>
@@ -163,7 +162,6 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const handleFormCancel = (values: Record<string, any>) => {
     const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
     if (showWarning) {
-      container.current.hidden = true;
       setCancelWarningVisible(true);
     } else {
       onCancel();
@@ -254,10 +252,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
           title={intl.formatMessage(messages.exitItemCreation, { item: intl.formatMessage(messages.role).toLocaleLowerCase() })}
           confirmButtonLabel={intl.formatMessage(messages.discard)}
           isOpen={cancelWarningVisible}
-          onClose={() => {
-            container.current.hidden = false;
-            setCancelWarningVisible(false);
-          }}
+          onClose={() => setCancelWarningVisible(false)}
           onConfirm={onCancel}
         >
           {intl.formatMessage(messages.discardedInputsWarning)}

@@ -3,15 +3,13 @@ import { userEvent, waitFor, within } from 'storybook/test';
 /**
  * Helper function to fill and submit the Add Group Roles modal
  *
- * NOTE: This modal is rendered in the #storybook-modals container in Storybook,
- * or at document.body level in production.
- *
  * @param user - userEvent instance from the test
  * @param groupName - Name of the group (appears in modal title)
  * @param roleCount - Number of roles to select (by row index)
  */
 export async function fillAddGroupRolesModal(user: ReturnType<typeof userEvent.setup>, groupName: string, roleCount: number) {
-  // Modal is rendered at body level or in #storybook-modals container
+  // In Storybook, modals render to #storybook-modals (from preview-body.html)
+  // In production/user journeys, modals render to document.body
   const modalContainer = document.getElementById('storybook-modals') || document.body;
 
   // Wait for "Add roles" modal to be visible and find the specific modal by its heading

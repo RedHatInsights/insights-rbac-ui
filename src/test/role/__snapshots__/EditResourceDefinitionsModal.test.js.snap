@@ -78,11 +78,7 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
         >
           <div
             class="pf-v6-c-dual-list-selector"
-            filteroptionstitle="Filter by resource..."
-            filtervaluetitle="Filter by resource..."
             id="dual-list-select"
-            lefttitle="Resources available for the permission"
-            righttitle="Resources defined for the permission"
           >
             <div
               class="pf-v6-c-dual-list-selector__pane pf-m-available"
@@ -96,7 +92,7 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
                   <div
                     class="pf-v6-c-dual-list-selector__title-text"
                   >
-                    Available options
+                    Resources available for the permission
                   </div>
                 </div>
               </div>
@@ -133,7 +129,7 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
                           </svg>
                         </span>
                         <input
-                          aria-label="Available search input"
+                          aria-label="Filter by resource..."
                           class="pf-v6-c-text-input-group__text-input"
                           type="text"
                           value=""
@@ -313,7 +309,7 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
                   <div
                     class="pf-v6-c-dual-list-selector__title-text"
                   >
-                    Chosen options
+                    Resources defined for the permission
                   </div>
                 </div>
               </div>
@@ -350,7 +346,7 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
                           </svg>
                         </span>
                         <input
-                          aria-label="Chosen search input"
+                          aria-label="Filter by resource..."
                           class="pf-v6-c-text-input-group__text-input"
                           type="text"
                           value=""
@@ -514,11 +510,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
         >
           <div
             class="pf-v6-c-dual-list-selector"
-            filteroptionstitle="Filter by resource..."
-            filtervaluetitle="Filter by resource..."
             id="dual-list-select"
-            lefttitle="Resources available for the permission"
-            righttitle="Resources defined for the permission"
           >
             <div
               class="pf-v6-c-dual-list-selector__pane pf-m-available"
@@ -532,7 +524,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                   <div
                     class="pf-v6-c-dual-list-selector__title-text"
                   >
-                    Available options
+                    Resources available for the permission
                   </div>
                 </div>
               </div>
@@ -569,7 +561,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                           </svg>
                         </span>
                         <input
-                          aria-label="Available search input"
+                          aria-label="Filter by resource..."
                           class="pf-v6-c-text-input-group__text-input"
                           type="text"
                           value=""
@@ -619,11 +611,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                           <span
                             class="pf-v6-c-dual-list-selector__item-text"
                           >
-                            <span
-                              data-value="test1ID"
-                            >
-                              test1
-                            </span>
+                            test1
                           </span>
                         </span>
                       </span>
@@ -648,11 +636,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                           <span
                             class="pf-v6-c-dual-list-selector__item-text"
                           >
-                            <span
-                              data-value="test2ID"
-                            >
-                              test2
-                            </span>
+                            test2
                           </span>
                         </span>
                       </span>
@@ -677,11 +661,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                           <span
                             class="pf-v6-c-dual-list-selector__item-text"
                           >
-                            <span
-                              data-value="test3ID"
-                            >
-                              test3
-                            </span>
+                            test3
                           </span>
                         </span>
                       </span>
@@ -706,11 +686,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                           <span
                             class="pf-v6-c-dual-list-selector__item-text"
                           >
-                            <span
-                              data-value="test4ID"
-                            >
-                              test4
-                            </span>
+                            test4
                           </span>
                         </span>
                       </span>
@@ -868,7 +844,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                   <div
                     class="pf-v6-c-dual-list-selector__title-text"
                   >
-                    Chosen options
+                    Resources defined for the permission
                   </div>
                 </div>
               </div>
@@ -905,7 +881,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                           </svg>
                         </span>
                         <input
-                          aria-label="Chosen search input"
+                          aria-label="Filter by resource..."
                           class="pf-v6-c-text-input-group__text-input"
                           type="text"
                           value=""
@@ -954,9 +930,7 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
                         >
                           <span
                             class="pf-v6-c-dual-list-selector__item-text"
-                          >
-                            Ungrouped systems
-                          </span>
+                          />
                         </span>
                       </span>
                     </div>

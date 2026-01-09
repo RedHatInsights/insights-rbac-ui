@@ -16,6 +16,7 @@ import { TitleSizes } from '@patternfly/react-core';
 import {} from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
+import { getModalContainer } from '../../../../helpers/modal-container';
 
 export const EnableWorkspacesAlert: React.FC = () => {
   const [checked, setChecked] = React.useState<boolean>(false);
@@ -47,6 +48,7 @@ export const EnableWorkspacesAlert: React.FC = () => {
   const EnableWorkspacesModal = (
     <React.Fragment>
       <Modal
+        appendTo={getModalContainer()}
         variant={ModalVariant.large}
         header={header}
         aria-label={intl.formatMessage(messages.enableWorkspacesWizardTitle)}
