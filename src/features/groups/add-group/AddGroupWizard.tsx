@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
@@ -71,8 +71,6 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
     setHideForm: () => {},
     setWizardSuccess: () => {},
   });
-
-  const container = useRef<HTMLDivElement>(null);
 
   interface FormData {
     'group-name': string;
@@ -177,7 +175,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
     navigate('/groups');
   };
 
-  const schema = schemaBuilder(container.current, enableServiceAccounts, enableRoles);
+  const schema = schemaBuilder(enableServiceAccounts, enableRoles);
 
   const contextValue = useMemo(
     () => ({
@@ -196,27 +194,25 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
 
   return (
     <AddGroupWizardContext.Provider value={contextValue}>
-      <div ref={container}>
-        {cancelWarningVisible && (
-          <WarningModal
-            isOpen={cancelWarningVisible}
-            title="Exit group creation?"
-            confirmButtonLabel="Exit"
-            onClose={() => setCancelWarningVisible(false)}
-            onConfirm={onCancelWarningConfirm}
-          >
-            {'All unsaved changes will be lost. Are you sure you want to exit?'}
-          </WarningModal>
-        )}
-        <FormRenderer
-          schema={schema}
-          subscription={{ values: true }}
-          FormTemplate={FormTemplate}
-          componentMapper={{ ...componentMapper, ...mapperExtension }}
-          onSubmit={onSubmit}
-          onCancel={() => setCancelWarningVisible(true)}
-        />
-      </div>
+      {cancelWarningVisible && (
+        <WarningModal
+          isOpen={cancelWarningVisible}
+          title="Exit group creation?"
+          confirmButtonLabel="Exit"
+          onClose={() => setCancelWarningVisible(false)}
+          onConfirm={onCancelWarningConfirm}
+        >
+          {'All unsaved changes will be lost. Are you sure you want to exit?'}
+        </WarningModal>
+      )}
+      <FormRenderer
+        schema={schema}
+        subscription={{ values: true }}
+        FormTemplate={FormTemplate}
+        componentMapper={{ ...componentMapper, ...mapperExtension }}
+        onSubmit={onSubmit}
+        onCancel={() => setCancelWarningVisible(true)}
+      />
     </AddGroupWizardContext.Provider>
   );
 };

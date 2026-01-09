@@ -172,7 +172,7 @@ The modal displays:
 
     // Add user interaction logic here if needed
     const body = within(document.body);
-    const addButton = body.getByRole('button', { name: /add/i });
+    const addButton = body.getByRole('button', { name: /^add$/i });
     await expect(addButton).toBeDisabled(); // Should be disabled initially
   },
 };
@@ -226,7 +226,7 @@ This story demonstrates:
 
     // Add user interaction logic here if needed
     const body = within(document.body);
-    const addButton = body.getByRole('button', { name: /add/i });
+    const addButton = body.getByRole('button', { name: /^add$/i });
     await expect(addButton).toBeDisabled(); // Should be disabled initially
   },
 };
@@ -297,7 +297,7 @@ This story tests:
     await userEvent.click(adminCheckbox);
 
     // Verify the Add button is now enabled
-    const addButton = body.getByRole('button', { name: /add/i });
+    const addButton = body.getByRole('button', { name: /^add$/i });
     await expect(addButton).not.toBeDisabled();
 
     // Click Add button

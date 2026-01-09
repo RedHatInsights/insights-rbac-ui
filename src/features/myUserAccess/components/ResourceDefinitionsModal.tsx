@@ -7,6 +7,7 @@ import type { ResourceDefinition } from '../types';
 import { TableView } from '../../../components/table-view/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../components/table-view/components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../components/table-view/types';
+import { getModalContainer } from '../../../helpers/modal-container';
 
 interface ResourceDefinitionsModalProps {
   isOpen?: boolean;
@@ -88,6 +89,7 @@ export const ResourceDefinitionsModal: React.FC<ResourceDefinitionsModalProps> =
 
   return (
     <Modal
+      appendTo={getModalContainer()}
       actions={[
         <Button key="close-action" variant="primary" onClick={handleClose}>
           {intl.formatMessage(messages.close)}

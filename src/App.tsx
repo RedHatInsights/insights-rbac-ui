@@ -12,10 +12,7 @@ import { usersInitialState } from './redux/users/reducer';
 import useUserData from './hooks/useUserData';
 import Routing from './Routing';
 
-// Fix for data-driven-forms wizard footer button layout with PF6
-import './components/wizard/wizard-footer-fix.css';
-
-const App = () => {
+const App: React.FC = () => {
   const dispatch = useDispatch();
   const userData = useUserData();
 

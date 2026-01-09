@@ -89,7 +89,6 @@ const preview: Preview = {
     },
   },
   decorators: [
-    // 👇 Combined context decorator - reads from story parameters and args
     (Story, { parameters, args }) => {
       const registry = registryFactory();
 

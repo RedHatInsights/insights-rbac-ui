@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { Wizard } from '@patternfly/react-core/deprecated';
@@ -66,19 +66,14 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
     error: undefined,
     hideForm: false,
   });
-  const container = useRef(document.createElement('div'));
   const setWizardError = (error: string | undefined) => setWizardContextValue((prev) => ({ ...prev, error }));
   const setWizardSuccess = (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm: boolean) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
-  const schema = useMemo(() => schemaBuilder(container.current, enableWorkspacesNameChange), []);
+  const schema = useMemo(() => schemaBuilder(enableWorkspacesNameChange), [enableWorkspacesNameChange]);
 
   useEffect(() => {
     setCurrentRoleID(role.uuid);
   });
-
-  useEffect(() => {
-    container.current.hidden = cancelWarningVisible;
-  }, [cancelWarningVisible]);
 
   const handleWizardCancel = () => {
     setCancelWarningVisible(true);
@@ -184,7 +179,6 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
         ) : null
       ) : (
         <FormRenderer
-          {...({ container } as unknown as Record<string, unknown>)}
           schema={schema}
           subscription={{ values: true }}
           FormTemplate={FormTemplate}

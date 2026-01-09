@@ -8,6 +8,8 @@ import providerMessages from '../../../locales/data.json';
 import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
 import InputHelpPopover from '../../../components/forms/InputHelpPopover';
+import WizardButtons from '../../../components/wizard/WizardButtons';
+import { getModalContainer } from '../../../helpers/modal-container';
 import { Workspace, isWorkspace } from '../../../redux/workspaces/reducer';
 import { selectWorkspaces } from '../../../redux/workspaces/selectors';
 
@@ -56,12 +58,14 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
         'data-ouia-component-id': 'create-workspace-wizard',
         inModal: true,
         showTitles: true,
+        container: getModalContainer(),
         title: intl.formatMessage(messages.createNewWorkspace),
         fields: [
           {
             title: intl.formatMessage(messages.workspaceDetails),
             showTitle: false,
             name: 'details',
+            buttons: WizardButtons,
             nextStep: () => (enableBillingFeatures ? 'select-features' : 'review'),
             fields: [
               {
@@ -174,6 +178,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
           {
             title: intl.formatMessage(messages.selectFeatures),
             name: 'select-features',
+            buttons: WizardButtons,
             nextStep: ({ values }: { values: CreateWorkspaceFormValues }) => {
               const selectedFeatures = values['workspace-features'] || [];
               return selectedFeatures.length > 0 ? `ear-mark-${selectedFeatures[0]}` : 'review';
@@ -198,6 +203,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
             name: `ear-mark-${feature.value}`,
             title: feature.label,
             showTitle: false,
+            buttons: WizardButtons,
             substepOf: intl.formatMessage(messages.earMark),
             nextStep: ({ values }: { values: CreateWorkspaceFormValues }) => {
               const currIndex = values['workspace-features'].indexOf(feature.value);
@@ -216,6 +222,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
             name: 'review',
             title: intl.formatMessage(messages.review),
             showTitle: false,
+            buttons: WizardButtons,
             fields: [
               {
                 component: 'Review',

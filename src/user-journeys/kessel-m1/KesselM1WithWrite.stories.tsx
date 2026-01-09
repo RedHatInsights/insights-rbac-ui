@@ -100,7 +100,6 @@ const meta = {
     'platform.rbac.common.userstable': false,
   },
   parameters: {
-    // Set chrome and feature flags from default args
     ...createDynamicEnvironment({
       orgAdmin: true,
       userAccessAdministrator: false,

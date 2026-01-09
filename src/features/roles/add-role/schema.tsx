@@ -6,6 +6,7 @@ import ReviewTemplate from './ReviewTemplate';
 import CostResourcesTemplate from './CostResourcesTemplate';
 import { ValidatorReset, debouncedAsyncValidator } from './validators';
 import ReviewStepButtons from '../../../components/review-step-buttons';
+import WizardButtons from '../../../components/wizard/WizardButtons';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
@@ -13,6 +14,7 @@ import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
 import InventoryGroupsRoleTemplate from './InventoryGroupsRoleTemplate';
 import { locale } from '../../../locales/locale';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
+import { getModalContainer } from '../../../helpers/modal-container';
 
 interface FormValues {
   'role-type'?: string;
@@ -20,7 +22,7 @@ interface FormValues {
   [key: string]: unknown;
 }
 
-export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
+export const schemaBuilder = (featureFlag: boolean) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
 
@@ -36,12 +38,13 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
         'data-ouia-component-id': 'add-role-wizard',
         title: intl.formatMessage(messages.createRole),
         style: { overflow: 'hidden' },
-        container,
+        container: getModalContainer(),
         fields: [
           {
             title: intl.formatMessage(messages.createRole),
             name: 'step-1',
             StepTemplate: CreateRoleStepTemplate,
+            buttons: WizardButtons,
             nextStep: {
               when: 'role-type',
               stepMapper: {
@@ -121,6 +124,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
           {
             title: intl.formatMessage(messages.nameAndDescription),
             name: 'name-and-description',
+            buttons: WizardButtons,
             nextStep: 'add-permissions',
             fields: [
               {
@@ -158,6 +162,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
             name: 'add-permissions',
             title: intl.formatMessage(messages.addPermissions),
             StepTemplate: AddPermissionTemplate,
+            buttons: WizardButtons,
             nextStep: ({ values }: { values: FormValues }) => validateNextAddRolePermissionStep('add-permissions', values),
             fields: [
               {
@@ -170,6 +175,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
             title: intl.formatMessage(featureFlag ? messages.workspacesAccessTitle : messages.inventoryGroupsAccessTitle),
             name: 'inventory-groups-role',
             StepTemplate: InventoryGroupsRoleTemplate,
+            buttons: WizardButtons,
             nextStep: ({ values }: { values: FormValues }) => validateNextAddRolePermissionStep('inventory-groups-role', values),
             fields: [
               {
@@ -196,6 +202,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
           {
             name: 'cost-resources-definition',
             title: intl.formatMessage(messages.defineCostResources),
+            buttons: WizardButtons,
             nextStep: 'review',
             StepTemplate: CostResourcesTemplate,
             fields: [

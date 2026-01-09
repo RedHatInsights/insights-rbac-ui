@@ -17,6 +17,7 @@ import messages from '../../../Messages';
 import { addUsers } from '../../../redux/users/actions';
 import paths from '../../../utilities/pathnames';
 import { useAppLink } from '../../../hooks/useAppLink';
+import { getModalContainer } from '../../../helpers/modal-container';
 
 interface InviteUsersModalProps {
   fetchData: () => void;
@@ -99,6 +100,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
         {intl.formatMessage(messages.changesWillBeLost)}
       </WarningModal>
       <Modal
+        appendTo={getModalContainer()}
         variant={ModalVariant.medium}
         isOpen={!cancelWarningVisible}
         title={intl.formatMessage(messages.inviteUsersTitle)}

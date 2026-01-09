@@ -1,19 +1,21 @@
 import React from 'react';
 import AddPermissionTemplate from '../add-role/AddPermissionTemplate';
 import ReviewTemplate from './ReviewTemplate';
+import WizardButtons from '../../../components/wizard/WizardButtons';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
 import InventoryGroupsRoleTemplate from '../add-role/InventoryGroupsRoleTemplate';
 import { locale } from '../../../locales/locale';
+import { getModalContainer } from '../../../helpers/modal-container';
 
 interface FormValues {
   'add-permissions-table'?: { uuid: string }[];
   [key: string]: unknown;
 }
 
-export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
+export const schemaBuilder = (featureFlag: boolean) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
 
@@ -27,12 +29,13 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
         showTitles: true,
         crossroads: ['role-type'],
         title: intl.formatMessage(messages.addPermissions),
-        container,
+        container: getModalContainer(),
         fields: [
           {
             name: 'add-permissions',
             title: intl.formatMessage(messages.addPermissions),
             StepTemplate: AddPermissionTemplate,
+            buttons: WizardButtons,
             nextStep: ({ values }: { values: FormValues }) => validateNextAddRolePermissionStep('add-permissions', values),
             fields: [
               {
@@ -45,6 +48,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
             name: 'inventory-groups-role',
             title: intl.formatMessage(featureFlag ? messages.workspacesAccessTitle : messages.inventoryGroupsAccessTitle),
             StepTemplate: InventoryGroupsRoleTemplate,
+            buttons: WizardButtons,
             nextStep: ({ values }: { values: FormValues }) => validateNextAddRolePermissionStep('inventory-groups-role', values),
             fields: [
               {
@@ -67,6 +71,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
           {
             name: 'cost-resources-definition',
             title: intl.formatMessage(messages.defineCostResources),
+            buttons: WizardButtons,
             nextStep: 'review',
             fields: [
               {
@@ -90,6 +95,7 @@ export const schemaBuilder = (container: HTMLElement, featureFlag: boolean) => {
             name: 'review',
             title: intl.formatMessage(messages.reviewDetails),
             StepTemplate: ReviewTemplate,
+            buttons: WizardButtons,
             fields: [
               {
                 component: 'review',
