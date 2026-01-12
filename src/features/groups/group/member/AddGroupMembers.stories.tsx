@@ -8,6 +8,35 @@ import { AddGroupMembers } from './AddGroupMembers';
 // API spy for tracking filter and search calls
 const usersApiSpy = fn();
 
+/**
+ * Helper to wait for the members table to be fully populated with expected status counts.
+ * Uses findByRole for the grid (built-in async), then waitFor only for count assertions.
+ */
+const waitForMembersTable = async (
+  modal: HTMLElement,
+  expectedCounts: { active?: number; inactive?: number },
+  options: { timeout?: number } = {},
+) => {
+  const { timeout = 5000 } = options;
+  const table = await within(modal).findByRole('grid');
+
+  await waitFor(
+    () => {
+      if (expectedCounts.inactive !== undefined) {
+        const inactiveElements = within(table).queryAllByText('Inactive');
+        expect(inactiveElements).toHaveLength(expectedCounts.inactive);
+      }
+      if (expectedCounts.active !== undefined) {
+        const activeElements = within(table).queryAllByText('Active');
+        expect(activeElements).toHaveLength(expectedCounts.active);
+      }
+    },
+    { timeout },
+  );
+
+  return table;
+};
+
 // Shared MSW handlers for group-related API calls
 // These are needed because the component now properly receives groupId from useParams()
 const sharedGroupHandlers = [
@@ -503,13 +532,8 @@ export const WithFiltering: Story = {
     });
 
     // 🎯 TEST 3: VERIFY INACTIVE USERS APPEAR WHEN STATUS CLEARED
-    const getTable = () => within(modal).findByRole('grid');
-    const table = await getTable();
-
-    // Verify inactive users appear - should see "Inactive" in Status column exactly 3 times
-    expect(await within(table).findAllByText('Inactive')).toHaveLength(3);
-    // Verify active users are also present (should see "Active" in Status column exactly 4 times)
-    expect(await within(table).findAllByText('Active')).toHaveLength(4);
+    // Wait for table to be fully populated with all users including inactive ones
+    await waitForMembersTable(modal, { active: 4, inactive: 3 });
 
     // 🎯 TEST 4: EMAIL FILTER
     usersApiSpy.mockClear();
@@ -580,8 +604,8 @@ export const WithFiltering: Story = {
     await userEvent.click(inactiveCheckbox);
     await delay(600);
 
-    // Verify only inactive users shown
-    expect(await within(await getTable()).findAllByText('Inactive')).toHaveLength(3);
+    // Verify only inactive users shown (3 inactive, 0 active visible after filter)
+    await waitForMembersTable(modal, { inactive: 3 });
     expect(within(modal).queryByText('john.doe')).not.toBeInTheDocument();
     expect(within(modal).queryByText('jane.admin')).not.toBeInTheDocument();
   },
