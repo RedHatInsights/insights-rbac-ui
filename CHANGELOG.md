@@ -1,3 +1,10 @@
+## [1.79.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.5...v1.79.6) (2026-01-12)
+
+
+### Bug Fixes
+
+* resource definition editing and wizard modal button layout ([5fce50e](https://github.com/RedHatInsights/insights-rbac-ui/commit/5fce50e5921ea443b03f8897b33244abfc26b1a6))
+
 ## [1.79.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.4...v1.79.5) (2026-01-08)
 
 
