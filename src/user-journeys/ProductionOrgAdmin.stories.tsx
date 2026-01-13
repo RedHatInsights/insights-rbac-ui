@@ -1920,15 +1920,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
     await user.click(rolesTab);
     await delay(500);
 
-    // Wait for "Add role" button
-    await waitFor(async () => {
-      const addRoleBtn = canvas.queryByRole('button', { name: /add role/i });
-      expect(addRoleBtn).toBeInTheDocument();
-    });
-
-    await delay(1000); // Wait for roles to load
-
-    // Click "Add role" - wait for it to be enabled (fetchAddRolesForGroup is async)
+    // Click "Add role" - wait for it to be visible and enabled (fetchAddRolesForGroup is async)
     const addRoleBtn = await waitFor(
       () => {
         const btn = canvas.getByRole('button', { name: /add role/i });
@@ -1942,10 +1934,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
     // Fill and submit the Add Roles modal (select 1 role)
     await fillAddGroupRolesModal(user, 'Default access', 1);
 
-    // CRITICAL: Wait for confirmation modal to appear (2nd dialog)
-    await delay(1000);
-
-    // Find the warning modal by its OUIA component ID
+    // Find the warning modal by its OUIA component ID (waitFor handles the waiting)
     // The warning modal has data-ouia-component-id="WarningModal"
     let warningModal: HTMLElement | null = null;
     await waitFor(
@@ -2010,23 +1999,19 @@ Tests the full flow of copying "Default access" group when adding a role for the
     });
 
     // NOW: Navigate to a different (non-default) group and verify NO alert shows
-    await delay(500);
-
-    // Click breadcrumb to go back to groups list (use within a specific container)
+    // Click breadcrumb to go back to groups list
     const breadcrumbs = canvas.getByLabelText('Breadcrumb');
     const groupsBreadcrumb = within(breadcrumbs).getByRole('link', { name: 'Groups' });
     await user.click(groupsBreadcrumb);
-    await delay(1000);
 
-    // Wait for groups list
+    // Wait for groups list (waitForPageToLoad handles waiting)
     await waitForPageToLoad(canvas, 'Platform Admins');
 
     // Click on a regular group (Platform Admins)
     const regularGroupLink = canvas.getByRole('link', { name: 'Platform Admins' });
     await user.click(regularGroupLink);
-    await delay(1000);
 
-    // Wait for the regular group detail page
+    // Wait for the regular group detail page (waitFor handles waiting)
     await waitFor(async () => {
       await expect(canvas.getByRole('heading', { name: /Platform Admins/i })).toBeInTheDocument();
     });
@@ -2112,11 +2097,8 @@ Tests that modifying an already-copied "Custom default access" group does NOT sh
     // Click Roles tab
     const rolesTab = canvas.getByRole('tab', { name: /roles/i });
     await user.click(rolesTab);
-    await delay(500);
 
-    await delay(1000);
-
-    // Click "Add role" - wait for it to be enabled (fetchAddRolesForGroup is async)
+    // Click "Add role" - wait for it to be visible and enabled (fetchAddRolesForGroup is async)
     const addRoleBtn = await waitFor(
       () => {
         const btn = canvas.getByRole('button', { name: /add role/i });
@@ -2130,16 +2112,16 @@ Tests that modifying an already-copied "Custom default access" group does NOT sh
     // Fill and submit (select 1 role)
     await fillAddGroupRolesModal(user, 'Custom default access', 1);
 
+    // Verify success notification appears first (confirms operation completed)
+    await verifySuccessNotification();
+
     // Verify NO confirmation modal appears - check for the warning modal specifically
-    await delay(1000);
+    // After success notification, we can be confident the operation completed without warning modal
     const modalContainer = document.getElementById('storybook-modals') || document.body;
     const warningModal = modalContainer.querySelector('[data-ouia-component-id="WarningModal"]');
 
     // Should NOT see the warning modal (group is already modified, so no confirmation needed)
     expect(warningModal).toBeNull();
-
-    // Verify success notification
-    await verifySuccessNotification();
 
     // Verify the alert IS visible on the page (this is correct - shows the group has been modified)
     await waitFor(async () => {

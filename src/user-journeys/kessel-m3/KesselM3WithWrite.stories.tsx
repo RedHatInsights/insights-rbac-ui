@@ -350,12 +350,12 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     // In M3, this should link to RBAC detail page, not Inventory
     const productionLink = await canvas.findByRole('link', { name: /^production$/i });
     await user.click(productionLink);
-    await delay(1000);
 
-    // Verify we're on the detail page with Roles tab
-    // Check the URL has activeTab=roles
-    const addressBar = canvas.getByTestId('fake-address-bar');
-    expect(addressBar).toHaveTextContent(/activeTab=roles/i);
+    // Verify we're on the detail page with Roles tab (waitFor handles navigation timing)
+    await waitFor(() => {
+      const addressBar = canvas.getByTestId('fake-address-bar');
+      expect(addressBar).toHaveTextContent(/activeTab=roles/i);
+    });
 
     // Verify both tabs exist
     const assetsTab = await canvas.findByRole('tab', { name: /^assets$/i });

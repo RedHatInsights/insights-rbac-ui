@@ -12,7 +12,7 @@
  * - Reduced code duplication
  */
 
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { delay } from 'msw';
 
 /**
@@ -28,12 +28,11 @@ export async function openWorkspaceWizard(user: ReturnType<typeof userEvent.setu
   const createButton = await canvas.findByRole('button', { name: /create workspace/i });
   expect(createButton).toBeInTheDocument();
   await user.click(createButton);
-  await delay(1000);
 
   // The wizard renders in document.body (not in canvas)
   const body = within(document.body);
 
-  // Wait for wizard to appear
+  // Wait for wizard to appear (findByText already waits, no delay needed)
   await body.findByText(/create new workspace/i);
 
   // Find the wizard container
@@ -293,7 +292,12 @@ export async function editWorkspaceInModal(user: ReturnType<typeof userEvent.set
   const saveButton = await modal.findByRole('button', { name: /save/i });
   expect(saveButton).toBeInTheDocument();
   await user.click(saveButton);
-  await delay(1000);
+
+  // Wait for modal to close (dialog should disappear)
+  await waitFor(() => {
+    const dialog = within(document.body).queryByRole('dialog', { name: /edit workspace/i });
+    expect(dialog).not.toBeInTheDocument();
+  });
 }
 
 /**
@@ -318,5 +322,10 @@ export async function confirmDelete(user: ReturnType<typeof userEvent.setup>) {
   expect(deleteButton).toBeInTheDocument();
   expect(deleteButton).toBeEnabled();
   await user.click(deleteButton);
-  await delay(1000);
+
+  // Wait for modal to close (dialog should disappear)
+  await waitFor(() => {
+    const dialog = within(document.body).queryByRole('dialog', { name: /delete workspace/i });
+    expect(dialog).not.toBeInTheDocument();
+  });
 }

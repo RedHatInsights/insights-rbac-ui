@@ -361,10 +361,8 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     expect(editButton).toBeInTheDocument();
     expect(editButton).not.toHaveAttribute('disabled');
     await user.click(editButton);
-    await delay(1000);
 
-    // Edit form should open - find by URL change or form elements
-    // The edit workspace uses a different route, so we should see form inputs
+    // Edit form should open (findByLabelText waits automatically)
     const nameInput = await body.findByLabelText(/workspace name/i);
     expect(nameInput).toBeInTheDocument();
 
@@ -466,9 +464,8 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
     expect(deleteButton).toBeInTheDocument();
     expect(deleteButton).not.toHaveAttribute('disabled');
     await user.click(deleteButton);
-    await delay(1000);
 
-    // Confirmation modal should open
+    // Confirmation modal should open (findByRole waits automatically)
     const modalHeading = await body.findByRole('heading', { name: /delete.*workspace/i });
     expect(modalHeading).toBeInTheDocument();
 
