@@ -1,3 +1,10 @@
+## [1.79.7](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.6...v1.79.7) (2026-01-13)
+
+
+### Bug Fixes
+
+* flaky AddGroupMembers WithFiltering test ([7b152aa](https://github.com/RedHatInsights/insights-rbac-ui/commit/7b152aa4705453abc24d23a49eafd65693196996))
+
 ## [1.79.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.5...v1.79.6) (2026-01-12)
 
 
