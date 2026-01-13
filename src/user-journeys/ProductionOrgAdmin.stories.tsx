@@ -28,6 +28,8 @@ import { createStatefulHandlers } from '../../.storybook/helpers/stateful-handle
 import { defaultGroups } from '../../.storybook/fixtures/groups';
 import { defaultUsers } from '../../.storybook/fixtures/users';
 import { defaultRoles } from '../../.storybook/fixtures/roles';
+import { rolesAddToGroupVisibilityFixtures } from '../../.storybook/fixtures/roles-add-to-group-visibility';
+import { expandRoleGroups, expectAddRoleLinkHidden, expectAddRoleLinkVisible, getGroupRow } from './_shared/helpers/rolesTableHelpers';
 import { makeChrome } from './_shared/helpers/chrome';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
@@ -327,12 +329,7 @@ export const CreateGroupJourney: Story = {
 
     // CRITICAL: Verify the newly created group appears in the table
     // This tests that the cache invalidation is working correctly
-    await waitFor(
-      () => {
-        expect(canvas.getByText('DevOps Team')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    expect(await canvas.findByText('DevOps Team')).toBeInTheDocument();
   },
 };
 
@@ -2667,5 +2664,100 @@ message about service accounts not being automatically included for security rea
     // Should NOT show a data table
     const table = canvas.queryByRole('table');
     expect(table).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Roles / Add role to group link visibility test
+ *
+ * Tests the logic that controls visibility of the "Add role to this group" link
+ * when expanding a role to see its assigned groups.
+ *
+ * The link should:
+ * - Show for regular groups (Platform Admins, Support Team, etc.)
+ * - NOT show for the admin default group (Default admin access)
+ *
+ * This prevents accidental attempts to add roles to the special admin group.
+ */
+export const RolesAddToGroupLinkVisibility: Story = {
+  name: 'Roles / Add to group link visibility',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: [...rolesAddToGroupVisibilityFixtures, ...defaultRoles],
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests the visibility logic for the "Add role to this group" link in the expanded roles view.
+
+**Business Logic:**
+- The "Add role to this group" link allows admins to navigate to add more roles to a group
+- This link should NOT appear for the admin default group (Default admin access)
+- The admin group is special - it grants all permissions to org admins automatically
+
+**Test Flow:**
+1. Navigate to Roles page
+2. Expand "Test Role With Groups" (has 3 groups including admin group)
+3. Verify "Add role to this group" link appears for "Platform Admins"
+4. Verify "Add role to this group" link does NOT appear for "Default admin access"
+5. Verify "Add role to this group" link appears for "Support Team"
+
+**Bug Prevention:**
+This test guards against a race condition where the link could incorrectly appear
+for the admin group while the adminGroup data is still loading.
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Roles page
+    await navigateToPage(user, canvas, 'Roles');
+    await waitForPageToLoad(canvas, 'Test Role With Groups');
+
+    // Scope to main content area (exclude sidebar navigation)
+    const mainElement = document.querySelector('main') || context.canvasElement;
+    const mainContent = within(mainElement as HTMLElement);
+
+    // Find and expand the first test role
+    const testRoleLink = await mainContent.findByRole('link', { name: 'Test Role With Groups' });
+    const { groupsToggle, expandedContent } = await expandRoleGroups(user, testRoleLink);
+
+    // Wait for the expanded groups to appear - scope to expanded content
+    const platformAdminsLink = await expandedContent.findByRole('link', { name: 'Platform Admins' });
+    const adminAccessLink = await expandedContent.findByRole('link', { name: 'Default admin access' });
+    const supportTeamLink = await expandedContent.findByRole('link', { name: 'Support Team' });
+
+    // Verify correct number of "Add role to this group" links in expanded section
+    // Should have 2 (Platform Admins and Support Team, NOT Default admin access)
+    const addRoleLinks = expandedContent.queryAllByRole('link', { name: /add role to this group/i });
+    expect(addRoleLinks).toHaveLength(2);
+
+    // Verify link visibility per group using helpers
+    expectAddRoleLinkHidden(getGroupRow(adminAccessLink));
+    expectAddRoleLinkVisible(getGroupRow(platformAdminsLink));
+    expectAddRoleLinkVisible(getGroupRow(supportTeamLink));
+
+    // Collapse first role and expand another to verify consistent behavior
+    await user.click(groupsToggle);
+
+    // Find and expand "Another Test Role" which only has regular groups
+    const anotherTestRoleLink = await mainContent.findByRole('link', { name: 'Another Test Role' });
+    const { expandedContent: otherExpandedContent } = await expandRoleGroups(user, anotherTestRoleLink);
+
+    // Verify Engineering group has the link (it's a regular group)
+    const engineeringLink = await otherExpandedContent.findByRole('link', { name: 'Engineering' });
+    expectAddRoleLinkVisible(getGroupRow(engineeringLink));
   },
 };

@@ -391,12 +391,7 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Verify the updated workspace appears in the list
-    await waitFor(
-      () => {
-        expect(canvas.getByText('Production Updated')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    expect(await canvas.findByText('Production Updated')).toBeInTheDocument();
   },
 };
 
@@ -492,13 +487,10 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Verify Staging is no longer in the list
-    await waitFor(
-      () => {
-        expect(canvas.queryByText('Staging')).not.toBeInTheDocument();
-        // Production should still be there
-        expect(canvas.getByText('Production')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(() => {
+      expect(canvas.queryByText('Staging')).not.toBeInTheDocument();
+    });
+    // Production should still be there
+    expect(await canvas.findByText('Production')).toBeInTheDocument();
   },
 };

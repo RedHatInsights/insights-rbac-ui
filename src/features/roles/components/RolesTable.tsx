@@ -22,6 +22,7 @@ import pathnames from '../../../utilities/pathnames';
 import type { Access, Role, RoleGroup } from '../../../redux/roles/reducer';
 import type { Group } from '../../../redux/groups/reducer';
 import type { ExpandedCells, SortByState } from '../types';
+import { shouldShowAddRoleToGroupLink } from '../utils/roleVisibility';
 
 interface RolesTableProps {
   roles: Role[];
@@ -63,7 +64,7 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
               </Td>
               <Td dataLabel={groupColumns[1]}>{group.description}</Td>
               <Td className="pf-v6-u-text-align-right">
-                {adminGroup?.uuid !== group.uuid && (
+                {shouldShowAddRoleToGroupLink(adminGroup, group) && (
                   <AppLink
                     to={pathnames['roles-add-group-roles'].link.replace(':roleId', role.uuid).replace(':groupId', group.uuid)}
                     state={{ name: group.name }}
