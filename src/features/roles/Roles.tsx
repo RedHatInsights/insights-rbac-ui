@@ -28,6 +28,7 @@ import { fetchRolesWithPolicies } from '../../redux/roles/actions';
 import { fetchAdminGroup } from '../../redux/groups/actions';
 import PermissionsContext from '../../utilities/permissionsContext';
 import messages from '../../Messages';
+import { shouldShowAddRoleToGroupLink } from './utils/roleVisibility';
 import pathnames from '../../utilities/pathnames';
 import { RolesEmptyState } from './components/RolesEmptyState';
 import type { Access, Role, RoleGroup } from '../../redux/roles/reducer';
@@ -63,7 +64,7 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
               </Td>
               <Td dataLabel={groupColumns[1]}>{group.description}</Td>
               <Td dataLabel={groupColumns[2]} className="pf-v6-u-text-align-right">
-                {adminGroup?.uuid !== group.uuid && (
+                {shouldShowAddRoleToGroupLink(adminGroup, group) && (
                   <AppLink
                     to={pathnames['roles-add-group-roles'].link.replace(':roleId', role.uuid).replace(':groupId', group.uuid)}
                     state={{ name: group.name }}

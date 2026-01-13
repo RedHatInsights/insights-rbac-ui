@@ -636,10 +636,14 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     const editButton = await body.findByText(/^edit workspace$/i);
     expect(editButton).toBeInTheDocument();
     await user.click(editButton);
+    await delay(300); // Allow modal to open
 
     // Edit modal should open (findByRole waits automatically)
     const modal = await body.findByRole('dialog', { name: /edit workspace information/i });
     const modalScope = within(modal);
+
+    // Allow form to populate with workspace data from mock
+    await delay(300);
 
     // Get form inputs (findByDisplayValue waits automatically)
     const nameInput = await modalScope.findByDisplayValue('Production');
@@ -752,14 +756,11 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Verify Staging is no longer in the list
-    await waitFor(
-      () => {
-        expect(canvas.queryByText('Staging')).not.toBeInTheDocument();
-        // Production should still be there
-        expect(canvas.getByText('Production')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(() => {
+      expect(canvas.queryByText('Staging')).not.toBeInTheDocument();
+    });
+    // Production should still be there
+    expect(await canvas.findByText('Production')).toBeInTheDocument();
   },
 };
 

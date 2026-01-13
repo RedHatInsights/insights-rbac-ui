@@ -22,8 +22,20 @@ export const defaultRoles: Role[] = [
       { permission: 'vulnerability:*:*', resourceDefinitions: [] },
       { permission: 'compliance:*:*', resourceDefinitions: [] },
     ],
-    groups_in: [],
-    groups_in_count: 0,
+    // Administrator role is typically in admin default group and Platform Admins
+    groups_in: [
+      {
+        uuid: 'admin-default',
+        name: 'Default admin access',
+        description: 'Default admin group',
+      },
+      {
+        uuid: 'group-1',
+        name: 'Platform Admins',
+        description: 'Platform administration team',
+      },
+    ],
+    groups_in_count: 2,
   },
   {
     uuid: 'role-2',
@@ -43,8 +55,25 @@ export const defaultRoles: Role[] = [
       { permission: 'advisor:*:read', resourceDefinitions: [] },
       { permission: 'vulnerability:*:read', resourceDefinitions: [] },
     ],
-    groups_in: [],
-    groups_in_count: 0,
+    // Viewer role is commonly in multiple groups for read access
+    groups_in: [
+      {
+        uuid: 'system-default',
+        name: 'Default access',
+        description: 'Default access group',
+      },
+      {
+        uuid: 'group-2',
+        name: 'Support Team',
+        description: 'Customer support access',
+      },
+      {
+        uuid: 'group-3',
+        name: 'Engineering',
+        description: 'Engineering team access',
+      },
+    ],
+    groups_in_count: 3,
   },
   {
     uuid: 'role-3',
@@ -62,7 +91,14 @@ export const defaultRoles: Role[] = [
       { permission: 'inventory:hosts:read', resourceDefinitions: [] },
       { permission: 'advisor:*:read', resourceDefinitions: [] },
     ],
-    groups_in: [],
-    groups_in_count: 0,
+    // Custom role assigned to specific team
+    groups_in: [
+      {
+        uuid: 'group-3',
+        name: 'Engineering',
+        description: 'Engineering team access',
+      },
+    ],
+    groups_in_count: 1,
   },
 ];
