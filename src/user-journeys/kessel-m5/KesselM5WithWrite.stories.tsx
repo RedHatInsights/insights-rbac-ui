@@ -1,6 +1,6 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
@@ -385,6 +385,20 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     const saveButton = await body.findByRole('button', { name: /save/i });
     expect(saveButton).toBeInTheDocument();
     expect(saveButton).toBeEnabled();
+    await user.click(saveButton);
+
+    // CRITICAL: Verify the workspace is updated in the list
+    // This tests that cache invalidation is working correctly
+    await waitForPageToLoad(canvas, 'Default Workspace');
+    await expandWorkspaceRow(user, canvas, 'Default Workspace');
+
+    // Verify the updated workspace appears in the list
+    await waitFor(
+      () => {
+        expect(canvas.getByText('Production Updated')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   },
 };
 
@@ -471,5 +485,23 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
     const confirmButton = await body.findByRole('button', { name: /^delete$/i });
     expect(confirmButton).toBeInTheDocument();
     expect(confirmButton).toBeEnabled();
+
+    // Click delete to confirm
+    await user.click(confirmButton);
+
+    // CRITICAL: Verify the workspace is removed from the list
+    // This tests that cache invalidation is working correctly
+    await waitForPageToLoad(canvas, 'Default Workspace');
+    await expandWorkspaceRow(user, canvas, 'Default Workspace');
+
+    // Verify Staging is no longer in the list
+    await waitFor(
+      () => {
+        expect(canvas.queryByText('Staging')).not.toBeInTheDocument();
+        // Production should still be there
+        expect(canvas.getByText('Production')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   },
 };

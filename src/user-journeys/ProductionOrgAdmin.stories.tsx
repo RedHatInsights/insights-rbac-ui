@@ -324,6 +324,15 @@ export const CreateGroupJourney: Story = {
 
     // Verify success notification
     await verifySuccessNotification();
+
+    // CRITICAL: Verify the newly created group appears in the table
+    // This tests that the cache invalidation is working correctly
+    await waitFor(
+      () => {
+        expect(canvas.getByText('DevOps Team')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   },
 };
 
@@ -1059,6 +1068,7 @@ Tests the full flow of removing roles from a group.
  * 6. Review and submit
  * 7. Verify success screen
  * 8. Close wizard
+ * 9. Verify newly created role appears in the table
  */
 export const CreateRoleJourney: Story = {
   name: 'Roles / Create new role',
@@ -1098,8 +1108,17 @@ export const CreateRoleJourney: Story = {
     // Fill and submit the wizard
     await fillCreateRoleWizard(user, 'Automation Test Role', 'A test custom role for automation', ['insights:*:*']);
 
-    // Verify we're back on the roles list
+    // Verify we're back on the roles list and the new role appears
     await waitForPageToLoad(canvas, 'Viewer');
+
+    // CRITICAL: Verify the newly created role appears in the table
+    // This tests that the cache invalidation is working correctly
+    await waitFor(
+      () => {
+        expect(canvas.getByText('Automation Test Role')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   },
 };
 
