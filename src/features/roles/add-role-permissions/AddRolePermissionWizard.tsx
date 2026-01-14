@@ -214,7 +214,7 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
           componentMapper={{ ...componentMapper, ...mapperExtension }}
           onSubmit={onSubmit}
           onCancel={(values: Record<string, unknown>) => {
-            if (values && (values['add-permissions-table'] as unknown[])?.length > 0) {
+            if (values && isAddRolePermissionFormData(values) && values['add-permissions-table'].length > 0) {
               handleWizardCancel();
             } else {
               handleConfirmCancel();

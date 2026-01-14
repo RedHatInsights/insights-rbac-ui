@@ -55,7 +55,8 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
       return undefined;
     }
 
-    const taken = data.some((item) => (item as unknown as Record<string, unknown>)[idKey] !== id && item.display_name === name);
+    // Check if any other role has the same display_name
+    const taken = data.some((item) => item.uuid !== id && item.display_name === name);
     if (taken) {
       throw intl.formatMessage(messages.roleWithNameExists);
     }
