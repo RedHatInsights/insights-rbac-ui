@@ -179,4 +179,4 @@ export function usePatchRoleMutation() {
 
 // Re-export types
 export type { ListRolesParams, RoleIn, RolePut, RolePatch } from '../api/roles';
-export type { RolePaginationDynamic, RoleWithAccess, Role, Access, AdditionalGroup, RoleOutDynamic } from '../api/roles';
+export type { RolePaginationDynamic, RoleWithAccess, Role, Access, AdditionalGroup, RoleOutDynamic, ResourceDefinition } from '../api/roles';

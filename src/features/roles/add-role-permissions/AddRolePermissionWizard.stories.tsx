@@ -15,6 +15,7 @@ const mockRole = {
   name: 'Platform Administrator',
   display_name: 'Platform Administrator',
   description: 'Full platform access',
+  created: '2024-01-01T00:00:00Z',
   modified: '2024-01-15T10:30:00Z',
   accessCount: 2,
   system: false,
