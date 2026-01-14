@@ -1,3 +1,10 @@
+## [1.79.8](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.7...v1.79.8) (2026-01-14)
+
+
+### Bug Fixes
+
+* prevent 'Add role to this group' link showing for admin group during loading ([756eb0d](https://github.com/RedHatInsights/insights-rbac-ui/commit/756eb0d009adf24e0837d9f4f0bd067375c9039f))
+
 ## [1.79.7](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.6...v1.79.7) (2026-01-13)
 
 
