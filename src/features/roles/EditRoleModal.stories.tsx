@@ -56,9 +56,7 @@ const meta: Meta<typeof EditRoleModal> = {
     cancelRoute: '/roles/role-123',
     submitRoute: '/roles/role-123',
     afterSubmit: afterSubmitSpy,
-    // Note: isLoading is required by PropTypes but not in TS types - component bug
-    isLoading: false,
-  } as any,
+  },
 };
 
 export default meta;
