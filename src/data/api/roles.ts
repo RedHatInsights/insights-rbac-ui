@@ -47,6 +47,7 @@ export type {
   AccessPagination,
   AdditionalGroup,
   RoleOutDynamic,
+  ResourceDefinition,
 } from '@redhat-cloud-services/rbac-client/types';
 
 export type { PatchRoleParams } from '@redhat-cloud-services/rbac-client/PatchRole';
