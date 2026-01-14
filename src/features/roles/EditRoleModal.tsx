@@ -1,22 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import type { Schema } from '@data-driven-forms/react-form-renderer';
-import type { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { ModalFormTemplate } from '../../components/forms/ModalFormTemplate';
 import FormRenderer from '../../components/forms/FormRenderer';
-import useIsMounted from '../../hooks/useIsMounted';
-import { roleSelector } from './roleSelectors';
-import { fetchRole, fetchRoles } from '../../redux/roles/helper';
+import { usePatchRoleMutation, useRoleQuery } from '../../data/queries/roles';
+import { rolesApi } from '../../data/api/roles';
 import { debounceAsync as asyncDebounce } from '../../utilities/debounce';
-import { patchRole } from '../../redux/roles/actions';
 import messages from '../../Messages';
-import type { RBACStore } from '../../redux/store.d';
 
 type RouteLocation =
   | string
@@ -41,39 +36,30 @@ type ValidationPromiseFn = (name: string, idKey: string, id: string) => Promise<
 
 const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const intl = useIntl();
-  const isMounted = useIsMounted();
   const navigate = useAppNavigate();
-  const dispatch = useDispatch();
   const addNotification = useAddNotification();
+  const patchRoleMutation = usePatchRoleMutation();
 
   const { roleId } = useParams<{ roleId: string }>();
-  const role = useSelector((state: RBACStore) => roleSelector(state, roleId ?? ''));
-  const [initialValues, setInitialValues] = useState<RoleWithAccess | undefined>(role as RoleWithAccess | undefined);
+  const { data: roleData } = useRoleQuery(roleId ?? '');
 
-  useEffect(() => {
-    if (!initialValues && roleId) {
-      fetchRole(roleId).then((role) => {
-        if (isMounted.current) {
-          setInitialValues(role);
-        }
-      });
+  const validationPromise: ValidationPromiseFn = async (name, idKey, id) => {
+    if (name.length >= 150) {
+      throw intl.formatMessage(messages.maxCharactersWarning, { number: 150 });
     }
-  }, [roleId, initialValues, isMounted]);
 
-  const validationPromise: ValidationPromiseFn = (name, idKey, id) => {
-    return name.length < 150
-      ? fetchRoles({ name }).then(({ data }) => {
-          if (!data || data.length === 0) {
-            return undefined;
-          }
+    const response = await rolesApi.listRoles({ displayName: name, limit: 10, offset: 0 });
+    const data = response.data?.data;
 
-          const taken = data.some((item) => (item as unknown as Record<string, unknown>)[idKey] !== id && item.display_name === name);
-          if (taken) {
-            throw intl.formatMessage(messages.roleWithNameExists);
-          }
-          return undefined;
-        })
-      : Promise.reject(intl.formatMessage(messages.maxCharactersWarning, { number: 150 }));
+    if (!data || data.length === 0) {
+      return undefined;
+    }
+
+    const taken = data.some((item) => (item as unknown as Record<string, unknown>)[idKey] !== id && item.display_name === name);
+    if (taken) {
+      throw intl.formatMessage(messages.roleWithNameExists);
+    }
+    return undefined;
   };
 
   const createEditRoleSchema = (id: string): Schema => {
@@ -123,31 +109,26 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
 
   const handleSubmit = async (data: FormValues) => {
     // description is optional - however API only honors an empty description set to null (and not omitted or undefined or empty string)
-    // Cast to any needed because API actually expects null for clearing, but types say string | undefined
-    const roleData = { name: data.name, display_name: data.name, description: data.description || (null as unknown as string) };
+    const rolePatch = {
+      name: data.name,
+      display_name: data.name,
+      description: data.description || undefined,
+    };
     try {
-      await (dispatch(patchRole(roleId!, roleData)) as unknown as Promise<void>);
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.editRoleSuccessTitle),
-        description: intl.formatMessage(messages.editRoleSuccessDescription),
-      });
+      await patchRoleMutation.mutateAsync({ uuid: roleId!, rolePatch });
+      // Success notification is handled by usePatchRoleMutation
       afterSubmit();
       navigate(submitRoute);
     } catch (error) {
       console.error('Failed to edit role:', error);
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.editRoleErrorTitle),
-        description: intl.formatMessage(messages.editRoleErrorDescription),
-      });
+      // Error notification is handled by usePatchRoleMutation
     }
   };
 
-  return initialValues ? (
+  return roleData ? (
     <FormRenderer
       schema={createEditRoleSchema(roleId!)}
-      initialValues={initialValues}
+      initialValues={roleData}
       onSubmit={handleSubmit}
       onCancel={onCancel}
       validatorMapper={validatorMapper}

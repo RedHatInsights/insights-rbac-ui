@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import AppEntry from '../../../AppEntry';
+import { AppShell } from '../../../AppEntry';
 import MyUserAccess from '../../../features/myUserAccess/MyUserAccess';
 import WorkspaceDetail from '../../../features/workspaces/workspace-detail/WorkspaceDetail';
 import { FakeAddressBar } from './FakeAddressBar';
@@ -56,8 +56,8 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
             />
             {/* Explicit workspace detail route for M3+ */}
             <Route path="/iam/user-access/workspaces/detail/:workspaceId" element={<WorkspaceDetail />} />
-            <Route path="/iam/user-access/*" element={<AppEntry withNotificationPortal={false} />} />
-            <Route path="/iam/access-management/*" element={<AppEntry withNotificationPortal={false} />} />
+            <Route path="/iam/user-access/*" element={<AppShell />} />
+            <Route path="/iam/access-management/*" element={<AppShell />} />
           </Routes>
         </Suspense>
       </Page>

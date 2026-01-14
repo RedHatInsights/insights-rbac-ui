@@ -6,81 +6,72 @@ import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import Messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
-import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { fetchRole, updateRole } from '../../../redux/roles/actions';
-import { selectSelectedRole } from '../../../redux/roles/selectors';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import { EditRolePermissions } from './EditRolePermissions';
 import useAppNavigate from '../../../hooks/useAppNavigate';
+import { useRoleQuery, useUpdateRoleMutation } from '../../../data/queries/roles';
+import type { Access as AccessType, RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
+
+interface FormValues {
+  name: string;
+  description?: string;
+  'role-permissions': string[];
+}
 
 export const EditRole: FunctionComponent = () => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const { roleId } = useParams();
   const navigate = useAppNavigate();
-  const [isLoading, setIsLoading] = useState(true);
   const pageTitle = intl.formatMessage(Messages.edit);
-  const [initialFormData, setInitialFormData] = useState<any>(null);
-  const selectedRole = useSelector(selectSelectedRole);
+  const [initialFormData, setInitialFormData] = useState<RoleWithAccess | null>(null);
+
+  // Use TanStack Query for role data
+  const { data: selectedRole, isLoading: isRoleLoading } = useRoleQuery(roleId ?? '');
+  const updateRoleMutation = useUpdateRoleMutation();
 
   const navigateToRoles = () => {
-    if (roleId) {
-      dispatch(fetchRole(roleId));
-    }
     navigate(pathnames['roles'].link, { replace: true });
   };
 
-  const handleSubmit = async (values: any) => {
-    if (!roleId) return;
+  const handleSubmit = async (values: FormValues) => {
+    if (!roleId || !initialFormData) return;
 
-    const initialPermissions = initialFormData?.access.map((access: any) => access.permission);
+    const initialPermissions = initialFormData.access?.map((access: AccessType) => access.permission) ?? [];
     if (
       values.name !== initialFormData?.name ||
       values.description !== initialFormData?.description ||
-      values['role-permissions'] !== initialPermissions
+      JSON.stringify(values['role-permissions']) !== JSON.stringify(initialPermissions)
     ) {
-      await Promise.all([
-        dispatch(
-          updateRole(
-            roleId,
-            {
-              name: values.name,
-              display_name: values.name,
-              description: values.description || null,
-              access: values['role-permissions'].map((permission: string) => ({
-                permission,
-                resourceDefinitions: [],
-              })),
-            },
-            false,
-          ),
-        ),
-      ]);
-      await Promise.all([roleId ? dispatch(fetchRole(roleId)) : Promise.resolve()]);
+      await updateRoleMutation.mutateAsync({
+        uuid: roleId,
+        rolePut: {
+          name: values.name,
+          display_name: values.name,
+          description: values.description || undefined,
+          access: values['role-permissions'].map((permission: string) => ({
+            permission,
+            resourceDefinitions: [],
+          })),
+        },
+      });
+      // Success notification handled by mutation
       navigateToRoles();
     } else {
       navigateToRoles();
     }
   };
 
+  // Set initial form data once role is loaded
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await Promise.all([roleId ? dispatch(fetchRole(roleId)) : Promise.resolve()]);
-      } finally {
-        if (selectedRole) {
-          setInitialFormData(selectedRole);
-          setIsLoading(false);
-        }
-      }
-    };
-    if (roleId && isLoading) {
-      fetchData();
+    if (selectedRole && !initialFormData) {
+      setInitialFormData(selectedRole);
     }
-  }, [dispatch, roleId, selectedRole?.uuid]);
+  }, [selectedRole, initialFormData]);
+
+  const isLoading = isRoleLoading || !initialFormData;
 
   const schema = useMemo(
     () => ({
@@ -110,7 +101,7 @@ export const EditRole: FunctionComponent = () => {
           name: 'role-permissions',
           component: 'role-permissions',
           roleId: roleId,
-          initialValue: initialFormData?.access.map((access: any) => access.permission),
+          initialValue: initialFormData?.access?.map((access: AccessType) => access.permission) ?? [],
         },
       ],
     }),

@@ -1,17 +1,14 @@
-import React, { useEffect } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import React from 'react';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Radio } from '@patternfly/react-core/dist/dynamic/components/Radio';
 import { TableView } from '../../../components/table-view/TableView';
 import { useTableState } from '../../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../components/table-view/components/TableViewEmptyState';
-import { fetchRolesForWizard } from '../../../redux/roles/actions';
-import { mappedProps } from '../../../helpers/dataUtilities';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
+import { useRolesQuery } from '../../../data/queries/roles';
 import messages from '../../../Messages';
-import type { RBACStore } from '../../../redux/store.d';
 import type { ColumnConfigMap, FilterConfig } from '../../../components/table-view/types';
 
 interface Role {
@@ -26,12 +23,6 @@ const SORTABLE_COLUMNS = ['name'] as const;
 
 type SortableColumnId = (typeof SORTABLE_COLUMNS)[number];
 
-const selector = ({ roleReducer: { rolesForWizard, isWizardLoading } }: RBACStore) => ({
-  roles: (rolesForWizard?.data || []) as Role[],
-  pagination: rolesForWizard?.meta,
-  isWizardLoading,
-});
-
 interface BaseRoleTableProps {
   name: string;
   [key: string]: unknown;
@@ -39,12 +30,8 @@ interface BaseRoleTableProps {
 
 const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
-  const { roles, pagination, isWizardLoading } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
-
-  const fetchData = (options: Record<string, unknown>) => dispatch(fetchRolesForWizard(options) as unknown as { type: string });
 
   // Table state
   const tableState = useTableState<typeof COLUMNS, Role, SortableColumnId>({
@@ -54,26 +41,21 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
     initialPerPage: 50,
     initialSort: { column: 'name', direction: 'asc' },
     initialFilters: { name: '' },
-    onStaleData: ({ filters, limit, offset, orderBy }) => {
-      fetchData(
-        mappedProps({
-          limit,
-          offset,
-          name: filters.name,
-          orderBy,
-        }),
-      );
-    },
   });
 
-  useEffect(() => {
-    fetchData({
-      limit: 50,
-      offset: 0,
-      itemCount: 0,
-      orderBy: 'display_name',
-    });
-  }, []);
+  // TanStack Query for roles
+  const { data: rolesData, isLoading } = useRolesQuery({
+    limit: tableState.perPage,
+    offset: (tableState.page - 1) * tableState.perPage,
+    orderBy: 'display_name', // API doesn't support descending order via prefix
+    displayName: (tableState.filters.name as string) || undefined,
+    nameMatch: 'partial',
+    scope: 'org_id',
+    addFields: ['groups_in_count', 'access'],
+  });
+
+  const roles = (rolesData?.data || []) as Role[];
+  const pagination = rolesData?.meta;
 
   // Column config
   const columnConfig: ColumnConfigMap<typeof COLUMNS> = {
@@ -117,17 +99,6 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
     },
   ];
 
-  // Handle sort change - map internal column name to API field name
-  const handleSortChange = (column: SortableColumnId, direction: 'asc' | 'desc') => {
-    tableState.onSortChange(column, direction);
-    const orderBy = `${direction === 'desc' ? '-' : ''}display_name`;
-    fetchData({
-      ...pagination,
-      offset: 0,
-      orderBy,
-    });
-  };
-
   return (
     <div>
       <Alert variant="info" isInline title={intl.formatMessage(messages.granularPermissionsWillBeCopied)} className="pf-v6-u-mb-md" />
@@ -135,7 +106,7 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
         columns={COLUMNS}
         columnConfig={columnConfig}
         sortableColumns={SORTABLE_COLUMNS}
-        data={isWizardLoading ? undefined : roles}
+        data={isLoading ? undefined : roles}
         totalCount={pagination?.count || 0}
         getRowId={(row) => row.uuid}
         cellRenderers={cellRenderers}
@@ -147,7 +118,7 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
         onPerPageChange={tableState.onPerPageChange}
         // Sorting
         sort={tableState.sort}
-        onSortChange={handleSortChange}
+        onSortChange={tableState.onSortChange}
         // Filtering
         filterConfig={filterConfig}
         filters={tableState.filters}

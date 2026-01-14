@@ -1,6 +1,5 @@
 import React, { Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
@@ -23,25 +22,41 @@ import { useAppLink } from '../../hooks/useAppLink';
 import { getBackRoute } from '../../helpers/navigation';
 import { getDateFormat } from '../../helpers/stringUtilities';
 import { defaultAdminSettings, defaultSettings } from '../../helpers/pagination';
-import { mappedProps } from '../../helpers/dataUtilities';
-import { fetchRolesWithPolicies } from '../../redux/roles/actions';
-import { fetchAdminGroup } from '../../redux/groups/actions';
+import { type ListRolesParams, useRolesQuery } from '../../data/queries/roles';
+import { useAdminGroupQuery } from '../../data/queries/groups';
 import PermissionsContext from '../../utilities/permissionsContext';
 import messages from '../../Messages';
 import { shouldShowAddRoleToGroupLink } from './utils/roleVisibility';
 import pathnames from '../../utilities/pathnames';
 import { RolesEmptyState } from './components/RolesEmptyState';
-import type { Access, Role, RoleGroup } from '../../redux/roles/reducer';
-import type { Group } from '../../redux/groups/reducer';
-import type { RBACStore } from '../../redux/store';
+import type { Access, RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
+
+// Extended role type for the list view (includes groups_in from addFields)
+interface RoleGroup {
+  uuid: string;
+  name: string;
+  description?: string;
+}
+
+interface RoleListItem extends RoleOutDynamic {
+  groups_in?: RoleGroup[];
+  access?: Access[];
+}
 
 // Column definitions
 const columns = ['name', 'description', 'groups', 'permissions', 'modified'] as const;
 type SortableColumnId = 'name' | 'modified';
 type CompoundColumnId = 'groups' | 'permissions';
 
+// Admin group type from the query
+interface AdminGroup {
+  uuid: string;
+  name?: string;
+  admin_default?: boolean;
+}
+
 // Nested table for groups
-const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ role, adminGroup }) => {
+const GroupsTable: React.FC<{ role: RoleListItem; adminGroup: AdminGroup | null | undefined }> = ({ role, adminGroup }) => {
   const intl = useIntl();
 
   const groupColumns = [intl.formatMessage(messages.groupName), intl.formatMessage(messages.description), ''];
@@ -90,7 +105,7 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
 };
 
 // Nested table for permissions
-const PermissionsTable: React.FC<{ role: Role }> = ({ role }) => {
+const PermissionsTable: React.FC<{ role: RoleListItem }> = ({ role }) => {
   const intl = useIntl();
 
   const permissionColumns = [
@@ -140,7 +155,7 @@ const PermissionsTable: React.FC<{ role: Role }> = ({ role }) => {
 
 // Row actions dropdown
 const RoleRowActions: React.FC<{
-  role: Role;
+  role: RoleListItem;
   onEditRole: (roleId: string) => void;
   onDeleteRole: (roleIds: string[]) => void;
 }> = ({ role, onEditRole, onDeleteRole }) => {
@@ -172,44 +187,16 @@ export const Roles: React.FC = () => {
   const intl = useIntl();
   const navigate = useNavigate();
   const toAppLink = useAppLink();
-  const dispatch = useDispatch();
   const chrome = useChrome();
 
   // Permissions
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
-  // Redux selectors
-  const {
-    roles,
-    pagination: rawPagination,
-    isLoading,
-    adminGroup,
-  } = useSelector(
-    (state: RBACStore) => ({
-      adminGroup: state.groupReducer?.adminGroup,
-      roles: state.roleReducer?.roles?.data || [],
-      pagination: state.roleReducer?.roles?.pagination || {},
-      isLoading: state.roleReducer?.isLoading || false,
-    }),
-    shallowEqual,
-  );
-
   const paginationDefaults = orgAdmin ? defaultAdminSettings : defaultSettings;
-  const totalCount = rawPagination.count || 0;
 
   // Local state for remove roles modal
   const [removeRolesList, setRemoveRolesList] = useState<Array<{ uuid: string; label: string }>>([]);
-
-  // Show UnauthorizedAccess component for users without proper permissions
-  if (!isAdmin) {
-    return (
-      <UnauthorizedAccess
-        serviceName="User Access Administration"
-        bodyText="You need User Access Administrator or Organization Administrator permissions to view roles."
-      />
-    );
-  }
 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
@@ -226,32 +213,8 @@ export const Roles: React.FC = () => {
   // Filter configuration
   const filterConfig: FilterConfig[] = useMemo(() => [{ id: 'display_name', label: 'Name', type: 'text', placeholder: 'Filter by name' }], []);
 
-  // Handle data fetching via onStaleData
-  const handleStaleData = useCallback(
-    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
-      const nameFilter = params.filters.display_name as string | undefined;
-
-      // Map column IDs to API sort parameters
-      // The column ID is 'name' but API expects 'display_name'
-      let apiOrderBy = params.orderBy;
-      if (apiOrderBy) {
-        apiOrderBy = apiOrderBy.replace(/^(-?)name$/, '$1display_name');
-      }
-
-      const apiParams = {
-        limit: params.limit,
-        offset: params.offset,
-        orderBy: apiOrderBy,
-        ...(nameFilter && nameFilter.trim() ? { filters: { display_name: nameFilter } } : {}),
-      };
-
-      dispatch(fetchRolesWithPolicies({ ...mappedProps(apiParams as Record<string, unknown>), usesMetaInURL: true, chrome }));
-    },
-    [dispatch, chrome],
-  );
-
   // useTableState for all state management with URL sync
-  const tableState = useTableState<typeof columns, Role, SortableColumnId, CompoundColumnId>({
+  const tableState = useTableState<typeof columns, RoleListItem, SortableColumnId, CompoundColumnId>({
     columns,
     sortableColumns: ['name', 'modified'] as const,
     compoundColumns: ['groups', 'permissions'] as const,
@@ -261,19 +224,53 @@ export const Roles: React.FC = () => {
     getRowId: (role) => role.uuid,
     isRowSelectable: (role) => !(role.platform_default || role.admin_default || role.system),
     syncWithUrl: true,
-    onStaleData: handleStaleData,
   });
 
-  // Initialize permissions check and fetch admin group on mount
+  // Build query params from table state
+  const queryParams: ListRolesParams = useMemo(() => {
+    // Map column IDs to API sort parameters ('name' -> 'display_name')
+    let orderBy = tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined;
+    if (orderBy) {
+      orderBy = orderBy.replace(/^(-?)name$/, '$1display_name');
+    }
+
+    return {
+      limit: tableState.perPage,
+      offset: (tableState.page - 1) * tableState.perPage,
+      orderBy: orderBy as ListRolesParams['orderBy'],
+      displayName: (tableState.filters.display_name as string) || undefined,
+      nameMatch: 'partial',
+      scope: 'org_id',
+      addFields: ['groups_in_count', 'groups_in', 'access'],
+    };
+  }, [tableState.perPage, tableState.page, tableState.sort, tableState.filters]);
+
+  // TanStack Query for roles data - only fetch if user is admin
+  const { data: rolesData, isLoading, refetch } = useRolesQuery(queryParams, { enabled: isAdmin });
+
+  const roles = (rolesData?.data as RoleListItem[] | undefined) ?? [];
+  const totalCount = rolesData?.meta?.count ?? 0;
+
+  // TanStack Query for admin group - only fetch if user is admin
+  const { data: adminGroup } = useAdminGroupQuery({ enabled: isAdmin });
+
+  // Initialize nav on mount
   useEffect(() => {
     chrome.appNavClick?.({ id: 'roles', secondaryNav: true });
-    if (orgAdmin || userAccessAdministrator) {
-      dispatch(fetchAdminGroup({ chrome }));
-    }
-  }, []);
+  }, [chrome]);
+
+  // Show UnauthorizedAccess component for users without proper permissions
+  if (!isAdmin) {
+    return (
+      <UnauthorizedAccess
+        serviceName="User Access Administration"
+        bodyText="You need User Access Administrator or Organization Administrator permissions to view roles."
+      />
+    );
+  }
 
   // Cell renderers
-  const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(
+  const cellRenderers: CellRendererMap<typeof columns, RoleListItem> = useMemo(
     () => ({
       name: (role) => <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.display_name || role.name}</AppLink>,
       description: (role) => role.description || '—',
@@ -285,7 +282,7 @@ export const Roles: React.FC = () => {
   );
 
   // Expansion renderers for compound expansion
-  const expansionRenderers: ExpansionRendererMap<CompoundColumnId, Role> = useMemo(
+  const expansionRenderers: ExpansionRendererMap<CompoundColumnId, RoleListItem> = useMemo(
     () => ({
       groups: (role) => <GroupsTable role={role} adminGroup={adminGroup} />,
       permissions: (role) => <PermissionsTable role={role} />,
@@ -312,7 +309,7 @@ export const Roles: React.FC = () => {
 
   // Row actions renderer
   const renderActions = useCallback(
-    (role: Role) => {
+    (role: RoleListItem) => {
       if (role.platform_default || role.admin_default || role.system) {
         return null;
       }
@@ -327,7 +324,7 @@ export const Roles: React.FC = () => {
   return (
     <PageLayout title={{ title: intl.formatMessage(messages.roles) }}>
       <Section type="content" id="tab-roles">
-        <TableView<typeof columns, Role, SortableColumnId, CompoundColumnId>
+        <TableView<typeof columns, RoleListItem, SortableColumnId, CompoundColumnId>
           columns={columns}
           columnConfig={columnConfig}
           sortableColumns={['name', 'modified'] as const}
@@ -397,12 +394,7 @@ export const Roles: React.FC = () => {
                   removingAllRows ? {} : { display_name: (tableState.filters.display_name as string) || '' },
                 ),
                 afterSubmit: () => {
-                  handleStaleData({
-                    limit: tableState.perPage,
-                    offset: 0,
-                    orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
-                    filters: removingAllRows ? {} : tableState.filters,
-                  });
+                  refetch();
                   tableState.clearSelection();
                 },
                 setFilterValue: (value: string) => tableState.onFiltersChange({ display_name: value }),
@@ -415,12 +407,7 @@ export const Roles: React.FC = () => {
                   { display_name: (tableState.filters.display_name as string) || '' },
                 ),
                 afterSubmit: () => {
-                  handleStaleData({
-                    offset: 0,
-                    limit: tableState.perPage,
-                    orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
-                    filters: tableState.filters,
-                  });
+                  refetch();
                   tableState.clearSelection();
                 },
               },
@@ -431,12 +418,7 @@ export const Roles: React.FC = () => {
                   { display_name: (tableState.filters.display_name as string) || '' },
                 ),
                 afterSubmit: () => {
-                  handleStaleData({
-                    offset: 0,
-                    limit: tableState.perPage,
-                    orderBy: tableState.sort ? `${tableState.sort.direction === 'desc' ? '-' : ''}${tableState.sort.column}` : undefined,
-                    filters: tableState.filters,
-                  });
+                  refetch();
                 },
               },
             }}

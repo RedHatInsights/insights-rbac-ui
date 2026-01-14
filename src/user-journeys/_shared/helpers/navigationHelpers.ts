@@ -148,9 +148,12 @@ export async function verifySuccessNotification() {
  * Waits for a page/list to load by checking for a specific element
  */
 export async function waitForPageToLoad(canvas: ReturnType<typeof within>, elementText: string) {
-  await waitFor(async () => {
-    await expect(canvas.getByText(elementText)).toBeInTheDocument();
-  });
+  await waitFor(
+    async () => {
+      await expect(canvas.getByText(elementText)).toBeInTheDocument();
+    },
+    { timeout: 10000 }, // Increased timeout for journey tests where full app bootstraps
+  );
 }
 
 /**

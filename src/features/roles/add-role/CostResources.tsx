@@ -1,5 +1,4 @@
-import React, { useEffect, useReducer, useRef } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useMemo, useReducer, useRef } from 'react';
 import {
   Badge,
   Button,
@@ -21,14 +20,14 @@ import {
 import { TimesIcon } from '@patternfly/react-icons';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { fetchResource, fetchResourceDefinitions } from '../../../redux/cost-management/actions';
 import { useIntl } from 'react-intl';
+import { useQueries } from '@tanstack/react-query';
+import { costKeys, getResource, useResourceTypesQuery } from '../../../data/queries/cost';
 import messages from '../../../Messages';
-import type { RBACStore } from '../../../redux/store.d';
 
 interface ResourceType {
   value: string;
-  path: string;
+  path?: string;
 }
 
 interface Option {
@@ -52,13 +51,6 @@ type Action =
   | { type: 'clear'; key: string }
   | { type: 'setOptions'; key: string; options: Option[] }
   | { type: 'setFilter'; key: string; filtervalue: string };
-
-const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }: RBACStore) => ({
-  resourceTypes: (resourceTypes?.data || []) as unknown as ResourceType[],
-  resources: resources as Record<string, Option[]>,
-  isLoading: isLoading as boolean,
-  isLoadingResources: ((loadingResources as number) || 0) > 0,
-});
 
 const reducer = (state: State, action: Action): State => {
   const prevState = state[action.key];
@@ -128,15 +120,47 @@ interface CostResourcesProps {
 
 const CostResources: React.FC<CostResourcesProps> = (props) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
-  const fetchData = (apiProps?: Record<string, unknown>) => dispatch(fetchResourceDefinitions(apiProps || {}) as unknown as { type: string });
-  const getResource = (apiProps: string) => dispatch(fetchResource({ path: apiProps }) as unknown as { type: string });
-  const { resourceTypes, isLoading, isLoadingResources, resources } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const permissions = (formOptions.getState().values['add-permissions-table'] as { uuid: string }[]).filter(({ uuid }) =>
     uuid.split(':')[0].includes('cost-management'),
   );
+
+  // TanStack Query - fetch resource types
+  const { data: resourceTypesData, isLoading } = useResourceTypesQuery();
+
+  const resourceTypes = useMemo(() => (resourceTypesData?.data || []) as ResourceType[], [resourceTypesData]);
+
+  // Get unique resource paths needed for permissions
+  const resourcePaths = useMemo(() => {
+    if (isLoading) return [];
+    return [
+      ...new Set(permissions.map((permission) => resourceTypes.find((r) => r.value === permission.uuid.split(':')?.[1])?.path?.split('/')?.[5])),
+    ].filter((path): path is string => Boolean(path));
+  }, [permissions, resourceTypes, isLoading]);
+
+  // Fetch resources for all unique paths in parallel using useQueries
+  const resourceQueries = useQueries({
+    queries: resourcePaths.map((path) => ({
+      queryKey: costKeys.resourceDetail({ path }),
+      queryFn: () => getResource({ path }),
+      enabled: !!path,
+    })),
+  });
+
+  // Process query results into a map of path -> resources
+  const fetchedResources = useMemo(() => {
+    const resources: Record<string, Option[]> = {};
+    resourceQueries.forEach((query, index) => {
+      const path = resourcePaths[index];
+      if (path && query.data?.data) {
+        resources[path] = query.data.data as Option[];
+      }
+    });
+    return resources;
+  }, [resourceQueries, resourcePaths]);
+
+  const isLoadingResources = resourceQueries.some((q) => q.isLoading);
 
   const [state, dispatchLocaly] = useReducer(
     reducer,
@@ -160,8 +184,9 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
   const onSelect = (selection: string, selectAll: boolean, key: string) =>
     selectAll ? dispatchLocaly({ type: 'selectAll', selection, key }) : dispatchLocaly({ type: 'select', selection, key });
 
-  const permissionToResource = (permission: string) => resourceTypes.find((r) => r.value === permission.split(':')?.[1])?.path.split('/')?.[5];
+  const permissionToResource = (permission: string) => resourceTypes.find((r) => r.value === permission.split(':')?.[1])?.path?.split('/')?.[5];
 
+  // Initialize form and load saved resource definitions
   useEffect(() => {
     ((formOptions.getState().values['resource-definitions'] as { permission: string; resources: string[] }[]) || []).map(
       ({ permission, resources: resourceList }) =>
@@ -170,25 +195,19 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
             permissions.find((item) => item?.uuid === permission) && dispatchLocaly({ type: 'select', selection: resource, key: permission }),
         ),
     );
-    fetchData();
     formOptions.change('has-cost-resources', true);
   }, []);
 
+  // Update options when resources are loaded
   useEffect(() => {
-    if (!isLoading) {
-      const resourcePaths = [
-        ...new Set(permissions.map((permission) => resourceTypes.find((r) => r.value === permission.uuid.split(':')?.[1])?.path)),
-      ].filter((path): path is string => Boolean(path));
-      resourcePaths.map((path) => getResource(path));
+    if (!isLoadingResources && Object.keys(fetchedResources).length > 0) {
+      permissions.map((p) =>
+        dispatchLocaly({ type: 'setOptions', key: p.uuid, options: fetchedResources[permissionToResource(p.uuid) || ''] || [] }),
+      );
     }
-  }, [resourceTypes]);
+  }, [fetchedResources, isLoadingResources]);
 
-  useEffect(() => {
-    if (!isLoadingResources) {
-      permissions.map((p) => dispatchLocaly({ type: 'setOptions', key: p.uuid, options: resources[permissionToResource(p.uuid) || ''] || [] }));
-    }
-  }, [isLoadingResources]);
-
+  // Sync state changes to form
   useEffect(() => {
     const resourceDefinitions = Object.entries(state).map(([permission, resourceState]) => ({ permission, resources: resourceState.selected }));
     input.onChange(resourceDefinitions);

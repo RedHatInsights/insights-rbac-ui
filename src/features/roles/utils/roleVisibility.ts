@@ -1,5 +1,3 @@
-import { Group } from '../../../redux/groups/reducer';
-
 /**
  * Determines whether the "Add role to this group" link should be shown.
  *
@@ -12,6 +10,6 @@ import { Group } from '../../../redux/groups/reducer';
  * @param group - The group to check
  * @returns true if the "Add role to this group" link should be shown
  */
-export const shouldShowAddRoleToGroupLink = (adminGroup: Group | undefined, group: { uuid?: string }): boolean => {
-  return !!adminGroup && !!group.uuid && adminGroup.uuid !== group.uuid;
+export const shouldShowAddRoleToGroupLink = (adminGroup: { uuid?: string } | undefined | null, group: { uuid?: string | null }): boolean => {
+  return !!adminGroup?.uuid && !!group.uuid && adminGroup.uuid !== group.uuid;
 };
