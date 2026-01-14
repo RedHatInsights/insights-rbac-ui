@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
-import { expect, fn, within, waitFor, userEvent } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { IntlProvider } from 'react-intl';
@@ -373,7 +373,7 @@ export const Default: Story = {
     msw: {
       handlers: [
         // Mock roles API - handles requests from fetchRolesWithPolicies
-        http.get('/api/rbac/v1/roles/', ({ request }) => {
+        http.get('/api/rbac/v1/roles/', () => {
           return HttpResponse.json({
             data: mockRoles,
             meta: {
@@ -467,7 +467,7 @@ export const ModalOpen: Story = {
     msw: {
       handlers: [
         // Mock roles API - handles requests from fetchRolesWithPolicies
-        http.get('/api/rbac/v1/roles/', ({ request }) => {
+        http.get('/api/rbac/v1/roles/', () => {
           return HttpResponse.json({
             data: mockRoles,
             meta: {
@@ -567,7 +567,7 @@ export const LoadingState: Story = {
     // Wait for modal to appear - IMPORTANT: Use document.body for modals, not canvas
     const body = within(document.body);
     await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
-    
+
     // Test skeleton loading state (check for skeleton class)
     await waitFor(
       async () => {
@@ -576,7 +576,7 @@ export const LoadingState: Story = {
       },
       { timeout: 10000 },
     );
-    
+
     // Should NOT show empty state content
     expect(body.queryByText(/no roles found/i)).not.toBeInTheDocument();
   },
@@ -644,7 +644,7 @@ export const EmptyState: Story = {
     // Wait for modal to appear - IMPORTANT: Use document.body for modals, not canvas
     const body = within(document.body);
     await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
-    
+
     // Wait for empty state to appear
     await waitFor(
       async () => {
@@ -652,7 +652,7 @@ export const EmptyState: Story = {
       },
       { timeout: 10000 },
     );
-    
+
     // Should NOT show skeleton loading state
     const skeletonElements = document.body.querySelectorAll('[class*="skeleton"]');
     expect(skeletonElements.length).toBe(0);
@@ -736,7 +736,7 @@ export const Pagination: Story = {
     // Wait for modal to appear - IMPORTANT: Use document.body for modals, not canvas
     const body = within(document.body);
     await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
-    
+
     // Wait for table to load with first page of roles
     await waitFor(
       async () => {
@@ -755,17 +755,15 @@ export const Pagination: Story = {
     // Find pagination controls - there should be next page buttons (multiple due to top and bottom pagination)
     const nextButtons = body.getAllByRole('button', { name: /next/i });
     await expect(nextButtons.length).toBeGreaterThan(0);
-    
+
     // Find an enabled next button (since we have more than 10 roles)
-    const enabledNextButtons = nextButtons.filter(
-      (btn) => !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true'
-    );
+    const enabledNextButtons = nextButtons.filter((btn) => !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true');
     await expect(enabledNextButtons.length).toBeGreaterThan(0);
 
     // Test navigating to next page using the first enabled next button
     if (enabledNextButtons.length > 0) {
       await userEvent.click(enabledNextButtons[0]);
-      
+
       // Wait for second page to load
       await waitFor(
         async () => {
@@ -783,7 +781,7 @@ export const Pagination: Story = {
       // Use the last one (bottom pagination) as it's more likely to be visible
       const perPageButton = perPageButtons[perPageButtons.length - 1];
       await userEvent.click(perPageButton);
-      
+
       // Wait for dropdown menu and select 20 per page
       await waitFor(
         async () => {
@@ -875,7 +873,8 @@ export const TabSwitchWithPagination: Story = {
     },
     docs: {
       description: {
-        story: 'Tests the bug fix where switching to Selected tab after navigating to page 2 should reset to page 1 and show selected roles correctly.',
+        story:
+          'Tests the bug fix where switching to Selected tab after navigating to page 2 should reset to page 1 and show selected roles correctly.',
       },
     },
   },
@@ -883,7 +882,7 @@ export const TabSwitchWithPagination: Story = {
     // Wait for modal to appear - IMPORTANT: Use document.body for modals, not canvas
     const body = within(document.body);
     await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
-    
+
     // Wait for table to load with first page of roles
     await waitFor(
       async () => {
@@ -894,13 +893,11 @@ export const TabSwitchWithPagination: Story = {
 
     // Navigate to page 2
     const nextButtons = body.getAllByRole('button', { name: /next/i });
-    const enabledNextButtons = nextButtons.filter(
-      (btn) => !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true'
-    );
-    
+    const enabledNextButtons = nextButtons.filter((btn) => !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true');
+
     if (enabledNextButtons.length > 0) {
       await userEvent.click(enabledNextButtons[0]);
-      
+
       // Wait for page 2 to load
       await waitFor(
         async () => {
@@ -923,7 +920,7 @@ export const TabSwitchWithPagination: Story = {
         // Verify we're back on page 1 (should show "1 - 2" since we have 2 selected roles from mockRoleBindingsResponse)
         const page1Texts = body.getAllByText(/1 - 2/i);
         await expect(page1Texts.length).toBeGreaterThan(0);
-        
+
         // Verify selected roles are visible
         await expect(body.findByText('Workspace Administrator')).resolves.toBeInTheDocument();
         await expect(body.findByText('Workspace Editor')).resolves.toBeInTheDocument();

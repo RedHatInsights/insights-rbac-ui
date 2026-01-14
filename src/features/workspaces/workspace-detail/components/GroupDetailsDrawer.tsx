@@ -324,11 +324,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                   {group.name}
                 </Title>
                 <DrawerActions>
-                  <Button
-                    variant="secondary"
-                    onClick={() => setIsRoleAccessModalOpen(true)}
-                    isDisabled={!currentWorkspace}
-                  >
+                  <Button variant="secondary" onClick={() => setIsRoleAccessModalOpen(true)} isDisabled={!currentWorkspace}>
                     {intl.formatMessage(messages.editAccessForThisWorkspace)}
                   </Button>
                   <DrawerCloseButton onClick={onClose} />

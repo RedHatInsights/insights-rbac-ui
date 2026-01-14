@@ -113,10 +113,7 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
 
     // Apply search filter (only by role name)
     if (searchValue) {
-      filtered = filtered.filter(
-        (role) =>
-          (role.display_name || role.name || '').toLowerCase().includes(searchValue.toLowerCase()),
-      );
+      filtered = filtered.filter((role) => (role.display_name || role.name || '').toLowerCase().includes(searchValue.toLowerCase()));
     }
 
     // Filter by tab
