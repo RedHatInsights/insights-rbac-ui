@@ -38,6 +38,7 @@ import { extractErrorMessage } from '../../../../utilities/errorUtils';
 import { Role } from '../../../../redux/roles/reducer';
 import messages from '../../../../Messages';
 import { AppLink } from '../../../../components/navigation/AppLink';
+import { RoleAccessModal } from './RoleAccessModal';
 
 // Extended Group interface to optionally include inheritedFrom data
 export interface GroupWithInheritance extends Group {
@@ -77,6 +78,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   const intl = useIntl();
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<string | number>(0);
+  const [isRoleAccessModalOpen, setIsRoleAccessModalOpen] = useState(false);
 
   // Redux state for group data - using memoized selectors
   const members = useSelector(selectGroupMembers);
@@ -97,6 +99,13 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
       dispatch(fetchRolesForGroup(group.uuid, { limit: 1000 }));
     }
   }, [dispatch, group]);
+
+  // Reset modal state when drawer closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsRoleAccessModalOpen(false);
+    }
+  }, [isOpen]);
 
   // Users tab columns - conditionally includes "Organization" column when showing inheritance
   const GROUP_USERS_COLUMNS: string[] = showInheritance
@@ -315,7 +324,11 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                   {group.name}
                 </Title>
                 <DrawerActions>
-                  <Button variant="secondary" isDisabled>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setIsRoleAccessModalOpen(true)}
+                    isDisabled={!currentWorkspace}
+                  >
                     {intl.formatMessage(messages.editAccessForThisWorkspace)}
                   </Button>
                   <DrawerCloseButton onClick={onClose} />
@@ -335,6 +348,23 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
       >
         <DrawerContentBody>{children}</DrawerContentBody>
       </DrawerContent>
+      {group && currentWorkspace && (
+        <RoleAccessModal
+          isOpen={isRoleAccessModalOpen}
+          onClose={() => setIsRoleAccessModalOpen(false)}
+          group={group}
+          workspaceId={currentWorkspace.id}
+          workspaceName={currentWorkspace.name}
+          onUpdate={(selectedRoleIds) => {
+            // TODO: Implement role binding update logic when API is available
+            console.log('Selected role IDs:', selectedRoleIds);
+            // After update, you may want to refetch group roles
+            if (group) {
+              dispatch(fetchRolesForGroup(group.uuid, { limit: 1000 }));
+            }
+          }}
+        />
+      )}
     </Drawer>
   );
 };

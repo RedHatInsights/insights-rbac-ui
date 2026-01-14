@@ -10,6 +10,7 @@ import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilter
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
+import { ActionsColumn } from '@patternfly/react-table';
 import { ThProps } from '@patternfly/react-table';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
@@ -49,6 +50,9 @@ interface RoleAssignmentsTableProps {
   workspaceName?: string;
   currentWorkspace?: { id: string; name: string };
 
+  // Action callbacks
+  onEditAccess?: (group: Group | GroupWithInheritance) => void;
+
   // UI configuration props
   ouiaId?: string;
 }
@@ -69,6 +73,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   clearAllFilters,
   workspaceName,
   currentWorkspace,
+  onEditAccess,
   ouiaId = 'iam-role-assignments-table',
 }) => {
   const intl = useIntl();
@@ -95,6 +100,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
       { label: intl.formatMessage(messages.roles), key: 'roleCount', sort: true },
       ...(hasInheritanceData ? [{ label: intl.formatMessage(messages.inheritedFrom), key: 'inheritedFrom', sort: true }] : []),
       { label: intl.formatMessage(messages.lastModified), key: 'modified', sort: true },
+      { label: '', key: 'actions', sort: false }, // Actions column with empty label
     ];
 
     return baseColumns.map((col, index) => ({ ...col, index }));
@@ -133,14 +139,25 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
 
   // Transform groups into table rows
   const rows = useMemo(() => {
-    const handleRowClick = (event?: React.MouseEvent | React.KeyboardEvent, group?: Group | GroupWithInheritance) => {
-      if (event && (event.currentTarget.matches('td') || event.currentTarget.matches('tr'))) {
+    const handleRowClick = (event: any, group?: Group | GroupWithInheritance) => {
+      if (event.target.matches('td') || event.target.matches('tr')) {
         onRowClick(group);
       }
     };
 
     return groups.map((group: Group | GroupWithInheritance) => {
-      const baseRow = [
+      // Define row actions
+      const rowActions = onEditAccess
+        ? [
+            {
+              title: intl.formatMessage(messages.editAccess),
+              onClick: () => onEditAccess(group),
+            },
+          ]
+        : [];
+
+      // Build row with all cells
+      const baseRow: any[] = [
         group.name,
         group.description ? (
           <Tooltip isContentLeftAligned content={group.description}>
@@ -171,18 +188,24 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
       // Add last modified column
       baseRow.push(group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : '');
 
+      // Add actions column using ActionsColumn component
+      if (onEditAccess) {
+        baseRow.push({ cell: <ActionsColumn items={rowActions} />, props: { isActionCell: true } });
+      } else {
+        baseRow.push('');
+      }
+
       return {
         id: group.uuid,
         row: baseRow,
         props: {
           isClickable: true,
-          onRowClick: (event?: React.MouseEvent | React.KeyboardEvent) =>
-            handleRowClick(event, focusedGroup?.uuid === group.uuid ? undefined : group),
+          onRowClick: (event: any) => handleRowClick(event, focusedGroup?.uuid === group.uuid ? undefined : group),
           isRowSelected: false,
         },
       };
     });
-  }, [groups, focusedGroup, intl, onRowClick, hasInheritanceData]);
+  }, [groups, focusedGroup, intl, onRowClick, hasInheritanceData, onEditAccess]);
 
   const activeState = isLoading ? DataViewState.loading : groups.length === 0 ? DataViewState.empty : undefined;
 

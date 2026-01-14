@@ -875,3 +875,78 @@ export const GrantAccessWizardTest: Story = {
     await expect(canvas.findByRole('button', { name: /grant access/i })).resolves.toBeInTheDocument();
   },
 };
+
+// Test Row Actions - Edit Access
+export const RowActionsTest: Story = {
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    page: 1,
+    perPage: 20,
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
+    onEditAccess: fn(),
+    ouiaId: 'role-assignments-row-actions-test',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Testing row actions functionality. Each row has an actions menu with "Edit access" option.',
+      },
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    // Wait for table to load
+    const table = await canvas.findByRole('grid');
+    await expect(table).toBeInTheDocument();
+
+    // Verify groups are displayed
+    await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Development Team')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('QA Engineers')).resolves.toBeInTheDocument();
+
+    // Find all action menu toggles (ActionsColumn creates kebab menus)
+    // ActionsColumn uses aria-label="Actions"
+    const actionMenuToggles = canvas.getAllByRole('button', { name: /Actions/i });
+    expect(actionMenuToggles.length).toBeGreaterThan(0);
+
+    // Click the first action menu toggle
+    await user.click(actionMenuToggles[0]);
+
+    // Wait for dropdown menu to open
+    await waitFor(
+      async () => {
+        const editAccessMenuItem = canvas.getByText('Edit access');
+        await expect(editAccessMenuItem).toBeInTheDocument();
+      },
+      { timeout: 2000 },
+    );
+
+    // Click the "Edit access" menu item
+    const editAccessMenuItem = canvas.getByText('Edit access');
+    await user.click(editAccessMenuItem);
+
+    // Verify the onEditAccess callback was called
+    await waitFor(() => {
+      expect(args.onEditAccess).toHaveBeenCalledTimes(1);
+    });
+
+    // Verify the callback was called with the correct group
+    const onEditAccessFn = args.onEditAccess as any;
+    const lastCall = onEditAccessFn.mock.calls[0];
+    expect(lastCall[0]).toMatchObject({
+      uuid: 'group-1',
+      name: 'Platform Administrators',
+    });
+  },
+};
