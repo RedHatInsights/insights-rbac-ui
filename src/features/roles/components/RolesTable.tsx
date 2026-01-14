@@ -19,8 +19,13 @@ import { getDateFormat } from '../../../helpers/stringUtilities';
 import { AppLink } from '../../../components/navigation/AppLink';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
-import type { Access, Role, RoleGroup } from '../../../redux/roles/reducer';
-import type { Group } from '../../../redux/groups/reducer';
+import type { Access, AdditionalGroup, RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
+import type { GroupOut } from '../../../data/queries/groups';
+
+// Type aliases for backwards compatibility
+type Role = RoleOutDynamic;
+type RoleGroup = AdditionalGroup;
+type Group = GroupOut;
 import type { ExpandedCells, SortByState } from '../types';
 import { shouldShowAddRoleToGroupLink } from '../utils/roleVisibility';
 
@@ -58,13 +63,13 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
       <Tbody>
         {role.groups_in && role.groups_in.length > 0 ? (
           role.groups_in.map((group: RoleGroup, index: number) => (
-            <Tr key={`${role.uuid}-group-${group.uuid || index}`}>
+            <Tr key={`${role.uuid}-group-${group.uuid ?? index}`}>
               <Td dataLabel={groupColumns[0]}>
-                <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink>
+                {group.uuid ? <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink> : group.name}
               </Td>
               <Td dataLabel={groupColumns[1]}>{group.description}</Td>
               <Td className="pf-v6-u-text-align-right">
-                {shouldShowAddRoleToGroupLink(adminGroup, group) && (
+                {shouldShowAddRoleToGroupLink(adminGroup, group) && group.uuid && (
                   <AppLink
                     to={pathnames['roles-add-group-roles'].link.replace(':roleId', role.uuid).replace(':groupId', group.uuid)}
                     state={{ name: group.name }}

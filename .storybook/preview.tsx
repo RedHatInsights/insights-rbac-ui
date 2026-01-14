@@ -1,9 +1,12 @@
 import type { Preview } from '@storybook/react-webpack5';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/patternfly/patternfly-addons.css';
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
@@ -11,6 +14,37 @@ import PermissionsContext from '../src/utilities/permissionsContext';
 import { registryFactory, RegistryContext } from '../src/utilities/store';
 import { ChromeProvider, FeatureFlagsProvider, type ChromeConfig, type FeatureFlagsConfig } from './context-providers';
 import { initialize, mswLoader } from 'msw-storybook-addon';
+
+// Create a fresh QueryClient for each story to prevent state leaking
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false, // Don't retry in tests/stories
+        staleTime: 0, // Always refetch - required for stories that test API calls after interactions
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+
+// Wrapper that provides a fresh QueryClient for each story to prevent state leaking
+const QueryClientWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [queryClient] = useState(() => createTestQueryClient());
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      {typeof document !== 'undefined' && createPortal(
+        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />,
+        document.body
+      )}
+      {children}
+    </QueryClientProvider>
+  );
+};
+
 
 // Mock insights global for Storybook
 declare global {
@@ -140,27 +174,29 @@ const preview: Preview = {
       };
 
       return (
-        <RegistryContext.Provider
-          value={{
-            getRegistry: () => registry,
-          }}
-        >
-          <Provider store={registry.getStore()}>
-            <ChromeProvider value={chromeConfig}>
-              <FeatureFlagsProvider value={featureFlags}>
-                <PermissionsContext.Provider value={permissions}>
-                  <IntlProvider locale={locale} messages={messages[locale]}>
-                    <Fragment>
-                      <NotificationsProvider>
-                        <Story />
-                      </NotificationsProvider>
-                    </Fragment>
-                  </IntlProvider>
-                </PermissionsContext.Provider>
-              </FeatureFlagsProvider>
-            </ChromeProvider>
-          </Provider>
-        </RegistryContext.Provider>
+        <QueryClientWrapper>
+          <RegistryContext.Provider
+            value={{
+              getRegistry: () => registry,
+            }}
+          >
+            <Provider store={registry.getStore()}>
+              <ChromeProvider value={chromeConfig}>
+                <FeatureFlagsProvider value={featureFlags}>
+                  <PermissionsContext.Provider value={permissions}>
+                    <IntlProvider locale={locale} messages={messages[locale]}>
+                      <Fragment>
+                        <NotificationsProvider>
+                          <Story />
+                        </NotificationsProvider>
+                      </Fragment>
+                    </IntlProvider>
+                  </PermissionsContext.Provider>
+                </FeatureFlagsProvider>
+              </ChromeProvider>
+            </Provider>
+          </RegistryContext.Provider>
+        </QueryClientWrapper>
       );
     },
   ],

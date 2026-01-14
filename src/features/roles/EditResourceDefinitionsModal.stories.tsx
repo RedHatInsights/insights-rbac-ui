@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { EditResourceDefinitionsModal } from './EditResourceDefinitionsModal';
-import { fetchRole } from '../../redux/roles/actions';
 
 // API Spies
 const updateRoleSpy = fn();
@@ -40,38 +38,25 @@ const mockRole = {
   ],
 };
 
-// Mock inventory groups - API returns { data: [...], meta: { count } }
+// Mock inventory groups - API returns { meta, links, data } structure
 const mockInventoryGroups = {
+  meta: { count: 4 },
+  links: { first: null, previous: null, next: null, last: null },
   data: [
     { id: 'group-1', name: 'Production Servers' },
     { id: 'group-2', name: 'Development Servers' },
     { id: 'group-3', name: 'Staging Servers' },
     { id: 'group-4', name: 'QA Servers' },
   ],
-  meta: { count: 4 },
 };
 
-// Component wrapper that pre-fetches role data before rendering EditResourceDefinitionsModal
-const EditResourceDefinitionsModalWrapper = ({ roleId, cancelRoute }: { roleId: string; cancelRoute: string }) => {
-  const dispatch = useDispatch();
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    // Pre-fetch role data to populate Redux state before component renders
-    dispatch(fetchRole(roleId) as any).then(() => {
-      setIsReady(true);
-    });
-  }, [dispatch, roleId]);
-
-  if (!isReady) {
-    return <div data-testid="loading-wrapper">Loading role data...</div>;
-  }
-
+// Component wrapper - TanStack Query handles data fetching internally
+const EditResourceDefinitionsModalWrapper = ({ cancelRoute }: { cancelRoute: string }) => {
   return <EditResourceDefinitionsModal cancelRoute={cancelRoute} />;
 };
 
 // Router decorator - uses MemoryRouter to set initial route with params
-const withRouter = (Story: any, context: any) => {
+const withRouter = (Story: React.FC, context: { parameters: { roleId?: string; permissionId?: string } }) => {
   const roleId = context.parameters.roleId || 'role-123';
   const permissionId = context.parameters.permissionId || 'inventory:hosts:read';
   const cancelRoute = `/roles/${roleId}/permissions/${permissionId}`;
@@ -84,7 +69,7 @@ const withRouter = (Story: any, context: any) => {
           path="/roles/:roleId/permissions/:permissionId/edit"
           element={
             <div style={{ minHeight: '100vh' }}>
-              <EditResourceDefinitionsModalWrapper roleId={roleId} cancelRoute={cancelRoute} />
+              <EditResourceDefinitionsModalWrapper cancelRoute={cancelRoute} />
             </div>
           }
         />
@@ -122,13 +107,20 @@ const createDefaultHandlers = (role = mockRole) => [
     return HttpResponse.json(mockInventoryGroups);
   }),
   // Inventory groups details API - called after save to refresh group names
+  // NOTE: This endpoint returns a DIFFERENT structure than the list endpoint!
   http.get('/api/inventory/v1/groups/:groupIds', ({ params }) => {
     const groupIds = (params.groupIds as string).split(',');
     const results = groupIds.map((id) => {
       const group = mockInventoryGroups.data.find((g) => g.id === id);
       return group || { id, name: `Group ${id}` };
     });
-    return HttpResponse.json({ results });
+    return HttpResponse.json({
+      results,
+      total: results.length,
+      count: results.length,
+      page: 1,
+      per_page: 50,
+    });
   }),
   // Cost management resource types (for non-inventory permissions)
   http.get('/api/cost-management/v1/resource-types/', () => {
@@ -174,17 +166,8 @@ export const Default: Story = {
     roleId: 'role-123',
     permissionId: 'inventory:hosts:read',
   },
-  play: async ({ canvasElement }) => {
+  play: async () => {
     await sleep(300);
-
-    // Wait for the wrapper to finish loading role data
-    await waitFor(
-      () => {
-        const loadingWrapper = canvasElement.querySelector('[data-testid="loading-wrapper"]');
-        expect(loadingWrapper).toBeFalsy(); // Should not be loading anymore
-      },
-      { timeout: 10000 },
-    );
 
     // The modal should be rendered - look for it in the document body (PatternFly modals portal)
     await waitFor(
@@ -231,17 +214,8 @@ export const Loading: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async () => {
     await sleep(500);
-
-    // Wait for the wrapper to finish loading role data
-    await waitFor(
-      () => {
-        const loadingWrapper = canvasElement.querySelector('[data-testid="loading-wrapper"]');
-        expect(loadingWrapper).toBeFalsy();
-      },
-      { timeout: 10000 },
-    );
 
     // Should show spinner during loading (inside modal)
     await waitFor(
@@ -276,21 +250,12 @@ export const AddResourceAndSave: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async () => {
     // Clear spies from previous runs
     updateRoleSpy.mockClear();
     getRoleAccessSpy.mockClear();
 
     await sleep(300);
-
-    // Wait for the wrapper to finish loading
-    await waitFor(
-      () => {
-        const loadingWrapper = canvasElement.querySelector('[data-testid="loading-wrapper"]');
-        expect(loadingWrapper).toBeFalsy();
-      },
-      { timeout: 10000 },
-    );
 
     // Wait for the modal to be fully loaded (no spinner)
     await waitFor(
@@ -382,20 +347,12 @@ export const CancelWithoutChanges: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async () => {
     updateRoleSpy.mockClear();
 
     await sleep(300);
 
     // Wait for loading to complete
-    await waitFor(
-      () => {
-        const loadingWrapper = canvasElement.querySelector('[data-testid="loading-wrapper"]');
-        expect(loadingWrapper).toBeFalsy();
-      },
-      { timeout: 10000 },
-    );
-
     await waitFor(
       () => {
         const spinner = document.querySelector('[class*="pf-v6-c-spinner"]');
@@ -419,8 +376,7 @@ export const CancelWithoutChanges: Story = {
     // Should navigate away
     await waitFor(
       () => {
-        const navigatedPage =
-          canvasElement.querySelector('[data-testid="permission-page"]') || canvasElement.querySelector('[data-testid="navigated-page"]');
+        const navigatedPage = document.querySelector('[data-testid="permission-page"]') || document.querySelector('[data-testid="navigated-page"]');
         expect(navigatedPage).toBeTruthy();
       },
       { timeout: 5000 },

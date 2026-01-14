@@ -1,18 +1,14 @@
 import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { ButtonVariant, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
 import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import EllipsisVIcon from '@patternfly/react-icons/dist/dynamic/icons/ellipsis-v-icon';
-import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 import PageHeader from '@patternfly/react-component-groups/dist/esm/PageHeader';
-import { removeRole } from '../../redux/roles/actions';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
-import { Role } from '../../redux/roles/reducer';
 import { Outlet } from 'react-router-dom';
 import paths from '../../utilities/pathnames';
 import RolesDetails from './RolesWithWorkspacesDetails';
@@ -20,7 +16,8 @@ import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/r
 import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 import pathnames from '../../utilities/pathnames';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import { useRoles } from './useRolesWithWorkspaces';
+import { type Role, useRoles } from './useRolesWithWorkspaces';
+import { useDeleteRoleMutation } from '../../data/queries/roles';
 import { RolesEmptyState } from './components/RolesEmptyState';
 import { TableView } from '../../components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig, SortDirection } from '../../components/table-view/types';
@@ -48,9 +45,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
   });
 
   const intl = useIntl();
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
-  const addNotification = useAddNotification();
+  const deleteRoleMutation = useDeleteRoleMutation();
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
   const { selected, onSelect } = selection;
 
@@ -247,19 +243,11 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
             onClose={() => setIsDeleteModalOpen(false)}
             onConfirm={async () => {
               try {
-                await Promise.all(currentRoles.map((role) => dispatch(removeRole(role.uuid))));
-                addNotification({
-                  variant: 'success',
-                  title: intl.formatMessage(messages.removeRoleSuccessTitle),
-                  description: intl.formatMessage(messages.removeRoleSuccessDescription),
-                });
+                await Promise.all(currentRoles.map((role) => deleteRoleMutation.mutateAsync(role.uuid)));
+                // Success notification handled by mutation
               } catch (error) {
                 console.error('Failed to remove roles:', error);
-                addNotification({
-                  variant: 'danger',
-                  title: intl.formatMessage(messages.removeRoleErrorTitle),
-                  description: intl.formatMessage(messages.removeRoleErrorDescription),
-                });
+                // Error notification handled by mutation
               }
               setIsDeleteModalOpen(false);
             }}

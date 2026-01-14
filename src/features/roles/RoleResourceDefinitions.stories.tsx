@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { RoleResourceDefinitions } from './RoleResourceDefinitions';
-import { fetchRole } from '../../redux/roles/actions';
 
 // API Spies
 const fetchRoleSpy = fn();
@@ -57,27 +55,13 @@ const mockInventoryGroups = {
   'group-3': { id: 'group-3', name: 'Test Servers' },
 };
 
-// Component wrapper that pre-fetches role data before rendering RoleResourceDefinitions
-const RoleResourceDefinitionsWrapper = ({ roleId }: { roleId: string }) => {
-  const dispatch = useDispatch();
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    // Pre-fetch role data to populate Redux state before component renders
-    dispatch(fetchRole(roleId) as any).then(() => {
-      setIsReady(true);
-    });
-  }, [dispatch, roleId]);
-
-  if (!isReady) {
-    return <div>Loading...</div>;
-  }
-
+// Component wrapper - data fetching is now handled internally via TanStack Query
+const RoleResourceDefinitionsWrapper = () => {
   return <RoleResourceDefinitions />;
 };
 
 // Router decorator - uses MemoryRouter to set initial route with params
-const withRouter = (Story: any, context: any) => {
+const withRouter = (Story: React.FC, context: { parameters: { roleId?: string; permissionId?: string } }) => {
   const roleId = context.parameters.roleId || 'role-123';
   const permissionId = context.parameters.permissionId || 'inventory:hosts:read';
   const initialRoute = `/roles/${roleId}/permissions/${permissionId}`;
@@ -89,7 +73,7 @@ const withRouter = (Story: any, context: any) => {
           path="/roles/:roleId/permissions/:permissionId"
           element={
             <div style={{ minHeight: '100vh' }}>
-              <RoleResourceDefinitionsWrapper roleId={roleId} />
+              <RoleResourceDefinitionsWrapper />
             </div>
           }
         />

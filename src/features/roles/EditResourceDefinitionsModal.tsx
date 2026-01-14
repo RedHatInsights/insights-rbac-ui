@@ -1,35 +1,30 @@
-import React, { useEffect, useMemo, useReducer } from 'react';
+import React, { useMemo, useReducer } from 'react';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import pf4ComponentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import ReactFormRender from '@data-driven-forms/react-form-renderer/form-renderer';
 import FixedDualListSelect from '../../components/forms/FixedDualListSelect';
-import flatten from 'lodash/flattenDeep';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { fetchRole, updateRole } from '../../redux/roles/actions';
-import { fetchResource, fetchResourceDefinitions } from '../../redux/cost-management/actions';
-import { fetchInventoryGroups, fetchInventoryGroupsDetails } from '../../redux/inventory/actions';
-import { processResourceDefinitions } from '../../redux/inventory/helper';
-import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { getModalContainer } from '../../helpers/modal-container';
-
-// Create a custom component mapper with our fixed DualListSelect
-// This fixes a bug in @data-driven-forms/pf4-component-mapper where addSelected/removeSelected
-// callbacks receive different parameters than onListChange, causing form values to not update
-const componentMapper = {
-  ...pf4ComponentMapper,
-  [componentTypes.DUAL_LIST_SELECT]: FixedDualListSelect,
-};
 import { Bullseye } from '@patternfly/react-core';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import { isInventoryHostsPermission, isInventoryPermission } from './roleResourceDefinitionsTableHelpers';
+import { getModalContainer } from '../../helpers/modal-container';
+import { useRoleQuery, useUpdateRoleMutation } from '../../data/queries/roles';
+import { useResourceQuery, useResourceTypesQuery } from '../../data/queries/cost';
+import { useInventoryGroupsQuery } from '../../data/queries/inventory';
+import type { Access, ResourceDefinition } from '@redhat-cloud-services/rbac-client/types';
 import messages from '../../Messages';
-import type { RBACStore } from '../../redux/store.d';
+
+// Create a custom component mapper with our fixed DualListSelect
+const componentMapper = {
+  ...pf4ComponentMapper,
+  [componentTypes.DUAL_LIST_SELECT]: FixedDualListSelect,
+};
 
 interface InventoryGroup {
   id: string;
@@ -47,7 +42,6 @@ interface Resources {
 interface State {
   changedResources: string[] | undefined;
   cancelWarningVisible: boolean;
-  resourcesPath: string | undefined;
   loadingStateVisible: boolean;
 }
 
@@ -57,13 +51,10 @@ interface EditResourceDefinitionsModalProps {
   cancelRoute: string;
 }
 
-// IMPORTANT: data-driven-forms DualListSelect has a design flaw where it uses labels
-// for form values when NOT using getValueFromNode. So we must use getValueFromNode
-// for inventory to maintain proper ID-based values.
+// Helper to create options for DualListSelect
 const createOptions = (resources: Record<string, InventoryGroup> | Resources | undefined, permissionId: string) =>
   isInventoryPermission(permissionId)
-    ? // options for inventory - use JSX with getValueFromNode to maintain proper ID values
-      [
+    ? [
         ...(isInventoryHostsPermission(permissionId) ? [<FormattedMessage key="ungrouped" data-value="null" {...messages.ungroupedSystems} />] : []),
         ...Object.values((resources as Record<string, InventoryGroup>) || {}).map((inventoryGroup) => (
           <span key={inventoryGroup.id} data-value={inventoryGroup.id}>
@@ -71,8 +62,7 @@ const createOptions = (resources: Record<string, InventoryGroup> | Resources | u
           </span>
         )),
       ]
-    : // options for cost-management - value === label so standard format works
-      Object.entries(resources as Resources).reduce(
+    : Object.entries(resources as Resources).reduce(
         (acc: { value: string; path: string; label: string }[], [key, value]) => [
           ...acc,
           ...value.map((r) => ({
@@ -87,17 +77,13 @@ const createOptions = (resources: Record<string, InventoryGroup> | Resources | u
 const initialState: State = {
   changedResources: undefined,
   cancelWarningVisible: false,
-  resourcesPath: undefined,
   loadingStateVisible: true,
 };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'update':
-      return {
-        ...state,
-        ...action.payload,
-      };
+      return { ...state, ...action.payload };
     default:
       throw new Error();
   }
@@ -125,44 +111,11 @@ const createEditResourceDefinitionsSchema = (
         options: [...((resourcesPath || isInventory) && resources ? options : [])],
         validate: [{ type: 'validate-resources' }],
         isSearchable: true,
-        // For inventory: use getValueFromNode with JSX options to extract IDs
-        // For cost-management: standard format works because value === label
-        // NOTE: We use FixedDualListSelect (via custom componentMapper) to work around
-        // a bug in @data-driven-forms where addSelected/removeSelected callbacks have
-        // different signatures than onListChange.
-        ...(isInventory
-          ? {
-              getValueFromNode: extractValueFromNode,
-            }
-          : {}),
+        ...(isInventory ? { getValueFromNode: extractValueFromNode } : {}),
       },
     ],
   };
 };
-
-interface SelectorState {
-  costReducer: {
-    resourceTypes: { data: { value: string; path: string }[] };
-    isLoading: boolean;
-    loadingResources: number;
-    resources: Record<string, unknown>;
-  };
-  inventoryReducer: {
-    resourceTypes: Record<string, Record<string, InventoryGroup>>;
-    isLoading: boolean;
-  };
-}
-
-const selector = (state: SelectorState, resourcesPath: string | undefined) => ({
-  resourceTypes: state.costReducer.resourceTypes.data,
-  resources: state.costReducer.resources[resourcesPath || '']
-    ? { resourcesPath: state.costReducer.resources[resourcesPath || ''] }
-    : state.costReducer.resources,
-  isLoading: state.costReducer.isLoading,
-  isLoadingResources: state.costReducer.loadingResources > 0,
-  isLoadingInventory: state.inventoryReducer.isLoading,
-  inventoryGroups: state.inventoryReducer.resourceTypes,
-});
 
 const validatorMapper = {
   'validate-resources': () => (value: string[] | undefined) =>
@@ -173,59 +126,84 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
   const intl = useIntl();
   const { roleId, permissionId } = useParams<{ roleId: string; permissionId: string }>();
   const navigate = useAppNavigate();
-
-  const dispatch = useDispatch();
-  const getResourceDefinitions = () => dispatch(fetchResourceDefinitions({}) as unknown as { type: string });
-  const getInventoryGroups = () =>
-    dispatch(fetchInventoryGroups([permissionId!] as unknown as Parameters<typeof fetchInventoryGroups>[0], {}) as unknown as { type: string });
   const [state, dispatchLocally] = useReducer(reducer, initialState);
   const isInventory = useMemo(() => isInventoryPermission(permissionId!), [permissionId]);
 
-  const { resourceTypes, isLoading, isLoadingResources, resources, isLoadingInventory, inventoryGroups } = useSelector(
-    (props: SelectorState) => selector(props, state.resourcesPath),
-    shallowEqual,
+  // TanStack Query hooks
+  const { data: role, isLoading: isRoleLoading } = useRoleQuery(roleId ?? '');
+  const updateRoleMutation = useUpdateRoleMutation();
+
+  // Cost management queries (for non-inventory permissions)
+  const { data: resourceTypesData, isLoading: isLoadingResourceTypes } = useResourceTypesQuery({ enabled: !isInventory });
+
+  // Find the resource path for this permission
+  const resourcesPath = useMemo(() => {
+    if (isInventory || !resourceTypesData?.data) return undefined;
+    const resourceType = resourceTypesData.data.find((r) => r.value === permissionId?.split(':')?.[1]);
+    return resourceType?.path?.split('/')[5];
+  }, [resourceTypesData, permissionId, isInventory]);
+
+  // Fetch specific resource data for cost management
+  const { data: resourceData, isLoading: isLoadingResource } = useResourceQuery(
+    { path: resourcesPath ?? '' },
+    { enabled: !isInventory && !!resourcesPath },
   );
 
-  const { definedResources, role } = useSelector(
-    (state: RBACStore) => ({
-      role: state.roleReducer.selectedRole,
-      definedResources: state.roleReducer.selectedRole?.access
-        ? flatten(
-            state.roleReducer.selectedRole.access
-              .filter((a: { permission: string }) => a.permission === permissionId)
-              .map((access: { resourceDefinitions: { attributeFilter: { value: unknown } }[] }) =>
-                access.resourceDefinitions.map((resource) => {
-                  const value = resource.attributeFilter.value;
-                  if (isInventory) {
-                    return Array.isArray(value) ? value.map((v) => String(v)) : String(value);
-                  }
-                  return resource.attributeFilter.value;
-                }),
-              ),
-          )
-        : [],
-    }),
-    shallowEqual,
-  );
+  // Inventory groups query
+  const { data: inventoryGroupsData, isLoading: isLoadingInventory } = useInventoryGroupsQuery(undefined, { enabled: isInventory });
 
-  useEffect(() => {
-    (isInventory && getInventoryGroups()) || getResourceDefinitions();
-  }, [permissionId]);
+  // Convert inventory groups to lookup map
+  const inventoryGroups = useMemo(() => {
+    if (!inventoryGroupsData?.data) return {};
+    return inventoryGroupsData.data.reduce(
+      (acc, group) => {
+        if (group.id) {
+          acc[group.id] = group;
+        }
+        return acc;
+      },
+      {} as Record<string, InventoryGroup>,
+    );
+  }, [inventoryGroupsData]);
 
-  useEffect(() => {
-    if (!isLoading) {
-      const path = resourceTypes.find((r: { value: string }) => r.value === permissionId?.split(':')?.[1])?.path;
-      if (path) {
-        dispatchLocally({ type: 'update', payload: { resourcesPath: path.split('/')[5] } });
-        dispatch(fetchResource(path as unknown as { [key: string]: unknown }) as unknown as { type: string });
-      }
+  // Get currently defined resources for this permission
+  const definedResources = useMemo((): string[] => {
+    if (!role?.access) return [];
+    const result: string[] = [];
+    role.access
+      .filter((a) => a.permission === permissionId)
+      .forEach((access) => {
+        access.resourceDefinitions?.forEach((resource) => {
+          const value = resource.attributeFilter.value;
+          if (Array.isArray(value)) {
+            value.forEach((v) => result.push(String(v)));
+          } else if (value !== null && value !== undefined) {
+            result.push(String(value));
+          }
+        });
+      });
+    return result;
+  }, [role?.access, permissionId]);
+
+  // Create resources object for options
+  const resources = useMemo((): Resources | Record<string, InventoryGroup> | undefined => {
+    if (isInventory) {
+      return inventoryGroups;
     }
-  }, [resourceTypes]);
+    if (resourcesPath && resourceData) {
+      return { [resourcesPath]: resourceData.data as ResourceValue[] };
+    }
+    return undefined;
+  }, [isInventory, inventoryGroups, resourcesPath, resourceData]);
+
+  const options = useMemo(() => createOptions(resources, permissionId!), [resources, permissionId]);
+
+  const isLoading = isRoleLoading || isLoadingResourceTypes || isLoadingResource || isLoadingInventory;
 
   const onCancel = () => navigate(cancelRoute, { replace: true });
 
   const handleCancel = (data: { 'dual-list-select': string[] }) => {
-    if (data['dual-list-select'] === definedResources) {
+    if (JSON.stringify(data['dual-list-select']) === JSON.stringify(definedResources)) {
       onCancel();
     } else {
       dispatchLocally({
@@ -238,57 +216,53 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
     }
   };
 
-  const handleSubmit = (data: { 'dual-list-select': string[] }) => {
+  const handleSubmit = async (data: { 'dual-list-select': string[] }) => {
+    if (!role || !roleId || !permissionId) return;
+
     dispatchLocally({ type: 'update', payload: { changedResources: data['dual-list-select'] } });
     const dualListData = data['dual-list-select'].map((item) => (item === 'null' ? null : item));
-    const newAccess = {
-      permission: permissionId,
-      resourceDefinitions: [
-        {
-          attributeFilter: {
-            key: isInventory ? 'group.id' : `cost-management.${permissionId?.split(':')?.[1]}`,
-            operation: dualListData.length === 1 ? 'equal' : 'in',
-            value: dualListData.length === 1 ? dualListData[0] : dualListData,
-          },
+    const key = isInventory ? 'group.id' : `cost-management.${permissionId.split(':')?.[1]}`;
+
+    // Create resource definition based on number of values
+    let resourceDefinition: ResourceDefinition;
+    if (dualListData.length === 1) {
+      resourceDefinition = {
+        attributeFilter: {
+          key,
+          operation: 'equal' as const,
+          value: dualListData[0],
         },
-      ],
+      };
+    } else {
+      resourceDefinition = {
+        attributeFilter: {
+          key,
+          operation: 'in' as const,
+          value: dualListData.filter((v): v is string => v !== null),
+        },
+      };
+    }
+
+    const newAccess: Access = {
+      permission: permissionId,
+      resourceDefinitions: [resourceDefinition],
     };
-    // useCustomAccess=false because we're providing our own access array
-    // When useCustomAccess=true, the helper fetches current access from API and overwrites our changes
-    (
-      dispatch(
-        updateRole(
-          roleId!,
-          {
-            ...role,
-            access: [...(role?.access || []).filter((item: { permission: string }) => item.permission !== permissionId), newAccess],
-          } as unknown as Parameters<typeof updateRole>[1],
-          false,
-        ) as unknown as { type: string },
-      ) as unknown as Promise<void>
-    ).then(() => {
-      (
-        dispatch(fetchRole(roleId!) as unknown as { type: string }) as unknown as Promise<{
-          value: { access: { permission: string; resourceDefinitions: unknown[] }[] };
-        }>
-      ).then(({ value }) => {
-        if (isInventory) {
-          const resourceDefs = value?.access?.find((item) => item.permission === permissionId)?.resourceDefinitions;
-          dispatch(
-            fetchInventoryGroupsDetails(processResourceDefinitions(resourceDefs as unknown as never[]) as unknown as string[]) as unknown as {
-              type: string;
-            },
-          );
-        }
+
+    try {
+      await updateRoleMutation.mutateAsync({
+        uuid: roleId,
+        rolePut: {
+          name: role.name,
+          display_name: role.display_name ?? role.name,
+          description: role.description,
+          access: [...(role.access || []).filter((item) => item.permission !== permissionId), newAccess],
+        },
       });
       navigate(cancelRoute);
-    });
+    } catch (error) {
+      console.error('Failed to update resource definitions:', error);
+    }
   };
-
-  const options = useMemo(
-    () => createOptions(isInventory ? inventoryGroups[permissionId!] : (resources as Resources), permissionId!),
-    [isInventory, inventoryGroups, permissionId, resources],
-  );
 
   return (
     <React.Fragment>
@@ -302,7 +276,7 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
       >
         {intl.formatMessage(messages.changesWillBeLost)}
       </WarningModal>
-      {(isLoading || isLoadingResources || isLoadingInventory) && state.loadingStateVisible ? (
+      {isLoading && state.loadingStateVisible ? (
         <Modal
           appendTo={getModalContainer()}
           variant={ModalVariant.large}
@@ -320,7 +294,7 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
         </Modal>
       ) : (
         <ReactFormRender
-          schema={createEditResourceDefinitionsSchema(resources as Resources, state.resourcesPath, options, isInventory, intl)}
+          schema={createEditResourceDefinitionsSchema(resources as Resources, resourcesPath, options, isInventory, intl)}
           componentMapper={componentMapper}
           initialValues={{ 'dual-list-select': state.changedResources || definedResources || [] }}
           onSubmit={handleSubmit}
@@ -344,6 +318,5 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
   );
 };
 
-// Feature component (used by Routing.tsx) - both named and default exports
 export { EditResourceDefinitionsModal };
 export default EditResourceDefinitionsModal;

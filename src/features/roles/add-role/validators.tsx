@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { fetchRoles } from '../../../redux/roles/helper';
 import { debounceAsync as asyncDebounce } from '../../../utilities/debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { createIntl, createIntlCache } from 'react-intl';
+import { rolesApi } from '../../../data/api/roles';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 import { locale } from '../../../locales/locale';
@@ -14,26 +14,25 @@ export const asyncValidator = async (roleName: string): Promise<undefined> => {
     return undefined;
   }
 
-  const response = await fetchRoles({ limit: 10, offset: 0, name: roleName, nameMatch: 'exact' }).catch((error: Error) => {
+  const response = await rolesApi.listRoles({ limit: 10, offset: 0, name: roleName, nameMatch: 'exact' }).catch((error: Error) => {
     console.error(error);
     return undefined;
   });
 
   // it has to be here twice because API is using AND instead of OR
-  const responseName = await fetchRoles({
-    limit: 10,
-    offset: 0,
-    displayName: roleName,
-    nameMatch: 'exact',
-  }).catch((error: Error) => {
-    console.error(error);
-    return undefined;
-  });
+  const responseName = await rolesApi
+    .listRoles({
+      limit: 10,
+      offset: 0,
+      displayName: roleName,
+      nameMatch: 'exact',
+    })
+    .catch((error: Error) => {
+      console.error(error);
+      return undefined;
+    });
 
-  if (
-    ((response as { data?: unknown[] })?.data?.length && (response as { data: unknown[] }).data.length > 0) ||
-    ((responseName as { data?: unknown[] })?.data?.length && (responseName as { data: unknown[] }).data.length > 0)
-  ) {
+  if ((response?.data?.data?.length ?? 0) > 0 || (responseName?.data?.data?.length ?? 0) > 0) {
     throw intl.formatMessage(messages.nameAlreadyTaken);
   }
 

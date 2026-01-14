@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
@@ -8,9 +7,8 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { Wizard } from '@patternfly/react-core/deprecated';
 import { createQueryParams } from '../../../helpers/navigation';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { schemaBuilder } from './schema';
-import { createRole, fetchRolesWithPolicies } from '../../../redux/roles/actions';
+import { useCreateRoleMutation } from '../../../data/queries/roles';
 import { useFlag } from '@unleash/proxy-client-react';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { RoleCreationSuccess } from '../components/RoleCreationSuccess';
@@ -26,7 +24,7 @@ import { SilentErrorBoundary } from '../../../components/ui-states/SilentErrorBo
 import messages from '../../../Messages';
 import paths from '../../../utilities/pathnames';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
-import { RoleIn } from '@redhat-cloud-services/rbac-client/types';
+import type { RoleIn } from '@redhat-cloud-services/rbac-client/types';
 
 interface PaginationProps {
   limit: number;
@@ -40,7 +38,6 @@ interface FiltersProps {
 interface AddRoleWizardProps {
   pagination: PaginationProps;
   filters: FiltersProps;
-  orderBy?: string;
 }
 
 interface DescriptionProps {
@@ -106,13 +103,12 @@ export const mapperExtension = {
   'type-selector': TypeSelector,
 };
 
-const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination, filters, orderBy }) => {
+const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination, filters }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
-  const chrome = useChrome();
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
   const addNotification = useAddNotification();
+  const createRoleMutation = useCreateRoleMutation();
 
   const [wizardContextValue, setWizardContextValue] = useState<{
     success: boolean;
@@ -219,15 +215,12 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
 
     setWizardContextValue((prev) => ({ ...prev, submitting: true }));
 
-    const createRoleResult = dispatch(createRole(roleData as RoleIn));
-    return Promise.resolve(createRoleResult)
-      .then((result: any) => {
-        if (result.error) {
-          throw result.error;
-        }
+    return createRoleMutation
+      .mutateAsync(roleData as RoleIn)
+      .then(() => {
         // Success is shown via RoleCreationSuccess wizard step, no notification needed
+        // Cache invalidation happens automatically in the mutation's onSuccess
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
-        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true, chrome }) as unknown as { type: string });
       })
       .catch((error: { errors?: Array<{ detail?: string }> }) => {
         addNotification({
@@ -236,7 +229,6 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
           description: error?.errors?.[0]?.detail || intl.formatMessage(messages.createRoleErrorDescription),
         });
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
-        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true, chrome }) as unknown as { type: string });
         onClose();
       });
   };

@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import AppEntry from '../../../AppEntry';
+import { AppShell } from '../../../AppEntry';
 import MyUserAccess from '../../../features/myUserAccess/MyUserAccess';
 import { FakeAddressBar } from './FakeAddressBar';
 import { LeftNavigation } from './LeftNavigation';
@@ -48,7 +48,7 @@ export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialR
                 </div>
               }
             />
-            <Route path="/iam/user-access/*" element={<AppEntry withNotificationPortal={false} />} />
+            <Route path="/iam/user-access/*" element={<AppShell />} />
           </Routes>
         </Suspense>
       </Page>

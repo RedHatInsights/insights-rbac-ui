@@ -92,7 +92,6 @@ const meta: Meta<typeof AddRoleWizard> = {
   args: {
     pagination: { limit: 20 },
     filters: {},
-    orderBy: 'display_name',
   },
 };
 

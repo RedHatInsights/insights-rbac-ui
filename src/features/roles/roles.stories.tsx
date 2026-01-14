@@ -108,15 +108,10 @@ const meta: Meta<typeof Roles> = {
 **Roles** is a container component that manages the roles list page at \`/iam/user-access/roles\`.
 
 ## Container Responsibilities
-- **Redux State Management**: Manages role data, filters, pagination through Redux
-- **API Orchestration**: Dispatches \`fetchRolesWithPolicies\` and \`fetchAdminGroup\` actions
+- **Data Fetching**: Uses TanStack Query hooks for role data and admin group
 - **Permission Context**: Uses \`orgAdmin\` and \`userAccessAdministrator\` from PermissionsContext
 - **URL Synchronization**: Manages pagination and filters in URL parameters
 - **Table Management**: Provides data and callbacks to TableView component
-
-## Known Issue (TO BE FIXED)
-This component currently makes unauthorized API calls for non-admin users, causing 403 error toast spam.
-The stories below test both the bug scenario and expected behavior after fix.
         `,
       },
     },
@@ -136,14 +131,11 @@ export const AdminUserWithRoles: Story = {
 
 ## Additional Test Stories
 
-For testing specific scenarios and the permission bug, see these additional stories:
+For testing specific scenarios, see these additional stories:
 
-- **[NonAdminUserUnauthorizedCalls](?path=/story/features-roles-roles--non-admin-user-unauthorized-calls)**: Tests the BUG - non-admin users trigger unauthorized API calls
+- **[NonAdminUserUnauthorizedCalls](?path=/story/features-roles-roles--non-admin-user-unauthorized-calls)**: Verifies non-admin users see UnauthorizedAccess and make no API calls
 - **[LoadingState](?path=/story/features-roles-roles--loading-state)**: Tests container behavior during API loading
 - **[EmptyRoles](?path=/story/features-roles-roles--empty-roles)**: Tests container response to empty role data
-
-## Expected Fix Behavior
-After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass with zero API calls made.
         `,
       },
     },
@@ -292,19 +284,9 @@ export const NonAdminUserUnauthorizedCalls: Story = {
     docs: {
       description: {
         story: `
-**BUG REPLICATION**: This story demonstrates the unauthorized API call issue for non-admin users.
+**Non-Admin User Access**: Verifies that non-admin users do not trigger unauthorized API calls.
 
-## Current Behavior (BUG)
-Non-admin users accessing \`/iam/user-access/roles\` trigger unauthorized API calls that result in 403 errors and toast spam.
-
-## Expected Test Result: ❌ FAIL (shows the bug exists)
-This test currently **FAILS** with: \`expect(spy).not.toHaveBeenCalled()\` because unauthorized calls ARE being made.
-
-## Expected Behavior (AFTER FIX)  
-Non-admin users should NOT trigger any API calls and should see a NotAuthorized component instead. The component should check permissions before making API requests.
-
-## Test Validation
-After the fix is applied, this test should **PASS** with zero API calls.
+Non-admin users should see a NotAuthorized component and make zero API calls to the roles or admin group endpoints.
         `,
       },
     },
@@ -356,18 +338,12 @@ After the fix is applied, this test should **PASS** with zero API calls.
 
     await delay(300);
 
-    console.log('SB: 🐛 BUG TEST: Non-admin roles spy calls:', fetchRolesSpy.mock.calls.length);
-    console.log('SB: 🐛 BUG TEST: Non-admin admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
-
-    // 🐛 BUG DEMONSTRATION: These tests currently FAIL because unauthorized API calls are made
-    // This proves the bug exists - non-admin users trigger API calls when they shouldn't
+    // Verify no API calls were made
     expect(fetchRolesSpy).not.toHaveBeenCalled();
     expect(fetchAdminGroupSpy).not.toHaveBeenCalled();
 
-    // After fix: Verify NotAuthorized component is shown instead of making API calls
+    // Verify NotAuthorized component is shown
     expect(await canvas.findByText(/You do not have access to User Access Administration/i)).toBeInTheDocument();
-
-    console.log('SB: 🧪 NON-ADMIN: NotAuthorized component shown, no unauthorized API calls made');
   },
 };
 

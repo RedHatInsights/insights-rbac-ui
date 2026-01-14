@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { Wizard } from '@patternfly/react-core/deprecated';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
@@ -7,7 +6,7 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { useFlag } from '@unleash/proxy-client-react';
-import { updateRole } from '../../../redux/roles/actions';
+import { useUpdateRoleMutation } from '../../../data/queries/roles';
 import AddPermissionsTable from '../add-role/AddPermissions';
 import AddRolePermissionSummaryContent from './AddRolePermissionSummaryContent';
 import AddRolePermissionSuccess from './AddRolePermissionSuccess';
@@ -58,7 +57,7 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [currentRoleID, setCurrentRoleID] = useState('');
   const navigate = useAppNavigate();
-  const dispatch = useDispatch();
+  const updateRoleMutation = useUpdateRoleMutation();
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
   const [wizardContextValue, setWizardContextValue] = useState<WizardContextValue>({
     success: false,
@@ -137,11 +136,17 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
     };
 
     setWizardContextValue((prev) => ({ ...prev, submitting: true }));
-    (
-      dispatch(
-        updateRole(currentRoleID, roleData as unknown as Parameters<typeof updateRole>[1], false) as unknown as { type: string },
-      ) as unknown as Promise<void>
-    )
+    updateRoleMutation
+      .mutateAsync({
+        uuid: currentRoleID,
+        rolePut: {
+          name: roleData.display_name,
+          display_name: roleData.display_name,
+          description: roleData.description,
+          // Type assertion needed - API accepts the shape we're sending
+          access: newAccess as Parameters<typeof updateRoleMutation.mutateAsync>[0]['rolePut']['access'],
+        },
+      })
       .then(() => setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true })))
       .catch(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));

@@ -1,23 +1,19 @@
-import React, { Suspense, useEffect, useMemo } from 'react';
+import React, { Suspense, useMemo } from 'react';
 import { Button, PageSection } from '@patternfly/react-core';
-import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
+import { useIntl } from 'react-intl';
 import { TableView } from '../../components/table-view/TableView';
 import { useTableState } from '../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../components/table-view/components/TableViewEmptyState';
 import { isInventoryHostsPermission, isInventoryPermission } from './roleResourceDefinitionsTableHelpers';
 import { PageLayout } from '../../components/layout/PageLayout';
-import { defaultSettings } from '../../helpers/pagination';
-import { fetchRole } from '../../redux/roles/actions';
 import paths from '../../utilities/pathnames';
 import { AppLink } from '../../components/navigation/AppLink';
 import { useAppLink } from '../../hooks/useAppLink';
 import { getBackRoute } from '../../helpers/navigation';
-import { useIntl } from 'react-intl';
-import { fetchInventoryGroupsDetails } from '../../redux/inventory/actions';
-import { processResourceDefinitions } from '../../redux/inventory/helper';
+import { useRoleQuery } from '../../data/queries/roles';
+import { processResourceDefinitions, useInventoryGroupsDetailsQuery } from '../../data/queries/inventory';
 import messages from '../../Messages';
-import type { RBACStore } from '../../redux/store.d';
 import type { ColumnConfigMap, FilterConfig } from '../../components/table-view/types';
 
 interface ResourceDefinitionRow {
@@ -29,55 +25,50 @@ const COLUMNS = ['resource'] as const;
 
 const RoleResourceDefinitions: React.FC = () => {
   const intl = useIntl();
-  const dispatch = useDispatch();
-
   const { roleId, permissionId } = useParams<{ roleId: string; permissionId: string }>();
   const isInventory = useMemo(() => isInventoryPermission(permissionId!), [permissionId]);
   const isInventoryHosts = useMemo(() => isInventoryHostsPermission(permissionId!), [permissionId]);
   const toAppLink = useAppLink();
 
-  // Use individual selectors to avoid creating new object references on each render
-  const role = useSelector((state: RBACStore) => state.roleReducer.selectedRole);
-  const isRoleLoading = useSelector((state: RBACStore) => state.roleReducer.isRecordLoading);
-  const rolesPagination = useSelector((state: RBACStore) => state.roleReducer?.roles?.pagination) || defaultSettings;
-  const rolesFilters = useSelector((state: RBACStore) => state.roleReducer?.roles?.filters) || {};
-  const inventoryGroupsDetails = useSelector((state: RBACStore) => state.inventoryReducer?.inventoryGroupsDetails);
-  const isLoadingInventoryDetails = useSelector((state: RBACStore) => state.inventoryReducer?.isLoading);
+  // Fetch role data
+  const { data: role, isLoading: isRoleLoading } = useRoleQuery(roleId ?? '');
 
-  // Derive permission from role - memoized to avoid creating new object references
-  const permission = useMemo(
-    () => role?.access?.find((a: { permission: string }) => a.permission === permissionId) || {},
-    [role?.access, permissionId],
-  );
+  // Derive permission from role
+  const permission = useMemo(() => role?.access?.find((a) => a.permission === permissionId) || {}, [role?.access, permissionId]);
 
-  const fetchInventoryGroupNames = (inventoryGroupsIds: string[]) =>
-    dispatch(fetchInventoryGroupsDetails(inventoryGroupsIds) as unknown as { type: string });
+  // Get inventory group IDs from resource definitions
+  const inventoryGroupIds = useMemo(() => {
+    if (!isInventory || !('resourceDefinitions' in permission)) return [];
+    return processResourceDefinitions(permission.resourceDefinitions as never[]).filter(
+      (id): id is string => typeof id === 'string' && id !== 'null',
+    );
+  }, [isInventory, permission]);
 
-  const fetchData = () => {
-    (
-      dispatch(fetchRole(roleId!) as unknown as { type: string }) as unknown as Promise<{
-        value: { access: { permission: string; resourceDefinitions: unknown[] }[] };
-      }>
-    ).then(({ value }) => {
-      if (isInventory) {
-        const resourceDefs = value?.access?.find((item) => item.permission === permissionId)?.resourceDefinitions;
-        fetchInventoryGroupNames(processResourceDefinitions(resourceDefs as unknown as never[]) as unknown as string[]);
+  // Fetch inventory group details (only for inventory permissions)
+  const { data: inventoryGroupsData, isLoading: isLoadingInventoryDetails } = useInventoryGroupsDetailsQuery(inventoryGroupIds, {
+    enabled: isInventory && inventoryGroupIds.length > 0,
+  });
+
+  // Convert inventory groups response to a lookup map
+  const inventoryGroupsDetails = useMemo(() => {
+    if (!inventoryGroupsData?.results) return {};
+    return inventoryGroupsData.results.reduce<Record<string, { id: string; name: string }>>((acc, group) => {
+      if (group.id && group.name) {
+        acc[group.id] = { id: group.id, name: group.name };
       }
-    });
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [roleId]);
+      return acc;
+    }, {});
+  }, [inventoryGroupsData]);
 
   // Process all data
   const allData = useMemo<ResourceDefinitionRow[]>(() => {
-    if (isRoleLoading || isLoadingInventoryDetails) return [];
+    if (isRoleLoading || (isInventory && isLoadingInventoryDetails)) return [];
 
-    const processed = processResourceDefinitions((permission as { resourceDefinitions?: never[] }).resourceDefinitions) as (string | null)[];
+    const resourceDefs = 'resourceDefinitions' in permission ? permission.resourceDefinitions : undefined;
+    const processed = processResourceDefinitions(resourceDefs as never[]) as (string | null)[];
     return processed.map((item, index) => ({
       id: `${index}`,
-      value: !isInventory || item == null ? item : ((inventoryGroupsDetails?.[item]?.name as string | null) ?? item),
+      value: !isInventory || item == null ? item : (inventoryGroupsDetails?.[item]?.name ?? item),
     }));
   }, [permissionId, isRoleLoading, isLoadingInventoryDetails, permission, isInventory, inventoryGroupsDetails]);
 
@@ -141,11 +132,7 @@ const RoleResourceDefinitions: React.FC = () => {
       breadcrumbs={[
         {
           title: intl.formatMessage(messages.roles),
-          to: getBackRoute(
-            toAppLink(paths['roles'].link) as string,
-            rolesPagination as { limit: number; offset: number },
-            rolesFilters,
-          ) as unknown as string,
+          to: getBackRoute(toAppLink(paths['roles'].link) as string, { limit: 20, offset: 0 }, {}) as unknown as string,
         },
         {
           title: isRoleLoading ? undefined : role && (role.display_name || role.name),

@@ -2,12 +2,10 @@ import { UseFieldApiConfig, useFieldApi, useFormApi } from '@data-driven-forms/r
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import messages from '../../../Messages';
 import { PER_PAGE_OPTIONS } from '../../../helpers/pagination';
-import { listPermissions } from '../../../redux/permissions/actions';
-import { selectPermissionsFullState } from '../../../redux/permissions/selectors';
+import { usePermissionsQuery } from '../../../data/queries/permissions';
 import { TableView } from '../../../components/table-view/TableView';
 import { useTableState } from '../../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../components/table-view/components/TableViewEmptyState';
@@ -29,13 +27,10 @@ interface Permission {
 const columns = ['application', 'resourceType', 'operation'] as const;
 
 export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) => {
-  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const intl = useIntl();
   const formOptions = useFormApi();
   const { input } = useFieldApi({ ...props, formOptions });
-
-  const { permissions, totalCount, isLoading } = useSelector(selectPermissionsFullState);
 
   // Build initial selected rows from prop values (placeholder objects)
   const initialSelectedRows = useMemo(
@@ -116,27 +111,28 @@ export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) 
     initialFilters,
     initialSelectedRows,
     syncWithUrl: true,
-    onStaleData: (params) => {
-      dispatch(
-        listPermissions({
-          limit: params.limit,
-          offset: params.offset,
-          application: (params.filters.application as string) || '',
-          resourceType: (params.filters.resourceType as string) || '',
-          verb: (params.filters.operation as string) || '',
-          allowed_only: false,
-        }),
-      );
-    },
   });
+
+  // TanStack Query for permissions
+  const { data: permissionsData, isLoading } = usePermissionsQuery({
+    limit: tableState.perPage,
+    offset: (tableState.page - 1) * tableState.perPage,
+    application: (tableState.filters.application as string) || undefined,
+    resourceType: (tableState.filters.resourceType as string) || undefined,
+    verb: (tableState.filters.operation as string) || undefined,
+    allowedOnly: false,
+  });
+
+  const permissions = permissionsData?.data || [];
+  const totalCount = permissionsData?.meta?.count || 0;
 
   // Map permissions data to rows
   const rows: Permission[] = useMemo(() => {
-    return (permissions as any[]).map((permission: any) => ({
+    return permissions.map((permission) => ({
       permission: permission.permission,
-      application: permission.application,
-      resource_type: permission.resource_type,
-      verb: permission.verb,
+      application: permission.application || '',
+      resource_type: permission.resource_type || '',
+      verb: permission.verb || '',
     }));
   }, [permissions]);
 
@@ -205,7 +201,7 @@ export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) 
           columns={columns}
           columnConfig={columnConfig}
           data={isLoading ? undefined : rows}
-          totalCount={totalCount || 0}
+          totalCount={totalCount}
           getRowId={(row) => row.permission}
           cellRenderers={cellRenderers}
           filterConfig={filterConfig}

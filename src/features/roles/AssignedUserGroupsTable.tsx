@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { Role, RoleGroup } from '../../redux/roles/reducer';
+import type { AdditionalGroup, RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
 import { useIntl } from 'react-intl';
 import Messages from '../../Messages';
 import { TableView } from '../../components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '../../components/table-view/types';
 
 interface AssignedUserGroupsTableProps {
-  viewedRole?: Role;
+  viewedRole?: RoleOutDynamic;
 }
 
 interface GroupRow {
@@ -24,9 +24,9 @@ export const AssignedUserGroupsTable: React.FunctionComponent<AssignedUserGroups
   // Transform groups to rows
   const rows: GroupRow[] = useMemo(
     () =>
-      (viewedRole?.groups_in ?? []).map((group: RoleGroup) => ({
-        uuid: group.uuid,
-        name: group.name,
+      (viewedRole?.groups_in ?? []).map((group: AdditionalGroup) => ({
+        uuid: group.uuid ?? '',
+        name: group.name ?? '',
         workspaceAssignment: 'TBD',
       })),
     [viewedRole?.groups_in],
