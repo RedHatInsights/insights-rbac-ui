@@ -750,13 +750,13 @@ export const AdminUserWithRolesSorting: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for debounced functions to settle
-    await delay(300);
-
     console.log('SB: 🧪 SORTING: Starting column sorting test');
 
-    // Wait for initial data load
+    // Wait for initial data load - table should be fully rendered with sortable headers
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
+
+    // Additional wait to ensure table headers are interactive (not skeletons)
+    await delay(100);
 
     // Test sorting by Name column (display_name)
     console.log('SB: 🧪 Testing Name column sorting...');
