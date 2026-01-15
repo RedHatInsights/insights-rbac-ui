@@ -43,7 +43,7 @@ function createDynamicEnvironment(args: any) {
 
 const meta = {
   component: AppEntryWithRouter,
-  title: 'User Journeys/Production Org User',
+  title: 'User Journeys/Production/V1 (Current)/Org User',
   tags: ['prod-org-user'],
   decorators: [
     (Story: any, context: any) => {
