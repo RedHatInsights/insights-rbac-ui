@@ -310,7 +310,7 @@ export const FilteringInteraction: Story = {
     await userEvent.click(filterDropdownButton);
 
     // Wait for dropdown menu to appear and select "Application" option
-    const applicationOption = await canvas.findByRole('menuitem', { name: /Application/i });
+    const applicationOption = await within(document.body).findByRole('menuitem', { name: /Application/i });
     await userEvent.click(applicationOption);
 
     // Wait for the filter input to change and find the application filter dropdown
@@ -322,8 +322,8 @@ export const FilteringInteraction: Story = {
     // Click the application filter dropdown
     await userEvent.click(applicationFilter);
 
-    // Find and select the "advisor" option from the dropdown menu
-    const advisorMenuItem = await canvas.findByText('advisor');
+    // Find and select the "advisor" option from the dropdown menu (renders via portal)
+    const advisorMenuItem = await within(document.body).findByText('advisor');
     await userEvent.click(advisorMenuItem);
 
     // Verify application filter API call (should preserve role filter)
@@ -337,8 +337,8 @@ export const FilteringInteraction: Story = {
       { timeout: 1000 },
     );
 
-    // Test clear all filters
-    const clearAllFilters = await canvas.findByText('Clear filters');
+    // Test clear all filters - use role selector to avoid matching empty state "Clear filters" link
+    const clearAllFilters = await canvas.findByRole('button', { name: /clear filters/i });
 
     // Reset spy
     apiCallSpy.mockClear();
@@ -507,7 +507,7 @@ export const SortingInteraction: Story = {
     await userEvent.click(roleFilter);
 
     // Find the role name menu item and select it
-    const roleNameMenuItem = await canvas.findByRole('menuitem', { name: /Role name/i });
+    const roleNameMenuItem = await within(document.body).findByRole('menuitem', { name: /Role name/i });
     await userEvent.click(roleNameMenuItem);
 
     // Find the text input and type a filter

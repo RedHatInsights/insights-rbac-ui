@@ -20,7 +20,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({ dirtyFieldsSinceLastSubmit, s
   const intl = useIntl();
 
   return (
-    <ActionGroup className="pf-v5-u-mt-0">
+    <ActionGroup className="pf-v6-u-mt-0">
       <Button ouiaId="primary-submit-button" type="submit" isDisabled={noChanges} variant="primary">
         {intl.formatMessage(messages.save)}
       </Button>

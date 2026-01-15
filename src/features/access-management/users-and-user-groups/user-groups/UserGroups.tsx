@@ -1,10 +1,13 @@
 import React, { Fragment, Suspense, useCallback, useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
+import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import PermissionsContext from '../../../../utilities/permissionsContext';
+import messages from '../../../../Messages';
 
 import { removeGroups } from '../../../../redux/groups/actions';
 import { Group } from '../../../../redux/groups/reducer';
@@ -25,8 +28,10 @@ interface UserGroupsProps {
 }
 
 export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPage = 20, ouiaId = 'iam-user-groups-table' }) => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
+  const addNotification = useAddNotification();
   const [searchParams] = useSearchParams();
 
   // Use the custom hook for all UserGroups business logic
@@ -105,8 +110,13 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
 
   // Confirm deletion
   const handleConfirmDelete = useCallback(async () => {
+    const multipleGroups = currentGroups.length > 1;
     try {
       await dispatch(removeGroups(currentGroups.map((group) => group.uuid)));
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(multipleGroups ? messages.removeGroupsSuccess : messages.removeGroupSuccess),
+      });
       setIsDeleteModalOpen(false);
       setCurrentGroups([]);
 
@@ -120,8 +130,12 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
       });
     } catch (error) {
       console.error('Failed to delete groups:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(multipleGroups ? messages.removeGroupsError : messages.removeGroupError),
+      });
     }
-  }, [dispatch, currentGroups, fetchData, pagination, sortBy, filters]);
+  }, [dispatch, currentGroups, fetchData, pagination, sortBy, filters, addNotification, intl]);
 
   // Close delete modal
   const handleCloseDeleteModal = useCallback(() => {

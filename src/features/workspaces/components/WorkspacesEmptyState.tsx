@@ -1,5 +1,5 @@
 import React from 'react';
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { SearchIcon } from '@patternfly/react-icons/dist/dynamic/icons/search-icon';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';
@@ -18,12 +18,7 @@ export const WorkspacesEmptyState: React.FC<WorkspacesEmptyStateProps> = ({ titl
   const intl = useIntl();
 
   return (
-    <EmptyState>
-      <EmptyStateHeader
-        titleText={titleText || intl.formatMessage(messages.workspaceEmptyStateTitle)}
-        headingLevel="h4"
-        icon={<EmptyStateIcon icon={SearchIcon} />}
-      />
+    <EmptyState headingLevel="h4" icon={SearchIcon} titleText={titleText || intl.formatMessage(messages.workspaceEmptyStateTitle)}>
       <EmptyStateBody>
         {subtitleContent || (
           <FormattedMessage

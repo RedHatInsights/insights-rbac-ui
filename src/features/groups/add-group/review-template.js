@@ -6,8 +6,7 @@ import { Bullseye } from '@patternfly/react-core';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ButtonVariant } from '@patternfly/react-core';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import { EmptyStateVariant } from '@patternfly/react-core';
 import { Progress } from '@patternfly/react-core/dist/dynamic/components/Progress';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
@@ -19,7 +18,6 @@ import useAppNavigate from '../../../hooks/useAppNavigate';
 import { WizardError } from '../../../components/ui-states/WizardError';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
-import './review-step.scss';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 
 const ReviewTemplate = ({ formFields }) => {
@@ -38,7 +36,7 @@ const ReviewTemplate = ({ formFields }) => {
   if (typeof error === 'undefined' || (submittingGroup && !submittingServiceAccounts)) {
     return (
       <Bullseye>
-        <Spinner className="pf-v5-u-mt-xl" size="xl" />
+        <Spinner className="pf-v6-u-mt-xl" size="xl" />
       </Bullseye>
     );
   }
@@ -46,14 +44,16 @@ const ReviewTemplate = ({ formFields }) => {
   if (submittingServiceAccounts && !error) {
     const value = submittingGroup ? 1 : submittingServiceAccounts ? 2 : 3;
     return (
-      <EmptyState variant={EmptyStateVariant.lg} data-component-ouia-id="wizard-progress" className="rbac-add-group-progress">
-        <EmptyStateHeader
-          titleText={intl.formatMessage(messages.groupBeingCreated)}
-          icon={<EmptyStateIcon className="pf-v5-u-mt-xl" icon={InProgressIcon} />}
-          headingLevel="h4"
-        />
+      <EmptyState
+        headingLevel="h4"
+        icon={InProgressIcon}
+        titleText={intl.formatMessage(messages.groupBeingCreated)}
+        variant={EmptyStateVariant.lg}
+        data-component-ouia-id="wizard-progress"
+        className="rbac-add-group-progress"
+      >
         <Progress
-          className="pf-v5-u-mt-lg"
+          className="pf-v6-u-mt-lg"
           style={{ textAlign: 'left' }}
           min={0}
           max={3}
@@ -88,7 +88,7 @@ const ReviewTemplate = ({ formFields }) => {
     />
   ) : (
     <React.Fragment>
-      <Title headingLevel="h1" size="xl" className="pf-v5-u-mb-lg">
+      <Title headingLevel="h1" size="xl" className="pf-v6-u-mb-lg">
         {intl.formatMessage(messages.reviewDetails)}
       </Title>
       {[[{ ...formFields?.[0]?.[0] }]]}

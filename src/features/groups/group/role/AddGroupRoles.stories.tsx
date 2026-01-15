@@ -6,6 +6,7 @@ import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { useDispatch, useSelector } from 'react-redux';
 import { AddGroupRoles } from './AddGroupRoles';
 import { fetchAddRolesForGroup, fetchGroup } from '../../../../redux/groups/actions';
+import { resetRegistry } from '../../../../utilities/store';
 
 const mockRoles = [
   {
@@ -61,23 +62,27 @@ const postRolesSpy = fn();
 const createGroupRolesHandler = (availableRoles = mockAvailableRoles) => {
   const handlerFunction = ({ request }: { request: Request }) => {
     const url = new URL(request.url);
-    const exclude = url.searchParams.get('excluded') || url.searchParams.get('exclude');
+    // API client uses 'exclude' param (not 'excluded')
+    const exclude = url.searchParams.get('exclude');
     const limit = parseInt(url.searchParams.get('limit') || '20');
     const offset = parseInt(url.searchParams.get('offset') || '0');
     const orderBy = url.searchParams.get('order_by');
-    const name = url.searchParams.get('name'); // 🎯 ADD: Name filtering support
+    // API client uses 'role_name' and 'role_display_name' for filtering
+    const roleName = url.searchParams.get('role_name');
+    const roleDisplayName = url.searchParams.get('role_display_name');
 
     if (exclude === 'true') {
       // Available roles that can be added (not already assigned)
       let filteredRoles = [...availableRoles];
 
-      // 🎯 APPLY NAME FILTERING if provided
-      if (name && name.trim() !== '') {
+      // 🎯 APPLY NAME FILTERING if provided (check both role_name and role_display_name)
+      const nameFilter = roleName || roleDisplayName;
+      if (nameFilter && nameFilter.trim() !== '') {
         filteredRoles = filteredRoles.filter(
           (role) =>
-            role.display_name.toLowerCase().includes(name.toLowerCase()) ||
-            role.name.toLowerCase().includes(name.toLowerCase()) ||
-            (role.description && role.description.toLowerCase().includes(name.toLowerCase())),
+            role.display_name.toLowerCase().includes(nameFilter.toLowerCase()) ||
+            role.name.toLowerCase().includes(nameFilter.toLowerCase()) ||
+            (role.description && role.description.toLowerCase().includes(nameFilter.toLowerCase())),
         );
       }
 
@@ -214,6 +219,11 @@ const meta: Meta<any> = {
           return HttpResponse.json({ message: 'Roles added successfully' });
         }),
 
+        // Reset state endpoint for resetStoryState helper
+        http.post('/api/test/reset-state', () => {
+          return HttpResponse.json({ success: true });
+        }),
+
         // 🎯 CRITICAL: Group roles handlers for fetchAddRolesForGroup (excluded roles)
         ...createGroupRolesHandler(),
       ],
@@ -305,9 +315,14 @@ export const Default: Story = {
     // Wait for roles data to load and table to render
     expect(await within(modal).findByText('Content Manager')).toBeInTheDocument();
 
-    // Verify button is disabled initially (no selection)
+    // Verify button is disabled initially (no selection) - wait for selection state to stabilize
     const submitButton = await within(modal).findByRole('button', { name: /add to group/i });
-    expect(submitButton).toBeDisabled();
+    await waitFor(
+      () => {
+        expect(submitButton).toBeDisabled();
+      },
+      { timeout: 2000 },
+    );
 
     // This story is primarily for manual testing - minimal automated verification
   },
@@ -351,26 +366,29 @@ export const WithRoles: Story = {
     // Test modal heading
     expect(await within(modal).findByRole('heading', { name: 'Add roles to group' })).toBeInTheDocument();
 
-    // This story passes initialSelectedRoles, but they need to be manually selected in the UI
     // Wait for roles data to load and be visible
     expect(await within(modal).findByText('Content Manager')).toBeInTheDocument();
     expect(await within(modal).findByText('Auditor')).toBeInTheDocument();
 
-    // Initially button should be disabled (even with initialSelectedRoles, UI selection is separate)
+    // With initialSelectedRoles, button should be enabled from the start (rows are pre-selected)
     const submitButton = await within(modal).findByRole('button', { name: /add to group/i });
-    expect(submitButton).toBeDisabled();
+    await waitFor(
+      () => {
+        expect(submitButton).toBeEnabled();
+      },
+      { timeout: 2000 },
+    );
 
-    // Select the first two roles (matching the initialSelectedRoles)
+    // Verify that roles are pre-selected (row checkboxes should be checked)
+    // Note: checkboxes[0] is the BulkSelect checkbox, row checkboxes start at index 1
     const checkboxes = await within(modal).findAllByRole('checkbox');
-    await userEvent.click(checkboxes[0]); // Content Manager
-    await userEvent.click(checkboxes[1]); // Auditor
-
-    // Now button should be enabled
-    await waitFor(() => {
-      expect(submitButton).toBeEnabled();
-    });
+    expect(checkboxes[1]).toBeChecked(); // First row (Content Manager)
+    expect(checkboxes[2]).toBeChecked(); // Second row (Auditor)
   },
 };
+
+// Spy for tracking addRolesToGroup API calls
+const addRolesToGroupApiSpy = fn();
 
 export const DefaultGroup: Story = {
   render: () => (
@@ -402,9 +420,13 @@ export const DefaultGroup: Story = {
             principalCount: 5,
             policyCount: 3,
             roleCount: 2,
-            // 🎯 DEFAULT GROUP: Let MSW handler provide addRoles dynamically
-            // Don't hardcode addRoles data - let the wrapper fetch it via Redux actions
           });
+        }),
+        // Handler for POST /groups/:groupId/roles/ - the actual role addition
+        http.post('/api/rbac/v1/groups/:groupId/roles/', async ({ params, request }) => {
+          const body = await request.json();
+          addRolesToGroupApiSpy({ groupId: params.groupId, roles: body });
+          return HttpResponse.json({ message: 'Roles added successfully' });
         }),
         // 🎯 CRITICAL: Include ALL group roles handlers for this story too
         ...createGroupRolesHandler(),
@@ -412,169 +434,72 @@ export const DefaultGroup: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300); // Wait for MSW handlers to initialize
+    // Reset spy for clean test
+    addRolesToGroupApiSpy.mockClear();
+
+    await delay(300);
     const canvas = within(canvasElement);
 
-    // Just verify the button to open modal is present
-    expect(await canvas.findByRole('button', { name: 'Open Add Roles Modal' })).toBeInTheDocument();
-  },
-};
+    // Open the modal
+    const openButton = await canvas.findByRole('button', { name: 'Open Add Roles Modal' });
+    await userEvent.click(openButton);
 
-export const WithFiltering: Story = {
-  render: () => (
-    <AddGroupRolesWithData
-      title="Add roles to group - Filtering"
-      closeUrl="/groups/detail/test-group-id/roles"
-      isDefault={false}
-      isChanged={false}
-      initialSelectedRoles={[]}
-      onSelectedRolesChange={fn()}
-      addRolesToGroup={fn(() => Promise.resolve())}
-      afterSubmit={fn()}
-      onDefaultGroupChanged={fn()}
-    />
-  ),
-  parameters: {
-    msw: {
-      handlers: [
-        // Group data handler
-        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
-          return HttpResponse.json({
-            uuid: params.groupId,
-            name: 'Test Group',
-            description: 'Test group for filtering',
-            platform_default: false,
-            admin_default: false,
-            created: '2024-01-15T10:30:00.000Z',
-            modified: '2024-01-15T10:30:00.000Z',
-            principalCount: 5,
-            policyCount: 3,
-            roleCount: 2,
-          });
-        }),
-        // Enhanced roles handler that supports filtering by display_name
-        http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          const exclude = url.searchParams.get('exclude') || url.searchParams.get('excluded');
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-          const displayName = url.searchParams.get('display_name') || url.searchParams.get('role_display_name') || '';
+    // Wait for modal to render
+    const modal = await within(document.body).findByRole('dialog', undefined, { timeout: 5000 });
+    expect(modal).toBeInTheDocument();
 
-          if (exclude === 'true') {
-            // Filter available roles by display_name if provided
-            let filteredRoles = mockAvailableRoles;
-            if (displayName) {
-              filteredRoles = mockAvailableRoles.filter(
-                (role) =>
-                  role.display_name.toLowerCase().includes(displayName.toLowerCase()) || role.name.toLowerCase().includes(displayName.toLowerCase()),
-              );
-            }
+    // Wait for roles table to load (use grid role since TableView renders as grid)
+    await waitFor(
+      () => {
+        expect(within(modal).getByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
 
-            const paginatedRoles = filteredRoles.slice(offset, offset + limit);
+    // Wait for roles data to load
+    expect(await within(modal).findByText('Content Manager', undefined, { timeout: 5000 })).toBeInTheDocument();
 
-            return HttpResponse.json({
-              data: paginatedRoles,
-              meta: {
-                count: filteredRoles.length,
-                limit,
-                offset,
-              },
-            });
-          }
+    // Select a role - checkboxes[0] is BulkSelect, row checkboxes start at index 1
+    const checkboxes = await within(modal).findAllByRole('checkbox');
+    await userEvent.click(checkboxes[1]);
 
-          return HttpResponse.json({
-            data: mockRoles,
-            meta: { count: mockRoles.length, limit, offset },
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Wait for MSW handlers to initialize
-    const canvas = within(canvasElement);
+    // Click "Add to group" button
+    const submitButton = await within(modal).findByRole('button', { name: /add to group/i });
+    await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: 2000 });
+    await userEvent.click(submitButton);
 
-    // Just verify the button to open modal is present
-    expect(await canvas.findByRole('button', { name: 'Open Add Roles Modal' })).toBeInTheDocument();
-  },
-};
+    // Verify DefaultGroupChangeModal confirmation dialog appears
+    // When isDefault=true and isChanged=false, clicking submit shows confirmation first
+    const confirmationModal = await within(document.body).findByRole('dialog', undefined, { timeout: 3000 });
+    expect(confirmationModal).toBeInTheDocument();
 
-export const WithPagination: Story = {
-  render: () => (
-    <AddGroupRolesWithData
-      title="Add roles to group - Pagination"
-      closeUrl="/groups/detail/test-group-id/roles"
-      isDefault={false}
-      isChanged={false}
-      initialSelectedRoles={[]}
-      onSelectedRolesChange={fn()}
-      addRolesToGroup={fn(() => Promise.resolve())}
-      afterSubmit={fn()}
-      onDefaultGroupChanged={fn()}
-    />
-  ),
-  parameters: {
-    msw: {
-      handlers: [
-        // Group data handler
-        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
-          return HttpResponse.json({
-            uuid: params.groupId,
-            name: 'Test Group',
-            description: 'Test group for pagination',
-            platform_default: false,
-            admin_default: false,
-            created: '2024-01-15T10:30:00.000Z',
-            modified: '2024-01-15T10:30:00.000Z',
-            principalCount: 5,
-            policyCount: 3,
-            roleCount: 2,
-          });
-        }),
-        // Large dataset roles handler for pagination testing
-        http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          const exclude = url.searchParams.get('exclude') || url.searchParams.get('excluded');
-          const limit = parseInt(url.searchParams.get('limit') || '10');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
+    // Find and check the "I understand" checkbox (required before continuing)
+    const confirmCheckbox = within(confirmationModal).getByRole('checkbox');
+    await userEvent.click(confirmCheckbox);
 
-          if (exclude === 'true') {
-            // Generate large dataset for pagination testing (50 roles)
-            const largeDataset = Array.from({ length: 50 }, (_, i) => ({
-              uuid: `role-${i + 1}`,
-              name: `Test Role ${i + 1}`,
-              display_name: `Test Role ${i + 1}`,
-              description: `Description for test role ${i + 1}`,
-              system: false,
-              platform_default: false,
-            }));
+    // Click "Continue" to confirm and add roles
+    const continueButton = within(confirmationModal).getByRole('button', { name: /continue/i });
+    await userEvent.click(continueButton);
 
-            const paginatedRoles = largeDataset.slice(offset, offset + limit);
+    // Verify addRolesToGroup API was called with the correct data
+    await waitFor(
+      () => {
+        expect(addRolesToGroupApiSpy).toHaveBeenCalled();
+        const callArgs = addRolesToGroupApiSpy.mock.calls[0][0];
+        expect(callArgs.groupId).toBe('test-group-id');
+        // Should include both initial selected role (Developer/role-3) and newly selected role
+        // Note: Rows are sorted alphabetically by display_name, so Auditor (role-5) is first row
+        expect(callArgs.roles.roles).toContain('role-3'); // Developer from initialSelectedRoles
+        expect(callArgs.roles.roles).toContain('role-5'); // Auditor (first row when sorted by display_name)
+      },
+      { timeout: 3000 },
+    );
 
-            return HttpResponse.json({
-              data: paginatedRoles,
-              meta: {
-                count: largeDataset.length,
-                limit,
-                offset,
-              },
-            });
-          }
-
-          return HttpResponse.json({
-            data: [],
-            meta: { count: 0, limit, offset },
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Wait for MSW handlers to initialize
-    const canvas = within(canvasElement);
-
-    // Just verify the button to open modal is present
-    expect(await canvas.findByRole('button', { name: 'Open Add Roles Modal' })).toBeInTheDocument();
+    // CLEANUP: Clear modals after test to prevent pollution of subsequent stories
+    const modalContainer = document.getElementById('storybook-modals');
+    if (modalContainer) {
+      modalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+    }
   },
 };
 
@@ -749,13 +674,13 @@ export const CancelNotification: Story = {
           const notificationPortal = document.querySelector('.notifications-portal');
           expect(notificationPortal).toBeInTheDocument();
 
-          const warningAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-warning');
+          const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
           expect(warningAlert).toBeInTheDocument();
 
-          const alertTitle = warningAlert?.querySelector('.pf-v5-c-alert__title');
+          const alertTitle = warningAlert?.querySelector('.pf-v6-c-alert__title');
           expect(alertTitle).toHaveTextContent(/cancel/i);
 
-          const alertDescription = warningAlert?.querySelector('.pf-v5-c-alert__description');
+          const alertDescription = warningAlert?.querySelector('.pf-v6-c-alert__description');
           expect(alertDescription).toHaveTextContent(/cancelled/i);
         },
         { timeout: 5000 },
@@ -767,9 +692,21 @@ export const CancelNotification: Story = {
   },
 };
 
-// 🎯 NEW: Test story for role filtering with API spies
-export const RoleFilteringTest = {
+// 🎯 Test story for role filtering with API spies
+export const RoleFilteringTest: Story = {
   name: 'Role Filtering with API Spies',
+  decorators: [
+    (Story) => {
+      // Reset Redux and clear modals before component mounts
+      resetRegistry();
+      const modalContainer = document.getElementById('storybook-modals');
+      if (modalContainer) {
+        modalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+      }
+      // Unique key forces React to remount the component fresh
+      return <Story key={`filtering-${Date.now()}`} />;
+    },
+  ],
   render: () => (
     <AddGroupRolesWithData
       title="Add roles to group - Filtering Test"
@@ -801,21 +738,25 @@ export const RoleFilteringTest = {
         // 🎯 SPY-ENABLED: Group roles handler with filtering
         http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
           const url = new URL(request.url);
-          const exclude = url.searchParams.get('excluded') || url.searchParams.get('exclude');
-          const name = url.searchParams.get('name');
+          // API client uses 'exclude' param (not 'excluded')
+          const exclude = url.searchParams.get('exclude');
+          // API client uses 'role_name' for name filtering (not 'name')
+          const roleName = url.searchParams.get('role_name');
+          const roleDisplayName = url.searchParams.get('role_display_name');
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
 
           if (exclude === 'true') {
             let filteredRoles = [...mockAvailableRoles];
 
-            // Apply name filtering
-            if (name && name.trim() !== '') {
+            // Apply name filtering (check both role_name and role_display_name)
+            const nameFilter = roleName || roleDisplayName;
+            if (nameFilter && nameFilter.trim() !== '') {
               filteredRoles = filteredRoles.filter(
                 (role) =>
-                  role.display_name.toLowerCase().includes(name.toLowerCase()) ||
-                  role.name.toLowerCase().includes(name.toLowerCase()) ||
-                  (role.description && role.description.toLowerCase().includes(name.toLowerCase())),
+                  role.display_name.toLowerCase().includes(nameFilter.toLowerCase()) ||
+                  role.name.toLowerCase().includes(nameFilter.toLowerCase()) ||
+                  (role.description && role.description.toLowerCase().includes(nameFilter.toLowerCase())),
               );
             }
 
@@ -867,62 +808,92 @@ export const RoleFilteringTest = {
         http.post('/api/rbac/v1/groups/:groupId/roles/', () => {
           return HttpResponse.json({ message: 'Roles added successfully' });
         }),
+
+        // Reset state endpoint for resetStoryState helper
+        http.post('/api/test/reset-state', () => {
+          return HttpResponse.json({ success: true });
+        }),
       ],
     },
   },
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    await delay(300); // Wait for MSW handlers to initialize
+    // Clear modal container from any previous story's leftover modals
+    const existingModalContainer = document.getElementById('storybook-modals');
+    if (existingModalContainer) {
+      existingModalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+    }
+    postRolesSpy.mockClear();
+
     const canvas = within(canvasElement);
+
+    // Wait for component to load data (shows "Loading group data..." until ready)
+    await canvas.findByRole('button', { name: 'Open Add Roles Modal' }, { timeout: 10000 });
 
     // Click the button to open the modal
     const openButton = await canvas.findByRole('button', { name: 'Open Add Roles Modal' });
     await userEvent.click(openButton);
 
-    // Wait for the modal to load
-    const modal = await screen.findByRole('dialog', undefined, { timeout: 10000 });
+    // Wait for the modal to load - use modal container for Storybook
+    const modalContainer = document.getElementById('storybook-modals') || document.body;
+    const modal = await within(modalContainer).findByRole('dialog', undefined, { timeout: 10000 });
     expect(modal).toBeInTheDocument();
-
-    // Wait for the roles grid to load within the modal (DataViewTable uses role="grid")
     const modalContent = within(modal);
-    const table = await modalContent.findByRole('grid', undefined, { timeout: 5000 });
-    expect(table).toBeInTheDocument();
 
-    // Find the filter input within the modal
-    const filterInput = await modalContent.findByPlaceholderText('Filter by role name');
+    // Wait for data to fully load (proves table rendered with data)
+    await waitFor(
+      () => {
+        expect(modalContent.getByText('Auditor')).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
+
+    // Query fresh for elements (don't hold stale references - TableView re-renders)
+    const filterInput = modalContent.getByPlaceholderText('Filter by role name');
     expect(filterInput).toBeInTheDocument();
 
-    // Get initial role count within the modal
-    const initialRows = await modalContent.findAllByRole('row');
+    // Get initial role count - query fresh
+    const initialRows = modalContent.getAllByRole('row');
     const initialRowCount = initialRows.length - 1; // Subtract header row
     expect(initialRowCount).toBeGreaterThan(0);
 
     // Type in filter - search for "aud" (should match "Auditor" role)
     await userEvent.type(filterInput, 'aud');
 
-    // Wait for filtered results with debounced API call
-    await waitFor(() => {
-      const filteredRows = modalContent.getAllByRole('row');
-      const filteredRowCount = filteredRows.length - 1; // Subtract header row
+    // Wait for debounce + Redux state update + re-render
+    await delay(500);
 
-      // Should have fewer roles now (filtering should work)
-      expect(filteredRowCount).toBeLessThan(initialRowCount);
-      expect(filteredRowCount).toBeGreaterThan(0); // Should still have the Auditor role
-    });
+    // Wait for filtered results
+    await waitFor(
+      () => {
+        const filteredRows = modalContent.getAllByRole('row');
+        const filteredRowCount = filteredRows.length - 1; // Subtract header row
+
+        // Should have fewer roles now (filtering should work)
+        expect(filteredRowCount).toBeLessThan(initialRowCount);
+        expect(filteredRowCount).toBeGreaterThan(0); // Should still have the Auditor role
+      },
+      { timeout: 5000 },
+    );
 
     // Verify the Auditor role is visible
     expect(await modalContent.findByText('Auditor')).toBeInTheDocument();
 
     // Clear the filter and verify all roles return
     await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, '{backspace}'); // Force trigger event
 
-    await waitFor(() => {
-      const clearedRows = modalContent.getAllByRole('row');
-      const clearedRowCount = clearedRows.length - 1; // Subtract header row
+    // Wait for debounce + Redux state update + re-render
+    await delay(500);
 
-      // Should have all roles back (at least as many as initial, allowing for MSW handler variations)
-      expect(clearedRowCount).toBeGreaterThanOrEqual(Math.min(initialRowCount, 2)); // At least 2 roles after clear
-    });
+    await waitFor(
+      () => {
+        const clearedRows = modalContent.getAllByRole('row');
+        const clearedRowCount = clearedRows.length - 1; // Subtract header row
+
+        // Should have all roles back (at least as many as initial)
+        expect(clearedRowCount).toBeGreaterThanOrEqual(Math.min(initialRowCount, 2)); // At least 2 roles after clear
+      },
+      { timeout: 5000 },
+    );
     // Verify specific roles are visible after clearing filter
     expect(await modalContent.findByText('Content Manager')).toBeInTheDocument();
   },
@@ -960,52 +931,42 @@ export const ClearFiltersButtonTest = {
         http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
           const url = new URL(request.url);
           const exclude = url.searchParams.get('exclude');
-          if (exclude === 'true') {
-            return HttpResponse.json({ data: [], meta: { count: 0 } });
-          }
-          return HttpResponse.json({
-            data: [
-              { uuid: 'role-4', display_name: 'Content Manager', name: 'content-manager', description: 'Can manage content' },
-              { uuid: 'role-5', display_name: 'Auditor', name: 'auditor', description: 'Can view audit logs' },
-              { uuid: 'role-6', display_name: 'Developer', name: 'developer', description: 'Can deploy applications' },
-            ],
-            meta: { count: 3, limit: 20, offset: 0 },
-          });
-        }),
-        http.get('/api/rbac/v1/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          const displayName = url.searchParams.get('display_name');
-          const name = url.searchParams.get('name');
-          const nameMatch = url.searchParams.get('name_match');
+          // API client uses 'role_name' and 'role_display_name' for filtering
+          const roleName = url.searchParams.get('role_name');
+          const roleDisplayName = url.searchParams.get('role_display_name');
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
 
-          let filteredRoles = [
+          const allRoles = [
             { uuid: 'role-4', display_name: 'Content Manager', name: 'content-manager', description: 'Can manage content' },
             { uuid: 'role-5', display_name: 'Auditor', name: 'auditor', description: 'Can view audit logs' },
             { uuid: 'role-6', display_name: 'Developer', name: 'developer', description: 'Can deploy applications' },
           ];
 
-          // Apply filtering when display_name is provided (this is what the component actually sends)
-          if (displayName && displayName.trim() !== '') {
-            filteredRoles = filteredRoles.filter(
-              (role) =>
-                role.display_name.toLowerCase().includes(displayName.toLowerCase()) ||
-                role.name.toLowerCase().includes(displayName.toLowerCase()) ||
-                (role.description && role.description.toLowerCase().includes(displayName.toLowerCase())),
-            );
-          }
-          // Fallback: Apply filtering when name_match=partial and name is provided
-          else if (nameMatch === 'partial' && name && name.trim() !== '') {
-            filteredRoles = filteredRoles.filter(
-              (role) =>
-                role.display_name.toLowerCase().includes(name.toLowerCase()) ||
-                role.name.toLowerCase().includes(name.toLowerCase()) ||
-                (role.description && role.description.toLowerCase().includes(name.toLowerCase())),
-            );
+          if (exclude === 'true') {
+            let filteredRoles = [...allRoles];
+
+            // Apply name filtering (check both role_name and role_display_name)
+            const nameFilter = roleName || roleDisplayName;
+            if (nameFilter && nameFilter.trim() !== '') {
+              filteredRoles = filteredRoles.filter(
+                (role) =>
+                  role.display_name.toLowerCase().includes(nameFilter.toLowerCase()) ||
+                  role.name.toLowerCase().includes(nameFilter.toLowerCase()) ||
+                  (role.description && role.description.toLowerCase().includes(nameFilter.toLowerCase())),
+              );
+            }
+
+            const paginatedRoles = filteredRoles.slice(offset, offset + limit);
+            return HttpResponse.json({
+              data: paginatedRoles,
+              meta: { count: filteredRoles.length, limit, offset },
+            });
           }
 
           return HttpResponse.json({
-            data: filteredRoles,
-            meta: { count: filteredRoles.length, limit: 20, offset: 0 },
+            data: allRoles,
+            meta: { count: 3, limit: 20, offset: 0 },
           });
         }),
       ],
@@ -1059,9 +1020,21 @@ export const ClearFiltersButtonTest = {
   },
 };
 
-// 🎯 NEW: Test story for POST API call with spies
-export const AddRolesToGroupAPITest = {
+// 🎯 Test story for POST API call with spies
+export const AddRolesToGroupAPITest: Story = {
   name: 'Add Roles API Call with Spies',
+  decorators: [
+    (Story) => {
+      // Reset Redux and clear modals before component mounts
+      resetRegistry();
+      const modalContainer = document.getElementById('storybook-modals');
+      if (modalContainer) {
+        modalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+      }
+      // Unique key forces React to remount the component fresh
+      return <Story key={`api-${Date.now()}`} />;
+    },
+  ],
   render: () => (
     <AddGroupRolesWithData
       title="Add roles to group - API Test"
@@ -1079,8 +1052,8 @@ export const AddRolesToGroupAPITest = {
     docs: { disable: true }, // Hide from docs as this is a test story
     msw: {
       handlers: [
-        // Mock group endpoint
-        http.get('/api/rbac/v1/groups/:groupId', ({ params }) => {
+        // Mock group endpoint (with trailing slash to match API client)
+        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
           return HttpResponse.json({
             uuid: params.groupId,
             name: 'Test Group for API Calls',
@@ -1090,23 +1063,27 @@ export const AddRolesToGroupAPITest = {
           });
         }),
 
-        // Mock available roles for selection
+        // 🎯 SPY-ENABLED: Group roles handler (same as RoleFilteringTest)
         http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
           const url = new URL(request.url);
-          const exclude = url.searchParams.get('excluded') || url.searchParams.get('exclude');
+          // API client uses 'exclude' param (not 'excluded')
+          const exclude = url.searchParams.get('exclude');
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
 
           if (exclude === 'true') {
             // Return available roles to add
+            const paginatedRoles = mockAvailableRoles.slice(offset, offset + limit);
             return HttpResponse.json({
-              data: mockAvailableRoles.slice(0, 3), // Return first 3 for testing
-              meta: { count: 3, limit: 20, offset: 0 },
+              data: paginatedRoles,
+              meta: { count: mockAvailableRoles.length, limit, offset },
             });
           }
 
           // Return current group roles (for refresh after POST)
           return HttpResponse.json({
             data: mockRoles,
-            meta: { count: mockRoles.length, limit: 20, offset: 0 },
+            meta: { count: mockRoles.length, limit, offset },
           });
         }),
 
@@ -1138,31 +1115,48 @@ export const AddRolesToGroupAPITest = {
             meta: { count: mockAvailableRoles.length, limit: 20, offset: 0 },
           });
         }),
+
+        // Reset state endpoint for resetStoryState helper
+        http.post('/api/test/reset-state', () => {
+          return HttpResponse.json({ success: true });
+        }),
       ],
     },
   },
   play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-    await delay(300); // Wait for MSW handlers to initialize
+    // Clear modal container from any previous story's leftover modals
+    const existingModalContainer = document.getElementById('storybook-modals');
+    if (existingModalContainer) {
+      existingModalContainer.querySelectorAll('[role="dialog"]').forEach((el) => el.remove());
+    }
+    postRolesSpy.mockClear();
+
     const canvas = within(canvasElement);
 
-    // 🔍 Reset spy before test
-    postRolesSpy.mockClear();
+    // Wait for component to load data (shows "Loading group data..." until ready)
+    await canvas.findByRole('button', { name: 'Open Add Roles Modal' }, { timeout: 10000 });
 
     // Click the button to open the modal
     const openButton = await canvas.findByRole('button', { name: 'Open Add Roles Modal' });
     await userEvent.click(openButton);
 
-    // Wait for the modal to load
-    const modal = await screen.findByRole('dialog', undefined, { timeout: 10000 });
+    // Wait for the modal to load - use modal container for Storybook
+    const modalContainer = document.getElementById('storybook-modals') || document.body;
+    const modal = await within(modalContainer).findByRole('dialog', undefined, { timeout: 10000 });
     const modalContent = within(modal);
 
-    // Wait for the roles grid to load within the modal (DataViewTable uses role="grid")
-    const table = await modalContent.findByRole('grid', undefined, { timeout: 5000 });
+    // Wait for data to fully load - look for actual content (proves table is rendered with data)
+    await waitFor(
+      () => {
+        expect(modalContent.getByText('Auditor')).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
-    // Select the first available role by clicking its checkbox
-    // Scope checkbox query to the table - findAllByRole waits for checkboxes to be available
-    const tableContext = within(table);
-    const checkboxes = await tableContext.findAllByRole('checkbox');
+    // Query fresh for the table and checkboxes (don't hold stale references)
+    const table = modalContent.getByRole('grid');
+    const checkboxes = within(table).getAllByRole('checkbox');
+    expect(checkboxes.length).toBeGreaterThan(0);
     const firstRoleCheckbox = checkboxes[0];
 
     await userEvent.click(firstRoleCheckbox);
@@ -1204,7 +1198,7 @@ export const AddRolesToGroupAPITest = {
         const notificationPortal = document.querySelector('.notifications-portal');
         expect(notificationPortal).toBeInTheDocument();
 
-        const successAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-success');
+        const successAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-success');
         expect(successAlert).toBeInTheDocument();
       },
       { timeout: 5000 },

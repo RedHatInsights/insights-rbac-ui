@@ -1,172 +1,210 @@
-import React, { Fragment, Suspense, useCallback, useEffect, useMemo } from 'react';
-import { debounce } from '../../../../utilities/debounce';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
-
-import { DataView, DataViewState } from '@patternfly/react-data-view';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { DataViewTextFilter } from '@patternfly/react-data-view';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { GroupMembersEmptyState } from './components/GroupMembersEmptyState';
-
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import useAppNavigate from '../../../../hooks/useAppNavigate';
-import { fetchGroup, fetchGroups } from '../../../../redux/groups/actions';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 
+import { TableView, useTableState } from '../../../../components/table-view';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view/types';
+import { ActionDropdown } from '../../../../components/ActionDropdown';
 import { getBackRoute } from '../../../../helpers/navigation';
+import { fetchGroup, fetchGroups, fetchMembersForGroup, removeMembersFromGroup } from '../../../../redux/groups/actions';
+import { Group } from '../../../../redux/groups/reducer';
+import {
+  selectGroupMembers,
+  selectGroupMembersMeta,
+  selectGroupsFilters,
+  selectGroupsPagination,
+  selectIsAdminDefaultGroup,
+  selectIsChangedDefaultGroup,
+  selectIsGroupMembersLoading,
+  selectIsPlatformDefaultGroup,
+  selectSelectedGroup,
+  selectSystemGroupUUID,
+} from '../../../../redux/groups/selectors';
+import PermissionsContext from '../../../../utilities/permissionsContext';
+import useAppNavigate from '../../../../hooks/useAppNavigate';
+import { useGroupRemoveModal } from '../../hooks/useGroupRemoveModal';
 import pathnames from '../../../../utilities/pathnames';
 import messages from '../../../../Messages';
-// Removed useless GroupMembersTable placeholder - using DataViewTable directly
-import { MemberActionsMenu } from './components/MemberActionsMenu';
 import { DefaultMembersCard } from '../../components/DefaultMembersCard';
 import { RemoveGroupMembers } from './RemoveGroupMembers';
-
-import { useGroupMembers } from './useGroupMembers';
-import type { GroupMembersFilters, Member, MemberTableRow } from './types';
-import { selectGroupsFilters, selectGroupsPagination } from '../../../../redux/groups/selectors';
+import { GroupMembersEmptyState } from './components/GroupMembersEmptyState';
+import { MemberActionsMenu } from './components/MemberActionsMenu';
+import type { Member, MemberTableRow } from './types';
 
 interface GroupMembersProps {
   onDefaultGroupChanged?: (group: { uuid: string; name: string }) => void;
 }
 
-interface SelectedItem {
-  id: string;
-}
-
-// Member row actions component
+// Column definitions
+const columns = ['status', 'username', 'email', 'lastName', 'firstName'] as const;
 
 const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
+  const addNotification = useAddNotification();
 
-  // Use custom hook for business logic
-  const {
-    members,
-    isLoading,
-    group,
-    adminDefault,
-    platformDefault,
-    isChanged,
-    systemGroupUuid,
-    totalCount,
-    isAdmin,
-    filters,
-    selection,
+  // Permissions
+  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const isAdmin = orgAdmin || userAccessAdministrator;
 
-    tableRows,
-    columns,
-    fetchData,
-    handleRemoveMembers,
-    emptyStateProps,
-    pagination,
-    removeModalState,
-  } = useGroupMembers();
-
-  // Additional selectors not in hook
-  // Use shared memoized selectors
+  // Redux selectors
+  const members = useSelector(selectGroupMembers);
+  const meta = useSelector(selectGroupMembersMeta);
+  const totalCount = meta.count || 0;
+  const isLoading = useSelector(selectIsGroupMembersLoading);
+  const group = useSelector(selectSelectedGroup) as Group | undefined;
+  const adminDefault = useSelector(selectIsAdminDefaultGroup);
+  const platformDefault = useSelector(selectIsPlatformDefaultGroup);
+  const isChanged = useSelector(selectIsChangedDefaultGroup);
+  const systemGroupUuid = useSelector(selectSystemGroupUUID);
   const groupsPagination = useSelector(selectGroupsPagination);
   const groupsFilters = useSelector(selectGroupsFilters);
 
-  // Show default cards for BOTH default groups when unchanged (system: true)
-  // Admin default shows "All org admins are members"
-  // Platform default shows "All users are members"
-  // These cards are read-only - no add/edit functionality (matching production behavior)
+  // Show default cards for default groups
   const showDefaultCard = (adminDefault || platformDefault) && group?.system;
 
-  // Create skeleton loading states
-  const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.cell)} />;
-  const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />;
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      status: { label: intl.formatMessage(messages.status) },
+      username: { label: intl.formatMessage(messages.username) },
+      email: { label: intl.formatMessage(messages.email) },
+      lastName: { label: intl.formatMessage(messages.lastName) },
+      firstName: { label: intl.formatMessage(messages.firstName) },
+    }),
+    [intl],
+  );
 
-  // Empty state component using props from hook
-  const emptyState = <GroupMembersEmptyState {...emptyStateProps} />;
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        id: 'name',
+        label: intl.formatMessage(messages.username),
+        type: 'text',
+        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
+      },
+    ],
+    [intl],
+  );
 
-  // Debounced version for filter changes
-  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
+  // Handle data fetching via onStaleData
+  const handleStaleData = useCallback(
+    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
+      if (!groupId) return;
 
-  // Cleanup debounced function on unmount
-  useEffect(() => {
-    return () => {
-      debouncedFetchData.cancel();
-    };
-  }, [debouncedFetchData]);
+      const usernameFilter = params.filters.name as string | undefined;
+      dispatch(
+        fetchMembersForGroup(groupId, usernameFilter, {
+          limit: params.limit,
+          offset: params.offset,
+        }),
+      );
+    },
+    [dispatch, groupId],
+  );
 
-  // CRITICAL: Fix dependency bug - fetch group details on mount
+  // useTableState for all state management
+  const tableState = useTableState<typeof columns, Member>({
+    columns,
+    initialPerPage: 20,
+    perPageOptions: [10, 20, 50, 100],
+    getRowId: (member) => member.username,
+    onStaleData: handleStaleData,
+  });
+
+  // Track members to remove (needed for the confirm callback)
+  const membersToRemoveRef = useRef<Member[]>([]);
+
+  // Remove modal with simple API
+  const removeModal = useGroupRemoveModal({
+    itemType: 'member',
+    groupName: group?.name || '',
+    onConfirm: async () => {
+      if (!groupId) return;
+
+      const usernames = membersToRemoveRef.current.map((m) => m.username);
+      await dispatch(removeMembersFromGroup(groupId, usernames));
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.removeGroupMembersSuccessTitle),
+        description: intl.formatMessage(messages.removeGroupMembersSuccessDescription),
+        dismissable: true,
+      });
+      tableState.clearSelection();
+      handleStaleData({
+        offset: 0,
+        limit: tableState.perPage,
+        filters: tableState.filters,
+      });
+      dispatch(fetchGroups({ usesMetaInURL: true }));
+    },
+  });
+
+  // Helper to open modal with members
+  const handleOpenRemoveModal = useCallback(
+    (members: Member[]) => {
+      membersToRemoveRef.current = members;
+      removeModal.openModal(members.map((m) => m.username));
+    },
+    [removeModal],
+  );
+
+  const removeModalState = removeModal.modalState;
+
+  // Fetch group details on mount
   useEffect(() => {
     if (groupId) {
       dispatch(fetchGroup(groupId));
-      fetchData();
     }
-  }, [groupId, dispatch, fetchData]);
+  }, [groupId, dispatch]);
 
-  // Filter handling
-  const handleFilterChange = useCallback(
-    (_event: any, newFilters: GroupMembersFilters) => {
-      filters.onSetFilters(newFilters);
-      const usernameFilter = newFilters.name || undefined;
-      debouncedFetchData(usernameFilter, { offset: 0 });
-    },
-    [filters.onSetFilters, debouncedFetchData],
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, Member> = useMemo(
+    () => ({
+      status: (member) => (
+        <Label color={member.is_active ? 'green' : 'grey'}>{intl.formatMessage(member.is_active ? messages.active : messages.inactive)}</Label>
+      ),
+      username: (member) => member.username,
+      email: (member) => member.email || '—',
+      lastName: (member) => member.last_name || '—',
+      firstName: (member) => member.first_name || '—',
+    }),
+    [intl],
   );
 
-  // Wrap clearAllFilters to also trigger API call
-  // filters.clearAllFilters() only clears the UI state but doesn't trigger the API call
-  const clearAllFilters = useCallback(() => {
-    filters.clearAllFilters();
-    fetchData('', { offset: 0 });
-  }, [filters.clearAllFilters, fetchData]);
-
-  // Bulk selection handling using DataView selection
-  const handleBulkSelect = useCallback(
-    (value: BulkSelectValue) => {
-      if (value === BulkSelectValue.none) {
-        selection.onSelect(false);
-      } else if (value === BulkSelectValue.page) {
-        selection.onSelect(true, tableRows);
-      } else if (value === BulkSelectValue.nonePage) {
-        selection.onSelect(false, tableRows);
+  // Row actions renderer
+  const renderActions = useCallback(
+    (member: Member) => {
+      if (!isAdmin || adminDefault || platformDefault) {
+        return null;
       }
+
+      return (
+        <ActionDropdown
+          ariaLabel={`Actions for ${member.username}`}
+          ouiaId={`member-actions-${member.username}`}
+          items={[
+            {
+              key: 'remove',
+              label: intl.formatMessage(messages.remove),
+              onClick: () => handleOpenRemoveModal([member]),
+              ouiaId: `member-actions-${member.username}-remove`,
+            },
+          ]}
+        />
+      );
     },
-    [selection, tableRows],
+    [isAdmin, adminDefault, platformDefault, intl, handleOpenRemoveModal],
   );
 
-  // Pagination handlers
-  const handleSetPage = useCallback(
-    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
-      const offset = (newPage - 1) * pagination.perPage;
-      fetchData(undefined, { offset, limit: pagination.perPage });
-    },
-    [fetchData, pagination.perPage],
-  );
-
-  const handlePerPageSelect = useCallback(
-    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number) => {
-      fetchData(undefined, { offset: 0, limit: newPerPage });
-    },
-    [fetchData],
-  );
-
-  // Pagination component
-  const paginationComponent = useMemo(() => {
-    return (
-      <Pagination
-        itemCount={totalCount}
-        perPage={pagination.perPage}
-        page={pagination.page}
-        onSetPage={handleSetPage}
-        onPerPageSelect={handlePerPageSelect}
-        isCompact
-      />
-    );
-  }, [totalCount, pagination.perPage, pagination.page, handleSetPage, handlePerPageSelect]);
-
-  // Navigation handlers
+  // Handle add members
   const handleAddMembers = useCallback(() => {
     if (groupId) {
       navigate(pathnames['group-add-members'].link.replace(':groupId', groupId));
@@ -177,99 +215,43 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
     return null;
   }
 
-  // Determine DataView active state based on loading and data
-  const activeState = isLoading ? DataViewState.loading : members.length === 0 ? DataViewState.empty : undefined;
-
   return (
     <Fragment>
       {showDefaultCard ? (
         <DefaultMembersCard isAdminDefault={adminDefault || false} />
       ) : (
-        <DataView activeState={activeState} selection={isAdmin ? selection : undefined}>
-          <DataViewToolbar
-            bulkSelect={
-              isAdmin ? (
-                <BulkSelect
-                  isDataPaginated
-                  pageCount={tableRows.length}
-                  selectedCount={selection.selected?.length || 0}
-                  totalCount={totalCount}
-                  onSelect={handleBulkSelect}
-                />
-              ) : undefined
-            }
-            pagination={paginationComponent}
-            filters={
-              <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
-                <DataViewTextFilter
-                  filterId="name"
-                  title={intl.formatMessage(messages.username)}
-                  placeholder={intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() })}
-                />
-              </DataViewFilters>
-            }
-            clearAllFilters={clearAllFilters}
-            actions={
-              isAdmin ? (
-                <>
-                  <Button variant="primary" onClick={handleAddMembers}>
-                    {intl.formatMessage(messages.addMember)}
-                  </Button>
-                  {selection.selected.length > 0 && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        const selectedMembers = selection.selected
-                          .map((item: any) => {
-                            const tableRow = tableRows.find((row) => row.id === item.id);
-                            return tableRow?.member;
-                          })
-                          .filter((member: any): member is Member => member !== undefined);
-                        handleRemoveMembers(selectedMembers);
-                      }}
-                    >
-                      {intl.formatMessage(messages.remove)} ({selection.selected.length})
-                    </Button>
-                  )}
-                  <MemberActionsMenu
-                    selectedRows={selection.selected.map((item: SelectedItem): MemberTableRow => {
-                      // Find the corresponding table row and member data
-                      const tableRow = tableRows.find((row) => row.id === item.id);
-                      return (
-                        tableRow || {
-                          id: item.id,
-                          row: [],
-                          member: {
-                            username: item.id,
-                            email: '',
-                            first_name: '',
-                            last_name: '',
-                            is_active: true,
-                          },
-                        }
-                      );
-                    })}
-                    onRemoveMembers={handleRemoveMembers}
-                  />
-                </>
-              ) : undefined
-            }
-          />
-
-          <DataViewTable
-            aria-label="Group members table"
-            columns={columns}
-            rows={tableRows}
-            headStates={{
-              loading: loadingHeader,
-            }}
-            bodyStates={{
-              loading: loadingBody,
-              empty: emptyState,
-            }}
-          />
-          <DataViewToolbar pagination={paginationComponent} />
-        </DataView>
+        <TableView<typeof columns, Member>
+          columns={columns}
+          columnConfig={columnConfig}
+          data={isLoading ? undefined : members}
+          totalCount={totalCount}
+          getRowId={(member) => member.username}
+          cellRenderers={cellRenderers}
+          filterConfig={filterConfig}
+          selectable={isAdmin}
+          renderActions={isAdmin && !adminDefault && !platformDefault ? renderActions : undefined}
+          toolbarActions={
+            isAdmin ? (
+              <Button variant="primary" onClick={handleAddMembers}>
+                {intl.formatMessage(messages.addMember)}
+              </Button>
+            ) : undefined
+          }
+          bulkActions={
+            isAdmin ? (
+              <MemberActionsMenu
+                selectedRows={tableState.selectedRows.map((m) => ({ member: m }) as MemberTableRow)}
+                onRemoveMembers={(members) => handleOpenRemoveModal(members)}
+              />
+            ) : undefined
+          }
+          emptyStateNoData={<GroupMembersEmptyState hasActiveFilters={false} />}
+          emptyStateNoResults={<GroupMembersEmptyState hasActiveFilters={true} />}
+          variant="compact"
+          ariaLabel="Group members table"
+          ouiaId="group-members-table"
+          {...tableState}
+        />
       )}
 
       <RemoveGroupMembers
@@ -290,7 +272,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
               [pathnames['group-members-edit-group'].path]: {
                 group,
                 cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-                submitRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId), // Stay on members tab after edit
+                submitRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
               },
               [pathnames['group-members-remove-group'].path]: {
                 postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true })),
@@ -309,7 +291,12 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
                 fetchUuid: systemGroupUuid,
                 groupName: group?.name,
                 cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-                afterSubmit: () => fetchData(),
+                afterSubmit: () =>
+                  handleStaleData({
+                    offset: 0,
+                    limit: tableState.perPage,
+                    filters: tableState.filters,
+                  }),
               },
             }}
           />

@@ -1,14 +1,11 @@
 import { errorInterceptor, interceptor500, responseDataInterceptor } from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
-import { WorkspacesDeleteReturnType, WorkspacesUpdateReturnType } from '@redhat-cloud-services/rbac-client/v2';
-import createWorkspace, { WorkspacesCreateReturnType } from '@redhat-cloud-services/rbac-client/v2/WorkspacesCreate';
+import createWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesCreate';
 import deleteWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesDelete';
-import moveWorkspaces, { WorkspacesMoveReturnType } from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
-
-import listWorkspaces, { WorkspacesListReturnType } from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
+import moveWorkspaces from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
+import listWorkspaces from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
 import updateWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesPatch';
-
-import getWorkspace, { WorkspacesReadReturnType } from '@redhat-cloud-services/rbac-client/v2/WorkspacesRead';
+import getWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesRead';
 
 import roleBindingsListBySubject from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
 
@@ -31,20 +28,9 @@ axiosInstance.interceptors.response.use(responseDataInterceptor);
 axiosInstance.interceptors.response.use(null, interceptor500);
 axiosInstance.interceptors.response.use(null, errorInterceptor);
 
-const customCreateWorkspace: typeof createWorkspace = async (...args) => {
-  const createWs = await createWorkspace(...args);
-  return {
-    ...createWs,
-    options: {
-      ...createWs.options,
-      transformResponse: () => {
-        return {
-          // TODO: return normal data
-        };
-      },
-    },
-  };
-};
+// TODO: This wrapper was attempting to modify response transform but was broken.
+// Using the base createWorkspace for now - may need to revisit if custom response handling is needed.
+const customCreateWorkspace = createWorkspace;
 
 // Type for the role bindings paginated response (after responseDataInterceptor unwraps it)
 export interface RoleBindingsPaginatedResponse {
@@ -66,19 +52,7 @@ const workspacesApiEndpoints = {
   roleBindingsListBySubject,
 };
 
-// These types reflect what our responseDataInterceptor actually returns
-// (unwrapped data instead of AxiosPromise<data>)
-type workspacesApiEndpointsReturnType = {
-  getWorkspace: WorkspacesReadReturnType;
-  createWorkspace: WorkspacesCreateReturnType;
-  updateWorkspace: WorkspacesUpdateReturnType;
-  deleteWorkspace: WorkspacesDeleteReturnType;
-  listWorkspaces: WorkspacesListReturnType;
-  moveWorkspaces: WorkspacesMoveReturnType;
-  roleBindingsListBySubject: RoleBindingsPaginatedResponse;
-};
-
-const workspacesApi = APIFactory<typeof workspacesApiEndpoints, workspacesApiEndpointsReturnType>(RBAC_API_BASE_2, workspacesApiEndpoints, {
+const workspacesApi = APIFactory<typeof workspacesApiEndpoints>(RBAC_API_BASE_2, workspacesApiEndpoints, {
   axios: axiosInstance,
 });
 

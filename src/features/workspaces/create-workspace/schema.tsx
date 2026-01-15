@@ -1,6 +1,6 @@
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React from 'react';
 import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
 import { useSelector } from 'react-redux';
@@ -8,6 +8,8 @@ import providerMessages from '../../../locales/data.json';
 import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
 import InputHelpPopover from '../../../components/forms/InputHelpPopover';
+import WizardButtons from '../../../components/wizard/WizardButtons';
+import { getModalContainer } from '../../../helpers/modal-container';
 import { Workspace, isWorkspace } from '../../../redux/workspaces/reducer';
 import { selectWorkspaces } from '../../../redux/workspaces/selectors';
 
@@ -56,24 +58,26 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
         'data-ouia-component-id': 'create-workspace-wizard',
         inModal: true,
         showTitles: true,
+        container: getModalContainer(),
         title: intl.formatMessage(messages.createNewWorkspace),
         fields: [
           {
             title: intl.formatMessage(messages.workspaceDetails),
             showTitle: false,
             name: 'details',
+            buttons: WizardButtons,
             nextStep: () => (enableBillingFeatures ? 'select-features' : 'review'),
             fields: [
               {
                 name: 'details-title',
                 component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v5-c-title pf-m-xl',
+                className: 'pf-v6-c-title pf-m-xl',
                 label: intl.formatMessage(messages.workspaceDetailsTitle),
               },
               {
                 name: 'details-description',
                 component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v5-u-my-md',
+                className: 'pf-v6-u-my-md',
                 label: intl.formatMessage(messages.workspaceDetailsDescription),
               },
               {
@@ -85,7 +89,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                   labelIcon: (
                     <InputHelpPopover
                       bodyContent={
-                        <Text>
+                        <Content component="p">
                           <FormattedMessage
                             id={messages.workspaceNamingGuidelines.id}
                             defaultMessage={messages.workspaceNamingGuidelines.defaultMessage}
@@ -98,7 +102,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                               // ),
                             }}
                           />
-                        </Text>
+                        </Content>
                       }
                       field="workspace name"
                     />
@@ -157,7 +161,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                 FormGroupProps: {
                   labelIcon: (
                     <InputHelpPopover
-                      bodyContent={<Text>{intl.formatMessage(messages.workspaceDescriptionMaxLength, { count: 255 })}</Text>}
+                      bodyContent={<Content component="p">{intl.formatMessage(messages.workspaceDescriptionMaxLength, { count: 255 })}</Content>}
                       field="workspace description"
                     />
                   ),
@@ -174,6 +178,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
           {
             title: intl.formatMessage(messages.selectFeatures),
             name: 'select-features',
+            buttons: WizardButtons,
             nextStep: ({ values }: { values: CreateWorkspaceFormValues }) => {
               const selectedFeatures = values['workspace-features'] || [];
               return selectedFeatures.length > 0 ? `ear-mark-${selectedFeatures[0]}` : 'review';
@@ -181,14 +186,14 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
             fields: [
               {
                 name: 'features-description',
-                className: 'pf-v5-u-my-md',
+                className: 'pf-v6-u-my-md',
                 component: componentTypes.PLAIN_TEXT,
                 label:
                   'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
               },
               {
                 name: 'workspace-features',
-                className: 'pf-v5-u-my-sm',
+                className: 'pf-v6-u-my-sm',
                 component: componentTypes.CHECKBOX,
                 options: BUNDLES,
               },
@@ -198,6 +203,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
             name: `ear-mark-${feature.value}`,
             title: feature.label,
             showTitle: false,
+            buttons: WizardButtons,
             substepOf: intl.formatMessage(messages.earMark),
             nextStep: ({ values }: { values: CreateWorkspaceFormValues }) => {
               const currIndex = values['workspace-features'].indexOf(feature.value);
@@ -216,6 +222,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
             name: 'review',
             title: intl.formatMessage(messages.review),
             showTitle: false,
+            buttons: WizardButtons,
             fields: [
               {
                 component: 'Review',

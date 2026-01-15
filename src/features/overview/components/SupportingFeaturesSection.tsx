@@ -31,7 +31,7 @@ export const SupportingFeaturesSection: React.FC<SupportingFeaturesSectionProps>
   return (
     <DataList aria-label="Supporting features list" className={className}>
       <DataListItem aria-labelledby="item1" isExpanded={expanded} className={expanded ? 'active-item' : undefined}>
-        <DataListItemRow className="pf-v5-u-align-items-center">
+        <DataListItemRow className="pf-v6-u-align-items-center">
           <DataListToggle
             id="supporting-features-toggle"
             isExpanded={expanded}
@@ -43,10 +43,10 @@ export const SupportingFeaturesSection: React.FC<SupportingFeaturesSectionProps>
             dataListCells={[
               <DataListCell key="about-default-groups-key" data-ouia-component-id="about-card">
                 <div>
-                  <Flex className="pf-v5-u-flex-nowrap">
-                    <FlexItem className="pf-v5-u-align-self-center">
+                  <Flex className="pf-v6-u-flex-nowrap">
+                    <FlexItem className="pf-v6-u-align-self-center">
                       <Icon size="lg">
-                        <CubesIcon className="pf-v5-u-primary-color-100" />
+                        <CubesIcon className="pf-v6-u-primary-color-100" />
                       </Icon>
                     </FlexItem>
                     <Divider
@@ -54,7 +54,7 @@ export const SupportingFeaturesSection: React.FC<SupportingFeaturesSectionProps>
                         default: 'vertical',
                       }}
                     />
-                    <FlexItem className="pf-v5-u-align-self-center">
+                    <FlexItem className="pf-v6-u-align-self-center">
                       <Title headingLevel="h4" data-ouia-component-id="about-title">
                         {intl.formatMessage(messages.overviewSupportingFeaturesTitle)}
                       </Title>
@@ -67,14 +67,14 @@ export const SupportingFeaturesSection: React.FC<SupportingFeaturesSectionProps>
         </DataListItemRow>
         <DataListContent
           hasNoPadding
-          className="pf-v5-u-px-lg pf-v5-u-pb-xl"
+          className="pf-v6-u-px-lg pf-v6-u-pb-xl"
           aria-label="About default groups - detailed explanation"
           id="about-default-groups"
           data-ouia-component-id="about-view-default-group"
           isHidden={!expanded}
         >
-          <p className="pf-v5-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle1)}</p>
-          <p className="pf-v5-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle2)}</p>
+          <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle1)}</p>
+          <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle2)}</p>
           <AppLink to={pathnames.groups.link}>
             <Button variant="link" isInline>
               {intl.formatMessage(messages.viewDefaultGroupsLink)}

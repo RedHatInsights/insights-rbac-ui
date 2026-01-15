@@ -1,10 +1,10 @@
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,7 +19,6 @@ import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import { ServiceAccountsList } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import { getModalContainer } from '../../../../helpers/modal-container';
-import './group-service-accounts.scss';
 
 interface AddGroupServiceAccountsProps {
   postMethod: (promise?: Promise<unknown>) => void;
@@ -128,10 +127,10 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
       >
         <Stack hasGutter>
           <StackItem>
-            <TextContent>
+            <Content>
               {intl.formatMessage(messages.addServiceAccountsToGroupDescription)}
               <Alert
-                className="pf-v5-u-mt-sm rbac-service-accounts-alert"
+                className="pf-v6-u-mt-sm rbac-service-accounts-alert"
                 variant="info"
                 component="span"
                 isInline
@@ -144,7 +143,7 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
                   ),
                 })}
               />
-            </TextContent>
+            </Content>
           </StackItem>
           <StackItem className="rbac-add-service-account-modal">
             <ServiceAccountsList

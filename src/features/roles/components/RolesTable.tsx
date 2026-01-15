@@ -11,7 +11,7 @@ import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdow
 import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { useIntl } from 'react-intl';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
@@ -19,9 +19,15 @@ import { getDateFormat } from '../../../helpers/stringUtilities';
 import { AppLink } from '../../../components/navigation/AppLink';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
-import type { Access, Role, RoleGroup } from '../../../redux/roles/reducer';
-import type { Group } from '../../../redux/groups/reducer';
+import type { Access, AdditionalGroup, RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
+import type { GroupOut } from '../../../data/queries/groups';
+
+// Type aliases for backwards compatibility
+type Role = RoleOutDynamic;
+type RoleGroup = AdditionalGroup;
+type Group = GroupOut;
 import type { ExpandedCells, SortByState } from '../types';
+import { shouldShowAddRoleToGroupLink } from '../utils/roleVisibility';
 
 interface RolesTableProps {
   roles: Role[];
@@ -42,11 +48,7 @@ interface RolesTableProps {
 const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ role, adminGroup }) => {
   const intl = useIntl();
 
-  const groupColumns = [
-    intl.formatMessage(messages.groupName),
-    intl.formatMessage(messages.description),
-    '', // Actions column
-  ];
+  const groupColumns = [intl.formatMessage(messages.groupName), intl.formatMessage(messages.description)];
 
   return (
     <Table aria-label={`Groups for role ${role.display_name}`} variant={TableVariant.compact} ouiaId={`compound-groups-${role.uuid}`}>
@@ -55,18 +57,19 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
           {groupColumns.map((col, index) => (
             <Th key={index}>{col}</Th>
           ))}
+          <Th screenReaderText="Actions" />
         </Tr>
       </Thead>
       <Tbody>
         {role.groups_in && role.groups_in.length > 0 ? (
           role.groups_in.map((group: RoleGroup, index: number) => (
-            <Tr key={`${role.uuid}-group-${group.uuid || index}`}>
+            <Tr key={`${role.uuid}-group-${group.uuid ?? index}`}>
               <Td dataLabel={groupColumns[0]}>
-                <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink>
+                {group.uuid ? <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink> : group.name}
               </Td>
               <Td dataLabel={groupColumns[1]}>{group.description}</Td>
-              <Td dataLabel={groupColumns[2]} className="pf-v5-u-text-align-right">
-                {adminGroup?.uuid !== group.uuid && (
+              <Td className="pf-v6-u-text-align-right">
+                {shouldShowAddRoleToGroupLink(adminGroup, group) && group.uuid && (
                   <AppLink
                     to={pathnames['roles-add-group-roles'].link.replace(':roleId', role.uuid).replace(':groupId', group.uuid)}
                     state={{ name: group.name }}
@@ -80,7 +83,9 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
         ) : (
           <Tr>
             <Td colSpan={groupColumns.length}>
-              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>
+              <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+                {intl.formatMessage(messages.noGroups)}
+              </Content>
             </Td>
           </Tr>
         )}
@@ -127,7 +132,9 @@ const PermissionsTable: React.FC<{ role: Role }> = ({ role }) => {
         ) : (
           <Tr>
             <Td colSpan={permissionColumns.length}>
-              <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
+              <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+                {intl.formatMessage(messages.noPermissions)}
+              </Content>
             </Td>
           </Tr>
         )}
@@ -278,7 +285,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
               </Td>
 
               {isAdmin && (
-                <Td className="pf-v5-c-table__action">
+                <Td className="pf-v6-c-table__action">
                   <RoleRowActions role={role} onEditRole={onEditRole} onDeleteRole={onDeleteRole} />
                 </Td>
               )}

@@ -1,9 +1,8 @@
-import React, { Fragment, ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
-import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
+import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { AppLink } from '../navigation/AppLink';
 
 import messages from '../../Messages';
@@ -11,9 +10,10 @@ import pathnames from '../../utilities/pathnames';
 
 const errorStates = {
   403: ({ serviceName }: { serviceName: string }) => (
-    <NotAuthorized
+    <UnauthorizedAccess
+      data-codemods
       serviceName={serviceName}
-      description={
+      bodyText={
         <FormattedMessage
           {...messages.contactOrgAdmin}
           values={{
@@ -57,12 +57,7 @@ const ErrorReducerCatcher: React.FC<ErrorReducerCatcherProps> = ({ children }) =
     return State ? <State serviceName={name} /> : null;
   }
 
-  return (
-    <Fragment>
-      <NotificationPortal />
-      {children}
-    </Fragment>
-  );
+  return children;
 };
 
 export default ErrorReducerCatcher;

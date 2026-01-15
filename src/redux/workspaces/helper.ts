@@ -2,14 +2,20 @@ import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/v2/Wo
 import { WorkspacesListParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
 import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesPatch';
 import { WorkspaceCreateBody } from './reducer';
-import { getWorkspacesApi } from './api';
+import { RoleBindingsPaginatedResponse, getWorkspacesApi } from './api';
 import { WorkspacesMoveParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
 import { RoleBindingsListBySubjectParams } from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
 
 const workspacesApi = getWorkspacesApi();
 
 export async function getWorkspaces(config: WorkspacesListParams = {}) {
-  return workspacesApi.listWorkspaces(config.limit ?? 10000, config.offset ?? 0, '', config.type ?? 'all', config.name ?? '', config.options ?? {});
+  return workspacesApi.listWorkspaces({
+    limit: config.limit ?? 10000,
+    offset: config.offset ?? 0,
+    type: config.type ?? 'all',
+    name: config.name,
+    options: config.options,
+  });
 }
 
 export async function getWorkspace(workspaceId: string) {
@@ -39,16 +45,18 @@ export async function moveWorkspace(config: WorkspacesMoveParams) {
   return workspacesApi.moveWorkspaces(config.id, config.workspacesMoveWorkspaceRequest, {});
 }
 
-export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjectParams) {
-  return workspacesApi.roleBindingsListBySubject(
-    config.limit ?? 10000,
-    config.cursor ?? '',
-    config.resourceType ?? '',
-    config.resourceId ?? '',
-    config.subjectType ?? '',
-    config.subjectId ?? '',
-    config.fields ?? '',
-    config.orderBy ?? '',
-    config.options ?? {},
-  );
+export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjectParams): Promise<RoleBindingsPaginatedResponse> {
+  // The responseDataInterceptor unwraps the AxiosResponse, so we cast to the expected type
+  return workspacesApi.roleBindingsListBySubject({
+    resourceId: config.resourceId,
+    resourceType: config.resourceType,
+    limit: config.limit ?? 10000,
+    cursor: config.cursor,
+    subjectType: config.subjectType,
+    subjectId: config.subjectId,
+    parentRoleBindings: config.parentRoleBindings,
+    fields: config.fields,
+    orderBy: config.orderBy,
+    options: config.options,
+  }) as unknown as Promise<RoleBindingsPaginatedResponse>;
 }

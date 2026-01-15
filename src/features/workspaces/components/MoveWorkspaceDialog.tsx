@@ -1,13 +1,14 @@
 import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { useIntl } from 'react-intl';
 import { Workspace } from '../../../redux/workspaces/reducer';
 import { ManagedSelector } from './managed-selector/ManagedSelector';
 import { TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import messages from '../../../Messages';
+import { getModalContainer } from '../../../helpers/modal-container';
 
 export interface MoveWorkspaceDialogProps {
   /** Whether the modal is open */
@@ -76,6 +77,7 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
 
   return (
     <Modal
+      appendTo={getModalContainer()}
       ouiaId={'move-workspace-modal'}
       isOpen={isOpen}
       variant={ModalVariant.medium}

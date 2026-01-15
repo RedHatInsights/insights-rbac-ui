@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
-import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,20 +11,38 @@ import { extractErrorMessage } from '../../../../../utilities/errorUtils';
 import { fetchRoles } from '../../../../../redux/roles/actions';
 import { selectIsRolesLoading, selectRoles, selectRolesErrorState } from '../../../../../redux/roles/selectors';
 import { mappedProps } from '../../../../../helpers/dataUtilities';
+import { TableView } from '../../../../../components/table-view/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 
 interface UserRolesViewProps {
   userId: string;
   ouiaId: string;
 }
 
+interface RoleData {
+  uuid: string;
+  name: string;
+  userGroup?: string;
+  workspace?: string;
+}
+
+const columns = ['name', 'userGroup', 'workspace'] as const;
+
 const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ userId, ouiaId }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-  const USER_ROLES_COLUMNS: string[] = [
-    intl.formatMessage(messages.roles),
-    intl.formatMessage(messages.userGroup),
-    intl.formatMessage(messages.workspace),
-  ];
+
+  const columnConfig: ColumnConfigMap<typeof columns> = {
+    name: { label: intl.formatMessage(messages.roles) },
+    userGroup: { label: intl.formatMessage(messages.userGroup) },
+    workspace: { label: intl.formatMessage(messages.workspace) },
+  };
+
+  const cellRenderers: CellRendererMap<typeof columns, RoleData> = {
+    name: (role) => role.name,
+    userGroup: () => '?', // TODO: Update once API provides user group data
+    workspace: () => '?', // TODO: Update once API provides workspace data
+  };
 
   const roles = useSelector(selectRoles);
   const isLoading = useSelector(selectIsRolesLoading);
@@ -41,48 +56,46 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     fetchData();
   }, [fetchData]);
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="pf-v5-u-pt-md pf-v5-u-text-align-center">
-        <Spinner size="lg" aria-label="Loading user roles" />
-      </div>
-    );
-  }
-
   // Show error state
   if (error) {
     return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="Unable to load roles" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+      <div className="pf-v6-u-pt-md">
+        <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load roles" variant="sm">
           <EmptyStateBody>{extractErrorMessage(error)}</EmptyStateBody>
         </EmptyState>
       </div>
     );
   }
 
-  // Show empty state when no roles
-  if (roles.length === 0) {
-    return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="No roles found" icon={<EmptyStateIcon icon={KeyIcon} />} headingLevel="h4" />
-          <EmptyStateBody>This user has no roles assigned.</EmptyStateBody>
-        </EmptyState>
-      </div>
-    );
-  }
+  const emptyState = (
+    <EmptyState headingLevel="h4" icon={KeyIcon} titleText="No roles found" variant="sm">
+      <EmptyStateBody>This user has no roles assigned.</EmptyStateBody>
+    </EmptyState>
+  );
 
-  const rows = roles.map((role: any) => ({
-    row: [role.name, '?', '?'], // TODO: Update once API provides user group and workspace data
+  const roleData: RoleData[] = roles.map((role: any) => ({
+    uuid: role.uuid,
+    name: role.name,
   }));
 
   return (
-    <div className="pf-v5-u-pt-md">
-      <DataView ouiaId={ouiaId}>
-        <DataViewTable variant="compact" aria-label="UserRolesView" ouiaId={`${ouiaId}-table`} columns={USER_ROLES_COLUMNS} rows={rows} />
-      </DataView>
+    <div className="pf-v6-u-pt-md">
+      <TableView<typeof columns, RoleData>
+        columns={columns}
+        columnConfig={columnConfig}
+        data={isLoading ? undefined : roleData}
+        totalCount={roleData.length}
+        getRowId={(role) => role.uuid}
+        cellRenderers={cellRenderers}
+        page={1}
+        perPage={roleData.length || 10}
+        onPageChange={() => {}}
+        onPerPageChange={() => {}}
+        ariaLabel="UserRolesView"
+        ouiaId={ouiaId}
+        emptyStateNoData={emptyState}
+        emptyStateNoResults={emptyState}
+      />
     </div>
   );
 };

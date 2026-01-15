@@ -3,15 +3,13 @@ import { userEvent, waitFor, within } from 'storybook/test';
 /**
  * Helper function to fill and submit the Add Group Roles modal
  *
- * NOTE: This modal is rendered in the #storybook-modals container in Storybook,
- * or at document.body level in production.
- *
  * @param user - userEvent instance from the test
  * @param groupName - Name of the group (appears in modal title)
  * @param roleCount - Number of roles to select (by row index)
  */
 export async function fillAddGroupRolesModal(user: ReturnType<typeof userEvent.setup>, groupName: string, roleCount: number) {
-  // Modal is rendered at body level or in #storybook-modals container
+  // In Storybook, modals render to #storybook-modals (from preview-body.html)
+  // In production/user journeys, modals render to document.body
   const modalContainer = document.getElementById('storybook-modals') || document.body;
 
   // Wait for "Add roles" modal to be visible and find the specific modal by its heading
@@ -32,16 +30,30 @@ export async function fillAddGroupRolesModal(user: ReturnType<typeof userEvent.s
 
   const modal = within(addRolesModal!);
 
-  // Wait for roles table to load in the modal
+  // Wait for roles table to load in the modal - look for the grid/table
+  await waitFor(
+    () => {
+      const table = modal.queryByRole('grid');
+      if (!table) {
+        throw new Error('Roles table not found in modal');
+      }
+    },
+    { timeout: 5000 },
+  );
+
+  // Give additional time for data to load
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  // Select roles by finding their checkboxes
-  // The checkboxes are typically labeled "Select row N"
+  // Select roles by checkbox index
+  // Note: checkboxes[0] is the BulkSelect checkbox, row checkboxes start at index 1
+  const checkboxes = modal.getAllByRole('checkbox');
   for (let i = 0; i < roleCount; i++) {
-    // Use getAllByRole and pick the first one to handle cases where multiple tables exist
-    const checkboxes = modal.getAllByRole('checkbox', { name: new RegExp(`select row ${i}`, 'i') });
-    await user.click(checkboxes[0]);
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // Row checkboxes start at index 1 (index 0 is the bulk select checkbox)
+    const checkboxIndex = i + 1;
+    if (checkboxIndex < checkboxes.length) {
+      await user.click(checkboxes[checkboxIndex]);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
   }
 
   // Click "Add to group" button

@@ -6,6 +6,9 @@ import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@p
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import { changeUsersStatus } from '../../../../redux/users/actions';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+import { useIntl } from 'react-intl';
+import messages from '../../../../Messages';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import paths from '../../../../utilities/pathnames';
 import { User } from '../../../../redux/users/reducer';
@@ -23,6 +26,8 @@ interface UsersProps {
 }
 
 export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, ouiaId = 'iam-users-table' }) => {
+  const intl = useIntl();
+  const addNotification = useAddNotification();
   const authModel = useFlag('platform.rbac.common-auth-model');
   const isITLess = useFlag('platform.rbac.itless');
   const { getBundle, getApp } = useChrome();
@@ -81,9 +86,9 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
 
   // User status toggle handler
   const handleToggleUserStatus = useCallback(
-    (user: User, isActive: boolean) => {
+    async (user: User, isActive: boolean) => {
       try {
-        dispatch(
+        await dispatch(
           changeUsersStatus(
             [
               {
@@ -96,11 +101,23 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
             isITLess,
           ),
         );
+        addNotification({
+          variant: 'success',
+          title: intl.formatMessage(messages.editUserSuccessTitle),
+          dismissable: true,
+          description: intl.formatMessage(messages.editUserSuccessDescription),
+        });
       } catch (error) {
         console.error('Failed to update status:', error);
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.editUserErrorTitle),
+          dismissable: true,
+          description: intl.formatMessage(messages.editUserErrorDescription),
+        });
       }
     },
-    [dispatch, isProd, token, accountId],
+    [dispatch, isProd, token, accountId, intl, isITLess, addNotification],
   );
 
   // Org admin toggle handler

@@ -146,9 +146,9 @@ export const Default: Story = {
     await expect(canvas.findByText('Service account for web application')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('Service account for API gateway operations')).resolves.toBeInTheDocument();
 
-    // Check pagination is present
-    const pagination = await canvas.findByLabelText(/pagination/i);
-    await expect(pagination).toBeInTheDocument();
+    // Check pagination is present (find first matching element)
+    const paginations = await canvas.findAllByLabelText(/pagination/i);
+    await expect(paginations.length).toBeGreaterThan(0);
   },
 };
 

@@ -1,17 +1,10 @@
 // Re-export types from Redux to ensure consistency
 export type { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
 
-export interface Role {
-  uuid: string;
-  display_name?: string;
-  name: string;
-  description?: string;
-  modified: string;
-  access?: Array<{
-    permission: string;
-    resourceDefinitions?: Array<Record<string, unknown>>;
-  }>;
-}
+// Use RoleWithAccess as the base type for roles
+import type { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
+
+export type Role = RoleWithAccess;
 
 export interface RoleFilters {
   name: string;

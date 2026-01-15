@@ -23,7 +23,7 @@ const ExpandableCheckbox: React.FC<UseFieldApiConfig> = (props) => {
     <FormGroup>
       {items?.map((item: ExpandableCheckboxItemType, key: number) => (
         <Checkbox
-          inputClassName="pf-v5-u-mt-xs"
+          inputClassName="pf-v6-u-mt-xs"
           key={key}
           isChecked={!!values[input.name]?.[item.name]}
           onChange={(_e, value) => {

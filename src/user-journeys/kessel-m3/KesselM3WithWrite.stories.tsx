@@ -1,6 +1,6 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
@@ -350,12 +350,12 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     // In M3, this should link to RBAC detail page, not Inventory
     const productionLink = await canvas.findByRole('link', { name: /^production$/i });
     await user.click(productionLink);
-    await delay(1000);
 
-    // Verify we're on the detail page with Roles tab
-    // Check the URL has activeTab=roles
-    const addressBar = canvas.getByTestId('fake-address-bar');
-    expect(addressBar).toHaveTextContent(/activeTab=roles/i);
+    // Verify we're on the detail page with Roles tab (waitFor handles navigation timing)
+    await waitFor(() => {
+      const addressBar = canvas.getByTestId('fake-address-bar');
+      expect(addressBar).toHaveTextContent(/activeTab=roles/i);
+    });
 
     // Verify both tabs exist
     const assetsTab = await canvas.findByRole('tab', { name: /^assets$/i });
@@ -368,6 +368,20 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
 
     // Verify the role assignments table shows workspace-specific groups
     // Production workspace should show only Production Admins and Viewers
+    // Wait for the table to load completely with data
+    await canvas.findByLabelText('Role Assignments Table', {}, { timeout: 10000 });
+
+    // Wait for data to load - look for either loading state to disappear or data to appear
+    await waitFor(
+      async () => {
+        const loadingElements = canvas.queryAllByText(/loading/i);
+        const hasData = canvas.queryByText('Production Admins') || canvas.queryByText('Viewers');
+        expect(loadingElements.length === 0 || hasData).toBe(true);
+      },
+      { timeout: 10000 },
+    );
+
+    // The table should now have data loaded
     await canvas.findByText('Production Admins');
     await canvas.findByText('Viewers');
 
@@ -381,7 +395,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
 
     // Verify the drawer opens - scope queries to the drawer panel
     await delay(300); // Wait for drawer animation
-    const drawerPanel = document.querySelector('.pf-v5-c-drawer__panel') as HTMLElement;
+    const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
     expect(drawerPanel).toBeInTheDocument();
     const drawer = within(drawerPanel);
 
@@ -414,7 +428,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     await delay(500);
 
     // Verify the drawer is closed (component unmounted)
-    const drawerAfterSwitch = document.querySelector('.pf-v5-c-drawer__panel');
+    const drawerAfterSwitch = document.querySelector('.pf-v6-c-drawer__panel');
     expect(drawerAfterSwitch).not.toBeInTheDocument();
 
     // Verify parent workspace role bindings (inherited from Default Workspace/root-1)
@@ -429,7 +443,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     await delay(500);
 
     // Verify the drawer opens for Viewers group
-    const viewersDrawerPanel = document.querySelector('.pf-v5-c-drawer__panel') as HTMLElement;
+    const viewersDrawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
     expect(viewersDrawerPanel).toBeInTheDocument();
     const viewersDrawer = within(viewersDrawerPanel);
 

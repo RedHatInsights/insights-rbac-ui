@@ -1,27 +1,17 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ButtonVariant } from '@patternfly/react-core';
-import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
+import { Button, ButtonVariant, PageSection, Tooltip } from '@patternfly/react-core';
 import { FormattedMessage, useIntl } from 'react-intl';
-import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { DataView } from '@patternfly/react-data-view';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { ResponsiveAction, ResponsiveActions, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { DataViewCheckboxFilter } from '@patternfly/react-data-view';
+import { ResponsiveAction, ResponsiveActions } from '@patternfly/react-component-groups';
 import { ActionsColumn, IAction } from '@patternfly/react-table';
-import { useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
-import { useDataViewFilters } from '@patternfly/react-data-view';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { getDateFormat } from '../../../../helpers/stringUtilities';
+import { TableView } from '../../../../components/table-view/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view/types';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
-import '../legacy/role-permissions.scss';
 
 interface FilteredPermission {
   uuid: string;
@@ -67,6 +57,16 @@ const removeModalText = (permissions: string | number, roleName: string, plural:
   );
 };
 
+// Columns definition - with and without resource definitions
+const columnsWithResourceDefs = ['application', 'resourceType', 'operation', 'resourceDefinitions', 'lastModified'] as const;
+const columnsWithoutResourceDefs = ['application', 'resourceType', 'operation', 'lastModified'] as const;
+
+// Helper to parse permission string
+const parsePermission = (permission: string) => {
+  const [application, resourceType, operation] = permission.split(':');
+  return { application, resourceType, operation };
+};
+
 export const RolePermissions: React.FC<RolePermissionsProps> = ({
   cantAddPermissions,
   isLoading,
@@ -85,52 +85,17 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
 }) => {
   const intl = useIntl();
 
-  // Use DataView filters hook
-  const filterState = useDataViewFilters<{ applications: string[]; resources: string[]; operations: string[] }>({
-    initialFilters: currentFilters,
-  });
-
-  // Sync local filters with parent when they change
-  React.useEffect(() => {
-    const localFilters = filterState.filters;
-    if (JSON.stringify(localFilters) !== JSON.stringify(currentFilters)) {
-      onFiltersChange?.(localFilters);
-    }
-  }, [filterState.filters, currentFilters, onFiltersChange]);
-
-  // Update local filters when parent filters change (for clear)
-  React.useEffect(() => {
-    if (JSON.stringify(filterState.filters) !== JSON.stringify(currentFilters)) {
-      filterState.onSetFilters(currentFilters);
-    }
-  }, [currentFilters]);
-
-  // Filter change handler
-  const handleFilterChange = React.useCallback(
-    (_event: any, newFilters: Partial<{ applications: string[]; resources: string[]; operations: string[] }>) => {
-      filterState.onSetFilters(newFilters);
-    },
-    [filterState],
-  );
-
-  // Clear all filters handler
-  const handleClearAllFilters = React.useCallback(() => {
-    const emptyFilters = { applications: [], resources: [], operations: [] };
-    filterState.onSetFilters(emptyFilters);
-    onFiltersChange?.(emptyFilters);
-  }, [filterState, onFiltersChange]);
-
   // Local state for UI
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<() => void>(() => {});
-  const [deleteInfo, setDeleteInfo] = useState({ title: '', text: '', confirmButtonLabel: '' });
-
-  // Selection hook
-  const selection = useDataViewSelection({
-    matchOption: (a: any, b: any) => a.id === b.id,
+  const [deleteInfo, setDeleteInfo] = useState<{ title: string; text: string | React.ReactNode; confirmButtonLabel: string }>({
+    title: '',
+    text: '',
+    confirmButtonLabel: '',
   });
+  const [selectedRows, setSelectedRows] = useState<FilteredPermission[]>([]);
 
   // Calculate paginated data
   const offset = (page - 1) * perPage;
@@ -142,14 +107,14 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
   const removePermissions = useCallback(
     async (permissions: Array<{ uuid: string }>) => {
       await onRemovePermissions(permissions);
-      selection.onSelect(false);
+      setSelectedRows([]);
     },
-    [onRemovePermissions, selection],
+    [onRemovePermissions],
   );
 
   const initiateRemove = useCallback(
     (permissionsToRemove: FilteredPermission[], title: string, text: string | React.ReactNode, confirmButtonLabel: string) => {
-      setDeleteInfo({ title, text: text as any, confirmButtonLabel });
+      setDeleteInfo({ title, text, confirmButtonLabel });
       setConfirmDelete(() => () => removePermissions(permissionsToRemove.map((p) => ({ uuid: p.uuid }))));
       setShowRemoveModal(true);
     },
@@ -178,111 +143,134 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
     [isSystemRole, intl, initiateRemove, roleName],
   );
 
-  // Columns definition
-  const columns = useMemo(() => {
-    const cols = [
-      { cell: intl.formatMessage(messages.application) },
-      { cell: intl.formatMessage(messages.resourceType) },
-      { cell: intl.formatMessage(messages.operation) },
-    ];
-
-    if (showResourceDefinitions) {
-      cols.push({
-        cell: intl.formatMessage(messages.resourceDefinitions),
-      });
-    }
-
-    cols.push({ cell: intl.formatMessage(messages.lastModified) });
-
-    if (!isSystemRole) {
-      cols.push({ cell: '' }); // Actions column
-    }
-
-    return cols;
-  }, [intl, showResourceDefinitions, isSystemRole]);
-
-  // Create table rows
-  const tableRows = useMemo(() => {
-    return paginatedPermissions.map((permission) => {
-      const [application, resourceType, operation] = permission.permission.split(':');
-      const resourceDefinitionsCount = permission.resourceDefinitions?.length || 0;
-      const hasResourceDefinitions =
-        (permission.permission.includes('cost-management') || permission.permission.includes('inventory')) && resourceDefinitionsCount > 0;
-
-      const cells: any[] = [application, resourceType, operation];
-
-      if (showResourceDefinitions) {
-        const resourceDefinitionCell = hasResourceDefinitions ? (
-          <AppLink to={pathnames['role-detail-permission'].link.replace(':roleId', roleUuid).replace(':permissionId', permission.permission)}>
-            {resourceDefinitionsCount}
-          </AppLink>
-        ) : (
-          <span className="rbac-c-text__disabled">{intl.formatMessage(messages.notApplicable)}</span>
-        );
-        cells.push({ cell: resourceDefinitionCell });
-      }
-
-      // Add formatted date
-      cells.push({
-        cell: <DateFormat date={permission.modified} type={getDateFormat(permission.modified)} />,
-      });
-
-      // Add actions column if not system role
-      if (!isSystemRole) {
-        cells.push({
-          cell: <ActionsColumn items={rowActions(permission)} />,
-          props: { isActionCell: true },
-        });
-      }
-
-      return {
-        id: permission.uuid,
-        row: cells,
-      };
-    });
-  }, [paginatedPermissions, showResourceDefinitions, intl, isSystemRole, rowActions, roleUuid]);
-
-  // Bulk select handler
-  const handleBulkSelect = useCallback(
-    (value: BulkSelectValue) => {
-      if (value === BulkSelectValue.none) {
-        selection.onSelect(false);
-      } else if (value === BulkSelectValue.page) {
-        selection.onSelect(true, tableRows);
-      } else if (value === BulkSelectValue.nonePage) {
-        selection.onSelect(false, tableRows);
-      }
-    },
-    [selection, tableRows],
+  // Column configuration for columns with resource definitions
+  const columnConfigWithResourceDefs: ColumnConfigMap<typeof columnsWithResourceDefs> = useMemo(
+    () => ({
+      application: { label: intl.formatMessage(messages.application) },
+      resourceType: { label: intl.formatMessage(messages.resourceType) },
+      operation: { label: intl.formatMessage(messages.operation) },
+      resourceDefinitions: { label: intl.formatMessage(messages.resourceDefinitions) },
+      lastModified: { label: intl.formatMessage(messages.lastModified) },
+    }),
+    [intl],
   );
 
-  // Bulk select component
-  const bulkSelectComponent = useMemo(() => {
-    if (isSystemRole || cantAddPermissions) return undefined;
+  // Column configuration for columns without resource definitions
+  const columnConfigWithoutResourceDefs: ColumnConfigMap<typeof columnsWithoutResourceDefs> = useMemo(
+    () => ({
+      application: { label: intl.formatMessage(messages.application) },
+      resourceType: { label: intl.formatMessage(messages.resourceType) },
+      operation: { label: intl.formatMessage(messages.operation) },
+      lastModified: { label: intl.formatMessage(messages.lastModified) },
+    }),
+    [intl],
+  );
 
-    const selectedCount = selection.selected?.length || 0;
-    const currentPageCount = paginatedPermissions.length;
-    const totalCount = filteredPermissions.length;
+  // Cell renderers for columns with resource definitions
+  const cellRenderersWithResourceDefs: CellRendererMap<typeof columnsWithResourceDefs, FilteredPermission> = useMemo(
+    () => ({
+      application: (row) => parsePermission(row.permission).application,
+      resourceType: (row) => parsePermission(row.permission).resourceType,
+      operation: (row) => parsePermission(row.permission).operation,
+      resourceDefinitions: (row) => {
+        const resourceDefinitionsCount = row.resourceDefinitions?.length || 0;
+        const hasResourceDefinitions =
+          (row.permission.includes('cost-management') || row.permission.includes('inventory')) && resourceDefinitionsCount > 0;
 
-    const selectedOnPage = tableRows.filter((row) => selection.selected?.some((sel: any) => sel.id === row.id)).length;
-    const pageSelected = selectedOnPage > 0 && selectedOnPage === currentPageCount;
-    const pagePartiallySelected = selectedOnPage > 0 && selectedOnPage < currentPageCount;
+        if (hasResourceDefinitions) {
+          return (
+            <AppLink to={pathnames['role-detail-permission'].link.replace(':roleId', roleUuid).replace(':permissionId', row.permission)}>
+              {resourceDefinitionsCount}
+            </AppLink>
+          );
+        }
+        return <span className="rbac-c-text__disabled">{intl.formatMessage(messages.notApplicable)}</span>;
+      },
+      lastModified: (row) => <DateFormat date={row.modified} type={getDateFormat(row.modified)} />,
+    }),
+    [intl, roleUuid],
+  );
 
-    return (
-      <BulkSelect
-        isDataPaginated={true}
-        selectedCount={selectedCount}
-        totalCount={totalCount}
-        pageCount={currentPageCount}
-        pageSelected={pageSelected}
-        pagePartiallySelected={pagePartiallySelected}
-        onSelect={handleBulkSelect}
-      />
-    );
-  }, [isSystemRole, cantAddPermissions, selection.selected, paginatedPermissions.length, filteredPermissions.length, tableRows, handleBulkSelect]);
+  // Cell renderers for columns without resource definitions
+  const cellRenderersWithoutResourceDefs: CellRendererMap<typeof columnsWithoutResourceDefs, FilteredPermission> = useMemo(
+    () => ({
+      application: (row) => parsePermission(row.permission).application,
+      resourceType: (row) => parsePermission(row.permission).resourceType,
+      operation: (row) => parsePermission(row.permission).operation,
+      lastModified: (row) => <DateFormat date={row.modified} type={getDateFormat(row.modified)} />,
+    }),
+    [],
+  );
+
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        type: 'checkbox',
+        id: 'applications',
+        label: 'Applications',
+        options: applications.map((app) => ({ id: app, label: app })),
+      },
+      {
+        type: 'checkbox',
+        id: 'resources',
+        label: intl.formatMessage(messages.resourceType),
+        options: resources.map((r) => ({ id: r.value, label: r.label })),
+      },
+      {
+        type: 'checkbox',
+        id: 'operations',
+        label: intl.formatMessage(messages.operation),
+        options: operations.map((o) => ({ id: o.value, label: o.label })),
+      },
+    ],
+    [applications, resources, operations, intl],
+  );
+
+  // Handle filter change
+  const handleFilterChange = useCallback(
+    (newFilters: Record<string, string | string[]>) => {
+      const typedFilters = {
+        applications: (newFilters.applications as string[]) || [],
+        resources: (newFilters.resources as string[]) || [],
+        operations: (newFilters.operations as string[]) || [],
+      };
+      onFiltersChange?.(typedFilters);
+    },
+    [onFiltersChange],
+  );
+
+  // Clear all filters handler
+  const handleClearAllFilters = useCallback(() => {
+    const emptyFilters = { applications: [], resources: [], operations: [] };
+    onFiltersChange?.(emptyFilters);
+  }, [onFiltersChange]);
+
+  // Selection handlers
+  const handleSelectRow = useCallback((row: FilteredPermission, isSelected: boolean) => {
+    setSelectedRows((prev) => {
+      if (isSelected) {
+        return [...prev, row];
+      }
+      return prev.filter((r) => r.uuid !== row.uuid);
+    });
+  }, []);
+
+  const handleSelectAll = useCallback((isSelected: boolean, rows: FilteredPermission[]) => {
+    if (isSelected) {
+      setSelectedRows((prev) => {
+        const existingIds = new Set(prev.map((r) => r.uuid));
+        const newRows = rows.filter((r) => !existingIds.has(r.uuid));
+        return [...prev, ...newRows];
+      });
+    } else {
+      const rowIds = new Set(rows.map((r) => r.uuid));
+      setSelectedRows((prev) => prev.filter((r) => !rowIds.has(r.uuid)));
+    }
+  }, []);
 
   // Actions
-  const actions = useMemo(() => {
+  const toolbarActions = useMemo(() => {
     return (
       <ResponsiveActions breakpoint="lg">
         {cantAddPermissions ? (
@@ -296,98 +284,52 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
             {intl.formatMessage(messages.addPermissions)}
           </ResponsiveAction>
         )}
-        <ResponsiveAction
-          isDisabled={!selection.selected || selection.selected.length === 0}
-          onClick={() => {
-            // Map selected table rows back to permissions
-            const selectedPermissions = (selection.selected || [])
-              .map((row: any) => filteredPermissions.find((p) => p.uuid === row.id))
-              .filter(Boolean) as FilteredPermission[];
-
-            const multiplePermissionsSelected = selectedPermissions.length > 1;
-            initiateRemove(
-              selectedPermissions,
-              intl.formatMessage(multiplePermissionsSelected ? messages.removePermissionsQuestion : messages.removePermissionQuestion),
-              removeModalText(
-                multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
-                roleName,
-                multiplePermissionsSelected || false,
-              ),
-              intl.formatMessage(multiplePermissionsSelected ? messages.removePermissions : messages.removePermission),
-            );
-          }}
-        >
-          {intl.formatMessage(messages.remove)}
-        </ResponsiveAction>
       </ResponsiveActions>
     );
-  }, [cantAddPermissions, intl, onNavigateToAddPermissions, selection.selected, initiateRemove, roleName, filteredPermissions]);
+  }, [cantAddPermissions, intl, onNavigateToAddPermissions]);
 
-  // Pagination component
-  const paginationComponent = useMemo(
-    () => (
-      <Pagination
-        itemCount={filteredPermissions.length}
-        page={page}
-        perPage={perPage}
-        onSetPage={(_event, newPage) => setPage(newPage)}
-        onPerPageSelect={(_event, newPerPage) => {
-          setPerPage(newPerPage);
-          setPage(1);
+  // Bulk actions
+  const bulkActions = useMemo(() => {
+    return (
+      <ResponsiveAction
+        isDisabled={selectedRows.length === 0}
+        onClick={() => {
+          const multiplePermissionsSelected = selectedRows.length > 1;
+          initiateRemove(
+            selectedRows,
+            intl.formatMessage(multiplePermissionsSelected ? messages.removePermissionsQuestion : messages.removePermissionQuestion),
+            removeModalText(
+              multiplePermissionsSelected ? selectedRows.length : selectedRows[0]?.uuid,
+              roleName,
+              multiplePermissionsSelected || false,
+            ),
+            intl.formatMessage(multiplePermissionsSelected ? messages.removePermissions : messages.removePermission),
+          );
         }}
-        variant="top"
-        isCompact
-      />
-    ),
-    [filteredPermissions.length, page, perPage],
+      >
+        {intl.formatMessage(messages.remove)}
+      </ResponsiveAction>
+    );
+  }, [selectedRows, initiateRemove, intl, roleName]);
+
+  // Empty state descriptions
+  const emptyPropsDescription = cantAddPermissions ? '' : 'To configure user access to applications, add at least one permission to this role.';
+
+  // Render actions column for rows
+  const renderActions = useCallback(
+    (row: FilteredPermission) => {
+      const actions = rowActions(row);
+      if (actions.length === 0) return null;
+      return <ActionsColumn items={actions} />;
+    },
+    [rowActions],
   );
 
-  const footerPaginationComponent = useMemo(
-    () => (
-      <Pagination
-        itemCount={filteredPermissions.length}
-        page={page}
-        perPage={perPage}
-        onSetPage={(_event, newPage) => setPage(newPage)}
-        onPerPageSelect={(_event, newPerPage) => {
-          setPerPage(newPerPage);
-          setPage(1);
-        }}
-        variant="bottom"
-      />
-    ),
-    [filteredPermissions.length, page, perPage],
-  );
-
-  // Empty state
-  const emptyPropsDescription = cantAddPermissions
-    ? ['']
-    : ['To configure user access to applications,', 'add at least one permission to this role.', ''];
-
-  const emptyState = useMemo(
-    () => (
-      <tbody>
-        <tr>
-          <td colSpan={columns.length}>
-            <div className="pf-v5-u-text-align-center pf-v5-u-py-xl">
-              <h3>{intl.formatMessage(messages.noRolePermissions)}</h3>
-              {emptyPropsDescription.map((line, index) => (
-                <p key={index}>{line}</p>
-              ))}
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    ),
-    [columns.length, intl, emptyPropsDescription],
-  );
-
-  // Loading states
-  const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.cell)} />;
-  const loadingBody = <SkeletonTableBody rowsCount={perPage} columnsCount={columns.length} />;
+  // Determine if selection and actions should be enabled
+  const enableSelection = !isSystemRole && !cantAddPermissions;
 
   return (
-    <section className="pf-v5-c-page__main-section rbac-c-role__permissions">
+    <PageSection hasBodyWrapper={false}>
       <WarningModal
         title={deleteInfo.title}
         isOpen={showRemoveModal}
@@ -403,52 +345,75 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
         {deleteInfo.text}
       </WarningModal>
 
-      {isLoading ? (
-        <SkeletonTable rows={perPage} columns={columns.map((col) => col.cell)} />
+      {showResourceDefinitions ? (
+        <TableView<typeof columnsWithResourceDefs, FilteredPermission>
+          columns={columnsWithResourceDefs}
+          columnConfig={columnConfigWithResourceDefs}
+          data={isLoading ? undefined : paginatedPermissions}
+          totalCount={filteredPermissions.length}
+          getRowId={(row) => row.uuid}
+          cellRenderers={cellRenderersWithResourceDefs}
+          page={page}
+          perPage={perPage}
+          onPageChange={(newPage) => setPage(newPage)}
+          onPerPageChange={(newPerPage) => {
+            setPerPage(newPerPage);
+            setPage(1);
+          }}
+          selectable={enableSelection}
+          selectedRows={selectedRows}
+          onSelectRow={handleSelectRow}
+          onSelectAll={handleSelectAll}
+          filterConfig={filterConfig}
+          filters={currentFilters}
+          onFiltersChange={handleFilterChange}
+          clearAllFilters={handleClearAllFilters}
+          toolbarActions={toolbarActions}
+          bulkActions={enableSelection ? bulkActions : undefined}
+          renderActions={!isSystemRole ? renderActions : undefined}
+          variant="compact"
+          ariaLabel={intl.formatMessage(messages.permissions)}
+          ouiaId="role-permissions-table"
+          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noRolePermissions)} body={emptyPropsDescription} />}
+          emptyStateNoResults={
+            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noRolePermissions)} onClearFilters={handleClearAllFilters} />
+          }
+        />
       ) : (
-        <DataView selection={isSystemRole || cantAddPermissions ? undefined : selection}>
-          <DataViewToolbar
-            bulkSelect={bulkSelectComponent}
-            pagination={paginationComponent}
-            actions={actions}
-            filters={
-              <DataViewFilters onChange={handleFilterChange} values={filterState.filters}>
-                <DataViewCheckboxFilter
-                  filterId="applications"
-                  title="Applications"
-                  placeholder="Filter by application"
-                  options={applications.map((app) => ({ label: app, value: app }))}
-                />
-                <DataViewCheckboxFilter
-                  filterId="resources"
-                  title={intl.formatMessage(messages.resourceType)}
-                  placeholder={intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.resourceType).toLowerCase() })}
-                  options={resources}
-                />
-                <DataViewCheckboxFilter
-                  filterId="operations"
-                  title={intl.formatMessage(messages.operation)}
-                  placeholder={intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.operation).toLowerCase() })}
-                  options={operations}
-                />
-              </DataViewFilters>
-            }
-            clearAllFilters={handleClearAllFilters}
-          />
-          <DataViewTable
-            aria-label={intl.formatMessage(messages.permissions)}
-            variant="compact"
-            columns={columns}
-            rows={tableRows}
-            headStates={{ loading: loadingHeader }}
-            bodyStates={{
-              loading: loadingBody,
-              empty: emptyState,
-            }}
-          />
-          <DataViewToolbar pagination={footerPaginationComponent} />
-        </DataView>
+        <TableView<typeof columnsWithoutResourceDefs, FilteredPermission>
+          columns={columnsWithoutResourceDefs}
+          columnConfig={columnConfigWithoutResourceDefs}
+          data={isLoading ? undefined : paginatedPermissions}
+          totalCount={filteredPermissions.length}
+          getRowId={(row) => row.uuid}
+          cellRenderers={cellRenderersWithoutResourceDefs}
+          page={page}
+          perPage={perPage}
+          onPageChange={(newPage) => setPage(newPage)}
+          onPerPageChange={(newPerPage) => {
+            setPerPage(newPerPage);
+            setPage(1);
+          }}
+          selectable={enableSelection}
+          selectedRows={selectedRows}
+          onSelectRow={handleSelectRow}
+          onSelectAll={handleSelectAll}
+          filterConfig={filterConfig}
+          filters={currentFilters}
+          onFiltersChange={handleFilterChange}
+          clearAllFilters={handleClearAllFilters}
+          toolbarActions={toolbarActions}
+          bulkActions={enableSelection ? bulkActions : undefined}
+          renderActions={!isSystemRole ? renderActions : undefined}
+          variant="compact"
+          ariaLabel={intl.formatMessage(messages.permissions)}
+          ouiaId="role-permissions-table"
+          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noRolePermissions)} body={emptyPropsDescription} />}
+          emptyStateNoResults={
+            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noRolePermissions)} onClearFilters={handleClearAllFilters} />
+          }
+        />
       )}
-    </section>
+    </PageSection>
   );
 };

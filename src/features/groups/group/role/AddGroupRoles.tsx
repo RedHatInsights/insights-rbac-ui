@@ -2,14 +2,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ModalVariant } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
+import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
 import { useLocation, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { addRolesToGroup as addRolesToGroupAction, fetchGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
 import { selectIsGroupRecordLoading, selectSelectedGroupName } from '../../../../redux/groups/selectors';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
@@ -17,8 +17,6 @@ import { RolesList } from '../../add-group/components/stepRoles/RolesList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import { getModalContainer } from '../../../../helpers/modal-container';
 import messages from '../../../../Messages';
-import '../../../../App.scss';
-import './add-group-roles.scss';
 
 interface Role {
   uuid: string;
@@ -54,6 +52,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
 }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
+  const addNotification = useAddNotification();
   let { state } = useLocation() as { state?: { name?: string } };
 
   const { groupId: uuid } = useParams<{ groupId: string }>();
@@ -85,13 +84,11 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
   const onCancel = () => {
     setSelectedRoles([]);
     onSelectedRolesChange?.([]);
-    dispatch(
-      addNotification({
-        variant: 'warning',
-        title: intl.formatMessage(messages.addingGroupRolesCancelled),
-        description: 'Adding roles to group has been cancelled.',
-      }),
-    );
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(messages.addingGroupRolesCancelled),
+      description: 'Adding roles to group has been cancelled.',
+    });
     navigate(closeUrl || `/groups/detail/${groupId}/roles`);
   };
 
@@ -117,10 +114,21 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
         await dispatch(fetchGroup(groupId!));
       }
 
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.addGroupRolesSuccessTitle),
+        description: intl.formatMessage(messages.addGroupRolesSuccessDescription),
+      });
+
       afterSubmit && afterSubmit();
       navigate(closeUrl || `/groups/detail/${groupId}/roles`);
     } catch (error) {
       console.error('Failed to add roles to group:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.addGroupRolesErrorTitle),
+        description: intl.formatMessage(messages.addGroupRolesErrorDescription),
+      });
     }
   };
 
@@ -162,7 +170,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
                 <Alert variant="info" isInline title="Select roles to add to this group" />
               </StackItem>
               <StackItem isFilled>
-                <RolesList initialSelectedRoles={selectedRoles || []} onSelect={handleRoleSelection} rolesExcluded={true} />
+                <RolesList initialSelectedRoles={selectedRoles || []} onSelect={handleRoleSelection} rolesExcluded={true} groupId={groupId} />
               </StackItem>
             </>
           )}

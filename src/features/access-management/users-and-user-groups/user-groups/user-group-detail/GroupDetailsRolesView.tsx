@@ -1,9 +1,6 @@
-import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import React, { useCallback, useEffect } from 'react';
@@ -13,16 +10,35 @@ import { useIntl } from 'react-intl';
 import { fetchRolesForGroup } from '../../../../../redux/groups/actions';
 import { selectGroupRoles, selectGroupRolesError, selectIsGroupRolesLoading } from '../../../../../redux/groups/selectors';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
+import { TableView } from '../../../../../components/table-view/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 
 interface GroupRolesViewProps {
   groupId: string;
   ouiaId: string;
 }
 
+interface RoleData {
+  uuid: string;
+  display_name: string;
+  workspace?: string;
+}
+
+const columns = ['name', 'workspace'] as const;
+
 const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ groupId, ouiaId }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-  const GROUP_ROLES_COLUMNS: string[] = [intl.formatMessage(messages.roles), intl.formatMessage(messages.workspace)];
+
+  const columnConfig: ColumnConfigMap<typeof columns> = {
+    name: { label: intl.formatMessage(messages.roles) },
+    workspace: { label: intl.formatMessage(messages.workspace) },
+  };
+
+  const cellRenderers: CellRendererMap<typeof columns, RoleData> = {
+    name: (role) => role.display_name,
+    workspace: () => '?', // TODO: Update once API provides workspace data
+  };
 
   const roles = useSelector(selectGroupRoles);
   const isLoading = useSelector(selectIsGroupRolesLoading);
@@ -36,48 +52,46 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
     fetchData();
   }, [fetchData]);
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="pf-v5-u-pt-md pf-v5-u-text-align-center">
-        <Spinner size="lg" aria-label="Loading roles" />
-      </div>
-    );
-  }
-
   // Show error state
   if (error) {
     return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="Unable to load roles" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+      <div className="pf-v6-u-pt-md">
+        <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load roles" variant="sm">
           <EmptyStateBody>{extractErrorMessage(error)}</EmptyStateBody>
         </EmptyState>
       </div>
     );
   }
 
-  // Show empty state when no roles
-  if (roles.length === 0) {
-    return (
-      <div className="pf-v5-u-pt-md">
-        <EmptyState variant="sm">
-          <EmptyStateHeader titleText="No roles found" icon={<EmptyStateIcon icon={KeyIcon} />} headingLevel="h4" />
-          <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
-        </EmptyState>
-      </div>
-    );
-  }
+  const emptyState = (
+    <EmptyState headingLevel="h4" icon={KeyIcon} titleText="No roles found" variant="sm">
+      <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
+    </EmptyState>
+  );
 
-  const rows = roles.map((role: any) => ({
-    row: [role.display_name, '?'], // TODO: Update once API provides workspace data
+  const roleData: RoleData[] = roles.map((role: any) => ({
+    uuid: role.uuid,
+    display_name: role.display_name,
   }));
 
   return (
-    <div className="pf-v5-u-pt-md">
-      <DataView ouiaId={ouiaId}>
-        <DataViewTable variant="compact" aria-label="GroupRolesView" ouiaId={`${ouiaId}-table`} columns={GROUP_ROLES_COLUMNS} rows={rows} />
-      </DataView>
+    <div className="pf-v6-u-pt-md">
+      <TableView<typeof columns, RoleData>
+        columns={columns}
+        columnConfig={columnConfig}
+        data={isLoading ? undefined : roleData}
+        totalCount={roleData.length}
+        getRowId={(role) => role.uuid}
+        cellRenderers={cellRenderers}
+        page={1}
+        perPage={roleData.length || 10}
+        onPageChange={() => {}}
+        onPerPageChange={() => {}}
+        ariaLabel="GroupRolesView"
+        ouiaId={ouiaId}
+        emptyStateNoData={emptyState}
+        emptyStateNoResults={emptyState}
+      />
     </div>
   );
 };

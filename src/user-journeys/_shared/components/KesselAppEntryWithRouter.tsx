@@ -1,11 +1,13 @@
 import React, { Suspense } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import AppEntry from '../../../AppEntry';
+import { AppShell } from '../../../AppEntry';
 import MyUserAccess from '../../../features/myUserAccess/MyUserAccess';
 import WorkspaceDetail from '../../../features/workspaces/workspace-detail/WorkspaceDetail';
 import { FakeAddressBar } from './FakeAddressBar';
 import { KesselNavigation } from './KesselNavigation';
-import { Masthead, MastheadMain, Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
+import { ProductionHeader } from './ProductionHeader';
+import { GlobalBreadcrumb } from './GlobalBreadcrumb';
+import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
 
 interface KesselAppEntryWithRouterProps {
   initialRoute?: string;
@@ -31,13 +33,7 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
   return (
     <MemoryRouter initialEntries={[initialRoute]}>
       <Page
-        header={
-          <Masthead>
-            <MastheadMain>
-              <FakeAddressBar />
-            </MastheadMain>
-          </Masthead>
-        }
+        masthead={<ProductionHeader />}
         sidebar={
           <PageSidebar>
             <PageSidebarBody>
@@ -46,6 +42,8 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
           </PageSidebar>
         }
       >
+        <FakeAddressBar />
+        <GlobalBreadcrumb />
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
             <Route
@@ -58,8 +56,8 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
             />
             {/* Explicit workspace detail route for M3+ */}
             <Route path="/iam/user-access/workspaces/detail/:workspaceId" element={<WorkspaceDetail />} />
-            <Route path="/iam/user-access/*" element={<AppEntry />} />
-            <Route path="/iam/access-management/*" element={<AppEntry />} />
+            <Route path="/iam/user-access/*" element={<AppShell />} />
+            <Route path="/iam/access-management/*" element={<AppShell />} />
           </Routes>
         </Suspense>
       </Page>

@@ -26,7 +26,7 @@ export const DefaultInfoPopover: React.FC<DefaultInfoPopoverProps> = ({ id, uuid
       >
         <OutlinedQuestionCircleIcon
           onClick={() => setPopoverVisible(!isPopoverVisible)}
-          className={classNames('pf-v5-c-question-circle-icon', { 'icon-active': isPopoverVisible })}
+          className={classNames('pf-v6-c-question-circle-icon', { 'icon-active': isPopoverVisible })}
         />
       </Popover>
     </span>

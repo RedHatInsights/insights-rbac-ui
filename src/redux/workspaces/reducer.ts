@@ -20,7 +20,7 @@ export interface RoleBindingsUser {
 }
 
 export interface RoleBindingsGroup {
-  name: string;
+  name?: string;
   description?: string;
   user_count?: number;
 }
@@ -46,6 +46,7 @@ export interface RoleBindingsWorkspace {
 export interface RoleBindingsResource {
   id: string;
   type: 'project' | 'workspace';
+  name?: string;
   project?: RoleBindingsProject;
   workspace?: RoleBindingsWorkspace;
 }

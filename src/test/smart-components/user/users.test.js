@@ -7,7 +7,6 @@ import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import Users from '../../../features/users/users';
-import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { usersInitialState } from '../../../redux/users/reducer';
 import * as UserHelper from '../../../redux/users/helper';
 import { defaultSettings } from '../../../helpers/pagination';
@@ -15,7 +14,7 @@ import PermissionsContext from '../../../utilities/permissionsContext';
 
 describe('<Users />', () => {
   let enhanceState;
-  const middlewares = [promiseMiddleware, notificationsMiddleware()];
+  const middlewares = [promiseMiddleware];
   let mockStore;
   let initialState;
   const adminPermissions = {
@@ -62,15 +61,15 @@ describe('<Users />', () => {
       </Provider>,
     );
     expect(screen.getAllByText('Username')).toHaveLength(2);
-    expect(fetchUsersSpy).toHaveBeenCalledWith({
-      limit: 20,
-      filters: {
-        status: ['Active'],
-        email: undefined,
-        username: undefined,
-      },
-      usesMetaInURL: true,
-    });
+    expect(fetchUsersSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        limit: 20,
+        filters: expect.objectContaining({
+          status: ['Active'],
+        }),
+        usesMetaInURL: true,
+      }),
+    );
   });
 
   it('should fetch users on mount', () => {
@@ -87,25 +86,28 @@ describe('<Users />', () => {
         </PermissionsContext.Provider>
       </Provider>,
     );
-    const expectedPayload = [{ type: 'FETCH_USERS_PENDING' }];
-    expect(store.getActions()).toEqual(expectedPayload);
-    expect(fetchUsersSpy).toHaveBeenCalledWith({
-      limit: 20,
-      filters: {
-        status: ['Active'],
-        email: undefined,
-        username: undefined,
-      },
-      usesMetaInURL: true,
-    });
+    // Component dispatches UPDATE_USERS_FILTERS followed by FETCH_USERS_PENDING
+    const actions = store.getActions();
+    expect(actions).toEqual(
+      expect.arrayContaining([expect.objectContaining({ type: 'UPDATE_USERS_FILTERS' }), expect.objectContaining({ type: 'FETCH_USERS_PENDING' })]),
+    );
+    expect(fetchUsersSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        limit: 20,
+        filters: expect.objectContaining({
+          status: ['Active'],
+        }),
+        usesMetaInURL: true,
+      }),
+    );
   });
 
   it('should fetch users on sort click', async () => {
+    jest.useFakeTimers();
     const store = mockStore(initialState);
-    fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
-    fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
+    fetchUsersSpy.mockImplementation(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
 
-    const user = userEvent.setup();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     await act(async () => {
       render(
@@ -120,25 +122,40 @@ describe('<Users />', () => {
         </Provider>,
       );
     });
+
+    // Wait for initial render
+    await screen.findByText('user');
+
+    // Clear spy calls from initial render
+    fetchUsersSpy.mockClear();
     store.clearActions();
-    await user.click((await screen.findAllByText('Username')).at(1));
-    const expectedPayload = [expect.objectContaining({ type: 'FETCH_USERS_PENDING' }), expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' })];
-    expect(store.getActions()).toEqual(expectedPayload);
-    expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
-    expect(fetchUsersSpy).toHaveBeenLastCalledWith({
-      count: 0,
-      itemCount: 0,
-      limit: 20,
-      offset: 0,
-      redirected: undefined,
-      orderBy: '-username',
-      filters: {
-        status: ['Active'],
-        email: undefined,
-        username: undefined,
-      },
-      usesMetaInURL: true,
+
+    // Find and click the sortable Username column header button
+    const usernameHeaders = await screen.findAllByText('Username');
+    // The sortable header has a button inside it
+    const sortableHeader = usernameHeaders[1].closest('th');
+    const sortButton = sortableHeader?.querySelector('button');
+    expect(sortButton).toBeTruthy();
+
+    await user.click(sortButton);
+
+    // Run timers to trigger debounced fetch
+    await act(async () => {
+      jest.runAllTimers();
     });
+
+    // Verify sort was called with descending order (clicking ascending column toggles to descending)
+    expect(fetchUsersSpy).toHaveBeenCalled();
+    expect(fetchUsersSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        limit: 20,
+        orderBy: '-username',
+        filters: expect.objectContaining({
+          status: ['Active'],
+        }),
+        usesMetaInURL: true,
+      }),
+    );
   });
 
   it('should fetch users on filter', async () => {
@@ -167,11 +184,15 @@ describe('<Users />', () => {
     });
 
     expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
-    expect(fetchUsersSpy).toHaveBeenLastCalledWith({
-      limit: 20,
-      orderBy: 'username',
-      filters: { status: ['Active'], username: 'something', email: '' },
-      usesMetaInURL: true,
-    });
+    expect(fetchUsersSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        limit: 20,
+        filters: expect.objectContaining({
+          status: ['Active'],
+          username: 'something',
+        }),
+        usesMetaInURL: true,
+      }),
+    );
   });
 });

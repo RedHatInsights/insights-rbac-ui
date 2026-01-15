@@ -901,7 +901,7 @@ export const Loading: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v5-c-skeleton');
+    const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
     expect(skeletonElements.length).toBeGreaterThan(0);
   },
 };
@@ -1112,9 +1112,9 @@ export const RowActionsWithCallbacks: Story = {
 
     // Click Edit
     await waitFor(() => {
-      expect(canvas.getByText('Edit')).toBeInTheDocument();
+      expect(within(document.body).getByText('Edit')).toBeInTheDocument();
     });
-    await userEvent.click(canvas.getByText('Edit'));
+    await userEvent.click(within(document.body).getByText('Edit'));
 
     // Verify edit callback was called with correct role data
     await waitFor(() => {
@@ -1133,9 +1133,9 @@ export const RowActionsWithCallbacks: Story = {
     // Open menu again and click Delete
     await userEvent.click(actionsToggle);
     await waitFor(() => {
-      expect(canvas.getByText('Delete')).toBeInTheDocument();
+      expect(within(document.body).getByText('Delete')).toBeInTheDocument();
     });
-    await userEvent.click(canvas.getByText('Delete'));
+    await userEvent.click(within(document.body).getByText('Delete'));
 
     // Verify delete callback was called with correct role data
     await waitFor(() => {
@@ -1276,7 +1276,7 @@ export const MultipleFiltersWithChips: Story = {
     await userEvent.click(filterDropdownButton!);
 
     // Wait for dropdown menu and select "Type" option
-    const typeOption = await canvas.findByRole('menuitem', { name: /Type/i });
+    const typeOption = await within(document.body).findByRole('menuitem', { name: /Type/i });
     await userEvent.click(typeOption);
 
     // 3. Now interact with the Type filter checkbox dropdown
@@ -1286,7 +1286,7 @@ export const MultipleFiltersWithChips: Story = {
     await userEvent.click(typeFilterToggle);
 
     // Select "Custom" checkbox option from the dropdown
-    const customMenuItem = await canvas.findByRole('menuitem', { name: /Custom/i });
+    const customMenuItem = await within(document.body).findByRole('menuitem', { name: /Custom/i });
     const customCheckbox = within(customMenuItem).getByRole('checkbox');
 
     apiCallSpy.mockClear();
@@ -1777,6 +1777,133 @@ await waitFor(() => {
       expect(filterCall).toBeDefined();
       // Page should reset to 1 (offset = 0)
       expect(filterCall![0].offset).toBe(0);
+    });
+  },
+};
+
+// =============================================================================
+// Initial Selection Test Component
+// =============================================================================
+
+interface InitialSelectionTableProps {
+  ouiaId?: string;
+}
+
+/**
+ * Component that demonstrates useTableState with initialSelectedRows.
+ */
+const InitialSelectionTable: React.FC<InitialSelectionTableProps> = ({ ouiaId = 'initial-selection-table' }) => {
+  const [data, setData] = useState<Role[] | undefined>(undefined);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Pre-select first two roles
+  const initialSelectedRows = [allMockRoles[0], allMockRoles[1]];
+
+  const handleStaleData = useCallback(async (apiParams: RolesApiParams) => {
+    setData(undefined);
+    try {
+      const json = await fetchRolesData(apiParams);
+      setData(json.data);
+      setTotalCount(json.meta.count);
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
+      setData([]);
+      setTotalCount(0);
+    }
+  }, []);
+
+  const tableState = useTableState<typeof columns, Role, SortableColumnId, CompoundColumnId>({
+    columns,
+    sortableColumns,
+    compoundColumns: ['permissions'] as const,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: 10,
+    getRowId: (role) => role.uuid,
+    isRowSelectable: (role) => !role.system,
+    initialSelectedRows,
+    onStaleData: handleStaleData,
+  });
+
+  return (
+    <TableView
+      columns={columns}
+      columnConfig={columnConfigWithExpansion}
+      sortableColumns={sortableColumns}
+      data={data}
+      totalCount={totalCount}
+      getRowId={(role) => role.uuid}
+      cellRenderers={cellRenderers}
+      expansionRenderers={expansionRenderers}
+      ariaLabel="Roles table with initial selection"
+      ouiaId={ouiaId}
+      selectable
+      bulkActions={
+        tableState.selectedRows.length > 0 ? (
+          <Button variant="secondary" onClick={() => tableState.clearSelection()}>
+            Clear selection ({tableState.selectedRows.length})
+          </Button>
+        ) : undefined
+      }
+      {...tableState}
+    />
+  );
+};
+
+/**
+ * Test story for initialSelectedRows functionality.
+ *
+ * Verifies that:
+ * - Rows passed to initialSelectedRows are selected on mount
+ * - Selection count displays correctly
+ * - Clear selection works
+ */
+export const InitialSelectionTest: StoryObj<typeof InitialSelectionTable> = {
+  render: (args) => <InitialSelectionTable {...args} />,
+  args: {},
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Initial Selection
+
+Use \`initialSelectedRows\` in \`useTableState\` to pre-select rows on mount.
+Useful for edit forms where existing selections need to be restored.
+
+\`\`\`typescript
+const tableState = useTableState({
+  columns,
+  getRowId: (row) => row.id,
+  initialSelectedRows: existingSelections,
+  onStaleData: handleStaleData,
+});
+\`\`\`
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for data to load
+    await waitFor(() => {
+      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+    });
+
+    // Verify initial selection - 2 rows should be selected
+    const clearButton = canvas.getByRole('button', { name: /clear selection \(2\)/i });
+    expect(clearButton).toBeInTheDocument();
+
+    // Verify checkboxes are checked for initial rows
+    const checkboxes = canvas.getAllByRole('checkbox');
+    // First row (Administrator 1) should be checked
+    expect(checkboxes[1]).toBeChecked(); // [0] is bulk select
+
+    // Clear selection
+    await userEvent.click(clearButton);
+
+    // Verify selection is cleared
+    await waitFor(() => {
+      expect(canvas.queryByRole('button', { name: /clear selection/i })).not.toBeInTheDocument();
     });
   },
 };

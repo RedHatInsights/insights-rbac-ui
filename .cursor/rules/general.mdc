@@ -189,6 +189,41 @@ npm run test-storybook:ci
 
 **REMEMBER**: The user has repeatedly had to remind AI to run these validation commands. This rule exists because AI has a pattern of claiming completion without proper validation. Follow this rule religiously.
 
+## Test Output Analysis (MANDATORY)
+
+### NEVER Run Test Suites Multiple Times to Grep Output
+
+**CRITICAL**: When you need to analyze test output:
+1. **Run the test ONCE** and pipe output to a file
+2. **Analyze the file** with grep, head, tail, etc.
+3. **NEVER re-run the entire test suite** just to apply a different grep pattern
+
+#### ✅ CORRECT Pattern
+```bash
+# Run once, save output
+npm run test-storybook:fast 2>&1 | tee /tmp/test-output.txt | tail -20
+
+# Then analyze the saved output (no re-running tests!)
+grep -i "error" /tmp/test-output.txt
+grep -i "skip" /tmp/test-output.txt
+grep -i "fail" /tmp/test-output.txt
+head -100 /tmp/test-output.txt
+```
+
+#### ❌ WRONG Pattern
+```bash
+# DON'T DO THIS - running suite multiple times!
+npm run test-storybook:fast 2>&1 | grep -i "error"
+npm run test-storybook:fast 2>&1 | grep -i "skip"    # Another 2 min wait!
+npm run test-storybook:fast 2>&1 | grep -i "fail"    # Another 2 min wait!
+```
+
+**Why This Matters**:
+- Test suites take **2+ minutes** to run
+- Re-running for each grep wastes significant time
+- The output doesn't change between runs
+- Save once, analyze many times
+
 ## Console Warnings and Errors
 
 ### Critical Rule: Address All Console Warnings

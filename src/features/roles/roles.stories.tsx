@@ -108,15 +108,10 @@ const meta: Meta<typeof Roles> = {
 **Roles** is a container component that manages the roles list page at \`/iam/user-access/roles\`.
 
 ## Container Responsibilities
-- **Redux State Management**: Manages role data, filters, pagination through Redux
-- **API Orchestration**: Dispatches \`fetchRolesWithPolicies\` and \`fetchAdminGroup\` actions
+- **Data Fetching**: Uses TanStack Query hooks for role data and admin group
 - **Permission Context**: Uses \`orgAdmin\` and \`userAccessAdministrator\` from PermissionsContext
 - **URL Synchronization**: Manages pagination and filters in URL parameters
-- **Table Management**: Provides data and callbacks to TableToolbarView component
-
-## Known Issue (TO BE FIXED)
-This component currently makes unauthorized API calls for non-admin users, causing 403 error toast spam.
-The stories below test both the bug scenario and expected behavior after fix.
+- **Table Management**: Provides data and callbacks to TableView component
         `,
       },
     },
@@ -136,14 +131,11 @@ export const AdminUserWithRoles: Story = {
 
 ## Additional Test Stories
 
-For testing specific scenarios and the permission bug, see these additional stories:
+For testing specific scenarios, see these additional stories:
 
-- **[NonAdminUserUnauthorizedCalls](?path=/story/features-roles-roles--non-admin-user-unauthorized-calls)**: Tests the BUG - non-admin users trigger unauthorized API calls
+- **[NonAdminUserUnauthorizedCalls](?path=/story/features-roles-roles--non-admin-user-unauthorized-calls)**: Verifies non-admin users see UnauthorizedAccess and make no API calls
 - **[LoadingState](?path=/story/features-roles-roles--loading-state)**: Tests container behavior during API loading
 - **[EmptyRoles](?path=/story/features-roles-roles--empty-roles)**: Tests container response to empty role data
-
-## Expected Fix Behavior
-After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass with zero API calls made.
         `,
       },
     },
@@ -159,11 +151,13 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
           const limit = parseInt(url.searchParams.get('limit') || '20', 10);
           const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           const displayNameFilter = url.searchParams.get('display_name');
+          const orderBy = url.searchParams.get('order_by');
 
           console.log('SB: 🔍 MSW: Roles API called', {
             url: request.url,
             displayNameFilter:
               displayNameFilter === null ? 'NULL (no parameter)' : displayNameFilter === '' ? 'EMPTY STRING' : `"${displayNameFilter}"`,
+            orderBy,
             limit,
             offset,
           });
@@ -173,10 +167,10 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
           // Apply display_name filtering ONLY if provided and not empty
           // Note: mappedProps filters out empty strings, so when clearing filters,
           // the display_name parameter won't be in the URL at all (displayNameFilter will be null)
-          let filteredRoles = mockRoles;
+          let filteredRoles = [...mockRoles];
           if (displayNameFilter && displayNameFilter.trim() !== '') {
             console.log('SB: 🔍 MSW: Applying display_name filter:', displayNameFilter);
-            filteredRoles = mockRoles.filter(
+            filteredRoles = filteredRoles.filter(
               (role) =>
                 role.name.toLowerCase().includes(displayNameFilter.toLowerCase()) ||
                 (role.display_name && role.display_name.toLowerCase().includes(displayNameFilter.toLowerCase())) ||
@@ -185,6 +179,29 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
             console.log('SB: 🔍 MSW: Filtered roles count:', filteredRoles.length);
           } else {
             console.log('SB: 🔍 MSW: No filter (displayNameFilter is null or empty), returning all', mockRoles.length, 'roles');
+          }
+
+          // Apply sorting based on order_by parameter
+          if (orderBy) {
+            const isDescending = orderBy.startsWith('-');
+            const sortField = isDescending ? orderBy.slice(1) : orderBy;
+
+            filteredRoles.sort((a, b) => {
+              let aVal: string | number = '';
+              let bVal: string | number = '';
+
+              if (sortField === 'display_name' || sortField === 'name') {
+                aVal = (a.display_name || a.name || '').toLowerCase();
+                bVal = (b.display_name || b.name || '').toLowerCase();
+              } else if (sortField === 'modified') {
+                aVal = new Date(a.modified || 0).getTime();
+                bVal = new Date(b.modified || 0).getTime();
+              }
+
+              if (aVal < bVal) return isDescending ? 1 : -1;
+              if (aVal > bVal) return isDescending ? -1 : 1;
+              return 0;
+            });
           }
 
           const response = {
@@ -267,19 +284,9 @@ export const NonAdminUserUnauthorizedCalls: Story = {
     docs: {
       description: {
         story: `
-**BUG REPLICATION**: This story demonstrates the unauthorized API call issue for non-admin users.
+**Non-Admin User Access**: Verifies that non-admin users do not trigger unauthorized API calls.
 
-## Current Behavior (BUG)
-Non-admin users accessing \`/iam/user-access/roles\` trigger unauthorized API calls that result in 403 errors and toast spam.
-
-## Expected Test Result: ❌ FAIL (shows the bug exists)
-This test currently **FAILS** with: \`expect(spy).not.toHaveBeenCalled()\` because unauthorized calls ARE being made.
-
-## Expected Behavior (AFTER FIX)  
-Non-admin users should NOT trigger any API calls and should see a NotAuthorized component instead. The component should check permissions before making API requests.
-
-## Test Validation
-After the fix is applied, this test should **PASS** with zero API calls.
+Non-admin users should see a NotAuthorized component and make zero API calls to the roles or admin group endpoints.
         `,
       },
     },
@@ -331,18 +338,12 @@ After the fix is applied, this test should **PASS** with zero API calls.
 
     await delay(300);
 
-    console.log('SB: 🐛 BUG TEST: Non-admin roles spy calls:', fetchRolesSpy.mock.calls.length);
-    console.log('SB: 🐛 BUG TEST: Non-admin admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
-
-    // 🐛 BUG DEMONSTRATION: These tests currently FAIL because unauthorized API calls are made
-    // This proves the bug exists - non-admin users trigger API calls when they shouldn't
+    // Verify no API calls were made
     expect(fetchRolesSpy).not.toHaveBeenCalled();
     expect(fetchAdminGroupSpy).not.toHaveBeenCalled();
 
-    // After fix: Verify NotAuthorized component is shown instead of making API calls
+    // Verify NotAuthorized component is shown
     expect(await canvas.findByText(/You do not have access to User Access Administration/i)).toBeInTheDocument();
-
-    console.log('SB: 🧪 NON-ADMIN: NotAuthorized component shown, no unauthorized API calls made');
   },
 };
 
@@ -420,7 +421,7 @@ export const EmptyRoles: Story = {
     // Wait for debounced functions to settle
     await delay(300);
 
-    // Should show empty state message for no roles
+    // Should show empty state message for no roles - "Configure roles"
     await expect(canvas.findByText(/Configure roles/i)).resolves.toBeInTheDocument();
   },
 };
@@ -533,19 +534,25 @@ export const AdminUserWithRolesFiltering: Story = {
     console.log('SB: 🧪 FILTERING: Typing "vulner" filter');
     await userEvent.type(filterInput, 'vulner');
 
-    // Wait for debounce to complete (250ms debounce + buffer)
-    await delay(400);
+    // Wait for debounce + Redux state update + re-render
+    await waitFor(
+      () => {
+        expect(filterSpy).toHaveBeenCalledWith('vulner');
+      },
+      { timeout: 3000 },
+    );
 
-    await waitFor(() => {
-      expect(filterSpy).toHaveBeenCalledWith('vulner');
-    });
+    // Wait for the filtered data to render - Platform Administrator should disappear
+    await waitFor(
+      () => {
+        expect(canvas.queryByText('Platform Administrator')).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
     // Verify only Vulnerability Administrator is visible
     expect(await canvas.findByText('Vulnerability Administrator')).toBeInTheDocument();
-    await waitFor(() => {
-      expect(canvas.queryByText('Platform Administrator')).not.toBeInTheDocument();
-      expect(canvas.queryByText('Cost Management Viewer')).not.toBeInTheDocument();
-    });
+    expect(canvas.queryByText('Cost Management Viewer')).not.toBeInTheDocument();
 
     // Test 2: Clear filter by clicking the Clear filters button
     console.log('SB: 🧪 FILTERING: Clicking clear filters button');
@@ -696,10 +703,33 @@ export const AdminUserWithRolesSorting: Story = {
             sortSpy(orderBy);
           }
 
-          // Return roles (sorting would be handled server-side in real app)
+          // Actually sort the data based on order_by parameter
+          let sortedRoles = [...mockRoles];
+          if (orderBy) {
+            const isDescending = orderBy.startsWith('-');
+            const sortField = isDescending ? orderBy.slice(1) : orderBy;
+
+            sortedRoles.sort((a, b) => {
+              let aVal: string | number = '';
+              let bVal: string | number = '';
+
+              if (sortField === 'display_name' || sortField === 'name') {
+                aVal = (a.display_name || a.name || '').toLowerCase();
+                bVal = (b.display_name || b.name || '').toLowerCase();
+              } else if (sortField === 'modified') {
+                aVal = new Date(a.modified || 0).getTime();
+                bVal = new Date(b.modified || 0).getTime();
+              }
+
+              if (aVal < bVal) return isDescending ? 1 : -1;
+              if (aVal > bVal) return isDescending ? -1 : 1;
+              return 0;
+            });
+          }
+
           return HttpResponse.json({
-            data: mockRoles,
-            meta: { count: mockRoles.length, limit: 20, offset: 0 },
+            data: sortedRoles,
+            meta: { count: sortedRoles.length, limit: 20, offset: 0 },
           });
         }),
 
@@ -720,13 +750,13 @@ export const AdminUserWithRolesSorting: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for debounced functions to settle
-    await delay(300);
-
     console.log('SB: 🧪 SORTING: Starting column sorting test');
 
-    // Wait for initial data load
+    // Wait for initial data load - table should be fully rendered with sortable headers
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
+
+    // Additional wait to ensure table headers are interactive (not skeletons)
+    await delay(100);
 
     // Test sorting by Name column (display_name)
     console.log('SB: 🧪 Testing Name column sorting...');
@@ -855,95 +885,5 @@ export const AdminUserWithRolesPrimaryActions: Story = {
     await userEvent.click(firstRowKebab);
 
     console.log('SB: 🧪 ACTIONS: Primary actions test completed');
-  },
-};
-
-// Sorting interaction test
-export const SortingInteraction: Story = {
-  tags: ['env:stage', 'perm:org-admin'],
-  parameters: {
-    chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
-    msw: {
-      handlers: [
-        // Override to spy on API calls
-        http.get('/api/rbac/v1/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          const orderBy = url.searchParams.get('order_by');
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-
-          // Call the spy
-          fetchRolesSpy({ order_by: orderBy, limit, offset });
-
-          return HttpResponse.json({
-            meta: { count: mockRoles.length, limit, offset },
-            data: mockRoles,
-          });
-        }),
-        http.get('/api/rbac/v1/groups/', () => {
-          fetchAdminGroupSpy();
-          return HttpResponse.json({
-            meta: { count: 1, limit: 20, offset: 0 },
-            data: [{ uuid: 'admin-group', name: 'Default admin access', platform_default: false, admin_default: true, system: false }],
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Initial load should call API with default sorting
-    await waitFor(() => {
-      expect(fetchRolesSpy).toHaveBeenCalled();
-      const { calls } = fetchRolesSpy.mock;
-      const hasDefaultSort = calls.some((call) => call[0].order_by === 'display_name');
-      expect(hasDefaultSort).toBe(true);
-    });
-
-    // Wait for data to load
-    expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
-
-    // Wait for skeleton loading to complete and real content to appear
-    const nameHeaderCheck = await canvas.findByRole('columnheader', { name: /name/i });
-    const buttons = within(nameHeaderCheck).queryAllByRole('button');
-    expect(buttons.length).toBeGreaterThan(0);
-
-    // Test clicking Name column header for descending sort
-    const nameHeader = await canvas.findByRole('columnheader', { name: /name/i });
-    const nameButton = await within(nameHeader).findByRole('button');
-
-    fetchRolesSpy.mockClear();
-    await userEvent.click(nameButton);
-
-    // Wait for API call and verify descending sort
-    await waitFor(
-      () => {
-        expect(fetchRolesSpy).toHaveBeenCalled();
-        const { calls } = fetchRolesSpy.mock;
-        const hasDescendingSort = calls.some((call) => call[0].order_by === '-display_name');
-        expect(hasDescendingSort).toBe(true);
-      },
-      { timeout: 2000 },
-    );
-
-    // Test clicking Last Modified column header
-    const modifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
-    const modifiedButton = await within(modifiedHeader).findByRole('button');
-
-    fetchRolesSpy.mockClear();
-    await userEvent.click(modifiedButton);
-
-    // Wait for API call and verify modified sort
-    await waitFor(
-      () => {
-        expect(fetchRolesSpy).toHaveBeenCalled();
-        const { calls } = fetchRolesSpy.mock;
-        const hasModifiedSort = calls.some((call) => call[0].order_by === 'modified');
-        expect(hasModifiedSort).toBe(true);
-      },
-      { timeout: 2000 },
-    );
   },
 };

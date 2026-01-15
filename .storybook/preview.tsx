@@ -1,16 +1,50 @@
 import type { Preview } from '@storybook/react-webpack5';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/patternfly/patternfly-addons.css';
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
-import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
 import { registryFactory, RegistryContext } from '../src/utilities/store';
 import { ChromeProvider, FeatureFlagsProvider, type ChromeConfig, type FeatureFlagsConfig } from './context-providers';
 import { initialize, mswLoader } from 'msw-storybook-addon';
+
+// Create a fresh QueryClient for each story to prevent state leaking
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false, // Don't retry in tests/stories
+        staleTime: 0, // Always refetch - required for stories that test API calls after interactions
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+
+// Wrapper that provides a fresh QueryClient for each story to prevent state leaking
+const QueryClientWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [queryClient] = useState(() => createTestQueryClient());
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      {typeof document !== 'undefined' && createPortal(
+        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />,
+        document.body
+      )}
+      {children}
+    </QueryClientProvider>
+  );
+};
+
 
 // Mock insights global for Storybook
 declare global {
@@ -21,18 +55,35 @@ declare global {
   };
 }
 
+// Mock global insights object for libraries that access it directly (e.g. RBACHook)
+const mockInsightsChrome = {
+  getEnvironment: () => 'prod',
+  getUserPermissions: () => Promise.resolve([
+    { permission: 'inventory:hosts:read', resourceDefinitions: [] },
+    { permission: 'inventory:hosts:write', resourceDefinitions: [] },
+    { permission: 'inventory:groups:write', resourceDefinitions: [] },
+    { permission: 'cost-management:*:*', resourceDefinitions: [] },
+    { permission: 'rbac:*:*', resourceDefinitions: [] },
+  ]),
+  auth: {
+    getUser: () => Promise.resolve({
+      identity: {
+        user: {
+          username: 'test-user',
+          email: 'test@redhat.com',
+          is_org_admin: true,
+          is_internal: false,
+        },
+      },
+    }),
+    getToken: () => Promise.resolve('mock-jwt-token-12345'),
+  },
+};
+
 if (typeof global !== 'undefined') {
-  (global as any).insights = {
-    chrome: {
-      getEnvironment: () => 'prod',
-    },
-  };
+  (global as any).insights = { chrome: mockInsightsChrome };
 } else if (typeof window !== 'undefined') {
-  (window as any).insights = {
-    chrome: {
-      getEnvironment: () => 'prod',
-    },
-  };
+  (window as any).insights = { chrome: mockInsightsChrome };
 }
 
 const preview: Preview = {
@@ -72,7 +123,6 @@ const preview: Preview = {
     },
   },
   decorators: [
-    // 👇 Combined context decorator - reads from story parameters and args
     (Story, { parameters, args }) => {
       const registry = registryFactory();
 
@@ -124,26 +174,29 @@ const preview: Preview = {
       };
 
       return (
-        <RegistryContext.Provider
-          value={{
-            getRegistry: () => registry,
-          }}
-        >
-          <Provider store={registry.getStore()}>
-            <ChromeProvider value={chromeConfig}>
-              <FeatureFlagsProvider value={featureFlags}>
-                <PermissionsContext.Provider value={permissions}>
-                  <IntlProvider locale={locale} messages={messages[locale]}>
-                    <Fragment>
-                      <NotificationPortal />
-                      <Story />
-                    </Fragment>
-                  </IntlProvider>
-                </PermissionsContext.Provider>
-              </FeatureFlagsProvider>
-            </ChromeProvider>
-          </Provider>
-        </RegistryContext.Provider>
+        <QueryClientWrapper>
+          <RegistryContext.Provider
+            value={{
+              getRegistry: () => registry,
+            }}
+          >
+            <Provider store={registry.getStore()}>
+              <ChromeProvider value={chromeConfig}>
+                <FeatureFlagsProvider value={featureFlags}>
+                  <PermissionsContext.Provider value={permissions}>
+                    <IntlProvider locale={locale} messages={messages[locale]}>
+                      <Fragment>
+                        <NotificationsProvider>
+                          <Story />
+                        </NotificationsProvider>
+                      </Fragment>
+                    </IntlProvider>
+                  </PermissionsContext.Provider>
+                </FeatureFlagsProvider>
+              </ChromeProvider>
+            </Provider>
+          </RegistryContext.Provider>
+        </QueryClientWrapper>
       );
     },
   ],

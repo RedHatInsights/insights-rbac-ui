@@ -1,15 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useDataViewFilters, useDataViewPagination, useDataViewSelection, useDataViewSort } from '@patternfly/react-data-view';
 
-import { fetchRolesWithPolicies } from '../../redux/roles/actions';
-import { FetchRolesWithPoliciesParams } from '../../redux/roles/helper';
-import { mappedProps } from '../../helpers/dataUtilities';
 import { defaultSettings } from '../../helpers/pagination';
-import { Role } from '../../redux/roles/reducer';
-import { selectIsRolesLoading, selectRoles, selectRolesTotalCount } from '../../redux/roles/selectors';
+import { type ListRolesParams, useRolesQuery } from '../../data/queries/roles';
+import type { RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
+
+// Re-export Role type for backwards compatibility
+export type Role = RoleOutDynamic;
 
 export interface RoleFilters {
   display_name: string;
@@ -43,7 +42,7 @@ export interface UseRolesReturn {
   setFocusedRole: (role: Role | null) => void;
 
   // Actions
-  fetchData: (params: FetchRolesWithPoliciesParams) => void;
+  refetch: () => void;
   handleRowClick: (role: Role) => void;
 
   // Clear all filters
@@ -53,11 +52,11 @@ export interface UseRolesReturn {
 
 /**
  * Custom hook for managing Roles business logic
+ * Migrated from Redux to TanStack Query
  */
 export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
   const { enableAdminFeatures = true } = options;
 
-  const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Focus state for drawer
@@ -86,49 +85,35 @@ export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
   });
 
   const selection = useDataViewSelection({
-    matchOption: (a, b) => a.uuid === b.uuid,
+    matchOption: (a: { uuid: string }, b: { uuid: string }) => a.uuid === b.uuid,
   });
 
-  // Redux selectors with proper typing
-  // Use memoized selectors
-  const roles = useSelector(selectRoles);
-  const isLoading = useSelector(selectIsRolesLoading);
-  const totalCount = useSelector(selectRolesTotalCount);
+  // Build query params from data view state
+  const queryParams: ListRolesParams = {
+    limit: pagination.perPage,
+    offset: (pagination.page - 1) * pagination.perPage,
+    orderBy: (sortBy || 'display_name') as ListRolesParams['orderBy'],
+    displayName: filters.display_name || undefined,
+    nameMatch: 'partial',
+    scope: 'org_id',
+    addFields: ['groups_in_count', 'groups_in', 'access'],
+  };
+
+  // Use TanStack Query instead of Redux
+  const { data: rolesData, isLoading, refetch } = useRolesQuery(queryParams);
+
+  // Extract roles and total count from query result
+  const roles = (rolesData?.data ?? []) as Role[];
+  const totalCount = rolesData?.meta?.count ?? 0;
 
   // Permission context
-  const orgAdmin = enableAdminFeatures; // Simplified for now
-  const userAccessAdministrator = enableAdminFeatures; // Simplified for now
-
-  // Fetch data function
-  const fetchData = useCallback(
-    (params: FetchRolesWithPoliciesParams) => {
-      // mappedProps expects Record<string, unknown>, so we cast back
-      const mappedParams = mappedProps(params as Record<string, unknown>);
-      const payload: FetchRolesWithPoliciesParams = {
-        ...mappedParams,
-        usesMetaInURL: true,
-      };
-      dispatch(fetchRolesWithPolicies(payload));
-    },
-    [dispatch],
-  );
-
-  // Auto-fetch when dependencies change
-  useEffect(() => {
-    const { page, perPage } = pagination;
-    const limit = perPage;
-    const offset = (page - 1) * perPage;
-    const orderBy = sortBy || 'display_name';
-    const filtersForApi = filters;
-
-    fetchData({ limit, offset, orderBy, filters: filtersForApi });
-  }, [fetchData, pagination.page, pagination.perPage, sortBy, filters.display_name]);
+  const orgAdmin = enableAdminFeatures;
+  const userAccessAdministrator = enableAdminFeatures;
 
   // Handle row click for role focus and drawer events
   const handleRowClick = useCallback(
     (role: Role) => {
       setFocusedRole(role);
-      // Note: DataView events context integration can be added later if needed
     },
     [setFocusedRole],
   );
@@ -156,7 +141,7 @@ export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
     setFocusedRole,
 
     // Actions
-    fetchData,
+    refetch,
     handleRowClick,
 
     // Clear all filters

@@ -1,12 +1,74 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { AddGroupMembers } from './AddGroupMembers';
 
 // API spy for tracking filter and search calls
 const usersApiSpy = fn();
+
+/**
+ * Helper to wait for the members table to be fully populated with expected status counts.
+ * Uses findByRole for the grid (built-in async), then waitFor only for count assertions.
+ */
+const waitForMembersTable = async (
+  modal: HTMLElement,
+  expectedCounts: { active?: number; inactive?: number },
+  options: { timeout?: number } = {},
+) => {
+  const { timeout = 5000 } = options;
+  const table = await within(modal).findByRole('grid');
+
+  await waitFor(
+    () => {
+      if (expectedCounts.inactive !== undefined) {
+        const inactiveElements = within(table).queryAllByText('Inactive');
+        expect(inactiveElements).toHaveLength(expectedCounts.inactive);
+      }
+      if (expectedCounts.active !== undefined) {
+        const activeElements = within(table).queryAllByText('Active');
+        expect(activeElements).toHaveLength(expectedCounts.active);
+      }
+    },
+    { timeout },
+  );
+
+  return table;
+};
+
+// Shared MSW handlers for group-related API calls
+// These are needed because the component now properly receives groupId from useParams()
+const sharedGroupHandlers = [
+  // Single group fetch handler (for fetchGroup action)
+  http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
+    return HttpResponse.json({
+      uuid: params.groupId,
+      name: 'Test Group',
+      description: 'A test group for adding members',
+      principalCount: 0,
+      roleCount: 0,
+    });
+  }),
+  // Group members fetch handler (for fetchMembersForGroup action)
+  http.get('/api/rbac/v1/groups/:groupId/principals/', () => {
+    return HttpResponse.json({
+      data: [],
+      meta: { count: 0, limit: 20, offset: 0 },
+    });
+  }),
+  // Groups list handler (for fetchGroups action)
+  http.get('/api/rbac/v1/groups/', () => {
+    return HttpResponse.json({
+      data: [],
+      meta: { count: 0 },
+    });
+  }),
+  // Add members to group handler
+  http.post('/api/rbac/v1/groups/:groupId/principals/', () => {
+    return HttpResponse.json({ message: 'Members added successfully' });
+  }),
+];
 
 // Mock users data for testing
 const mockUsers = [
@@ -69,7 +131,13 @@ const meta: Meta<any> = {
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={['/groups/detail/test-group-id/members']}>
-        <Story />
+        <Routes>
+          <Route path="/groups/detail/:groupId/members" element={<Story />} />
+          {/* Route for navigation after cancel/submit */}
+          <Route path="/groups/detail/:groupId/members/*" element={<Story />} />
+          {/* Route for useAppNavigate with /iam/user-access basename */}
+          <Route path="/iam/user-access/groups/detail/:groupId/members" element={<div data-testid="group-members-page">Group Members Page</div>} />
+        </Routes>
       </MemoryRouter>
     ),
   ],
@@ -135,17 +203,8 @@ const meta: Meta<any> = {
             },
           });
         }),
-        // Add members API handler
-        http.post('/api/rbac/v1/groups/:groupId/principals/', () => {
-          return HttpResponse.json({ message: 'Members added successfully' });
-        }),
-        // Groups API handler (for fetchGroups action)
-        http.get('/api/rbac/v1/groups/', () => {
-          return HttpResponse.json({
-            data: [],
-            meta: { count: 0 },
-          });
-        }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -271,6 +330,8 @@ export const WithUsers: Story = {
             },
           });
         }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -375,6 +436,8 @@ export const WithFiltering: Story = {
             },
           });
         }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -469,19 +532,20 @@ export const WithFiltering: Story = {
     });
 
     // 🎯 TEST 3: VERIFY INACTIVE USERS APPEAR WHEN STATUS CLEARED
-    const getTable = () => within(modal).findByRole('grid');
-    const table = await getTable();
-
-    // Verify inactive users appear - should see "Inactive" in Status column exactly 3 times
-    expect(await within(table).findAllByText('Inactive')).toHaveLength(3);
-    // Verify active users are also present (should see "Active" in Status column exactly 4 times)
-    expect(await within(table).findAllByText('Active')).toHaveLength(4);
+    // Wait for table to be fully populated with all users including inactive ones
+    await waitForMembersTable(modal, { active: 4, inactive: 3 });
 
     // 🎯 TEST 4: EMAIL FILTER
     usersApiSpy.mockClear();
 
-    // Switch to Email filter
-    await userEvent.click(await within(modal).findByRole('button', { name: /username/i }));
+    // Switch to Email filter using DataViewFilters pattern
+    const emailFilterContainer = modal.querySelector('[data-ouia-component-id="DataViewFilters"]') as HTMLElement;
+    expect(emailFilterContainer).toBeTruthy();
+    const emailFilterCanvas = within(emailFilterContainer);
+    // Find and click the filter type dropdown (shows current filter type)
+    const filterTypeBtn = emailFilterCanvas.getAllByRole('button').find((btn) => btn.textContent?.includes('Username'));
+    expect(filterTypeBtn).toBeTruthy();
+    await userEvent.click(filterTypeBtn!);
     await userEvent.click(await within(modal).findByRole('menuitem', { name: /^email$/i }));
 
     // Type in email filter
@@ -510,23 +574,38 @@ export const WithFiltering: Story = {
       expect(await within(modal).findByText('bob.smith')).toBeInTheDocument();
     });
 
-    // Switch to Status filter
-    const toolbar = modal.querySelector('.pf-v5-c-toolbar') as HTMLElement;
-    await userEvent.click(await within(toolbar).findByRole('button', { name: /email|filter.*attribute/i }));
+    // Switch to Status filter using DataViewFilters pattern
+    const filterContainer = modal.querySelector('[data-ouia-component-id="DataViewFilters"]') as HTMLElement;
+    expect(filterContainer).toBeTruthy();
+    const filterCanvas = within(filterContainer);
+
+    // Find filter type dropdown button (shows current filter type like "Email")
+    const filterTypeButtons = filterCanvas.getAllByRole('button');
+    const filterDropdownButton = filterTypeButtons.find(
+      (btn) => btn.textContent?.toLowerCase().includes('email') || btn.textContent?.toLowerCase().includes('username'),
+    );
+    expect(filterDropdownButton).toBeTruthy();
+    await userEvent.click(filterDropdownButton!);
     await delay(200);
+
+    // Select "Status" from the dropdown menu
     await userEvent.click(await within(modal).findByRole('menuitem', { name: /^status$/i }));
     await delay(300);
 
-    // Open status filter and select Inactive
-    await userEvent.click(await within(toolbar).findByRole('button', { name: /filter by status/i }));
+    // Open status filter checkbox dropdown (uses DataViewCheckboxFilter)
+    const statusFilterToggle = modal.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement;
+    expect(statusFilterToggle).toBeTruthy();
+    await userEvent.click(statusFilterToggle);
     await delay(200);
 
-    const statusCheckboxes = await within(await within(modal).findByRole('menu')).findAllByRole('checkbox');
-    await userEvent.click(statusCheckboxes[1]); // Second checkbox is "Inactive"
+    // Select "Inactive" checkbox from the dropdown menu (renders via portal)
+    const inactiveMenuItem = await within(document.body).findByRole('menuitem', { name: /inactive/i });
+    const inactiveCheckbox = within(inactiveMenuItem).getByRole('checkbox');
+    await userEvent.click(inactiveCheckbox);
     await delay(600);
 
-    // Verify only inactive users shown
-    expect(await within(await getTable()).findAllByText('Inactive')).toHaveLength(3);
+    // Verify only inactive users shown (3 inactive, 0 active visible after filter)
+    await waitForMembersTable(modal, { inactive: 3 });
     expect(within(modal).queryByText('john.doe')).not.toBeInTheDocument();
     expect(within(modal).queryByText('jane.admin')).not.toBeInTheDocument();
   },
@@ -593,6 +672,8 @@ export const WithPagination: Story = {
             },
           });
         }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -660,6 +741,8 @@ export const Loading: Story = {
         // Make users API never resolve to show loading state
         http.get('/api/rbac/v1/users/', () => new Promise(() => {})), // Never resolves
         http.get('/api/rbac/v1/principals/', () => new Promise(() => {})), // Never resolves
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -746,6 +829,8 @@ export const ITLessMode: Story = {
             },
           });
         }),
+        // Include shared group handlers
+        ...sharedGroupHandlers,
       ],
     },
   },
@@ -833,6 +918,25 @@ export const SubmitNotification: Story = {
             meta: { count: 1 },
           });
         }),
+
+        // Single group fetch handler
+        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
+          return HttpResponse.json({
+            uuid: params.groupId,
+            name: 'Test Group',
+            description: 'A test group for adding members',
+            principalCount: 0,
+            roleCount: 0,
+          });
+        }),
+
+        // Group members/principals fetch handler
+        http.get('/api/rbac/v1/groups/:groupId/principals/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 20, offset: 0 },
+          });
+        }),
       ],
     },
   },
@@ -905,13 +1009,13 @@ export const SubmitNotification: Story = {
             const notificationPortal = document.querySelector('.notifications-portal');
             expect(notificationPortal).toBeInTheDocument();
 
-            const infoAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-info');
+            const infoAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-info');
             expect(infoAlert).toBeInTheDocument();
 
-            const alertTitle = infoAlert?.querySelector('.pf-v5-c-alert__title');
+            const alertTitle = infoAlert?.querySelector('.pf-v6-c-alert__title');
             expect(alertTitle).toHaveTextContent(/adding.*member/i);
 
-            const alertDescription = infoAlert?.querySelector('.pf-v5-c-alert__description');
+            const alertDescription = infoAlert?.querySelector('.pf-v6-c-alert__description');
             expect(alertDescription).toHaveTextContent(/adding.*member/i);
           },
           { timeout: 2000 }, // Reduced timeout
@@ -938,6 +1042,8 @@ export const CancelNotification: Story = {
     },
   },
   play: async ({ canvasElement }) => {
+    // Reset spy to ensure clean state for this test
+    usersApiSpy.mockClear();
     const canvas = within(canvasElement);
 
     // 🎯 MODAL TESTING: Click button to open modal
@@ -964,13 +1070,13 @@ export const CancelNotification: Story = {
           const notificationPortal = document.querySelector('.notifications-portal');
           expect(notificationPortal).toBeInTheDocument();
 
-          const warningAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-warning');
+          const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
           expect(warningAlert).toBeInTheDocument();
 
-          const alertTitle = warningAlert?.querySelector('.pf-v5-c-alert__title');
+          const alertTitle = warningAlert?.querySelector('.pf-v6-c-alert__title');
           expect(alertTitle).toHaveTextContent(/cancel/i);
 
-          const alertDescription = warningAlert?.querySelector('.pf-v5-c-alert__description');
+          const alertDescription = warningAlert?.querySelector('.pf-v6-c-alert__description');
           expect(alertDescription).toHaveTextContent(/cancelled/i);
         },
         { timeout: 5000 },

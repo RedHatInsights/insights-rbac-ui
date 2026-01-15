@@ -3,6 +3,7 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import ReviewTemplate from './review-template';
 import ReviewStepButtons from '../../../components/review-step-buttons';
+import WizardButtons from '../../../components/wizard/WizardButtons';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
@@ -10,7 +11,7 @@ import { locale } from '../../../locales/locale';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 import { getModalContainer } from '../../../helpers/modal-container';
 
-export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => {
+export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
@@ -24,10 +25,11 @@ export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => 
         showTitles: true,
         title: intl.formatMessage(messages.createGroup),
         'data-ouia-component-id': 'add-group-wizard',
-        container: getModalContainer(container),
+        container: getModalContainer(),
         fields: [
           {
             name: 'name-and-description',
+            buttons: WizardButtons,
             nextStep: enableRoles ? 'add-roles' : 'add-users',
             title: intl.formatMessage(messages.nameAndDescription),
             fields: [
@@ -57,6 +59,7 @@ export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => 
             ? [
                 {
                   name: 'add-roles',
+                  buttons: WizardButtons,
                   nextStep: 'add-users',
                   title: intl.formatMessage(messages.addRoles),
                   fields: [
@@ -70,6 +73,7 @@ export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => 
             : []),
           {
             name: 'add-users',
+            buttons: WizardButtons,
             nextStep: enableServiceAccounts ? 'add-service-accounts' : 'review',
             title: intl.formatMessage(messages.addMembers),
             fields: [
@@ -83,6 +87,7 @@ export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => 
             ? [
                 {
                   name: 'add-service-accounts',
+                  buttons: WizardButtons,
                   nextStep: 'review',
                   title: intl.formatMessage(messages.addServiceAccounts),
                   fields: [

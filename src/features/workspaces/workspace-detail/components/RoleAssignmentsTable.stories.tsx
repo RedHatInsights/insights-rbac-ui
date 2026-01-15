@@ -803,7 +803,7 @@ export const GrantAccessWizardTest: Story = {
                     foundRolesStep = true;
                   }
                   // Look for table elements that indicate the roles table is present
-                  if (element.getAttribute('role') === 'grid' || element.classList.contains('pf-v5-c-table')) {
+                  if (element.getAttribute('role') === 'grid' || element.classList.contains('pf-v6-c-table')) {
                     foundRolesTable = true;
                   }
                 }

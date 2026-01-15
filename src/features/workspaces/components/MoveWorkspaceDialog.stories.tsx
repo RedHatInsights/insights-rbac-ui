@@ -398,15 +398,16 @@ export const LoadingState: Story = {
     const body = within(document.body);
     await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
-    // Verify buttons are disabled during loading
-    const submitButton = await body.findByText('Submit');
-    const cancelButton = await body.findByText('Cancel');
+    // Verify buttons are disabled during loading (use findByRole to get the actual button element)
+    const submitButton = await body.findByRole('button', { name: /submit/i });
+    const cancelButton = await body.findByRole('button', { name: /cancel/i });
 
-    await expect(submitButton).toBeDisabled();
-    await expect(cancelButton).toBeDisabled();
-
-    // Verify loading spinner is present (PatternFly Button with isLoading prop)
-    await expect(submitButton).toHaveAttribute('aria-disabled', 'true');
+    // In PF6, disabled buttons may use disabled attribute or aria-disabled
+    // Check that the button is disabled using either method
+    const submitDisabled = submitButton.hasAttribute('disabled') || submitButton.getAttribute('aria-disabled') === 'true';
+    const cancelDisabled = cancelButton.hasAttribute('disabled') || cancelButton.getAttribute('aria-disabled') === 'true';
+    await expect(submitDisabled).toBe(true);
+    await expect(cancelDisabled).toBe(true);
   },
 };
 
@@ -440,12 +441,14 @@ export const NoSelection: Story = {
     await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
     // Submit should be disabled when no workspace is selected
-    const submitButton = await body.findByText('Submit');
-    await expect(submitButton).toBeDisabled();
+    const submitButton = await body.findByRole('button', { name: /submit/i });
+    const submitDisabled = submitButton.hasAttribute('disabled') || submitButton.getAttribute('aria-disabled') === 'true';
+    await expect(submitDisabled).toBe(true);
 
     // Cancel should still be enabled
-    const cancelButton = await body.findByText('Cancel');
-    await expect(cancelButton).toBeEnabled();
+    const cancelButton = await body.findByRole('button', { name: /cancel/i });
+    const cancelDisabled = cancelButton.hasAttribute('disabled') || cancelButton.getAttribute('aria-disabled') === 'true';
+    await expect(cancelDisabled).toBe(false);
 
     // No change message should appear
     await expect(body.queryByText(/This will move/)).not.toBeInTheDocument();

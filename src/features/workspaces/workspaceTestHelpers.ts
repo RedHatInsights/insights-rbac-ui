@@ -64,11 +64,11 @@ export const testDefaultWorkspaceDisplay = async (canvasElement: HTMLElement) =>
   // Click to open menu
   await userEvent.click(kebabButtons[0]);
 
-  // Verify menu structure exists
-  await expect(canvas.getByText('Edit workspace')).toBeInTheDocument();
-  await expect(canvas.getByText('Delete workspace')).toBeInTheDocument();
-  await expect(canvas.getByText('Move workspace')).toBeInTheDocument();
-  await expect(canvas.getByText('Manage integrations')).toBeInTheDocument();
+  // Verify menu structure exists (dropdown renders via portal, so search in document.body)
+  await expect(within(document.body).getByText('Edit workspace')).toBeInTheDocument();
+  await expect(within(document.body).getByText('Delete workspace')).toBeInTheDocument();
+  await expect(within(document.body).getByText('Move workspace')).toBeInTheDocument();
+  await expect(within(document.body).getByText('Manage integrations')).toBeInTheDocument();
 
   // Verify primary toolbar button exists and is functional
   const primaryButton = canvas.getByRole('button', { name: /create workspace/i });
@@ -80,7 +80,7 @@ export const testLoadingState = async (canvasElement: HTMLElement) => {
   const canvas = within(canvasElement);
   await expect(canvas.getByText('Workspaces')).toBeInTheDocument();
   // Check for skeleton loading elements
-  const skeletonElements = document.querySelectorAll('.pf-v5-c-skeleton');
+  const skeletonElements = document.querySelectorAll('.pf-v6-c-skeleton');
   expect(skeletonElements.length).toBeGreaterThan(0);
 };
 

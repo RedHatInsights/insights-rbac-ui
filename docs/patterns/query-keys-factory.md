@@ -1,0 +1,291 @@
+# Query Keys Factory Pattern
+
+**Pattern Type:** Data Fetching  
+**Status:** Standard  
+**Last Updated:** 2026-01-14  
+
+---
+
+## Overview
+
+The Query Keys Factory is a centralized pattern for defining TanStack Query cache keys. It ensures consistency, prevents typos, and enables reliable cache invalidation.
+
+---
+
+## The Problem
+
+Without a factory, query keys are defined inline:
+
+```typescript
+// Bad - error-prone and inconsistent
+useQuery({ queryKey: ['roles', { limit: 20 }] });
+useQuery({ queryKey: ['role', id] });  // Typo: 'role' vs 'roles'
+useQuery({ queryKey: ['roles', 'list', params] });  // Inconsistent structure
+
+// Invalidation is fragile
+queryClient.invalidateQueries({ queryKey: ['roles'] });  // Which 'roles'?
+```
+
+**Problems:**
+- Easy to make typos
+- Inconsistent key structures
+- Hard to invalidate related queries
+- No TypeScript help
+
+---
+
+## The Solution
+
+Define all query keys in a centralized factory with hierarchical structure:
+
+```typescript
+export const rolesKeys = {
+  all: ['roles'] as const,
+  lists: () => [...rolesKeys.all, 'list'] as const,
+  list: (params: ListRolesParams) => [...rolesKeys.lists(), params] as const,
+  details: () => [...rolesKeys.all, 'detail'] as const,
+  detail: (id: string) => [...rolesKeys.details(), id] as const,
+};
+```
+
+---
+
+## Key Structure
+
+Use a hierarchical structure for easy invalidation:
+
+```
+['roles']                                   // All roles data
+  ├─ ['roles', 'list']                     // All list queries
+  │    ├─ ['roles', 'list', { limit: 20 }] // Specific list query
+  │    └─ ['roles', 'list', { limit: 50 }] // Another list query
+  └─ ['roles', 'detail']                   // All detail queries
+       ├─ ['roles', 'detail', 'role-123']  // Specific role
+       └─ ['roles', 'detail', 'role-456']  // Another role
+```
+
+---
+
+## Implementation
+
+### 1. Define the Factory
+
+```typescript
+// src/data/queries/roles.ts
+
+export const rolesKeys = {
+  // Base key - invalidates ALL roles queries
+  all: ['roles'] as const,
+  
+  // All list queries
+  lists: () => [...rolesKeys.all, 'list'] as const,
+  
+  // Specific list query with params
+  list: (params: ListRolesParams) => [...rolesKeys.lists(), params] as const,
+  
+  // All detail queries
+  details: () => [...rolesKeys.all, 'detail'] as const,
+  
+  // Specific detail query by ID
+  detail: (id: string) => [...rolesKeys.details(), id] as const,
+};
+```
+
+**Key points:**
+- Use `as const` for type inference
+- Spread parent keys for hierarchy
+- Accept typed parameters (no `Record<string, unknown>`)
+
+### 2. Use in Query Hooks
+
+```typescript
+export function useRolesQuery(params: ListRolesParams) {
+  return useQuery({
+    queryKey: rolesKeys.list(params),  // Type-safe key
+    queryFn: async () => {
+      const response = await rolesApi.listRoles(params);
+      return response.data;
+    },
+  });
+}
+
+export function useRoleQuery(id: string) {
+  return useQuery({
+    queryKey: rolesKeys.detail(id),  // Type-safe key
+    queryFn: async () => {
+      const response = await rolesApi.getRole({ uuid: id });
+      return response.data;
+    },
+  });
+}
+```
+
+### 3. Use in Cache Invalidation
+
+```typescript
+export function useCreateRoleMutation() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (roleIn: RoleIn) => {
+      const response = await rolesApi.createRole({ roleIn });
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate ALL roles queries (lists, details, everything)
+      queryClient.invalidateQueries({ queryKey: rolesKeys.all });
+    },
+  });
+}
+```
+
+---
+
+## Invalidation Examples
+
+### Invalidate Everything
+```typescript
+// Refetch all roles queries (lists, details, everything)
+queryClient.invalidateQueries({ queryKey: rolesKeys.all });
+```
+
+### Invalidate All Lists
+```typescript
+// Refetch all list queries, but leave detail queries alone
+queryClient.invalidateQueries({ queryKey: rolesKeys.lists() });
+```
+
+### Invalidate Specific List
+```typescript
+// Refetch only this specific list query
+queryClient.invalidateQueries({ queryKey: rolesKeys.list({ limit: 20, offset: 0 }) });
+```
+
+### Invalidate All Details
+```typescript
+// Refetch all detail queries, but leave list queries alone
+queryClient.invalidateQueries({ queryKey: rolesKeys.details() });
+```
+
+### Invalidate Specific Detail
+```typescript
+// Refetch only this specific role
+queryClient.invalidateQueries({ queryKey: rolesKeys.detail('role-123') });
+```
+
+---
+
+## Type Safety
+
+The factory provides full type safety:
+
+```typescript
+// TypeScript knows params must be ListRolesParams
+rolesKeys.list({ limit: 20 });  // ✓ OK
+rolesKeys.list({ foo: 'bar' });  // ✗ Error
+
+// TypeScript knows id must be string
+rolesKeys.detail('role-123');  // ✓ OK
+rolesKeys.detail(123);          // ✗ Error
+```
+
+---
+
+## Advanced: Multiple Parameter Types
+
+For endpoints with optional filters:
+
+```typescript
+export interface ListRolesParams {
+  limit?: number;
+  offset?: number;
+  displayName?: string;
+  orderBy?: string;
+  scope?: 'org_id' | 'principal';
+}
+
+export const rolesKeys = {
+  all: ['roles'] as const,
+  lists: () => [...rolesKeys.all, 'list'] as const,
+  // params are part of the cache key - different params = different cache entry
+  list: (params: ListRolesParams) => [...rolesKeys.lists(), params] as const,
+};
+
+// Each combination creates a separate cache entry
+rolesKeys.list({ limit: 20 });                      // ['roles', 'list', { limit: 20 }]
+rolesKeys.list({ limit: 20, displayName: 'admin' }); // ['roles', 'list', { limit: 20, displayName: 'admin' }]
+```
+
+---
+
+## Common Mistakes
+
+### ❌ Using Generic Types
+```typescript
+// Bad - loses type safety
+list: (params: Record<string, unknown>) => [...rolesKeys.lists(), params] as const,
+
+// Good - explicit types
+list: (params: ListRolesParams) => [...rolesKeys.lists(), params] as const,
+```
+
+### ❌ Forgetting `as const`
+```typescript
+// Bad - loses readonly tuple type
+all: ['roles'],
+
+// Good - preserves exact type
+all: ['roles'] as const,
+```
+
+### ❌ Not Using Hierarchy
+```typescript
+// Bad - can't invalidate all lists
+export const rolesKeys = {
+  list: (params: ListRolesParams) => ['roles', 'list', params] as const,
+  detail: (id: string) => ['roles', 'detail', id] as const,
+};
+
+// Good - hierarchical structure
+export const rolesKeys = {
+  all: ['roles'] as const,
+  lists: () => [...rolesKeys.all, 'list'] as const,
+  list: (params: ListRolesParams) => [...rolesKeys.lists(), params] as const,
+  details: () => [...rolesKeys.all, 'detail'] as const,
+  detail: (id: string) => [...rolesKeys.details(), id] as const,
+};
+```
+
+---
+
+## Testing
+
+The factory makes testing easier:
+
+```typescript
+// In Storybook or tests
+const testQueryClient = new QueryClient();
+
+// Set mock data
+testQueryClient.setQueryData(rolesKeys.list({ limit: 20 }), mockRolesResponse);
+testQueryClient.setQueryData(rolesKeys.detail('role-123'), mockRole);
+
+// Verify invalidation
+const spy = jest.spyOn(testQueryClient, 'invalidateQueries');
+// ... perform mutation ...
+expect(spy).toHaveBeenCalledWith({ queryKey: rolesKeys.all });
+```
+
+---
+
+## Reference Implementation
+
+See `src/data/queries/roles.ts` for the canonical implementation.
+
+---
+
+## Related Patterns
+
+- [Type-Safe Form Submission](./type-safe-form-submission.md)
+- [TanStack Query Official Guide](https://tanstack.com/query/latest/docs/react/guides/query-keys)
+- [Effective React Query Keys by TkDodo](https://tkdodo.eu/blog/effective-react-query-keys)

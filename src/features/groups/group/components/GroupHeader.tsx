@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import { Split } from '@patternfly/react-core';
-import { SplitItem } from '@patternfly/react-core';
-import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/deprecated';
-import { PageTitle } from '../../../../components/layout/PageLayout';
+import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
+import { EllipsisVIcon } from '@patternfly/react-icons';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { DefaultGroupChangedIcon } from './DefaultGroupChangedIcon';
 import { DefaultGroupRestore } from './DefaultGroupRestore';
 import type { GroupState } from '../../types';
+import { ToolbarTitlePlaceholder } from '../../../../components/ui-states/LoaderPlaceholders';
 
 interface GroupHeaderProps {
   /**
@@ -70,52 +70,50 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
   editLabel,
   deleteLabel,
 }) => {
-  // Create dropdown items
-  const dropdownItems = [
-    <DropdownItem
-      component={
-        <AppLink onClick={() => onDropdownToggle(false)} to={editUrl}>
-          {editLabel}
-        </AppLink>
-      }
-      key="edit-group"
-    />,
-    <DropdownItem component={<AppLink to={deleteUrl}>{deleteLabel}</AppLink>} className="rbac-c-group__action" key="delete-group" />,
-  ];
+  const title =
+    !isGroupLoading && group ? (
+      <Fragment>{group.platform_default && !group.system ? <DefaultGroupChangedIcon name={group.name} /> : group.name}</Fragment>
+    ) : (
+      <ToolbarTitlePlaceholder />
+    );
 
-  return (
-    <Split hasGutter>
-      <SplitItem isFilled>
-        <PageTitle
-          title={
-            !isGroupLoading && group ? (
-              <Fragment>{group.platform_default && !group.system ? <DefaultGroupChangedIcon name={group.name} /> : group.name}</Fragment>
-            ) : undefined
-          }
-          description={(!isGroupLoading && group?.description) || undefined}
-        />
-      </SplitItem>
-
-      {/* Default Group Restore Button */}
-      {group?.platform_default && !group?.system ? (
-        <SplitItem>
-          <DefaultGroupRestore onRestore={onResetWarning} />
-        </SplitItem>
-      ) : null}
-
-      {/* Actions Dropdown */}
-      <SplitItem>
-        {group?.platform_default || group?.admin_default ? null : (
-          <Dropdown
-            ouiaId="group-title-actions-dropdown"
-            toggle={<KebabToggle onToggle={(_event, isOpen) => onDropdownToggle(isOpen)} id="group-actions-dropdown" />}
-            isOpen={isDropdownOpen}
-            isPlain
-            position="right"
-            dropdownItems={dropdownItems}
-          />
+  const actionsDropdown =
+    group?.platform_default || group?.admin_default ? null : (
+      <Dropdown
+        popperProps={{ position: 'right' }}
+        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+          <MenuToggle
+            ref={toggleRef}
+            variant="plain"
+            onClick={() => onDropdownToggle(!isDropdownOpen)}
+            isExpanded={isDropdownOpen}
+            id="group-actions-dropdown"
+            data-ouia-component-id="group-title-actions-dropdown"
+            aria-label="Actions"
+          >
+            <EllipsisVIcon />
+          </MenuToggle>
         )}
-      </SplitItem>
-    </Split>
+        isOpen={isDropdownOpen}
+        onOpenChange={onDropdownToggle}
+      >
+        <DropdownList>
+          <DropdownItem key="edit-group" onClick={() => onDropdownToggle(false)}>
+            <AppLink to={editUrl}>{editLabel}</AppLink>
+          </DropdownItem>
+          <DropdownItem key="delete-group">
+            <AppLink to={deleteUrl}>{deleteLabel}</AppLink>
+          </DropdownItem>
+        </DropdownList>
+      </Dropdown>
+    );
+
+  const actionMenu = (
+    <Fragment>
+      {group?.platform_default && !group?.system && <DefaultGroupRestore onRestore={onResetWarning} />}
+      {actionsDropdown}
+    </Fragment>
   );
+
+  return <PageHeader title={title} subtitle={(!isGroupLoading && group?.description) || undefined} actionMenu={actionMenu} />;
 };

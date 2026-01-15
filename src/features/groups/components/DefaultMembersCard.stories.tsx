@@ -32,10 +32,10 @@ export const PlatformDefault: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Verify the correct message is displayed for platform default
-    const message = await canvas.findByRole('heading', { level: 1 });
-    await expect(message).toBeInTheDocument();
-    await expect(message).toHaveTextContent('All users in this organization are members of this group.');
+    // Verify the alert is displayed for platform default (PF6 inline alerts use pf-v6-c-alert class)
+    const alert = canvasElement.querySelector('.pf-v6-c-alert');
+    await expect(alert).toBeInTheDocument();
+    await expect(canvas.findByText('All users in this organization are members of this group.')).resolves.toBeInTheDocument();
   },
 };
 
@@ -46,9 +46,9 @@ export const AdminDefault: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Verify the correct message is displayed for admin default
-    const message = await canvas.findByRole('heading', { level: 1 });
-    await expect(message).toBeInTheDocument();
-    await expect(message).toHaveTextContent('All organization administrators in this organization are members of this group.');
+    // Verify the alert is displayed for admin default (PF6 inline alerts use pf-v6-c-alert class)
+    const alert = canvasElement.querySelector('.pf-v6-c-alert');
+    await expect(alert).toBeInTheDocument();
+    await expect(canvas.findByText('All organization administrators in this organization are members of this group.')).resolves.toBeInTheDocument();
   },
 };

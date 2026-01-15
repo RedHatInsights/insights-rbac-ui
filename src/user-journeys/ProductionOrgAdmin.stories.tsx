@@ -28,6 +28,8 @@ import { createStatefulHandlers } from '../../.storybook/helpers/stateful-handle
 import { defaultGroups } from '../../.storybook/fixtures/groups';
 import { defaultUsers } from '../../.storybook/fixtures/users';
 import { defaultRoles } from '../../.storybook/fixtures/roles';
+import { rolesAddToGroupVisibilityFixtures } from '../../.storybook/fixtures/roles-add-to-group-visibility';
+import { expandRoleGroups, expectAddRoleLinkHidden, expectAddRoleLinkVisible, getGroupRow } from './_shared/helpers/rolesTableHelpers';
 import { makeChrome } from './_shared/helpers/chrome';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
@@ -222,9 +224,9 @@ This story includes automated verification:
     const mainElement = document.querySelector('main') || context.canvasElement;
     const mainContent = within(mainElement as HTMLElement);
 
-    // Verify the page loaded - look for the unique subtitle text
-    const subtitle = await mainContent.findByText(/select applications to view your personal/i);
-    expect(subtitle).toBeInTheDocument();
+    // Verify the page loaded - look for the page title
+    const pageTitle = await mainContent.findByText(/my user access/i);
+    expect(pageTitle).toBeInTheDocument();
 
     // Verify the table is present with actual data
     const table = await mainContent.findByRole('grid');
@@ -324,6 +326,10 @@ export const CreateGroupJourney: Story = {
 
     // Verify success notification
     await verifySuccessNotification();
+
+    // CRITICAL: Verify the newly created group appears in the table
+    // This tests that the cache invalidation is working correctly
+    expect(await canvas.findByText('DevOps Team')).toBeInTheDocument();
   },
 };
 
@@ -806,13 +812,18 @@ Tests the full flow of removing members from a group.
     await delay(500);
 
     // Select first member checkbox
-    const memberCheckbox = canvas.getByRole('checkbox', { name: /select row 0/i });
-    await user.click(memberCheckbox);
+    const memberCheckboxes = canvas.getAllByRole('checkbox');
+    // First checkbox is bulk select, individual row checkboxes start at index 1
+    await user.click(memberCheckboxes[1]);
     await delay(300);
 
-    // Click "Remove (#)" button
-    const removeBtn = canvas.getByRole('button', { name: /remove \(1\)/i });
-    await user.click(removeBtn);
+    // Click the bulk actions kebab menu
+    const bulkActionsBtn = canvas.getByRole('button', { name: 'Member bulk actions' });
+    await user.click(bulkActionsBtn);
+
+    // Click "Remove" in the dropdown
+    const removeMenuItem = within(document.body).getByRole('menuitem', { name: 'Remove' });
+    await user.click(removeMenuItem);
 
     const body = within(document.body);
     const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
@@ -1054,6 +1065,7 @@ Tests the full flow of removing roles from a group.
  * 6. Review and submit
  * 7. Verify success screen
  * 8. Close wizard
+ * 9. Verify newly created role appears in the table
  */
 export const CreateRoleJourney: Story = {
   name: 'Roles / Create new role',
@@ -1093,8 +1105,17 @@ export const CreateRoleJourney: Story = {
     // Fill and submit the wizard
     await fillCreateRoleWizard(user, 'Automation Test Role', 'A test custom role for automation', ['insights:*:*']);
 
-    // Verify we're back on the roles list
+    // Verify we're back on the roles list and the new role appears
     await waitForPageToLoad(canvas, 'Viewer');
+
+    // CRITICAL: Verify the newly created role appears in the table
+    // This tests that the cache invalidation is working correctly
+    await waitFor(
+      () => {
+        expect(canvas.getByText('Automation Test Role')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   },
 };
 
@@ -1150,12 +1171,12 @@ This story verifies:
     // Wait for roles list to load
     await waitForPageToLoad(canvas, 'Administrator');
 
-    // Open the kebab menu for "Viewer" role and click "Edit"
-    await openRoleActionsMenu(user, canvas, 'Viewer');
+    // Open the kebab menu for "Custom Role" (non-system role) and click "Edit"
+    await openRoleActionsMenu(user, canvas, 'Custom Role');
     await clickMenuItem(user, 'Edit');
 
     // Fill the edit role form
-    await fillEditRoleModal(user, 'Updated Viewer Role', 'Updated description for viewer role');
+    await fillEditRoleModal(user, 'Updated Custom Role', 'Updated description for custom role');
 
     // Verify success notification
     await verifySuccessNotification();
@@ -1165,7 +1186,7 @@ This story verifies:
 
     // Verify the updated role appears in the list
     await waitFor(async () => {
-      await expect(canvas.getByText('Updated Viewer Role')).toBeInTheDocument();
+      await expect(canvas.getByText('Updated Custom Role')).toBeInTheDocument();
     });
   },
 };
@@ -1300,8 +1321,8 @@ This story verifies:
     // Wait for roles list to load
     await waitForPageToLoad(canvas, 'Administrator');
 
-    // Open the kebab menu for "Viewer" role and click "Delete"
-    await openRoleActionsMenu(user, canvas, 'Viewer');
+    // Open the kebab menu for "Custom Role" (non-system role) and click "Delete"
+    await openRoleActionsMenu(user, canvas, 'Custom Role');
     await clickMenuItem(user, 'Delete');
 
     // Confirm deletion in modal
@@ -1312,7 +1333,7 @@ This story verifies:
 
     // Verify the role is removed from the list
     await waitFor(() => {
-      expect(canvas.queryByText('Viewer')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Custom Role')).not.toBeInTheDocument();
       // Administrator should still be there
       expect(canvas.getByText('Administrator')).toBeInTheDocument();
     });
@@ -1533,8 +1554,9 @@ Tests adding a user to groups from the user detail page.
     const modalContent = within(modal);
 
     // Wait for groups to load and select one
-    await modalContent.findByText('Platform Admins');
-    const groupCheckbox = modalContent.getByRole('checkbox', { name: /select row 0/i });
+    const groupRow = await modalContent.findByText('Platform Admins');
+    const row = groupRow.closest('tr');
+    const groupCheckbox = within(row as HTMLElement).getByRole('checkbox');
     await user.click(groupCheckbox);
     await delay(200);
 
@@ -1895,15 +1917,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
     await user.click(rolesTab);
     await delay(500);
 
-    // Wait for "Add role" button
-    await waitFor(async () => {
-      const addRoleBtn = canvas.queryByRole('button', { name: /add role/i });
-      expect(addRoleBtn).toBeInTheDocument();
-    });
-
-    await delay(1000); // Wait for roles to load
-
-    // Click "Add role" - wait for it to be enabled (fetchAddRolesForGroup is async)
+    // Click "Add role" - wait for it to be visible and enabled (fetchAddRolesForGroup is async)
     const addRoleBtn = await waitFor(
       () => {
         const btn = canvas.getByRole('button', { name: /add role/i });
@@ -1917,10 +1931,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
     // Fill and submit the Add Roles modal (select 1 role)
     await fillAddGroupRolesModal(user, 'Default access', 1);
 
-    // CRITICAL: Wait for confirmation modal to appear (2nd dialog)
-    await delay(1000);
-
-    // Find the warning modal by its OUIA component ID
+    // Find the warning modal by its OUIA component ID (waitFor handles the waiting)
     // The warning modal has data-ouia-component-id="WarningModal"
     let warningModal: HTMLElement | null = null;
     await waitFor(
@@ -1985,23 +1996,19 @@ Tests the full flow of copying "Default access" group when adding a role for the
     });
 
     // NOW: Navigate to a different (non-default) group and verify NO alert shows
-    await delay(500);
-
-    // Click breadcrumb to go back to groups list (use within a specific container)
+    // Click breadcrumb to go back to groups list
     const breadcrumbs = canvas.getByLabelText('Breadcrumb');
     const groupsBreadcrumb = within(breadcrumbs).getByRole('link', { name: 'Groups' });
     await user.click(groupsBreadcrumb);
-    await delay(1000);
 
-    // Wait for groups list
+    // Wait for groups list (waitForPageToLoad handles waiting)
     await waitForPageToLoad(canvas, 'Platform Admins');
 
     // Click on a regular group (Platform Admins)
     const regularGroupLink = canvas.getByRole('link', { name: 'Platform Admins' });
     await user.click(regularGroupLink);
-    await delay(1000);
 
-    // Wait for the regular group detail page
+    // Wait for the regular group detail page (waitFor handles waiting)
     await waitFor(async () => {
       await expect(canvas.getByRole('heading', { name: /Platform Admins/i })).toBeInTheDocument();
     });
@@ -2087,11 +2094,8 @@ Tests that modifying an already-copied "Custom default access" group does NOT sh
     // Click Roles tab
     const rolesTab = canvas.getByRole('tab', { name: /roles/i });
     await user.click(rolesTab);
-    await delay(500);
 
-    await delay(1000);
-
-    // Click "Add role" - wait for it to be enabled (fetchAddRolesForGroup is async)
+    // Click "Add role" - wait for it to be visible and enabled (fetchAddRolesForGroup is async)
     const addRoleBtn = await waitFor(
       () => {
         const btn = canvas.getByRole('button', { name: /add role/i });
@@ -2105,16 +2109,16 @@ Tests that modifying an already-copied "Custom default access" group does NOT sh
     // Fill and submit (select 1 role)
     await fillAddGroupRolesModal(user, 'Custom default access', 1);
 
+    // Verify success notification appears first (confirms operation completed)
+    await verifySuccessNotification();
+
     // Verify NO confirmation modal appears - check for the warning modal specifically
-    await delay(1000);
+    // After success notification, we can be confident the operation completed without warning modal
     const modalContainer = document.getElementById('storybook-modals') || document.body;
     const warningModal = modalContainer.querySelector('[data-ouia-component-id="WarningModal"]');
 
     // Should NOT see the warning modal (group is already modified, so no confirmation needed)
     expect(warningModal).toBeNull();
-
-    // Verify success notification
-    await verifySuccessNotification();
 
     // Verify the alert IS visible on the page (this is correct - shows the group has been modified)
     await waitFor(async () => {
@@ -2660,5 +2664,100 @@ message about service accounts not being automatically included for security rea
     // Should NOT show a data table
     const table = canvas.queryByRole('table');
     expect(table).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Roles / Add role to group link visibility test
+ *
+ * Tests the logic that controls visibility of the "Add role to this group" link
+ * when expanding a role to see its assigned groups.
+ *
+ * The link should:
+ * - Show for regular groups (Platform Admins, Support Team, etc.)
+ * - NOT show for the admin default group (Default admin access)
+ *
+ * This prevents accidental attempts to add roles to the special admin group.
+ */
+export const RolesAddToGroupLinkVisibility: Story = {
+  name: 'Roles / Add to group link visibility',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: [...rolesAddToGroupVisibilityFixtures, ...defaultRoles],
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests the visibility logic for the "Add role to this group" link in the expanded roles view.
+
+**Business Logic:**
+- The "Add role to this group" link allows admins to navigate to add more roles to a group
+- This link should NOT appear for the admin default group (Default admin access)
+- The admin group is special - it grants all permissions to org admins automatically
+
+**Test Flow:**
+1. Navigate to Roles page
+2. Expand "Test Role With Groups" (has 3 groups including admin group)
+3. Verify "Add role to this group" link appears for "Platform Admins"
+4. Verify "Add role to this group" link does NOT appear for "Default admin access"
+5. Verify "Add role to this group" link appears for "Support Team"
+
+**Bug Prevention:**
+This test guards against a race condition where the link could incorrectly appear
+for the admin group while the adminGroup data is still loading.
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Roles page
+    await navigateToPage(user, canvas, 'Roles');
+    await waitForPageToLoad(canvas, 'Test Role With Groups');
+
+    // Scope to main content area (exclude sidebar navigation)
+    const mainElement = document.querySelector('main') || context.canvasElement;
+    const mainContent = within(mainElement as HTMLElement);
+
+    // Find and expand the first test role
+    const testRoleLink = await mainContent.findByRole('link', { name: 'Test Role With Groups' });
+    const { groupsToggle, expandedContent } = await expandRoleGroups(user, testRoleLink);
+
+    // Wait for the expanded groups to appear - scope to expanded content
+    const platformAdminsLink = await expandedContent.findByRole('link', { name: 'Platform Admins' });
+    const adminAccessLink = await expandedContent.findByRole('link', { name: 'Default admin access' });
+    const supportTeamLink = await expandedContent.findByRole('link', { name: 'Support Team' });
+
+    // Verify correct number of "Add role to this group" links in expanded section
+    // Should have 2 (Platform Admins and Support Team, NOT Default admin access)
+    const addRoleLinks = expandedContent.queryAllByRole('link', { name: /add role to this group/i });
+    expect(addRoleLinks).toHaveLength(2);
+
+    // Verify link visibility per group using helpers
+    expectAddRoleLinkHidden(getGroupRow(adminAccessLink));
+    expectAddRoleLinkVisible(getGroupRow(platformAdminsLink));
+    expectAddRoleLinkVisible(getGroupRow(supportTeamLink));
+
+    // Collapse first role and expand another to verify consistent behavior
+    await user.click(groupsToggle);
+
+    // Find and expand "Another Test Role" which only has regular groups
+    const anotherTestRoleLink = await mainContent.findByRole('link', { name: 'Another Test Role' });
+    const { expandedContent: otherExpandedContent } = await expandRoleGroups(user, anotherTestRoleLink);
+
+    // Verify Engineering group has the link (it's a regular group)
+    const engineeringLink = await otherExpandedContent.findByRole('link', { name: 'Engineering' });
+    expectAddRoleLinkVisible(getGroupRow(engineeringLink));
   },
 };

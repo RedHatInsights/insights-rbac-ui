@@ -1,3 +1,107 @@
+## [1.80.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.0...v1.80.1) (2026-01-15)
+
+
+### Bug Fixes
+
+* **deps:** update babel monorepo to v7.28.6 ([6033474](https://github.com/RedHatInsights/insights-rbac-ui/commit/60334740fa85eb8f9460da8373df5019f18f5a5b))
+* **deps:** update dependency @redhat-cloud-services/frontend-components-utilities to v7.0.20 ([343cc09](https://github.com/RedHatInsights/insights-rbac-ui/commit/343cc09714dc88fe8e380cef9f39bed95e220e24))
+
+# [1.80.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.8...v1.80.0) (2026-01-15)
+
+
+### Bug Fixes
+
+* remove delay(300) before table render in sorting test ([c4fb616](https://github.com/RedHatInsights/insights-rbac-ui/commit/c4fb616780b3501f5d8b0dc296e50bfd6ba67070))
+
+
+### Features
+
+* migrate Roles slice from Redux to TanStack Query ([23f668d](https://github.com/RedHatInsights/insights-rbac-ui/commit/23f668df8970f870ef79a9a8f5ea5fd39ee3ddd7))
+
+## [1.79.8](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.7...v1.79.8) (2026-01-14)
+
+
+### Bug Fixes
+
+* prevent 'Add role to this group' link showing for admin group during loading ([756eb0d](https://github.com/RedHatInsights/insights-rbac-ui/commit/756eb0d009adf24e0837d9f4f0bd067375c9039f))
+
+## [1.79.7](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.6...v1.79.7) (2026-01-13)
+
+
+### Bug Fixes
+
+* flaky AddGroupMembers WithFiltering test ([7b152aa](https://github.com/RedHatInsights/insights-rbac-ui/commit/7b152aa4705453abc24d23a49eafd65693196996))
+
+## [1.79.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.5...v1.79.6) (2026-01-12)
+
+
+### Bug Fixes
+
+* resource definition editing and wizard modal button layout ([5fce50e](https://github.com/RedHatInsights/insights-rbac-ui/commit/5fce50e5921ea443b03f8897b33244abfc26b1a6))
+
+## [1.79.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.4...v1.79.5) (2026-01-08)
+
+
+### Bug Fixes
+
+* **addGroup:** incorporate pf6 to branch ([3c1436a](https://github.com/RedHatInsights/insights-rbac-ui/commit/3c1436a48f1750170a2a2065c595be5b18e30105))
+* **AddGroupWizard:** ensure service accounts are properly added ([6393cd6](https://github.com/RedHatInsights/insights-rbac-ui/commit/6393cd650b7a03eba4aaa2f34962e5ac224b9ff2))
+* **AddGroupWizard:** fix lint ([61fd6e3](https://github.com/RedHatInsights/insights-rbac-ui/commit/61fd6e3b75a19ab82168bbece5e5b436df12c0aa))
+* **CreateGroupWizard:** display user friendly error messages ([9ffdc9d](https://github.com/RedHatInsights/insights-rbac-ui/commit/9ffdc9d1191eada8b48ce4f5e7ecc7e3fe1e138e))
+* **CreateGroupWizard:** extend tests to verify service accounts creation ([d422ada](https://github.com/RedHatInsights/insights-rbac-ui/commit/d422adaa345b0656d96c918df62741533238a7aa))
+
+# [1.78.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.77.0...v1.78.0) (2025-12-22)
+
+
+### Bug Fixes
+
+* inventory API integration and add filtering tests ([a8f8edf](https://github.com/RedHatInsights/insights-rbac-ui/commit/a8f8edf13487f65eead76cf7f22ff798098a5e5f))
+* remove legacy role components and fix Storybook test selectors ([73b302f](https://github.com/RedHatInsights/insights-rbac-ui/commit/73b302fd5aa5551c623e80c3ebb11b948c94488b))
+* remove redundant User Jest test (covered by 15 Storybook tests) ([e2fcf0e](https://github.com/RedHatInsights/insights-rbac-ui/commit/e2fcf0e504e8b6f1f4470f6c49561ec5e2a34384))
+* **RoleResourceDefinitions:** optimize selectors to prevent re-renders ([5a78f48](https://github.com/RedHatInsights/insights-rbac-ui/commit/5a78f48da77e7b9d36348868effade73fdc6dfcb))
+* **rolewizard:** clean up some types ([023f76d](https://github.com/RedHatInsights/insights-rbac-ui/commit/023f76d068e5f20161e6bfe9b7c9a4ddd502a803))
+* **rolewizard:** convert add role wizard to typescript ([a7b627b](https://github.com/RedHatInsights/insights-rbac-ui/commit/a7b627b3e918242f1ea9c0f8594cb6747927b424))
+* **rolewizard:** delete js version of wizard context ([632004d](https://github.com/RedHatInsights/insights-rbac-ui/commit/632004df20177f69030427a693bf26c241b88657))
+* **storybook:** fix failing M3 workspace details test ([af00806](https://github.com/RedHatInsights/insights-rbac-ui/commit/af008068303d5b0e2a7decae5b94306dfd20fb9d))
+* **storybook:** fix navigation test null console error ([4754e17](https://github.com/RedHatInsights/insights-rbac-ui/commit/4754e17a7078d4fccd4cc2308bae41e33439197b))
+* update tests for TableView migration ([b0f17fe](https://github.com/RedHatInsights/insights-rbac-ui/commit/b0f17fe02ca924b6700fcc1590c78603bf8ba38b))
+
+
+### Features
+
+* convert roles and users JS components to TypeScript with TableView migration ([c3f86a7](https://github.com/RedHatInsights/insights-rbac-ui/commit/c3f86a75e1cc7299f3ee7040a8b934afcb658a38))
+
+# [1.77.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.76.0...v1.77.0) (2025-12-18)
+
+
+### Features
+
+* **storybook:** add comprehensive tests for remaining JS container components ([6530aed](https://github.com/RedHatInsights/insights-rbac-ui/commit/6530aedf81ff11e5a3c4be0bb009dcb2df27ee8e))
+
+# [1.76.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.75.0...v1.76.0) (2025-12-18)
+
+
+### Bug Fixes
+
+* **storybook:** adjust WS storybooks to match rolebinding endpoint ([3d2f01a](https://github.com/RedHatInsights/insights-rbac-ui/commit/3d2f01afa674e7e1f8e2a8656d4fb77258c7b77b))
+* **types:** use casting to unknown and to request type instead of any ([df6859b](https://github.com/RedHatInsights/insights-rbac-ui/commit/df6859b6205d5f48fe9e81fd393ad6d7686acd45))
+* **ws-detail:** do not use as any while going trough rolebinding response ([7372bbd](https://github.com/RedHatInsights/insights-rbac-ui/commit/7372bbdb67bc0f7be8cbff8157bd8e385fbc9910))
+
+
+### Features
+
+* **role-binding:** use new version of rbac client to support role binding ([aecbce9](https://github.com/RedHatInsights/insights-rbac-ui/commit/aecbce9c1c2dab4826d63b850aac62f7696f53b8))
+
+# [1.75.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.74.0...v1.75.0) (2025-12-18)
+
+
+### Features
+
+* **GroupRoles:** migrate to TableView ([6df9fd7](https://github.com/RedHatInsights/insights-rbac-ui/commit/6df9fd7c033578b2fb56e753e6dcb17be7a549a0))
+* **GroupServiceAccounts:** migrate to TableView ([adced0c](https://github.com/RedHatInsights/insights-rbac-ui/commit/adced0c5b9fb72b45989e10d7bf3e3af98aa3152))
+* **UserGroupsTable:** migrate to TableView ([29a38b9](https://github.com/RedHatInsights/insights-rbac-ui/commit/29a38b909cdcba757aab954b90396c7e262be62d))
+* **UsersTable:** migrate to TableView ([1aa3cb0](https://github.com/RedHatInsights/insights-rbac-ui/commit/1aa3cb063dfd31f5a839eeab45c02dfb70940983))
+
 # [1.74.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.73.0...v1.74.0) (2025-12-17)
 
 

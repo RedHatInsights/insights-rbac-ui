@@ -1,202 +1,145 @@
 import React, { Fragment, useCallback, useEffect, useMemo } from 'react';
-import { debounce } from '../../../../../utilities/debounce';
+import { useDispatch, useSelector } from 'react-redux';
+import { useIntl } from 'react-intl';
+import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
+import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 
-// DataView imports
-import { DataView, DataViewState } from '@patternfly/react-data-view';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { DataViewCheckboxFilter, DataViewTextFilter } from '@patternfly/react-data-view';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import { PER_PAGE_OPTIONS } from '../../../../../helpers/pagination';
-
-// Component imports
+import { TableView, useTableState } from '../../../../../components/table-view';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../components/table-view/types';
+import { fetchUsers } from '../../../../../redux/users/actions';
+import { selectIsUsersLoading, selectUsersPaginationFromMeta, selectUsersRawData } from '../../../../../redux/users/selectors';
+import messages from '../../../../../Messages';
 import { UsersListEmptyState } from './UsersListEmptyState';
-import { useUsersList } from './useUsersList';
 import type { User, UsersListProps } from './types';
 
-export const UsersList: React.FC<UsersListProps> = (props) => {
-  // Use custom hook for ALL business logic
-  const { users, isLoading, filters, selection, tableRows, columns, fetchData, emptyStateProps, pagination } = useUsersList({
-    usesMetaInURL: props.usesMetaInURL,
-    displayNarrow: props.displayNarrow,
-    initialSelectedUsers: props.initialSelectedUsers,
-    onSelect: props.onSelect,
+// Column definitions
+const columns = ['orgAdmin', 'username', 'email', 'firstName', 'lastName', 'status'] as const;
+const sortableColumns = ['username'] as const;
+
+export const UsersList: React.FC<UsersListProps> = ({ usesMetaInURL = false, displayNarrow = false, initialSelectedUsers, onSelect }) => {
+  const intl = useIntl();
+  const dispatch = useDispatch();
+
+  // Redux selectors
+  const rawUsers = useSelector(selectUsersRawData);
+  const isLoading = useSelector(selectIsUsersLoading);
+  const pagination = useSelector(selectUsersPaginationFromMeta);
+  const totalCount = pagination.count || 0;
+
+  // Transform raw users to add uuid
+  const users: User[] = useMemo(() => {
+    return rawUsers?.map?.((data: any) => ({ ...data, uuid: data.username })) || [];
+  }, [rawUsers]);
+
+  // Column configuration
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      orgAdmin: { label: intl.formatMessage(messages.orgAdministrator) },
+      username: { label: intl.formatMessage(messages.username), sortable: true },
+      email: { label: intl.formatMessage(messages.email) },
+      firstName: { label: intl.formatMessage(messages.firstName) },
+      lastName: { label: intl.formatMessage(messages.lastName) },
+      status: { label: intl.formatMessage(messages.status) },
+    }),
+    [intl],
+  );
+
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [
+      { id: 'username', label: 'Username', type: 'text', placeholder: 'Filter by username' },
+      { id: 'email', label: 'Email', type: 'text', placeholder: 'Filter by email' },
+      {
+        id: 'status',
+        label: 'Status',
+        type: 'checkbox',
+        placeholder: 'Filter by status',
+        options: [
+          { id: 'Active', label: 'Active' },
+          { id: 'Inactive', label: 'Inactive' },
+        ],
+      },
+    ],
+    [],
+  );
+
+  // Handle data fetching via onStaleData
+  const handleStaleData = useCallback(
+    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
+      const statusFilter = params.filters.status as string[] | undefined;
+      dispatch(
+        fetchUsers({
+          limit: params.limit,
+          offset: params.offset,
+          orderBy: params.orderBy,
+          filters: {
+            username: (params.filters.username as string) || '',
+            email: (params.filters.email as string) || '',
+            // When status filter is empty, fetch all users (both active and inactive)
+            status: statusFilter && statusFilter.length > 0 ? statusFilter : [],
+          },
+          usesMetaInURL,
+        }),
+      );
+    },
+    [dispatch, usesMetaInURL],
+  );
+
+  // useTableState for all state management
+  const tableState = useTableState<typeof columns, User, 'username'>({
+    columns,
+    sortableColumns,
+    initialPerPage: 50,
+    perPageOptions: [10, 20, 50, 100],
+    getRowId: (user) => user.uuid || user.username,
+    initialSelectedRows: initialSelectedUsers,
+    initialFilters: { status: ['Active'] },
+    initialSort: { column: 'username', direction: 'asc' },
+    onStaleData: handleStaleData,
   });
 
-  // Pagination calculations
-  const calculatePage = (limit: number, offset: number) => Math.floor(offset / limit) + 1;
-  const calculateOffset = (page: number, limit: number) => (page - 1) * limit;
-
-  const currentPage = calculatePage(pagination.limit, pagination.offset);
-
-  // Pagination handlers
-  const onSetPage = useCallback(
-    (_event: any, page: number) => {
-      fetchData({ offset: calculateOffset(page, pagination.limit) });
-    },
-    [fetchData, pagination.limit],
-  );
-
-  const onPerPageSelect = useCallback(
-    (_event: any, perPage: number) => {
-      fetchData({ limit: perPage, offset: 0 });
-    },
-    [fetchData],
-  );
-
-  // Debounced version for filter changes to prevent excessive API calls
-  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
-
-  // Cleanup debounced function on unmount
+  // Propagate selection changes to parent
   useEffect(() => {
-    return () => {
-      debouncedFetchData.cancel();
-    };
-  }, [debouncedFetchData]);
+    onSelect(tableState.selectedRows);
+  }, [tableState.selectedRows, onSelect]);
 
-  // Filter change handler
-  const handleFilterChange = useCallback(
-    (_event: any, newFilters: Partial<{ username: string; email: string; status: string[] }>) => {
-      // Update filter state immediately for UI responsiveness
-      filters.onSetFilters(newFilters);
-
-      // Merge new filters with existing ones to preserve all filter values
-      // This is needed because PatternFly DataViewFilters only passes the active filter
-      // when switching between filter types, losing other filter values
-      const mergedFilters = {
-        ...filters.filters,
-        ...newFilters,
-      };
-
-      // Debounce API calls to prevent excessive requests - pass params directly, NOT nested under 'filters'
-      debouncedFetchData({
-        username: mergedFilters.username,
-        email: mergedFilters.email,
-        status: mergedFilters.status,
-        offset: 0,
-      });
-    },
-    [filters, debouncedFetchData],
+  // Cell renderers
+  const cellRenderers: CellRendererMap<typeof columns, User> = useMemo(
+    () => ({
+      orgAdmin: (user) => (
+        <Fragment>
+          {user.is_org_admin ? <CheckIcon className="pf-v6-u-mr-sm" /> : <CloseIcon className="pf-v6-u-mr-sm" />}
+          <span>{user.is_org_admin ? 'Yes' : 'No'}</span>
+        </Fragment>
+      ),
+      username: (user) => user.username,
+      email: (user) => user.email || '—',
+      firstName: (user) => user.first_name || '—',
+      lastName: (user) => user.last_name || '—',
+      status: (user) => intl.formatMessage(user.is_active ? messages.active : messages.inactive),
+    }),
+    [intl],
   );
-
-  // Clear all filters
-  const clearAllFilters = useCallback(() => {
-    // Use onSetFilters directly to set empty filter values
-    const emptyFilters = { username: '', email: '', status: [] };
-    filters.onSetFilters(emptyFilters);
-    // Trigger API call immediately (no debounce for button clicks)
-    fetchData({
-      username: '',
-      email: '',
-      status: [],
-      offset: 0,
-    });
-  }, [filters.onSetFilters, fetchData]);
-
-  // Bulk select handler
-  const handleBulkSelect = useCallback(
-    (value: BulkSelectValue) => {
-      if (value === BulkSelectValue.none) {
-        selection.onSelect(false);
-      } else if (value === BulkSelectValue.page) {
-        selection.onSelect(true, tableRows);
-      } else if (value === BulkSelectValue.nonePage) {
-        selection.onSelect(false, tableRows);
-      }
-    },
-    [selection, tableRows],
-  );
-
-  // Skeleton states
-  const loadingHeader = useMemo(() => <SkeletonTableHead columns={columns.map((col) => col.cell)} />, [columns]);
-
-  const loadingBody = useMemo(() => <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />, [columns.length]);
-
-  // Empty state component
-  const emptyState = useMemo(() => <UsersListEmptyState {...emptyStateProps} />, [emptyStateProps]);
-
-  // Bulk select component
-  const bulkSelectComponent = useMemo(() => {
-    const selectedCount = props.initialSelectedUsers.length;
-    const totalCount = users.length;
-
-    return (
-      <BulkSelect isDataPaginated={false} selectedCount={selectedCount} totalCount={totalCount} onSelect={handleBulkSelect} pageCount={totalCount} />
-    );
-  }, [props.initialSelectedUsers.length, users.length, handleBulkSelect]);
-
-  // Handle selection changes - call onSelect when selection changes
-  useEffect(() => {
-    if (selection.selected) {
-      const selectedUserIds = selection.selected.map((item: any) => item.id);
-      const selectedUserObjects = users.filter((user: User) => selectedUserIds.includes(user.uuid || user.username));
-      props.onSelect(selectedUserObjects);
-    }
-  }, [selection.selected, users, props.onSelect]);
-
-  // Determine active state
-  const activeState = isLoading ? DataViewState.loading : users.length === 0 ? DataViewState.empty : undefined;
 
   return (
     <Fragment>
-      <DataView activeState={activeState} selection={selection}>
-        <DataViewToolbar
-          bulkSelect={bulkSelectComponent}
-          pagination={
-            <Pagination
-              perPageOptions={PER_PAGE_OPTIONS}
-              itemCount={pagination.count || 0}
-              page={currentPage}
-              perPage={pagination.limit}
-              onSetPage={onSetPage}
-              onPerPageSelect={onPerPageSelect}
-              isCompact
-            />
-          }
-          filters={
-            <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
-              <DataViewTextFilter filterId="username" title="Username" placeholder="Filter by username" />
-              <DataViewTextFilter filterId="email" title="Email" placeholder="Filter by email" />
-              <DataViewCheckboxFilter
-                filterId="status"
-                title="Status"
-                placeholder="Filter by status..."
-                options={[
-                  { label: 'Active', value: 'Active' },
-                  { label: 'Inactive', value: 'Inactive' },
-                ]}
-              />
-            </DataViewFilters>
-          }
-          clearAllFilters={clearAllFilters}
-        />
-        <DataViewTable
-          columns={columns}
-          rows={tableRows}
-          headStates={{ loading: loadingHeader }}
-          bodyStates={{
-            loading: loadingBody,
-            empty: emptyState,
-          }}
-          variant={props.displayNarrow ? 'compact' : undefined}
-        />
-        <DataViewToolbar
-          pagination={
-            <Pagination
-              perPageOptions={PER_PAGE_OPTIONS}
-              itemCount={pagination.count || 0}
-              page={currentPage}
-              perPage={pagination.limit}
-              onSetPage={onSetPage}
-              onPerPageSelect={onPerPageSelect}
-              isCompact
-            />
-          }
-        />
-      </DataView>
+      <TableView<typeof columns, User, 'username'>
+        columns={columns}
+        columnConfig={columnConfig}
+        sortableColumns={sortableColumns}
+        data={isLoading ? undefined : users}
+        totalCount={totalCount}
+        getRowId={(user) => user.uuid || user.username}
+        cellRenderers={cellRenderers}
+        filterConfig={filterConfig}
+        selectable
+        emptyStateNoData={<UsersListEmptyState hasActiveFilters={false} />}
+        emptyStateNoResults={<UsersListEmptyState hasActiveFilters={true} />}
+        variant={displayNarrow ? 'compact' : 'default'}
+        ariaLabel="Users list table"
+        ouiaId="users-list-table"
+        {...tableState}
+      />
     </Fragment>
   );
 };

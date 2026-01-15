@@ -1,27 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import useAppNavigate from '../../../hooks/useAppNavigate';
-import { fetchRole, removeRolePermissions } from '../../../redux/roles/actions';
-import { Role as RoleType } from '../../../redux/roles/reducer';
-import { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
+import { rolesKeys, useRoleQuery, useUpdateRoleMutation } from '../../../data/queries/roles';
+import type { ResourceDefinition, RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
 import pathnames from '../../../utilities/pathnames';
-
-interface RootState {
-  roleReducer: {
-    selectedRole?: RoleType;
-    isRecordLoading: boolean;
-  };
-}
 
 interface FilteredPermission {
   uuid: string;
   permission: string;
-  resourceDefinitions: any[];
+  resourceDefinitions: ResourceDefinition[];
   modified: string;
 }
 
 interface UseRolePermissionsReturn {
-  role: RoleType | undefined;
+  role: RoleWithAccess | undefined;
   isRecordLoading: boolean;
   filteredPermissions: FilteredPermission[];
   applications: string[];
@@ -33,16 +26,18 @@ interface UseRolePermissionsReturn {
 }
 
 export const useRolePermissions = (filters: { applications: string[]; resources: string[]; operations: string[] }): UseRolePermissionsReturn => {
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
+  const queryClient = useQueryClient();
+  const { roleId } = useParams<{ roleId: string }>();
 
-  const { role, isRecordLoading } = useSelector(
-    (state: RootState) => ({
-      role: state.roleReducer.selectedRole,
-      isRecordLoading: state.roleReducer.isRecordLoading,
-    }),
-    shallowEqual,
-  );
+  // roleId must exist - this hook should only be used on role detail routes
+  if (!roleId) {
+    throw new Error('useRolePermissions must be used on a route with :roleId param');
+  }
+
+  // Use TanStack Query for role data
+  const { data: role, isLoading: isRecordLoading } = useRoleQuery(roleId);
+  const updateRoleMutation = useUpdateRoleMutation();
 
   const [showResourceDefinitions, setShowResourceDefinitions] = useState(true);
 
@@ -100,19 +95,33 @@ export const useRolePermissions = (filters: { applications: string[]; resources:
       }));
   }, [role, filters]);
 
-  // Remove permissions from role
+  // Remove permissions from role - throws if role not loaded (caller should check isRecordLoading)
   const onRemovePermissions = async (permissions: Array<{ uuid: string }>) => {
-    if (!role) return;
+    if (!role) {
+      throw new Error('Cannot remove permissions: role data not loaded. Check isRecordLoading before calling.');
+    }
 
-    const permissionsToRemove = permissions.map((p) => p.uuid);
-    // Cast role to RoleWithAccess since our Role type is compatible
-    await dispatch(removeRolePermissions(role as any as RoleWithAccess, permissionsToRemove) as any);
-    await dispatch(fetchRole(role.uuid) as any);
+    const permissionsToRemove = new Set(permissions.map((p) => p.uuid));
+    const updatedAccess = (role.access ?? []).filter((a) => !permissionsToRemove.has(a.permission));
+
+    await updateRoleMutation.mutateAsync({
+      uuid: roleId,
+      rolePut: {
+        name: role.name,
+        display_name: role.display_name ?? role.name,
+        description: role.description,
+        access: updatedAccess,
+      },
+    });
+    // Success notification handled by mutation, refresh role data
+    queryClient.invalidateQueries({ queryKey: rolesKeys.detail(roleId) });
   };
 
   // Navigate to add permissions wizard
   const onNavigateToAddPermissions = () => {
-    if (!role) return;
+    if (!role) {
+      throw new Error('Cannot navigate: role data not loaded. Check isRecordLoading before calling.');
+    }
     navigate(pathnames['role-add-permission'].link.replace(':roleId', role.uuid));
   };
 

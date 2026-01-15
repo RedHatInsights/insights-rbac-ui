@@ -265,8 +265,8 @@ For testing specific scenarios, see these additional stories:
     await userEvent.click(kebabToggle);
 
     // Verify Edit and Delete actions are available
-    expect(await canvas.findByText('Edit')).toBeInTheDocument();
-    expect(await canvas.findByText('Delete')).toBeInTheDocument();
+    expect(await within(document.body).findByText('Edit')).toBeInTheDocument();
+    expect(await within(document.body).findByText('Delete')).toBeInTheDocument();
   },
 };
 
@@ -580,19 +580,19 @@ export const ActionDropdown: Story = {
     // Verify actions appear - use queryByText for better error handling
     await waitFor(
       () => {
-        const editAction = canvas.queryByText('Edit');
+        const editAction = within(document.body).queryByText('Edit');
         expect(editAction).toBeTruthy();
       },
       { timeout: 3000 },
     );
 
-    const editAction = canvas.getByText('Edit');
+    const editAction = within(document.body).getByText('Edit');
     const editLink = editAction.closest('a');
     expect(editLink).toBeTruthy();
     // Check for role-123/edit (href includes full path /iam/user-access/roles/detail/)
     expect(editLink?.getAttribute('href')).toContain('role-123/edit');
 
-    const deleteAction = canvas.getByText('Delete');
+    const deleteAction = within(document.body).getByText('Delete');
     const deleteLink = deleteAction.closest('a');
     expect(deleteLink).toBeTruthy();
     expect(deleteLink?.getAttribute('href')).toContain('role-123/remove');
@@ -745,14 +745,16 @@ export const FilterByApplicationApplied: Story = {
     expect(canvas.getAllByText('inventory').length).toBe(2);
     expect(canvas.getAllByText('cost-management').length).toBe(2);
 
-    // Open filter dropdown
-    const filterToggle = await canvas.findByText('Filter by application');
-    await userEvent.click(filterToggle);
+    // With DataViewFilters having multiple filters, there's a conditional filter selector.
+    // The filter dropdown button is the second "Applications" button (the first is the category selector)
+    const applicationButtons = await canvas.findAllByRole('button', { name: /Applications/i });
+    // The second button is the filter dropdown toggle
+    await userEvent.click(applicationButtons[1]);
 
     await delay(300);
 
     // Select only "inventory" application
-    const inventoryCheckbox = await canvas.findByRole('checkbox', { name: /inventory/i });
+    const inventoryCheckbox = await within(document.body).findByRole('checkbox', { name: /inventory/i });
     await userEvent.click(inventoryCheckbox);
 
     await delay(800);
@@ -827,26 +829,27 @@ export const FilterByResourceApplied: Story = {
       { timeout: 3000 },
     );
 
-    // Click on conditional filter to change to Resource type
-    const conditionalFilterButton = await canvas.findByText('Applications');
-    await userEvent.click(conditionalFilterButton);
+    // With DataViewFilters having multiple filters, there's a conditional filter selector.
+    // First click the category selector (shows "Applications" by default)
+    const applicationButtons = await canvas.findAllByRole('button', { name: /Applications/i });
+    await userEvent.click(applicationButtons[0]); // First button is the category selector
 
     await delay(300);
 
-    // Select "Resource type" from dropdown
-    const resourceTypeOption = await canvas.findByRole('menuitem', { name: /Resource type/i });
+    // Select "Resource type" from the dropdown
+    const resourceTypeOption = await within(document.body).findByRole('menuitem', { name: /Resource type/i });
     await userEvent.click(resourceTypeOption);
 
-    await delay(500);
+    await delay(300);
 
-    // Now click the filter dropdown toggle
-    const resourceFilterToggle = await canvas.findByText('Filter by resource type');
-    await userEvent.click(resourceFilterToggle);
+    // Now click the filter dropdown toggle (second "Resource type" button - first is category selector)
+    const resourceButtons = await canvas.findAllByRole('button', { name: /Resource type/i });
+    await userEvent.click(resourceButtons[1]);
 
     await delay(300);
 
     // Select "host" resource checkbox
-    const hostCheckbox = await canvas.findByRole('checkbox', { name: /host/i });
+    const hostCheckbox = await within(document.body).findByRole('checkbox', { name: /host/i });
     await userEvent.click(hostCheckbox);
 
     await delay(800);
@@ -901,26 +904,27 @@ export const FilterByOperationApplied: Story = {
       { timeout: 3000 },
     );
 
-    // Click on conditional filter to change to Operation
-    const conditionalFilterButton = await canvas.findByText('Applications');
-    await userEvent.click(conditionalFilterButton);
+    // With DataViewFilters having multiple filters, there's a conditional filter selector.
+    // First click the category selector (shows "Applications" by default)
+    const applicationButtons = await canvas.findAllByRole('button', { name: /Applications/i });
+    await userEvent.click(applicationButtons[0]); // First button is the category selector
 
     await delay(300);
 
-    // Select "Operation" from dropdown
-    const operationOption = await canvas.findByRole('menuitem', { name: /Operation/i });
+    // Select "Operation" from the dropdown
+    const operationOption = await within(document.body).findByRole('menuitem', { name: /Operation/i });
     await userEvent.click(operationOption);
 
-    await delay(500);
+    await delay(300);
 
-    // Now click the filter dropdown toggle
-    const operationFilterToggle = await canvas.findByText('Filter by operation');
-    await userEvent.click(operationFilterToggle);
+    // Now click the filter dropdown toggle (second "Operation" button - first is category selector)
+    const operationButtons = await canvas.findAllByRole('button', { name: /Operation/i });
+    await userEvent.click(operationButtons[1]);
 
     await delay(300);
 
     // Select "read" operation checkbox
-    const readCheckbox = await canvas.findByRole('checkbox', { name: /read/i });
+    const readCheckbox = await within(document.body).findByRole('checkbox', { name: /read/i });
     await userEvent.click(readCheckbox);
 
     await delay(800);
@@ -1103,7 +1107,7 @@ export const PaginationWithMultiplePages: Story = {
     // Verify pagination shows "1 - 20" and "25" (they're in separate elements)
     await waitFor(
       () => {
-        const paginationElements = canvasElement.querySelectorAll('.pf-v5-c-pagination__total-items');
+        const paginationElements = canvasElement.querySelectorAll('.pf-v6-c-pagination__total-items');
         expect(paginationElements.length).toBeGreaterThan(0);
       },
       { timeout: 2000 },

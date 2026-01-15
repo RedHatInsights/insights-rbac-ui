@@ -5,7 +5,7 @@ import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
-import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { ServiceAccount } from '../../../../../redux/service-accounts/types';
@@ -26,17 +26,17 @@ const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ n
   useEffect(() => {
     input.onChange(selectedAccounts);
     formOptions.change('service-accounts-list', selectedAccounts);
-  }, [selectedAccounts]);
+  }, [selectedAccounts]); // Remove unstable formOptions and input dependencies
 
   return (
     <Fragment>
       <Form>
         <Stack hasGutter>
           <StackItem>
-            <TextContent>
+            <Content>
               {intl.formatMessage(messages.addServiceAccountsToGroupDescription)}
               <Alert
-                className="pf-v5-u-mt-sm rbac-service-accounts-alert"
+                className="pf-v6-u-mt-sm rbac-service-accounts-alert"
                 variant="info"
                 component="span"
                 isInline
@@ -49,7 +49,7 @@ const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ n
                   ),
                 })}
               />
-            </TextContent>
+            </Content>
           </StackItem>
           <StackItem>
             <FormGroup fieldId="select-service-accounts">

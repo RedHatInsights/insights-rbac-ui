@@ -1,8 +1,7 @@
 import React from 'react';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 
 interface EmptyTableProps {
@@ -17,8 +16,7 @@ export const EmptyTable: React.FC<EmptyTableProps> = ({
   <tbody>
     <tr>
       <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
-        <EmptyState>
-          <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+        <EmptyState headingLevel="h4" icon={SearchIcon} titleText={titleText}>
           <EmptyStateBody>{bodyText}</EmptyStateBody>
         </EmptyState>
       </td>

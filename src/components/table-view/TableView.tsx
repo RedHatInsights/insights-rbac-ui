@@ -94,7 +94,6 @@ export function TableView<
     filters = {},
     onFiltersChange,
     clearAllFilters,
-    hasActiveFilters: hasActiveFiltersProp,
 
     // Toolbar
     toolbarActions,
@@ -120,8 +119,12 @@ export function TableView<
   const isLoading = data === undefined && !error;
   const hasError = !!error;
   const isEmpty = !isLoading && !hasError && data !== undefined && data.length === 0;
-  // Use prop from hook if provided, otherwise compute
-  const hasActiveFilters = hasActiveFiltersProp ?? Object.values(filters).some((v) => (Array.isArray(v) ? v.length > 0 : v !== ''));
+  // Compute hasActiveFilters based on filterConfig to only consider known filter IDs
+  const knownFilterIds = useMemo(() => new Set(filterConfig.map((f) => f.id)), [filterConfig]);
+  const hasActiveFilters = useMemo(
+    () => Object.entries(filters).some(([key, v]) => knownFilterIds.has(key) && (Array.isArray(v) ? v.length > 0 : v !== '')),
+    [filters, knownFilterIds],
+  );
   const columnCount = columns.length + (selectable ? 1 : 0) + (renderActions ? 1 : 0);
   const columnLabels = columns.map((col) => columnConfig[col as keyof typeof columnConfig]?.label || col);
 
@@ -184,18 +187,14 @@ export function TableView<
     filterConfig.length > 0 ? <TableViewFilters filterConfig={filterConfig} filters={filters} onFiltersChange={onFiltersChange} /> : null;
 
   // Actions (only for top toolbar)
+  // bulkActions is always rendered if provided (the component itself handles disabling when no selection)
   const actionsElement =
-    toolbarActions || (bulkActions && selectedRows.length > 0) ? (
+    toolbarActions || bulkActions ? (
       <>
-        {selectedRows.length > 0 && bulkActions}
+        {bulkActions}
         {toolbarActions}
       </>
     ) : null;
-
-  // Empty state content
-  const emptyStateContent = hasActiveFilters
-    ? emptyStateNoResults || <DefaultEmptyStateNoResults onClearFilters={clearAllFilters} />
-    : emptyStateNoData || <DefaultEmptyStateNoData />;
 
   // Error state content
   const errorStateContent = emptyStateError || <DefaultEmptyStateError error={error} />;
@@ -236,8 +235,12 @@ export function TableView<
       )}
 
       {/* Error State */}
-      {hasError && (
+      {hasError && <TableViewEmptyState>{errorStateContent}</TableViewEmptyState>}
+
+      {/* Empty State - No Results (with filters) shows table headers */}
+      {!isLoading && !hasError && isEmpty && hasActiveFilters && (
         <TableViewEmptyState
+          showHeaders
           columnLabels={columnLabels}
           hasSelection={selectable}
           hasActions={!!renderActions}
@@ -245,22 +248,13 @@ export function TableView<
           ariaLabel={ariaLabel}
           ouiaId={ouiaId}
         >
-          {errorStateContent}
+          {emptyStateNoResults || <DefaultEmptyStateNoResults onClearFilters={clearAllFilters} />}
         </TableViewEmptyState>
       )}
 
-      {/* Empty State */}
-      {!isLoading && !hasError && isEmpty && (
-        <TableViewEmptyState
-          columnLabels={columnLabels}
-          hasSelection={selectable}
-          hasActions={!!renderActions}
-          variant={variant}
-          ariaLabel={ariaLabel}
-          ouiaId={ouiaId}
-        >
-          {emptyStateContent}
-        </TableViewEmptyState>
+      {/* Empty State - No Data (without filters) hides table headers */}
+      {!isLoading && !hasError && isEmpty && !hasActiveFilters && (
+        <TableViewEmptyState>{emptyStateNoData || <DefaultEmptyStateNoData />}</TableViewEmptyState>
       )}
 
       {/* Data Table */}
@@ -268,7 +262,7 @@ export function TableView<
         <Table aria-label={ariaLabel} variant={variant === 'compact' ? TableVariant.compact : undefined} ouiaId={ouiaId}>
           <Thead>
             <Tr>
-              {selectable && <Th screenReaderText="Select" />}
+              {selectable && <Th screenReaderText="Select" modifier="fitContent" />}
               {columns.map((col, index) => {
                 const config = columnConfig[col as keyof typeof columnConfig];
                 const isSortable = sortableColumnSet.has(col);
@@ -293,7 +287,7 @@ export function TableView<
                   </Th>
                 );
               })}
-              {renderActions && <Th screenReaderText="Actions" />}
+              {renderActions && <Th screenReaderText="Actions" modifier="fitContent" />}
             </Tr>
           </Thead>
 

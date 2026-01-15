@@ -1,46 +1,16 @@
-import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { TableView } from '../../../../../components/table-view/TableView';
+import { useTableState } from '../../../../../components/table-view/hooks/useTableState';
+import { DefaultEmptyStateNoData } from '../../../../../components/table-view/components/TableViewEmptyState';
+import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 import { fetchUsers } from '../../../../../redux/users/actions';
 import { selectIsUsersLoading, selectUserStatus, selectUsers, selectUsersTotalCount } from '../../../../../redux/users/selectors';
 import { ERROR } from '../../../../../redux/users/action-types';
 import { mappedProps } from '../../../../../helpers/dataUtilities';
-import { BulkSelect, BulkSelectValue, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { TableState } from './EditUserGroupUsersAndServiceAccounts';
-import { FormattedMessage, useIntl } from 'react-intl';
 import Messages from '../../../../../Messages';
-import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
-
-const EmptyTable: React.FunctionComponent<{ titleText: string; subtitleText?: string }> = ({ titleText, subtitleText }) => {
-  return (
-    <tbody>
-      <tr>
-        <td colSpan={6}>
-          <EmptyState>
-            <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-            <EmptyStateBody>
-              {subtitleText ? (
-                subtitleText
-              ) : (
-                <FormattedMessage
-                  {...Messages['usersEmptyStateSubtitle']}
-                  values={{
-                    br: <br />,
-                  }}
-                />
-              )}
-            </EmptyStateBody>
-          </EmptyState>
-        </td>
-      </tr>
-    </tbody>
-  );
-};
 
 interface EditGroupUsersTableProps {
   onChange: (userDiff: TableState) => void;
@@ -48,161 +18,162 @@ interface EditGroupUsersTableProps {
   initialUserIds: string[];
 }
 
-const PER_PAGE_OPTIONS = [
-  { title: '5', value: 5 },
-  { title: '10', value: 10 },
-  { title: '20', value: 20 },
-  { title: '50', value: 50 },
-  { title: '100', value: 100 },
-];
+interface User {
+  id: string;
+  uuid?: string;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  is_org_admin: boolean;
+  is_active: boolean;
+}
 
-const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = ({ onChange, groupId, initialUserIds }) => {
+const columns = ['orgAdmin', 'username', 'email', 'firstName', 'lastName', 'status'] as const;
+
+const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = ({ onChange, initialUserIds }) => {
   const dispatch = useDispatch();
-  const pagination = useDataViewPagination({ perPage: 20 });
-  const { page, perPage, onSetPage, onPerPageSelect } = pagination;
-  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const intl = useIntl();
 
-  const columns = useMemo(
-    () => [
-      intl.formatMessage(Messages.orgAdmin),
-      intl.formatMessage(Messages.username),
-      intl.formatMessage(Messages.email),
-      intl.formatMessage(Messages.firstName),
-      intl.formatMessage(Messages.lastName),
-      intl.formatMessage(Messages.status),
-    ],
-    [intl],
-  );
-
-  const selection = useDataViewSelection({
-    matchOption: (a, b) => a.id === b.id,
-  });
-  const { selected, onSelect, isSelected } = selection;
-
-  const users = useSelector(selectUsers);
+  const users = useSelector(selectUsers) as User[];
   const totalCount = useSelector(selectUsersTotalCount);
   const isLoading = useSelector(selectIsUsersLoading);
   const status = useSelector(selectUserStatus);
 
-  // Initialize selection when users are loaded
-  useEffect(() => {
-    if (users.length > 0 && initialUserIds.length > 0) {
-      onSelect(false); // Clear any existing selections
-      // Convert user IDs to usernames since rows use username as ID
-      const initialSelectedUsers = initialUserIds
-        .map((userId) => {
-          const user = users.find((u) => u.id === userId || String(u.uuid) === userId);
-          return user ? { id: user.username } : null;
-        })
-        .filter(Boolean);
-      onSelect(true, initialSelectedUsers);
-    }
-  }, [users, initialUserIds]); // Don't include onSelect to avoid repeated calls
+  // Helper to get consistent user ID
+  const getUserId = useCallback((user: User) => user.id || (user.uuid ? String(user.uuid) : null) || user.username, []);
 
-  const rows = useMemo(
+  // Build initial selected rows from IDs (placeholder objects until data loads)
+  const initialSelectedRows = useMemo(
     () =>
-      users.map((user) => ({
-        id: user.username,
-        row: [
-          user.is_org_admin ? intl.formatMessage(Messages.yes) : intl.formatMessage(Messages.no),
-          user.username,
-          user.email,
-          user.first_name,
-          user.last_name,
-          user.is_active ? intl.formatMessage(Messages.active) : intl.formatMessage(Messages.inactive),
-        ],
-      })),
-    [users, groupId],
+      initialUserIds.map(
+        (id) =>
+          ({
+            id,
+            username: id,
+            email: '',
+            first_name: '',
+            last_name: '',
+            is_org_admin: false,
+            is_active: true,
+          }) as User,
+      ),
+    [initialUserIds],
   );
 
-  const fetchData = useCallback(
-    (apiProps: { count: number; limit: number; offset: number; orderBy: string }) => {
-      const { count, limit, offset, orderBy } = apiProps;
-      dispatch(fetchUsers({ ...mappedProps({ count, limit, offset, orderBy }), usesMetaInURL: true }));
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      orgAdmin: { label: intl.formatMessage(Messages.orgAdmin) },
+      username: { label: intl.formatMessage(Messages.username) },
+      email: { label: intl.formatMessage(Messages.email) },
+      firstName: { label: intl.formatMessage(Messages.firstName) },
+      lastName: { label: intl.formatMessage(Messages.lastName) },
+      status: { label: intl.formatMessage(Messages.status) },
+    }),
+    [intl],
+  );
+
+  const cellRenderers: CellRendererMap<typeof columns, User> = useMemo(
+    () => ({
+      orgAdmin: (user) => (user.is_org_admin ? intl.formatMessage(Messages.yes) : intl.formatMessage(Messages.no)),
+      username: (user) => user.username,
+      email: (user) => user.email,
+      firstName: (user) => user.first_name,
+      lastName: (user) => user.last_name,
+      status: (user) => (user.is_active ? intl.formatMessage(Messages.active) : intl.formatMessage(Messages.inactive)),
+    }),
+    [intl],
+  );
+
+  // useTableState handles ALL state including selection
+  const tableState = useTableState<typeof columns, User>({
+    columns,
+    getRowId: getUserId,
+    initialPerPage: 20,
+    perPageOptions: [5, 10, 20, 50, 100],
+    initialSelectedRows,
+    onStaleData: (params) => {
+      dispatch(
+        fetchUsers({
+          ...mappedProps({ count: totalCount || 0, limit: params.limit, offset: params.offset, orderBy: 'username' }),
+          usesMetaInURL: true,
+        }),
+      );
     },
-    [dispatch],
+  });
+
+  // Keep ref to avoid stale closure in wrapped handlers
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  // Wrap selection handlers to also call onChange
+  const handleSelectRow = useCallback(
+    (user: User, selected: boolean) => {
+      tableState.onSelectRow(user, selected);
+      // Compute new selection (can't rely on tableState.selectedRows being updated yet)
+      const currentIds = tableState.selectedRows.map(getUserId);
+      const userId = getUserId(user);
+      const newIds = selected ? [...currentIds, userId] : currentIds.filter((id) => id !== userId);
+      onChangeRef.current({ initial: initialUserIds, updated: newIds });
+    },
+    [tableState, getUserId, initialUserIds],
   );
 
-  // Manage DataView state based on loading/error/data conditions
-  useEffect(() => {
-    if (isLoading) {
-      setActiveState(DataViewState.loading);
-    } else if (status === ERROR) {
-      setActiveState(DataViewState.error);
-    } else {
-      setActiveState(users.length === 0 ? DataViewState.empty : undefined);
-    }
-  }, [users.length, isLoading, status]);
+  const handleSelectAll = useCallback(
+    (selected: boolean, rows: User[]) => {
+      tableState.onSelectAll(selected, rows);
+      // Compute new selection
+      const currentIds = new Set(tableState.selectedRows.map(getUserId));
+      const rowIds = rows.map(getUserId);
+      let newIds: string[];
+      if (selected) {
+        rowIds.forEach((id) => currentIds.add(id));
+        newIds = Array.from(currentIds);
+      } else {
+        newIds = Array.from(currentIds).filter((id) => !rowIds.includes(id));
+      }
+      onChangeRef.current({ initial: initialUserIds, updated: newIds });
+    },
+    [tableState, getUserId, initialUserIds],
+  );
 
-  useEffect(() => {
-    fetchData({
-      limit: perPage,
-      offset: (page - 1) * perPage,
-      orderBy: 'username',
-      count: totalCount || 0,
-    });
-  }, [fetchData, page, perPage]);
-
-  useEffect(() => {
-    onChange({ initial: initialUserIds, updated: selection.selected.map((user) => user.id) });
-  }, [selection.selected, initialUserIds]);
-
-  const pageSelected = rows.length > 0 && rows.every(isSelected);
-  const pagePartiallySelected = !pageSelected && rows.some(isSelected);
-  const handleBulkSelect = (value: BulkSelectValue) => {
-    if (value === BulkSelectValue.none) {
-      onSelect(false);
-    } else if (value === BulkSelectValue.page) {
-      onSelect(true, rows);
-    } else if (value === BulkSelectValue.nonePage) {
-      onSelect(false, rows);
-    }
-  };
+  const hasError = status === ERROR;
 
   return (
-    <DataView selection={{ ...selection }} activeState={activeState}>
-      <DataViewToolbar
-        pagination={
-          <Pagination
-            perPageOptions={PER_PAGE_OPTIONS}
-            itemCount={totalCount}
-            page={page}
-            perPage={perPage}
-            onSetPage={onSetPage}
-            onPerPageSelect={onPerPageSelect}
-          />
-        }
-        bulkSelect={
-          <BulkSelect
-            isDataPaginated
-            pageCount={users.length}
-            selectedCount={selected.length}
-            totalCount={totalCount}
-            pageSelected={pageSelected}
-            pagePartiallySelected={pagePartiallySelected}
-            onSelect={handleBulkSelect}
-          />
-        }
-      />
-      <DataViewTable
-        variant="compact"
-        columns={columns}
-        rows={rows}
-        headStates={{
-          loading: <SkeletonTableHead columns={columns} />,
-        }}
-        bodyStates={{
-          loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-          empty: <EmptyTable titleText={intl.formatMessage(Messages.usersEmptyStateTitle)} />,
-          error: (
-            <EmptyTable titleText="Failed to load users" subtitleText="Please try refreshing the page or contact support if the problem persists." />
-          ),
-        }}
-      />
-    </DataView>
+    <TableView<typeof columns, User>
+      columns={columns}
+      columnConfig={columnConfig}
+      data={isLoading ? undefined : users}
+      totalCount={totalCount}
+      getRowId={getUserId}
+      cellRenderers={cellRenderers}
+      error={hasError ? new Error('Failed to load users') : null}
+      emptyStateNoData={
+        <DefaultEmptyStateNoData
+          title={intl.formatMessage(Messages.usersEmptyStateTitle)}
+          body={
+            <FormattedMessage
+              {...Messages['usersEmptyStateSubtitle']}
+              values={{
+                br: <br />,
+              }}
+            />
+          }
+        />
+      }
+      emptyStateError={
+        <DefaultEmptyStateNoData title="Failed to load users" body="Please try refreshing the page or contact support if the problem persists." />
+      }
+      variant="compact"
+      ariaLabel="Edit group users table"
+      ouiaId="edit-group-users-table"
+      selectable
+      {...tableState}
+      // Override selection handlers to also call onChange
+      onSelectRow={handleSelectRow}
+      onSelectAll={handleSelectAll}
+    />
   );
 };
 
-// Component uses named export only
 export { EditGroupUsersTable };

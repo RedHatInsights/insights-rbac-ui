@@ -12,7 +12,7 @@
  * - Reduced code duplication
  */
 
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { delay } from 'msw';
 
 /**
@@ -28,16 +28,15 @@ export async function openWorkspaceWizard(user: ReturnType<typeof userEvent.setu
   const createButton = await canvas.findByRole('button', { name: /create workspace/i });
   expect(createButton).toBeInTheDocument();
   await user.click(createButton);
-  await delay(1000);
 
   // The wizard renders in document.body (not in canvas)
   const body = within(document.body);
 
-  // Wait for wizard to appear
+  // Wait for wizard to appear (findByText already waits, no delay needed)
   await body.findByText(/create new workspace/i);
 
   // Find the wizard container
-  const wizard = document.querySelector('.pf-v5-c-wizard, .pf-c-wizard');
+  const wizard = document.querySelector('.pf-v6-c-wizard, .pf-c-wizard');
   expect(wizard).toBeInTheDocument();
 
   return within(wizard as HTMLElement);
@@ -118,7 +117,7 @@ export async function expandWorkspaceInTree(
   expect(workspaceNode).toBeInTheDocument();
 
   // Find the toggle button (expand/collapse) by its class
-  const toggleButton = workspaceNode?.querySelector('.pf-v5-c-tree-view__node-toggle');
+  const toggleButton = workspaceNode?.querySelector('.pf-v6-c-tree-view__node-toggle');
   expect(toggleButton).toBeInTheDocument();
 
   // Click to expand
@@ -145,10 +144,23 @@ export async function selectWorkspaceFromTree(
   await user.click(workspaceButton);
   await delay(300);
 
-  // Click the "Select Workspace" button to confirm
-  const selectButton = await treePanelScope.findByRole('button', { name: /select workspace$/i });
+  // Click the "Select Workspace" button to confirm (may be in portal)
+  // The button might be labeled "Select Workspace" or just contain that text
+  const body = within(document.body);
+
+  // Try to find the button by its text content
+  // Use flexible regex that matches "Select Workspace" or "Select workspace" anywhere
+  const selectButton = await body.findByRole('button', { name: /select workspace/i }).catch(async () => {
+    // Fallback: find by text content if role search fails
+    const buttonByText = await body.findByText(/select workspace/i);
+    const button = buttonByText.closest('button');
+    return button;
+  });
+
   expect(selectButton).toBeInTheDocument();
-  await user.click(selectButton);
+  if (selectButton) {
+    await user.click(selectButton);
+  }
   await delay(500);
 }
 
@@ -243,7 +255,7 @@ export async function findModal(expectedHeading: string | RegExp) {
   }
 
   // Find the modal container
-  const modal = document.querySelector('.pf-v5-c-modal-box, .pf-c-modal-box');
+  const modal = document.querySelector('.pf-v6-c-modal-box, .pf-c-modal-box');
   expect(modal).toBeInTheDocument();
 
   return within(modal as HTMLElement);
@@ -280,7 +292,12 @@ export async function editWorkspaceInModal(user: ReturnType<typeof userEvent.set
   const saveButton = await modal.findByRole('button', { name: /save/i });
   expect(saveButton).toBeInTheDocument();
   await user.click(saveButton);
-  await delay(1000);
+
+  // Wait for modal to close (dialog should disappear)
+  await waitFor(() => {
+    const dialog = within(document.body).queryByRole('dialog', { name: /edit workspace/i });
+    expect(dialog).not.toBeInTheDocument();
+  });
 }
 
 /**
@@ -305,5 +322,10 @@ export async function confirmDelete(user: ReturnType<typeof userEvent.setup>) {
   expect(deleteButton).toBeInTheDocument();
   expect(deleteButton).toBeEnabled();
   await user.click(deleteButton);
-  await delay(1000);
+
+  // Wait for modal to close (dialog should disappear)
+  await waitFor(() => {
+    const dialog = within(document.body).queryByRole('dialog', { name: /delete workspace/i });
+    expect(dialog).not.toBeInTheDocument();
+  });
 }

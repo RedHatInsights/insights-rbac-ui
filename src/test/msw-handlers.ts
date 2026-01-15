@@ -61,7 +61,7 @@ export const slowWorkspaceHandlers = [
   http.get('/api/rbac/v2/workspaces/', async () => {
     // Add 1 second delay to simulate realistic network response
     await delay(1000);
-    
+
     return HttpResponse.json({
       data: mockWorkspaces,
       meta: {
@@ -91,7 +91,7 @@ export const errorWorkspacesHandler = http.get('/api/rbac/v2/workspaces/', () =>
       error: 'Failed to fetch workspaces',
       message: 'Internal server error',
     },
-    { status: 500 }
+    { status: 500 },
   );
 });
 
@@ -100,4 +100,4 @@ export const networkErrorHandler = http.get('/api/rbac/v2/workspaces/', () => {
 });
 
 // Default handlers export
-export const handlers = workspaceHandlers; 
+export const handlers = workspaceHandlers;

@@ -6,7 +6,8 @@ import { useFlag } from '@unleash/proxy-client-react';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
@@ -34,6 +35,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   const intl = useIntl();
   const navigate = useAppNavigate();
   const enableFeatures = useFlag('platform.rbac.workspaces-billing-features');
+  const addNotification = useAddNotification();
 
   // Default handlers for when component is used as a route element
   const defaultAfterSubmit = () => {
@@ -43,13 +45,11 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   };
 
   const defaultOnCancel = () => {
-    dispatch(
-      addNotification({
-        variant: 'warning',
-        title: intl.formatMessage(messages.createWorkspace),
-        description: intl.formatMessage(messages.creatingWorkspaceCancel),
-      }),
-    );
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(messages.createWorkspace),
+      description: intl.formatMessage(messages.creatingWorkspaceCancel),
+    });
     navigate(pathnames.workspaces.link);
   };
 

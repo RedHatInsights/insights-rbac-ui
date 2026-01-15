@@ -29,9 +29,11 @@ export const DefaultGroupRestore: React.FC<DefaultGroupRestoreProps> = ({ onRest
           />
         }
       >
-        <Button variant="plain" aria-label="More information about restoring default access">
-          <OutlinedQuestionCircleIcon className="rbac-default-group-info-icon pf-v5-u-mt-sm" />
-        </Button>
+        <Button
+          icon={<OutlinedQuestionCircleIcon className="rbac-default-group-info-icon pf-v6-u-mt-sm" />}
+          variant="plain"
+          aria-label="More information about restoring default access"
+        />
       </Popover>
     </div>
   );

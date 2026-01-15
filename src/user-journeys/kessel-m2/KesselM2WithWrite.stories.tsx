@@ -1,6 +1,6 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import {
   clickWizardButton,
@@ -112,7 +112,6 @@ const meta = {
     'platform.rbac.common.userstable': false,
   },
   parameters: {
-    // Set chrome and feature flags from default args
     ...createDynamicEnvironment({
       orgAdmin: true,
       userAccessAdministrator: false,
@@ -450,11 +449,10 @@ Tests that admins can create a subworkspace from a parent's action menu in Kesse
     const createSubworkspaceButton = await body.findByText(/create subworkspace/i);
     expect(createSubworkspaceButton).toBeInTheDocument();
     await user.click(createSubworkspaceButton);
-    await delay(1000);
 
-    // Wait for wizard to appear
+    // Wait for wizard to appear (findByText waits automatically)
     await body.findByText(/create new workspace/i);
-    const wizard = document.querySelector('.pf-v5-c-wizard, .pf-c-wizard');
+    const wizard = document.querySelector('.pf-v6-c-wizard, .pf-c-wizard');
     expect(wizard).toBeInTheDocument();
     const wizardScope = within(wizard as HTMLElement);
 
@@ -542,9 +540,8 @@ Tests that users with \`inventory:groups:write\` permission can move workspaces 
     expect(moveWorkspaceButton).toBeInTheDocument();
     expect(moveWorkspaceButton).not.toHaveAttribute('disabled');
     await user.click(moveWorkspaceButton);
-    await delay(1000);
 
-    // Modal should open with parent selector
+    // Modal should open with parent selector (findByRole waits automatically)
     const modalHeading = await body.findByRole('heading', { name: /move.*staging/i });
     expect(modalHeading).toBeInTheDocument();
 
@@ -569,9 +566,8 @@ Tests that users with \`inventory:groups:write\` permission can move workspaces 
     expect(submitButton).toBeInTheDocument();
     expect(submitButton).toBeEnabled();
     await user.click(submitButton);
-    await delay(1000);
 
-    // Modal should close and we should see the updated workspace list
+    // Modal should close and we should see the updated workspace list (waitForPageToLoad handles waiting)
     await waitForPageToLoad(canvas, 'Default Workspace');
 
     // Expand Default Workspace (root) to see its children
@@ -640,14 +636,16 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     const editButton = await body.findByText(/^edit workspace$/i);
     expect(editButton).toBeInTheDocument();
     await user.click(editButton);
-    await delay(500);
+    await delay(300); // Allow modal to open
 
-    // Edit modal should open
+    // Edit modal should open (findByRole waits automatically)
     const modal = await body.findByRole('dialog', { name: /edit workspace information/i });
     const modalScope = within(modal);
-    await delay(1000);
 
-    // Get form inputs
+    // Allow form to populate with workspace data from mock
+    await delay(300);
+
+    // Get form inputs (findByDisplayValue waits automatically)
     const nameInput = await modalScope.findByDisplayValue('Production');
     const descriptionInput = await modalScope.findByDisplayValue('Production environment workspace');
 
@@ -664,9 +662,8 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     const saveButton = modalScope.getByRole('button', { name: /^save$/i });
     expect(saveButton).toBeEnabled();
     await user.click(saveButton);
-    await delay(1000);
 
-    // Verify modal closed and workspace list updated
+    // Verify modal closed and workspace list updated (waitForPageToLoad handles waiting)
     await waitForPageToLoad(canvas, 'Default Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
@@ -731,9 +728,8 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
     const deleteButton = await body.findByText(/^delete workspace$/i);
     expect(deleteButton).toBeInTheDocument();
     await user.click(deleteButton);
-    await delay(1000);
 
-    // Confirmation modal should open
+    // Confirmation modal should open (findByRole waits automatically)
     const modalHeading = await body.findByRole('heading', { name: /delete.*workspace/i });
     expect(modalHeading).toBeInTheDocument();
 
@@ -750,6 +746,21 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
     const confirmButton = await body.findByRole('button', { name: /^delete$/i });
     expect(confirmButton).toBeInTheDocument();
     expect(confirmButton).toBeEnabled();
+
+    // Click delete to confirm
+    await user.click(confirmButton);
+
+    // CRITICAL: Verify the workspace is removed from the list
+    // This tests that cache invalidation is working correctly
+    await waitForPageToLoad(canvas, 'Default Workspace');
+    await expandWorkspaceRow(user, canvas, 'Default Workspace');
+
+    // Verify Staging is no longer in the list
+    await waitFor(() => {
+      expect(canvas.queryByText('Staging')).not.toBeInTheDocument();
+    });
+    // Production should still be there
+    expect(await canvas.findByText('Production')).toBeInTheDocument();
   },
 };
 

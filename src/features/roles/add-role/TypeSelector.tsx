@@ -1,0 +1,52 @@
+import React, { useState } from 'react';
+import { Radio, Stack, StackItem } from '@patternfly/react-core';
+import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
+
+interface TypeSelectorProps {
+  name: string;
+  [key: string]: unknown;
+}
+
+const TypeSelector: React.FC<TypeSelectorProps> = (props) => {
+  const intl = useIntl();
+  const { input } = useFieldApi(props);
+  const formOptions = useFormApi();
+  const [checked, setChecked] = useState<string>(formOptions.getState().values['role-type']);
+  const handleChange = (val: string) => {
+    setChecked(val);
+    input.onChange(val);
+    formOptions.change('add-permissions-table', []);
+    formOptions.change('base-permissions-loaded', false);
+    formOptions.change('not-allowed-permissions', []);
+  };
+
+  return (
+    <Stack>
+      <StackItem className="pf-v6-u-mb-sm">
+        <Radio
+          isChecked={checked === 'create'}
+          name="role-type-create"
+          onChange={() => handleChange('create')}
+          label={intl.formatMessage(messages.createRoleFromScratch)}
+          id="role-type-create"
+          value="create"
+        />
+      </StackItem>
+      <StackItem>
+        <Radio
+          isChecked={checked === 'copy'}
+          name="role-type-copy"
+          onChange={() => handleChange('copy')}
+          label={intl.formatMessage(messages.copyAnExistingRole)}
+          id="role-type-copy"
+          value="copy"
+        />
+      </StackItem>
+    </Stack>
+  );
+};
+
+export default TypeSelector;

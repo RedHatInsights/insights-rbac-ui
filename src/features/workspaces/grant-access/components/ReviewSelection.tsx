@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Stack, StackItem } from '@patternfly/react-core';
-import { Text, TextContent, TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { List, ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { RBACStore } from '../../../../redux/store';
 import messages from '../../../../Messages';
@@ -28,41 +28,41 @@ const ReviewSelection: React.FC = () => {
   return (
     <Stack hasGutter>
       <StackItem>
-        <TextContent>
-          <Text component={TextVariants.h3}>{intl.formatMessage(messages.selectedUserGroups)}</Text>
+        <Content>
+          <Content component={ContentVariants.h3}>{intl.formatMessage(messages.selectedUserGroups)}</Content>
           {selectedGroupObjects.length > 0 ? (
             <List>
               {selectedGroupObjects.map((group: Group) => (
                 <ListItem key={group.uuid}>
-                  <Text component={TextVariants.p}>
+                  <Content component={ContentVariants.p}>
                     <strong>{group.name}</strong>
-                  </Text>
+                  </Content>
                 </ListItem>
               ))}
             </List>
           ) : (
-            <Text component={TextVariants.p}>{intl.formatMessage(messages.noUserGroupsSelected)}</Text>
+            <Content component={ContentVariants.p}>{intl.formatMessage(messages.noUserGroupsSelected)}</Content>
           )}
-        </TextContent>
+        </Content>
       </StackItem>
       <StackItem>
-        <TextContent>
-          <Text component={TextVariants.h3}>{intl.formatMessage(messages.selectedRoles)}</Text>
+        <Content>
+          <Content component={ContentVariants.h3}>{intl.formatMessage(messages.selectedRoles)}</Content>
           {selectedRoleObjects.length > 0 ? (
             <List>
               {selectedRoleObjects.map((role: Role) => (
                 <ListItem key={role.uuid}>
-                  <Text component={TextVariants.p}>
+                  <Content component={ContentVariants.p}>
                     <strong>{role.display_name || role.name}</strong>
-                  </Text>
-                  {role.description && <Text component={TextVariants.small}>{role.description}</Text>}
+                  </Content>
+                  {role.description && <Content component={ContentVariants.small}>{role.description}</Content>}
                 </ListItem>
               ))}
             </List>
           ) : (
-            <Text component={TextVariants.p}>{intl.formatMessage(messages.noRolesSelected)}</Text>
+            <Content component={ContentVariants.p}>{intl.formatMessage(messages.noRolesSelected)}</Content>
           )}
-        </TextContent>
+        </Content>
       </StackItem>
     </Stack>
   );

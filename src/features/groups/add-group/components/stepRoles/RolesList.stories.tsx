@@ -314,8 +314,8 @@ export const SelectionTest: Story = {
     const bulkSelectButton = await canvas.findByRole('button', { name: /select/i });
     await userEvent.click(bulkSelectButton);
 
-    // Select page option
-    const selectPageOption = await canvas.findByText(/select page/i);
+    // Select page option (dropdown renders via portal)
+    const selectPageOption = await within(document.body).findByText(/select page/i);
     await userEvent.click(selectPageOption);
 
     // Verify bulk select interaction occurred (external state management via onSelect)
@@ -461,9 +461,9 @@ export const EmptyState: Story = {
       { timeout: 3000 },
     );
 
-    // The empty state should be within the table body
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
+    // The empty state should show "No roles available" heading
+    const emptyStateTitle = await canvas.findByRole('heading', { name: /no roles available/i });
+    expect(emptyStateTitle).toBeInTheDocument();
 
     console.log('SB: ✅ Empty state story - No roles message displayed');
   },
@@ -488,9 +488,9 @@ export const ErrorState: Story = {
     await delay(600);
     const canvas = within(canvasElement);
 
-    // Verify component handles API error gracefully with empty state
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
+    // Verify component handles API error gracefully with empty state heading
+    const emptyStateTitle = await canvas.findByRole('heading', { name: /no roles available/i });
+    expect(emptyStateTitle).toBeInTheDocument();
 
     // Verify no role data is displayed (empty response)
     expect(canvas.queryByText('Console Administrator')).not.toBeInTheDocument();
