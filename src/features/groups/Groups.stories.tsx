@@ -1,10 +1,19 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
 import { Groups } from './Groups';
 import { chromeAppNavClickSpy } from '../../../.storybook/context-providers';
+import { withRouter } from '../../../.storybook/helpers/router-test-utils';
+import {
+  PAGINATION_TEST_DEFAULT_PER_PAGE,
+  PAGINATION_TEST_SMALL_PER_PAGE,
+  PAGINATION_TEST_TOTAL_ITEMS,
+  expectLocationParams,
+  getLastCallArg,
+  getLastPageOffset,
+  openPerPageMenu,
+  selectPerPage,
+} from '../../../.storybook/helpers/pagination-test-utils';
 
 // Mock groups data
 const mockGroups = [
@@ -86,7 +95,24 @@ const mockSystemGroup = {
 
 // Track API calls for parameter verification
 const groupsApiCallSpy = fn();
+const groupsPaginationSpy = fn();
 
+const mockGroupsLarge = Array.from({ length: PAGINATION_TEST_TOTAL_ITEMS }, (_v, idx) => {
+  const i = idx + 1;
+  return {
+    uuid: `group-${i}`,
+    name: `Group ${i}`,
+    description: `Group description ${i}`,
+    principalCount: 0,
+    roleCount: 0,
+    policyCount: 0,
+    platform_default: false,
+    admin_default: false,
+    system: false,
+    created: '2024-01-01T00:00:00Z',
+    modified: '2024-01-02T00:00:00Z',
+  };
+});
 // ❌ REMOVED: createMockStore violates global provider + MSW rules
 // Stories now use global Redux provider + MSW handlers
 
@@ -94,15 +120,20 @@ const meta: Meta<typeof Groups> = {
   title: 'Features/Groups/Groups',
   component: Groups, // Update component reference
   tags: ['custom-css'],
+  decorators: [withRouter],
   parameters: {
+    // Groups stories expect to be under the /groups route
+    routerUseMemoryRouter: true,
+    routerPath: '/groups',
+    routerDefaultInitialEntries: ['/groups'],
     msw: {
       handlers: [
         // Groups API
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const name = url.searchParams.get('name') || '';
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           const adminDefault = url.searchParams.get('admin_default');
           const platformDefault = url.searchParams.get('platform_default');
 
@@ -181,18 +212,6 @@ const meta: Meta<typeof Groups> = {
       ],
     },
   },
-  decorators: [
-    (Story, { parameters }) => {
-      const initialEntries = parameters.routerInitialEntries || ['/groups'];
-      return (
-        <MemoryRouter initialEntries={initialEntries}>
-          <Routes>
-            <Route path="/groups" element={<Story />} />
-          </Routes>
-        </MemoryRouter>
-      );
-    },
-  ],
 };
 
 export default meta;
@@ -237,8 +256,8 @@ export const NonAdminUserView: Story = {
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const name = url.searchParams.get('name') || '';
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
           const adminDefault = url.searchParams.get('admin_default');
           const platformDefault = url.searchParams.get('platform_default');
 
@@ -697,3 +716,138 @@ export const ProductionBugReproduction: Story = {
 
 // Alias for backwards compatibility (old test name)
 export const ApiError403Loop = ProductionBugReproduction;
+
+export const PaginationUrlSync: Story = {
+  tags: ['perm:org-admin', 'sbtest:groups-pagination'],
+  parameters: {
+    chrome: { environment: 'stage' },
+    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    routerInitialEntries: [`/groups?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const name = url.searchParams.get('name') || '';
+          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          const adminDefault = url.searchParams.get('admin_default');
+          const platformDefault = url.searchParams.get('platform_default');
+
+          // Track pagination for assertions (main list calls).
+          // Note: the app may pass admin_default=false/platform_default=false in the URL, so only treat "true" as default-group fetches.
+          if (adminDefault !== 'true' && platformDefault !== 'true') {
+            groupsPaginationSpy({ limit, offset });
+          }
+
+          // Preserve existing behavior for default group fetches
+          if (adminDefault === 'true') {
+            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1, limit, offset } });
+          }
+          if (platformDefault === 'true') {
+            return HttpResponse.json({ data: [mockSystemGroup], meta: { count: 1, limit, offset } });
+          }
+
+          let filtered = mockGroupsLarge;
+          if (name) {
+            filtered = mockGroupsLarge.filter((g) => g.name.toLowerCase().includes(name.toLowerCase()));
+          }
+
+          return HttpResponse.json({
+            data: filtered.slice(offset, offset + limit),
+            meta: { count: filtered.length, limit, offset },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+
+    groupsPaginationSpy.mockClear();
+
+    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+
+    const locEl = canvas.getByTestId('router-location');
+    await expectLocationParams(locEl, { page: null, perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE) });
+
+    await openPerPageMenu(body);
+    await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
+
+    await expectLocationParams(locEl, { page: null, perPage: String(PAGINATION_TEST_SMALL_PER_PAGE) });
+
+    await waitFor(() => {
+      expect(groupsPaginationSpy).toHaveBeenCalled();
+      const last = getLastCallArg<{ limit: number; offset: number }>(groupsPaginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(0);
+    });
+
+    // Next page
+    const nextButtons = canvas.getAllByLabelText('Go to next page');
+    await userEvent.click(nextButtons[0]);
+
+    await expectLocationParams(locEl, { page: '2', perPage: String(PAGINATION_TEST_SMALL_PER_PAGE) });
+
+    await waitFor(() => {
+      const last = getLastCallArg<{ limit: number; offset: number }>(groupsPaginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+    });
+  },
+};
+
+export const PaginationOutOfRangeClampsToLastPage: Story = {
+  tags: ['perm:org-admin', 'sbtest:groups-pagination'],
+  parameters: {
+    chrome: { environment: 'stage' },
+    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    routerInitialEntries: [`/groups?page=10000&perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          const adminDefault = url.searchParams.get('admin_default');
+          const platformDefault = url.searchParams.get('platform_default');
+
+          if (adminDefault !== 'true' && platformDefault !== 'true') {
+            groupsPaginationSpy({ limit, offset });
+          }
+
+          if (adminDefault === 'true') {
+            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1, limit, offset } });
+          }
+          if (platformDefault === 'true') {
+            return HttpResponse.json({ data: [mockSystemGroup], meta: { count: 1, limit, offset } });
+          }
+
+          return HttpResponse.json({
+            data: mockGroupsLarge.slice(offset, offset + limit),
+            meta: { count: mockGroupsLarge.length, limit, offset },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    groupsPaginationSpy.mockClear();
+
+    // For 55 items and perPage=20, last page is page 3 and last offset is 40.
+    const lastOffset = getLastPageOffset(PAGINATION_TEST_TOTAL_ITEMS, PAGINATION_TEST_DEFAULT_PER_PAGE);
+    await waitFor(() => {
+      expect(groupsPaginationSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+      const last = getLastCallArg<{ limit: number; offset: number }>(groupsPaginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_DEFAULT_PER_PAGE);
+      expect(last.offset).toBe(lastOffset);
+    });
+
+    const locEl = canvas.getByTestId('router-location');
+    await expectLocationParams(locEl, {
+      perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE),
+    });
+  },
+};

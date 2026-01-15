@@ -1,13 +1,23 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { BrowserRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { Roles } from './Roles';
+import { withRouter } from '../../../.storybook/helpers/router-test-utils';
+import {
+  PAGINATION_TEST_DEFAULT_PER_PAGE,
+  PAGINATION_TEST_SMALL_PER_PAGE,
+  PAGINATION_TEST_TOTAL_ITEMS,
+  expectLocationParams,
+  getLastCallArg,
+  getLastPageOffset,
+  openPerPageMenu,
+  selectPerPage,
+} from '../../../.storybook/helpers/pagination-test-utils';
 
 // Spy functions to track API calls
 const fetchRolesSpy = fn();
 const fetchAdminGroupSpy = fn();
+const paginationSpy = fn();
 
 // Mock role data
 const mockRoles = [
@@ -89,14 +99,25 @@ const mockAdminGroup = {
   admin_default: true,
 };
 
-// Router decorator for components that use navigation
-const withRouter = (Story: any) => (
-  <BrowserRouter>
-    <div style={{ minHeight: '600px' }}>
-      <Story />
-    </div>
-  </BrowserRouter>
-);
+// Larger dataset for pagination stories (must exceed perPage to enable next/prev)
+const mockRolesLarge = Array.from({ length: PAGINATION_TEST_TOTAL_ITEMS }, (_v, idx) => {
+  const i = idx + 1;
+  return {
+    uuid: `role-${i}`,
+    name: `Role ${i}`,
+    display_name: `Role ${i}`,
+    description: `Role description ${i}`,
+    system: false,
+    platform_default: false,
+    admin_default: false,
+    accessCount: 1,
+    applications: ['rbac'],
+    modified: '2023-12-01T10:30:00Z',
+    groups_in_count: 0,
+    groups_in: [],
+    access: [{ permission: 'rbac:*:*' }],
+  };
+});
 
 const meta: Meta<typeof Roles> = {
   component: Roles,
@@ -885,5 +906,151 @@ export const AdminUserWithRolesPrimaryActions: Story = {
     await userEvent.click(firstRowKebab);
 
     console.log('SB: 🧪 ACTIONS: Primary actions test completed');
+  },
+};
+
+export const PaginationUrlSync: Story = {
+  tags: ['perm:org-admin', 'sbtest:roles-pagination'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interaction test: verifies Roles pagination updates URL search params (`page`, `perPage`) when changing page size and navigating to next page.',
+      },
+    },
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
+    // Use MemoryRouter so we can assert location.search deterministically
+    routerInitialEntries: [`/iam/user-access/roles?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/roles/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          paginationSpy({ limit, offset });
+
+          return HttpResponse.json({
+            data: mockRolesLarge.slice(offset, offset + limit),
+            meta: { count: mockRolesLarge.length, limit, offset },
+            filters: { display_name: '' },
+            pagination: { count: mockRolesLarge.length, limit, offset },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          if (url.searchParams.get('admin_default') === 'true') {
+            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1 } });
+          }
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+
+    paginationSpy.mockClear();
+
+    // Wait for initial load - rely on UI state instead of a fixed delay
+    await expect(canvas.findByText('Role 1')).resolves.toBeInTheDocument();
+
+    // Assert initial URL params
+    const locEl = canvas.getByTestId('router-location');
+    await expectLocationParams(locEl, {
+      page: null, // page=1 is represented by absence of the param (see updatePageInUrl)
+      perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE),
+    });
+
+    await openPerPageMenu(body);
+    await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
+    await expectLocationParams(locEl, {
+      page: null, // perPage change resets page and deletes the page param
+      perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
+    });
+
+    await waitFor(() => {
+      expect(paginationSpy).toHaveBeenCalled();
+      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(0);
+    });
+
+    // Navigate to next page
+    const nextButtons = canvas.getAllByRole('button', { name: /go to next page/i });
+    await userEvent.click(nextButtons[0]);
+
+    await expectLocationParams(locEl, {
+      page: '2',
+      perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
+    });
+
+    await waitFor(() => {
+      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+    });
+  },
+};
+
+export const PaginationOutOfRangeClampsToLastPage: Story = {
+  tags: ['perm:org-admin', 'sbtest:roles-pagination'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interaction test: starting with an out-of-range `page` in the URL should clamp results to the last valid page (via refetch with the last valid offset).',
+      },
+    },
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
+    routerInitialEntries: [`/iam/user-access/roles?page=10000&perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/roles/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          paginationSpy({ limit, offset });
+
+          return HttpResponse.json({
+            data: mockRolesLarge.slice(offset, offset + limit),
+            meta: { count: mockRolesLarge.length, limit, offset },
+            filters: { display_name: '' },
+            pagination: { count: mockRolesLarge.length, limit, offset },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          if (url.searchParams.get('admin_default') === 'true') {
+            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1 } });
+          }
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    paginationSpy.mockClear();
+    const lastOffset = getLastPageOffset(PAGINATION_TEST_TOTAL_ITEMS, PAGINATION_TEST_DEFAULT_PER_PAGE);
+    const firstRoleOnLastPage = lastOffset + 1;
+
+    await waitFor(() => {
+      expect(paginationSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_DEFAULT_PER_PAGE);
+      expect(last.offset).toBe(lastOffset);
+    });
+
+    // Out-of-range page should clamp results to the last valid page.
+    await expect(canvas.findByText(`Role ${firstRoleOnLastPage}`)).resolves.toBeInTheDocument();
+    expect(canvas.queryByText('Role 1')).not.toBeInTheDocument();
   },
 };
