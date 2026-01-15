@@ -1,3 +1,11 @@
+## [1.80.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.0...v1.80.1) (2026-01-15)
+
+
+### Bug Fixes
+
+* **deps:** update babel monorepo to v7.28.6 ([6033474](https://github.com/RedHatInsights/insights-rbac-ui/commit/60334740fa85eb8f9460da8373df5019f18f5a5b))
+* **deps:** update dependency @redhat-cloud-services/frontend-components-utilities to v7.0.20 ([343cc09](https://github.com/RedHatInsights/insights-rbac-ui/commit/343cc09714dc88fe8e380cef9f39bed95e220e24))
+
 # [1.80.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.8...v1.80.0) (2026-01-15)
 
 
