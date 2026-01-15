@@ -3005,4 +3005,25 @@ export default defineMessages({
     description: 'Update button label',
     defaultMessage: 'Update',
   },
+  // Error handling messages for race conditions and permission errors
+  itemAlreadyRemovedTitle: {
+    id: 'itemAlreadyRemovedTitle',
+    description: 'Title for notification when item was already removed (race condition)',
+    defaultMessage: 'Item already removed',
+  },
+  itemAlreadyRemovedDescription: {
+    id: 'itemAlreadyRemovedDescription',
+    description: 'Description for notification when item was already removed (race condition)',
+    defaultMessage: 'One or more items were already removed by another user. The list has been refreshed.',
+  },
+  insufficientPermissionsTitle: {
+    id: 'insufficientPermissionsTitle',
+    description: 'Title for notification when user lacks permission',
+    defaultMessage: 'Insufficient permissions',
+  },
+  insufficientPermissionsDescription: {
+    id: 'insufficientPermissionsDescription',
+    description: 'Description for notification when user lacks permission',
+    defaultMessage: 'You do not have permission to perform this action. Please contact your administrator.',
+  },
 });

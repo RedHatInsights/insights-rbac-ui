@@ -1,27 +1,18 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useIntl } from 'react-intl';
-import { DataViewState, DataViewTextFilter, DataViewTh } from '@patternfly/react-data-view';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
-import { ActionsColumn } from '@patternfly/react-table';
-import { ThProps } from '@patternfly/react-table';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 
 import { Group } from '../../../../redux/groups/reducer';
 import messages from '../../../../Messages';
 import { GroupDetailsDrawer, GroupWithInheritance } from './GroupDetailsDrawer';
-import { EmptyTable } from './EmptyTable';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { GrantAccessWizard } from '../../grant-access/GrantAccessWizard';
 import { useWorkspacesFlag } from '../../../../hooks/useWorkspacesFlag';
+import { TableView } from '../../../../components/table-view/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig, SortDirection } from '../../../../components/table-view/types';
 
 const isGroupWithInheritance = (group: Group | GroupWithInheritance): group is GroupWithInheritance => {
   return 'inheritedFrom' in group && group.inheritedFrom !== undefined;
@@ -50,12 +41,16 @@ interface RoleAssignmentsTableProps {
   workspaceName?: string;
   currentWorkspace?: { id: string; name: string };
 
-  // Action callbacks
-  onEditAccess?: (group: Group | GroupWithInheritance) => void;
-
   // UI configuration props
   ouiaId?: string;
 }
+
+// Column definitions - with and without inheritance
+const columnsWithInheritance = ['name', 'description', 'principalCount', 'roleCount', 'inheritedFrom', 'modified'] as const;
+const columnsWithoutInheritance = ['name', 'description', 'principalCount', 'roleCount', 'modified'] as const;
+
+type SortableColumnWithInheritance = 'name' | 'principalCount' | 'roleCount' | 'inheritedFrom' | 'modified';
+type SortableColumnWithoutInheritance = 'name' | 'principalCount' | 'roleCount' | 'modified';
 
 export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   groups,
@@ -73,141 +68,205 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   clearAllFilters,
   workspaceName,
   currentWorkspace,
-  onEditAccess,
   ouiaId = 'iam-role-assignments-table',
 }) => {
   const intl = useIntl();
-
   const grantAccessWizard = useWorkspacesFlag('m5');
 
   const [focusedGroup, setFocusedGroup] = useState<Group | undefined>();
   const [isGrantAccessWizardOpen, setIsGrantAccessWizardOpen] = useState(false);
-
-  // Selection hook
-  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
+  const [selectedRows, setSelectedRows] = useState<(Group | GroupWithInheritance)[]>([]);
 
   // Check if any group has inheritance information
   const hasInheritanceData = useMemo(() => {
     return groups.length > 0 && groups.some(isGroupWithInheritance);
   }, [groups]);
 
-  // Define columns - conditionally includes inheritance column
-  const columns = useMemo(() => {
-    const baseColumns = [
-      { label: intl.formatMessage(messages.userGroup), key: 'name', sort: true },
-      { label: intl.formatMessage(messages.description), key: 'description', sort: false },
-      { label: intl.formatMessage(messages.users), key: 'principalCount', sort: true },
-      { label: intl.formatMessage(messages.roles), key: 'roleCount', sort: true },
-      ...(hasInheritanceData ? [{ label: intl.formatMessage(messages.inheritedFrom), key: 'inheritedFrom', sort: true }] : []),
-      { label: intl.formatMessage(messages.lastModified), key: 'modified', sort: true },
-      { label: '', key: 'actions', sort: false }, // Actions column with empty label
+  // Column configuration - with inheritance
+  const columnConfigWithInheritance: ColumnConfigMap<typeof columnsWithInheritance> = useMemo(
+    () => ({
+      name: { label: intl.formatMessage(messages.userGroup), sortable: true },
+      description: { label: intl.formatMessage(messages.description) },
+      principalCount: { label: intl.formatMessage(messages.users), sortable: true },
+      roleCount: { label: intl.formatMessage(messages.roles), sortable: true },
+      inheritedFrom: { label: intl.formatMessage(messages.inheritedFrom), sortable: true },
+      modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+    }),
+    [intl],
+  );
+
+  // Column configuration - without inheritance
+  const columnConfigWithoutInheritance: ColumnConfigMap<typeof columnsWithoutInheritance> = useMemo(
+    () => ({
+      name: { label: intl.formatMessage(messages.userGroup), sortable: true },
+      description: { label: intl.formatMessage(messages.description) },
+      principalCount: { label: intl.formatMessage(messages.users), sortable: true },
+      roleCount: { label: intl.formatMessage(messages.roles), sortable: true },
+      modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+    }),
+    [intl],
+  );
+
+  // Cell renderers - with inheritance
+  const cellRenderersWithInheritance: CellRendererMap<typeof columnsWithInheritance, Group | GroupWithInheritance> = useMemo(
+    () => ({
+      name: (row) => row.name,
+      description: (row) =>
+        row.description ? (
+          <Tooltip isContentLeftAligned content={row.description}>
+            <span>{row.description.length > 23 ? `${row.description.slice(0, 20)}...` : row.description}</span>
+          </Tooltip>
+        ) : (
+          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+        ),
+      principalCount: (row) => row.principalCount,
+      roleCount: (row) => row.roleCount,
+      inheritedFrom: (row) => {
+        if (isGroupWithInheritance(row) && row.inheritedFrom) {
+          return (
+            <AppLink to={`#/workspaces/${row.inheritedFrom.workspaceId}`} linkBasename="/iam" className="pf-v6-c-button pf-m-link pf-m-inline">
+              {row.inheritedFrom.workspaceName}
+            </AppLink>
+          );
+        }
+        return <div className="pf-v6-u-color-400">-</div>;
+      },
+      modified: (row) => (row.modified ? formatDistanceToNow(new Date(row.modified), { addSuffix: true }) : ''),
+    }),
+    [intl],
+  );
+
+  // Cell renderers - without inheritance
+  const cellRenderersWithoutInheritance: CellRendererMap<typeof columnsWithoutInheritance, Group | GroupWithInheritance> = useMemo(
+    () => ({
+      name: (row) => row.name,
+      description: (row) =>
+        row.description ? (
+          <Tooltip isContentLeftAligned content={row.description}>
+            <span>{row.description.length > 23 ? `${row.description.slice(0, 20)}...` : row.description}</span>
+          </Tooltip>
+        ) : (
+          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+        ),
+      principalCount: (row) => row.principalCount,
+      roleCount: (row) => row.roleCount,
+      modified: (row) => (row.modified ? formatDistanceToNow(new Date(row.modified), { addSuffix: true }) : ''),
+    }),
+    [intl],
+  );
+
+  // Filter configuration
+  const filterConfig: FilterConfig[] = useMemo(() => {
+    const baseFilters: FilterConfig[] = [
+      {
+        type: 'search',
+        id: 'name',
+        placeholder: intl.formatMessage(messages.filterByUserGroup),
+      },
     ];
 
-    return baseColumns.map((col, index) => ({ ...col, index }));
+    if (hasInheritanceData) {
+      baseFilters.push({
+        type: 'text',
+        id: 'inheritedFrom',
+        label: intl.formatMessage(messages.inheritedFrom),
+        placeholder: intl.formatMessage(messages.filterByInheritedFrom),
+      });
+    }
+
+    return baseFilters;
   }, [intl, hasInheritanceData]);
 
-  // Drawer handlers
-  const onRowClick = useCallback((group: Group | undefined) => {
-    setFocusedGroup(group);
+  // Sort handling
+  const currentSort = useMemo(
+    () =>
+      sortBy
+        ? {
+            column: sortBy as SortableColumnWithInheritance | SortableColumnWithoutInheritance,
+            direction: direction as SortDirection,
+          }
+        : null,
+    [sortBy, direction],
+  );
+
+  const handleSortChangeWithInheritance = useCallback(
+    (column: SortableColumnWithInheritance, newDirection: SortDirection) => {
+      onSort({} as React.MouseEvent, column, newDirection);
+    },
+    [onSort],
+  );
+
+  const handleSortChangeWithoutInheritance = useCallback(
+    (column: SortableColumnWithoutInheritance, newDirection: SortDirection) => {
+      onSort({} as React.MouseEvent, column, newDirection);
+    },
+    [onSort],
+  );
+
+  // Handle filter change
+  const handleFilterChange = useCallback(
+    (newFilters: Record<string, string | string[]>) => {
+      onSetFilters({
+        name: (newFilters.name as string) || '',
+        inheritedFrom: (newFilters.inheritedFrom as string) || undefined,
+      });
+    },
+    [onSetFilters],
+  );
+
+  // Selection handlers
+  const handleSelectRow = useCallback((row: Group | GroupWithInheritance, isSelected: boolean) => {
+    setSelectedRows((prev) => {
+      if (isSelected) {
+        return [...prev, row];
+      }
+      return prev.filter((r) => r.uuid !== row.uuid);
+    });
   }, []);
 
+  const handleSelectAll = useCallback((isSelected: boolean, currentRows: (Group | GroupWithInheritance)[]) => {
+    if (isSelected) {
+      setSelectedRows((prev) => {
+        const existingIds = new Set(prev.map((r) => r.uuid));
+        const newRows = currentRows.filter((r) => !existingIds.has(r.uuid));
+        return [...prev, ...newRows];
+      });
+    } else {
+      const rowIds = new Set(currentRows.map((r) => r.uuid));
+      setSelectedRows((prev) => prev.filter((r) => !rowIds.has(r.uuid)));
+    }
+  }, []);
+
+  // Handle row click for drawer
+  const handleRowClick = useCallback(
+    (group: Group | GroupWithInheritance) => {
+      setFocusedGroup(focusedGroup?.uuid === group.uuid ? undefined : group);
+    },
+    [focusedGroup],
+  );
+
+  // Drawer handlers
   const onCloseDrawer = useCallback(() => {
     setFocusedGroup(undefined);
   }, []);
 
-  // Calculate sortable columns
-  const sortByIndex = useMemo(() => {
-    return columns.findIndex((column) => column.key === sortBy);
-  }, [sortBy, columns]);
+  // Toolbar actions
+  const toolbarActions = useMemo(
+    () => (
+      <Button
+        variant="primary"
+        isDisabled={!grantAccessWizard}
+        onClick={() => setIsGrantAccessWizardOpen(true)}
+        ouiaId={`${ouiaId}-grant-access-button`}
+      >
+        {intl.formatMessage(messages.grantAccess)}
+      </Button>
+    ),
+    [grantAccessWizard, ouiaId, intl],
+  );
 
-  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
-    sortBy: {
-      index: sortByIndex,
-      direction,
-      defaultDirection: 'asc',
-    },
-    onSort: (_event, index, direction) => onSort(_event, columns[index].key, direction),
-    columnIndex,
-  });
-
-  const sortableColumns: DataViewTh[] = columns.map((column, index) => ({
-    cell: column.label,
-    props: {
-      ...(column.sort ? { sort: getSortParams(index) } : {}),
-    },
-  }));
-
-  // Transform groups into table rows
-  const rows = useMemo(() => {
-    const handleRowClick = (event: any, group?: Group | GroupWithInheritance) => {
-      if (event.target.matches('td') || event.target.matches('tr')) {
-        onRowClick(group);
-      }
-    };
-
-    return groups.map((group: Group | GroupWithInheritance) => {
-      // Define row actions
-      const rowActions = onEditAccess
-        ? [
-            {
-              title: intl.formatMessage(messages.editAccess),
-              onClick: () => onEditAccess(group),
-            },
-          ]
-        : [];
-
-      // Build row with all cells
-      const baseRow: any[] = [
-        group.name,
-        group.description ? (
-          <Tooltip isContentLeftAligned content={group.description}>
-            <span>{group.description.length > 23 ? `${group.description.slice(0, 20)}...` : group.description}</span>
-          </Tooltip>
-        ) : (
-          <div className="pf-v5-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
-        ),
-        group.principalCount,
-        group.roleCount,
-      ];
-
-      // Add inheritance column if this group has inheritance data
-      if (isGroupWithInheritance(group)) {
-        const inheritanceCell = group.inheritedFrom ? (
-          <AppLink to={`#/workspaces/${group.inheritedFrom.workspaceId}`} linkBasename="/iam" className="pf-v5-c-button pf-m-link pf-m-inline">
-            {group.inheritedFrom.workspaceName}
-          </AppLink>
-        ) : (
-          <div className="pf-v5-u-color-400">-</div>
-        );
-        baseRow.push(inheritanceCell);
-      } else if (hasInheritanceData) {
-        // Add empty cell if other groups have inheritance but this one doesn't
-        baseRow.push(<div className="pf-v5-u-color-400">-</div>);
-      }
-
-      // Add last modified column
-      baseRow.push(group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : '');
-
-      // Add actions column using ActionsColumn component
-      if (onEditAccess) {
-        baseRow.push({ cell: <ActionsColumn items={rowActions} />, props: { isActionCell: true } });
-      } else {
-        baseRow.push('');
-      }
-
-      return {
-        id: group.uuid,
-        row: baseRow,
-        props: {
-          isClickable: true,
-          onRowClick: (event: any) => handleRowClick(event, focusedGroup?.uuid === group.uuid ? undefined : group),
-          isRowSelected: false,
-        },
-      };
-    });
-  }, [groups, focusedGroup, intl, onRowClick, hasInheritanceData, onEditAccess]);
-
-  const activeState = isLoading ? DataViewState.loading : groups.length === 0 ? DataViewState.empty : undefined;
+  const sortableColumnsWithInheritance = ['name', 'principalCount', 'roleCount', 'inheritedFrom', 'modified'] as const;
+  const sortableColumnsWithoutInheritance = ['name', 'principalCount', 'roleCount', 'modified'] as const;
 
   return (
     <GroupDetailsDrawer
@@ -218,73 +277,75 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
       showInheritance={hasInheritanceData}
       currentWorkspace={currentWorkspace}
     >
-      <DataView activeState={activeState} selection={selection}>
-        <DataViewToolbar
-          bulkSelect={
-            <BulkSelect
-              isDataPaginated
-              pageCount={groups.length}
-              selectedCount={selection.selected?.length || 0}
-              totalCount={totalCount}
-              onSelect={(value) => {
-                if (value === BulkSelectValue.none) {
-                  selection.onSelect?.(false);
-                } else if (value === BulkSelectValue.page) {
-                  selection.onSelect?.(true, rows);
-                } else if (value === BulkSelectValue.nonePage) {
-                  selection.onSelect?.(false, rows);
-                }
-              }}
-            />
-          }
-          pagination={
-            <Pagination perPage={perPage} page={page} itemCount={totalCount} onSetPage={onSetPage} onPerPageSelect={onPerPageSelect} isCompact />
-          }
-          filters={
-            <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
-              <DataViewTextFilter
-                filterId="name"
-                title={intl.formatMessage(messages.userGroup)}
-                placeholder={intl.formatMessage(messages.filterByUserGroup)}
-              />
-              {hasInheritanceData && (
-                <DataViewTextFilter
-                  filterId="inheritedFrom"
-                  title={intl.formatMessage(messages.inheritedFrom)}
-                  placeholder={intl.formatMessage(messages.filterByInheritedFrom)}
-                />
-              )}
-            </DataViewFilters>
-          }
-          actions={
-            <Button
-              variant="primary"
-              isDisabled={!grantAccessWizard}
-              onClick={() => setIsGrantAccessWizardOpen(true)}
-              ouiaId={`${ouiaId}-grant-access-button`}
-            >
-              {intl.formatMessage(messages.grantAccess)}
-            </Button>
-          }
+      {hasInheritanceData ? (
+        <TableView<typeof columnsWithInheritance, Group | GroupWithInheritance, SortableColumnWithInheritance>
+          columns={columnsWithInheritance}
+          columnConfig={columnConfigWithInheritance}
+          sortableColumns={sortableColumnsWithInheritance}
+          data={isLoading ? undefined : groups}
+          totalCount={totalCount}
+          getRowId={(row) => row.uuid}
+          cellRenderers={cellRenderersWithInheritance}
+          sort={currentSort as { column: SortableColumnWithInheritance; direction: SortDirection } | null}
+          onSortChange={handleSortChangeWithInheritance}
+          page={page}
+          perPage={perPage}
+          onPageChange={(newPage) => onSetPage({} as MouseEvent, newPage)}
+          onPerPageChange={(newPerPage) => onPerPageSelect({} as MouseEvent, newPerPage)}
+          selectable={true}
+          selectedRows={selectedRows}
+          onSelectRow={handleSelectRow}
+          onSelectAll={handleSelectAll}
+          filterConfig={filterConfig}
+          filters={filters}
+          onFiltersChange={handleFilterChange}
           clearAllFilters={clearAllFilters}
-        />
-        <DataViewTable
+          toolbarActions={toolbarActions}
+          onRowClick={handleRowClick}
+          isRowClickable={() => true}
           variant="compact"
-          aria-label="Role Assignments Table"
+          ariaLabel="Role Assignments Table"
           ouiaId={`${ouiaId}-table`}
-          columns={sortableColumns}
-          rows={rows}
-          headStates={{ loading: <SkeletonTableHead columns={columns.map((column) => column.label)} /> }}
-          bodyStates={{
-            loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-            empty: <EmptyTable titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)} />,
-          }}
+          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} />}
+          emptyStateNoResults={
+            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} onClearFilters={clearAllFilters} />
+          }
         />
-        <DataViewToolbar
-          ouiaId={`${ouiaId}-footer-toolbar`}
-          pagination={<Pagination perPage={perPage} page={page} itemCount={totalCount} onSetPage={onSetPage} onPerPageSelect={onPerPageSelect} />}
+      ) : (
+        <TableView<typeof columnsWithoutInheritance, Group | GroupWithInheritance, SortableColumnWithoutInheritance>
+          columns={columnsWithoutInheritance}
+          columnConfig={columnConfigWithoutInheritance}
+          sortableColumns={sortableColumnsWithoutInheritance}
+          data={isLoading ? undefined : groups}
+          totalCount={totalCount}
+          getRowId={(row) => row.uuid}
+          cellRenderers={cellRenderersWithoutInheritance}
+          sort={currentSort as { column: SortableColumnWithoutInheritance; direction: SortDirection } | null}
+          onSortChange={handleSortChangeWithoutInheritance}
+          page={page}
+          perPage={perPage}
+          onPageChange={(newPage) => onSetPage({} as MouseEvent, newPage)}
+          onPerPageChange={(newPerPage) => onPerPageSelect({} as MouseEvent, newPerPage)}
+          selectable={true}
+          selectedRows={selectedRows}
+          onSelectRow={handleSelectRow}
+          onSelectAll={handleSelectAll}
+          filterConfig={filterConfig}
+          filters={filters}
+          onFiltersChange={handleFilterChange}
+          clearAllFilters={clearAllFilters}
+          toolbarActions={toolbarActions}
+          onRowClick={handleRowClick}
+          isRowClickable={() => true}
+          variant="compact"
+          ariaLabel="Role Assignments Table"
+          ouiaId={`${ouiaId}-table`}
+          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} />}
+          emptyStateNoResults={
+            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} onClearFilters={clearAllFilters} />
+          }
         />
-      </DataView>
+      )}
       {isGrantAccessWizardOpen && workspaceName && (
         <GrantAccessWizard
           workspaceName={workspaceName}
