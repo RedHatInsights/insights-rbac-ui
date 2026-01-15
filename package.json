@@ -13,7 +13,7 @@
     "@data-driven-forms/common": "^4.0.0",
     "@data-driven-forms/pf4-component-mapper": "^4.0.0",
     "@data-driven-forms/react-form-renderer": "^4.0.0",
-    "@formatjs/cli": "6.8.8",
+    "@formatjs/cli": "6.11.0",
     "@patternfly/patternfly": "^6.4.0",
     "@patternfly/quickstarts": "^6.4.0",
     "@patternfly/react-component-groups": "^6.4.0",
