@@ -1,3 +1,15 @@
+# [1.80.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.8...v1.80.0) (2026-01-15)
+
+
+### Bug Fixes
+
+* remove delay(300) before table render in sorting test ([c4fb616](https://github.com/RedHatInsights/insights-rbac-ui/commit/c4fb616780b3501f5d8b0dc296e50bfd6ba67070))
+
+
+### Features
+
+* migrate Roles slice from Redux to TanStack Query ([23f668d](https://github.com/RedHatInsights/insights-rbac-ui/commit/23f668df8970f870ef79a9a8f5ea5fd39ee3ddd7))
+
 ## [1.79.8](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.7...v1.79.8) (2026-01-14)
 
 
