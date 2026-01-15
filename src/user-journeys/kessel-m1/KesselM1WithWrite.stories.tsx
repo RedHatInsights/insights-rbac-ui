@@ -10,7 +10,7 @@ import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-han
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Workspaces (Kessel)/M1: Workspace List View/With Write Permission',
+  title: 'User Journeys/Feature Development/Workspaces (Kessel)/Kessel M1: Workspace List View/With Write Permission',
   tags: ['kessel-m1-write'],
   decorators: [
     (Story: any, context: any) => {
@@ -184,7 +184,7 @@ type Story = StoryObj<typeof meta>;
 import { ManualTestingWithWrite } from '../_shared/stories/ManualTestingStory';
 export const ManualTesting: Story = {
   ...ManualTestingWithWrite,
-  name: 'Manual Testing',
+  name: 'Kessel M1 Manual Testing',
   tags: ['autodocs'],
   args: {
     ...ManualTestingWithWrite.args,

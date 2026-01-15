@@ -16,7 +16,7 @@ import { delay } from 'msw';
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Workspaces (Kessel)/M3: RBAC Detail Pages/With Write Permission',
+  title: 'User Journeys/Feature Development/Workspaces (Kessel)/Kessel M3: RBAC Detail Pages/With Write Permission',
   tags: ['kessel-m3-write'],
   decorators: [
     (Story: any, context: any) => {
@@ -195,7 +195,7 @@ type Story = StoryObj<typeof meta>;
 import { ManualTestingWithWrite } from '../_shared/stories/ManualTestingStory';
 export const ManualTesting: Story = {
   ...ManualTestingWithWrite,
-  name: 'Manual Testing',
+  name: 'Kessel M3 Manual Testing',
   tags: ['autodocs'],
   args: {
     ...ManualTestingWithWrite.args,
