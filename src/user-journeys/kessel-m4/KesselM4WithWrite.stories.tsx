@@ -9,7 +9,7 @@ import { HttpResponse, http } from 'msw';
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Workspaces (Kessel)/M4: Role Bindings Write/With Write Permission',
+  title: 'User Journeys/Feature Development/Workspaces (Kessel)/Kessel M4: Role Bindings Write/With Write Permission',
   tags: ['kessel-m4-write', 'test-skip'],
   decorators: [
     (Story: any, context: any) => {
@@ -284,7 +284,7 @@ type Story = StoryObj<typeof meta>;
 import { ManualTestingWithWrite } from '../_shared/stories/ManualTestingStory';
 export const ManualTesting: Story = {
   ...ManualTestingWithWrite,
-  name: 'Manual Testing',
+  name: 'Kessel M4 Manual Testing',
   tags: ['autodocs'],
   args: {
     ...ManualTestingWithWrite.args,

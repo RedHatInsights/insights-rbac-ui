@@ -22,7 +22,7 @@ import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-han
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Workspaces (Kessel)/M2: Hierarchy Management/With Write Permission',
+  title: 'User Journeys/Feature Development/Workspaces (Kessel)/Kessel M2: Hierarchy Management/With Write Permission',
   tags: ['kessel-m2-write'],
   decorators: [
     (Story: any, context: any) => {
@@ -202,7 +202,7 @@ type Story = StoryObj<typeof meta>;
 import { ManualTestingWithWrite } from '../_shared/stories/ManualTestingStory';
 export const ManualTesting: Story = {
   ...ManualTestingWithWrite,
-  name: 'Manual Testing',
+  name: 'Kessel M2 Manual Testing',
   tags: ['autodocs'],
   args: {
     ...ManualTestingWithWrite.args,
