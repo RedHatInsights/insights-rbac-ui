@@ -47,7 +47,8 @@ const withTBD = (spec: FeatureGap) =>
 // MOCK DATA - Per Design Specifications
 // =============================================================================
 
-// Per Frame 139: Roles table columns
+// Per Frame 139: Roles table columns (UPDATED after design review)
+// NOTE: Workspaces and User groups columns were REMOVED from the design
 // These mock data structures document the expected data shape per design
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _mockV2Roles = [
@@ -56,8 +57,6 @@ const _mockV2Roles = [
     name: 'Tenant admin',
     description: 'description',
     permissions: 5,
-    workspaces: 1,
-    user_groups: 1,
     modified: '2023-01-01T00:00:00Z',
     system: true, // Canned role - no kebab/checkbox
   },
@@ -66,8 +65,6 @@ const _mockV2Roles = [
     name: 'Workspace admin',
     description: 'description',
     permissions: 4,
-    workspaces: 1,
-    user_groups: 1,
     modified: '2023-01-01T00:00:00Z',
     system: true,
   },
@@ -76,8 +73,6 @@ const _mockV2Roles = [
     name: 'RHEL DevOps',
     description: 'description',
     permissions: 3,
-    workspaces: 2,
-    user_groups: 2,
     modified: '2023-01-01T00:00:00Z',
     system: false, // Custom role - has kebab/checkbox
   },
@@ -86,8 +81,6 @@ const _mockV2Roles = [
     name: 'Cost mgmt role',
     description: 'description',
     permissions: null, // "Not available" per design
-    workspaces: null,
-    user_groups: null,
     modified: '2023-01-01T00:00:00Z',
     system: true,
   },
@@ -96,8 +89,6 @@ const _mockV2Roles = [
     name: 'RHEL Inventory viewer',
     description: 'description',
     permissions: 1,
-    workspaces: 1,
-    user_groups: 1,
     modified: '2024-01-13T00:00:00Z',
     system: false,
     // Per Frame 140: Permissions in drawer
@@ -106,6 +97,7 @@ const _mockV2Roles = [
 ];
 
 // Per Frame 141: Assigned user groups in drawer
+// This data is still needed for the drawer view (not removed)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _mockAssignedUserGroups = [
   { name: 'Powerpuff girls', workspace: 'All of Medical Imaging IT' },
@@ -114,7 +106,7 @@ const _mockAssignedUserGroups = [
 
 const meta: Meta<typeof KesselAppEntryWithRouter> = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Feature Development/Feature Gap Tests/V2 Roles (TBD)',
+  title: 'User Journeys/Management Fabric/Feature Gap Tests/V2 Roles (GAP)',
   tags: ['tbd', 'v2-roles', 'new-development'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
@@ -163,11 +155,17 @@ Each story is a feature TO BE DEVELOPED with TDD-style tests.
 
 ## Key Requirements
 
-1. **Roles Table**: Columns for Name, Description, Permissions, Workspaces, User groups, Last modified
+1. **Roles Table**: Columns for Name, Description, Permissions, Last modified (Workspaces/User groups REMOVED from design)
 2. **Row Click → Drawer**: Not full page navigation
 3. **Drawer Tabs**: Permissions + Assigned user groups
 4. **Canned Roles**: No kebab menu or checkboxes (hidden, not disabled)
 5. **Edit Role**: Full page form with Application filter
+
+## Implementation Status (can use V1 APIs)
+
+- ✅ Roles CRUD - Available via \`/api/rbac/v1/roles/\`
+- ✅ Permissions listing - Available via \`/api/rbac/v1/access/\`
+- ✅ Role bindings - Available via \`/api/rbac/v2/role-bindings/\`
         `,
       },
     },
@@ -183,8 +181,10 @@ export default meta;
 /**
  * TBD: Roles table with required columns
  *
- * DESIGN: Roles/Frame 139.png
- * Columns: Name, Description, Permissions, Workspaces, User groups, Last modified
+ * DESIGN: Roles/Frame 139.png (UPDATED - Workspaces/User groups columns REMOVED)
+ * Columns: Name, Description, Permissions, Last modified
+ *
+ * CAN IMPLEMENT NOW: All data available via V1 API /api/rbac/v1/roles/
  */
 export const RolesTableColumns: Story = {
   name: '📋 TBD: Roles table columns (Frame 139)',
@@ -199,17 +199,16 @@ export const RolesTableColumns: Story = {
       designImage: '/mocks/Roles/Frame 139.png',
       currentState: 'Current table has: Name, Description, Groups, Permissions, Last modified',
       expectedBehavior: [
-        'Table should have columns: Name, Description, Permissions, Workspaces, User groups, Last modified',
+        'Table should have columns: Name, Description, Permissions, Last modified',
+        'NOTE: Workspaces and User groups columns have been REMOVED from the design',
         'Permissions column shows count (e.g., "5", "4", "3")',
-        'Workspaces column shows count (e.g., "1", "2")',
-        'User groups column shows count (e.g., "1", "2")',
-        'Some roles show "Not available" for permissions/workspaces/user groups',
+        'Some roles show "Not available" for permissions (e.g., Cost Management roles)',
       ],
       implementation: [
-        'Add "Workspaces" column to RolesTable',
-        'Rename "Groups" to "User groups"',
-        'Fetch workspace count for each role',
-        'Handle "Not available" display for canned roles',
+        '✅ CAN IMPLEMENT NOW - Use V1 API /api/rbac/v1/roles/',
+        'Remove "Groups" column (no longer in design)',
+        'Ensure permissions count is displayed correctly',
+        'Handle "Not available" display for OCM/cost management roles',
       ],
       relatedFiles: ['src/features/roles/RolesWithWorkspaces.tsx'],
     }),
@@ -229,8 +228,7 @@ export const RolesTableColumns: Story = {
     expect(headerTexts.some((h) => h.includes('name'))).toBe(true);
     expect(headerTexts.some((h) => h.includes('description'))).toBe(true);
     expect(headerTexts.some((h) => h.includes('permissions'))).toBe(true);
-    expect(headerTexts.some((h) => h.includes('workspaces'))).toBe(true); // TBD
-    expect(headerTexts.some((h) => h.includes('user groups'))).toBe(true); // TBD
+    // NOTE: Workspaces and User groups columns REMOVED from design
     expect(headerTexts.some((h) => h.includes('last modified'))).toBe(true);
   },
 };

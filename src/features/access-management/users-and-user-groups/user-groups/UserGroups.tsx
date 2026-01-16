@@ -1,19 +1,14 @@
 import React, { Fragment, Suspense, useCallback, useContext, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { useIntl } from 'react-intl';
-import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import PermissionsContext from '../../../../utilities/permissionsContext';
-import messages from '../../../../Messages';
 
-import { removeGroups } from '../../../../redux/groups/actions';
-import { Group } from '../../../../redux/groups/reducer';
+import { useDeleteGroupMutation } from '../../../../data/queries/groups';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
-import { useUserGroups } from './useUserGroups';
+import { type Group, useUserGroups } from './useUserGroups';
 import { UserGroupsTable } from './components/UserGroupsTable';
 import { GroupDetailsDrawer } from './components/GroupDetailsDrawer';
 import { GroupDetailsRolesView } from './user-group-detail/GroupDetailsRolesView';
@@ -28,30 +23,16 @@ interface UserGroupsProps {
 }
 
 export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPage = 20, ouiaId = 'iam-user-groups-table' }) => {
-  const intl = useIntl();
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
-  const addNotification = useAddNotification();
   const [searchParams] = useSearchParams();
 
+  // React Query mutation for deleting groups
+  const deleteGroupMutation = useDeleteGroupMutation();
+
   // Use the custom hook for all UserGroups business logic
-  const {
-    groups,
-    isLoading,
-    totalCount,
-    filters,
-    sortBy,
-    direction,
-    onSort,
-    pagination,
-    selection,
-    focusedGroup,
-    setFocusedGroup,
-    fetchData,
-    handleRowClick,
-    clearAllFilters,
-    onSetFilters,
-  } = useUserGroups({ enableAdminFeatures: true });
+  const { groups, isLoading, totalCount, tableState, focusedGroup, setFocusedGroup, refetch, handleRowClick } = useUserGroups({
+    enableAdminFeatures: true,
+  });
 
   // Tab state for group details drawer
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
@@ -67,7 +48,8 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
   const { orgAdmin } = useContext(PermissionsContext);
   const { isProd } = useChrome();
 
-  const { page, perPage, onSetPage, onPerPageSelect } = pagination;
+  // Extract perPage for outlet context
+  const { perPage } = tableState;
 
   // Note: Data fetching and state management is now handled by the useUserGroups hook automatically
 
@@ -108,34 +90,21 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
   //   setIsDeleteModalOpen(true);
   // }, []);
 
-  // Confirm deletion
+  // Confirm deletion - using React Query mutation
   const handleConfirmDelete = useCallback(async () => {
-    const multipleGroups = currentGroups.length > 1;
     try {
-      await dispatch(removeGroups(currentGroups.map((group) => group.uuid)));
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(multipleGroups ? messages.removeGroupsSuccess : messages.removeGroupSuccess),
-      });
+      // Delete all groups sequentially
+      for (const group of currentGroups) {
+        await deleteGroupMutation.mutateAsync(group.uuid);
+      }
       setIsDeleteModalOpen(false);
       setCurrentGroups([]);
-
-      // Refresh data after deletion - use hook's fetchData
-      const { page: currentPage, perPage: currentPerPage } = pagination;
-      fetchData({
-        limit: currentPerPage,
-        offset: (currentPage - 1) * currentPerPage,
-        orderBy: (sortBy || 'name') as any, // Cast to satisfy enum requirement
-        filters,
-      });
+      // Note: React Query automatically invalidates and refetches after mutation
     } catch (error) {
       console.error('Failed to delete groups:', error);
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(multipleGroups ? messages.removeGroupsError : messages.removeGroupError),
-      });
+      // Note: Error notification is handled by the mutation hook
     }
-  }, [dispatch, currentGroups, fetchData, pagination, sortBy, filters, addNotification, intl]);
+  }, [currentGroups, deleteGroupMutation]);
 
   // Close delete modal
   const handleCloseDeleteModal = useCallback(() => {
@@ -178,7 +147,9 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
         <GroupDetailsDrawer
           isOpen={Boolean(focusedGroup)}
           groupName={focusedGroup?.name}
+          groupId={focusedGroup?.uuid}
           onClose={() => setFocusedGroup(undefined)}
+          onEditGroup={focusedGroup ? () => handleEditGroup(focusedGroup) : undefined}
           drawerRef={drawerRef}
           ouiaId="groups-details-drawer"
           activeTabKey={activeTabKey}
@@ -198,18 +169,8 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
               orgAdmin={orgAdmin}
               isProd={isProd() || false}
               ouiaId={ouiaId}
-              // Data view state - managed by container
-              sortBy={sortBy}
-              direction={direction}
-              onSort={onSort}
-              filters={filters}
-              onSetFilters={onSetFilters}
-              clearAllFilters={clearAllFilters}
-              page={page}
-              perPage={perPage}
-              onSetPage={onSetPage}
-              onPerPageSelect={onPerPageSelect}
-              pagination={pagination}
+              // Table state from useTableState - managed by container
+              tableState={tableState}
               onRowClick={(group: Group | undefined) => {
                 setFocusedGroup(group);
                 if (group) {
@@ -218,7 +179,6 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
               }}
               onEditGroup={handleEditGroup}
               onDeleteGroup={handleDeleteGroup}
-              selection={selection}
             >
               {deleteModal}
             </UserGroupsTable>
@@ -240,7 +200,7 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
               enableRoles: false,
               pagination: { limit: perPage },
               filters: {},
-              postMethod: fetchData,
+              postMethod: refetch,
             },
           }}
         />

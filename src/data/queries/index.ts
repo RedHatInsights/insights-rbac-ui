@@ -24,6 +24,19 @@ export { costKeys, getResource, useResourceTypesQuery, useResourceQuery } from '
 // Inventory queries
 export { inventoryKeys, useInventoryGroupsQuery, useInventoryGroupsDetailsQuery, processResourceDefinitions } from './inventory';
 
+// Workspaces queries (V2)
+export {
+  workspacesKeys,
+  roleBindingsKeys,
+  useWorkspacesQuery,
+  useWorkspaceQuery,
+  useRoleBindingsQuery,
+  useWorkspaceGroupBindingsQuery,
+  useCreateWorkspaceMutation,
+  useUpdateWorkspaceMutation,
+  useDeleteWorkspaceMutation,
+} from './workspaces';
+
 // Re-export types - Roles
 export type {
   Access,
@@ -49,3 +62,14 @@ export type { GetResourceParams, ResourceType, ResourceTypesResponse, ResourceRe
 
 // Re-export types - Inventory
 export type { GetInventoryGroupsParams, InventoryGroup, InventoryGroupsResponse, InventoryGroupDetailsResponse } from './inventory';
+
+// Re-export types - Workspaces
+export type {
+  WorkspacesListParams,
+  RoleBindingsListBySubjectParams,
+  WorkspacesWorkspace,
+  WorkspacesWorkspaceListResponse,
+  RoleBindingsRoleBindingBySubject,
+  RoleBindingsRoleBindingBySubjectListResponse,
+  RoleBindingsRole,
+} from './workspaces';

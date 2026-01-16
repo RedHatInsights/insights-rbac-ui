@@ -4,17 +4,11 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import ServiceIcon from '@patternfly/react-icons/dist/js/icons/service-icon';
 import { useIntl } from 'react-intl';
-import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useMemo } from 'react';
 import messages from '../../../../../Messages';
-import { fetchServiceAccountsForGroup } from '../../../../../redux/groups/actions';
-import {
-  selectGroupServiceAccounts,
-  selectGroupServiceAccountsError,
-  selectIsGroupServiceAccountsLoading,
-} from '../../../../../redux/groups/selectors';
+import { useGroupServiceAccountsQuery } from '../../../../../data/queries/groups';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
-import { TableView } from '../../../../../components/table-view/TableView';
+import { TableView, useTableState } from '../../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 
 interface GroupDetailsServiceAccountsViewProps {
@@ -32,32 +26,39 @@ interface ServiceAccountData {
 const columns = ['name', 'clientId', 'owner'] as const;
 
 const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServiceAccountsViewProps> = ({ groupId, ouiaId }) => {
-  const dispatch = useDispatch();
   const intl = useIntl();
 
-  const columnConfig: ColumnConfigMap<typeof columns> = {
-    name: { label: intl.formatMessage(messages.name) },
-    clientId: { label: intl.formatMessage(messages.clientId) },
-    owner: { label: intl.formatMessage(messages.owner) },
-  };
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      name: { label: intl.formatMessage(messages.name) },
+      clientId: { label: intl.formatMessage(messages.clientId) },
+      owner: { label: intl.formatMessage(messages.owner) },
+    }),
+    [intl],
+  );
 
-  const cellRenderers: CellRendererMap<typeof columns, ServiceAccountData> = {
-    name: (account) => account.name,
-    clientId: (account) => account.clientId || '',
-    owner: (account) => account.owner || '',
-  };
+  const cellRenderers: CellRendererMap<typeof columns, ServiceAccountData> = useMemo(
+    () => ({
+      name: (account) => account.name,
+      clientId: (account) => account.clientId || '',
+      owner: (account) => account.owner || '',
+    }),
+    [],
+  );
 
-  const serviceAccounts = useSelector(selectGroupServiceAccounts);
-  const isLoading = useSelector(selectIsGroupServiceAccountsLoading);
-  const error = useSelector(selectGroupServiceAccountsError);
+  // Use useTableState for table state management
+  const tableState = useTableState<typeof columns, ServiceAccountData>({
+    columns,
+    getRowId: (account) => account.uuid,
+    initialPerPage: 100, // Show all items in detail views
+    syncWithUrl: false, // Drawer tables shouldn't sync with URL
+  });
 
-  const fetchData = useCallback(() => {
-    dispatch(fetchServiceAccountsForGroup(groupId, { limit: 1000 }));
-  }, [dispatch, groupId]);
+  // Use React Query instead of Redux
+  const { data, isLoading, error } = useGroupServiceAccountsQuery(groupId);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // Extract service accounts from response
+  const serviceAccounts = (data as any)?.data?.serviceAccounts || (data as any)?.data || [];
 
   // Show error state
   if (error) {
@@ -77,8 +78,8 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
   );
 
   const serviceAccountData: ServiceAccountData[] = serviceAccounts.map((account: any) => ({
-    uuid: account.uuid,
-    name: account.name,
+    uuid: account.uuid || account.clientId,
+    name: account.name || account.clientId,
     clientId: account.clientId,
     owner: account.owner,
   }));
@@ -92,14 +93,11 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
         totalCount={serviceAccountData.length}
         getRowId={(account) => account.uuid}
         cellRenderers={cellRenderers}
-        page={1}
-        perPage={serviceAccountData.length || 10}
-        onPageChange={() => {}}
-        onPerPageChange={() => {}}
         ariaLabel="GroupServiceAccountsView"
         ouiaId={ouiaId}
         emptyStateNoData={emptyState}
         emptyStateNoResults={emptyState}
+        {...tableState}
       />
     </div>
   );

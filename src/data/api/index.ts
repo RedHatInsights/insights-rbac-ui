@@ -38,3 +38,22 @@ export {
   processResourceDefinitions,
 } from './inventory';
 export type { GetInventoryGroupsParams, InventoryGroup, InventoryGroupsResponse, InventoryGroupDetailsResponse } from './inventory';
+
+// Workspaces API (V2)
+export { workspacesApi } from './workspaces';
+export type {
+  WorkspacesListParams,
+  WorkspacesReadParams,
+  WorkspacesCreateParams,
+  WorkspacesPatchParams,
+  WorkspacesDeleteParams,
+  WorkspacesMoveParams,
+  RoleBindingsListBySubjectParams,
+  WorkspacesWorkspace,
+  WorkspacesWorkspaceListResponse,
+  RoleBindingsRoleBindingBySubject,
+  RoleBindingsRoleBindingBySubjectListResponse,
+  RoleBindingsRole,
+  RoleBindingsRoleBindingBySubjectSubject,
+  RoleBindingsResource,
+} from './workspaces';

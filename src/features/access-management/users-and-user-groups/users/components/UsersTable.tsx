@@ -9,11 +9,11 @@ import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuT
 import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Split, SplitItem } from '@patternfly/react-core';
 
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView } from '../../../../../components/table-view';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, type UseTableStateReturn } from '../../../../../components/table-view';
 import { ActionDropdown } from '../../../../../components/ActionDropdown';
-import type { User } from '../../../../../redux/users/reducer';
+import type { User } from '../../../../../data/queries/users';
 import messages from '../../../../../Messages';
-import { type SortableColumnId, sortableColumns, useUsersTableConfig } from './useUsersTableConfig';
+import { type SortableColumnId, sortableColumns, standardColumns, useUsersTableConfig } from './useUsersTableConfig';
 
 interface UsersTableProps {
   // Data props
@@ -33,6 +33,7 @@ interface UsersTableProps {
 
   // Action callbacks
   onAddUserClick: (users: User[]) => void;
+  onRemoveUserFromGroupClick?: (users: User[]) => void;
   onInviteUsersClick: () => void;
   onToggleUserStatus: (user: User, isActive: boolean) => void;
   onToggleOrgAdmin: (user: User, isOrgAdmin: boolean) => void;
@@ -40,18 +41,8 @@ interface UsersTableProps {
   onBulkStatusChange: () => void;
   onRowClick?: (user: User | undefined) => void;
 
-  // Data view props - managed by container
-  sortBy?: string;
-  direction?: 'asc' | 'desc';
-  onSort: (event: any, key: string, direction: 'asc' | 'desc') => void;
-  filters: { username: string; email: string };
-  onSetFilters: (filters: Partial<{ username: string; email: string }>) => void;
-  clearAllFilters: () => void;
-  page: number;
-  perPage: number;
-  onSetPage: (event: React.MouseEvent | React.KeyboardEvent | MouseEvent, page: number) => void;
-  onPerPageSelect: (event: React.MouseEvent | React.KeyboardEvent | MouseEvent, perPage: number) => void;
-  pagination: any; // DataViewPagination hook return type
+  // Table state from useTableState - managed by container
+  tableState: UseTableStateReturn<typeof standardColumns, User, SortableColumnId, never>;
 
   // Children prop for modals and other container components
   children?: React.ReactNode;
@@ -67,29 +58,18 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   isProd,
   ouiaId = 'iam-users-table',
   onAddUserClick,
+  onRemoveUserFromGroupClick,
   onInviteUsersClick,
   onToggleUserStatus,
   onToggleOrgAdmin,
   onDeleteUser,
   onBulkStatusChange,
   onRowClick,
-  sortBy,
-  direction,
-  onSort,
-  filters,
-  onSetFilters,
-  clearAllFilters,
-  page,
-  perPage,
-  onSetPage,
-  onPerPageSelect,
+  tableState,
   children,
 }) => {
   const intl = useIntl();
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-
-  // Selection state (managed locally since this is a presentational component)
-  const [selectedRows, setSelectedRows] = React.useState<User[]>([]);
 
   // Table configuration from hook - columns derived from authModel internally
   const { columns, columnConfig, cellRenderers, filterConfig } = useUsersTableConfig({
@@ -103,88 +83,14 @@ export const UsersTable: React.FC<UsersTableProps> = ({
     onToggleOrgAdmin,
   });
 
-  // Adapt sort state for TableView
-  const sort = useMemo(
-    () =>
-      sortBy
-        ? {
-            column: sortBy as SortableColumnId,
-            direction: (direction || 'asc') as 'asc' | 'desc',
-          }
-        : undefined,
-    [sortBy, direction],
-  );
-
-  // Adapt sort handler for TableView
-  const handleSortChange = useCallback(
-    (column: SortableColumnId) => {
-      const newDirection = sortBy === column && direction === 'asc' ? 'desc' : 'asc';
-      onSort(undefined, column, newDirection);
-    },
-    [sortBy, direction, onSort],
-  );
-
-  // Adapt pagination handlers for TableView - container callbacks expect events that we don't have
-  const handlePageChange = useCallback(
-    (newPage: number) => {
-      // Create a minimal event object to satisfy the container's callback signature
-      const syntheticEvent = {} as React.MouseEvent;
-      onSetPage(syntheticEvent, newPage);
-    },
-    [onSetPage],
-  );
-
-  const handlePerPageChange = useCallback(
-    (newPerPage: number) => {
-      // Create a minimal event object to satisfy the container's callback signature
-      const syntheticEvent = {} as React.MouseEvent;
-      onPerPageSelect(syntheticEvent, newPerPage);
-    },
-    [onPerPageSelect],
-  );
-
-  // Adapt filter handlers for TableView
-  const handleFiltersChange = useCallback(
-    (newFilters: Record<string, string | string[]>) => {
-      onSetFilters({
-        username: (newFilters.username as string) || '',
-        email: (newFilters.email as string) || '',
-      });
-    },
-    [onSetFilters],
-  );
-
-  // Selection handlers
-  const handleSelectRow = useCallback((user: User, selected: boolean) => {
-    setSelectedRows((prev) => {
-      if (selected) {
-        return prev.some((u) => u.id === user.id) ? prev : [...prev, user];
-      }
-      return prev.filter((u) => u.id !== user.id);
-    });
-  }, []);
-
-  const handleSelectAll = useCallback((selected: boolean, rows: User[]) => {
-    if (selected) {
-      setSelectedRows((prev) => {
-        const newSelected = [...prev];
-        rows.forEach((user) => {
-          if (!newSelected.some((u) => u.id === user.id)) {
-            newSelected.push(user);
-          }
-        });
-        return newSelected;
-      });
-    } else {
-      setSelectedRows((prev) => prev.filter((u) => !rows.some((r) => r.id === u.id)));
-    }
-  }, []);
+  // Use selectedRows from tableState
+  const { selectedRows } = tableState;
 
   // Row click handler
   const handleRowClick = useCallback(
     (user: User) => {
       if (onRowClick) {
-        onRowClick(focusedUser?.id === user.id ? undefined : user);
+        onRowClick(focusedUser?.username === user.username ? undefined : user);
       }
     },
     [onRowClick, focusedUser],
@@ -231,33 +137,40 @@ export const UsersTable: React.FC<UsersTableProps> = ({
           >
             {intl.formatMessage(messages['addToUserGroup'])}
           </ResponsiveAction>
+          {onRemoveUserFromGroupClick && (
+            <ResponsiveAction
+              isPersistent
+              onClick={() => onRemoveUserFromGroupClick(selectedRows)}
+              variant="secondary"
+              isDisabled={selectedRows.length === 0}
+              ouiaId={`${ouiaId}-remove-user-button`}
+            >
+              {intl.formatMessage(messages.removeFromUserGroup)}
+            </ResponsiveAction>
+          )}
           <ResponsiveAction variant="primary" onClick={onInviteUsersClick}>
             {intl.formatMessage(messages.inviteUsers)}
           </ResponsiveAction>
         </ResponsiveActions>
       </Split>
     ),
-    [intl, isDropdownOpen, selectedRows, onBulkStatusChange, onAddUserClick, onInviteUsersClick, ouiaId],
+    [intl, isDropdownOpen, selectedRows, onBulkStatusChange, onAddUserClick, onRemoveUserFromGroupClick, onInviteUsersClick, ouiaId],
   );
-
-  // Transform filters for TableView
-  const tableFilters = useMemo(() => ({ username: filters.username || '', email: filters.email || '' }), [filters]);
 
   return (
     <>
       {children}
-      <TableView
+      <TableView<typeof columns, User, SortableColumnId>
         // Columns from hook (derived based on authModel)
-        // Type assertions needed: hook returns union of column configs, TableView needs specific type
-        columns={columns as readonly string[]}
-        columnConfig={columnConfig as Record<string, { label: string; sortable?: boolean }>}
+        columns={columns}
+        columnConfig={columnConfig}
         sortableColumns={sortableColumns}
         // Data
         data={isLoading ? undefined : users}
         totalCount={totalCount}
-        getRowId={(user) => String(user.id || user.username)}
+        getRowId={(user) => user.username}
         // Renderers
-        cellRenderers={cellRenderers as Record<string, (user: User) => React.ReactNode>}
+        cellRenderers={cellRenderers}
         // Selection
         selectable={true}
         isRowSelectable={() => true}
@@ -268,7 +181,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         renderActions={(user) => (
           <ActionDropdown
             ariaLabel={`Actions for user ${user.username}`}
-            ouiaId={`${ouiaId}-${user.id}-actions`}
+            ouiaId={`${ouiaId}-${user.username}-actions`}
             items={[
               {
                 key: 'delete',
@@ -300,19 +213,8 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         variant="compact"
         ouiaId={`${ouiaId}-table`}
         ariaLabel="Users Table"
-        // State (passed directly, not from useTableState)
-        page={page}
-        perPage={perPage}
-        onPageChange={handlePageChange}
-        onPerPageChange={handlePerPageChange}
-        sort={sort}
-        onSortChange={handleSortChange}
-        filters={tableFilters}
-        onFiltersChange={handleFiltersChange}
-        clearAllFilters={clearAllFilters}
-        selectedRows={selectedRows}
-        onSelectRow={handleSelectRow}
-        onSelectAll={handleSelectAll}
+        // All table state from useTableState - spread directly
+        {...tableState}
       />
     </>
   );

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, screen, userEvent, within } from 'storybook/test';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { DeleteGroupModal } from './DeleteGroupModal';
-import { Group } from '../../../../../redux/groups/reducer';
+import type { Group } from '../../../../../data/queries/groups';
 
 // Mock group data
 const mockGroup: Group = {

@@ -110,7 +110,7 @@ const mockV2UserGroups = [
 
 const meta: Meta<typeof KesselAppEntryWithRouter> = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Feature Development/Feature Gap Tests/V2 Users and User Groups',
+  title: 'User Journeys/Management Fabric/Feature Gap Tests/V2 Users and User Groups',
   tags: ['feature-gap', 'v2-users', 'v2-user-groups', 'test-skip'],
   decorators: [
     (Story: any, context: any) => {
@@ -177,6 +177,19 @@ const meta: Meta<typeof KesselAppEntryWithRouter> = {
 These tests are based on the Figma designs and are **expected to fail initially**.
 They serve as a living specification for features that need to be built.
 
+## Implementation Status
+
+### ✅ Can be implemented NOW with V1 APIs:
+- User listing: \`/api/rbac/v1/principals/\`
+- User Groups CRUD: \`/api/rbac/v1/groups/\`
+- Add/Remove users from groups: \`/api/rbac/v1/groups/{id}/principals/\`
+- Role bindings by subject: \`/api/rbac/v2/role-bindings/?subject_type=...\`
+
+### ⚠️ Need additional data/APIs:
+- Service accounts count (needs aggregation query)
+- Workspaces count per group (needs V2 role bindings aggregation)
+- User groups count per user (needs aggregation query)
+
 ## Users Tab Design Analysis
 
 ### Users Table (User list table.png)
@@ -186,52 +199,54 @@ They serve as a living specification for features that need to be built.
 - Email
 - Last name
 - Status (Active/Inactive toggle)
-- **User groups** (count) ⚠️ Need to verify implementation
-- **Org admin** (Yes/No toggle) ⚠️ Need to verify implementation
+- **User groups** (count) ⚠️ Need aggregation query
+- **Org admin** (Yes/No toggle) ✅ Available in V1 API
 
 **Actions:**
-- ✅ Filter by username
-- ✅ User details drawer
-- ✅ Add to user group modal
-- ⚠️ Remove from user group (per design)
-- ✅ Toggle user status
-- ⚠️ Toggle org admin
-- ⚠️ Invite users button
+- ✅ Filter by username - Available
+- ✅ User details drawer - Available
+- ✅ Add to user group modal - Available via V1
+- ⚠️ Remove from user group - Available via V1, UI needed
+- ✅ Toggle user status - Available via V1
+- ✅ Toggle org admin - Available via V1
+- ✅ Invite users button - UI component needed
 
 ### Add to User Group (Add to user group.png)
-- Modal with user selection
-- Group selection interface
-- Confirmation flow
+- Modal with user selection - ✅ Can implement
+- Group selection interface - ✅ Can implement
+- Confirmation flow - ✅ Can implement
 
 ### Remove from User Group (Remove from user group.png)
-- Warning modal with checkbox confirmation
-- Shows affected user groups
+- Warning modal with checkbox confirmation - ✅ Can implement
+- Shows affected user groups - ✅ Can implement
 
 ## User Groups Tab Design Analysis
 
 ### User Groups Table (User groups table+details.png)
 
 **Columns:**
-- Name (with link to drawer)
-- Description
-- Users (count)
-- Last modified
+- Name (with link to drawer) - ✅ Available
+- Description - ✅ Available
+- Users (count) - ✅ Available (principalCount)
+- Service accounts - ⚠️ Needs aggregation
+- Workspaces - ⚠️ Needs V2 role bindings aggregation
+- Last modified - ✅ Available
 
 **Drawer Tabs:**
-- ✅ Users
-- ✅ Service accounts
-- ✅ Roles (with sub-tabs)
+- ✅ Users - Available
+- ✅ Service accounts - Available
+- ✅ Roles (with sub-tabs) - Available via V2 role bindings
 
 ### Create User Group (Create user group.png)
-- Modal with Name and Description fields
-- Optional user assignment
+- Modal with Name and Description fields - ✅ Can implement
+- Optional user assignment - ✅ Can implement
 
 ### Edit User Group (Edit user group.png)
-- Edit modal with Name and Description
-- User management interface
+- Edit modal with Name and Description - ✅ Can implement
+- User management interface - ✅ Can implement
 
 ### Delete User Group (Delete user group.png)
-- Warning modal with checkbox confirmation
+- Warning modal with checkbox confirmation - ✅ Can implement
         `,
       },
     },
@@ -308,9 +323,10 @@ export const UsersTableUserGroupsColumn: Story = {
         'Count should update when user is added/removed from groups',
       ],
       implementation: [
-        'Ensure `user_groups` count is fetched with user data',
+        '⚠️ BLOCKED: Need aggregation query - V1 principals API does not return group count',
+        'Option 1: Make N+1 queries to /groups/?username=X for each user',
+        'Option 2: Request backend to add group_count to principals response',
         'Display count in the appropriate column cell',
-        'Consider linking to filtered groups view on click',
       ],
       relatedFiles: [
         'src/features/access-management/users-and-user-groups/users/Users.tsx',
@@ -372,10 +388,10 @@ export const UsersTableOrgAdminColumn: Story = {
         'Toggle functionality to promote/demote org admin status (if permitted)',
       ],
       implementation: [
+        '✅ CAN IMPLEMENT NOW - V1 API returns is_org_admin field',
         'Add "Org admin" column to the users table',
         'Display is_org_admin status from user data',
-        'Implement toggle functionality if admin has permission',
-        'Handle API call to update org admin status',
+        'Toggle would need appropriate permissions check',
       ],
       relatedFiles: ['src/features/access-management/users-and-user-groups/users/components/UsersTable.tsx'],
     }),
@@ -477,9 +493,10 @@ export const UserDrawerAssignedRolesData: Story = {
         'Question circle icon should have popover explaining the tab',
       ],
       implementation: [
-        'Fetch role assignments with user group and workspace data',
-        'Display actual user group names instead of "?"',
-        'Display actual workspace names instead of "?"',
+        '✅ CAN IMPLEMENT NOW - Use V2 API /api/rbac/v2/role-bindings/?subject_type=principal&subject_id=...',
+        'Fetch role bindings for the user and join with workspace data',
+        'Display actual user group names from the binding data',
+        'Display actual workspace names from the binding data',
       ],
       relatedFiles: ['src/features/access-management/users-and-user-groups/users/components/UserDetailsDrawer.tsx'],
     }),
@@ -595,10 +612,10 @@ export const RemoveUserFromGroupModal: Story = {
         'Success notification after removal',
       ],
       implementation: [
+        '✅ CAN IMPLEMENT NOW - Use V1 API DELETE /api/rbac/v1/groups/{id}/principals/',
         'Add "Remove from user group" bulk action button',
         'Create RemoveUserFromGroupModal component',
         'Show affected users and groups in modal',
-        'Implement removal API call',
         'Handle success/error notifications',
       ],
       relatedFiles: ['src/features/access-management/users-and-user-groups/users/Users.tsx', 'Create new: RemoveUserFromGroupModal.tsx'],
@@ -731,9 +748,9 @@ export const UserGroupsServiceAccountsColumn: Story = {
         'Count should update when service accounts are added/removed',
       ],
       implementation: [
-        'Fetch service account count for each group',
-        'Display count in Service accounts column',
-        'Consider linking to filtered service accounts view',
+        '⚠️ BLOCKED: Need service account count per group',
+        'V1 groups API does not return service_account_count',
+        'Option: Query /service-accounts/?group_id=X (N+1 queries) or request backend aggregation',
       ],
       relatedFiles: ['src/features/access-management/users-and-user-groups/user-groups/UserGroups.tsx'],
     }),
@@ -790,9 +807,9 @@ export const UserGroupsWorkspacesColumn: Story = {
         'Count should update when workspace assignments change',
       ],
       implementation: [
-        'Fetch workspace assignment count for each group',
+        '✅ CAN IMPLEMENT NOW - Use V2 API /api/rbac/v2/role-bindings/?subject_type=group&subject_id=...',
+        'Aggregate distinct workspace IDs from role bindings for each group',
         'Display count in Workspaces column',
-        'Consider linking to filtered workspaces view',
       ],
       relatedFiles: ['src/features/access-management/users-and-user-groups/user-groups/UserGroups.tsx'],
     }),
@@ -852,7 +869,11 @@ export const UserGroupsUsersCountColumn: Story = {
         'Example: "Developers" group has 12 users → displays "12"',
         'Count should update when users are added/removed',
       ],
-      implementation: ['Ensure `principalCount` is displayed in the Users column', 'Format count appropriately'],
+      implementation: [
+        '✅ CAN IMPLEMENT NOW - V1 API returns principalCount in groups response',
+        'Ensure principalCount is displayed in the Users column',
+        'Format count appropriately',
+      ],
       relatedFiles: ['src/features/access-management/users-and-user-groups/user-groups/UserGroups.tsx'],
     }),
   ],
@@ -950,7 +971,12 @@ export const UserGroupsDrawerEditButton: Story = {
         'Clicking "Edit group" should open the edit modal',
         'Button should be visible for users with edit permissions',
       ],
-      implementation: ['Add "Edit group" button to drawer header', 'Wire up button to open edit modal', 'Show/hide based on user permissions'],
+      implementation: [
+        '✅ CAN IMPLEMENT NOW - UI change only',
+        'Add "Edit group" button to drawer header',
+        'Wire up button to open edit modal (uses V1 API PUT /groups/{id}/)',
+        'Show/hide based on user permissions',
+      ],
       relatedFiles: ['src/features/access-management/users-and-user-groups/user-groups/components/GroupDetailsDrawer.tsx'],
     }),
   ],
@@ -1249,5 +1275,58 @@ export const NavigateFromSidebar: Story = {
     // Verify tabs are present
     const usersTab = await canvas.findByRole('tab', { name: /users/i });
     expect(usersTab).toBeInTheDocument();
+  },
+};
+
+// =============================================================================
+// V2 API GAPS
+// =============================================================================
+
+/**
+ * GAP: V2 API for Service Account Assignment
+ *
+ * NOTE: Service account assignment is now implemented using a guessed V1-style API.
+ * This story documents the need to migrate to the actual V2 API when available.
+ *
+ * Current implementation uses: POST /api/rbac/v1/groups/:uuid/service-accounts/
+ * The actual V2 API may differ in endpoint path and request/response format.
+ */
+export const ServiceAccountV2ApiGap: Story = {
+  name: '⚠️ GAP: V2 API for service account assignment',
+  tags: ['test-skip', 'gap:v2-api'],
+  args: {
+    initialRoute: '/iam/access-management/users-and-user-groups/user-groups/create',
+  },
+  decorators: [
+    withFeatureGap({
+      title: 'V2 API for Service Account Assignment',
+      designRef: 'Create user group/Frame 192.png',
+      designImage: '/mocks/Create user group/Frame 192.png',
+      currentState:
+        'Service account assignment is implemented using a guessed V1-style API (POST /api/rbac/v1/groups/:uuid/service-accounts/). The actual V2 API endpoint and format may differ.',
+      expectedBehavior: [
+        'User can select service accounts in the "Service Accounts" tab during group creation',
+        'Selected service accounts are assigned to the group upon creation',
+        'Assigned service accounts appear in the group drawer after creation',
+      ],
+      implementation: [
+        'When V2 API is available, update useAddServiceAccountsToGroupMutation in groups.ts',
+        'Update API endpoint and request/response format to match V2 specification',
+        'Verify existing tests still pass with V2 API',
+      ],
+      relatedFiles: [
+        'src/features/access-management/users-and-user-groups/user-groups/edit-user-group/EditUserGroup.tsx',
+        'src/data/queries/groups.ts',
+        'src/user-journeys/access-management/CreateUserGroup.stories.tsx',
+      ],
+    }),
+  ],
+  play: async (context) => {
+    await resetStoryState();
+    const canvas = within(context.canvasElement);
+
+    // This story documents the V2 API gap
+    // The actual functionality is tested in CreateUserGroup.stories.tsx
+    await expect(canvas.findByRole('heading', { name: /create user group/i })).resolves.toBeInTheDocument();
   },
 };

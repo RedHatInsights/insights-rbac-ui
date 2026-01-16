@@ -1,0 +1,293 @@
+---
+type: auto_attached
+description: "Checklist and guidelines for implementing user journey Storybook tests with play functions, API spying, and visual verification."
+patterns:
+  - "**/user-journeys/**/*.stories.tsx"
+  - "**/user-journeys/**/*.stories.ts"
+tags:
+  - storybook
+  - testing
+  - user-journeys
+---
+
+# User Journey Storybook Test Guidelines
+
+## Overview
+
+User journey stories test complete user workflows from start to finish. They must verify:
+- API calls are made with correct data
+- Success/error notifications are displayed
+- UI state reflects the changes
+- Test isolation is maintained between runs
+
+## Checklist for Implementing/Modifying User Journeys
+
+### 1. Test Setup
+
+- [ ] **Import required testing utilities**
+  ```typescript
+  import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+  ```
+
+- [ ] **Define API spies for all mutations**
+  ```typescript
+  const createGroupSpy = fn();
+  const addMembersSpy = fn();
+  const addServiceAccountsSpy = fn();
+  ```
+
+- [ ] **Set up mutable state for test isolation**
+  ```typescript
+  const createdGroups: CreatedGroup[] = [];
+  const groupMembers: Record<string, string[]> = {};
+  
+  const resetState = () => {
+    createdGroups.length = 0;
+    for (const key of Object.keys(groupMembers)) {
+      delete groupMembers[key];
+    }
+  };
+  ```
+
+- [ ] **Clear spies and reset state at the start of each play function**
+  ```typescript
+  play: async (context) => {
+    await resetStoryState();
+    resetState();
+    createGroupSpy.mockClear();
+    addMembersSpy.mockClear();
+  ```
+
+### 2. MSW Handler Setup
+
+- [ ] **Create spy handlers that capture API calls**
+  ```typescript
+  const createGroupSpyHandler = http.post('/api/rbac/v1/groups/', async ({ request }) => {
+    const body = await request.json();
+    createGroupSpy(body); // Capture the call
+    
+    // Update mutable state
+    const newGroup = { uuid: `group-new-${Date.now()}`, ...body };
+    createdGroups.push(newGroup);
+    
+    return HttpResponse.json(newGroup, { status: 201 });
+  });
+  ```
+
+- [ ] **Place spy handlers BEFORE default handlers in msw.handlers array**
+  ```typescript
+  msw: {
+    handlers: [
+      // Spy handlers FIRST to intercept before defaultHandlers
+      createGroupSpyHandler,
+      addMembersHandler,
+      ...defaultHandlers.filter(/* exclude replaced handlers */),
+    ],
+  }
+  ```
+
+- [ ] **Handle query parameters in GET handlers (e.g., principalType)**
+  ```typescript
+  const groupMembersHandler = http.get('/api/rbac/v1/groups/:uuid/principals/', async ({ request, params }) => {
+    const url = new URL(request.url);
+    const principalType = url.searchParams.get('principal_type');
+    
+    if (principalType === 'service-account') {
+      // Return service accounts
+    }
+    // Return users
+  });
+  ```
+
+### 3. API Call Verification
+
+- [ ] **Verify spy was called**
+  ```typescript
+  expect(createGroupSpy).toHaveBeenCalled();
+  ```
+
+- [ ] **Verify spy was called with correct data**
+  ```typescript
+  expect(addMembersSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      groupId: expect.any(String),
+      principals: expect.arrayContaining([
+        expect.objectContaining({ username: 'adumble' }),
+        expect.objectContaining({ username: 'bbunny' }),
+      ]),
+    }),
+  );
+  ```
+
+### 4. Notification Verification
+
+- [ ] **Import waitFor for async verification**
+- [ ] **Access notifications at document.body level (not canvas)**
+  ```typescript
+  const body = within(document.body);
+  ```
+
+- [ ] **Verify success notifications with correct text**
+  ```typescript
+  await waitFor(
+    async () => {
+      const notification = body.getByText(/success adding members to group/i);
+      await expect(notification).toBeInTheDocument();
+    },
+    { timeout: 5000 },
+  );
+  ```
+
+- [ ] **Verify distinct notifications for each action**
+  - Group created notification
+  - Members added notification
+  - Service accounts added notification
+  - etc.
+
+### 5. UI State Verification
+
+- [ ] **Verify data appears in tables**
+  ```typescript
+  await expect(drawerScope.findByText('adumble')).resolves.toBeInTheDocument();
+  ```
+
+- [ ] **Navigate between tabs to verify all data**
+  ```typescript
+  const usersTab = await drawerScope.findByRole('tab', { name: /^users$/i });
+  await user.click(usersTab);
+  await delay(500);
+  // Verify users
+  
+  const serviceAccountsTab = await drawerScope.findByRole('tab', { name: /service accounts/i });
+  await user.click(serviceAccountsTab);
+  await delay(500);
+  // Verify service accounts
+  ```
+
+- [ ] **Open drawers to verify detailed data**
+  ```typescript
+  await openGroupDrawer(canvas, user, testGroupName);
+  const drawerScope = getDrawerScope(context.canvasElement);
+  ```
+
+### 6. Use Shared Helpers
+
+- [ ] **Import from shared helpers**
+  ```typescript
+  import {
+    getUserGroupsTable,
+    findGroupRow,
+    openGroupDrawer,
+    getDrawerScope,
+    verifyUserGroupsTabSelected,
+  } from './_shared';
+  ```
+
+- [ ] **Don't duplicate selector logic - add to tableHelpers.ts if needed**
+
+- [ ] **Define explicit interfaces for MSW request/response bodies**
+  ```typescript
+  const body = (await request.json()) as { principals: Array<{ username: string }> };
+  ```
+
+### 7. Test Isolation
+
+- [ ] **Use unique identifiers to avoid conflicts with previous runs**
+  ```typescript
+  const testGroupName = `Test Group ${Date.now()}`;
+  ```
+
+- [ ] **Mutate existing objects instead of reassigning (closure issues)**
+  ```typescript
+  // BAD - handlers capture closure over original empty object
+  const resetState = () => {
+    groupMembers = {};
+  };
+  
+  // GOOD - mutate existing object
+  const resetState = () => {
+    for (const key of Object.keys(groupMembers)) {
+      delete groupMembers[key];
+    }
+  };
+  ```
+
+### 8. Messages and Localization
+
+- [ ] **Use distinct message keys for different actions**
+  ```typescript
+  // Members
+  messages.addGroupMembersSuccessTitle
+  messages.addGroupMemberSuccessTitle
+  
+  // Service accounts
+  messages.addGroupServiceAccountsSuccessTitle
+  messages.addGroupServiceAccountSuccessTitle
+  ```
+
+- [ ] **Add new messages to all localization files**
+  - `src/Messages.js`
+  - `src/locales/translations.json`
+  - `src/locales/data.json`
+
+## Example Complete Play Function Structure
+
+```typescript
+play: async (context) => {
+  // 1. SETUP
+  await resetStoryState();
+  resetCreatedGroups();
+  createGroupSpy.mockClear();
+  addMembersSpy.mockClear();
+  addServiceAccountsSpy.mockClear();
+
+  const canvas = within(context.canvasElement);
+  const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  const testGroupName = `Test Group ${Date.now()}`;
+
+  // 2. PERFORM ACTIONS
+  await clickCreateButton(canvas, user);
+  await fillForm(canvas, user, testGroupName);
+  await selectUsers(canvas, user, ['adumble', 'bbunny']);
+  await selectServiceAccounts(canvas, user, ['pipeline-client-001']);
+  await submitForm(canvas, user);
+
+  // 3. VERIFY API CALLS
+  expect(createGroupSpy).toHaveBeenCalled();
+  expect(addMembersSpy).toHaveBeenCalledWith(expect.objectContaining({
+    principals: expect.arrayContaining([
+      expect.objectContaining({ username: 'adumble' }),
+    ]),
+  }));
+  expect(addServiceAccountsSpy).toHaveBeenCalled();
+
+  // 4. VERIFY NOTIFICATIONS
+  const body = within(document.body);
+  await waitFor(async () => {
+    const notification = body.getByText(/success adding members to group/i);
+    await expect(notification).toBeInTheDocument();
+  }, { timeout: 5000 });
+
+  // 5. VERIFY UI STATE
+  await openGroupDrawer(canvas, user, testGroupName);
+  const drawerScope = getDrawerScope(context.canvasElement);
+  
+  // Verify users tab
+  await user.click(await drawerScope.findByRole('tab', { name: /^users$/i }));
+  await expect(drawerScope.findByText('adumble')).resolves.toBeInTheDocument();
+  
+  // Verify service accounts tab
+  await user.click(await drawerScope.findByRole('tab', { name: /service accounts/i }));
+  await expect(drawerScope.findByText('CI/CD Pipeline')).resolves.toBeInTheDocument();
+},
+```
+
+## Quick Reference
+
+| What to Verify | How to Verify |
+|----------------|---------------|
+| API called | `expect(spy).toHaveBeenCalled()` |
+| API params | `expect(spy).toHaveBeenCalledWith(expect.objectContaining({...}))` |
+| Notification shown | `within(document.body).getByText(/message/i)` |
+| Data in table | `await expect(scope.findByText('value')).resolves.toBeInTheDocument()` |
+| Tab navigation | `await user.click(await scope.findByRole('tab', { name: /tab name/i }))` |

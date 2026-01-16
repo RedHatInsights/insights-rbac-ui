@@ -5,7 +5,7 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 
 import { UserGroups } from './UserGroups';
-import { Group } from '../../../../redux/groups/reducer';
+import type { Group } from '../../../../data/queries/groups';
 
 // Mock group data
 const mockGroups: Group[] = [

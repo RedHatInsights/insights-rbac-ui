@@ -1,10 +1,12 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { DataViewEventsProvider, useDataViewSelection } from '@patternfly/react-data-view';
+import { DataViewEventsProvider } from '@patternfly/react-data-view';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { UserGroupsTable } from './UserGroupsTable';
-import { Group } from '../../../../../redux/groups/reducer';
+import { useTableState } from '../../../../../components/table-view/hooks/useTableState';
+import type { Group } from '../../../../../data/queries/groups';
+import { type SortableColumnId, columns as userGroupsColumns } from './useUserGroupsTableConfig';
 
 // Mock group data for testing
 const createMockGroup = (id: string): Group => ({
@@ -59,6 +61,21 @@ const mockGroups: Group[] = [
   },
 ];
 
+// Wrapper component that provides tableState hook
+const UserGroupsTableWithState: React.FC<Omit<React.ComponentProps<typeof UserGroupsTable>, 'tableState'>> = (props) => {
+  const tableState = useTableState<typeof userGroupsColumns, Group, SortableColumnId>({
+    columns: userGroupsColumns,
+    sortableColumns: ['name', 'principalCount', 'modified'] as const,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: 20,
+    initialFilters: { name: '' },
+    getRowId: (group) => group.uuid,
+    syncWithUrl: false,
+  });
+
+  return <UserGroupsTable {...props} tableState={tableState} />;
+};
+
 // Default args for all stories
 const defaultArgs = {
   groups: mockGroups,
@@ -67,33 +84,15 @@ const defaultArgs = {
   defaultPerPage: 20,
   enableActions: true,
   ouiaId: 'test-user-groups-table',
-  // DataView selection object
-  selection: {
-    selected: [], // Default empty selection
-    onSelect: fn(),
-  },
-
-  // Data view state props (now required since table is presentational)
-  sortBy: 'name',
-  direction: 'asc' as const,
-  filters: { name: '' },
-  page: 1,
-  perPage: 20,
-  pagination: {}, // Minimal pagination object
 
   // Event handlers
   onRowClick: fn(),
   onEditGroup: fn(),
   onDeleteGroup: fn(),
-  onSort: fn(),
-  onSetFilters: fn(),
-  clearAllFilters: fn(),
-  onSetPage: fn(),
-  onPerPageSelect: fn(),
 };
 
-const meta: Meta<typeof UserGroupsTable> = {
-  component: UserGroupsTable,
+const meta: Meta<typeof UserGroupsTableWithState> = {
+  component: UserGroupsTableWithState,
   tags: ['autodocs'],
   decorators: [
     (Story) => (
@@ -346,14 +345,6 @@ export const DeleteGroupAction: Story = {
 
 // Bulk selection
 export const BulkSelection: Story = {
-  render: (args) => {
-    // Use the real DataView selection hook like the containers do
-    const selection = useDataViewSelection({
-      matchOption: (a: any, b: any) => a.row[0] === b.row[0],
-    });
-
-    return <UserGroupsTable {...args} selection={selection} />;
-  },
   parameters: {
     docs: {
       description: {
@@ -572,9 +563,9 @@ export const ActionsToolbar: Story = {
     const paginationElements = canvas.getAllByRole('navigation', { name: /pagination/i });
     await expect(paginationElements.length).toBeGreaterThanOrEqual(1);
 
-    // Test filter functionality
+    // Test filter functionality - type in filter and verify it accepts input
     await userEvent.type(filterInput, 'Admin');
-    await expect(defaultArgs.onSetFilters).toHaveBeenCalled();
+    await expect(filterInput).toHaveValue('Admin');
 
     // Test that all action elements are properly positioned
     // The UserGroupsTable uses DataViewToolbar which may not have role="toolbar"
@@ -588,7 +579,6 @@ export const ActionsToolbar: Story = {
 // Filter functionality test with clear filters
 export const FilterUserGroups: Story = {
   args: {
-    ...defaultArgs,
     groups: [
       { ...createMockGroup('1'), name: 'Admin Group', description: 'Administrators' },
       { ...createMockGroup('2'), name: 'Developer Group', description: 'Developers' },
@@ -602,10 +592,9 @@ export const FilterUserGroups: Story = {
 **Filter Functionality Test**: Validates that user group filtering works correctly and that the "Clear filters" button functions properly.
 
 This story tests:
-1. Filter input updates trigger onSetFilters callback
-2. Filter input retains typed value
-3. "Clear filters" button appears and works correctly
-4. clearAllFilters callback is invoked when clicking "Clear filters"
+1. Filter input accepts and retains typed value
+2. "Clear filters" button appears and works correctly
+3. Filter clears when "Clear filters" is clicked
 
 Perfect for testing filter state management and ensuring the clear filters button works as expected.
         `,
@@ -620,26 +609,19 @@ Perfect for testing filter state management and ensuring the clear filters butto
     await canvas.findByText('Developer Group');
     await canvas.findByText('Viewer Group');
 
-    // Clear any previous calls to the mock
-    defaultArgs.onSetFilters.mockClear();
-    defaultArgs.clearAllFilters.mockClear();
-
     // TEST FILTER INPUT
     const filterInput = canvas.getByPlaceholderText(/filter by name/i);
     await userEvent.type(filterInput, 'Admin');
 
-    // Verify onSetFilters was called
-    await waitFor(() => expect(defaultArgs.onSetFilters).toHaveBeenCalled());
-
     // Verify filter input has the value
-    expect(filterInput).toHaveValue('Admin');
+    await expect(filterInput).toHaveValue('Admin');
 
     // TEST CLEAR FILTERS
     // Find and click "Clear filters" button (there may be two toolbars, use the first one)
     const clearButtons = await canvas.findAllByText('Clear filters');
     await userEvent.click(clearButtons[0]);
 
-    // Verify clearAllFilters was called
-    await waitFor(() => expect(defaultArgs.clearAllFilters).toHaveBeenCalled());
+    // Verify filter was cleared
+    await waitFor(() => expect(filterInput).toHaveValue(''));
   },
 };

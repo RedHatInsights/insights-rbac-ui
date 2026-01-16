@@ -18,7 +18,7 @@ import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import {} from '@patternfly/react-core';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import messages from '../../../Messages';
-import { User } from '../../../redux/users/reducer';
+import { type User } from '../../../data/queries/users';
 
 // Re-export removed due to module resolution issues
 // The User type is imported above and available within this module

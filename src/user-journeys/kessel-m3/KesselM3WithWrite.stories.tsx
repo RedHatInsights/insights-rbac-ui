@@ -16,7 +16,7 @@ import { delay } from 'msw';
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Feature Development/Workspaces (Kessel)/Kessel M3: RBAC Detail Pages/With Write Permission',
+  title: 'User Journeys/Management Fabric/Workspaces (Kessel)/Kessel M3: RBAC Detail Pages/With Write Permission',
   tags: ['kessel-m3-write'],
   decorators: [
     (Story: any, context: any) => {
