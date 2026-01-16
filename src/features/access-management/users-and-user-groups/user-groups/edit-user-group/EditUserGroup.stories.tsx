@@ -418,6 +418,26 @@ This story demonstrates:
           ]);
         }),
 
+        // Add members to new group
+        http.post('/api/rbac/v1/groups/:uuid/principals/', async ({ params, request }) => {
+          const body = (await request.json()) as { principals: Array<{ username: string }> };
+          console.log(`SB: MSW: Adding ${body.principals.length} members to group ${params.uuid}`);
+          return HttpResponse.json({
+            data: body.principals,
+            meta: { count: body.principals.length },
+          });
+        }),
+
+        // Add service accounts to new group
+        http.post('/api/rbac/v1/groups/:uuid/service-accounts/', async ({ params, request }) => {
+          const body = (await request.json()) as { service_accounts: Array<{ clientID: string }> };
+          console.log(`SB: MSW: Adding ${body.service_accounts.length} service accounts to group ${params.uuid}`);
+          return HttpResponse.json({
+            data: body.service_accounts,
+            meta: { count: body.service_accounts.length },
+          });
+        }),
+
         // Group principals API for checking existing group members (empty for new groups)
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request, params }) => {
           const url = new URL(request.url);
@@ -604,6 +624,23 @@ export const LoadingState: Story = {
               createdAt: Math.floor(Date.now() / 1000),
             },
           ]);
+        }),
+
+        // Group members handlers for loading state
+        http.get('/api/rbac/v1/groups/:uuid/principals/', async () => {
+          await delay('infinite');
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
+        }),
+
+        http.post('/api/rbac/v1/groups/:uuid/principals/', async () => {
+          await delay('infinite');
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
+        }),
+
+        // Service accounts POST handler for loading state
+        http.post('/api/rbac/v1/groups/:uuid/service-accounts/', async () => {
+          await delay('infinite');
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
         }),
       ],
     },

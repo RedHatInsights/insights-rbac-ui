@@ -378,3 +378,149 @@ export const verifyAddMembersApiCall = (
 export const verifyNoApiCalls = (spy: ReturnType<typeof import('storybook/test').fn>): void => {
   expect(spy).not.toHaveBeenCalled();
 };
+
+// =============================================================================
+// ROLES TABLE HELPERS
+// =============================================================================
+
+/**
+ * Gets the Roles table element
+ */
+export const getRolesTable = async (canvas: Canvas): Promise<HTMLElement> => {
+  return canvas.findByRole('grid', { name: /roles/i });
+};
+
+/**
+ * Finds a role row by name and returns the row element
+ */
+export const findRoleRow = async (canvas: Canvas, roleName: string): Promise<HTMLTableRowElement> => {
+  const table = await getRolesTable(canvas);
+  const tableScope = within(table);
+  const roleText = await tableScope.findByText(roleName);
+  const row = roleText.closest('tr');
+  expect(row).not.toBeNull();
+  return row as HTMLTableRowElement;
+};
+
+/**
+ * Clicks on a role row to open the role details drawer
+ */
+export const openRoleDrawer = async (canvas: Canvas, user: UserEvent, roleName: string): Promise<void> => {
+  const row = await findRoleRow(canvas, roleName);
+  await user.click(row);
+};
+
+/**
+ * Opens the kebab menu for a role row
+ */
+export const openRoleKebabMenu = async (canvas: Canvas, user: UserEvent, roleName: string): Promise<void> => {
+  const row = await findRoleRow(canvas, roleName);
+  const kebab = within(row).getByRole('button', { name: /actions/i });
+  await user.click(kebab);
+};
+
+/**
+ * Verifies a role exists in the table
+ */
+export const verifyRoleExists = async (canvas: Canvas, roleName: string): Promise<void> => {
+  const table = await getRolesTable(canvas);
+  const tableScope = within(table);
+  await expect(tableScope.findByText(roleName)).resolves.toBeInTheDocument();
+};
+
+/**
+ * Verifies a role does NOT exist in the table
+ */
+export const verifyRoleNotExists = async (canvas: Canvas, roleName: string): Promise<void> => {
+  const table = await getRolesTable(canvas);
+  const tableScope = within(table);
+  expect(tableScope.queryByText(roleName)).not.toBeInTheDocument();
+};
+
+/**
+ * Verifies a delete role API call was made with expected role ID
+ */
+export const verifyDeleteRoleApiCall = (spy: ReturnType<typeof import('storybook/test').fn>, expectedRoleId: string): void => {
+  expect(spy).toHaveBeenCalledWith(expectedRoleId);
+};
+
+// =============================================================================
+// MODAL HELPERS
+// =============================================================================
+
+/**
+ * Gets the modal dialog element
+ */
+export const getModal = (): HTMLElement => {
+  const modal = document.querySelector('[role="dialog"]') as HTMLElement;
+  expect(modal).not.toBeNull();
+  return modal;
+};
+
+/**
+ * Gets the modal scope for queries within the modal
+ */
+export const getModalScope = (): Canvas => {
+  const modal = getModal();
+  return within(modal);
+};
+
+/**
+ * Waits for a modal to appear
+ */
+export const waitForModal = async (timeout = 5000): Promise<Canvas> => {
+  const startTime = Date.now();
+  while (Date.now() - startTime < timeout) {
+    const modal = document.querySelector('[role="dialog"]') as HTMLElement;
+    if (modal) {
+      return within(modal);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  throw new Error('Modal did not appear within timeout');
+};
+
+/**
+ * Clicks the confirmation checkbox in a modal
+ */
+export const clickModalCheckbox = async (user: UserEvent): Promise<void> => {
+  const modalScope = getModalScope();
+  const checkbox = await modalScope.findByRole('checkbox');
+  await user.click(checkbox);
+};
+
+/**
+ * Clicks the delete button in a modal
+ */
+export const clickModalDeleteButton = async (user: UserEvent): Promise<void> => {
+  const modalScope = getModalScope();
+  const deleteButton = await modalScope.findByRole('button', { name: /delete/i });
+  await user.click(deleteButton);
+};
+
+/**
+ * Clicks the cancel button in a modal
+ */
+export const clickModalCancelButton = async (user: UserEvent): Promise<void> => {
+  const modalScope = getModalScope();
+  const cancelButton = await modalScope.findByRole('button', { name: /cancel/i });
+  await user.click(cancelButton);
+};
+
+/**
+ * Verifies the delete button is disabled
+ */
+export const verifyDeleteButtonDisabled = async (): Promise<void> => {
+  const modalScope = getModalScope();
+  const deleteButton = await modalScope.findByRole('button', { name: /delete/i });
+  expect(deleteButton).toBeDisabled();
+};
+
+/**
+ * Verifies the delete button is enabled
+ */
+export const verifyDeleteButtonEnabled = async (): Promise<void> => {
+  const modalScope = getModalScope();
+  const deleteButton = await modalScope.findByRole('button', { name: /delete/i });
+  expect(deleteButton).not.toBeDisabled();
+};

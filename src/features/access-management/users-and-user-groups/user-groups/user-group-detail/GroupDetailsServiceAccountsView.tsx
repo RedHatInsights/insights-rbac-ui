@@ -6,7 +6,7 @@ import ServiceIcon from '@patternfly/react-icons/dist/js/icons/service-icon';
 import { useIntl } from 'react-intl';
 import React, { useMemo } from 'react';
 import messages from '../../../../../Messages';
-import { useGroupServiceAccountsQuery } from '../../../../../data/queries/groups';
+import { type ServiceAccount, useGroupServiceAccountsQuery } from '../../../../../data/queries/groups';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
 import { TableView, useTableState } from '../../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
@@ -57,8 +57,8 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
   // Use React Query instead of Redux
   const { data, isLoading, error } = useGroupServiceAccountsQuery(groupId);
 
-  // Extract service accounts from response
-  const serviceAccounts = (data as any)?.data?.serviceAccounts || (data as any)?.data || [];
+  // Extract service accounts from typed response
+  const serviceAccounts: ServiceAccount[] = data?.data ?? [];
 
   // Show error state
   if (error) {
@@ -77,7 +77,7 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
     </EmptyState>
   );
 
-  const serviceAccountData: ServiceAccountData[] = serviceAccounts.map((account: any) => ({
+  const serviceAccountData: ServiceAccountData[] = serviceAccounts.map((account) => ({
     uuid: account.uuid || account.clientId,
     name: account.name || account.clientId,
     clientId: account.clientId,

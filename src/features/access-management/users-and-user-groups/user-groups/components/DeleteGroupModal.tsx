@@ -27,6 +27,7 @@ export const DeleteGroupModal: React.FC<DeleteGroupModalProps> = ({ isOpen, grou
     <WarningModal
       ouiaId={ouiaId}
       isOpen={isOpen}
+      withCheckbox
       title={intl.formatMessage(isMultiple ? messages.deleteUserGroupModalTitle : messages.deleteUserGroupModalTitle, { count: groups.length })}
       confirmButtonLabel={intl.formatMessage(messages.delete)}
       confirmButtonVariant={ButtonVariant.danger}

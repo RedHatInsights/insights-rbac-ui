@@ -65,7 +65,7 @@ const mockGroups: Group[] = [
 const UserGroupsTableWithState: React.FC<Omit<React.ComponentProps<typeof UserGroupsTable>, 'tableState'>> = (props) => {
   const tableState = useTableState<typeof userGroupsColumns, Group, SortableColumnId>({
     columns: userGroupsColumns,
-    sortableColumns: ['name', 'principalCount', 'modified'] as const,
+    sortableColumns: ['name', 'modified'] as const,
     initialSort: { column: 'name', direction: 'asc' },
     initialPerPage: 20,
     initialFilters: { name: '' },

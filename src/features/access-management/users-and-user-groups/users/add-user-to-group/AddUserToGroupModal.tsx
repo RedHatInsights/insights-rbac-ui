@@ -21,7 +21,7 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
   // Use useTableState for all table state management including selection (no URL sync for modals)
   const tableState = useTableState<typeof userGroupsColumns, Group, SortableColumnId>({
     columns: userGroupsColumns,
-    sortableColumns: ['name', 'principalCount', 'modified'] as const,
+    sortableColumns: ['name', 'modified'] as const,
     initialSort: { column: 'name', direction: 'asc' },
     initialPerPage: 10,
     initialFilters: { name: '' },
@@ -46,9 +46,9 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
   // Use React Query mutation for adding members
   const addMembersMutation = useAddMembersToGroupMutation();
 
-  // Extract groups from response
-  const groups: Group[] = (data as any)?.data || [];
-  const totalCount = (data as any)?.meta?.count || 0;
+  // Extract groups from typed response
+  const groups: Group[] = data?.data ?? [];
+  const totalCount = data?.meta?.count ?? 0;
 
   const handleCloseModal = () => {
     setIsOpen(false);

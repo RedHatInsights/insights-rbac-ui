@@ -7,8 +7,8 @@ export interface FeatureGap {
   designRef?: string;
   /** Design image URL or import path */
   designImage?: string;
-  /** Current state description */
-  currentState: string;
+  /** Current state description - supports JSX for rich formatting */
+  currentState: React.ReactNode;
   /** Expected behavior per design */
   expectedBehavior: string | string[];
   /** Implementation steps required */
@@ -226,7 +226,7 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
 
             <div style={sectionStyle}>
               <div style={labelStyle}>📍 Current State</div>
-              <p style={{ margin: 0 }}>{gap.currentState}</p>
+              <div style={{ margin: 0 }}>{gap.currentState}</div>
             </div>
 
             <div style={sectionStyle}>

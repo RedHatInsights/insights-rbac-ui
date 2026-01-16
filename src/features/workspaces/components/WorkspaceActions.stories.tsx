@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceActions } from './WorkspaceActions';
@@ -24,7 +24,7 @@ const mockSubWorkspace: Workspace = {
 };
 
 // Story decorator to provide necessary context
-const withProviders = (Story: any) => {
+const withProviders = (Story: StoryFn) => {
   return (
     <BrowserRouter>
       <IntlProvider locale="en" messages={{}}>

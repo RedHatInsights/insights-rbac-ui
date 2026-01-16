@@ -5,7 +5,7 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
-import { useGroupsQuery } from '../../../../../data/queries/groups';
+import { type Group, useGroupsQuery } from '../../../../../data/queries/groups';
 import messages from '../../../../../Messages';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
 import { TableView, useTableState } from '../../../../../components/table-view';
@@ -38,7 +38,7 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
   const cellRenderers: CellRendererMap<typeof columns, GroupData> = useMemo(
     () => ({
       name: (group) => group.name,
-      users: (group) => group.principalCount ?? '?',
+      users: (group) => group.principalCount ?? 0,
     }),
     [],
   );
@@ -59,8 +59,8 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
     username: userId, // Filter to only groups this user belongs to
   });
 
-  // Extract groups from response
-  const groups = (data as any)?.data || [];
+  // Extract groups from typed response
+  const groups: Group[] = data?.data ?? [];
 
   // Show error state
   if (error) {
@@ -79,7 +79,7 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
     </EmptyState>
   );
 
-  const groupData: GroupData[] = groups.map((group: any) => ({
+  const groupData: GroupData[] = groups.map((group) => ({
     uuid: group.uuid,
     name: group.name,
     principalCount: group.principalCount,

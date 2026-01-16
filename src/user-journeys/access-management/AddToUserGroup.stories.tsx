@@ -13,7 +13,7 @@
 
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { resetStoryState } from '../_shared/helpers';
@@ -155,28 +155,44 @@ async function verifyUserGroupMembership(
     // Wait for the table to render first
     await canvas.findByRole('grid', { name: /users table/i });
 
-    // Find the username text and click it - the click will bubble up to trigger row click
+    // Find the username text and click on its parent table cell to trigger the row click handler
     const userText = await canvas.findByText(username);
-    await user.click(userText);
+    const userCell = userText.closest('td');
+    if (userCell) {
+      await user.click(userCell);
+    } else {
+      await user.click(userText);
+    }
     await delay(800); // Give more time for drawer to open
   }
 
-  // Find the drawer panel specifically (not hidden)
-  const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel-main, .pf-v6-c-drawer__panel:not([hidden])');
-  expect(drawerPanel).toBeInTheDocument();
-  const drawerScope = within(drawerPanel as HTMLElement);
+  // Wait for the drawer panel to appear (not hidden)
+  await waitFor(
+    () => {
+      const panel = document.querySelector('.pf-v6-c-drawer__panel-main, .pf-v6-c-drawer__panel:not([hidden])');
+      expect(panel).toBeInTheDocument();
+    },
+    { timeout: 5000 },
+  );
+  const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel-main, .pf-v6-c-drawer__panel:not([hidden])') as HTMLElement;
+  const drawerScope = within(drawerPanel);
 
   // Click on User groups tab if not already selected - look for the tab within the drawer
   const userGroupsTab = await drawerScope.findByRole('tab', { name: /user groups/i });
   await user.click(userGroupsTab);
   await delay(500);
 
+  // Find the active tab panel to scope our queries
+  // This avoids finding duplicate text in other tabs (e.g., "Admin group" in Roles tab's User Group column)
+  const tabPanel = drawerPanel.querySelector('[role="tabpanel"]:not([hidden])');
+  const tabPanelScope = tabPanel ? within(tabPanel as HTMLElement) : drawerScope;
+
   // Verify each expected group
   for (const group of expectedGroups) {
     if (group.shouldBePresent) {
-      await expect(drawerScope.findByText(group.name)).resolves.toBeInTheDocument();
+      await expect(tabPanelScope.findByText(group.name)).resolves.toBeInTheDocument();
     } else {
-      expect(drawerScope.queryByText(group.name)).not.toBeInTheDocument();
+      expect(tabPanelScope.queryByText(group.name)).not.toBeInTheDocument();
     }
   }
 
@@ -227,10 +243,14 @@ const meta = {
 Tests the workflow for adding users to user groups with full visual verification.
 
 ## Design Reference
-- \`static/mocks/Add to user group/Frame 111.png\` - Users selected
-- \`static/mocks/Add to user group/Frame 179.png\` - Modal opened
-- \`static/mocks/Add to user group/Frame 180.png\` - Group selected
-- \`static/mocks/Add to user group/Frame 185.png\` - Success state
+
+| Users selected | Modal opened |
+|:---:|:---:|
+| [![Users selected](/mocks/Add%20to%20user%20group/Frame%20111.png)](/mocks/Add%20to%20user%20group/Frame%20111.png) | [![Modal opened](/mocks/Add%20to%20user%20group/Frame%20179.png)](/mocks/Add%20to%20user%20group/Frame%20179.png) |
+
+| Group selected | Success state |
+|:---:|:---:|
+| [![Group selected](/mocks/Add%20to%20user%20group/Frame%20180.png)](/mocks/Add%20to%20user%20group/Frame%20180.png) | [![Success state](/mocks/Add%20to%20user%20group/Frame%20185.png)](/mocks/Add%20to%20user%20group/Frame%20185.png) |
 
 ## Test Approach
 1. **Pre-condition verification**: Visually verify users are NOT in target group
@@ -549,8 +569,10 @@ Verifies that canceling the modal:
     // =========================================================================
     expect(addMembersToGroupSpy).not.toHaveBeenCalled();
 
-    // User should still NOT be in the group
-    await verifyUserGroupMembership(user, canvas, 'adumble', [{ name: 'Powerpuff girls', shouldBePresent: false }]);
+    // User should still NOT be in the group (drawer is already open from pre-condition check)
+    await verifyUserGroupMembership(user, canvas, 'adumble', [{ name: 'Powerpuff girls', shouldBePresent: false }], {
+      openDrawer: false,
+    });
   },
 };
 
@@ -631,12 +653,18 @@ Verifies:
     });
 
     // =========================================================================
-    // POST-CONDITION: User in both groups
+    // POST-CONDITION: User in both groups (drawer is already open from pre-condition check)
     // =========================================================================
     await delay(500);
-    await verifyUserGroupMembership(user, canvas, 'adumble', [
-      { name: 'Powerpuff girls', shouldBePresent: true },
-      { name: 'Golden girls', shouldBePresent: true },
-    ]);
+    await verifyUserGroupMembership(
+      user,
+      canvas,
+      'adumble',
+      [
+        { name: 'Powerpuff girls', shouldBePresent: true },
+        { name: 'Golden girls', shouldBePresent: true },
+      ],
+      { openDrawer: false },
+    );
   },
 };

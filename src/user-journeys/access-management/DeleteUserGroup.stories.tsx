@@ -12,14 +12,72 @@
 
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { resetStoryState } from '../_shared/helpers';
-import { defaultHandlers } from './_shared';
+import { defaultHandlers, findGroupRow, getUserGroupsTable } from './_shared';
+import { mockGroups } from './_shared/mockData';
 
-// Spy for tracking API calls
+// =============================================================================
+// API SPIES
+// =============================================================================
+
 const deleteGroupSpy = fn();
+const listGroupsSpy = fn();
+
+// =============================================================================
+// MUTABLE STATE FOR TEST ISOLATION
+// =============================================================================
+
+// Track deleted groups to update the list
+const deletedGroupIds: Set<string> = new Set();
+
+const resetDeletedGroups = () => {
+  deletedGroupIds.clear();
+};
+
+// =============================================================================
+// MSW HANDLERS
+// =============================================================================
+
+// Spy handler for deleting a group
+const deleteGroupHandler = http.delete('/api/rbac/v1/groups/:uuid/', async ({ params }) => {
+  const uuid = params.uuid as string;
+  deleteGroupSpy(uuid);
+  deletedGroupIds.add(uuid);
+  await delay(200);
+  return new HttpResponse(null, { status: 204 });
+});
+
+// Override list groups to exclude deleted groups
+const listGroupsHandler = http.get('/api/rbac/v1/groups/', async ({ request }) => {
+  listGroupsSpy();
+  await delay(200);
+  const url = new URL(request.url);
+  const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+  const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+  const nameFilter = url.searchParams.get('name');
+
+  // Filter out deleted groups
+  let filteredGroups = mockGroups.filter((g) => !deletedGroupIds.has(g.uuid));
+
+  // Apply name filter
+  if (nameFilter) {
+    filteredGroups = filteredGroups.filter((g) => g.name.toLowerCase().includes(nameFilter.toLowerCase()));
+  }
+
+  const paginatedGroups = filteredGroups.slice(offset, offset + limit);
+
+  return HttpResponse.json({
+    data: paginatedGroups,
+    meta: {
+      count: filteredGroups.length,
+      limit,
+      offset,
+    },
+  });
+});
 
 const meta = {
   component: KesselAppEntryWithRouter,
@@ -27,6 +85,9 @@ const meta = {
   tags: ['access-management', 'user-groups', 'modal', 'destructive'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
+      // Reset deleted groups BEFORE story renders to ensure clean state
+      resetDeletedGroups();
+
       const dynamicEnv = createDynamicEnvironment(context.args);
       context.parameters = { ...context.parameters, ...dynamicEnv };
       const argsKey = JSON.stringify(context.args);
@@ -48,12 +109,11 @@ const meta = {
     }),
     msw: {
       handlers: [
-        ...defaultHandlers,
-        // Add spy handler for deleting group
-        http.delete('/api/rbac/v1/groups/:uuid/', async ({ params }) => {
-          deleteGroupSpy(params.uuid);
-          return new HttpResponse(null, { status: 204 });
-        }),
+        // Spy handlers FIRST to intercept before defaultHandlers
+        deleteGroupHandler,
+        listGroupsHandler,
+        // Default handlers (excluding the ones we're overriding)
+        ...defaultHandlers.filter((h) => !h.info?.path?.toString().includes('/groups/')),
       ],
     },
     docs: {
@@ -64,10 +124,14 @@ const meta = {
 Tests the workflow for deleting a user group.
 
 ## Design Reference
-- \`static/mocks/Delete user group/Frame 120.png\` - Kebab menu
-- \`static/mocks/Delete user group/Frame 121.png\` - Delete confirmation modal
-- \`static/mocks/Delete user group/Frame 122.png\` - Checkbox confirmation
-- \`static/mocks/Delete user group/Frame 123.png\` - Deleting state
+
+| Kebab menu | Delete confirmation modal |
+|:---:|:---:|
+| [![Kebab menu](/mocks/Delete%20user%20group/Frame%20120.png)](/mocks/Delete%20user%20group/Frame%20120.png) | [![Delete confirmation modal](/mocks/Delete%20user%20group/Frame%20121.png)](/mocks/Delete%20user%20group/Frame%20121.png) |
+
+| Checkbox confirmation | Deleting state |
+|:---:|:---:|
+| [![Checkbox confirmation](/mocks/Delete%20user%20group/Frame%20122.png)](/mocks/Delete%20user%20group/Frame%20122.png) | [![Deleting state](/mocks/Delete%20user%20group/Frame%20123.png)](/mocks/Delete%20user%20group/Frame%20123.png) |
 
 ## Features
 | Feature | Status | API |
@@ -88,6 +152,52 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+/**
+ * Opens the kebab menu for a specific group and clicks delete
+ */
+const openDeleteModalForGroup = async (
+  canvas: ReturnType<typeof within>,
+  user: ReturnType<typeof userEvent.setup>,
+  groupName: string,
+): Promise<void> => {
+  // Find the group row
+  const row = await findGroupRow(canvas, groupName);
+  const rowScope = within(row);
+
+  // Click kebab menu
+  const kebabButton = await rowScope.findByLabelText(/actions/i);
+  await user.click(kebabButton);
+  await delay(200);
+
+  // Click "Delete user group"
+  const deleteOption = await within(document.body).findByText(/Delete user group/i);
+  await user.click(deleteOption);
+  await delay(300);
+};
+
+/**
+ * Verifies the confirmation modal is displayed with correct content
+ */
+const verifyDeleteModal = async (groupName: string): Promise<ReturnType<typeof within>> => {
+  const modal = await within(document.body).findByRole('dialog');
+  expect(modal).toBeInTheDocument();
+  const modalScope = within(modal);
+
+  // Verify modal content shows group info
+  await expect(modalScope.findByText(/delete.*user group/i)).resolves.toBeInTheDocument();
+  await expect(modalScope.findByText(groupName)).resolves.toBeInTheDocument();
+
+  return modalScope;
+};
+
+// =============================================================================
+// STORIES
+// =============================================================================
+
 /**
  * Complete delete flow
  *
@@ -102,13 +212,15 @@ export const CompleteFlow: Story = {
         story: `
 Tests the complete "Delete user group" workflow:
 
-1. Click kebab menu on a group
-2. Select "Delete user group"
-3. Confirmation modal appears
-4. Check the acknowledgment checkbox
-5. Click Delete button
-6. Group is deleted
-7. Table refreshes
+1. Verify group exists in the table
+2. Click kebab menu on a group
+3. Select "Delete user group"
+4. Confirmation modal appears
+5. Check the acknowledgment checkbox
+6. Click Delete button
+7. Verify API was called with correct group ID
+8. Verify success notification
+9. Verify group is removed from table
 
 **Design references:**
 - Frame 120: Kebab menu
@@ -120,53 +232,88 @@ Tests the complete "Delete user group" workflow:
     },
   },
   play: async (context) => {
+    // ==========================================================================
+    // SETUP
+    // ==========================================================================
     await resetStoryState();
+    resetDeletedGroups();
     deleteGroupSpy.mockClear();
+    listGroupsSpy.mockClear();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    const targetGroup = 'Golden girls';
+    const targetGroupId = 'group-golden-girls';
 
-    // Wait for data to load
+    // ==========================================================================
+    // PRE-CONDITION: Verify group exists
+    // ==========================================================================
     await delay(500);
+    const table = await getUserGroupsTable(canvas);
+    await expect(within(table).findByText(targetGroup)).resolves.toBeInTheDocument();
 
-    // Step 1: Verify groups are displayed
-    await expect(canvas.findByText('Golden girls')).resolves.toBeInTheDocument();
+    // ==========================================================================
+    // ACTION: Open delete modal and confirm deletion
+    // ==========================================================================
 
-    // Step 2: Find and click kebab menu for Golden girls
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
-    await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(200);
+    // Step 1: Open kebab menu and click delete
+    await openDeleteModalForGroup(canvas, user, targetGroup);
 
-    // Step 3: Click "Delete user group"
-    const deleteOption = await within(document.body).findByText(/Delete user group/i);
-    await user.click(deleteOption);
-    await delay(300);
+    // Step 2: Verify modal appears with correct content
+    const modalScope = await verifyDeleteModal(targetGroup);
 
-    // Step 4: Verify confirmation modal appears
-    const modal = await within(document.body).findByRole('dialog');
-    expect(modal).toBeInTheDocument();
-    const modalScope = within(modal);
+    // Step 3: Delete button should be disabled until checkbox is checked
+    const deleteButton = await modalScope.findByRole('button', { name: /delete/i });
+    expect(deleteButton).toBeDisabled();
 
-    // Verify modal content shows group info
-    await expect(modalScope.findByText(/delete.*user group/i)).resolves.toBeInTheDocument();
-    await expect(modalScope.findByText(/Golden girls/i)).resolves.toBeInTheDocument();
-
-    // Step 5: Check acknowledgment checkbox
+    // Step 4: Check the acknowledgment checkbox
     const checkbox = await modalScope.findByRole('checkbox');
     await user.click(checkbox);
     await delay(200);
 
-    // Step 6: Click Delete button
-    const deleteButton = await modalScope.findByRole('button', { name: /delete/i });
+    // Step 5: Delete button should now be enabled
     expect(deleteButton).not.toBeDisabled();
+
+    // Step 6: Click Delete button
     await user.click(deleteButton);
     await delay(500);
 
-    // Step 7: Verify API was called
-    expect(deleteGroupSpy).toHaveBeenCalledWith('group-golden-girls');
+    // ==========================================================================
+    // API CALL VERIFICATION
+    // ==========================================================================
+    expect(deleteGroupSpy).toHaveBeenCalled();
+    expect(deleteGroupSpy).toHaveBeenCalledWith(targetGroupId);
+
+    // ==========================================================================
+    // NOTIFICATION VERIFICATION
+    // ==========================================================================
+    const body = within(document.body);
+    await waitFor(
+      async () => {
+        const notification = body.getByText(/group deleted successfully/i);
+        await expect(notification).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // ==========================================================================
+    // UI STATE VERIFICATION
+    // ==========================================================================
 
     // Modal should close
     expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
+
+    // List should refresh - spy should be called again
+    expect(listGroupsSpy).toHaveBeenCalled();
+
+    // Group should no longer be in the table
+    await waitFor(
+      async () => {
+        const tableAfter = await getUserGroupsTable(canvas);
+        expect(within(tableAfter).queryByText(targetGroup)).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   },
 };
 
@@ -194,38 +341,45 @@ Tests canceling the delete confirmation modal.
     },
   },
   play: async (context) => {
+    // ==========================================================================
+    // SETUP
+    // ==========================================================================
     await resetStoryState();
+    resetDeletedGroups();
     deleteGroupSpy.mockClear();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    const targetGroup = 'Golden girls';
 
-    // Wait for data to load
+    // ==========================================================================
+    // PRE-CONDITION: Verify group exists
+    // ==========================================================================
     await delay(500);
+    await expect(canvas.findByText(targetGroup)).resolves.toBeInTheDocument();
 
-    // Open kebab menu and click delete
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
-    await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(200);
+    // ==========================================================================
+    // ACTION: Open modal and cancel
+    // ==========================================================================
+    await openDeleteModalForGroup(canvas, user, targetGroup);
 
-    const deleteOption = await within(document.body).findByText(/Delete user group/i);
-    await user.click(deleteOption);
-    await delay(300);
-
-    // Click Cancel
     const modal = await within(document.body).findByRole('dialog');
     const cancelButton = await within(modal).findByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
     await delay(300);
 
-    // Verify modal is closed
+    // ==========================================================================
+    // VERIFICATION
+    // ==========================================================================
+
+    // Modal should be closed
     expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
 
-    // Verify no API call was made
+    // No API call should be made
     expect(deleteGroupSpy).not.toHaveBeenCalled();
 
-    // Verify group still exists
-    await expect(canvas.findByText('Golden girls')).resolves.toBeInTheDocument();
+    // Group should still exist
+    await expect(canvas.findByText(targetGroup)).resolves.toBeInTheDocument();
   },
 };
 
@@ -252,37 +406,41 @@ Tests that the delete button requires checkbox acknowledgment.
     },
   },
   play: async (context) => {
+    // ==========================================================================
+    // SETUP
+    // ==========================================================================
     await resetStoryState();
+    resetDeletedGroups();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    const targetGroup = 'Golden girls';
 
-    // Wait for data to load
     await delay(500);
 
-    // Open delete modal
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
-    await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(200);
+    // ==========================================================================
+    // ACTION: Open delete modal
+    // ==========================================================================
+    await openDeleteModalForGroup(canvas, user, targetGroup);
 
-    const deleteOption = await within(document.body).findByText(/Delete user group/i);
-    await user.click(deleteOption);
-    await delay(300);
+    const modalScope = await verifyDeleteModal(targetGroup);
 
-    // Verify modal is open
-    const modal = await within(document.body).findByRole('dialog');
-    const modalScope = within(modal);
-
-    // Delete button should be disabled initially
+    // ==========================================================================
+    // VERIFICATION: Delete button disabled initially
+    // ==========================================================================
     const deleteButton = await modalScope.findByRole('button', { name: /delete/i });
     expect(deleteButton).toBeDisabled();
 
-    // Check the checkbox
+    // ==========================================================================
+    // ACTION: Check the checkbox
+    // ==========================================================================
     const checkbox = await modalScope.findByRole('checkbox');
     await user.click(checkbox);
     await delay(200);
 
-    // Delete button should now be enabled
+    // ==========================================================================
+    // VERIFICATION: Delete button now enabled
+    // ==========================================================================
     expect(deleteButton).not.toBeDisabled();
   },
 };
@@ -310,34 +468,40 @@ Tests closing the delete modal with the X button.
     },
   },
   play: async (context) => {
+    // ==========================================================================
+    // SETUP
+    // ==========================================================================
     await resetStoryState();
+    resetDeletedGroups();
     deleteGroupSpy.mockClear();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    const targetGroup = 'Golden girls';
 
-    // Wait for data to load
     await delay(500);
 
-    // Open delete modal
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
-    await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(200);
+    // ==========================================================================
+    // ACTION: Open modal and close with X
+    // ==========================================================================
+    await openDeleteModalForGroup(canvas, user, targetGroup);
 
-    const deleteOption = await within(document.body).findByText(/Delete user group/i);
-    await user.click(deleteOption);
-    await delay(300);
-
-    // Click X button
     const modal = await within(document.body).findByRole('dialog');
     const closeButton = await within(modal).findByLabelText(/close/i);
     await user.click(closeButton);
     await delay(300);
 
-    // Verify modal is closed
+    // ==========================================================================
+    // VERIFICATION
+    // ==========================================================================
+
+    // Modal should be closed
     expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
 
-    // Verify no API call
+    // No API call
     expect(deleteGroupSpy).not.toHaveBeenCalled();
+
+    // Group should still exist
+    await expect(canvas.findByText(targetGroup)).resolves.toBeInTheDocument();
   },
 };

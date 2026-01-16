@@ -45,8 +45,8 @@ export const RemoveUserFromGroupModal: React.FunctionComponent<RemoveUserFromGro
   // Use React Query mutation for removing members
   const removeMembersMutation = useRemoveMembersFromGroupMutation();
 
-  // Extract groups from response
-  const allGroups: Group[] = (data as any)?.data || [];
+  // Extract groups from typed response
+  const allGroups: Group[] = data?.data ?? [];
 
   // Filter groups that contain any of the selected users
   // Note: This is a simplified version - in production, you'd want to

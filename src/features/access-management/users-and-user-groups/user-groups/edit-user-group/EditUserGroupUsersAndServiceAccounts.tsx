@@ -75,10 +75,10 @@ export const EditGroupUsersAndServiceAccounts: React.FunctionComponent<ExtendedU
         </Tabs>
 
         {/* Always render both components but show/hide based on active tab */}
-        <div style={{ display: activeTabKey === 0 ? 'block' : 'none' }}>
+        <div className="pf-v6-u-pt-md" style={{ display: activeTabKey === 0 ? 'block' : 'none' }}>
           <EditGroupUsersTable groupId={groupId} onChange={handleUserChange} initialUserIds={initialUsers} />
         </div>
-        <div style={{ display: activeTabKey === 1 ? 'block' : 'none' }}>
+        <div className="pf-v6-u-pt-md" style={{ display: activeTabKey === 1 ? 'block' : 'none' }}>
           <EditGroupServiceAccountsTable groupId={groupId} onChange={handleServiceAccountsChange} initialServiceAccountIds={initialServiceAccounts} />
         </div>
       </FormGroup>

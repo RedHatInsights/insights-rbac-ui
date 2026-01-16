@@ -118,9 +118,41 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     setIsDeleteModalOpen(true);
   }, []);
 
-  // Bulk status change handler
-  const handleBulkStatusChange = useCallback((users: User[]) => {
-    setSelectedUsers(users);
+  // Bulk activate handler
+  const handleBulkActivate = useCallback(
+    async (usersToActivate: User[]) => {
+      try {
+        await changeUserStatusMutation.mutateAsync({
+          users: usersToActivate.map((user) => ({
+            ...user,
+            id: user.external_source_id,
+            is_active: true,
+          })),
+          config: { isProd: isProd() || false, token, accountId },
+          itless: isITLess,
+        });
+        addNotification({
+          variant: 'success',
+          title: intl.formatMessage(messages.editUserSuccessTitle),
+          dismissable: true,
+          description: intl.formatMessage(messages.editUserSuccessDescription),
+        });
+      } catch (error) {
+        console.error('Failed to activate users:', error);
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.editUserErrorTitle),
+          dismissable: true,
+          description: intl.formatMessage(messages.editUserErrorDescription),
+        });
+      }
+    },
+    [changeUserStatusMutation, isProd, token, accountId, intl, isITLess, addNotification],
+  );
+
+  // Bulk deactivate handler (opens confirmation modal)
+  const handleBulkDeactivate = useCallback((usersToDeactivate: User[]) => {
+    setSelectedUsers(usersToDeactivate);
     setIsStatusModalOpen(true);
   }, []);
 
@@ -174,13 +206,35 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     }
   }, [currentUser]);
 
-  const handleBulkDeactivate = useCallback(() => {
-    selectedUsers.forEach((user) => {
-      handleToggleUserStatus(user, false);
-    });
+  const handleConfirmBulkDeactivate = useCallback(async () => {
+    try {
+      await changeUserStatusMutation.mutateAsync({
+        users: selectedUsers.map((user) => ({
+          ...user,
+          id: user.external_source_id,
+          is_active: false,
+        })),
+        config: { isProd: isProd() || false, token, accountId },
+        itless: isITLess,
+      });
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.editUserSuccessTitle),
+        dismissable: true,
+        description: intl.formatMessage(messages.editUserSuccessDescription),
+      });
+    } catch (error) {
+      console.error('Failed to deactivate users:', error);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.editUserErrorTitle),
+        dismissable: true,
+        description: intl.formatMessage(messages.editUserErrorDescription),
+      });
+    }
     setIsStatusModalOpen(false);
     setSelectedUsers([]);
-  }, [selectedUsers, handleToggleUserStatus]);
+  }, [selectedUsers, changeUserStatusMutation, isProd, token, accountId, intl, isITLess, addNotification]);
 
   // Render modals
   const deleteModal = (
@@ -204,7 +258,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
         setIsStatusModalOpen(false);
         setSelectedUsers([]);
       }}
-      onConfirm={handleBulkDeactivate}
+      onConfirm={handleConfirmBulkDeactivate}
       ouiaId={`${ouiaId}-deactivate-status-modal`}
     />
   );
@@ -230,13 +284,14 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
               isProd={isProd() || false}
               defaultPerPage={defaultPerPage}
               ouiaId={ouiaId}
-              onAddUserClick={handleOpenAddUserToGroupModal}
-              onRemoveUserFromGroupClick={handleOpenRemoveUserFromGroupModal}
+              onAddUserToGroup={handleOpenAddUserToGroupModal}
+              onRemoveUserFromGroup={handleOpenRemoveUserFromGroupModal}
               onInviteUsersClick={handleInviteUsers}
               onToggleUserStatus={handleToggleUserStatus}
               onToggleOrgAdmin={handleToggleOrgAdmin}
               onDeleteUser={handleDeleteUser}
-              onBulkStatusChange={() => handleBulkStatusChange(selectedUsers)}
+              onBulkActivate={handleBulkActivate}
+              onBulkDeactivate={handleBulkDeactivate}
               onRowClick={handleRowClick}
               // Table state props - managed by useTableState via useUsers hook
               tableState={tableState}

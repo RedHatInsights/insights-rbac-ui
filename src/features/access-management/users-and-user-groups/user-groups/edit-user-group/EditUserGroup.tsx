@@ -19,6 +19,7 @@ import {
   useGroupServiceAccountsQuery,
   useGroupsQuery,
   useRemoveMembersFromGroupMutation,
+  useRemoveServiceAccountsFromGroupMutation,
   useUpdateGroupMutation,
 } from '../../../../../data/queries/groups';
 
@@ -30,6 +31,19 @@ import useAppNavigate from '../../../../../hooks/useAppNavigate';
 
 interface EditUserGroupProps {
   createNewGroup?: boolean;
+}
+
+/**
+ * Form values interface for the Edit User Group form.
+ * Defines the shape of values passed to the submit handler.
+ */
+interface EditUserGroupFormValues {
+  name: string;
+  description?: string;
+  'users-and-service-accounts'?: {
+    users: { initial: string[]; updated: string[] };
+    serviceAccounts: { initial: string[]; updated: string[] };
+  };
 }
 
 export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ createNewGroup }) => {
@@ -64,14 +78,13 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   const addMembersMutation = useAddMembersToGroupMutation();
   const removeMembersMutation = useRemoveMembersFromGroupMutation();
   const addServiceAccountsMutation = useAddServiceAccountsToGroupMutation();
+  const removeServiceAccountsMutation = useRemoveServiceAccountsFromGroupMutation();
 
-  // Extract data from query responses
-  const allGroups: Group[] = (allGroupsData as any)?.data || [];
-  const group = groupData as any;
-  const groupUsers = ((membersData as any)?.data || []) as Array<{ username: string }>;
-  const groupServiceAccounts = ((serviceAccountsData as any)?.data?.serviceAccounts || (serviceAccountsData as any)?.data || []) as Array<{
-    clientId?: string;
-  }>;
+  // Extract data from typed query responses
+  const allGroups: Group[] = allGroupsData?.data ?? [];
+  const group = groupData;
+  const groupUsers = membersData?.members ?? [];
+  const groupServiceAccounts = serviceAccountsData?.data ?? [];
 
   const isLoading = isGroupsLoading || (groupId && !createNewGroup && (isGroupLoading || isMembersLoading || isServiceAccountsLoading));
 
@@ -96,7 +109,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         name: group.name,
         description: group.description,
         users: groupUsers.map((user) => user.username),
-        serviceAccounts: groupServiceAccounts.map((sa) => sa.clientId).filter((clientId): clientId is string => Boolean(clientId)),
+        serviceAccounts: groupServiceAccounts.map((sa) => sa.clientId).filter(Boolean),
       };
 
       // Only update if the data actually changed
@@ -178,14 +191,14 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     navigate(pathnames['user-groups'].link);
   }, [navigate]);
 
-  const handleSubmit = async (values: Record<string, any>) => {
+  const handleSubmit = async (values: EditUserGroupFormValues) => {
     try {
       let targetGroupId = groupId;
 
       if (createNewGroup) {
         // Create the group first and get the new group's UUID
         const newGroup = await createGroupMutation.mutateAsync({ name: values.name, description: values.description });
-        targetGroupId = (newGroup as any)?.uuid;
+        targetGroupId = newGroup?.uuid;
         addNotification({
           variant: 'success',
           title: 'Group created successfully',
@@ -239,10 +252,13 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
           });
         }
 
-        // TODO: Remove service accounts when V2 API is available
+        // Remove service accounts from the group
+        // GAP: Using guessed V1-style API - DELETE /api/rbac/v1/groups/:uuid/service-accounts/
         if (removedServiceAccounts.length > 0) {
-          console.log('Service accounts to remove:', removedServiceAccounts);
-          // GAP: Service account removal API is not yet implemented
+          await removeServiceAccountsMutation.mutateAsync({
+            groupId: targetGroupId,
+            serviceAccounts: removedServiceAccounts,
+          });
         }
       }
 

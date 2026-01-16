@@ -15,6 +15,7 @@ import React from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
 import { resetStoryState } from '../_shared/helpers';
 import { defaultHandlers } from './_shared';
 
@@ -54,10 +55,14 @@ const meta = {
 Tests the Users tab in the Users and User Groups page.
 
 ## Design Reference
-- \`static/mocks/Users tab/Frame 99.png\` - Users table
-- \`static/mocks/Users tab/Frame 108.png\` - User details drawer
-- \`static/mocks/Users tab/Frame 109.png\` - Assigned roles tab
-- \`static/mocks/Users tab/Frame 199.png\` - User selected state
+
+| Users table | User details drawer |
+|:---:|:---:|
+| [![Users table](/mocks/Users%20tab/Frame%2099.png)](/mocks/Users%20tab/Frame%2099.png) | [![User details drawer](/mocks/Users%20tab/Frame%20108.png)](/mocks/Users%20tab/Frame%20108.png) |
+
+| Assigned roles tab | User selected state |
+|:---:|:---:|
+| [![Assigned roles tab](/mocks/Users%20tab/Frame%20109.png)](/mocks/Users%20tab/Frame%20109.png) | [![User selected state](/mocks/Users%20tab/Frame%20199.png)](/mocks/Users%20tab/Frame%20199.png) |
 
 ## Features
 | Feature | Status | API |
@@ -128,9 +133,9 @@ Tests the default Users table view matching \`static/mocks/Users tab/Frame 99.pn
     await expect(canvas.findByText('Albus')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('Dumbledore')).resolves.toBeInTheDocument();
 
-    // Verify status column shows
-    const activeStatuses = await canvas.findAllByText('Active');
-    expect(activeStatuses.length).toBeGreaterThan(0);
+    // Verify status column shows (rendered as Switch components)
+    const statusSwitches = await canvas.findAllByRole('switch', { name: /toggle status/i });
+    expect(statusSwitches.length).toBeGreaterThan(0);
   },
 };
 
@@ -185,12 +190,15 @@ Tests the user details drawer matching \`static/mocks/Users tab/Frame 108.png\`.
     await expect(drawerScope.findByText(/Betty White/i)).resolves.toBeInTheDocument();
     await expect(drawerScope.findByText(/bwhite@redhat.com/i)).resolves.toBeInTheDocument();
 
-    // Verify tabs are present
-    await expect(drawerScope.findByText(/User groups/i)).resolves.toBeInTheDocument();
-    await expect(drawerScope.findByText(/Assigned roles/i)).resolves.toBeInTheDocument();
+    // Verify tabs are present (use role selector to avoid matching text elsewhere)
+    await expect(drawerScope.findByRole('tab', { name: /User groups/i })).resolves.toBeInTheDocument();
+    await expect(drawerScope.findByRole('tab', { name: /Assigned roles/i })).resolves.toBeInTheDocument();
 
     // Verify User groups tab content (Betty is in Default group and Golden girls)
-    await expect(drawerScope.findByText(/Golden girls/i)).resolves.toBeInTheDocument();
+    // Golden girls appears in both user groups tab and may appear in roles tab (userGroup column)
+    // so we use getAllByText and verify at least one
+    const goldenGirlsCells = await drawerScope.findAllByText(/Golden girls/i);
+    expect(goldenGirlsCells.length).toBeGreaterThanOrEqual(1);
   },
 };
 
@@ -200,19 +208,78 @@ Tests the user details drawer matching \`static/mocks/Users tab/Frame 108.png\`.
  * Tests the Assigned roles tab in the user details drawer
  */
 export const UserDetailsAssignedRoles: Story = {
-  name: 'User Details - Assigned Roles Tab',
-  tags: ['gap:v2-api'],
+  name: '⚠️ [V2 GAP] User Details - Assigned Roles Tab',
+  tags: ['gap:guessed-v2-api'],
+  decorators: [
+    withFeatureGap({
+      title: 'User Assigned Roles - Guessed V2 API',
+      currentState: (
+        <>
+          <p style={{ margin: '0 0 8px 0' }}>
+            <strong>Guessed Endpoint:</strong>
+          </p>
+          <code
+            style={{
+              display: 'block',
+              background: 'rgba(0,0,0,0.08)',
+              padding: '4px 8px',
+              borderRadius: '3px',
+              fontSize: '11px',
+              marginBottom: '8px',
+            }}
+          >
+            GET /api/rbac/v1/roles/?username=:username
+          </code>
+          <p style={{ margin: '8px 0 4px 0' }}>
+            <strong>Expected Response (with V2 role binding data):</strong>
+          </p>
+          <pre
+            style={{
+              background: 'rgba(0,0,0,0.08)',
+              padding: '8px',
+              borderRadius: '3px',
+              fontSize: '10px',
+              margin: '0 0 8px 0',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {`{
+  "data": [{
+    "uuid": "role-uuid-1",
+    "name": "Organization Administrator",
+    "display_name": "Organization Administrator",
+    "userGroup": "Default user access",
+    "userGroupId": "group-uuid-1",
+    "workspace": "Root workspace",
+    "workspaceId": "ws-root-123"
+  }],
+  "meta": { "count": 1 }
+}`}
+          </pre>
+          <p style={{ margin: '8px 0 0 0', fontStyle: 'italic', fontSize: '11px' }}>
+            Gap: The <code>userGroup</code>, <code>userGroupId</code>, <code>workspace</code>, and <code>workspaceId</code> fields are guessed
+            additions.
+          </p>
+        </>
+      ),
+      expectedBehavior: [
+        'User Group column shows which group grants the role to this user',
+        'Workspace column shows which workspace the role applies to',
+        'V2 API should provide role binding context per user',
+      ],
+    }),
+  ],
   parameters: {
     docs: {
       description: {
         story: `
-Tests the Assigned roles tab matching \`static/mocks/Users tab/Frame 109.png\`.
+Tests the Assigned roles tab in the user details drawer.
 
-**GAP:** The V2 API is needed to show:
-- Which user group grants the role
-- Which workspace the role applies to
+Shows roles assigned to the user with:
+- User Group column (which group grants the role)
+- Workspace column (which workspace the role applies to)
 
-Currently shows "?" placeholders for these columns.
+**Note:** Using guessed V2 API mock data until real V2 APIs are available.
         `,
       },
     },
@@ -235,14 +302,14 @@ Currently shows "?" placeholders for these columns.
     expect(drawer).toBeInTheDocument();
     const drawerScope = within(drawer as HTMLElement);
 
-    // Click on Assigned roles tab
-    const rolesTab = await drawerScope.findByText(/Assigned roles/i);
+    // Click on Assigned roles tab (use role selector to avoid multiple matches)
+    const rolesTab = await drawerScope.findByRole('tab', { name: /Assigned roles/i });
     await user.click(rolesTab);
     await delay(300);
 
     // Verify roles are displayed
-    // Note: With V1 API, we see role names but not workspace/group details
-    await expect(drawerScope.findByText(/Organization Administrator|User Access Administrator|Viewer/i)).resolves.toBeInTheDocument();
+    // adumble is in group-admin which has Tenant Administrator and Workspace Administrator roles
+    await expect(drawerScope.findByText('Tenant Administrator')).resolves.toBeInTheDocument();
   },
 };
 

@@ -352,6 +352,80 @@ export const roleUserGroups: Record<string, string[]> = {
 };
 
 // =============================================================================
+// ROLE BINDINGS - V2 API GUESSED DATA (gap:guessed-v2-api)
+// Maps roles to their workspace assignments
+// This is educated guessing for V2 role bindings API
+// =============================================================================
+
+export interface RoleBinding {
+  roleId: string;
+  roleName: string;
+  groupId: string;
+  groupName: string;
+  workspaceId: string;
+  workspaceName: string;
+}
+
+// Role bindings map user groups to roles and workspaces
+// This represents: "Group X has Role Y in Workspace Z"
+export const mockRoleBindings: RoleBinding[] = [
+  // Golden Girls group bindings
+  {
+    roleId: 'role-rhel-devops',
+    roleName: 'RHEL DevOps',
+    groupId: 'group-golden-girls',
+    groupName: 'Golden girls',
+    workspaceId: 'ws-medical-imaging',
+    workspaceName: 'Medical Imaging IT',
+  },
+  {
+    roleId: 'role-rhel-inventory',
+    roleName: 'RHEL Inventory viewer',
+    groupId: 'group-golden-girls',
+    groupName: 'Golden girls',
+    workspaceId: 'ws-cardiac',
+    workspaceName: 'Cardiac MRI',
+  },
+  // Spice Girls group bindings
+  {
+    roleId: 'role-rhel-devops',
+    roleName: 'RHEL DevOps',
+    groupId: 'group-spice-girls',
+    groupName: 'Spice girls',
+    workspaceId: 'ws-dev',
+    workspaceName: 'Development',
+  },
+  // Admin group bindings
+  {
+    roleId: 'role-tenant-admin',
+    roleName: 'Tenant Administrator',
+    groupId: 'group-admin',
+    groupName: 'Admin group',
+    workspaceId: 'ws-root',
+    workspaceName: 'Root workspace',
+  },
+  {
+    roleId: 'role-workspace-admin',
+    roleName: 'Workspace Administrator',
+    groupId: 'group-admin',
+    groupName: 'Admin group',
+    workspaceId: 'ws-prod',
+    workspaceName: 'Production',
+  },
+];
+
+// Helper: Get role bindings for a specific group
+export const getRoleBindingsForGroup = (groupId: string): RoleBinding[] => {
+  return mockRoleBindings.filter((binding) => binding.groupId === groupId);
+};
+
+// Helper: Get role bindings for a specific user (via their groups)
+export const getRoleBindingsForUser = (username: string): RoleBinding[] => {
+  const userGroups = userGroupsMembership[username] || [];
+  return mockRoleBindings.filter((binding) => userGroups.includes(binding.groupId));
+};
+
+// =============================================================================
 // ROLES V1 MOCK DATA (Current API)
 // =============================================================================
 
@@ -416,5 +490,17 @@ export const mockWorkspaces = [
     name: 'Production',
     description: 'Production environment',
     parent_id: 'ws-root',
+  },
+  {
+    uuid: 'ws-medical-imaging',
+    name: 'Medical Imaging IT',
+    description: 'Medical imaging infrastructure',
+    parent_id: 'ws-root',
+  },
+  {
+    uuid: 'ws-cardiac',
+    name: 'Cardiac MRI',
+    description: 'Cardiac MRI department',
+    parent_id: 'ws-medical-imaging',
   },
 ];

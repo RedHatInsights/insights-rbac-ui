@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { delay } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { InviteUsersModal } from './InviteUsersModal';
 const fetchDataSpy = fn();
 
 // Router decorator
-const withRouter = (Story: any) => {
+const withRouter = (Story: StoryFn) => {
   return (
     <BrowserRouter>
       <Routes>

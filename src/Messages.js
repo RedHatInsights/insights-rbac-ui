@@ -620,7 +620,12 @@ export default defineMessages({
   removeGroupServiceAccountsSuccessTitle: {
     id: 'removeGroupServiceAccountsSuccessTitle',
     description: 'Removal of group service accounts success notification title',
-    defaultMessage: 'Success removing service {count, plural, one {account} other {accounts}} from the group',
+    defaultMessage: 'Success removing service accounts from the group',
+  },
+  removeGroupServiceAccountSuccessTitle: {
+    id: 'removeGroupServiceAccountSuccessTitle',
+    description: 'Removal of group service account success notification title',
+    defaultMessage: 'Success removing service account from the group',
   },
   removeGroupServiceAccountsSuccessDescription: {
     id: 'removeGroupServiceAccountsSuccessDescription',
@@ -630,7 +635,12 @@ export default defineMessages({
   removeGroupServiceAccountsErrorTitle: {
     id: 'removeGroupServiceAccountsErrorTitle',
     description: 'Removal of  group service accounts error notification title',
-    defaultMessage: 'Failed removing service {count, plural, one {account} other {accounts}} from group',
+    defaultMessage: 'Failed removing service accounts from group',
+  },
+  removeGroupServiceAccountErrorTitle: {
+    id: 'removeGroupServiceAccountErrorTitle',
+    description: 'Removal of  group service account error notification title',
+    defaultMessage: 'Failed removing service account from group',
   },
   removeGroupServiceAccountsErrorDescription: {
     id: 'removeGroupServiceAccountsErrorDescription',

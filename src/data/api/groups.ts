@@ -44,6 +44,10 @@ export type {
   Group as RbacGroup,
   GroupWithPrincipals,
   GroupWithPrincipalsAndRoles,
+  PrincipalPagination,
+  PrincipalOut,
+  GroupRolesPagination,
+  RoleOut,
 } from '@redhat-cloud-services/rbac-client/types';
 
 import type { GroupOut as GroupOutType } from '@redhat-cloud-services/rbac-client/types';

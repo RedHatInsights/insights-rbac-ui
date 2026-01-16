@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { Users } from './Users';
@@ -43,7 +43,7 @@ const mockUsers = [
 ];
 
 // Minimal decorator - only provide Router (Redux provider is global)
-const withRouter = (Story: any) => {
+const withRouter = (Story: StoryFn) => {
   return (
     <BrowserRouter>
       <div style={{ minHeight: '600px' }}>
@@ -160,13 +160,9 @@ const mockUserRoles = [
     admin_default: false,
     accessCount: 5,
     applications: ['rbac'],
-    groups_in_count: 2,
-    groups_in: ['Administrators', 'HR Team'],
-    workspace: {
-      uuid: 'workspace-1',
-      name: 'Default',
-      description: 'Default workspace',
-    },
+    // V2-style role binding data (gap:guessed-v2-api)
+    userGroup: 'Admin Team',
+    workspace: 'Default',
   },
   {
     uuid: 'role-2',
@@ -178,13 +174,9 @@ const mockUserRoles = [
     admin_default: false,
     accessCount: 2,
     applications: ['cost-management'],
-    groups_in_count: 1,
-    groups_in: ['Administrators'],
-    workspace: {
-      uuid: 'workspace-1',
-      name: 'Default',
-      description: 'Default workspace',
-    },
+    // V2-style role binding data (gap:guessed-v2-api)
+    userGroup: 'Cost Team',
+    workspace: 'Default',
   },
 ];
 
@@ -499,6 +491,10 @@ export const BulkDeactivateModalIntegration: Story = {
             meta: { count: 2, limit: 20, offset: 0 },
           });
         }),
+        // User status API for bulk activate/deactivate
+        http.post('https://api.access.redhat.com/management/account/v1/accounts/:accountId/users/:userId/status', () => {
+          return HttpResponse.json({ success: true });
+        }),
       ],
     },
   },
@@ -520,16 +516,13 @@ export const BulkDeactivateModalIntegration: Story = {
     // Wait for selection state to update
     await delay(100);
 
-    // Look for bulk status dropdown (based on the UsersTable implementation)
-    const statusDropdownButton = await canvas.findByText(/Activate users/i); // This is the toggle text from activateUsersButton message
-    await expect(statusDropdownButton).toBeInTheDocument();
-    await expect(statusDropdownButton).not.toBeDisabled();
+    // Open the Actions overflow menu first (bulk actions are inside the kebab dropdown)
+    const overflowMenu = await canvas.findByLabelText('Actions overflow menu');
+    await userEvent.click(overflowMenu);
+    await delay(100);
 
-    // Click to open the dropdown
-    await userEvent.click(statusDropdownButton);
-
-    // Look for deactivate option in the dropdown
-    const bulkDeactivateButton = await within(document.body).findByText(/Deactivate users/i); // This should match deactivateUsersButton message
+    // Look for deactivate option in the dropdown menu
+    const bulkDeactivateButton = await within(document.body).findByRole('menuitem', { name: /Deactivate users/i });
     await expect(bulkDeactivateButton).toBeInTheDocument();
 
     // Click bulk deactivate
@@ -697,16 +690,16 @@ export const UserDetailsIntegration: Story = {
     await expect(drawer.findByText('Administrators')).resolves.toBeInTheDocument();
     await expect(drawer.findByText('Developers')).resolves.toBeInTheDocument();
 
-    // Switch to Roles tab
-    const rolesTab = await drawer.findByText('Assigned roles');
+    // Switch to Roles tab (use role selector to avoid finding text in other places)
+    const rolesTab = await drawer.findByRole('tab', { name: /Assigned roles/i });
     await userEvent.click(rolesTab);
 
     // Verify Roles tab content loads
     await expect(drawer.findByText('User administrators')).resolves.toBeInTheDocument();
     await expect(drawer.findByText('Cost Management Viewer')).resolves.toBeInTheDocument();
 
-    // Switch back to Groups tab
-    const groupsTab = await drawer.findByText('User groups');
+    // Switch back to Groups tab (use role selector to avoid finding text in other places)
+    const groupsTab = await drawer.findByRole('tab', { name: /User groups/i });
     await userEvent.click(groupsTab);
 
     // Verify Groups content is still there

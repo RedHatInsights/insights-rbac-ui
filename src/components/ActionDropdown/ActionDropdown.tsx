@@ -14,6 +14,7 @@
  */
 
 import React, { useState } from 'react';
+import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
@@ -23,8 +24,8 @@ export interface ActionDropdownItem {
   key: string;
   /** Display label for the action */
   label: React.ReactNode;
-  /** Click handler for the action */
-  onClick: () => void;
+  /** Click handler for the action (not required for dividers) */
+  onClick?: () => void;
   /** Whether the action is disabled */
   isDisabled?: boolean;
   /** Optional description for the action */
@@ -33,6 +34,8 @@ export interface ActionDropdownItem {
   isDanger?: boolean;
   /** OUIA component ID for testing */
   ouiaId?: string;
+  /** Whether this is a divider (separator) */
+  isDivider?: boolean;
 }
 
 export interface ActionDropdownProps {
@@ -100,21 +103,25 @@ export const ActionDropdown: React.FC<ActionDropdownProps> = ({
       ouiaId={ouiaId}
     >
       <DropdownList>
-        {items.map((item) => (
-          <DropdownItem
-            key={item.key}
-            onClick={() => {
-              if (item.isDisabled) return;
-              item.onClick();
-            }}
-            isDisabled={item.isDisabled}
-            description={item.description}
-            isDanger={item.isDanger}
-            data-ouia-component-id={item.ouiaId}
-          >
-            {item.label}
-          </DropdownItem>
-        ))}
+        {items.map((item) =>
+          item.isDivider ? (
+            <Divider key={item.key} component="li" />
+          ) : (
+            <DropdownItem
+              key={item.key}
+              onClick={() => {
+                if (item.isDisabled) return;
+                item.onClick?.();
+              }}
+              isDisabled={item.isDisabled}
+              description={item.description}
+              isDanger={item.isDanger}
+              data-ouia-component-id={item.ouiaId}
+            >
+              {item.label}
+            </DropdownItem>
+          ),
+        )}
       </DropdownList>
     </Dropdown>
   );

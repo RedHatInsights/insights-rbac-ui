@@ -4,7 +4,7 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
-import { useRolesQuery } from '../../../../../data/queries/roles';
+import { type Role, useRolesQuery } from '../../../../../data/queries/roles';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
 import { TableView, useTableState } from '../../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
@@ -26,12 +26,8 @@ const columns = ['name', 'userGroup', 'workspace'] as const;
 /**
  * UserDetailsRolesView - Shows assigned roles for a user
  *
- * NOTE: The V2 role bindings API requires resourceId/resourceType as required params,
- * making it unsuitable for fetching all role bindings for a user across all resources.
- * Currently using V1 API with "?" placeholders for userGroup and workspace columns.
- *
- * TODO: When a proper V2 API endpoint is available that supports querying by user
- * across all resources, update this component to display actual userGroup and workspace data.
+ * Displays roles with their user group and workspace assignments.
+ * This data comes from V2-style role bindings API (gap:guessed-v2-api).
  */
 const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ userId, ouiaId }) => {
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
@@ -46,9 +42,8 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
   const cellRenderers: CellRendererMap<typeof columns, RoleData> = useMemo(
     () => ({
       name: (role) => role.name,
-      // TODO: V2 API needed to populate these columns - currently shows "?" as placeholder
-      userGroup: () => '?',
-      workspace: () => '?',
+      userGroup: (role) => role.userGroup || '—',
+      workspace: (role) => role.workspace || '—',
     }),
     [],
   );
@@ -71,8 +66,8 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     system: false,
   });
 
-  // Extract roles from response
-  const roles = (data as any)?.data || [];
+  // Extract roles from typed response
+  const roles: Role[] = data?.data ?? [];
 
   // Show error state
   if (error) {
@@ -91,9 +86,11 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     </EmptyState>
   );
 
-  const roleData: RoleData[] = roles.map((role: any) => ({
+  const roleData: RoleData[] = roles.map((role) => ({
     uuid: role.uuid,
-    name: role.name || role.display_name,
+    name: role.name ?? role.display_name ?? 'Unknown',
+    userGroup: role.userGroup,
+    workspace: role.workspace,
   }));
 
   return (

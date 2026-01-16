@@ -75,9 +75,9 @@ export const useUsers = (options: UseUsersOptions = {}): UseUsersReturn => {
     sortOrder: tableState.sort?.direction || 'asc',
   });
 
-  // Extract data from query response
-  const users = useMemo(() => (data?.data as User[]) || [], [data]);
-  const totalCount = useMemo(() => data?.meta?.count || 0, [data]);
+  // Extract data from typed query response
+  const users = useMemo(() => (data?.users ?? []) as User[], [data]);
+  const totalCount = useMemo(() => data?.totalCount ?? 0, [data]);
 
   // Permission context
   const orgAdmin = enableAdminFeatures;
