@@ -27,12 +27,8 @@ const columns = ['name', 'workspace'] as const;
 /**
  * GroupDetailsRolesView - Shows assigned roles for a user group
  *
- * NOTE: The V2 role bindings API requires resourceId/resourceType as required params,
- * making it unsuitable for fetching all role bindings for a group across all resources.
- * Currently using V1 API with "?" placeholders for workspace column.
- *
- * TODO: When a proper V2 API endpoint is available that supports querying by group
- * across all resources, update this component to display actual workspace data.
+ * Displays roles with their workspace assignments.
+ * Workspace data comes from V2-style role bindings API (gap:guessed-v2-api).
  */
 const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ groupId, ouiaId }) => {
   const intl = useIntl();
@@ -48,8 +44,7 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
   const cellRenderers: CellRendererMap<typeof columns, RoleData> = useMemo(
     () => ({
       name: (role) => role.display_name,
-      // TODO: V2 API needed to populate workspace column - currently shows "?" as placeholder
-      workspace: () => '?',
+      workspace: (role) => role.workspace || '—',
     }),
     [],
   );
@@ -62,13 +57,11 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
     syncWithUrl: false, // Drawer tables shouldn't sync with URL
   });
 
-  // Use React Query instead of Redux
+  // Use React Query - returns unwrapped, typed data
   const { data, isLoading, error } = useGroupRolesQuery(groupId, {
     limit: tableState.apiParams.limit,
   });
-
-  // Extract roles from response
-  const roles = (data as any)?.data || [];
+  const roles = data?.roles ?? [];
 
   // Show error state
   if (error) {
@@ -87,9 +80,10 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
     </EmptyState>
   );
 
-  const roleData: RoleData[] = roles.map((role: any) => ({
+  const roleData: RoleData[] = roles.map((role) => ({
     uuid: role.uuid,
-    display_name: role.display_name,
+    display_name: role.display_name ?? role.name,
+    workspace: role.workspace,
   }));
 
   return (

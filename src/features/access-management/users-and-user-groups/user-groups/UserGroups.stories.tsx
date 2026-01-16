@@ -180,8 +180,9 @@ For testing specific scenarios, see these additional stories:
               ],
               meta: { count: 2, limit: 1000, offset: 0 },
             });
-          } else if (principalType === 'user') {
-            // Regular users component
+          } else {
+            // Regular users component (includes principal_type=user or no principal_type)
+            // The drawer calls without principal_type, so we return users by default
             return HttpResponse.json({
               data: [
                 {
@@ -212,8 +213,6 @@ For testing specific scenarios, see these additional stories:
               meta: { count: 3, limit: parseInt(limit || '20'), offset: 0 },
             });
           }
-
-          return HttpResponse.json({ data: [], meta: { count: 0, limit: 20, offset: 0 } });
         }),
         // MSW handler for group roles
         http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
@@ -413,7 +412,7 @@ For testing specific scenarios, see these additional stories:
     await expect(canvas.getByRole('columnheader', { name: /name/i })).toBeInTheDocument();
     await expect(canvas.getByRole('columnheader', { name: /description/i })).toBeInTheDocument();
     await expect(canvas.getByRole('columnheader', { name: /users/i })).toBeInTheDocument();
-    await expect(canvas.getByRole('columnheader', { name: /roles/i })).toBeInTheDocument();
+    // NOTE: Roles and Workspaces columns removed per V2 API Strategy
 
     // Wait for group data to load first
     const administratorsElements = await canvas.findAllByText('Administrators');
@@ -912,7 +911,11 @@ export const DeleteModalIntegration: StoryObj<typeof meta> = {
     await expect(modalContent.findByText('Delete user group?')).resolves.toBeInTheDocument();
     await expect(modalContent.findByText('Developers')).resolves.toBeInTheDocument();
 
-    // Ensure modal is fully interactive
+    // Check the confirmation checkbox (required by withCheckbox prop)
+    const checkbox = await modalContent.findByRole('checkbox');
+    await userEvent.click(checkbox);
+
+    // Ensure delete button is now enabled
     await expect(modalContent.findByRole('button', { name: /delete/i })).resolves.toBeEnabled();
 
     // Submit the delete operation

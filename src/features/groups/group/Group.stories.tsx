@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -36,7 +36,7 @@ const mockDefaultGroupModified = {
 };
 
 // Minimal decorator - only provide Router (Redux provider is global)
-const withRouter = (Story: any) => {
+const withRouter = (Story: StoryFn) => {
   return (
     <BrowserRouter>
       <Routes>

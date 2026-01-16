@@ -1,8 +1,35 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import { type ListRolesParams, type RoleIn, type RolePatch, type RolePut, rolesApi } from '../api/roles';
+import {
+  type ListRolesParams,
+  type RoleIn,
+  type RoleOutDynamic,
+  type RolePaginationDynamic,
+  type RolePatch,
+  type RolePut,
+  rolesApi,
+} from '../api/roles';
 import messages from '../../Messages';
+
+// ============================================================================
+// Response Types
+// ============================================================================
+
+/**
+ * Roles list response type.
+ */
+export type RolesListResponse = RolePaginationDynamic;
+
+/**
+ * Single role type with optional V2 binding fields (gap:guessed-v2-api).
+ */
+export interface Role extends RoleOutDynamic {
+  userGroup?: string;
+  userGroupId?: string;
+  workspace?: string;
+  workspaceId?: string;
+}
 
 // ============================================================================
 // Query Keys Factory
@@ -23,13 +50,14 @@ export const rolesKeys = {
 /**
  * Fetch a paginated list of roles.
  * Accepts full API params for maximum flexibility.
+ * Returns typed RolesListResponse with proper data/meta structure.
  */
-export function useRolesQuery(params: ListRolesParams, options?: { enabled?: boolean }) {
+export function useRolesQuery(params: ListRolesParams, options?: { enabled?: boolean }): UseQueryResult<RolesListResponse> {
   return useQuery({
     queryKey: rolesKeys.list(params),
-    queryFn: async () => {
+    queryFn: async (): Promise<RolesListResponse> => {
       const response = await rolesApi.listRoles(params);
-      return response.data;
+      return response.data as RolesListResponse;
     },
     enabled: options?.enabled ?? true,
   });
@@ -177,6 +205,6 @@ export function usePatchRoleMutation() {
   });
 }
 
-// Re-export types
+// Re-export types (Role already defined locally, extending RoleOutDynamic)
 export type { ListRolesParams, RoleIn, RolePut, RolePatch } from '../api/roles';
-export type { RolePaginationDynamic, RoleWithAccess, Role, Access, AdditionalGroup, RoleOutDynamic, ResourceDefinition } from '../api/roles';
+export type { RolePaginationDynamic, RoleWithAccess, Access, AdditionalGroup, RoleOutDynamic, ResourceDefinition } from '../api/roles';

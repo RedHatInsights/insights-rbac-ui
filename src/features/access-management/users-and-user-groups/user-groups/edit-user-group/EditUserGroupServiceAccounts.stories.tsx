@@ -324,7 +324,7 @@ export const ServiceAccountSelection: Story = {
 export const PreSelectedServiceAccounts: Story = {
   args: {
     groupId: 'group-123',
-    initialServiceAccountIds: ['1', '2'], // webapp-service and api-gateway-service are initially in the group
+    initialServiceAccountIds: ['webapp-client', 'api-gateway-client'], // webapp-service and api-gateway-service are initially in the group (using clientId)
     onChange: fn(),
   },
   parameters: {

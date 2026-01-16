@@ -37,3 +37,4 @@ storybook-static
 .cypress-cache
 # code coverage
 .nyc_output
+PR_DESCRIPTION.md

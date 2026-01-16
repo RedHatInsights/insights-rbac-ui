@@ -1,12 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
-import { ResponsiveActions } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
-import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Split, SplitItem } from '@patternfly/react-core';
 
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, type UseTableStateReturn } from '../../../../../components/table-view';
@@ -32,13 +26,14 @@ interface UsersTableProps {
   ouiaId?: string;
 
   // Action callbacks
-  onAddUserClick: (users: User[]) => void;
-  onRemoveUserFromGroupClick?: (users: User[]) => void;
+  onAddUserToGroup: (users: User[]) => void;
+  onRemoveUserFromGroup: (users: User[]) => void;
   onInviteUsersClick: () => void;
   onToggleUserStatus: (user: User, isActive: boolean) => void;
   onToggleOrgAdmin: (user: User, isOrgAdmin: boolean) => void;
   onDeleteUser: (user: User) => void;
-  onBulkStatusChange: () => void;
+  onBulkActivate: (users: User[]) => void;
+  onBulkDeactivate: (users: User[]) => void;
   onRowClick?: (user: User | undefined) => void;
 
   // Table state from useTableState - managed by container
@@ -57,19 +52,19 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   orgAdmin,
   isProd,
   ouiaId = 'iam-users-table',
-  onAddUserClick,
-  onRemoveUserFromGroupClick,
+  onAddUserToGroup,
+  onRemoveUserFromGroup,
   onInviteUsersClick,
   onToggleUserStatus,
   onToggleOrgAdmin,
   onDeleteUser,
-  onBulkStatusChange,
+  onBulkActivate,
+  onBulkDeactivate,
   onRowClick,
   tableState,
   children,
 }) => {
   const intl = useIntl();
-  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
 
   // Table configuration from hook - columns derived from authModel internally
   const { columns, columnConfig, cellRenderers, filterConfig } = useUsersTableConfig({
@@ -99,62 +94,64 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   // Check if user can be deleted
   const isDeleteDisabled = !orgAdmin || isProd;
 
-  // Toolbar actions with bulk status dropdown
+  // Toolbar actions: "Add to user group" button + overflow kebab
   const toolbarActions = useMemo(
     () => (
       <Split hasGutter>
         <SplitItem>
-          <Dropdown
-            isOpen={isDropdownOpen}
-            onSelect={onBulkStatusChange}
-            onOpenChange={(isOpen: boolean) => setIsDropdownOpen(isOpen)}
-            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-              <MenuToggle
-                isDisabled={selectedRows.length === 0}
-                ref={toggleRef}
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                isExpanded={isDropdownOpen}
-              >
-                {intl.formatMessage(messages.activateUsersButton)}
-              </MenuToggle>
-            )}
-            ouiaId={`${ouiaId}-status-dropdown`}
-            shouldFocusToggleOnSelect
-          >
-            <DropdownList>
-              <DropdownItem>{intl.formatMessage(messages.activateUsersButton)}</DropdownItem>
-              <DropdownItem>{intl.formatMessage(messages.deactivateUsersButton)}</DropdownItem>
-            </DropdownList>
-          </Dropdown>
-        </SplitItem>
-        <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-table-actions`}>
-          <ResponsiveAction
-            isPersistent
-            onClick={() => onAddUserClick(selectedRows)}
+          <Button
             variant="primary"
             isDisabled={selectedRows.length === 0}
+            onClick={() => onAddUserToGroup(selectedRows)}
             ouiaId={`${ouiaId}-add-user-button`}
           >
             {intl.formatMessage(messages['addToUserGroup'])}
-          </ResponsiveAction>
-          {onRemoveUserFromGroupClick && (
-            <ResponsiveAction
-              isPersistent
-              onClick={() => onRemoveUserFromGroupClick(selectedRows)}
-              variant="secondary"
-              isDisabled={selectedRows.length === 0}
-              ouiaId={`${ouiaId}-remove-user-button`}
-            >
-              {intl.formatMessage(messages.removeFromUserGroup)}
-            </ResponsiveAction>
-          )}
-          <ResponsiveAction variant="primary" onClick={onInviteUsersClick}>
-            {intl.formatMessage(messages.inviteUsers)}
-          </ResponsiveAction>
-        </ResponsiveActions>
+          </Button>
+        </SplitItem>
+        <SplitItem>
+          <ActionDropdown
+            ariaLabel="Actions overflow menu"
+            ouiaId={`${ouiaId}-toolbar-overflow`}
+            items={[
+              {
+                key: 'activate',
+                label: intl.formatMessage(messages.activateUsersButton),
+                onClick: () => onBulkActivate(selectedRows),
+                isDisabled: selectedRows.length === 0,
+              },
+              {
+                key: 'deactivate',
+                label: intl.formatMessage(messages.deactivateUsersButton),
+                onClick: () => onBulkDeactivate(selectedRows),
+                isDisabled: selectedRows.length === 0,
+              },
+              {
+                key: 'divider-1',
+                label: '',
+                isDivider: true,
+              },
+              {
+                key: 'remove-from-group',
+                label: intl.formatMessage(messages.removeFromUserGroup),
+                onClick: () => onRemoveUserFromGroup(selectedRows),
+                isDisabled: selectedRows.length === 0,
+              },
+              {
+                key: 'divider-2',
+                label: '',
+                isDivider: true,
+              },
+              {
+                key: 'invite',
+                label: intl.formatMessage(messages.inviteUsers),
+                onClick: onInviteUsersClick,
+              },
+            ]}
+          />
+        </SplitItem>
       </Split>
     ),
-    [intl, isDropdownOpen, selectedRows, onBulkStatusChange, onAddUserClick, onRemoveUserFromGroupClick, onInviteUsersClick, ouiaId],
+    [intl, selectedRows, onAddUserToGroup, onRemoveUserFromGroup, onBulkActivate, onBulkDeactivate, onInviteUsersClick, ouiaId],
   );
 
   return (
@@ -183,6 +180,21 @@ export const UsersTable: React.FC<UsersTableProps> = ({
             ariaLabel={`Actions for user ${user.username}`}
             ouiaId={`${ouiaId}-${user.username}-actions`}
             items={[
+              {
+                key: 'add-to-group',
+                label: intl.formatMessage(messages['addToUserGroup']),
+                onClick: () => onAddUserToGroup([user]),
+              },
+              {
+                key: 'remove-from-group',
+                label: intl.formatMessage(messages.removeFromUserGroup),
+                onClick: () => onRemoveUserFromGroup([user]),
+              },
+              {
+                key: 'divider',
+                label: '',
+                isDivider: true,
+              },
               {
                 key: 'delete',
                 label: intl.formatMessage(messages.delete),

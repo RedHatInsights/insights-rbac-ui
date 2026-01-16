@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceList } from './WorkspaceList';
@@ -12,7 +12,7 @@ import { HttpResponse, delay, http } from 'msw';
 // Each story defines its own MSW handlers to control API responses
 
 // Minimal decorator - only provide Router (Redux provider is global)
-const withRouter = (Story: any) => {
+const withRouter = (Story: StoryFn) => {
   return (
     <BrowserRouter>
       <div style={{ minHeight: '600px' }}>

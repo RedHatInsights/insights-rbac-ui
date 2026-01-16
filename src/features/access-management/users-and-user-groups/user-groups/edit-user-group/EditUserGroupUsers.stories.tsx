@@ -94,7 +94,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     groupId: 'group-123',
-    initialUserIds: ['1'], // John is initially in the group
+    initialUserIds: ['john.doe'], // John is initially in the group (using username)
     onChange: fn(),
   },
   parameters: {
@@ -200,7 +200,7 @@ export const EmptyState: Story = {
 export const UserSelection: Story = {
   args: {
     groupId: 'group-123',
-    initialUserIds: ['1'], // John is initially selected
+    initialUserIds: ['john.doe'], // John is initially selected (using username)
     onChange: fn(),
   },
   parameters: {
@@ -262,7 +262,7 @@ export const UserSelection: Story = {
 export const PreSelectedUsers: Story = {
   args: {
     groupId: 'group-123',
-    initialUserIds: ['1', '2'], // John and Jane are initially in the group
+    initialUserIds: ['john.doe', 'jane.smith'], // John and Jane are initially in the group (using username)
     onChange: fn(),
   },
   parameters: {

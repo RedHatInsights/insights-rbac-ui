@@ -57,7 +57,7 @@ export const useUserGroups = (options: UseUserGroupsOptions = {}): UseUserGroups
   // useTableState handles ALL table state with URL synchronization
   const tableState = useTableState<typeof userGroupsColumns, Group, SortableColumnId>({
     columns: userGroupsColumns,
-    sortableColumns: ['name', 'principalCount', 'modified'] as const,
+    sortableColumns: ['name', 'modified'] as const,
     initialSort: { column: 'name', direction: 'asc' },
     initialPerPage: defaultSettings.limit,
     initialFilters: { name: '' },

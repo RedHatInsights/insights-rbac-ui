@@ -7,8 +7,9 @@ import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../..
 import type { Group } from '../../../../../data/queries/groups';
 import messages from '../../../../../Messages';
 
-export const columns = ['name', 'description', 'principalCount', 'serviceAccountCount', 'roleCount', 'workspaceCount', 'modified'] as const;
-export const sortableColumns = ['name', 'principalCount', 'modified'] as const;
+// NOTE: Per V2 API Strategy, roles and workspaces columns were REMOVED from design
+export const columns = ['name', 'description', 'principalCount', 'serviceAccountCount', 'modified'] as const;
+export const sortableColumns = ['name', 'modified'] as const;
 
 export type ColumnId = (typeof columns)[number];
 export type SortableColumnId = (typeof sortableColumns)[number];
@@ -28,10 +29,8 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
     () => ({
       name: { label: intl.formatMessage(messages.name), sortable: true },
       description: { label: intl.formatMessage(messages.description) },
-      principalCount: { label: intl.formatMessage(messages.users), sortable: true },
+      principalCount: { label: intl.formatMessage(messages.users) },
       serviceAccountCount: { label: intl.formatMessage(messages.serviceAccounts) },
-      roleCount: { label: intl.formatMessage(messages.roles) },
-      workspaceCount: { label: intl.formatMessage(messages.workspaces) },
       modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
     }),
     [intl],
@@ -43,15 +42,14 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
       description: (group) =>
         group.description ? (
           <Tooltip isContentLeftAligned content={group.description}>
-            <span>{group.description.length > 23 ? `${group.description.slice(0, 20)}...` : group.description}</span>
+            <span>{group.description.length > 40 ? `${group.description.slice(0, 37)}...` : group.description}</span>
           </Tooltip>
         ) : (
           <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
         ),
       principalCount: (group) => group.principalCount ?? 0,
-      serviceAccountCount: () => '?', // not currently in API
-      roleCount: (group) => group.roleCount ?? 0,
-      workspaceCount: () => '?', // not currently in API
+      // NOTE: serviceAccountCount requires V2 API (gap:guessed-v2-api)
+      serviceAccountCount: (group) => (group as any).serviceAccountCount ?? '—',
       modified: (group) => (group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : ''),
     }),
     [intl],

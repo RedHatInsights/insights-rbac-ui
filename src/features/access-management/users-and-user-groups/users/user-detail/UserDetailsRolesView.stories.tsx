@@ -51,6 +51,7 @@ export default meta;
 type Story = StoryObj<typeof UserDetailsRolesView>;
 
 export const Default: Story = {
+  name: 'Default',
   tags: ['autodocs'],
   args: {
     userId: 'john.doe',
@@ -77,6 +78,7 @@ Each story demonstrates different aspects of container state management and erro
     },
     msw: {
       handlers: [
+        // NOTE: Includes V2-style userGroup and workspace data (gap:guessed-v2-api)
         http.get('/api/rbac/v1/roles/', ({ request }) => {
           const url = new URL(request.url);
           const username = url.searchParams.get('username');
@@ -95,6 +97,8 @@ Each story demonstrates different aspects of container state management and erro
                   admin_default: true,
                   policyCount: 15,
                   accessCount: 45,
+                  userGroup: 'Admin group',
+                  workspace: 'Root workspace',
                 },
                 {
                   uuid: 'role-2',
@@ -106,6 +110,8 @@ Each story demonstrates different aspects of container state management and erro
                   admin_default: false,
                   policyCount: 8,
                   accessCount: 23,
+                  userGroup: 'Admin group',
+                  workspace: 'Production',
                 },
                 {
                   uuid: 'role-3',
@@ -117,6 +123,8 @@ Each story demonstrates different aspects of container state management and erro
                   admin_default: false,
                   policyCount: 5,
                   accessCount: 12,
+                  userGroup: 'Spice girls',
+                  workspace: 'Development',
                 },
                 {
                   uuid: 'role-4',
@@ -128,6 +136,8 @@ Each story demonstrates different aspects of container state management and erro
                   admin_default: false,
                   policyCount: 3,
                   accessCount: 8,
+                  userGroup: 'Golden girls',
+                  workspace: 'Medical Imaging IT',
                 },
               ],
               meta: { count: 4, limit: 1000, offset: 0 },
@@ -151,13 +161,18 @@ Each story demonstrates different aspects of container state management and erro
     await expect(canvas.findByText('Insights Viewer')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('Custom Development Role')).resolves.toBeInTheDocument();
 
-    // Verify display names are shown in user group column
-    await expect(canvas.findByText('Organization Administrator')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('User Access Administrator')).resolves.toBeInTheDocument();
+    // Verify user group column shows actual data (V2-style API response)
+    // Note: "Admin group" appears twice (for Org Admin and User Access Admin roles)
+    const adminGroupCells = await canvas.findAllByText('Admin group');
+    expect(adminGroupCells.length).toBe(2);
+    await expect(canvas.findByText('Spice girls')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Golden girls')).resolves.toBeInTheDocument();
 
-    // Verify workspace column shows placeholder (API doesn't provide workspace data yet)
-    const workspacePlaceholders = canvas.getAllByText('?');
-    await expect(workspacePlaceholders.length).toBeGreaterThan(0);
+    // Verify workspace column shows actual workspace names (V2-style API response)
+    await expect(canvas.findByText('Root workspace')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Production')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Development')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Medical Imaging IT')).resolves.toBeInTheDocument();
   },
 };
 

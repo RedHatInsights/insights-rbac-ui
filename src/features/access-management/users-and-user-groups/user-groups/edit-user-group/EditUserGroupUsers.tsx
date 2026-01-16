@@ -80,9 +80,9 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
     orderBy: 'username',
   });
 
-  // Extract users from response
-  const users: User[] = (data as any)?.data || [];
-  const totalCount = (data as any)?.meta?.count || 0;
+  // Extract users from typed query response
+  const users = (data?.users ?? []) as User[];
+  const totalCount = data?.totalCount ?? 0;
 
   // Keep ref to avoid stale closure in wrapped handlers
   const onChangeRef = useRef(onChange);

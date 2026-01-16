@@ -15,6 +15,7 @@ import React from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
 import { resetStoryState } from '../_shared/helpers';
 import { defaultHandlers } from './_shared';
 
@@ -54,28 +55,33 @@ const meta = {
 Tests the User Groups tab and group details drawer.
 
 ## Design Reference
-- \`static/mocks/User groups table plus details/Frame 12.png\` - Groups table
-- \`static/mocks/User groups table plus details/Frame 13.png\` - Kebab menu
-- \`static/mocks/User groups table plus details/Frame 152.png\` - Group details drawer
-- \`static/mocks/User groups table plus details/Frame 153.png\` - Service accounts tab
-- \`static/mocks/User groups table plus details/Frame 198.png\` - Roles tab
-- \`static/mocks/User groups table plus details/Basic Empty State.png\` - Empty state
+
+| Groups table | Kebab menu | Group details drawer |
+|:---:|:---:|:---:|
+| [![Groups table](/mocks/User%20groups%20table%20plus%20details/Frame%2012.png)](/mocks/User%20groups%20table%20plus%20details/Frame%2012.png) | [![Kebab menu](/mocks/User%20groups%20table%20plus%20details/Frame%2013.png)](/mocks/User%20groups%20table%20plus%20details/Frame%2013.png) | [![Group details drawer](/mocks/User%20groups%20table%20plus%20details/Frame%20152.png)](/mocks/User%20groups%20table%20plus%20details/Frame%20152.png) |
+
+| Service accounts tab | Roles tab | Empty state |
+|:---:|:---:|:---:|
+| [![Service accounts tab](/mocks/User%20groups%20table%20plus%20details/Frame%20153.png)](/mocks/User%20groups%20table%20plus%20details/Frame%20153.png) | [![Roles tab](/mocks/User%20groups%20table%20plus%20details/Frame%20198.png)](/mocks/User%20groups%20table%20plus%20details/Frame%20198.png) | [![Empty state](/mocks/User%20groups%20table%20plus%20details/Basic%20Empty%20State.png)](/mocks/User%20groups%20table%20plus%20details/Basic%20Empty%20State.png) |
 
 ## Features
 | Feature | Status | API |
 |---------|--------|-----|
 | Groups table | ✅ Implemented | V1 |
 | Users count column | ✅ Implemented | V1 |
-| Service accounts column | ⚠️ GAP | External SSO API |
-| Roles count column | ✅ Implemented | V1 |
-| Workspaces column | ⚠️ GAP | V2 needed |
+| Service accounts count column | ⚠️ GAP | V2 (guessed) |
 | Group details drawer | ✅ Implemented | V1 |
 | Users tab in drawer | ✅ Implemented | V1 |
-| Service accounts tab | ⚠️ GAP | External SSO API |
-| Roles tab in drawer | ✅ Implemented | V1 |
+| Service accounts tab (list) | ✅ Implemented | SSO API |
+| Service accounts tab (in group) | ✅ Implemented | V1 principals API |
+| Roles tab in drawer | ⚠️ GAP | V2 needed |
 | Create user group | ✅ Implemented | V1 |
 | Edit user group | ✅ Implemented | V1 |
 | Delete user group | ✅ Implemented | V1 |
+
+**Notes:**
+- Per V2 API Strategy, "Roles" and "Workspaces" columns were removed from the design
+- Service accounts count shows "—" (V1 doesn't return this field)
         `,
       },
     },
@@ -136,8 +142,8 @@ Tests the default User Groups table view matching \`static/mocks/User groups tab
     await expect(canvas.findByText(/Group that gets all users/i)).resolves.toBeInTheDocument();
     await expect(canvas.findByText(/All org admin users/i)).resolves.toBeInTheDocument();
 
-    // Verify Create user group button is present
-    const createButton = await canvas.findByText(/Create user group/i);
+    // Verify Create user group button is present (use role selector to avoid multiple matches)
+    const createButton = await canvas.findByRole('button', { name: /Create user group/i });
     expect(createButton).toBeInTheDocument();
   },
 };
@@ -194,8 +200,9 @@ Tests the group details drawer matching \`static/mocks/User groups table plus de
     await expect(drawerScope.findByText(/Service accounts/i)).resolves.toBeInTheDocument();
     await expect(drawerScope.findByText(/Assigned roles/i)).resolves.toBeInTheDocument();
 
-    // Verify Users tab content (Golden girls members)
-    await expect(drawerScope.findByText(/bwhite|Betty/i)).resolves.toBeInTheDocument();
+    // Verify Users tab content (Golden girls members - check for at least one member)
+    const userMatches = await drawerScope.findAllByText(/bwhite/i);
+    expect(userMatches.length).toBeGreaterThan(0);
   },
 };
 
@@ -206,15 +213,15 @@ Tests the group details drawer matching \`static/mocks/User groups table plus de
  */
 export const GroupDetailsServiceAccounts: Story = {
   name: 'Group Details - Service Accounts Tab',
-  tags: ['gap:external-api'],
   parameters: {
     docs: {
       description: {
         story: `
 Tests the Service accounts tab matching \`static/mocks/User groups table plus details/Frame 153.png\`.
 
-**GAP:** Service accounts require external SSO API which is not fully integrated.
-Currently shows placeholder/mock data.
+**Implementation:**
+- Lists service accounts from SSO API (works in staging)
+- Shows which service accounts are in the group via V1 principals API
         `,
       },
     },
@@ -254,17 +261,70 @@ Currently shows placeholder/mock data.
  * Tests the Roles tab in the group details drawer
  */
 export const GroupDetailsRoles: Story = {
-  name: 'Group Details - Roles Tab',
+  name: '⚠️ [V2 GAP] Group Details - Roles Tab',
+  tags: ['gap:guessed-v2-api'],
+  decorators: [
+    withFeatureGap({
+      title: 'Group Roles with Workspace - Guessed V2 API',
+      currentState: (
+        <>
+          <p style={{ margin: '0 0 8px 0' }}>
+            <strong>Guessed Endpoint:</strong>
+          </p>
+          <code
+            style={{
+              display: 'block',
+              background: 'rgba(0,0,0,0.08)',
+              padding: '4px 8px',
+              borderRadius: '3px',
+              fontSize: '11px',
+              marginBottom: '8px',
+            }}
+          >
+            GET /api/rbac/v1/groups/:uuid/roles/
+          </code>
+          <p style={{ margin: '8px 0 4px 0' }}>
+            <strong>Expected Response (with V2 workspace data):</strong>
+          </p>
+          <pre
+            style={{
+              background: 'rgba(0,0,0,0.08)',
+              padding: '8px',
+              borderRadius: '3px',
+              fontSize: '10px',
+              margin: '0 0 8px 0',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {`{
+  "data": [{
+    "uuid": "role-uuid-1",
+    "name": "Cost Administrator",
+    "display_name": "Cost Administrator",
+    "workspace": "Production",
+    "workspaceId": "ws-prod-123"
+  }],
+  "meta": { "count": 1 }
+}`}
+          </pre>
+          <p style={{ margin: '8px 0 0 0', fontStyle: 'italic', fontSize: '11px' }}>
+            Gap: The <code>workspace</code> and <code>workspaceId</code> fields are guessed additions to the V1 response.
+          </p>
+        </>
+      ),
+      expectedBehavior: ['Workspace column shows which workspace the role applies to', 'V2 API should return role bindings with workspace context'],
+    }),
+  ],
   parameters: {
     docs: {
       description: {
         story: `
-Tests the Roles tab matching \`static/mocks/User groups table plus details/Frame 198.png\`.
+Tests the Roles tab in the group details drawer.
 
 **Expected behavior:**
 1. Switch to Roles tab
 2. Table shows roles assigned to this group
-3. Workspace column shows "?" (V2 GAP)
+3. Workspace column shows workspace names (V2 API mock data)
         `,
       },
     },
@@ -287,13 +347,13 @@ Tests the Roles tab matching \`static/mocks/User groups table plus details/Frame
     expect(drawer).toBeInTheDocument();
     const drawerScope = within(drawer as HTMLElement);
 
-    // Click on Roles tab
-    const rolesTab = await drawerScope.findByText(/Assigned roles/i);
+    // Click on Roles tab (use role selector to avoid multiple matches)
+    const rolesTab = await drawerScope.findByRole('tab', { name: /Assigned roles/i });
     await user.click(rolesTab);
     await delay(300);
 
-    // Verify roles content loads
-    await expect(drawerScope.findByText(/Organization Administrator|User Access Administrator/i)).resolves.toBeInTheDocument();
+    // Verify roles content loads - Admin group has Tenant Administrator and Workspace Administrator
+    await expect(drawerScope.findByText('Tenant Administrator')).resolves.toBeInTheDocument();
   },
 };
 
@@ -381,11 +441,11 @@ Tests the empty state matching \`static/mocks/User groups table plus details/Bas
     // Wait for data to load
     await delay(500);
 
-    // Verify empty state message
-    await expect(canvas.findByText(/no user groups found/i)).resolves.toBeInTheDocument();
+    // Verify empty state message (singular form)
+    await expect(canvas.findByText(/no user group found/i)).resolves.toBeInTheDocument();
 
     // Create button should still be visible
-    const createButton = canvas.queryByText(/Create user group/i);
+    const createButton = canvas.queryByRole('button', { name: /Create user group/i });
     expect(createButton).toBeInTheDocument();
   },
 };
@@ -419,7 +479,7 @@ Tests filtering groups by name.
     await delay(500);
 
     // Find the filter input
-    const filterInput = await canvas.findByPlaceholderText(/filter by user group/i);
+    const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
     expect(filterInput).toBeInTheDocument();
 
     // Type a filter value

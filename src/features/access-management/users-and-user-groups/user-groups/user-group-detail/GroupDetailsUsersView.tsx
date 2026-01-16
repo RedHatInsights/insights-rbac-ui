@@ -53,11 +53,9 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
     syncWithUrl: false, // Drawer tables shouldn't sync with URL
   });
 
-  // Use React Query instead of Redux
+  // Use React Query - returns unwrapped, typed data
   const { data, isLoading, error } = useGroupMembersQuery(groupId);
-
-  // Extract members from response - API returns { data: [...] } for pagination
-  const members = (data as any)?.data || [];
+  const members = data?.members ?? [];
 
   // Show error state
   if (error) {
@@ -76,7 +74,7 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
     </EmptyState>
   );
 
-  const memberData: MemberData[] = members.map((user: any) => ({
+  const memberData: MemberData[] = members.map((user) => ({
     username: user.username,
     first_name: user.first_name,
     last_name: user.last_name,

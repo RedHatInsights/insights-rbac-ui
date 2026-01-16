@@ -16,6 +16,7 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
 import { resetStoryState } from '../_shared/helpers';
 import {
   clickCancelButton,
@@ -376,10 +377,14 @@ const meta = {
 Tests the workflow for creating a new user group with users and service accounts.
 
 ## Design Reference
-- \`static/mocks/Create user group/Frame 126.png\` - Create button on groups table
-- \`static/mocks/Create user group/Frame 129.png\` - Create form
-- \`static/mocks/Create user group/Frame 189.png\` - Add users step
-- \`static/mocks/Create user group/Frame 192.png\` - Add service accounts step
+
+| Create button | Create form |
+|:---:|:---:|
+| [![Create button](/mocks/Create%20user%20group/Frame%20126.png)](/mocks/Create%20user%20group/Frame%20126.png) | [![Create form](/mocks/Create%20user%20group/Frame%20129.png)](/mocks/Create%20user%20group/Frame%20129.png) |
+
+| Add users step | Add service accounts step |
+|:---:|:---:|
+| [![Add users step](/mocks/Create%20user%20group/Frame%20189.png)](/mocks/Create%20user%20group/Frame%20189.png) | [![Add service accounts step](/mocks/Create%20user%20group/Frame%20192.png)](/mocks/Create%20user%20group/Frame%20192.png) |
 
 ## API Spies
 - \`createGroupSpy\` - Tracks POST /api/rbac/v1/groups/ calls
@@ -393,7 +398,8 @@ Tests the workflow for creating a new user group with users and service accounts
 | Group name field | ✅ Implemented | - |
 | Description field | ✅ Implemented | - |
 | Add users to group | ✅ Implemented | V1 |
-| Add service accounts | ⚠️ GAP | External SSO API |
+| List service accounts | ✅ Implemented | SSO API |
+| Add service accounts to group | ⚠️ GAP | V2 (guessed) |
 | Create group API | ✅ Implemented | V1 |
 | Success redirect | ✅ Implemented | - |
         `,
@@ -412,12 +418,74 @@ type Story = StoryObj<typeof meta>;
  * Tests the full workflow from clicking create to form submission and verification
  */
 export const CompleteFlow: Story = {
-  name: 'Complete Flow',
-  tags: ['autodocs', 'gap:guessed-v1-api'],
+  name: '⚠️ [V2 GAP] Complete Flow',
+  tags: ['autodocs', 'gap:guessed-v2-api'],
+  decorators: [
+    withFeatureGap({
+      title: 'Add Service Accounts to Group - Guessed V2 API',
+      currentState: (
+        <>
+          <p style={{ margin: '0 0 8px 0' }}>
+            <strong>Guessed Endpoint:</strong>
+          </p>
+          <code
+            style={{
+              display: 'block',
+              background: 'rgba(0,0,0,0.08)',
+              padding: '4px 8px',
+              borderRadius: '3px',
+              fontSize: '11px',
+              marginBottom: '8px',
+            }}
+          >
+            POST /api/rbac/v1/groups/:uuid/service-accounts/
+          </code>
+          <p style={{ margin: '8px 0 4px 0' }}>
+            <strong>Request Body:</strong>
+          </p>
+          <pre
+            style={{
+              background: 'rgba(0,0,0,0.08)',
+              padding: '8px',
+              borderRadius: '3px',
+              fontSize: '10px',
+              margin: '0 0 8px 0',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {`{
+  "service_accounts": [
+    { "clientId": "sa-12345-abcde" },
+    { "clientId": "sa-67890-fghij" }
+  ]
+}`}
+          </pre>
+          <p style={{ margin: '8px 0 4px 0' }}>
+            <strong>Expected Response:</strong>
+          </p>
+          <pre style={{ background: 'rgba(0,0,0,0.08)', padding: '8px', borderRadius: '3px', fontSize: '10px', margin: 0, whiteSpace: 'pre-wrap' }}>
+            {`{
+  "data": [
+    { "clientId": "sa-12345-abcde" },
+    { "clientId": "sa-67890-fghij" }
+  ],
+  "meta": { "count": 2 }
+}`}
+          </pre>
+        </>
+      ),
+      expectedBehavior: [
+        'This endpoint is guessed based on the principals API pattern',
+        'The actual V2 RBAC API may use a different endpoint or payload format',
+      ],
+    }),
+  ],
   parameters: {
     docs: {
       description: {
         story: `
+⚠️ **V2 GAP: Uses guessed API for service accounts**
+
 Tests the complete "Create user group" workflow including user and service account selection:
 
 1. Click "Create user group" button
@@ -434,11 +502,8 @@ Tests the complete "Create user group" workflow including user and service accou
 12. Verify selected users appear in drawer
 13. Verify selected service accounts appear in drawer
 
-**⚠️ GAP: Uses guessed V1-style API**
-The API endpoints for adding members and service accounts to groups are educated guesses:
-- POST /api/rbac/v1/groups/:uuid/principals/ (for users)
-- POST /api/rbac/v1/groups/:uuid/service-accounts/ (for service accounts)
-The actual V2 API may differ.
+**Guessed APIs used:**
+- \`POST /api/rbac/v1/groups/:uuid/service-accounts/\` (for service accounts)
 
 **Design references:**
 - Frame 126: Create button
@@ -770,8 +835,9 @@ Tests that duplicate group names show validation error.
 
 **Expected behavior:**
 1. Enter an existing group name
-2. Validation error appears
-3. Form cannot be submitted
+2. Move focus away (blur) to trigger validation
+3. Validation error appears
+4. Form cannot be submitted
         `,
       },
     },
@@ -793,6 +859,9 @@ Tests that duplicate group names show validation error.
 
     // Enter duplicate name (Admin group exists in mockGroups)
     await fillGroupName(canvas, user, 'Admin group');
+
+    // Blur the name field to trigger validation (tab to description)
+    await user.tab();
     await delay(500);
 
     // Verify validation error appears
