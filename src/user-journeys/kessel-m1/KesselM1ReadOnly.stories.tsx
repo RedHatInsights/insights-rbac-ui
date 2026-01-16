@@ -9,7 +9,7 @@ import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-han
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Feature Development/Workspaces (Kessel)/Kessel M1: Workspace List View/Read Only',
+  title: 'User Journeys/Management Fabric/Workspaces (Kessel)/Kessel M1: Workspace List View/Read Only',
   tags: ['kessel-m1-readonly'],
   decorators: [
     (Story: any, context: any) => {

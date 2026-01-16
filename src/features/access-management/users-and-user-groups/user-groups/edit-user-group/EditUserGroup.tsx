@@ -9,10 +9,18 @@ import Messages from '../../../../../Messages';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
-import { useDispatch, useSelector } from 'react-redux';
-import { addGroup, fetchGroup, fetchGroups, updateGroup } from '../../../../../redux/groups/actions';
-import { selectGroupMembers, selectGroupServiceAccounts, selectGroups, selectSelectedGroup } from '../../../../../redux/groups/selectors';
-import { Group, Member, ServiceAccount } from '../../../../../redux/groups/reducer';
+import {
+  type Group,
+  useAddMembersToGroupMutation,
+  useAddServiceAccountsToGroupMutation,
+  useCreateGroupMutation,
+  useGroupMembersQuery,
+  useGroupQuery,
+  useGroupServiceAccountsQuery,
+  useGroupsQuery,
+  useRemoveMembersFromGroupMutation,
+  useUpdateGroupMutation,
+} from '../../../../../data/queries/groups';
 
 import { useParams } from 'react-router-dom';
 import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
@@ -26,7 +34,6 @@ interface EditUserGroupProps {
 
 export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ createNewGroup }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const addNotification = useAddNotification();
   const params = useParams();
   const groupId = params.groupId;
@@ -36,7 +43,6 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     ? intl.formatMessage(Messages.usersAndUserGroupsCreateUserGroup)
     : intl.formatMessage(Messages.usersAndUserGroupsEditUserGroup);
 
-  const [isLoading, setIsLoading] = useState(true);
   const [initialFormData, setInitialFormData] = useState<{
     name?: string;
     description?: string;
@@ -44,11 +50,30 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     serviceAccounts?: string[];
   } | null>(null);
 
-  // Memoized selectors to prevent unnecessary re-renders
-  const group = useSelector(selectSelectedGroup);
-  const allGroups = useSelector(selectGroups);
-  const groupUsers = useSelector(selectGroupMembers);
-  const groupServiceAccounts = useSelector(selectGroupServiceAccounts);
+  // Use React Query for data fetching
+  const { data: allGroupsData, isLoading: isGroupsLoading } = useGroupsQuery({ limit: 1000, offset: 0, orderBy: 'name' }, { enabled: true });
+  const { data: groupData, isLoading: isGroupLoading } = useGroupQuery(groupId || '', { enabled: !!groupId && !createNewGroup });
+  const { data: membersData, isLoading: isMembersLoading } = useGroupMembersQuery(groupId || '', { enabled: !!groupId && !createNewGroup });
+  const { data: serviceAccountsData, isLoading: isServiceAccountsLoading } = useGroupServiceAccountsQuery(groupId || '', {
+    enabled: !!groupId && !createNewGroup,
+  });
+
+  // Use React Query mutations
+  const createGroupMutation = useCreateGroupMutation();
+  const updateGroupMutation = useUpdateGroupMutation();
+  const addMembersMutation = useAddMembersToGroupMutation();
+  const removeMembersMutation = useRemoveMembersFromGroupMutation();
+  const addServiceAccountsMutation = useAddServiceAccountsToGroupMutation();
+
+  // Extract data from query responses
+  const allGroups: Group[] = (allGroupsData as any)?.data || [];
+  const group = groupData as any;
+  const groupUsers = ((membersData as any)?.data || []) as Array<{ username: string }>;
+  const groupServiceAccounts = ((serviceAccountsData as any)?.data?.serviceAccounts || (serviceAccountsData as any)?.data || []) as Array<{
+    clientId?: string;
+  }>;
+
+  const isLoading = isGroupsLoading || (groupId && !createNewGroup && (isGroupLoading || isMembersLoading || isServiceAccountsLoading));
 
   const breadcrumbsList = useMemo(
     () => [
@@ -64,29 +89,14 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     [intl, pageTitle],
   );
 
-  const fetchData = useCallback(async () => {
-    try {
-      await Promise.all([
-        dispatch(fetchGroups({ limit: 1000, offset: 0, orderBy: 'name', usesMetaInURL: true })),
-        groupId ? dispatch(fetchGroup(groupId)) : Promise.resolve(),
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [dispatch, groupId]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
   // Update form data when group data changes
   useEffect(() => {
     if (group && !createNewGroup) {
       const newFormData = {
         name: group.name,
         description: group.description,
-        users: groupUsers.map((user: Member) => user.username),
-        serviceAccounts: groupServiceAccounts.map((sa: ServiceAccount) => sa.clientId).filter((clientId): clientId is string => Boolean(clientId)),
+        users: groupUsers.map((user) => user.username),
+        serviceAccounts: groupServiceAccounts.map((sa) => sa.clientId).filter((clientId): clientId is string => Boolean(clientId)),
       };
 
       // Only update if the data actually changed
@@ -164,21 +174,25 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     [initialFormData, allGroups, groupId, intl],
   );
 
-  const returnToPreviousPage = () => {
+  const returnToPreviousPage = useCallback(() => {
     navigate(pathnames['user-groups'].link);
-  };
+  }, [navigate]);
 
   const handleSubmit = async (values: Record<string, any>) => {
     try {
+      let targetGroupId = groupId;
+
       if (createNewGroup) {
-        await dispatch(addGroup({ name: values.name, description: values.description }));
+        // Create the group first and get the new group's UUID
+        const newGroup = await createGroupMutation.mutateAsync({ name: values.name, description: values.description });
+        targetGroupId = (newGroup as any)?.uuid;
         addNotification({
           variant: 'success',
           title: 'Group created successfully',
           description: 'The group has been created.',
         });
       } else if (groupId && (values.name !== group?.name || values.description !== group?.description)) {
-        await dispatch(updateGroup({ uuid: groupId, name: values.name, description: values.description }));
+        await updateGroupMutation.mutateAsync({ uuid: groupId, name: values.name, description: values.description });
         addNotification({
           variant: 'success',
           title: intl.formatMessage(Messages.editGroupSuccessTitle),
@@ -186,22 +200,53 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         });
       }
 
-      if (values['users-and-service-accounts']) {
+      // Handle user and service account changes
+      if (values['users-and-service-accounts'] && targetGroupId) {
         const { users, serviceAccounts } = values['users-and-service-accounts'];
-        if (users.updated.length > 0) {
-          const addedUsers = users.updated.filter((user: string) => !users.initial.includes(user));
-          const removedUsers = users.initial.filter((user: string) => !users.updated.includes(user));
-          console.log(`Users added: ${addedUsers} and removed: ${removedUsers}`);
+
+        // Handle user additions/removals
+        const addedUsers = users.updated.filter((user: string) => !users.initial.includes(user));
+        const removedUsers = users.initial.filter((user: string) => !users.updated.includes(user));
+
+        // Add new users to the group
+        // GAP: Using guessed V1 API - POST /api/rbac/v1/groups/:uuid/principals/
+        if (addedUsers.length > 0) {
+          await addMembersMutation.mutateAsync({
+            groupId: targetGroupId,
+            usernames: addedUsers,
+          });
         }
-        if (serviceAccounts.updated.length > 0) {
-          const addedServiceAccounts = serviceAccounts.updated.filter((serviceAccount: string) => !serviceAccounts.initial.includes(serviceAccount));
-          const removedServiceAccounts = serviceAccounts.initial.filter(
-            (serviceAccount: string) => !serviceAccounts.updated.includes(serviceAccount),
-          );
-          console.log(`Service accounts added: ${addedServiceAccounts} and removed: ${removedServiceAccounts}`);
+
+        // Remove users from the group
+        // GAP: Using guessed V1 API - DELETE /api/rbac/v1/groups/:uuid/principals/
+        if (removedUsers.length > 0) {
+          await removeMembersMutation.mutateAsync({
+            groupId: targetGroupId,
+            usernames: removedUsers,
+          });
         }
-        returnToPreviousPage();
+
+        // Handle service account additions/removals
+        const addedServiceAccounts = serviceAccounts.updated.filter((serviceAccount: string) => !serviceAccounts.initial.includes(serviceAccount));
+        const removedServiceAccounts = serviceAccounts.initial.filter((serviceAccount: string) => !serviceAccounts.updated.includes(serviceAccount));
+
+        // Add new service accounts to the group
+        // GAP: Using guessed V1-style API - POST /api/rbac/v1/groups/:uuid/service-accounts/
+        if (addedServiceAccounts.length > 0) {
+          await addServiceAccountsMutation.mutateAsync({
+            groupId: targetGroupId,
+            serviceAccounts: addedServiceAccounts,
+          });
+        }
+
+        // TODO: Remove service accounts when V2 API is available
+        if (removedServiceAccounts.length > 0) {
+          console.log('Service accounts to remove:', removedServiceAccounts);
+          // GAP: Service account removal API is not yet implemented
+        }
       }
+
+      returnToPreviousPage();
     } catch (error) {
       console.error('Failed to save group:', error);
       addNotification({

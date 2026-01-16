@@ -1,22 +1,21 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useFlag } from '@unleash/proxy-client-react';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
-import { changeUsersStatus } from '../../../../redux/users/actions';
+import { type User, useChangeUserStatusMutation } from '../../../../data/queries/users';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import paths from '../../../../utilities/pathnames';
-import { User } from '../../../../redux/users/reducer';
 import { useUsers } from './useUsers';
 import { UsersTable } from './components/UsersTable';
 import { DeleteUserModal } from './components/DeleteUserModal';
 import { BulkDeactivateUsersModal } from './components/BulkDeactivateUsersModal';
 import { AddUserToGroupModal } from './add-user-to-group/AddUserToGroupModal';
+import { RemoveUserFromGroupModal } from './remove-user-from-group/RemoveUserFromGroupModal';
 import { UserDetailsDrawer } from './user-detail/UserDetailsDrawer';
 
 interface UsersProps {
@@ -31,24 +30,13 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   const authModel = useFlag('platform.rbac.common-auth-model');
   const isITLess = useFlag('platform.rbac.itless');
   const { getBundle, getApp } = useChrome();
-  const dispatch = useDispatch();
   const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
 
+  // Use React Query mutation for status changes
+  const changeUserStatusMutation = useChangeUserStatusMutation();
+
   // Use the custom hook for all Users business logic
-  const {
-    users,
-    isLoading,
-    totalCount,
-    filters,
-    sortBy,
-    direction,
-    onSort,
-    pagination,
-    setFocusedUser,
-    handleRowClick: hookHandleRowClick,
-    clearAllFilters,
-    onSetFilters,
-  } = useUsers({ enableAdminFeatures: true });
+  const { users, isLoading, totalCount, tableState, setFocusedUser, handleRowClick: hookHandleRowClick } = useUsers({ enableAdminFeatures: true });
 
   // Modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -59,6 +47,10 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   // Add user to group modal state
   const [selectedUsersForGroup, setSelectedUsersForGroup] = useState<User[]>([]);
   const [isAddUserGroupModalOpen, setIsAddUserGroupModalOpen] = useState(false);
+
+  // Remove user from group modal state
+  const [selectedUsersForRemoval, setSelectedUsersForRemoval] = useState<User[]>([]);
+  const [isRemoveUserGroupModalOpen, setIsRemoveUserGroupModalOpen] = useState(false);
 
   // Local focus state for compatibility with existing components (they expect undefined, not null)
   const [localFocusedUser, setLocalFocusedUser] = useState<User | undefined>();
@@ -80,27 +72,21 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     getToken();
   }, [auth]);
 
-  const { page, perPage, onSetPage, onPerPageSelect } = pagination;
-
-  // Note: Data fetching is now handled by the useUsers hook automatically
-
-  // User status toggle handler
+  // User status toggle handler - now using React Query
   const handleToggleUserStatus = useCallback(
     async (user: User, isActive: boolean) => {
       try {
-        await dispatch(
-          changeUsersStatus(
-            [
-              {
-                ...user,
-                id: user.external_source_id,
-                is_active: isActive,
-              },
-            ],
-            { isProd: isProd() || false, token, accountId },
-            isITLess,
-          ),
-        );
+        await changeUserStatusMutation.mutateAsync({
+          users: [
+            {
+              ...user,
+              id: user.external_source_id,
+              is_active: isActive,
+            },
+          ],
+          config: { isProd: isProd() || false, token, accountId },
+          itless: isITLess,
+        });
         addNotification({
           variant: 'success',
           title: intl.formatMessage(messages.editUserSuccessTitle),
@@ -117,13 +103,13 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
         });
       }
     },
-    [dispatch, isProd, token, accountId, intl, isITLess, addNotification],
+    [changeUserStatusMutation, isProd, token, accountId, intl, isITLess, addNotification],
   );
 
   // Org admin toggle handler
-  const handleToggleOrgAdmin = useCallback((user: User, isOrgAdmin: boolean) => {
+  const handleToggleOrgAdmin = useCallback((_user: User, _isOrgAdmin: boolean) => {
     // TODO: Implement org admin toggle logic
-    console.log(`Toggle org admin for ${user.username} to ${isOrgAdmin}`);
+    console.log(`Toggle org admin for ${_user.username} to ${_isOrgAdmin}`);
   }, []);
 
   // Delete user handler
@@ -148,6 +134,14 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     if (selected.length > 0) {
       setSelectedUsersForGroup(selected);
       setIsAddUserGroupModalOpen(true);
+    }
+  }, []);
+
+  // Remove user from group handler
+  const handleOpenRemoveUserFromGroupModal = useCallback((selected: User[]) => {
+    if (selected.length > 0) {
+      setSelectedUsersForRemoval(selected);
+      setIsRemoveUserGroupModalOpen(true);
     }
   }, []);
 
@@ -218,6 +212,11 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   return (
     <>
       <AddUserToGroupModal isOpen={isAddUserGroupModalOpen} setIsOpen={setIsAddUserGroupModalOpen} selectedUsers={selectedUsersForGroup} />
+      <RemoveUserFromGroupModal
+        isOpen={isRemoveUserGroupModalOpen}
+        setIsOpen={setIsRemoveUserGroupModalOpen}
+        selectedUsers={selectedUsersForRemoval}
+      />
       <DataViewEventsProvider>
         <UserDetailsDrawer ouiaId="user-details-drawer" setFocusedUser={setLocalFocusedUser} focusedUser={localFocusedUser}>
           <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
@@ -232,24 +231,15 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
               defaultPerPage={defaultPerPage}
               ouiaId={ouiaId}
               onAddUserClick={handleOpenAddUserToGroupModal}
+              onRemoveUserFromGroupClick={handleOpenRemoveUserFromGroupModal}
               onInviteUsersClick={handleInviteUsers}
               onToggleUserStatus={handleToggleUserStatus}
               onToggleOrgAdmin={handleToggleOrgAdmin}
               onDeleteUser={handleDeleteUser}
               onBulkStatusChange={() => handleBulkStatusChange(selectedUsers)}
               onRowClick={handleRowClick}
-              // Data view props - now managed by useUsers hook
-              sortBy={sortBy}
-              direction={direction}
-              onSort={onSort}
-              filters={filters}
-              onSetFilters={onSetFilters}
-              clearAllFilters={clearAllFilters}
-              page={page}
-              perPage={perPage}
-              onSetPage={onSetPage}
-              onPerPageSelect={onPerPageSelect}
-              pagination={pagination}
+              // Table state props - managed by useTableState via useUsers hook
+              tableState={tableState}
             >
               {deleteModal}
               {statusModal}

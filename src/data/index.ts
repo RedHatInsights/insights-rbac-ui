@@ -20,6 +20,19 @@ export {
 // Groups queries
 export { groupsKeys, useAdminGroupQuery, useGroupQuery } from './queries';
 
+// Workspaces queries (V2)
+export {
+  workspacesKeys,
+  roleBindingsKeys,
+  useWorkspacesQuery,
+  useWorkspaceQuery,
+  useRoleBindingsQuery,
+  useWorkspaceGroupBindingsQuery,
+  useCreateWorkspaceMutation,
+  useUpdateWorkspaceMutation,
+  useDeleteWorkspaceMutation,
+} from './queries';
+
 // Types
 export type {
   Access,
@@ -33,4 +46,12 @@ export type {
   RolePatch,
   RolePut,
   RoleWithAccess,
+  // Workspaces types
+  WorkspacesListParams,
+  RoleBindingsListBySubjectParams,
+  WorkspacesWorkspace,
+  WorkspacesWorkspaceListResponse,
+  RoleBindingsRoleBindingBySubject,
+  RoleBindingsRoleBindingBySubjectListResponse,
+  RoleBindingsRole,
 } from './queries';

@@ -25,7 +25,8 @@ import type { CellRendererMap, ColumnConfigMap, FilterConfig, SortDirection } fr
 const ouiaId = 'RolesTable';
 
 // Column definition
-const columns = ['display_name', 'description', 'accessCount', 'workspaces', 'user_groups', 'modified'] as const;
+// NOTE: Workspaces and User groups columns were REMOVED from the design
+const columns = ['display_name', 'description', 'accessCount', 'modified'] as const;
 type SortableColumn = 'display_name' | 'modified';
 const sortableColumns = ['display_name', 'modified'] as const;
 
@@ -66,26 +67,24 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
   );
 
   // Column configuration
+  // NOTE: Workspaces and User groups columns were REMOVED from the design
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
       display_name: { label: intl.formatMessage(messages.name), sortable: true },
       description: { label: intl.formatMessage(messages.description) },
       accessCount: { label: intl.formatMessage(messages.permissions) },
-      workspaces: { label: intl.formatMessage(messages.workspaces) },
-      user_groups: { label: intl.formatMessage(messages.userGroups) },
       modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
     }),
     [intl],
   );
 
   // Cell renderers
+  // NOTE: Workspaces and User groups columns were REMOVED from the design
   const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(
     () => ({
       display_name: (row) => row.display_name,
       description: (row) => row.description,
       accessCount: (row) => row.accessCount,
-      workspaces: () => '',
-      user_groups: () => '',
       modified: (row) => row.modified,
     }),
     [],

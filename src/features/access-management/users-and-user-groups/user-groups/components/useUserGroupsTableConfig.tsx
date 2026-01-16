@@ -4,7 +4,7 @@ import type { IntlShape } from 'react-intl';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../components/table-view';
-import type { Group } from '../../../../../redux/groups/reducer';
+import type { Group } from '../../../../../data/queries/groups';
 import messages from '../../../../../Messages';
 
 export const columns = ['name', 'description', 'principalCount', 'serviceAccountCount', 'roleCount', 'workspaceCount', 'modified'] as const;

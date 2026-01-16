@@ -10,7 +10,7 @@ import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-han
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Feature Development/Workspaces (Kessel)/Kessel M1: Workspace List View/With Write Permission',
+  title: 'User Journeys/Management Fabric/Workspaces (Kessel)/Kessel M1: Workspace List View/With Write Permission',
   tags: ['kessel-m1-write'],
   decorators: [
     (Story: any, context: any) => {

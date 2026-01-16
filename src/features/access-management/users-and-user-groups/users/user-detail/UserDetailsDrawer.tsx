@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
-import { User } from '../../../../../redux/users/reducer';
+import type { User } from '../../../../../data/queries/users';
 import { UserDetailsGroupsView } from './UserDetailsGroupsView';
 import { UserDetailsRolesView } from './UserDetailsRolesView';
 import { UserDetailsDrawer as PresentationalUserDetailsDrawer } from '../../../../users/components/UserDetailsDrawer';

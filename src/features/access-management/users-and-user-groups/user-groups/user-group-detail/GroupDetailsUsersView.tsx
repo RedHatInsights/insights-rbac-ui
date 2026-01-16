@@ -3,14 +3,12 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
-import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useMemo } from 'react';
 import messages from '../../../../../Messages';
 import { useIntl } from 'react-intl';
-import { fetchMembersForGroup } from '../../../../../redux/groups/actions';
-import { selectGroupMembers, selectGroupMembersError, selectIsGroupMembersLoading } from '../../../../../redux/groups/selectors';
+import { useGroupMembersQuery } from '../../../../../data/queries/groups';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
-import { TableView } from '../../../../../components/table-view/TableView';
+import { TableView, useTableState } from '../../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 
 interface GroupDetailsUsersViewProps {
@@ -27,32 +25,39 @@ interface MemberData {
 const columns = ['username', 'firstName', 'lastName'] as const;
 
 const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps> = ({ groupId, ouiaId }) => {
-  const dispatch = useDispatch();
   const intl = useIntl();
 
-  const columnConfig: ColumnConfigMap<typeof columns> = {
-    username: { label: intl.formatMessage(messages.username) },
-    firstName: { label: intl.formatMessage(messages.firstName) },
-    lastName: { label: intl.formatMessage(messages.lastName) },
-  };
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      username: { label: intl.formatMessage(messages.username) },
+      firstName: { label: intl.formatMessage(messages.firstName) },
+      lastName: { label: intl.formatMessage(messages.lastName) },
+    }),
+    [intl],
+  );
 
-  const cellRenderers: CellRendererMap<typeof columns, MemberData> = {
-    username: (member) => member.username,
-    firstName: (member) => member.first_name || '',
-    lastName: (member) => member.last_name || '', // TODO: Last name is not showing (fix this)
-  };
+  const cellRenderers: CellRendererMap<typeof columns, MemberData> = useMemo(
+    () => ({
+      username: (member) => member.username,
+      firstName: (member) => member.first_name || '',
+      lastName: (member) => member.last_name || '',
+    }),
+    [],
+  );
 
-  const members = useSelector(selectGroupMembers);
-  const isLoading = useSelector(selectIsGroupMembersLoading);
-  const error = useSelector(selectGroupMembersError);
+  // Use useTableState for table state management
+  const tableState = useTableState<typeof columns, MemberData>({
+    columns,
+    getRowId: (member) => member.username,
+    initialPerPage: 100, // Show all items in detail views
+    syncWithUrl: false, // Drawer tables shouldn't sync with URL
+  });
 
-  const fetchData = useCallback(() => {
-    dispatch(fetchMembersForGroup(groupId, undefined, { limit: 1000 }));
-  }, [dispatch, groupId]);
+  // Use React Query instead of Redux
+  const { data, isLoading, error } = useGroupMembersQuery(groupId);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // Extract members from response - API returns { data: [...] } for pagination
+  const members = (data as any)?.data || [];
 
   // Show error state
   if (error) {
@@ -86,14 +91,11 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
         totalCount={memberData.length}
         getRowId={(member) => member.username}
         cellRenderers={cellRenderers}
-        page={1}
-        perPage={memberData.length || 10}
-        onPageChange={() => {}}
-        onPerPageChange={() => {}}
         ariaLabel="GroupDetailsUsersView"
         ouiaId={ouiaId}
         emptyStateNoData={emptyState}
         emptyStateNoResults={emptyState}
+        {...tableState}
       />
     </div>
   );

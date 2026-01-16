@@ -9,7 +9,7 @@ import { HttpResponse, http } from 'msw';
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Feature Development/Workspaces (Kessel)/Kessel M4: Role Bindings Write/With Write Permission',
+  title: 'User Journeys/Management Fabric/Workspaces (Kessel)/Kessel M4: Role Bindings Write/With Write Permission',
   tags: ['kessel-m4-write', 'test-skip'],
   decorators: [
     (Story: any, context: any) => {

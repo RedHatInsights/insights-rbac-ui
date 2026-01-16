@@ -1,3 +1,4 @@
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerActions } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerCloseButton } from '@patternfly/react-core/dist/dynamic/components/Drawer';
@@ -5,14 +6,15 @@ import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Dr
 import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerHead } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerPanelContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
 import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { TabTitleText } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import {} from '@patternfly/react-core';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
+import PencilAltIcon from '@patternfly/react-icons/dist/js/icons/pencil-alt-icon';
 import { useIntl } from 'react-intl';
 import React from 'react';
 import messages from '../../../../../Messages';
@@ -20,7 +22,9 @@ import messages from '../../../../../Messages';
 interface GroupDetailsDrawerProps {
   isOpen: boolean;
   groupName?: string;
+  groupId?: string;
   onClose: () => void;
+  onEditGroup?: () => void;
   children: React.ReactNode;
   drawerRef: React.RefObject<HTMLDivElement>;
   ouiaId: string;
@@ -38,7 +42,9 @@ interface GroupDetailsDrawerProps {
 const GroupDetailsDrawer: React.FunctionComponent<GroupDetailsDrawerProps> = ({
   isOpen,
   groupName,
+  groupId: _groupId, // eslint-disable-line @typescript-eslint/no-unused-vars
   onClose,
+  onEditGroup,
   children,
   drawerRef,
   ouiaId,
@@ -56,11 +62,22 @@ const GroupDetailsDrawer: React.FunctionComponent<GroupDetailsDrawerProps> = ({
         panelContent={
           <DrawerPanelContent>
             <DrawerHead>
-              <Title headingLevel="h2">
-                <span tabIndex={isOpen ? 0 : -1} ref={drawerRef}>
-                  {groupName}
-                </span>
-              </Title>
+              <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }}>
+                <FlexItem>
+                  <Title headingLevel="h2">
+                    <span tabIndex={isOpen ? 0 : -1} ref={drawerRef}>
+                      {groupName}
+                    </span>
+                  </Title>
+                </FlexItem>
+                {onEditGroup && (
+                  <FlexItem>
+                    <Button variant="link" icon={<PencilAltIcon />} onClick={onEditGroup} data-ouia-component-id={`${ouiaId}-edit-button`}>
+                      {intl.formatMessage(messages.usersAndUserGroupsEditUserGroup)}
+                    </Button>
+                  </FlexItem>
+                )}
+              </Flex>
               <DrawerActions>
                 <DrawerCloseButton onClick={onClose} />
               </DrawerActions>

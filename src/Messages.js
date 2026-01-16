@@ -531,6 +531,26 @@ export default defineMessages({
     description: 'Add group member error notification description',
     defaultMessage: 'The member was not added successfully.',
   },
+  addGroupServiceAccountsSuccessTitle: {
+    id: 'addGroupServiceAccountsSuccessTitle',
+    description: 'Add group service accounts success notification title',
+    defaultMessage: 'Success adding service accounts to group',
+  },
+  addGroupServiceAccountSuccessTitle: {
+    id: 'addGroupServiceAccountSuccessTitle',
+    description: 'Add group service account success notification title',
+    defaultMessage: 'Success adding service account to group',
+  },
+  addGroupServiceAccountsErrorTitle: {
+    id: 'addGroupServiceAccountsErrorTitle',
+    description: 'Add group service accounts error notification title',
+    defaultMessage: 'Failed adding service accounts to group',
+  },
+  addGroupServiceAccountErrorTitle: {
+    id: 'addGroupServiceAccountErrorTitle',
+    description: 'Add group service account error notification title',
+    defaultMessage: 'Failed adding service account to group',
+  },
   removeGroupMembersSuccessTitle: {
     id: 'removeGroupMembersSuccessTitle',
     description: 'Remove group members success notification title',
@@ -2729,6 +2749,46 @@ export default defineMessages({
     id: 'removeFromUserGroup',
     description: 'Action column option to remove user from group',
     defaultMessage: 'Remove from user groups',
+  },
+  removeFromUserGroupWarningTitle: {
+    id: 'removeFromUserGroupWarningTitle',
+    description: 'Warning title when removing user from groups',
+    defaultMessage: 'This action will remove users from selected groups',
+  },
+  removeFromUserGroupWarningDescription: {
+    id: 'removeFromUserGroupWarningDescription',
+    description: 'Warning description when removing user from groups',
+    defaultMessage: 'The selected {plural} will lose all access granted through the selected groups.',
+  },
+  usersToRemove: {
+    id: 'usersToRemove',
+    description: 'Label for users to remove list',
+    defaultMessage: 'Users to remove',
+  },
+  selectGroupsToRemoveFrom: {
+    id: 'selectGroupsToRemoveFrom',
+    description: 'Label for group selection',
+    defaultMessage: 'Select groups to remove from',
+  },
+  removeGroupMemberSuccessTitle: {
+    id: 'removeGroupMemberSuccessTitle',
+    description: 'Success notification title for single member removal',
+    defaultMessage: 'User removed from group',
+  },
+  removeGroupMemberSuccessDescription: {
+    id: 'removeGroupMemberSuccessDescription',
+    description: 'Success notification description for single member removal',
+    defaultMessage: 'The user was successfully removed from the group.',
+  },
+  removeGroupMemberErrorTitle: {
+    id: 'removeGroupMemberErrorTitle',
+    description: 'Error notification title for single member removal',
+    defaultMessage: 'Failed to remove user',
+  },
+  removeGroupMemberErrorDescription: {
+    id: 'removeGroupMemberErrorDescription',
+    description: 'Error notification description for single member removal',
+    defaultMessage: 'An error occurred while removing the user from the group.',
   },
   deleteCustomRoleModalHeader: {
     id: 'deleteCustomRoleModalHeader',

@@ -4,7 +4,7 @@ import { fn } from 'storybook/test';
 import React from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { UserDetailsDrawer } from './UserDetailsDrawer';
-import { User } from '../../../redux/users/reducer';
+import { type User } from '../../../data/queries/users';
 
 const meta: Meta<typeof UserDetailsDrawer> = {
   component: UserDetailsDrawer,

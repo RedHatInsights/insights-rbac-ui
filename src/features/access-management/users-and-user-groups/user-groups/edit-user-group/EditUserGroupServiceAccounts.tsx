@@ -1,52 +1,60 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
-import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import Messages from '../../../../../Messages';
 import { TableView } from '../../../../../components/table-view/TableView';
 import { useTableState } from '../../../../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData } from '../../../../../components/table-view/components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
-import { ERROR, LAST_PAGE } from '../../../../../redux/service-accounts/constants';
-import { ServiceAccount } from '../../../../../redux/service-accounts/types';
-import { mappedProps } from '../../../../../helpers/dataUtilities';
-import Messages from '../../../../../Messages';
-import { fetchServiceAccountsForGroup } from '../../../../../redux/groups/actions';
-import { fetchServiceAccounts } from '../../../../../redux/service-accounts/actions';
-import { selectServiceAccountsFullState } from '../../../../../redux/service-accounts/selectors';
+import { type ServiceAccount, useServiceAccountsQuery } from '../../../../../data/queries/serviceAccounts';
 import { TableState } from './EditUserGroupUsersAndServiceAccounts';
 
 interface EditGroupServiceAccountsTableProps {
-  groupId?: string;
-  onChange: (serviceAccounts: TableState) => void;
+  onChange: (serviceAccountDiff: TableState) => void;
+  groupId: string;
   initialServiceAccountIds: string[];
 }
 
-const columns = ['name', 'description', 'clientId', 'owner', 'timeCreated'] as const;
+const columns = ['name', 'clientId', 'owner', 'timeCreated', 'description'] as const;
 
 const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAccountsTableProps> = ({
-  groupId,
   onChange,
+  groupId: _groupId, // eslint-disable-line @typescript-eslint/no-unused-vars
   initialServiceAccountIds,
 }) => {
-  const dispatch = useDispatch();
-  const { auth, getEnvironmentDetails } = useChrome();
   const intl = useIntl();
+  const { auth } = useChrome();
 
-  const { serviceAccounts, status, isLoading } = useSelector(selectServiceAccountsFullState);
+  // Auth state
+  const [token, setToken] = useState<string | null>(null);
+  const [ssoUrl, setSsoUrl] = useState<string>('');
 
-  // Build initial selected rows from IDs (placeholder objects until data loads)
+  useEffect(() => {
+    const initAuth = async () => {
+      const authToken = (await auth.getToken()) as string;
+      setToken(authToken);
+      // Get SSO URL from environment - use stage for non-production
+      const user = await auth.getUser();
+      // Check if internal cross_access exists to determine environment
+      const internal = user?.identity?.internal as { cross_access?: boolean } | undefined;
+      const env = internal?.cross_access ? 'stage' : 'prod';
+      setSsoUrl(env === 'prod' ? 'https://sso.redhat.com' : 'https://sso.stage.redhat.com');
+    };
+    initAuth();
+  }, [auth]);
+
+  // Helper to get consistent service account ID
+  const getServiceAccountId = useCallback((sa: ServiceAccount) => sa.clientId || sa.id, []);
+
+  // Build initial selected rows from IDs
   const initialSelectedRows = useMemo(
     () =>
       initialServiceAccountIds.map(
-        (uuid) =>
+        (clientId) =>
           ({
-            uuid,
-            name: '',
-            description: '',
-            clientId: '',
-            createdBy: '',
-            createdAt: 0,
+            id: clientId,
+            clientId,
+            name: clientId,
           }) as ServiceAccount,
       ),
     [initialServiceAccountIds],
@@ -55,79 +63,74 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
       name: { label: intl.formatMessage(Messages.name) },
-      description: { label: intl.formatMessage(Messages.description) },
       clientId: { label: intl.formatMessage(Messages.clientId) },
       owner: { label: intl.formatMessage(Messages.owner) },
       timeCreated: { label: intl.formatMessage(Messages.timeCreated) },
+      description: { label: intl.formatMessage(Messages.description) },
     }),
     [intl],
   );
 
   const cellRenderers: CellRendererMap<typeof columns, ServiceAccount> = useMemo(
     () => ({
-      name: (account) => account.name,
-      description: (account) => account.description,
-      clientId: (account) => account.clientId,
-      owner: (account) => account.createdBy,
-      timeCreated: (account) => <DateFormat date={account.createdAt} />,
+      name: (sa) => sa.name,
+      clientId: (sa) => sa.clientId,
+      owner: (sa) => sa.createdBy || '-',
+      timeCreated: (sa) => (sa.createdAt ? new Date(sa.createdAt).toLocaleDateString() : '-'),
+      description: (sa) => sa.description || '-',
     }),
     [],
   );
 
-  // useTableState handles ALL state including selection
+  // useTableState handles ALL state - no duplicate useState needed
   const tableState = useTableState<typeof columns, ServiceAccount>({
     columns,
-    getRowId: (account) => account.uuid,
+    getRowId: getServiceAccountId,
     initialPerPage: 20,
     perPageOptions: [5, 10, 20, 50, 100],
     initialSelectedRows,
-    onStaleData: async (params) => {
-      const env = getEnvironmentDetails();
-      const token = await auth.getToken();
-      dispatch(
-        fetchServiceAccounts({
-          ...mappedProps({ count: 0, limit: params.limit, offset: params.offset, orderBy: 'username', token, sso: env?.sso }),
-        }),
-      );
-    },
+    syncWithUrl: false, // Modal/edit form tables shouldn't sync with URL
   });
 
-  // Fetch group's service accounts once on mount (only if editing existing group)
-  // This is a one-time fetch for existing group data, not state-watching
-  useEffect(() => {
-    if (groupId) {
-      dispatch(fetchServiceAccountsForGroup(groupId, {}));
-    }
-  }, [dispatch, groupId]);
+  // Use React Query for service accounts from SSO - using apiParams from tableState
+  const {
+    data: serviceAccountsData,
+    isLoading: isServiceAccountsLoading,
+    error: serviceAccountsError,
+  } = useServiceAccountsQuery(
+    {
+      token,
+      ssoUrl,
+      page: Math.floor(tableState.apiParams.offset / tableState.apiParams.limit) + 1,
+      perPage: tableState.apiParams.limit,
+    },
+    { enabled: !!token && !!ssoUrl },
+  );
 
-  const totalCount = useMemo(() => {
-    if (!serviceAccounts) return 0;
-    const currentCount = (tableState.page - 1) * tableState.perPage + serviceAccounts.length;
-    return status === LAST_PAGE ? currentCount : currentCount + 1;
-  }, [serviceAccounts, tableState.page, tableState.perPage, status]);
+  // Extract service accounts
+  const serviceAccounts: ServiceAccount[] = serviceAccountsData || [];
 
-  // Keep ref to onChange to avoid stale closure
+  // Keep ref to avoid stale closure in wrapped handlers
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
   // Wrap selection handlers to also call onChange
   const handleSelectRow = useCallback(
-    (account: ServiceAccount, selected: boolean) => {
-      tableState.onSelectRow(account, selected);
-      // Compute new selection
-      const currentIds = tableState.selectedRows.map((sa) => sa.uuid);
-      const newIds = selected ? [...currentIds, account.uuid] : currentIds.filter((id) => id !== account.uuid);
+    (sa: ServiceAccount, selected: boolean) => {
+      tableState.onSelectRow(sa, selected);
+      const currentIds = tableState.selectedRows.map(getServiceAccountId);
+      const saId = getServiceAccountId(sa);
+      const newIds = selected ? [...currentIds, saId] : currentIds.filter((id) => id !== saId);
       onChangeRef.current({ initial: initialServiceAccountIds, updated: newIds });
     },
-    [tableState, initialServiceAccountIds],
+    [tableState, getServiceAccountId, initialServiceAccountIds],
   );
 
   const handleSelectAll = useCallback(
     (selected: boolean, rows: ServiceAccount[]) => {
       tableState.onSelectAll(selected, rows);
-      // Compute new selection
-      const currentIds = new Set(tableState.selectedRows.map((sa) => sa.uuid));
-      const rowIds = rows.map((sa) => sa.uuid);
+      const currentIds = new Set(tableState.selectedRows.map(getServiceAccountId));
+      const rowIds = rows.map(getServiceAccountId);
       let newIds: string[];
       if (selected) {
         rowIds.forEach((id) => currentIds.add(id));
@@ -137,22 +140,23 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
       }
       onChangeRef.current({ initial: initialServiceAccountIds, updated: newIds });
     },
-    [tableState, initialServiceAccountIds],
+    [tableState, getServiceAccountId, initialServiceAccountIds],
   );
 
-  const processedServiceAccounts = serviceAccounts ? serviceAccounts.slice(0, tableState.perPage) : [];
-  const hasError = status === ERROR;
+  const hasError = !!serviceAccountsError;
 
   return (
     <TableView<typeof columns, ServiceAccount>
       columns={columns}
       columnConfig={columnConfig}
-      data={isLoading ? undefined : processedServiceAccounts}
-      totalCount={totalCount}
-      getRowId={(account) => account.uuid}
+      data={isServiceAccountsLoading ? undefined : serviceAccounts}
+      totalCount={serviceAccounts.length}
+      getRowId={getServiceAccountId}
       cellRenderers={cellRenderers}
       error={hasError ? new Error('Failed to load service accounts') : null}
-      emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(Messages.noServiceAccountsFound)} />}
+      emptyStateNoData={
+        <DefaultEmptyStateNoData title="No service accounts found" body="There are no service accounts available to add to this group." />
+      }
       emptyStateError={
         <DefaultEmptyStateNoData
           title="Failed to load service accounts"
@@ -164,7 +168,6 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
       ouiaId="edit-group-service-accounts-table"
       selectable
       {...tableState}
-      // Override selection handlers to also call onChange
       onSelectRow={handleSelectRow}
       onSelectAll={handleSelectAll}
     />

@@ -4,33 +4,25 @@ import { DataViewEventsProvider } from '@patternfly/react-data-view';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { UsersTable } from './UsersTable';
-import { User } from '../../../../../redux/users/reducer';
+import type { User } from '../../../../../data/queries/users';
 
-// Mock user data for testing
-const createMockUser = (id: string, overrides: Partial<User> = {}): User => ({
-  id,
-  username: `user${id}`,
-  email: `user${id}@example.com`,
-  first_name: `First${id}`,
-  last_name: `Last${id}`,
+// Mock user data for testing - matches Principal type from rbac-client
+const createMockUser = (username: string, overrides: Partial<User> = {}): User => ({
+  username,
+  email: `${username}@example.com`,
+  first_name: username.split('.')[0] || username,
+  last_name: username.split('.')[1] || '',
   is_active: true,
   is_org_admin: false,
-  external_source_id: parseInt(id),
   ...overrides,
 });
 
 const mockUsers: User[] = [
-  createMockUser('1', { username: 'john.doe', email: 'john.doe@redhat.com', first_name: 'John', last_name: 'Doe' }),
-  createMockUser('2', { username: 'jane.smith', email: 'jane.smith@redhat.com', first_name: 'Jane', last_name: 'Smith', is_org_admin: true }),
-  createMockUser('3', { username: 'bob.wilson', email: 'bob.wilson@redhat.com', first_name: 'Bob', last_name: 'Wilson', is_active: false }),
-  createMockUser('4', { username: 'alice.brown', email: 'alice.brown@redhat.com', first_name: 'Alice', last_name: 'Brown' }),
-  createMockUser('5', {
-    username: 'charlie.davis',
-    email: 'charlie.davis@redhat.com',
-    first_name: 'Charlie',
-    last_name: 'Davis',
-    is_org_admin: true,
-  }),
+  createMockUser('john.doe', { email: 'john.doe@redhat.com', first_name: 'John', last_name: 'Doe' }),
+  createMockUser('jane.smith', { email: 'jane.smith@redhat.com', first_name: 'Jane', last_name: 'Smith', is_org_admin: true }),
+  createMockUser('bob.wilson', { email: 'bob.wilson@redhat.com', first_name: 'Bob', last_name: 'Wilson', is_active: false }),
+  createMockUser('alice.brown', { email: 'alice.brown@redhat.com', first_name: 'Alice', last_name: 'Brown' }),
+  createMockUser('charlie.davis', { email: 'charlie.davis@redhat.com', first_name: 'Charlie', last_name: 'Davis', is_org_admin: true }),
 ];
 
 const defaultArgs = {
@@ -333,7 +325,7 @@ export const StatusToggle: Story = {
 
     // Verify callback was called with user and new status
     await expect(defaultArgs.onToggleUserStatus).toHaveBeenCalledWith(
-      expect.objectContaining({ id: '1' }),
+      expect.objectContaining({ username: 'john.doe' }),
       false, // toggling from active to inactive
     );
   },
@@ -364,7 +356,7 @@ export const OrgAdminToggle: Story = {
 
     // Verify callback was called with user and new org admin status
     await expect(defaultArgs.onToggleOrgAdmin).toHaveBeenCalledWith(
-      expect.objectContaining({ id: '1' }),
+      expect.objectContaining({ username: 'john.doe' }),
       true, // toggling from non-admin to admin
     );
   },
@@ -523,9 +515,9 @@ export const MixedUserStates: Story = {
   args: {
     ...defaultArgs,
     users: [
-      createMockUser('1', { username: 'active.user', is_active: true, is_org_admin: false }),
-      createMockUser('2', { username: 'admin.user', is_active: true, is_org_admin: true }),
-      createMockUser('3', { username: 'inactive.user', is_active: false, is_org_admin: false }),
+      createMockUser('active.user', { is_active: true, is_org_admin: false }),
+      createMockUser('admin.user', { is_active: true, is_org_admin: true }),
+      createMockUser('inactive.user', { is_active: false, is_org_admin: false }),
     ],
   },
   parameters: {
@@ -558,9 +550,9 @@ export const FilterUsers: Story = {
   args: {
     ...defaultArgs,
     users: [
-      createMockUser('1', { username: 'john.doe', email: 'john.doe@redhat.com', first_name: 'John', last_name: 'Doe' }),
-      createMockUser('2', { username: 'jane.smith', email: 'jane.smith@redhat.com', first_name: 'Jane', last_name: 'Smith' }),
-      createMockUser('3', { username: 'bob.wilson', email: 'bob.wilson@company.com', first_name: 'Bob', last_name: 'Wilson' }),
+      createMockUser('john.doe', { email: 'john.doe@redhat.com', first_name: 'John', last_name: 'Doe' }),
+      createMockUser('jane.smith', { email: 'jane.smith@redhat.com', first_name: 'Jane', last_name: 'Smith' }),
+      createMockUser('bob.wilson', { email: 'bob.wilson@company.com', first_name: 'Bob', last_name: 'Wilson' }),
     ],
   },
   parameters: {
