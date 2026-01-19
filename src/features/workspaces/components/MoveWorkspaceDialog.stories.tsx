@@ -4,20 +4,22 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MoveWorkspaceDialog } from './MoveWorkspaceDialog';
 import { BrowserRouter } from 'react-router-dom';
 import { IntlProvider } from 'react-intl';
-import { Workspace } from '../../../redux/workspaces/reducer';
+import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { TreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
 import WorkspaceType from './managed-selector/WorkspaceType';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { HttpResponse, delay, http } from 'msw';
 
 // Mock workspace data
-const mockWorkspaces: Workspace[] = [
+const mockWorkspaces: WorkspacesWorkspace[] = [
   {
     id: 'workspace-1',
     name: 'Production Environment',
     description: 'Main production workspace for critical services',
     type: 'root',
     parent_id: '',
+    created: '2024-01-01T00:00:00Z',
+    modified: '2024-01-01T00:00:00Z',
   },
   {
     id: 'workspace-2',
@@ -25,6 +27,8 @@ const mockWorkspaces: Workspace[] = [
     description: 'Frontend web applications and services',
     type: 'standard',
     parent_id: 'workspace-1',
+    created: '2024-01-02T00:00:00Z',
+    modified: '2024-01-02T00:00:00Z',
   },
   {
     id: 'workspace-3',
@@ -32,6 +36,8 @@ const mockWorkspaces: Workspace[] = [
     description: 'Backend API and microservices',
     type: 'standard',
     parent_id: 'workspace-1',
+    created: '2024-01-03T00:00:00Z',
+    modified: '2024-01-03T00:00:00Z',
   },
   {
     id: 'workspace-4',
@@ -39,11 +45,13 @@ const mockWorkspaces: Workspace[] = [
     description: 'Development and testing workspace',
     type: 'root',
     parent_id: '',
+    created: '2024-01-04T00:00:00Z',
+    modified: '2024-01-04T00:00:00Z',
   },
 ];
 
 // Convert workspace to TreeViewWorkspaceItem for testing
-const convertToTreeViewItem = (workspace: Workspace): TreeViewWorkspaceItem => ({
+const convertToTreeViewItem = (workspace: WorkspacesWorkspace): TreeViewWorkspaceItem => ({
   name: workspace.name,
   id: workspace.id,
   workspace: { ...workspace, type: workspace.type as WorkspaceType },
@@ -348,6 +356,8 @@ export const SubmissionWorkflow: Story = {
             description: 'Main production workspace for critical services',
             type: 'root',
             parent_id: '',
+            created: '2024-01-01T00:00:00Z',
+            modified: '2024-01-01T00:00:00Z',
           },
           children: [],
         });

@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import { type RoleBindingsListBySubjectParams, type WorkspacesListParams, type WorkspacesPatchParams, workspacesApi } from '../api/workspaces';
+import {
+  type RoleBindingsListBySubjectParams,
+  type WorkspacesListParams,
+  type WorkspacesPatchParams,
+  type WorkspacesWorkspace,
+  workspacesApi,
+} from '../api/workspaces';
 import messages from '../../Messages';
 
 // ============================================================================
@@ -21,8 +27,6 @@ export const roleBindingsKeys = {
   bySubject: () => [...roleBindingsKeys.all, 'bySubject'] as const,
   bySubjectParams: (params: RoleBindingsListBySubjectParams) => [...roleBindingsKeys.bySubject(), params] as const,
   forWorkspace: (workspaceId: string) => [...roleBindingsKeys.all, 'workspace', workspaceId] as const,
-  forGroup: (groupId: string) => [...roleBindingsKeys.all, 'group', groupId] as const,
-  forUser: (userId: string) => [...roleBindingsKeys.all, 'user', userId] as const,
 };
 
 // ============================================================================
@@ -69,10 +73,6 @@ export function useWorkspaceQuery(id: string, options?: { enabled?: boolean }) {
 /**
  * Fetch role bindings for a specific resource (e.g., workspace).
  * This is the main hook for querying access assignments.
- *
- * NOTE: The V2 API requires resourceId and resourceType as required parameters.
- * This means you cannot query "all role bindings for a user across all workspaces"
- * directly - you need to specify which resource to check.
  */
 export function useRoleBindingsQuery(params: RoleBindingsListBySubjectParams, options?: { enabled?: boolean }) {
   return useQuery({
@@ -97,7 +97,6 @@ export function useRoleBindingsQuery(params: RoleBindingsListBySubjectParams, op
 
 /**
  * Fetch role bindings for a workspace, filtered by groups.
- * Useful for showing which groups have access to a workspace.
  */
 export function useWorkspaceGroupBindingsQuery(workspaceId: string, options?: { enabled?: boolean }) {
   return useQuery({
@@ -144,18 +143,19 @@ export function useCreateWorkspaceMutation() {
       });
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: workspacesKeys.all });
       addNotification({
         variant: 'success',
-        title: intl.formatMessage(messages.createWorkspaceSuccessTitle),
+        title: intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: variables.name }),
         dismissable: true,
       });
     },
-    onError: () => {
+    onError: (error: Error, variables) => {
       addNotification({
         variant: 'danger',
-        title: intl.formatMessage(messages.addGroupMemberErrorTitle), // Generic error
+        title: intl.formatMessage(messages.createWorkspaceErrorTitle, { name: variables.name }),
+        description: error.message || intl.formatMessage(messages.createWorkspaceErrorDescription),
         dismissable: true,
       });
     },
@@ -180,13 +180,15 @@ export function useUpdateWorkspaceMutation() {
       addNotification({
         variant: 'success',
         title: intl.formatMessage(messages.editWorkspaceSuccessTitle),
+        description: intl.formatMessage(messages.editWorkspaceSuccessDescription),
         dismissable: true,
       });
     },
     onError: () => {
       addNotification({
         variant: 'danger',
-        title: intl.formatMessage(messages.addGroupMemberErrorTitle), // Generic error
+        title: intl.formatMessage(messages.editWorkspaceErrorTitle),
+        description: intl.formatMessage(messages.editWorkspaceErrorDescription),
         dismissable: true,
       });
     },
@@ -202,33 +204,103 @@ export function useDeleteWorkspaceMutation() {
   const intl = useIntl();
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async ({ id, name }: { id: string; name?: string }) => {
       await workspacesApi.deleteWorkspace({ id });
+      return { id, name };
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: workspacesKeys.all });
       addNotification({
         variant: 'success',
         title: intl.formatMessage(messages.deleteWorkspaceSuccessTitle),
+        description: variables.name ? intl.formatMessage(messages.deleteWorkspaceSuccessDescription, { workspace: variables.name }) : undefined,
         dismissable: true,
       });
     },
-    onError: () => {
+    onError: (_, variables) => {
       addNotification({
         variant: 'danger',
-        title: intl.formatMessage(messages.addGroupMemberErrorTitle), // Generic error
+        title: intl.formatMessage(messages.deleteWorkspaceErrorTitle),
+        description: variables.name ? intl.formatMessage(messages.deleteWorkspaceErrorDescription, { workspace: variables.name }) : undefined,
         dismissable: true,
       });
     },
   });
 }
 
-// Re-export types
-export type { WorkspacesListParams, RoleBindingsListBySubjectParams } from '../api/workspaces';
+interface MoveWorkspaceParams {
+  id: string;
+  parent_id: string;
+  name?: string; // For notification message
+}
+
+/**
+ * Move a workspace to a new parent.
+ */
+export function useMoveWorkspaceMutation() {
+  const queryClient = useQueryClient();
+  const addNotification = useAddNotification();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async ({ id, parent_id }: MoveWorkspaceParams) => {
+      const response = await workspacesApi.moveWorkspace({
+        id,
+        workspacesMoveWorkspaceRequest: { parent_id },
+      });
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: workspacesKeys.all });
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.moveWorkspaceSuccessTitle),
+        description: variables.name ? intl.formatMessage(messages.moveWorkspaceSuccessDescription, { name: variables.name }) : undefined,
+        dismissable: true,
+      });
+    },
+    onError: (_, variables) => {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.moveWorkspaceErrorTitle, { name: variables.name ?? '' }),
+        description: variables.name ? intl.formatMessage(messages.moveWorkspaceErrorDescription, { workspace: variables.name }) : undefined,
+        dismissable: true,
+      });
+    },
+  });
+}
+
+// ============================================================================
+// Type Guards
+// ============================================================================
+
+/**
+ * Check if a value is a WorkspacesWorkspace.
+ */
+export function isWorkspace(data: unknown): data is WorkspacesWorkspace {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'id' in data &&
+    'name' in data &&
+    typeof (data as WorkspacesWorkspace).id === 'string' &&
+    typeof (data as WorkspacesWorkspace).name === 'string'
+  );
+}
+
+// ============================================================================
+// Re-export API types for convenience
+// ============================================================================
+
 export type {
+  WorkspacesListParams,
+  WorkspacesPatchParams,
+  RoleBindingsListBySubjectParams,
   WorkspacesWorkspace,
   WorkspacesWorkspaceListResponse,
   RoleBindingsRoleBindingBySubject,
   RoleBindingsRoleBindingBySubjectListResponse,
   RoleBindingsRole,
+  RoleBindingsRoleBindingBySubjectSubject,
+  RoleBindingsResource,
 } from '../api/workspaces';

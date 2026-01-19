@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useCallback, useContext, useMemo, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useState } from 'react';
 import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -6,7 +6,6 @@ import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
@@ -23,12 +22,12 @@ import type { ColumnConfigMap, ExpandedCell, ExpansionRendererMap, FilterConfig 
 import { PageLayout } from '../../components/layout/PageLayout';
 import { getDateFormat } from '../../helpers/stringUtilities';
 import { useAdminGroupQuery } from '../../data/queries/groups';
-import { useRolesQuery, useRoleForPrincipalQuery } from '../../data/queries/roles';
+import { useRoleForPrincipalQuery, useRolesQuery } from '../../data/queries/roles';
 import { useUsersQuery } from '../../data/queries/users';
 import { useAddRolesToGroupMutation } from '../../data/queries/groups';
 import { GroupsNestedTable } from './components/GroupsNestedTable';
 import { PermissionsNestedTable } from './components/PermissionsNestedTable';
-import type { RoleOutDynamic, Access } from '@redhat-cloud-services/rbac-client/types';
+import type { Access, RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
 
 // RoleWithGroupsIn uses the RoleOutDynamic type from the API
 type RoleWithGroupsIn = RoleOutDynamic;
@@ -54,17 +53,13 @@ const User: React.FC = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [expandedRoleId, setExpandedRoleId] = useState<string | null>(null);
-  const chrome = useChrome();
   const toAppLink = useAppLink();
 
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
   // Fetch user data via React Query
-  const { data: usersData, isLoading: isLoadingUsers } = useUsersQuery(
-    { username, limit: 1 },
-    { enabled: !!username },
-  );
+  const { data: usersData, isLoading: isLoadingUsers } = useUsersQuery({ username, limit: 1 }, { enabled: !!username });
   const user = usersData?.users?.[0];
   const userExists = !!user || isLoadingUsers; // Assume exists while loading
 
@@ -112,7 +107,12 @@ const User: React.FC = () => {
   // Expansion renderers for compound expandable columns
   const expansionRenderers: ExpansionRendererMap<CompoundColumnId, RoleWithGroupsIn> = {
     groups: (row) => (
-      <GroupsNestedTable groups={row.groups_in || []} username={username!} adminGroup={adminGroup as AdminGroup | undefined} isLoading={isLoadingRoles} />
+      <GroupsNestedTable
+        groups={row.groups_in || []}
+        username={username!}
+        adminGroup={adminGroup as AdminGroup | undefined}
+        isLoading={isLoadingRoles}
+      />
     ),
     permissions: (row) => {
       const isThisRoleExpanded = expandedRoleId === row.uuid;

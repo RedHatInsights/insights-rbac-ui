@@ -1,11 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { WorkspaceListTable } from './components/WorkspaceListTable';
-import { deleteWorkspace, fetchWorkspaces, moveWorkspace } from '../../redux/workspaces/actions';
-import { Workspace } from '../../redux/workspaces/reducer';
-import { selectIsWorkspacesLoading, selectWorkspaces, selectWorkspacesError } from '../../redux/workspaces/selectors';
+import { type WorkspacesWorkspace, useDeleteWorkspaceMutation, useMoveWorkspaceMutation, useWorkspacesQuery } from '../../data/queries/workspaces';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { MoveWorkspaceDialog } from './components/MoveWorkspaceDialog';
 import { TreeViewWorkspaceItem } from './components/managed-selector/TreeViewWorkspaceItem';
@@ -14,78 +11,93 @@ import messages from '../../Messages';
 
 interface Permission {
   permission: string;
-  resourceDefinitions: any[];
+  resourceDefinitions: { attributeFilter: { value: string[] } }[];
 }
 
 // Convert workspace to TreeViewWorkspaceItem
-const convertToTreeViewItem = (workspace: Workspace): TreeViewWorkspaceItem => ({
-  name: workspace.name,
-  id: workspace.id,
-  workspace: { ...workspace, type: workspace.type as WorkspaceType },
+const convertToTreeViewItem = (workspace: WorkspacesWorkspace): TreeViewWorkspaceItem => ({
+  name: workspace.name ?? '',
+  id: workspace.id ?? '',
+  workspace: {
+    id: workspace.id ?? '',
+    name: workspace.name ?? '',
+    description: workspace.description,
+    type: (workspace.type as WorkspaceType) ?? 'standard',
+    parent_id: workspace.parent_id ?? '',
+  },
   children: [],
 });
 
 export const WorkspaceList = () => {
-  const dispatch = useDispatch();
   const chrome = useChrome();
   const intl = useIntl();
   const addNotification = useAddNotification();
 
-  // All Redux selectors moved from WorkspaceListTable - using memoized selectors
-  const workspaces = useSelector(selectWorkspaces);
-  const error = useSelector(selectWorkspacesError);
-  const isLoading = useSelector(selectIsWorkspacesLoading);
+  // React Query for workspaces
+  const { data: workspacesData, isLoading, isError } = useWorkspacesQuery();
+  const workspaces = workspacesData?.data ?? [];
+  const error: string | null = isError ? 'Failed to fetch workspaces' : null;
 
-  // User permissions state moved from WorkspaceListTable
+  // Mutations
+  const deleteWorkspaceMutation = useDeleteWorkspaceMutation();
+  const moveWorkspaceMutation = useMoveWorkspaceMutation();
+
+  // User permissions state
   const [userPermissions, setUserPermissions] = useState<Permission>({
     permission: '',
-    resourceDefinitions: [],
+    resourceDefinitions: [] as { attributeFilter: { value: string[] } }[],
   });
 
   // Move modal state
-  const [currentMoveWorkspace, setCurrentMoveWorkspace] = useState<Workspace | null>(null);
-  const [isMoveSubmitting, setIsMoveSubmitting] = useState(false);
+  const [currentMoveWorkspace, setCurrentMoveWorkspace] = useState<WorkspacesWorkspace | null>(null);
 
   // Derived state - modal is open when we have a workspace to move
   const isMoveModalOpen = currentMoveWorkspace !== null;
+  const isMoveSubmitting = moveWorkspaceMutation.isPending;
 
-  // All useEffect logic moved from WorkspaceListTable
-  useEffect(() => {
-    dispatch(fetchWorkspaces());
-  }, [dispatch]);
-
+  // Fetch user permissions on mount
   useEffect(() => {
     chrome.getUserPermissions().then((permissions) => {
       const foundPermission = permissions.find(({ permission }) => ['inventory:groups:write', 'inventory:groups:*'].includes(permission));
-      setUserPermissions(foundPermission || { permission: '', resourceDefinitions: [] });
+      if (foundPermission) {
+        setUserPermissions({
+          permission: foundPermission.permission,
+          resourceDefinitions: (foundPermission.resourceDefinitions || []) as { attributeFilter: { value: string[] } }[],
+        });
+      }
     });
   }, [chrome]);
 
-  // Action handlers with the actual complex logic from WorkspaceListTable
+  // Action handlers using React Query mutations
   const handleDeleteWorkspaces = useCallback(
-    async (workspaces: Workspace[]) => {
+    async (workspacesToDelete: WorkspacesWorkspace[]) => {
       try {
-        await Promise.all(workspaces.map(async ({ id, name }) => await dispatch(deleteWorkspace({ id }, { name }))));
-        addNotification({
-          variant: 'success',
-          title: intl.formatMessage(messages.deleteWorkspaceSuccessTitle),
-          description: intl.formatMessage(messages.deleteWorkspaceSuccessDescription, { workspace: workspaces.map((w) => w.name).join(', ') }),
-        });
-        dispatch(fetchWorkspaces());
-      } catch (error) {
-        console.error('Failed to delete workspaces:', error);
-        addNotification({
-          variant: 'danger',
-          title: intl.formatMessage(messages.deleteWorkspaceErrorTitle),
-          description: intl.formatMessage(messages.deleteWorkspaceErrorDescription, { workspace: workspaces.map((w) => w.name).join(', ') }),
-        });
+        // Delete workspaces sequentially to allow proper notification handling
+        for (const workspace of workspacesToDelete) {
+          if (workspace.id) {
+            await deleteWorkspaceMutation.mutateAsync({ id: workspace.id, name: workspace.name });
+          }
+        }
+        // Additional notification for multiple workspaces
+        if (workspacesToDelete.length > 1) {
+          addNotification({
+            variant: 'success',
+            title: intl.formatMessage(messages.deleteWorkspaceSuccessTitle),
+            description: intl.formatMessage(messages.deleteWorkspaceSuccessDescription, {
+              workspace: workspacesToDelete.map((w) => w.name).join(', '),
+            }),
+          });
+        }
+      } catch (err) {
+        console.error('Failed to delete workspaces:', err);
+        // Error notification is handled by the mutation
       }
     },
-    [dispatch, addNotification, intl],
+    [deleteWorkspaceMutation, addNotification, intl],
   );
 
   const handleMoveWorkspace = useCallback(
-    async (workspace: Workspace, targetParentId: string) => {
+    async (workspace: WorkspacesWorkspace, targetParentId: string) => {
       if (!targetParentId) {
         // Open the move modal for user to select target
         setCurrentMoveWorkspace(workspace);
@@ -94,46 +106,30 @@ export const WorkspaceList = () => {
 
       // Direct move operation when target is already known
       try {
-        await dispatch(
-          moveWorkspace(
-            {
-              id: workspace.id,
-              workspacesMoveWorkspaceRequest: {
-                parent_id: targetParentId,
-              },
-            },
-            { name: workspace.name },
-          ),
-        );
-        addNotification({
-          variant: 'success',
-          title: intl.formatMessage(messages.moveWorkspaceSuccessTitle),
-          description: intl.formatMessage(messages.moveWorkspaceSuccessDescription, { name: workspace.name }),
-        });
-        dispatch(fetchWorkspaces());
-      } catch (error) {
-        console.error('Failed to move workspace:', error);
-        addNotification({
-          variant: 'danger',
-          title: intl.formatMessage(messages.moveWorkspaceErrorTitle, { name: workspace.name }),
-          description: intl.formatMessage(messages.moveWorkspaceErrorDescription, { workspace: workspace.name }),
-        });
+        if (workspace.id) {
+          await moveWorkspaceMutation.mutateAsync({
+            id: workspace.id,
+            parent_id: targetParentId,
+            name: workspace.name,
+          });
+        }
+        // Success notification is handled by the mutation
+      } catch (err) {
+        console.error('Failed to move workspace:', err);
+        // Error notification is handled by the mutation
       }
     },
-    [dispatch, addNotification, intl],
+    [moveWorkspaceMutation],
   );
 
   const handleMoveWorkspaceConfirm = useCallback(
     async (destinationWorkspace: TreeViewWorkspaceItem) => {
       if (currentMoveWorkspace && destinationWorkspace.id) {
-        setIsMoveSubmitting(true);
         try {
           await handleMoveWorkspace(currentMoveWorkspace, destinationWorkspace.id);
           setCurrentMoveWorkspace(null);
-        } catch (error) {
-          console.error('Failed to move workspace in dialog:', error);
-        } finally {
-          setIsMoveSubmitting(false);
+        } catch (err) {
+          console.error('Failed to move workspace in dialog:', err);
         }
       }
     },

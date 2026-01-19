@@ -1,10 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchWorkspace, fetchWorkspaces } from '../../../redux/workspaces/actions';
-import { getRoleBindingsForSubject } from '../../../redux/workspaces/helper';
 import { Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
-import { selectWorkspacesFullState } from '../../../redux/workspaces/selectors';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@patternfly/react-data-view';
 import messages from '../../../Messages';
@@ -13,8 +9,22 @@ import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
 import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
-import { Workspace } from '../../../redux/workspaces/reducer';
-import { Group } from '../../../redux/groups/reducer';
+import { type WorkspacesWorkspace, useRoleBindingsQuery, useWorkspaceQuery, useWorkspacesQuery } from '../../../data/queries/workspaces';
+import type { Group } from '../../../redux/groups/reducer';
+
+// Extended subject type for role bindings (API returns more than the type definition)
+interface RoleBindingSubject {
+  id?: string;
+  type?: string;
+  group?: {
+    name?: string;
+    description?: string;
+    user_count?: number;
+  };
+  user?: {
+    username?: string;
+  };
+}
 
 interface WorkspaceData {
   name: string;
@@ -47,20 +57,15 @@ export const WorkspaceDetail = () => {
   const rolesRef = React.createRef<HTMLElement>();
   const assetsRef = React.createRef<HTMLElement>();
 
-  const dispatch = useDispatch();
-  const { isLoading, workspaces, selectedWorkspace } = useSelector(selectWorkspacesFullState);
+  // React Query hooks
+  const { data: workspacesData, isLoading: isWorkspacesLoading } = useWorkspacesQuery();
+  const workspaces = (workspacesData?.data ?? []) as WorkspacesWorkspace[];
 
-  // Role bindings data for RoleAssignmentsTable (transformed to Group structure)
-  const [roleBindings, setRoleBindings] = useState<Group[]>([]);
-  const [roleBindingsTotalCount, setRoleBindingsTotalCount] = useState(0);
-  const [roleBindingsIsLoading, setRoleBindingsIsLoading] = useState(false);
+  const { data: selectedWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceQuery(workspaceId || '', {
+    enabled: !!workspaceId,
+  });
 
-  // Separate parent groups data for RoleAssignmentsTable with inheritance
-  const [parentGroups, setParentGroups] = useState<GroupWithInheritance[]>([]);
-  const [parentGroupsTotalCount, setParentGroupsTotalCount] = useState(0);
-  const [parentGroupsIsLoading, setParentGroupsIsLoading] = useState(false);
-
-  const [workspaceHierarchy, setWorkspaceHierarchy] = useState<WorkspaceData[]>([]);
+  const isLoading = isWorkspacesLoading || isWorkspaceLoading;
 
   // DataView hooks for role assignments table
   const { sortBy, direction, onSort } = useDataViewSort({
@@ -121,136 +126,90 @@ export const WorkspaceDetail = () => {
     setSearchParams: setParentSearchParams,
   });
 
-  // Role bindings data fetching
-  const fetchRoleBindingsData = useCallback(async () => {
-    if (!workspaceId) return;
+  // Role bindings queries
+  const shouldFetchRoleBindings = activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-workspace';
+  const { data: roleBindingsData, isLoading: roleBindingsIsLoading } = useRoleBindingsQuery(
+    {
+      limit: perPage,
+      subjectType: 'group',
+      resourceType: 'workspace',
+      resourceId: workspaceId || '',
+    },
+    { enabled: shouldFetchRoleBindings && !!workspaceId },
+  );
 
-    setRoleBindingsIsLoading(true);
-    try {
-      const result = await getRoleBindingsForSubject({
-        limit: perPage,
-        subjectType: 'group',
-        resourceType: 'workspace',
-        resourceId: workspaceId,
-      });
+  // Parent role bindings query
+  const shouldFetchParentBindings =
+    activeTabString === 'roles' &&
+    enableRoles &&
+    activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces' &&
+    !!selectedWorkspace?.parent_id;
+  const { data: parentBindingsData, isLoading: parentGroupsIsLoading } = useRoleBindingsQuery(
+    {
+      limit: parentPerPage,
+      subjectType: 'group',
+      resourceType: 'workspace',
+      resourceId: selectedWorkspace?.parent_id || '',
+    },
+    { enabled: shouldFetchParentBindings },
+  );
 
-      // Transform role bindings data to match the expected Group structure
-      const transformedData: Group[] =
-        result.data?.map(
-          (binding): Group => ({
-            uuid: binding.subject.id,
-            name: binding.subject.group?.name || binding.subject.user?.username || 'Unknown',
-            description: binding.subject.group?.description || '',
-            principalCount: binding.subject.group?.user_count || 0,
-            roleCount: binding.roles?.length || 0,
-            created: binding.last_modified,
-            modified: binding.last_modified,
-            platform_default: false,
-            system: false,
-            admin_default: false,
-          }),
-        ) || [];
+  // Transform role bindings to Group structure for the table
+  const roleBindings: Group[] = useMemo(() => {
+    if (!roleBindingsData?.data) return [];
+    return roleBindingsData.data.map((binding) => {
+      // Cast subject to extended type that includes group/user details
+      const subject = binding.subject as RoleBindingSubject | undefined;
+      return {
+        uuid: subject?.id || '',
+        name: subject?.group?.name || subject?.user?.username || 'Unknown',
+        description: subject?.group?.description || '',
+        principalCount: subject?.group?.user_count || 0,
+        roleCount: binding.roles?.length || 0,
+        created: binding.last_modified,
+        modified: binding.last_modified,
+        platform_default: false,
+        system: false,
+        admin_default: false,
+      };
+    });
+  }, [roleBindingsData]);
 
-      setRoleBindings(transformedData);
-      setRoleBindingsTotalCount(result.meta?.count || 0);
-    } catch (error) {
-      console.error('Error fetching role bindings:', error);
-      setRoleBindings([]);
-      setRoleBindingsTotalCount(0);
-    } finally {
-      setRoleBindingsIsLoading(false);
-    }
-  }, [workspaceId, page, perPage, sortBy, direction, filters]);
+  const roleBindingsTotalCount = roleBindingsData?.data?.length ?? 0;
 
-  const fetchParentGroupsData = useCallback(async () => {
-    if (!selectedWorkspace || !selectedWorkspace.parent_id) {
-      // No parent workspace, clear data
-      setParentGroups([]);
-      setParentGroupsTotalCount(0);
-      return;
-    }
+  // Transform parent bindings with inheritance info
+  const parentGroups: GroupWithInheritance[] = useMemo(() => {
+    if (!parentBindingsData?.data || !selectedWorkspace?.parent_id) return [];
 
-    setParentGroupsIsLoading(true);
+    const parentWorkspace = workspaces.find((w) => w.id === selectedWorkspace.parent_id);
+    const parentWorkspaceName = parentWorkspace?.name || 'Parent Workspace';
 
-    try {
-      // Fetch role bindings from parent workspace
-      const result = await getRoleBindingsForSubject({
-        limit: parentPerPage,
-        subjectType: 'group',
-        resourceType: 'workspace',
-        resourceId: selectedWorkspace.parent_id,
-      });
+    return parentBindingsData.data.map((binding) => {
+      // Cast subject to extended type that includes group/user details
+      const subject = binding.subject as RoleBindingSubject | undefined;
+      return {
+        uuid: subject?.id || '',
+        name: subject?.group?.name || subject?.user?.username || 'Unknown',
+        description: subject?.group?.description || '',
+        principalCount: subject?.group?.user_count || 0,
+        roleCount: binding.roles?.length || 0,
+        created: binding.last_modified,
+        modified: binding.last_modified,
+        platform_default: false,
+        system: false,
+        admin_default: false,
+        inheritedFrom: {
+          workspaceId: selectedWorkspace.parent_id!, // Already checked parent_id exists in condition above
+          workspaceName: parentWorkspaceName,
+        },
+      };
+    });
+  }, [parentBindingsData, selectedWorkspace, workspaces]);
 
-      // Get parent workspace name for inheritance display
-      const parentWorkspace = workspaces.find((w) => w.id === selectedWorkspace.parent_id);
-      const parentWorkspaceName = parentWorkspace?.name || 'Parent Workspace';
+  const parentGroupsTotalCount = parentBindingsData?.data?.length ?? 0;
 
-      // Transform and add inheritance information
-      const groupsWithInheritance: GroupWithInheritance[] =
-        result.data?.map((binding) => ({
-          uuid: binding.subject.id,
-          name: binding.subject.group?.name || binding.subject.user?.username || 'Unknown',
-          description: binding.subject.group?.description || '',
-          principalCount: binding.subject.group?.user_count || 0,
-          roleCount: binding.roles?.length || 0,
-          created: binding.last_modified,
-          modified: binding.last_modified,
-          platform_default: false,
-          system: false,
-          admin_default: false,
-          inheritedFrom: {
-            workspaceId: selectedWorkspace.parent_id,
-            workspaceName: parentWorkspaceName,
-          },
-        })) || [];
-
-      setParentGroups(groupsWithInheritance);
-      setParentGroupsTotalCount(result.meta?.count || 0);
-    } catch (error) {
-      console.error('Error fetching parent groups:', error);
-      setParentGroups([]);
-      setParentGroupsTotalCount(0);
-    } finally {
-      setParentGroupsIsLoading(false);
-    }
-  }, [selectedWorkspace, workspaces, parentPage, parentPerPage]);
-
-  useEffect(() => {
-    if (activeTabString === 'roles' && enableRoles) {
-      if (activeRoleAssignmentTabString === 'roles-assigned-in-workspace') {
-        fetchRoleBindingsData();
-      } else if (activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces') {
-        // Reset parent data when switching to parent tab
-        setParentGroups([]);
-        setParentGroupsTotalCount(0);
-        fetchParentGroupsData();
-      }
-    }
-  }, [activeTabString, enableRoles, activeRoleAssignmentTabString, fetchRoleBindingsData, fetchParentGroupsData]);
-
-  // Fetch workspace data when workspace table parameters change
-  useEffect(() => {
-    if (activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-workspace') {
-      fetchRoleBindingsData();
-    }
-  }, [fetchRoleBindingsData, activeTabString, enableRoles, activeRoleAssignmentTabString]);
-
-  // Fetch parent data when parent table parameters change
-  useEffect(() => {
-    if (activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces') {
-      fetchParentGroupsData();
-    }
-  }, [
-    parentPage,
-    parentPerPage,
-    parentSortBy,
-    parentDirection,
-    parentFilters,
-    activeTabString,
-    enableRoles,
-    activeRoleAssignmentTabString,
-    fetchParentGroupsData,
-  ]);
+  // Workspace hierarchy state
+  const [workspaceHierarchy, setWorkspaceHierarchy] = useState<WorkspaceData[]>([]);
 
   useEffect(() => {
     if (!searchParams.has('activeTab')) {
@@ -263,26 +222,19 @@ export const WorkspaceDetail = () => {
   }, [searchParams, setSearchParams, enableRoles, activeTabString]);
 
   useEffect(() => {
-    if (workspaceId) {
-      dispatch(fetchWorkspace(workspaceId));
-    }
-    dispatch(fetchWorkspaces());
-  }, [workspaceId]);
-
-  useEffect(() => {
     if (workspaces.length > 0 && workspaceId) {
       setWorkspaceHierarchy(buildWorkspacesHierarchy(workspaces, workspaceId));
     }
   }, [workspaces, workspaceId]);
 
-  const buildWorkspacesHierarchy = (workspaces: Workspace[], workspaceId: string): WorkspaceData[] => {
-    let currentWorkspace = workspaces.find((ws) => ws.id === workspaceId);
+  const buildWorkspacesHierarchy = (allWorkspaces: WorkspacesWorkspace[], targetWorkspaceId: string): WorkspaceData[] => {
+    let currentWorkspace = allWorkspaces.find((ws) => ws.id === targetWorkspaceId);
 
-    const hierarchy: WorkspaceData[] = currentWorkspace ? [currentWorkspace] : [];
+    const hierarchy: WorkspaceData[] = currentWorkspace ? [{ name: currentWorkspace.name ?? '', id: currentWorkspace.id ?? '' }] : [];
     while (currentWorkspace?.parent_id?.length && currentWorkspace?.parent_id?.length > 0) {
-      currentWorkspace = workspaces.find((ws) => ws.id === currentWorkspace?.parent_id);
+      currentWorkspace = allWorkspaces.find((ws) => ws.id === currentWorkspace?.parent_id);
       if (!currentWorkspace) break;
-      hierarchy.unshift({ name: currentWorkspace.name, id: currentWorkspace.id });
+      hierarchy.unshift({ name: currentWorkspace.name ?? '', id: currentWorkspace.id ?? '' });
     }
     return hierarchy;
   };
@@ -311,11 +263,11 @@ export const WorkspaceDetail = () => {
     }
   };
 
-  const currentWorkspace = selectedWorkspace ? { id: selectedWorkspace.id, name: selectedWorkspace.name } : undefined;
+  const currentWorkspace = selectedWorkspace ? { id: selectedWorkspace.id ?? '', name: selectedWorkspace.name ?? '' } : undefined;
 
   return (
     <>
-      <WorkspaceHeader workspace={selectedWorkspace} isLoading={isLoading} workspaceHierarchy={workspaceHierarchy} hasAssets={hasAssets} />
+      <WorkspaceHeader workspace={selectedWorkspace ?? null} isLoading={isLoading} workspaceHierarchy={workspaceHierarchy} hasAssets={hasAssets} />
       <Divider />
       <Tabs
         className="pf-v6-u-background-color-100"
