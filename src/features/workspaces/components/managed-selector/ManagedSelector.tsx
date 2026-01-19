@@ -9,11 +9,43 @@ import buildWorkspaceTree from './WorkspaceTreeBuilder';
 import { WorkspaceMenuToggle } from './components/WorkspaceMenuToggle';
 import { WorkspaceSelector } from './components/WorkspaceSelector';
 
+/**
+ * Response type for the RBAC workspaces list API endpoint
+ */
 export interface RBACListWorkspacesResponse {
+  /**
+   * Array of workspace objects returned from the API
+   */
   data: Workspace[];
 }
 
-// Exported fetch function
+/**
+ * Fetches all workspaces from the RBAC API
+ *
+ * @description
+ * Makes a GET request to the RBAC v2 workspaces endpoint to retrieve all available
+ * workspaces. Uses `Number.MAX_SAFE_INTEGER` as the limit to fetch all workspaces
+ * in a single request.
+ *
+ * @returns Promise that resolves to an Axios response containing the workspace data
+ *
+ * @throws {AxiosError} When the API request fails
+ *
+ * @example
+ * ```tsx
+ * import { fetchWorkspacesFromRBAC } from './ManagedSelector';
+ *
+ * async function loadWorkspaces() {
+ *   try {
+ *     const response = await fetchWorkspacesFromRBAC();
+ *     const workspaces = response.data.data;
+ *     console.log('Fetched workspaces:', workspaces);
+ *   } catch (error) {
+ *     console.error('Failed to fetch workspaces:', error);
+ *   }
+ * }
+ * ```
+ */
 export const fetchWorkspacesFromRBAC = () => {
   return axios.get<RBACListWorkspacesResponse>('/api/rbac/v2/workspaces/', {
     params: {
@@ -22,7 +54,41 @@ export const fetchWorkspacesFromRBAC = () => {
   });
 };
 
-// Exported search/filter function
+/**
+ * Recursively filters workspace tree items based on search input
+ *
+ * @description
+ * Performs a case-insensitive search through workspace tree items and their children.
+ * Returns true if the item's name matches the search input or if any of its descendants
+ * match. This enables partial tree filtering where parent nodes are included if any
+ * child matches the search criteria.
+ *
+ * @param item - The tree item to filter (TreeViewDataItem or TreeViewWorkspaceItem)
+ * @param input - The search string to filter by (case-insensitive)
+ * @returns boolean indicating whether the item should be included in filtered results
+ *
+ * @remarks
+ * - The search is case-insensitive and uses substring matching
+ * - Parent items are included if any child matches the search
+ * - Items without names or with non-string names are excluded
+ * - The function mutates the children array during filtering
+ *
+ * @example
+ * ```tsx
+ * import { filterWorkspaceItems } from './ManagedSelector';
+ *
+ * const workspaceTree = {
+ *   name: 'Root',
+ *   children: [
+ *     { name: 'Development' },
+ *     { name: 'Production' }
+ *   ]
+ * };
+ *
+ * const shouldInclude = filterWorkspaceItems(workspaceTree, 'dev');
+ * // Returns true because 'Development' matches 'dev'
+ * ```
+ */
 export const filterWorkspaceItems = (item: TreeViewDataItem | TreeViewWorkspaceItem, input: string): boolean => {
   // When the item does not have a name, which is an edge case that shouldn't
   // happen, then it can never be part of the filtered results.
@@ -53,7 +119,41 @@ export const filterWorkspaceItems = (item: TreeViewDataItem | TreeViewWorkspaceI
   }
 };
 
-// Exported function to create a workspace data fetcher with store integration
+/**
+ * Creates a workspace data fetcher function with store integration
+ *
+ * @description
+ * Factory function that returns a memoized callback for fetching workspaces from the
+ * RBAC API and updating the provided store actions. The returned function handles
+ * loading states, error states, and automatically builds the workspace tree structure.
+ *
+ * @param storeActions - Object containing store action functions for state updates
+ * @param storeActions.setIsFetchingWorkspacesFromRBAC - Sets the loading state
+ * @param storeActions.setIsFetchingWorkspacesFromRBACError - Sets the error state
+ * @param storeActions.setFetchedWorkspaces - Stores the raw workspace data
+ * @param storeActions.setWorkspaceTree - Stores the built workspace tree
+ * @param excludeWorkspaceIds - Optional array of workspace IDs to exclude from the tree
+ *
+ * @returns A memoized callback function that fetches and processes workspace data
+ *
+ * @example
+ * ```tsx
+ * import { createWorkspaceDataFetcher } from './ManagedSelector';
+ *
+ * const fetchWorkspaces = createWorkspaceDataFetcher(
+ *   {
+ *     setIsFetchingWorkspacesFromRBAC: (loading) => setLoading(loading),
+ *     setIsFetchingWorkspacesFromRBACError: (error) => setError(error),
+ *     setFetchedWorkspaces: (workspaces) => setWorkspaces(workspaces),
+ *     setWorkspaceTree: (tree) => setTree(tree)
+ *   },
+ *   ['workspace-id-to-exclude']
+ * );
+ *
+ * // Call the fetcher
+ * fetchWorkspaces();
+ * ```
+ */
 export const createWorkspaceDataFetcher = (
   storeActions: {
     setIsFetchingWorkspacesFromRBAC: (loading: boolean) => void;
@@ -93,7 +193,42 @@ export const createWorkspaceDataFetcher = (
   ]);
 };
 
-// Exported function to create a workspace search filter
+/**
+ * Creates a workspace search filter function
+ *
+ * @description
+ * Factory function that returns a search filter callback for filtering workspace tree
+ * items. The returned function updates the filtered elements state based on the search
+ * input, using the filterWorkspaceItems function for recursive filtering.
+ *
+ * @param workspaceTree - The root workspace tree item to filter
+ * @param setFilteredTreeElements - State setter for the filtered tree elements
+ * @param setElementsAreFiltered - State setter for the filtered status flag
+ *
+ * @returns A function that accepts a search input string and updates the filtered state
+ *
+ * @remarks
+ * - Empty search input resets the filter to show the full tree
+ * - Non-empty input triggers recursive filtering through the tree
+ * - The filter function is not memoized; memoization should be handled by the caller
+ *
+ * @example
+ * ```tsx
+ * import { createWorkspaceSearchFilter } from './ManagedSelector';
+ *
+ * const [filteredElements, setFilteredElements] = useState([]);
+ * const [isFiltered, setIsFiltered] = useState(false);
+ *
+ * const handleSearch = createWorkspaceSearchFilter(
+ *   workspaceTree,
+ *   setFilteredElements,
+ *   setIsFiltered
+ * );
+ *
+ * // Use in search input
+ * <SearchInput onChange={(value) => handleSearch(value)} />
+ * ```
+ */
 export const createWorkspaceSearchFilter = (
   workspaceTree: TreeViewWorkspaceItem | undefined,
   setFilteredTreeElements: (elements: TreeViewWorkspaceItem[]) => void,
@@ -119,9 +254,28 @@ export const createWorkspaceSearchFilter = (
   };
 };
 
-interface ManagedSelectorProps {
+/**
+ * Props for the ManagedSelector component
+ */
+export interface ManagedSelectorProps {
+  /**
+   * Callback function invoked when a workspace is selected from the tree view.
+   * Receives the selected workspace as a TreeViewDataItem.
+   */
   onSelect?: (workspace: TreeViewDataItem) => void;
+
+  /**
+   * Initial workspace to be selected when the component mounts.
+   * If provided, this workspace will be set as the selected workspace in the internal state.
+   */
   initialSelectedWorkspace?: TreeViewWorkspaceItem;
+
+  /**
+   * Source workspace to exclude from the workspace tree.
+   * When provided, this workspace (and its ID) will be filtered out from the fetched workspaces,
+   * preventing it from appearing in the tree view. Useful when selecting a target workspace
+   * for moving/copying resources from a source workspace.
+   */
   sourceWorkspace?: TreeViewWorkspaceItem;
 }
 
@@ -236,7 +390,89 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
   );
 };
 
-// Main component that provides the store context
+/**
+ * ManagedSelector - A workspace selection component for RBAC
+ *
+ * @description
+ * A fully managed workspace selector component that provides a hierarchical tree view
+ * of workspaces fetched from the RBAC API. This component handles all internal state
+ * management through a dedicated store (WorkspacesStoreProvider) and provides features
+ * like search/filtering, loading states, error handling, and workspace selection.
+ *
+ * @component
+ * @module-federation-shared
+ *
+ * @features
+ * - Automatic workspace fetching from `/api/rbac/v2/workspaces/` endpoint
+ * - Hierarchical tree view rendering with parent-child relationships
+ * - Real-time search and filtering of workspaces by name
+ * - Loading and error state handling
+ * - Workspace exclusion (useful for move/copy operations)
+ * - Initial workspace selection support
+ * - Internal state management with WorkspacesStore
+ *
+ * @architecture
+ * The component follows a Provider-Consumer pattern:
+ * - `ManagedSelector` (exported): Wraps the internal component with WorkspacesStoreProvider
+ * - `ManagedSelectorInternal`: Contains the actual implementation and consumes the store
+ * - Store-based state management ensures clean separation of concerns
+ *
+ * @example Basic usage
+ * ```tsx
+ * import { AsyncComponent } from '@redhat-cloud-services/frontend-components';
+ *
+ * function MyComponent() {
+ *   const handleWorkspaceSelect = (workspace) => {
+ *     console.log('Selected workspace:', workspace);
+ *   };
+ *
+ *   return <AsyncComponent
+ *         scope="rbac"
+ *         module="./Workspaces/ManagedSelector"
+ *         onSelect={handleWorkspaceSelect}
+ *         fallback={<div id="fallback-modal" />}
+ *       />;
+ * }
+ * ```
+ *
+ * @example With initial selection and source exclusion
+ * ```tsx
+ * import { AsyncComponent } from '@redhat-cloud-services/frontend-components';
+ *
+ * function WorkspaceMover({ currentWorkspace, defaultTargetWorkspace }) {
+ *   const handleMove = (targetWorkspace) => {
+ *     // Move resources from currentWorkspace to targetWorkspace
+ *   };
+ *
+ *   return (
+ *     <AsyncComponent
+ *       scope="rbac"
+ *       module="./Workspaces/ManagedSelector"
+ *       onSelect={handleMove}
+ *       sourceWorkspace={currentWorkspace}
+ *       initialSelectedWorkspace={defaultTargetWorkspace}
+ *       fallback={<div id="fallback-modal" />}
+ *     />
+ *   );
+ * }
+ * ```
+ *
+ * @api-endpoint `/api/rbac/v2/workspaces/` (GET)
+ * @api-response `{ data: Workspace[], meta: {...} }`
+ *
+ * @exports
+ * - `ManagedSelector`: Main component (default export for module federation)
+ * - `ManagedSelectorProps`: TypeScript interface for component props
+ * - `fetchWorkspacesFromRBAC`: API fetcher function
+ * - `filterWorkspaceItems`: Filter function for workspace search
+ * - `createWorkspaceDataFetcher`: Factory for creating data fetcher with store integration
+ * - `createWorkspaceSearchFilter`: Factory for creating search filter function
+ * - `RBACListWorkspacesResponse`: API response type
+ *
+ * @see {@link TreeViewWorkspaceItem} for workspace tree item structure
+ * @see {@link Workspace} for workspace data model
+ * @see {@link WorkspacesStoreProvider} for state management details
+ */
 export const ManagedSelector: React.FC<ManagedSelectorProps> = ({ onSelect, initialSelectedWorkspace, sourceWorkspace }) => {
   return (
     <WorkspacesStoreProvider>
