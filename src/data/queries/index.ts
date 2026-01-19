@@ -13,7 +13,7 @@ export {
 } from './roles';
 
 // Groups queries
-export { groupsKeys, useAdminGroupQuery, useGroupQuery } from './groups';
+export { groupsKeys, useAdminGroupQuery, useSystemGroupQuery, useGroupQuery } from './groups';
 
 // Permissions queries
 export { permissionsKeys, usePermissionsQuery, usePermissionOptionsQuery, useExpandSplatsQuery } from './permissions';
