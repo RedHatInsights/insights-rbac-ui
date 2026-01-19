@@ -53,7 +53,7 @@ const mockGroups: Group[] = [
   {
     ...createMockGroup('4'),
     name: 'System Group',
-    description: null as any, // Test null description
+    description: null as unknown as string, // Test null description
     principalCount: 0,
     roleCount: 5,
     platform_default: false,
@@ -131,7 +131,7 @@ This is a **presentational component** that:
 - Receives all data via props
 - Manages only local UI state (sorting, selection)
 - Calls parent callbacks for business logic
-- Has no knowledge of Redux or routing
+- Has no knowledge of external state or routing
         `,
       },
     },

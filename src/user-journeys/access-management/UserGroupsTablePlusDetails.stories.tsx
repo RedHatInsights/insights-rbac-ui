@@ -12,11 +12,11 @@
 
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { resetStoryState } from '../_shared/helpers';
+import { resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers } from './_shared';
 
 const meta = {
@@ -101,7 +101,6 @@ type Story = StoryObj<typeof meta>;
  * - Counts display correctly
  */
 export const TableView: Story = {
-  name: 'Table View',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -125,8 +124,8 @@ Tests the default User Groups table view matching \`static/mocks/User groups tab
     await resetStoryState();
     const canvas = within(context.canvasElement);
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Default group');
 
     // Verify User Groups tab is active
     const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
@@ -157,7 +156,6 @@ Tests the default User Groups table view matching \`static/mocks/User groups tab
  * - Users tab displays members
  */
 export const GroupDetailsDrawer: Story = {
-  name: 'Group Details Drawer',
   parameters: {
     docs: {
       description: {
@@ -178,8 +176,8 @@ Tests the group details drawer matching \`static/mocks/User groups table plus de
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Golden girls');
 
     // Click on Golden girls group
     const goldenGirlsRow = await canvas.findByText('Golden girls');
@@ -231,8 +229,8 @@ Tests the Service accounts tab matching \`static/mocks/User groups table plus de
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Admin group');
 
     // Click on Admin group
     const adminGroupRow = await canvas.findByText('Admin group');
@@ -334,8 +332,8 @@ Tests the Roles tab in the group details drawer.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Admin group');
 
     // Click on Admin group
     const adminGroupRow = await canvas.findByText('Admin group');
@@ -363,7 +361,6 @@ Tests the Roles tab in the group details drawer.
  * Tests the Edit and Delete actions in the kebab menu
  */
 export const KebabMenuActions: Story = {
-  name: 'Kebab Menu Actions',
   parameters: {
     docs: {
       description: {
@@ -384,8 +381,8 @@ Tests the kebab menu actions matching \`static/mocks/User groups table plus deta
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Golden girls');
 
     // Find kebab menu for a non-system group (Golden girls)
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
@@ -407,7 +404,6 @@ Tests the kebab menu actions matching \`static/mocks/User groups table plus deta
  * Tests the empty state when no groups exist
  */
 export const EmptyState: Story = {
-  name: 'Empty State',
   parameters: {
     docs: {
       description: {
@@ -438,8 +434,13 @@ Tests the empty state matching \`static/mocks/User groups table plus details/Bas
     await resetStoryState();
     const canvas = within(context.canvasElement);
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for empty state to load - use findBy with regex for case-insensitive match
+    await waitFor(
+      async () => {
+        await expect(canvas.getByText(/no user group found/i)).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Verify empty state message (singular form)
     await expect(canvas.findByText(/no user group found/i)).resolves.toBeInTheDocument();
@@ -475,8 +476,8 @@ Tests filtering groups by name.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Admin group');
 
     // Find the filter input
     const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
@@ -485,7 +486,9 @@ Tests filtering groups by name.
     // Type a filter value
     await user.type(filterInput, 'girls');
     await user.keyboard('{Enter}');
-    await delay(500);
+
+    // Wait for filtered results
+    await waitForPageToLoad(canvas, 'Spice girls');
 
     // Verify filtered results
     await expect(canvas.findByText('Spice girls')).resolves.toBeInTheDocument();

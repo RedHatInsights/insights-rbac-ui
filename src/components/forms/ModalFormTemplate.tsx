@@ -17,7 +17,7 @@ const MODAL_FORM_IDENTIFIER = 'modal-form';
 
 // FormWrapper component for FormTemplate - must be a plain function for PropTypes validation
 // Using function declaration (not arrow function) to ensure PropTypes.func validation passes
-function CustomFormWrapper(props: any) {
+function CustomFormWrapper(props: React.ComponentProps<typeof Form>) {
   return <Form {...props} id={MODAL_FORM_IDENTIFIER} />;
 }
 
@@ -60,19 +60,20 @@ interface ModalFormTemplateProps {
     isOpen?: boolean;
     variant?: 'small' | 'medium' | 'large' | 'default';
     title?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   saveLabel?: React.ReactNode;
   cancelLabel?: React.ReactNode;
   alert?: () => React.ReactNode;
-  formFields?: any;
+  formFields?: React.ElementType[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema?: any;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const ModalFormTemplate: React.FC<ModalFormTemplateProps> = ({ ModalProps, saveLabel, cancelLabel, alert, ...props }) => {
   // Extract formFields and schema
-  const { formFields, schema, ...otherProps } = props;
+  const { formFields = [], schema = { fields: [] }, ...otherProps } = props;
 
   return (
     <Modal {...ModalProps} appendTo={getModalContainer()} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>

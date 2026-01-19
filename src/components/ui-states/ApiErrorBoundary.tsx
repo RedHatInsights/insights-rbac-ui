@@ -1,8 +1,9 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useLocation } from 'react-router-dom';
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
+import UnavailableContent from '@patternfly/react-component-groups/dist/dynamic/UnavailableContent';
 import { AppLink } from '../navigation/AppLink';
 import type { AxiosError } from 'axios';
 
@@ -45,6 +46,14 @@ const errorStates: Record<number, React.FC<{ serviceName: string }>> = {
           }}
         />
       }
+    />
+  ),
+  500: ({ serviceName }) => (
+    <UnavailableContent
+      data-codemods
+      headingLevel="h1"
+      titleText={`${serviceName} is temporarily unavailable`}
+      bodyText="We're working to restore service. Please try again later."
     />
   ),
 };
@@ -138,9 +147,7 @@ export const ApiErrorBoundary: React.FC<ApiErrorBoundaryProps> = ({ children }) 
 
   // Clear error on navigation
   useEffect(() => {
-    if (errorCode) {
-      setErrorCode(null);
-    }
+    setErrorCode(null);
   }, [location?.pathname]);
 
   const clearError = useCallback(() => setErrorCode(null), []);

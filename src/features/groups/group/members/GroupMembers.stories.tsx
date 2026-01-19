@@ -2,7 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
-import { MemoryRouter, Route, Routes, useOutletContext } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { GroupMembers } from './GroupMembers';
 // Mock data
@@ -57,71 +57,6 @@ const mockDefaultPlatformGroup = {
 // Track API calls for parameter verification
 const getMembersSpy = fn();
 const getGroupSpy = fn();
-
-// Mock route components for testing nested routes
-// Mock components for outlet routes
-const MockEditGroup: React.FC = () => {
-  const context = useOutletContext<any>();
-
-  return (
-    <div data-testid="edit-group-route">
-      <h1>Edit Group Modal</h1>
-      <div data-testid="context-data">
-        <div>Group UUID: {context?.['edit-group']?.group?.uuid || ''}</div>
-        <div>Group Name: {context?.['edit-group']?.group?.name || ''}</div>
-        <div>Admin Default: {context?.['edit-group']?.group?.admin_default ? 'true' : 'false'}</div>
-        <div>Platform Default: {context?.['edit-group']?.group?.platform_default ? 'true' : 'false'}</div>
-        <div>Cancel Route: {context?.['edit-group']?.cancelRoute || ''}</div>
-        <div>Post Method: {typeof context?.['edit-group']?.postMethod}</div>
-      </div>
-      <button data-testid="call-post-method" onClick={() => context?.['edit-group']?.postMethod?.({ limit: 20 })}>
-        Call Post Method
-      </button>
-    </div>
-  );
-};
-
-const MockRemoveGroup: React.FC = () => {
-  const context = useOutletContext<any>();
-
-  return (
-    <div data-testid="remove-group-route">
-      <h1>Remove Group Modal</h1>
-      <div data-testid="context-data">
-        <div>Groups UUID: {context?.['remove-group']?.groupsUuid?.[0]?.uuid || ''}</div>
-        <div>Groups Name: {context?.['remove-group']?.groupsUuid?.[0]?.name || ''}</div>
-        <div>Cancel Route: {context?.['remove-group']?.cancelRoute || ''}</div>
-        <div>
-          Submit Route:{' '}
-          {typeof context?.['remove-group']?.submitRoute === 'object'
-            ? `${context?.['remove-group']?.submitRoute?.pathname || ''}${context?.['remove-group']?.submitRoute?.search || ''}`
-            : context?.['remove-group']?.submitRoute || ''}
-        </div>
-        <div>Post Method: {typeof context?.['remove-group']?.postMethod}</div>
-      </div>
-      <button data-testid="call-post-method" onClick={() => context?.['remove-group']?.postMethod?.(['group-123'], { limit: 20 })}>
-        Call Post Method
-      </button>
-    </div>
-  );
-};
-
-const MockAddMembers: React.FC = () => {
-  const context = useOutletContext<any>();
-
-  return (
-    <div data-testid="add-members-route">
-      <h1>Add Members Modal</h1>
-      <div data-testid="context-data">
-        <div>Cancel Route: {context?.['add-members']?.cancelRoute || ''}</div>
-        <div>Fetch Data: {typeof context?.['add-members']?.fetchData}</div>
-      </div>
-      <button data-testid="call-fetch-data" onClick={() => context?.['add-members']?.fetchData?.()}>
-        Call Fetch Data
-      </button>
-    </div>
-  );
-};
 
 // Basic mock handlers with spy integration
 const createMockHandlers = () => [
@@ -178,11 +113,7 @@ const meta: Meta<typeof GroupMembers> = {
                   <Story />
                 </div>
               }
-            >
-              <Route path="edit-group" element={<MockEditGroup />} />
-              <Route path="remove-group" element={<MockRemoveGroup />} />
-              <Route path="add-members" element={<MockAddMembers />} />
-            </Route>
+            />
           </Routes>
         </MemoryRouter>
       );
@@ -201,7 +132,6 @@ This modern container uses react-data-view and provides:
 - Filtering by username/email
 - Pagination controls
 - Add member functionality
-- Modal routing for edit-group, remove-group, and add-members
 
 ## Stories Directory:
 - **Default**: Basic member list with realistic data
@@ -214,9 +144,6 @@ This modern container uses react-data-view and provides:
 - **AddMemberButton**: Test toolbar actions menu
 - **ToolbarActionsState**: Test selection-based state management
 - **RowActions**: Test individual member action menus
-- **EditGroupRoute**: Test edit group modal routing
-- **RemoveGroupRoute**: Test remove group modal routing  
-- **AddMembersRoute**: Test add members modal routing
 `,
       },
     },
@@ -228,30 +155,6 @@ This modern container uses react-data-view and provides:
 
 export default meta;
 type Story = StoryObj<typeof GroupMembers>;
-
-// Simple test to verify Outlet context works
-export const SimpleContextTest: Story = {
-  tags: ['perm:org-admin'],
-  parameters: {
-    msw: createMockHandlers(),
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
-  },
-  play: async ({ canvasElement }) => {
-    await delay(500);
-    const canvas = within(canvasElement);
-
-    // Simple test - just verify the component renders
-    expect(await canvas.findByRole('grid')).toBeInTheDocument();
-
-    // Check if members are displayed (basic functionality)
-    expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
-
-    console.log('SB: SimpleContextTest passed - component renders correctly');
-  },
-};
 
 // Basic member list with NO permissions (default)
 export const Default: Story = {

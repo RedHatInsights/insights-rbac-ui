@@ -72,7 +72,7 @@ Testing the workspaces feature flag.
 All user journey tests include:
 
 1. **Realistic Timing**: Interactions use 30ms typing delays and 200-300ms pauses between actions to simulate human behavior
-2. **State Isolation**: Each story starts with a fresh Redux store and MSW state
+2. **State Isolation**: Each story starts with a fresh React Query cache and MSW state
 3. **Comprehensive Validation**: Tests verify success notifications, UI updates, and absence of error states
 4. **MSW Integration**: All API calls are mocked with stateful handlers that persist changes within a story run
 

@@ -24,17 +24,17 @@ const meta: Meta<typeof GroupDetailsUsersView> = {
     docs: {
       description: {
         component: `
-**GroupDetailsUsersView** is a container component that manages user data, Redux state, and business logic for displaying group members.
+**GroupDetailsUsersView** is a container component that manages user data, React Query state, and business logic for displaying group members.
 
 ### Container Responsibilities
 - **Data Fetching**: Dispatches \`fetchMembersForGroup\` action on mount
-- **State Management**: Handles loading, error, and success states from Redux
+- **State Management**: Handles loading, error, and success states from React Query
 - **API Integration**: Interfaces with RBAC API for user data
 - **Error Handling**: Provides user-friendly error messages and recovery
 
 ### Architecture
 - **Smart Component**: Fetches its own data and manages state
-- **Redux Connected**: Uses selectors for members data, loading, and error states  
+- **Data Fetching**: Uses React Query for members data, loading, and error states  
 - **MSW Compatible**: Stories use MSW to test real API integration flows
 - **State-Driven UI**: Renders different components based on loading/error/success states
         `,
@@ -56,7 +56,7 @@ export const Default: Story = {
     docs: {
       description: {
         story: `
-**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchMembersForGroup\` action, MSW responds with mock data, Redux updates, and table renders users.
+**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchMembersForGroup\` action, MSW responds with mock data, React Query updates, and table renders users.
 
 ## Additional Container Test Stories
 

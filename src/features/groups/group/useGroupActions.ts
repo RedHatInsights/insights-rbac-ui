@@ -20,7 +20,7 @@ interface UseGroupActionsProps {
  * Custom hook for managing Group component actions and handlers
  * Handles dropdown actions, modal actions, and group operations
  *
- * Migrated from Redux to React Query.
+ * Uses React Query mutations.
  */
 export const useGroupActions = ({
   groupId,

@@ -40,7 +40,11 @@ export type { UpdateGroupParams } from '@redhat-cloud-services/rbac-client/Updat
 export type { DeleteGroupParams } from '@redhat-cloud-services/rbac-client/DeleteGroup';
 export type { AddPrincipalToGroupParams } from '@redhat-cloud-services/rbac-client/AddPrincipalToGroup';
 export type { DeletePrincipalFromGroupParams } from '@redhat-cloud-services/rbac-client/DeletePrincipalFromGroup';
-export type { GetPrincipalsFromGroupParams } from '@redhat-cloud-services/rbac-client/GetPrincipalsFromGroup';
+export type {
+  GetPrincipalsFromGroupParams,
+  GetPrincipalsFromGroupOrderByEnum,
+  GetPrincipalsFromGroupPrincipalTypeEnum,
+} from '@redhat-cloud-services/rbac-client/GetPrincipalsFromGroup';
 export type { ListRolesForGroupParams } from '@redhat-cloud-services/rbac-client/ListRolesForGroup';
 export type { AddRoleToGroupParams } from '@redhat-cloud-services/rbac-client/AddRoleToGroup';
 export type { DeleteRoleFromGroupParams } from '@redhat-cloud-services/rbac-client/DeleteRoleFromGroup';
@@ -54,6 +58,7 @@ export type {
   PrincipalOut,
   GroupRolesPagination,
   RoleOut,
+  GroupPrincipalIn,
 } from '@redhat-cloud-services/rbac-client/types';
 
 import type { GroupOut as GroupOutType } from '@redhat-cloud-services/rbac-client/types';

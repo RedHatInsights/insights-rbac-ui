@@ -147,7 +147,7 @@ const mockSystemGroup = {
 };
 
 // Router wrapper for component that uses routing
-const withRouter = (Story: any, context: any) => {
+const withRouter = (Story: React.ComponentType, context: { parameters?: { routeParams?: { roleId?: string; groupId?: string } } }) => {
   const { roleId = 'role-123', groupId } = context.parameters?.routeParams || {};
   const targetPath = groupId ? `/groups/${groupId}/roles/${roleId}` : `/roles/${roleId}`;
 
@@ -448,7 +448,7 @@ export const LoadingState: Story = {
   },
 };
 
-// NOTE: RoleNotFound story removed temporarily - testing Redux BAD_UUID error
+// NOTE: RoleNotFound story removed temporarily - testing BAD_UUID error
 // states with MSW is complex. This will be properly tested in integration/E2E tests.
 // The error state logic exists in the component at lines 164-182 of role.js
 
@@ -456,7 +456,7 @@ export const LoadingState: Story = {
 // are treated as critical by the test runner even though they're expected.
 // This scenario is covered by E2E tests and the NotAuthorized logic is visible in role.js lines 156-162
 
-// NOTE: FromGroupContext story temporarily disabled - complex Redux interactions
+// NOTE: FromGroupContext story temporarily disabled - complex data interactions
 // with group fetching don't work reliably in Storybook's isolated environment.
 // The group context logic is visible in role.js lines 116-132 and will be tested in E2E tests.
 
@@ -524,7 +524,7 @@ export const DefaultAccessGroup: Story = {
   },
 };
 
-// NOTE: GroupNotFound story removed temporarily - testing Redux BAD_UUID error
+// NOTE: GroupNotFound story removed temporarily - testing BAD_UUID error
 // states with MSW is complex. This will be properly tested in integration/E2E tests.
 // The error state logic exists in the component at lines 164-182 of role.js
 

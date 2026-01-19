@@ -31,7 +31,7 @@ const columns = ['status', 'username', 'email', 'lastName', 'firstName'] as cons
 /**
  * GroupMembers - fetches its own data via React Query.
  *
- * Migrated from Redux - component is now self-contained.
+ * Component is self-contained with React Query data fetching.
  */
 const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   const intl = useIntl();

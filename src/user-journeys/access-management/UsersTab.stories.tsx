@@ -16,7 +16,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { resetStoryState } from '../_shared/helpers';
+import { resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers } from './_shared';
 
 const meta = {
@@ -93,7 +93,6 @@ type Story = StoryObj<typeof meta>;
  * - User groups count displays correctly
  */
 export const TableView: Story = {
-  name: 'Table View',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -117,8 +116,8 @@ Tests the default Users table view matching \`static/mocks/Users tab/Frame 99.pn
     await resetStoryState();
     const canvas = within(context.canvasElement);
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'adumble');
 
     // Verify Users tab is active
     const usersTab = await canvas.findByRole('tab', { name: /users/i });
@@ -149,7 +148,6 @@ Tests the default Users table view matching \`static/mocks/Users tab/Frame 99.pn
  * - Assigned roles tab shows roles
  */
 export const UserDetailsDrawer: Story = {
-  name: 'User Details Drawer',
   parameters: {
     docs: {
       description: {
@@ -172,8 +170,8 @@ Tests the user details drawer matching \`static/mocks/Users tab/Frame 108.png\`.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'bwhite');
 
     // Click on Betty White's row
     const bwhiteRow = await canvas.findByText('bwhite');
@@ -289,8 +287,8 @@ Shows roles assigned to the user with:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'adumble');
 
     // Click on a user row
     const adumbleRow = await canvas.findByText('adumble');
@@ -339,8 +337,8 @@ Tests filtering users by username.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'adumble');
 
     // Find the filter input
     const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
@@ -349,7 +347,9 @@ Tests filtering users by username.
     // Type a filter value
     await user.type(filterInput, 'spice');
     await user.keyboard('{Enter}');
-    await delay(500);
+
+    // Wait for filtered results
+    await waitForPageToLoad(canvas, 'ginger-spice');
 
     // Verify filtered results
     await expect(canvas.findByText('ginger-spice')).resolves.toBeInTheDocument();
@@ -387,8 +387,8 @@ Tests selecting users to enable bulk actions matching \`static/mocks/Users tab/F
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'adumble');
 
     // Find and click checkboxes for multiple users
     const checkboxes = await canvas.findAllByRole('checkbox');
@@ -413,7 +413,6 @@ Tests selecting users to enable bulk actions matching \`static/mocks/Users tab/F
  * Tests tab navigation preserves state
  */
 export const TabNavigation: Story = {
-  name: 'Tab Navigation',
   parameters: {
     docs: {
       description: {
@@ -433,8 +432,8 @@ Tests switching between Users and User Groups tabs.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'adumble');
 
     // Verify Users tab is active
     const usersTab = await canvas.findByRole('tab', { name: /users/i });
@@ -446,7 +445,9 @@ Tests switching between Users and User Groups tabs.
     // Click User Groups tab
     const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
     await user.click(groupsTab);
-    await delay(500);
+
+    // Wait for groups to load
+    await waitForPageToLoad(canvas, 'Default group');
 
     // Verify groups tab is now active
     expect(groupsTab).toHaveAttribute('aria-selected', 'true');
@@ -456,7 +457,9 @@ Tests switching between Users and User Groups tabs.
 
     // Click back to Users tab
     await user.click(usersTab);
-    await delay(500);
+
+    // Wait for users to load
+    await waitForPageToLoad(canvas, 'adumble');
 
     // Verify users are shown again
     expect(usersTab).toHaveAttribute('aria-selected', 'true');

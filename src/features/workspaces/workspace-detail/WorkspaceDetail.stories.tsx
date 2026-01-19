@@ -67,7 +67,7 @@ const mockGroups = [
 ];
 
 // Simple router wrapper - all other providers come from global .storybook/preview.tsx
-const withRouter = (Story: any, context: any) => {
+const withRouter = (Story: React.ComponentType, context: { parameters?: { route?: string } }) => {
   const route = context.parameters?.route || '/iam/access-management/workspaces/detail/workspace-2';
 
   return (
@@ -224,7 +224,7 @@ const meta: Meta<typeof WorkspaceDetail> = {
 
 This component demonstrates:
 - **Feature Composition**: Combines header, tabs, and conditional content based on feature flags
-- **Redux Integration**: Manages workspace and groups data from multiple reducers
+- **Data Integration**: Manages workspace and groups data from multiple queries
 - **Routing Integration**: Handles URL parameters and navigation state
 - **Feature Flag Logic**: Conditionally shows role assignments based on platform.rbac.workspaces-role-bindings
 - **Data Loading**: Coordinates multiple async data fetching operations
@@ -255,7 +255,7 @@ export const Default: Story = {
     docs: {
       description: {
         story: `
-**Default View**: Complete workspace detail container with Redux integration. Shows Assets tab with feature flags coordination and full workspace management interface.
+**Default View**: Complete workspace detail container with React Query integration. Shows Assets tab with feature flags coordination and full workspace management interface.
 
 ## Additional Test Stories
 

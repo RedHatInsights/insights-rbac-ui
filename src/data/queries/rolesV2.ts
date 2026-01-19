@@ -13,6 +13,7 @@ import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { apiClient } from '../api/client';
 import type { CreateRoleV2Request, ListRolesV2Params, RoleV2, RolesV2Pagination, UpdateRoleV2Request } from '../api/rolesV2';
+import type { Access, RoleOutDynamic } from '../api/roles';
 import messages from '../../Messages';
 
 // =============================================================================
@@ -56,7 +57,7 @@ export function useRolesV2Query(params: ListRolesV2Params = {}, options?: { enab
 
       // Adapt V1 response to V2 format
       return {
-        data: response.data.data.map((role: any) => ({
+        data: response.data.data.map((role: RoleOutDynamic) => ({
           uuid: role.uuid,
           name: role.name,
           description: role.description,
@@ -91,7 +92,7 @@ export function useRoleV2Query(id: string, options?: { enabled?: boolean }) {
         permissions: role.access?.length ?? null,
         modified: role.modified,
         system: role.system,
-        access: role.access?.map((a: any) => ({
+        access: role.access?.map((a: Access) => ({
           application: a.permission?.split(':')[0] || '',
           resourceType: a.permission?.split(':')[1] || '',
           operation: a.permission?.split(':')[2] || '',

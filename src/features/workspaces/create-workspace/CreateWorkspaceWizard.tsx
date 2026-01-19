@@ -2,6 +2,7 @@ import FormTemplateCommonProps from '@data-driven-forms/common/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
+import type { FormApi } from 'final-form';
 import { useFlag } from '@unleash/proxy-client-react';
 import React from 'react';
 import { useIntl } from 'react-intl';
@@ -55,8 +56,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
     navigate(pathnames.workspaces.link);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = async (_v: any, form: any) => {
+  const onSubmit = async (_v: Record<string, unknown>, form: FormApi) => {
     const values = form.getState().values;
     await createWorkspaceMutation.mutateAsync({
       name: values[WORKSPACE_NAME],

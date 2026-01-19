@@ -40,31 +40,30 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children }) =>
 - Components that could be used in multiple contexts
 
 ### Smart Components
-**Location**: `src/smart-components/`
+**Location**: `src/features/`
 
-Business logic components that handle data fetching, state management, and complex interactions.
+Business logic components that handle data fetching, state management, and complex interactions using React Query.
 
 **Characteristics:**
 - Contains business logic and side effects
-- Manages local state and API interactions
+- Uses React Query hooks for API interactions
 - Composes presentational components
 - Context-aware and feature-specific
 
 ```tsx
-// Example: UserList.tsx
+// Example: UserList.tsx with React Query
 export const UserList: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
+  const { data: users, isLoading } = useUsersQuery();
+  const deleteUserMutation = useDeleteUserMutation();
 
   const handleDeleteUser = useCallback((userId: string) => {
-    dispatch(deleteUser(userId));
-  }, [dispatch]);
+    deleteUserMutation.mutate(userId);
+  }, [deleteUserMutation]);
 
   return (
     <DataTable
-      data={users}
-      loading={loading}
+      data={users?.data ?? []}
+      loading={isLoading}
       onDelete={handleDeleteUser}
     />
   );
@@ -74,7 +73,7 @@ export const UserList: React.FC = () => {
 **When to use:**
 - Building feature-specific functionality
 - Handling complex user interactions
-- Managing state and data flow
+- Managing server state with React Query
 
 ### Shared Components
 **Location**: `src/presentational-components/shared/`

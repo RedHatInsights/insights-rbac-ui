@@ -42,7 +42,7 @@ const mockUsers = [
   },
 ];
 
-// Minimal decorator - only provide Router (Redux provider is global)
+// Minimal decorator - only provide Router (React Query provider is global)
 const withRouter = (Story: StoryFn) => {
   return (
     <BrowserRouter>
@@ -180,7 +180,7 @@ const mockUserRoles = [
   },
 ];
 
-// Standard container story that tests Redux integration
+// Standard container story that tests React Query integration
 export const Default: Story = {
   tags: ['autodocs'],
   parameters: {
@@ -193,8 +193,8 @@ export const Default: Story = {
 
 For testing specific scenarios, see these additional stories:
 
-- **[Loading](?path=/story/features-access-management-users-and-user-groups-users-users--loading-from-redux)**: Tests container behavior during API loading via React Query
-- **[EmptyState](?path=/story/features-access-management-users-and-user-groups-users-users--empty-state-from-redux)**: Tests container response to empty user data from React Query  
+- **[Loading](?path=/story/features-access-management-users-and-user-groups-users-users--loading)**: Tests container behavior during API loading via React Query
+- **[EmptyState](?path=/story/features-access-management-users-and-user-groups-users-users--empty-state)**: Tests container response to empty user data from React Query  
 - **[AddToGroupModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--add-to-group-modal-integration)**: Tests complete add-to-group modal workflow with React Query orchestration
 - **[DeleteUserModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--delete-user-modal-integration)**: Tests complete delete user modal workflow with React Query orchestration
 - **[BulkDeactivateModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--bulk-deactivate-modal-integration)**: Tests bulk deactivation workflow with React Query state coordination

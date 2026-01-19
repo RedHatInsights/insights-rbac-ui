@@ -16,7 +16,10 @@ import { DEFAULT_DEBOUNCE_DELAY, debounce } from '../utilities/debounce';
  *   debouncedFetch({ query, offset: 0 });
  * };
  */
-export function useDebouncedFetch<T extends (...args: any[]) => any>(fetcher: T | undefined, wait = DEFAULT_DEBOUNCE_DELAY) {
+export function useDebouncedFetch<TArgs extends unknown[], TReturn>(
+  fetcher: ((...args: TArgs) => TReturn) | undefined,
+  wait = DEFAULT_DEBOUNCE_DELAY,
+) {
   const debounced = useMemo(() => (fetcher ? debounce(fetcher, wait) : undefined), [fetcher, wait]);
 
   // Cleanup on unmount - cancel any pending debounced calls

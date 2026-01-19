@@ -3,7 +3,7 @@ import { type ListPrincipalsParams, type PrincipalPagination, usersApi } from '.
 import { isITLessProd, isInt, isStage } from '../../itLessConfig';
 
 // ============================================================================
-// Environment URL Helpers (matches original Redux helper behavior)
+// Environment URL Helpers
 // ============================================================================
 
 interface EnvConfig {
@@ -101,7 +101,7 @@ export function useUsersQuery(params: UseUsersQueryParams = {}, options?: { enab
     queryKey: usersKeys.list(params as unknown as ListPrincipalsParams),
     queryFn: async (): Promise<UsersQueryResult> => {
       // Extract sort direction from orderBy prefix (e.g., '-username' -> desc)
-      // This matches the behavior in src/redux/users/helper.ts
+      // Fetch users with pagination and filtering
       const sortOrder = params.orderBy?.startsWith('-') ? 'desc' : 'asc';
       const orderByField = params.orderBy?.replace(/^-/, '') as ListPrincipalsParams['orderBy'];
 
@@ -214,7 +214,7 @@ export function useChangeUserStatusMutation() {
         );
       }
 
-      // ITLess fallback - use dynamic base URL from env.json (matches original Redux helper behavior)
+      // ITLess fallback - use dynamic base URL from env.json
       // In tests, env.json doesn't exist, so baseUrl is empty string -> '/change-users-status'
       const envUrl = await fetchEnvBaseUrl();
       return fetch(`${envUrl}/change-users-status`, {
@@ -371,7 +371,7 @@ export function useInviteUsersMutation() {
         return response; // Return raw response for status checking
       }
 
-      // ITLess fallback - use dynamic base URL from env.json (matches original Redux helper behavior)
+      // ITLess fallback - use dynamic base URL from env.json
       // In tests, env.json doesn't exist, so baseUrl is empty string -> '/user/invite'
       const envUrl = await fetchEnvBaseUrl();
       const response = await fetch(`${envUrl}/user/invite`, {

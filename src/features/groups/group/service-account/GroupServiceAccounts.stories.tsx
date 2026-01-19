@@ -35,7 +35,7 @@ const mockServiceAccounts = [
 // 🎯 API SPIES: Proper spy pattern for testing API calls
 const clearFiltersSpy = fn();
 
-// Simple wrapper that just renders the component (Redux provider is global)
+// Simple wrapper that just renders the component (React Query provider is global)
 const GroupServiceAccountsWrapper: React.FC = () => {
   return <GroupServiceAccounts />;
 };
@@ -125,7 +125,7 @@ For testing specific scenarios and edge cases, see these additional stories:
 
 ## What This Tests
 
-- ✅ Service account data loads from API via Redux orchestration
+- ✅ Service account data loads from API via React Query orchestration
 - ✅ Table displays service account information correctly
 - ✅ Pagination handles large datasets properly
 - ✅ Filtering and search functionality works
@@ -468,7 +468,7 @@ export const ServiceAccountsFilteringWithData: Story = {
         }),
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
           const url = new URL(request.url);
-          // Use the actual parameter names sent by the Redux action
+          // Use the actual parameter names sent by the React Query mutation
           const clientIdFilter = url.searchParams.get('principal_username') || ''; // Maps to clientId in UI
           const nameFilter = url.searchParams.get('service_account_name') || '';
           const descFilter = url.searchParams.get('service_account_description') || '';
@@ -609,7 +609,6 @@ export const ServiceAccountsFilteringWithData: Story = {
  * Test story specifically for validating "Add service account" button link generation
  */
 export const AddServiceAccountLinkTest: Story = {
-  name: 'Add Service Account Link Test',
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true }, // Hide from docs as this is a test story
@@ -675,7 +674,6 @@ export const AddServiceAccountLinkTest: Story = {
  * Test story specifically for validating row actions and toolbar actions
  */
 export const BulkActionsTest: Story = {
-  name: 'Bulk Actions Test',
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true },
@@ -926,7 +924,6 @@ export const SelectAllTest: Story = {
 // - Updated RemoveGroupServiceAccounts modal to use UUIDs from URL params for API calls
 
 export const ActionsTest: Story = {
-  name: 'Actions Test',
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true }, // Hide from docs as this is a test story

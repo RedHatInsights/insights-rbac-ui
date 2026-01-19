@@ -67,23 +67,6 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [currAccountId, setCurrAccountId] = useState<string | undefined>();
 
-  // Query params state for React Query
-  const [queryParams, setQueryParams] = useState<{
-    limit: number;
-    offset: number;
-    orderBy?: string;
-    username?: string;
-    email?: string;
-    status: 'enabled' | 'disabled' | 'all';
-  }>({
-    limit: 20,
-    offset: 0,
-    orderBy: 'username',
-    username: undefined,
-    email: undefined,
-    status: 'enabled',
-  });
-
   // Get token and account ID on mount
   useEffect(() => {
     const getToken = async () => {
@@ -94,6 +77,46 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
     };
     getToken();
   }, [auth]);
+
+  // Get user ID for row identification
+  const getUserId = useCallback((user: User) => user.username, []);
+
+  // Table state management - defined early so we can derive queryParams from it
+  const tableState = useTableState<typeof columns, User, 'username'>({
+    columns,
+    sortableColumns: ['username'] as const,
+    getRowId: getUserId,
+    initialPerPage: 20,
+    perPageOptions: [10, 20, 50, 100],
+    initialSort: { column: 'username', direction: 'asc' },
+    initialFilters: { status: ['Active'] },
+    syncWithUrl: usesMetaInURL,
+  });
+
+  // Derived: Query params calculated from tableState (no useState sync needed)
+  // Uses tableState.apiParams which already has properly formatted orderBy (e.g., '-username' for desc)
+  const queryParams = useMemo(() => {
+    const statusFilter = tableState.filters.status as string[] | undefined;
+
+    // Map status filter to API status param
+    let status: 'enabled' | 'disabled' | 'all' = 'enabled';
+    if (statusFilter?.includes('Active') && statusFilter?.includes('Inactive')) {
+      status = 'all';
+    } else if (statusFilter?.includes('Inactive')) {
+      status = 'disabled';
+    } else if (statusFilter?.includes('Active') || !statusFilter || statusFilter.length === 0) {
+      status = 'enabled';
+    }
+
+    return {
+      limit: tableState.apiParams.limit,
+      offset: tableState.apiParams.offset,
+      orderBy: tableState.apiParams.orderBy, // Includes direction prefix (e.g., '-username')
+      username: (tableState.filters.username as string) || undefined,
+      email: (tableState.filters.email as string) || undefined,
+      status,
+    };
+  }, [tableState.apiParams, tableState.filters]);
 
   // React Query for users data
   const { data: usersData, isLoading } = useUsersQuery(queryParams, { enabled: !!orgAdmin });
@@ -115,9 +138,6 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
 
   // React Query mutation for changing user status
   const changeUserStatusMutation = useChangeUserStatusMutation();
-
-  // Get user ID for row identification
-  const getUserId = useCallback((user: User) => user.username, []);
 
   // Handle user status toggle
   const handleToggle = useCallback(
@@ -247,50 +267,6 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
     ],
     [intl],
   );
-
-  // Handle data fetching - update query params to trigger React Query refetch
-  const handleStaleData = useCallback(
-    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
-      if (!orgAdmin) return;
-
-      const username = params.filters.username as string | undefined;
-      const email = params.filters.email as string | undefined;
-      const statusFilter = params.filters.status as string[] | undefined;
-
-      // Map status filter to API status param
-      let status: 'enabled' | 'disabled' | 'all' = 'enabled';
-      if (statusFilter?.includes('Active') && statusFilter?.includes('Inactive')) {
-        status = 'all';
-      } else if (statusFilter?.includes('Inactive')) {
-        status = 'disabled';
-      } else if (statusFilter?.includes('Active') || !statusFilter || statusFilter.length === 0) {
-        status = 'enabled';
-      }
-
-      setQueryParams({
-        limit: params.limit,
-        offset: params.offset,
-        orderBy: params.orderBy as 'username' | undefined,
-        username,
-        email,
-        status,
-      });
-    },
-    [orgAdmin],
-  );
-
-  // Table state management
-  const tableState = useTableState<typeof columns, User, 'username'>({
-    columns,
-    sortableColumns: ['username'] as const,
-    getRowId: getUserId,
-    initialPerPage: 20,
-    perPageOptions: [10, 20, 50, 100],
-    initialSort: { column: 'username', direction: 'asc' },
-    initialFilters: { status: ['Active'] },
-    syncWithUrl: usesMetaInURL,
-    onStaleData: handleStaleData,
-  });
 
   // Handle bulk status change
   const handleBulkActivation = useCallback(

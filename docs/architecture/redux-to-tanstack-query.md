@@ -1,7 +1,7 @@
 # Redux to TanStack Query Migration
 
-**Status:** Phase 4 In Progress (Groups Slice)  
-**Last Updated:** 2026-01-19  
+**Status:** Phase 6 Complete (Redux Removed)  
+**Last Updated:** 2026-01-20  
 **Owner:** Engineering Team  
 
 ## Quick Links
@@ -201,7 +201,7 @@ Fixed non-Redux type casts (`as any`, `as unknown`) across 8 files to establish 
 **Queries:**
 - `useRolesQuery` - List roles with pagination/filtering
 - `useRoleQuery` - Fetch single role by ID
-- `useRoleForPrincipalQuery` - Fetch roles for a specific principal
+- `useRoleForPrincipalQuery` - Fetch role access for a specific principal
 
 **Mutations:**
 - `useCreateRoleMutation` - Create new role
@@ -209,11 +209,19 @@ Fixed non-Redux type casts (`as any`, `as unknown`) across 8 files to establish 
 - `usePatchRoleMutation` - Partial role update
 - `useDeleteRoleMutation` - Delete role(s)
 
+**Migrated Components:**
+- `Roles.tsx` - Roles list page
+- `Role.tsx` - Role detail page with groups table
+- `AddRoleWizard.tsx` - Create role wizard
+- `EditRoleModal.tsx` - Edit role modal
+- `RemoveRoleModal.tsx` - Delete role confirmation
+- `RoleResourceDefinitions.tsx` - Role resource definitions
+- `EditResourceDefinitionsModal.tsx` - Edit resource definitions
+
 **Related APIs:**
 - Permissions API (complete)
 - Cost Management API (complete)
 - Inventory API (complete)
-- Groups API (admin group only)
 
 ### Phase 2: Users Slice (COMPLETE)
 
@@ -226,10 +234,13 @@ Fixed non-Redux type casts (`as any`, `as unknown`) across 8 files to establish 
 - `useUpdateUserOrgAdminMutation` - Toggle org admin status
 
 **Migrated Components:**
-- `UsersListNotSelectable.tsx` - Main users table (migrated from Redux `fetchUsers`, `changeUsersStatus`)
+- `UsersListNotSelectable.tsx` - Main users table
+- `User.tsx` - User detail page with groups/permissions tables
 - `OrgAdminDropdown.tsx` - Org admin toggle
 - `InviteUsersModal.tsx` - User invitation modal
 - `AddUserToGroup.tsx` - Add user to group modal
+- `GroupsNestedTable.tsx` - User's groups expandable table
+- `PermissionsNestedTable.tsx` - User's permissions expandable table
 
 **Key Learnings:**
 - Must preserve dynamic base URL logic from `fetchEnvBaseUrl()`
@@ -242,26 +253,83 @@ Fixed non-Redux type casts (`as any`, `as unknown`) across 8 files to establish 
 - `usePrincipalAccessQuery` - Fetch permissions for current user
 
 **Migrated Components:**
+- `MyUserAccess.tsx` - Main My User Access page
 - `AccessTable.tsx` - Permissions table
 - `RolesTable.tsx` - Roles table with expandable permissions
 
-### Phase 4: Groups Slice (IN PROGRESS)
+### Phase 4: Groups Slice (COMPLETE)
 
-- Full groups CRUD operations
-- Group memberships
-- Group-role associations
+**Queries:**
+- `useGroupsQuery` - List groups with pagination/filtering
+- `useGroupQuery` - Fetch single group by ID
+- `useAdminGroupQuery` - Fetch admin (org admin) group
+- `useSystemGroupQuery` - Fetch platform default group
+- `useGroupMembersQuery` - Fetch members for a group
+- `useGroupRolesQuery` - Fetch roles assigned to a group
+- `useGroupServiceAccountsQuery` - Fetch service accounts in a group
+- `useAvailableRolesForGroupQuery` - Fetch roles not yet in a group
 
-### Phase 5: Workspaces Slice (PLANNED)
+**Mutations:**
+- `useCreateGroupMutation` - Create new group (with optional initial members/roles)
+- `useUpdateGroupMutation` - Update group details
+- `useDeleteGroupMutation` - Delete group(s)
+- `useAddMembersToGroupMutation` - Add users to group
+- `useRemoveMembersFromGroupMutation` - Remove users from group
+- `useAddRolesToGroupMutation` - Add roles to group
+- `useRemoveRolesFromGroupMutation` - Remove roles from group
+- `useAddServiceAccountsToGroupMutationV1` - Add service accounts (stable V1 API)
+- `useRemoveServiceAccountsFromGroupMutationV1` - Remove service accounts (stable V1 API)
 
-- Workspace management
-- Role bindings
+**Migrated Components:**
+- `Groups.tsx` - Main groups list
+- `Group.tsx` - Group detail page
+- `GroupMembers.tsx` - Group members tab
+- `GroupRoles.tsx` - Group roles tab
+- `GroupServiceAccounts.tsx` - Group service accounts tab
+- `AddGroupWizard.tsx` - Create group wizard
+- `EditGroupModal.tsx` - Edit group modal
+- `RemoveGroupModal.tsx` - Delete group confirmation
+- `AddGroupMembers.tsx` - Add members to group
+- `AddGroupRoles.tsx` - Add roles to group
+- `AddGroupServiceAccounts.tsx` - Add service accounts to group
+- `RemoveGroupServiceAccounts.tsx` - Remove service accounts from group
+- `GroupsMembersTable.tsx` - Expandable members table
+- `GroupsRolesTable.tsx` - Expandable roles table
 
-### Phase 6: Redux Removal (PLANNED)
+### Phase 5: Workspaces Slice (COMPLETE)
 
-- Remove Redux dependencies
-- Delete Redux files
-- Update documentation
-- Bundle size reduction verification
+**Queries:**
+- `useWorkspacesQuery` - List workspaces
+- `useWorkspaceQuery` - Fetch single workspace by ID
+- `useRoleBindingsQuery` - Fetch role bindings for a workspace
+
+**Mutations:**
+- `useCreateWorkspaceMutation` - Create new workspace
+- `useUpdateWorkspaceMutation` - Update workspace details
+- `useDeleteWorkspaceMutation` - Delete workspace(s)
+- `useMoveWorkspaceMutation` - Move workspace to new parent
+
+**Migrated Components:**
+- `WorkspaceList.tsx` - Workspaces list with actions
+- `WorkspaceDetail.tsx` - Workspace detail page
+- `CreateWorkspaceWizard.tsx` - Create workspace wizard
+- `EditWorkspaceModal.tsx` - Edit workspace modal
+- `SetDetails.tsx` - Workspace details form
+- `MoveWorkspaceDialog.tsx` - Move workspace dialog
+- `WorkspaceActions.tsx` - Workspace action buttons
+- `WorkspaceHeader.tsx` - Workspace header component
+- `GroupDetailsDrawer.tsx` - Group details sidebar
+
+### Phase 6: Redux Removal (COMPLETE)
+
+- ✅ `src/redux/` folder deleted
+- ✅ All Redux actions/reducers/selectors removed
+- ✅ Components migrated to React Query hooks
+- ✅ Storybook stories use MSW for API mocking
+
+**Remaining Cleanup (optional):**
+- Delete legacy `src/api/` folder (replaced by `src/data/api/`)
+- Update `src/test/helpers/shared/user-login.test.js` (only file using old API)
 
 ---
 

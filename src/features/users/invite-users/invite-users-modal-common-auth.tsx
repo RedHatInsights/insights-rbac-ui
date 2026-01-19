@@ -1,5 +1,5 @@
 import React from 'react';
-import FormRenderer from '../../../components/forms/FormRenderer';
+import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import { ModalFormTemplate } from '../../../components/forms/ModalFormTemplate';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
@@ -13,7 +13,7 @@ import { useOutletContext } from 'react-router-dom';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
-// Portal subscription permission levels (moved from Redux helper)
+// Portal subscription permission levels (moved from React Query helper)
 const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view_edit_user';
 const MANAGE_SUBSCRIPTIONS_VIEW_ALL = 'view_all';
 const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL = 'view_edit_all';
@@ -62,15 +62,16 @@ const InviteUsers = () => {
     getToken();
   }, [auth]);
 
-  const onSubmit = async (values: SubmitValues) => {
+  const onSubmit = async (values: Record<string, unknown>) => {
+    const typedValues = values as SubmitValues;
     try {
       const response = await inviteUsersMutation.mutateAsync({
-        emails: values['email-addresses']?.split(/[\s,]+/),
-        message: values['invite-message'],
-        isAdmin: values['customer-portal-permissions']?.['is-org-admin'],
-        portal_manage_cases: values['customer-portal-permissions']?.['manage-support-cases'],
-        portal_download: values['customer-portal-permissions']?.['download-software-updates'],
-        portal_manage_subscriptions: values['customer-portal-permissions']?.['manage-subscriptions'],
+        emails: typedValues['email-addresses']?.split(/[\s,]+/),
+        message: typedValues['invite-message'],
+        isAdmin: typedValues['customer-portal-permissions']?.['is-org-admin'],
+        portal_manage_cases: typedValues['customer-portal-permissions']?.['manage-support-cases'],
+        portal_download: typedValues['customer-portal-permissions']?.['download-software-updates'],
+        portal_manage_subscriptions: typedValues['customer-portal-permissions']?.['manage-subscriptions'],
         config: { isProd: isProd() || false, token, accountId },
         itless: isITLess,
       });
@@ -198,7 +199,6 @@ const InviteUsers = () => {
   return (
     <FormRenderer
       schema={schema}
-      formFields={[]}
       componentMapper={{
         ...componentMapper,
         [InlineErrorComponent]: InlineError,
@@ -206,7 +206,7 @@ const InviteUsers = () => {
       }}
       onCancel={onCancel}
       onSubmit={onSubmit}
-      FormTemplate={(props: unknown[]) => (
+      FormTemplate={(props) => (
         <ModalFormTemplate
           saveLabel={intl.formatMessage(messages.inviteUsersTitle)}
           cancelLabel={intl.formatMessage(messages.cancel)}

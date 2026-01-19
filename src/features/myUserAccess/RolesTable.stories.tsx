@@ -61,7 +61,7 @@ const meta: Meta<typeof RolesTable> = {
           const { roleId } = params;
           // Handle the scope=principal query parameter
           if (url.searchParams.get('scope') === 'principal') {
-            // Return role object with uuid and access array (what Redux expects)
+            // Return role object with uuid and access array (what React Query expects)
             return HttpResponse.json({
               uuid: roleId,
               access: mockRolePermissions,
@@ -105,7 +105,7 @@ export const Default: Story = {
     docs: {
       description: {
         story: `
-**Default View**: Complete roles table container with real API orchestration. Tests Redux actions, reducers, and component integration end-to-end.
+**Default View**: Complete roles table container with real API orchestration. Tests React Query mutations, reducers, and component integration end-to-end.
 
 ## Additional Test Stories
 
@@ -128,10 +128,10 @@ For testing specific scenarios, see these additional stories:
     await delay(300); // Required for MSW
     const canvas = within(canvasElement);
 
-    // Test real API orchestration - container dispatches actions and Redux updates
+    // Test real API orchestration - container triggers mutations and React Query updates
     expect(await canvas.findByRole('grid')).toBeInTheDocument();
 
-    // Verify role data loaded through Redux
+    // Verify role data loaded through React Query
     expect(await canvas.findByText('Advisor Administrator')).toBeInTheDocument();
     expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
     expect(await canvas.findByText('Vulnerability Manager')).toBeInTheDocument();
@@ -367,7 +367,7 @@ export const PermissionExpansion: Story = {
     await delay(300);
     const canvas = within(canvasElement);
 
-    // Check roles loaded from API through Redux
+    // Check roles loaded from API through React Query
     expect(await canvas.findByText('Advisor Administrator')).toBeInTheDocument();
     expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
 

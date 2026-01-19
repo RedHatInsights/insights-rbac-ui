@@ -59,7 +59,7 @@ const convertToTreeViewItem = (workspace: WorkspacesWorkspace): TreeViewWorkspac
 });
 
 // Wrapper component that manages modal state and provides trigger button
-const ModalWrapper = ({ ...storyArgs }: any) => {
+const ModalWrapper = ({ ...storyArgs }: React.ComponentProps<typeof MoveWorkspaceDialog>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<string>('');
 
@@ -136,7 +136,7 @@ const meta: Meta<typeof MoveWorkspaceDialog> = {
 The MoveWorkspaceDialog is a **pure presentational component** for moving workspaces within the organizational hierarchy.
 
 ## Key Features
-- **Pure UI Component**: No Redux dependencies - all data passed via props
+- **Pure UI Component**: No external state dependencies - all data passed via props
 - **Controlled Inputs**: All state managed by parent component
 - **Callback-based**: Uses callbacks for all user interactions
 - **Form Validation**: Submit button disabled until valid selection made

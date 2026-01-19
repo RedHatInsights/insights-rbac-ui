@@ -1,4 +1,4 @@
-import type { StoryObj } from '@storybook/react-webpack5';
+import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
@@ -13,11 +13,23 @@ import { makeChrome } from './_shared/helpers/chrome';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
 
+interface StoryArgs {
+  typingDelay?: number;
+  orgAdmin?: boolean;
+  userAccessAdministrator?: boolean;
+  'platform.rbac.workspaces'?: boolean;
+  'platform.rbac.group-service-accounts'?: boolean;
+  'platform.rbac.group-service-accounts.stable'?: boolean;
+  'platform.rbac.common-auth-model'?: boolean;
+  'platform.rbac.common.userstable'?: boolean;
+  initialRoute?: string;
+}
+
 /**
  * Create dynamic environment parameters based on story args
  * This allows Storybook controls to override feature flags and permissions
  */
-function createDynamicEnvironment(args: any) {
+function createDynamicEnvironment(args: StoryArgs) {
   return {
     chrome: makeChrome({
       environment: 'prod',
@@ -46,7 +58,7 @@ const meta = {
   title: 'User Journeys/Production/V1 (Current)/Org User',
   tags: ['prod-org-user'],
   decorators: [
-    (Story: any, context: any) => {
+    ((Story, context: StoryContext<StoryArgs>) => {
       // Apply dynamic environment parameters based on current args
       const dynamicEnv = createDynamicEnvironment(context.args);
       // Replace parameters entirely instead of mutating to ensure React sees the change
@@ -54,7 +66,7 @@ const meta = {
       // Force remount when controls change by using args as key
       const argsKey = JSON.stringify(context.args);
       return <Story key={argsKey} />;
-    },
+    }) as Decorator<StoryArgs>,
   ],
   argTypes: {
     // Demo Controls
@@ -172,7 +184,6 @@ export default meta;
  * Production environment uses its own manual testing story
  */
 export const ManualTesting: Story = {
-  name: 'Manual Testing',
   args: {
     initialRoute: '/iam/my-user-access',
   },

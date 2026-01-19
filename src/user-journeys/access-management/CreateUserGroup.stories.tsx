@@ -882,7 +882,6 @@ Tests that duplicate group names show validation error.
  * Tests canceling the create form
  */
 export const CancelCreation: Story = {
-  name: 'Cancel Creation',
   parameters: {
     docs: {
       description: {

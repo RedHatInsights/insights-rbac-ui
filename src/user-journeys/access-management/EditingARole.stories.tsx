@@ -14,9 +14,9 @@ import React from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { resetStoryState } from '../_shared/helpers';
+import { openRoleActionsMenu, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { handlersWithV2Gaps, mockRolesV2 } from './_shared';
-import { getRolesTable, openRoleKebabMenu, verifyNoApiCalls, verifyRoleExists } from './_shared/tableHelpers';
+import { getRolesTable, verifyNoApiCalls } from './_shared/tableHelpers';
 
 // =============================================================================
 // API SPIES
@@ -335,7 +335,6 @@ const TARGET_ROLE = mockRolesV2.find((r) => r.name === 'RHEL DevOps' && !r.syste
  * Tests the full workflow from kebab menu to successful edit
  */
 export const CompleteFlow: Story = {
-  name: 'Complete Flow',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -373,10 +372,10 @@ Tests the complete edit role workflow including permission changes:
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // 1. Pre-condition: Verify the target role exists
-    await verifyRoleExists(canvas, TARGET_ROLE.name);
+    await waitForPageToLoad(canvas, TARGET_ROLE.name);
 
     // 2. Click kebab menu on the target role
-    await openRoleKebabMenu(canvas, user, TARGET_ROLE.name);
+    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
     await delay(200);
 
     // 3. Select "Edit"
@@ -466,7 +465,7 @@ Tests the complete edit role workflow including permission changes:
 
     // Wait for table data to populate
     await delay(500);
-    await verifyRoleExists(canvas, TARGET_ROLE.name);
+    await waitForPageToLoad(canvas, TARGET_ROLE.name);
 
     // 11. Click on the role row to open the drawer
     // Find the role name text in the table and click it
@@ -532,10 +531,10 @@ Tests opening the edit role page from the kebab menu.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // 1. Pre-condition: Verify the target role exists
-    await verifyRoleExists(canvas, TARGET_ROLE.name);
+    await waitForPageToLoad(canvas, TARGET_ROLE.name);
 
     // 2. Click kebab menu on the target role
-    await openRoleKebabMenu(canvas, user, TARGET_ROLE.name);
+    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
     await delay(200);
 
     // 3. Visual check: Verify "Edit" option is present
@@ -559,7 +558,6 @@ Tests opening the edit role page from the kebab menu.
  * Tests editing just the role name
  */
 export const EditRoleName: Story = {
-  name: 'Edit Role Name',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -586,8 +584,8 @@ Tests editing the role name.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Navigate to edit form
-    await verifyRoleExists(canvas, TARGET_ROLE.name);
-    await openRoleKebabMenu(canvas, user, TARGET_ROLE.name);
+    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
     await delay(200);
 
     const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
@@ -628,7 +626,6 @@ Tests editing the role name.
  * Tests that system/canned roles cannot be edited
  */
 export const CannotEditSystemRoles: Story = {
-  name: 'Cannot Edit System Roles',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -660,10 +657,10 @@ Tests that system/canned roles cannot be edited.
     expect(systemRole?.system).toBe(true);
 
     // 1. Pre-condition: Verify system role exists
-    await verifyRoleExists(canvas, systemRoleName);
+    await waitForPageToLoad(canvas, systemRoleName);
 
     // 2. Click kebab menu on the system role
-    await openRoleKebabMenu(canvas, user, systemRoleName);
+    await openRoleActionsMenu(user, canvas, systemRoleName);
     await delay(200);
 
     // 3. Visual check: Verify "Edit" option is NOT present
@@ -688,7 +685,6 @@ Tests that system/canned roles cannot be edited.
  * Tests canceling the edit form without saving
  */
 export const CancelEdit: Story = {
-  name: 'Cancel Edit',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -715,8 +711,8 @@ Tests canceling the edit role form.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Navigate to edit form
-    await verifyRoleExists(canvas, TARGET_ROLE.name);
-    await openRoleKebabMenu(canvas, user, TARGET_ROLE.name);
+    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
     await delay(200);
 
     const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
@@ -742,6 +738,6 @@ Tests canceling the edit role form.
     verifyNoApiCalls(updateRoleSpy);
 
     // 6. Post-condition: Verify the original role data is unchanged
-    await verifyRoleExists(canvas, TARGET_ROLE.name);
+    await waitForPageToLoad(canvas, TARGET_ROLE.name);
   },
 };

@@ -37,8 +37,13 @@ const mockFieldApi = {
   description: 'This field is required and cannot be empty.',
 };
 
+interface InlineErrorWrapperProps {
+  title?: string;
+  description?: string;
+}
+
 // Create a wrapper component that mocks the useFieldApi hook
-const InlineErrorWrapper = (props: any) => {
+const InlineErrorWrapper = (props: InlineErrorWrapperProps) => {
   // Mock the useFieldApi hook
   const mockProps = {
     ...props,

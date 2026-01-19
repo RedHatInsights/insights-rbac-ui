@@ -75,9 +75,9 @@ insights-rbac-ui/
 │   │   ├── service-account/        # Service account logic
 │   │   └── shared/                 # Shared helper utilities
 │   ├── hooks/                      # Custom React hooks
-│   ├── redux/                      # State management
-│   │   ├── actions/                # Redux actions
-│   │   └── reducers/               # Redux reducers
+│   ├── data/                       # Data layer (React Query)
+│   │   ├── api/                    # API client functions
+│   │   └── queries/                # React Query hooks
 │   ├── utilities/                  # Helper utilities and constants
 │   └── test/                       # Test utilities and mocks
 ├── .storybook/                     # Storybook configuration
@@ -141,28 +141,27 @@ const TableView = ({
 #### Container Components (Feature Entry Points)
 Each feature has container components that:
 - Manage feature-specific state
-- Handle API interactions
+- Handle API interactions via React Query
 - Coordinate between presentational components
-- Connect to Redux when needed
+- Use React Query hooks for data fetching and mutations
 
 ```jsx
-// Example: Feature container
+// Example: Feature container with React Query
 const Groups = () => {
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
+  const { data: groups, isLoading } = useGroupsQuery();
+  const createGroupMutation = useCreateGroupMutation();
 
   const handleCreateGroup = async (groupData) => {
-    await dispatch(createGroup(groupData));
-    // Feature-specific logic
+    await createGroupMutation.mutateAsync(groupData);
+    // Cache is automatically invalidated
   };
 
   return (
     <PageLayout title="Groups">
       <GroupHeader onCreateGroup={handleCreateGroup} />
       <GroupsTable 
-        groups={groups} 
-        loading={loading}
+        groups={groups?.data ?? []} 
+        loading={isLoading}
         onEditGroup={handleEditGroup}
       />
     </PageLayout>
@@ -231,7 +230,7 @@ export const EmptyState = ({
 
 ### State Management
 
-We use **Redux** with feature-based organization:
+We use **React Query** with feature-based organization:
 
 ```javascript
 // State shape organized by domain
@@ -338,33 +337,35 @@ export const workspacesAPI = {
 ### Component Patterns
 
 #### 1. Feature Hooks
-Encapsulate feature-specific logic:
+Encapsulate feature-specific logic using React Query:
 
 ```jsx
-// src/features/groups/useGroups.js
-const useGroups = () => {
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
+// src/data/queries/groups.ts
+// Query hook - handles fetching and caching automatically
+export function useGroupsQuery(params?: ListGroupsParams) {
+  return useQuery({
+    queryKey: groupsKeys.list(params),
+    queryFn: async () => {
+      const response = await groupsApi.listGroups(params);
+      return response.data;
+    },
+  });
+}
+
+// Mutation hook - handles create with cache invalidation
+export function useCreateGroupMutation() {
+  const queryClient = useQueryClient();
   
-  const fetchGroups = useCallback(async (filters) => {
-    setLoading(true);
-    try {
-      const response = await groupHelper.fetchGroups(filters);
-      setGroups(response.data);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-  
-  const createGroup = useCallback(async (groupData) => {
-    const newGroup = await dispatch(createGroupAction(groupData));
-    setGroups(prev => [...prev, newGroup]);
-    return newGroup;
-  }, [dispatch]);
-  
-  return { groups, loading, fetchGroups, createGroup };
-};
+  return useMutation({
+    mutationFn: async (groupData) => {
+      const response = await groupsApi.createGroup({ group: groupData });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: groupsKeys.all });
+    },
+  });
+}
 ```
 
 #### 2. Compound Components

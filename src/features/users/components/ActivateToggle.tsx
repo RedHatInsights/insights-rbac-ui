@@ -3,7 +3,8 @@ import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 
-interface UserProps {
+// Minimal user type for ActivateToggle - subset of full UserProps
+interface ActivateToggleUserProps {
   username: string;
   uuid: string;
   is_active: boolean;
@@ -11,8 +12,8 @@ interface UserProps {
 }
 
 interface ActivateToggleProps {
-  user: UserProps;
-  onToggle: (isActive: boolean, user: UserProps) => void;
+  user: ActivateToggleUserProps;
+  onToggle: (isActive: boolean, user: ActivateToggleUserProps) => void;
   accountId?: string;
 }
 

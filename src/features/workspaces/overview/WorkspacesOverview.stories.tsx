@@ -29,7 +29,7 @@ This component demonstrates:
 - **Navigation Integration**: Router-based navigation for all action buttons
 
 ### Key Features
-- **Pure Presentational**: No Redux dependencies, receives all data through context
+- **Pure Presentational**: No external state dependencies, receives all data through context
 - **Responsive Layout**: Uses PatternFly Gallery and responsive components
 - **Interactive Elements**: Expandable sections, navigation buttons, and external links
 - **Comprehensive Coverage**: Complete overview of RBAC workspace functionality

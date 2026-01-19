@@ -38,7 +38,7 @@ const mockHierarchy = [
 const mockSingleWorkspaceHierarchy = [{ name: 'Production Environment', id: 'workspace-1' }];
 
 // Story decorator to provide necessary context
-const withProviders = (Story: any, context: any) => {
+const withProviders = (Story: React.ComponentType, context: { parameters?: { route?: string } }) => {
   const route = context.parameters?.route || '/iam/access-management/workspaces/detail/workspace-1';
   return (
     <MemoryRouter initialEntries={[route]}>

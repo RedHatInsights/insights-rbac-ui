@@ -8,8 +8,27 @@ import { useFlag } from '@unleash/proxy-client-react';
 
 interface SummaryContentProps {
   name?: string;
-  // Data-driven-forms props
-  [key: string]: any;
+  // Data-driven-forms pass-through props
+  [key: string]: unknown;
+}
+
+// Types for form values
+interface SelectedRole {
+  uuid: string;
+  name: string;
+  display_name?: string;
+}
+
+interface SelectedUser {
+  uuid?: string;
+  username: string;
+  label?: string;
+}
+
+interface SelectedServiceAccount {
+  uuid?: string;
+  clientId: string;
+  name?: string;
 }
 
 export const SummaryContent: React.FC<SummaryContentProps> = () => {
@@ -51,7 +70,7 @@ export const SummaryContent: React.FC<SummaryContentProps> = () => {
             <DescriptionListDescription>
               {selectedRoles && selectedRoles.length > 0 ? (
                 <ul style={{ margin: 0, paddingLeft: '1rem' }}>
-                  {selectedRoles.map((role: any) => (
+                  {selectedRoles.map((role: SelectedRole) => (
                     <li key={role.uuid}>{role.display_name || role.name}</li>
                   ))}
                 </ul>
@@ -69,7 +88,7 @@ export const SummaryContent: React.FC<SummaryContentProps> = () => {
             <DescriptionListDescription>
               {selectedUsers && selectedUsers.length > 0 ? (
                 <ul style={{ margin: 0, paddingLeft: '1rem' }}>
-                  {selectedUsers.map((user: any) => (
+                  {selectedUsers.map((user: SelectedUser) => (
                     <li key={user.uuid || user.username}>{user.label || user.username}</li>
                   ))}
                 </ul>
@@ -88,7 +107,7 @@ export const SummaryContent: React.FC<SummaryContentProps> = () => {
               <DescriptionListDescription>
                 {selectedServiceAccounts && selectedServiceAccounts.length > 0 ? (
                   <ul style={{ margin: 0, paddingLeft: '1rem' }}>
-                    {selectedServiceAccounts.map((sa: any) => (
+                    {selectedServiceAccounts.map((sa: SelectedServiceAccount) => (
                       <li key={sa.uuid || sa.clientId}>{sa.name || sa.clientId}</li>
                     ))}
                   </ul>

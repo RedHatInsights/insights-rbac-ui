@@ -32,7 +32,7 @@ interface AddGroupRolesProps {
  * AddGroupRoles component - fetches its own data via React Query.
  * Determines if group is a default group and whether it's been modified from the group data itself.
  *
- * Migrated from Redux - component is now self-contained.
+ * Component is self-contained with React Query data fetching.
  */
 export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({ afterSubmit, closeUrl }) => {
   const intl = useIntl();

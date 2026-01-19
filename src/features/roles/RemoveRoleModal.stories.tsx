@@ -22,8 +22,8 @@ const mockRole = {
 };
 
 // Router decorator with role ID param
-const withRouter = (Story: any, context: any) => {
-  const roleId = context.parameters.roleId || 'role-123';
+const withRouter = (Story: React.ComponentType, context: { parameters?: { roleId?: string } }) => {
+  const roleId = context.parameters?.roleId || 'role-123';
   return (
     <BrowserRouter>
       <Routes>

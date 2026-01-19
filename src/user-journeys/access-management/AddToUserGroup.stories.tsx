@@ -287,7 +287,6 @@ type Story = StoryObj<typeof meta>;
  * 4. Verifies users ARE in target group after operation
  */
 export const CompleteFlow: Story = {
-  name: 'Complete Flow',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -424,7 +423,6 @@ This test performs full end-to-end verification:
  * Verifies the API receives multiple usernames
  */
 export const MultipleUsers: Story = {
-  name: 'Multiple Users',
   parameters: {
     docs: {
       description: {
@@ -514,7 +512,6 @@ export const MultipleUsers: Story = {
  * Cancel flow - verifies no changes are made
  */
 export const CancelFlow: Story = {
-  name: 'Cancel Flow',
   parameters: {
     docs: {
       description: {
@@ -580,7 +577,6 @@ Verifies that canceling the modal:
  * Add to multiple groups at once
  */
 export const MultipleGroups: Story = {
-  name: 'Multiple Groups',
   parameters: {
     docs: {
       description: {

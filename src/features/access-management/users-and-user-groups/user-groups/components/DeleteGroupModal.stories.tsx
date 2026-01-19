@@ -60,7 +60,7 @@ const meta: Meta<typeof DeleteGroupModal> = {
 This is a **presentational component** that:
 - Receives minimal props (isOpen, groups, callbacks)
 - Handles its own internationalization
-- Has no knowledge of Redux or business logic
+- Has no knowledge of external state or business logic
 - Focuses purely on user confirmation workflow
         `,
       },

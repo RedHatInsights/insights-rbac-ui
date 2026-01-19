@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Outlet, useNavigationType, useParams, useNavigate as useRouterNavigate } from 'react-router-dom';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
@@ -29,7 +29,6 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
   const [permissionFilters, setPermissionFilters] = useState<{ applications: string[]; resources: string[]; operations: string[] }>({
     applications: [],
     resources: [],
@@ -57,7 +56,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
 
   const groupExists = !isGroupError;
 
-  // Use default pagination for breadcrumbs (no longer tracking in Redux)
+  // Use default pagination for breadcrumbs
   const groupsPagination = defaultSettings;
   const groupsFilters: Record<string, string> = {};
   const rolesPagination = defaultSettings;
@@ -93,29 +92,37 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
     return () => (chrome.appObjectId as (id: string | undefined) => void)(undefined);
   }, [roleId, actualGroupId, chrome]);
 
-  useEffect(() => {
-    // Disable for system roles
+  // Derived: Determine if role cannot have permissions added
+  // System roles and preconfigured roles (for admins) are non-editable
+  const isNonPermissionAddingRole = useMemo(() => {
     const isSystemRole = role?.system;
-
-    // Disable for preconfigured roles when user is Org Admin or User Access Admin
     const isPreconfiguredRoleForAdmin = (orgAdmin || userAccessAdministrator) && (role?.platform_default || role?.admin_default);
+    return Boolean(isSystemRole || isPreconfiguredRoleForAdmin);
+  }, [role?.system, role?.platform_default, role?.admin_default, orgAdmin, userAccessAdministrator]);
 
-    if (isSystemRole || isPreconfiguredRoleForAdmin) {
-      setIsNonPermissionAddingRole(true);
-    } else {
-      setIsNonPermissionAddingRole(false);
-    }
-  }, [role, orgAdmin, userAccessAdministrator]);
+  interface Breadcrumb {
+    title: string | undefined;
+    to?: string;
+    isLoading?: boolean;
+    isActive?: boolean;
+  }
 
-  const breadcrumbsList = (): any[] => [
+  // Helper to convert getBackRoute result to string
+  const routeToString = (route: { pathname: string; search: string }) => `${route.pathname}${route.search}`;
+
+  const breadcrumbsList = (): Breadcrumb[] => [
     groupId
       ? {
           title: intl.formatMessage(messages.groups),
-          to: getBackRoute(toAppLink(pathnames.groups.link) as string, groupsPagination as { limit: number; offset: number }, groupsFilters),
+          to: routeToString(
+            getBackRoute(toAppLink(pathnames.groups.link) as string, groupsPagination as { limit: number; offset: number }, groupsFilters),
+          ),
         }
       : {
           title: intl.formatMessage(messages.roles),
-          to: getBackRoute(toAppLink(pathnames.roles.link) as string, rolesPagination as { limit: number; offset: number }, rolesFilters),
+          to: routeToString(
+            getBackRoute(toAppLink(pathnames.roles.link) as string, rolesPagination as { limit: number; offset: number }, rolesFilters),
+          ),
         },
 
     ...(groupExists && groupId && (groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupExists)
@@ -123,7 +130,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
         ? [
             {
               title: group && group.name,
-              to: toAppLink(pathnames['group-detail-roles'].link.replace(':groupId', groupId)),
+              to: toAppLink(pathnames['group-detail-roles'].link.replace(':groupId', groupId)) as string,
               isLoading: false,
             },
           ]

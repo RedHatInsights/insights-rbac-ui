@@ -19,7 +19,7 @@ import {
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import { FormattedMessage } from 'react-intl';
 import { ActionsColumn } from '@patternfly/react-table';
-import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import useAppNavigate from '../../../hooks/useAppNavigate';
@@ -272,7 +272,6 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
         : {}),
     }));
 
-  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const [searchParams, setSearchParams] = useSearchParams();
   const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<WorkspaceFilters>({
     initialFilters: { name: '' },
@@ -285,15 +284,14 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   const rows = useMemo(() => (filteredTree ? buildRows(filteredTree) : []), [filteredTree]);
   const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
 
-  useEffect(() => {
-    if (isLoading) {
-      setActiveState(DataViewState.loading);
-    } else if (error) {
-      setActiveState(DataViewState.error);
-    } else {
-      workspaces.length === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
-    }
-  }, [workspaces, isLoading, error]);
+  // Derived: Calculate active state directly from props (no useEffect sync needed)
+  const activeState: DataViewState | undefined = isLoading
+    ? DataViewState.loading
+    : error
+      ? DataViewState.error
+      : workspaces.length === 0
+        ? DataViewState.empty
+        : undefined;
 
   return (
     <React.Fragment>

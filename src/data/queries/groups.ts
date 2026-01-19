@@ -1,7 +1,16 @@
 import { type UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import { type GroupOut, type GroupPagination, type GroupRolesPagination, type ListGroupsParams, groupsApi } from '../api/groups';
+import {
+  type AddPrincipalToGroupParams,
+  type GetPrincipalsFromGroupParams,
+  type GroupOut,
+  type GroupPagination,
+  type GroupRolesPagination,
+  type ListGroupsParams,
+  type PrincipalPagination,
+  groupsApi,
+} from '../api/groups';
 import messages from '../../Messages';
 
 // ============================================================================
@@ -269,35 +278,26 @@ export function useGroupMembersQuery(
     // Include params in query key for proper cache invalidation
     queryKey: [...groupsKeys.members(groupId), { limit, offset, orderBy, username }],
     queryFn: async (): Promise<MembersQueryResult> => {
-      // Call API with positional params
-      // Order: uuid, adminOnly, principalUsername, limit, offset, orderBy, usernameOnly, principalType, serviceAccountClientIds, serviceAccountDescription, serviceAccountName, options
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await (groupsApi.getPrincipalsFromGroup as any)(
-        groupId, // uuid
-        undefined, // adminOnly
-        username, // principalUsername - filter by username
-        limit, // limit
-        offset, // offset
-        orderBy, // orderBy
-        undefined, // usernameOnly
-        'user', // principalType - always user for members
-        undefined, // serviceAccountClientIds
-        undefined, // serviceAccountDescription
-        undefined, // serviceAccountName
-        undefined, // options
-      );
+      const response = await groupsApi.getPrincipalsFromGroup({
+        uuid: groupId,
+        principalUsername: username,
+        limit,
+        offset,
+        orderBy: orderBy as GetPrincipalsFromGroupParams['orderBy'],
+        principalType: 'user',
+      });
 
       // Unwrap axios response - response.data contains the API response body
-      const data = response.data;
+      const data = response.data as PrincipalPagination;
 
       // Transform API response to clean typed structure
-      const members: Member[] = (data?.data ?? []).map((principal: Record<string, unknown>) => ({
-        username: principal.username as string,
-        first_name: principal.first_name as string | undefined,
-        last_name: principal.last_name as string | undefined,
-        email: principal.email as string | undefined,
-        is_active: principal.is_active as boolean | undefined,
-        is_org_admin: principal.is_org_admin as boolean | undefined,
+      const members: Member[] = (data?.data ?? []).map((principal) => ({
+        username: principal.username,
+        first_name: 'first_name' in principal ? (principal.first_name as string | undefined) : undefined,
+        last_name: 'last_name' in principal ? (principal.last_name as string | undefined) : undefined,
+        email: 'email' in principal ? (principal.email as string | undefined) : undefined,
+        is_active: 'is_active' in principal ? (principal.is_active as boolean | undefined) : undefined,
+        is_org_admin: 'is_org_admin' in principal ? (principal.is_org_admin as boolean | undefined) : undefined,
       }));
 
       return {
@@ -330,8 +330,7 @@ export function useGroupRolesQuery(
     // Include params in query key for proper cache handling
     queryKey: [...groupsKeys.roles(groupId), { limit, offset, name }],
     queryFn: async (): Promise<GroupRolesQueryResult> => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await (groupsApi.listRolesForGroup as any)({
+      const response = await groupsApi.listRolesForGroup({
         uuid: groupId,
         limit,
         offset,
@@ -362,16 +361,14 @@ export function useGroupRolesQuery(
 
 /**
  * Fetch roles available to add to a group (roles not currently in the group).
- * Uses the `excluded=true` parameter to get roles that can be added.
+ * Uses the `exclude=true` parameter to get roles that can be added.
  * Returns count of available roles - useful for enabling/disabling "Add Role" button.
  */
 export function useAvailableRolesForGroupQuery(groupId: string, options?: { enabled?: boolean }): UseQueryResult<{ count: number }> {
   return useQuery({
     queryKey: [...groupsKeys.roles(groupId), 'available'],
     queryFn: async (): Promise<{ count: number }> => {
-      // Call API with excluded=true to get roles NOT in the group
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await (groupsApi.listRolesForGroup as any)({
+      const response = await groupsApi.listRolesForGroup({
         uuid: groupId,
         exclude: true, // This gets roles that can be added
         limit: 1, // We only need the count
@@ -395,7 +392,7 @@ export interface UseAvailableRolesListQueryParams {
 
 /**
  * Fetch full list of roles available to add to a group (roles not currently in the group).
- * Uses the `excluded=true` parameter to get roles that can be added.
+ * Uses the `exclude=true` parameter to get roles that can be added.
  * Supports pagination and filtering.
  */
 export function useAvailableRolesListQuery(
@@ -408,14 +405,12 @@ export function useAvailableRolesListQuery(
   return useQuery({
     queryKey: [...groupsKeys.roles(groupId), 'available-list', { limit, offset, name }],
     queryFn: async (): Promise<GroupRolesQueryResult> => {
-      // Call API with excluded=true to get roles NOT in the group
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await (groupsApi.listRolesForGroup as any)({
+      const response = await groupsApi.listRolesForGroup({
         uuid: groupId,
         exclude: true,
         limit,
         offset,
-        ...(name ? { roleName: name } : {}),
+        roleName: name,
       });
       const data = response.data as GroupRolesPagination;
 
@@ -441,8 +436,6 @@ export function useAvailableRolesListQuery(
  * Fetch service accounts in a group.
  * Returns typed ServiceAccountsListResponse with proper data/meta structure.
  * Supports pagination and filtering.
- *
- * @tag gap:guessed-v2-api - The exact API structure for service accounts in groups is guessed.
  */
 export function useGroupServiceAccountsQuery(
   groupId: string,
@@ -455,23 +448,15 @@ export function useGroupServiceAccountsQuery(
     // Include params in query key for proper cache invalidation
     queryKey: [...groupsKeys.serviceAccounts(groupId), { limit, offset, clientId, name, description }],
     queryFn: async (): Promise<ServiceAccountsListResponse> => {
-      // Call API with positional params
-      // Order: uuid, adminOnly, principalUsername, limit, offset, orderBy, usernameOnly, principalType, serviceAccountClientIds, serviceAccountDescription, serviceAccountName, options
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await (groupsApi.getPrincipalsFromGroup as any)(
-        groupId, // uuid
-        undefined, // adminOnly
-        clientId, // principalUsername - for service accounts this is clientId
-        limit, // limit
-        offset, // offset
-        undefined, // orderBy
-        undefined, // usernameOnly
-        'service-account', // principalType
-        undefined, // serviceAccountClientIds
-        description, // serviceAccountDescription
-        name, // serviceAccountName
-        undefined, // options
-      );
+      const response = await groupsApi.getPrincipalsFromGroup({
+        uuid: groupId,
+        principalUsername: clientId, // For service accounts, filter by clientId
+        limit,
+        offset,
+        principalType: 'service-account',
+        serviceAccountDescription: description,
+        serviceAccountName: name,
+      });
 
       // Unwrap axios response - response.data contains the API response body
       const data = response.data;
@@ -517,7 +502,7 @@ interface CreateGroupParams {
 
 /**
  * Create a new group with optional users and roles.
- * Mirrors the old Redux behavior:
+ * Behavior:
  * 1. Creates the group
  * 2. Adds principals (users) if provided
  * 3. Adds roles if provided
@@ -529,10 +514,13 @@ export function useCreateGroupMutation() {
 
   return useMutation({
     mutationFn: async (params: CreateGroupParams) => {
-      // Match old Redux helper: passes full object to createGroup
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const newGroup = await (groupsApi.createGroup as any)(params, undefined);
-      const groupData = newGroup.data ?? newGroup;
+      const newGroup = await groupsApi.createGroup({
+        group: {
+          name: params.name,
+          description: params.description,
+        },
+      });
+      const groupData = newGroup.data;
       const groupUuid = groupData.uuid;
 
       if (!groupUuid) {
@@ -542,20 +530,29 @@ export function useCreateGroupMutation() {
       const promises: Promise<unknown>[] = [];
 
       // Add users if provided
+      // Note: rbac-client type incorrectly requires 'type' and 'clientId' for all principals,
+      // but the API accepts { username } for user principals. Using type assertion.
       if (params.user_list && params.user_list.length > 0) {
-        const groupPrincipalIn = {
-          principals: params.user_list.map((user) => ({
-            username: user.username,
-          })),
-        };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        promises.push((groupsApi.addPrincipalToGroup as any)(groupUuid, groupPrincipalIn, undefined));
+        promises.push(
+          groupsApi.addPrincipalToGroup({
+            uuid: groupUuid,
+            groupPrincipalIn: {
+              principals: params.user_list.map((user) => ({
+                username: user.username,
+              })),
+            } as AddPrincipalToGroupParams['groupPrincipalIn'],
+          }),
+        );
       }
 
       // Add roles if provided
       if (params.roles_list && params.roles_list.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        promises.push((groupsApi.addRoleToGroup as any)(groupUuid, { roles: params.roles_list }, undefined));
+        promises.push(
+          groupsApi.addRoleToGroup({
+            uuid: groupUuid,
+            groupRoleIn: { roles: params.roles_list },
+          }),
+        );
       }
 
       await Promise.all(promises);
@@ -595,14 +592,13 @@ export function useUpdateGroupMutation() {
 
   return useMutation({
     mutationFn: async (params: UpdateGroupParams) => {
-      // Match the old Redux helper behavior: updateGroup(uuid, data, options)
-      // The API expects the body to include uuid, name, description
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await (groupsApi.updateGroup as any)(
-        params.uuid,
-        { uuid: params.uuid, name: params.name, description: params.description },
-        undefined,
-      );
+      const response = await groupsApi.updateGroup({
+        uuid: params.uuid,
+        group: {
+          name: params.name,
+          description: params.description,
+        },
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -670,12 +666,13 @@ export function useAddMembersToGroupMutation() {
 
   return useMutation({
     mutationFn: async ({ groupId, usernames }: AddMembersToGroupParams) => {
-      // Note: Type assertion needed due to rbac-client type issues
+      // Note: rbac-client type incorrectly requires 'type' and 'clientId' for all principals,
+      // but the API accepts { username } for user principals. Using type assertion.
       const response = await groupsApi.addPrincipalToGroup({
         uuid: groupId,
         groupPrincipalIn: {
           principals: usernames.map((username) => ({ username })),
-        } as any,
+        } as AddPrincipalToGroupParams['groupPrincipalIn'],
       });
       return response.data;
     },
@@ -728,7 +725,7 @@ export function useRemoveMembersFromGroupMutation() {
       queryClient.invalidateQueries({ queryKey: groupsKeys.lists() });
       // Also invalidate users query since user_groups_count changes
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      // Match old Redux behavior: always use plural form
+      // Always use plural form
       addNotification({
         variant: 'success',
         title: intl.formatMessage(messages.removeGroupMembersSuccessTitle),
@@ -737,7 +734,7 @@ export function useRemoveMembersFromGroupMutation() {
       });
     },
     onError: () => {
-      // Match old Redux behavior: always use plural form
+      // Always use plural form
       addNotification({
         variant: 'danger',
         title: intl.formatMessage(messages.removeGroupMembersErrorTitle),
@@ -849,14 +846,17 @@ export function useAddServiceAccountsToGroupMutationV1() {
   return useMutation({
     mutationFn: async ({ groupId, serviceAccounts }: AddServiceAccountsToGroupParams) => {
       // Use the stable principals API with service-account type
-      const groupPrincipalIn = {
-        principals: serviceAccounts.map((clientId) => ({
-          clientId,
-          type: 'service-account' as const,
-        })),
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response = await (groupsApi.addPrincipalToGroup as any)(groupId, groupPrincipalIn, undefined);
+      // Note: The rbac-client GroupPrincipalIn type expects 'username' but for service accounts
+      // we need to send 'clientId' and 'type'. Using type assertion for this known API behavior.
+      const response = await groupsApi.addPrincipalToGroup({
+        uuid: groupId,
+        groupPrincipalIn: {
+          principals: serviceAccounts.map((clientId) => ({
+            clientId,
+            type: 'service-account',
+          })),
+        } as AddPrincipalToGroupParams['groupPrincipalIn'],
+      });
       return response.data;
     },
     onSuccess: (_, variables) => {
@@ -949,8 +949,10 @@ export function useRemoveServiceAccountsFromGroupMutationV1() {
   return useMutation({
     mutationFn: async ({ groupId, serviceAccounts }: RemoveServiceAccountsFromGroupParams) => {
       // Use the stable principals API - service account client IDs are passed as comma-separated
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (groupsApi.deletePrincipalFromGroup as any)(groupId, undefined, serviceAccounts.join(','), undefined);
+      await groupsApi.deletePrincipalFromGroup({
+        uuid: groupId,
+        serviceAccounts: serviceAccounts.join(','),
+      });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: groupsKeys.serviceAccounts(variables.groupId) });

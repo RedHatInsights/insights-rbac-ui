@@ -131,7 +131,7 @@ The GroupDetailsDrawer is a reusable component for displaying group details with
 
 ## Key Features
 - **Reusable Design**: Can be used with any content that needs group detail viewing
-- **Data Management**: Handles Redux state for group members and roles
+- **Data Management**: Handles React Query state for group members and roles
 - **Loading States**: Shows loading, error, and empty states appropriately
 - **Tabbed Interface**: Users and Roles tabs with proper data display
 - **Internationalization**: Uses message keys for all text content
@@ -440,7 +440,7 @@ export const ErrorState: Story = {
   parameters: {
     msw: {
       handlers: [
-        // Return error responses - NOTE: Component error handling with Redux thunks
+        // Return error responses - NOTE: Component error handling with React Query error handling
         // is complex and better tested in E2E tests. This story is for visual testing.
         http.get('/api/rbac/v1/groups/:groupId/principals/', () =>
           HttpResponse.json({ errors: [{ detail: 'Failed to load members' }] }, { status: 500 }),
@@ -451,9 +451,9 @@ export const ErrorState: Story = {
     docs: {
       description: {
         story:
-          'Drawer showing error states when data fails to load. Note: This story is for visual testing only as Redux error handling integration is complex.',
+          'Drawer showing error states when data fails to load. Note: This story is for visual testing only as error handling integration is complex.',
       },
     },
   },
-  // No play function - error state testing with Redux thunks requires proper error boundary setup
+  // No play function - error state testing with React Query error handling requires proper error boundary setup
 };

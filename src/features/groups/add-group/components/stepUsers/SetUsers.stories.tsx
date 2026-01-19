@@ -54,8 +54,8 @@ const setUsersSchema = {
 
 // Wrapper component to provide FormRenderer and Router context
 const SetUsersWithForm: React.FC<{
-  onSubmit?: (values: any) => void;
-  initialValues?: any;
+  onSubmit?: (values: Record<string, unknown>) => void;
+  initialValues?: Record<string, unknown>;
 }> = ({ onSubmit = () => {}, initialValues = { 'users-list': [] } }) => {
   return (
     <MemoryRouter>

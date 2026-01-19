@@ -18,7 +18,7 @@ interface TabItem {
  * Custom hook for managing Group component data and configuration
  * Handles data fetching via React Query, URL parameters, feature flags, and tab configuration
  *
- * Migrated from Redux to React Query.
+ * Uses React Query for data fetching.
  */
 export const useGroupData = () => {
   const chrome = useChrome();

@@ -12,6 +12,7 @@ import {
   openPerPageMenu,
   selectPerPage,
 } from '../../../.storybook/helpers/pagination-test-utils';
+import { waitForPageToLoad } from '../../user-journeys/_shared/helpers';
 
 // Spy functions to track API calls
 const fetchRolesSpy = fn();
@@ -231,8 +232,8 @@ For testing specific scenarios, see these additional stories:
               limit,
               offset,
             },
-            // Include filters and pagination for Redux state management
-            // When displayNameFilter is null (parameter not in URL), use empty string for Redux
+            // Include filters and pagination for React Query state management
+            // When displayNameFilter is null (parameter not in URL), use empty string for React Query
             filters: {
               display_name: displayNameFilter || '',
             },
@@ -279,7 +280,7 @@ For testing specific scenarios, see these additional stories:
     console.log('SB: 🔍 Roles spy calls:', fetchRolesSpy.mock.calls.length);
     console.log('SB: 🔍 Admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
 
-    // Wait for container to load data through Redux
+    // Wait for container to load data through React Query
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
     expect(await canvas.findByText('Cost Management Viewer')).toBeInTheDocument();
     expect(await canvas.findByText('Vulnerability Administrator')).toBeInTheDocument();
@@ -292,7 +293,7 @@ For testing specific scenarios, see these additional stories:
     const table = await canvas.findByRole('grid');
     expect(table).toBeInTheDocument();
 
-    // Verify role data is rendered through Redux state
+    // Verify role data is rendered through React Query state
     const tableContent = within(table);
     expect(await tableContent.findByText('Platform Administrator')).toBeInTheDocument();
     expect(await tableContent.findByText('25')).toBeInTheDocument(); // accessCount
@@ -372,7 +373,7 @@ export const LoadingState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests container behavior during API loading via Redux state management.',
+        story: 'Tests container behavior during API loading via React Query state management.',
       },
     },
     permissions: {
@@ -409,7 +410,7 @@ export const EmptyRoles: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests container handling of empty role data from Redux.',
+        story: 'Tests container handling of empty role data from React Query.',
       },
     },
     permissions: {
@@ -504,8 +505,8 @@ export const AdminUserWithRolesFiltering: Story = {
               limit,
               offset,
             },
-            // Include filters and pagination for Redux state management
-            // When displayNameFilter is null (not in URL), use empty string for Redux
+            // Include filters and pagination for React Query state management
+            // When displayNameFilter is null (not in URL), use empty string for React Query
             filters: {
               display_name: displayNameFilter || '',
             },
@@ -554,7 +555,7 @@ export const AdminUserWithRolesFiltering: Story = {
     console.log('SB: 🧪 FILTERING: Typing "vulner" filter');
     await userEvent.type(filterInput, 'vulner');
 
-    // Wait for debounce + Redux state update + re-render
+    // Wait for debounce + React Query state update + re-render
     await waitFor(
       () => {
         expect(filterSpy).toHaveBeenCalledWith('vulner');
@@ -773,10 +774,7 @@ export const AdminUserWithRolesSorting: Story = {
     console.log('SB: 🧪 SORTING: Starting column sorting test');
 
     // Wait for initial data load - table should be fully rendered with sortable headers
-    expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
-
-    // Additional wait to ensure table headers are interactive (not skeletons)
-    await delay(100);
+    await waitForPageToLoad(canvas, 'Platform Administrator');
 
     // Test sorting by Name column (display_name)
     console.log('SB: 🧪 Testing Name column sorting...');
@@ -794,6 +792,9 @@ export const AdminUserWithRolesSorting: Story = {
       expect(sortSpy).toHaveBeenCalledWith('-display_name');
     });
 
+    // Wait for table to reload after sort
+    await waitForPageToLoad(canvas, 'Platform Administrator');
+
     // Re-find the button after table re-render
     nameColumnHeader = await canvas.findByRole('columnheader', { name: /name/i });
     nameButton = await within(nameColumnHeader).findByRole('button');
@@ -808,6 +809,9 @@ export const AdminUserWithRolesSorting: Story = {
     await waitFor(() => {
       expect(sortSpy).toHaveBeenCalledWith('display_name');
     });
+
+    // Wait for table to reload after sort
+    await waitForPageToLoad(canvas, 'Platform Administrator');
 
     // Test sorting by Last Modified column
     console.log('SB: 🧪 Testing Last Modified column sorting...');
@@ -824,6 +828,9 @@ export const AdminUserWithRolesSorting: Story = {
     await waitFor(() => {
       expect(sortSpy).toHaveBeenCalledWith('modified');
     });
+
+    // Wait for table to reload after sort
+    await waitForPageToLoad(canvas, 'Platform Administrator');
 
     // Re-find the button after table re-render
     lastModifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });

@@ -1,6 +1,10 @@
 import { http, HttpResponse } from 'msw';
 import { Group, Principal, Role, PaginatedResponse } from '../types/entities';
-import { Workspace, RoleBindingBySubject } from '../../src/redux/workspaces/reducer';
+import type { WorkspacesWorkspace, RoleBindingsRoleBindingBySubject } from '../../src/data/queries/workspaces';
+
+// Type aliases for backward compatibility
+type Workspace = WorkspacesWorkspace;
+type RoleBindingBySubject = RoleBindingsRoleBindingBySubject;
 import {
   AppState,
   ServiceAccount,
@@ -714,6 +718,8 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
         description: body.description || '',
         parent_id: body.parent_id || '',
         type: 'standard',
+        created: new Date().toISOString(),
+        modified: new Date().toISOString(),
       };
       state.workspaces.push(newWorkspace);
       return HttpResponse.json(newWorkspace, { status: 201 });
