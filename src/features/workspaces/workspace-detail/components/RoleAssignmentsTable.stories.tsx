@@ -3,7 +3,7 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { RoleAssignmentsTable } from './RoleAssignmentsTable';
-import { Group } from '../../../../redux/groups/reducer';
+import { type Group } from '../../../../data/queries/groups';
 import { HttpResponse, http } from 'msw';
 
 // Mock group data

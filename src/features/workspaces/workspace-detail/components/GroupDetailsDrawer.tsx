@@ -20,21 +20,21 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclama
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 
-import { Group } from '../../../../redux/groups/reducer';
-import { type GroupRole, useGroupMembersQuery, useGroupRolesQuery } from '../../../../data/queries/groups';
-import { extractErrorMessage } from '../../../../utilities/errorUtils';
-import messages from '../../../../Messages';
-import { AppLink } from '../../../../components/navigation/AppLink';
-import { TableView } from '../../../../components/table-view/TableView';
-import type { CellRendererMap, ColumnConfigMap } from '../../../../components/table-view/types';
+import { type Group } from '../../../../data/queries/groups';
 
-// Extended Group interface to optionally include inheritedFrom data
+// Group with inheritance info (for workspace context)
 export interface GroupWithInheritance extends Group {
   inheritedFrom?: {
     workspaceId: string;
     workspaceName: string;
   };
 }
+import { type GroupRole, useGroupMembersQuery, useGroupRolesQuery } from '../../../../data/queries/groups';
+import { extractErrorMessage } from '../../../../utilities/errorUtils';
+import messages from '../../../../Messages';
+import { AppLink } from '../../../../components/navigation/AppLink';
+import { TableView } from '../../../../components/table-view/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '../../../../components/table-view/types';
 
 // Extended Role interface to include inheritedFrom data
 export interface RoleWithInheritance {
