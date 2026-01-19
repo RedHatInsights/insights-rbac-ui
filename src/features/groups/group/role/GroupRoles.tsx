@@ -3,13 +3,14 @@
  *
  * Displays and manages roles assigned to a group using the TableView component.
  * All table state (pagination, sorting, filtering, selection) is managed by useTableState.
+ *
+ * Data fetching is handled by React Query. Mutations automatically
+ * invalidate the cache, so no manual refresh is needed.
  */
 
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useMemo, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -20,18 +21,14 @@ import { RemoveGroupRoles } from './RemoveGroupRoles';
 
 import { columns, useGroupRolesTableConfig } from './useGroupRolesTableConfig';
 
-import { fetchAddRolesForGroup, fetchRolesForGroup, removeRolesFromGroup } from '../../../../redux/groups/actions';
+// React Query
 import {
-  selectGroupRoles,
-  selectGroupRolesMeta,
-  selectIsAdminDefaultGroup,
-  selectIsChangedDefaultGroup,
-  selectIsGroupRolesLoading,
-  selectIsPlatformDefaultGroup,
-  selectSelectedGroup,
-  selectShouldDisableAddRoles,
-  selectSystemGroupUUID,
-} from '../../../../redux/groups/selectors';
+  useAvailableRolesForGroupQuery,
+  useGroupQuery,
+  useGroupRolesQuery,
+  useGroupsQuery,
+  useRemoveRolesFromGroupMutation,
+} from '../../../../data/queries/groups';
 
 import { getBackRoute } from '../../../../helpers/navigation';
 import PermissionsContext from '../../../../utilities/permissionsContext';
@@ -56,28 +53,28 @@ const generateOuiaID = (name: string) => {
 
 export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
-  const addNotification = useAddNotification();
 
   // Permissions
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = orgAdmin || userAccessAdministrator;
 
-  // Redux state
-  const roles = useSelector(selectGroupRoles);
-  const pagination = useSelector(selectGroupRolesMeta);
-  const isReduxLoading = useSelector(selectIsGroupRolesLoading);
-  const isPlatformDefault = useSelector(selectIsPlatformDefaultGroup);
-  const isAdminDefault = useSelector(selectIsAdminDefaultGroup);
-  const isChanged = useSelector(selectIsChangedDefaultGroup);
-  const disableAddRoles = useSelector(selectShouldDisableAddRoles);
-  const systemGroupUuid = useSelector(selectSystemGroupUUID);
-  const group = useSelector(selectSelectedGroup);
+  // Fetch system group UUID for default access group handling
+  const { data: systemGroupData } = useGroupsQuery({ platformDefault: true, limit: 1 });
+  const systemGroupUuid = systemGroupData?.data?.[0]?.uuid;
 
   // Resolve actual group ID (handle default access group)
   const actualGroupId = useMemo(() => (groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId! : systemGroupUuid), [groupId, systemGroupUuid]);
+
+  // Fetch group data
+  const { data: group } = useGroupQuery(actualGroupId ?? '', { enabled: !!actualGroupId });
+
+  // Derive group properties
+  const isPlatformDefault = group?.platform_default ?? false;
+  const isAdminDefault = group?.admin_default ?? false;
+  // isChanged: true if it's a default group that has been customized (not a pure system group)
+  const isChanged = (isPlatformDefault || isAdminDefault) && !group?.system;
 
   // Table configuration
   const { columnConfig, cellRenderers, filterConfig } = useGroupRolesTableConfig({
@@ -85,41 +82,45 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
     groupId: groupId!,
   });
 
-  // Data fetching function
-  const fetchData = useCallback(
-    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
-      if (!actualGroupId) return;
-
-      const nameFilter = typeof params.filters.name === 'string' ? params.filters.name : '';
-
-      dispatch(
-        fetchRolesForGroup(actualGroupId, {
-          limit: params.limit,
-          offset: params.offset,
-          name: nameFilter || undefined,
-        }) as any,
-      );
-    },
-    [dispatch, actualGroupId],
-  );
-
   // Table state hook (no sorting - API doesn't support it)
   const tableState = useTableState<typeof columns, Role>({
     columns,
     initialPerPage: 20,
     getRowId: (role) => role.uuid,
     syncWithUrl: false, // Don't sync with URL for sub-tab
-    onStaleData: fetchData,
   });
 
-  // Total count from Redux pagination
-  const totalCount = pagination?.count ?? 0;
+  // Fetch roles via React Query
+  const { data: rolesData, isLoading } = useGroupRolesQuery(
+    actualGroupId ?? '',
+    {
+      limit: tableState.apiParams.limit,
+      offset: tableState.apiParams.offset,
+      name: (tableState.apiParams.filters.name as string) || undefined,
+    },
+    { enabled: !!actualGroupId },
+  );
+
+  // Fetch available roles count (for enabling/disabling "Add Role" button)
+  const { data: availableRolesData } = useAvailableRolesForGroupQuery(actualGroupId ?? '', {
+    enabled: !!actualGroupId && !isAdminDefault,
+  });
+
+  // Determine if "Add Role" button should be disabled
+  const disableAddRoles = isAdminDefault || (availableRolesData?.count ?? 0) === 0;
+
+  // Extract roles and count from query result
+  const roles = rolesData?.roles ?? [];
+  const totalCount = rolesData?.totalCount ?? 0;
 
   // Enable selection for non-admin-default groups with permissions
   const selectable = hasPermissions && !isAdminDefault;
 
   // Track roles to remove (needed for the confirm callback)
   const rolesToRemoveRef = useRef<Role[]>([]);
+
+  // Remove mutation
+  const removeRolesMutation = useRemoveRolesFromGroupMutation();
 
   // Remove modal with simple API
   const removeModal = useGroupRemoveModal({
@@ -128,54 +129,23 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
     onConfirm: async () => {
       if (!actualGroupId) return;
 
-      const roleIds = rolesToRemoveRef.current.map(({ uuid }) => uuid);
-      await dispatch(removeRolesFromGroup(actualGroupId, roleIds) as any);
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.removeGroupRolesSuccessTitle),
-        description: intl.formatMessage(messages.removeGroupRolesSuccessDescription),
-        dismissable: true,
-      });
-
+      const roleUuids = rolesToRemoveRef.current.map(({ uuid }) => uuid);
+      await removeRolesMutation.mutateAsync({ groupId: actualGroupId, roleUuids });
       tableState.clearSelection();
-      fetchData({
-        offset: tableState.apiParams.offset,
-        limit: tableState.apiParams.limit,
-        orderBy: tableState.apiParams.orderBy,
-        filters: tableState.filters,
-      });
-      dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
+      // No need to manually refetch - mutation invalidates cache automatically
     },
   });
 
   // Helper to open modal with roles
   const handleOpenRemoveModal = useCallback(
-    (roles: Role[]) => {
-      rolesToRemoveRef.current = roles;
-      removeModal.openModal(roles.map((r) => r.display_name || r.name));
+    (rolesToRemove: Role[]) => {
+      rolesToRemoveRef.current = rolesToRemove;
+      removeModal.openModal(rolesToRemove.map((r) => r.display_name || r.name));
     },
     [removeModal],
   );
 
   const removeModalState = removeModal.modalState;
-
-  // =============================================================================
-  // Effects
-  // =============================================================================
-
-  // Fetch available roles for "Add Roles" button
-  useEffect(() => {
-    if (actualGroupId) {
-      dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
-    }
-  }, [dispatch, actualGroupId]);
-
-  // Handle default group changes
-  useEffect(() => {
-    if (isChanged && props.onDefaultGroupChanged && group) {
-      props.onDefaultGroupChanged({ uuid: group.uuid, name: group.name });
-    }
-  }, [isChanged, group, props.onDefaultGroupChanged]);
 
   // =============================================================================
   // Toolbar Content
@@ -232,7 +202,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
           columns={columns}
           columnConfig={columnConfig}
           // Data - pass undefined when loading to show skeleton, otherwise pass roles
-          data={isReduxLoading ? undefined : roles}
+          data={isLoading ? undefined : roles}
           totalCount={totalCount}
           getRowId={(role) => role.uuid}
           // Renderers
@@ -298,68 +268,22 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
             context={{
               [pathnames['group-add-roles'].path]: {
                 isDefault: isPlatformDefault || isAdminDefault,
-                isChanged: isChanged,
                 onDefaultGroupChanged: props.onDefaultGroupChanged,
                 fetchUuid: systemGroupUuid,
                 groupName: group?.name,
                 closeUrl: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
-                afterSubmit: () => {
-                  if (actualGroupId) {
-                    dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
-                  }
-                  fetchData({
-                    offset: tableState.apiParams.offset,
-                    limit: tableState.apiParams.limit,
-                    orderBy: tableState.apiParams.orderBy,
-                    filters: tableState.filters,
-                  });
-                },
-                postMethod: (promise: Promise<unknown>) => {
-                  navigate(pathnames['group-detail-roles'].link.replace(':groupId', groupId));
-                  if (promise) {
-                    promise.then(() => {
-                      if (actualGroupId) {
-                        dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
-                      }
-                      fetchData({
-                        offset: tableState.apiParams.offset,
-                        limit: tableState.apiParams.limit,
-                        orderBy: tableState.apiParams.orderBy,
-                        filters: tableState.filters,
-                      });
-                    });
-                  }
-                },
+                // Mutations invalidate cache automatically, no postMethod/afterSubmit needed
               },
               [pathnames['group-roles-edit-group'].path]: {
                 group,
                 cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
                 submitRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+                // Mutations invalidate cache automatically
               },
               [pathnames['group-roles-remove-group'].path]: {
-                postMethod: (promise: Promise<unknown>) => {
-                  const backRoute = getBackRoute(
-                    pathnames['group-detail-roles'].link.replace(':groupId', groupId),
-                    { limit: tableState.apiParams.limit, offset: tableState.apiParams.offset },
-                    {},
-                  );
-                  navigate(backRoute);
-                  if (promise) {
-                    promise.then(() => {
-                      if (actualGroupId) {
-                        dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }) as any);
-                      }
-                      fetchData({
-                        offset: tableState.apiParams.offset,
-                        limit: tableState.apiParams.limit,
-                        orderBy: tableState.apiParams.orderBy,
-                        filters: tableState.filters,
-                      });
-                    });
-                  }
-                },
                 cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
                 submitRoute: getBackRoute(pathnames.groups.link, { limit: tableState.apiParams.limit, offset: 0 }, {}),
+                // Mutations invalidate cache automatically
               },
             }}
           />

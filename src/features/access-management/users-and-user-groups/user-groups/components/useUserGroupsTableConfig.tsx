@@ -49,7 +49,7 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
         ),
       principalCount: (group) => group.principalCount ?? 0,
       // NOTE: serviceAccountCount requires V2 API (gap:guessed-v2-api)
-      serviceAccountCount: (group) => (group as any).serviceAccountCount ?? '—',
+      serviceAccountCount: (group) => group.serviceAccountCount ?? '—',
       modified: (group) => (group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : ''),
     }),
     [intl],

@@ -1,14 +1,7 @@
 import { type UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import {
-  type GroupOut,
-  type GroupPagination,
-  type GroupRolesPagination,
-  type ListGroupsParams,
-  type PrincipalPagination,
-  groupsApi,
-} from '../api/groups';
+import { type GroupOut, type GroupPagination, type GroupRolesPagination, type ListGroupsParams, groupsApi } from '../api/groups';
 import messages from '../../Messages';
 
 // ============================================================================
@@ -70,6 +63,16 @@ export interface MembersQueryResult {
 }
 
 /**
+ * Parameters for fetching members from a group.
+ */
+export interface UseGroupMembersQueryParams {
+  limit?: number;
+  offset?: number;
+  orderBy?: string;
+  username?: string; // Filter by username
+}
+
+/**
  * Role type for group roles (with optional V2 binding fields).
  */
 export interface GroupRole {
@@ -77,6 +80,7 @@ export interface GroupRole {
   name: string;
   display_name?: string;
   description?: string;
+  modified?: string;
   workspace?: string;
   workspaceId?: string;
 }
@@ -94,10 +98,22 @@ export interface GroupRolesQueryResult {
  * Note: Service accounts come from SSO API, not RBAC API.
  */
 export interface ServiceAccount {
-  uuid?: string;
+  uuid: string;
   clientId: string;
   name: string;
   owner?: string;
+  description?: string;
+  time_created?: string;
+}
+
+/**
+ * Parameters for fetching service accounts from a group.
+ */
+export interface UseGroupServiceAccountsQueryParams {
+  limit?: number;
+  offset?: number;
+  clientId?: string;
+  name?: string;
   description?: string;
 }
 
@@ -140,6 +156,7 @@ export interface UseGroupsQueryParams {
   platformDefault?: boolean;
   adminDefault?: boolean;
   username?: string; // Filter groups by user membership (principalUsername)
+  excludeUsername?: string; // Filter groups where principal is NOT a member
 }
 
 /**
@@ -159,6 +176,7 @@ export function useGroupsQuery(params: UseGroupsQueryParams = {}, options?: { en
         platformDefault: params.platformDefault,
         adminDefault: params.adminDefault,
         username: params.username,
+        excludeUsername: params.excludeUsername,
       });
       return response.data as GroupsListResponse;
     },
@@ -205,22 +223,48 @@ export function useGroupQuery(id: string, options?: { enabled?: boolean }): UseQ
 /**
  * Fetch members (principals) of a group.
  * Returns unwrapped, typed members array and total count.
+ * Supports pagination and filtering.
  */
-export function useGroupMembersQuery(groupId: string, options?: { enabled?: boolean }): UseQueryResult<MembersQueryResult> {
+export function useGroupMembersQuery(
+  groupId: string,
+  params: UseGroupMembersQueryParams = {},
+  options?: { enabled?: boolean },
+): UseQueryResult<MembersQueryResult> {
+  const { limit = 20, offset = 0, orderBy, username } = params;
+
   return useQuery({
-    queryKey: groupsKeys.members(groupId),
+    // Include params in query key for proper cache invalidation
+    queryKey: [...groupsKeys.members(groupId), { limit, offset, orderBy, username }],
     queryFn: async (): Promise<MembersQueryResult> => {
-      const response = await groupsApi.getPrincipalsFromGroup({ uuid: groupId });
-      const data = response.data as PrincipalPagination;
+      // Call API with positional params
+      // Order: uuid, adminOnly, principalUsername, limit, offset, orderBy, usernameOnly, principalType, serviceAccountClientIds, serviceAccountDescription, serviceAccountName, options
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (groupsApi.getPrincipalsFromGroup as any)(
+        groupId, // uuid
+        undefined, // adminOnly
+        username, // principalUsername - filter by username
+        limit, // limit
+        offset, // offset
+        orderBy, // orderBy
+        undefined, // usernameOnly
+        'user', // principalType - always user for members
+        undefined, // serviceAccountClientIds
+        undefined, // serviceAccountDescription
+        undefined, // serviceAccountName
+        undefined, // options
+      );
+
+      // Unwrap axios response - response.data contains the API response body
+      const data = response.data;
 
       // Transform API response to clean typed structure
-      const members: Member[] = (data?.data ?? []).map((principal) => ({
-        username: principal.username,
-        first_name: 'first_name' in principal ? principal.first_name : undefined,
-        last_name: 'last_name' in principal ? principal.last_name : undefined,
-        email: 'email' in principal ? principal.email : undefined,
-        is_active: 'is_active' in principal ? principal.is_active : undefined,
-        is_org_admin: 'is_org_admin' in principal ? principal.is_org_admin : undefined,
+      const members: Member[] = (data?.data ?? []).map((principal: Record<string, unknown>) => ({
+        username: principal.username as string,
+        first_name: principal.first_name as string | undefined,
+        last_name: principal.last_name as string | undefined,
+        email: principal.email as string | undefined,
+        is_active: principal.is_active as boolean | undefined,
+        is_org_admin: principal.is_org_admin as boolean | undefined,
       }));
 
       return {
@@ -232,17 +276,33 @@ export function useGroupMembersQuery(groupId: string, options?: { enabled?: bool
   });
 }
 
+export interface UseGroupRolesQueryParams {
+  limit?: number;
+  offset?: number;
+  name?: string;
+}
+
 /**
  * Fetch roles assigned to a group.
  * Returns unwrapped, typed roles array and total count.
  */
-export function useGroupRolesQuery(groupId: string, options?: { enabled?: boolean; limit?: number }): UseQueryResult<GroupRolesQueryResult> {
+export function useGroupRolesQuery(
+  groupId: string,
+  params: UseGroupRolesQueryParams = {},
+  options?: { enabled?: boolean },
+): UseQueryResult<GroupRolesQueryResult> {
+  const { limit = 1000, offset = 0, name } = params;
+
   return useQuery({
-    queryKey: groupsKeys.roles(groupId),
+    // Include params in query key for proper cache handling
+    queryKey: [...groupsKeys.roles(groupId), { limit, offset, name }],
     queryFn: async (): Promise<GroupRolesQueryResult> => {
-      const response = await groupsApi.listRolesForGroup({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (groupsApi.listRolesForGroup as any)({
         uuid: groupId,
-        limit: options?.limit ?? 1000,
+        limit,
+        offset,
+        roleDisplayName: name, // Filter by role display name
       });
       const data = response.data as GroupRolesPagination;
 
@@ -252,6 +312,7 @@ export function useGroupRolesQuery(groupId: string, options?: { enabled?: boolea
         name: role.name,
         display_name: role.display_name,
         description: role.description,
+        modified: role.modified,
         // V2 workspace fields may be present
         workspace: (role as GroupRole).workspace,
         workspaceId: (role as GroupRole).workspaceId,
@@ -267,44 +328,138 @@ export function useGroupRolesQuery(groupId: string, options?: { enabled?: boolea
 }
 
 /**
- * Fetch service accounts in a group.
- * Note: Uses getPrincipalsFromGroup with serviceAccountClientIds filter.
+ * Fetch roles available to add to a group (roles not currently in the group).
+ * Uses the `excluded=true` parameter to get roles that can be added.
+ * Returns count of available roles - useful for enabling/disabling "Add Role" button.
  */
+export function useAvailableRolesForGroupQuery(groupId: string, options?: { enabled?: boolean }): UseQueryResult<{ count: number }> {
+  return useQuery({
+    queryKey: [...groupsKeys.roles(groupId), 'available'],
+    queryFn: async (): Promise<{ count: number }> => {
+      // Call API with excluded=true to get roles NOT in the group
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (groupsApi.listRolesForGroup as any)({
+        uuid: groupId,
+        exclude: true, // This gets roles that can be added
+        limit: 1, // We only need the count
+      });
+      const data = response.data as GroupRolesPagination;
+      return { count: data?.meta?.count ?? 0 };
+    },
+    enabled: (options?.enabled ?? true) && !!groupId,
+    staleTime: 30 * 1000, // Cache for 30 seconds
+  });
+}
+
+/**
+ * Available roles query parameters.
+ */
+export interface UseAvailableRolesListQueryParams {
+  limit?: number;
+  offset?: number;
+  name?: string;
+}
+
+/**
+ * Fetch full list of roles available to add to a group (roles not currently in the group).
+ * Uses the `excluded=true` parameter to get roles that can be added.
+ * Supports pagination and filtering.
+ */
+export function useAvailableRolesListQuery(
+  groupId: string,
+  params: UseAvailableRolesListQueryParams = {},
+  options?: { enabled?: boolean },
+): UseQueryResult<GroupRolesQueryResult> {
+  const { limit = 20, offset = 0, name } = params;
+
+  return useQuery({
+    queryKey: [...groupsKeys.roles(groupId), 'available-list', { limit, offset, name }],
+    queryFn: async (): Promise<GroupRolesQueryResult> => {
+      // Call API with excluded=true to get roles NOT in the group
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (groupsApi.listRolesForGroup as any)({
+        uuid: groupId,
+        exclude: true,
+        limit,
+        offset,
+        ...(name ? { roleName: name } : {}),
+      });
+      const data = response.data as GroupRolesPagination;
+
+      // Transform API response to clean typed structure
+      const roles: GroupRole[] = (data?.data ?? []).map((role) => ({
+        uuid: role.uuid,
+        name: role.name,
+        display_name: role.display_name,
+        description: role.description,
+        modified: role.modified,
+      }));
+
+      return {
+        roles,
+        totalCount: data?.meta?.count ?? roles.length,
+      };
+    },
+    enabled: (options?.enabled ?? true) && !!groupId,
+  });
+}
+
 /**
  * Fetch service accounts in a group.
  * Returns typed ServiceAccountsListResponse with proper data/meta structure.
+ * Supports pagination and filtering.
  *
  * @tag gap:guessed-v2-api - The exact API structure for service accounts in groups is guessed.
  */
-export function useGroupServiceAccountsQuery(groupId: string, options?: { enabled?: boolean }): UseQueryResult<ServiceAccountsListResponse> {
+export function useGroupServiceAccountsQuery(
+  groupId: string,
+  params: UseGroupServiceAccountsQueryParams = {},
+  options?: { enabled?: boolean },
+): UseQueryResult<ServiceAccountsListResponse> {
+  const { limit = 20, offset = 0, clientId, name, description } = params;
+
   return useQuery({
-    queryKey: groupsKeys.serviceAccounts(groupId),
+    // Include params in query key for proper cache invalidation
+    queryKey: [...groupsKeys.serviceAccounts(groupId), { limit, offset, clientId, name, description }],
     queryFn: async (): Promise<ServiceAccountsListResponse> => {
-      // The API returns both users and service accounts based on query params
-      // For service accounts, we need to use principalType=service-account
-      // Note: Type assertion needed due to rbac-client type definition limitations
-      const response = await groupsApi.getPrincipalsFromGroup({
-        uuid: groupId,
-        principalType: 'service-account',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any);
+      // Call API with positional params
+      // Order: uuid, adminOnly, principalUsername, limit, offset, orderBy, usernameOnly, principalType, serviceAccountClientIds, serviceAccountDescription, serviceAccountName, options
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (groupsApi.getPrincipalsFromGroup as any)(
+        groupId, // uuid
+        undefined, // adminOnly
+        clientId, // principalUsername - for service accounts this is clientId
+        limit, // limit
+        offset, // offset
+        undefined, // orderBy
+        undefined, // usernameOnly
+        'service-account', // principalType
+        undefined, // serviceAccountClientIds
+        description, // serviceAccountDescription
+        name, // serviceAccountName
+        undefined, // options
+      );
+
+      // Unwrap axios response - response.data contains the API response body
+      const data = response.data;
 
       // Transform response to match our typed structure
-      // Response may contain service accounts with rich data or minimal principal data
       interface RawServiceAccount {
         username: string;
         clientId?: string;
         name?: string;
         owner?: string;
         description?: string;
+        time_created?: string;
       }
-      const responseData = response.data as { data?: RawServiceAccount[]; meta?: { count?: number } };
+      const responseData = data as { data?: RawServiceAccount[]; meta?: { count?: number } };
       const serviceAccounts: ServiceAccount[] = (responseData?.data ?? []).map((principal) => ({
         uuid: principal.clientId || principal.username,
         clientId: principal.clientId || principal.username,
         name: principal.name || principal.username,
         owner: principal.owner,
         description: principal.description,
+        time_created: principal.time_created,
       }));
 
       return {
@@ -323,10 +478,16 @@ export function useGroupServiceAccountsQuery(groupId: string, options?: { enable
 interface CreateGroupParams {
   name: string;
   description?: string;
+  user_list?: Array<{ username: string }>;
+  roles_list?: string[];
 }
 
 /**
- * Create a new group.
+ * Create a new group with optional users and roles.
+ * Mirrors the old Redux behavior:
+ * 1. Creates the group
+ * 2. Adds principals (users) if provided
+ * 3. Adds roles if provided
  */
 export function useCreateGroupMutation() {
   const queryClient = useQueryClient();
@@ -335,13 +496,37 @@ export function useCreateGroupMutation() {
 
   return useMutation({
     mutationFn: async (params: CreateGroupParams) => {
-      const response = await groupsApi.createGroup({
-        group: {
-          name: params.name,
-          description: params.description,
-        },
-      });
-      return response.data;
+      // Match old Redux helper: passes full object to createGroup
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const newGroup = await (groupsApi.createGroup as any)(params, undefined);
+      const groupData = newGroup.data ?? newGroup;
+      const groupUuid = groupData.uuid;
+
+      if (!groupUuid) {
+        throw new Error('Group creation failed: No UUID returned');
+      }
+
+      const promises: Promise<unknown>[] = [];
+
+      // Add users if provided
+      if (params.user_list && params.user_list.length > 0) {
+        const groupPrincipalIn = {
+          principals: params.user_list.map((user) => ({
+            username: user.username,
+          })),
+        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        promises.push((groupsApi.addPrincipalToGroup as any)(groupUuid, groupPrincipalIn, undefined));
+      }
+
+      // Add roles if provided
+      if (params.roles_list && params.roles_list.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        promises.push((groupsApi.addRoleToGroup as any)(groupUuid, { roles: params.roles_list }, undefined));
+      }
+
+      await Promise.all(promises);
+      return groupData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: groupsKeys.all });
@@ -377,13 +562,14 @@ export function useUpdateGroupMutation() {
 
   return useMutation({
     mutationFn: async (params: UpdateGroupParams) => {
-      const response = await groupsApi.updateGroup({
-        uuid: params.uuid,
-        group: {
-          name: params.name,
-          description: params.description,
-        },
-      });
+      // Match the old Redux helper behavior: updateGroup(uuid, data, options)
+      // The API expects the body to include uuid, name, description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (groupsApi.updateGroup as any)(
+        params.uuid,
+        { uuid: params.uuid, name: params.name, description: params.description },
+        undefined,
+      );
       return response.data;
     },
     onSuccess: () => {
@@ -391,6 +577,7 @@ export function useUpdateGroupMutation() {
       addNotification({
         variant: 'success',
         title: intl.formatMessage(messages.editGroupSuccessTitle),
+        description: intl.formatMessage(messages.editGroupSuccessDescription),
         dismissable: true,
       });
     },
@@ -398,6 +585,7 @@ export function useUpdateGroupMutation() {
       addNotification({
         variant: 'danger',
         title: intl.formatMessage(messages.editGroupErrorTitle),
+        description: intl.formatMessage(messages.editGroupErrorDescription),
         dismissable: true,
       });
     },
@@ -507,18 +695,103 @@ export function useRemoveMembersFromGroupMutation() {
       queryClient.invalidateQueries({ queryKey: groupsKeys.lists() });
       // Also invalidate users query since user_groups_count changes
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      const multiple = variables.usernames.length > 1;
+      // Match old Redux behavior: always use plural form
       addNotification({
         variant: 'success',
-        title: intl.formatMessage(multiple ? messages.removeGroupMembersSuccessTitle : messages.removeGroupMemberSuccessTitle),
+        title: intl.formatMessage(messages.removeGroupMembersSuccessTitle),
+        description: intl.formatMessage(messages.removeGroupMembersSuccessDescription),
         dismissable: true,
       });
     },
-    onError: (_, variables) => {
-      const multiple = variables.usernames.length > 1;
+    onError: () => {
+      // Match old Redux behavior: always use plural form
       addNotification({
         variant: 'danger',
-        title: intl.formatMessage(multiple ? messages.removeGroupMembersErrorTitle : messages.removeGroupMemberErrorTitle),
+        title: intl.formatMessage(messages.removeGroupMembersErrorTitle),
+        description: intl.formatMessage(messages.removeGroupMembersErrorDescription),
+        dismissable: true,
+      });
+    },
+  });
+}
+
+interface AddRolesToGroupParams {
+  groupId: string;
+  roleUuids: string[];
+}
+
+/**
+ * Add roles to a group.
+ * This properly invalidates all related caches including the group detail
+ * to ensure UI reflects any server-side changes (like group renaming when modifying defaults).
+ */
+export function useAddRolesToGroupMutation() {
+  const queryClient = useQueryClient();
+  const addNotification = useAddNotification();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async ({ groupId, roleUuids }: AddRolesToGroupParams) => {
+      await groupsApi.addRoleToGroup({
+        uuid: groupId,
+        groupRoleIn: { roles: roleUuids },
+      });
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate all group-related queries to ensure fresh data
+      // This is critical when modifying default groups as the server may rename them
+      queryClient.invalidateQueries({ queryKey: groupsKeys.detail(variables.groupId) });
+      queryClient.invalidateQueries({ queryKey: groupsKeys.roles(variables.groupId) });
+      queryClient.invalidateQueries({ queryKey: groupsKeys.lists() });
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.addGroupRolesSuccessTitle),
+        dismissable: true,
+      });
+    },
+    onError: () => {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.addGroupRolesErrorTitle),
+        dismissable: true,
+      });
+    },
+  });
+}
+
+interface RemoveRolesFromGroupParams {
+  groupId: string;
+  roleUuids: string[];
+}
+
+/**
+ * Remove roles from a group.
+ */
+export function useRemoveRolesFromGroupMutation() {
+  const queryClient = useQueryClient();
+  const addNotification = useAddNotification();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async ({ groupId, roleUuids }: RemoveRolesFromGroupParams) => {
+      await groupsApi.deleteRoleFromGroup({
+        uuid: groupId,
+        roles: roleUuids.join(','),
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: groupsKeys.roles(variables.groupId) });
+      queryClient.invalidateQueries({ queryKey: groupsKeys.lists() });
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.removeGroupRolesSuccessTitle),
+        dismissable: true,
+      });
+    },
+    onError: () => {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.removeGroupRolesErrorTitle),
         dismissable: true,
       });
     },
@@ -531,9 +804,54 @@ interface AddServiceAccountsToGroupParams {
 }
 
 /**
- * Add service accounts to a group.
- * GAP: Using guessed V1-style API - POST /api/rbac/v1/groups/:uuid/service-accounts/
- * This API endpoint is not yet confirmed - this is an educated guess based on the principals API pattern.
+ * Add service accounts to a group (V1 - stable API).
+ * Uses the principals API with type: 'service-account'.
+ * For use in features/groups (legacy groups management).
+ */
+export function useAddServiceAccountsToGroupMutationV1() {
+  const queryClient = useQueryClient();
+  const addNotification = useAddNotification();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async ({ groupId, serviceAccounts }: AddServiceAccountsToGroupParams) => {
+      // Use the stable principals API with service-account type
+      const groupPrincipalIn = {
+        principals: serviceAccounts.map((clientId) => ({
+          clientId,
+          type: 'service-account' as const,
+        })),
+      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (groupsApi.addPrincipalToGroup as any)(groupId, groupPrincipalIn, undefined);
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: groupsKeys.serviceAccounts(variables.groupId) });
+      queryClient.invalidateQueries({ queryKey: groupsKeys.lists() });
+      const multiple = variables.serviceAccounts.length > 1;
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(multiple ? messages.addGroupServiceAccountsSuccessTitle : messages.addGroupServiceAccountSuccessTitle),
+        dismissable: true,
+      });
+    },
+    onError: (_, variables) => {
+      const multiple = variables.serviceAccounts.length > 1;
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(multiple ? messages.addGroupServiceAccountsErrorTitle : messages.addGroupServiceAccountErrorTitle),
+        dismissable: true,
+      });
+    },
+  });
+}
+
+/**
+ * Add service accounts to a group (V2 - guessed API).
+ * GAP: Using guessed V2 API - POST /api/rbac/v2/groups/:uuid/service-accounts/
+ * This API endpoint is not yet confirmed - this is an educated guess.
+ * For use in access-management feature.
  */
 export function useAddServiceAccountsToGroupMutation() {
   const queryClient = useQueryClient();
@@ -542,9 +860,8 @@ export function useAddServiceAccountsToGroupMutation() {
 
   return useMutation({
     mutationFn: async ({ groupId, serviceAccounts }: AddServiceAccountsToGroupParams) => {
-      // GAP: This endpoint is guessed based on the principals pattern
-      // The actual V2 API may differ
-      const response = await fetch(`/api/rbac/v1/groups/${groupId}/service-accounts/`, {
+      // GAP: This endpoint is guessed - actual V2 API may differ
+      const response = await fetch(`/api/rbac/v2/groups/${groupId}/service-accounts/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -587,9 +904,47 @@ interface RemoveServiceAccountsFromGroupParams {
 }
 
 /**
- * Remove service accounts from a group.
- * GAP: Using guessed V1-style API - DELETE /api/rbac/v1/groups/:uuid/service-accounts/
- * This API endpoint is not yet confirmed - this is an educated guess based on the principals API pattern.
+ * Remove service accounts from a group (V1 - stable API).
+ * Uses the principals API with comma-separated client IDs.
+ * For use in features/groups (legacy groups management).
+ */
+export function useRemoveServiceAccountsFromGroupMutationV1() {
+  const queryClient = useQueryClient();
+  const addNotification = useAddNotification();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async ({ groupId, serviceAccounts }: RemoveServiceAccountsFromGroupParams) => {
+      // Use the stable principals API - service account client IDs are passed as comma-separated
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (groupsApi.deletePrincipalFromGroup as any)(groupId, undefined, serviceAccounts.join(','), undefined);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: groupsKeys.serviceAccounts(variables.groupId) });
+      queryClient.invalidateQueries({ queryKey: groupsKeys.lists() });
+      const multiple = variables.serviceAccounts.length > 1;
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(multiple ? messages.removeGroupServiceAccountsSuccessTitle : messages.removeGroupServiceAccountSuccessTitle),
+        dismissable: true,
+      });
+    },
+    onError: (_, variables) => {
+      const multiple = variables.serviceAccounts.length > 1;
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(multiple ? messages.removeGroupServiceAccountsErrorTitle : messages.removeGroupServiceAccountErrorTitle),
+        dismissable: true,
+      });
+    },
+  });
+}
+
+/**
+ * Remove service accounts from a group (V2 - guessed API).
+ * GAP: Using guessed V2 API - DELETE /api/rbac/v2/groups/:uuid/service-accounts/
+ * This API endpoint is not yet confirmed - this is an educated guess.
+ * For use in access-management feature.
  */
 export function useRemoveServiceAccountsFromGroupMutation() {
   const queryClient = useQueryClient();
@@ -598,9 +953,8 @@ export function useRemoveServiceAccountsFromGroupMutation() {
 
   return useMutation({
     mutationFn: async ({ groupId, serviceAccounts }: RemoveServiceAccountsFromGroupParams) => {
-      // GAP: This endpoint is guessed based on the principals pattern
-      // The actual V2 API may differ
-      const response = await fetch(`/api/rbac/v1/groups/${groupId}/service-accounts/`, {
+      // GAP: This endpoint is guessed - actual V2 API may differ
+      const response = await fetch(`/api/rbac/v2/groups/${groupId}/service-accounts/`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

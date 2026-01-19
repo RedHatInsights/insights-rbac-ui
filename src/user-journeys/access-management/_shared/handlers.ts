@@ -256,9 +256,9 @@ export const v1Handlers = [
     });
   }),
 
-  // POST /api/rbac/v1/groups/:uuid/service-accounts/ - Add service accounts to group
-  // GAP: Using guessed V1-style API (gap:guessed-v2-api)
-  http.post('/api/rbac/v1/groups/:uuid/service-accounts/', async ({ params, request }) => {
+  // POST /api/rbac/v2/groups/:uuid/service-accounts/ - Add service accounts to group
+  // GAP: Using guessed V2 API (gap:guessed-v2-api)
+  http.post('/api/rbac/v2/groups/:uuid/service-accounts/', async ({ params, request }) => {
     await delay(NETWORK_DELAY);
     const body = (await request.json()) as AddServiceAccountsRequest;
     console.log(`SB: Adding ${body.service_accounts.length} service accounts to group ${params.uuid}`);
@@ -268,9 +268,9 @@ export const v1Handlers = [
     });
   }),
 
-  // DELETE /api/rbac/v1/groups/:uuid/service-accounts/ - Remove service accounts from group
-  // GAP: Using guessed V1-style API (gap:guessed-v2-api)
-  http.delete('/api/rbac/v1/groups/:uuid/service-accounts/', async ({ params, request }) => {
+  // DELETE /api/rbac/v2/groups/:uuid/service-accounts/ - Remove service accounts from group
+  // GAP: Using guessed V2 API (gap:guessed-v2-api)
+  http.delete('/api/rbac/v2/groups/:uuid/service-accounts/', async ({ params, request }) => {
     await delay(NETWORK_DELAY);
     const body = (await request.json()) as RemoveServiceAccountsRequest;
     console.log(`SB: Removing ${body.service_accounts.length} service accounts from group ${params.uuid}`);

@@ -5,23 +5,21 @@ import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/com
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import { ServiceAccount } from '../../../../redux/service-accounts/types';
+import type { ServiceAccount } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
+import { useAddServiceAccountsToGroupMutationV1, useGroupQuery, useGroupsQuery } from '../../../../data/queries/groups';
 import messages from '../../../../Messages';
 import { AppLink } from '../../../../components/navigation/AppLink';
-import { addServiceAccountsToGroup, fetchGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
-import { ServiceAccountsState } from '../../../../redux/service-accounts/reducer';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import { ServiceAccountsList } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import { getModalContainer } from '../../../../helpers/modal-container';
 
 interface AddGroupServiceAccountsProps {
-  postMethod: (promise?: Promise<unknown>) => void;
+  postMethod: () => void;
   isDefault?: boolean;
   isChanged?: boolean;
   onDefaultGroupChanged?: (show: boolean) => void;
@@ -35,21 +33,6 @@ export interface PaginationProps {
   offset: number;
 }
 
-const reducer = ({
-  serviceAccountReducer,
-  groupReducer: { systemGroup },
-}: {
-  serviceAccountReducer: ServiceAccountsState;
-  groupReducer: { systemGroup?: { uuid: string } };
-}) => ({
-  serviceAccounts: serviceAccountReducer.serviceAccounts,
-  status: serviceAccountReducer.status,
-  isLoading: serviceAccountReducer.isLoading,
-  limit: serviceAccountReducer.limit,
-  offset: serviceAccountReducer.offset,
-  systemGroupUuid: systemGroup?.uuid,
-});
-
 const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsProps> = ({
   postMethod,
   isDefault,
@@ -57,22 +40,24 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
   onDefaultGroupChanged,
   fetchUuid,
   groupName: name,
-}: AddGroupServiceAccountsProps) => {
+}) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const { groupId: uuid } = useParams();
   const [selectedAccounts, setSelectedAccounts] = useState<ServiceAccount[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const { systemGroupUuid } = useSelector(reducer);
+
+  // Fetch system group UUID for default access group handling
+  const { data: systemGroupData } = useGroupsQuery({ platformDefault: true, limit: 1 });
+  const systemGroupUuid = systemGroupData?.data?.[0]?.uuid;
 
   // Use fetchUuid for default groups, otherwise use route param
   const groupId = isDefault && fetchUuid ? fetchUuid : uuid;
 
-  useEffect(() => {
-    if (!name && groupId) {
-      dispatch(fetchGroup(groupId));
-    }
-  }, [name, groupId, dispatch]);
+  // Fetch group data if name not provided
+  useGroupQuery(groupId ?? '', { enabled: !name && !!groupId });
+
+  // Add service accounts mutation
+  const addServiceAccountsMutation = useAddServiceAccountsToGroupMutationV1();
 
   const onCancel = () => {
     postMethod();
@@ -88,18 +73,28 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
     handleAddServiceAccounts();
   };
 
-  const handleAddServiceAccounts = () => {
+  const handleAddServiceAccounts = async () => {
     const targetGroupId = groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupId;
-    if (targetGroupId) {
-      const action = addServiceAccountsToGroup(targetGroupId, selectedAccounts);
-      dispatch(action);
-      postMethod(action.payload);
+    if (targetGroupId && selectedAccounts.length > 0) {
+      try {
+        await addServiceAccountsMutation.mutateAsync({
+          groupId: targetGroupId,
+          serviceAccounts: selectedAccounts.map((sa) => sa.clientId),
+        });
+        // Success notification is handled by the mutation
+        postMethod();
+      } catch (error) {
+        // Error notification is handled by the mutation
+        console.error('Failed to add service accounts:', error);
+        postMethod();
+      }
+    } else {
+      postMethod();
     }
   };
 
   const handleConfirm = () => {
     setShowConfirmModal(false);
-    dispatch(invalidateSystemGroup());
     // Show the alert that the default group has been changed
     if (onDefaultGroupChanged) {
       onDefaultGroupChanged(true);

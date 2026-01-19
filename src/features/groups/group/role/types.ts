@@ -1,10 +1,10 @@
-// Re-export types from Redux to ensure consistency
-export type { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
+// Re-export types from React Query to ensure consistency
+export type { GroupRole } from '../../../../data/queries/groups';
 
-// Use RoleWithAccess as the base type for roles
-import type { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
+// Use GroupRole as the base type for roles in group context
+import type { GroupRole } from '../../../../data/queries/groups';
 
-export type Role = RoleWithAccess;
+export type Role = GroupRole;
 
 export interface RoleFilters {
   name: string;

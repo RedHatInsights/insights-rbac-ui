@@ -1,13 +1,18 @@
-// Re-export types from Redux to ensure consistency
-export type { ServiceAccount } from '../../../../redux/groups/reducer';
+// ServiceAccount type - aligned with React Query
+export interface ServiceAccount {
+  uuid: string; // Required for table row ID
+  clientId: string;
+  name: string;
+  owner?: string;
+  description?: string;
+  time_created?: string;
+}
 
 export interface ServiceAccountFilters {
   clientId: string;
   name: string;
   description: string;
 }
-
-import type { ServiceAccount } from '../../../../redux/groups/reducer';
 
 export interface ServiceAccountTableRow {
   id: string;

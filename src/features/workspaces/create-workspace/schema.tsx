@@ -45,7 +45,7 @@ export interface CreateWorkspaceFormValues {
 
 export const schemaBuilder = (enableBillingFeatures: boolean) => {
   const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
   const allWorkspaces = useSelector(selectWorkspaces);
 
   return {

@@ -54,7 +54,11 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
   });
 
   // Use React Query - returns unwrapped, typed data
-  const { data, isLoading, error } = useGroupMembersQuery(groupId);
+  // Pass apiParams from tableState for pagination
+  const { data, isLoading, error } = useGroupMembersQuery(groupId, {
+    limit: tableState.apiParams.limit,
+    offset: tableState.apiParams.offset,
+  });
   const members = data?.members ?? [];
 
   // Show error state

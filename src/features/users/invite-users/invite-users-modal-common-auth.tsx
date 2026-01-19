@@ -7,13 +7,16 @@ import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-re
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import AccordionCheckbox from '../../../components/expandable-checkbox';
 import InlineError from '../../../components/ui-states/InlineError';
-import { addUsers } from '../../../redux/users/actions';
-import { useDispatch } from 'react-redux';
+import { useInviteUsersMutation } from '../../../data/queries/users';
 import { useFlag } from '@unleash/proxy-client-react';
-import { MANAGE_SUBSCRIPTIONS_VIEW_ALL, MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL, MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER } from '../../../redux/users/helper';
 import { useOutletContext } from 'react-router-dom';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+
+// Portal subscription permission levels (moved from Redux helper)
+const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view_edit_user';
+const MANAGE_SUBSCRIPTIONS_VIEW_ALL = 'view_all';
+const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL = 'view_edit_all';
 
 const ExpandableCheckboxComponent = 'expandable-checkbox';
 const InlineErrorComponent = 'inline-error';
@@ -41,33 +44,37 @@ const InviteUsers = () => {
   const [accountId, setAccountId] = React.useState<string | null>(null);
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
   const { auth, isProd } = useChrome();
-  const dispatch = useDispatch();
   const addNotification = useAddNotification();
+
+  // React Query mutation for inviting users
+  const inviteUsersMutation = useInviteUsersMutation();
+
   const onCancel = () => {
     fetchData(false);
   };
 
   React.useEffect(() => {
     const getToken = async () => {
-      setAccountId((await auth.getUser())?.identity?.org_id as string);
-      setToken((await auth.getToken()) as string);
+      const user = await auth.getUser();
+      setAccountId(user?.identity?.org_id ?? null);
+      setToken((await auth.getToken()) ?? null);
     };
     getToken();
   }, [auth]);
-  const onSubmit = (values: SubmitValues) => {
-    const action = addUsers(
-      {
+
+  const onSubmit = async (values: SubmitValues) => {
+    try {
+      const response = await inviteUsersMutation.mutateAsync({
         emails: values['email-addresses']?.split(/[\s,]+/),
         message: values['invite-message'],
         isAdmin: values['customer-portal-permissions']?.['is-org-admin'],
         portal_manage_cases: values['customer-portal-permissions']?.['manage-support-cases'],
         portal_download: values['customer-portal-permissions']?.['download-software-updates'],
         portal_manage_subscriptions: values['customer-portal-permissions']?.['manage-subscriptions'],
-      },
-      { isProd: isProd(), token, accountId },
-      isITLess,
-    );
-    action.payload.then(async (response) => {
+        config: { isProd: isProd() || false, token, accountId },
+        itless: isITLess,
+      });
+
       if (response.status === 200 || response.status === 204) {
         addNotification({
           variant: 'success',
@@ -89,8 +96,15 @@ const InviteUsers = () => {
           description: data.detail || 'Unknown error',
         });
       }
-    });
-    dispatch(action);
+    } catch (error) {
+      console.error('Failed to invite users:', error);
+      addNotification({
+        variant: 'danger',
+        title: 'Failed to send invitation',
+        dismissable: true,
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   };
   const intl = useIntl();
   const schema = React.useMemo(

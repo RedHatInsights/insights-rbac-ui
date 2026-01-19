@@ -10,11 +10,12 @@ import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import { useDispatch } from 'react-redux';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { useFlag } from '@unleash/proxy-client-react';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import messages from '../../../Messages';
-import { addUsers } from '../../../redux/users/actions';
+import { useInviteUsersMutation } from '../../../data/queries/users';
 import paths from '../../../utilities/pathnames';
 import { useAppLink } from '../../../hooks/useAppLink';
 import { getModalContainer } from '../../../helpers/modal-container';
@@ -24,39 +25,58 @@ interface InviteUsersModalProps {
 }
 
 const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
-  const dispatch = useDispatch();
   const intl = useIntl();
   const navigate = useNavigate();
   const toAppLink = useAppLink();
   const addNotification = useAddNotification();
+  const { auth, isProd } = useChrome();
+  const isITLess = useFlag('platform.rbac.itless');
 
   const [isCheckboxLabelExpanded, setIsCheckboxLabelExpanded] = useState(false);
   const [areNewUsersAdmins, setAreNewUsersAdmins] = useState(false);
   const [rawEmails, setRawEmails] = useState('');
   const [userEmailList, setUserEmailList] = useState<string[]>([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [accountId, setAccountId] = useState<string | null>(null);
 
-  const onSubmit = () => {
-    const newUsersData = { emails: userEmailList, isAdmin: areNewUsersAdmins };
-    (dispatch(addUsers(newUsersData, {} as Parameters<typeof addUsers>[1], false) as unknown as { type: string }) as unknown as Promise<void>)
-      .then(() => {
-        addNotification({
-          variant: 'success',
-          title: 'Invitation sent successfully',
-          dismissable: true,
-        });
-        fetchData();
-        navigate(toAppLink(paths.users.link) as string);
-      })
-      .catch((err: Error) => {
-        console.error(err);
-        addNotification({
-          variant: 'danger',
-          title: intl.formatMessage(messages.inviteUsersErrorTitle),
-          dismissable: true,
-          description: err.message || 'Unknown error',
-        });
+  // Get token and account ID on mount
+  useEffect(() => {
+    const getToken = async () => {
+      const user = await auth.getUser();
+      setAccountId(user?.identity?.org_id ?? null);
+      setToken((await auth.getToken()) ?? null);
+    };
+    getToken();
+  }, [auth]);
+
+  // React Query mutation for inviting users
+  const inviteUsersMutation = useInviteUsersMutation();
+
+  const onSubmit = async () => {
+    try {
+      await inviteUsersMutation.mutateAsync({
+        emails: userEmailList,
+        isAdmin: areNewUsersAdmins,
+        config: { isProd: isProd() || false, token, accountId },
+        itless: isITLess,
       });
+      addNotification({
+        variant: 'success',
+        title: 'Invitation sent successfully',
+        dismissable: true,
+      });
+      fetchData();
+      navigate(toAppLink(paths.users.link) as string);
+    } catch (err) {
+      console.error(err);
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.inviteUsersErrorTitle),
+        dismissable: true,
+        description: err instanceof Error ? err.message : 'Unknown error',
+      });
+    }
   };
 
   const onCancel = () => (userEmailList?.length > 0 && setCancelWarningVisible(true)) || redirectToUsers();

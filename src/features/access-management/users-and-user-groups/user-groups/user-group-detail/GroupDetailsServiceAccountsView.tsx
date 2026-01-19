@@ -55,7 +55,11 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
   });
 
   // Use React Query instead of Redux
-  const { data, isLoading, error } = useGroupServiceAccountsQuery(groupId);
+  // Pass apiParams from tableState for pagination
+  const { data, isLoading, error } = useGroupServiceAccountsQuery(groupId, {
+    limit: tableState.apiParams.limit,
+    offset: tableState.apiParams.offset,
+  });
 
   // Extract service accounts from typed response
   const serviceAccounts: ServiceAccount[] = data?.data ?? [];

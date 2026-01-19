@@ -2129,6 +2129,131 @@ Tests that modifying an already-copied "Custom default access" group does NOT sh
 };
 
 /**
+ * Remove Roles from Already-Copied Default Group Journey
+ *
+ * Tests that REMOVING roles from an already-modified "Custom default access" group
+ * does NOT show the confirmation modal. This is the counterpart to
+ * ModifyAlreadyCopiedGroupJourney which tests adding roles.
+ *
+ * This test ensures the isChanged flag is correctly derived in GroupRoles.tsx:
+ * - isChanged = (platform_default || admin_default) && !system
+ * - For system: false, isChanged = true, so NO confirmation modal
+ *
+ * @see ModifyAlreadyCopiedGroupJourney - tests adding roles (same behavior expected)
+ */
+export const RemoveRolesFromCopiedDefaultGroupJourney: Story = {
+  name: 'Groups / Remove roles from already-copied default group (no confirmation)',
+  tags: ['copy-default-group'],
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: [
+          ...defaultGroups.filter((g) => g.uuid !== 'system-default'),
+          // Use the system-default group but mark it as already modified
+          {
+            uuid: 'system-default',
+            name: 'Custom default access',
+            description: 'Modified platform default group',
+            platform_default: true,
+            admin_default: false,
+            system: false, // Key: system=false means it's been modified, so isChanged=true
+            created: '2024-01-15T10:30:00Z',
+            modified: '2024-01-16T14:20:00Z',
+            principalCount: 5,
+            roleCount: 2,
+          },
+        ],
+        users: defaultUsers,
+        roles: defaultRoles,
+        // Pre-populate roles for the group so we can remove them
+        groupRoles: new Map([['system-default', [defaultRoles[0], defaultRoles[1]]]]),
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests that REMOVING roles from an already-copied "Custom default access" group does NOT show the confirmation modal.
+
+**Why this test matters:**
+- Catches bugs where \`isChanged\` is incorrectly calculated or hardcoded
+- The \`isChanged\` flag should be derived as: \`(platform_default || admin_default) && !system\`
+- For \`system: false\` (already-modified), \`isChanged = true\`, so NO confirmation modal should appear
+
+**Journey Flow:**
+- Navigate to "Custom default access" group (already copied, system=false)
+- Go to Roles tab
+- Select a role to remove
+- Click "Remove selected"
+- **NO confirmation modal** (direct removal because group is already modified)
+- Verify success
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Groups
+    await navigateToPage(user, canvas, 'Groups');
+    await waitForPageToLoad(canvas, 'Custom default access');
+
+    // Click on "Custom default access"
+    const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
+    await user.click(groupLink);
+    await delay(500);
+
+    // Wait for group detail page
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: /Custom default access/i })).toBeInTheDocument();
+    });
+
+    // Click Roles tab
+    const rolesTab = canvas.getByRole('tab', { name: /roles/i });
+    await user.click(rolesTab);
+    await delay(500);
+
+    // Wait for roles to load
+    await waitFor(async () => {
+      await expect(canvas.getByText('Administrator')).toBeInTheDocument();
+    });
+
+    // Select first role checkbox
+    const roleCheckbox = canvas.getByRole('checkbox', { name: /select row 0/i });
+    await user.click(roleCheckbox);
+    await delay(300);
+
+    // Use the helper to remove selected roles - but DON'T auto-confirm
+    // because we want to check what modal appears
+    await removeSelectedRolesFromGroup(user, canvas, false);
+
+    // A WarningModal for confirming the removal should appear
+    const warningModal = await within(document.body).findByRole('dialog', {}, { timeout: 5000 });
+    expect(warningModal).toBeInTheDocument();
+
+    // CRITICAL: Verify this is NOT the DefaultGroupChangeModal
+    // The DefaultGroupChangeModal has a required checkbox with "I understand, and I want to continue"
+    // The standard removal modal does NOT have a checkbox
+    const confirmationCheckbox = within(warningModal).queryByRole('checkbox');
+
+    // Should NOT have a checkbox (that would indicate DefaultGroupChangeModal appeared due to isChanged being incorrectly false)
+    expect(confirmationCheckbox).toBeNull();
+
+    // Click the confirm button in the warning modal
+    const confirmButton = within(warningModal).getByRole('button', { name: /remove/i });
+    await user.click(confirmButton);
+
+    // Verify success notification appears (confirms operation completed)
+    await verifySuccessNotification();
+  },
+};
+
+/**
  * Restore Default Access Group Journey
  *
  * Tests the "Restore to default" functionality that appears when a default group

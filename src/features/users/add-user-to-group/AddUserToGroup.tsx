@@ -1,11 +1,9 @@
-import React, { Fragment, useContext, useEffect } from 'react';
+import React, { Fragment, useContext, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
@@ -14,10 +12,9 @@ import PermissionsContext from '../../../utilities/permissionsContext';
 import { TableView } from '../../../components/table-view/TableView';
 import { useTableState } from '../../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../components/table-view/components/TableViewEmptyState';
-import { addMembersToGroup, fetchGroups } from '../../../redux/groups/actions';
+import { useAddMembersToGroupMutation, useGroupsQuery } from '../../../data/queries/groups';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
-import type { RBACStore } from '../../../redux/store.d';
 import { getModalContainer } from '../../../helpers/modal-container';
 import type { ColumnConfigMap, FilterConfig } from '../../../components/table-view/types';
 
@@ -36,24 +33,29 @@ interface Group {
 const COLUMNS = ['name', 'description'] as const;
 
 const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
-  const chrome = useChrome();
-  const dispatch = useDispatch();
   const intl = useIntl();
   const navigate = useAppNavigate();
   const addNotification = useAddNotification();
 
-  const { groups, pagination, isLoading } = useSelector(
-    ({ groupReducer: { groups, isLoading } }: RBACStore) => ({
-      groups: (groups?.data || []) as Group[],
-      pagination: groups?.meta,
-      isLoading,
-    }),
-    shallowEqual,
-  );
-
-  const [cancelWarningVisible, setCancelWarningVisible] = React.useState(false);
+  const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
+
+  // Query params state for React Query
+  const [queryParams, setQueryParams] = useState({
+    limit: 20,
+    offset: 0,
+    name: '' as string | undefined,
+    excludeUsername: username, // Only show groups user is NOT in
+  });
+
+  // React Query for groups data
+  const { data: groupsData, isLoading } = useGroupsQuery(queryParams);
+  const groups: Group[] = (groupsData?.data ?? []) as Group[];
+  const pagination = groupsData?.meta;
+
+  // React Query mutation for adding members
+  const addMembersMutation = useAddMembersToGroupMutation();
 
   // Table state
   const tableState = useTableState({
@@ -62,34 +64,27 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
     initialPerPage: 20,
     initialFilters: { name: '' },
     onStaleData: ({ filters, limit, offset }) => {
-      fetchData({ filters: { name: filters.name as string }, limit, offset });
+      setQueryParams({
+        limit,
+        offset,
+        name: (filters.name as string) || undefined,
+        excludeUsername: username,
+      });
     },
   });
-
-  const fetchData = (options: Record<string, unknown>) =>
-    dispatch(fetchGroups({ ...options, excludeUsername: username, chrome }) as unknown as { type: string });
-
-  useEffect(() => {
-    fetchData({ limit: 20, offset: 0, filters: { name: '' } });
-  }, []);
 
   const onSubmit = async () => {
     try {
       for (const group of tableState.selectedRows) {
-        await (dispatch(addMembersToGroup(group.uuid, [{ username: username! }])) as any).payload;
+        await addMembersMutation.mutateAsync({
+          groupId: group.uuid,
+          usernames: [username!],
+        });
       }
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.addGroupMemberSuccessTitle),
-        description: intl.formatMessage(messages.addGroupMemberSuccessDescription),
-      });
+      // Success notification is handled by the mutation
     } catch (error) {
       console.error('Failed to add user to group:', error);
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.addGroupMemberErrorTitle),
-        description: intl.formatMessage(messages.addGroupMemberErrorDescription),
-      });
+      // Error notification is handled by the mutation
     }
     navigate(pathnames['user-detail'].link.replace(':username', username!), { state: { username } });
   };

@@ -1,12 +1,8 @@
 import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
-import { createSelector } from 'reselect';
-import { mappedProps } from '../../helpers/dataUtilities';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView } from '../../components/table-view';
 import { useTableState } from '../../components/table-view/hooks/useTableState';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../components/table-view/types';
-import { changeUsersStatus, fetchUsers, updateUsersFilters } from '../../redux/users/actions';
 import paths from '../../utilities/pathnames';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
@@ -29,6 +25,7 @@ import OrgAdminDropdown from './OrgAdminDropdown';
 import { ActivateToggle } from './components/ActivateToggle';
 import pathnames from '../../utilities/pathnames';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+import { useChangeUserStatusMutation, useUsersQuery } from '../../data/queries/users';
 
 interface UsersListNotSelectableProps {
   userLinks: boolean;
@@ -39,36 +36,24 @@ interface UsersListNotSelectableProps {
   };
 }
 
-// User type from Redux
+// User type for this component
 interface User {
   id?: string;
   username: string;
   email: string;
-  first_name: string;
-  last_name: string;
-  is_active: boolean;
-  is_org_admin: boolean;
+  first_name?: string;
+  last_name?: string;
+  is_active?: boolean;
+  is_org_admin?: boolean;
   uuid: string;
-  external_source_id?: number;
+  external_source_id?: number | string;
 }
-
-// Memoized selectors to prevent unnecessary re-renders
-const selectUserState = (state: any) => state.userReducer.users;
-const selectIsUserDataLoading = (state: any) => state.userReducer.isUserDataLoading;
-
-// Memoized selector for user data
-const selectUsersData = createSelector([selectUserState, selectIsUserDataLoading], (users, isUserDataLoading) => ({
-  users: (users.data?.map?.((data: any) => ({ ...data, uuid: data.username })) || []) as User[],
-  isLoading: isUserDataLoading,
-  pagination: users.pagination || { limit: 20, offset: 0, count: 0 },
-}));
 
 // Column definitions
 const columns = ['org_admin', 'username', 'email', 'first_name', 'last_name', 'status'] as const;
 
 const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLinks, props, usesMetaInURL }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const addNotification = useAddNotification();
   const { orgAdmin } = useContext(PermissionsContext) as PermissionsContextType;
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
@@ -76,26 +61,60 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
   const isITLess = useFlag('platform.rbac.itless');
 
-  const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [currAccountId, setCurrAccountId] = useState<string | undefined>();
 
+  // Query params state for React Query
+  const [queryParams, setQueryParams] = useState<{
+    limit: number;
+    offset: number;
+    orderBy?: string;
+    username?: string;
+    email?: string;
+    status: 'enabled' | 'disabled' | 'all';
+  }>({
+    limit: 20,
+    offset: 0,
+    orderBy: 'username',
+    username: undefined,
+    email: undefined,
+    status: 'enabled',
+  });
+
   // Get token and account ID on mount
   useEffect(() => {
     const getToken = async () => {
-      setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
-      setToken((await auth.getToken()) as string);
-      setCurrAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
+      const user = await auth.getUser();
+      setAccountId(user?.identity?.internal?.account_id ?? null);
+      setToken((await auth.getToken()) ?? null);
+      setCurrAccountId(user?.identity?.internal?.account_id ?? undefined);
     };
     getToken();
   }, [auth]);
 
-  // Use memoized selectors
-  const { users, isLoading, pagination } = useSelector(selectUsersData);
-  const totalCount = pagination.count || 0;
+  // React Query for users data
+  const { data: usersData, isLoading } = useUsersQuery(queryParams, { enabled: !!orgAdmin });
+  const users: User[] = useMemo(
+    () =>
+      (usersData?.users ?? []).map((u) => ({
+        ...u,
+        uuid: u.username,
+        email: u.email || '',
+        first_name: u.first_name,
+        last_name: u.last_name,
+        is_active: u.is_active,
+        is_org_admin: u.is_org_admin,
+        external_source_id: u.external_source_id,
+      })),
+    [usersData],
+  );
+  const totalCount = usersData?.totalCount ?? 0;
+
+  // React Query mutation for changing user status
+  const changeUserStatusMutation = useChangeUserStatusMutation();
 
   // Get user ID for row identification
   const getUserId = useCallback((user: User) => user.username, []);
@@ -103,20 +122,29 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   // Handle user status toggle
   const handleToggle = useCallback(
     async (isActive: boolean, updatedUser: User) => {
-      if (loading) return;
-      setLoading(true);
+      if (changeUserStatusMutation.isPending) return;
 
-      const usersList = [{ ...updatedUser, id: updatedUser.external_source_id, is_active: isActive }] as any;
       try {
-        await dispatch(changeUsersStatus(usersList, { isProd: isProd(), token, accountId }, isITLess) as any);
-        // Refetch will happen via onStaleData
+        await changeUserStatusMutation.mutateAsync({
+          users: [{ ...updatedUser, id: updatedUser.external_source_id, is_active: isActive }],
+          config: { isProd: isProd() || false, token, accountId },
+          itless: isITLess,
+        });
+        addNotification({
+          variant: 'success',
+          title: intl.formatMessage(messages.editUserSuccessTitle),
+          dismissable: true,
+        });
       } catch (error) {
         console.error('Failed to update status: ', error);
-      } finally {
-        setLoading(false);
+        addNotification({
+          variant: 'danger',
+          title: intl.formatMessage(messages.editUserErrorTitle),
+          dismissable: true,
+        });
       }
     },
-    [loading, dispatch, isProd, token, accountId, isITLess],
+    [changeUserStatusMutation, isProd, token, accountId, isITLess, addNotification, intl],
   );
 
   // Column configuration
@@ -137,15 +165,17 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
     () => ({
       org_admin: (user) => {
         if (isCommonAuthModel && orgAdmin) {
+          // external_source_id may be string or number, convert to number for OrgAdminDropdown
+          const userId = typeof user.external_source_id === 'string' ? Number(user.external_source_id) : user.external_source_id;
           return (
             <OrgAdminDropdown
               key={`dropdown-${user.username}`}
-              isOrgAdmin={user.is_org_admin}
+              isOrgAdmin={user.is_org_admin ?? false}
               username={user.username}
               intl={intl}
-              userId={user.external_source_id}
+              userId={userId}
               fetchData={() => {
-                /* Will be triggered by table refetch */
+                /* React Query will refetch via cache invalidation */
               }}
             />
           );
@@ -165,12 +195,19 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       username: (user) =>
         userLinks ? <AppLink to={pathnames['user-detail'].link.replace(':username', user.username)}>{user.username}</AppLink> : user.username,
       email: (user) => user.email,
-      first_name: (user) => user.first_name,
-      last_name: (user) => user.last_name,
+      first_name: (user) => user.first_name ?? '',
+      last_name: (user) => user.last_name ?? '',
       status: (user) => {
         if (isCommonAuthModel && orgAdmin) {
+          // Convert external_source_id to number for ActivateToggle
+          const extId = typeof user.external_source_id === 'string' ? Number(user.external_source_id) : user.external_source_id;
           return (
-            <ActivateToggle key="active-toggle" user={user as any} onToggle={(isActive) => handleToggle(isActive, user)} accountId={currAccountId} />
+            <ActivateToggle
+              key="active-toggle"
+              user={{ ...user, is_active: user.is_active ?? false, external_source_id: extId }}
+              onToggle={(isActive) => handleToggle(isActive, user)}
+              accountId={currAccountId}
+            />
           );
         }
         return (
@@ -211,7 +248,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
     [intl],
   );
 
-  // Handle data fetching
+  // Handle data fetching - update query params to trigger React Query refetch
   const handleStaleData = useCallback(
     (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
       if (!orgAdmin) return;
@@ -220,21 +257,26 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       const email = params.filters.email as string | undefined;
       const statusFilter = params.filters.status as string[] | undefined;
 
-      dispatch(updateUsersFilters({ username, email, status: statusFilter }));
+      // Map status filter to API status param
+      let status: 'enabled' | 'disabled' | 'all' = 'enabled';
+      if (statusFilter?.includes('Active') && statusFilter?.includes('Inactive')) {
+        status = 'all';
+      } else if (statusFilter?.includes('Inactive')) {
+        status = 'disabled';
+      } else if (statusFilter?.includes('Active') || !statusFilter || statusFilter.length === 0) {
+        status = 'enabled';
+      }
 
-      dispatch(
-        fetchUsers({
-          ...mappedProps({
-            limit: params.limit,
-            offset: params.offset,
-            orderBy: params.orderBy,
-            filters: { username, email, status: statusFilter },
-          }),
-          usesMetaInURL,
-        }),
-      );
+      setQueryParams({
+        limit: params.limit,
+        offset: params.offset,
+        orderBy: params.orderBy as 'username' | undefined,
+        username,
+        email,
+        status,
+      });
     },
-    [dispatch, orgAdmin, usesMetaInURL],
+    [orgAdmin],
   );
 
   // Table state management
@@ -253,17 +295,20 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   // Handle bulk status change
   const handleBulkActivation = useCallback(
     async (userStatus: boolean) => {
-      if (loading) return;
-      setLoading(true);
+      if (changeUserStatusMutation.isPending) return;
 
       const usersList = tableState.selectedRows.map((user) => ({
         ...user,
         id: user.external_source_id,
         is_active: userStatus,
-      })) as any;
+      }));
 
       try {
-        await dispatch(changeUsersStatus(usersList, { isProd: isProd(), token, accountId }, isITLess) as any);
+        await changeUserStatusMutation.mutateAsync({
+          users: usersList,
+          config: { isProd: isProd() || false, token, accountId },
+          itless: isITLess,
+        });
         addNotification({
           variant: 'success',
           title: intl.formatMessage(messages.editUserSuccessTitle),
@@ -271,7 +316,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
           description: intl.formatMessage(messages.editUserSuccessDescription),
         });
         tableState.clearSelection();
-        // Refetch via onStaleData
+        // React Query will automatically refetch due to cache invalidation
       } catch (error) {
         console.error('Failed to update status: ', error);
         addNotification({
@@ -280,13 +325,11 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
           dismissable: true,
           description: intl.formatMessage(messages.editUserErrorDescription),
         });
-      } finally {
-        setLoading(false);
       }
 
       userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
     },
-    [loading, tableState, dispatch, isProd, token, accountId, isITLess, addNotification, intl],
+    [changeUserStatusMutation, tableState, isProd, token, accountId, isITLess, addNotification, intl],
   );
 
   // Toolbar buttons

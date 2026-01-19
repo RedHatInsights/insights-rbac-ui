@@ -67,10 +67,12 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   // Use React Query for data fetching
   const { data: allGroupsData, isLoading: isGroupsLoading } = useGroupsQuery({ limit: 1000, offset: 0, orderBy: 'name' }, { enabled: true });
   const { data: groupData, isLoading: isGroupLoading } = useGroupQuery(groupId || '', { enabled: !!groupId && !createNewGroup });
-  const { data: membersData, isLoading: isMembersLoading } = useGroupMembersQuery(groupId || '', { enabled: !!groupId && !createNewGroup });
-  const { data: serviceAccountsData, isLoading: isServiceAccountsLoading } = useGroupServiceAccountsQuery(groupId || '', {
-    enabled: !!groupId && !createNewGroup,
-  });
+  const { data: membersData, isLoading: isMembersLoading } = useGroupMembersQuery(groupId || '', {}, { enabled: !!groupId && !createNewGroup });
+  const { data: serviceAccountsData, isLoading: isServiceAccountsLoading } = useGroupServiceAccountsQuery(
+    groupId || '',
+    {},
+    { enabled: !!groupId && !createNewGroup },
+  );
 
   // Use React Query mutations
   const createGroupMutation = useCreateGroupMutation();

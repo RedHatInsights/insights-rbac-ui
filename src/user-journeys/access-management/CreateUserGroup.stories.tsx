@@ -175,7 +175,7 @@ const addMembersHandler = http.post('/api/rbac/v1/groups/:uuid/principals/', asy
   return HttpResponse.json({ data: body.principals }, { status: 200 });
 });
 
-const addServiceAccountsHandler = http.post('/api/rbac/v1/groups/:uuid/service-accounts/', async ({ request, params }) => {
+const addServiceAccountsHandler = http.post('/api/rbac/v2/groups/:uuid/service-accounts/', async ({ request, params }) => {
   const groupId = params.uuid as string;
   const body = (await request.json()) as { service_accounts: Array<{ clientId: string }> };
 
@@ -438,7 +438,7 @@ export const CompleteFlow: Story = {
               marginBottom: '8px',
             }}
           >
-            POST /api/rbac/v1/groups/:uuid/service-accounts/
+            POST /api/rbac/v2/groups/:uuid/service-accounts/
           </code>
           <p style={{ margin: '8px 0 4px 0' }}>
             <strong>Request Body:</strong>
@@ -503,7 +503,7 @@ Tests the complete "Create user group" workflow including user and service accou
 13. Verify selected service accounts appear in drawer
 
 **Guessed APIs used:**
-- \`POST /api/rbac/v1/groups/:uuid/service-accounts/\` (for service accounts)
+- \`POST /api/rbac/v2/groups/:uuid/service-accounts/\` (for service accounts) [guessed V2 API]
 
 **Design references:**
 - Frame 126: Create button

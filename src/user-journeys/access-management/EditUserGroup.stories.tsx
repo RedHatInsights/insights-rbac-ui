@@ -148,8 +148,8 @@ Tests the workflow for editing an existing user group.
 | Save changes | ✅ Implemented | V1 |
 
 **Note:** Service account group operations use guessed APIs:
-- \`POST /api/rbac/v1/groups/:uuid/service-accounts/\` (add)
-- \`DELETE /api/rbac/v1/groups/:uuid/service-accounts/\` (remove)
+- \`POST /api/rbac/v2/groups/:uuid/service-accounts/\` (add) [guessed V2 API]
+- \`DELETE /api/rbac/v2/groups/:uuid/service-accounts/\` (remove) [guessed V2 API]
         `,
       },
     },
