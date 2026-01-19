@@ -1,3 +1,10 @@
+## [1.80.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.1...v1.80.2) (2026-01-19)
+
+
+### Bug Fixes
+
+* **navigation:** remove explicit bundleSegment for service-accounts and learning resources ([#2096](https://github.com/RedHatInsights/insights-rbac-ui/issues/2096)) ([79e16bf](https://github.com/RedHatInsights/insights-rbac-ui/commit/79e16bfe54689d48993996c6208c0d2fbcac6b09))
+
 ## [1.80.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.0...v1.80.1) (2026-01-15)
 
 
