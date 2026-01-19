@@ -7,7 +7,7 @@ import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Bread
 import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import { WorkspaceActions } from './WorkspaceActions';
-import { Workspace } from '../../../redux/workspaces/reducer';
+import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import messages from '../../../Messages';
 import { AppLink } from '../../../components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
@@ -19,7 +19,7 @@ interface WorkspaceData {
 
 export interface WorkspaceHeaderProps {
   /** The current workspace being displayed */
-  workspace: Workspace | null;
+  workspace: WorkspacesWorkspace | null;
   /** Whether workspace data is loading */
   isLoading: boolean;
   /** Array of workspaces representing the hierarchy path (from root to current) */

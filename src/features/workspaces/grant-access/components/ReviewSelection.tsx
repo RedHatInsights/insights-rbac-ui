@@ -1,29 +1,30 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { List, ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
-import { RBACStore } from '../../../../redux/store';
+import { useGroupsQuery } from '../../../../data/queries/groups';
+import { useRolesQuery } from '../../../../data/queries/roles';
 import messages from '../../../../Messages';
-import { Group } from '../../../../redux/groups/reducer';
-import { Role } from '../../../../redux/roles/reducer';
 
 const ReviewSelection: React.FC = () => {
   const intl = useIntl();
   const formOptions = useFormApi();
   const { values } = formOptions.getState();
-  const { groups, roles } = useSelector((state: RBACStore) => ({
-    groups: state.groupReducer.groups?.data || [],
-    roles: state.roleReducer.rolesForWizard?.data || [],
-  }));
+
+  // React Query hooks
+  const { data: groupsData } = useGroupsQuery({ limit: 1000 });
+  const { data: rolesData } = useRolesQuery({ limit: 1000 });
+
+  const groups = groupsData?.data ?? [];
+  const roles = rolesData?.data ?? [];
 
   const selectedUserGroups = values['selected-user-groups'] || [];
   const selectedRoles = values['selected-roles'] || [];
 
-  const selectedGroupObjects = groups.filter((group: Group) => selectedUserGroups.includes(group.uuid));
-  const selectedRoleObjects = roles.filter((role: Role) => selectedRoles.includes(role.uuid));
+  const selectedGroupObjects = groups.filter((group) => selectedUserGroups.includes(group.uuid));
+  const selectedRoleObjects = roles.filter((role) => selectedRoles.includes(role.uuid));
 
   return (
     <Stack hasGutter>
@@ -32,7 +33,7 @@ const ReviewSelection: React.FC = () => {
           <Content component={ContentVariants.h3}>{intl.formatMessage(messages.selectedUserGroups)}</Content>
           {selectedGroupObjects.length > 0 ? (
             <List>
-              {selectedGroupObjects.map((group: Group) => (
+              {selectedGroupObjects.map((group) => (
                 <ListItem key={group.uuid}>
                   <Content component={ContentVariants.p}>
                     <strong>{group.name}</strong>
@@ -50,7 +51,7 @@ const ReviewSelection: React.FC = () => {
           <Content component={ContentVariants.h3}>{intl.formatMessage(messages.selectedRoles)}</Content>
           {selectedRoleObjects.length > 0 ? (
             <List>
-              {selectedRoleObjects.map((role: Role) => (
+              {selectedRoleObjects.map((role) => (
                 <ListItem key={role.uuid}>
                   <Content component={ContentVariants.p}>
                     <strong>{role.display_name || role.name}</strong>

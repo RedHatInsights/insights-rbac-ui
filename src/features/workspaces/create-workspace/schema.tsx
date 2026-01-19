@@ -3,15 +3,13 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React from 'react';
 import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
-import { useSelector } from 'react-redux';
 import providerMessages from '../../../locales/data.json';
 import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
 import InputHelpPopover from '../../../components/forms/InputHelpPopover';
 import WizardButtons from '../../../components/wizard/WizardButtons';
 import { getModalContainer } from '../../../helpers/modal-container';
-import { Workspace, isWorkspace } from '../../../redux/workspaces/reducer';
-import { selectWorkspaces } from '../../../redux/workspaces/selectors';
+import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 
 // hardcoded for now
 export const BUNDLES = [
@@ -39,14 +37,18 @@ export interface CreateWorkspaceFormValues {
   [WORKSPACE_NAME]: string;
   [WORKSPACE_DESCRIPTION]: string;
   [WORKSPACE_FEATURES]: string[];
-  [WORKSPACE_PARENT]: Workspace;
+  [WORKSPACE_PARENT]: WorkspacesWorkspace;
   [WORKSPACE_ACCOUNT]: string;
 }
 
-export const schemaBuilder = (enableBillingFeatures: boolean) => {
+/**
+ * Schema builder for the create workspace wizard.
+ * @param enableBillingFeatures - Whether to show billing features step
+ * @param existingWorkspaceNames - List of existing workspace names for duplicate validation
+ */
+export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceNames: string[] = []) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
-  const allWorkspaces = useSelector(selectWorkspaces);
 
   return {
     fields: [
@@ -95,11 +97,6 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                             defaultMessage={messages.workspaceNamingGuidelines.defaultMessage}
                             values={{
                               link: '', // RHCLOUD-40659: Temporarily hidden link until Learn More section is ready
-                              // link: (
-                              //   <Button variant="link" href="#" isInline>
-                              //     {intl.formatMessage(messages.learnMore)}
-                              //   </Button>
-                              // ),
                             }}
                           />
                         </Content>
@@ -112,17 +109,15 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                   {
                     type: validatorTypes.REQUIRED,
                   },
-                  (value: string, currData: unknown | Workspace) => {
-                    if (isWorkspace(currData)) {
-                      const isDuplicate = allWorkspaces.some(
-                        (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== currData.id,
-                      );
-                      return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
-                    }
-                  },
                   {
                     type: validatorTypes.MAX_LENGTH,
                     threshold: 150,
+                  },
+                  // Custom validator for duplicate workspace names
+                  (value: string) => {
+                    if (!value) return undefined;
+                    const isDuplicate = existingWorkspaceNames.some((name) => name.toLowerCase() === value.toLowerCase());
+                    return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
                   },
                 ],
               },

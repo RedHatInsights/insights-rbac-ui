@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerActions } from '@patternfly/react-core/dist/dynamic/components/Drawer';
@@ -22,18 +21,8 @@ import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 
 import { Group } from '../../../../redux/groups/reducer';
-import { fetchMembersForGroup, fetchRolesForGroup } from '../../../../redux/groups/actions';
-import {
-  selectGroupMembers,
-  selectGroupMembersError,
-  selectGroupRoles,
-  selectGroupRolesError,
-  selectIsGroupMembersLoading,
-  selectIsGroupRolesLoading,
-} from '../../../../redux/groups/selectors';
+import { type GroupRole, useGroupMembersQuery, useGroupRolesQuery } from '../../../../data/queries/groups';
 import { extractErrorMessage } from '../../../../utilities/errorUtils';
-import { Role } from '../../../../redux/roles/reducer';
-import type { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
 import messages from '../../../../Messages';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { TableView } from '../../../../components/table-view/TableView';
@@ -48,7 +37,11 @@ export interface GroupWithInheritance extends Group {
 }
 
 // Extended Role interface to include inheritedFrom data
-export interface RoleWithInheritance extends Role {
+export interface RoleWithInheritance {
+  uuid: string;
+  name: string;
+  display_name?: string;
+  description?: string;
   inheritedFrom?: {
     workspaceId: string;
     workspaceName: string;
@@ -73,11 +66,11 @@ const userColumnsWithoutInheritance = ['username', 'firstName', 'lastName'] as c
 const roleColumnsWithInheritance = ['role', 'inheritedFrom'] as const;
 const roleColumnsWithoutInheritance = ['role'] as const;
 
-// User type for the table
+// User type for the table - matches Member type from API
 interface UserRow {
   username: string;
-  first_name: string;
-  last_name: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
@@ -90,28 +83,30 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   currentWorkspace,
 }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<string | number>(0);
 
-  // Redux state for group data - using memoized selectors
-  const members = useSelector(selectGroupMembers);
-  const membersLoading = useSelector(selectIsGroupMembersLoading);
-  const membersError = useSelector(selectGroupMembersError);
+  // React Query hooks for group data
+  const {
+    data: membersData,
+    isLoading: membersLoading,
+    error: membersError,
+  } = useGroupMembersQuery(group?.uuid || '', { limit: 1000 }, { enabled: !!group?.uuid && isOpen });
 
-  const roles = useSelector(selectGroupRoles);
-  const rolesLoading = useSelector(selectIsGroupRolesLoading);
-  const rolesError = useSelector(selectGroupRolesError);
+  const {
+    data: rolesData,
+    isLoading: rolesLoading,
+    error: rolesError,
+  } = useGroupRolesQuery(group?.uuid || '', { limit: 1000 }, { enabled: !!group?.uuid && isOpen });
 
-  // Fetch data when group changes
+  const members = membersData?.members ?? [];
+  const roles = rolesData?.roles ?? [];
+
+  // Reset to first tab when opening drawer
   useEffect(() => {
     if (group) {
-      // Reset to first tab when opening drawer
       setActiveTab(0);
-      // Fetch members and roles data
-      dispatch(fetchMembersForGroup(group.uuid, undefined, { limit: 1000 }));
-      dispatch(fetchRolesForGroup(group.uuid, { limit: 1000 }));
     }
-  }, [dispatch, group]);
+  }, [group]);
 
   // Column config for users with inheritance
   const userColumnConfigWithInheritance: ColumnConfigMap<typeof userColumnsWithInheritance> = useMemo(
@@ -210,7 +205,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   );
 
   // Cell renderers for roles with inheritance
-  const roleCellRenderersWithInheritance: CellRendererMap<typeof roleColumnsWithInheritance, RoleWithAccess> = useMemo(
+  const roleCellRenderersWithInheritance: CellRendererMap<typeof roleColumnsWithInheritance, GroupRole> = useMemo(
     () => ({
       role: (row) => (
         <AppLink to={`/roles/detail/${row.uuid}`} className="pf-v6-c-button pf-m-link pf-m-inline">
@@ -239,7 +234,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   );
 
   // Cell renderers for roles without inheritance
-  const roleCellRenderersWithoutInheritance: CellRendererMap<typeof roleColumnsWithoutInheritance, RoleWithAccess> = useMemo(
+  const roleCellRenderersWithoutInheritance: CellRendererMap<typeof roleColumnsWithoutInheritance, GroupRole> = useMemo(
     () => ({
       role: (row) => (
         <AppLink to={`/roles/detail/${row.uuid}`} className="pf-v6-c-button pf-m-link pf-m-inline">
@@ -369,7 +364,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     return (
       <div className="pf-v6-u-pt-md">
         {showInheritance ? (
-          <TableView<typeof roleColumnsWithInheritance, RoleWithAccess>
+          <TableView<typeof roleColumnsWithInheritance, GroupRole>
             columns={roleColumnsWithInheritance}
             columnConfig={roleColumnConfigWithInheritance}
             data={roles}
@@ -385,7 +380,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
             ouiaId={`${ouiaId}-roles-table`}
           />
         ) : (
-          <TableView<typeof roleColumnsWithoutInheritance, RoleWithAccess>
+          <TableView<typeof roleColumnsWithoutInheritance, GroupRole>
             columns={roleColumnsWithoutInheritance}
             columnConfig={roleColumnConfigWithoutInheritance}
             data={roles}

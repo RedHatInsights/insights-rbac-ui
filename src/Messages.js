@@ -1164,6 +1164,16 @@ export default defineMessages({
     description: 'Update workspace success notification description',
     defaultMessage: 'The workspace was updated successfully.',
   },
+  editWorkspaceErrorTitle: {
+    id: 'editWorkspaceErrorTitle',
+    description: 'Update workspace error notification title',
+    defaultMessage: 'Error updating workspace',
+  },
+  editWorkspaceErrorDescription: {
+    id: 'editWorkspaceErrorDescription',
+    description: 'Update workspace error notification description',
+    defaultMessage: 'The workspace was not updated successfully.',
+  },
   editingWorkspaceTitle: {
     id: 'editingWorkspaceTitle',
     description: 'Editing workspace notification title',

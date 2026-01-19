@@ -1,11 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
-import { RBACStore } from '../../../../redux/store';
-import { fetchGroups } from '../../../../redux/groups/actions';
+import { useGroupsQuery } from '../../../../data/queries/groups';
 import { UserGroupsSelectionTable } from './UserGroupsSelectionTable';
 import messages from '../../../../Messages';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
@@ -17,18 +15,12 @@ interface UserGroupsSelectionFieldProps {
 
 const UserGroupsSelectionField: React.FC<UserGroupsSelectionFieldProps> = ({ name }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const formOptions = useFormApi();
   const { input } = useFieldApi({ name });
 
-  const { groups, isLoading } = useSelector((state: RBACStore) => ({
-    groups: state.groupReducer.groups?.data || [],
-    isLoading: state.groupReducer.isLoading,
-  }));
-
-  useEffect(() => {
-    dispatch(fetchGroups());
-  }, [dispatch]);
+  // React Query hook for groups
+  const { data: groupsData, isLoading } = useGroupsQuery({ limit: 1000 });
+  const groups = groupsData?.data ?? [];
 
   const [selectedGroups, setSelectedGroups] = useState<string[]>(formOptions.getState().values['selected-user-groups'] || []);
 
