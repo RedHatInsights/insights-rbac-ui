@@ -16,6 +16,26 @@ Stories are automatically deployed on:
 - ✅ Pull requests from [@RedHatInsights/experience-ui-committers](https://github.com/orgs/RedHatInsights/teams/experience-ui-committers) team members
 - ✅ Pull requests from RedHatInsights organization admins
 
+## Shared Components
+
+### ManagedSelector
+
+The `ManagedSelector` component is a fully managed workspace selector that can be consumed via module federation by other Red Hat Cloud Services applications.
+
+**Usage**:
+```tsx
+import { AsyncComponent } from '@redhat-cloud-services/frontend-components';
+
+<AsyncComponent
+  scope="rbac"
+  module="./Workspaces/ManagedSelector"
+  onSelect={handleWorkspaceSelect}
+  fallback={<div id="fallback-modal" />}
+/>
+```
+
+See the [full documentation](src/features/workspaces/components/managed-selector/README.md) for complete API reference, examples, and integration guides.
+
 ## Contributing
 
 This repository is now using experimental workflow checks. Your commits must use the [conventional commits format](https://www.conventionalcommits.org/en/v1.0.0/#examples).
