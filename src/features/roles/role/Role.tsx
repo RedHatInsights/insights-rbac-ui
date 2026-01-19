@@ -1,39 +1,24 @@
 import React, { Fragment, Suspense, useCallback, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Outlet, useNavigationType, useParams, useNavigate as useRouterNavigate } from 'react-router-dom';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useQueryClient } from '@tanstack/react-query';
-import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../../redux/groups/actions';
+import { useGroupQuery, useSystemGroupQuery } from '../../../data/queries/groups';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
-import { BAD_UUID } from '../../../helpers/dataUtilities';
 import { getBackRoute } from '../../../helpers/navigation';
 import useAppNavigate from '../../../hooks/useAppNavigate';
-import { PaginationDefaultI, defaultSettings } from '../../../helpers/pagination';
+import { defaultSettings } from '../../../helpers/pagination';
 import useUserData from '../../../hooks/useUserData';
 import { useAppLink } from '../../../hooks/useAppLink';
 import { rolesKeys, useRoleQuery } from '../../../data/queries/roles';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
-import { Group } from '../../../redux/groups/reducer';
 import { RoleDetail } from './components/RoleDetail';
 import { RolePermissions } from './components/RolePermissions';
 import { useRolePermissions } from './useRolePermissions';
 
 interface RoleProps {
   onDelete?: () => void;
-}
-
-interface GroupState {
-  groupReducer: {
-    selectedGroup?: Group;
-    systemGroup?: { uuid: string };
-    error?: string;
-    groups?: {
-      pagination?: PaginationDefaultI;
-      filters?: Record<string, string>;
-    };
-  };
 }
 
 const Role: React.FC<RoleProps> = ({ onDelete }) => {
@@ -57,25 +42,24 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   const { data: role, isLoading: isRoleLoading, isError: isRoleError } = useRoleQuery(roleId ?? '');
   const roleExists = !isRoleError;
 
-  // Keep Redux for group-related state (will be migrated in Groups slice)
-  const { group, groupsPagination, groupsFilters, systemGroupUuid } = useSelector(
-    (state: GroupState) => ({
-      ...(groupId && { group: state.groupReducer.selectedGroup }),
-      systemGroupUuid: state.groupReducer.systemGroup?.uuid,
-      groupsPagination: state.groupReducer?.groups?.pagination || defaultSettings,
-      groupsFilters: state.groupReducer?.groups?.filters || {},
-    }),
-    shallowEqual,
-  );
+  // Use React Query for system group data (only needed when viewing role from default group)
+  const needsSystemGroup = groupId === DEFAULT_ACCESS_GROUP_ID;
+  const { data: systemGroup } = useSystemGroupQuery({ enabled: needsSystemGroup });
+  const systemGroupUuid = systemGroup?.uuid;
 
-  const groupExists = useSelector((state: GroupState) => {
-    const {
-      groupReducer: { error },
-    } = state;
-    return error !== BAD_UUID;
+  // Determine actual group ID (handle DEFAULT_ACCESS_GROUP_ID)
+  const actualGroupId = needsSystemGroup ? systemGroupUuid : groupId;
+
+  // Fetch group details via React Query
+  const { data: group, isError: isGroupError } = useGroupQuery(actualGroupId ?? '', {
+    enabled: !!actualGroupId,
   });
 
-  // For breadcrumbs - use default pagination since we don't track roles pagination in Redux anymore
+  const groupExists = !isGroupError;
+
+  // Use default pagination for breadcrumbs (no longer tracking in Redux)
+  const groupsPagination = defaultSettings;
+  const groupsFilters: Record<string, string> = {};
   const rolesPagination = defaultSettings;
   const rolesFilters: Record<string, string> = {};
   const isLoading = isRoleLoading;
@@ -92,7 +76,6 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
     onNavigateToAddPermissions,
   } = useRolePermissions(permissionFilters);
 
-  const dispatch = useDispatch();
   const toAppLink = useAppLink();
 
   // Refetch role data (for use after edits)
@@ -100,29 +83,15 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
     queryClient.invalidateQueries({ queryKey: rolesKeys.detail(roleId ?? '') });
   }, [queryClient, roleId]);
 
-  // Fetch group data (still using Redux)
-  const fetchGroupData = useCallback(() => {
-    if (groupId) {
-      if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
-        dispatch(fetchGroup(groupId as string) as unknown as { type: string });
-      } else {
-        if (systemGroupUuid) {
-          dispatch(fetchRolesForGroup(systemGroupUuid, {}) as unknown as { type: string });
-          chrome.appObjectId(systemGroupUuid as string);
-        } else {
-          dispatch(fetchSystemGroup({ chrome }) as unknown as { type: string });
-        }
-      }
-    }
-  }, [groupId, systemGroupUuid, dispatch, chrome]);
-
+  // Set chrome app object ID for analytics
   useEffect(() => {
-    fetchGroupData();
     if (roleId) {
       chrome.appObjectId(roleId);
+    } else if (actualGroupId) {
+      chrome.appObjectId(actualGroupId);
     }
     return () => (chrome.appObjectId as (id: string | undefined) => void)(undefined);
-  }, [fetchGroupData, roleId, chrome]);
+  }, [roleId, actualGroupId, chrome]);
 
   useEffect(() => {
     // Disable for system roles

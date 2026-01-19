@@ -136,6 +136,7 @@ export const groupsKeys = {
   lists: () => [...groupsKeys.all, 'list'] as const,
   list: (params: ListGroupsParams) => [...groupsKeys.lists(), params] as const,
   adminGroup: () => [...groupsKeys.all, 'admin'] as const,
+  systemGroup: () => [...groupsKeys.all, 'system'] as const,
   details: () => [...groupsKeys.all, 'detail'] as const,
   detail: (id: string) => [...groupsKeys.details(), id] as const,
   members: (id: string) => [...groupsKeys.detail(id), 'members'] as const,
@@ -202,6 +203,28 @@ export function useAdminGroupQuery(options?: { enabled?: boolean }): UseQueryRes
       return adminGroup ?? null;
     },
     staleTime: 5 * 60 * 1000, // Admin group rarely changes, cache for 5 minutes
+    enabled: options?.enabled ?? true,
+  });
+}
+
+/**
+ * Fetch the system (platform default) group.
+ * This is the "Default access" group that applies to all users.
+ */
+export function useSystemGroupQuery(options?: { enabled?: boolean }): UseQueryResult<GroupOut | null> {
+  return useQuery({
+    queryKey: groupsKeys.systemGroup(),
+    queryFn: async (): Promise<GroupOut | null> => {
+      const response = await groupsApi.listGroups({
+        limit: 1,
+        platformDefault: true,
+      });
+      // Extract the first platform_default group from the response
+      const groups = (response.data as GroupsListResponse)?.data ?? [];
+      const systemGroup = groups.find((group) => group.platform_default);
+      return systemGroup ?? null;
+    },
+    staleTime: 5 * 60 * 1000, // System group rarely changes, cache for 5 minutes
     enabled: options?.enabled ?? true,
   });
 }
