@@ -1,7 +1,7 @@
 # Redux to TanStack Query Migration
 
-**Status:** Phase 1 Complete (Roles Slice)  
-**Last Updated:** 2026-01-14  
+**Status:** Phase 4 In Progress (Groups Slice)  
+**Last Updated:** 2026-01-19  
 **Owner:** Engineering Team  
 
 ## Quick Links
@@ -192,11 +192,16 @@ const { data, isLoading } = useRolesQuery({ limit: 20, offset: 0 });
 
 ## Migration Status
 
+### Phase 0: Type Safety Audit (COMPLETE)
+
+Fixed non-Redux type casts (`as any`, `as unknown`) across 8 files to establish type-safe foundation.
+
 ### Phase 1: Roles Slice (COMPLETE)
 
 **Queries:**
 - `useRolesQuery` - List roles with pagination/filtering
 - `useRoleQuery` - Fetch single role by ID
+- `useRoleForPrincipalQuery` - Fetch roles for a specific principal
 
 **Mutations:**
 - `useCreateRoleMutation` - Create new role
@@ -210,19 +215,48 @@ const { data, isLoading } = useRolesQuery({ limit: 20, offset: 0 });
 - Inventory API (complete)
 - Groups API (admin group only)
 
-### Phase 2: Groups Slice (PLANNED)
+### Phase 2: Users Slice (COMPLETE)
+
+**Queries:**
+- `useUsersQuery` - List users with pagination/filtering/sorting
+
+**Mutations:**
+- `useChangeUserStatusMutation` - Activate/deactivate users
+- `useInviteUsersMutation` - Invite new users via email
+- `useUpdateUserOrgAdminMutation` - Toggle org admin status
+
+**Migrated Components:**
+- `UsersListNotSelectable.tsx` - Main users table (migrated from Redux `fetchUsers`, `changeUsersStatus`)
+- `OrgAdminDropdown.tsx` - Org admin toggle
+- `InviteUsersModal.tsx` - User invitation modal
+- `AddUserToGroup.tsx` - Add user to group modal
+
+**Key Learnings:**
+- Must preserve dynamic base URL logic from `fetchEnvBaseUrl()`
+- Sort direction must be extracted from `-` prefix in orderBy
+- Account ID types vary by component (`number` vs `string`)
+
+### Phase 3: My User Access (COMPLETE)
+
+**Queries:**
+- `usePrincipalAccessQuery` - Fetch permissions for current user
+
+**Migrated Components:**
+- `AccessTable.tsx` - Permissions table
+- `RolesTable.tsx` - Roles table with expandable permissions
+
+### Phase 4: Groups Slice (IN PROGRESS)
 
 - Full groups CRUD operations
 - Group memberships
 - Group-role associations
 
-### Phase 3: Users Slice (PLANNED)
+### Phase 5: Workspaces Slice (PLANNED)
 
-- User list and details
-- User-group associations
-- User permissions
+- Workspace management
+- Role bindings
 
-### Phase 4: Redux Removal (PLANNED)
+### Phase 6: Redux Removal (PLANNED)
 
 - Remove Redux dependencies
 - Delete Redux files
@@ -498,6 +532,109 @@ export interface InventoryGroupsResponse {
   };
 }
 ```
+
+---
+
+## Critical Migration Rules
+
+These rules were discovered through migration failures. **Violating them WILL break tests.**
+
+### Rule 1: Preserve Original API Call Behavior EXACTLY
+
+When migrating from Redux to React Query, the mutation must call the **exact same endpoints** as the original Redux helper. Don't assume the endpoint pattern - trace the original code.
+
+**Example: Dynamic Base URL**
+
+The original Redux helpers use `fetchEnvBaseUrl()` which fetches `/apps/rbac/env.json` to determine the base URL. In tests, this file doesn't exist, so the base URL becomes an empty string.
+
+```typescript
+// ❌ WRONG - hardcoded path breaks tests
+const baseUrl = '/api/rbac/v1/admin';
+return fetch(`${baseUrl}/change-users-status`, {...});
+
+// ✅ CORRECT - matches original Redux helper behavior
+const envUrl = await fetchEnvBaseUrl();  // Returns '' in tests
+return fetch(`${envUrl}/change-users-status`, {...});  // Becomes '/change-users-status'
+```
+
+### Rule 2: Preserve Sort Parameter Handling
+
+The original code extracts sort direction from the `-` prefix in `orderBy`:
+
+```typescript
+// ❌ WRONG - passes orderBy directly to API
+orderBy: params.orderBy as ListPrincipalsParams['orderBy'],
+sortOrder: params.sortOrder,
+
+// ✅ CORRECT - extract sort direction from prefix
+const sortOrder = params.orderBy?.startsWith('-') ? 'desc' : 'asc';
+const orderByField = params.orderBy?.replace(/^-/, '');
+// Then pass: orderBy: orderByField, sortOrder: sortOrder
+```
+
+### Rule 3: Accept All Original Type Variants
+
+Different components may pass different types for the same parameter (e.g., `accountId` as `number | string | null`). The mutation must accept all original types:
+
+```typescript
+// ❌ WRONG - only accepts one type
+config: {
+  accountId: number | undefined;
+}
+
+// ✅ CORRECT - accepts all types used by different components
+config: {
+  accountId?: string | number | null;  // Some use org_id (number), others use internal.account_id (string)
+}
+```
+
+### Rule 4: Never Change Data Sources
+
+If a component uses `identity.org_id`, don't change it to `identity.internal.account_id`. Different data sources may have different values:
+
+```typescript
+// Original component A
+setAccountId((await auth.getUser())?.identity.org_id as unknown as number);
+
+// Original component B - DIFFERENT source!
+setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
+
+// ❌ WRONG - "standardizing" to one source
+setAccountId(user?.identity?.internal?.account_id ?? null);  // Breaks component A!
+
+// ✅ CORRECT - preserve the original source for each component
+```
+
+### Rule 5: Tests Must Pass WITHOUT Modification
+
+If tests fail after migration:
+1. The bug is in YOUR migration code, not the test
+2. Trace what the original Redux code did
+3. Make your React Query code behave identically
+4. **Never modify tests to make them pass** - they validate correct behavior
+
+### Rule 6: Check MSW Handler Paths
+
+If you see MSW errors like:
+```
+[MSW] Error: intercepted a request without a matching request handler:
+• PUT /api/rbac/v1/admin/change-users-status
+```
+
+This means your mutation is calling a different path than the original. The handlers were written to match the original behavior. **Fix your mutation, not the handlers.**
+
+### Migration Checklist
+
+Before considering a migration complete:
+
+- [ ] All original Redux action imports removed from component
+- [ ] React Query hook imports added
+- [ ] Component uses `{ data, isLoading }` from query hook
+- [ ] Mutations invalidate correct query keys
+- [ ] **All existing tests pass without modification**
+- [ ] Dynamic base URLs preserved (if applicable)
+- [ ] Sort parameter handling preserved
+- [ ] All original parameter types accepted
 
 ---
 

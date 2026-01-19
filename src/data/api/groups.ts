@@ -8,6 +8,8 @@ import addPrincipalToGroup from '@redhat-cloud-services/rbac-client/AddPrincipal
 import deletePrincipalFromGroup from '@redhat-cloud-services/rbac-client/DeletePrincipalFromGroup';
 import getPrincipalsFromGroup from '@redhat-cloud-services/rbac-client/GetPrincipalsFromGroup';
 import listRolesForGroup from '@redhat-cloud-services/rbac-client/ListRolesForGroup';
+import addRoleToGroup from '@redhat-cloud-services/rbac-client/AddRoleToGroup';
+import deleteRoleFromGroup from '@redhat-cloud-services/rbac-client/DeleteRoleFromGroup';
 import { RBAC_API_BASE, apiClient } from './client';
 
 // Bundle all group endpoints
@@ -21,6 +23,8 @@ const groupEndpoints = {
   deletePrincipalFromGroup,
   getPrincipalsFromGroup,
   listRolesForGroup,
+  addRoleToGroup,
+  deleteRoleFromGroup,
 };
 
 /**
@@ -38,6 +42,8 @@ export type { AddPrincipalToGroupParams } from '@redhat-cloud-services/rbac-clie
 export type { DeletePrincipalFromGroupParams } from '@redhat-cloud-services/rbac-client/DeletePrincipalFromGroup';
 export type { GetPrincipalsFromGroupParams } from '@redhat-cloud-services/rbac-client/GetPrincipalsFromGroup';
 export type { ListRolesForGroupParams } from '@redhat-cloud-services/rbac-client/ListRolesForGroup';
+export type { AddRoleToGroupParams } from '@redhat-cloud-services/rbac-client/AddRoleToGroup';
+export type { DeleteRoleFromGroupParams } from '@redhat-cloud-services/rbac-client/DeleteRoleFromGroup';
 export type {
   GroupPagination,
   GroupOut,

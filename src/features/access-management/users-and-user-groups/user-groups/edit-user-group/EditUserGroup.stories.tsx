@@ -428,10 +428,10 @@ This story demonstrates:
           });
         }),
 
-        // Add service accounts to new group
-        http.post('/api/rbac/v1/groups/:uuid/service-accounts/', async ({ params, request }) => {
-          const body = (await request.json()) as { service_accounts: Array<{ clientID: string }> };
-          console.log(`SB: MSW: Adding ${body.service_accounts.length} service accounts to group ${params.uuid}`);
+        // Add service accounts to new group (V2 API - guessed)
+        http.post('/api/rbac/v2/groups/:uuid/service-accounts/', async ({ params, request }) => {
+          const body = (await request.json()) as { service_accounts: Array<{ clientId: string }> };
+          console.log(`SB: MSW: Adding ${body.service_accounts.length} service accounts to group ${params.uuid} (V2)`);
           return HttpResponse.json({
             data: body.service_accounts,
             meta: { count: body.service_accounts.length },
@@ -637,8 +637,8 @@ export const LoadingState: Story = {
           return HttpResponse.json({ data: [], meta: { count: 0 } });
         }),
 
-        // Service accounts POST handler for loading state
-        http.post('/api/rbac/v1/groups/:uuid/service-accounts/', async () => {
+        // Service accounts POST handler for loading state (V2 API - guessed)
+        http.post('/api/rbac/v2/groups/:uuid/service-accounts/', async () => {
           await delay('infinite');
           return HttpResponse.json({ data: [], meta: { count: 0 } });
         }),

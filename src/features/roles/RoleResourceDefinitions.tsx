@@ -132,11 +132,22 @@ const RoleResourceDefinitions: React.FC = () => {
       breadcrumbs={[
         {
           title: intl.formatMessage(messages.roles),
-          to: getBackRoute(toAppLink(paths['roles'].link) as string, { limit: 20, offset: 0 }, {}) as unknown as string,
+          // Construct URL string from getBackRoute's pathname and search
+          to: (() => {
+            const basePath = toAppLink(paths['roles'].link);
+            // toAppLink returns string when passed a string
+            const pathStr = typeof basePath === 'string' ? basePath : basePath.pathname || paths['roles'].link;
+            const route = getBackRoute(pathStr, { limit: 20, offset: 0 }, {});
+            return `${route.pathname}?${route.search}`;
+          })(),
         },
         {
           title: isRoleLoading ? undefined : role && (role.display_name || role.name),
-          to: toAppLink(paths['role-detail'].link.replace(':roleId', roleId!)) as string,
+          // toAppLink returns string when passed a string, but TS needs help
+          to: (() => {
+            const link = toAppLink(paths['role-detail'].link.replace(':roleId', roleId!));
+            return typeof link === 'string' ? link : link.pathname;
+          })(),
         },
         { title: permissionId, isActive: true },
       ]}

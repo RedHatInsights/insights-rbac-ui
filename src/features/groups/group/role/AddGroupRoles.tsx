@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -6,12 +6,10 @@ import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
-import { useLocation, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import { addRolesToGroup as addRolesToGroupAction, fetchGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
-import { selectIsGroupRecordLoading, selectSelectedGroupName } from '../../../../redux/groups/selectors';
+import { useAddRolesToGroupMutation, useGroupQuery } from '../../../../data/queries/groups';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import { RolesList } from '../../add-group/components/stepRoles/RolesList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
@@ -27,63 +25,45 @@ interface Role {
 
 interface AddGroupRolesProps {
   afterSubmit?: () => void;
-  fetchUuid?: string;
-  initialSelectedRoles?: Role[];
-  onSelectedRolesChange?: (roles: Role[]) => void;
-  title?: string;
   closeUrl?: string;
-  groupName?: string;
-  isDefault?: boolean;
-  isChanged?: boolean;
-  onDefaultGroupChanged?: (show: boolean) => void;
 }
 
-export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
-  afterSubmit,
-  fetchUuid,
-  initialSelectedRoles,
-  onSelectedRolesChange,
-  title,
-  closeUrl,
-  groupName: name,
-  isDefault,
-  isChanged,
-  onDefaultGroupChanged,
-}) => {
+/**
+ * AddGroupRoles component - fetches its own data via React Query.
+ * Determines if group is a default group and whether it's been modified from the group data itself.
+ *
+ * Migrated from Redux - component is now self-contained.
+ */
+export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({ afterSubmit, closeUrl }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const addNotification = useAddNotification();
-  let { state } = useLocation() as { state?: { name?: string } };
-
-  const { groupId: uuid } = useParams<{ groupId: string }>();
-  const groupId = isDefault && fetchUuid ? fetchUuid : uuid;
   const navigate = useAppNavigate();
+
+  const { groupId } = useParams<{ groupId: string }>();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
 
-  // Internal state for selected roles
-  const [selectedRoles, setSelectedRoles] = useState<Role[]>(initialSelectedRoles || []);
-  const selectedGroupName = useSelector(selectSelectedGroupName);
-  const isRecordLoading = useSelector(selectIsGroupRecordLoading);
-  const groupName = name || state?.name || selectedGroupName;
+  // Fetch group data - component fetches its own data
+  const { data: groupData, isLoading: isGroupLoading } = useGroupQuery(groupId ?? '', {
+    enabled: !!groupId,
+  });
 
-  useEffect(() => {
-    if (!name) {
-      dispatch(fetchGroup(groupId!));
-    }
+  // Derive isDefault and isChanged from the actual group data
+  // platform_default = true means this is the "Default access" group
+  // system = false means it has been modified (copied)
+  const isDefault = groupData?.platform_default === true;
+  const isChanged = isDefault && groupData?.system === false;
+  const groupName = groupData?.name;
+
+  // React Query mutation for adding roles
+  const addRolesMutation = useAddRolesToGroupMutation();
+
+  const handleRoleSelection = useCallback((roles: Role[]) => {
+    setSelectedRoles(roles);
   }, []);
-
-  // Handle role selection changes
-  const handleRoleSelection = useCallback(
-    (roles: Role[]) => {
-      setSelectedRoles(roles);
-      onSelectedRolesChange?.(roles);
-    },
-    [onSelectedRolesChange],
-  );
 
   const onCancel = () => {
     setSelectedRoles([]);
-    onSelectedRolesChange?.([]);
     addNotification({
       variant: 'warning',
       title: intl.formatMessage(messages.addingGroupRolesCancelled),
@@ -93,90 +73,72 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
   };
 
   const onSubmit = async () => {
-    if (!selectedRoles || selectedRoles.length === 0) {
+    if (!selectedRoles || selectedRoles.length === 0 || !groupId) {
       return;
     }
 
-    // Dispatch the addRolesToGroup action with role UUIDs
-    const roleUuids = selectedRoles.map((role) => role.uuid);
-
-    // If this is a default group that hasn't been changed yet, mark it as changed
-    if (isDefault && !isChanged) {
-      onDefaultGroupChanged && onDefaultGroupChanged(true);
-      dispatch(invalidateSystemGroup());
-    }
-
     try {
-      await dispatch(addRolesToGroupAction(groupId!, roleUuids));
+      const roleUuids = selectedRoles.map((role) => role.uuid);
+      // The mutation will automatically invalidate caches including the group detail
+      // This ensures the UI will show the updated group name if it was renamed by the server
+      await addRolesMutation.mutateAsync({ groupId, roleUuids });
 
-      // If we just modified a default group, re-fetch to get the updated name
-      if (isDefault && !isChanged) {
-        await dispatch(fetchGroup(groupId!));
-      }
-
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.addGroupRolesSuccessTitle),
-        description: intl.formatMessage(messages.addGroupRolesSuccessDescription),
-      });
-
-      afterSubmit && afterSubmit();
+      afterSubmit?.();
       navigate(closeUrl || `/groups/detail/${groupId}/roles`);
     } catch (error) {
+      // Error notification is handled by the mutation
       console.error('Failed to add roles to group:', error);
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.addGroupRolesErrorTitle),
-        description: intl.formatMessage(messages.addGroupRolesErrorDescription),
-      });
     }
   };
 
   const handleAddClick = () => {
-    setShowConfirmModal(true);
-    // If not a default group or already changed, submit immediately
-    if (!isDefault || isChanged) {
+    // If this is an unmodified default group, show the warning modal first
+    if (isDefault && !isChanged) {
+      setShowConfirmModal(true);
+    } else {
+      // Otherwise submit directly
       onSubmit();
     }
   };
 
-  return isDefault && !isChanged && showConfirmModal ? (
-    <DefaultGroupChangeModal isOpen={true} onClose={onCancel} onSubmit={onSubmit} />
-  ) : (
-    <>
-      <Modal
-        title={title || (groupName ? intl.formatMessage(messages.addRolesToGroup, { name: groupName }) : intl.formatMessage(messages.addRoles))}
-        variant={ModalVariant.large}
-        isOpen
-        onClose={onCancel}
-        appendTo={getModalContainer()}
-        actions={[
-          <Button key="confirm" variant="primary" onClick={handleAddClick} isDisabled={!selectedRoles || selectedRoles.length === 0}>
-            {intl.formatMessage(messages.addToGroup)}
-          </Button>,
-          <Button key="cancel" variant="link" onClick={onCancel}>
-            {intl.formatMessage(messages.cancel)}
-          </Button>,
-        ]}
-      >
-        <Stack hasGutter>
-          {isRecordLoading ? (
+  // Show the warning modal for unmodified default groups
+  if (isDefault && !isChanged && showConfirmModal) {
+    return <DefaultGroupChangeModal isOpen={true} onClose={onCancel} onSubmit={onSubmit} />;
+  }
+
+  return (
+    <Modal
+      title={groupName ? intl.formatMessage(messages.addRolesToGroup, { name: groupName }) : intl.formatMessage(messages.addRoles)}
+      variant={ModalVariant.large}
+      isOpen
+      onClose={onCancel}
+      appendTo={getModalContainer()}
+      actions={[
+        <Button key="confirm" variant="primary" onClick={handleAddClick} isDisabled={!selectedRoles || selectedRoles.length === 0}>
+          {intl.formatMessage(messages.addToGroup)}
+        </Button>,
+        <Button key="cancel" variant="link" onClick={onCancel}>
+          {intl.formatMessage(messages.cancel)}
+        </Button>,
+      ]}
+    >
+      <Stack hasGutter>
+        {isGroupLoading ? (
+          <StackItem>
+            <Skeleton size={SkeletonSize.lg} />
+          </StackItem>
+        ) : (
+          <>
             <StackItem>
-              <Skeleton size={SkeletonSize.lg} />
+              <Alert variant="info" isInline title="Select roles to add to this group" />
             </StackItem>
-          ) : (
-            <>
-              <StackItem>
-                <Alert variant="info" isInline title="Select roles to add to this group" />
-              </StackItem>
-              <StackItem isFilled>
-                <RolesList initialSelectedRoles={selectedRoles || []} onSelect={handleRoleSelection} rolesExcluded={true} groupId={groupId} />
-              </StackItem>
-            </>
-          )}
-        </Stack>
-      </Modal>
-    </>
+            <StackItem isFilled>
+              <RolesList initialSelectedRoles={selectedRoles} onSelect={handleRoleSelection} rolesExcluded={true} groupId={groupId} />
+            </StackItem>
+          </>
+        )}
+      </Stack>
+    </Modal>
   );
 };
 

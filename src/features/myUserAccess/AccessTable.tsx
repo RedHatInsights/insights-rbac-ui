@@ -1,6 +1,4 @@
 import React, { Fragment, Suspense, useCallback, useMemo, useState } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { getPrincipalAccess } from '../../redux/access-management/actions';
 import { defaultSettings } from '../../helpers/pagination';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
@@ -11,6 +9,7 @@ import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../compo
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../components/table-view/types';
 import { ResourceDefinitionsModal } from './components/ResourceDefinitionsModal';
 import { ResourceDefinitionsLink } from './components/ResourceDefinitionsLink';
+import { usePrincipalAccessQuery } from '../../data/queries/access';
 
 import type { ResourceDefinition, ResourceDefinitionsConfig } from './types';
 
@@ -18,27 +17,6 @@ import type { ResourceDefinition, ResourceDefinitionsConfig } from './types';
 interface PermissionAccess {
   permission: string;
   resourceDefinitions: ResourceDefinition[];
-}
-
-// Local interface for API response structure
-interface PermissionData {
-  data: PermissionAccess[];
-  meta: {
-    limit: number;
-    offset: number;
-    count: number;
-  };
-}
-
-// Local typing for access reducer slice
-interface AccessReducerState {
-  access: PermissionData;
-  isLoading: boolean;
-}
-
-// Local typing for root Redux state (for useSelector)
-interface RootState {
-  accessReducer: AccessReducerState;
 }
 
 // Component props (minimal, as per usage in MyUserAccess.tsx)
@@ -63,15 +41,17 @@ const sortColumnToApiField: Record<SortableColumn, string> = {
 export const AccessTable: React.FC<AccessTableProps> = ({ apps, showResourceDefinitions }) => {
   const intl = useIntl();
   const [{ rdOpen, rdPermission, resourceDefinitions }, setRdConfig] = useState<ResourceDefinitionsConfig>({ rdOpen: false });
-  const dispatch = useDispatch();
 
-  const { permissions, isLoading } = useSelector(
-    (state: RootState) => ({
-      permissions: state.accessReducer.access,
-      isLoading: state.accessReducer.isLoading,
-    }),
-    shallowEqual,
-  );
+  // Query params state for React Query
+  const [queryParams, setQueryParams] = useState({
+    limit: defaultSettings.limit,
+    offset: 0,
+    application: apps.join(','),
+    orderBy: 'application',
+  });
+
+  // React Query for principal access
+  const { data: permissions, isLoading } = usePrincipalAccessQuery(queryParams);
 
   // Choose columns based on showResourceDefinitions prop
   const columns = showResourceDefinitions ? columnsWithRd : baseColumns;
@@ -89,7 +69,7 @@ export const AccessTable: React.FC<AccessTableProps> = ({ apps, showResourceDefi
 
   const sortableColumns: readonly SortableColumn[] = ['application', 'resourceType', 'operation'];
 
-  const filteredRows = permissions?.data || [];
+  const filteredRows: PermissionAccess[] = (permissions?.data ?? []) as PermissionAccess[];
 
   // useTableState handles ALL state + triggers onStaleData when params change
   const tableState = useTableState<typeof columns, PermissionAccess, SortableColumn>({
@@ -107,23 +87,26 @@ export const AccessTable: React.FC<AccessTableProps> = ({ apps, showResourceDefi
       const applicationFilter = (params.filters.application as string[]) || [];
       const applicationParam = applicationFilter.length > 0 ? applicationFilter.join(',') : apps.join(',');
 
-      dispatch(
-        getPrincipalAccess({
-          ...defaultSettings,
-          orderBy,
-          application: applicationParam,
-        }),
-      );
+      setQueryParams({
+        limit: params.limit,
+        offset: params.offset,
+        application: applicationParam,
+        orderBy,
+      });
     },
   });
 
   const handleRdClick = useCallback(
-    (index: number) =>
-      setRdConfig({
-        rdOpen: true,
-        rdPermission: permissions.data[index].permission,
-        resourceDefinitions: permissions.data[index].resourceDefinitions,
-      }),
+    (index: number) => {
+      const access = permissions?.data?.[index];
+      if (access) {
+        setRdConfig({
+          rdOpen: true,
+          rdPermission: access.permission,
+          resourceDefinitions: access.resourceDefinitions,
+        });
+      }
+    },
     [permissions],
   );
 

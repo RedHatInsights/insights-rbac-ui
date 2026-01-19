@@ -1,13 +1,11 @@
-import React, { Fragment, useCallback, useEffect, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { Fragment, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 
 import { TableView, useTableState } from '../../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../components/table-view/types';
-import { fetchUsers } from '../../../../../redux/users/actions';
-import { selectIsUsersLoading, selectUsersPaginationFromMeta, selectUsersRawData } from '../../../../../redux/users/selectors';
+import { useUsersQuery } from '../../../../../data/queries/users';
 import messages from '../../../../../Messages';
 import { UsersListEmptyState } from './UsersListEmptyState';
 import type { User, UsersListProps } from './types';
@@ -16,20 +14,8 @@ import type { User, UsersListProps } from './types';
 const columns = ['orgAdmin', 'username', 'email', 'firstName', 'lastName', 'status'] as const;
 const sortableColumns = ['username'] as const;
 
-export const UsersList: React.FC<UsersListProps> = ({ usesMetaInURL = false, displayNarrow = false, initialSelectedUsers, onSelect }) => {
+export const UsersList: React.FC<UsersListProps> = ({ displayNarrow = false, initialSelectedUsers, onSelect }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
-
-  // Redux selectors
-  const rawUsers = useSelector(selectUsersRawData);
-  const isLoading = useSelector(selectIsUsersLoading);
-  const pagination = useSelector(selectUsersPaginationFromMeta);
-  const totalCount = pagination.count || 0;
-
-  // Transform raw users to add uuid
-  const users: User[] = useMemo(() => {
-    return rawUsers?.map?.((data: any) => ({ ...data, uuid: data.username })) || [];
-  }, [rawUsers]);
 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
@@ -63,28 +49,6 @@ export const UsersList: React.FC<UsersListProps> = ({ usesMetaInURL = false, dis
     [],
   );
 
-  // Handle data fetching via onStaleData
-  const handleStaleData = useCallback(
-    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
-      const statusFilter = params.filters.status as string[] | undefined;
-      dispatch(
-        fetchUsers({
-          limit: params.limit,
-          offset: params.offset,
-          orderBy: params.orderBy,
-          filters: {
-            username: (params.filters.username as string) || '',
-            email: (params.filters.email as string) || '',
-            // When status filter is empty, fetch all users (both active and inactive)
-            status: statusFilter && statusFilter.length > 0 ? statusFilter : [],
-          },
-          usesMetaInURL,
-        }),
-      );
-    },
-    [dispatch, usesMetaInURL],
-  );
-
   // useTableState for all state management
   const tableState = useTableState<typeof columns, User, 'username'>({
     columns,
@@ -95,8 +59,39 @@ export const UsersList: React.FC<UsersListProps> = ({ usesMetaInURL = false, dis
     initialSelectedRows: initialSelectedUsers,
     initialFilters: { status: ['Active'] },
     initialSort: { column: 'username', direction: 'asc' },
-    onStaleData: handleStaleData,
   });
+
+  // Map status filter to API parameter
+  const statusFilter = tableState.filters.status as string[] | undefined;
+  const statusParam = useMemo(() => {
+    if (!statusFilter || statusFilter.length === 0 || statusFilter.length === 2) {
+      return 'all'; // Both selected or none selected = show all
+    }
+    if (statusFilter.includes('Active')) {
+      return 'enabled';
+    }
+    if (statusFilter.includes('Inactive')) {
+      return 'disabled';
+    }
+    return 'all';
+  }, [statusFilter]);
+
+  // Fetch users via React Query
+  const { data: usersData, isLoading } = useUsersQuery({
+    limit: tableState.apiParams.limit,
+    offset: tableState.apiParams.offset,
+    orderBy: tableState.apiParams.orderBy,
+    username: (tableState.filters.username as string) || undefined,
+    email: (tableState.filters.email as string) || undefined,
+    status: statusParam,
+  });
+
+  // Transform users to add uuid
+  const users: User[] = useMemo(() => {
+    return (usersData?.users ?? []).map((user) => ({ ...user, uuid: user.username }));
+  }, [usersData?.users]);
+
+  const totalCount = usersData?.totalCount ?? 0;
 
   // Propagate selection changes to parent
   useEffect(() => {

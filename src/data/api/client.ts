@@ -2,7 +2,7 @@ import axios from 'axios';
 
 /**
  * Clean axios instance - NO interceptors.
- * The rbac-client library handles response unwrapping.
+ * Query functions handle response unwrapping explicitly.
  */
 export const apiClient = axios.create();
 

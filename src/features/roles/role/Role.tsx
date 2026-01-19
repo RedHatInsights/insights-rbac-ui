@@ -1,6 +1,6 @@
 import React, { Fragment, Suspense, useCallback, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { Outlet, useNavigationType, useParams } from 'react-router-dom';
+import { Outlet, useNavigationType, useParams, useNavigate as useRouterNavigate } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useQueryClient } from '@tanstack/react-query';
@@ -40,6 +40,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   const intl = useIntl();
   const chrome = useChrome();
   const navigate = useAppNavigate();
+  const routerNavigate = useRouterNavigate(); // For delta navigation (back)
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -178,7 +179,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
 
   const handleBackClick = () => {
     if (navigationType !== 'POP') {
-      (navigate as any)(-1);
+      routerNavigate(-1); // Use native navigate for delta navigation
     } else {
       navigate(pathnames.roles.link);
     }

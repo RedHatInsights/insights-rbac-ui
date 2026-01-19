@@ -77,6 +77,39 @@ export function useRoleQuery(id: string, options?: { enabled?: boolean }) {
   });
 }
 
+/**
+ * Role with access data - for expanding permissions in tables.
+ */
+export interface RoleWithAccessData {
+  uuid: string;
+  access: Array<{
+    permission: string;
+    resourceDefinitions: Array<{
+      attributeFilter: {
+        key: string;
+        value: string;
+        operation: string;
+      };
+    }>;
+  }>;
+}
+
+/**
+ * Fetch a single role by ID with principal scope.
+ * Used for getting role access/permissions for the current principal.
+ */
+export function useRoleForPrincipalQuery(id: string, options?: { enabled?: boolean }): UseQueryResult<RoleWithAccessData> {
+  return useQuery({
+    queryKey: [...rolesKeys.detail(id), 'principal'] as const,
+    queryFn: async (): Promise<RoleWithAccessData> => {
+      // NOTE: rbac-client types are broken, using any to bypass
+      const response = await (rolesApi.getRole as any)({ uuid: id, scope: 'principal' });
+      return response.data as RoleWithAccessData;
+    },
+    enabled: (options?.enabled ?? true) && !!id,
+  });
+}
+
 // ============================================================================
 // Mutation Hooks
 // ============================================================================

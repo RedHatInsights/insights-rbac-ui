@@ -28,7 +28,7 @@ export const Group: React.FC = () => {
   const { isVisible: showDefaultGroupChangedAlert, dismiss: dismissDefaultGroupChangedAlert } = useDefaultGroupChangedAlert(group);
 
   // Navigation and context
-  const { location, breadcrumbsList, outletContext, navigateBack } = useGroupNavigation({
+  const { breadcrumbsList, outletContext, navigateBack } = useGroupNavigation({
     groupId,
     systemGroupUuid,
     group,
@@ -57,9 +57,7 @@ export const Group: React.FC = () => {
   const { editUrl, deleteUrl, editLabel, deleteLabel, handleResetConfirm } = useGroupActions({
     groupId,
     isPlatformDefault,
-    location,
     systemGroupUuid,
-    chrome,
     onResetWarningHide: handleResetWarningHide,
     onDefaultGroupChangedHide: dismissDefaultGroupChangedAlert,
     navigateToGroup,

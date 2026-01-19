@@ -6,6 +6,7 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
+import { useGroupMembersQuery } from '../../../data/queries/groups';
 import messages from '../../../Messages';
 import type { Group } from '../types';
 
@@ -13,8 +14,16 @@ interface GroupsMembersTableProps {
   group: Group;
 }
 
+/**
+ * GroupsMembersTable - Fetches and displays members for a group.
+ * Uses React Query to fetch data automatically when rendered.
+ */
 export const GroupsMembersTable: React.FC<GroupsMembersTableProps> = ({ group }) => {
   const intl = useIntl();
+
+  // Fetch members via React Query
+  const { data, isLoading } = useGroupMembersQuery(group.uuid, { limit: 100 });
+  const members = data?.members ?? [];
 
   const compoundMembersCells = [
     intl.formatMessage(messages.orgAdmin),
@@ -25,7 +34,7 @@ export const GroupsMembersTable: React.FC<GroupsMembersTableProps> = ({ group })
     intl.formatMessage(messages.status),
   ];
 
-  if (!group.members || group.isLoadingMembers) {
+  if (isLoading) {
     return (
       <Table aria-label={`Members for ${group.name}`} variant={TableVariant.compact} ouiaId={`compound-members-${group.uuid}`}>
         <Thead>
@@ -50,8 +59,8 @@ export const GroupsMembersTable: React.FC<GroupsMembersTableProps> = ({ group })
         </Tr>
       </Thead>
       <Tbody>
-        {group.members.length > 0 ? (
-          group.members.map((member: any, index: number) => (
+        {members.length > 0 ? (
+          members.map((member, index) => (
             <Tr key={`${group.uuid}-member-${member.username || member.email || index}`}>
               <Td dataLabel={compoundMembersCells[0]}>
                 <Content>

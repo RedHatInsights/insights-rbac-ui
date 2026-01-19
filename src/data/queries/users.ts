@@ -1,5 +1,42 @@
 import { type UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type ListPrincipalsParams, type PrincipalPagination, usersApi } from '../api/users';
+import { isITLessProd, isInt, isStage } from '../../itLessConfig';
+
+// ============================================================================
+// Environment URL Helpers (matches original Redux helper behavior)
+// ============================================================================
+
+interface EnvConfig {
+  int: string;
+  stage: string;
+  prod: string;
+}
+
+/**
+ * Get the base URL from environment config.
+ * Returns empty string if no matching environment - this is the expected behavior in tests.
+ */
+function getBaseUrl(url: EnvConfig | undefined): string {
+  if (!url) return '';
+  if (isInt) return url.int;
+  if (isStage) return url.stage;
+  if (isITLessProd) return url.prod;
+  return '';
+}
+
+/**
+ * Fetch the environment-specific base URL from env.json.
+ * Returns empty string if fetch fails (expected in tests).
+ */
+async function fetchEnvBaseUrl(): Promise<string> {
+  try {
+    const response = await fetch('/apps/rbac/env.json');
+    const jsonData = (await response.json()) as EnvConfig;
+    return getBaseUrl(jsonData);
+  } catch {
+    return '';
+  }
+}
 
 // ============================================================================
 // Response Types
@@ -63,17 +100,22 @@ export function useUsersQuery(params: UseUsersQueryParams = {}, options?: { enab
   return useQuery({
     queryKey: usersKeys.list(params as unknown as ListPrincipalsParams),
     queryFn: async (): Promise<UsersQueryResult> => {
+      // Extract sort direction from orderBy prefix (e.g., '-username' -> desc)
+      // This matches the behavior in src/redux/users/helper.ts
+      const sortOrder = params.orderBy?.startsWith('-') ? 'desc' : 'asc';
+      const orderByField = params.orderBy?.replace(/^-/, '') as ListPrincipalsParams['orderBy'];
+
       const response = await usersApi.listPrincipals({
         limit: params.limit ?? 20,
         offset: params.offset ?? 0,
-        orderBy: params.orderBy as ListPrincipalsParams['orderBy'],
+        orderBy: orderByField,
         usernameOnly: false,
         matchCriteria: 'partial',
         usernames: params.username,
         email: params.email,
         status: params.status,
         adminOnly: params.adminOnly,
-        sortOrder: params.sortOrder,
+        sortOrder: params.sortOrder ?? sortOrder,
       });
       const data = response.data as PrincipalPagination;
 
@@ -129,7 +171,7 @@ interface ChangeUserStatusParams {
   config: {
     isProd: boolean;
     token: string | null;
-    accountId: number | undefined;
+    accountId?: string | number | null; // Handle both string and number since different components use different sources
   };
   itless?: boolean;
 }
@@ -172,9 +214,10 @@ export function useChangeUserStatusMutation() {
         );
       }
 
-      // ITLess fallback - use RBAC endpoint (token still obtained from useChrome)
-      const baseUrl = '/api/rbac/v1/admin';
-      return fetch(`${baseUrl}/change-users-status`, {
+      // ITLess fallback - use dynamic base URL from env.json (matches original Redux helper behavior)
+      // In tests, env.json doesn't exist, so baseUrl is empty string -> '/change-users-status'
+      const envUrl = await fetchEnvBaseUrl();
+      return fetch(`${envUrl}/change-users-status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -185,6 +228,169 @@ export function useChangeUserStatusMutation() {
     },
     onSuccess: () => {
       // Invalidate users queries to refetch updated status
+      queryClient.invalidateQueries({ queryKey: usersKeys.all });
+    },
+  });
+}
+
+// ============================================================================
+// Update User Org Admin Status Mutation
+// ============================================================================
+
+interface UpdateUserOrgAdminParams {
+  userId: string;
+  isOrgAdmin: boolean;
+  config: {
+    isProd: boolean;
+    token: string | null;
+    accountId: string | null;
+  };
+  itless?: boolean;
+}
+
+/**
+ * Update user's org admin status.
+ * Uses external IT API for org admin role management.
+ *
+ * IMPORTANT: The `config.token` must be obtained using `useChrome().auth.getToken()`
+ * at the component level before calling this mutation.
+ *
+ * @tag api-v1-external - Uses external IT identity provider API
+ */
+export function useUpdateUserOrgAdminMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, isOrgAdmin, config, itless }: UpdateUserOrgAdminParams) => {
+      if (!config.token) {
+        throw new Error('Token is required. Obtain it using useChrome().auth.getToken() before calling this mutation.');
+      }
+
+      if (config.accountId && !itless) {
+        // External IT API for org admin role management
+        const url = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/${userId}/roles`;
+        return fetch(url, {
+          method: isOrgAdmin ? 'POST' : 'DELETE',
+          body: JSON.stringify({
+            role: 'organization_administrator',
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${config.token}`,
+          },
+        });
+      }
+
+      // ITLess fallback - use RBAC admin endpoint
+      const baseUrl = '/api/rbac/v1/admin';
+      return fetch(`${baseUrl}/update-user-roles`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${config.token}`,
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          is_org_admin: isOrgAdmin,
+        }),
+      });
+    },
+    onSuccess: () => {
+      // Invalidate users queries to refetch updated status
+      queryClient.invalidateQueries({ queryKey: usersKeys.all });
+    },
+  });
+}
+
+// ============================================================================
+// Invite Users Mutation
+// ============================================================================
+
+interface InviteUsersParams {
+  emails: string[];
+  isAdmin?: boolean;
+  message?: string;
+  portal_manage_cases?: boolean;
+  portal_download?: boolean;
+  portal_manage_subscriptions?: string;
+  config: {
+    isProd: boolean;
+    token: string | null;
+    accountId: string | null;
+  };
+  itless?: boolean;
+}
+
+/**
+ * Invite users via email.
+ * Uses external IT API for user invitation.
+ *
+ * IMPORTANT: The `config.token` must be obtained using `useChrome().auth.getToken()`
+ * at the component level before calling this mutation.
+ *
+ * @tag api-v1-external - Uses external IT identity provider API
+ */
+export function useInviteUsersMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      emails,
+      isAdmin,
+      message,
+      portal_manage_cases,
+      portal_download,
+      portal_manage_subscriptions,
+      config,
+      itless,
+    }: InviteUsersParams) => {
+      if (!config.token) {
+        throw new Error('Token is required. Obtain it using useChrome().auth.getToken() before calling this mutation.');
+      }
+
+      if (config.accountId && !itless) {
+        // External IT API for user invitation
+        const url = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/invite`;
+        const response = await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify({
+            emails,
+            localeCode: 'en',
+            ...(message && { message }),
+            ...(isAdmin && { roles: ['organization_administrator'] }),
+            ...(portal_manage_cases !== undefined && { portal_manage_cases }),
+            ...(portal_download !== undefined && { portal_download }),
+            ...(portal_manage_subscriptions && { portal_manage_subscriptions }),
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${config.token}`,
+          },
+        });
+
+        return response; // Return raw response for status checking
+      }
+
+      // ITLess fallback - use dynamic base URL from env.json (matches original Redux helper behavior)
+      // In tests, env.json doesn't exist, so baseUrl is empty string -> '/user/invite'
+      const envUrl = await fetchEnvBaseUrl();
+      const response = await fetch(`${envUrl}/user/invite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${config.token}`,
+        },
+        body: JSON.stringify({
+          emails,
+          isAdmin,
+          message,
+        }),
+      });
+
+      return response; // Return raw response for status checking
+    },
+    onSuccess: () => {
+      // Invalidate users queries to refetch updated list
       queryClient.invalidateQueries({ queryKey: usersKeys.all });
     },
   });
