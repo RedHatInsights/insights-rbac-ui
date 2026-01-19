@@ -22,7 +22,10 @@ module.exports = {
       './Iam': path.resolve(__dirname, './src/Iam.tsx'),
       './CreateWorkspaceWizardModule': path.resolve(__dirname, './src/features/workspaces/create-workspace/CreateWorkspaceWizardModule.tsx'),
       './Workspaces/ManagedSelector': path.resolve(__dirname, './src/features/workspaces/components/managed-selector/ManagedSelector.tsx'),
-      './Workspaces/WorkspaceSelector': path.resolve(__dirname, './src/features/workspaces/components/managed-selector/components/WorkspaceSelector.tsx'),
+      './Workspaces/WorkspaceSelector': path.resolve(
+        __dirname,
+        './src/features/workspaces/components/managed-selector/components/WorkspaceSelector.tsx',
+      ),
     },
     exclude: ['react-router-dom'],
     shared: [{ 'react-router-dom': { singleton: true, version: '^6.18.0', requiredVersion: '*' } }],
