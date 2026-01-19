@@ -1,6 +1,3 @@
-// QueryClient
-export { queryClient } from './client';
-
 // Roles queries
 export {
   rolesKeys,

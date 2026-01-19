@@ -23,13 +23,8 @@ import { AppLink } from '../../../components/navigation/AppLink';
 import { DefaultInfoPopover } from '../components/DefaultInfoPopover';
 import messages from '../../../Messages';
 import { EmptyGroupsState } from './EmptyGroupsState';
+import type { GroupRole } from '../../../data/queries/groups';
 import type { Group, GroupsTableProps } from '../types';
-
-interface Role {
-  name: string;
-  description?: string;
-  modified: string;
-}
 
 // Nested table for expanded roles
 const RolesTable: React.FC<{ group: Group }> = ({ group }) => {
@@ -67,12 +62,12 @@ const RolesTable: React.FC<{ group: Group }> = ({ group }) => {
       </Thead>
       <Tbody>
         {group.roles.length > 0 ? (
-          group.roles.map((role: Role, index: number) => (
+          group.roles.map((role: GroupRole, index: number) => (
             <Tr key={`${group.uuid}-role-${role.name || index}`}>
               <Td dataLabel={compoundRolesCells[0]}>{role.name}</Td>
               <Td dataLabel={compoundRolesCells[1]}>{role.description}</Td>
               <Td dataLabel={compoundRolesCells[2]}>
-                <DateFormat date={role.modified} type={getDateFormat(role.modified)} />
+                {role.modified ? <DateFormat date={role.modified} type={getDateFormat(role.modified)} /> : '-'}
               </Td>
             </Tr>
           ))

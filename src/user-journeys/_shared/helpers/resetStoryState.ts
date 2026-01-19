@@ -1,5 +1,4 @@
 import { delay } from 'msw';
-import { resetRegistry } from '../../../utilities/store';
 
 /**
  * Helper function to reset story state and clean up notifications
@@ -30,12 +29,11 @@ export async function resetStoryState(): Promise<void> {
             }),
         },
         isProd: () => false,
+        getEnvironment: () => 'stage',
+        isBeta: () => false,
       },
     };
   }
-
-  // Reset Redux store to fresh state
-  resetRegistry();
 
   // Reset MSW state for test isolation
   const response = await fetch('/api/test/reset-state', { method: 'POST' });

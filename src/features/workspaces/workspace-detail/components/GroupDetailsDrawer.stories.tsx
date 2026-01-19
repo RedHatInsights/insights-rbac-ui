@@ -4,15 +4,13 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, http } from 'msw';
 import { MemoryRouter } from 'react-router-dom';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
-import { Group } from '../../../../redux/groups/reducer';
-import { User } from '../../../../redux/users/reducer';
-import { Role } from '../../../../redux/roles/reducer';
+import { type Group, type GroupRole, type Member } from '../../../../data/queries/groups';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Card } from '@patternfly/react-core/dist/dynamic/components/Card';
 import { CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
 
 // Mock users data
-const mockUsers: User[] = [
+const mockUsers: Member[] = [
   {
     username: 'john.doe',
     email: 'john.doe@example.com',
@@ -20,8 +18,6 @@ const mockUsers: User[] = [
     last_name: 'Doe',
     is_active: true,
     is_org_admin: false,
-    external_source_id: 1,
-    uuid: 1,
   },
   {
     username: 'jane.smith',
@@ -30,50 +26,24 @@ const mockUsers: User[] = [
     last_name: 'Smith',
     is_active: true,
     is_org_admin: false,
-    external_source_id: 2,
-    uuid: 2,
   },
 ];
 
 // Mock roles data
-const mockRoles: Role[] = [
+const mockRoles: GroupRole[] = [
   {
     uuid: '1',
     name: 'Administrator',
     display_name: 'Administrator',
     description: 'Full administrative access',
-    platform_default: false,
-    admin_default: true,
-    created: '2024-01-15T10:30:00Z',
     modified: '2024-01-20T14:45:00Z',
-    access: [],
-    accessCount: 0,
-    applications: [],
-    external_role_id: '',
-    external_tenant: '',
-    groups_in: [],
-    groups_in_count: 0,
-    system: false,
-    policyCount: 0,
   },
   {
     uuid: '2',
     name: 'User Manager',
     display_name: 'User Manager',
     description: 'Manage users and groups',
-    platform_default: false,
-    admin_default: false,
-    created: '2024-01-16T11:30:00Z',
     modified: '2024-01-21T15:45:00Z',
-    access: [],
-    accessCount: 0,
-    applications: [],
-    external_role_id: '',
-    external_tenant: '',
-    groups_in: [],
-    groups_in_count: 0,
-    system: false,
-    policyCount: 0,
   },
 ];
 

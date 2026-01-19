@@ -33,13 +33,23 @@ export type GroupsListResponse = GroupPagination;
 
 /**
  * Group type for use in components.
- * Extends GroupOut with optional fields that may come from different API versions.
+ * Based on GroupOut with additional optional fields that may come from different API versions
+ * and UI state properties for expanded row data.
+ *
+ * Note: We use Omit to override principalCount because the UI needs to support
+ * "All" string for platform_default groups in addition to numeric counts.
  */
-export interface Group extends GroupOut {
-  principalCount?: number;
+export interface Group extends Omit<GroupOut, 'principalCount'> {
+  principalCount?: number | string;
   roleCount?: number;
   serviceAccountCount?: number;
   workspaceCount?: number;
+  policyCount?: number;
+  // UI state for expanded rows - populated when rows are expanded
+  roles?: GroupRole[];
+  members?: Member[];
+  isLoadingRoles?: boolean;
+  isLoadingMembers?: boolean;
 }
 
 /**

@@ -10,7 +10,7 @@ import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
 import { type WorkspacesWorkspace, useRoleBindingsQuery, useWorkspaceQuery, useWorkspacesQuery } from '../../../data/queries/workspaces';
-import type { Group } from '../../../redux/groups/reducer';
+import type { Group } from '../../../data/queries/groups';
 
 // Extended subject type for role bindings (API returns more than the type definition)
 interface RoleBindingSubject {
@@ -155,6 +155,8 @@ export const WorkspaceDetail = () => {
   );
 
   // Transform role bindings to Group structure for the table
+  // Note: These are role binding representations, not actual RBAC groups,
+  // but we use Group type for compatibility with RoleAssignmentsTable
   const roleBindings: Group[] = useMemo(() => {
     if (!roleBindingsData?.data) return [];
     return roleBindingsData.data.map((binding) => {
@@ -166,12 +168,12 @@ export const WorkspaceDetail = () => {
         description: subject?.group?.description || '',
         principalCount: subject?.group?.user_count || 0,
         roleCount: binding.roles?.length || 0,
-        created: binding.last_modified,
-        modified: binding.last_modified,
+        created: binding.last_modified ?? '',
+        modified: binding.last_modified ?? '',
         platform_default: false,
         system: false,
         admin_default: false,
-      };
+      } as Group;
     });
   }, [roleBindingsData]);
 
@@ -193,8 +195,8 @@ export const WorkspaceDetail = () => {
         description: subject?.group?.description || '',
         principalCount: subject?.group?.user_count || 0,
         roleCount: binding.roles?.length || 0,
-        created: binding.last_modified,
-        modified: binding.last_modified,
+        created: binding.last_modified ?? '',
+        modified: binding.last_modified ?? '',
         platform_default: false,
         system: false,
         admin_default: false,
@@ -202,7 +204,7 @@ export const WorkspaceDetail = () => {
           workspaceId: selectedWorkspace.parent_id!, // Already checked parent_id exists in condition above
           workspaceName: parentWorkspaceName,
         },
-      };
+      } as GroupWithInheritance;
     });
   }, [parentBindingsData, selectedWorkspace, workspaces]);
 

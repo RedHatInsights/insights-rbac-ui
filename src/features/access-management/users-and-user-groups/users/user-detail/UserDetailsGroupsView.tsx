@@ -19,7 +19,7 @@ interface UserGroupsViewProps {
 interface GroupData {
   uuid: string;
   name: string;
-  principalCount?: number;
+  principalCount?: number | string;
 }
 
 const columns = ['name', 'users'] as const;

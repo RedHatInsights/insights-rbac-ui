@@ -3,9 +3,6 @@
 // API setup
 export { apiClient } from './api';
 
-// QueryClient
-export { queryClient } from './queries';
-
 // Roles queries and mutations
 export {
   rolesKeys,
