@@ -15,4 +15,5 @@ export const accessApi = APIFactory(RBAC_API_BASE, accessEndpoints, { axios: api
 
 // Re-export types for convenience
 export type { GetPrincipalAccessParams } from '@redhat-cloud-services/rbac-client/GetPrincipalAccess';
+export { GetPrincipalAccessOrderByEnum, GetPrincipalAccessStatusEnum } from '@redhat-cloud-services/rbac-client/GetPrincipalAccess';
 export type { Access } from '@redhat-cloud-services/rbac-client/types';

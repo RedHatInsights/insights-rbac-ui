@@ -52,7 +52,7 @@ export interface UseRolesReturn {
 
 /**
  * Custom hook for managing Roles business logic
- * Migrated from Redux to TanStack Query
+ * Migrated from React Query to TanStack Query
  */
 export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
   const { enableAdminFeatures = true } = options;
@@ -99,7 +99,7 @@ export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
     addFields: ['groups_in_count', 'groups_in', 'access'],
   };
 
-  // Use TanStack Query instead of Redux
+  // Use TanStack Query
   const { data: rolesData, isLoading, refetch } = useRolesQuery(queryParams);
 
   // Extract roles and total count from query result

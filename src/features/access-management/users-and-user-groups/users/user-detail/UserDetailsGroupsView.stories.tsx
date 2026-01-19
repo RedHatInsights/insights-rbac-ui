@@ -24,17 +24,17 @@ const meta: Meta<typeof UserDetailsGroupsView> = {
     docs: {
       description: {
         component: `
-**UserDetailsGroupsView** is a container component that manages group data, Redux state, and business logic for displaying groups that a specific user belongs to.
+**UserDetailsGroupsView** is a container component that manages group data, React Query state, and business logic for displaying groups that a specific user belongs to.
 
 ### Container Responsibilities
 - **Data Fetching**: Dispatches \`fetchGroups\` action with username filter on mount
-- **State Management**: Handles loading, error, and success states from Redux
+- **State Management**: Handles loading, error, and success states from React Query
 - **API Integration**: Interfaces with RBAC API for user's group data
 - **Error Handling**: Provides user-friendly error messages and recovery
 
 ### Architecture
 - **Smart Component**: Fetches its own data and manages state
-- **Redux Connected**: Uses selectors for groups data, loading, and error states  
+- **Data Fetching**: Uses React Query for groups data, loading, and error states  
 - **MSW Compatible**: Stories use MSW to test real API integration flows
 - **State-Driven UI**: Renders different components based on loading/error/success states
         `,
@@ -56,7 +56,7 @@ export const Default: Story = {
     docs: {
       description: {
         story: `
-**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchGroups\` action with username filter, MSW responds with mock data, Redux updates, and table renders user's groups.
+**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchGroups\` action with username filter, MSW responds with mock data, React Query updates, and table renders user's groups.
 
 ## Additional Container Test Stories
 
@@ -226,7 +226,7 @@ export const APIError: Story = {
     docs: {
       description: {
         story: `
-**API Error State**: Simulates structured API error response. Component dispatches \`fetchGroups\` action, MSW responds with 500 error, and container handles error state through Redux.
+**API Error State**: Simulates structured API error response. Component dispatches \`fetchGroups\` action, MSW responds with 500 error, and container handles error state through React Query.
         `,
       },
     },
@@ -261,7 +261,7 @@ export const NetworkFailure: Story = {
     docs: {
       description: {
         story: `
-**Network Failure**: Simulates complete network failure. Component dispatches \`fetchGroups\` action, MSW simulates network error, and container handles failure through Redux error handling.
+**Network Failure**: Simulates complete network failure. Component dispatches \`fetchGroups\` action, MSW simulates network error, and container handles failure through React Query error handling.
         `,
       },
     },

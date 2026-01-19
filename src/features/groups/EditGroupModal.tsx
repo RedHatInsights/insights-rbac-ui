@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
+import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { ModalFormTemplate } from '../../components/forms/ModalFormTemplate';
-import FormRenderer from '../../components/forms/FormRenderer';
 import { useGroupQuery, useUpdateGroupMutation } from '../../data/queries/groups';
 import { debouncedAsyncValidator } from './validators';
 import { getModalContainer } from '../../helpers/modal-container';
@@ -27,7 +27,7 @@ interface EditGroupModalProps {
 /**
  * EditGroupModal - fetches its own data via React Query.
  *
- * Migrated from Redux to React Query - component is now self-contained.
+ * Component is self-contained with React Query data fetching.
  */
 export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, submitRoute = cancelRoute, group: propGroup, onClose }) => {
   const navigate = useAppNavigate();
@@ -123,7 +123,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
     <FormRenderer
       schema={schema}
       subscription={{ values: true, valid: true, pristine: true }}
-      FormTemplate={(props: React.ComponentProps<typeof ModalFormTemplate>) => (
+      FormTemplate={(props) => (
         <ModalFormTemplate
           {...props}
           ModalProps={{
@@ -133,8 +133,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
             onClose: onCancel,
             appendTo: getModalContainer(),
           }}
-          disableSubmit={['validating', 'pristine']}
-          submitLabel="Save"
+          saveLabel="Save"
         />
       )}
       initialValues={group}

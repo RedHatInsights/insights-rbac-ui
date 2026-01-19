@@ -5,8 +5,14 @@ import { HttpResponse, delay, http } from 'msw';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import { RemoveGroupModal } from './RemoveGroupModal';
 
+interface RemoveGroupModalWrapperProps {
+  initialRoute: string;
+  cancelRoute?: string;
+  submitRoute?: string;
+}
+
 // Wrapper component with button to open modal
-const RemoveGroupModalWrapper: React.FC<any> = ({ initialRoute, ...props }) => {
+const RemoveGroupModalWrapper: React.FC<RemoveGroupModalWrapperProps> = ({ initialRoute, ...props }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const handleOpenModal = () => setIsOpen(true);
@@ -77,7 +83,7 @@ const meta: Meta<typeof RemoveGroupModalWrapper> = {
           return HttpResponse.json({ message: 'Groups deleted successfully' });
         }),
 
-        // Default "loaded" state handler - provides initial group for Redux
+        // Default "loaded" state handler - provides initial group for React Query
         http.get('/api/rbac/v1/groups/', () => {
           return HttpResponse.json({
             data: [],

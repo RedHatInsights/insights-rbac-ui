@@ -54,7 +54,7 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
     syncWithUrl: false, // Drawer tables shouldn't sync with URL
   });
 
-  // Use React Query instead of Redux
+  // Use React Query for data fetching
   // Pass apiParams from tableState for pagination
   const { data, isLoading, error } = useGroupServiceAccountsQuery(groupId, {
     limit: tableState.apiParams.limit,

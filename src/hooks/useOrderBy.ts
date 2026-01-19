@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 interface Column {
   title: string;
   key?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface SortBy {

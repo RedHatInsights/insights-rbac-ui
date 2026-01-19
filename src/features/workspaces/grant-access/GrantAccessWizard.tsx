@@ -2,6 +2,7 @@ import FormTemplateCommonProps from '@data-driven-forms/common/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
+import type { FormApi } from 'final-form';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
@@ -47,8 +48,7 @@ export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> 
     navigate(pathnames.workspaces.link);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = async (_v: any, form: any) => {
+  const onSubmit = async (_v: Record<string, unknown>, form: FormApi) => {
     const values = form.getState().values;
     console.log('Grant access values:', values);
     (afterSubmit || defaultAfterSubmit)();

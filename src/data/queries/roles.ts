@@ -2,12 +2,14 @@ import { type UseQueryResult, useMutation, useQuery, useQueryClient } from '@tan
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import {
+  GetRoleScopeEnum,
   type ListRolesParams,
   type RoleIn,
   type RoleOutDynamic,
   type RolePaginationDynamic,
   type RolePatch,
   type RolePut,
+  type RoleWithAccess,
   rolesApi,
 } from '../api/roles';
 import messages from '../../Messages';
@@ -55,9 +57,9 @@ export const rolesKeys = {
 export function useRolesQuery(params: ListRolesParams, options?: { enabled?: boolean }): UseQueryResult<RolesListResponse> {
   return useQuery({
     queryKey: rolesKeys.list(params),
-    queryFn: async (): Promise<RolesListResponse> => {
+    queryFn: async () => {
       const response = await rolesApi.listRoles(params);
-      return response.data as RolesListResponse;
+      return response.data;
     },
     enabled: options?.enabled ?? true,
   });
@@ -78,33 +80,16 @@ export function useRoleQuery(id: string, options?: { enabled?: boolean }) {
 }
 
 /**
- * Role with access data - for expanding permissions in tables.
- */
-export interface RoleWithAccessData {
-  uuid: string;
-  access: Array<{
-    permission: string;
-    resourceDefinitions: Array<{
-      attributeFilter: {
-        key: string;
-        value: string;
-        operation: string;
-      };
-    }>;
-  }>;
-}
-
-/**
  * Fetch a single role by ID with principal scope.
  * Used for getting role access/permissions for the current principal.
+ * Returns RoleWithAccess which includes the access array with permissions.
  */
-export function useRoleForPrincipalQuery(id: string, options?: { enabled?: boolean }): UseQueryResult<RoleWithAccessData> {
+export function useRoleForPrincipalQuery(id: string, options?: { enabled?: boolean }): UseQueryResult<RoleWithAccess> {
   return useQuery({
     queryKey: [...rolesKeys.detail(id), 'principal'] as const,
-    queryFn: async (): Promise<RoleWithAccessData> => {
-      // NOTE: rbac-client types are broken, using any to bypass
-      const response = await (rolesApi.getRole as any)({ uuid: id, scope: 'principal' });
-      return response.data as RoleWithAccessData;
+    queryFn: async () => {
+      const response = await rolesApi.getRole({ uuid: id, scope: GetRoleScopeEnum.Principal });
+      return response.data;
     },
     enabled: (options?.enabled ?? true) && !!id,
   });
@@ -116,7 +101,7 @@ export function useRoleForPrincipalQuery(id: string, options?: { enabled?: boole
 
 /**
  * Create a new role.
- * Note: No success notification - matches original Redux behavior.
+ * Note: No success notification shown for this operation.
  */
 export function useCreateRoleMutation() {
   const queryClient = useQueryClient();

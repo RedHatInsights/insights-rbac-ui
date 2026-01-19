@@ -4,8 +4,14 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { DeleteUserModal } from './DeleteUserModal';
 
+interface ModalWrapperProps {
+  username?: string;
+  onConfirm?: () => void;
+  onClose?: () => void;
+}
+
 // Wrapper component that manages modal state and provides trigger button
-const ModalWrapper = ({ ...storyArgs }: any) => {
+const ModalWrapper = ({ ...storyArgs }: ModalWrapperProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<string>('');
 

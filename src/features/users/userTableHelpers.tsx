@@ -46,7 +46,11 @@ export const createRows = (
   checkedRows = [],
   isSelectable = false,
   onSelectUser?: (user: UserProps, isSelecting: boolean) => void,
-  handleToggle?: (_ev: unknown, isActive: boolean, updatedUsers: any[]) => void,
+  handleToggle?: (
+    _ev: unknown,
+    isActive: boolean,
+    updatedUsers: Array<Pick<UserProps, 'username' | 'uuid' | 'is_active' | 'external_source_id'>>,
+  ) => void,
   authModel?: boolean,
   orgAdmin?: boolean,
   fetchData?: () => void,

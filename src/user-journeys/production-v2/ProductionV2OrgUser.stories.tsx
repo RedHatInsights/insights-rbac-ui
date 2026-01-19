@@ -1,4 +1,4 @@
-import type { StoryObj } from '@storybook/react-webpack5';
+import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
@@ -12,17 +12,33 @@ import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
 
 type Story = StoryObj<typeof KesselAppEntryWithRouter>;
 
+interface StoryArgs {
+  typingDelay?: number;
+  orgAdmin?: boolean;
+  userAccessAdministrator?: boolean;
+  'platform.rbac.workspaces-list'?: boolean;
+  'platform.rbac.workspace-hierarchy'?: boolean;
+  'platform.rbac.workspaces-role-bindings'?: boolean;
+  'platform.rbac.workspaces-role-bindings-write'?: boolean;
+  'platform.rbac.workspaces'?: boolean;
+  'platform.rbac.group-service-accounts'?: boolean;
+  'platform.rbac.group-service-accounts.stable'?: boolean;
+  'platform.rbac.common-auth-model'?: boolean;
+  'platform.rbac.common.userstable'?: boolean;
+  initialRoute?: string;
+}
+
 const meta = {
   component: KesselAppEntryWithRouter,
   title: 'User Journeys/Production/V2 (Management Fabric)/Org User',
   tags: ['prod-v2-org-user', 'test-skip'],
   decorators: [
-    (Story: any, context: any) => {
+    ((Story, context: StoryContext<StoryArgs>) => {
       const dynamicEnv = createDynamicEnvironment(context.args);
       context.parameters = { ...context.parameters, ...dynamicEnv };
       const argsKey = JSON.stringify(context.args);
       return <Story key={argsKey} />;
-    },
+    }) as Decorator<StoryArgs>,
   ],
   argTypes: {
     typingDelay: {

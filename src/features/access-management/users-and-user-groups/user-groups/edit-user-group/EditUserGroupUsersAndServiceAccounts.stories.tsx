@@ -60,7 +60,7 @@ const TestFormWrapper: React.FC<{
   initialUsers?: string[];
   initialServiceAccounts?: string[];
   groupId?: string;
-  onSubmit?: (values: any) => void;
+  onSubmit?: (values: Record<string, unknown>) => void;
 }> = ({ initialUsers = [], initialServiceAccounts = [], groupId = 'group-123', onSubmit = fn() }) => {
   const schema = {
     fields: [

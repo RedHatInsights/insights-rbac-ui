@@ -24,7 +24,7 @@ import type { GroupServiceAccountsProps, ServiceAccount } from './types';
 /**
  * GroupServiceAccounts - fetches its own data via React Query.
  *
- * Migrated from Redux - component is now self-contained.
+ * Component is self-contained with React Query data fetching.
  */
 export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props) => {
   const intl = useIntl();

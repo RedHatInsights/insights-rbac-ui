@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { IntlProvider } from 'react-intl';
 import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal';
+import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 
 import messages from './locales/data.json';
 import { locale } from './locales/locale';
@@ -91,10 +92,12 @@ export const AppShell: React.FC<AppShellProps> = ({ muaMode = false }) => {
 const AppEntry: React.FC<AppEntryProps> = ({ muaMode = false, withNotificationPortal = true }) => {
   return (
     <IntlProvider locale={locale} messages={messages[locale]}>
-      <ApiErrorBoundary>
-        {withNotificationPortal && <NotificationPortal />}
-        <AppShell muaMode={muaMode} />
-      </ApiErrorBoundary>
+      <NotificationsProvider>
+        <ApiErrorBoundary>
+          {withNotificationPortal && <NotificationPortal />}
+          <AppShell muaMode={muaMode} />
+        </ApiErrorBoundary>
+      </NotificationsProvider>
     </IntlProvider>
   );
 };

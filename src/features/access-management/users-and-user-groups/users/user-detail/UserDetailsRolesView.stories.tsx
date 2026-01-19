@@ -24,17 +24,17 @@ const meta: Meta<typeof UserDetailsRolesView> = {
     docs: {
       description: {
         component: `
-**UserDetailsRolesView** is a container component that manages role data, Redux state, and business logic for displaying roles assigned to a specific user.
+**UserDetailsRolesView** is a container component that manages role data, React Query state, and business logic for displaying roles assigned to a specific user.
 
 ### Container Responsibilities
 - **Data Fetching**: Dispatches \`fetchRoles\` action with username filter on mount
-- **State Management**: Handles loading, error, and success states from Redux
+- **State Management**: Handles loading, error, and success states from React Query
 - **API Integration**: Interfaces with RBAC API for user's role data
 - **Error Handling**: Provides user-friendly error messages and recovery
 
 ### Architecture
 - **Smart Component**: Fetches its own data and manages state
-- **Redux Connected**: Uses selectors for roles data, loading, and error states  
+- **Data Fetching**: Uses React Query for roles data, loading, and error states  
 - **MSW Compatible**: Stories use MSW to test real API integration flows
 - **State-Driven UI**: Renders different components based on loading/error/success states
 
@@ -51,7 +51,6 @@ export default meta;
 type Story = StoryObj<typeof UserDetailsRolesView>;
 
 export const Default: Story = {
-  name: 'Default',
   tags: ['autodocs'],
   args: {
     userId: 'john.doe',
@@ -61,7 +60,7 @@ export const Default: Story = {
     docs: {
       description: {
         story: `
-**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchRoles\` action with username filter, MSW responds with mock data, Redux updates, and table renders user's assigned roles.
+**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchRoles\` action with username filter, MSW responds with mock data, React Query updates, and table renders user's assigned roles.
 
 ## Additional Container Test Stories
 
@@ -260,7 +259,7 @@ export const APIError: Story = {
     docs: {
       description: {
         story: `
-**API Error State**: Simulates structured API error response. Component dispatches \`fetchRoles\` action, MSW responds with 500 error, and container handles error state through Redux.
+**API Error State**: Simulates structured API error response. Component dispatches \`fetchRoles\` action, MSW responds with 500 error, and container handles error state through React Query.
         `,
       },
     },
@@ -304,7 +303,7 @@ export const NetworkFailure: Story = {
     docs: {
       description: {
         story: `
-**Network Failure**: Simulates complete network failure. Component dispatches \`fetchRoles\` action, MSW simulates network error, and container handles failure through Redux error handling.
+**Network Failure**: Simulates complete network failure. Component dispatches \`fetchRoles\` action, MSW simulates network error, and container handles failure through React Query error handling.
         `,
       },
     },

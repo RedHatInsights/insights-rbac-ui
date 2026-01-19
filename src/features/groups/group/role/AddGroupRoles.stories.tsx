@@ -155,7 +155,7 @@ export const Default: Story = {
         story: `
 **Default View**: Modal for adding roles to a group.
 
-The component fetches its own data - no Redux dispatch wrapper needed.
+The component fetches its own data via React Query.
 `,
       },
     },
@@ -388,7 +388,6 @@ export const CancelNotification: Story = {
 };
 
 export const FilterRoles: Story = {
-  name: 'Filter Roles',
   play: async () => {
     await delay(300);
 

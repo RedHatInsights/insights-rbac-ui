@@ -1,5 +1,5 @@
 import { type UseQueryResult, useQuery } from '@tanstack/react-query';
-import { accessApi } from '../api/access';
+import { GetPrincipalAccessOrderByEnum, GetPrincipalAccessStatusEnum, accessApi } from '../api/access';
 
 // ============================================================================
 // Response Types
@@ -44,8 +44,8 @@ export interface UsePrincipalAccessQueryParams {
   limit?: number;
   offset?: number;
   application?: string;
-  orderBy?: string;
-  status?: string;
+  orderBy?: GetPrincipalAccessOrderByEnum | string;
+  status?: GetPrincipalAccessStatusEnum | string;
   username?: string;
 }
 
@@ -60,15 +60,14 @@ export function usePrincipalAccessQuery(
   return useQuery({
     queryKey: accessKeys.principalAccess(params),
     queryFn: async (): Promise<PrincipalAccessResult> => {
-      // NOTE: rbac-client has broken types, using any to bypass
-      const response = await (accessApi.getPrincipalAccess as any)(
-        params.application || '',
-        params.username,
-        params.orderBy,
-        params.status,
-        params.limit ?? 20,
-        params.offset ?? 0,
-      );
+      const response = await accessApi.getPrincipalAccess({
+        application: params.application || '',
+        username: params.username,
+        orderBy: params.orderBy as GetPrincipalAccessOrderByEnum,
+        status: params.status as GetPrincipalAccessStatusEnum,
+        limit: params.limit ?? 20,
+        offset: params.offset ?? 0,
+      });
       return response.data as PrincipalAccessResult;
     },
     enabled: options?.enabled ?? true,

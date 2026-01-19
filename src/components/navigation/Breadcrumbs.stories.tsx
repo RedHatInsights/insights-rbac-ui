@@ -200,7 +200,6 @@ export const Interactive: Story = {
  * Test story to verify links are properly constructed with basename
  */
 export const LinkGenerationTest: Story = {
-  name: 'Link Generation Test',
   args: {
     breadcrumbs: [
       {

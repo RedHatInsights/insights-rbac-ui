@@ -13,7 +13,7 @@ interface UseGroupDataLoadProps {
  * Custom hook for Chrome app object ID management
  * Data fetching is handled by React Query in useGroupData
  *
- * Migrated from Redux to React Query - fetching logic moved to useGroupData.
+ * Fetching logic is in useGroupData with React Query.
  */
 export const useGroupDataLoad = ({ groupId, systemGroupUuid, isPlatformDefault, chrome }: UseGroupDataLoadProps) => {
   const currentAppObjectId = useRef<string>('');

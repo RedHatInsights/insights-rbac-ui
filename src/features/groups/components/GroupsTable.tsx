@@ -23,7 +23,7 @@ import { AppLink } from '../../../components/navigation/AppLink';
 import { DefaultInfoPopover } from '../components/DefaultInfoPopover';
 import messages from '../../../Messages';
 import { EmptyGroupsState } from './EmptyGroupsState';
-import type { GroupRole } from '../../../data/queries/groups';
+import type { GroupRole, Member } from '../../../data/queries/groups';
 import type { Group, GroupsTableProps } from '../types';
 
 // Nested table for expanded roles
@@ -124,7 +124,7 @@ const MembersTable: React.FC<{ group: Group }> = ({ group }) => {
       </Thead>
       <Tbody>
         {group.members.length > 0 ? (
-          group.members.map((member: any, index: number) => (
+          group.members.map((member: Member, index: number) => (
             <Tr key={`${group.uuid}-member-${member.username || member.email || index}`}>
               <Td dataLabel={compoundMembersCells[0]}>{member.is_org_admin ? 'Yes' : 'No'}</Td>
               <Td dataLabel={compoundMembersCells[1]}>{member.first_name}</Td>
@@ -268,7 +268,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
         index: sortByState.index,
         direction: sortByState.direction,
       },
-      onSort: (_event: any, index: number, direction: 'asc' | 'desc') => onSort(_event, index, direction),
+      onSort: (_event: React.MouseEvent, index: number, direction: 'asc' | 'desc') => onSort(_event, index, direction),
       columnIndex,
     },
   });

@@ -7,8 +7,7 @@ interface ElementWrapperProps {
 }
 
 export const ElementWrapper: React.FC<ElementWrapperProps> = ({ children, path }) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const componentProps: any = useOutletContext();
+  const componentProps = useOutletContext<Record<string, unknown>>();
   return cloneElement(children, { ...componentProps, ...((path && componentProps?.[path]) || {}) });
 };
 

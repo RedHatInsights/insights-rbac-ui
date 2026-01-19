@@ -7,7 +7,7 @@ import { delay } from 'msw';
 export async function resetStoryState(): Promise<void> {
   // Set up window.insights.chrome for components that access it directly
   if (typeof window !== 'undefined') {
-    (window as any).insights = {
+    (window as { insights?: unknown }).insights = {
       chrome: {
         auth: {
           getToken: () => Promise.resolve('mock-token-12345'),

@@ -204,7 +204,6 @@ const verifyDeleteModal = async (groupName: string): Promise<ReturnType<typeof w
  * Tests the full workflow from kebab menu to successful deletion
  */
 export const CompleteFlow: Story = {
-  name: 'Complete Flow',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -323,7 +322,6 @@ Tests the complete "Delete user group" workflow:
  * Tests canceling the delete confirmation
  */
 export const CancelDeletion: Story = {
-  name: 'Cancel Deletion',
   parameters: {
     docs: {
       description: {

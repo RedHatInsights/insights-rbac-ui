@@ -12,7 +12,11 @@
  */
 
 import { Group, Principal, Role } from '../types/entities';
-import { Workspace, RoleBindingBySubject } from '../../src/redux/workspaces/reducer';
+import type { WorkspacesWorkspace, RoleBindingsRoleBindingBySubject } from '../../src/data/queries/workspaces';
+
+// Type aliases for backward compatibility with existing mock data
+type Workspace = WorkspacesWorkspace;
+type RoleBindingBySubject = RoleBindingsRoleBindingBySubject;
 
 export interface ServiceAccount {
   id: string;

@@ -51,7 +51,7 @@ export const GroupsNestedTable: React.FC<GroupsNestedTableProps> = ({ groups, us
         <Tr>
           <Th>{intl.formatMessage(messages.name)}</Th>
           <Th>{intl.formatMessage(messages.description)}</Th>
-          <Th />
+          <Th screenReaderText="Actions" />
         </Tr>
       </Thead>
       <Tbody>

@@ -15,7 +15,7 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { resetStoryState } from '../_shared/helpers';
+import { resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers } from './_shared';
 import { mockGroups, mockUsers, userGroupsMembership } from './_shared/mockData';
 
@@ -238,7 +238,6 @@ const TARGET_GROUP = mockGroups.find((g) => g.uuid === 'group-spice-girls')!;
  * 9. Visual verification: User groups count decreased
  */
 export const CompleteFlow: Story = {
-  name: 'Complete Flow',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -273,8 +272,8 @@ Tests the complete "Remove from user group" workflow:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, TARGET_USER.username);
 
     // 2. VISUAL VERIFICATION: Initial state
     // Find the target user row and verify User groups count is 2
@@ -349,7 +348,6 @@ Tests the complete "Remove from user group" workflow:
  * Tests canceling the remove from group modal
  */
 export const CancelRemoval: Story = {
-  name: 'Cancel Removal',
   parameters: {
     docs: {
       description: {
@@ -375,8 +373,8 @@ Tests canceling the remove from user group modal.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, TARGET_USER.username);
 
     // 2. FIND TARGET USER ROW AND VERIFY INITIAL STATE
     const usersTable = await canvas.findByRole('grid');
@@ -444,8 +442,8 @@ Tests that the remove button requires confirmation.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, TARGET_USER.username);
 
     // 2. OPEN KEBAB AND CLICK REMOVE
     const usersTable = await canvas.findByRole('grid');
@@ -517,8 +515,8 @@ Tests that the remove button requires group selection.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(500);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, TARGET_USER.username);
 
     // 2. OPEN KEBAB AND CLICK REMOVE
     const usersTable = await canvas.findByRole('grid');

@@ -24,17 +24,17 @@ const meta: Meta<typeof GroupDetailsRolesView> = {
     docs: {
       description: {
         component: `
-**GroupDetailsRolesView** is a container component that manages role data, Redux state, and business logic for displaying group assigned roles.
+**GroupDetailsRolesView** is a container component that manages role data, React Query state, and business logic for displaying group assigned roles.
 
 ### Container Responsibilities
 - **Data Fetching**: Dispatches \`fetchRolesForGroup\` action on mount
-- **State Management**: Handles loading, error, and success states from Redux
+- **State Management**: Handles loading, error, and success states from React Query
 - **API Integration**: Interfaces with RBAC API for role data
 - **Error Handling**: Provides user-friendly error messages and recovery
 
 ### Architecture
 - **Smart Component**: Fetches its own data and manages state
-- **Redux Connected**: Uses selectors for roles data, loading, and error states  
+- **Data Fetching**: Uses React Query for roles data, loading, and error states  
 - **MSW Compatible**: Stories use MSW to test real API integration flows
 - **State-Driven UI**: Renders different components based on loading/error/success states
         `,
@@ -56,7 +56,7 @@ export const Default: Story = {
     docs: {
       description: {
         component: `
-**Container Component Pattern**: This is a container component that manages API orchestration for displaying roles within a group. It dispatches Redux actions to fetch data and handles loading, error, and empty states.
+**Container Component Pattern**: This is a container component that manages API orchestration for displaying roles within a group. It dispatches React Query mutations to fetch data and handles loading, error, and empty states.
 
 ## Container Test Stories
 
@@ -70,7 +70,7 @@ This component includes several test scenarios to verify different container beh
 Each story demonstrates different aspects of container state management and error handling.
         `,
         story: `
-**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchRolesForGroup\` action, MSW responds with mock data, Redux updates, and table renders roles.
+**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchRolesForGroup\` action, MSW responds with mock data, React Query updates, and table renders roles.
 
 ## Additional Container Test Stories
 

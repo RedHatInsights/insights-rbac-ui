@@ -154,7 +154,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
 
   // Map selected objects to Role objects
   const selectedRows = useMemo(() => {
-    return roles.filter((role: Role) => selected.some((sel: any) => sel.id === role.uuid));
+    return roles.filter((role: Role) => selected.some((sel: { id: string }) => sel.id === role.uuid));
   }, [roles, selected]);
 
   // Check if role is system or platform default

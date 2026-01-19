@@ -32,7 +32,7 @@ interface PaginationProps {
 
 interface FiltersProps {
   name?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface AddRoleWizardProps {
@@ -41,8 +41,8 @@ interface AddRoleWizardProps {
 }
 
 interface DescriptionProps {
-  Content: React.ComponentType<any>;
-  [key: string]: any;
+  Content: React.ComponentType<Record<string, unknown>>;
+  [key: string]: unknown;
 }
 
 interface Permission {
@@ -73,6 +73,7 @@ interface FormData {
 
 // Use types from rbac-client for type safety
 import type { Access, ResourceDefinition } from '@redhat-cloud-services/rbac-client/types';
+import type Schema from '@data-driven-forms/react-form-renderer/common-types/schema';
 
 /**
  * Role data structure matching RoleIn from rbac-client.
@@ -86,6 +87,7 @@ interface RoleData {
   access: Access[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const FormTemplate: React.FC<any> = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 const Description: React.FC<DescriptionProps> = ({ Content, ...rest }) => <Content {...rest} />;
 
@@ -120,7 +122,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   });
 
   const [cancelWarningVisible, setCancelWarningVisible] = useState<boolean>(false);
-  const [schema, setSchema] = useState<any>();
+  const [schema, setSchema] = useState<Schema | undefined>();
 
   useEffect(() => {
     setSchema(schemaBuilder(enableWorkspacesNameChange));
@@ -152,7 +154,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const setWizardSuccess = (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm: boolean) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
 
-  const handleFormCancel = (values: Record<string, any>) => {
+  const handleFormCancel = (values: Record<string, unknown>) => {
     const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
     if (showWarning) {
       setCancelWarningVisible(true);
@@ -161,7 +163,8 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
     }
   };
 
-  const onSubmit = (formData: FormData) => {
+  const onSubmit = (values: Record<string, unknown>) => {
+    const formData = values as unknown as FormData;
     const {
       'role-name': name,
       'role-description': description,

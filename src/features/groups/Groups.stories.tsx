@@ -113,7 +113,7 @@ const mockGroupsLarge = Array.from({ length: PAGINATION_TEST_TOTAL_ITEMS }, (_v,
   };
 });
 // ❌ REMOVED: createMockStore violates global provider + MSW rules
-// Stories now use global Redux provider + MSW handlers
+// Stories now use global React Query provider + MSW handlers
 
 const meta: Meta<typeof Groups> = {
   title: 'Features/Groups/Groups',

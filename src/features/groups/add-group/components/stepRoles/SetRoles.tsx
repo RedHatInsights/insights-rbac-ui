@@ -13,15 +13,14 @@ interface Role {
   name: string;
   display_name?: string;
   description?: string;
-  [key: string]: any;
 }
 
 interface SetRolesProps {
   name: string;
-  // Data-driven-forms props
-  input?: any;
-  meta?: any;
-  [key: string]: any;
+  // Data-driven-forms pass-through props
+  input?: { onChange: (value: unknown) => void; value: unknown };
+  meta?: { error?: string; touched?: boolean };
+  [key: string]: unknown;
 }
 
 export const SetRoles: React.FC<SetRolesProps> = (props) => {

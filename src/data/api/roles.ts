@@ -35,6 +35,7 @@ export type {
 } from '@redhat-cloud-services/rbac-client/ListRoles';
 
 export type { GetRoleParams } from '@redhat-cloud-services/rbac-client/GetRole';
+export { GetRoleScopeEnum } from '@redhat-cloud-services/rbac-client/GetRole';
 
 export type {
   RolePaginationDynamic,

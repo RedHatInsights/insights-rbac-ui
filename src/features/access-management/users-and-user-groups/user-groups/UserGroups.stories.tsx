@@ -54,7 +54,7 @@ const deleteMembersFromGroupSpy = fn();
 
 // Create a fresh store for each story using the same configuration as the real app
 
-// Decorator with Router (Redux provider is global)
+// Decorator with Router (React Query provider is global)
 const withRouter = () => {
   return (
     <BrowserRouter>
@@ -94,7 +94,7 @@ const meta: Meta<typeof UserGroups> = {
     docs: {
       description: {
         component: `
-**UserGroups** is a container component that manages user group data, Redux state, and business logic.
+**UserGroups** is a container component that manages user group data, React Query state, and business logic.
         `,
       },
     },
@@ -110,7 +110,7 @@ export const StandardView: StoryObj<typeof meta> = {
     docs: {
       description: {
         story: `
-**Standard View**: Complete API orchestration test. Component dispatches fetch actions, MSW responds with mock data, Redux updates, and table renders.
+**Standard View**: Complete API orchestration test. Component dispatches fetch actions, MSW responds with mock data, React Query updates, and table renders.
 
 ## Group Details Drawer
 
@@ -405,7 +405,7 @@ For testing specific scenarios, see these additional stories:
     await delay(300);
     const canvas = within(canvasElement);
 
-    // Verify table is rendered with Redux data
+    // Verify table is rendered with data
     await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
 
     // Verify basic table structure is present (headers always render)
@@ -1111,7 +1111,7 @@ export const LargeDataset: StoryObj<typeof meta> = {
     const countElements = await canvas.findAllByText(/1500/);
     await expect(countElements.length).toBeGreaterThanOrEqual(1);
 
-    // Container manages pagination through Redux and URL params
+    // Container manages pagination through React Query and URL params
     await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
   },
 };
@@ -1135,7 +1135,7 @@ export const ErrorStateHandling: StoryObj<typeof meta> = {
     const canvas = within(canvasElement);
 
     // Error state may show empty state, error message, loading state, or still render grid with no data
-    // Container manages error through Redux and notifications
+    // Container manages error through React Query and notifications
     // Wait for UI to settle - might show error notification, empty state, or just render with no data
     await waitFor(
       () => {

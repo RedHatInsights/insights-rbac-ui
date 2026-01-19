@@ -224,8 +224,10 @@ export const schemaBuilder = (featureFlag: boolean) => {
           {
             name: 'review',
             title: intl.formatMessage(messages.reviewDetails),
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            buttons: (props: any) => <ReviewStepButtons {...props} context={AddRoleWizardContext} />,
+            buttons: (props: Omit<React.ComponentProps<typeof ReviewStepButtons>, 'context'>) => (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              <ReviewStepButtons {...props} context={AddRoleWizardContext as any} />
+            ),
             StepTemplate: ReviewTemplate,
             fields: [
               {

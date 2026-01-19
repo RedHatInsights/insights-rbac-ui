@@ -166,7 +166,6 @@ type Story = StoryObj<typeof meta>;
  * Tests the full workflow from kebab menu to saving changes with drawer verification
  */
 export const CompleteFlow: Story = {
-  name: 'Complete Flow',
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -302,7 +301,6 @@ Tests the complete "Edit user group" workflow:
  * Tests changing the group name
  */
 export const EditGroupName: Story = {
-  name: 'Edit Group Name',
   parameters: {
     docs: {
       description: {
@@ -428,7 +426,6 @@ Tests that changing to an existing group name shows validation error.
  * Tests canceling the edit form without saving
  */
 export const CancelEdit: Story = {
-  name: 'Cancel Edit',
   parameters: {
     docs: {
       description: {

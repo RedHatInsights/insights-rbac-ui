@@ -733,13 +733,13 @@ export const BasicGroupCreation: Story = {
     );
 
     // Verify that group creation was successful
+    // Note: The rbac-client API sends only name and description in the create call.
+    // Users, roles, and service accounts are added via separate API calls after group creation.
     await waitFor(
       () => {
         expect(fullWizardFlowSpies.groupCreationSpy).toHaveBeenCalledWith({
           name: 'Basic Test Group',
           description: 'Testing basic group creation',
-          user_list: [],
-          roles_list: [],
         });
       },
       { timeout: 5000 },

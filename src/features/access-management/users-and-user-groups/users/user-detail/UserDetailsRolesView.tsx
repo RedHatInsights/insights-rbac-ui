@@ -56,7 +56,7 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     syncWithUrl: false, // Drawer tables shouldn't sync with URL
   });
 
-  // Use React Query instead of Redux
+  // Use React Query for data fetching
   // Note: The V1 roles API supports filtering by username
   const { data, isLoading, error } = useRolesQuery({
     limit: tableState.apiParams.limit,

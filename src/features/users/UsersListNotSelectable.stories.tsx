@@ -144,7 +144,7 @@ const meta: Meta<typeof UsersListNotSelectable> = {
 **UsersListNotSelectable** is a container component that manages the users list at \`/iam/user-access/users\`.
 
 ## Container Responsibilities
-- **Redux State Management**: Manages user data, filters, pagination through Redux
+- **State Management**: Manages user data, filters, pagination through React Query
 - **API Orchestration**: Dispatches \`fetchUsers\` action on component mount
 - **Permission Context**: Uses \`orgAdmin\` from PermissionsContext for access control
 - **URL Synchronization**: Manages pagination and filters in URL parameters
@@ -220,7 +220,7 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for container to load data through Redux
+    // Wait for container to load data through React Query
     expect(await canvas.findByText('john.doe')).toBeInTheDocument();
     expect(await canvas.findByText('jane.admin')).toBeInTheDocument();
     expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
@@ -236,7 +236,7 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
     const table = await canvas.findByRole('grid');
     expect(table).toBeInTheDocument();
 
-    // Verify user data is rendered through Redux state
+    // Verify user data is rendered through React Query state
     const tableContent = within(table);
     expect(await tableContent.findByText('john.doe')).toBeInTheDocument();
     expect(await tableContent.findByText('john.doe@redhat.com')).toBeInTheDocument();
@@ -316,7 +316,7 @@ export const LoadingState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests container behavior during API loading via Redux state management.',
+        story: 'Tests container behavior during API loading via React Query state management.',
       },
     },
     permissions: {
@@ -350,7 +350,7 @@ export const EmptyUsers: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests container handling of empty user data from Redux.',
+        story: 'Tests container handling of empty user data from React Query.',
       },
     },
     permissions: {

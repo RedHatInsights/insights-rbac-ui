@@ -12,11 +12,12 @@ import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../..
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view/types';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
+import type { ResourceDefinition } from '../../../../data/api/roles';
 
 interface FilteredPermission {
   uuid: string;
   permission: string;
-  resourceDefinitions: any[];
+  resourceDefinitions: ResourceDefinition[];
   modified: string;
 }
 

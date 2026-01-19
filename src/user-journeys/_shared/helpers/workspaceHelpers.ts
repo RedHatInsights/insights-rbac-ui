@@ -262,45 +262,6 @@ export async function findModal(expectedHeading: string | RegExp) {
 }
 
 /**
- * Fills and submits the Edit Workspace modal
- *
- * Usage:
- * ```ts
- * await editWorkspaceInModal(user, 'Updated Name', 'Updated Description');
- * ```
- */
-export async function editWorkspaceInModal(user: ReturnType<typeof userEvent.setup>, newName?: string, newDescription?: string) {
-  const modal = await findModal(/edit workspace/i);
-
-  if (newName) {
-    const nameInput = await modal.findByDisplayValue(/./); // Find first input with value
-    expect(nameInput).toBeInTheDocument();
-    await user.clear(nameInput);
-    await user.type(nameInput, newName);
-  }
-
-  if (newDescription) {
-    const inputs = await modal.findAllByRole('textbox');
-    const descInput = inputs[1]; // Description is typically the second input
-    if (descInput) {
-      await user.clear(descInput);
-      await user.type(descInput, newDescription);
-    }
-  }
-
-  // Click Save button
-  const saveButton = await modal.findByRole('button', { name: /save/i });
-  expect(saveButton).toBeInTheDocument();
-  await user.click(saveButton);
-
-  // Wait for modal to close (dialog should disappear)
-  await waitFor(() => {
-    const dialog = within(document.body).queryByRole('dialog', { name: /edit workspace/i });
-    expect(dialog).not.toBeInTheDocument();
-  });
-}
-
-/**
  * Confirms a delete operation by checking the confirmation checkbox and clicking Delete
  *
  * Usage:

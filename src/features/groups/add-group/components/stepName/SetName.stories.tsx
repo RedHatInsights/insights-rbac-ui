@@ -32,8 +32,8 @@ const setNameSchema = {
 
 // Wrapper component to test SetName within a form context
 const SetNameWithForm: React.FC<{
-  onSubmit?: (values: any) => void;
-  initialValues?: any;
+  onSubmit?: (values: Record<string, unknown>) => void;
+  initialValues?: Record<string, unknown>;
 }> = ({ onSubmit = () => {}, initialValues = {} }) => {
   return (
     <FormRenderer

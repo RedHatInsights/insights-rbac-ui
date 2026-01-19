@@ -1,4 +1,4 @@
-// Re-export Role types from rbac-client (migrated from Redux)
+// Re-export Role types from rbac-client (migrated from React Query)
 // Note: Use RoleOutDynamic for the full role type (with all fields from API)
 // The basic Role type only has name, display_name, description
 export type { Access, RoleOutDynamic, AdditionalGroup } from '@redhat-cloud-services/rbac-client/types';

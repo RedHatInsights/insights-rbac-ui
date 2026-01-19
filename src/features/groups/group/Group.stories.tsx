@@ -35,7 +35,7 @@ const mockDefaultGroupModified = {
   admin_default: false,
 };
 
-// Minimal decorator - only provide Router (Redux provider is global)
+// Minimal decorator - only provide Router (React Query provider is global)
 const withRouter = (Story: StoryFn) => {
   return (
     <BrowserRouter>
