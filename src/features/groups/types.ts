@@ -1,15 +1,12 @@
 // TypeScript interfaces for Group UI components
-// Core data interfaces (Group, GroupState, Member, GroupReducerState) are now in src/redux/groups/reducer.ts
 
-// Import and re-export core interfaces from Redux for convenience
-import type { Group, GroupReducerState, GroupState, Member } from '../../redux/groups/reducer';
-export type { Group, GroupState, Member, GroupReducerState };
+// Import and re-export core interfaces from data layer
+import type { Group, Member } from '../../data/queries/groups';
+export type { Group, Member };
 
-export interface RBACStore {
-  groupReducer: GroupReducerState;
-  // Add other reducers as needed
-  [key: string]: unknown;
-}
+// GroupState is a simplified type for components that only need basic group info
+// Uses Group which extends GroupOut with UI-specific fields
+export type GroupState = Group;
 
 export interface TabItem {
   eventKey: number;

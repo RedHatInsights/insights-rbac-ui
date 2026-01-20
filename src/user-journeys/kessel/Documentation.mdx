@@ -1,26 +1,24 @@
 import { Canvas, Meta, Story } from '@storybook/addon-docs/blocks';
 
-<Meta title="User Journeys/Workspaces (Kessel)/Documentation" />
+<Meta title="User Journeys/Management Fabric/Workspaces (Kessel)/Documentation" />
 
-# Workspace Management (Kessel)
+# Kessel (Workspaces) Documentation
 
-This documentation provides an overview of the Kessel workspace management feature rollout across multiple milestones.
+This documentation covers the Kessel workspace management epic, delivered incrementally across 5 milestones.
 
----
+> **Note:** For the broader Management Fabric context (including Access Management), see the V2 Production stories.
 
-## Quick Start
+## Feature Rollout
 
-1. **Choose a milestone** from the sidebar (M1-M5)
+Kessel workspace management is being delivered incrementally across 5 milestones:
+
+1. **Choose a milestone** from the sidebar (Kessel M1-M5)
 2. **Select permission level** (With Write Permission or Read Only)
 3. **Open the Manual Testing story** for interactive exploration
 4. **Use the Controls panel** to toggle feature flags
 5. **Follow the automated play functions** or explore manually
 
----
-
-## Feature Rollout Roadmap
-
-Kessel workspace management is being delivered incrementally across 5 milestones, each building on the previous one:
+### Feature Rollout Roadmap
 
 ```
 M1: Workspace List View
@@ -71,8 +69,8 @@ M5: Master Flag
 - ❌ No Edit/Move/Delete operations
 
 **User Stories:**
-- [M1 With Write Permission](?path=/story/user-journeys-kessel-m1-with-write-permission--manual-testing)
-- [M1 Read Only](?path=/story/user-journeys-kessel-m1-read-only--manual-testing)
+- [Kessel M1 With Write Permission](?path=/story/user-journeys-feature-development-workspaces-kessel-kessel-m1-workspace-list-view-with-write-permission--kessel-m1-manual-testing)
+- [Kessel M1 Read Only](?path=/story/user-journeys-feature-development-workspaces-kessel-kessel-m1-workspace-list-view-read-only--kessel-m1-manual-testing)
 
 ---
 
@@ -94,7 +92,7 @@ M5: Master Flag
 **Key Change:** Workspace links now go to Inventory (`/insights/inventory/workspaces/:id`)
 
 **User Stories:**
-- [M2 With Write Permission](?path=/story/user-journeys-kessel-m2-with-write-permission--manual-testing)
+- [Kessel M2 With Write Permission](?path=/story/user-journeys-feature-development-workspaces-kessel-kessel-m2-hierarchy-management-with-write-permission--kessel-m2-manual-testing)
 
 ---
 
@@ -117,7 +115,7 @@ M5: Master Flag
 **Key Change:** Workspace links now go to **RBAC detail pages** (`/iam/user-access/workspaces/detail/:id`) instead of Inventory!
 
 **User Stories:**
-- [M3 With Write Permission](?path=/story/user-journeys-kessel-m3-with-write-permission--manual-testing)
+- [Kessel M3 With Write Permission](?path=/story/user-journeys-feature-development-workspaces-kessel-kessel-m3-rbac-detail-pages-with-write-permission--kessel-m3-manual-testing)
 
 ---
 
@@ -137,7 +135,7 @@ M5: Master Flag
 **Architecture:** Introduces **workspace-scoped role bindings** (separate from organization-level roles)
 
 **User Stories:**
-- [M4 With Write Permission (Placeholder)](?path=/story/user-journeys-kessel-m4-with-write-permission--manual-testing)
+- [Kessel M4 With Write Permission (Placeholder)](?path=/story/user-journeys-feature-development-workspaces-kessel-kessel-m4-role-bindings-write-with-write-permission--kessel-m4-manual-testing)
 
 ---
 
@@ -154,7 +152,7 @@ M5: Master Flag
 **Note:** This is NOT Red Hat's "M5 - Management Fabric Hosted" milestone. It's simply the state when the master flag enables all workspace features at once.
 
 **User Stories:**
-- [M5 With Write Permission](?path=/story/user-journeys-kessel-m5-with-write-permission--manual-testing)
+- [Kessel M5 With Write Permission](?path=/story/user-journeys-feature-development-workspaces-kessel-kessel-m5-master-flag-with-write-permission--kessel-m5-manual-testing)
 
 ---
 
@@ -189,3 +187,10 @@ Each milestone has dedicated test environments with:
 - **M1**: Plain text (no links)
 - **M2**: Links to Inventory (`/insights/inventory/workspaces/:id`)
 - **M3+**: Links to RBAC detail pages (`/iam/user-access/workspaces/detail/:id`)
+
+---
+
+## Related Documentation
+
+- [API Reference](?path=/docs/user-journeys-feature-development-workspaces-kessel-documentation-api-reference--docs)
+- [useWorkspacesFlag Hook](?path=/docs/user-journeys-feature-development-workspaces-kessel-documentation-useworkspacesflag--docs)

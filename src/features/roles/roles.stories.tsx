@@ -1,13 +1,23 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { BrowserRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { Roles } from './Roles';
+import { withRouter } from '../../../.storybook/helpers/router-test-utils';
+import {
+  PAGINATION_TEST_DEFAULT_PER_PAGE,
+  PAGINATION_TEST_SMALL_PER_PAGE,
+  PAGINATION_TEST_TOTAL_ITEMS,
+  expectLocationParams,
+  getLastCallArg,
+  openPerPageMenu,
+  selectPerPage,
+} from '../../../.storybook/helpers/pagination-test-utils';
+import { waitForPageToLoad } from '../../user-journeys/_shared/helpers';
 
 // Spy functions to track API calls
 const fetchRolesSpy = fn();
 const fetchAdminGroupSpy = fn();
+const paginationSpy = fn();
 
 // Mock role data
 const mockRoles = [
@@ -89,14 +99,25 @@ const mockAdminGroup = {
   admin_default: true,
 };
 
-// Router decorator for components that use navigation
-const withRouter = (Story: any) => (
-  <BrowserRouter>
-    <div style={{ minHeight: '600px' }}>
-      <Story />
-    </div>
-  </BrowserRouter>
-);
+// Larger dataset for pagination stories (must exceed perPage to enable next/prev)
+const mockRolesLarge = Array.from({ length: PAGINATION_TEST_TOTAL_ITEMS }, (_v, idx) => {
+  const i = idx + 1;
+  return {
+    uuid: `role-${i}`,
+    name: `Role ${i}`,
+    display_name: `Role ${i}`,
+    description: `Role description ${i}`,
+    system: false,
+    platform_default: false,
+    admin_default: false,
+    accessCount: 1,
+    applications: ['rbac'],
+    modified: '2023-12-01T10:30:00Z',
+    groups_in_count: 0,
+    groups_in: [],
+    access: [{ permission: 'rbac:*:*' }],
+  };
+});
 
 const meta: Meta<typeof Roles> = {
   component: Roles,
@@ -211,8 +232,8 @@ For testing specific scenarios, see these additional stories:
               limit,
               offset,
             },
-            // Include filters and pagination for Redux state management
-            // When displayNameFilter is null (parameter not in URL), use empty string for Redux
+            // Include filters and pagination for React Query state management
+            // When displayNameFilter is null (parameter not in URL), use empty string for React Query
             filters: {
               display_name: displayNameFilter || '',
             },
@@ -259,7 +280,7 @@ For testing specific scenarios, see these additional stories:
     console.log('SB: 🔍 Roles spy calls:', fetchRolesSpy.mock.calls.length);
     console.log('SB: 🔍 Admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
 
-    // Wait for container to load data through Redux
+    // Wait for container to load data through React Query
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
     expect(await canvas.findByText('Cost Management Viewer')).toBeInTheDocument();
     expect(await canvas.findByText('Vulnerability Administrator')).toBeInTheDocument();
@@ -272,7 +293,7 @@ For testing specific scenarios, see these additional stories:
     const table = await canvas.findByRole('grid');
     expect(table).toBeInTheDocument();
 
-    // Verify role data is rendered through Redux state
+    // Verify role data is rendered through React Query state
     const tableContent = within(table);
     expect(await tableContent.findByText('Platform Administrator')).toBeInTheDocument();
     expect(await tableContent.findByText('25')).toBeInTheDocument(); // accessCount
@@ -352,7 +373,7 @@ export const LoadingState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests container behavior during API loading via Redux state management.',
+        story: 'Tests container behavior during API loading via React Query state management.',
       },
     },
     permissions: {
@@ -389,7 +410,7 @@ export const EmptyRoles: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests container handling of empty role data from Redux.',
+        story: 'Tests container handling of empty role data from React Query.',
       },
     },
     permissions: {
@@ -484,8 +505,8 @@ export const AdminUserWithRolesFiltering: Story = {
               limit,
               offset,
             },
-            // Include filters and pagination for Redux state management
-            // When displayNameFilter is null (not in URL), use empty string for Redux
+            // Include filters and pagination for React Query state management
+            // When displayNameFilter is null (not in URL), use empty string for React Query
             filters: {
               display_name: displayNameFilter || '',
             },
@@ -534,7 +555,7 @@ export const AdminUserWithRolesFiltering: Story = {
     console.log('SB: 🧪 FILTERING: Typing "vulner" filter');
     await userEvent.type(filterInput, 'vulner');
 
-    // Wait for debounce + Redux state update + re-render
+    // Wait for debounce + React Query state update + re-render
     await waitFor(
       () => {
         expect(filterSpy).toHaveBeenCalledWith('vulner');
@@ -753,10 +774,7 @@ export const AdminUserWithRolesSorting: Story = {
     console.log('SB: 🧪 SORTING: Starting column sorting test');
 
     // Wait for initial data load - table should be fully rendered with sortable headers
-    expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
-
-    // Additional wait to ensure table headers are interactive (not skeletons)
-    await delay(100);
+    await waitForPageToLoad(canvas, 'Platform Administrator');
 
     // Test sorting by Name column (display_name)
     console.log('SB: 🧪 Testing Name column sorting...');
@@ -774,6 +792,9 @@ export const AdminUserWithRolesSorting: Story = {
       expect(sortSpy).toHaveBeenCalledWith('-display_name');
     });
 
+    // Wait for table to reload after sort
+    await waitForPageToLoad(canvas, 'Platform Administrator');
+
     // Re-find the button after table re-render
     nameColumnHeader = await canvas.findByRole('columnheader', { name: /name/i });
     nameButton = await within(nameColumnHeader).findByRole('button');
@@ -788,6 +809,9 @@ export const AdminUserWithRolesSorting: Story = {
     await waitFor(() => {
       expect(sortSpy).toHaveBeenCalledWith('display_name');
     });
+
+    // Wait for table to reload after sort
+    await waitForPageToLoad(canvas, 'Platform Administrator');
 
     // Test sorting by Last Modified column
     console.log('SB: 🧪 Testing Last Modified column sorting...');
@@ -804,6 +828,9 @@ export const AdminUserWithRolesSorting: Story = {
     await waitFor(() => {
       expect(sortSpy).toHaveBeenCalledWith('modified');
     });
+
+    // Wait for table to reload after sort
+    await waitForPageToLoad(canvas, 'Platform Administrator');
 
     // Re-find the button after table re-render
     lastModifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
@@ -887,3 +914,97 @@ export const AdminUserWithRolesPrimaryActions: Story = {
     console.log('SB: 🧪 ACTIONS: Primary actions test completed');
   },
 };
+
+export const PaginationUrlSync: Story = {
+  tags: ['perm:org-admin', 'sbtest:roles-pagination'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interaction test: verifies Roles pagination updates URL search params (`page`, `perPage`) when changing page size and navigating to next page.',
+      },
+    },
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
+    // Use MemoryRouter so we can assert location.search deterministically
+    routerInitialEntries: [`/iam/user-access/roles?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/roles/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          paginationSpy({ limit, offset });
+
+          return HttpResponse.json({
+            data: mockRolesLarge.slice(offset, offset + limit),
+            meta: { count: mockRolesLarge.length, limit, offset },
+            filters: { display_name: '' },
+            pagination: { count: mockRolesLarge.length, limit, offset },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          if (url.searchParams.get('admin_default') === 'true') {
+            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1 } });
+          }
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+
+    paginationSpy.mockClear();
+
+    // Wait for initial load - rely on UI state instead of a fixed delay
+    await expect(canvas.findByText('Role 1')).resolves.toBeInTheDocument();
+
+    // Assert initial URL params
+    const locEl = canvas.getByTestId('router-location');
+    await expectLocationParams(locEl, {
+      page: null, // page=1 is represented by absence of the param (see updatePageInUrl)
+      perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE),
+    });
+
+    await openPerPageMenu(body);
+    await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
+    await expectLocationParams(locEl, {
+      page: null, // perPage change resets page and deletes the page param
+      perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
+    });
+
+    await waitFor(() => {
+      expect(paginationSpy).toHaveBeenCalled();
+      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(0);
+    });
+
+    // Navigate to next page
+    const nextButtons = canvas.getAllByRole('button', { name: /go to next page/i });
+    await userEvent.click(nextButtons[0]);
+
+    await expectLocationParams(locEl, {
+      page: '2',
+      perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
+    });
+
+    await waitFor(() => {
+      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+    });
+  },
+};
+
+// NOTE: PaginationOutOfRangeClampsToLastPage test was REMOVED from here.
+// Page clamping is now handled centrally by TableView and tested in:
+// src/components/table-view/TableView.stories.tsx -> PageClampingOutOfRange
+//
+// This avoids duplicating the same test across Roles, Users, and Groups stories.
+// All tables using TableView automatically get page clamping behavior.

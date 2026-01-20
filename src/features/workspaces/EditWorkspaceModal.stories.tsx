@@ -33,7 +33,7 @@ const mockWorkspaces = [
 ];
 
 // Modal wrapper component following project patterns for modal testing
-const ModalWrapper = ({ storyArgs }: { storyArgs: any }) => {
+const ModalWrapper = ({ storyArgs }: { storyArgs: React.ComponentProps<typeof EditWorkspaceModal> }) => {
   const [isOpen, setIsOpen] = useState(false);
   const workspaceId = 'workspace-1';
   const route = `/iam/access-management/workspaces/edit/${workspaceId}`;
@@ -86,7 +86,7 @@ const meta: Meta<typeof EditWorkspaceModal> = {
 This component demonstrates:
 - **Modal Pattern**: Renders outside story canvas in document.body
 - **Form Management**: Uses React Final Form for validation and submission
-- **Redux Integration**: Loads workspace data from Redux store
+- **Data Integration**: Loads workspace data from React Query cache
 - **API Integration**: Handles workspace update requests
 - **Validation**: Prevents duplicate names and empty fields
 - **User Experience**: Provides feedback during form submission
@@ -112,7 +112,7 @@ export const Default: Story = {
     docs: {
       description: {
         story:
-          'Default render of edit modal with workspace data loaded from Redux. Click "Open Edit Modal" button to see the modal with pre-populated form fields. Useful for manual testing and visual inspection.',
+          'Default render of edit modal with workspace data loaded from React Query. Click "Open Edit Modal" button to see the modal with pre-populated form fields. Useful for manual testing and visual inspection.',
       },
     },
     msw: {
@@ -155,7 +155,7 @@ export const InteractiveEdit: Story = {
           return HttpResponse.json(mockWorkspace);
         }),
         http.patch('/api/rbac/v2/workspaces/workspace-1/', async ({ request }) => {
-          const body = (await request.json()) as Record<string, any>;
+          const body = (await request.json()) as Record<string, unknown>;
           return HttpResponse.json({
             ...mockWorkspace,
             ...body,
@@ -249,23 +249,30 @@ export const CancelOperation: Story = {
     const openButton = await canvas.findByTestId('open-modal-button');
     await user.click(openButton);
 
+    // Add a small delay to let the modal animation complete
+    await delay(500);
+
     // Wait for modal in document.body
     const body = within(document.body);
 
-    await waitFor(async () => {
-      const dialog = within((await body.findAllByRole('dialog'))[0]);
-      await expect(dialog.findByText('Edit workspace information')).resolves.toBeInTheDocument();
-    });
+    const dialogs = await body.findAllByRole('dialog');
+    expect(dialogs.length).toBeGreaterThan(0);
+    const dialog = within(dialogs[0]);
 
-    const dialog = within((await body.findAllByRole('dialog'))[0]);
+    // Wait for form to be fully loaded with workspace data before interacting
+    await waitFor(async () => {
+      await dialog.findByDisplayValue('Production Environment');
+    });
 
     // Cancel the operation
     const cancelButton = await dialog.findByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
 
     // Verify cancel was called, submit was not
-    await expect(args.onCancel).toHaveBeenCalled();
-    await expect(args.afterSubmit).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(args.onCancel).toHaveBeenCalled();
+    });
+    expect(args.afterSubmit).not.toHaveBeenCalled();
   },
 };
 
@@ -308,22 +315,29 @@ export const CancelNotification: Story = {
     const openButton = await canvas.findByTestId('open-modal-button');
     await user.click(openButton);
 
+    // Add a small delay to let the modal animation complete
+    await delay(500);
+
     // Wait for modal in document.body
     const body = within(document.body);
 
-    await waitFor(async () => {
-      const dialog = within((await body.findAllByRole('dialog'))[0]);
-      await expect(dialog.findByText('Edit workspace information')).resolves.toBeInTheDocument();
-    });
+    const dialogs = await body.findAllByRole('dialog');
+    expect(dialogs.length).toBeGreaterThan(0);
+    const dialog = within(dialogs[0]);
 
-    const dialog = within((await body.findAllByRole('dialog'))[0]);
+    // Wait for form to be fully loaded with workspace data before interacting
+    await waitFor(async () => {
+      await dialog.findByDisplayValue('Production Environment');
+    });
 
     // Cancel the operation
     const cancelButton = await dialog.findByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
 
     // Verify cancel was called
-    await expect(args.onCancel).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(args.onCancel).toHaveBeenCalled();
+    });
 
     // ✅ TEST NOTIFICATION: Try to verify warning notification appears in DOM
     try {

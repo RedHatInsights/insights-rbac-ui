@@ -83,7 +83,7 @@ interface ResourceDefinition {
 /**
  * Get inventory groups list
  * NOTE: The host-inventory-client functions expect positional parameters, not an object.
- * Using (apiMethod as any) to bypass broken type definitions per redux-helpers.mdc rule.
+ * Using (apiMethod as any) to bypass broken type definitions.
  * APIFactory returns AxiosResponse - we must access .data to get the payload.
  */
 export async function getInventoryGroups(params: GetInventoryGroupsParams = {}): Promise<InventoryGroupsResponse> {
@@ -101,7 +101,7 @@ export async function getInventoryGroups(params: GetInventoryGroupsParams = {}):
 /**
  * Get inventory groups by IDs
  * NOTE: The host-inventory-client functions expect positional parameters, not an object.
- * Using (apiMethod as any) to bypass broken type definitions per redux-helpers.mdc rule.
+ * Using (apiMethod as any) to bypass broken type definitions.
  * APIFactory returns AxiosResponse - we must access .data to get the payload.
  */
 export async function getInventoryGroupsDetails(groupIds: string[]): Promise<InventoryGroupDetailsResponse> {

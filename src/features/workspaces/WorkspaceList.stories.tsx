@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceList } from './WorkspaceList';
@@ -11,8 +11,8 @@ import { HttpResponse, delay, http } from 'msw';
 // Now using imported mockWorkspaces from table stories
 // Each story defines its own MSW handlers to control API responses
 
-// Minimal decorator - only provide Router (Redux provider is global)
-const withRouter = (Story: any) => {
+// Minimal decorator - only provide Router
+const withRouter = (Story: StoryFn) => {
   return (
     <BrowserRouter>
       <div style={{ minHeight: '600px' }}>
@@ -71,17 +71,17 @@ export const Default: Story = {
     docs: {
       description: {
         story: `
-**Default View**: Complete workspace list container with Redux integration. Orchestrates data fetching, page layout, header composition, and fully functional workspace table.
+**Default View**: Complete workspace list container with React Query integration. Orchestrates data fetching, page layout, header composition, and fully functional workspace table.
 
 ## Additional Test Stories
 
 For testing specific scenarios, see these additional stories:
 
-- **[Loading](?path=/story/features-workspaces-workspacelist--loading-from-redux)**: Tests container behavior during API loading via Redux state management
-- **[Empty](?path=/story/features-workspaces-workspacelist--empty-from-redux)**: Tests container response to empty workspace data from Redux  
-- **[Error](?path=/story/features-workspaces-workspacelist--error-from-redux)**: Tests container error state management from Redux
+- **[Loading](?path=/story/features-workspaces-workspacelist--loading)**: Tests container behavior during API loading via React Query
+- **[Empty](?path=/story/features-workspaces-workspacelist--empty)**: Tests container response to empty workspace data
+- **[Error](?path=/story/features-workspaces-workspacelist--error)**: Tests container error state management
 - **[PermissionIntegration](?path=/story/features-workspaces-workspacelist--permission-integration)**: Tests container permission handling and access control
-- **[MoveWorkspaceModal](?path=/story/features-workspaces-workspacelist--move-workspace-modal)**: Tests move workspace modal workflow with Redux orchestration
+- **[MoveWorkspaceModal](?path=/story/features-workspaces-workspacelist--move-workspace-modal)**: Tests move workspace modal workflow
         `,
       },
     },
@@ -98,7 +98,7 @@ For testing specific scenarios, see these additional stories:
   },
   play: async ({ canvasElement }) => {
     await delay(300);
-    // Wait for container to load data through Redux
+    // Wait for container to load data
     const canvas = within(canvasElement);
     await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('Root Workspace')).resolves.toBeInTheDocument();
@@ -108,14 +108,13 @@ For testing specific scenarios, see these additional stories:
   },
 };
 
-// Container stories that reuse table story data and test Redux integration
+// Container stories that reuse table story data and test React Query integration
 
 export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Tests container Redux integration for loading states. The component should show skeleton loading indicators while data is being fetched through Redux state management.',
+        story: 'Tests container loading states. The component should show skeleton loading indicators while data is being fetched.',
       },
     },
     msw: {
@@ -142,7 +141,7 @@ export const Empty: Story = {
     docs: {
       description: {
         story:
-          'Tests container handling of empty workspace data from Redux. When no workspaces are available, the container should coordinate with the table to display appropriate empty state messaging.',
+          'Tests container handling of empty workspace data. When no workspaces are available, the container should coordinate with the table to display appropriate empty state messaging.',
       },
     },
     msw: {
@@ -170,7 +169,7 @@ export const Error: Story = {
     docs: {
       description: {
         story:
-          'Tests container error handling when API requests fail. The container should manage error state through Redux and coordinate error display with the table component.',
+          'Tests container error handling when API requests fail. The container should manage error state and coordinate error display with the table component.',
       },
     },
     msw: {
@@ -218,7 +217,7 @@ export const PermissionIntegration: Story = {
     },
     msw: {
       handlers: [
-        // Mock API to return data through Redux orchestration
+        // Mock API to return data
         http.get('/api/rbac/v2/workspaces/', () => {
           return HttpResponse.json({
             data: mockWorkspaces.map((ws) => ({ ...ws, children: undefined })), // API format
@@ -230,7 +229,7 @@ export const PermissionIntegration: Story = {
   },
   play: async ({ canvasElement }) => {
     await delay(300);
-    // Wait for container to load data through Redux and permissions to be fetched
+    // Wait for container to load data and permissions to be fetched
     const canvas = within(canvasElement);
     await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
@@ -291,7 +290,7 @@ export const MoveWorkspaceModal: Story = {
     },
     msw: {
       handlers: [
-        // Mock get workspaces API - Redux will fetch this on mount
+        // Mock get workspaces API - React Query will fetch this on mount
         http.get('/api/rbac/v2/workspaces/', () => {
           return HttpResponse.json({
             data: mockWorkspaces,
@@ -301,13 +300,14 @@ export const MoveWorkspaceModal: Story = {
         // Mock move workspace API with spy function
         http.post('/api/rbac/v2/workspaces/:workspaceId/move', async ({ request, params }) => {
           const { workspaceId } = params;
-          const body = (await request.json()) as any;
+          const body = (await request.json()) as Record<string, unknown>;
 
           // Call spy function with the parameters
           moveWorkspaceSpy(workspaceId, body);
 
+          const moveRequest = body?.workspacesMoveWorkspaceRequest as Record<string, unknown> | undefined;
           return HttpResponse.json({
-            data: { id: workspaceId, ...body?.workspacesMoveWorkspaceRequest },
+            data: { id: workspaceId, ...(moveRequest ?? {}) },
             meta: { count: 1 },
           });
         }),

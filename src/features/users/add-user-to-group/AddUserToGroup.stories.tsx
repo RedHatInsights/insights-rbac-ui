@@ -40,13 +40,13 @@ const mockGroups = [
   },
 ];
 
-// Router decorator
-const withRouter = (Story: any, context: any) => {
+// Router decorator - renders the component directly to support username prop
+const withRouter = (_Story: React.ComponentType, context: { args: { username?: string } }) => {
   const username = context.args?.username || 'john.doe';
   return (
     <BrowserRouter>
       <div style={{ minHeight: '100vh' }}>
-        <Story {...context.args} username={username} />
+        <AddUserToGroup username={username} />
       </div>
     </BrowserRouter>
   );

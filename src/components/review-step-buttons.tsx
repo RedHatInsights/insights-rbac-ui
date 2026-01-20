@@ -12,7 +12,7 @@ interface WizardButtonLabels {
 
 interface WizardContextValue {
   success?: boolean;
-  error?: string;
+  error?: string | boolean;
   submitting?: boolean;
 }
 

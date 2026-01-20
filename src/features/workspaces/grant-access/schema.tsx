@@ -11,7 +11,7 @@ export interface GrantAccessFormValues {
 
 export const schemaBuilder = (workspaceName: string) => {
   const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
 
   return {
     fields: [

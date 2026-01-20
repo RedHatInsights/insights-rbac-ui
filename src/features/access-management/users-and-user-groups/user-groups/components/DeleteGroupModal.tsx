@@ -3,7 +3,7 @@ import { useIntl } from 'react-intl';
 import { ButtonVariant } from '@patternfly/react-core';
 import { WarningModal } from '@patternfly/react-component-groups';
 import messages from '../../../../../Messages';
-import { Group } from '../../../../../redux/groups/reducer';
+import type { Group } from '../../../../../data/queries/groups';
 
 interface DeleteGroupModalProps {
   isOpen: boolean;
@@ -27,6 +27,7 @@ export const DeleteGroupModal: React.FC<DeleteGroupModalProps> = ({ isOpen, grou
     <WarningModal
       ouiaId={ouiaId}
       isOpen={isOpen}
+      withCheckbox
       title={intl.formatMessage(isMultiple ? messages.deleteUserGroupModalTitle : messages.deleteUserGroupModalTitle, { count: groups.length })}
       confirmButtonLabel={intl.formatMessage(messages.delete)}
       confirmButtonVariant={ButtonVariant.danger}

@@ -3,14 +3,14 @@ import type { IntlShape } from 'react-intl';
 import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../components/table-view';
-import type { User } from '../../../../../redux/users/reducer';
+import type { User } from '../../../../../data/queries/users';
 import messages from '../../../../../Messages';
 
-// Standard columns (authModel=false): username, email, first_name, last_name, is_active, is_org_admin
-export const standardColumns = ['username', 'email', 'first_name', 'last_name', 'is_active', 'is_org_admin'] as const;
+// Standard columns (authModel=false): username, email, first_name, last_name, is_active, user_groups_count, is_org_admin
+export const standardColumns = ['username', 'email', 'first_name', 'last_name', 'is_active', 'user_groups_count', 'is_org_admin'] as const;
 
-// Auth model columns (authModel=true): is_org_admin, username, email, first_name, last_name, is_active
-export const authModelColumns = ['is_org_admin', 'username', 'email', 'first_name', 'last_name', 'is_active'] as const;
+// Auth model columns (authModel=true): is_org_admin, username, email, first_name, last_name, is_active, user_groups_count
+export const authModelColumns = ['is_org_admin', 'username', 'email', 'first_name', 'last_name', 'is_active', 'user_groups_count'] as const;
 
 export const sortableColumns = ['username'] as const;
 
@@ -53,6 +53,7 @@ export function useUsersTableConfig({
       first_name: { label: intl.formatMessage(messages.firstName) },
       last_name: { label: intl.formatMessage(messages.lastName) },
       is_active: { label: intl.formatMessage(messages.status) },
+      user_groups_count: { label: intl.formatMessage(messages.userGroups) },
       is_org_admin: { label: intl.formatMessage(messages.orgAdmin) },
     }),
     [intl],
@@ -66,34 +67,37 @@ export function useUsersTableConfig({
       first_name: { label: intl.formatMessage(messages.firstName) },
       last_name: { label: intl.formatMessage(messages.lastName) },
       is_active: { label: intl.formatMessage(messages.status) },
+      user_groups_count: { label: intl.formatMessage(messages.userGroups) },
     }),
     [intl],
   );
 
+  // Cell renderers use username as unique identifier (API's natural key)
   const standardCellRenderers: CellRendererMap<typeof standardColumns, User> = useMemo(
     () => ({
-      username: (user) => (focusedUser?.id === user.id ? <strong>{user.username}</strong> : user.username),
+      username: (user) => (focusedUser?.username === user.username ? <strong>{user.username}</strong> : user.username),
       email: (user) => user.email,
       first_name: (user) => user.first_name,
       last_name: (user) => user.last_name,
       is_active: (user) => (
         <Switch
-          id={`${user.id}-status-switch`}
+          id={`${user.username}-status-switch`}
           aria-label={`Toggle status for ${user.username}`}
           isChecked={user.is_active || false}
           isDisabled={!user.is_active && !orgAdmin}
           onChange={(_, checked) => onToggleUserStatus(user, checked)}
-          ouiaId={`${ouiaId}-${user.id}-status-switch`}
+          ouiaId={`${ouiaId}-${user.username}-status-switch`}
         />
       ),
+      user_groups_count: (user) => (user.user_groups_count as number) ?? 0,
       is_org_admin: (user) => (
         <Switch
-          id={`${user.id}-org-admin-switch`}
+          id={`${user.username}-org-admin-switch`}
           aria-label={`Toggle org admin for ${user.username}`}
           isChecked={user.is_org_admin || false}
           isDisabled={!orgAdmin || !user.is_active || isProd}
           onChange={(_, checked) => onToggleOrgAdmin(user, checked)}
-          ouiaId={`${ouiaId}-${user.id}-org-admin-switch`}
+          ouiaId={`${ouiaId}-${user.username}-org-admin-switch`}
         />
       ),
     }),
@@ -104,28 +108,29 @@ export function useUsersTableConfig({
     () => ({
       is_org_admin: (user) => (
         <Switch
-          id={`${user.id}-org-admin-switch`}
+          id={`${user.username}-org-admin-switch`}
           aria-label={`Toggle org admin for ${user.username}`}
           isChecked={user.is_org_admin || false}
           isDisabled={!orgAdmin || !user.is_active || isProd}
           onChange={(_, checked) => onToggleOrgAdmin(user, checked)}
-          ouiaId={`${ouiaId}-${user.id}-org-admin-switch`}
+          ouiaId={`${ouiaId}-${user.username}-org-admin-switch`}
         />
       ),
-      username: (user) => (focusedUser?.id === user.id ? <strong>{user.username}</strong> : user.username),
+      username: (user) => (focusedUser?.username === user.username ? <strong>{user.username}</strong> : user.username),
       email: (user) => user.email,
       first_name: (user) => user.first_name,
       last_name: (user) => user.last_name,
       is_active: (user) => (
         <Switch
-          id={`${user.id}-status-switch`}
+          id={`${user.username}-status-switch`}
           aria-label={`Toggle status for ${user.username}`}
           isChecked={user.is_active || false}
           isDisabled={!user.is_active && !orgAdmin}
           onChange={(_, checked) => onToggleUserStatus(user, checked)}
-          ouiaId={`${ouiaId}-${user.id}-status-switch`}
+          ouiaId={`${ouiaId}-${user.username}-status-switch`}
         />
       ),
+      user_groups_count: (user) => (user.user_groups_count as number) ?? 0,
     }),
     [focusedUser, orgAdmin, isProd, ouiaId, onToggleUserStatus, onToggleOrgAdmin],
   );

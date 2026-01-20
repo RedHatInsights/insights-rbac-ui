@@ -75,7 +75,7 @@ const meta: Meta<typeof AddUserToGroupModal> = {
 ## Component Responsibilities
 - **Group Selection**: Displays available user groups in a table for selection
 - **User Context**: Shows how many users will be added and provides clear confirmation
-- **Redux Integration**: Dispatches addMembersToGroup actions for each selected group
+- **Data Integration**: Uses addMembersToGroup mutations for each selected group
 - **Validation**: Disables the add button until at least one group is selected
 - **User Feedback**: Provides clear messaging about the operation being performed
 
@@ -89,7 +89,7 @@ const meta: Meta<typeof AddUserToGroupModal> = {
 ## Architecture Pattern
 This is a **container component** that:
 - Manages its own modal state and group selection
-- Dispatches Redux actions for group membership changes
+- Dispatches React Query mutations for group membership changes
 - Integrates with UserGroupsTable presentational component
 - Handles business logic for adding users to groups
 
@@ -111,8 +111,12 @@ type Story = StoryObj<typeof meta>;
 
 const addMembersToGroupSpy = fn();
 
+interface InteractiveTemplateArgs extends React.ComponentProps<typeof AddUserToGroupModal> {
+  isOpen: boolean;
+}
+
 // Interactive story template
-const InteractiveTemplate = (args: any) => {
+const InteractiveTemplate = (args: InteractiveTemplateArgs) => {
   const [isOpen, setIsOpen] = useState(args.isOpen);
 
   return (

@@ -60,7 +60,7 @@ const TestFormWrapper: React.FC<{
   initialUsers?: string[];
   initialServiceAccounts?: string[];
   groupId?: string;
-  onSubmit?: (values: any) => void;
+  onSubmit?: (values: Record<string, unknown>) => void;
 }> = ({ initialUsers = [], initialServiceAccounts = [], groupId = 'group-123', onSubmit = fn() }) => {
   const schema = {
     fields: [
@@ -157,8 +157,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     groupId: 'group-123',
-    initialUsers: ['1'], // John is initially in the group
-    initialServiceAccounts: ['1'], // webapp-service is initially in the group
+    initialUsers: ['john.doe'], // John is initially in the group (using username)
+    initialServiceAccounts: ['webapp-client'], // webapp-service is initially in the group (using clientId)
     onSubmit: fn(),
   },
   parameters: {
@@ -316,7 +316,7 @@ export const NewGroup: Story = {
 export const TabSwitchingWithSelections: Story = {
   args: {
     groupId: 'group-123',
-    initialUsers: ['1'], // John is pre-selected
+    initialUsers: ['john.doe'], // John is pre-selected (using username)
     initialServiceAccounts: [],
     onSubmit: fn(),
   },
@@ -418,8 +418,8 @@ export const TabSwitchingWithSelections: Story = {
 export const PrePopulatedGroup: Story = {
   args: {
     groupId: 'group-123',
-    initialUsers: ['1', '2'], // Both John and Jane are in the group
-    initialServiceAccounts: ['1', '2'], // Both service accounts are in the group
+    initialUsers: ['john.doe', 'jane.smith'], // Both John and Jane are in the group (using username)
+    initialServiceAccounts: ['webapp-client', 'api-gateway-client'], // Both service accounts are in the group (using clientId)
     onSubmit: fn(),
   },
   parameters: {

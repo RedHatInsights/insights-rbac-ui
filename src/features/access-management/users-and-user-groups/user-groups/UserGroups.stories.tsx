@@ -5,7 +5,7 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 
 import { UserGroups } from './UserGroups';
-import { Group } from '../../../../redux/groups/reducer';
+import type { Group } from '../../../../data/queries/groups';
 
 // Mock group data
 const mockGroups: Group[] = [
@@ -54,7 +54,7 @@ const deleteMembersFromGroupSpy = fn();
 
 // Create a fresh store for each story using the same configuration as the real app
 
-// Decorator with Router (Redux provider is global)
+// Decorator with Router (React Query provider is global)
 const withRouter = () => {
   return (
     <BrowserRouter>
@@ -94,7 +94,7 @@ const meta: Meta<typeof UserGroups> = {
     docs: {
       description: {
         component: `
-**UserGroups** is a container component that manages user group data, Redux state, and business logic.
+**UserGroups** is a container component that manages user group data, React Query state, and business logic.
         `,
       },
     },
@@ -110,7 +110,7 @@ export const StandardView: StoryObj<typeof meta> = {
     docs: {
       description: {
         story: `
-**Standard View**: Complete API orchestration test. Component dispatches fetch actions, MSW responds with mock data, Redux updates, and table renders.
+**Standard View**: Complete API orchestration test. Component dispatches fetch actions, MSW responds with mock data, React Query updates, and table renders.
 
 ## Group Details Drawer
 
@@ -180,8 +180,9 @@ For testing specific scenarios, see these additional stories:
               ],
               meta: { count: 2, limit: 1000, offset: 0 },
             });
-          } else if (principalType === 'user') {
-            // Regular users component
+          } else {
+            // Regular users component (includes principal_type=user or no principal_type)
+            // The drawer calls without principal_type, so we return users by default
             return HttpResponse.json({
               data: [
                 {
@@ -212,8 +213,6 @@ For testing specific scenarios, see these additional stories:
               meta: { count: 3, limit: parseInt(limit || '20'), offset: 0 },
             });
           }
-
-          return HttpResponse.json({ data: [], meta: { count: 0, limit: 20, offset: 0 } });
         }),
         // MSW handler for group roles
         http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
@@ -406,14 +405,14 @@ For testing specific scenarios, see these additional stories:
     await delay(300);
     const canvas = within(canvasElement);
 
-    // Verify table is rendered with Redux data
+    // Verify table is rendered with data
     await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
 
     // Verify basic table structure is present (headers always render)
     await expect(canvas.getByRole('columnheader', { name: /name/i })).toBeInTheDocument();
     await expect(canvas.getByRole('columnheader', { name: /description/i })).toBeInTheDocument();
     await expect(canvas.getByRole('columnheader', { name: /users/i })).toBeInTheDocument();
-    await expect(canvas.getByRole('columnheader', { name: /roles/i })).toBeInTheDocument();
+    // NOTE: Roles and Workspaces columns removed per V2 API Strategy
 
     // Wait for group data to load first
     const administratorsElements = await canvas.findAllByText('Administrators');
@@ -912,7 +911,11 @@ export const DeleteModalIntegration: StoryObj<typeof meta> = {
     await expect(modalContent.findByText('Delete user group?')).resolves.toBeInTheDocument();
     await expect(modalContent.findByText('Developers')).resolves.toBeInTheDocument();
 
-    // Ensure modal is fully interactive
+    // Check the confirmation checkbox (required by withCheckbox prop)
+    const checkbox = await modalContent.findByRole('checkbox');
+    await userEvent.click(checkbox);
+
+    // Ensure delete button is now enabled
     await expect(modalContent.findByRole('button', { name: /delete/i })).resolves.toBeEnabled();
 
     // Submit the delete operation
@@ -1108,7 +1111,7 @@ export const LargeDataset: StoryObj<typeof meta> = {
     const countElements = await canvas.findAllByText(/1500/);
     await expect(countElements.length).toBeGreaterThanOrEqual(1);
 
-    // Container manages pagination through Redux and URL params
+    // Container manages pagination through React Query and URL params
     await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
   },
 };
@@ -1132,7 +1135,7 @@ export const ErrorStateHandling: StoryObj<typeof meta> = {
     const canvas = within(canvasElement);
 
     // Error state may show empty state, error message, loading state, or still render grid with no data
-    // Container manages error through Redux and notifications
+    // Container manages error through React Query and notifications
     // Wait for UI to settle - might show error notification, empty state, or just render with no data
     await waitFor(
       () => {

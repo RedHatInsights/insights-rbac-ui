@@ -4,7 +4,7 @@ import { expect, fn, screen, userEvent, within } from 'storybook/test';
 import { RemoveGroupRoles } from './RemoveGroupRoles';
 
 // Wrapper component to control modal state with a trigger button
-const RemoveGroupRolesWrapper: React.FC<any> = (props) => {
+const RemoveGroupRolesWrapper: React.FC<React.ComponentProps<typeof RemoveGroupRoles>> = (props) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (

@@ -1,46 +1,26 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-import { Provider, useDispatch } from 'react-redux';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { IntlProvider } from 'react-intl';
 import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal';
+import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 
-import { RegistryContext, getRegistry } from './utilities/store';
-import { queryClient } from './data/queries/client';
 import messages from './locales/data.json';
 import { locale } from './locales/locale';
-import ErroReducerCatcher from './components/ui-states/ErrorReducerCatcher';
+import ApiErrorBoundary from './components/ui-states/ApiErrorBoundary';
 import PermissionsContext from './utilities/permissionsContext';
 import pathnames from './utilities/pathnames';
 import { AppPlaceholder } from './components/ui-states/LoaderPlaceholders';
 import useAppNavigate from './hooks/useAppNavigate';
 import useUserData from './hooks/useUserData';
 import Routing from './Routing';
-import { updateGroupsFilters } from './redux/groups/actions';
-import { updateRolesFilters } from './redux/roles/actions';
-import { updateUsersFilters } from './redux/users/actions';
-import { groupsInitialState } from './redux/groups/reducer';
-import { rolesInitialState } from './redux/roles/reducer';
-import { usersInitialState } from './redux/users/reducer';
 
 const MyUserAccessPage = lazy(() => import('./features/myUserAccess/MyUserAccess'));
 
 /**
- * Full application routing with Redux filter cleanup on unmount.
+ * Full application routing.
  */
 const FullAppRouting: React.FC = () => {
-  const dispatch = useDispatch();
-
-  // Cleanup Redux filters on unmount
-  useEffect(() => {
-    return () => {
-      dispatch(updateUsersFilters(usersInitialState.users.filters));
-      dispatch(updateGroupsFilters(groupsInitialState.groups.filters));
-      dispatch(updateRolesFilters(rolesInitialState.roles.filters));
-    };
-  }, []);
-
   return (
     <section className="rbac-c-root pf-v6-c-page__main-section pf-v6-u-m-0 pf-v6-u-p-0">
       <Routing />
@@ -88,7 +68,7 @@ export interface AppShellProps {
 }
 
 /**
- * Inner app component that sets up PermissionsContext and ErrorReducerCatcher.
+ * Inner app component that sets up PermissionsContext.
  * Common wrapper for both full app and MUA mode.
  *
  * This is exported separately for use in Storybook journey tests where
@@ -102,11 +82,7 @@ export const AppShell: React.FC<AppShellProps> = ({ muaMode = false }) => {
     return <AppPlaceholder />;
   }
 
-  return (
-    <PermissionsContext.Provider value={{ ...userData }}>
-      <ErroReducerCatcher>{muaMode ? <MuaRouting /> : <FullAppRouting />}</ErroReducerCatcher>
-    </PermissionsContext.Provider>
-  );
+  return <PermissionsContext.Provider value={{ ...userData }}>{muaMode ? <MuaRouting /> : <FullAppRouting />}</PermissionsContext.Provider>;
 };
 
 /**
@@ -114,18 +90,14 @@ export const AppShell: React.FC<AppShellProps> = ({ muaMode = false }) => {
  * Used by both IamUserAccess (full app) and MyUserAccess (simplified mode).
  */
 const AppEntry: React.FC<AppEntryProps> = ({ muaMode = false, withNotificationPortal = true }) => {
-  const registry = getRegistry();
-
   return (
     <IntlProvider locale={locale} messages={messages[locale]}>
-      <QueryClientProvider client={queryClient}>
-        <RegistryContext.Provider value={{ getRegistry }}>
-          <Provider store={registry.getStore()}>
-            {withNotificationPortal && <NotificationPortal />}
-            <AppShell muaMode={muaMode} />
-          </Provider>
-        </RegistryContext.Provider>
-      </QueryClientProvider>
+      <NotificationsProvider>
+        <ApiErrorBoundary>
+          {withNotificationPortal && <NotificationPortal />}
+          <AppShell muaMode={muaMode} />
+        </ApiErrorBoundary>
+      </NotificationsProvider>
     </IntlProvider>
   );
 };

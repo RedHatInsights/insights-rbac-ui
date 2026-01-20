@@ -44,12 +44,12 @@ const meta: Meta<typeof EditGroupServiceAccountsTable> = {
 - **Service Account Selection**: Bulk and individual selection with visual feedback
 - **Data Management**: Tracks initial vs updated service account associations for efficient API calls
 - **Search & Pagination**: Built-in filtering and pagination for large service account lists
-- **State Management**: Integrates with Redux for service account data and loading states
+- **State Management**: Uses React Query for service account data and loading states
 - **Change Tracking**: Reports service account additions/removals through onChange callback
 
 ### Integration Patterns
 - **Form Field**: Designed to work within @data-driven-forms workflows
-- **Redux Connected**: Fetches service account data and manages loading states through Redux
+- **Data Fetching**: Fetches service account data and manages loading states through React Query
 - **Chrome Integration**: Uses Chrome SDK for authentication and user context
 - **MSW Compatible**: Stories use MSW handlers for realistic data scenarios
 
@@ -324,7 +324,7 @@ export const ServiceAccountSelection: Story = {
 export const PreSelectedServiceAccounts: Story = {
   args: {
     groupId: 'group-123',
-    initialServiceAccountIds: ['1', '2'], // webapp-service and api-gateway-service are initially in the group
+    initialServiceAccountIds: ['webapp-client', 'api-gateway-client'], // webapp-service and api-gateway-service are initially in the group (using clientId)
     onChange: fn(),
   },
   parameters: {

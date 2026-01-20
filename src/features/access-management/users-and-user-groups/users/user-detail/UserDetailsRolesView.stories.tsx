@@ -24,17 +24,17 @@ const meta: Meta<typeof UserDetailsRolesView> = {
     docs: {
       description: {
         component: `
-**UserDetailsRolesView** is a container component that manages role data, Redux state, and business logic for displaying roles assigned to a specific user.
+**UserDetailsRolesView** is a container component that manages role data, React Query state, and business logic for displaying roles assigned to a specific user.
 
 ### Container Responsibilities
 - **Data Fetching**: Dispatches \`fetchRoles\` action with username filter on mount
-- **State Management**: Handles loading, error, and success states from Redux
+- **State Management**: Handles loading, error, and success states from React Query
 - **API Integration**: Interfaces with RBAC API for user's role data
 - **Error Handling**: Provides user-friendly error messages and recovery
 
 ### Architecture
 - **Smart Component**: Fetches its own data and manages state
-- **Redux Connected**: Uses selectors for roles data, loading, and error states  
+- **Data Fetching**: Uses React Query for roles data, loading, and error states  
 - **MSW Compatible**: Stories use MSW to test real API integration flows
 - **State-Driven UI**: Renders different components based on loading/error/success states
 
@@ -60,7 +60,7 @@ export const Default: Story = {
     docs: {
       description: {
         story: `
-**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchRoles\` action with username filter, MSW responds with mock data, Redux updates, and table renders user's assigned roles.
+**Standard Container View**: Complete API orchestration test. Component dispatches \`fetchRoles\` action with username filter, MSW responds with mock data, React Query updates, and table renders user's assigned roles.
 
 ## Additional Container Test Stories
 
@@ -77,6 +77,7 @@ Each story demonstrates different aspects of container state management and erro
     },
     msw: {
       handlers: [
+        // NOTE: Includes V2-style userGroup and workspace data (gap:guessed-v2-api)
         http.get('/api/rbac/v1/roles/', ({ request }) => {
           const url = new URL(request.url);
           const username = url.searchParams.get('username');
@@ -95,6 +96,8 @@ Each story demonstrates different aspects of container state management and erro
                   admin_default: true,
                   policyCount: 15,
                   accessCount: 45,
+                  userGroup: 'Admin group',
+                  workspace: 'Root workspace',
                 },
                 {
                   uuid: 'role-2',
@@ -106,6 +109,8 @@ Each story demonstrates different aspects of container state management and erro
                   admin_default: false,
                   policyCount: 8,
                   accessCount: 23,
+                  userGroup: 'Admin group',
+                  workspace: 'Production',
                 },
                 {
                   uuid: 'role-3',
@@ -117,6 +122,8 @@ Each story demonstrates different aspects of container state management and erro
                   admin_default: false,
                   policyCount: 5,
                   accessCount: 12,
+                  userGroup: 'Spice girls',
+                  workspace: 'Development',
                 },
                 {
                   uuid: 'role-4',
@@ -128,6 +135,8 @@ Each story demonstrates different aspects of container state management and erro
                   admin_default: false,
                   policyCount: 3,
                   accessCount: 8,
+                  userGroup: 'Golden girls',
+                  workspace: 'Medical Imaging IT',
                 },
               ],
               meta: { count: 4, limit: 1000, offset: 0 },
@@ -151,13 +160,18 @@ Each story demonstrates different aspects of container state management and erro
     await expect(canvas.findByText('Insights Viewer')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('Custom Development Role')).resolves.toBeInTheDocument();
 
-    // Verify display names are shown in user group column
-    await expect(canvas.findByText('Organization Administrator')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('User Access Administrator')).resolves.toBeInTheDocument();
+    // Verify user group column shows actual data (V2-style API response)
+    // Note: "Admin group" appears twice (for Org Admin and User Access Admin roles)
+    const adminGroupCells = await canvas.findAllByText('Admin group');
+    expect(adminGroupCells.length).toBe(2);
+    await expect(canvas.findByText('Spice girls')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Golden girls')).resolves.toBeInTheDocument();
 
-    // Verify workspace column shows placeholder (API doesn't provide workspace data yet)
-    const workspacePlaceholders = canvas.getAllByText('?');
-    await expect(workspacePlaceholders.length).toBeGreaterThan(0);
+    // Verify workspace column shows actual workspace names (V2-style API response)
+    await expect(canvas.findByText('Root workspace')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Production')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Development')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Medical Imaging IT')).resolves.toBeInTheDocument();
   },
 };
 
@@ -245,7 +259,7 @@ export const APIError: Story = {
     docs: {
       description: {
         story: `
-**API Error State**: Simulates structured API error response. Component dispatches \`fetchRoles\` action, MSW responds with 500 error, and container handles error state through Redux.
+**API Error State**: Simulates structured API error response. Component dispatches \`fetchRoles\` action, MSW responds with 500 error, and container handles error state through React Query.
         `,
       },
     },
@@ -289,7 +303,7 @@ export const NetworkFailure: Story = {
     docs: {
       description: {
         story: `
-**Network Failure**: Simulates complete network failure. Component dispatches \`fetchRoles\` action, MSW simulates network error, and container handles failure through Redux error handling.
+**Network Failure**: Simulates complete network failure. Component dispatches \`fetchRoles\` action, MSW simulates network error, and container handles failure through React Query error handling.
         `,
       },
     },

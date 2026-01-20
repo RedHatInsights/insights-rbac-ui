@@ -24,8 +24,8 @@ const mockWorkspaces = [
   },
 ];
 
-// Modal wizard wrapper component - uses global Redux from preview.tsx
-const WizardWrapper = ({ storyArgs }: { storyArgs: any }) => {
+// Modal wizard wrapper component - uses global React Query from preview.tsx
+const WizardWrapper = ({ storyArgs }: { storyArgs: React.ComponentProps<typeof CreateWorkspaceWizard> }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -39,11 +39,11 @@ const WizardWrapper = ({ storyArgs }: { storyArgs: any }) => {
             {...storyArgs}
             afterSubmit={() => {
               setIsOpen(false);
-              storyArgs.afterSubmit();
+              storyArgs.afterSubmit?.();
             }}
             onCancel={() => {
               setIsOpen(false);
-              storyArgs.onCancel();
+              storyArgs.onCancel?.();
             }}
           />
         )}
@@ -69,7 +69,7 @@ const meta: Meta<typeof CreateWorkspaceWizard> = {
 This component demonstrates:
 - **Multi-Step Wizard**: Dynamic steps based on feature flags  
 - **Data Driven Forms**: Uses DDF with custom component mapper
-- **Redux Integration**: Dispatches createWorkspace action
+- **Data Integration**: Uses createWorkspace mutation
 - **Feature Flag Integration**: Conditional steps for billing features
 - **Form Validation**: Required fields and workspace naming guidelines
 - **Custom Components**: SetDetails, SetEarMark, Review steps
@@ -117,7 +117,7 @@ export const Default: Story = {
           });
         }),
         http.post('/api/rbac/v2/workspaces/', async ({ request }) => {
-          const body = (await request.json()) as Record<string, any>;
+          const body = (await request.json()) as Record<string, unknown>;
 
           // Track workspace creation with spy
           createWorkspaceSpy(body);
@@ -192,7 +192,7 @@ export const WithBillingFeatures: Story = {
           });
         }),
         http.post('/api/rbac/v2/workspaces/', async ({ request }) => {
-          const body = (await request.json()) as Record<string, any>;
+          const body = (await request.json()) as Record<string, unknown>;
 
           // Track workspace creation with spy
           createWorkspaceSpy(body);

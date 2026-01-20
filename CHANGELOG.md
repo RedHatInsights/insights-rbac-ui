@@ -1,3 +1,43 @@
+# [2.0.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.82.0...v2.0.0) (2026-01-20)
+
+
+### Features
+
+* complete Redux removal ([1c42dc3](https://github.com/RedHatInsights/insights-rbac-ui/commit/1c42dc37f60eb4e0422d745f444a0536f3c894bd))
+* **groups:** migrate Groups slice from Redux to React Query ([82c8537](https://github.com/RedHatInsights/insights-rbac-ui/commit/82c853725c8cedc6f2e087c6f937916c84c40e75))
+* remove Redux from type definitions and error handling ([9ad29a3](https://github.com/RedHatInsights/insights-rbac-ui/commit/9ad29a3c0e1342f8632606968b2291773aa691aa))
+* **roles,users:** migrate Role.tsx and User.tsx from Redux to React Query ([c45e532](https://github.com/RedHatInsights/insights-rbac-ui/commit/c45e532109e00f66630d477dee02921017b9ff94))
+* **workspaces:** migrate Workspaces feature from Redux to React Query ([80543f7](https://github.com/RedHatInsights/insights-rbac-ui/commit/80543f7df9b86278d56447031baaeaf63c26b0f2))
+
+
+### BREAKING CHANGES
+
+* Redux removed from codebase
+* **groups:** Components now fetch their own data via React Query
+instead of relying on Redux state prepared by parent components.
+
+# [1.82.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.81.0...v1.82.0) (2026-01-20)
+
+
+### Features
+
+* **access-management:** complete feature implementation with V2 API gap documentation ([3adf5c8](https://github.com/RedHatInsights/insights-rbac-ui/commit/3adf5c8947ca1d4835c1bd868d78111a8e3a69d2))
+* **storybook:** add feature gap tests for V2 Users/UserGroups and Roles ([18da917](https://github.com/RedHatInsights/insights-rbac-ui/commit/18da91744ea2b3c8fa34b6d37e7ef0f72d0415f3))
+
+# [1.81.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.2...v1.81.0) (2026-01-20)
+
+
+### Features
+
+* centralize the pagination clamping check and logic to TableView ([f25c366](https://github.com/RedHatInsights/insights-rbac-ui/commit/f25c366c4e23476efad62c0b61c3214897ec3896))
+
+## [1.80.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.1...v1.80.2) (2026-01-19)
+
+
+### Bug Fixes
+
+* **navigation:** remove explicit bundleSegment for service-accounts and learning resources ([#2096](https://github.com/RedHatInsights/insights-rbac-ui/issues/2096)) ([79e16bf](https://github.com/RedHatInsights/insights-rbac-ui/commit/79e16bfe54689d48993996c6208c0d2fbcac6b09))
+
 ## [1.80.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.0...v1.80.1) (2026-01-15)
 
 

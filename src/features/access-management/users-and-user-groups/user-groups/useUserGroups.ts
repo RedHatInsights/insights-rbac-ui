@@ -1,16 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
+import { useCallback, useMemo, useState } from 'react';
 
-import { useDataViewFilters, useDataViewPagination, useDataViewSelection, useDataViewSort } from '@patternfly/react-data-view';
-
-import { fetchGroups } from '../../../../redux/groups/actions';
-import { FetchGroupsParams } from '../../../../redux/groups/helper';
-import { selectGroups, selectGroupsTotalCount, selectIsGroupsLoading } from '../../../../redux/groups/selectors';
-import { ListGroupsOrderByEnum } from '@redhat-cloud-services/rbac-client/ListGroups';
-import { mappedProps } from '../../../../helpers/dataUtilities';
+import { useTableState } from '../../../../components/table-view/hooks/useTableState';
+import { type Group, useGroupsQuery } from '../../../../data/queries/groups';
 import { defaultSettings } from '../../../../helpers/pagination';
-import { Group } from '../../../../redux/groups/reducer';
+import { type SortableColumnId, columns as userGroupsColumns } from './components/useUserGroupsTableConfig';
+
+// Re-export the Group type for use in components
+export type { Group };
 
 export interface UserGroupsFilters {
   name: string;
@@ -31,104 +27,64 @@ export interface UseUserGroupsReturn {
   orgAdmin: boolean;
   userAccessAdministrator: boolean;
 
-  // DataView hooks
-  filters: ReturnType<typeof useDataViewFilters<UserGroupsFilters>>['filters'];
+  // Table state from useTableState
+  tableState: ReturnType<typeof useTableState<typeof userGroupsColumns, Group, SortableColumnId, never>>;
+
+  // Convenience accessors for backwards compatibility
+  filters: UserGroupsFilters;
   sortBy: string;
   direction: 'asc' | 'desc';
-  onSort: ReturnType<typeof useDataViewSort>['onSort'];
-  pagination: ReturnType<typeof useDataViewPagination>;
-  selection: ReturnType<typeof useDataViewSelection>;
 
   // Focus state
   focusedGroup: Group | undefined;
   setFocusedGroup: (group: Group | undefined) => void;
 
   // Actions
-  fetchData: (params: FetchGroupsParams) => void;
+  refetch: () => void;
   handleRowClick: (group: Group) => void;
-
-  // Clear all filters
-  clearAllFilters: () => void;
-  onSetFilters: ReturnType<typeof useDataViewFilters<UserGroupsFilters>>['onSetFilters'];
 }
 
 /**
- * Custom hook for managing UserGroups business logic
+ * Custom hook for managing UserGroups business logic.
+ * Uses useTableState for all table state and React Query for data fetching.
  */
 export const useUserGroups = (options: UseUserGroupsOptions = {}): UseUserGroupsReturn => {
   const { enableAdminFeatures = true } = options;
 
-  const dispatch = useDispatch();
-  const [searchParams, setSearchParams] = useSearchParams();
-
   // Focus state for drawer
   const [focusedGroup, setFocusedGroup] = useState<Group | undefined>(undefined);
 
-  // Data view hooks - use search params for persistence
-  const { sortBy, direction, onSort } = useDataViewSort({
-    searchParams,
-    setSearchParams,
-    initialSort: {
-      sortBy: 'name',
-      direction: 'asc',
-    },
-  });
-
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<UserGroupsFilters>({
+  // useTableState handles ALL table state with URL synchronization
+  const tableState = useTableState<typeof userGroupsColumns, Group, SortableColumnId>({
+    columns: userGroupsColumns,
+    sortableColumns: ['name', 'modified'] as const,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: defaultSettings.limit,
     initialFilters: { name: '' },
-    searchParams,
-    setSearchParams,
+    getRowId: (group) => group.uuid,
+    syncWithUrl: true, // Page-level tables sync with URL
   });
 
-  const pagination = useDataViewPagination({
-    perPage: defaultSettings.limit,
-    searchParams,
-    setSearchParams,
+  // Use React Query for data fetching - using apiParams from tableState
+  const { data, isLoading, refetch } = useGroupsQuery({
+    limit: tableState.apiParams.limit,
+    offset: tableState.apiParams.offset,
+    orderBy: tableState.apiParams.orderBy,
+    name: (tableState.apiParams.filters.name as string) || undefined,
   });
 
-  const selection = useDataViewSelection({
-    matchOption: (a, b) => a.uuid === b.uuid,
-  });
-
-  // Redux selectors with proper typing - using memoized selectors
-  const groups = useSelector(selectGroups);
-  const isLoading = useSelector(selectIsGroupsLoading);
-  const totalCount = useSelector(selectGroupsTotalCount);
+  // Extract data from query response
+  const groups = useMemo(() => (data?.data as Group[]) || [], [data]);
+  const totalCount = useMemo(() => data?.meta?.count || 0, [data]);
 
   // Permission context
-  const orgAdmin = enableAdminFeatures; // Simplified for now
-  const userAccessAdministrator = enableAdminFeatures; // Simplified for now
-
-  // Fetch data function
-  const fetchData = useCallback(
-    (params: FetchGroupsParams) => {
-      // mappedProps expects Record<string, unknown>, so we cast back
-      const mappedParams = mappedProps(params as Record<string, unknown>);
-      const payload: FetchGroupsParams = {
-        ...mappedParams,
-        usesMetaInURL: true,
-      };
-      dispatch(fetchGroups(payload));
-    },
-    [dispatch],
-  );
-
-  // Auto-fetch when dependencies change
-  useEffect(() => {
-    const { page, perPage } = pagination;
-    const limit = perPage;
-    const offset = (page - 1) * perPage;
-    const orderBy = (sortBy || 'name') as ListGroupsOrderByEnum;
-    const filtersForApi = filters;
-
-    fetchData({ limit, offset, orderBy, filters: filtersForApi });
-  }, [fetchData, pagination.page, pagination.perPage, sortBy, filters.name]);
+  const orgAdmin = enableAdminFeatures;
+  const userAccessAdministrator = enableAdminFeatures;
 
   // Handle row click for group focus and drawer events
   const handleRowClick = useCallback(
     (group: Group) => {
       setFocusedGroup(group);
-      // Note: DataView events context integration can be added later if needed
     },
     [setFocusedGroup],
   );
@@ -143,24 +99,20 @@ export const useUserGroups = (options: UseUserGroupsOptions = {}): UseUserGroups
     orgAdmin: enableAdminFeatures && orgAdmin,
     userAccessAdministrator: enableAdminFeatures && userAccessAdministrator,
 
-    // DataView hooks
-    filters,
-    sortBy: sortBy || 'name',
-    direction: direction || 'asc',
-    onSort,
-    pagination,
-    selection,
+    // Full table state
+    tableState,
+
+    // Convenience accessors for backwards compatibility
+    filters: { name: (tableState.filters.name as string) || '' } as UserGroupsFilters,
+    sortBy: tableState.sort?.column || 'name',
+    direction: tableState.sort?.direction || 'asc',
 
     // Focus state
     focusedGroup,
     setFocusedGroup,
 
     // Actions
-    fetchData,
+    refetch,
     handleRowClick,
-
-    // Clear all filters
-    clearAllFilters,
-    onSetFilters,
   };
 };

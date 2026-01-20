@@ -1,14 +1,16 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { Workspace } from '../../redux/workspaces/reducer';
+import type { WorkspacesWorkspace } from '../../data/queries/workspaces';
 
 // Shared mock data for workspace tests
-export const mockWorkspaces: Workspace[] = [
+export const mockWorkspaces: WorkspacesWorkspace[] = [
   {
     id: 'root-1',
     name: 'Root Workspace',
     description: 'Root workspace container',
     parent_id: '',
     type: 'root',
+    created: '2024-01-01T00:00:00Z',
+    modified: '2024-01-01T00:00:00Z',
   },
   {
     id: '1',
@@ -16,6 +18,8 @@ export const mockWorkspaces: Workspace[] = [
     description: 'Main production workspace for live applications',
     parent_id: 'root-1',
     type: 'standard',
+    created: '2024-01-02T00:00:00Z',
+    modified: '2024-01-02T00:00:00Z',
   },
   {
     id: '2',
@@ -23,6 +27,8 @@ export const mockWorkspaces: Workspace[] = [
     description: 'Development workspace for testing and staging',
     parent_id: 'root-1',
     type: 'standard',
+    created: '2024-01-03T00:00:00Z',
+    modified: '2024-01-03T00:00:00Z',
   },
 ];
 

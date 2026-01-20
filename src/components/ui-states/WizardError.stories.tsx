@@ -27,6 +27,7 @@ const WizardErrorWrapper: React.FC<{
       setJumpedToStep(step);
       console.log(`SB: Jumped to step: ${step}`);
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     formOptions: {} as any,
     crossroads: [],
     currentStep: {

@@ -8,10 +8,9 @@ import { StackItem } from '@patternfly/react-core';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { ServiceAccount } from '../../../../../redux/service-accounts/types';
 import messages from '../../../../../Messages';
 import { AppLink } from '../../../../../components/navigation/AppLink';
-import ServiceAccountsList from './ServiceAccountsList';
+import ServiceAccountsList, { type ServiceAccount } from './ServiceAccountsList';
 
 interface SetServiceAccountProps {
   name: string;

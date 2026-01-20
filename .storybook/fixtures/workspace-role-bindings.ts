@@ -1,4 +1,7 @@
-import { RoleBindingBySubject } from '../../src/redux/workspaces/reducer';
+import type { RoleBindingsRoleBindingBySubject } from '../../src/data/queries/workspaces';
+
+// Type alias for backward compatibility
+type RoleBindingBySubject = RoleBindingsRoleBindingBySubject;
 
 /**
  * Workspace-specific role bindings for M3+ stories

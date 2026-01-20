@@ -2,20 +2,13 @@ import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { ResponsiveAction, ResponsiveActions } from '@patternfly/react-component-groups';
 
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView } from '../../../../../components/table-view';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, type UseTableStateReturn } from '../../../../../components/table-view';
 import { ActionDropdown } from '../../../../../components/ActionDropdown';
-import type { Group } from '../../../../../redux/groups/reducer';
+import type { Group } from '../../../../../data/queries/groups';
 import messages from '../../../../../Messages';
 import useAppNavigate from '../../../../../hooks/useAppNavigate';
 import pathnames from '../../../../../utilities/pathnames';
 import { type SortableColumnId, columns, sortableColumns, useUserGroupsTableConfig } from './useUserGroupsTableConfig';
-
-// =============================================================================
-// Selection Helpers - Isolate DataView legacy { id, row } shape conversion
-// =============================================================================
-const toDataViewRow = (group: Group) => ({ id: group.uuid, row: [group.name] });
-const toDataViewRows = (groups: Group[]) => groups.map(toDataViewRow);
-const buildGroupIndex = (groups: Group[]) => new Map(groups.map((g) => [g.uuid, g]));
 
 interface UserGroupsTableProps {
   // Data props
@@ -31,21 +24,8 @@ interface UserGroupsTableProps {
   isProd?: boolean;
   ouiaId?: string;
 
-  // Data view state props - managed by container
-  sortBy?: string;
-  direction?: 'asc' | 'desc';
-  onSort: (event: any, key: string, direction: 'asc' | 'desc') => void;
-  filters: { name: string };
-  onSetFilters: (filters: Partial<{ name: string }>) => void;
-  clearAllFilters: () => void;
-  page: number;
-  perPage: number;
-  onSetPage: (event: React.MouseEvent | React.KeyboardEvent | MouseEvent, page: number) => void;
-  onPerPageSelect: (event: React.MouseEvent | React.KeyboardEvent | MouseEvent, perPage: number) => void;
-  pagination: any; // DataViewPagination hook return type
-
-  // Selection object from useDataViewSelection hook
-  selection?: any; // DataView selection object
+  // Table state from useTableState - managed by container
+  tableState: UseTableStateReturn<typeof columns, Group, SortableColumnId, never>;
 
   // Event handler props
   onRowClick?: (group: Group | undefined) => void;
@@ -66,18 +46,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
   orgAdmin = true,
   isProd = false,
   ouiaId = 'iam-user-groups-table',
-  sortBy,
-  direction,
-  onSort,
-  filters,
-  onSetFilters,
-  clearAllFilters,
-  page,
-  perPage,
-  onSetPage,
-  onPerPageSelect,
-
-  selection,
+  tableState,
   onRowClick,
   onEditGroup,
   onDeleteGroup,
@@ -91,75 +60,6 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
 
   // Permission flag for modifying groups
   const canModifyGroups = enableActions && orgAdmin;
-
-  // Adapt sort state for TableView
-  const sort = useMemo(
-    () =>
-      sortBy
-        ? {
-            column: sortBy as SortableColumnId,
-            direction: (direction || 'asc') as 'asc' | 'desc',
-          }
-        : undefined,
-    [sortBy, direction],
-  );
-
-  // Adapt sort handler for TableView
-  const handleSortChange = useCallback(
-    (column: SortableColumnId) => {
-      const newDirection = sortBy === column && direction === 'asc' ? 'desc' : 'asc';
-      onSort(undefined, column, newDirection);
-    },
-    [sortBy, direction, onSort],
-  );
-
-  // Adapt pagination handlers for TableView
-  const handlePageChange = useCallback(
-    (newPage: number) => {
-      onSetPage(undefined as any, newPage);
-    },
-    [onSetPage],
-  );
-
-  const handlePerPageChange = useCallback(
-    (newPerPage: number) => {
-      onPerPageSelect(undefined as any, newPerPage);
-    },
-    [onPerPageSelect],
-  );
-
-  // Adapt filter handlers for TableView
-  const handleFiltersChange = useCallback(
-    (newFilters: Record<string, string | string[]>) => {
-      onSetFilters({ name: (newFilters.name as string) || '' });
-    },
-    [onSetFilters],
-  );
-
-  // Build group index for O(1) lookups
-  const groupIndex = useMemo(() => buildGroupIndex(groups), [groups]);
-
-  // Adapt selection for TableView - convert DataView shape to Group[]
-  const selectedRows = useMemo(() => {
-    if (!selection?.selected) return [];
-    return selection.selected.map((sel: { id: string }) => groupIndex.get(sel.id)).filter((g: Group | undefined): g is Group => !!g);
-  }, [selection?.selected, groupIndex]);
-
-  const handleSelectRow = useCallback(
-    (group: Group, selected: boolean) => {
-      if (!selection?.onSelect) return;
-      selection.onSelect(selected, [toDataViewRow(group)]);
-    },
-    [selection],
-  );
-
-  const handleSelectAll = useCallback(
-    (selected: boolean, rows: Group[]) => {
-      if (!selection?.onSelect) return;
-      selection.onSelect(selected, toDataViewRows(rows));
-    },
-    [selection],
-  );
 
   // Check if group can be edited
   const isGroupEditable = useCallback((group: Group) => !group.platform_default && !group.system, []);
@@ -190,9 +90,6 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
     [intl, navigate, ouiaId],
   );
 
-  // Transform filters for TableView
-  const tableFilters = useMemo(() => ({ name: filters.name || '' }), [filters.name]);
-
   return (
     <>
       <TableView<typeof columns, Group, SortableColumnId>
@@ -207,7 +104,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
         // Renderers
         cellRenderers={cellRenderers}
         // Selection
-        selectable={canModifyGroups && !!selection}
+        selectable={canModifyGroups}
         isRowSelectable={() => true}
         // Row click
         isRowClickable={() => !!onRowClick}
@@ -258,19 +155,8 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
         variant="compact"
         ouiaId={`${ouiaId}-table`}
         ariaLabel="User Groups Table"
-        // State (passed directly, not from useTableState)
-        page={page}
-        perPage={perPage}
-        onPageChange={handlePageChange}
-        onPerPageChange={handlePerPageChange}
-        sort={sort}
-        onSortChange={handleSortChange}
-        filters={tableFilters}
-        onFiltersChange={handleFiltersChange}
-        clearAllFilters={clearAllFilters}
-        selectedRows={selectedRows}
-        onSelectRow={handleSelectRow}
-        onSelectAll={handleSelectAll}
+        // All table state from useTableState - spread directly
+        {...tableState}
       />
       {children}
     </>

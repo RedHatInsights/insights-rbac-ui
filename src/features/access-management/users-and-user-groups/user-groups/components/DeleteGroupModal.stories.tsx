@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, screen, userEvent, within } from 'storybook/test';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { DeleteGroupModal } from './DeleteGroupModal';
-import { Group } from '../../../../../redux/groups/reducer';
+import type { Group } from '../../../../../data/queries/groups';
 
 // Mock group data
 const mockGroup: Group = {
@@ -60,7 +60,7 @@ const meta: Meta<typeof DeleteGroupModal> = {
 This is a **presentational component** that:
 - Receives minimal props (isOpen, groups, callbacks)
 - Handles its own internationalization
-- Has no knowledge of Redux or business logic
+- Has no knowledge of external state or business logic
 - Focuses purely on user confirmation workflow
         `,
       },
@@ -127,8 +127,15 @@ export const Default: Story = {
     await expect(within(modal).findByRole('button', { name: /delete/i })).resolves.toBeInTheDocument();
     await expect(within(modal).findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
 
-    // Verify delete button is enabled (not a system/platform default group)
+    // Verify delete button is initially disabled (checkbox confirmation required)
     const deleteButton = await within(modal).findByRole('button', { name: /delete/i });
+    await expect(deleteButton).toBeDisabled();
+
+    // Check the confirmation checkbox
+    const checkbox = await within(modal).findByRole('checkbox');
+    await userEvent.click(checkbox);
+
+    // Now delete button should be enabled
     await expect(deleteButton).toBeEnabled();
   },
 };
@@ -236,6 +243,12 @@ export const ConfirmAction: Story = {
 
     // Find and click the confirm button
     const modal = await screen.findByRole('dialog');
+
+    // First check the confirmation checkbox (required by withCheckbox prop)
+    const checkbox = await within(modal).findByRole('checkbox');
+    await userEvent.click(checkbox);
+
+    // Now click the confirm button
     const confirmButton = await within(modal).findByRole('button', { name: /delete/i });
     await userEvent.click(confirmButton);
 

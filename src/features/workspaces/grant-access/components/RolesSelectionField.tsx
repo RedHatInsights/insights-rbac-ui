@@ -1,11 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
-import { RBACStore } from '../../../../redux/store';
-import { fetchRolesForWizard } from '../../../../redux/roles/actions';
+import { useRolesQuery } from '../../../../data/queries/roles';
 import { RolesSelectionTable } from './RolesSelectionTable';
 import messages from '../../../../Messages';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
@@ -17,18 +15,12 @@ interface RolesSelectionFieldProps {
 
 const RolesSelectionField: React.FC<RolesSelectionFieldProps> = ({ name }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const formOptions = useFormApi();
   const { input } = useFieldApi({ name });
 
-  const { rolesForWizard, isLoading } = useSelector((state: RBACStore) => ({
-    rolesForWizard: state.roleReducer.rolesForWizard,
-    isLoading: state.roleReducer.isLoading,
-  }));
-
-  useEffect(() => {
-    dispatch(fetchRolesForWizard());
-  }, [dispatch]);
+  // React Query hook for roles
+  const { data: rolesData, isLoading } = useRolesQuery({ limit: 1000 });
+  const rolesForWizard = rolesData?.data ?? [];
 
   const [selectedRoles, setSelectedRoles] = useState<string[]>(formOptions.getState().values['selected-roles'] || []);
 
@@ -48,12 +40,7 @@ const RolesSelectionField: React.FC<RolesSelectionFieldProps> = ({ name }) => {
           </StackItem>
           <StackItem>
             <FormGroup fieldId="roles-selection-table">
-              <RolesSelectionTable
-                roles={rolesForWizard?.data || []}
-                selectedRoles={selectedRoles}
-                onRoleSelection={setSelectedRoles}
-                isLoading={isLoading}
-              />
+              <RolesSelectionTable roles={rolesForWizard} selectedRoles={selectedRoles} onRoleSelection={setSelectedRoles} isLoading={isLoading} />
             </FormGroup>
           </StackItem>
         </Stack>

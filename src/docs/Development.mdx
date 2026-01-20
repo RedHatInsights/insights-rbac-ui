@@ -480,14 +480,17 @@ const ComponentName = (props) => {
 };
 ```
 
-### Redux DevTools
+### React Query DevTools
 
-```javascript
-// Enable Redux DevTools in development
-const store = createStore(
-  rootReducer,
-  composeWithDevTools(applyMiddleware(thunk))
-);
+```tsx
+// React Query DevTools are automatically included in development
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
+// In your app's root component:
+<QueryClientProvider client={queryClient}>
+  <App />
+  <ReactQueryDevtools initialIsOpen={false} />
+</QueryClientProvider>
 ```
 
 ### Error Boundaries

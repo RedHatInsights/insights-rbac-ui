@@ -50,7 +50,7 @@ export const Default: Story = {
     docs: {
       description: {
         story: `
-**Default View**: Complete permissions table container with real API orchestration. Tests Redux actions, reducers, and component integration end-to-end in 3-column mode (without Resource Definitions).
+**Default View**: Complete permissions table container with real API orchestration. Tests React Query mutations, reducers, and component integration end-to-end in 3-column mode (without Resource Definitions).
 
 ## Dual Mode Support
 
@@ -91,7 +91,7 @@ For testing specific scenarios, see these additional stories:
     await delay(300); // Required for MSW
     const canvas = within(canvasElement);
 
-    // Test real API orchestration - container dispatches actions and Redux updates
+    // Test real API orchestration - container triggers mutations and React Query updates
     // TableView may render "Application" in header and filter - check that at least header exists
     expect(await canvas.findByRole('columnheader', { name: /application/i })).toBeInTheDocument();
 
@@ -100,7 +100,7 @@ For testing specific scenarios, see these additional stories:
     expect(await canvas.findByText('Operation')).toBeInTheDocument();
     expect(canvas.queryByText('Resource definitions')).not.toBeInTheDocument();
 
-    // Verify permission data loaded through Redux
+    // Verify permission data loaded through React Query
     expect(await canvas.findByText('advisor')).toBeInTheDocument();
     expect(await canvas.findByText('compliance')).toBeInTheDocument();
     expect(await canvas.findByText('vulnerability')).toBeInTheDocument();
@@ -372,7 +372,7 @@ export const WithResourceDefinitions: Story = {
     expect(await canvas.findByText('Operation')).toBeInTheDocument();
     expect(await canvas.findByText('Resource definitions')).toBeInTheDocument();
 
-    // Verify permission data loaded through Redux
+    // Verify permission data loaded through React Query
     expect(await canvas.findByText('advisor')).toBeInTheDocument();
     expect(await canvas.findByText('compliance')).toBeInTheDocument();
     expect(await canvas.findByText('vulnerability')).toBeInTheDocument();

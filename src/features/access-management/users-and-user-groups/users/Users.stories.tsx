@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { Users } from './Users';
@@ -42,8 +42,8 @@ const mockUsers = [
   },
 ];
 
-// Minimal decorator - only provide Router (Redux provider is global)
-const withRouter = (Story: any) => {
+// Minimal decorator - only provide Router (React Query provider is global)
+const withRouter = (Story: StoryFn) => {
   return (
     <BrowserRouter>
       <div style={{ minHeight: '600px' }}>
@@ -93,7 +93,7 @@ const meta: Meta<typeof Users> = {
 **Users** is a feature container component that provides the main interface for viewing and managing users.
 
 ## Container Responsibilities
-- **Redux State Management**: Manages user data, loading states, and API interactions
+- **React Query State Management**: Manages user data, loading states, and API interactions
 - **Authentication Integration**: Handles Chrome API integration for tokens and user context
 - **Modal Coordination**: Manages all modal states (delete, bulk actions, add to group)
 - **Feature Flag Integration**: Adapts UI based on auth model variations
@@ -109,12 +109,12 @@ const meta: Meta<typeof Users> = {
 
 ## Architecture Pattern
 This component follows the container/presentational pattern:
-- **Container (this component)**: Redux, API calls, business logic, modal state
+- **Container (this component)**: React Query, API calls, business logic, modal state
 - **Presentational (UsersTable)**: Pure UI component receiving data and callbacks via props
 - **Modal Components**: Injected as children to maintain separation of concerns
 
 ## Testing Focus
-These stories test the container's integration with Redux, external APIs, and modal orchestration.
+These stories test the container's integration with React Query, external APIs, and modal orchestration.
 The presentational components are tested separately with comprehensive interaction stories.
         `,
       },
@@ -160,13 +160,9 @@ const mockUserRoles = [
     admin_default: false,
     accessCount: 5,
     applications: ['rbac'],
-    groups_in_count: 2,
-    groups_in: ['Administrators', 'HR Team'],
-    workspace: {
-      uuid: 'workspace-1',
-      name: 'Default',
-      description: 'Default workspace',
-    },
+    // V2-style role binding data (gap:guessed-v2-api)
+    userGroup: 'Admin Team',
+    workspace: 'Default',
   },
   {
     uuid: 'role-2',
@@ -178,34 +174,30 @@ const mockUserRoles = [
     admin_default: false,
     accessCount: 2,
     applications: ['cost-management'],
-    groups_in_count: 1,
-    groups_in: ['Administrators'],
-    workspace: {
-      uuid: 'workspace-1',
-      name: 'Default',
-      description: 'Default workspace',
-    },
+    // V2-style role binding data (gap:guessed-v2-api)
+    userGroup: 'Cost Team',
+    workspace: 'Default',
   },
 ];
 
-// Standard container story that tests Redux integration
+// Standard container story that tests React Query integration
 export const Default: Story = {
   tags: ['autodocs'],
   parameters: {
     docs: {
       description: {
         story: `
-**Default View**: Complete user management container with Redux integration. Orchestrates data fetching, page layout, modal coordination, and full table functionality.
+**Default View**: Complete user management container with React Query integration. Orchestrates data fetching, page layout, modal coordination, and full table functionality.
 
 ## Additional Test Stories
 
 For testing specific scenarios, see these additional stories:
 
-- **[Loading](?path=/story/features-access-management-users-and-user-groups-users-users--loading-from-redux)**: Tests container behavior during API loading via Redux state management
-- **[EmptyState](?path=/story/features-access-management-users-and-user-groups-users-users--empty-state-from-redux)**: Tests container response to empty user data from Redux  
-- **[AddToGroupModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--add-to-group-modal-integration)**: Tests complete add-to-group modal workflow with Redux orchestration
-- **[DeleteUserModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--delete-user-modal-integration)**: Tests complete delete user modal workflow with Redux orchestration
-- **[BulkDeactivateModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--bulk-deactivate-modal-integration)**: Tests bulk deactivation workflow with Redux state coordination
+- **[Loading](?path=/story/features-access-management-users-and-user-groups-users-users--loading)**: Tests container behavior during API loading via React Query
+- **[EmptyState](?path=/story/features-access-management-users-and-user-groups-users-users--empty-state)**: Tests container response to empty user data from React Query  
+- **[AddToGroupModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--add-to-group-modal-integration)**: Tests complete add-to-group modal workflow with React Query orchestration
+- **[DeleteUserModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--delete-user-modal-integration)**: Tests complete delete user modal workflow with React Query orchestration
+- **[BulkDeactivateModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--bulk-deactivate-modal-integration)**: Tests bulk deactivation workflow with React Query state coordination
         `,
       },
     },
@@ -228,10 +220,10 @@ For testing specific scenarios, see these additional stories:
     await delay(300);
     const canvas = within(canvasElement);
 
-    // Wait for container to load data and render the table through Redux
+    // Wait for container to load data and render the table through React Query
     await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
 
-    // Verify container passes Redux data to table - all users should be present
+    // Verify container passes React Query data to table - all users should be present
     await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('bob.johnson')).resolves.toBeInTheDocument();
 
@@ -247,18 +239,18 @@ For testing specific scenarios, see these additional stories:
   },
 };
 
-// Container with loading state from Redux
+// Container with loading state from React Query
 export const Loading: Story = {
   parameters: {
     docs: {
       description: {
         story:
-          'Tests container Redux integration for loading states. Users should see skeleton loading indicators when data is being fetched through Redux.',
+          'Tests container React Query integration for loading states. Users should see skeleton loading indicators when data is being fetched through React Query.',
       },
     },
     msw: {
       handlers: [
-        // Never resolve to keep component in loading state - tests real Redux loading orchestration
+        // Never resolve to keep component in loading state - tests real React Query loading orchestration
         http.get('/api/rbac/v1/principals/', async () => {
           await delay('infinite');
           return HttpResponse.json({
@@ -271,7 +263,7 @@ export const Loading: Story = {
   },
   play: async ({ canvasElement }) => {
     await delay(300);
-    // Should show skeleton loading state from container Redux
+    // Should show skeleton loading state from container React Query
     await waitFor(async () => {
       const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
       await expect(skeletonElements.length).toBeGreaterThan(0);
@@ -279,17 +271,17 @@ export const Loading: Story = {
   },
 };
 
-// Container with empty state from Redux
+// Container with empty state from React Query
 export const EmptyState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests container handling of empty user data from Redux. Container properly coordinates empty state display.',
+        story: 'Tests container handling of empty user data from React Query. Container properly coordinates empty state display.',
       },
     },
     msw: {
       handlers: [
-        // Return empty data to test empty state handling - tests real Redux empty state orchestration
+        // Return empty data to test empty state handling - tests real React Query empty state orchestration
         http.get('/api/rbac/v1/principals/', () => {
           return HttpResponse.json({
             data: [],
@@ -314,7 +306,7 @@ export const AddToGroupModalIntegration: Story = {
     docs: {
       description: {
         story:
-          'Tests container "Add to user group" modal state management and integration. Validates that selecting users and clicking "Add to user group" properly opens the AddUserToGroupModal and coordinates with Redux state.',
+          'Tests container "Add to user group" modal state management and integration. Validates that selecting users and clicking "Add to user group" properly opens the AddUserToGroupModal and coordinates with React Query state.',
       },
     },
     msw: {
@@ -499,6 +491,10 @@ export const BulkDeactivateModalIntegration: Story = {
             meta: { count: 2, limit: 20, offset: 0 },
           });
         }),
+        // User status API for bulk activate/deactivate
+        http.post('https://api.access.redhat.com/management/account/v1/accounts/:accountId/users/:userId/status', () => {
+          return HttpResponse.json({ success: true });
+        }),
       ],
     },
   },
@@ -520,16 +516,13 @@ export const BulkDeactivateModalIntegration: Story = {
     // Wait for selection state to update
     await delay(100);
 
-    // Look for bulk status dropdown (based on the UsersTable implementation)
-    const statusDropdownButton = await canvas.findByText(/Activate users/i); // This is the toggle text from activateUsersButton message
-    await expect(statusDropdownButton).toBeInTheDocument();
-    await expect(statusDropdownButton).not.toBeDisabled();
+    // Open the Actions overflow menu first (bulk actions are inside the kebab dropdown)
+    const overflowMenu = await canvas.findByLabelText('Actions overflow menu');
+    await userEvent.click(overflowMenu);
+    await delay(100);
 
-    // Click to open the dropdown
-    await userEvent.click(statusDropdownButton);
-
-    // Look for deactivate option in the dropdown
-    const bulkDeactivateButton = await within(document.body).findByText(/Deactivate users/i); // This should match deactivateUsersButton message
+    // Look for deactivate option in the dropdown menu
+    const bulkDeactivateButton = await within(document.body).findByRole('menuitem', { name: /Deactivate users/i });
     await expect(bulkDeactivateButton).toBeInTheDocument();
 
     // Click bulk deactivate
@@ -697,16 +690,16 @@ export const UserDetailsIntegration: Story = {
     await expect(drawer.findByText('Administrators')).resolves.toBeInTheDocument();
     await expect(drawer.findByText('Developers')).resolves.toBeInTheDocument();
 
-    // Switch to Roles tab
-    const rolesTab = await drawer.findByText('Assigned roles');
+    // Switch to Roles tab (use role selector to avoid finding text in other places)
+    const rolesTab = await drawer.findByRole('tab', { name: /Assigned roles/i });
     await userEvent.click(rolesTab);
 
     // Verify Roles tab content loads
     await expect(drawer.findByText('User administrators')).resolves.toBeInTheDocument();
     await expect(drawer.findByText('Cost Management Viewer')).resolves.toBeInTheDocument();
 
-    // Switch back to Groups tab
-    const groupsTab = await drawer.findByText('User groups');
+    // Switch back to Groups tab (use role selector to avoid finding text in other places)
+    const groupsTab = await drawer.findByRole('tab', { name: /User groups/i });
     await userEvent.click(groupsTab);
 
     // Verify Groups content is still there

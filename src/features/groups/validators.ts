@@ -1,4 +1,4 @@
-import { fetchGroups } from '../../redux/groups/helper';
+import { groupsApi } from '../../data/api/groups';
 import { debounceAsync as asyncDebounce } from '../../utilities/debounce';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../Messages';
@@ -17,17 +17,21 @@ export const asyncValidator = async (groupName: string, idKey: string, id?: stri
     throw intl.formatMessage(messages.maxCharactersWarning, { number: 150 });
   }
 
-  const response = await fetchGroups({
-    limit: 10,
-    offset: 0,
-    filters: { name: groupName },
-    nameMatch: 'exact',
-  }).catch((error: unknown) => {
-    console.error(error);
-    return undefined;
-  });
+  const response = await groupsApi
+    .listGroups({
+      limit: 10,
+      offset: 0,
+      name: groupName,
+      nameMatch: 'exact',
+    })
+    .catch((error: unknown) => {
+      console.error(error);
+      return undefined;
+    });
 
-  if (id ? response?.data?.some((item: any) => item[idKey] !== id) : (response?.data?.length || 0) > 0) {
+  const groups = response?.data?.data ?? [];
+
+  if (id ? groups.some((item) => item[idKey as keyof typeof item] !== id) : groups.length > 0) {
     throw intl.formatMessage(messages.nameAlreadyTaken);
   }
 

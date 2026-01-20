@@ -4,9 +4,10 @@ import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 
-import { Group } from '../../../../redux/groups/reducer';
+import { type Group } from '../../../../data/queries/groups';
+import type { GroupWithInheritance } from './GroupDetailsDrawer';
 import messages from '../../../../Messages';
-import { GroupDetailsDrawer, GroupWithInheritance } from './GroupDetailsDrawer';
+import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { GrantAccessWizard } from '../../grant-access/GrantAccessWizard';
 import { useWorkspacesFlag } from '../../../../hooks/useWorkspacesFlag';

@@ -1,14 +1,10 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TableView } from '../../../../../components/table-view/TableView';
 import { useTableState } from '../../../../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData } from '../../../../../components/table-view/components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
-import { fetchUsers } from '../../../../../redux/users/actions';
-import { selectIsUsersLoading, selectUserStatus, selectUsers, selectUsersTotalCount } from '../../../../../redux/users/selectors';
-import { ERROR } from '../../../../../redux/users/action-types';
-import { mappedProps } from '../../../../../helpers/dataUtilities';
+import { type User, useUsersQuery } from '../../../../../data/queries/users';
 import { TableState } from './EditUserGroupUsersAndServiceAccounts';
 import Messages from '../../../../../Messages';
 
@@ -18,39 +14,21 @@ interface EditGroupUsersTableProps {
   initialUserIds: string[];
 }
 
-interface User {
-  id: string;
-  uuid?: string;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  is_org_admin: boolean;
-  is_active: boolean;
-}
-
 const columns = ['orgAdmin', 'username', 'email', 'firstName', 'lastName', 'status'] as const;
 
 const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = ({ onChange, initialUserIds }) => {
-  const dispatch = useDispatch();
   const intl = useIntl();
 
-  const users = useSelector(selectUsers) as User[];
-  const totalCount = useSelector(selectUsersTotalCount);
-  const isLoading = useSelector(selectIsUsersLoading);
-  const status = useSelector(selectUserStatus);
-
-  // Helper to get consistent user ID
-  const getUserId = useCallback((user: User) => user.id || (user.uuid ? String(user.uuid) : null) || user.username, []);
+  // Helper to get consistent user ID - use username as the unique identifier
+  const getUserId = useCallback((user: User) => user.username, []);
 
   // Build initial selected rows from IDs (placeholder objects until data loads)
   const initialSelectedRows = useMemo(
     () =>
       initialUserIds.map(
-        (id) =>
+        (username) =>
           ({
-            id,
-            username: id,
+            username,
             email: '',
             first_name: '',
             last_name: '',
@@ -85,22 +63,26 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
     [intl],
   );
 
-  // useTableState handles ALL state including selection
+  // useTableState handles ALL state - no duplicate useState needed
   const tableState = useTableState<typeof columns, User>({
     columns,
     getRowId: getUserId,
     initialPerPage: 20,
     perPageOptions: [5, 10, 20, 50, 100],
     initialSelectedRows,
-    onStaleData: (params) => {
-      dispatch(
-        fetchUsers({
-          ...mappedProps({ count: totalCount || 0, limit: params.limit, offset: params.offset, orderBy: 'username' }),
-          usesMetaInURL: true,
-        }),
-      );
-    },
+    syncWithUrl: false, // Modal/edit form tables shouldn't sync with URL
   });
+
+  // Use React Query for data fetching - using apiParams from tableState
+  const { data, isLoading, error } = useUsersQuery({
+    limit: tableState.apiParams.limit,
+    offset: tableState.apiParams.offset,
+    orderBy: 'username',
+  });
+
+  // Extract users from typed query response
+  const users = (data?.users ?? []) as User[];
+  const totalCount = data?.totalCount ?? 0;
 
   // Keep ref to avoid stale closure in wrapped handlers
   const onChangeRef = useRef(onChange);
@@ -137,7 +119,7 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
     [tableState, getUserId, initialUserIds],
   );
 
-  const hasError = status === ERROR;
+  const hasError = !!error;
 
   return (
     <TableView<typeof columns, User>

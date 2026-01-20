@@ -1,4 +1,4 @@
-import type { StoryObj } from '@storybook/react-webpack5';
+import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
@@ -20,12 +20,28 @@ import { defaultKesselRoles } from '../../../.storybook/fixtures/kessel-groups-r
 import { delay } from 'msw';
 import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-handlers';
 
+interface StoryArgs {
+  typingDelay?: number;
+  orgAdmin?: boolean;
+  userAccessAdministrator?: boolean;
+  'platform.rbac.workspaces-list'?: boolean;
+  'platform.rbac.workspace-hierarchy'?: boolean;
+  'platform.rbac.workspaces-role-bindings'?: boolean;
+  'platform.rbac.workspaces-role-bindings-write'?: boolean;
+  'platform.rbac.workspaces'?: boolean;
+  'platform.rbac.group-service-accounts'?: boolean;
+  'platform.rbac.group-service-accounts.stable'?: boolean;
+  'platform.rbac.common-auth-model'?: boolean;
+  'platform.rbac.common.userstable'?: boolean;
+  initialRoute?: string;
+}
+
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Workspaces (Kessel)/M2: Hierarchy Management/With Write Permission',
+  title: 'User Journeys/Management Fabric/Workspaces (Kessel)/Kessel M2: Hierarchy Management/With Write Permission',
   tags: ['kessel-m2-write'],
   decorators: [
-    (Story: any, context: any) => {
+    ((Story, context: StoryContext<StoryArgs>) => {
       // Create dynamic environment based on current args
       const dynamicEnv = createDynamicEnvironment(context.args);
       // Replace parameters entirely instead of mutating to ensure React sees the change
@@ -33,7 +49,7 @@ const meta = {
       // Force remount when controls change by using args as key
       const argsKey = JSON.stringify(context.args);
       return <Story key={argsKey} />;
-    },
+    }) as Decorator<StoryArgs>,
   ],
   argTypes: {
     typingDelay: {
@@ -202,7 +218,7 @@ type Story = StoryObj<typeof meta>;
 import { ManualTestingWithWrite } from '../_shared/stories/ManualTestingStory';
 export const ManualTesting: Story = {
   ...ManualTestingWithWrite,
-  name: 'Manual Testing',
+  name: 'Kessel M2 Manual Testing',
   tags: ['autodocs'],
   args: {
     ...ManualTestingWithWrite.args,

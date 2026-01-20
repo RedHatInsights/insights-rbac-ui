@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch } from 'react-redux';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { TableView } from '../../../../components/table-view/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
@@ -13,15 +12,26 @@ import type {
   FilterState,
   SortState,
 } from '../../../../components/table-view/types';
-import { Group } from '../../../../redux/groups/reducer';
-import { fetchMembersForExpandedGroup } from '../../../../redux/groups/actions';
+import { useGroupMembersQuery } from '../../../../data/queries/groups';
 import messages from '../../../../Messages';
 
-// Simple list of member names for expanded view
-const MembersList: React.FC<{ group: Group }> = ({ group }) => {
-  const intl = useIntl();
+// Group type for the table - compatible with API response
+interface GroupRow {
+  uuid: string;
+  name: string;
+  description?: string;
+  principalCount?: number;
+  platform_default?: boolean;
+  admin_default?: boolean;
+}
 
-  if (!group.members || group.isLoadingMembers) {
+// Simple list of member names for expanded view
+const MembersList: React.FC<{ groupId: string }> = ({ groupId }) => {
+  const intl = useIntl();
+  const { data: membersData, isLoading } = useGroupMembersQuery(groupId, { limit: 100 }, { enabled: !!groupId });
+  const members = membersData?.members ?? [];
+
+  if (isLoading) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
         Loading members...
@@ -29,7 +39,7 @@ const MembersList: React.FC<{ group: Group }> = ({ group }) => {
     );
   }
 
-  if (group.members.length === 0) {
+  if (members.length === 0) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
         {intl.formatMessage(messages.noGroupMembers)}
@@ -37,7 +47,7 @@ const MembersList: React.FC<{ group: Group }> = ({ group }) => {
     );
   }
 
-  const memberNames = group.members.map((member: any) => {
+  const memberNames = members.map((member: { first_name?: string; last_name?: string; username?: string; email?: string }) => {
     if (member.first_name && member.last_name) {
       return `${member.first_name} ${member.last_name}`;
     }
@@ -52,7 +62,7 @@ const MembersList: React.FC<{ group: Group }> = ({ group }) => {
 };
 
 interface UserGroupsSelectionTableProps {
-  groups: Group[];
+  groups: GroupRow[];
   selectedGroups: string[];
   onGroupSelection: (groupIds: string[]) => void;
   isLoading?: boolean;
@@ -71,7 +81,6 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
   isLoading = false,
 }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const [expandedCell, setExpandedCell] = useState<ExpandedCell<CompoundColumn> | null>(null);
   const [filters, setFilters] = useState<FilterState>({ name: '' });
   const [sort, setSort] = useState<SortState<SortableColumn>>({ column: 'name', direction: 'asc' });
@@ -86,7 +95,7 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
     [intl],
   );
 
-  const cellRenderers: CellRendererMap<typeof columns, Group> = useMemo(
+  const cellRenderers: CellRendererMap<typeof columns, GroupRow> = useMemo(
     () => ({
       name: (group) => group.name,
       members: (group) => group.principalCount || 0,
@@ -94,9 +103,9 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
     [],
   );
 
-  const expansionRenderers: ExpansionRendererMap<CompoundColumn, Group> = useMemo(
+  const expansionRenderers: ExpansionRendererMap<CompoundColumn, GroupRow> = useMemo(
     () => ({
-      members: (group) => <MembersList group={group} />,
+      members: (group) => <MembersList groupId={group.uuid} />,
     }),
     [],
   );
@@ -145,7 +154,7 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
   const selectedRows = useMemo(() => groups.filter((g) => selectedGroups.includes(g.uuid)), [groups, selectedGroups]);
 
   const handleSelectRow = useCallback(
-    (group: Group, selected: boolean) => {
+    (group: GroupRow, selected: boolean) => {
       if (selected) {
         onGroupSelection([...selectedGroups, group.uuid]);
       } else {
@@ -156,7 +165,7 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
   );
 
   const handleSelectAll = useCallback(
-    (selected: boolean, rows: Group[]) => {
+    (selected: boolean, rows: GroupRow[]) => {
       const selectableRows = rows.filter((g) => !(g.platform_default || g.admin_default));
       if (selected) {
         const newIds = selectableRows.map((g) => g.uuid).filter((id) => !selectedGroups.includes(id));
@@ -169,22 +178,14 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
     [selectedGroups, onGroupSelection],
   );
 
-  const isRowSelectable = useCallback((group: Group) => !(group.platform_default || group.admin_default), []);
+  const isRowSelectable = useCallback((group: GroupRow) => !(group.platform_default || group.admin_default), []);
 
   // Compound expansion - only non-default groups can expand
-  const isCellExpandable = useCallback((group: Group) => !(group.platform_default || group.admin_default), []);
+  const isCellExpandable = useCallback((group: GroupRow) => !(group.platform_default || group.admin_default), []);
 
   const handleToggleExpand = useCallback((rowId: string, column: CompoundColumn) => {
     setExpandedCell((prev) => (prev?.rowId === rowId && prev?.column === column ? null : { rowId, column }));
   }, []);
-
-  const handleExpand = useCallback(
-    (group: Group) => {
-      // Fetch members when expanding
-      dispatch(fetchMembersForExpandedGroup(group.uuid, undefined, { limit: 100 }));
-    },
-    [dispatch],
-  );
 
   const handleSortChange = useCallback((column: SortableColumn, direction: 'asc' | 'desc') => {
     setSort({ column, direction });
@@ -201,7 +202,7 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
   }, []);
 
   return (
-    <TableView<typeof columns, Group, SortableColumn, CompoundColumn>
+    <TableView<typeof columns, GroupRow, SortableColumn, CompoundColumn>
       columns={columns}
       columnConfig={columnConfig}
       sortableColumns={sortableColumns}
@@ -227,7 +228,6 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
       expandedCell={expandedCell}
       onToggleExpand={handleToggleExpand}
       isCellExpandable={isCellExpandable}
-      onExpand={handleExpand}
       filterConfig={filterConfig}
       filters={filters}
       onFiltersChange={handleFiltersChange}

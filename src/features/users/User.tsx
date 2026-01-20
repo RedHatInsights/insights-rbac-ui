@@ -1,6 +1,4 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { createSelector } from 'reselect';
+import React, { Fragment, Suspense, useCallback, useContext, useState } from 'react';
 import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -8,8 +6,6 @@ import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import { debounce } from '../../utilities/debounce';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
@@ -24,50 +20,23 @@ import { TableView } from '../../components/table-view/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../components/table-view/components/TableViewEmptyState';
 import type { ColumnConfigMap, ExpandedCell, ExpansionRendererMap, FilterConfig } from '../../components/table-view/types';
 import { PageLayout } from '../../components/layout/PageLayout';
-import { fetchRoleForUser, fetchRoles } from '../../redux/roles/actions';
-import { fetchUsers } from '../../redux/users/actions';
-import { BAD_UUID } from '../../helpers/dataUtilities';
 import { getDateFormat } from '../../helpers/stringUtilities';
-import { addRolesToGroup, fetchAdminGroup } from '../../redux/groups/actions';
-import { defaultSettings } from '../../helpers/pagination';
+import { useAdminGroupQuery } from '../../data/queries/groups';
+import { useRoleForPrincipalQuery, useRolesQuery } from '../../data/queries/roles';
+import { useUsersQuery } from '../../data/queries/users';
+import { useAddRolesToGroupMutation } from '../../data/queries/groups';
 import { GroupsNestedTable } from './components/GroupsNestedTable';
 import { PermissionsNestedTable } from './components/PermissionsNestedTable';
-import type { RBACStore } from '../../redux/store.d';
 import type { Access, RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
 
-interface GroupIn {
-  uuid: string;
-  name: string;
-  description?: string;
-}
-
-interface RoleWithGroupsIn extends Omit<RoleOutDynamic, 'accessCount'> {
-  groups_in?: GroupIn[];
-  accessCount?: number;
-}
+// RoleWithGroupsIn uses the RoleOutDynamic type from the API
+type RoleWithGroupsIn = RoleOutDynamic;
 
 interface AdminGroup {
   uuid: string;
   name: string;
   description?: string;
 }
-
-interface UserData {
-  username: string;
-  email?: string;
-  is_active?: boolean;
-  is_org_admin?: boolean;
-}
-
-interface RolesWithAccess {
-  [key: string]: {
-    access?: Access[];
-  };
-}
-
-type DebouncedFetchFn = (limit: number, offset: number, name: string, addFields: string[], username: string) => void;
-
-let debouncedFetch: DebouncedFetchFn;
 
 // Column definition for the user roles table
 const columns = ['role', 'groups', 'permissions', 'lastModified'] as const;
@@ -77,61 +46,47 @@ const User: React.FC = () => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const navigationType = useNavigationType();
-  const dispatch = useDispatch();
   const { username } = useParams<{ username: string }>();
   const [filter, setFilter] = useState('');
   const [expandedCell, setExpandedCell] = useState<ExpandedCell<CompoundColumnId> | null>(null);
-  const [loadingRolesTemp, setLoadingRolesTemp] = useState(false);
   const [selectedAddRoles, setSelectedAddRoles] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
-  const chrome = useChrome();
+  const [expandedRoleId, setExpandedRoleId] = useState<string | null>(null);
   const toAppLink = useAppLink();
 
-  // Memoized selector - only recreated when username changes
-  const selector = useMemo(
-    () =>
-      createSelector(
-        [
-          (state: RBACStore) => state.roleReducer.error,
-          (state: RBACStore) => state.roleReducer.roles,
-          (state: RBACStore) => state.roleReducer.isLoading,
-          (state: RBACStore) => state.roleReducer.rolesWithAccess,
-          (state: RBACStore) => state.userReducer.users.data,
-          (state: RBACStore) => state.userReducer.isUserDataLoading,
-          (state: RBACStore) => state.groupReducer.adminGroup,
-        ],
-        (error, roles, isLoadingRoles, rolesWithAccess, usersData, isLoadingUsers, adminGroup) => ({
-          adminGroup: adminGroup as AdminGroup | undefined,
-          roles: roles as { data?: RoleWithGroupsIn[]; meta?: { count?: number; limit?: number; offset?: number } },
-          isLoadingRoles: isLoadingRoles as boolean,
-          rolesWithAccess: rolesWithAccess as RolesWithAccess | undefined,
-          user: usersData && (usersData as UserData[]).find((user) => user.username === username),
-          isLoadingUsers: isLoadingUsers as boolean,
-          userExists: error !== BAD_UUID,
-        }),
-      ),
-    [username],
-  );
-
-  const { roles, isLoadingRoles, rolesWithAccess, user, isLoadingUsers, userExists, adminGroup } = useSelector(selector);
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
-  const fetchRolesData = (apiProps: Record<string, unknown>) => dispatch(fetchRoles(apiProps) as unknown as { type: string });
+  // Fetch user data via React Query
+  const { data: usersData, isLoading: isLoadingUsers } = useUsersQuery({ username, limit: 1 }, { enabled: !!username });
+  const user = usersData?.users?.[0];
+  const userExists = !!user || isLoadingUsers; // Assume exists while loading
 
-  useEffect(() => {
-    chrome.appObjectId(username as string);
-    dispatch(fetchAdminGroup({ chrome }) as unknown as { type: string });
-    dispatch(fetchUsers({ ...defaultSettings, limit: 0, filters: { username } }) as unknown as { type: string });
-    fetchRolesData({ limit: 20, offset: 0, username });
-    setLoadingRolesTemp(true);
-    (fetchRolesData({ limit: 20, offset: 0, addFields: ['groups_in'], username }) as unknown as Promise<void>).then(() => setLoadingRolesTemp(false));
-    debouncedFetch = debounce((limit: number, offset: number, name: string, addFields: string[], usernameArg: string) =>
-      fetchRolesData({ limit, offset, displayName: name, addFields, username: usernameArg }),
-    );
-    return () => chrome.appObjectId(undefined as unknown as string);
-  }, []);
+  // Fetch roles for this user via React Query
+  const { data: rolesData, isLoading: isLoadingRoles } = useRolesQuery(
+    {
+      limit: perPage,
+      offset: (page - 1) * perPage,
+      displayName: filter || undefined,
+      username,
+      addFields: ['groups_in'],
+    },
+    { enabled: !!username },
+  );
+  const roles = rolesData?.data ?? [];
+  const totalCount = rolesData?.meta?.count ?? 0;
+
+  // Fetch admin group via React Query
+  const { data: adminGroup } = useAdminGroupQuery();
+
+  // Fetch role with access for expanded permissions
+  const { data: roleWithAccess, isLoading: isLoadingRoleAccess } = useRoleForPrincipalQuery(expandedRoleId ?? '', {
+    enabled: !!expandedRoleId,
+  });
+
+  // Add roles to group mutation
+  const addRolesToGroupMutation = useAddRolesToGroupMutation();
 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = {
@@ -144,17 +99,27 @@ const User: React.FC = () => {
   // Cell renderers for each column
   const cellRenderers = {
     role: (row: RoleWithGroupsIn) => row.display_name || row.name,
-    groups: (row: RoleWithGroupsIn) => (loadingRolesTemp ? <Skeleton size={SkeletonSize.xs} /> : (row.groups_in?.length ?? 0)),
+    groups: (row: RoleWithGroupsIn) => (isLoadingRoles ? <Skeleton size={SkeletonSize.xs} /> : (row.groups_in?.length ?? 0)),
     permissions: (row: RoleWithGroupsIn) => row.accessCount ?? 0,
     lastModified: (row: RoleWithGroupsIn) => <DateFormat type={getDateFormat(row.modified)} date={row.modified} />,
   };
 
   // Expansion renderers for compound expandable columns
   const expansionRenderers: ExpansionRendererMap<CompoundColumnId, RoleWithGroupsIn> = {
-    groups: (row) => <GroupsNestedTable groups={row.groups_in || []} username={username!} adminGroup={adminGroup} isLoading={loadingRolesTemp} />,
-    permissions: (row) => (
-      <PermissionsNestedTable access={rolesWithAccess?.[row.uuid!]?.access} accessCount={row.accessCount} isLoading={!rolesWithAccess?.[row.uuid!]} />
+    groups: (row) => (
+      <GroupsNestedTable
+        groups={row.groups_in || []}
+        username={username!}
+        adminGroup={adminGroup as AdminGroup | undefined}
+        isLoading={isLoadingRoles}
+      />
     ),
+    permissions: (row) => {
+      const isThisRoleExpanded = expandedRoleId === row.uuid;
+      const access = isThisRoleExpanded ? roleWithAccess?.access : undefined;
+      const isLoading = isThisRoleExpanded ? isLoadingRoleAccess : true;
+      return <PermissionsNestedTable access={access as Access[] | undefined} accessCount={row.accessCount} isLoading={isLoading} />;
+    },
   };
 
   const handleToggleExpand = (rowId: string, column: CompoundColumnId) => {
@@ -162,26 +127,26 @@ const User: React.FC = () => {
 
     if (isCurrentlyExpanded) {
       setExpandedCell(null);
+      setExpandedRoleId(null);
     } else {
       setExpandedCell({ rowId, column });
 
-      // Fetch permissions data when expanding the permissions column
-      if (column === 'permissions' && !rolesWithAccess?.[rowId]) {
-        dispatch(fetchRoleForUser(rowId) as unknown as { type: string });
+      // Set the role ID to fetch permissions when expanding the permissions column
+      if (column === 'permissions') {
+        setExpandedRoleId(rowId);
+      } else {
+        setExpandedRoleId(null);
       }
     }
   };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    const offset = (newPage - 1) * perPage;
-    debouncedFetch(perPage, offset, filter, ['groups_in'], username!);
   };
 
   const handlePerPageChange = (newPerPage: number) => {
     setPerPage(newPerPage);
     setPage(1);
-    debouncedFetch(newPerPage, 0, filter, ['groups_in'], username!);
   };
 
   const breadcrumbsList = [
@@ -189,16 +154,12 @@ const User: React.FC = () => {
     { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
   ];
 
-  // Memoize fetchData to prevent debounce cancellation on re-renders
-  const handleFilterChange = useCallback(
-    (filters: Record<string, string | string[]>) => {
-      const nameFilter = typeof filters.name === 'string' ? filters.name : '';
-      setFilter(nameFilter);
-      setPage(1);
-      debouncedFetch(perPage, 0, nameFilter, ['groups_in'], username!);
-    },
-    [username, perPage],
-  );
+  // Filter change handler - React Query will automatically refetch
+  const handleFilterChange = useCallback((filters: Record<string, string | string[]>) => {
+    const nameFilter = typeof filters.name === 'string' ? filters.name : '';
+    setFilter(nameFilter);
+    setPage(1);
+  }, []);
 
   const filterConfig: FilterConfig[] = [
     {
@@ -250,8 +211,8 @@ const User: React.FC = () => {
             <TableView<typeof columns, RoleWithGroupsIn, never, CompoundColumnId>
               columns={columns}
               columnConfig={columnConfig}
-              data={isLoadingRoles ? undefined : roles.data}
-              totalCount={roles.meta?.count ?? 0}
+              data={isLoadingRoles ? undefined : roles}
+              totalCount={totalCount}
               getRowId={(row) => row.uuid!}
               cellRenderers={cellRenderers}
               expansionRenderers={expansionRenderers}
@@ -290,8 +251,9 @@ const User: React.FC = () => {
                   selectedRoles: selectedAddRoles,
                   setSelectedRoles: setSelectedAddRoles,
                   closeUrl: pathnames['user-detail'].link.replace(':username', username!),
-                  addRolesToGroup: (groupId: string, rolesArg: string[]) =>
-                    dispatch(addRolesToGroup(groupId, rolesArg) as unknown as { type: string }),
+                  addRolesToGroup: async (groupId: string, rolesArg: string[]) => {
+                    await addRolesToGroupMutation.mutateAsync({ groupId, roleUuids: rolesArg });
+                  },
                 }}
               />
             </Suspense>

@@ -1,7 +1,7 @@
 # Redux to TanStack Query Migration
 
-**Status:** Phase 1 Complete (Roles Slice)  
-**Last Updated:** 2026-01-14  
+**Status:** Phase 6 Complete (Redux Removed)  
+**Last Updated:** 2026-01-20  
 **Owner:** Engineering Team  
 
 ## Quick Links
@@ -192,11 +192,16 @@ const { data, isLoading } = useRolesQuery({ limit: 20, offset: 0 });
 
 ## Migration Status
 
+### Phase 0: Type Safety Audit (COMPLETE)
+
+Fixed non-Redux type casts (`as any`, `as unknown`) across 8 files to establish type-safe foundation.
+
 ### Phase 1: Roles Slice (COMPLETE)
 
 **Queries:**
 - `useRolesQuery` - List roles with pagination/filtering
 - `useRoleQuery` - Fetch single role by ID
+- `useRoleForPrincipalQuery` - Fetch role access for a specific principal
 
 **Mutations:**
 - `useCreateRoleMutation` - Create new role
@@ -204,30 +209,127 @@ const { data, isLoading } = useRolesQuery({ limit: 20, offset: 0 });
 - `usePatchRoleMutation` - Partial role update
 - `useDeleteRoleMutation` - Delete role(s)
 
+**Migrated Components:**
+- `Roles.tsx` - Roles list page
+- `Role.tsx` - Role detail page with groups table
+- `AddRoleWizard.tsx` - Create role wizard
+- `EditRoleModal.tsx` - Edit role modal
+- `RemoveRoleModal.tsx` - Delete role confirmation
+- `RoleResourceDefinitions.tsx` - Role resource definitions
+- `EditResourceDefinitionsModal.tsx` - Edit resource definitions
+
 **Related APIs:**
 - Permissions API (complete)
 - Cost Management API (complete)
 - Inventory API (complete)
-- Groups API (admin group only)
 
-### Phase 2: Groups Slice (PLANNED)
+### Phase 2: Users Slice (COMPLETE)
 
-- Full groups CRUD operations
-- Group memberships
-- Group-role associations
+**Queries:**
+- `useUsersQuery` - List users with pagination/filtering/sorting
 
-### Phase 3: Users Slice (PLANNED)
+**Mutations:**
+- `useChangeUserStatusMutation` - Activate/deactivate users
+- `useInviteUsersMutation` - Invite new users via email
+- `useUpdateUserOrgAdminMutation` - Toggle org admin status
 
-- User list and details
-- User-group associations
-- User permissions
+**Migrated Components:**
+- `UsersListNotSelectable.tsx` - Main users table
+- `User.tsx` - User detail page with groups/permissions tables
+- `OrgAdminDropdown.tsx` - Org admin toggle
+- `InviteUsersModal.tsx` - User invitation modal
+- `AddUserToGroup.tsx` - Add user to group modal
+- `GroupsNestedTable.tsx` - User's groups expandable table
+- `PermissionsNestedTable.tsx` - User's permissions expandable table
 
-### Phase 4: Redux Removal (PLANNED)
+**Key Learnings:**
+- Must preserve dynamic base URL logic from `fetchEnvBaseUrl()`
+- Sort direction must be extracted from `-` prefix in orderBy
+- Account ID types vary by component (`number` vs `string`)
 
-- Remove Redux dependencies
-- Delete Redux files
-- Update documentation
-- Bundle size reduction verification
+### Phase 3: My User Access (COMPLETE)
+
+**Queries:**
+- `usePrincipalAccessQuery` - Fetch permissions for current user
+
+**Migrated Components:**
+- `MyUserAccess.tsx` - Main My User Access page
+- `AccessTable.tsx` - Permissions table
+- `RolesTable.tsx` - Roles table with expandable permissions
+
+### Phase 4: Groups Slice (COMPLETE)
+
+**Queries:**
+- `useGroupsQuery` - List groups with pagination/filtering
+- `useGroupQuery` - Fetch single group by ID
+- `useAdminGroupQuery` - Fetch admin (org admin) group
+- `useSystemGroupQuery` - Fetch platform default group
+- `useGroupMembersQuery` - Fetch members for a group
+- `useGroupRolesQuery` - Fetch roles assigned to a group
+- `useGroupServiceAccountsQuery` - Fetch service accounts in a group
+- `useAvailableRolesForGroupQuery` - Fetch roles not yet in a group
+
+**Mutations:**
+- `useCreateGroupMutation` - Create new group (with optional initial members/roles)
+- `useUpdateGroupMutation` - Update group details
+- `useDeleteGroupMutation` - Delete group(s)
+- `useAddMembersToGroupMutation` - Add users to group
+- `useRemoveMembersFromGroupMutation` - Remove users from group
+- `useAddRolesToGroupMutation` - Add roles to group
+- `useRemoveRolesFromGroupMutation` - Remove roles from group
+- `useAddServiceAccountsToGroupMutationV1` - Add service accounts (stable V1 API)
+- `useRemoveServiceAccountsFromGroupMutationV1` - Remove service accounts (stable V1 API)
+
+**Migrated Components:**
+- `Groups.tsx` - Main groups list
+- `Group.tsx` - Group detail page
+- `GroupMembers.tsx` - Group members tab
+- `GroupRoles.tsx` - Group roles tab
+- `GroupServiceAccounts.tsx` - Group service accounts tab
+- `AddGroupWizard.tsx` - Create group wizard
+- `EditGroupModal.tsx` - Edit group modal
+- `RemoveGroupModal.tsx` - Delete group confirmation
+- `AddGroupMembers.tsx` - Add members to group
+- `AddGroupRoles.tsx` - Add roles to group
+- `AddGroupServiceAccounts.tsx` - Add service accounts to group
+- `RemoveGroupServiceAccounts.tsx` - Remove service accounts from group
+- `GroupsMembersTable.tsx` - Expandable members table
+- `GroupsRolesTable.tsx` - Expandable roles table
+
+### Phase 5: Workspaces Slice (COMPLETE)
+
+**Queries:**
+- `useWorkspacesQuery` - List workspaces
+- `useWorkspaceQuery` - Fetch single workspace by ID
+- `useRoleBindingsQuery` - Fetch role bindings for a workspace
+
+**Mutations:**
+- `useCreateWorkspaceMutation` - Create new workspace
+- `useUpdateWorkspaceMutation` - Update workspace details
+- `useDeleteWorkspaceMutation` - Delete workspace(s)
+- `useMoveWorkspaceMutation` - Move workspace to new parent
+
+**Migrated Components:**
+- `WorkspaceList.tsx` - Workspaces list with actions
+- `WorkspaceDetail.tsx` - Workspace detail page
+- `CreateWorkspaceWizard.tsx` - Create workspace wizard
+- `EditWorkspaceModal.tsx` - Edit workspace modal
+- `SetDetails.tsx` - Workspace details form
+- `MoveWorkspaceDialog.tsx` - Move workspace dialog
+- `WorkspaceActions.tsx` - Workspace action buttons
+- `WorkspaceHeader.tsx` - Workspace header component
+- `GroupDetailsDrawer.tsx` - Group details sidebar
+
+### Phase 6: Redux Removal (COMPLETE)
+
+- ✅ `src/redux/` folder deleted
+- ✅ All Redux actions/reducers/selectors removed
+- ✅ Components migrated to React Query hooks
+- ✅ Storybook stories use MSW for API mocking
+
+**Remaining Cleanup (optional):**
+- Delete legacy `src/api/` folder (replaced by `src/data/api/`)
+- Update `src/test/helpers/shared/user-login.test.js` (only file using old API)
 
 ---
 
@@ -498,6 +600,109 @@ export interface InventoryGroupsResponse {
   };
 }
 ```
+
+---
+
+## Critical Migration Rules
+
+These rules were discovered through migration failures. **Violating them WILL break tests.**
+
+### Rule 1: Preserve Original API Call Behavior EXACTLY
+
+When migrating from Redux to React Query, the mutation must call the **exact same endpoints** as the original Redux helper. Don't assume the endpoint pattern - trace the original code.
+
+**Example: Dynamic Base URL**
+
+The original Redux helpers use `fetchEnvBaseUrl()` which fetches `/apps/rbac/env.json` to determine the base URL. In tests, this file doesn't exist, so the base URL becomes an empty string.
+
+```typescript
+// ❌ WRONG - hardcoded path breaks tests
+const baseUrl = '/api/rbac/v1/admin';
+return fetch(`${baseUrl}/change-users-status`, {...});
+
+// ✅ CORRECT - matches original Redux helper behavior
+const envUrl = await fetchEnvBaseUrl();  // Returns '' in tests
+return fetch(`${envUrl}/change-users-status`, {...});  // Becomes '/change-users-status'
+```
+
+### Rule 2: Preserve Sort Parameter Handling
+
+The original code extracts sort direction from the `-` prefix in `orderBy`:
+
+```typescript
+// ❌ WRONG - passes orderBy directly to API
+orderBy: params.orderBy as ListPrincipalsParams['orderBy'],
+sortOrder: params.sortOrder,
+
+// ✅ CORRECT - extract sort direction from prefix
+const sortOrder = params.orderBy?.startsWith('-') ? 'desc' : 'asc';
+const orderByField = params.orderBy?.replace(/^-/, '');
+// Then pass: orderBy: orderByField, sortOrder: sortOrder
+```
+
+### Rule 3: Accept All Original Type Variants
+
+Different components may pass different types for the same parameter (e.g., `accountId` as `number | string | null`). The mutation must accept all original types:
+
+```typescript
+// ❌ WRONG - only accepts one type
+config: {
+  accountId: number | undefined;
+}
+
+// ✅ CORRECT - accepts all types used by different components
+config: {
+  accountId?: string | number | null;  // Some use org_id (number), others use internal.account_id (string)
+}
+```
+
+### Rule 4: Never Change Data Sources
+
+If a component uses `identity.org_id`, don't change it to `identity.internal.account_id`. Different data sources may have different values:
+
+```typescript
+// Original component A
+setAccountId((await auth.getUser())?.identity.org_id as unknown as number);
+
+// Original component B - DIFFERENT source!
+setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
+
+// ❌ WRONG - "standardizing" to one source
+setAccountId(user?.identity?.internal?.account_id ?? null);  // Breaks component A!
+
+// ✅ CORRECT - preserve the original source for each component
+```
+
+### Rule 5: Tests Must Pass WITHOUT Modification
+
+If tests fail after migration:
+1. The bug is in YOUR migration code, not the test
+2. Trace what the original Redux code did
+3. Make your React Query code behave identically
+4. **Never modify tests to make them pass** - they validate correct behavior
+
+### Rule 6: Check MSW Handler Paths
+
+If you see MSW errors like:
+```
+[MSW] Error: intercepted a request without a matching request handler:
+• PUT /api/rbac/v1/admin/change-users-status
+```
+
+This means your mutation is calling a different path than the original. The handlers were written to match the original behavior. **Fix your mutation, not the handlers.**
+
+### Migration Checklist
+
+Before considering a migration complete:
+
+- [ ] All original Redux action imports removed from component
+- [ ] React Query hook imports added
+- [ ] Component uses `{ data, isLoading }` from query hook
+- [ ] Mutations invalidate correct query keys
+- [ ] **All existing tests pass without modification**
+- [ ] Dynamic base URLs preserved (if applicable)
+- [ ] Sort parameter handling preserved
+- [ ] All original parameter types accepted
 
 ---
 

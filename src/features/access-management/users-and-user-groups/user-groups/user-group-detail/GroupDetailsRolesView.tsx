@@ -3,14 +3,12 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
-import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useMemo } from 'react';
 import messages from '../../../../../Messages';
 import { useIntl } from 'react-intl';
-import { fetchRolesForGroup } from '../../../../../redux/groups/actions';
-import { selectGroupRoles, selectGroupRolesError, selectIsGroupRolesLoading } from '../../../../../redux/groups/selectors';
+import { useGroupRolesQuery } from '../../../../../data/queries/groups';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
-import { TableView } from '../../../../../components/table-view/TableView';
+import { TableView, useTableState } from '../../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 
 interface GroupRolesViewProps {
@@ -26,31 +24,44 @@ interface RoleData {
 
 const columns = ['name', 'workspace'] as const;
 
+/**
+ * GroupDetailsRolesView - Shows assigned roles for a user group
+ *
+ * Displays roles with their workspace assignments.
+ * Workspace data comes from V2-style role bindings API (gap:guessed-v2-api).
+ */
 const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ groupId, ouiaId }) => {
-  const dispatch = useDispatch();
   const intl = useIntl();
 
-  const columnConfig: ColumnConfigMap<typeof columns> = {
-    name: { label: intl.formatMessage(messages.roles) },
-    workspace: { label: intl.formatMessage(messages.workspace) },
-  };
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      name: { label: intl.formatMessage(messages.roles) },
+      workspace: { label: intl.formatMessage(messages.workspace) },
+    }),
+    [intl],
+  );
 
-  const cellRenderers: CellRendererMap<typeof columns, RoleData> = {
-    name: (role) => role.display_name,
-    workspace: () => '?', // TODO: Update once API provides workspace data
-  };
+  const cellRenderers: CellRendererMap<typeof columns, RoleData> = useMemo(
+    () => ({
+      name: (role) => role.display_name,
+      workspace: (role) => role.workspace || '—',
+    }),
+    [],
+  );
 
-  const roles = useSelector(selectGroupRoles);
-  const isLoading = useSelector(selectIsGroupRolesLoading);
-  const error = useSelector(selectGroupRolesError);
+  // Use useTableState for table state management
+  const tableState = useTableState<typeof columns, RoleData>({
+    columns,
+    getRowId: (role) => role.uuid,
+    initialPerPage: 100, // Show all items in detail views
+    syncWithUrl: false, // Drawer tables shouldn't sync with URL
+  });
 
-  const fetchData = useCallback(() => {
-    dispatch(fetchRolesForGroup(groupId, { limit: 1000 }));
-  }, [dispatch, groupId]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // Use React Query - returns unwrapped, typed data
+  const { data, isLoading, error } = useGroupRolesQuery(groupId, {
+    limit: tableState.apiParams.limit,
+  });
+  const roles = data?.roles ?? [];
 
   // Show error state
   if (error) {
@@ -69,9 +80,10 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
     </EmptyState>
   );
 
-  const roleData: RoleData[] = roles.map((role: any) => ({
+  const roleData: RoleData[] = roles.map((role) => ({
     uuid: role.uuid,
-    display_name: role.display_name,
+    display_name: role.display_name ?? role.name,
+    workspace: role.workspace,
   }));
 
   return (
@@ -83,14 +95,11 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
         totalCount={roleData.length}
         getRowId={(role) => role.uuid}
         cellRenderers={cellRenderers}
-        page={1}
-        perPage={roleData.length || 10}
-        onPageChange={() => {}}
-        onPerPageChange={() => {}}
         ariaLabel="GroupRolesView"
         ouiaId={ouiaId}
         emptyStateNoData={emptyState}
         emptyStateNoResults={emptyState}
+        {...tableState}
       />
     </div>
   );

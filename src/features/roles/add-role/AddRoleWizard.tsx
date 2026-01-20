@@ -24,7 +24,7 @@ import { SilentErrorBoundary } from '../../../components/ui-states/SilentErrorBo
 import messages from '../../../Messages';
 import paths from '../../../utilities/pathnames';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
-import type { RoleIn } from '@redhat-cloud-services/rbac-client/types';
+// RoleIn type removed - RoleData interface now matches it directly
 
 interface PaginationProps {
   limit: number;
@@ -32,7 +32,7 @@ interface PaginationProps {
 
 interface FiltersProps {
   name?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface AddRoleWizardProps {
@@ -41,8 +41,8 @@ interface AddRoleWizardProps {
 }
 
 interface DescriptionProps {
-  Content: React.ComponentType<any>;
-  [key: string]: any;
+  Content: React.ComponentType<Record<string, unknown>>;
+  [key: string]: unknown;
 }
 
 interface Permission {
@@ -71,24 +71,23 @@ interface FormData {
   'role-type': 'create' | 'copy';
 }
 
-interface AttributeFilter {
-  key: string;
-  operation: 'in';
-  value: string[] | undefined;
-}
+// Use types from rbac-client for type safety
+import type { Access, ResourceDefinition } from '@redhat-cloud-services/rbac-client/types';
+import type Schema from '@data-driven-forms/react-form-renderer/common-types/schema';
 
-interface RoleAccess {
-  permission: string;
-  resourceDefinitions: Array<{ attributeFilter: AttributeFilter }> | [];
-}
-
+/**
+ * Role data structure matching RoleIn from rbac-client.
+ * Note: The API computes 'applications' from permissions server-side,
+ * so we don't include it here.
+ */
 interface RoleData {
-  applications: string[];
-  description?: string;
   name: string;
-  access: RoleAccess[];
+  display_name?: string;
+  description?: string;
+  access: Access[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const FormTemplate: React.FC<any> = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 const Description: React.FC<DescriptionProps> = ({ Content, ...rest }) => <Content {...rest} />;
 
@@ -123,7 +122,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   });
 
   const [cancelWarningVisible, setCancelWarningVisible] = useState<boolean>(false);
-  const [schema, setSchema] = useState<any>();
+  const [schema, setSchema] = useState<Schema | undefined>();
 
   useEffect(() => {
     setSchema(schemaBuilder(enableWorkspacesNameChange));
@@ -155,7 +154,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const setWizardSuccess = (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm: boolean) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
 
-  const handleFormCancel = (values: Record<string, any>) => {
+  const handleFormCancel = (values: Record<string, unknown>) => {
     const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
     if (showWarning) {
       setCancelWarningVisible(true);
@@ -164,7 +163,8 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
     }
   };
 
-  const onSubmit = (formData: FormData) => {
+  const onSubmit = (values: Record<string, unknown>) => {
+    const formData = values as unknown as FormData;
     const {
       'role-name': name,
       'role-description': description,
@@ -177,35 +177,44 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
     } = formData;
 
     const selectedPermissionIds = permissions.map((record) => record.uuid);
+    const roleName = type === 'create' ? name || '' : copyName || '';
 
     const roleData: RoleData = {
-      applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
+      name: roleName,
+      display_name: roleName,
       description: (type === 'create' ? description : copyDescription) || undefined,
-      name: type === 'create' ? name || '' : copyName || '',
-      access: permissions.reduce<RoleAccess[]>(
+      access: permissions.reduce<Access[]>(
         (acc, { uuid: permission, requires = [] }) => [
           ...acc,
-          ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission): RoleAccess => {
-            let attributeFilter: AttributeFilter | undefined;
+          ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission): Access => {
+            const resourceDefinitions: ResourceDefinition[] = [];
 
             const costResource = costResources?.find((r) => r.permission === permission);
             if (permission.includes('cost-management') && costResource && costResource.resources.length > 0) {
-              attributeFilter = {
-                key: `cost-management.${permission.split(':')[1]}`,
-                operation: 'in',
-                value: costResource.resources,
-              };
+              resourceDefinitions.push({
+                attributeFilter: {
+                  key: `cost-management.${permission.split(':')[1]}`,
+                  operation: 'in',
+                  value: costResource.resources,
+                },
+              });
             } else if (permission.includes('inventory')) {
-              attributeFilter = {
-                key: 'group.id',
-                operation: 'in',
-                value: invResources?.find((g) => g.permission === permission)?.groups?.map((group) => group?.id),
-              };
+              const groups = invResources?.find((g) => g.permission === permission)?.groups;
+              const groupIds = groups?.map((group) => group?.id).filter((id): id is string => id !== undefined && id !== null);
+              if (groupIds && groupIds.length > 0) {
+                resourceDefinitions.push({
+                  attributeFilter: {
+                    key: 'group.id',
+                    operation: 'in',
+                    value: groupIds,
+                  },
+                });
+              }
             }
 
             return {
               permission,
-              resourceDefinitions: attributeFilter ? [{ attributeFilter }] : [],
+              resourceDefinitions,
             };
           }),
         ],
@@ -216,7 +225,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
     setWizardContextValue((prev) => ({ ...prev, submitting: true }));
 
     return createRoleMutation
-      .mutateAsync(roleData as RoleIn)
+      .mutateAsync(roleData)
       .then(() => {
         // Success is shown via RoleCreationSuccess wizard step, no notification needed
         // Cache invalidation happens automatically in the mutation's onSuccess

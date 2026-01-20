@@ -10,10 +10,10 @@ import type { User } from './types';
 
 interface SetUsersProps {
   name: string;
-  // Data-driven-forms props
-  input?: any;
-  meta?: any;
-  [key: string]: any;
+  // Data-driven-forms pass-through props
+  input?: { onChange: (value: unknown) => void; value: unknown };
+  meta?: { error?: string; touched?: boolean };
+  [key: string]: unknown;
 }
 
 export const SetUsers: React.FC<SetUsersProps> = (props) => {

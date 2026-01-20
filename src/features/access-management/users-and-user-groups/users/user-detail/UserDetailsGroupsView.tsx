@@ -1,17 +1,14 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
-import { mappedProps } from '../../../../../helpers/dataUtilities';
-import { fetchGroups } from '../../../../../redux/groups/actions';
-import { selectGroups, selectGroupsErrorState, selectIsGroupsLoading } from '../../../../../redux/groups/selectors';
+import { type Group, useGroupsQuery } from '../../../../../data/queries/groups';
 import messages from '../../../../../Messages';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
-import { TableView } from '../../../../../components/table-view/TableView';
+import { TableView, useTableState } from '../../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 
 interface UserGroupsViewProps {
@@ -22,36 +19,48 @@ interface UserGroupsViewProps {
 interface GroupData {
   uuid: string;
   name: string;
-  principalCount?: number;
+  principalCount?: number | string;
 }
 
 const columns = ['name', 'users'] as const;
 
 const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ userId, ouiaId }) => {
-  const dispatch = useDispatch();
   const intl = useIntl();
 
-  const columnConfig: ColumnConfigMap<typeof columns> = {
-    name: { label: intl.formatMessage(messages.userGroup) },
-    users: { label: intl.formatMessage(messages.users) },
-  };
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      name: { label: intl.formatMessage(messages.userGroup) },
+      users: { label: intl.formatMessage(messages.users) },
+    }),
+    [intl],
+  );
 
-  const cellRenderers: CellRendererMap<typeof columns, GroupData> = {
-    name: (group) => group.name,
-    users: (group) => group.principalCount || '?', // TODO: update once API provides principalCount [RHCLOUD-35963]
-  };
+  const cellRenderers: CellRendererMap<typeof columns, GroupData> = useMemo(
+    () => ({
+      name: (group) => group.name,
+      users: (group) => group.principalCount ?? 0,
+    }),
+    [],
+  );
 
-  const groups = useSelector(selectGroups);
-  const isLoading = useSelector(selectIsGroupsLoading);
-  const error = useSelector(selectGroupsErrorState);
+  // Use useTableState for table state management
+  const tableState = useTableState<typeof columns, GroupData>({
+    columns,
+    getRowId: (group) => group.uuid,
+    initialPerPage: 100, // Show all items in detail views
+    syncWithUrl: false, // Drawer tables shouldn't sync with URL
+  });
 
-  const fetchData = useCallback(() => {
-    dispatch(fetchGroups({ ...mappedProps({ username: userId }), usesMetaInURL: true, system: false }));
-  }, [dispatch, userId]);
+  // Use React Query to fetch groups filtered by this user's username
+  // The V1 API supports filtering groups by username parameter
+  const { data, isLoading, error } = useGroupsQuery({
+    limit: tableState.apiParams.limit,
+    offset: tableState.apiParams.offset,
+    username: userId, // Filter to only groups this user belongs to
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // Extract groups from typed response
+  const groups: Group[] = data?.data ?? [];
 
   // Show error state
   if (error) {
@@ -70,7 +79,7 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
     </EmptyState>
   );
 
-  const groupData: GroupData[] = groups.map((group: any) => ({
+  const groupData: GroupData[] = groups.map((group) => ({
     uuid: group.uuid,
     name: group.name,
     principalCount: group.principalCount,
@@ -85,14 +94,11 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
         totalCount={groupData.length}
         getRowId={(group) => group.uuid}
         cellRenderers={cellRenderers}
-        page={1}
-        perPage={groupData.length || 10}
-        onPageChange={() => {}}
-        onPerPageChange={() => {}}
         ariaLabel="UserGroupsView"
         ouiaId={ouiaId}
         emptyStateNoData={emptyState}
         emptyStateNoResults={emptyState}
+        {...tableState}
       />
     </div>
   );

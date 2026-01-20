@@ -2,16 +2,16 @@ import FormTemplateCommonProps from '@data-driven-forms/common/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
+import type { FormApi } from 'final-form';
 import { useFlag } from '@unleash/proxy-client-react';
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
-import { createWorkspace, fetchWorkspaces } from '../../../redux/workspaces/actions';
+import { useCreateWorkspaceMutation, useWorkspacesQuery } from '../../../data/queries/workspaces';
 import { ReviewStep as Review } from './components/Review';
 import { WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT, schemaBuilder } from './schema';
 import { SetDetails } from './components/SetDetails';
@@ -31,16 +31,19 @@ export const mapperExtension = {
 };
 
 export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = ({ afterSubmit, onCancel }) => {
-  const dispatch = useDispatch();
   const intl = useIntl();
   const navigate = useAppNavigate();
   const enableFeatures = useFlag('platform.rbac.workspaces-billing-features');
   const addNotification = useAddNotification();
 
+  // React Query hooks
+  const { data: workspacesData } = useWorkspacesQuery();
+  const existingWorkspaceNames = (workspacesData?.data ?? []).map((w) => w.name).filter((n): n is string => !!n);
+  const createWorkspaceMutation = useCreateWorkspaceMutation();
+
   // Default handlers for when component is used as a route element
   const defaultAfterSubmit = () => {
-    // Refresh workspaces list to show the newly created workspace
-    dispatch(fetchWorkspaces());
+    // Cache is automatically invalidated by the mutation
     navigate(pathnames.workspaces.link);
   };
 
@@ -53,22 +56,19 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
     navigate(pathnames.workspaces.link);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = async (_v: any, form: any) => {
+  const onSubmit = async (_v: Record<string, unknown>, form: FormApi) => {
     const values = form.getState().values;
-    await dispatch(
-      createWorkspace({
-        name: values[WORKSPACE_NAME],
-        description: values[WORKSPACE_DESCRIPTION],
-        parent_id: values[WORKSPACE_PARENT].id,
-      }),
-    );
+    await createWorkspaceMutation.mutateAsync({
+      name: values[WORKSPACE_NAME],
+      description: values[WORKSPACE_DESCRIPTION],
+      parent_id: values[WORKSPACE_PARENT].id,
+    });
     (afterSubmit || defaultAfterSubmit)();
   };
 
   return (
     <FormRenderer
-      schema={schemaBuilder(enableFeatures)}
+      schema={schemaBuilder(enableFeatures, existingWorkspaceNames)}
       componentMapper={{ ...componentMapper, ...mapperExtension }}
       FormTemplate={FormTemplate}
       onSubmit={onSubmit}

@@ -1,5 +1,7 @@
 import React from 'react';
+import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
@@ -7,7 +9,6 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 import type { Schema } from '@data-driven-forms/react-form-renderer';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { ModalFormTemplate } from '../../components/forms/ModalFormTemplate';
-import FormRenderer from '../../components/forms/FormRenderer';
 import { usePatchRoleMutation, useRoleQuery } from '../../data/queries/roles';
 import { rolesApi } from '../../data/api/roles';
 import { debounceAsync as asyncDebounce } from '../../utilities/debounce';
@@ -129,11 +130,13 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
   return roleData ? (
     <FormRenderer
       schema={createEditRoleSchema(roleId!)}
+      componentMapper={componentMapper}
       initialValues={roleData}
-      onSubmit={handleSubmit}
+      onSubmit={(values) => handleSubmit(values as FormValues)}
       onCancel={onCancel}
-      validatorMapper={validatorMapper}
-      FormTemplate={(props: Record<string, unknown>) => (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      validatorMapper={validatorMapper as any}
+      FormTemplate={(props) => (
         <ModalFormTemplate {...props} ModalProps={{ onClose: onCancel, isOpen: true, variant: 'small', title: 'Edit role information' }} />
       )}
     />

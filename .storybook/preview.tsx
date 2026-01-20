@@ -4,14 +4,12 @@ import '@patternfly/patternfly/patternfly-addons.css';
 import React, { Fragment, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { IntlProvider } from 'react-intl';
-import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
-import { registryFactory, RegistryContext } from '../src/utilities/store';
 import { ChromeProvider, FeatureFlagsProvider, type ChromeConfig, type FeatureFlagsConfig } from './context-providers';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 
@@ -124,8 +122,6 @@ const preview: Preview = {
   },
   decorators: [
     (Story, { parameters, args }) => {
-      const registry = registryFactory();
-
       const permissions = {
         userAccessAdministrator: false,
         orgAdmin: false,
@@ -175,27 +171,19 @@ const preview: Preview = {
 
       return (
         <QueryClientWrapper>
-          <RegistryContext.Provider
-            value={{
-              getRegistry: () => registry,
-            }}
-          >
-            <Provider store={registry.getStore()}>
-              <ChromeProvider value={chromeConfig}>
-                <FeatureFlagsProvider value={featureFlags}>
-                  <PermissionsContext.Provider value={permissions}>
-                    <IntlProvider locale={locale} messages={messages[locale]}>
-                      <Fragment>
-                        <NotificationsProvider>
-                          <Story />
-                        </NotificationsProvider>
-                      </Fragment>
-                    </IntlProvider>
-                  </PermissionsContext.Provider>
-                </FeatureFlagsProvider>
-              </ChromeProvider>
-            </Provider>
-          </RegistryContext.Provider>
+          <ChromeProvider value={chromeConfig}>
+            <FeatureFlagsProvider value={featureFlags}>
+              <PermissionsContext.Provider value={permissions}>
+                <IntlProvider locale={locale} messages={messages[locale]}>
+                  <Fragment>
+                    <NotificationsProvider>
+                      <Story />
+                    </NotificationsProvider>
+                  </Fragment>
+                </IntlProvider>
+              </PermissionsContext.Provider>
+            </FeatureFlagsProvider>
+          </ChromeProvider>
         </QueryClientWrapper>
       );
     },
