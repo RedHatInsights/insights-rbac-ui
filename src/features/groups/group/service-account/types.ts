@@ -1,12 +1,8 @@
-// ServiceAccount type - aligned with React Query
-export interface ServiceAccount {
-  uuid: string; // Required for table row ID
-  clientId: string;
-  name: string;
-  owner?: string;
-  description?: string;
-  time_created?: string;
-}
+import type { ReactNode } from 'react';
+import type { ServiceAccount } from '../../../../data/queries/groups';
+
+// Re-export ServiceAccount for external consumers
+export type { ServiceAccount };
 
 export interface ServiceAccountFilters {
   clientId: string;
@@ -16,7 +12,7 @@ export interface ServiceAccountFilters {
 
 export interface ServiceAccountTableRow {
   id: string;
-  row: React.ReactNode[];
+  row: ReactNode[];
   item: ServiceAccount;
 }
 
