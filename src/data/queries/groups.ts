@@ -114,7 +114,8 @@ export interface GroupRolesQueryResult {
 
 /**
  * Service account type for group service accounts.
- * Note: Service accounts come from SSO API, not RBAC API.
+ * Note: Service accounts come from RBAC API's getPrincipalsFromGroup endpoint.
+ * The time_created is normalized to milliseconds in the query layer.
  */
 export interface ServiceAccount {
   uuid: string;
@@ -122,7 +123,21 @@ export interface ServiceAccount {
   name: string;
   owner?: string;
   description?: string;
-  time_created?: string;
+  time_created?: number; // Unix timestamp in milliseconds (normalized from API's seconds)
+}
+
+/**
+ * Raw service account response from the RBAC API (before normalization).
+ * Used for typing MSW mock handlers in tests/stories.
+ * Note: time_created is in Unix SECONDS; the query layer converts to milliseconds.
+ */
+export interface RawServiceAccountFromApi {
+  username: string;
+  clientId?: string;
+  name?: string;
+  owner?: string;
+  description?: string;
+  time_created?: number; // Unix timestamp in SECONDS (API format)
 }
 
 /**
@@ -462,22 +477,16 @@ export function useGroupServiceAccountsQuery(
       const data = response.data;
 
       // Transform response to match our typed structure
-      interface RawServiceAccount {
-        username: string;
-        clientId?: string;
-        name?: string;
-        owner?: string;
-        description?: string;
-        time_created?: string;
-      }
-      const responseData = data as { data?: RawServiceAccount[]; meta?: { count?: number } };
+      const responseData = data as { data?: RawServiceAccountFromApi[]; meta?: { count?: number } };
       const serviceAccounts: ServiceAccount[] = (responseData?.data ?? []).map((principal) => ({
         uuid: principal.clientId || principal.username,
         clientId: principal.clientId || principal.username,
         name: principal.name || principal.username,
         owner: principal.owner,
         description: principal.description,
-        time_created: principal.time_created,
+        // API returns Unix timestamp in seconds, convert to milliseconds for JS Date
+        // Use explicit null check to handle valid epoch timestamp (0)
+        time_created: principal.time_created != null ? principal.time_created * 1000 : undefined,
       }));
 
       return {

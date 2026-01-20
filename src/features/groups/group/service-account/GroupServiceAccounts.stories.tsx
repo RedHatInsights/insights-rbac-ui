@@ -4,30 +4,36 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { GroupServiceAccounts } from './GroupServiceAccounts';
+import type { RawServiceAccountFromApi } from '../../../../data/queries/groups';
 
-const mockServiceAccounts = [
+/**
+ * Mock service accounts representing raw API responses.
+ * These are returned by MSW handlers and converted to milliseconds by the query layer.
+ * Shape matches RawServiceAccountFromApi - using Required to ensure test data is complete.
+ */
+const mockServiceAccounts: Required<RawServiceAccountFromApi>[] = [
   {
-    uuid: 'uuid-ci-pipeline-service', // Add UUID for selection to work
-    name: 'ci-pipeline-service', // reducer sets uuid = item.name
+    username: 'service-account-123',
+    name: 'ci-pipeline-service',
     clientId: 'service-account-123',
     owner: 'platform-team',
-    time_created: 1642636800, // Unix timestamp (will be multiplied by 1000 in reducer)
+    time_created: 1642636800, // Jan 20, 2022 in seconds
     description: 'CI/CD pipeline automation service account',
   },
   {
-    uuid: 'uuid-monitoring-collector', // Add UUID for selection to work
+    username: 'service-account-456',
     name: 'monitoring-collector',
     clientId: 'service-account-456',
     owner: 'ops-team',
-    time_created: 1642550400,
+    time_created: 1642550400, // Jan 19, 2022 in seconds
     description: 'Monitoring and metrics collection service',
   },
   {
-    uuid: 'uuid-backup-automation', // Add UUID for selection to work
+    username: 'service-account-789',
     name: 'backup-automation',
     clientId: 'service-account-789',
     owner: 'infrastructure-team',
-    time_created: 1642464000,
+    time_created: 1642464000, // Jan 18, 2022 in seconds
     description: 'Automated backup and data management',
   },
 ];
@@ -702,18 +708,18 @@ export const BulkActionsTest: Story = {
             return HttpResponse.json({
               data: [
                 {
-                  uuid: 'sa-1-uuid',
+                  username: 'client-1',
                   name: 'test-service-1',
                   clientId: 'client-1',
                   owner: 'test-user',
-                  time_created: Date.now(),
+                  time_created: Math.floor(Date.now() / 1000), // Unix timestamp in seconds
                 },
                 {
-                  uuid: 'sa-2-uuid',
+                  username: 'client-2',
                   name: 'test-service-2',
                   clientId: 'client-2',
                   owner: 'test-user',
-                  time_created: Date.now(),
+                  time_created: Math.floor(Date.now() / 1000), // Unix timestamp in seconds
                 },
               ],
               meta: { count: 2, limit: 20, offset: 0 },
