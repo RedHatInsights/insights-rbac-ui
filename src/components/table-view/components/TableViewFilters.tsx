@@ -3,12 +3,14 @@
  *
  * Renders filter controls based on configuration.
  * Normalizes filter types (search → text, select → checkbox) internally.
+ * When there's only one text filter, renders it directly without the dropdown wrapper.
  */
 
 import React, { useMemo } from 'react';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { DataViewTextFilter } from '@patternfly/react-data-view/dist/dynamic/DataViewTextFilter';
 import { DataViewCheckboxFilter } from '@patternfly/react-data-view/dist/dynamic/DataViewCheckboxFilter';
+import { SearchInput } from '@patternfly/react-core/dist/dynamic/components/SearchInput';
 import type { FilterConfig, FilterState } from '../types';
 
 export interface TableViewFiltersProps {
@@ -23,6 +25,7 @@ export interface TableViewFiltersProps {
 /**
  * Renders filter controls for TableView.
  * Normalizes 'search' → 'text' and 'select' → 'checkbox' internally.
+ * When there's only one text filter, renders SearchInput directly without dropdown.
  */
 export const TableViewFilters: React.FC<TableViewFiltersProps> = ({ filterConfig, filters, onFiltersChange }) => {
   // Normalize filter config - reduce 4 types to 2 (text vs checkbox)
@@ -55,6 +58,30 @@ export const TableViewFilters: React.FC<TableViewFiltersProps> = ({ filterConfig
 
   if (normalizedFilterConfig.length === 0) return null;
 
+  // Special case: if there's only one text filter, render it directly without dropdown
+  const textFilters = normalizedFilterConfig.filter((config) => config.type === 'text');
+  const hasOnlyOneTextFilter = textFilters.length === 1 && normalizedFilterConfig.length === 1;
+
+  if (hasOnlyOneTextFilter) {
+    const singleFilter = textFilters[0];
+    const filterValue = (filters[singleFilter.id] as string) || '';
+
+    return (
+      <SearchInput
+        placeholder={singleFilter.placeholder || `Search by ${singleFilter.label.toLowerCase()}...`}
+        value={filterValue}
+        onChange={(_event, value) => {
+          onFiltersChange?.({ [singleFilter.id]: value });
+        }}
+        onClear={() => {
+          onFiltersChange?.({ [singleFilter.id]: '' });
+        }}
+        aria-label={singleFilter.label}
+      />
+    );
+  }
+
+  // Multiple filters or checkbox filters - use DataViewFilters wrapper
   return (
     <DataViewFilters onChange={handleFilterChange} values={filters}>
       {normalizedFilterConfig.map((config) => {

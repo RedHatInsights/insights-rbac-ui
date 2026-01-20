@@ -1,24 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
-import { ActionGroup, Pagination, ToggleGroup, ToggleGroupItem, Tooltip } from '@patternfly/react-core';
+import { ActionGroup, ToggleGroup, ToggleGroupItem, Tooltip } from '@patternfly/react-core';
 import { Stack, StackItem } from '@patternfly/react-core';
-import { useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
-import { DataView, DataViewState } from '@patternfly/react-data-view';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { SearchInput } from '@patternfly/react-core/dist/dynamic/components/SearchInput';
-import { DataViewTh } from '@patternfly/react-data-view';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
+import { TableView, useTableState } from '../../../../components/table-view';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view/types';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
 import { formatDistanceToNow } from 'date-fns';
 import { fetchRolesWithPolicies } from '../../../../redux/roles/actions';
 import { selectIsRolesLoading, selectRoles } from '../../../../redux/roles/selectors';
 import { getRoleBindingsForSubject } from '../../../../redux/workspaces/helper';
 import { getModalContainer } from '../../../../helpers/modal-container';
 import { Group } from '../../../../redux/groups/reducer';
+import { Role } from '../../../../redux/roles/reducer';
 import messages from '../../../../Messages';
 
 interface RoleAccessModalProps {
@@ -33,12 +29,9 @@ interface RoleAccessModalProps {
 const TOGGLE_ALL = 'all';
 const TOGGLE_SELECTED = 'selected';
 
-const perPageOptions = [
-  { title: '5', value: 5 },
-  { title: '10', value: 10 },
-  { title: '20', value: 20 },
-  { title: '50', value: 50 },
-];
+const columns = ['name', 'description', 'permissions', 'lastModified'] as const;
+type SortableColumn = 'name' | 'lastModified';
+const sortableColumns: readonly SortableColumn[] = ['name', 'lastModified'];
 
 export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClose, group, workspaceId, workspaceName, onUpdate }) => {
   const intl = useIntl();
@@ -46,36 +39,42 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
   const [selectedToggle, setSelectedToggle] = useState(TOGGLE_ALL);
   const [assignedRoleIds, setAssignedRoleIds] = useState<string[]>([]);
   const [isLoadingAssignedRoles, setIsLoadingAssignedRoles] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
-  const [sortBy, setSortBy] = useState<{ index: number; direction: 'asc' | 'desc' }>({ index: 0, direction: 'asc' });
 
-  // DataView hooks
-  const pagination = useDataViewPagination({ perPage: 10 });
-  const selection = useDataViewSelection({
-    matchOption: (a, b) => a.id === b.id,
-  });
-
-  const { selected, onSelect } = selection;
-  const { page, perPage, onSetPage } = pagination;
-
-  // Use refs to store callbacks to avoid infinite loops in useEffect dependencies
-  const onSelectRef = useRef(onSelect);
-  const onSetPageRef = useRef(onSetPage);
-
-  // Update refs when callbacks change
-  useEffect(() => {
-    onSelectRef.current = onSelect;
-  }, [onSelect]);
-
-  useEffect(() => {
-    onSetPageRef.current = onSetPage;
-  }, [onSetPage]);
-
-  // Redux selectors
   const allRoles = useSelector(selectRoles);
   const isLoadingRoles = useSelector(selectIsRolesLoading);
 
-  // Fetch all available roles
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      name: { label: intl.formatMessage(messages.role).charAt(0).toUpperCase() + intl.formatMessage(messages.role).slice(1), sortable: true },
+      description: { label: intl.formatMessage(messages.description) },
+      permissions: { label: intl.formatMessage(messages.permissions) },
+      lastModified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+    }),
+    [intl],
+  );
+
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        type: 'text',
+        id: 'name',
+        label: intl.formatMessage(messages.role),
+        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.role) }),
+      },
+    ],
+    [intl],
+  );
+
+  const tableState = useTableState<typeof columns, Role, SortableColumn>({
+    columns,
+    sortableColumns,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: 10,
+    perPageOptions: [5, 10, 20, 50],
+    getRowId: (role) => role.uuid,
+    initialFilters: { name: '' },
+  });
+
   useEffect(() => {
     if (isOpen) {
       dispatch(
@@ -87,7 +86,6 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
     }
   }, [isOpen, dispatch]);
 
-  // Fetch currently assigned roles for the group in this workspace
   useEffect(() => {
     if (isOpen && group?.uuid && workspaceId && allRoles.length > 0) {
       setIsLoadingAssignedRoles(true);
@@ -105,17 +103,16 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
           const assignedIds =
             result.data?.flatMap((binding: RoleBinding) => binding.roles?.map((role) => role.id).filter((id): id is string => !!id) || []) || [];
           setAssignedRoleIds(assignedIds);
-          // Set initial selection based on assigned roles
           const assignedRoles = allRoles.filter((role) => assignedIds.includes(role.uuid));
-          onSelectRef.current(
-            true,
-            assignedRoles.map((role) => ({ id: role.uuid })),
-          );
+          tableState.clearSelection();
+          assignedRoles.forEach((role) => {
+            tableState.onSelectRow(role, true);
+          });
         })
         .catch((error) => {
           console.error('Error fetching assigned roles:', error);
           setAssignedRoleIds([]);
-          onSelectRef.current(false);
+          tableState.clearSelection();
         })
         .finally(() => {
           setIsLoadingAssignedRoles(false);
@@ -123,58 +120,49 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
     }
   }, [isOpen, group?.uuid, workspaceId, allRoles]);
 
-  // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
       setSelectedToggle(TOGGLE_ALL);
-      setSearchValue('');
-      onSetPageRef.current(undefined, 1);
-      onSelectRef.current(false);
+      tableState.onFiltersChange({ name: '' });
+      tableState.onPageChange(1);
+      tableState.clearSelection();
       setAssignedRoleIds([]);
     }
   }, [isOpen]);
 
-  // Reset page to 1 when switching toggles to prevent empty pages
   useEffect(() => {
-    onSetPageRef.current(undefined, 1);
-  }, [selectedToggle]);
+    tableState.onPageChange(1);
+  }, [selectedToggle, tableState.onPageChange]);
 
-  // Reset toggle to all when selection is cleared
   useEffect(() => {
-    if (selected.length === 0) {
+    if (tableState.selectedRows.length === 0) {
       setSelectedToggle(TOGGLE_ALL);
     }
-  }, [selected]);
+  }, [tableState.selectedRows]);
 
-  // Filter and sort roles
   const { filteredRoles, totalCount } = useMemo(() => {
     let filtered = allRoles;
 
-    // Apply search filter (only by role name)
+    const searchValue = (tableState.filters.name as string) || '';
     if (searchValue) {
       filtered = filtered.filter((role) => (role.display_name || role.name || '').toLowerCase().includes(searchValue.toLowerCase()));
     }
 
-    // Filter by toggle
     if (selectedToggle === TOGGLE_SELECTED) {
-      const selectedIds = selected.map((sel) => sel.id);
-      filtered = filtered.filter((role) => selectedIds.includes(role.uuid));
+      const selectedIds = new Set(tableState.selectedRows.map((role) => role.uuid));
+      filtered = filtered.filter((role) => selectedIds.has(role.uuid));
     }
 
-    // Sort roles
     const sorted = [...filtered].sort((a, b) => {
-      const { index, direction } = sortBy;
+      if (!tableState.sort) return 0;
+
+      const { column, direction } = tableState.sort;
       let comparison = 0;
 
-      switch (index) {
-        case 0: // Role name
-          comparison = (a.display_name || a.name || '').localeCompare(b.display_name || b.name || '');
-          break;
-        case 3: // Last modified
-          comparison = new Date(a.modified || 0).getTime() - new Date(b.modified || 0).getTime();
-          break;
-        default:
-          comparison = 0;
+      if (column === 'name') {
+        comparison = (a.display_name || a.name || '').localeCompare(b.display_name || b.name || '');
+      } else if (column === 'lastModified') {
+        comparison = new Date(a.modified || 0).getTime() - new Date(b.modified || 0).getTime();
       }
 
       return direction === 'asc' ? comparison : -comparison;
@@ -184,154 +172,55 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
       filteredRoles: sorted,
       totalCount: sorted.length,
     };
-  }, [allRoles, searchValue, selectedToggle, selected, sortBy]);
+  }, [allRoles, tableState.filters, selectedToggle, tableState.selectedRows, tableState.sort]);
 
-  // Paginate filtered roles
   const pageRows = useMemo(() => {
-    const startIndex = (page - 1) * perPage;
-    const endIndex = startIndex + perPage;
+    const startIndex = (tableState.page - 1) * tableState.perPage;
+    const endIndex = startIndex + tableState.perPage;
     return filteredRoles.slice(startIndex, endIndex);
-  }, [filteredRoles, page, perPage]);
+  }, [filteredRoles, tableState.page, tableState.perPage]);
 
-  // Handle bulk selection
-  const handleBulkSelect = useCallback(
-    (value: BulkSelectValue) => {
-      if (value === BulkSelectValue.none) {
-        onSelect(false);
-      } else if (value === BulkSelectValue.page) {
-        // Select all roles on current page
-        onSelect(
-          true,
-          pageRows.map((role) => ({ id: role.uuid })),
-        );
-      } else if (value === BulkSelectValue.nonePage) {
-        // Deselect all roles on current page
-        const pageRowIds = pageRows.map((role) => role.uuid);
-        const remainingSelected = selected.filter((sel) => !pageRowIds.includes(sel.id));
-        onSelect(true, remainingSelected);
-      }
-    },
-    [pageRows, selected, onSelect],
+  const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(
+    () => ({
+      name: (role) => role.display_name || role.name,
+      description: (role) => role.description || '—',
+      permissions: (role) => role.accessCount || 0,
+      lastModified: (role) => (role.modified ? formatDistanceToNow(new Date(role.modified), { addSuffix: true }) : '—'),
+    }),
+    [],
   );
 
-  // Handle update
   const handleUpdate = useCallback(() => {
-    const selectedIds = selected.map((sel) => sel.id);
+    const selectedIds = tableState.selectedRows.map((role) => role.uuid);
     onUpdate?.(selectedIds);
     onClose();
-  }, [selected, onUpdate, onClose]);
+  }, [tableState.selectedRows, onUpdate, onClose]);
 
-  // Check if there are changes
   const hasChanges = useMemo(() => {
-    const selectedIds = selected.map((sel) => sel.id);
+    const selectedIds = tableState.selectedRows.map((role) => role.uuid);
     if (selectedIds.length !== assignedRoleIds.length) return true;
     return !selectedIds.every((id) => assignedRoleIds.includes(id));
-  }, [selected, assignedRoleIds]);
-
-  // Build table rows
-  const tableRows = useMemo(() => {
-    return pageRows.map((role) => ({
-      id: role.uuid,
-      row: [
-        role.display_name || role.name,
-        role.description || '—',
-        role.accessCount || 0,
-        role.modified ? formatDistanceToNow(new Date(role.modified), { addSuffix: true }) : '—',
-      ],
-    }));
-  }, [pageRows]);
-
-  // Column definitions
-  const columns: DataViewTh[] = useMemo(
-    () => [
-      {
-        cell: (() => {
-          const roleText = intl.formatMessage(messages.role);
-          return roleText.charAt(0).toUpperCase() + roleText.slice(1);
-        })(),
-        props: {
-          sort: {
-            sortBy: {
-              index: sortBy.index,
-              direction: sortBy.direction,
-              defaultDirection: 'asc',
-            },
-            onSort: (_event: React.MouseEvent, index: number, direction: 'asc' | 'desc') => {
-              setSortBy({ index, direction });
-            },
-            columnIndex: 0,
-          },
-        },
-      },
-      {
-        cell: intl.formatMessage(messages.description),
-        props: {},
-      },
-      {
-        cell: intl.formatMessage(messages.permissions),
-        props: {},
-      },
-      {
-        cell: intl.formatMessage(messages.lastModified),
-        props: {
-          sort: {
-            sortBy: {
-              index: sortBy.index,
-              direction: sortBy.direction,
-              defaultDirection: 'asc',
-            },
-            onSort: (_event: React.MouseEvent, index: number, direction: 'asc' | 'desc') => {
-              setSortBy({ index, direction });
-            },
-            columnIndex: 3,
-          },
-        },
-      },
-    ],
-    [intl, sortBy],
-  );
+  }, [tableState.selectedRows, assignedRoleIds]);
 
   const isLoading = isLoadingRoles || isLoadingAssignedRoles;
-  const activeState = isLoading ? DataViewState.loading : totalCount === 0 ? DataViewState.empty : undefined;
+  const selectedCount = tableState.selectedRows.length;
 
-  const selectedCount = selected.length;
-
-  // Bulk select component
-  const bulkSelectComponent = useMemo(() => {
-    const selectedOnPage = pageRows.filter((role) => selected.some((sel) => sel.id === role.uuid)).length;
-    const pageSelected = selectedOnPage > 0 && selectedOnPage === pageRows.length;
-    const pagePartiallySelected = selectedOnPage > 0 && selectedOnPage < pageRows.length;
-
-    return (
-      <BulkSelect
-        isDataPaginated={true}
-        selectedCount={selectedCount}
-        totalCount={totalCount}
-        pageCount={pageRows.length}
-        pageSelected={pageSelected}
-        pagePartiallySelected={pagePartiallySelected}
-        onSelect={handleBulkSelect}
-      />
-    );
-  }, [selectedCount, totalCount, pageRows, selected, handleBulkSelect]);
-
-  // Handle toggle item click
   const handleItemClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent | MouseEvent) => {
       const target = event.currentTarget as HTMLButtonElement;
       if (!target) return;
       const id = target.id;
 
-      if (id === TOGGLE_SELECTED && selected.length === 0) {
+      if (id === TOGGLE_SELECTED && tableState.selectedRows.length === 0) {
         return;
       }
 
       if (selectedToggle !== id) {
         setSelectedToggle(id);
-        onSetPage(undefined, 1);
+        tableState.onPageChange(1);
       }
     },
-    [selectedToggle, selected.length, onSetPage],
+    [selectedToggle, tableState.selectedRows.length, tableState.onPageChange],
   );
 
   const modalTitleId = 'role-access-modal-title';
@@ -363,10 +252,25 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
             </p>
           </StackItem>
           <StackItem isFilled>
-            <DataView activeState={activeState} selection={selection}>
-              <DataViewToolbar
-                bulkSelect={bulkSelectComponent}
-                toggleGroup={
+            <TableView<typeof columns, Role, SortableColumn>
+              columns={columns}
+              columnConfig={columnConfig}
+              sortableColumns={sortableColumns}
+              data={isLoading ? undefined : pageRows}
+              totalCount={totalCount}
+              getRowId={(role) => role.uuid}
+              cellRenderers={cellRenderers}
+              filterConfig={filterConfig}
+              selectable
+              emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noRolesFound)} />}
+              emptyStateNoResults={
+                <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noRolesFound)} onClearFilters={tableState.clearAllFilters} />
+              }
+              variant="compact"
+              ariaLabel="Roles selection table"
+              ouiaId="role-access-modal-table"
+              toolbarActions={
+                <>
                   <ToggleGroup aria-label="Toggle group to switch between all / selected table rows">
                     <ToggleGroupItem
                       text={intl.formatMessage(messages.all)}
@@ -380,56 +284,20 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
                       buttonId={TOGGLE_SELECTED}
                       isSelected={selectedToggle === TOGGLE_SELECTED}
                       onChange={handleItemClick}
-                      aria-disabled={selected.length === 0}
+                      aria-disabled={tableState.selectedRows.length === 0}
                     />
                   </ToggleGroup>
-                }
-                pagination={<Pagination perPageOptions={perPageOptions} itemCount={totalCount} {...pagination} />}
-                filters={
-                  <SearchInput
-                    placeholder={intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.role) })}
-                    value={searchValue}
-                    onChange={(_e, value) => {
-                      setSearchValue(value);
-                      onSetPage(undefined, 1);
-                    }}
-                    onClear={() => {
-                      setSearchValue('');
-                      onSetPage(undefined, 1);
-                    }}
-                    aria-label={intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.role) })}
-                  />
-                }
-              />
-              {selected.length === 0 && (
-                <Tooltip
-                  id="selected-row-switch-tooltip"
-                  content="Select at least one row to enable this filter"
-                  triggerRef={() => document.getElementById('selected-row-switch') as HTMLButtonElement}
-                />
-              )}
-              <DataViewTable
-                variant="compact"
-                aria-label="Roles selection table"
-                columns={columns}
-                rows={tableRows}
-                headStates={{
-                  loading: (
-                    <SkeletonTableHead
-                      columns={columns.map((col) => {
-                        const cellValue = (col as { cell?: string | React.ReactNode }).cell;
-                        return typeof cellValue === 'string' ? cellValue : '';
-                      })}
+                  {tableState.selectedRows.length === 0 && (
+                    <Tooltip
+                      id="selected-row-switch-tooltip"
+                      content="Select at least one row to enable this filter"
+                      triggerRef={() => document.getElementById('selected-row-switch') as HTMLButtonElement}
                     />
-                  ),
-                }}
-                bodyStates={{
-                  loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-                  empty: <div className="pf-v5-u-p-md">{intl.formatMessage(messages.noRolesFound)}</div>,
-                }}
-              />
-              <DataViewToolbar pagination={<Pagination perPageOptions={perPageOptions} itemCount={totalCount} {...pagination} />} />
-            </DataView>
+                  )}
+                </>
+              }
+              {...tableState}
+            />
           </StackItem>
         </Stack>
       </ModalBody>
