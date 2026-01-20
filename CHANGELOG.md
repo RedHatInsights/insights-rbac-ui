@@ -1,3 +1,11 @@
+# [1.82.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.81.0...v1.82.0) (2026-01-20)
+
+
+### Features
+
+* **access-management:** complete feature implementation with V2 API gap documentation ([3adf5c8](https://github.com/RedHatInsights/insights-rbac-ui/commit/3adf5c8947ca1d4835c1bd868d78111a8e3a69d2))
+* **storybook:** add feature gap tests for V2 Users/UserGroups and Roles ([18da917](https://github.com/RedHatInsights/insights-rbac-ui/commit/18da91744ea2b3c8fa34b6d37e7ef0f72d0415f3))
+
 # [1.81.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.2...v1.81.0) (2026-01-20)
 
 
