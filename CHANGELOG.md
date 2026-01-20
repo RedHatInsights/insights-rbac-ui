@@ -1,3 +1,21 @@
+# [2.0.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.82.0...v2.0.0) (2026-01-20)
+
+
+### Features
+
+* complete Redux removal ([1c42dc3](https://github.com/RedHatInsights/insights-rbac-ui/commit/1c42dc37f60eb4e0422d745f444a0536f3c894bd))
+* **groups:** migrate Groups slice from Redux to React Query ([82c8537](https://github.com/RedHatInsights/insights-rbac-ui/commit/82c853725c8cedc6f2e087c6f937916c84c40e75))
+* remove Redux from type definitions and error handling ([9ad29a3](https://github.com/RedHatInsights/insights-rbac-ui/commit/9ad29a3c0e1342f8632606968b2291773aa691aa))
+* **roles,users:** migrate Role.tsx and User.tsx from Redux to React Query ([c45e532](https://github.com/RedHatInsights/insights-rbac-ui/commit/c45e532109e00f66630d477dee02921017b9ff94))
+* **workspaces:** migrate Workspaces feature from Redux to React Query ([80543f7](https://github.com/RedHatInsights/insights-rbac-ui/commit/80543f7df9b86278d56447031baaeaf63c26b0f2))
+
+
+### BREAKING CHANGES
+
+* Redux removed from codebase
+* **groups:** Components now fetch their own data via React Query
+instead of relying on Redux state prepared by parent components.
+
 # [1.82.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.81.0...v1.82.0) (2026-01-20)
 
 
