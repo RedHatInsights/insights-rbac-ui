@@ -9,7 +9,6 @@ import {
   PAGINATION_TEST_TOTAL_ITEMS,
   expectLocationParams,
   getLastCallArg,
-  getLastPageOffset,
   openPerPageMenu,
   selectPerPage,
 } from '../../../.storybook/helpers/pagination-test-utils';
@@ -996,61 +995,9 @@ export const PaginationUrlSync: Story = {
   },
 };
 
-export const PaginationOutOfRangeClampsToLastPage: Story = {
-  tags: ['perm:org-admin', 'sbtest:roles-pagination'],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Interaction test: starting with an out-of-range `page` in the URL should clamp results to the last valid page (via refetch with the last valid offset).',
-      },
-    },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
-    routerInitialEntries: [`/iam/user-access/roles?page=10000&perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
-    msw: {
-      handlers: [
-        http.get('/api/rbac/v1/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
-          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
-          paginationSpy({ limit, offset });
-
-          return HttpResponse.json({
-            data: mockRolesLarge.slice(offset, offset + limit),
-            meta: { count: mockRolesLarge.length, limit, offset },
-            filters: { display_name: '' },
-            pagination: { count: mockRolesLarge.length, limit, offset },
-          });
-        }),
-        http.get('/api/rbac/v1/groups/', ({ request }) => {
-          const url = new URL(request.url);
-          if (url.searchParams.get('admin_default') === 'true') {
-            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1 } });
-          }
-          return HttpResponse.json({ data: [], meta: { count: 0 } });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    paginationSpy.mockClear();
-    const lastOffset = getLastPageOffset(PAGINATION_TEST_TOTAL_ITEMS, PAGINATION_TEST_DEFAULT_PER_PAGE);
-    const firstRoleOnLastPage = lastOffset + 1;
-
-    await waitFor(() => {
-      expect(paginationSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
-      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
-      expect(last.limit).toBe(PAGINATION_TEST_DEFAULT_PER_PAGE);
-      expect(last.offset).toBe(lastOffset);
-    });
-
-    // Out-of-range page should clamp results to the last valid page.
-    await expect(canvas.findByText(`Role ${firstRoleOnLastPage}`)).resolves.toBeInTheDocument();
-    expect(canvas.queryByText('Role 1')).not.toBeInTheDocument();
-  },
-};
+// NOTE: PaginationOutOfRangeClampsToLastPage test was REMOVED from here.
+// Page clamping is now handled centrally by TableView and tested in:
+// src/components/table-view/TableView.stories.tsx -> PageClampingOutOfRange
+//
+// This avoids duplicating the same test across Roles, Users, and Groups stories.
+// All tables using TableView automatically get page clamping behavior.

@@ -10,7 +10,6 @@ import {
   PAGINATION_TEST_TOTAL_ITEMS,
   expectLocationParams,
   getLastCallArg,
-  getLastPageOffset,
   openPerPageMenu,
   selectPerPage,
 } from '../../../.storybook/helpers/pagination-test-utils';
@@ -797,57 +796,9 @@ export const PaginationUrlSync: Story = {
   },
 };
 
-export const PaginationOutOfRangeClampsToLastPage: Story = {
-  tags: ['perm:org-admin', 'sbtest:groups-pagination'],
-  parameters: {
-    chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
-    routerInitialEntries: [`/groups?page=10000&perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
-    msw: {
-      handlers: [
-        http.get('/api/rbac/v1/groups/', ({ request }) => {
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
-          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
-          const adminDefault = url.searchParams.get('admin_default');
-          const platformDefault = url.searchParams.get('platform_default');
-
-          if (adminDefault !== 'true' && platformDefault !== 'true') {
-            groupsPaginationSpy({ limit, offset });
-          }
-
-          if (adminDefault === 'true') {
-            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1, limit, offset } });
-          }
-          if (platformDefault === 'true') {
-            return HttpResponse.json({ data: [mockSystemGroup], meta: { count: 1, limit, offset } });
-          }
-
-          return HttpResponse.json({
-            data: mockGroupsLarge.slice(offset, offset + limit),
-            meta: { count: mockGroupsLarge.length, limit, offset },
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    groupsPaginationSpy.mockClear();
-
-    // For 55 items and perPage=20, last page is page 3 and last offset is 40.
-    const lastOffset = getLastPageOffset(PAGINATION_TEST_TOTAL_ITEMS, PAGINATION_TEST_DEFAULT_PER_PAGE);
-    await waitFor(() => {
-      expect(groupsPaginationSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
-      const last = getLastCallArg<{ limit: number; offset: number }>(groupsPaginationSpy);
-      expect(last.limit).toBe(PAGINATION_TEST_DEFAULT_PER_PAGE);
-      expect(last.offset).toBe(lastOffset);
-    });
-
-    const locEl = canvas.getByTestId('router-location');
-    await expectLocationParams(locEl, {
-      perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE),
-    });
-  },
-};
+// NOTE: PaginationOutOfRangeClampsToLastPage test was REMOVED from here.
+// Page clamping is now handled centrally by TableView and tested in:
+// src/components/table-view/TableView.stories.tsx -> PageClampingOutOfRange
+//
+// This avoids duplicating the same test across Roles, Users, and Groups stories.
+// All tables using TableView automatically get page clamping behavior.
