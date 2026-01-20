@@ -115,12 +115,6 @@ objects:
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
-                - id: service-accounts
-                  title: Service Accounts
-                  href: /iam/service-accounts
-                  permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
                 - id: workspaces
                   title: Workspaces
                   href: /iam/user-access/workspaces
