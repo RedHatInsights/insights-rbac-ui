@@ -1,3 +1,10 @@
+# [1.81.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.2...v1.81.0) (2026-01-20)
+
+
+### Features
+
+* centralize the pagination clamping check and logic to TableView ([f25c366](https://github.com/RedHatInsights/insights-rbac-ui/commit/f25c366c4e23476efad62c0b61c3214897ec3896))
+
 ## [1.80.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.1...v1.80.2) (2026-01-19)
 
 
