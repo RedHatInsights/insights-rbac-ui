@@ -8,7 +8,7 @@
  * - Selection, sorting, pagination
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Table, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { TableVariant } from '@patternfly/react-table';
 import { BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
@@ -127,6 +127,28 @@ export function TableView<
   );
   const columnCount = columns.length + (selectable ? 1 : 0) + (renderActions ? 1 : 0);
   const columnLabels = columns.map((col) => columnConfig[col as keyof typeof columnConfig]?.label || col);
+
+  // -------------------------------------------------------------------------
+  // Page Clamping - auto-correct out-of-range page numbers
+  // When totalCount is known and current page exceeds max, clamp to last page
+  // When totalCount is 0 (no results), normalize to page 1
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    if (!isLoading && totalCount !== undefined && page !== undefined && perPage !== undefined && onPageChange) {
+      if (totalCount === 0) {
+        // No results - normalize to page 1
+        if (page !== 1) {
+          onPageChange(1);
+        }
+      } else {
+        // Has results - clamp to last valid page
+        const maxPage = Math.ceil(totalCount / perPage);
+        if (page > maxPage) {
+          onPageChange(maxPage);
+        }
+      }
+    }
+  }, [isLoading, totalCount, page, perPage, onPageChange]);
 
   const sortableColumnSet = useMemo(() => new Set(sortableColumns as readonly string[]), [sortableColumns]);
 

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
-import { MemoryRouter, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { TableView } from './TableView';
 import { useTableState } from './hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from './components/TableViewEmptyState';
@@ -12,6 +12,7 @@ import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dis
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
+import { withRouter } from '../../../.storybook/helpers/router-test-utils';
 
 // =============================================================================
 // Mock Data Types & Factories
@@ -468,6 +469,66 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
 };
 
 // =============================================================================
+// Out of Range Page Test Component
+// =============================================================================
+
+/**
+ * Component for testing out-of-range page clamping.
+ * Expects to be rendered inside a MemoryRouter with initialEntries set to an out-of-range page.
+ */
+const OutOfRangePageTable: React.FC = () => {
+  const [searchParams] = useSearchParams();
+
+  const [data, setData] = useState<Role[] | undefined>(undefined);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const handleStaleData = useCallback(async (apiParams: RolesApiParams) => {
+    setData(undefined);
+    try {
+      const json = await fetchRolesData(apiParams);
+      setData(json.data);
+      setTotalCount(json.meta.count);
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
+      setData([]);
+      setTotalCount(0);
+    }
+  }, []);
+
+  const tableState = useTableState<typeof columns, Role, SortableColumnId, CompoundColumnId>({
+    columns,
+    sortableColumns,
+    compoundColumns: ['permissions'] as const,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: 10,
+    getRowId: (role) => role.uuid,
+    syncWithUrl: true,
+    onStaleData: handleStaleData,
+  });
+
+  return (
+    <div>
+      <div data-testid="url-params" style={{ marginBottom: '16px', padding: '8px', background: '#f0f0f0', fontFamily: 'monospace' }}>
+        URL: ?{searchParams.toString() || '(empty)'}
+      </div>
+      <TableView
+        columns={columns}
+        columnConfig={columnConfigWithExpansion}
+        sortableColumns={sortableColumns}
+        data={data}
+        totalCount={totalCount}
+        getRowId={(role) => role.uuid}
+        cellRenderers={cellRenderers}
+        expansionRenderers={expansionRenderers}
+        ariaLabel="Out of range page test table"
+        ouiaId="out-of-range-table"
+        {...tableState}
+      />
+    </div>
+  );
+};
+
+// =============================================================================
 // URL Sync Test Component
 // =============================================================================
 
@@ -700,13 +761,7 @@ const { data, totalCount } = await fetchRoles(tableState.apiParams);
       },
     },
   },
-  decorators: [
-    (Story) => (
-      <MemoryRouter>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
+  decorators: [withRouter],
   // Reset spies before each story
   beforeEach: () => {
     apiCallSpy.mockClear();
@@ -1396,6 +1451,68 @@ export const PaginationResetsOnFilterChange: Story = {
         expect(lastCall.nameFilter).toContain('Admin');
       });
     }
+  },
+};
+
+/**
+ * Page clamping - auto-corrects out-of-range page numbers.
+ * When the URL contains a page number that exceeds the total pages,
+ * TableView automatically clamps to the last valid page.
+ *
+ * This is tested at the TableView level so ALL tables get this behavior
+ * without needing to implement it individually.
+ */
+export const PageClampingOutOfRange: StoryObj<typeof OutOfRangePageTable> = {
+  render: () => <OutOfRangePageTable />,
+  parameters: {
+    // Use MemoryRouter with out-of-range page URL
+    routerInitialEntries: ['/test?page=1000&perPage=10'],
+    docs: {
+      description: {
+        story: `
+## Page Clamping Behavior
+
+When a user navigates to a URL with an out-of-range page number (e.g., \`?page=1000\` when there are only 50 items),
+TableView automatically detects this and clamps to the last valid page.
+
+This behavior is centralized in TableView so:
+- ✅ All tables using TableView get this behavior automatically
+- ✅ No need to implement in individual components
+- ✅ Consistent UX across all tables
+- ✅ Single place to fix bugs or improve behavior
+
+### How it works:
+1. TableView receives \`page\`, \`perPage\`, \`totalCount\`, and \`onPageChange\`
+2. When data loads, it checks if \`page > Math.ceil(totalCount / perPage)\`
+3. If so, it calls \`onPageChange(maxPage)\` to correct the page
+4. This triggers a new data fetch with the valid offset
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for data to load and TableView to clamp to last valid page
+    // With 50 items and perPage=10, max page is 5
+    // Note: Clamping happens after data loads (when totalCount is known)
+    await waitFor(
+      () => {
+        // Should see items from the last page (page 5 = items 41-50)
+        // Item naming: role-42 = "Viewer 5" (nameIdx = (42-1) % 10 = 1, ceil(42/10) = 5)
+        expect(canvas.getByText('Viewer 5')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // URL should be updated to the clamped page
+    await waitFor(() => {
+      const urlDisplay = canvas.getByTestId('url-params');
+      expect(urlDisplay.textContent).toContain('page=5');
+    });
+
+    // Verify we don't see items from page 1
+    expect(canvas.queryByText('Administrator 1')).not.toBeInTheDocument();
   },
 };
 

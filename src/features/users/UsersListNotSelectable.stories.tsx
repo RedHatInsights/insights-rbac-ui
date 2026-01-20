@@ -9,7 +9,6 @@ import {
   PAGINATION_TEST_TOTAL_ITEMS,
   expectLocationParams,
   getLastCallArg,
-  getLastPageOffset,
   openPerPageMenu,
   selectPerPage,
 } from '../../../.storybook/helpers/pagination-test-utils';
@@ -626,48 +625,9 @@ export const PaginationUrlSync: Story = {
   },
 };
 
-export const PaginationOutOfRangeClampsToLastPage: Story = {
-  tags: ['perm:org-admin', 'sbtest:users-pagination'],
-  args: defaultArgs,
-  parameters: {
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
-    routerInitialEntries: [`/iam/user-access/users?page=10000&perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
-    msw: {
-      handlers: [
-        http.get('/api/rbac/v1/principals/', ({ request }) => {
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
-          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
-          usersPaginationSpy({ limit, offset });
-
-          return HttpResponse.json({
-            data: mockUsersLarge.slice(offset, offset + limit),
-            meta: { count: mockUsersLarge.length, limit, offset },
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    usersPaginationSpy.mockClear();
-    const lastOffset = getLastPageOffset(PAGINATION_TEST_TOTAL_ITEMS, PAGINATION_TEST_DEFAULT_PER_PAGE);
-
-    // For 55 items and perPage=20, last page is page 3 and last offset is 40.
-    await waitFor(
-      () => {
-        // Depending on timing, the "invalid offset" request may happen before play() starts.
-        // The stable signal we want is: the final request should use the last-page offset.
-        expect(usersPaginationSpy.mock.calls.length).toBeGreaterThanOrEqual(1);
-        const last = getLastCallArg<{ limit: number; offset: number }>(usersPaginationSpy);
-        expect(last.limit).toBe(PAGINATION_TEST_DEFAULT_PER_PAGE);
-        expect(last.offset).toBe(lastOffset);
-      },
-      { timeout: 5000 },
-    );
-
-    const locEl = canvas.getByTestId('router-location');
-    await expectLocationParams(locEl, { perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE) });
-  },
-};
+// NOTE: PaginationOutOfRangeClampsToLastPage test was REMOVED from here.
+// Page clamping is now handled centrally by TableView and tested in:
+// src/components/table-view/TableView.stories.tsx -> PageClampingOutOfRange
+//
+// This avoids duplicating the same test across Roles, Users, and Groups stories.
+// All tables using TableView automatically get page clamping behavior.
