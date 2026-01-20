@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
 import { ActionGroup, ToggleGroup, ToggleGroupItem, Tooltip } from '@patternfly/react-core';
@@ -9,12 +8,10 @@ import { TableView, useTableState } from '../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view/types';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
 import { formatDistanceToNow } from 'date-fns';
-import { fetchRolesWithPolicies } from '../../../../redux/roles/actions';
-import { selectIsRolesLoading, selectRoles } from '../../../../redux/roles/selectors';
-import { getRoleBindingsForSubject } from '../../../../redux/workspaces/helper';
+import { type Role, useRolesQuery } from '../../../../data/queries';
+import { type Group } from '../../../../data/queries/groups';
+import { useRoleBindingsQuery } from '../../../../data/queries/workspaces';
 import { getModalContainer } from '../../../../helpers/modal-container';
-import { Group } from '../../../../redux/groups/reducer';
-import { Role } from '../../../../redux/roles/reducer';
 import messages from '../../../../Messages';
 
 interface RoleAccessModalProps {
@@ -35,13 +32,32 @@ const sortableColumns: readonly SortableColumn[] = ['name', 'lastModified'];
 
 export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClose, group, workspaceId, workspaceName, onUpdate }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const [selectedToggle, setSelectedToggle] = useState(TOGGLE_ALL);
   const [assignedRoleIds, setAssignedRoleIds] = useState<string[]>([]);
-  const [isLoadingAssignedRoles, setIsLoadingAssignedRoles] = useState(false);
 
-  const allRoles = useSelector(selectRoles);
-  const isLoadingRoles = useSelector(selectIsRolesLoading);
+  // Fetch all roles using React Query
+  const { data: rolesData, isLoading: isLoadingRoles } = useRolesQuery(
+    {
+      limit: 1000,
+      offset: 0,
+      addFields: ['access'],
+    },
+    { enabled: isOpen },
+  );
+
+  const allRoles = (rolesData?.data as Role[] | undefined) || [];
+
+  // Fetch role bindings for this group in this workspace
+  const { data: roleBindingsData, isLoading: isLoadingAssignedRoles } = useRoleBindingsQuery(
+    {
+      limit: 1000,
+      subjectType: 'group',
+      subjectId: group?.uuid || '',
+      resourceType: 'workspace',
+      resourceId: workspaceId,
+    },
+    { enabled: isOpen && !!group?.uuid && !!workspaceId },
+  );
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
@@ -75,50 +91,19 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
     initialFilters: { name: '' },
   });
 
+  // Update assigned role IDs when role bindings data changes
   useEffect(() => {
-    if (isOpen) {
-      dispatch(
-        fetchRolesWithPolicies({
-          limit: 1000,
-          offset: 0,
-        }),
-      );
+    if (roleBindingsData?.data && allRoles.length > 0) {
+      const bindings = roleBindingsData.data;
+      const assignedIds = bindings.flatMap((binding) => binding.roles?.map((role) => role.id).filter((id): id is string => !!id) || []);
+      setAssignedRoleIds(assignedIds);
+      const assignedRoles = allRoles.filter((role) => assignedIds.includes(role.uuid));
+      tableState.clearSelection();
+      assignedRoles.forEach((role) => {
+        tableState.onSelectRow(role, true);
+      });
     }
-  }, [isOpen, dispatch]);
-
-  useEffect(() => {
-    if (isOpen && group?.uuid && workspaceId && allRoles.length > 0) {
-      setIsLoadingAssignedRoles(true);
-      getRoleBindingsForSubject({
-        limit: 1000,
-        subjectType: 'group',
-        subjectId: group.uuid,
-        resourceType: 'workspace',
-        resourceId: workspaceId,
-      })
-        .then((result) => {
-          interface RoleBinding {
-            roles?: Array<{ id: string }>;
-          }
-          const assignedIds =
-            result.data?.flatMap((binding: RoleBinding) => binding.roles?.map((role) => role.id).filter((id): id is string => !!id) || []) || [];
-          setAssignedRoleIds(assignedIds);
-          const assignedRoles = allRoles.filter((role) => assignedIds.includes(role.uuid));
-          tableState.clearSelection();
-          assignedRoles.forEach((role) => {
-            tableState.onSelectRow(role, true);
-          });
-        })
-        .catch((error) => {
-          console.error('Error fetching assigned roles:', error);
-          setAssignedRoleIds([]);
-          tableState.clearSelection();
-        })
-        .finally(() => {
-          setIsLoadingAssignedRoles(false);
-        });
-    }
-  }, [isOpen, group?.uuid, workspaceId, allRoles]);
+  }, [roleBindingsData, allRoles, tableState]);
 
   useEffect(() => {
     if (!isOpen) {

@@ -2,16 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { IntlProvider } from 'react-intl';
 import { Button } from '@patternfly/react-core';
 import { HttpResponse, http } from 'msw';
 import { RoleAccessModal } from './RoleAccessModal';
-import { Group } from '../../../../redux/groups/reducer';
-import { getRegistry } from '../../../../utilities/store';
-import { RegistryContext } from '../../../../utilities/store';
-import messages from '../../../../locales/data.json';
-import { locale } from '../../../../locales/locale';
+import { type Group } from '../../../../data/queries/groups';
 
 // Mock group data
 const mockGroup: Group = {
@@ -307,23 +301,12 @@ const ModalWrapper = ({ ...storyArgs }: any) => {
   );
 };
 
-// Provider wrapper
+// Provider wrapper - providers are handled globally by Storybook preview
 const withProviders = () => {
-  const registry = getRegistry();
   const ProviderWrapper = (Story: React.ComponentType) => (
-    <IntlProvider locale={locale} messages={messages[locale]}>
-      <RegistryContext.Provider
-        value={{
-          getRegistry,
-        }}
-      >
-        <Provider store={registry.getStore()}>
-          <MemoryRouter initialEntries={['/']}>
-            <Story />
-          </MemoryRouter>
-        </Provider>
-      </RegistryContext.Provider>
-    </IntlProvider>
+    <MemoryRouter initialEntries={['/']}>
+      <Story />
+    </MemoryRouter>
   );
   ProviderWrapper.displayName = 'ProviderWrapper';
   return ProviderWrapper;
@@ -342,7 +325,7 @@ This component demonstrates:
 - **Modal Pattern**: Renders outside story canvas in document.body
 - **Role Selection**: Checkbox-based role selection with search and filtering
 - **Tab Navigation**: Switch between all roles and selected roles
-- **Redux Integration**: Loads roles from Redux store
+- **React Query Integration**: Loads roles using React Query hooks
 - **API Integration**: Fetches currently assigned roles for the group
 - **Pagination**: Handles large role lists with pagination
 - **Sorting**: Sortable columns for role management

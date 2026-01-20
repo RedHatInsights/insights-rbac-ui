@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerActions } from '@patternfly/react-core/dist/dynamic/components/Drawer';
@@ -10,8 +11,6 @@ import { DrawerHead } from '@patternfly/react-core/dist/dynamic/components/Drawe
 import { DrawerPanelContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
@@ -22,7 +21,7 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclama
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 
-import { type Group } from '../../../../data/queries/groups';
+import { type Group, type GroupRole, groupsKeys, useGroupMembersQuery, useGroupRolesQuery } from '../../../../data/queries/groups';
 
 // Group with inheritance info (for workspace context)
 export interface GroupWithInheritance extends Group {
@@ -31,12 +30,12 @@ export interface GroupWithInheritance extends Group {
     workspaceName: string;
   };
 }
-import { type GroupRole, useGroupMembersQuery, useGroupRolesQuery } from '../../../../data/queries/groups';
 import { extractErrorMessage } from '../../../../utilities/errorUtils';
 import messages from '../../../../Messages';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { TableView } from '../../../../components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../components/table-view/types';
+import { RoleAccessModal } from './RoleAccessModal';
 
 // Extended Role interface to include inheritedFrom data
 export interface RoleWithInheritance {
@@ -85,6 +84,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   currentWorkspace,
 }) => {
   const intl = useIntl();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<string | number>(0);
   const [isRoleAccessModalOpen, setIsRoleAccessModalOpen] = useState(false);
 
@@ -270,8 +270,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (membersError) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState variant="sm">
-            <EmptyStateHeader titleText="Unable to load users" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+          <EmptyState variant="sm" headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load users">
             <EmptyStateBody>{extractErrorMessage(membersError)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -282,12 +281,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (members.length === 0) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState variant="sm">
-            <EmptyStateHeader
-              titleText={intl.formatMessage(messages.usersEmptyStateTitle)}
-              icon={<EmptyStateIcon icon={UsersIcon} />}
-              headingLevel="h4"
-            />
+          <EmptyState variant="sm" headingLevel="h4" icon={UsersIcon} titleText={intl.formatMessage(messages.usersEmptyStateTitle)}>
             <EmptyStateBody>{intl.formatMessage(messages.groupNoUsersAssigned)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -359,8 +353,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (rolesError) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState variant="sm">
-            <EmptyStateHeader titleText="Unable to load roles" icon={<EmptyStateIcon icon={ExclamationCircleIcon} />} headingLevel="h4" />
+          <EmptyState variant="sm" headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load roles">
             <EmptyStateBody>{extractErrorMessage(rolesError)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -371,12 +364,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (roles.length === 0) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState variant="sm">
-            <EmptyStateHeader
-              titleText={intl.formatMessage(messages.rolesEmptyStateTitle)}
-              icon={<EmptyStateIcon icon={KeyIcon} />}
-              headingLevel="h4"
-            />
+          <EmptyState variant="sm" headingLevel="h4" icon={KeyIcon} titleText={intl.formatMessage(messages.rolesEmptyStateTitle)}>
             <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -474,9 +462,9 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
           onUpdate={(selectedRoleIds) => {
             // TODO: Implement role binding update logic when API is available
             console.log('Selected role IDs:', selectedRoleIds);
-            // After update, you may want to refetch group roles
-            if (group) {
-              dispatch(fetchRolesForGroup(group.uuid, { limit: 1000 }));
+            // After update, invalidate related queries to refetch fresh data
+            if (group && currentWorkspace) {
+              queryClient.invalidateQueries({ queryKey: groupsKeys.roles(group.uuid) });
             }
           }}
         />
