@@ -114,7 +114,8 @@ export interface GroupRolesQueryResult {
 
 /**
  * Service account type for group service accounts.
- * Note: Service accounts come from SSO API, not RBAC API.
+ * Note: Service accounts come from RBAC API's getPrincipalsFromGroup endpoint.
+ * The time_created is normalized to milliseconds in the query layer.
  */
 export interface ServiceAccount {
   uuid: string;
@@ -122,7 +123,7 @@ export interface ServiceAccount {
   name: string;
   owner?: string;
   description?: string;
-  time_created?: string;
+  time_created?: number; // Unix timestamp in milliseconds (normalized from API's seconds)
 }
 
 /**
@@ -468,7 +469,7 @@ export function useGroupServiceAccountsQuery(
         name?: string;
         owner?: string;
         description?: string;
-        time_created?: string;
+        time_created?: number; // Unix timestamp in seconds
       }
       const responseData = data as { data?: RawServiceAccount[]; meta?: { count?: number } };
       const serviceAccounts: ServiceAccount[] = (responseData?.data ?? []).map((principal) => ({
@@ -477,7 +478,9 @@ export function useGroupServiceAccountsQuery(
         name: principal.name || principal.username,
         owner: principal.owner,
         description: principal.description,
-        time_created: principal.time_created,
+        // API returns Unix timestamp in seconds, convert to milliseconds for JS Date
+        // Use explicit null check to handle valid epoch timestamp (0)
+        time_created: principal.time_created != null ? principal.time_created * 1000 : undefined,
       }));
 
       return {

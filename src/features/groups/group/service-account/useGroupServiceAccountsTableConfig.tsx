@@ -1,9 +1,11 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import type { IntlShape } from 'react-intl';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view';
 import messages from '../../../../Messages';
 import type { ServiceAccount } from './types';
+import { getDateFormat } from '../../../../helpers/stringUtilities';
 
 export const columns = ['name', 'clientId', 'owner', 'timeCreated'] as const;
 
@@ -35,7 +37,12 @@ export function useGroupServiceAccountsTableConfig({ intl }: UseGroupServiceAcco
       name: (account) => account.name || '—',
       clientId: (account) => account.clientId || '—',
       owner: (account) => account.owner || '—',
-      timeCreated: (account) => (account.time_created ? new Date(account.time_created).toLocaleDateString() : '—'),
+      timeCreated: (account) => {
+        if (!account.time_created) return '—';
+        // time_created is already in milliseconds (normalized in query layer)
+        const dateStr = new Date(account.time_created).toISOString();
+        return <DateFormat date={dateStr} type={getDateFormat(dateStr)} />;
+      },
     }),
     [],
   );

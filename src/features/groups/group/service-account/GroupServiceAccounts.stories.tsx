@@ -5,29 +5,47 @@ import { HttpResponse, delay, http } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { GroupServiceAccounts } from './GroupServiceAccounts';
 
-const mockServiceAccounts = [
+/**
+ * Raw API response type for service accounts.
+ * This represents what the RBAC API returns before normalization.
+ * Note: time_created is in Unix seconds (the query layer converts to milliseconds).
+ */
+interface RawServiceAccountResponse {
+  uuid: string;
+  name: string;
+  clientId: string;
+  owner: string;
+  time_created: number; // Unix timestamp in SECONDS (API format)
+  description: string;
+}
+
+/**
+ * Mock service accounts representing raw API responses.
+ * These are returned by MSW handlers and converted to milliseconds by the query layer.
+ */
+const mockServiceAccounts: RawServiceAccountResponse[] = [
   {
-    uuid: 'uuid-ci-pipeline-service', // Add UUID for selection to work
-    name: 'ci-pipeline-service', // reducer sets uuid = item.name
+    uuid: 'uuid-ci-pipeline-service',
+    name: 'ci-pipeline-service',
     clientId: 'service-account-123',
     owner: 'platform-team',
-    time_created: 1642636800, // Unix timestamp (will be multiplied by 1000 in reducer)
+    time_created: 1642636800, // Jan 20, 2022 in seconds
     description: 'CI/CD pipeline automation service account',
   },
   {
-    uuid: 'uuid-monitoring-collector', // Add UUID for selection to work
+    uuid: 'uuid-monitoring-collector',
     name: 'monitoring-collector',
     clientId: 'service-account-456',
     owner: 'ops-team',
-    time_created: 1642550400,
+    time_created: 1642550400, // Jan 19, 2022 in seconds
     description: 'Monitoring and metrics collection service',
   },
   {
-    uuid: 'uuid-backup-automation', // Add UUID for selection to work
+    uuid: 'uuid-backup-automation',
     name: 'backup-automation',
     clientId: 'service-account-789',
     owner: 'infrastructure-team',
-    time_created: 1642464000,
+    time_created: 1642464000, // Jan 18, 2022 in seconds
     description: 'Automated backup and data management',
   },
 ];
@@ -706,14 +724,14 @@ export const BulkActionsTest: Story = {
                   name: 'test-service-1',
                   clientId: 'client-1',
                   owner: 'test-user',
-                  time_created: Date.now(),
+                  time_created: Math.floor(Date.now() / 1000), // Unix timestamp in seconds
                 },
                 {
                   uuid: 'sa-2-uuid',
                   name: 'test-service-2',
                   clientId: 'client-2',
                   owner: 'test-user',
-                  time_created: Date.now(),
+                  time_created: Math.floor(Date.now() / 1000), // Unix timestamp in seconds
                 },
               ],
               meta: { count: 2, limit: 20, offset: 0 },
