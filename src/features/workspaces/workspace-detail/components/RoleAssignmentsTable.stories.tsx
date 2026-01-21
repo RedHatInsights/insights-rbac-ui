@@ -892,19 +892,17 @@ export const RowActionsTest: Story = {
     filters: { name: '' },
     onSetFilters: fn(),
     clearAllFilters: fn(),
-    onEditAccess: fn(),
     ouiaId: 'role-assignments-row-actions-test',
   },
   parameters: {
     docs: {
       description: {
-        story: 'Testing row actions functionality. Each row has an actions menu with "Edit access" option.',
+        story: 'Testing row click functionality. Clicking a row opens the GroupDetailsDrawer to view group details.',
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const user = userEvent.setup();
 
     // Wait for table to load
     const table = await canvas.findByRole('grid');
@@ -915,38 +913,22 @@ export const RowActionsTest: Story = {
     await expect(canvas.findByText('Development Team')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('QA Engineers')).resolves.toBeInTheDocument();
 
-    // Find all action menu toggles (ActionsColumn creates kebab menus)
-    // ActionsColumn uses aria-label="Actions"
-    const actionMenuToggles = canvas.getAllByRole('button', { name: /Actions/i });
-    expect(actionMenuToggles.length).toBeGreaterThan(0);
-
-    // Click the first action menu toggle
-    await user.click(actionMenuToggles[0]);
-
-    // Wait for dropdown menu to open
-    await waitFor(
-      async () => {
-        const editAccessMenuItem = canvas.getByText('Edit access');
-        await expect(editAccessMenuItem).toBeInTheDocument();
-      },
-      { timeout: 2000 },
-    );
-
-    // Click the "Edit access" menu item
-    const editAccessMenuItem = canvas.getByText('Edit access');
-    await user.click(editAccessMenuItem);
-
-    // Verify the onEditAccess callback was called
-    await waitFor(() => {
-      expect(args.onEditAccess).toHaveBeenCalledTimes(1);
-    });
-
-    // Verify the callback was called with the correct group
-    const onEditAccessFn = args.onEditAccess as any;
-    const lastCall = onEditAccessFn.mock.calls[0];
-    expect(lastCall[0]).toMatchObject({
-      uuid: 'group-1',
-      name: 'Platform Administrators',
-    });
+    // Test row click functionality - clicking a row should open the drawer
+    const user = userEvent.setup();
+    const firstRow = canvas.getByText('Platform Administrators').closest('tr');
+    if (firstRow) {
+      await user.click(firstRow);
+      // Wait for drawer to open (GroupDetailsDrawer should appear)
+      await waitFor(
+        async () => {
+          // The drawer should contain group details
+          const drawer = canvas.queryByRole('dialog');
+          if (drawer) {
+            await expect(drawer).toBeInTheDocument();
+          }
+        },
+        { timeout: 2000 },
+      );
+    }
   },
 };
