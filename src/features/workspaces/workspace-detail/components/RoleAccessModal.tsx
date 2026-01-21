@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
@@ -91,33 +91,56 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
     initialFilters: { name: '' },
   });
 
-  // Update assigned role IDs when role bindings data changes
+  // Extract stable functions from tableState to avoid dependency issues
+  const { clearSelection, onSelectRow, onFiltersChange, onPageChange } = tableState;
+
+  // Compute assigned role IDs from role bindings data
+  const computedAssignedIds = useMemo(() => {
+    if (!roleBindingsData?.data) return [];
+    const bindings = roleBindingsData.data;
+    return bindings.flatMap((binding) => binding.roles?.map((role) => role.id).filter((id): id is string => !!id) || []);
+  }, [roleBindingsData?.data]);
+
+  // Track previous assigned IDs to prevent unnecessary updates
+  const previousAssignedIdsRef = useRef<string[]>([]);
+
+  // Update assigned role IDs and selection when role bindings data changes
   useEffect(() => {
-    if (roleBindingsData?.data && allRoles.length > 0) {
-      const bindings = roleBindingsData.data;
-      const assignedIds = bindings.flatMap((binding) => binding.roles?.map((role) => role.id).filter((id): id is string => !!id) || []);
-      setAssignedRoleIds(assignedIds);
-      const assignedRoles = allRoles.filter((role) => assignedIds.includes(role.uuid));
-      tableState.clearSelection();
+    if (!rolesData?.data || (rolesData.data as Role[]).length === 0) {
+      return;
+    }
+
+    // Only update if the assigned IDs have actually changed
+    const currentIds = new Set(computedAssignedIds);
+    const previousIds = new Set(previousAssignedIdsRef.current);
+    const hasChanged = currentIds.size !== previousIds.size || ![...currentIds].every((id) => previousIds.has(id));
+
+    if (hasChanged) {
+      setAssignedRoleIds(computedAssignedIds);
+      previousAssignedIdsRef.current = computedAssignedIds;
+      const roles = rolesData.data as Role[];
+      const assignedRoles = roles.filter((role) => computedAssignedIds.includes(role.uuid));
+      clearSelection();
       assignedRoles.forEach((role) => {
-        tableState.onSelectRow(role, true);
+        onSelectRow(role, true);
       });
     }
-  }, [roleBindingsData, allRoles, tableState]);
+  }, [computedAssignedIds, rolesData?.data, clearSelection, onSelectRow]);
 
   useEffect(() => {
     if (!isOpen) {
       setSelectedToggle(TOGGLE_ALL);
-      tableState.onFiltersChange({ name: '' });
-      tableState.onPageChange(1);
-      tableState.clearSelection();
+      onFiltersChange({ name: '' });
+      onPageChange(1);
+      clearSelection();
       setAssignedRoleIds([]);
+      previousAssignedIdsRef.current = [];
     }
-  }, [isOpen]);
+  }, [isOpen, onFiltersChange, onPageChange, clearSelection]);
 
   useEffect(() => {
-    tableState.onPageChange(1);
-  }, [selectedToggle, tableState.onPageChange]);
+    onPageChange(1);
+  }, [selectedToggle, onPageChange]);
 
   useEffect(() => {
     if (tableState.selectedRows.length === 0) {
@@ -202,10 +225,10 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
 
       if (selectedToggle !== id) {
         setSelectedToggle(id);
-        tableState.onPageChange(1);
+        onPageChange(1);
       }
     },
-    [selectedToggle, tableState.selectedRows.length, tableState.onPageChange],
+    [selectedToggle, tableState.selectedRows.length, onPageChange],
   );
 
   const modalTitleId = 'role-access-modal-title';
