@@ -1,3 +1,11 @@
+## [2.0.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.0.0...v2.0.1) (2026-01-21)
+
+
+### Bug Fixes
+
+* correctly render the Time created column for the service accounts ([25c830d](https://github.com/RedHatInsights/insights-rbac-ui/commit/25c830d1fb586d504feac0c24f766bb947db67fa))
+* **navigation:** remove redundant service-accounts entry ([426b24a](https://github.com/RedHatInsights/insights-rbac-ui/commit/426b24a365289edac2235991c4199828b7d25239))
+
 # [2.0.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.82.0...v2.0.0) (2026-01-20)
 
 
