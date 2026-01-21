@@ -1,4 +1,5 @@
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
+import type { AxiosInstance } from 'axios';
 import { apiGroupGetGroupsById, apiResourceTypeGetResourceTypeGroupsList } from '@redhat-cloud-services/host-inventory-client';
 import flatten from 'lodash/flatten';
 import { INVENTORY_API_BASE, apiClient } from './client';
@@ -13,14 +14,38 @@ const inventoryGroupsEndpoints = {
 };
 
 /**
- * Inventory Resource Types API client.
+ * Type for the Inventory Resource Types API client.
  */
-export const inventoryResourceTypesApi = APIFactory(INVENTORY_API_BASE, inventoryResourceTypesEndpoints, { axios: apiClient });
+export type InventoryResourceTypesApiClient = ReturnType<typeof APIFactory<typeof inventoryResourceTypesEndpoints>>;
 
 /**
- * Inventory Groups API client.
+ * Type for the Inventory Groups API client.
  */
-export const inventoryGroupsApi = APIFactory(INVENTORY_API_BASE, inventoryGroupsEndpoints, { axios: apiClient });
+export type InventoryGroupsApiClient = ReturnType<typeof APIFactory<typeof inventoryGroupsEndpoints>>;
+
+/**
+ * Create an Inventory Resource Types API client with a custom axios instance.
+ */
+export function createInventoryResourceTypesApi(axios: AxiosInstance): InventoryResourceTypesApiClient {
+  return APIFactory(INVENTORY_API_BASE, inventoryResourceTypesEndpoints, { axios });
+}
+
+/**
+ * Create an Inventory Groups API client with a custom axios instance.
+ */
+export function createInventoryGroupsApi(axios: AxiosInstance): InventoryGroupsApiClient {
+  return APIFactory(INVENTORY_API_BASE, inventoryGroupsEndpoints, { axios });
+}
+
+/**
+ * Default Inventory Resource Types API client.
+ */
+export const inventoryResourceTypesApi = createInventoryResourceTypesApi(apiClient);
+
+/**
+ * Default Inventory Groups API client.
+ */
+export const inventoryGroupsApi = createInventoryGroupsApi(apiClient);
 
 // ============================================================================
 // Type Definitions - Based on ACTUAL API responses from staging, NOT library types

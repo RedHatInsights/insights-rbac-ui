@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { trimAll } from '../../../helpers/stringUtilities';
 
 describe('stringUtilities.trimAll', () => {

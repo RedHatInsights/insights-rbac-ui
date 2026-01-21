@@ -8,13 +8,15 @@
  * @tag api-v2-temporary
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { apiClient } from '../api/client';
 import type { CreateRoleV2Request, ListRolesV2Params, RoleV2, RolesV2Pagination, UpdateRoleV2Request } from '../api/rolesV2';
 import type { Access, RoleOutDynamic } from '../api/roles';
 import messages from '../../Messages';
+import { useMutationQueryClient } from './utils';
+import { type MutationOptions } from './types';
 
 // =============================================================================
 // Query Keys Factory
@@ -131,8 +133,8 @@ export function useRoleAssignmentsQuery(roleId: string, options?: { enabled?: bo
  *
  * @tag api-v2-temporary - Will use V2 POST when available
  */
-export function useCreateRoleV2Mutation() {
-  const queryClient = useQueryClient();
+export function useCreateRoleV2Mutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
   const addNotification = useAddNotification();
   const intl = useIntl();
 
@@ -182,8 +184,8 @@ export function useCreateRoleV2Mutation() {
  *
  * @tag api-v2-temporary - Will use V2 PUT when available
  */
-export function useUpdateRoleV2Mutation() {
-  const queryClient = useQueryClient();
+export function useUpdateRoleV2Mutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
   const addNotification = useAddNotification();
   const intl = useIntl();
 
@@ -228,8 +230,8 @@ export function useUpdateRoleV2Mutation() {
  *
  * @tag api-v2-temporary - Will use V2 DELETE when available
  */
-export function useDeleteRoleV2Mutation() {
-  const queryClient = useQueryClient();
+export function useDeleteRoleV2Mutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
   const addNotification = useAddNotification();
   const intl = useIntl();
 

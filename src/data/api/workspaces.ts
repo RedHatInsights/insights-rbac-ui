@@ -1,4 +1,5 @@
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
+import type { AxiosInstance } from 'axios';
 import listWorkspaces from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
 import getWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesRead';
 import createWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesCreate';
@@ -20,10 +21,26 @@ const workspaceEndpoints = {
 };
 
 /**
- * Workspaces API client (V2) - fully typed via rbac-client library.
- * Includes role bindings endpoint for querying access assignments.
+ * Type for the Workspaces API client returned by APIFactory.
  */
-export const workspacesApi = APIFactory(RBAC_API_BASE_2, workspaceEndpoints, { axios: apiClient });
+export type WorkspacesApiClient = ReturnType<typeof APIFactory<typeof workspaceEndpoints>>;
+
+/**
+ * Create a Workspaces API client with a custom axios instance.
+ * Use this for dependency injection in shared hooks.
+ *
+ * @param axios - Custom axios instance (e.g., from ServiceContext)
+ * @returns Fully typed Workspaces API client
+ */
+export function createWorkspacesApi(axios: AxiosInstance): WorkspacesApiClient {
+  return APIFactory(RBAC_API_BASE_2, workspaceEndpoints, { axios });
+}
+
+/**
+ * Default Workspaces API client - uses the browser apiClient.
+ * For shared hooks, prefer createWorkspacesApi() with injected axios.
+ */
+export const workspacesApi = createWorkspacesApi(apiClient);
 
 // Re-export types
 export type { WorkspacesListParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
