@@ -1,5 +1,6 @@
 import { type UseQueryResult, useQuery } from '@tanstack/react-query';
-import { GetPrincipalAccessOrderByEnum, GetPrincipalAccessStatusEnum, accessApi } from '../api/access';
+import { GetPrincipalAccessOrderByEnum, GetPrincipalAccessStatusEnum, createAccessApi } from '../api/access';
+import { useAppServices } from '../../contexts/ServiceContext';
 
 // ============================================================================
 // Response Types
@@ -52,11 +53,15 @@ export interface UsePrincipalAccessQueryParams {
 /**
  * Fetch principal access (permissions).
  * Returns a paginated list of permissions for the current principal.
+ * Uses injected axios from ServiceContext - works in both browser and CLI.
  */
 export function usePrincipalAccessQuery(
   params: UsePrincipalAccessQueryParams = {},
   options?: { enabled?: boolean },
 ): UseQueryResult<PrincipalAccessResult> {
+  const { axios } = useAppServices();
+  const accessApi = createAccessApi(axios);
+
   return useQuery({
     queryKey: accessKeys.principalAccess(params),
     queryFn: async (): Promise<PrincipalAccessResult> => {

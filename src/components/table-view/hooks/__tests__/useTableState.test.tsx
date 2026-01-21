@@ -1,6 +1,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { act, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTableState } from '../useTableState';
 
 // Test row type
@@ -500,15 +501,15 @@ describe('useTableState', () => {
 
   describe('onStaleData callback', () => {
     beforeEach(() => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it('should call onStaleData on initial mount', () => {
-      const onStaleData = jest.fn();
+      const onStaleData = vi.fn();
 
       renderHook(
         () =>
@@ -531,7 +532,7 @@ describe('useTableState', () => {
     });
 
     it('should debounce subsequent onStaleData calls', () => {
-      const onStaleData = jest.fn();
+      const onStaleData = vi.fn();
 
       const { result } = renderHook(
         () =>
@@ -562,7 +563,7 @@ describe('useTableState', () => {
 
       // Fast-forward debounce timer
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       // Should have called once with final value

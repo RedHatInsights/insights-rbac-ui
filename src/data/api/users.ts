@@ -1,4 +1,5 @@
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
+import type { AxiosInstance } from 'axios';
 import listPrincipals from '@redhat-cloud-services/rbac-client/ListPrincipals';
 import { RBAC_API_BASE, apiClient } from './client';
 
@@ -8,9 +9,26 @@ const userEndpoints = {
 };
 
 /**
- * Users/Principals API client - fully typed via rbac-client library.
+ * Type for the Users API client returned by APIFactory.
  */
-export const usersApi = APIFactory(RBAC_API_BASE, userEndpoints, { axios: apiClient });
+export type UsersApiClient = ReturnType<typeof APIFactory<typeof userEndpoints>>;
+
+/**
+ * Create a Users API client with a custom axios instance.
+ * Use this for dependency injection in shared hooks.
+ *
+ * @param axios - Custom axios instance (e.g., from ServiceContext)
+ * @returns Fully typed Users API client
+ */
+export function createUsersApi(axios: AxiosInstance): UsersApiClient {
+  return APIFactory(RBAC_API_BASE, userEndpoints, { axios });
+}
+
+/**
+ * Default Users/Principals API client - uses the browser apiClient.
+ * For shared hooks, prefer createUsersApi() with injected axios.
+ */
+export const usersApi = createUsersApi(apiClient);
 
 // Re-export types from rbac-client
 export type { ListPrincipalsParams } from '@redhat-cloud-services/rbac-client/ListPrincipals';

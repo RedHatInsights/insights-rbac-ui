@@ -1,6 +1,5 @@
-import { type UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type UseQueryResult, useMutation, useQuery } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
-import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import {
   GetRoleScopeEnum,
   type ListRolesParams,
@@ -10,9 +9,12 @@ import {
   type RolePatch,
   type RolePut,
   type RoleWithAccess,
-  rolesApi,
+  createRolesApi,
 } from '../api/roles';
+import { useAppServices } from '../../contexts/ServiceContext';
 import messages from '../../Messages';
+import { useMutationQueryClient } from './utils';
+import { type MutationOptions, type QueryOptions } from './types';
 
 // ============================================================================
 // Response Types
@@ -53,46 +55,73 @@ export const rolesKeys = {
  * Fetch a paginated list of roles.
  * Accepts full API params for maximum flexibility.
  * Returns typed RolesListResponse with proper data/meta structure.
+ *
+ * Uses injected axios from ServiceContext - works in both browser and CLI.
+ * For CLI, pass { queryClient } to bypass context.
  */
-export function useRolesQuery(params: ListRolesParams, options?: { enabled?: boolean }): UseQueryResult<RolesListResponse> {
-  return useQuery({
-    queryKey: rolesKeys.list(params),
-    queryFn: async () => {
-      const response = await rolesApi.listRoles(params);
-      return response.data;
+export function useRolesQuery(params: ListRolesParams, options?: QueryOptions): UseQueryResult<RolesListResponse> {
+  const { axios } = useAppServices();
+  const rolesApi = createRolesApi(axios);
+
+  return useQuery(
+    {
+      queryKey: rolesKeys.list(params),
+      queryFn: async () => {
+        const response = await rolesApi.listRoles(params);
+        return response.data;
+      },
+      enabled: options?.enabled ?? true,
     },
-    enabled: options?.enabled ?? true,
-  });
+    options?.queryClient,
+  );
 }
 
 /**
  * Fetch a single role by ID.
+ *
+ * Uses injected axios from ServiceContext - works in both browser and CLI.
+ * For CLI, pass { queryClient } to bypass context.
  */
-export function useRoleQuery(id: string, options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: rolesKeys.detail(id),
-    queryFn: async () => {
-      const response = await rolesApi.getRole({ uuid: id });
-      return response.data;
+export function useRoleQuery(id: string, options?: QueryOptions) {
+  const { axios } = useAppServices();
+  const rolesApi = createRolesApi(axios);
+
+  return useQuery(
+    {
+      queryKey: rolesKeys.detail(id),
+      queryFn: async () => {
+        const response = await rolesApi.getRole({ uuid: id });
+        return response.data;
+      },
+      enabled: (options?.enabled ?? true) && !!id,
     },
-    enabled: (options?.enabled ?? true) && !!id,
-  });
+    options?.queryClient,
+  );
 }
 
 /**
  * Fetch a single role by ID with principal scope.
  * Used for getting role access/permissions for the current principal.
  * Returns RoleWithAccess which includes the access array with permissions.
+ *
+ * Uses injected axios from ServiceContext - works in both browser and CLI.
+ * For CLI, pass { queryClient } to bypass context.
  */
-export function useRoleForPrincipalQuery(id: string, options?: { enabled?: boolean }): UseQueryResult<RoleWithAccess> {
-  return useQuery({
-    queryKey: [...rolesKeys.detail(id), 'principal'] as const,
-    queryFn: async () => {
-      const response = await rolesApi.getRole({ uuid: id, scope: GetRoleScopeEnum.Principal });
-      return response.data;
+export function useRoleForPrincipalQuery(id: string, options?: QueryOptions): UseQueryResult<RoleWithAccess> {
+  const { axios } = useAppServices();
+  const rolesApi = createRolesApi(axios);
+
+  return useQuery(
+    {
+      queryKey: [...rolesKeys.detail(id), 'principal'] as const,
+      queryFn: async () => {
+        const response = await rolesApi.getRole({ uuid: id, scope: GetRoleScopeEnum.Principal });
+        return response.data;
+      },
+      enabled: (options?.enabled ?? true) && !!id,
     },
-    enabled: (options?.enabled ?? true) && !!id,
-  });
+    options?.queryClient,
+  );
 }
 
 // ============================================================================
@@ -102,28 +131,31 @@ export function useRoleForPrincipalQuery(id: string, options?: { enabled?: boole
 /**
  * Create a new role.
  * Note: No success notification shown for this operation.
+ *
+ * Uses injected services from ServiceContext - works in both browser and CLI.
+ * For CLI, pass { queryClient } to bypass context.
  */
-export function useCreateRoleMutation() {
-  const queryClient = useQueryClient();
-  const addNotification = useAddNotification();
+export function useCreateRoleMutation(options?: MutationOptions) {
+  const { axios, notify } = useAppServices();
+  const rolesApi = createRolesApi(axios);
   const intl = useIntl();
+  const qc = useMutationQueryClient(options?.queryClient);
 
-  return useMutation({
-    mutationFn: async (roleIn: RoleIn) => {
-      const response = await rolesApi.createRole({ roleIn });
-      return response.data;
+  return useMutation(
+    {
+      mutationFn: async (roleIn: RoleIn) => {
+        const response = await rolesApi.createRole({ roleIn });
+        return response.data;
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: rolesKeys.all });
+      },
+      onError: () => {
+        notify('danger', intl.formatMessage(messages.createRoleErrorTitle));
+      },
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: rolesKeys.all });
-    },
-    onError: () => {
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.createRoleErrorTitle),
-        dismissable: true,
-      });
-    },
-  });
+    options?.queryClient,
+  );
 }
 
 interface UpdateRoleMutationParams {
@@ -133,58 +165,56 @@ interface UpdateRoleMutationParams {
 
 /**
  * Update an existing role.
+ *
+ * Uses injected services from ServiceContext - works in both browser and CLI.
+ * For CLI, pass { queryClient } to bypass context.
  */
-export function useUpdateRoleMutation() {
-  const queryClient = useQueryClient();
-  const addNotification = useAddNotification();
+export function useUpdateRoleMutation(options?: MutationOptions) {
+  const { axios, notify } = useAppServices();
+  const rolesApi = createRolesApi(axios);
+  const qc = useMutationQueryClient(options?.queryClient);
   const intl = useIntl();
 
-  return useMutation({
-    mutationFn: ({ uuid, rolePut }: UpdateRoleMutationParams) => rolesApi.updateRole({ uuid, rolePut }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: rolesKeys.all });
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.editRoleSuccessTitle),
-        dismissable: true,
-      });
+  return useMutation(
+    {
+      mutationFn: ({ uuid, rolePut }: UpdateRoleMutationParams) => rolesApi.updateRole({ uuid, rolePut }),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: rolesKeys.all });
+        notify('success', intl.formatMessage(messages.editRoleSuccessTitle));
+      },
+      onError: () => {
+        notify('danger', intl.formatMessage(messages.editRoleErrorTitle));
+      },
     },
-    onError: () => {
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.editRoleErrorTitle),
-        dismissable: true,
-      });
-    },
-  });
+    options?.queryClient,
+  );
 }
 
 /**
  * Delete a role.
+ *
+ * Uses injected services from ServiceContext - works in both browser and CLI.
+ * For CLI, pass { queryClient } to bypass context.
  */
-export function useDeleteRoleMutation() {
-  const queryClient = useQueryClient();
-  const addNotification = useAddNotification();
+export function useDeleteRoleMutation(options?: MutationOptions) {
+  const { axios, notify } = useAppServices();
+  const rolesApi = createRolesApi(axios);
+  const qc = useMutationQueryClient(options?.queryClient);
   const intl = useIntl();
 
-  return useMutation({
-    mutationFn: (uuid: string) => rolesApi.deleteRole({ uuid }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: rolesKeys.all });
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.removeRoleSuccessTitle),
-        dismissable: true,
-      });
+  return useMutation(
+    {
+      mutationFn: (uuid: string) => rolesApi.deleteRole({ uuid }),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: rolesKeys.all });
+        notify('success', intl.formatMessage(messages.removeRoleSuccessTitle));
+      },
+      onError: () => {
+        notify('danger', intl.formatMessage(messages.removeRoleErrorTitle));
+      },
     },
-    onError: () => {
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.removeRoleErrorTitle),
-        dismissable: true,
-      });
-    },
-  });
+    options?.queryClient,
+  );
 }
 
 interface PatchRoleMutationParams {
@@ -194,33 +224,32 @@ interface PatchRoleMutationParams {
 
 /**
  * Patch (partial update) a role - used for name/description edits.
+ *
+ * Uses injected services from ServiceContext - works in both browser and CLI.
+ * For CLI, pass { queryClient } to bypass context.
  */
-export function usePatchRoleMutation() {
-  const queryClient = useQueryClient();
-  const addNotification = useAddNotification();
+export function usePatchRoleMutation(options?: MutationOptions) {
+  const { axios, notify } = useAppServices();
+  const rolesApi = createRolesApi(axios);
+  const qc = useMutationQueryClient(options?.queryClient);
   const intl = useIntl();
 
-  return useMutation({
-    mutationFn: async ({ uuid, rolePatch }: PatchRoleMutationParams) => {
-      const response = await rolesApi.patchRole({ uuid, rolePatch });
-      return response.data;
+  return useMutation(
+    {
+      mutationFn: async ({ uuid, rolePatch }: PatchRoleMutationParams) => {
+        const response = await rolesApi.patchRole({ uuid, rolePatch });
+        return response.data;
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: rolesKeys.all });
+        notify('success', intl.formatMessage(messages.editRoleSuccessTitle));
+      },
+      onError: () => {
+        notify('danger', intl.formatMessage(messages.editRoleErrorTitle));
+      },
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: rolesKeys.all });
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.editRoleSuccessTitle),
-        dismissable: true,
-      });
-    },
-    onError: () => {
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.editRoleErrorTitle),
-        dismissable: true,
-      });
-    },
-  });
+    options?.queryClient,
+  );
 }
 
 // Re-export types (Role already defined locally, extending RoleOutDynamic)

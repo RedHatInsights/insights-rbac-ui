@@ -7,11 +7,13 @@ import { IntlProvider } from 'react-intl';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
 import { ChromeProvider, FeatureFlagsProvider, AccessCheckProvider_, type ChromeConfig, type FeatureFlagsConfig, type AccessCheckConfig } from './context-providers';
 import { initialize, mswLoader } from 'msw-storybook-addon';
+import { ServiceProvider, createBrowserServices, browserApiClient } from '../src/services';
 
 // Create a fresh QueryClient for each story to prevent state leaking
 const createTestQueryClient = () =>
@@ -31,16 +33,23 @@ const createTestQueryClient = () =>
 // Wrapper that provides a fresh QueryClient for each story to prevent state leaking
 const QueryClientWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [queryClient] = useState(() => createTestQueryClient());
-  
+
   return (
     <QueryClientProvider client={queryClient}>
-      {typeof document !== 'undefined' && createPortal(
-        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />,
-        document.body
-      )}
+      {typeof document !== 'undefined' &&
+        createPortal(<ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />, document.body)}
       {children}
     </QueryClientProvider>
   );
+};
+
+// Wrapper that provides ServiceProvider with browser services
+// Must be inside NotificationsProvider to use useAddNotification
+const ServiceProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const addNotification = useAddNotification();
+  const services = createBrowserServices(addNotification);
+
+  return <ServiceProvider value={services}>{children}</ServiceProvider>;
 };
 
 
@@ -193,7 +202,9 @@ const preview: Preview = {
                   <IntlProvider locale={locale} messages={messages[locale]}>
                     <Fragment>
                       <NotificationsProvider>
-                        <Story />
+                        <ServiceProviderWrapper>
+                          <Story />
+                        </ServiceProviderWrapper>
                       </NotificationsProvider>
                     </Fragment>
                   </IntlProvider>

@@ -1,4 +1,5 @@
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
+import type { AxiosInstance } from 'axios';
 import listPermissions from '@redhat-cloud-services/rbac-client/ListPermissions';
 import listPermissionOptions from '@redhat-cloud-services/rbac-client/ListPermissionOptions';
 import { RBAC_API_BASE, apiClient } from './client';
@@ -10,10 +11,26 @@ const permissionEndpoints = {
 };
 
 /**
- * Permissions API client - fully typed via rbac-client library.
- * Uses APIFactory to bind endpoints to our clean axios instance.
+ * Type for the Permissions API client returned by APIFactory.
  */
-export const permissionsApi = APIFactory(RBAC_API_BASE, permissionEndpoints, { axios: apiClient });
+export type PermissionsApiClient = ReturnType<typeof APIFactory<typeof permissionEndpoints>>;
+
+/**
+ * Create a Permissions API client with a custom axios instance.
+ * Use this for dependency injection in shared hooks.
+ *
+ * @param axios - Custom axios instance (e.g., from ServiceContext)
+ * @returns Fully typed Permissions API client
+ */
+export function createPermissionsApi(axios: AxiosInstance): PermissionsApiClient {
+  return APIFactory(RBAC_API_BASE, permissionEndpoints, { axios });
+}
+
+/**
+ * Default Permissions API client - uses the browser apiClient.
+ * For shared hooks, prefer createPermissionsApi() with injected axios.
+ */
+export const permissionsApi = createPermissionsApi(apiClient);
 
 // Disallowed permissions to filter out
 const disallowedPermissions: string[] = ['inventory:staleness'];

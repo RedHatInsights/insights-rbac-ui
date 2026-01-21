@@ -1,6 +1,9 @@
-import { type UseQueryResult, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { type ListPrincipalsParams, type PrincipalPagination, usersApi } from '../api/users';
+import { type UseQueryResult, useMutation, useQuery } from '@tanstack/react-query';
+import { type ListPrincipalsParams, type PrincipalPagination, createUsersApi } from '../api/users';
+import { useAppServices } from '../../contexts/ServiceContext';
 import { isITLessProd, isInt, isStage } from '../../itLessConfig';
+import { useMutationQueryClient } from './utils';
+import { type MutationOptions, type QueryOptions } from './types';
 
 // ============================================================================
 // Environment URL Helpers
@@ -95,56 +98,64 @@ export interface UseUsersQueryParams {
 /**
  * Fetch a paginated list of users/principals.
  * Returns unwrapped, typed users array and total count.
+ * Uses injected axios from ServiceContext - works in both browser and CLI.
+ * For CLI, pass { queryClient } to bypass context.
  */
-export function useUsersQuery(params: UseUsersQueryParams = {}, options?: { enabled?: boolean }): UseQueryResult<UsersQueryResult> {
-  return useQuery({
-    queryKey: usersKeys.list(params as unknown as ListPrincipalsParams),
-    queryFn: async (): Promise<UsersQueryResult> => {
-      // Extract sort direction from orderBy prefix (e.g., '-username' -> desc)
-      // Fetch users with pagination and filtering
-      const sortOrder = params.orderBy?.startsWith('-') ? 'desc' : 'asc';
-      const orderByField = params.orderBy?.replace(/^-/, '') as ListPrincipalsParams['orderBy'];
+export function useUsersQuery(params: UseUsersQueryParams = {}, options?: QueryOptions): UseQueryResult<UsersQueryResult> {
+  const { axios } = useAppServices();
+  const usersApi = createUsersApi(axios);
 
-      const response = await usersApi.listPrincipals({
-        limit: params.limit ?? 20,
-        offset: params.offset ?? 0,
-        orderBy: orderByField,
-        usernameOnly: false,
-        matchCriteria: 'partial',
-        usernames: params.username,
-        email: params.email,
-        status: params.status,
-        adminOnly: params.adminOnly,
-        sortOrder: params.sortOrder ?? sortOrder,
-      });
-      const data = response.data as PrincipalPagination;
+  return useQuery(
+    {
+      queryKey: usersKeys.list(params as unknown as ListPrincipalsParams),
+      queryFn: async (): Promise<UsersQueryResult> => {
+        // Extract sort direction from orderBy prefix (e.g., '-username' -> desc)
+        // Fetch users with pagination and filtering
+        const sortOrder = params.orderBy?.startsWith('-') ? 'desc' : 'asc';
+        const orderByField = params.orderBy?.replace(/^-/, '') as ListPrincipalsParams['orderBy'];
 
-      // Transform API response to clean typed structure
-      // Use type assertion for fields that might be in the response but not in the strict type
-      type PrincipalWithExtras = (typeof data.data)[number] & {
-        user_groups_count?: number;
-      };
-      const users = (data?.data ?? []).map((principal) => {
-        const p = principal as PrincipalWithExtras;
-        return {
-          username: p.username,
-          email: 'email' in p ? (p.email as string) : '',
-          first_name: 'first_name' in p ? p.first_name : undefined,
-          last_name: 'last_name' in p ? p.last_name : undefined,
-          is_active: 'is_active' in p ? p.is_active : undefined,
-          is_org_admin: 'is_org_admin' in p ? p.is_org_admin : undefined,
-          external_source_id: 'external_source_id' in p ? p.external_source_id : undefined,
-          user_groups_count: p.user_groups_count,
+        const response = await usersApi.listPrincipals({
+          limit: params.limit ?? 20,
+          offset: params.offset ?? 0,
+          orderBy: orderByField,
+          usernameOnly: false,
+          matchCriteria: 'partial',
+          usernames: params.username,
+          email: params.email,
+          status: params.status,
+          adminOnly: params.adminOnly,
+          sortOrder: params.sortOrder ?? sortOrder,
+        });
+        const data = response.data as PrincipalPagination;
+
+        // Transform API response to clean typed structure
+        // Use type assertion for fields that might be in the response but not in the strict type
+        type PrincipalWithExtras = (typeof data.data)[number] & {
+          user_groups_count?: number;
         };
-      });
+        const users = (data?.data ?? []).map((principal) => {
+          const p = principal as PrincipalWithExtras;
+          return {
+            username: p.username,
+            email: 'email' in p ? (p.email as string) : '',
+            first_name: 'first_name' in p ? p.first_name : undefined,
+            last_name: 'last_name' in p ? p.last_name : undefined,
+            is_active: 'is_active' in p ? p.is_active : undefined,
+            is_org_admin: 'is_org_admin' in p ? p.is_org_admin : undefined,
+            external_source_id: 'external_source_id' in p ? p.external_source_id : undefined,
+            user_groups_count: p.user_groups_count,
+          };
+        });
 
-      return {
-        users,
-        totalCount: data?.meta?.count ?? users.length,
-      };
+        return {
+          users,
+          totalCount: data?.meta?.count ?? users.length,
+        };
+      },
+      enabled: options?.enabled ?? true,
     },
-    enabled: options?.enabled ?? true,
-  });
+    options?.queryClient,
+  );
 }
 
 // ============================================================================
@@ -185,8 +196,8 @@ interface ChangeUserStatusParams {
  *
  * @tag api-v1-external - Uses external IT identity provider API
  */
-export function useChangeUserStatusMutation() {
-  const queryClient = useQueryClient();
+export function useChangeUserStatusMutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
 
   return useMutation({
     mutationFn: async ({ users, config, itless }: ChangeUserStatusParams) => {
@@ -257,8 +268,8 @@ interface UpdateUserOrgAdminParams {
  *
  * @tag api-v1-external - Uses external IT identity provider API
  */
-export function useUpdateUserOrgAdminMutation() {
-  const queryClient = useQueryClient();
+export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
 
   return useMutation({
     mutationFn: async ({ userId, isOrgAdmin, config, itless }: UpdateUserOrgAdminParams) => {
@@ -330,8 +341,8 @@ interface InviteUsersParams {
  *
  * @tag api-v1-external - Uses external IT identity provider API
  */
-export function useInviteUsersMutation() {
-  const queryClient = useQueryClient();
+export function useInviteUsersMutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
 
   return useMutation({
     mutationFn: async ({
