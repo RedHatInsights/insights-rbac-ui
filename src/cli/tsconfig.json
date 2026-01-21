@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "outDir": "../../dist/cli",
+    "rootDir": "..",
+    "baseUrl": "..",
+    "paths": {
+      "@contexts/*": ["contexts/*"],
+      "@services/*": ["services/*"],
+      "@data/*": ["data/*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../contexts/**/*.ts",
+    "../contexts/**/*.tsx",
+    "../services/**/*.ts",
+    "../data/**/*.ts",
+    "../data/**/*.tsx"
+  ]
+}

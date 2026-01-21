@@ -827,6 +827,11 @@ export default defineMessages({
     description: 'Add group success notification description',
     defaultMessage: 'The group was added successfully.',
   },
+  addGroupErrorTitle: {
+    id: 'addGroupErrorTitle',
+    description: 'Add group error notification title',
+    defaultMessage: 'Failed adding group',
+  },
   addingGroupMemberTitle: {
     id: 'addingGroupMemberTitle',
     description: 'Adding group member notification title',

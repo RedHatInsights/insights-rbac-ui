@@ -1,4 +1,5 @@
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
+import type { AxiosInstance } from 'axios';
 import listRoles from '@redhat-cloud-services/rbac-client/ListRoles';
 import getRole from '@redhat-cloud-services/rbac-client/GetRole';
 import getRoleAccess from '@redhat-cloud-services/rbac-client/GetRoleAccess';
@@ -20,10 +21,26 @@ const roleEndpoints = {
 };
 
 /**
- * Roles API client - fully typed via rbac-client library.
- * Uses APIFactory to bind endpoints to our axios instance.
+ * Type for the Roles API client returned by APIFactory.
  */
-export const rolesApi = APIFactory(RBAC_API_BASE, roleEndpoints, { axios: apiClient });
+export type RolesApiClient = ReturnType<typeof APIFactory<typeof roleEndpoints>>;
+
+/**
+ * Create a Roles API client with a custom axios instance.
+ * Use this for dependency injection in shared hooks.
+ *
+ * @param axios - Custom axios instance (e.g., from ServiceContext)
+ * @returns Fully typed Roles API client
+ */
+export function createRolesApi(axios: AxiosInstance): RolesApiClient {
+  return APIFactory(RBAC_API_BASE, roleEndpoints, { axios });
+}
+
+/**
+ * Default Roles API client - uses the browser apiClient.
+ * For shared hooks, prefer createRolesApi() with injected axios.
+ */
+export const rolesApi = createRolesApi(apiClient);
 
 // Re-export types for convenience
 export type {

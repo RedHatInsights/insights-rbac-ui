@@ -135,14 +135,14 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
   return [
     // RESET endpoint - for test isolation (call this at start of play functions)
-    http.post('/api/test/reset-state', () => {
+    http.post('*/api/test/reset-state', () => {
       // Use cloneState for clean, immutable reset
       state = cloneState(originalInitialState);
       return HttpResponse.json({ message: 'State reset successfully' });
     }),
     
     // Groups endpoints
-    http.get('/api/rbac/v1/groups/', ({ request }) => {
+    http.get('*/api/rbac/v1/groups/', ({ request }) => {
       const url = new URL(request.url);
       const name = url.searchParams.get('name');
       const nameMatch = url.searchParams.get('name_match');
@@ -189,7 +189,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Get single group by ID
-    http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
+    http.get('*/api/rbac/v1/groups/:groupId/', ({ params }) => {
       const groupId = params.groupId as string;
       
       // Use immutable accessor (returns a clone, never the original)
@@ -209,12 +209,23 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       });
     }),
 
-    http.post('/api/rbac/v1/groups/', async ({ request }) => {
+    http.post('*/api/rbac/v1/groups/', async ({ request }) => {
       const body = (await request.json()) as Partial<Group>;
+
+      // Validate like the real API - description cannot be empty string
+      if (body.description === '') {
+        return HttpResponse.json(
+          {
+            errors: [{ detail: 'This field may not be blank.', source: 'description', status: '400' }],
+          },
+          { status: 400 },
+        );
+      }
+
       const newGroup: Group = {
         uuid: `group-${Date.now()}-${Math.random()}`,
         name: body.name || '',
-        description: body.description || '',
+        description: body.description ?? '',
         principalCount: 0,
         roleCount: 0,
         created: new Date().toISOString(),
@@ -225,7 +236,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       return HttpResponse.json(newGroup);
     }),
 
-    http.put('/api/rbac/v1/groups/:groupId/', async ({ params, request }) => {
+    http.put('*/api/rbac/v1/groups/:groupId/', async ({ params, request }) => {
       const body = (await request.json()) as Partial<Group>;
       const idx = state.groups.findIndex((g) => g.uuid === params.groupId);
 
@@ -242,13 +253,13 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       return HttpResponse.json(state.groups[idx]);
     }),
 
-    http.delete('/api/rbac/v1/groups/:groupId/', ({ params }) => {
+    http.delete('*/api/rbac/v1/groups/:groupId/', ({ params }) => {
       state.groups = state.groups.filter((g) => g.uuid !== params.groupId);
       return new HttpResponse(null, { status: 204 });
     }),
 
     // Group members/principals endpoints
-    http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request, params }) => {
+    http.get('*/api/rbac/v1/groups/:groupId/principals/', ({ request, params }) => {
       const url = new URL(request.url);
       const limit = parseInt(url.searchParams.get('limit') || '20');
       const offset = parseInt(url.searchParams.get('offset') || '0');
@@ -288,7 +299,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       });
     }),
     
-    http.post('/api/rbac/v1/groups/:groupId/principals/', async ({ params, request }) => {
+    http.post('*/api/rbac/v1/groups/:groupId/principals/', async ({ params, request }) => {
       const groupId = params.groupId as string;
       const body = (await request.json()) as { principals: Array<{ username: string }> };
       
@@ -318,7 +329,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       return HttpResponse.json({ message: 'Principals added successfully' });
     }),
     
-    http.delete('/api/rbac/v1/groups/:groupId/principals/', async ({ params, request }) => {
+    http.delete('*/api/rbac/v1/groups/:groupId/principals/', async ({ params, request }) => {
       const groupId = params.groupId as string;
       const url = new URL(request.url);
       const usernames = url.searchParams.get('usernames')?.split(',') || [];
@@ -330,7 +341,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Group roles endpoints
-    http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request, params }) => {
+    http.get('*/api/rbac/v1/groups/:groupId/roles/', ({ request, params }) => {
       const url = new URL(request.url);
       const limit = parseInt(url.searchParams.get('limit') || '20');
       const offset = parseInt(url.searchParams.get('offset') || '0');
@@ -358,7 +369,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       });
     }),
     
-    http.post('/api/rbac/v1/groups/:groupId/roles/', async ({ params, request }) => {
+    http.post('*/api/rbac/v1/groups/:groupId/roles/', async ({ params, request }) => {
       const groupId = params.groupId as string;
       const body = (await request.json()) as { roles: string[] };
       
@@ -387,7 +398,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       return HttpResponse.json({ message: 'Roles added successfully' });
     }),
     
-    http.delete('/api/rbac/v1/groups/:groupId/roles/', async ({ params, request }) => {
+    http.delete('*/api/rbac/v1/groups/:groupId/roles/', async ({ params, request }) => {
       const groupId = params.groupId as string;
       const url = new URL(request.url);
       const roleUuids = url.searchParams.get('roles')?.split(',') || [];
@@ -399,7 +410,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Users/Principals endpoints
-    http.get('/api/rbac/v1/principals/', ({ request }) => {
+    http.get('*/api/rbac/v1/principals/', ({ request }) => {
       const url = new URL(request.url);
       const limit = parseInt(url.searchParams.get('limit') || '20');
       const offset = parseInt(url.searchParams.get('offset') || '0');
@@ -423,7 +434,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Roles endpoints
-    http.get('/api/rbac/v1/roles/', ({ request }) => {
+    http.get('*/api/rbac/v1/roles/', ({ request }) => {
       const url = new URL(request.url);
       const limit = parseInt(url.searchParams.get('limit') || '20');
       const offset = parseInt(url.searchParams.get('offset') || '0');
@@ -490,7 +501,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Create a new role
-    http.post('/api/rbac/v1/roles/', async ({ request }) => {
+    http.post('*/api/rbac/v1/roles/', async ({ request }) => {
       const body = (await request.json()) as { name: string; display_name?: string; description?: string; access: any[] };
       
       const newRole: Role = {
@@ -516,7 +527,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Get single role by ID
-    http.get('/api/rbac/v1/roles/:roleId/', ({ params }) => {
+    http.get('*/api/rbac/v1/roles/:roleId/', ({ params }) => {
       const role = state.roles.find((r) => r.uuid === params.roleId);
       
       if (!role) {
@@ -526,8 +537,26 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       return HttpResponse.json(role);
     }),
 
-    // Update a role
-    http.patch('/api/rbac/v1/roles/:roleId/', async ({ params, request }) => {
+    // Update a role (PATCH)
+    http.patch('*/api/rbac/v1/roles/:roleId/', async ({ params, request }) => {
+      const body = (await request.json()) as Partial<Role>;
+      const idx = state.roles.findIndex((r) => r.uuid === params.roleId);
+
+      if (idx === -1) {
+        return new HttpResponse(null, { status: 404 });
+      }
+
+      state.roles[idx] = {
+        ...state.roles[idx],
+        ...body,
+        modified: new Date().toISOString(),
+      };
+
+      return HttpResponse.json(state.roles[idx]);
+    }),
+
+    // Update a role (PUT) - full replacement
+    http.put('*/api/rbac/v1/roles/:roleId/', async ({ params, request }) => {
       const body = (await request.json()) as Partial<Role>;
       const idx = state.roles.findIndex((r) => r.uuid === params.roleId);
 
@@ -545,13 +574,13 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Delete a role
-    http.delete('/api/rbac/v1/roles/:roleId/', ({ params }) => {
+    http.delete('*/api/rbac/v1/roles/:roleId/', ({ params }) => {
       state.roles = state.roles.filter((r) => r.uuid !== params.roleId);
       return new HttpResponse(null, { status: 204 });
     }),
 
     // Permissions options endpoints (for filters in Add Permissions step)
-    http.get('/api/rbac/v1/permissions/options/', ({ request }) => {
+    http.get('*/api/rbac/v1/permissions/options/', ({ request }) => {
       const url = new URL(request.url);
       const field = url.searchParams.get('field');
 
@@ -574,7 +603,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // List permissions endpoint (for the permissions table)
-    http.get('/api/rbac/v1/permissions/', ({ request }) => {
+    http.get('*/api/rbac/v1/permissions/', ({ request }) => {
       const url = new URL(request.url);
       const limit = parseInt(url.searchParams.get('limit') || '50');
       const offset = parseInt(url.searchParams.get('offset') || '0');
@@ -609,7 +638,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
     // Service accounts endpoints - there are TWO different APIs being used
     // 1. RBAC API format (used in some contexts)
-    http.get('/api/rbac/v1/service-accounts/', ({ request }) => {
+    http.get('*/api/rbac/v1/service-accounts/', ({ request }) => {
       const url = new URL(request.url);
       const limit = parseInt(url.searchParams.get('limit') || '20');
       const offset = parseInt(url.searchParams.get('offset') || '0');
@@ -666,7 +695,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
     // Principal access endpoint - returns what access/permissions a user has across applications
     // This is used by the "My User Access" page
-    http.get('/api/rbac/v1/access/', ({ request }) => {
+    http.get('*/api/rbac/v1/access/', ({ request }) => {
       const url = new URL(request.url);
       const application = url.searchParams.get('application') || '';
       const limit = parseInt(url.searchParams.get('limit') || '50');
@@ -702,7 +731,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
     // Workspace endpoints
     // List workspaces
-    http.get('/api/rbac/v2/workspaces/', () => {
+    http.get('*/api/rbac/v2/workspaces/', () => {
       return HttpResponse.json({
         data: state.workspaces,
         meta: { count: state.workspaces.length, limit: 10000, offset: 0 },
@@ -710,7 +739,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Create workspace
-    http.post('/api/rbac/v2/workspaces/', async ({ request }) => {
+    http.post('*/api/rbac/v2/workspaces/', async ({ request }) => {
       const body = (await request.json()) as { name: string; description?: string; parent_id?: string };
       const newWorkspace: Workspace = {
         id: `ws-${Date.now()}`,
@@ -726,7 +755,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Get workspace by ID
-    http.get('/api/rbac/v2/workspaces/:id', ({ params }) => {
+    http.get('*/api/rbac/v2/workspaces/:id', ({ params }) => {
       const workspace = state.workspaces.find((w) => w.id === params.id);
       if (!workspace) {
         return HttpResponse.json({ error: 'Workspace not found' }, { status: 404 });
@@ -735,7 +764,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Update workspace
-    http.patch('/api/rbac/v2/workspaces/:id', async ({ params, request }) => {
+    http.patch('*/api/rbac/v2/workspaces/:id', async ({ params, request }) => {
       const body = (await request.json()) as Partial<Workspace>;
       const workspaceIndex = state.workspaces.findIndex((w) => w.id === params.id);
       if (workspaceIndex === -1) {
@@ -746,7 +775,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Delete workspace
-    http.delete('/api/rbac/v2/workspaces/:id', ({ params }) => {
+    http.delete('*/api/rbac/v2/workspaces/:id', ({ params }) => {
       const workspaceIndex = state.workspaces.findIndex((w) => w.id === params.id);
       if (workspaceIndex === -1) {
         return HttpResponse.json({ error: 'Workspace not found' }, { status: 404 });
@@ -756,7 +785,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     }),
 
     // Move workspace (change parent)
-    http.post('/api/rbac/v2/workspaces/:id/move', async ({ params, request }) => {
+    http.post('*/api/rbac/v2/workspaces/:id/move', async ({ params, request }) => {
       const body = (await request.json()) as { parent_id: string };
       const workspaceIndex = state.workspaces.findIndex((w) => w.id === params.id);
       if (workspaceIndex === -1) {
@@ -768,7 +797,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
     // Workspace role bindings (M3+ feature)
     // This endpoint returns role bindings for a specific workspace
-    http.get('/api/rbac/v2/role-bindings/by-subject', ({ request }) => {
+    http.get('*/api/rbac/v2/role-bindings/by-subject', ({ request }) => {
       const url = new URL(request.url);
       const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
       const resourceType = url.searchParams.get('resourceType') || url.searchParams.get('resource_type');
