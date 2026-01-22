@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.0.1...v2.0.2) (2026-01-22)
+
+
+### Bug Fixes
+
+* **nav:** change pathname ([#2106](https://github.com/RedHatInsights/insights-rbac-ui/issues/2106)) ([7f5002f](https://github.com/RedHatInsights/insights-rbac-ui/commit/7f5002f866b27b3c73e9d3984ec3fd20b237fd5c))
+
 ## [2.0.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.0.0...v2.0.1) (2026-01-21)
 
 
