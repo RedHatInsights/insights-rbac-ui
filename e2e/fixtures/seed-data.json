@@ -1,0 +1,892 @@
+{
+  "$schema": "./seed-schema.json",
+  "description": "Full seed dataset for E2E tests. Permissions use colon-separated format: application:resource_type:operation. System roles (Organization Administrator, Auditor, etc.) will be looked up, not created.",
+  "roles": [
+    {
+      "name": "Tenant Administrator",
+      "display_name": "Tenant Administrator",
+      "description": "Full administrative access to all tenant resources",
+      "permissions": [
+        "rbac:*:*",
+        "inventory:*:*",
+        "cost-management:*:*",
+        "subscriptions:*:*",
+        "patch:*:*",
+        "advisor:*:*",
+        "compliance:*:*",
+        "vulnerability:*:*",
+        "drift:*:*",
+        "policies:*:*",
+        "remediations:*:*",
+        "notifications:*:*",
+        "sources:*:*",
+        "integrations:*:*"
+      ]
+    },
+    {
+      "name": "Workspace Administrator",
+      "display_name": "Workspace Administrator",
+      "description": "Administrative access to workspace resources",
+      "permissions": [
+        "rbac:workspace:*",
+        "rbac:group:*",
+        "rbac:role:read",
+        "rbac:principal:read"
+      ]
+    },
+    {
+      "name": "Organization Administrator",
+      "display_name": "Organization Administrator",
+      "description": "System role - will be looked up, not created",
+      "permissions": []
+    },
+    {
+      "name": "RHEL DevOps",
+      "display_name": "RHEL DevOps",
+      "description": "RHEL development operations access",
+      "permissions": [
+        "inventory:hosts:*",
+        "inventory:groups:*",
+        "patch:*:*",
+        "advisor:*:*",
+        "remediations:*:*",
+        "tasks:*:*"
+      ]
+    },
+    {
+      "name": "RHEL Inventory Viewer",
+      "display_name": "RHEL Inventory Viewer",
+      "description": "View RHEL inventory and host information",
+      "permissions": [
+        "inventory:hosts:read",
+        "inventory:groups:read",
+        "inventory:staleness:read"
+      ]
+    },
+    {
+      "name": "RHEL Inventory Administrator",
+      "display_name": "RHEL Inventory Administrator",
+      "description": "Full access to RHEL inventory management",
+      "permissions": [
+        "inventory:hosts:*",
+        "inventory:groups:*",
+        "inventory:staleness:*"
+      ]
+    },
+    {
+      "name": "Console Administrator",
+      "display_name": "Console Administrator",
+      "description": "Full administrative access to console resources",
+      "permissions": [
+        "rbac:*:*",
+        "inventory:*:*",
+        "cost-management:*:*",
+        "patch:*:*",
+        "advisor:*:*",
+        "compliance:*:*",
+        "vulnerability:*:*",
+        "drift:*:*",
+        "policies:*:*",
+        "remediations:*:*",
+        "notifications:*:*"
+      ]
+    },
+    {
+      "name": "Insights Viewer",
+      "display_name": "Insights Viewer",
+      "description": "View insights, recommendations, and system health",
+      "permissions": [
+        "advisor:*:read",
+        "drift:baselines:read",
+        "drift:comparisons:read",
+        "vulnerability:*:read",
+        "compliance:*:read"
+      ]
+    },
+    {
+      "name": "Insights Administrator",
+      "display_name": "Insights Administrator",
+      "description": "Full access to insights data and configuration",
+      "permissions": [
+        "advisor:*:*",
+        "drift:*:*",
+        "vulnerability:*:*",
+        "policies:*:*"
+      ]
+    },
+    {
+      "name": "Vulnerability Viewer",
+      "display_name": "Vulnerability Viewer",
+      "description": "View vulnerability reports and CVEs",
+      "permissions": [
+        "vulnerability:vulnerability_results:read",
+        "vulnerability:system:read",
+        "vulnerability:advanced_report:read",
+        "vulnerability:report:read"
+      ]
+    },
+    {
+      "name": "Vulnerability Administrator",
+      "display_name": "Vulnerability Administrator",
+      "description": "Manage vulnerability reports and settings",
+      "permissions": [
+        "vulnerability:*:*"
+      ]
+    },
+    {
+      "name": "Compliance Viewer",
+      "display_name": "Compliance Viewer",
+      "description": "View compliance policies and scan results",
+      "permissions": [
+        "compliance:policy:read",
+        "compliance:profile:read",
+        "compliance:system:read",
+        "compliance:report:read"
+      ]
+    },
+    {
+      "name": "Compliance Administrator",
+      "display_name": "Compliance Administrator",
+      "description": "Manage compliance policies and configurations",
+      "permissions": [
+        "compliance:*:*"
+      ]
+    },
+    {
+      "name": "Patch Viewer",
+      "display_name": "Patch Viewer",
+      "description": "View patch and advisory information",
+      "permissions": [
+        "patch:*:read"
+      ]
+    },
+    {
+      "name": "Patch Administrator",
+      "display_name": "Patch Administrator",
+      "description": "Manage patch operations and templates",
+      "permissions": [
+        "patch:*:*"
+      ]
+    },
+    {
+      "name": "Advisor Viewer",
+      "display_name": "Advisor Viewer",
+      "description": "View advisor recommendations",
+      "permissions": [
+        "advisor:*:read"
+      ]
+    },
+    {
+      "name": "Advisor Administrator",
+      "display_name": "Advisor Administrator",
+      "description": "Manage advisor settings and recommendations",
+      "permissions": [
+        "advisor:*:*"
+      ]
+    },
+    {
+      "name": "Drift Viewer",
+      "display_name": "Drift Viewer",
+      "description": "View drift baselines and comparisons",
+      "permissions": [
+        "drift:*:read"
+      ]
+    },
+    {
+      "name": "Drift Administrator",
+      "display_name": "Drift Administrator",
+      "description": "Manage drift baselines and configurations",
+      "permissions": [
+        "drift:*:*"
+      ]
+    },
+    {
+      "name": "Cost Management Viewer",
+      "display_name": "Cost Management Viewer",
+      "description": "View cost analysis and optimization data",
+      "permissions": [
+        "cost-management:*:read"
+      ]
+    },
+    {
+      "name": "Cost Management Administrator",
+      "display_name": "Cost Management Administrator",
+      "description": "Full access to cost management features",
+      "permissions": [
+        "cost-management:*:*"
+      ]
+    },
+    {
+      "name": "Cost Analyst",
+      "display_name": "Cost Analyst",
+      "description": "Analyze costs and create reports",
+      "permissions": [
+        "cost-management:aws.account:read",
+        "cost-management:aws.organizational_unit:read",
+        "cost-management:azure.subscription_guid:read",
+        "cost-management:gcp.account:read",
+        "cost-management:gcp.project:read",
+        "cost-management:openshift.cluster:read",
+        "cost-management:openshift.node:read",
+        "cost-management:openshift.project:read"
+      ]
+    },
+    {
+      "name": "Automation Hub Viewer",
+      "display_name": "Automation Hub Viewer",
+      "description": "View Ansible collections and execution environments",
+      "permissions": [
+        "automation-hub:*:read"
+      ]
+    },
+    {
+      "name": "Automation Hub Administrator",
+      "display_name": "Automation Hub Administrator",
+      "description": "Manage Ansible automation hub resources",
+      "permissions": [
+        "automation-hub:*:*"
+      ]
+    },
+    {
+      "name": "Automation Analytics Viewer",
+      "display_name": "Automation Analytics Viewer",
+      "description": "View automation analytics data",
+      "permissions": [
+        "automation-analytics:*:read"
+      ]
+    },
+    {
+      "name": "Automation Analytics Administrator",
+      "display_name": "Automation Analytics Administrator",
+      "description": "Full access to automation analytics",
+      "permissions": [
+        "automation-analytics:*:*"
+      ]
+    },
+    {
+      "name": "Image Builder Viewer",
+      "display_name": "Image Builder Viewer",
+      "description": "View images and blueprints",
+      "permissions": [
+        "image-builder:*:read"
+      ]
+    },
+    {
+      "name": "Image Builder Administrator",
+      "display_name": "Image Builder Administrator",
+      "description": "Create and manage images",
+      "permissions": [
+        "image-builder:*:*"
+      ]
+    },
+    {
+      "name": "Remediations Viewer",
+      "display_name": "Remediations Viewer",
+      "description": "View remediations and playbooks",
+      "permissions": [
+        "remediations:*:read"
+      ]
+    },
+    {
+      "name": "Remediations Administrator",
+      "display_name": "Remediations Administrator",
+      "description": "Create and execute remediations",
+      "permissions": [
+        "remediations:*:*"
+      ]
+    },
+    {
+      "name": "Subscriptions Viewer",
+      "display_name": "Subscriptions Viewer",
+      "description": "View subscription data and reports",
+      "permissions": [
+        "subscriptions:*:read"
+      ]
+    },
+    {
+      "name": "Subscriptions Administrator",
+      "display_name": "Subscriptions Administrator",
+      "description": "Manage subscription configurations",
+      "permissions": [
+        "subscriptions:*:*"
+      ]
+    },
+    {
+      "name": "Content Sources Viewer",
+      "display_name": "Content Sources Viewer",
+      "description": "View content repositories and templates",
+      "permissions": [
+        "content-sources:*:read"
+      ]
+    },
+    {
+      "name": "Content Sources Administrator",
+      "display_name": "Content Sources Administrator",
+      "description": "Manage content repositories",
+      "permissions": [
+        "content-sources:*:*"
+      ]
+    },
+    {
+      "name": "Notifications Viewer",
+      "display_name": "Notifications Viewer",
+      "description": "View notification settings and history",
+      "permissions": [
+        "notifications:*:read"
+      ]
+    },
+    {
+      "name": "Notifications Administrator",
+      "display_name": "Notifications Administrator",
+      "description": "Manage notification configurations",
+      "permissions": [
+        "notifications:*:*"
+      ]
+    },
+    {
+      "name": "Integrations Viewer",
+      "display_name": "Integrations Viewer",
+      "description": "View integration configurations",
+      "permissions": [
+        "integrations:*:read",
+        "sources:*:read"
+      ]
+    },
+    {
+      "name": "Integrations Administrator",
+      "display_name": "Integrations Administrator",
+      "description": "Manage integrations and sources",
+      "permissions": [
+        "integrations:*:*",
+        "sources:*:*"
+      ]
+    },
+    {
+      "name": "OpenShift Clusters Viewer",
+      "display_name": "OpenShift Clusters Viewer",
+      "description": "View OpenShift cluster information",
+      "permissions": [
+        "ocm:*:read"
+      ]
+    },
+    {
+      "name": "OpenShift Clusters Administrator",
+      "display_name": "OpenShift Clusters Administrator",
+      "description": "Manage OpenShift clusters",
+      "permissions": [
+        "ocm:*:*"
+      ]
+    },
+    {
+      "name": "Tasks Viewer",
+      "display_name": "Tasks Viewer",
+      "description": "View task execution history",
+      "permissions": [
+        "tasks:*:read"
+      ]
+    },
+    {
+      "name": "Tasks Administrator",
+      "display_name": "Tasks Administrator",
+      "description": "Execute and manage tasks",
+      "permissions": [
+        "tasks:*:*"
+      ]
+    },
+    {
+      "name": "ROS Viewer",
+      "display_name": "ROS Viewer",
+      "description": "View resource optimization data",
+      "permissions": [
+        "ros:*:read"
+      ]
+    },
+    {
+      "name": "ROS Administrator",
+      "display_name": "ROS Administrator",
+      "description": "Manage resource optimization settings",
+      "permissions": [
+        "ros:*:*"
+      ]
+    },
+    {
+      "name": "Malware Detection Viewer",
+      "display_name": "Malware Detection Viewer",
+      "description": "View malware detection results",
+      "permissions": [
+        "malware-detection:*:read"
+      ]
+    },
+    {
+      "name": "Malware Detection Administrator",
+      "display_name": "Malware Detection Administrator",
+      "description": "Manage malware detection settings",
+      "permissions": [
+        "malware-detection:*:*"
+      ]
+    },
+    {
+      "name": "RBAC Viewer",
+      "display_name": "RBAC Viewer",
+      "description": "View RBAC configurations",
+      "permissions": [
+        "rbac:*:read"
+      ]
+    },
+    {
+      "name": "RBAC Administrator",
+      "display_name": "RBAC Administrator",
+      "description": "Manage roles, groups, and policies",
+      "permissions": [
+        "rbac:*:*"
+      ]
+    },
+    {
+      "name": "Developer",
+      "display_name": "Developer",
+      "description": "Access to development tools and resources",
+      "permissions": [
+        "inventory:hosts:read",
+        "inventory:groups:read",
+        "advisor:*:read",
+        "vulnerability:*:read",
+        "patch:*:read",
+        "image-builder:*:*",
+        "content-sources:*:read"
+      ]
+    },
+    {
+      "name": "SRE Engineer",
+      "display_name": "SRE Engineer",
+      "description": "Site reliability engineering access",
+      "permissions": [
+        "inventory:*:*",
+        "patch:*:*",
+        "advisor:*:*",
+        "remediations:*:*",
+        "tasks:*:*",
+        "ros:*:*"
+      ]
+    },
+    {
+      "name": "Security Analyst",
+      "display_name": "Security Analyst",
+      "description": "Security monitoring and analysis access",
+      "permissions": [
+        "vulnerability:*:read",
+        "compliance:*:read",
+        "malware-detection:*:read",
+        "advisor:*:read"
+      ]
+    },
+    {
+      "name": "Security Administrator",
+      "display_name": "Security Administrator",
+      "description": "Full security management access",
+      "permissions": [
+        "vulnerability:*:*",
+        "compliance:*:*",
+        "malware-detection:*:*",
+        "policies:*:*"
+      ]
+    },
+    {
+      "name": "Auditor",
+      "display_name": "Auditor",
+      "description": "System role - will be looked up, not created. Compliance-focused read-only access.",
+      "permissions": []
+    },
+    {
+      "name": "Support Engineer",
+      "display_name": "Support Engineer",
+      "description": "Customer support access",
+      "permissions": [
+        "inventory:*:read",
+        "advisor:*:read",
+        "patch:*:read",
+        "vulnerability:*:read",
+        "remediations:remediation:read"
+      ]
+    },
+    {
+      "name": "Provisioning Viewer",
+      "display_name": "Provisioning Viewer",
+      "description": "View provisioning resources",
+      "permissions": [
+        "provisioning:*:read"
+      ]
+    },
+    {
+      "name": "Provisioning Administrator",
+      "display_name": "Provisioning Administrator",
+      "description": "Manage provisioning operations",
+      "permissions": [
+        "provisioning:*:*"
+      ]
+    },
+    {
+      "name": "Edge Viewer",
+      "display_name": "Edge Viewer",
+      "description": "View edge management resources",
+      "permissions": [
+        "edge:*:read"
+      ]
+    },
+    {
+      "name": "Edge Administrator",
+      "display_name": "Edge Administrator",
+      "description": "Manage edge devices and fleets",
+      "permissions": [
+        "edge:*:*"
+      ]
+    },
+    {
+      "name": "Catalog Viewer",
+      "display_name": "Catalog Viewer",
+      "description": "View service catalog",
+      "permissions": [
+        "catalog:*:read"
+      ]
+    },
+    {
+      "name": "Catalog Administrator",
+      "display_name": "Catalog Administrator",
+      "description": "Manage service catalog",
+      "permissions": [
+        "catalog:*:*"
+      ]
+    },
+    {
+      "name": "Approval Viewer",
+      "display_name": "Approval Viewer",
+      "description": "View approval workflows",
+      "permissions": [
+        "approval:*:read"
+      ]
+    },
+    {
+      "name": "Approval Administrator",
+      "display_name": "Approval Administrator",
+      "description": "Manage approval workflows",
+      "permissions": [
+        "approval:*:*"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "Default access group",
+      "description": "System group - will be looked up, not created. Standard group for all authenticated users."
+    },
+    {
+      "name": "Organization Admins",
+      "description": "Organization administrators with full access"
+    },
+    {
+      "name": "Workspace Admins",
+      "description": "Workspace administrators"
+    },
+    {
+      "name": "DevOps Team",
+      "description": "DevOps engineers and SRE team members"
+    },
+    {
+      "name": "Platform Engineering",
+      "description": "Platform infrastructure team"
+    },
+    {
+      "name": "Security Team",
+      "description": "Security and compliance team"
+    },
+    {
+      "name": "Security Ops",
+      "description": "Security operations team"
+    },
+    {
+      "name": "Developers",
+      "description": "Application developers"
+    },
+    {
+      "name": "Frontend Developers",
+      "description": "Frontend application developers"
+    },
+    {
+      "name": "Backend Developers",
+      "description": "Backend service developers"
+    },
+    {
+      "name": "QA Team",
+      "description": "Quality assurance team"
+    },
+    {
+      "name": "Cost Analysts",
+      "description": "Financial and cost management analysts"
+    },
+    {
+      "name": "Finance Team",
+      "description": "Finance department users"
+    },
+    {
+      "name": "Auditors",
+      "description": "Internal audit team with read-only access"
+    },
+    {
+      "name": "External Auditors",
+      "description": "External audit team with limited read access"
+    },
+    {
+      "name": "Support Team",
+      "description": "Customer support and helpdesk"
+    },
+    {
+      "name": "L1 Support",
+      "description": "Level 1 support engineers"
+    },
+    {
+      "name": "L2 Support",
+      "description": "Level 2 support engineers"
+    },
+    {
+      "name": "Automation Team",
+      "description": "Ansible and automation specialists"
+    },
+    {
+      "name": "Observability Team",
+      "description": "Monitoring, logging, and observability"
+    },
+    {
+      "name": "Database Team",
+      "description": "Database administrators"
+    },
+    {
+      "name": "Network Team",
+      "description": "Network engineers"
+    },
+    {
+      "name": "Cloud Team",
+      "description": "Cloud infrastructure team"
+    },
+    {
+      "name": "AWS Team",
+      "description": "AWS specialists"
+    },
+    {
+      "name": "Azure Team",
+      "description": "Azure specialists"
+    },
+    {
+      "name": "GCP Team",
+      "description": "Google Cloud specialists"
+    },
+    {
+      "name": "OpenShift Team",
+      "description": "OpenShift administrators"
+    },
+    {
+      "name": "Edge Team",
+      "description": "Edge computing and IoT team"
+    },
+    {
+      "name": "Data Team",
+      "description": "Data engineering team"
+    },
+    {
+      "name": "ML Team",
+      "description": "Machine learning team"
+    },
+    {
+      "name": "Release Managers",
+      "description": "Release management team"
+    },
+    {
+      "name": "Project Managers",
+      "description": "Project management team"
+    },
+    {
+      "name": "Product Owners",
+      "description": "Product owners and managers"
+    },
+    {
+      "name": "Contractors",
+      "description": "External contractors with limited access"
+    },
+    {
+      "name": "Interns",
+      "description": "Interns with supervised access"
+    },
+    {
+      "name": "Spice Girls",
+      "description": "Group of international pop stars"
+    },
+    {
+      "name": "Golden Girls",
+      "description": "Classic show members"
+    },
+    {
+      "name": "Powerpuff Girls",
+      "description": "Blossom, Bubbles, and Buttercup"
+    }
+  ],
+  "workspaces": [
+    {
+      "name": "Development",
+      "description": "Development environment"
+    },
+    {
+      "name": "Staging",
+      "description": "Staging and pre-production environment"
+    },
+    {
+      "name": "Production",
+      "description": "Production environment"
+    },
+    {
+      "name": "Production US-East",
+      "description": "US East production region"
+    },
+    {
+      "name": "Production US-West",
+      "description": "US West production region"
+    },
+    {
+      "name": "Production EU",
+      "description": "EU production region"
+    },
+    {
+      "name": "Production APAC",
+      "description": "APAC production region"
+    },
+    {
+      "name": "QA Environment",
+      "description": "QA testing environment"
+    },
+    {
+      "name": "Performance Testing",
+      "description": "Performance and load testing"
+    },
+    {
+      "name": "Security Testing",
+      "description": "Security scanning and penetration testing"
+    },
+    {
+      "name": "Sandbox",
+      "description": "Developer sandbox environment"
+    },
+    {
+      "name": "Demo",
+      "description": "Demo and showcase environment"
+    },
+    {
+      "name": "Training",
+      "description": "Training and learning environment"
+    },
+    {
+      "name": "Web Services",
+      "description": "Web application services"
+    },
+    {
+      "name": "API Services",
+      "description": "API and backend services"
+    },
+    {
+      "name": "Microservices",
+      "description": "Microservices platform"
+    },
+    {
+      "name": "Data Platform",
+      "description": "Data analytics and BI workloads"
+    },
+    {
+      "name": "Data Warehouse",
+      "description": "Data warehouse infrastructure"
+    },
+    {
+      "name": "Machine Learning",
+      "description": "ML training and inference workloads"
+    },
+    {
+      "name": "AI Platform",
+      "description": "AI and ML platform services"
+    },
+    {
+      "name": "Shared Services",
+      "description": "Shared infrastructure services"
+    },
+    {
+      "name": "Identity Services",
+      "description": "Identity and access management"
+    },
+    {
+      "name": "CI/CD",
+      "description": "Continuous integration and deployment"
+    },
+    {
+      "name": "Build Systems",
+      "description": "Build and artifact management"
+    },
+    {
+      "name": "Monitoring",
+      "description": "Centralized monitoring and alerting"
+    },
+    {
+      "name": "Logging",
+      "description": "Centralized logging infrastructure"
+    },
+    {
+      "name": "Metrics",
+      "description": "Metrics and observability platform"
+    },
+    {
+      "name": "Security Operations",
+      "description": "Security operations center"
+    },
+    {
+      "name": "Compliance",
+      "description": "Compliance and audit workloads"
+    },
+    {
+      "name": "Disaster Recovery",
+      "description": "DR and business continuity"
+    },
+    {
+      "name": "Backup Systems",
+      "description": "Backup and restore infrastructure"
+    },
+    {
+      "name": "Edge Computing",
+      "description": "Edge devices and fleets"
+    },
+    {
+      "name": "IoT Platform",
+      "description": "IoT device management"
+    },
+    {
+      "name": "Medical Imaging IT",
+      "description": "Medical imaging infrastructure"
+    },
+    {
+      "name": "Cardiac MRI",
+      "description": "Cardiac MRI department"
+    },
+    {
+      "name": "Customer A",
+      "description": "Customer A dedicated workspace"
+    },
+    {
+      "name": "Customer B",
+      "description": "Customer B dedicated workspace"
+    },
+    {
+      "name": "Customer C",
+      "description": "Customer C dedicated workspace"
+    },
+    {
+      "name": "Partner Portal",
+      "description": "Partner integration workspace"
+    },
+    {
+      "name": "Legacy Systems",
+      "description": "Legacy application maintenance"
+    }
+  ]
+}

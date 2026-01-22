@@ -5,32 +5,22 @@ import { z } from 'zod';
 // ============================================================================
 
 /**
- * Role input schema for CLI operations
+ * Role input schema for CLI operations.
+ *
+ * Permissions format: "application:resource_type:operation" (colon-separated string)
+ * Examples: "rbac:groups:read", "inventory:hosts:*", "cost-management:*:*"
+ *
+ * Note: System roles (system: true) cannot be modified/deleted via API.
+ * Roles with admin_default: true are auto-granted to Org Admins.
+ *
+ * The V1 API expects `access: [{ permission: string }]` but we use the
+ * simpler `permissions: string[]` interface (matching CreateRoleV2Request).
  */
 export const RoleInputSchema = z.object({
   name: z.string().min(1, 'Role name is required'),
   display_name: z.string().optional(),
   description: z.string().optional(),
-  access: z
-    .array(
-      z.object({
-        permission: z.string(),
-        resourceDefinitions: z
-          .array(
-            z.object({
-              attributeFilter: z.object({
-                key: z.string(),
-                operation: z.enum(['equal', 'in']),
-                value: z.union([z.string(), z.array(z.string())]),
-              }),
-            }),
-          )
-          .optional()
-          .default([]),
-      }),
-    )
-    .optional()
-    .default([]),
+  permissions: z.array(z.string()).optional().default([]),
 });
 
 /**

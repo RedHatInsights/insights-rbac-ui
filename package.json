@@ -57,6 +57,7 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@cypress/code-coverage": "^3.14.7",
     "@jest/test-sequencer": "^30.2.0",
+    "@playwright/test": "^1.57.0",
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^3.0.12",
     "@redhat-cloud-services/frontend-components-config": "^6.7.21",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.37",
@@ -161,11 +162,7 @@
     "test-storybook:ci": "test-storybook --ci --excludeTags test-skip",
     "cli": "node --import tsx src/cli/cli.tsx",
     "cli:vpn": "RBAC_PAC_URL=\"$(scutil --proxy 2>/dev/null | grep ProxyAutoConfigURLString | awk '{print $3}')\" NODE_NO_WARNINGS=1 NODE_TLS_REJECT_UNAUTHORIZED=0 node --import tsx src/cli/cli.tsx",
-    "cli:seed": "node --import tsx src/cli/cli.tsx seed",
-    "test:cli": "vitest run --config src/cli/vitest.config.ts",
-    "test:cli:watch": "vitest --config src/cli/vitest.config.ts",
-    "test:cli:ui": "vitest --config src/cli/vitest.config.ts --ui",
-    "test:cli:coverage": "vitest run --config src/cli/vitest.config.ts --coverage"
+    "test:cli": "vitest run --config src/cli/vitest.config.ts"
   },
   "insights": {
     "appname": "rbac"

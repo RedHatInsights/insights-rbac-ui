@@ -1,0 +1,471 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/E2E Testing Strategy" />
+
+# E2E Testing Strategy
+
+This document outlines our comprehensive testing approach—a dual-track strategy that combines the speed of mocked tests with the confidence of real end-to-end verification.
+
+---
+
+## 🧪 The Strategy: "The Laboratory vs. The Real World"
+
+Our quality assurance relies on two complementary testing pillars, each optimized for different purposes:
+
+### The Laboratory (Storybook + MSW)
+
+> **Fast, deterministic, developer-focused.**
+
+In the laboratory, we use **Mock Service Worker (MSW)** to intercept all network requests. This creates a controlled environment where:
+
+- ✅ Tests run **instantly**—no network latency
+- ✅ Every state is **reproducible**—loading, error, empty, success
+- ✅ Developers get **immediate feedback** while coding
+- ✅ Edge cases are **easy to simulate**—rate limits, timeouts, malformed data
+
+**Best for testing:**
+- How the UI handles different data states
+- Component rendering and interactions
+- Visual regression testing
+- Accessibility verification
+
+### The Real World (Playwright + CLI)
+
+> **Full-stack integration, production confidence.**
+
+In the real world, we use **Playwright** with our custom **RBAC CLI** to seed actual data into the staging environment. This validates:
+
+- ✅ **API contracts**—the backend actually accepts what we send
+- ✅ **Data persistence**—created resources exist and can be retrieved
+- ✅ **Authentication flows**—sessions work end-to-end
+- ✅ **Production readiness**—the complete system works together
+
+**Best for testing:**
+- CI/CD smoke tests before deployment
+- Multi-step user journeys with real data
+- Integration between frontend and backend
+- Permission system verification
+
+---
+
+### Architecture Diagram
+
+```mermaid
+flowchart LR
+    subgraph lab["🔬 The Laboratory (Storybook)"]
+        direction TB
+        Story["Story/Test"] --> MSW["MSW Handler"]
+        MSW --> MockData["Mock Data\n(mockData.ts)"]
+        MockData --> UI["UI Renders"]
+    end
+
+    subgraph real["🌍 The Real World (Playwright)"]
+        direction TB
+        Playwright["Playwright Test"] --> CLI["RBAC CLI"]
+        CLI --> RealAPI["Real API\n(Stage)"]
+        RealAPI --> RealDB["Real Database"]
+        RealDB --> SeedMap["seed-map.json"]
+        SeedMap --> Navigate["Navigate to\nReal UUIDs"]
+    end
+
+    lab -.->|"Graduate\nsuccessful\njourneys"| real
+
+    style lab fill:#e8f4f8,stroke:#0066cc
+    style real fill:#f0f8e8,stroke:#339933
+```
+
+---
+
+## 🌉 The Bridge: From Story to Spec
+
+We follow a "progressive confidence" workflow:
+
+1. **Build in Storybook** — Develop the UI with mocks, iterate quickly on design and edge cases
+2. **Write Play Functions** — Add interaction tests that validate user journeys in the mocked environment
+3. **Graduate to Playwright** — Once the journey is stable, create a real E2E spec using seeded data
+
+This approach gives us the best of both worlds: rapid development velocity AND production confidence.
+
+### Comparison Table
+
+| Aspect | Storybook (MSW) | Playwright (CLI) |
+|--------|-----------------|------------------|
+| **Data Source** | `mockData.ts` handlers | `seed-map.json` from CLI |
+| **Speed** | ⚡ Instant (~ms) | 🐢 Slower (~seconds for seed) |
+| **Determinism** | 100% reproducible | Depends on environment state |
+| **Best For** | DX, design, edge cases | CI/CD, smoke tests, contracts |
+| **Network** | Intercepted by MSW | Real HTTP to staging |
+| **Database** | None | Real staging database |
+| **Setup Cost** | Zero | Requires auth + seed |
+| **Debugging** | Storybook UI | Playwright trace viewer |
+
+---
+
+## 🛠️ The Tooling: `rbac-cli`
+
+To make "The Real World" testing possible without flakiness, we built the **RBAC CLI**—a purpose-built tool that handles authentication and data management.
+
+### Why We Need It
+
+Traditional E2E tests suffer from:
+- ❌ Hardcoded UUIDs that become stale
+- ❌ Manual data setup that's error-prone
+- ❌ Shared test data that causes conflicts
+- ❌ No cleanup, leading to data pollution
+
+The CLI solves these by providing:
+- ✅ Automated authentication with storage state export
+- ✅ Dynamic data seeding with UUID mapping
+- ✅ Prefixed resources for isolation
+- ✅ Safe cleanup with guardrails
+- ✅ **Anti-Flake Layer** — Automatically blocks vendor consent overlays (TrustArc) to prevent false negatives
+
+---
+
+### Command Reference
+
+#### `login --headless` — The Authentication Bridge
+
+Performs automated SSO login and exports Playwright-compatible storage state.
+
+```bash
+# Basic headless login (saves to auth.json)
+RBAC_USERNAME=your-user \
+RBAC_PASSWORD=your-pass \
+npm run cli -- login --headless --save-state auth.json
+
+# Output token to stdout (for piping)
+npm run cli -- login --headless --stdout
+```
+
+**Dual-Proxy Support:**
+
+The CLI automatically handles two networking scenarios:
+
+| Environment | Variable | Use Case |
+|-------------|----------|----------|
+| **CI Pipeline** | `HTTPS_PROXY` | Sidecar proxy in CI/CD |
+| **Local VPN** | `RBAC_PAC_URL` | Corporate VPN PAC file |
+
+```bash
+# CI sidecar proxy
+HTTPS_PROXY=http://sidecar:8080 npm run cli -- login --headless
+
+# Local VPN (macOS: find your PAC URL with `scutil --proxy`)
+NODE_TLS_REJECT_UNAUTHORIZED=0 \
+RBAC_PAC_URL="https://proxy.corp.redhat.com/proxy.pac" \
+npm run cli -- login --headless
+```
+
+---
+
+#### `seed --file --prefix --json` — Data Injection
+
+Creates resources and outputs a name→UUID mapping for test navigation.
+
+```bash
+# Seed from file with unique prefix
+npm run cli -- seed --file test-data.json --prefix "ci-run-42-" --json > seed-map.json
+```
+
+**Payload Schema:**
+
+```json
+{
+  "roles": [
+    {
+      "name": "analyst",
+      "display_name": "Cost Analyst",
+      "description": "Read-only access to cost data"
+    }
+  ],
+  "groups": [
+    {
+      "name": "finance-team",
+      "description": "Finance department users"
+    }
+  ],
+  "workspaces": [
+    {
+      "name": "project-alpha",
+      "description": "Alpha project workspace"
+    }
+  ]
+}
+```
+
+**Output (`seed-map.json`):**
+
+```json
+{
+  "roles": {
+    "ci-run-42-analyst": "550e8400-e29b-41d4-a716-446655440001"
+  },
+  "groups": {
+    "ci-run-42-finance-team": "550e8400-e29b-41d4-a716-446655440002"
+  },
+  "workspaces": {
+    "ci-run-42-project-alpha": "550e8400-e29b-41d4-a716-446655440003"
+  }
+}
+```
+
+---
+
+#### `cleanup --prefix` — Safe Teardown
+
+Deletes resources matching a prefix. Protected by multiple safety rails.
+
+```bash
+# Cleanup all resources with prefix
+npm run cli -- cleanup --prefix "ci-run-42-"
+
+# Pattern matching
+npm run cli -- cleanup --name-match "ci-*-test"
+```
+
+<div className="sb-unstyled" style={{
+  backgroundColor: '#fdf3cd',
+  border: '1px solid #ffc107',
+  borderRadius: '8px',
+  padding: '16px',
+  marginTop: '16px'
+}}>
+
+### ⚠️ Safety Rails
+
+The cleanup command is protected by multiple guardrails:
+
+1. **Production Blocked** — The command will refuse to run if `RBAC_ENV=prod`
+2. **Minimum Pattern Length** — Prefix must be ≥4 characters (prevents `*` or `test`)
+3. **Protected Resources** — System roles and platform defaults are never deleted
+4. **Root Workspace Protected** — The root workspace cannot be deleted
+
+**Why won't this run on Prod?**
+
+The CLI checks the `RBAC_ENV` environment variable. If it's `prod` or `production`, both `seed` and `cleanup` commands exit with an error:
+
+```
+❌ Cleanup is not allowed in production via headless mode.
+This safety rail prevents accidental data deletion in production.
+Set RBAC_ENV=stage to use the cleanup command.
+```
+
+</div>
+
+---
+
+## 🏗️ The Playwright Architecture
+
+### The Seed Map Pattern
+
+The key to stable E2E tests is **never hardcoding UUIDs**. Instead, we:
+
+1. Seed data with the CLI before tests run
+2. Export the name→UUID mapping to `seed-map.json`
+3. Import the mapping in Playwright tests
+4. Navigate to dynamically-generated URLs
+
+**Example Test Structure:**
+
+```typescript
+// e2e/roles.spec.ts
+import { test, expect } from '@playwright/test';
+import seedMap from '../../seed-map.json'; // Adjust path depth based on file location
+
+test.use({ storageState: 'auth-admin.json' });
+
+test.describe('Role Management', () => {
+  const roleUuid = seedMap.roles['ci-run-42-analyst'];
+
+  test('can view role details', async ({ page }) => {
+    // Navigate using dynamic UUID from seed map
+    await page.goto(`/iam/user-access/roles/detail/${roleUuid}`);
+    
+    await expect(page.getByRole('heading', { name: /Cost Analyst/i }))
+      .toBeVisible();
+  });
+
+  test('can edit role permissions', async ({ page }) => {
+    await page.goto(`/iam/user-access/roles/detail/${roleUuid}/edit`);
+    
+    // Test editing flow...
+    await page.getByRole('button', { name: 'Add permission' }).click();
+  });
+});
+```
+
+---
+
+### Multi-Persona Support
+
+Different tests require different permission levels. We support this via separate storage state files:
+
+| File | Persona | Use Case |
+|------|---------|----------|
+| `auth-admin.json` | Organization Admin | Full access tests, CRUD operations |
+| `auth-user.json` | Regular User | Read-only tests, permission denial |
+
+**Switching Personas in Tests:**
+
+```typescript
+// admin-flows.spec.ts
+test.use({ storageState: 'auth-admin.json' });
+
+test('admin can create role', async ({ page }) => {
+  await page.goto('/iam/user-access/roles');
+  await page.getByRole('button', { name: 'Create role' }).click();
+  // Admin can see the create button
+});
+
+// user-flows.spec.ts
+test.use({ storageState: 'auth-user.json' });
+
+test('regular user cannot create role', async ({ page }) => {
+  await page.goto('/iam/user-access/roles');
+  // Create button should not be visible for regular users
+  await expect(page.getByRole('button', { name: 'Create role' }))
+    .not.toBeVisible();
+});
+```
+
+**Generating Persona Storage States:**
+
+```bash
+# Admin login
+RBAC_USERNAME=admin-user RBAC_PASSWORD=admin-pass \
+npm run cli -- login --headless --save-state auth-admin.json
+
+# Regular user login  
+RBAC_USERNAME=regular-user RBAC_PASSWORD=user-pass \
+npm run cli -- login --headless --save-state auth-user.json
+```
+
+---
+
+## 👨‍🍳 Developer Cookbook
+
+### Run the Full E2E Suite Locally
+
+**Complete Sequence:**
+
+```bash
+# 1. Authenticate (generates storage state)
+RBAC_USERNAME=your-user RBAC_PASSWORD=your-pass \
+npm run cli -- login --headless --save-state auth.json
+
+# 2. Seed test data (generates seed map)
+npm run cli -- seed --file e2e/fixtures/test-data.json \
+  --prefix "local-$(date +%s)-" \
+  --json > e2e/seed-map.json
+
+# 3. Run Playwright tests
+npx playwright test --config=e2e/playwright.config.ts
+
+# 4. Cleanup (extract prefix from your seed-map.json)
+npm run cli -- cleanup --prefix "local-1234567890-"
+```
+
+**One-liner for CI:**
+
+```bash
+# CI pipeline script
+RBAC_USERNAME=$CI_USER RBAC_PASSWORD=$CI_PASS \
+npm run cli -- login --headless --save-state auth.json && \
+npm run cli -- seed --file e2e/fixtures/data.json --prefix "ci-$CI_JOB_ID-" --json > e2e/seed-map.json && \
+npx playwright test || true && \
+npm run cli -- cleanup --prefix "ci-$CI_JOB_ID-"
+```
+
+---
+
+### Debug a Specific Test
+
+```bash
+# Run single test with UI mode
+npx playwright test e2e/roles.spec.ts --ui
+
+# Run with debug flag (step-through debugging)
+npx playwright test e2e/roles.spec.ts --debug
+
+# Run headed (visible browser)
+npx playwright test e2e/roles.spec.ts --headed
+
+# Generate trace for failed test
+npx playwright test e2e/roles.spec.ts --trace on
+```
+
+**Viewing Traces:**
+
+```bash
+# Open trace viewer
+npx playwright show-trace test-results/roles-spec-ts/trace.zip
+```
+
+---
+
+### View the Current Seed Map
+
+The seed map is generated by the CLI and stored at your specified output path:
+
+```bash
+# View seed map
+cat e2e/seed-map.json | jq
+
+# Get specific UUID
+cat e2e/seed-map.json | jq '.roles["ci-run-42-analyst"]'
+
+# List all seeded role names
+cat e2e/seed-map.json | jq '.roles | keys'
+```
+
+---
+
+### Quick Reference Commands
+
+| Task | Command |
+|------|---------|
+| Interactive login | `npm run cli -- login` |
+| Headless login | `npm run cli -- login --headless --save-state auth.json` |
+| List roles | `npm run cli -- roles --json` |
+| Seed data | `npm run cli -- seed --file data.json --prefix "test-" --json` |
+| Cleanup | `npm run cli -- cleanup --prefix "test-"` |
+| Run E2E tests | `npx playwright test --config=e2e/playwright.config.ts` |
+| Debug test | `npx playwright test --debug` |
+| View report | `npx playwright show-report` |
+
+---
+
+## 📊 When to Use Which Approach
+
+```mermaid
+flowchart TD
+    Start["New Test Needed"] --> Q1{"Testing UI logic\nor visual states?"}
+    Q1 -->|Yes| Storybook["Use Storybook + MSW"]
+    Q1 -->|No| Q2{"Testing API\nintegration?"}
+    Q2 -->|Yes| Playwright["Use Playwright + CLI"]
+    Q2 -->|No| Q3{"Testing edge cases\n(error, loading)?"}
+    Q3 -->|Yes| Storybook
+    Q3 -->|No| Q4{"Critical user\njourney?"}
+    Q4 -->|Yes| Both["Both: Story first,\nthen graduate to Playwright"]
+    Q4 -->|No| Storybook
+    
+    style Storybook fill:#e8f4f8,stroke:#0066cc
+    style Playwright fill:#f0f8e8,stroke:#339933
+    style Both fill:#fff3e0,stroke:#ff9800
+```
+
+---
+
+## 🔗 Related Documentation
+
+- [Storybook Guide](./StorybookGuide.mdx) — How to write effective component stories
+- [Permissions & Context Testing](./PermissionsContext.mdx) — Testing with different user roles
+- [Architecture](./Architecture.mdx) — Overall project architecture
+- [CLI README](/src/cli/README.md) — Complete CLI documentation
+
+---
+
+**Happy testing!** 🧪
+
+Use the laboratory for speed, the real world for confidence, and the CLI to bridge them both.
