@@ -33,28 +33,28 @@ function getProxyAgent(): Agent | undefined {
   // Check for explicit PAC URL
   const pacUrl = process.env.RBAC_PAC_URL;
   if (pacUrl) {
-    console.log(`[CLI] Using PAC proxy: ${pacUrl}`);
+    console.error(`[CLI] Using PAC proxy: ${pacUrl}`);
     return new PacProxyAgent(pacUrl);
   }
 
   // Check for explicit proxy URL
   const rbacProxy = process.env.RBAC_PROXY;
   if (rbacProxy) {
-    console.log(`[CLI] Using proxy: ${rbacProxy}`);
+    console.error(`[CLI] Using proxy: ${rbacProxy}`);
     return new HttpsProxyAgent(rbacProxy);
   }
 
   // Check for system HTTPS proxy
   const httpsProxy = process.env.HTTPS_PROXY || process.env.https_proxy;
   if (httpsProxy) {
-    console.log(`[CLI] Using system HTTPS proxy: ${httpsProxy}`);
+    console.error(`[CLI] Using system HTTPS proxy: ${httpsProxy}`);
     return new HttpsProxyAgent(httpsProxy);
   }
 
   // Check for HTTP proxy
   const httpProxy = process.env.HTTP_PROXY || process.env.http_proxy;
   if (httpProxy) {
-    console.log(`[CLI] Using system HTTP proxy: ${httpProxy}`);
+    console.error(`[CLI] Using system HTTP proxy: ${httpProxy}`);
     return new HttpsProxyAgent(httpProxy);
   }
 
@@ -84,8 +84,8 @@ export function initializeApiClient(token: string): AxiosInstance {
   // Request interceptor for debugging
   cliApiClient.interceptors.request.use((config) => {
     if (process.env.DEBUG_CLI) {
-      console.log(`[DEBUG] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
-      console.log(`[DEBUG] Headers:`, JSON.stringify(config.headers, null, 2));
+      console.error(`[DEBUG] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+      console.error(`[DEBUG] Headers:`, JSON.stringify(config.headers, null, 2));
     }
     return config;
   });
@@ -94,7 +94,7 @@ export function initializeApiClient(token: string): AxiosInstance {
   cliApiClient.interceptors.response.use(
     (response) => {
       if (process.env.DEBUG_CLI) {
-        console.log(`[DEBUG] Response ${response.status}: ${JSON.stringify(response.data).slice(0, 200)}...`);
+        console.error(`[DEBUG] Response ${response.status}: ${JSON.stringify(response.data).slice(0, 200)}...`);
       }
       return response;
     },
@@ -183,24 +183,25 @@ const cliNotify: NotifyFn = (variant, title, description) => {
   const timestamp = new Date().toLocaleTimeString();
   const prefix = `[${timestamp}]`;
 
+  // All output goes to stderr to avoid interfering with Ink's stdout rendering
   switch (variant) {
     case 'success':
-      console.log(chalk.green(`${prefix} ✓ ${title}`));
+      console.error(chalk.green(`${prefix} ✓ ${title}`));
       break;
     case 'danger':
       console.error(chalk.red(`${prefix} ✗ ${title}`));
       break;
     case 'warning':
-      console.warn(chalk.yellow(`${prefix} ⚠ ${title}`));
+      console.error(chalk.yellow(`${prefix} ⚠ ${title}`));
       break;
     case 'info':
     default:
-      console.log(chalk.blue(`${prefix} ℹ ${title}`));
+      console.error(chalk.blue(`${prefix} ℹ ${title}`));
       break;
   }
 
   if (description) {
-    console.log(chalk.gray(`    ${description}`));
+    console.error(chalk.gray(`    ${description}`));
   }
 };
 

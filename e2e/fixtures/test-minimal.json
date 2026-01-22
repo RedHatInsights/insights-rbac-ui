@@ -1,0 +1,38 @@
+{
+  "$schema": "./seed-data.schema.json",
+  "$comment": "Minimal test data with slug-friendly names for clean seedMap keys",
+  "roles": [
+    {
+      "name": "test-analyst",
+      "display_name": "Test Analyst",
+      "description": "Read-only access for testing",
+      "access": [
+        { "permission": "rbac:*:read" }
+      ]
+    },
+    {
+      "name": "test-admin",
+      "display_name": "Test Administrator",
+      "description": "Full access for testing",
+      "access": [
+        { "permission": "rbac:*:*" }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "test-viewers",
+      "description": "Test viewers group"
+    },
+    {
+      "name": "test-admins",
+      "description": "Test admins group"
+    }
+  ],
+  "workspaces": [
+    {
+      "name": "test-workspace",
+      "description": "Test workspace"
+    }
+  ]
+}

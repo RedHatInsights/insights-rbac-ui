@@ -162,13 +162,13 @@ function parseJwtExpiry(token: string): number {
 async function performBrowserLogin(): Promise<string> {
   const envConfig = getEnvConfig();
 
-  console.log('\n🔐 Authentication Required');
-  console.log('━'.repeat(50));
-  console.log(`Environment: ${envConfig.name}`);
-  console.log(`Login URL: ${envConfig.loginUrl}`);
-  console.log('A browser window will open for you to log in.');
-  console.log('Please complete the login process manually.');
-  console.log('━'.repeat(50) + '\n');
+  console.error('\n🔐 Authentication Required');
+  console.error('━'.repeat(50));
+  console.error(`Environment: ${envConfig.name}`);
+  console.error(`Login URL: ${envConfig.loginUrl}`);
+  console.error('A browser window will open for you to log in.');
+  console.error('Please complete the login process manually.');
+  console.error('━'.repeat(50) + '\n');
 
   // Dynamic import to avoid loading Playwright unless needed
   const { chromium } = await import('playwright');
@@ -189,11 +189,11 @@ async function performBrowserLogin(): Promise<string> {
   const page = await context.newPage();
 
   try {
-    console.log('📡 Navigating to Red Hat Console...');
+    console.error('📡 Navigating to Red Hat Console...');
     await page.goto(envConfig.loginUrl, { waitUntil: 'domcontentloaded' });
 
-    console.log('⏳ Waiting for you to complete login...');
-    console.log('   (The browser will close automatically once logged in)\n');
+    console.error('⏳ Waiting for you to complete login...');
+    console.error('   (The browser will close automatically once logged in)\n');
 
     // Wait for the user to complete login - detect by welcome message
     // This is more reliable than URL pattern as the user might land on different pages
@@ -203,7 +203,7 @@ async function performBrowserLogin(): Promise<string> {
       { timeout: 5 * 60 * 1000 }, // 5 minute timeout for manual login
     );
 
-    console.log('✓ Login detected! Extracting authentication token...');
+    console.error('✓ Login detected! Extracting authentication token...');
 
     // Wait a moment for the app to fully initialize
     await page.waitForTimeout(2000);
@@ -222,7 +222,7 @@ async function performBrowserLogin(): Promise<string> {
       throw new Error('Failed to extract token from browser');
     }
 
-    console.log('✓ Token extracted successfully!\n');
+    console.error('✓ Token extracted successfully!\n');
     return token;
   } finally {
     await browser.close();
@@ -244,12 +244,12 @@ export async function getToken(): Promise<string> {
   const cached = await readCachedToken();
 
   if (cached && isTokenValid(cached)) {
-    console.log('🔑 Using cached authentication token');
+    console.error('🔑 Using cached authentication token');
     return cached.token;
   }
 
   if (cached) {
-    console.log('⚠️  Cached token has expired, re-authenticating...');
+    console.error('⚠️  Cached token has expired, re-authenticating...');
   }
 
   // Perform browser login
@@ -272,7 +272,7 @@ export async function getToken(): Promise<string> {
 export async function clearToken(): Promise<void> {
   try {
     await fs.unlink(TOKEN_CACHE_FILE);
-    console.log('✓ Cached token cleared');
+    console.error('✓ Cached token cleared');
   } catch {
     // File might not exist, that's fine
   }
