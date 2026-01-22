@@ -111,13 +111,13 @@ objects:
                   product: Identity & Access Management
                 - id: roles
                   title: Roles
-                  href: /iam/user-access/roles
+                  href: /iam/access-management/roles
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
                 - id: workspaces
                   title: Workspaces
-                  href: /iam/user-access/workspaces
+                  href: /iam/access-management/workspaces
                   icon: PlaceholderIcon
                   permissions:
                     - method: featureFlag
