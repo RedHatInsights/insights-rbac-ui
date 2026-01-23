@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
-import { HttpResponse, delay, http } from 'msw';
+import { HttpResponse, http } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AddRolePermissionWizard } from './AddRolePermissionWizard';
 
