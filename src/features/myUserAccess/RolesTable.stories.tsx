@@ -165,12 +165,12 @@ export const LoadingState: Story = {
     const canvas = within(canvasElement);
 
     // Should show table structure while API call is pending
-    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+    expect(await canvas.findByRole('grid')).toBeInTheDocument();
 
     // Since API never resolves (infinite delay), should not show final data
-    await expect(canvas.queryByText('Advisor Administrator')).not.toBeInTheDocument();
-    await expect(canvas.queryByText('Compliance Viewer')).not.toBeInTheDocument();
-    await expect(canvas.queryByText('Vulnerability Manager')).not.toBeInTheDocument();
+    expect(canvas.queryByText('Advisor Administrator')).not.toBeInTheDocument();
+    expect(canvas.queryByText('Compliance Viewer')).not.toBeInTheDocument();
+    expect(canvas.queryByText('Vulnerability Manager')).not.toBeInTheDocument();
   },
 };
 
@@ -196,7 +196,7 @@ export const EmptyRoles: Story = {
     const canvas = within(canvasElement);
 
     // Should show empty state after API returns no data
-    await expect(canvas.findByText('Configure roles')).resolves.toBeInTheDocument();
+    expect(await canvas.findByText('Configure roles')).toBeInTheDocument();
   },
 };
 
