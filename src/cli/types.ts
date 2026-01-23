@@ -10,8 +10,8 @@ import { z } from 'zod';
  * Permissions format: "application:resource_type:operation" (colon-separated string)
  * Examples: "rbac:groups:read", "inventory:hosts:*", "cost-management:*:*"
  *
- * Note: System roles (system: true) cannot be modified/deleted via API.
- * Roles with admin_default: true are auto-granted to Org Admins.
+ * Note: System roles are auto-discovered from the API and included in the seed-map.
+ * Only define custom roles here that should be created.
  *
  * The V1 API expects `access: [{ permission: string }]` but we use the
  * simpler `permissions: string[]` interface (matching CreateRoleV2Request).
@@ -24,7 +24,10 @@ export const RoleInputSchema = z.object({
 });
 
 /**
- * Group input schema for CLI operations
+ * Group input schema for CLI operations.
+ *
+ * Note: System groups are auto-discovered from the API and included in the seed-map.
+ * Only define custom groups here that should be created.
  */
 export const GroupInputSchema = z.object({
   name: z.string().min(1, 'Group name is required'),

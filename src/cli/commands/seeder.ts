@@ -4,16 +4,13 @@
  * Bulk create RBAC resources (roles, groups, workspaces) from JSON payload.
  * Supports prefix for test isolation and outputs name-to-UUID mapping.
  *
- * SAFETY RAILS:
- * 1. BLOCKED in production environments (unless dry-run)
- * 2. System defaults are looked up, not created
+ * AUTOMATIC BEHAVIOR:
+ * - System roles (system=true) are automatically fetched and included in seed-map
+ * - System groups (platform_default=true) are automatically fetched and included
+ * - Custom resources from the payload are created with the specified prefix
  *
- * GROUND TRUTH (from rbac-config/insights-rbac):
- * - System roles: Organization Administrator, User Access Administrator, Viewer, Auditor, Cost Administrator
- * - System groups: Default admin access group, Default access group
- * - Roles with `system: true` cannot be modified or deleted via API
- * - Roles with `admin_default: true` are auto-granted to Org Admins
- * - API requires `permissions` array with objects: { application, resource_type, operation }
+ * SAFETY RAILS:
+ * - BLOCKED in production environments (unless dry-run)
  *
  * Usage:
  *   rbac-cli seed --file payload.json --prefix "test-run-123"
@@ -52,50 +49,82 @@ interface SeederResult {
 }
 
 // ============================================================================
-// System Defaults - Resources that should be looked up, not created
+// System Resource Discovery
 // ============================================================================
 
-/**
- * System default roles that exist in every environment.
- * These will be looked up via API instead of created.
- *
- * Ground Truth from rbac-config (Stage configuration):
- * - Roles with `system: true` cannot be modified or deleted via API
- * - Roles with `admin_default: true` are auto-granted to Org Admins
- */
-const SYSTEM_DEFAULT_ROLES = [
-  'Organization Administrator',
-  'User Access Administrator',
-  'Viewer',
-  'Auditor',
-  'Cost Administrator',
-];
+interface SystemRole {
+  uuid: string;
+  name: string;
+  display_name?: string;
+  system: boolean;
+}
 
-/**
- * System default groups that exist in every environment.
- * These will be looked up via API instead of created.
- *
- * Ground Truth from rbac-config:
- * - `Default admin access group`: Auto-maintained for Org Admins, contains roles like "User Access Administrator"
- * - `Default access group`: Standard group for all authenticated users
- */
-const SYSTEM_DEFAULT_GROUPS = [
-  'Default admin access group',
-  'Default access group',
-];
-
-/**
- * Check if a role is a system default.
- */
-function isSystemDefaultRole(name: string): boolean {
-  return SYSTEM_DEFAULT_ROLES.includes(name);
+interface SystemGroup {
+  uuid: string;
+  name: string;
+  description?: string;
+  platform_default?: boolean;
+  admin_default?: boolean;
 }
 
 /**
- * Check if a group is a system default.
+ * Fetch all system roles from the API.
+ * System roles have `system: true` and cannot be modified/deleted.
  */
-function isSystemDefaultGroup(name: string): boolean {
-  return SYSTEM_DEFAULT_GROUPS.includes(name);
+async function fetchSystemRoles(client: AxiosInstance): Promise<SystemRole[]> {
+  const allRoles: SystemRole[] = [];
+  let offset = 0;
+  const limit = 100;
+
+  try {
+    // Paginate through all system roles
+    while (true) {
+      const response = await client.get('/api/rbac/v1/roles/', {
+        params: { system: true, limit, offset },
+      });
+
+      const roles = response.data?.data ?? [];
+      allRoles.push(...roles);
+
+      if (roles.length < limit) break;
+      offset += limit;
+    }
+
+    return allRoles;
+  } catch (error) {
+    console.error('  ⚠ Could not fetch system roles:', error instanceof Error ? error.message : 'Unknown error');
+    return [];
+  }
+}
+
+/**
+ * Fetch all system/default groups from the API.
+ * These include platform_default and admin_default groups.
+ */
+async function fetchSystemGroups(client: AxiosInstance): Promise<SystemGroup[]> {
+  const allGroups: SystemGroup[] = [];
+  let offset = 0;
+  const limit = 100;
+
+  try {
+    // Paginate through all groups and filter for system/default ones
+    while (true) {
+      const response = await client.get('/api/rbac/v1/groups/', {
+        params: { system: true, limit, offset },
+      });
+
+      const groups = response.data?.data ?? [];
+      allGroups.push(...groups);
+
+      if (groups.length < limit) break;
+      offset += limit;
+    }
+
+    return allGroups;
+  } catch (error) {
+    console.error('  ⚠ Could not fetch system groups:', error instanceof Error ? error.message : 'Unknown error');
+    return [];
+  }
 }
 
 // ============================================================================
@@ -154,33 +183,21 @@ async function readPayload(filePath: string): Promise<SeedPayload> {
 
 /**
  * Apply prefix to resource names using double-underscore separator.
- * System defaults are NOT prefixed - they keep their original names.
+ * All custom resources in the payload get prefixed.
  */
 function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
   const separator = '__';
 
   return {
-    roles: payload.roles?.map((role) => {
-      // Don't prefix system defaults
-      if (isSystemDefaultRole(role.name)) {
-        return role;
-      }
-      return {
-        ...role,
-        name: `${prefix}${separator}${role.name}`,
-        display_name: role.display_name ? `${prefix}${separator}${role.display_name}` : undefined,
-      };
-    }),
-    groups: payload.groups?.map((group) => {
-      // Don't prefix system defaults
-      if (isSystemDefaultGroup(group.name)) {
-        return group;
-      }
-      return {
-        ...group,
-        name: `${prefix}${separator}${group.name}`,
-      };
-    }),
+    roles: payload.roles?.map((role) => ({
+      ...role,
+      name: `${prefix}${separator}${role.name}`,
+      display_name: role.display_name ? `${prefix}${separator}${role.display_name}` : undefined,
+    })),
+    groups: payload.groups?.map((group) => ({
+      ...group,
+      name: `${prefix}${separator}${group.name}`,
+    })),
     workspaces: payload.workspaces?.map((workspace) => ({
       ...workspace,
       name: `${prefix}${separator}${workspace.name}`,
@@ -226,61 +243,6 @@ async function withConcurrencyLimit<T, R>(items: T[], limit: number, fn: (item: 
   return results;
 }
 
-/**
- * Look up an existing role by name.
- */
-async function lookupRole(
-  client: AxiosInstance,
-  name: string,
-  mapping: ResourceMapping,
-  errors: string[],
-): Promise<void> {
-  try {
-    const response = await client.get('/api/rbac/v1/roles/', {
-      params: { name },
-    });
-    const role = response.data?.data?.[0];
-    if (role?.uuid) {
-      mapping[name] = role.uuid;
-      console.error(`  🔍 Looked up system role "${name}" → ${role.uuid}`);
-    } else {
-      errors.push(`System role "${name}": Not found`);
-      console.error(`  ⚠ System role "${name}" not found`);
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    errors.push(`System role "${name}": ${message}`);
-    console.error(`  ✗ Failed to lookup role "${name}": ${message}`);
-  }
-}
-
-/**
- * Look up an existing group by name.
- */
-async function lookupGroup(
-  client: AxiosInstance,
-  name: string,
-  mapping: ResourceMapping,
-  errors: string[],
-): Promise<void> {
-  try {
-    const response = await client.get('/api/rbac/v1/groups/', {
-      params: { name },
-    });
-    const group = response.data?.data?.[0];
-    if (group?.uuid) {
-      mapping[name] = group.uuid;
-      console.error(`  🔍 Looked up system group "${name}" → ${group.uuid}`);
-    } else {
-      errors.push(`System group "${name}": Not found`);
-      console.error(`  ⚠ System group "${name}" not found`);
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    errors.push(`System group "${name}": ${message}`);
-    console.error(`  ✗ Failed to lookup group "${name}": ${message}`);
-  }
-}
 
 /**
  * Create a role via API.
@@ -440,19 +402,12 @@ function executeSeedDryRun(payload: SeedPayload): SeederResult {
   console.log('# Usage: TOKEN="your-jwt-token" bash this-script.sh');
   console.log('');
 
-  // Process roles
-  const roles = payload.roles ?? [];
-  const systemRoles = roles.filter((r) => isSystemDefaultRole(r.name));
-  const customRoles = roles.filter((r) => !isSystemDefaultRole(r.name));
+  // Note: In dry-run mode, we can't fetch system resources
+  console.error(`\n📋 Note: System roles/groups discovery requires live API access.`);
+  console.error(`   Run without --dry-run to fetch system resources.`);
 
-  if (systemRoles.length > 0) {
-    console.error(`\n📦 Would lookup ${systemRoles.length} system role(s)...`);
-    console.log('# System role lookups');
-    for (const role of systemRoles) {
-      result.roles[role.name] = '<would-lookup>';
-      outputDryRunCurl('GET', `/api/rbac/v1/roles/?name=${encodeURIComponent(role.name)}`, undefined, `Lookup: ${role.name}`);
-    }
-  }
+  // Process roles
+  const customRoles = payload.roles ?? [];
 
   if (customRoles.length > 0) {
     console.error(`\n📦 Would create ${customRoles.length} role(s)...`);
@@ -471,18 +426,7 @@ function executeSeedDryRun(payload: SeedPayload): SeederResult {
   }
 
   // Process groups
-  const groups = payload.groups ?? [];
-  const systemGroups = groups.filter((g) => isSystemDefaultGroup(g.name));
-  const customGroups = groups.filter((g) => !isSystemDefaultGroup(g.name));
-
-  if (systemGroups.length > 0) {
-    console.error(`\n📦 Would lookup ${systemGroups.length} system group(s)...`);
-    console.log('# System group lookups');
-    for (const group of systemGroups) {
-      result.groups[group.name] = '<would-lookup>';
-      outputDryRunCurl('GET', `/api/rbac/v1/groups/?name=${encodeURIComponent(group.name)}`, undefined, `Lookup: ${group.name}`);
-    }
-  }
+  const customGroups = payload.groups ?? [];
 
   if (customGroups.length > 0) {
     console.error(`\n📦 Would create ${customGroups.length} group(s)...`);
@@ -517,7 +461,12 @@ function executeSeedDryRun(payload: SeedPayload): SeederResult {
 // ============================================================================
 
 /**
- * Execute seeding operations.
+ * Execute seeding operations:
+ *
+ * Phase 1: Discover - Fetch all system roles/groups from the API
+ * Phase 2: Create - Create custom resources from the payload
+ *
+ * System resources are automatically included in the seed-map for reference.
  */
 async function executeSeed(payload: SeedPayload, client: AxiosInstance): Promise<SeederResult> {
   const result: SeederResult = {
@@ -530,18 +479,47 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance): Promise
 
   const CONCURRENCY_LIMIT = 5;
 
-  // Process roles - separate system vs custom
-  const roles = payload.roles ?? [];
-  const systemRoles = roles.filter((r) => isSystemDefaultRole(r.name));
-  const customRoles = roles.filter((r) => !isSystemDefaultRole(r.name));
+  // ============================================================================
+  // PHASE 1: DISCOVER - Fetch all system roles and groups
+  // ============================================================================
+  console.error(`\n${'━'.repeat(50)}`);
+  console.error(`🔍 PHASE 1: Discovering system resources`);
+  console.error(`${'━'.repeat(50)}`);
 
-  if (systemRoles.length > 0) {
-    console.error(`\n📦 Looking up ${systemRoles.length} system role(s)...`);
-    for (const role of systemRoles) {
-      await lookupRole(client, role.name, result.roles, result.errors);
-    }
+  // Fetch all system roles
+  console.error(`\n🔍 Fetching system roles...`);
+  const systemRoles = await fetchSystemRoles(client);
+  for (const role of systemRoles) {
+    result.roles[role.name] = role.uuid;
+  }
+  console.error(`  ✓ Found ${systemRoles.length} system role(s)`);
+
+  // Fetch all system/default groups
+  console.error(`\n🔍 Fetching system groups...`);
+  const systemGroups = await fetchSystemGroups(client);
+  for (const group of systemGroups) {
+    result.groups[group.name] = group.uuid;
+  }
+  console.error(`  ✓ Found ${systemGroups.length} system group(s)`);
+
+  // ============================================================================
+  // PHASE 2: CREATE - Create custom resources from payload
+  // ============================================================================
+  const customRoles = payload.roles ?? [];
+  const customGroups = payload.groups ?? [];
+  const workspaces = payload.workspaces ?? [];
+  const customResourceCount = customRoles.length + customGroups.length + workspaces.length;
+
+  if (customResourceCount === 0) {
+    console.error(`\n📋 No custom resources to create.`);
+    return result;
   }
 
+  console.error(`\n${'━'.repeat(50)}`);
+  console.error(`📦 PHASE 2: Creating ${customResourceCount} custom resource(s)`);
+  console.error(`${'━'.repeat(50)}`);
+
+  // Create custom roles
   if (customRoles.length > 0) {
     console.error(`\n📦 Creating ${customRoles.length} role(s)...`);
     await withConcurrencyLimit(customRoles, CONCURRENCY_LIMIT, (role) =>
@@ -549,18 +527,7 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance): Promise
     );
   }
 
-  // Process groups - separate system vs custom
-  const groups = payload.groups ?? [];
-  const systemGroups = groups.filter((g) => isSystemDefaultGroup(g.name));
-  const customGroups = groups.filter((g) => !isSystemDefaultGroup(g.name));
-
-  if (systemGroups.length > 0) {
-    console.error(`\n📦 Looking up ${systemGroups.length} system group(s)...`);
-    for (const group of systemGroups) {
-      await lookupGroup(client, group.name, result.groups, result.errors);
-    }
-  }
-
+  // Create custom groups
   if (customGroups.length > 0) {
     console.error(`\n📦 Creating ${customGroups.length} group(s)...`);
     await withConcurrencyLimit(customGroups, CONCURRENCY_LIMIT, (group) =>
@@ -568,8 +535,7 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance): Promise
     );
   }
 
-  // Seed workspaces (all are custom - no system defaults)
-  const workspaces = payload.workspaces ?? [];
+  // Create workspaces
   if (workspaces.length > 0) {
     console.error(`\n📦 Creating ${workspaces.length} workspace(s)...`);
     const rootWorkspaceId = await fetchRootWorkspaceId(client);
@@ -611,9 +577,7 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
     if (options.prefix) {
       console.error(`Prefix: "${options.prefix}" (separator: "${separator}")`);
     }
-    console.error(`\n📋 System Defaults (will be looked up, not created):`);
-    console.error(`   Roles: ${SYSTEM_DEFAULT_ROLES.join(', ')}`);
-    console.error(`   Groups: ${SYSTEM_DEFAULT_GROUPS.join(', ')}`);
+    console.error(`\n📋 System roles/groups will be auto-discovered and included in seed-map.`);
     console.error(`━`.repeat(50));
 
     // Read and validate payload

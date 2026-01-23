@@ -114,6 +114,19 @@ export function initializeApiClient(token: string): AxiosInstance {
         }
 
         switch (status) {
+          case 400:
+            console.error(`\n[CLI] ❌ API Error (${status}): ${message}`);
+            // Show validation errors if present
+            if (data?.errors && Array.isArray(data.errors)) {
+              console.error('      Validation errors:');
+              (data.errors as Array<{ detail?: string; source?: string }>).forEach((e) => {
+                console.error(`        - ${e.source || 'field'}: ${e.detail || JSON.stringify(e)}`);
+              });
+            } else if (data && typeof data === 'object') {
+              // Show response body for debugging
+              console.error(`      Response: ${JSON.stringify(data)}`);
+            }
+            break;
           case 401:
             console.error('\n[CLI] ❌ Authentication failed.');
             console.error('      Your token may have expired. Run: npm run cli -- login');
