@@ -14,7 +14,6 @@ import { ServiceAccount } from '../../../../redux/service-accounts/types';
 import messages from '../../../../Messages';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { addServiceAccountsToGroup, fetchGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
-import { ServiceAccountsState } from '../../../../redux/service-accounts/reducer';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import { ServiceAccountsList } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
@@ -35,21 +34,6 @@ export interface PaginationProps {
   offset: number;
 }
 
-const reducer = ({
-  serviceAccountReducer,
-  groupReducer: { systemGroup },
-}: {
-  serviceAccountReducer: ServiceAccountsState;
-  groupReducer: { systemGroup?: { uuid: string } };
-}) => ({
-  serviceAccounts: serviceAccountReducer.serviceAccounts,
-  status: serviceAccountReducer.status,
-  isLoading: serviceAccountReducer.isLoading,
-  limit: serviceAccountReducer.limit,
-  offset: serviceAccountReducer.offset,
-  systemGroupUuid: systemGroup?.uuid,
-});
-
 const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsProps> = ({
   postMethod,
   isDefault,
@@ -63,7 +47,11 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
   const { groupId: uuid } = useParams();
   const [selectedAccounts, setSelectedAccounts] = useState<ServiceAccount[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const { systemGroupUuid } = useSelector(reducer);
+  // NOTE: Avoid composite selector objects here; Storybook test runner treats unstable selector
+  // return values as critical warnings. We only need the UUID.
+  const systemGroupUuid = useSelector(
+    ({ groupReducer }: { groupReducer: { systemGroup?: { uuid: string } } }) => groupReducer.systemGroup?.uuid,
+  );
 
   // Use fetchUuid for default groups, otherwise use route param
   const groupId = isDefault && fetchUuid ? fetchUuid : uuid;

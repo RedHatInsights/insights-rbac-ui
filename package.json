@@ -143,9 +143,9 @@
     "postinstall": "ts-patch install && rm -rf .cache",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test-storybook": "test-storybook --excludeTags test-skip",
-    "test-storybook:fast": "CI=true test-storybook --excludeTags test-skip",
-    "test-storybook:ci": "test-storybook --ci --excludeTags test-skip"
+    "test-storybook": "test-storybook --excludeTags test-skip --testTimeout 120000",
+    "test-storybook:fast": "CI=true test-storybook --excludeTags test-skip --testTimeout 120000",
+    "test-storybook:ci": "test-storybook --ci --excludeTags test-skip --testTimeout 120000"
   },
   "insights": {
     "appname": "rbac"

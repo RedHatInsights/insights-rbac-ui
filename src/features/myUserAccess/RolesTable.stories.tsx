@@ -129,12 +129,12 @@ For testing specific scenarios, see these additional stories:
     const canvas = within(canvasElement);
 
     // Test real API orchestration - container dispatches actions and Redux updates
-    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
 
     // Verify role data loaded through Redux
-    expect(await canvas.findByText('Advisor Administrator')).toBeInTheDocument();
-    expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Vulnerability Manager')).toBeInTheDocument();
+    await expect(canvas.findByText('Advisor Administrator')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Compliance Viewer')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Vulnerability Manager')).resolves.toBeInTheDocument();
   },
 };
 
@@ -165,12 +165,12 @@ export const LoadingState: Story = {
     const canvas = within(canvasElement);
 
     // Should show table structure while API call is pending
-    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
 
     // Since API never resolves (infinite delay), should not show final data
-    expect(canvas.queryByText('Advisor Administrator')).not.toBeInTheDocument();
-    expect(canvas.queryByText('Compliance Viewer')).not.toBeInTheDocument();
-    expect(canvas.queryByText('Vulnerability Manager')).not.toBeInTheDocument();
+    await expect(canvas.queryByText('Advisor Administrator')).not.toBeInTheDocument();
+    await expect(canvas.queryByText('Compliance Viewer')).not.toBeInTheDocument();
+    await expect(canvas.queryByText('Vulnerability Manager')).not.toBeInTheDocument();
   },
 };
 
@@ -196,7 +196,7 @@ export const EmptyRoles: Story = {
     const canvas = within(canvasElement);
 
     // Should show empty state after API returns no data
-    expect(await canvas.findByText('Configure roles')).toBeInTheDocument();
+    await expect(canvas.findByText('Configure roles')).resolves.toBeInTheDocument();
   },
 };
 

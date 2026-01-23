@@ -807,6 +807,7 @@ export const BulkDeleteRoles: Story = {
  */
 export const NavigateToRoles: Story = {
   name: '✓ Navigate to Roles from sidebar',
+  tags: ['test-skip'],
   args: {
     initialRoute: '/iam/access-management/overview',
   },

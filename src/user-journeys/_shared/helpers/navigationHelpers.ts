@@ -5,13 +5,16 @@ import { delay } from 'msw';
  * Expands a workspace row in the hierarchical table if it's collapsed
  */
 export async function expandWorkspaceRow(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, workspaceName: string) {
-  const workspaceRow = canvas.getByText(workspaceName).closest('tr') as HTMLElement;
-  expect(workspaceRow).toBeInTheDocument();
+  // A workspace name can appear multiple times on the page (e.g. table + nav/other UI),
+  // so prefer working from a link that matches the workspace name.
+  const workspaceLink = await canvas.findByRole('link', { name: new RegExp(`^${workspaceName}$`, 'i') });
+  const workspaceRow = workspaceLink.closest('tr') as HTMLElement | null;
+  await expect(workspaceRow).toBeInTheDocument();
 
-  const toggleButton = workspaceRow.querySelector('.pf-v6-c-table__toggle button') as HTMLButtonElement;
-  expect(toggleButton).toBeInTheDocument();
+  const toggleButton = workspaceRow?.querySelector('.pf-v6-c-table__toggle button') as HTMLButtonElement | null;
+  await expect(toggleButton).toBeInTheDocument();
 
-  if (toggleButton.getAttribute('aria-expanded') === 'false') {
+  if (toggleButton?.getAttribute('aria-expanded') === 'false') {
     await user.click(toggleButton);
     await delay(500);
   }
@@ -148,12 +151,19 @@ export async function verifySuccessNotification() {
  * Waits for a page/list to load by checking for a specific element
  */
 export async function waitForPageToLoad(canvas: ReturnType<typeof within>, elementText: string) {
-  await waitFor(
-    async () => {
-      await expect(canvas.getByText(elementText)).toBeInTheDocument();
-    },
-    { timeout: 10000 }, // Increased timeout for journey tests where full app bootstraps
-  );
+  const matches = (_content: string, node: Element | null) => {
+    if (!node) {
+      return false;
+    }
+    const text = node.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+    return text.includes(elementText);
+  };
+
+  // Use findAllByText (async + retry) to avoid brittle `getByText` failures when the text is
+  // rendered slowly or split across nested elements. Using the *AllBy* variant also avoids
+  // failures when the same label appears more than once on the page.
+  const found = await canvas.findAllByText(matches, {}, { timeout: 10000 });
+  await expect(found.length).toBeGreaterThan(0);
 }
 
 /**

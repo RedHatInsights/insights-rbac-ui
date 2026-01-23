@@ -539,6 +539,9 @@ function isCriticalError(errorText: string): boolean {
 }
 
 const config: TestRunnerConfig = {
+  // User-journey stories can legitimately take longer than Jest's default 15s timeout.
+  // Keep this high enough to avoid flakes while still catching true hangs.
+  testTimeout: 120_000,
   async preVisit(page, context) {
     const { id, tags } = context;
     

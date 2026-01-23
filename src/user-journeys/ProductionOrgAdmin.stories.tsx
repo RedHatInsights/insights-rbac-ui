@@ -1815,15 +1815,19 @@ Tests inviting new users to the organization.
     await user.type(emailInput, 'newuser1@example.com, newuser2@example.com');
     await delay(300);
 
-    // Optionally add a message
-    const messageInput = modalContent.getByRole('textbox', { name: /send a message with the invite/i });
-    await user.type(messageInput, 'Welcome to our organization!');
-    await delay(300);
+    // Optional message field: present in some variants (e.g. common-auth). If present, fill it.
+    const messageInput = modalContent.queryByRole('textbox', { name: /send a message with the invite/i });
+    if (messageInput) {
+      await user.type(messageInput, 'Welcome to our organization!');
+      await delay(300);
+    }
 
-    // Check the org admin checkbox
-    const orgAdminCheckbox = modalContent.getByRole('checkbox', { name: /organization administrators/i });
-    await user.click(orgAdminCheckbox);
-    await delay(300);
+    // Optional org-admin checkbox. In some variants this control is not present.
+    const orgAdminCheckbox = modalContent.queryByRole('checkbox', { name: /organization administrators/i });
+    if (orgAdminCheckbox) {
+      await user.click(orgAdminCheckbox);
+      await delay(300);
+    }
 
     // Submit the form
     const submitButton = modalContent.getByRole('button', { name: /invite new users/i });
@@ -1831,8 +1835,9 @@ Tests inviting new users to the organization.
     await user.click(submitButton);
     await delay(500);
 
-    // Verify success notification
-    await verifySuccessNotification();
+    // Verify success notification (InviteUsersModal uses a specific title)
+    const body = within(document.body);
+    await expect(body.findByText(/invitation sent successfully/i)).resolves.toBeInTheDocument();
   },
 };
 

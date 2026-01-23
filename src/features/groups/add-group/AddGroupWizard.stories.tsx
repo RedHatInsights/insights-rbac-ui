@@ -594,6 +594,68 @@ export const CancelWarning: Story = {
   },
 };
 
+export const DuplicateGroupNameValidation: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        // Override group name validation to simulate a duplicate group
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const name = url.searchParams.get('name');
+          const nameMatch = url.searchParams.get('name_match');
+          const limit = parseInt(url.searchParams.get('limit') || '10');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
+
+          if (nameMatch === 'exact' && name) {
+            return HttpResponse.json({
+              data: [{ uuid: 'existing-group-uuid', name }],
+              meta: { count: 1, limit, offset },
+            });
+          }
+
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit, offset },
+          });
+        }),
+        ...mockHandlers,
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+
+    // Navigate to wizard
+    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+    await userEvent.click(addButton);
+
+    // Wait for wizard to load
+    await waitFor(
+      async () => {
+        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
+        const nameInput = document.getElementById('group-name');
+        expect(wizardElement).toBeInTheDocument();
+        expect(nameInput).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    const nameInput = document.getElementById('group-name') as HTMLInputElement;
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, 'Existing Group');
+
+    // Validator is debounced; wait for name-taken error to appear
+    await expect(body.findByText(/already been taken/i)).resolves.toBeInTheDocument();
+
+    // Next should be disabled while the name is invalid (validator clears group-name)
+    const nextButtons = body.getAllByRole('button', { name: /next/i });
+    const wizardNextButton = nextButtons.find((btn) => !btn.closest('.pf-v6-c-pagination'));
+    expect(wizardNextButton).toBeTruthy();
+    expect(wizardNextButton).toBeDisabled();
+  },
+};
+
 // Create story-specific spies that can be accessed in both parameters and play function
 const createFullWizardFlowSpies = (): APISpies => ({
   groupCreationSpy: fn(),
