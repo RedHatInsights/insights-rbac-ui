@@ -594,7 +594,9 @@ export const CancelWarning: Story = {
   },
 };
 
+
 export const DuplicateGroupNameValidation: Story = {
+  // Written using Cursor with gpt-5.2
   parameters: {
     msw: {
       handlers: [

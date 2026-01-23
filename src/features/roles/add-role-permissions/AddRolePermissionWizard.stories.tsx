@@ -270,6 +270,7 @@ export const PermissionsTableRendered: Story = {
 /**
  * Permissions filters are wired correctly (Application/Resource/Operation) and update the query.
  * Mirrors IQE intent: test_permissions_filters
+ * Written using Cursor with gpt-5.2
  */
 export const PermissionsFilteringInteraction: Story = {
   tags: ['test-skip'],

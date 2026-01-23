@@ -97,14 +97,14 @@ For testing specific scenarios, see these additional stories:
     await expect(canvas.findByRole('columnheader', { name: /application/i })).resolves.toBeInTheDocument();
 
     // Verify table headers (3-column mode without Resource Definitions)
-    await expect(canvas.findByText('Resource type')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Operation')).resolves.toBeInTheDocument();
-    await expect(canvas.queryByText('Resource definitions')).not.toBeInTheDocument();
+    expect(await canvas.findByText('Resource type')).toBeInTheDocument();
+    expect(await canvas.findByText('Operation')).toBeInTheDocument();
+    expect(canvas.queryByText('Resource definitions')).not.toBeInTheDocument();
 
-    // Verify permission data loaded through Redux
-    await expect(canvas.findByText('advisor')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('compliance')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('vulnerability')).resolves.toBeInTheDocument();
+    // Verify permission data loaded through React Query
+    expect(await canvas.findByText('advisor')).toBeInTheDocument();
+    expect(await canvas.findByText('compliance')).toBeInTheDocument();
+    expect(await canvas.findByText('vulnerability')).toBeInTheDocument();
   },
 };
 

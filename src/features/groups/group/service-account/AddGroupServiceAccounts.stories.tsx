@@ -6,6 +6,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import AddGroupServiceAccounts from './AddGroupServiceAccounts';
 
+// Written using Cursor with gpt-5.2
 const postMethodSpy = fn();
 
 // Service accounts payload as returned by the SSO service accounts endpoint
