@@ -118,6 +118,8 @@ async function runHeadlessCommand(command: { type: 'login-headless' | 'seed' | '
     }
   }
 
+  // Ensure clean exit - allow pending I/O to flush
+  await new Promise((resolve) => setTimeout(resolve, 100));
   process.exit(exitCode);
 }
 
@@ -225,6 +227,16 @@ async function runInteractiveCli(): Promise<void> {
     const services = await ensureAuthenticated();
 
     const queryClient = createQueryClient({ scripting: false });
+
+    // Ensure terminal is in a clean state before Ink takes over
+    // This helps recover from any previous commands that may have left terminal in bad state
+    if (process.stdin.isTTY) {
+      process.stdin.setRawMode(false);
+    }
+    // Clear screen and reset cursor
+    process.stdout.write('\x1b[2J\x1b[H');
+    // Reset terminal attributes
+    process.stdout.write('\x1b[0m');
 
     const { waitUntilExit } = render(
       <AppWrapper queryClient={queryClient} services={services}>
