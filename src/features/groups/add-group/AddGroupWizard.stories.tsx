@@ -594,8 +594,10 @@ export const CancelWarning: Story = {
   },
 };
 
+/**
+ * Duplicate group name validation blocks progress (IQE: test_enter_duplicate_group_name)
+ */
 export const DuplicateGroupNameValidation: Story = {
-  // Written using Cursor with gpt-5.2
   parameters: {
     msw: {
       handlers: [
@@ -633,7 +635,7 @@ export const DuplicateGroupNameValidation: Story = {
 
     // Wait for wizard to load
     await waitFor(
-      async () => {
+      () => {
         const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
         const nameInput = document.getElementById('group-name');
         expect(wizardElement).toBeInTheDocument();
@@ -649,7 +651,7 @@ export const DuplicateGroupNameValidation: Story = {
     // Validator is debounced; wait for name-taken error to appear
     await expect(body.findByText(/already been taken/i)).resolves.toBeInTheDocument();
 
-    // Next should be disabled while the name is invalid (validator clears group-name)
+    // Next should be disabled while the name is invalid
     const nextButtons = body.getAllByRole('button', { name: /next/i });
     const wizardNextButton = nextButtons.find((btn) => !btn.closest('.pf-v6-c-pagination'));
     expect(wizardNextButton).toBeTruthy();

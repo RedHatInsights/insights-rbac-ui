@@ -16,20 +16,12 @@ export async function fillAddGroupRolesModal(user: ReturnType<typeof userEvent.s
   let addRolesModal: HTMLElement | null = null;
   await waitFor(() => {
     const allDialogs = Array.from(modalContainer.querySelectorAll('[role="dialog"]'));
-    // Prefer the dialog that looks like the Add Roles modal.
-    // Title text may vary and may not include the group name, so match on:
-    // - presence of an "Add to group" primary action, and
-    // - some "Add roles" heading/text within the dialog.
+    // Find the dialog that contains "Add roles to [groupName]" heading
     addRolesModal =
       (allDialogs.find((dialog) => {
-        const d = dialog as HTMLElement;
-        const hasPrimary = within(d).queryByRole('button', { name: /add to group/i }) !== null;
-        const hasAddRolesText = within(d).queryByText(/add roles/i) !== null;
-        return hasPrimary && hasAddRolesText;
-      }) as HTMLElement) ||
-      // Fallback: any dialog with an "Add to group" button
-      (allDialogs.find((dialog) => within(dialog as HTMLElement).queryByRole('button', { name: /add to group/i }) !== null) as HTMLElement) ||
-      null;
+        const heading = within(dialog as HTMLElement).queryByRole('heading', { name: new RegExp(`add roles to.*${groupName}`, 'i') });
+        return heading !== null;
+      }) as HTMLElement) || null;
 
     if (!addRolesModal) {
       throw new Error('Add roles modal not found');

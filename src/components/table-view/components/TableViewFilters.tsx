@@ -47,20 +47,7 @@ export const TableViewFilters: React.FC<TableViewFiltersProps> = ({ filterConfig
       if (value === undefined) {
         delete mergedFilters[key];
       } else {
-        if (Array.isArray(value)) {
-          // Normalize to string[] (react-data-view sometimes passes option objects) and de-duplicate to
-          // avoid React key warnings in PF chip/label rendering.
-          const normalized = value
-            .map((v) => {
-              if (typeof v === 'string') return v;
-              if (v && typeof v === 'object' && 'value' in v) return String((v as { value?: unknown }).value);
-              return String(v);
-            })
-            .filter(Boolean);
-          mergedFilters[key] = Array.from(new Set(normalized));
-        } else {
-          mergedFilters[key] = value;
-        }
+        mergedFilters[key] = value;
       }
     });
     onFiltersChange?.(mergedFilters);
@@ -68,42 +55,17 @@ export const TableViewFilters: React.FC<TableViewFiltersProps> = ({ filterConfig
 
   if (normalizedFilterConfig.length === 0) return null;
 
-  // Pass only active filter values down to PatternFly to avoid rendering chips/labels for empty
-  // filters (which can trigger noisy React warnings in some PF versions).
-  const activeValues = useMemo<FilterState>(() => {
-    const next: FilterState = {};
-    Object.entries(filters).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        if (value.length > 0) {
-          next[key] = value;
-        }
-      } else if (value !== '') {
-        next[key] = value;
-      }
-    });
-    return next;
-  }, [filters]);
-
   return (
-    <DataViewFilters onChange={handleFilterChange} values={activeValues}>
+    <DataViewFilters onChange={handleFilterChange} values={filters}>
       {normalizedFilterConfig.map((config) => {
         if (config.type === 'text') {
           return <DataViewTextFilter key={config.id} filterId={config.id} title={config.label} placeholder={config.placeholder} />;
         }
         if (config.type === 'checkbox') {
-          // NOTE: De-duplicate options to avoid React key warnings inside PatternFly filter rendering
-          // (the Storybook test runner treats console warnings as failures).
-          const mappedOptions = Array.from(
-            new Map(
-              config.options.map((opt) => [
-                opt.id,
-                {
-                  value: opt.id,
-                  label: opt.label,
-                },
-              ]),
-            ).values(),
-          );
+          const mappedOptions = config.options.map((opt) => ({
+            value: opt.id,
+            label: opt.label,
+          }));
           return (
             <DataViewCheckboxFilter
               key={config.id}
