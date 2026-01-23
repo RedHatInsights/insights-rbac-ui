@@ -157,9 +157,13 @@ function parseJwtExpiry(token: string): number {
 // ============================================================================
 
 /**
- * Launch browser and wait for manual login to extract token
+ * Launch browser and wait for manual login to extract token.
+ * Uses shared browser launch from auth-bridge for consistent blocking of analytics/overlays.
  */
 async function performBrowserLogin(): Promise<string> {
+  // Use shared browser launch with analytics/overlay blocking
+  const { launchBrowser, closeBrowser, extractToken } = await import('./auth-bridge.js');
+
   const envConfig = getEnvConfig();
 
   console.error('\n🔐 Authentication Required');
@@ -170,34 +174,18 @@ async function performBrowserLogin(): Promise<string> {
   console.error('Please complete the login process manually.');
   console.error('━'.repeat(50) + '\n');
 
-  // Dynamic import to avoid loading Playwright unless needed
-  const { chromium } = await import('playwright');
-
-  const browser = await chromium.launch({
-    headless: false, // MUST be headed for manual login
-    args: [
-      '--start-maximized',
-      '--disable-blink-features=AutomationControlled', // Hide automation
-    ],
-  });
-
-  const context = await browser.newContext({
-    viewport: null, // Use full window size
-    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  });
-
-  const page = await context.newPage();
+  const session = await launchBrowser(false); // false = headed mode for manual login
 
   try {
     console.error('📡 Navigating to Red Hat Console...');
-    await page.goto(envConfig.loginUrl, { waitUntil: 'domcontentloaded' });
+    await session.page.goto(envConfig.loginUrl, { waitUntil: 'domcontentloaded' });
 
     console.error('⏳ Waiting for you to complete login...');
     console.error('   (The browser will close automatically once logged in)\n');
 
     // Wait for the user to complete login - detect by welcome message
     // This is more reliable than URL pattern as the user might land on different pages
-    await page.waitForFunction(
+    await session.page.waitForFunction(
       (indicator) => document.body?.innerText?.includes(indicator),
       LOGGED_IN_INDICATOR,
       { timeout: 5 * 60 * 1000 }, // 5 minute timeout for manual login
@@ -205,27 +193,12 @@ async function performBrowserLogin(): Promise<string> {
 
     console.error('✓ Login detected! Extracting authentication token...');
 
-    // Wait a moment for the app to fully initialize
-    await page.waitForTimeout(2000);
-
-    // Extract the token using the Chrome API
-    const token = await page.evaluate(async () => {
-      // The insights chrome API should be available after login
-      const chrome = (window as unknown as { insights?: { chrome?: { auth?: { getToken?: () => Promise<string> } } } }).insights?.chrome;
-      if (!chrome?.auth?.getToken) {
-        throw new Error('Chrome auth API not available');
-      }
-      return await chrome.auth.getToken();
-    });
-
-    if (!token || typeof token !== 'string') {
-      throw new Error('Failed to extract token from browser');
-    }
+    const token = await extractToken(session.page);
 
     console.error('✓ Token extracted successfully!\n');
     return token;
   } finally {
-    await browser.close();
+    await closeBrowser(session);
   }
 }
 
@@ -234,9 +207,25 @@ async function performBrowserLogin(): Promise<string> {
 // ============================================================================
 
 /**
+ * Check if credentials are available for automatic (headless) login.
+ */
+function hasCredentials(): { username: string; password: string } | null {
+  const username = process.env.RBAC_USERNAME;
+  const password = process.env.RBAC_PASSWORD;
+
+  if (username && password) {
+    return { username, password };
+  }
+  return null;
+}
+
+/**
  * Get authentication token
  *
- * Checks cache first, then falls back to browser login if needed.
+ * Checks cache first, then falls back to login if needed.
+ * If RBAC_USERNAME and RBAC_PASSWORD are set, uses automatic headless login.
+ * Otherwise, opens a browser for manual login.
+ *
  * Returns a valid Bearer token string.
  */
 export async function getToken(): Promise<string> {
@@ -252,8 +241,23 @@ export async function getToken(): Promise<string> {
     console.error('⚠️  Cached token has expired, re-authenticating...');
   }
 
-  // Perform browser login
-  const token = await performBrowserLogin();
+  // Check for credentials - use headless login if available
+  const credentials = hasCredentials();
+  let token: string;
+
+  if (credentials) {
+    console.error('🤖 RBAC_USERNAME and RBAC_PASSWORD detected - using automatic headless login');
+    const { performHeadlessLogin } = await import('./auth-bridge.js');
+    const result = await performHeadlessLogin({
+      username: credentials.username,
+      password: credentials.password,
+      stdout: false,
+    });
+    token = result.token;
+  } else {
+    // Perform manual browser login
+    token = await performBrowserLogin();
+  }
 
   // Cache the new token
   const expiresAt = parseJwtExpiry(token);
