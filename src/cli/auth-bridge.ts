@@ -126,14 +126,18 @@ export function getLaunchOptions(headless: boolean): LaunchOptions {
 // ============================================================================
 
 /**
- * Domains to block during browser automation.
+ * Patterns to block during browser automation.
  * These can cause flaky tests or slow down login flows.
+ * Using partial string matches to catch all subdomains and paths.
  */
-const BLOCKED_DOMAINS = [
-  'consent.trustarc.com', // TrustArc consent overlay
-  'api.amplitude.com', // Amplitude analytics
-  'cdn.amplitude.com', // Amplitude SDK
-  'api2.amplitude.com', // Amplitude alternative endpoint
+const BLOCKED_PATTERNS = [
+  // TrustArc consent overlay (all domains, scripts, and CDN paths)
+  'trustarc.com',
+  'trustarc.stage',
+  'teconsent',
+  '/trustarc/', // Catches CDN-hosted scripts like static.redhat.com/libs/.../trustarc/
+  // Amplitude analytics
+  'amplitude.com',
 ];
 
 /**
@@ -145,8 +149,8 @@ export async function blockAnalyticsAndOverlays(page: Page): Promise<void> {
     const url = request.url();
     const resourceType = request.resourceType();
 
-    // Block known analytics/overlay domains (except document loads which might be required)
-    const shouldBlock = BLOCKED_DOMAINS.some((domain) => url.includes(domain)) && resourceType !== 'document';
+    // Block known analytics/overlay patterns (except document loads which might be required)
+    const shouldBlock = BLOCKED_PATTERNS.some((pattern) => url.includes(pattern)) && resourceType !== 'document';
 
     if (shouldBlock) {
       await route.abort();
