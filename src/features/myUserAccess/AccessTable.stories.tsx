@@ -93,8 +93,7 @@ For testing specific scenarios, see these additional stories:
 
     // Test real API orchestration - container triggers mutations and React Query updates
     // TableView may render "Application" in header and filter - check that at least header exists
-    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
-    await expect(canvas.findByRole('columnheader', { name: /application/i })).resolves.toBeInTheDocument();
+    expect(await canvas.findByRole('columnheader', { name: /application/i })).toBeInTheDocument();
 
     // Verify table headers (3-column mode without Resource Definitions)
     expect(await canvas.findByText('Resource type')).toBeInTheDocument();
@@ -131,12 +130,12 @@ export const LoadingState: Story = {
     const canvas = within(canvasElement);
 
     // Should show table structure while API call is pending
-    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+    expect(await canvas.findByRole('grid')).toBeInTheDocument();
 
     // Since API never resolves (infinite delay), should not show final data
-    await expect(canvas.queryByText('advisor')).not.toBeInTheDocument();
-    await expect(canvas.queryByText('compliance')).not.toBeInTheDocument();
-    await expect(canvas.queryByText('vulnerability')).not.toBeInTheDocument();
+    expect(canvas.queryByText('advisor')).not.toBeInTheDocument();
+    expect(canvas.queryByText('compliance')).not.toBeInTheDocument();
+    expect(canvas.queryByText('vulnerability')).not.toBeInTheDocument();
   },
 };
 
@@ -161,8 +160,8 @@ export const EmptyPermissions: Story = {
     const canvas = within(canvasElement);
 
     // Should show empty state after API returns no data (TableView uses DefaultEmptyStateNoData)
-    await expect(canvas.findByText('Configure permissions')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('To configure user access, create at least one permission.')).resolves.toBeInTheDocument();
+    expect(await canvas.findByText('Configure permissions')).toBeInTheDocument();
+    expect(await canvas.findByText('To configure user access, create at least one permission.')).toBeInTheDocument();
   },
 };
 

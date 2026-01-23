@@ -273,6 +273,7 @@ export const PermissionsTableRendered: Story = {
  * Written using Cursor with gpt-5.2
  */
 export const PermissionsFilteringInteraction: Story = {
+  // Written with Cursor using gpt-5.2
   tags: ['test-skip'],
   parameters: {
     msw: {

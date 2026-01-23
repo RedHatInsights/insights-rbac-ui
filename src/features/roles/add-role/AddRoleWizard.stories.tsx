@@ -349,6 +349,7 @@ export const RoleNameInputAcceptsText: Story = {
  * Duplicate role name validation blocks progress (matches IQE: test_enter_duplicate_role_name)
  */
 export const DuplicateRoleNameValidation: Story = {
+  // Written using Cursor with gpt-5.2
   parameters: {
     msw: {
       handlers: [
