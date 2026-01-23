@@ -17,8 +17,8 @@ const ReviewSelection: React.FC = () => {
   const { data: groupsData } = useGroupsQuery({ limit: 1000 });
   const { data: rolesData } = useRolesQuery({ limit: 1000 });
 
-  const groups = groupsData?.data ?? [];
-  const roles = rolesData?.data ?? [];
+  const groups = React.useMemo(() => groupsData?.data ?? [], [groupsData?.data]);
+  const roles = React.useMemo(() => rolesData?.data ?? [], [rolesData?.data]);
 
   const selectedUserGroups = values['selected-user-groups'] || [];
   const selectedRoles = values['selected-roles'] || [];

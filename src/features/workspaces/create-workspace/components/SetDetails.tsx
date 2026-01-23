@@ -31,25 +31,20 @@ export const SetDetails = () => {
 
   // React Query hook
   const { data: workspacesData, isLoading } = useWorkspacesQuery();
-  const workspaces = workspacesData?.data ?? [];
+  const workspaces = React.useMemo(() => workspacesData?.data ?? [], [workspacesData?.data]);
 
   const isWorkspaceSelectorEnabled = enableWorkspaceHierarchy || enableWorkspaces;
 
-  useEffect(() => {
-    !values[WORKSPACE_PARENT] &&
-      formOptions.change(
-        WORKSPACE_PARENT,
-        workspaces.find((workspace) => workspace.parent_id === null),
-      );
-  }, [workspaces.length]);
+  const defaultWorkspace = React.useMemo(() => workspaces.find((workspace) => workspace.type === 'default'), [workspaces]);
 
-  const defaultWorkspace = workspaces.find((workspace) => workspace.type === 'default');
-
+  // Set default workspace on mount or when workspaces load
   useEffect(() => {
     if (defaultWorkspace && !values[WORKSPACE_PARENT]) {
       formOptions.change(WORKSPACE_PARENT, defaultWorkspace);
     }
-  }, [defaultWorkspace, formOptions.change, values[WORKSPACE_PARENT]]);
+    // Only run on mount or when workspaces data changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaces]);
 
   const handleWorkspaceSelection = (selectedWorkspace: TreeViewDataItem) => {
     if (instanceOfTreeViewWorkspaceItem(selectedWorkspace)) {

@@ -38,7 +38,10 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
 
   // React Query hooks
   const { data: workspacesData } = useWorkspacesQuery();
-  const existingWorkspaceNames = (workspacesData?.data ?? []).map((w) => w.name).filter((n): n is string => !!n);
+  const existingWorkspaceNames = React.useMemo(
+    () => (workspacesData?.data ?? []).map((w) => w.name).filter((n): n is string => !!n),
+    [workspacesData?.data],
+  );
   const createWorkspaceMutation = useCreateWorkspaceMutation();
 
   // Default handlers for when component is used as a route element

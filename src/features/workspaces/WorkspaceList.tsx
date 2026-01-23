@@ -35,18 +35,18 @@ export const WorkspaceList = () => {
 
   // React Query for workspaces
   const { data: workspacesData, isLoading, isError } = useWorkspacesQuery();
-  const workspaces = workspacesData?.data ?? [];
+  const workspaces = React.useMemo(() => workspacesData?.data ?? [], [workspacesData?.data]);
   const error: string | null = isError ? 'Failed to fetch workspaces' : null;
 
   // Mutations
   const deleteWorkspaceMutation = useDeleteWorkspaceMutation();
   const moveWorkspaceMutation = useMoveWorkspaceMutation();
 
-  // User permissions state
-  const [userPermissions, setUserPermissions] = useState<Permission>({
+  // User permissions state - use lazy initializer to avoid creating new array on every render
+  const [userPermissions, setUserPermissions] = useState<Permission>(() => ({
     permission: '',
-    resourceDefinitions: [] as { attributeFilter: { value: string[] } }[],
-  });
+    resourceDefinitions: [],
+  }));
 
   // Move modal state
   const [currentMoveWorkspace, setCurrentMoveWorkspace] = useState<WorkspacesWorkspace | null>(null);
@@ -55,7 +55,7 @@ export const WorkspaceList = () => {
   const isMoveModalOpen = currentMoveWorkspace !== null;
   const isMoveSubmitting = moveWorkspaceMutation.isPending;
 
-  // Fetch user permissions on mount
+  // Fetch user permissions on mount only (chrome changes reference every render)
   useEffect(() => {
     chrome.getUserPermissions().then((permissions) => {
       const foundPermission = permissions.find(({ permission }) => ['inventory:groups:write', 'inventory:groups:*'].includes(permission));
@@ -66,7 +66,7 @@ export const WorkspaceList = () => {
         });
       }
     });
-  }, [chrome]);
+  }, []); // Only run on mount - chrome has unstable reference
 
   // Action handlers using React Query mutations
   const handleDeleteWorkspaces = useCallback(
@@ -136,6 +136,25 @@ export const WorkspaceList = () => {
     [currentMoveWorkspace, handleMoveWorkspace],
   );
 
+  // Memoize initial selected workspace to prevent infinite loop
+  const initialSelectedWorkspace = React.useMemo(() => {
+    if (!currentMoveWorkspace) {
+      return null;
+    }
+
+    // Find the current parent workspace to pre-select
+    const currentParentWorkspace = workspaces.find((ws) => ws.id === currentMoveWorkspace.parent_id);
+
+    // We should always have a parent workspace, but fallback to root if not found
+    const workspace = currentParentWorkspace || workspaces.find((ws) => ws.type === 'root') || workspaces[0];
+
+    return workspace ? convertToTreeViewItem(workspace) : null;
+  }, [currentMoveWorkspace, workspaces]);
+
+  const sourceWorkspace = React.useMemo(() => {
+    return currentMoveWorkspace ? convertToTreeViewItem(currentMoveWorkspace) : undefined;
+  }, [currentMoveWorkspace]);
+
   return (
     <WorkspaceListTable
       workspaces={workspaces}
@@ -146,29 +165,20 @@ export const WorkspaceList = () => {
       userPermissions={userPermissions}
     >
       {/* Move workspace modal - only render when there's a workspace to move */}
-      {currentMoveWorkspace &&
-        (() => {
-          // Find the current parent workspace to pre-select
-          const currentParentWorkspace = workspaces.find((ws) => ws.id === currentMoveWorkspace.parent_id);
-
-          // We should always have a parent workspace, but fallback to root if not found
-          const initialSelectedWorkspace = currentParentWorkspace || workspaces.find((ws) => ws.type === 'root') || workspaces[0];
-
-          return (
-            <MoveWorkspaceDialog
-              isOpen={isMoveModalOpen}
-              onClose={() => {
-                setCurrentMoveWorkspace(null);
-              }}
-              onSubmit={handleMoveWorkspaceConfirm}
-              workspaceToMove={currentMoveWorkspace}
-              availableWorkspaces={workspaces}
-              isSubmitting={isMoveSubmitting}
-              initialSelectedWorkspace={convertToTreeViewItem(initialSelectedWorkspace)}
-              sourceWorkspace={convertToTreeViewItem(currentMoveWorkspace)}
-            />
-          );
-        })()}
+      {currentMoveWorkspace && initialSelectedWorkspace && (
+        <MoveWorkspaceDialog
+          isOpen={isMoveModalOpen}
+          onClose={() => {
+            setCurrentMoveWorkspace(null);
+          }}
+          onSubmit={handleMoveWorkspaceConfirm}
+          workspaceToMove={currentMoveWorkspace}
+          availableWorkspaces={workspaces}
+          isSubmitting={isMoveSubmitting}
+          initialSelectedWorkspace={initialSelectedWorkspace}
+          sourceWorkspace={sourceWorkspace}
+        />
+      )}
     </WorkspaceListTable>
   );
 };

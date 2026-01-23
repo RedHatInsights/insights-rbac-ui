@@ -20,7 +20,7 @@ const RolesSelectionField: React.FC<RolesSelectionFieldProps> = ({ name }) => {
 
   // React Query hook for roles
   const { data: rolesData, isLoading } = useRolesQuery({ limit: 1000 });
-  const rolesForWizard = rolesData?.data ?? [];
+  const rolesForWizard = React.useMemo(() => rolesData?.data ?? [], [rolesData?.data]);
 
   const [selectedRoles, setSelectedRoles] = useState<string[]>(formOptions.getState().values['selected-roles'] || []);
 

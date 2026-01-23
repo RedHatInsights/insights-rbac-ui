@@ -142,31 +142,48 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
   } = useWorkspacesStore();
 
   const [searchInputValue, setSearchInputValue] = React.useState<string>('');
-  const [filteredTreeElements, setFilteredTreeElements] = React.useState<TreeViewWorkspaceItem[]>(workspaceTree ? [workspaceTree] : []);
+  const [filteredTreeElements, setFilteredTreeElements] = React.useState<TreeViewWorkspaceItem[]>(() => (workspaceTree ? [workspaceTree] : []));
   const [areElementsFiltered, setElementsAreFiltered] = React.useState<boolean>(false);
 
+  // Memoize source workspace IDs to prevent recreating the fetcher
+  const sourceWorkspaceIds = React.useMemo(() => (sourceWorkspace && sourceWorkspace.id ? [sourceWorkspace.id] : undefined), [sourceWorkspace?.id]);
+
   // Use the exported data fetcher function
-  const fetchWorkspacesFromRBACBuildTree = createWorkspaceDataFetcher(
-    {
-      setIsFetchingWorkspacesFromRBAC,
-      setIsFetchingWorkspacesFromRBACError,
-      setFetchedWorkspaces,
-      setWorkspaceTree,
-    },
-    sourceWorkspace && sourceWorkspace.id ? [sourceWorkspace.id] : undefined,
+  const fetchWorkspacesFromRBACBuildTree = React.useMemo(
+    () =>
+      createWorkspaceDataFetcher(
+        {
+          setIsFetchingWorkspacesFromRBAC,
+          setIsFetchingWorkspacesFromRBACError,
+          setFetchedWorkspaces,
+          setWorkspaceTree,
+        },
+        sourceWorkspaceIds,
+      ),
+    [setIsFetchingWorkspacesFromRBAC, setIsFetchingWorkspacesFromRBACError, setFetchedWorkspaces, setWorkspaceTree, sourceWorkspaceIds],
   );
 
   // Use the exported search filter function
-  const onSearchFilter = createWorkspaceSearchFilter(workspaceTree, setFilteredTreeElements, setElementsAreFiltered);
+  const onSearchFilter = React.useMemo(
+    () => createWorkspaceSearchFilter(workspaceTree, setFilteredTreeElements, setElementsAreFiltered),
+    [workspaceTree],
+  );
 
   /**
    * Set initial selected workspace when provided
+   * Use a ref to track the current initialSelectedWorkspace to avoid dependency issues
    */
+  const initialSelectedWorkspaceRef = React.useRef(initialSelectedWorkspace);
   React.useEffect(() => {
-    if (initialSelectedWorkspace) {
-      setSelectedWorkspace(initialSelectedWorkspace);
+    initialSelectedWorkspaceRef.current = initialSelectedWorkspace;
+  }, [initialSelectedWorkspace]);
+
+  React.useEffect(() => {
+    const initial = initialSelectedWorkspaceRef.current;
+    if (initial && selectedWorkspace?.id !== initial.id) {
+      setSelectedWorkspace(initial);
     }
-  }, [initialSelectedWorkspace, setSelectedWorkspace]);
+  }, [initialSelectedWorkspace?.id, selectedWorkspace?.id, setSelectedWorkspace]);
 
   /**
    * Every time the workspaces tree changes, reset the search filter

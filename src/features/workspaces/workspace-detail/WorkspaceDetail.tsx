@@ -59,7 +59,7 @@ export const WorkspaceDetail = () => {
 
   // React Query hooks
   const { data: workspacesData, isLoading: isWorkspacesLoading } = useWorkspacesQuery();
-  const workspaces = (workspacesData?.data ?? []) as WorkspacesWorkspace[];
+  const workspaces = React.useMemo(() => (workspacesData?.data ?? []) as WorkspacesWorkspace[], [workspacesData?.data]);
 
   const { data: selectedWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceQuery(workspaceId || '', {
     enabled: !!workspaceId,

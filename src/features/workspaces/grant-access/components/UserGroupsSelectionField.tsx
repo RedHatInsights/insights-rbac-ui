@@ -20,7 +20,7 @@ const UserGroupsSelectionField: React.FC<UserGroupsSelectionFieldProps> = ({ nam
 
   // React Query hook for groups
   const { data: groupsData, isLoading } = useGroupsQuery({ limit: 1000 });
-  const groups = groupsData?.data ?? [];
+  const groups = React.useMemo(() => groupsData?.data ?? [], [groupsData?.data]);
 
   const [selectedGroups, setSelectedGroups] = useState<string[]>(formOptions.getState().values['selected-user-groups'] || []);
 
