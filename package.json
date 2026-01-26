@@ -22,6 +22,7 @@
     "@patternfly/react-icons": "^6.4.0",
     "@patternfly/react-table": "^6.4.0",
     "@patternfly/react-tokens": "^6.4.0",
+    "@project-kessel/react-kessel-access-check": "^0.2.0",
     "@redhat-cloud-services/access-requests-frontend": "^1.2.11",
     "@redhat-cloud-services/frontend-components": "^7.0.24",
     "@redhat-cloud-services/frontend-components-notifications": "^6.1.25",

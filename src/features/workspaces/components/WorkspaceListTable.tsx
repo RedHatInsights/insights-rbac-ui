@@ -45,11 +45,29 @@ interface WorkspaceListTableProps {
   onDeleteWorkspaces: (workspaces: WorkspacesWorkspace[]) => Promise<void>;
   onMoveWorkspace: (workspace: WorkspacesWorkspace, targetParentId: string) => Promise<void>;
 
-  // User permissions
-  userPermissions: {
-    permission: string;
-    resourceDefinitions: { attributeFilter: { key?: string; operation?: string; value: string[] } }[];
-  };
+  /**
+   * Function to check if user can edit a specific workspace.
+   * Used for edit, move, delete actions.
+   */
+  canEdit: (workspaceId: string) => boolean;
+
+  /**
+   * Function to check if user can create workspaces within a parent.
+   * Used for "Create workspace" and "Create subworkspace" row actions.
+   */
+  canCreateIn: (workspaceId: string) => boolean;
+
+  /**
+   * Whether the user can edit at least one workspace.
+   * Used for enabling/disabling bulk actions like "Delete workspaces".
+   */
+  canEditAny: boolean;
+
+  /**
+   * Whether the user can create top-level workspaces (under root).
+   * Used for the main "Create workspace" toolbar button.
+   */
+  canCreateTopLevel: boolean;
 
   // Optional children (e.g., modals)
   children?: React.ReactNode;
@@ -142,7 +160,10 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   error,
   onDeleteWorkspaces,
   onMoveWorkspace,
-  userPermissions,
+  canEdit,
+  canCreateIn,
+  canEditAny,
+  canCreateTopLevel,
   children,
 }) => {
   const intl = useIntl();
@@ -161,28 +182,34 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  // Check if user has write permissions at all
-  const hasWritePermissions = () => {
-    return ['inventory:groups:write', 'inventory:groups:*'].includes(userPermissions.permission);
-  };
-
+  /**
+   * Check if user can perform an action on a workspace.
+   * Combines Kessel permission check with workspace type constraints.
+   */
   const canModify = (workspace: WorkspacesWorkspace, action: 'edit' | 'move' | 'delete' | 'create') => {
-    if (
-      hasWritePermissions() &&
-      (userPermissions.resourceDefinitions.length === 0 ||
-        userPermissions.resourceDefinitions.some((item) => item.attributeFilter.value.includes(workspace.id ?? '')))
-    ) {
-      if (action === 'edit' && isValidEditType(workspace)) {
-        return true;
-      } else if (action === 'move' && isValidMoveType(workspace)) {
-        return true;
-      } else if (action === 'delete' && isValidDeleteType(workspace)) {
-        return true;
-      } else if (action === 'create') {
-        return true;
-      }
+    const workspaceId = workspace.id ?? '';
+
+    // For 'create' action (creating children), check 'create' permission on this workspace
+    if (action === 'create') {
+      return canCreateIn(workspaceId);
     }
-    return false;
+
+    // For edit/move/delete, check 'edit' permission first
+    if (!canEdit(workspaceId)) {
+      return false;
+    }
+
+    // Then check workspace type constraints (e.g., can't delete root workspace)
+    switch (action) {
+      case 'edit':
+        return isValidEditType(workspace);
+      case 'move':
+        return isValidMoveType(workspace);
+      case 'delete':
+        return isValidDeleteType(workspace);
+      default:
+        return false;
+    }
   };
 
   const buildRows = (workspacesData: WorkspaceWithChildren[]): DataViewTrTree[] =>
@@ -350,11 +377,11 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             }
             actions={
               <>
-                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)} isDisabled={!hasWritePermissions()}>
+                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)} isDisabled={!canCreateTopLevel}>
                   {intl.formatMessage(messages.createWorkspace)}
                 </Button>
                 {hasAllFeatures && (
-                  <Button variant="secondary" onClick={() => handleModalToggle(workspaces)} isDisabled={!hasWritePermissions()}>
+                  <Button variant="secondary" onClick={() => handleModalToggle(workspaces)} isDisabled={!canEditAny}>
                     {intl.formatMessage(messages.deleteWorkspacesAction)}
                   </Button>
                 )}

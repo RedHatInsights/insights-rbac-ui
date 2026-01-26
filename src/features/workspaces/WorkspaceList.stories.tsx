@@ -207,13 +207,16 @@ export const PermissionIntegration: Story = {
     docs: {
       description: {
         story:
-          'Tests container permission integration with Chrome API. Users with read-only permissions should see disabled create/edit actions. Validates container fetches and filters permissions correctly.',
+          'Tests container permission integration with Kessel access checks. Users with read-only permissions should see disabled create/edit actions. Validates container fetches and filters permissions correctly.',
       },
     },
-    // Mock Chrome permissions - read-only user
+    // Mock Kessel permissions - read-only user (cannot edit or create workspaces)
+    accessCheck: {
+      canEdit: () => false,
+      canCreate: () => false,
+    },
     chrome: {
       environment: 'prod',
-      getUserPermissions: () => Promise.resolve([{ permission: 'inventory:groups:read', resourceDefinitions: [] }]),
     },
     msw: {
       handlers: [
@@ -280,13 +283,6 @@ export const MoveWorkspaceModal: Story = {
     },
     chrome: {
       environment: 'stage', // Change to stage to enable move functionality
-      getUserPermissions: () =>
-        Promise.resolve([
-          {
-            permission: 'inventory:groups:write', // Fix: Use the correct permission that canModify() expects
-            resourceDefinitions: [{ attributeFilter: { key: 'uuid', operation: 'in', value: ['1', '2'] } }],
-          },
-        ]),
     },
     msw: {
       handlers: [
@@ -443,11 +439,6 @@ export const M1_WithWritePermission: Story = {
     },
     chrome: {
       environment: 'prod',
-      getUserPermissions: () =>
-        Promise.resolve([
-          { permission: 'inventory:groups:write', resourceDefinitions: [] },
-          { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-        ]),
     },
     msw: {
       handlers: [
@@ -501,9 +492,13 @@ export const M1_ReadOnly: Story = {
       'platform.rbac.workspaces-role-bindings': false,
       'platform.rbac.workspaces': false,
     },
+    // Mock Kessel permissions - read-only user
+    accessCheck: {
+      canEdit: () => false,
+      canCreate: () => false,
+    },
     chrome: {
       environment: 'prod',
-      getUserPermissions: () => Promise.resolve([{ permission: 'inventory:groups:read', resourceDefinitions: [] }]),
     },
     msw: {
       handlers: [
@@ -562,11 +557,6 @@ export const M2_WithWritePermission: Story = {
     },
     chrome: {
       environment: 'prod',
-      getUserPermissions: () =>
-        Promise.resolve([
-          { permission: 'inventory:groups:write', resourceDefinitions: [] },
-          { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-        ]),
     },
     msw: {
       handlers: [
@@ -634,9 +624,13 @@ export const M2_ReadOnly: Story = {
       'platform.rbac.workspaces-role-bindings': false,
       'platform.rbac.workspaces': false,
     },
+    // Mock Kessel permissions - read-only user
+    accessCheck: {
+      canEdit: () => false,
+      canCreate: () => false,
+    },
     chrome: {
       environment: 'prod',
-      getUserPermissions: () => Promise.resolve([{ permission: 'inventory:groups:read', resourceDefinitions: [] }]),
     },
     msw: {
       handlers: [
@@ -691,11 +685,6 @@ export const M3_WithWritePermission: Story = {
     },
     chrome: {
       environment: 'prod',
-      getUserPermissions: () =>
-        Promise.resolve([
-          { permission: 'inventory:groups:write', resourceDefinitions: [] },
-          { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-        ]),
     },
     msw: {
       handlers: [
@@ -750,9 +739,13 @@ export const M3_ReadOnly: Story = {
       'platform.rbac.workspaces-role-bindings': true,
       'platform.rbac.workspaces': false,
     },
+    // Mock Kessel permissions - read-only user
+    accessCheck: {
+      canEdit: () => false,
+      canCreate: () => false,
+    },
     chrome: {
       environment: 'prod',
-      getUserPermissions: () => Promise.resolve([{ permission: 'inventory:groups:read', resourceDefinitions: [] }]),
     },
     msw: {
       handlers: [
@@ -801,11 +794,6 @@ export const M5_WithWritePermission: Story = {
     },
     chrome: {
       environment: 'prod',
-      getUserPermissions: () =>
-        Promise.resolve([
-          { permission: 'inventory:groups:write', resourceDefinitions: [] },
-          { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-        ]),
     },
     msw: {
       handlers: [
@@ -855,9 +843,13 @@ export const M5_ReadOnly: Story = {
     featureFlags: {
       'platform.rbac.workspaces': true,
     },
+    // Mock Kessel permissions - read-only user
+    accessCheck: {
+      canEdit: () => false,
+      canCreate: () => false,
+    },
     chrome: {
       environment: 'prod',
-      getUserPermissions: () => Promise.resolve([{ permission: 'inventory:groups:read', resourceDefinitions: [] }]),
     },
     msw: {
       handlers: [

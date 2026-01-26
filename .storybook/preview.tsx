@@ -10,7 +10,7 @@ import NotificationsProvider from '@redhat-cloud-services/frontend-components-no
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
-import { ChromeProvider, FeatureFlagsProvider, type ChromeConfig, type FeatureFlagsConfig } from './context-providers';
+import { ChromeProvider, FeatureFlagsProvider, AccessCheckProvider_, type ChromeConfig, type FeatureFlagsConfig, type AccessCheckConfig } from './context-providers';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 
 // Create a fresh QueryClient for each story to prevent state leaking
@@ -119,6 +119,11 @@ const preview: Preview = {
     featureFlags: {
       'platform.rbac.itless': false,
     },
+    // Default Kessel access check config - user can edit and create everywhere
+    accessCheck: {
+      canEdit: () => true,
+      canCreate: () => true,
+    },
   },
   decorators: [
     (Story, { parameters, args }) => {
@@ -169,19 +174,31 @@ const preview: Preview = {
         }),
       };
 
+      // Kessel access check configuration
+      const accessCheckConfig: AccessCheckConfig = {
+        canEdit: () => true, // Default: user can edit everything
+        canCreate: () => true, // Default: user can create everywhere
+        ...parameters.accessCheck,
+        // Override with args if provided
+        ...(args.canEdit !== undefined && { canEdit: args.canEdit }),
+        ...(args.canCreate !== undefined && { canCreate: args.canCreate }),
+      };
+
       return (
         <QueryClientWrapper>
           <ChromeProvider value={chromeConfig}>
             <FeatureFlagsProvider value={featureFlags}>
-              <PermissionsContext.Provider value={permissions}>
-                <IntlProvider locale={locale} messages={messages[locale]}>
-                  <Fragment>
-                    <NotificationsProvider>
-                      <Story />
-                    </NotificationsProvider>
-                  </Fragment>
-                </IntlProvider>
-              </PermissionsContext.Provider>
+              <AccessCheckProvider_ value={accessCheckConfig}>
+                <PermissionsContext.Provider value={permissions}>
+                  <IntlProvider locale={locale} messages={messages[locale]}>
+                    <Fragment>
+                      <NotificationsProvider>
+                        <Story />
+                      </NotificationsProvider>
+                    </Fragment>
+                  </IntlProvider>
+                </PermissionsContext.Provider>
+              </AccessCheckProvider_>
             </FeatureFlagsProvider>
           </ChromeProvider>
         </QueryClientWrapper>

@@ -337,6 +337,7 @@ export const CreateWorkspace: Story = {
   name: 'Workspaces / Create workspace with parent selection',
   args: {
     initialRoute: '/iam/my-user-access',
+    orgAdmin: true,
   },
   parameters: {
     docs: {
@@ -426,6 +427,7 @@ export const CreateSubworkspace: Story = {
   name: 'Workspaces / Create subworkspace from kebab menu',
   args: {
     initialRoute: '/iam/my-user-access',
+    orgAdmin: true,
   },
   parameters: {
     docs: {
@@ -515,6 +517,7 @@ export const MoveWorkspace: Story = {
   name: 'Workspaces / Move workspace',
   args: {
     initialRoute: '/iam/my-user-access',
+    orgAdmin: true,
   },
   parameters: {
     docs: {
@@ -612,6 +615,7 @@ export const EditWorkspace: Story = {
   name: 'Workspaces / Edit workspace',
   args: {
     initialRoute: '/iam/my-user-access',
+    orgAdmin: true,
   },
   parameters: {
     docs: {
@@ -699,6 +703,7 @@ export const DeleteWorkspace: Story = {
   name: 'Workspaces / Delete workspace',
   args: {
     initialRoute: '/iam/my-user-access',
+    orgAdmin: true,
   },
   parameters: {
     docs: {
@@ -790,6 +795,7 @@ export const ViewWorkspaceDetailLinksToInventory: Story = {
   name: 'Workspaces / View workspace detail links to Inventory',
   args: {
     initialRoute: '/iam/my-user-access',
+    orgAdmin: true,
   },
   parameters: {
     docs: {
