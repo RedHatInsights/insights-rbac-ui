@@ -69,11 +69,15 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
  * Helper to create dynamic environment parameters from story args
  */
 export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) => {
+  const { orgAdmin = false, userAccessAdministrator = false } = args;
+
+  // Determine if user has write permissions for Kessel access checks
+  const hasWritePermissions = orgAdmin || userAccessAdministrator;
+
   return {
     chrome: {
       environment: 'prod',
       getUserPermissions: () => {
-        const { orgAdmin = false, userAccessAdministrator = false } = args;
         let permissions;
         if (orgAdmin) {
           permissions = [
@@ -138,6 +142,11 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
       'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] ?? false,
       'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] ?? false,
       'platform.rbac.itless': false,
+    },
+    // Kessel access check configuration - mirrors the permission logic above
+    accessCheck: {
+      canEdit: () => hasWritePermissions,
+      canCreate: () => hasWritePermissions,
     },
   };
 };

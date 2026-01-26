@@ -303,5 +303,125 @@ export const usePermissions = () => {
   return useContext(PermissionsContext);
 };
 
+// =============================================================================
+// Kessel Access Check Mock
+// =============================================================================
+
+/**
+ * Configuration for Kessel access check mocking in Storybook.
+ * 
+ * @example
+ * // In a story's parameters:
+ * parameters: {
+ *   accessCheck: {
+ *     // User can edit all workspaces
+ *     canEdit: () => true,
+ *   }
+ * }
+ * 
+ * @example
+ * // Restricted permissions:
+ * parameters: {
+ *   accessCheck: {
+ *     canEdit: (workspaceId) => workspaceId === 'ws-1',
+ *   }
+ * }
+ */
+export interface AccessCheckConfig {
+  /**
+   * Function to determine if user can edit a resource.
+   * Called by useSelfAccessCheck for 'edit' relation checks.
+   */
+  canEdit: (resourceId: string) => boolean;
+
+  /**
+   * Function to determine if user can create resources.
+   * Called by useSelfAccessCheck for 'create' relation checks.
+   * Defaults to canEdit if not provided.
+   */
+  canCreate?: (resourceId: string) => boolean;
+}
+
+const defaultAccessCheckConfig: AccessCheckConfig = {
+  canEdit: () => true, // Default: user can edit everything
+  canCreate: () => true, // Default: user can create
+};
+
+const AccessCheckContext = createContext<AccessCheckConfig>(defaultAccessCheckConfig);
+
+/**
+ * Mock AccessCheck.Provider for Storybook.
+ * In production, this comes from @project-kessel/react-kessel-access-check.
+ */
+const AccessCheckProvider: React.FC<{
+  baseUrl?: string;  // Ignored in mock
+  apiPath?: string;  // Ignored in mock
+  children: ReactNode;
+}> = ({ children }) => {
+  // In Storybook, config comes from story parameters via preview.tsx decorator
+  // This provider just passes through children - the actual config is in AccessCheckContext
+  return <>{children}</>;
+};
+
+/**
+ * Compound component to match real package API: AccessCheck.Provider
+ */
+export const AccessCheck = {
+  Provider: AccessCheckProvider,
+};
+
+export const AccessCheckProvider_: React.FC<{ value: AccessCheckConfig; children: ReactNode }> = ({ value, children }) => (
+  <AccessCheckContext.Provider value={value}>{children}</AccessCheckContext.Provider>
+);
+
+type Resource = { id: string; type: string };
+type SingleParams = { relation: string; resource: Resource };
+type BulkParams = { relation: string; resources: Resource[] };
+type SingleResult = { allowed: boolean; resource: Resource };
+type BulkResult = Array<{ allowed: boolean; resource: Resource; relation: string }>;
+
+/**
+ * Mock useSelfAccessCheck hook for Storybook.
+ *
+ * Supports the same API as the real hook but resolves permissions
+ * synchronously using the AccessCheckConfig from story parameters.
+ */
+export function useSelfAccessCheck(
+  params: SingleParams | BulkParams
+): {
+  data?: SingleResult | BulkResult;
+  loading: boolean;
+  error?: { code: number; message: string };
+} {
+  const config = useContext(AccessCheckContext);
+
+  // Helper to resolve permission based on relation
+  const checkPermission = (relation: string, resourceId: string): boolean => {
+    if (relation === 'create') {
+      return (config.canCreate ?? config.canEdit)(resourceId);
+    }
+    return config.canEdit(resourceId);
+  };
+
+  // Bulk check - return array of results
+  if ('resources' in params) {
+    const { relation, resources } = params;
+    const data: BulkResult = resources.map((resource) => ({
+      allowed: checkPermission(relation, resource.id),
+      resource,
+      relation,
+    }));
+    return { data, loading: false, error: undefined };
+  }
+
+  // Single check - return single result
+  const { relation, resource } = params;
+  const data: SingleResult = {
+    allowed: checkPermission(relation, resource.id),
+    resource,
+  };
+  return { data, loading: false, error: undefined };
+}
+
 // Export contexts for direct use if needed
-export { ChromeContext, FeatureFlagsContext, PermissionsContext }; 
+export { ChromeContext, FeatureFlagsContext, PermissionsContext, AccessCheckContext }; 

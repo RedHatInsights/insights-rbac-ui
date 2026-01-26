@@ -4,6 +4,7 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 import { IntlProvider } from 'react-intl';
 import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
+import { AccessCheck } from '@project-kessel/react-kessel-access-check';
 
 import messages from './locales/data.json';
 import { locale } from './locales/locale';
@@ -90,14 +91,21 @@ export const AppShell: React.FC<AppShellProps> = ({ muaMode = false }) => {
  * Used by both IamUserAccess (full app) and MyUserAccess (simplified mode).
  */
 const AppEntry: React.FC<AppEntryProps> = ({ muaMode = false, withNotificationPortal = true }) => {
+  // Kessel access check API configuration
+  // baseUrl is the current origin, apiPath points to the inventory API
+  const accessCheckBaseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const accessCheckApiPath = '/api/inventory/v1beta2';
+
   return (
     <IntlProvider locale={locale} messages={messages[locale]}>
-      <NotificationsProvider>
-        <ApiErrorBoundary>
-          {withNotificationPortal && <NotificationPortal />}
-          <AppShell muaMode={muaMode} />
-        </ApiErrorBoundary>
-      </NotificationsProvider>
+      <AccessCheck.Provider baseUrl={accessCheckBaseUrl} apiPath={accessCheckApiPath}>
+        <NotificationsProvider>
+          <ApiErrorBoundary>
+            {withNotificationPortal && <NotificationPortal />}
+            <AppShell muaMode={muaMode} />
+          </ApiErrorBoundary>
+        </NotificationsProvider>
+      </AccessCheck.Provider>
     </IntlProvider>
   );
 };
