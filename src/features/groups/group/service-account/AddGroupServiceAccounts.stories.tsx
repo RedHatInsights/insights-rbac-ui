@@ -57,6 +57,30 @@ const meta: Meta<typeof AddGroupServiceAccounts> = {
     },
     msw: {
       handlers: [
+        // Platform default group lookup (AddGroupServiceAccounts calls useGroupsQuery({ platformDefault: true, limit: 1 }))
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const platformDefault = url.searchParams.get('platform_default');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+
+          if (platformDefault === 'true') {
+            return HttpResponse.json({
+              data: [
+                {
+                  uuid: 'platform-default-group-uuid',
+                  name: 'Default access',
+                  platform_default: true,
+                  admin_default: false,
+                  system: true,
+                },
+              ],
+              meta: { count: 1, limit, offset },
+            });
+          }
+
+          return HttpResponse.json({ data: [], meta: { count: 0, limit, offset } });
+        }),
         // External SSO service accounts endpoint (axiosInstance interceptor returns .data directly)
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
           const url = new URL(request.url);
