@@ -8,7 +8,7 @@
  * These tests focus on viewing and filtering users.
  */
 
-import { test, expect, AUTH_V1_ADMIN, setupPage } from '../../../utils';
+import { AUTH_V1_ADMIN, expect, setupPage, test } from '../../../utils';
 
 test.use({ storageState: AUTH_V1_ADMIN });
 

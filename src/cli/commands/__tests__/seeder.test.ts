@@ -41,9 +41,12 @@ vi.mock('../../auth-bridge.js', () => ({
   })),
 }));
 
-import { type SeederOptions, runSeeder } from '../seeder.js';
+import { runSeeder } from '../seeder.js';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getCurrentEnv, getEnvConfig } from '../../auth-bridge.js';
 import { getApiClient } from '../../api-client.js';
+
+type MockApiClient = ReturnType<typeof getApiClient>;
 
 describe('seeder command', () => {
   const originalEnv = { ...process.env };
@@ -96,9 +99,9 @@ describe('seeder command', () => {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
-      const exitCode = await runSeeder({ file: 'payload.json' });
+      await runSeeder({ file: 'payload.json' });
 
       // Should proceed and try to read the file
       expect(mockReadFile).toHaveBeenCalled();
@@ -111,9 +114,9 @@ describe('seeder command', () => {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
-      const exitCode = await runSeeder({ file: 'payload.json' });
+      await runSeeder({ file: 'payload.json' });
 
       expect(mockReadFile).toHaveBeenCalled();
     });
@@ -129,7 +132,7 @@ describe('seeder command', () => {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
     });
 
     test('reads payload from specified file path', async () => {
@@ -177,7 +180,7 @@ describe('seeder command', () => {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       mockReadFile.mockResolvedValue(
         JSON.stringify({
@@ -195,7 +198,7 @@ describe('seeder command', () => {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       mockReadFile.mockResolvedValue(
         JSON.stringify({
@@ -213,7 +216,7 @@ describe('seeder command', () => {
         post: vi.fn().mockResolvedValue({ data: { id: 'new-id' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [{ id: 'root-id' }] } }),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       mockReadFile.mockResolvedValue(
         JSON.stringify({
@@ -231,7 +234,7 @@ describe('seeder command', () => {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       mockReadFile.mockResolvedValue(
         JSON.stringify({
@@ -257,7 +260,7 @@ describe('seeder command', () => {
         post: vi.fn(),
         get: vi.fn(),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       const exitCode = await runSeeder({ file: 'empty.json' });
 
@@ -278,7 +281,7 @@ describe('seeder command', () => {
         post: vi.fn(),
         get: vi.fn(),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       const exitCode = await runSeeder({ file: 'empty-arrays.json' });
 
@@ -296,7 +299,7 @@ describe('seeder command', () => {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       mockReadFile.mockResolvedValue(
         JSON.stringify({
@@ -317,7 +320,7 @@ describe('seeder command', () => {
           .mockRejectedValueOnce(new Error('API error')),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       mockReadFile.mockResolvedValue(
         JSON.stringify({

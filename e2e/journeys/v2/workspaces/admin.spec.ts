@@ -10,7 +10,7 @@
  * - CRUD lifecycle uses serial mode to maintain state across create → edit → delete
  */
 
-import { test, expect, Page, AUTH_V2_ADMIN, setupPage, getSeededWorkspaceName, getSeededWorkspaceData } from '../../../utils';
+import { AUTH_V2_ADMIN, Page, expect, getSeededWorkspaceData, getSeededWorkspaceName, setupPage, test } from '../../../utils';
 
 // Safety rail: Require TEST_PREFIX for any test that creates data
 const TEST_PREFIX = process.env.TEST_PREFIX;
@@ -26,7 +26,7 @@ if (!TEST_PREFIX) {
       '║                                                                      ║\n' +
       '║    TEST_PREFIX=yourprefix npx playwright test v2/workspaces         ║\n' +
       '║                                                                      ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n'
+      '╚══════════════════════════════════════════════════════════════════════╝\n',
   );
 }
 

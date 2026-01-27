@@ -39,8 +39,8 @@ module.exports = defineConfig(
     rules: {
       'react/prop-types': 'off',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['error'],
-      '@typescript-eslint/no-explicit-any': 1,
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'error',
       // Ban direct use of Link from react-router-dom - use AppLink or ExternalLink instead
       'no-restricted-imports': [
         'error',
@@ -125,8 +125,23 @@ module.exports = defineConfig(
     rules: {
       'react/prop-types': 'off',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['error'],
-      '@typescript-eslint/no-explicit-any': 1,
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
+  {
+    // Config, E2E, and Storybook TypeScript files
+    files: ['config/**/*.ts', 'e2e/**/*.ts', '.storybook/**/*.ts', '.storybook/**/*.tsx'],
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    languageOptions: {
+      parser: tsParser,
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'error',
     },
   },
   {

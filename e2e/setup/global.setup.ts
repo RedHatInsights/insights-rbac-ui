@@ -10,7 +10,7 @@
  * IMPORTANT: Requires auth state to exist. Run auth step first:
  *   npm run e2e:auth:v1:admin
  */
-import { chromium, type FullConfig } from '@playwright/test';
+import { type FullConfig, chromium } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -99,7 +99,6 @@ async function globalSetup(config: FullConfig) {
 
     // Give extra time for lazy-loaded chunks
     await page.waitForTimeout(3000);
-
   } catch (error) {
     console.error('[Cache Warmer] ❌ Error during warm-up:', error);
   } finally {

@@ -188,7 +188,6 @@ import { render } from 'ink';
 import { Command } from 'commander';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { IntlProvider } from 'react-intl';
-import * as fs from 'fs';
 import { ErrorBoundary, HeadlessSeeder, InteractiveDashboard } from './components/index.js';
 import { type SeedPayload, SeedPayloadSchema } from './types.js';
 import { clearToken, getApiBaseUrl, getToken, getTokenInfo } from './auth.js';

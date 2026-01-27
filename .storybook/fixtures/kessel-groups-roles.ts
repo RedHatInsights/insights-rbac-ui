@@ -241,4 +241,3 @@ export const defaultKesselGroupRoles: Map<string, Role[]> = new Map([
   ['group-3', [defaultKesselRoles[1]]], // Viewers: Viewer
   ['group-4', [defaultKesselRoles[2]]], // Marketing Team: Editor
 ]);
-

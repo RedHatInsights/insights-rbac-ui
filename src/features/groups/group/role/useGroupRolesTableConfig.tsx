@@ -34,6 +34,7 @@ interface UseGroupRolesTableConfigReturn {
   filterConfig: FilterConfig[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function useGroupRolesTableConfig({ intl, groupId }: UseGroupRolesTableConfigOptions): UseGroupRolesTableConfigReturn {
   // Column configuration with labels
   // Note: Sorting is not supported by the roles API
@@ -53,7 +54,7 @@ export function useGroupRolesTableConfig({ intl, groupId }: UseGroupRolesTableCo
       description: (role) => role.description || '—',
       modified: (role) => (role.modified ? <DateFormat date={role.modified} type={getDateFormat(role.modified)} /> : '—'),
     }),
-    [groupId],
+    [],
   );
 
   // Filter configuration

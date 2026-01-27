@@ -20,15 +20,9 @@ export const RouterLocationSpy: React.FC = () => {
 // - routerUseMemoryRouter?: boolean (forces MemoryRouter even without routerInitialEntries; useful for Storybook iframe safety)
 // - routerDefaultInitialEntries?: string[] (only used when routerUseMemoryRouter=true and routerInitialEntries is undefined)
 // - routerMinHeight?: string (default: '600px')
-export const withRouter = (Story: any, context: any) => {
+export const withRouter = (Story: React.ComponentType, context: { parameters?: Record<string, unknown> }) => {
   const params = context?.parameters ?? {};
-  const {
-    routerInitialEntries,
-    routerPath,
-    routerUseMemoryRouter,
-    routerDefaultInitialEntries,
-    routerMinHeight,
-  } = params as {
+  const { routerInitialEntries, routerPath, routerUseMemoryRouter, routerDefaultInitialEntries, routerMinHeight } = params as {
     routerInitialEntries?: string[];
     routerPath?: string;
     routerUseMemoryRouter?: boolean;
@@ -39,10 +33,7 @@ export const withRouter = (Story: any, context: any) => {
   const minHeight = routerMinHeight ?? '600px';
 
   const initialEntries =
-    routerInitialEntries ??
-    (routerUseMemoryRouter
-      ? routerDefaultInitialEntries ?? (routerPath ? [routerPath] : ['/'])
-      : undefined);
+    routerInitialEntries ?? (routerUseMemoryRouter ? (routerDefaultInitialEntries ?? (routerPath ? [routerPath] : ['/'])) : undefined);
 
   const storyEl = routerPath ? (
     <Routes>
@@ -59,11 +50,5 @@ export const withRouter = (Story: any, context: any) => {
     </div>
   );
 
-  return initialEntries ? (
-    <MemoryRouter initialEntries={initialEntries}>{body}</MemoryRouter>
-  ) : (
-    <BrowserRouter>{body}</BrowserRouter>
-  );
+  return initialEntries ? <MemoryRouter initialEntries={initialEntries}>{body}</MemoryRouter> : <BrowserRouter>{body}</BrowserRouter>;
 };
-
-

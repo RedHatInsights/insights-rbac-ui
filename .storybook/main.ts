@@ -3,15 +3,11 @@ import path from 'path';
 import remarkGfm from 'remark-gfm';
 
 const config: StorybookConfig = {
-  stories: [
-    "../src/docs/*.mdx",
-    "../src/**/*.mdx",
-    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
-  ],
+  stories: ['../src/docs/*.mdx', '../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   addons: [
-    "@storybook/addon-webpack5-compiler-swc",
+    '@storybook/addon-webpack5-compiler-swc',
     {
-      name: "@storybook/addon-docs",
+      name: '@storybook/addon-docs',
       options: {
         mdxPluginOptions: {
           mdxCompileOptions: {
@@ -20,11 +16,11 @@ const config: StorybookConfig = {
         },
       },
     },
-    "msw-storybook-addon",
+    'msw-storybook-addon',
   ],
   framework: {
-    name: "@storybook/react-webpack5",
-    options: {}
+    name: '@storybook/react-webpack5',
+    options: {},
   },
   docs: {
     defaultName: 'Documentation',
@@ -45,18 +41,12 @@ const config: StorybookConfig = {
     // Add SCSS support
     config.module = config.module || {};
     config.module.rules = config.module.rules || [];
-    
+
     // Add SCSS rule
     config.module.rules.push({
       test: /\.s[ac]ss$/i,
-      use: [
-        'style-loader',
-        'css-loader',
-        'sass-loader',
-      ],
+      use: ['style-loader', 'css-loader', 'sass-loader'],
     });
-
-
 
     return config;
   },
