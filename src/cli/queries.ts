@@ -14,6 +14,8 @@ import * as rolesQueries from '../data/queries/roles.js';
 import * as groupsQueries from '../data/queries/groups.js';
 import * as workspacesQueries from '../data/queries/workspaces.js';
 import * as usersQueries from '../data/queries/users.js';
+import * as rolesApi from '../data/api/roles.js';
+import * as groupsApi from '../data/api/groups.js';
 
 /**
  * Generic ESM/CJS interop helper.
@@ -28,6 +30,8 @@ const rolesModule = unwrapModule(rolesQueries);
 const groupsModule = unwrapModule(groupsQueries);
 const workspacesModule = unwrapModule(workspacesQueries);
 const usersModule = unwrapModule(usersQueries);
+const rolesApiModule = unwrapModule(rolesApi);
+const groupsApiModule = unwrapModule(groupsApi);
 
 // ============================================================================
 // Roles Exports
@@ -165,3 +169,14 @@ export type {
   Principal,
   PrincipalPagination,
 } from '../data/queries/users.js';
+
+// ============================================================================
+// API Clients (for direct API access without React hooks)
+// ============================================================================
+
+export const { createRolesApi } = rolesApiModule;
+export const { createGroupsApi } = groupsApiModule;
+
+// Re-export API types
+export type { RolesApiClient, RoleIn } from '../data/api/roles.js';
+export type { GroupsApiClient } from '../data/api/groups.js';

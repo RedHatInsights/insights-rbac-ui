@@ -5,40 +5,36 @@
  * Regular users can only view workspaces, not create/edit/delete.
  */
 
-import { test, expect } from '@playwright/test';
-import { AUTH_V2_USER, SEEDED_WORKSPACE_NAME } from '../../../utils';
-
-const TEST_PREFIX = process.env.TEST_PREFIX;
+import { test, expect, AUTH_V2_USER, setupPage, getSeededWorkspaceName, getSeededWorkspaceData } from '../../../utils';
 
 test.use({ storageState: AUTH_V2_USER });
+
+// Get seeded workspace name and data from seed map/fixture
+const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName();
+const SEEDED_WORKSPACE_DATA = getSeededWorkspaceData();
 
 test.describe('V2 Workspaces - User (Read Only)', () => {
   const WORKSPACES_URL = '/iam/access-management/workspaces';
 
   test.beforeEach(async ({ page }) => {
+    await setupPage(page);
     await page.goto(WORKSPACES_URL);
-    await page.waitForLoadState('networkidle');
-  });
-
-  /**
-   * Verify the workspaces page loads correctly
-   */
-  test('Workspaces page loads', async ({ page }) => {
-    await expect(page.locator('body')).toBeVisible();
+    // Wait for page content to load (heading indicates data is ready)
+    await expect(page.getByRole('heading', { name: /workspaces/i })).toBeVisible();
   });
 
   /**
    * Search for seeded workspace and verify it's visible
    */
   test('Can view seeded workspace', async ({ page }) => {
+    test.skip(!SEEDED_WORKSPACE_NAME, 'No seeded workspace found in seed map');
     const searchInput = page.getByPlaceholder(/filter|search/i);
 
-    if (await searchInput.isVisible() && TEST_PREFIX) {
-      const prefixedName = `${TEST_PREFIX}__${SEEDED_WORKSPACE_NAME}`;
-      await searchInput.fill(prefixedName);
-      await page.waitForLoadState('networkidle');
+    if (await searchInput.isVisible()) {
+      await searchInput.fill(SEEDED_WORKSPACE_NAME!);
 
-      await expect(page.getByText(prefixedName)).toBeVisible();
+      // Verify the seeded workspace appears in the table (auto-waits for search results)
+      await expect(page.getByRole('grid').getByText(SEEDED_WORKSPACE_NAME!)).toBeVisible();
     }
   });
 
@@ -51,41 +47,66 @@ test.describe('V2 Workspaces - User (Read Only)', () => {
   });
 
   /**
-   * Can view workspace detail page
+   * Can view seeded workspace detail page with expected content
    */
   test('Can view workspace detail', async ({ page }) => {
-    const firstWorkspaceLink = page.locator('tbody tr').first().getByRole('link').first();
+    test.skip(!SEEDED_WORKSPACE_NAME, 'No seeded workspace found in seed map');
+    const searchInput = page.getByPlaceholder(/filter|search/i);
 
-    if (await firstWorkspaceLink.isVisible()) {
-      await firstWorkspaceLink.click();
-      await page.waitForLoadState('networkidle');
+    // Search for the seeded workspace
+    await searchInput.fill(SEEDED_WORKSPACE_NAME!);
+
+    // Click on the seeded workspace in the table (auto-waits for element)
+    const workspaceLink = page.getByRole('grid').getByRole('link', { name: SEEDED_WORKSPACE_NAME! });
+    await workspaceLink.click();
+
+    // Wait for URL to change to detail page
+    await expect(page).toHaveURL(/\/workspaces\//);
+
+    // Wait for the workspace name heading to appear (indicates detail page loaded)
+    await expect(page.getByRole('heading', { name: SEEDED_WORKSPACE_NAME! })).toBeVisible({ timeout: 15000 });
+
+    // Verify description is visible (if defined in seed fixture)
+    if (SEEDED_WORKSPACE_DATA?.description) {
+      await expect(page.getByText(SEEDED_WORKSPACE_DATA.description)).toBeVisible({ timeout: 30000 });
     }
   });
 
   /**
-   * Verify Edit/Delete actions are NOT available for regular users
+   * Verify Edit/Delete actions are NOT available for regular users on seeded workspace
    */
   test('Edit and Delete actions are NOT available', async ({ page }) => {
-    const firstWorkspaceLink = page.locator('tbody tr').first().getByRole('link').first();
+    test.skip(!SEEDED_WORKSPACE_NAME, 'No seeded workspace found in seed map');
+    const searchInput = page.getByPlaceholder(/filter|search/i);
 
-    if (await firstWorkspaceLink.isVisible()) {
-      await firstWorkspaceLink.click();
-      await page.waitForLoadState('networkidle');
+    // Search for and navigate to the seeded workspace
+    await searchInput.fill(SEEDED_WORKSPACE_NAME!);
+    const workspaceLink = page.getByRole('grid').getByRole('link', { name: SEEDED_WORKSPACE_NAME! });
+    await workspaceLink.click();
 
-      const editButton = page.getByRole('button', { name: /edit/i });
-      await expect(editButton).not.toBeVisible();
+    // Wait for detail page to load
+    await expect(page.getByRole('heading', { name: SEEDED_WORKSPACE_NAME! })).toBeVisible({ timeout: 15000 });
 
-      const deleteButton = page.getByRole('button', { name: /delete/i });
-      await expect(deleteButton).not.toBeVisible();
-    }
+    const editButton = page.getByRole('button', { name: /edit/i });
+    await expect(editButton).not.toBeVisible();
+
+    const deleteButton = page.getByRole('button', { name: /delete/i });
+    await expect(deleteButton).not.toBeVisible();
   });
 
   /**
-   * Verify row kebab menu doesn't have edit/delete for regular users
+   * Verify row kebab menu doesn't have edit/delete for regular users on seeded workspace
    */
   test('Row actions do NOT include Edit or Delete', async ({ page }) => {
-    const firstRow = page.locator('tbody tr').first();
-    const kebabButton = firstRow.getByRole('button', { name: /actions/i });
+    test.skip(!SEEDED_WORKSPACE_NAME, 'No seeded workspace found in seed map');
+    const searchInput = page.getByPlaceholder(/filter|search/i);
+
+    // Search for the seeded workspace
+    await searchInput.fill(SEEDED_WORKSPACE_NAME!);
+
+    // Find the row with the seeded workspace (auto-waits for search results)
+    const seededRow = page.getByRole('row').filter({ hasText: SEEDED_WORKSPACE_NAME! });
+    const kebabButton = seededRow.getByRole('button', { name: /actions/i });
 
     if (await kebabButton.isVisible()) {
       await kebabButton.click();

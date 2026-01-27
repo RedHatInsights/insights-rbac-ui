@@ -20,10 +20,12 @@
 
 import * as fs from 'fs/promises';
 import type { AxiosInstance } from 'axios';
-import { SeedPayloadSchema, type SeedPayload, type RoleInput, type GroupInput, type WorkspaceInput } from '../types.js';
+import { type GroupInput, type RoleInput, type SeedPayload, SeedPayloadSchema, type WorkspaceInput } from '../types.js';
 import { getApiClient, initializeApiClient } from '../api-client.js';
 import { getToken } from '../auth.js';
-import { getCurrentEnv, getEnvConfig } from '../auth-bridge.js';
+import { getEnvConfig } from '../auth-bridge.js';
+import { assertNotProduction, assertValidPrefix } from './safety.js';
+import { createRolesApi, createGroupsApi, type RolesApiClient, type GroupsApiClient, type RoleIn } from '../queries.js';
 
 // ============================================================================
 // Types
@@ -34,6 +36,7 @@ export interface SeederOptions {
   prefix?: string;
   json?: boolean;
   dryRun?: boolean;
+  output?: string; // Output file path for JSON mapping
 }
 
 interface ResourceMapping {
@@ -41,11 +44,9 @@ interface ResourceMapping {
 }
 
 interface SeederResult {
-  success: boolean;
   roles: ResourceMapping;
   groups: ResourceMapping;
   workspaces: ResourceMapping;
-  errors: string[];
 }
 
 // ============================================================================
@@ -127,26 +128,6 @@ async function fetchSystemGroups(client: AxiosInstance): Promise<SystemGroup[]> 
   }
 }
 
-// ============================================================================
-// Safety Rails
-// ============================================================================
-
-/**
- * CRITICAL: Block seeding in production environments.
- * This prevents accidental data creation in production via CI/CD.
- */
-function assertNotProduction(): void {
-  const env = getCurrentEnv();
-  const envLower = env.toLowerCase();
-
-  if (envLower === 'prod' || envLower === 'production') {
-    throw new Error(
-      'Seeding is not allowed in production via headless mode.\n' +
-        'This safety rail prevents accidental data creation in production.\n' +
-        'Set RBAC_ENV=stage to use the seeder.',
-    );
-  }
-}
 
 // ============================================================================
 // Payload Processing
@@ -184,6 +165,7 @@ async function readPayload(filePath: string): Promise<SeedPayload> {
 /**
  * Apply prefix to resource names using double-underscore separator.
  * All custom resources in the payload get prefixed.
+ * Role references in groups are also prefixed to match.
  */
 function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
   const separator = '__';
@@ -197,6 +179,8 @@ function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
     groups: payload.groups?.map((group) => ({
       ...group,
       name: `${prefix}${separator}${group.name}`,
+      // Also prefix role references so they match the created role names
+      roles_list: group.roles_list?.map((roleName) => `${prefix}${separator}${roleName}`),
     })),
     workspaces: payload.workspaces?.map((workspace) => ({
       ...workspace,
@@ -210,127 +194,114 @@ function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
 // ============================================================================
 
 /**
- * Simple concurrency limiter.
- * Runs async functions with a maximum number of concurrent executions.
- */
-async function withConcurrencyLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
-  const results: R[] = [];
-  const executing: Promise<void>[] = [];
-
-  for (const item of items) {
-    const promise = fn(item).then((result) => {
-      results.push(result);
-    });
-
-    executing.push(promise);
-
-    if (executing.length >= limit) {
-      await Promise.race(executing);
-      // Remove completed promises
-      const completed = executing.filter((p) => {
-        let resolved = false;
-        p.then(() => (resolved = true)).catch(() => (resolved = true));
-        return resolved;
-      });
-      completed.forEach((p) => {
-        const index = executing.indexOf(p);
-        if (index > -1) executing.splice(index, 1);
-      });
-    }
-  }
-
-  await Promise.all(executing);
-  return results;
-}
-
-
-/**
- * Create a role via API.
+ * Create a role via the Roles API.
  *
+ * Uses the typed RolesApiClient from src/data/api/roles.ts.
  * Transforms the simpler `permissions: string[]` format to the V1 API's
- * `access: [{ permission: string }]` format.
+ * `access: [{ permission: string, resourceDefinitions: [] }]` format.
+ *
+ * @throws Error if creation fails (caller should handle)
  */
-async function createRole(
-  client: AxiosInstance,
-  role: RoleInput,
-  mapping: ResourceMapping,
-  errors: string[],
-): Promise<void> {
-  try {
-    // Transform permissions array to V1 API access format
-    const payload = {
-      name: role.name,
-      display_name: role.display_name,
-      description: role.description,
-      access: (role.permissions ?? []).map((p) => ({ permission: p })),
-    };
+async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: ResourceMapping): Promise<void> {
+  // Transform permissions array to V1 API access format
+  const roleIn: RoleIn = {
+    name: role.name,
+    display_name: role.display_name,
+    description: role.description,
+    access: (role.permissions ?? []).map((p) => ({ permission: p, resourceDefinitions: [] })),
+  };
 
-    const response = await client.post('/api/rbac/v1/roles/', payload);
-    const uuid = response.data?.uuid;
-    if (uuid) {
-      mapping[role.name] = uuid;
-      console.error(`  ✓ Created role "${role.name}" → ${uuid}`);
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    errors.push(`Role "${role.name}": ${message}`);
-    console.error(`  ✗ Role "${role.name}": ${message}`);
+  // Always log curl for debugging
+  logCurl('POST', '/api/rbac/v1/roles/', roleIn, `Create role: ${role.name}`);
+
+  const response = await rolesApi.createRole({ roleIn });
+  const uuid = response.data?.uuid;
+  if (uuid) {
+    mapping[role.name] = uuid;
+    console.error(`  ✓ Created role "${role.name}" → ${uuid}`);
   }
 }
 
 /**
- * Create a group via API.
+ * Create a group via the Groups API and optionally attach roles.
+ *
+ * Uses the typed GroupsApiClient from src/data/api/groups.ts.
+ * If roles_list is provided, resolves role names to UUIDs and attaches them.
+ *
+ * @throws Error if creation fails (caller should handle)
  */
 async function createGroup(
-  client: AxiosInstance,
+  groupsApi: GroupsApiClient,
   group: GroupInput,
   mapping: ResourceMapping,
-  errors: string[],
+  roleMapping: ResourceMapping,
 ): Promise<void> {
-  try {
-    const response = await client.post('/api/rbac/v1/groups/', {
-      name: group.name,
-      description: group.description,
-    });
-    const uuid = response.data?.uuid;
-    if (uuid) {
-      mapping[group.name] = uuid;
-      console.error(`  ✓ Created group "${group.name}" → ${uuid}`);
+  const groupData = {
+    name: group.name,
+    description: group.description,
+  };
+
+  // Always log curl for debugging
+  logCurl('POST', '/api/rbac/v1/groups/', groupData, `Create group: ${group.name}`);
+
+  const response = await groupsApi.createGroup({ group: groupData });
+  const uuid = response.data?.uuid;
+  if (uuid) {
+    mapping[group.name] = uuid;
+    console.error(`  ✓ Created group "${group.name}" → ${uuid}`);
+
+    // Attach roles if specified
+    if (group.roles_list && group.roles_list.length > 0) {
+      const roleUuids: string[] = [];
+      for (const roleName of group.roles_list) {
+        // Try to find the role UUID - check both prefixed and unprefixed names
+        const roleUuid = roleMapping[roleName];
+        if (roleUuid) {
+          roleUuids.push(roleUuid);
+        } else {
+          console.error(`    ⚠ Role "${roleName}" not found in role mapping, skipping`);
+        }
+      }
+
+      if (roleUuids.length > 0) {
+        logCurl(
+          'POST',
+          `/api/rbac/v1/groups/${uuid}/roles/`,
+          { roles: roleUuids },
+          `Attach ${roleUuids.length} role(s) to group`,
+        );
+        await groupsApi.addRoleToGroup({ uuid, groupRoleIn: { roles: roleUuids } });
+        console.error(`    ✓ Attached ${roleUuids.length} role(s) to group`);
+      }
     }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    errors.push(`Group "${group.name}": ${message}`);
-    console.error(`  ✗ Group "${group.name}": ${message}`);
   }
 }
 
 /**
  * Create a workspace via API.
+ *
+ * @throws Error if creation fails (caller should handle)
  */
 async function createWorkspace(
   client: AxiosInstance,
   workspace: WorkspaceInput,
   mapping: ResourceMapping,
-  errors: string[],
   rootWorkspaceId?: string,
 ): Promise<void> {
-  try {
-    const payload = {
-      name: workspace.name,
-      description: workspace.description,
-      parent_id: workspace.parent_id || rootWorkspaceId,
-    };
+  const payload = {
+    name: workspace.name,
+    description: workspace.description,
+    parent_id: workspace.parent_id || rootWorkspaceId,
+  };
 
-    const response = await client.post('/api/rbac/v2/workspaces/', payload);
-    const id = response.data?.id;
-    if (id) {
-      mapping[workspace.name] = id;
-      console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    errors.push(`Workspace "${workspace.name}": ${message}`);
-    console.error(`  ✗ Workspace "${workspace.name}": ${message}`);
+  // Always log curl for debugging
+  logCurl('POST', '/api/rbac/v2/workspaces/', payload, `Create workspace: ${workspace.name}`);
+
+  const response = await client.post('/api/rbac/v2/workspaces/', payload);
+  const id = response.data?.id;
+  if (id) {
+    mapping[workspace.name] = id;
+    console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
   }
 }
 
@@ -350,19 +321,14 @@ async function fetchRootWorkspaceId(client: AxiosInstance): Promise<string | und
 }
 
 // ============================================================================
-// Dry Run Mode
+// Logging Helpers
 // ============================================================================
 
 /**
- * Output curl commands for dry-run mode.
- * Commands go to stdout for piping, progress goes to stderr.
+ * Log curl command for debugging.
+ * Always outputs to stderr (keeps stdout clean for JSON output).
  */
-function outputDryRunCurl(
-  method: 'GET' | 'POST' | 'DELETE',
-  endpoint: string,
-  data?: unknown,
-  description?: string,
-): void {
+function logCurl(method: 'GET' | 'POST' | 'DELETE', endpoint: string, data?: unknown, description?: string): void {
   const baseUrl = getEnvConfig().apiUrl;
   const url = `${baseUrl}${endpoint}`;
 
@@ -370,117 +336,47 @@ function outputDryRunCurl(
     console.error(`  → ${description}`);
   }
 
-  let curlCmd = `curl -X ${method} '${url}'`;
-  curlCmd += ` \\\n  -H 'Authorization: Bearer $TOKEN'`;
-  curlCmd += ` \\\n  -H 'Accept: application/json'`;
+  let curlCmd = `    curl -X ${method} '${url}'`;
+  curlCmd += ` \\\n      -H 'Authorization: Bearer $TOKEN'`;
+  curlCmd += ` \\\n      -H 'Accept: application/json'`;
 
   if (data) {
-    curlCmd += ` \\\n  -H 'Content-Type: application/json'`;
-    curlCmd += ` \\\n  -d '${JSON.stringify(data)}'`;
+    curlCmd += ` \\\n      -H 'Content-Type: application/json'`;
+    curlCmd += ` \\\n      -d '${JSON.stringify(data)}'`;
   }
 
-  // Output to stdout (pipeable)
-  console.log(curlCmd);
-  console.log('');
-}
-
-/**
- * Execute seeding in dry-run mode - outputs curl commands.
- */
-function executeSeedDryRun(payload: SeedPayload): SeederResult {
-  const result: SeederResult = {
-    success: true,
-    roles: {},
-    groups: {},
-    workspaces: {},
-    errors: [],
-  };
-
-  console.log('#!/bin/bash');
-  console.log('# Dry-run seed commands');
-  console.log('# Set TOKEN environment variable before running');
-  console.log('# Usage: TOKEN="your-jwt-token" bash this-script.sh');
-  console.log('');
-
-  // Note: In dry-run mode, we can't fetch system resources
-  console.error(`\n📋 Note: System roles/groups discovery requires live API access.`);
-  console.error(`   Run without --dry-run to fetch system resources.`);
-
-  // Process roles
-  const customRoles = payload.roles ?? [];
-
-  if (customRoles.length > 0) {
-    console.error(`\n📦 Would create ${customRoles.length} role(s)...`);
-    console.log('# Role creations');
-    for (const role of customRoles) {
-      result.roles[role.name] = '<would-create>';
-      // Transform to V1 API format for curl output
-      const v1Payload = {
-        name: role.name,
-        display_name: role.display_name,
-        description: role.description,
-        access: (role.permissions ?? []).map((p) => ({ permission: p })),
-      };
-      outputDryRunCurl('POST', '/api/rbac/v1/roles/', v1Payload, `Create: ${role.name}`);
-    }
-  }
-
-  // Process groups
-  const customGroups = payload.groups ?? [];
-
-  if (customGroups.length > 0) {
-    console.error(`\n📦 Would create ${customGroups.length} group(s)...`);
-    console.log('# Group creations');
-    for (const group of customGroups) {
-      result.groups[group.name] = '<would-create>';
-      outputDryRunCurl('POST', '/api/rbac/v1/groups/', { name: group.name, description: group.description }, `Create: ${group.name}`);
-    }
-  }
-
-  // Process workspaces
-  const workspaces = payload.workspaces ?? [];
-  if (workspaces.length > 0) {
-    console.error(`\n📦 Would create ${workspaces.length} workspace(s)...`);
-    console.log('# Workspace creations');
-    for (const workspace of workspaces) {
-      result.workspaces[workspace.name] = '<would-create>';
-      outputDryRunCurl(
-        'POST',
-        '/api/rbac/v2/workspaces/',
-        { name: workspace.name, description: workspace.description, parent_id: workspace.parent_id || '<root>' },
-        `Create: ${workspace.name}`,
-      );
-    }
-  }
-
-  return result;
+  console.error(curlCmd);
+  console.error('');
 }
 
 // ============================================================================
 // Main Seeder Logic
 // ============================================================================
 
+interface ExecuteSeedOptions {
+  dryRun?: boolean;
+}
+
 /**
  * Execute seeding operations:
  *
- * Phase 1: Discover - Fetch all system roles/groups from the API
- * Phase 2: Create - Create custom resources from the payload
+ * Phase 1: Discover - Fetch all system roles/groups from the API (ALWAYS runs)
+ * Phase 2: Create - Create custom resources from the payload (skipped in dry-run)
  *
  * System resources are automatically included in the seed-map for reference.
+ * In dry-run mode, discovery still happens but mutations are skipped and curl commands are output.
  */
-async function executeSeed(payload: SeedPayload, client: AxiosInstance): Promise<SeederResult> {
+async function executeSeed(payload: SeedPayload, client: AxiosInstance, options: ExecuteSeedOptions = {}): Promise<SeederResult> {
+  const { dryRun = false } = options;
+
   const result: SeederResult = {
-    success: true,
     roles: {},
     groups: {},
     workspaces: {},
-    errors: [],
   };
 
-  const CONCURRENCY_LIMIT = 5;
-
   // ============================================================================
-  // PHASE 1: DISCOVER - Fetch all system roles and groups
+  // PHASE 1: DISCOVER - Fetch all system roles and groups (ALWAYS runs)
   // ============================================================================
   console.error(`\n${'━'.repeat(50)}`);
   console.error(`🔍 PHASE 1: Discovering system resources`);
@@ -516,36 +412,86 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance): Promise
   }
 
   console.error(`\n${'━'.repeat(50)}`);
-  console.error(`📦 PHASE 2: Creating ${customResourceCount} custom resource(s)`);
+  console.error(`📦 PHASE 2: ${dryRun ? 'Would create' : 'Creating'} ${customResourceCount} custom resource(s)`);
   console.error(`${'━'.repeat(50)}`);
 
-  // Create custom roles
+  // DRY-RUN: Output curl commands instead of making API calls
+  if (dryRun) {
+    console.error(`\n📋 Dry-run mode: no mutations will be performed\n`);
+
+    // Output role curl commands
+    if (customRoles.length > 0) {
+      console.error(`📦 Would create ${customRoles.length} role(s)...`);
+      for (const role of customRoles) {
+        result.roles[role.name] = '<dry-run>';
+        const payload = {
+          name: role.name,
+          display_name: role.display_name,
+          description: role.description,
+          access: (role.permissions ?? []).map((p) => ({ permission: p, resourceDefinitions: [] })),
+        };
+        logCurl('POST', '/api/rbac/v1/roles/', payload, `Create role: ${role.name}`);
+      }
+    }
+
+    // Output group curl commands
+    if (customGroups.length > 0) {
+      console.error(`📦 Would create ${customGroups.length} group(s)...`);
+      for (const group of customGroups) {
+        result.groups[group.name] = '<dry-run>';
+        logCurl('POST', '/api/rbac/v1/groups/', { name: group.name, description: group.description }, `Create group: ${group.name}`);
+      }
+    }
+
+    // Output workspace curl commands
+    if (workspaces.length > 0) {
+      console.error(`📦 Would create ${workspaces.length} workspace(s)...`);
+      for (const workspace of workspaces) {
+        result.workspaces[workspace.name] = '<dry-run>';
+        logCurl(
+          'POST',
+          '/api/rbac/v2/workspaces/',
+          { name: workspace.name, description: workspace.description, parent_id: workspace.parent_id || '<root>' },
+          `Create workspace: ${workspace.name}`,
+        );
+      }
+    }
+
+    return result;
+  }
+
+  // LIVE MODE: Actually create resources using typed API clients
+  // Create API clients from the axios instance
+  const rolesApi = createRolesApi(client);
+  const groupsApi = createGroupsApi(client);
+
+  // Create custom roles (sequentially, bail on first error)
   if (customRoles.length > 0) {
     console.error(`\n📦 Creating ${customRoles.length} role(s)...`);
-    await withConcurrencyLimit(customRoles, CONCURRENCY_LIMIT, (role) =>
-      createRole(client, role, result.roles, result.errors),
-    );
-  }
-
-  // Create custom groups
-  if (customGroups.length > 0) {
-    console.error(`\n📦 Creating ${customGroups.length} group(s)...`);
-    await withConcurrencyLimit(customGroups, CONCURRENCY_LIMIT, (group) =>
-      createGroup(client, group, result.groups, result.errors),
-    );
-  }
-
-  // Create workspaces
-  if (workspaces.length > 0) {
-    console.error(`\n📦 Creating ${workspaces.length} workspace(s)...`);
-    const rootWorkspaceId = await fetchRootWorkspaceId(client);
-    // Workspaces should be created sequentially to handle parent-child relationships
-    for (const workspace of workspaces) {
-      await createWorkspace(client, workspace, result.workspaces, result.errors, rootWorkspaceId);
+    for (const role of customRoles) {
+      await createRole(rolesApi, role, result.roles);
     }
   }
 
-  result.success = result.errors.length === 0;
+  // Create custom groups (sequentially, bail on first error)
+  // Pass roleMapping so groups can reference roles by name
+  if (customGroups.length > 0) {
+    console.error(`\n📦 Creating ${customGroups.length} group(s)...`);
+    for (const group of customGroups) {
+      await createGroup(groupsApi, group, result.groups, result.roles);
+    }
+  }
+
+  // Create workspaces (sequentially, bail on first error)
+  // Note: Workspaces use V2 API, no typed client available yet
+  if (workspaces.length > 0) {
+    console.error(`\n📦 Creating ${workspaces.length} workspace(s)...`);
+    const rootWorkspaceId = await fetchRootWorkspaceId(client);
+    for (const workspace of workspaces) {
+      await createWorkspace(client, workspace, result.workspaces, rootWorkspaceId);
+    }
+  }
+
   return result;
 }
 
@@ -561,10 +507,11 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance): Promise
  */
 export async function runSeeder(options: SeederOptions): Promise<number> {
   try {
-    // SAFETY RAIL: Block production (unless dry-run)
+    // SAFETY RAILS
     if (!options.dryRun) {
-      assertNotProduction();
+      assertNotProduction('Seeding');
     }
+    const prefix = assertValidPrefix(options.prefix, 'seed');
 
     const envConfig = getEnvConfig();
     const separator = '__';
@@ -574,74 +521,35 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
     console.error(`Environment: ${envConfig.name}`);
     console.error(`API URL: ${envConfig.apiUrl}`);
     console.error(`Payload: ${options.file}`);
-    if (options.prefix) {
-      console.error(`Prefix: "${options.prefix}" (separator: "${separator}")`);
-    }
+    console.error(`Prefix: "${prefix}" (separator: "${separator}")`);
     console.error(`\n📋 System roles/groups will be auto-discovered and included in seed-map.`);
+    if (options.dryRun) {
+      console.error(`📋 Dry-run mode: discovery will run, but no mutations will be performed.`);
+    }
     console.error(`━`.repeat(50));
 
     // Read and validate payload
     let payload = await readPayload(options.file);
 
-    // Apply prefix if provided
-    if (options.prefix) {
-      payload = applyPrefix(payload, options.prefix);
-    }
+    // Apply prefix (required and validated above)
+    payload = applyPrefix(payload, prefix);
 
-    const totalOps = (payload.roles?.length ?? 0) + (payload.groups?.length ?? 0) + (payload.workspaces?.length ?? 0);
-
-    if (totalOps === 0) {
-      console.error('\n⚠ No operations to perform. Payload is empty.');
-      return 1;
-    }
-
-    // DRY-RUN MODE: Output curl commands and exit
-    if (options.dryRun) {
-      const result = executeSeedDryRun(payload);
-
-      console.error(`\n${'━'.repeat(50)}`);
-      console.error(`📊 Dry-run Summary:`);
-      console.error(`  Roles: ${Object.keys(result.roles).length} would be processed`);
-      console.error(`  Groups: ${Object.keys(result.groups).length} would be processed`);
-      console.error(`  Workspaces: ${Object.keys(result.workspaces).length} would be processed`);
-      console.error(`\n✅ Dry-run completed. No changes made.`);
-
-      // Output JSON mapping if requested
-      if (options.json) {
-        const mapping = {
-          roles: result.roles,
-          groups: result.groups,
-          workspaces: result.workspaces,
-        };
-        console.log(JSON.stringify(mapping, null, 2));
-      }
-
-      return 0;
-    }
-
-    // LIVE MODE: Actually create resources
+    // Authenticate (needed for both dry-run and live mode)
     console.error(`\n🔐 Authenticating...`);
-
-    // Get token and initialize API client
     const token = await getToken();
     initializeApiClient(token);
     const client = getApiClient();
-
     console.error(`✓ Authenticated`);
 
-    // Execute seeding
-    const result = await executeSeed(payload, client);
+    // Execute seeding (discovery always runs, mutations skipped in dry-run)
+    const result = await executeSeed(payload, client, { dryRun: options.dryRun });
 
     // Output summary
     console.error(`\n${'━'.repeat(50)}`);
-    console.error(`📊 Summary:`);
-    console.error(`  Roles: ${Object.keys(result.roles).length} processed`);
-    console.error(`  Groups: ${Object.keys(result.groups).length} processed`);
-    console.error(`  Workspaces: ${Object.keys(result.workspaces).length} processed`);
-
-    if (result.errors.length > 0) {
-      console.error(`  Errors: ${result.errors.length}`);
-    }
+    console.error(`📊 Summary${options.dryRun ? ' (dry-run)' : ''}:`);
+    console.error(`  Roles: ${Object.keys(result.roles).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
+    console.error(`  Groups: ${Object.keys(result.groups).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
+    console.error(`  Workspaces: ${Object.keys(result.workspaces).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
 
     // Output JSON mapping if requested
     if (options.json) {
@@ -650,16 +558,24 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
         groups: result.groups,
         workspaces: result.workspaces,
       };
-      console.log(JSON.stringify(mapping, null, 2));
+      const jsonOutput = JSON.stringify(mapping, null, 2);
+
+      if (options.output) {
+        // Write to file
+        await fs.writeFile(options.output, jsonOutput, 'utf-8');
+        console.error(`\n📄 Seed map written to: ${options.output}`);
+      } else {
+        // Write to stdout
+        console.log(jsonOutput);
+      }
     }
 
-    if (result.success) {
-      console.error(`\n✅ Seeding completed successfully!`);
-      return 0;
+    if (options.dryRun) {
+      console.error(`\n✅ Dry-run completed. No mutations were performed.`);
     } else {
-      console.error(`\n⚠ Seeding completed with ${result.errors.length} error(s)`);
-      return 1;
+      console.error(`\n✅ Seeding completed successfully!`);
     }
+    return 0;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error(`\n❌ Seeder failed: ${message}`);

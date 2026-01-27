@@ -10,7 +10,7 @@ export default defineConfig({
 
     // Test patterns - exclude CLI tests (they use their own config)
     include: ['src/**/*.test.{ts,tsx}'],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**', 'src/cli/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', 'src/cli/**'],
 
     // Root directory
     root: '.',

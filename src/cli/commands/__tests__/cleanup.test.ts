@@ -10,7 +10,7 @@
  * - Delete operation execution
  */
 
-import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 // Mock dependencies
 vi.mock('../../auth.js', () => ({
@@ -31,7 +31,7 @@ vi.mock('../../auth-bridge.js', () => ({
   })),
 }));
 
-import { runCleanup, type CleanupOptions } from '../cleanup.js';
+import { type CleanupOptions, runCleanup } from '../cleanup.js';
 import { getCurrentEnv } from '../../auth-bridge.js';
 import { getApiClient } from '../../api-client.js';
 
@@ -192,7 +192,8 @@ describe('cleanup command', () => {
   describe('Pattern Matching', () => {
     test('matches resources by prefix', async () => {
       const mockClient = {
-        get: vi.fn()
+        get: vi
+          .fn()
           // roles endpoint
           .mockResolvedValueOnce({
             data: {
@@ -221,7 +222,8 @@ describe('cleanup command', () => {
 
     test('matches resources by glob pattern with *', async () => {
       const mockClient = {
-        get: vi.fn()
+        get: vi
+          .fn()
           // roles endpoint
           .mockResolvedValueOnce({
             data: {
@@ -247,7 +249,8 @@ describe('cleanup command', () => {
 
     test('glob matching is case-insensitive', async () => {
       const mockClient = {
-        get: vi.fn()
+        get: vi
+          .fn()
           // roles endpoint - only lowercase matches prefix
           .mockResolvedValueOnce({
             data: {
@@ -278,7 +281,8 @@ describe('cleanup command', () => {
   describe('System Resource Protection', () => {
     test('does NOT delete system roles', async () => {
       const mockClient = {
-        get: vi.fn()
+        get: vi
+          .fn()
           // roles endpoint
           .mockResolvedValueOnce({
             data: {
@@ -305,7 +309,8 @@ describe('cleanup command', () => {
 
     test('does NOT delete platform_default groups', async () => {
       const mockClient = {
-        get: vi.fn()
+        get: vi
+          .fn()
           .mockResolvedValueOnce({ data: { data: [] } }) // roles
           .mockResolvedValueOnce({
             data: {
@@ -328,7 +333,8 @@ describe('cleanup command', () => {
 
     test('does NOT delete root workspaces', async () => {
       const mockClient = {
-        get: vi.fn()
+        get: vi
+          .fn()
           .mockResolvedValueOnce({ data: { data: [] } }) // roles
           .mockResolvedValueOnce({ data: { data: [] } }) // groups
           .mockResolvedValueOnce({
@@ -381,9 +387,7 @@ describe('cleanup command', () => {
             ],
           },
         }),
-        delete: vi.fn()
-          .mockResolvedValueOnce({})
-          .mockRejectedValueOnce(new Error('Delete failed')),
+        delete: vi.fn().mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('Delete failed')),
       };
       mockGetApiClient.mockReturnValue(mockClient as any);
 
@@ -419,7 +423,8 @@ describe('cleanup command', () => {
 
     test('uses prefix when both prefix and nameMatch are provided', async () => {
       const mockClient = {
-        get: vi.fn()
+        get: vi
+          .fn()
           // roles endpoint
           .mockResolvedValueOnce({
             data: {

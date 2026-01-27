@@ -20,5 +20,5 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/presentational-components/shared/AppLink.js", "src/presentational-components/shared/AppLink.js", "src/smart-components/role/RolesTable.js"  ],
-  "exclude": ["node_modules", "cypress/**/*.ts", "**/*.cy.tsx", "src/cli/**/*"]
+  "exclude": ["node_modules", "src/cli/**/*"]
 }
