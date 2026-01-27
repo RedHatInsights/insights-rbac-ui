@@ -7,9 +7,9 @@ metadata:
     build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "master"
-    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch == "master"
+    # CHANGED: Updated to use E2E pipeline
+    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-all-tests.yaml
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: insights-rbac-ui
@@ -19,6 +19,7 @@ metadata:
   namespace: rh-platform-experien-tenant
 spec:
   params:
+  # Git repository configuration
   - name: git-url
     value: '{{source_url}}'
   - name: revision
@@ -29,6 +30,8 @@ spec:
     value: 5d
   - name: dockerfile
     value: ./build-tools/Dockerfile
+
+  # Unit tests configuration (still runs before E2E tests)
   - name: unit-tests-script
     value: |
       #!/bin/bash
@@ -41,6 +44,69 @@ spec:
     value: "8Gi"
   - name: unit-tests-memory-limit
     value: "8Gi"
+
+  # E2E testing configuration
+  - name: test-app-name
+    value: "insights-rbac-ui"  # CRITICAL: Application name for routing
+  - name: test-app-port
+    value: "8000"  # Port where app assets will be served
+  - name: chrome-port
+    value: "9912"  # Port where chrome assets will be served
+
+  # Application startup script
+  - name: run-app-script
+    value: |
+      #!/bin/bash
+      set -ex
+
+      # Start Caddy server to serve application assets
+      caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+
+  # E2E test execution script
+  - name: e2e-tests-script
+    value: |
+      #!/bin/bash
+      set -ex
+
+      # Set up /etc/hosts for stage.foo.redhat.com
+      echo "127.0.0.1 stage.foo.redhat.com" | tee -a /etc/hosts
+      echo "::1 stage.foo.redhat.com" | tee -a /etc/hosts
+
+      # Install dependencies
+      npm install
+
+      # Install Playwright browsers
+      npx playwright install --with-deps chromium
+
+      # Wait for the development server to be ready
+      timeout 120 bash -c 'until curl -k https://stage.foo.redhat.com:1337 > /dev/null 2>&1; do sleep 2; done' || {
+        echo "Server did not become ready in time"
+        exit 1
+      }
+
+      # We're doing a dance with base64 to sidestep the limiting nature of vault secrets
+      echo $E2E_PASSWORD | base64 -d > .env.v1-admin
+      source .env.v1-admin
+
+      # Map E2E credentials to what the CLI expects
+      export RBAC_USERNAME="${E2E_V1_ADMIN_USERNAME}"
+      export RBAC_PASSWORD="${E2E_V1_ADMIN_PASSWORD}"
+      export TEST_PREFIX=insights-rbac-ui-{{revision}}
+      export TEST_PREFIX_V1=insights-rbac-ui-{{revision}}
+      export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}
+      export RBAC_ENV=stage
+
+      npm run e2e:ci:setup
+      npm run e2e
+
+  # Credentials for E2E tests
+  - name: e2e-credentials-secret
+    value: "insights-rbac-ui-credentials-secret"
+
+  # Frontend proxy routes ConfigMap (proxy routing configuration)
+  - name: frontend-proxy-routes-configmap
+    value: "insights-rbac-ui-dev-proxy-caddyfile"
+
   pipelineRef:
     name: docker-build
   taskRunTemplate:
@@ -55,7 +121,7 @@ spec:
         - ReadWriteOnce
         resources:
           requests:
-            storage: 1Gi
+            storage: 3Gi  # Increased for E2E tests
       status: {}
   - name: git-auth
     secret:
