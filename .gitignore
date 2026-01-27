@@ -37,3 +37,7 @@ storybook-static
 .cypress-cache
 # code coverage
 .nyc_output
+# playwright cache and results
+/test-results/
+/playwright-report/
+/playwright/.cache/
