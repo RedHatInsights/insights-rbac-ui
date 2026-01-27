@@ -184,10 +184,15 @@ For this repository, Plumber successfully extracted the following routes from `d
 
 **Submission:**
 - Branch: `add-insights-rbac-ui-e2e-configmaps` in konflux-release-data
+- MR: https://gitlab.cee.redhat.com/releng/konflux-release-data/-/merge_requests/14023
 - Status: Pending merge
 - Location: `tenants-config/cluster/stone-prd-rh01/tenants/rh-platform-experien-tenant/`
+- Files submitted:
+  - `insights-rbac-ui-app-caddy-config.yaml` (ConfigMap)
+  - `insights-rbac-ui-dev-proxy-caddyfile.yaml` (ConfigMap)
+  - `insights-rbac-ui-credentials-secret.yaml` (ExternalSecret)
 
-Both files passed yamllint validation with zero errors.
+All files passed yamllint validation with zero errors.
 
 ## Required Vault Secrets
 
@@ -197,13 +202,23 @@ The pipeline needs E2E test user credentials stored in Vault.
 `insights-rbac-ui-credentials-secret`
 
 ### Required Keys
-- `E2E_USER` - Test automation user username
-- `E2E_PASSWORD` - Test automation user password
+- `e2e-user` - Test automation user username
+- `e2e-password` - Test automation user password
+
+### ExternalSecret Configuration
+
+The ExternalSecret YAML has been generated and submitted to konflux-release-data (see MR above). This configuration will automatically sync credentials from Vault to the Kubernetes secret.
+
+**Vault Path:** `creds/konflux/insights-rbac-ui`
+
+The ExternalSecret uses the `insights-appsre-vault` ClusterSecretStore and refreshes credentials every 15 minutes.
 
 ### Setup Instructions
 1. Refer to the **Platform Engineer Survival Guide** for Vault setup
-2. Create credentials for your specific application
-3. Configure the serviceAccount (`build-pipeline-insights-rbac-ui`) to access the secret
+2. Create credentials in Vault at path `creds/konflux/insights-rbac-ui` with properties:
+   - `username` - Test automation user username
+   - `password` - Test automation user password
+3. Verify the serviceAccount (`build-pipeline-insights-rbac-ui`) has necessary permissions
 
 **Note:** The existing Cypress tests use:
 - `CHROME_ACCOUNT` / `CHROME_PASSWORD`
@@ -322,10 +337,12 @@ Configure different trigger conditions (e.g., E2E only on specific branches or l
 2. ✅ E2E pipeline configuration created
 3. ✅ Install and run Plumber to generate ConfigMaps
 4. ✅ Submit generated ConfigMaps to konflux-release-data
-   - Branch: `add-insights-rbac-ui-e2e-configmaps` (pending merge)
-5. ⬜ Set up Vault secrets
+   - Branch: `add-insights-rbac-ui-e2e-configmaps`
+   - MR: https://gitlab.cee.redhat.com/releng/konflux-release-data/-/merge_requests/14023
+5. ✅ Generate ExternalSecret YAML for Vault credentials
+   - ⬜ Add credentials to Vault at `creds/konflux/insights-rbac-ui`
 6. ⬜ Create or verify Dockerfile
-7. ⬜ Wait for ConfigMaps MR to be approved and merged
+7. ⬜ Wait for MR (ConfigMaps + ExternalSecret) to be approved and merged
 8. ⬜ Test pipeline with a PR
 9. ⬜ Iterate and fix any issues
 10. ⬜ Switch production pipeline to E2E version
