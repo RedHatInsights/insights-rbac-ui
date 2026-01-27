@@ -31,6 +31,8 @@ vi.mock('../../api-client.js', () => ({
   getApiClient: vi.fn(() => ({
     post: vi.fn(),
     get: vi.fn(),
+    // APIFactory uses axios.request() internally
+    request: vi.fn(),
   })),
 }));
 vi.mock('../../auth-bridge.js', () => ({
@@ -101,7 +103,7 @@ describe('seeder command', () => {
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
-      await runSeeder({ file: 'payload.json' });
+      await runSeeder({ file: 'payload.json', prefix: 'test-' });
 
       // Should proceed and try to read the file
       expect(mockReadFile).toHaveBeenCalled();
@@ -116,7 +118,7 @@ describe('seeder command', () => {
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
-      await runSeeder({ file: 'payload.json' });
+      await runSeeder({ file: 'payload.json', prefix: 'test-' });
 
       expect(mockReadFile).toHaveBeenCalled();
     });
@@ -136,7 +138,7 @@ describe('seeder command', () => {
     });
 
     test('reads payload from specified file path', async () => {
-      await runSeeder({ file: '/path/to/payload.json' });
+      await runSeeder({ file: '/path/to/payload.json', prefix: 'test-' });
 
       expect(mockReadFile).toHaveBeenCalledWith('/path/to/payload.json', 'utf-8');
     });
@@ -144,7 +146,7 @@ describe('seeder command', () => {
     test('fails with exit code 1 when file does not exist', async () => {
       mockReadFile.mockRejectedValue(new Error('ENOENT: no such file'));
 
-      const exitCode = await runSeeder({ file: 'nonexistent.json' });
+      const exitCode = await runSeeder({ file: 'nonexistent.json', prefix: 'test-' });
 
       expect(exitCode).toBe(1);
     });
@@ -152,7 +154,7 @@ describe('seeder command', () => {
     test('fails with exit code 1 when file contains invalid JSON', async () => {
       mockReadFile.mockResolvedValue('{ invalid json }');
 
-      const exitCode = await runSeeder({ file: 'invalid.json' });
+      const exitCode = await runSeeder({ file: 'invalid.json', prefix: 'test-' });
 
       expect(exitCode).toBe(1);
     });
@@ -164,7 +166,7 @@ describe('seeder command', () => {
         }),
       );
 
-      const exitCode = await runSeeder({ file: 'invalid-schema.json' });
+      const exitCode = await runSeeder({ file: 'invalid-schema.json', prefix: 'test-' });
 
       expect(exitCode).toBe(1);
     });
@@ -179,6 +181,7 @@ describe('seeder command', () => {
       const mockClient = {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
+        request: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
@@ -190,13 +193,17 @@ describe('seeder command', () => {
 
       await runSeeder({ file: 'payload.json', prefix: 'ci-123-' });
 
-      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v1/roles/', expect.objectContaining({ name: 'ci-123-my-role' }));
+      // APIFactory uses request() internally with JSON stringified data
+      expect(mockClient.request).toHaveBeenCalledWith(
+        expect.objectContaining({ url: '/api/rbac/v1/roles/', data: expect.stringContaining('ci-123-__my-role') }),
+      );
     });
 
     test('prepends prefix to group names', async () => {
       const mockClient = {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
+        request: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
@@ -208,7 +215,10 @@ describe('seeder command', () => {
 
       await runSeeder({ file: 'payload.json', prefix: 'test-' });
 
-      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v1/groups/', expect.objectContaining({ name: 'test-my-group' }));
+      // APIFactory uses request() internally with JSON stringified data
+      expect(mockClient.request).toHaveBeenCalledWith(
+        expect.objectContaining({ url: '/api/rbac/v1/groups/', data: expect.stringContaining('test-__my-group') }),
+      );
     });
 
     test('prepends prefix to workspace names', async () => {
@@ -226,10 +236,10 @@ describe('seeder command', () => {
 
       await runSeeder({ file: 'payload.json', prefix: 'e2e-' });
 
-      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v2/workspaces/', expect.objectContaining({ name: 'e2e-my-workspace' }));
+      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v2/workspaces/', expect.objectContaining({ name: 'e2e-__my-workspace' }));
     });
 
-    test('works without prefix (no modification to names)', async () => {
+    test('fails when prefix is not provided', async () => {
       const mockClient = {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
@@ -242,9 +252,10 @@ describe('seeder command', () => {
         }),
       );
 
-      await runSeeder({ file: 'payload.json' });
+      const exitCode = await runSeeder({ file: 'payload.json' });
 
-      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v1/roles/', expect.objectContaining({ name: 'original-name' }));
+      expect(exitCode).toBe(1);
+      expect(mockClient.post).not.toHaveBeenCalled();
     });
   });
 
@@ -253,22 +264,22 @@ describe('seeder command', () => {
   // ==========================================================================
 
   describe('Empty Payload Handling', () => {
-    test('fails with exit code 1 when payload is empty', async () => {
+    test('succeeds with exit code 0 when payload is empty (nothing to create)', async () => {
       mockReadFile.mockResolvedValue(JSON.stringify({}));
 
       const mockClient = {
         post: vi.fn(),
-        get: vi.fn(),
+        get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
-      const exitCode = await runSeeder({ file: 'empty.json' });
+      const exitCode = await runSeeder({ file: 'empty.json', prefix: 'test-' });
 
-      expect(exitCode).toBe(1);
+      expect(exitCode).toBe(0);
       expect(mockClient.post).not.toHaveBeenCalled();
     });
 
-    test('fails with exit code 1 when all arrays are empty', async () => {
+    test('succeeds with exit code 0 when all arrays are empty (nothing to create)', async () => {
       mockReadFile.mockResolvedValue(
         JSON.stringify({
           roles: [],
@@ -279,13 +290,13 @@ describe('seeder command', () => {
 
       const mockClient = {
         post: vi.fn(),
-        get: vi.fn(),
+        get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
-      const exitCode = await runSeeder({ file: 'empty-arrays.json' });
+      const exitCode = await runSeeder({ file: 'empty-arrays.json', prefix: 'test-' });
 
-      expect(exitCode).toBe(1);
+      expect(exitCode).toBe(0);
     });
   });
 
@@ -298,6 +309,7 @@ describe('seeder command', () => {
       const mockClient = {
         post: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
+        request: vi.fn().mockResolvedValue({ data: { uuid: 'new-uuid' } }),
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
@@ -307,18 +319,19 @@ describe('seeder command', () => {
         }),
       );
 
-      const exitCode = await runSeeder({ file: 'payload.json' });
+      const exitCode = await runSeeder({ file: 'payload.json', prefix: 'test-' });
 
       expect(exitCode).toBe(0);
     });
 
     test('returns exit code 1 when some operations fail', async () => {
       const mockClient = {
-        post: vi
+        post: vi.fn(),
+        get: vi.fn().mockResolvedValue({ data: { data: [] } }),
+        request: vi
           .fn()
           .mockResolvedValueOnce({ data: { uuid: 'success-uuid' } })
           .mockRejectedValueOnce(new Error('API error')),
-        get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
@@ -328,7 +341,7 @@ describe('seeder command', () => {
         }),
       );
 
-      const exitCode = await runSeeder({ file: 'payload.json' });
+      const exitCode = await runSeeder({ file: 'payload.json', prefix: 'test-' });
 
       expect(exitCode).toBe(1);
     });
