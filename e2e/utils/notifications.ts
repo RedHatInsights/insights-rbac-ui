@@ -10,9 +10,7 @@ import { Page, expect } from '@playwright/test';
  */
 export async function verifySuccessNotification(page: Page, timeout = 5000) {
   // Look for success notification - try both PF5 and PF6 class patterns
-  const successNotification = page.locator(
-    '.pf-v6-c-alert.pf-m-success, .pf-c-alert.pf-m-success, [class*="pf-m-success"]'
-  );
+  const successNotification = page.locator('.pf-v6-c-alert.pf-m-success, .pf-c-alert.pf-m-success, [class*="pf-m-success"]');
   await expect(successNotification.first()).toBeVisible({ timeout });
 
   // Verify no error or warning notifications

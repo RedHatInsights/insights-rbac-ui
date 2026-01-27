@@ -5,7 +5,7 @@
  * - Session-scoped asset caching (HAR)
  * - Analytics/overlay blocking
  */
-import { test as base, type Page, type BrowserContext } from '@playwright/test';
+import { type Page, test as base } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
 

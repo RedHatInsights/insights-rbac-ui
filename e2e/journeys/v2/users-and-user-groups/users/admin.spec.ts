@@ -8,7 +8,7 @@
  * These tests focus on viewing and filtering users in the V2 interface.
  */
 
-import { test, expect, AUTH_V2_ADMIN, setupPage } from '../../../../utils';
+import { AUTH_V2_ADMIN, expect, setupPage, test } from '../../../../utils';
 
 test.use({ storageState: AUTH_V2_ADMIN });
 

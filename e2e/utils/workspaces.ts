@@ -85,12 +85,7 @@ export async function selectWorkspaceFromTree(page: Page, treePanel: ReturnType<
 /**
  * Complete combo: Expand a parent workspace in tree and select a child
  */
-export async function selectParentWorkspace(
-  page: Page,
-  wizard: ReturnType<typeof page.locator>,
-  parentToExpand: string,
-  workspaceToSelect: string
-) {
+export async function selectParentWorkspace(page: Page, wizard: ReturnType<typeof page.locator>, parentToExpand: string, workspaceToSelect: string) {
   const treePanel = await openParentWorkspaceSelector(page, wizard);
   await expandWorkspaceInTree(page, treePanel, parentToExpand);
   await selectWorkspaceFromTree(page, treePanel, workspaceToSelect);
@@ -99,11 +94,7 @@ export async function selectParentWorkspace(
 /**
  * Navigates wizard steps (Next, Back, Submit, Cancel)
  */
-export async function clickWizardButton(
-  page: Page,
-  wizard: ReturnType<typeof page.locator>,
-  buttonName: 'Next' | 'Back' | 'Submit' | 'Cancel'
-) {
+export async function clickWizardButton(page: Page, wizard: ReturnType<typeof page.locator>, buttonName: 'Next' | 'Back' | 'Submit' | 'Cancel') {
   const button = wizard.getByRole('button', { name: new RegExp(`^${buttonName}$`, 'i') });
   await expect(button).toBeEnabled();
   await button.click();

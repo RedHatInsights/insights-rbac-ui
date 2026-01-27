@@ -16,16 +16,9 @@
  * - CLEANUP: Delete created data at journey end (not afterAll, for visibility)
  */
 
-import { test, expect, Page } from '@playwright/test';
-import {
-  AUTH_V1_ADMIN,
-  setupPage,
-  openRoleActionsMenu,
-  openDetailPageActionsMenu,
-  clickMenuItem,
-  verifySuccessNotification,
-} from '../../../utils';
-import { getSeededRoleName, getSeededRoleData } from '../../../utils/seed-map';
+import { Page, expect, test } from '@playwright/test';
+import { AUTH_V1_ADMIN, clickMenuItem, openDetailPageActionsMenu, openRoleActionsMenu, setupPage, verifySuccessNotification } from '../../../utils';
+import { getSeededRoleData, getSeededRoleName } from '../../../utils/seed-map';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -44,7 +37,7 @@ if (!TEST_PREFIX) {
       '║                                                                      ║\n' +
       '║    TEST_PREFIX=e2e npx playwright test v1/roles/admin               ║\n' +
       '║                                                                      ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n'
+      '╚══════════════════════════════════════════════════════════════════════╝\n',
   );
 }
 
@@ -56,9 +49,7 @@ const ROLES_URL = '/iam/user-access/roles';
 const SEEDED_ROLE_NAME = getSeededRoleName();
 const SEEDED_ROLE_DATA = getSeededRoleData();
 if (!SEEDED_ROLE_NAME) {
-  throw new Error(
-    'No seeded role found in seed map. Run: npm run e2e:seed:v1'
-  );
+  throw new Error('No seeded role found in seed map. Run: npm run e2e:seed:v1');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -122,11 +113,7 @@ async function navigateToRoleDetail(page: Page, roleName: string): Promise<void>
  * Note: PF6 wraps wizards in a modal, creating 2 dialog elements.
  * We use .first() to target the wizard specifically.
  */
-async function fillCreateRoleWizard(
-  page: Page,
-  roleName: string,
-  description: string
-): Promise<void> {
+async function fillCreateRoleWizard(page: Page, roleName: string, description: string): Promise<void> {
   // Wait for the wizard to be visible - use .first() to handle PF6 modal wrapper
   const wizard = page.getByRole('dialog').first();
   await expect(wizard).toBeVisible({ timeout: 10000 });
@@ -217,7 +204,10 @@ async function fillCreateRoleWizard(
 
   // Verify description appears in review (was entered in Step 2)
   if (description) {
-    const descriptionVisible = await wizard.getByText(description).isVisible({ timeout: 2000 }).catch(() => false);
+    const descriptionVisible = await wizard
+      .getByText(description)
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
     if (descriptionVisible) {
       console.log(`[Wizard] ✓ Description visible in review`);
     }
@@ -246,11 +236,7 @@ async function fillCreateRoleWizard(
  * Fills the Edit Role modal and saves.
  * PORTED VERBATIM from EditRole.helpers.tsx (Storybook helper).
  */
-async function fillEditRoleModal(
-  page: Page,
-  newName: string,
-  newDescription: string
-): Promise<void> {
+async function fillEditRoleModal(page: Page, newName: string, newDescription: string): Promise<void> {
   // Wait for edit modal to appear and load data
   const dialog = page.getByRole('dialog').first();
   await expect(dialog).toBeVisible({ timeout: 5000 });

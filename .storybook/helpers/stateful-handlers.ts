@@ -1,22 +1,24 @@
-import { http, HttpResponse } from 'msw';
-import { Group, Principal, Role, PaginatedResponse } from '../types/entities';
-import type { WorkspacesWorkspace, RoleBindingsRoleBindingBySubject } from '../../src/data/queries/workspaces';
+import { HttpResponse, http } from 'msw';
+import { Group, PaginatedResponse, Principal, Role } from '../types/entities';
+import type { RoleBindingsRoleBindingBySubject, WorkspacesWorkspace } from '../../src/data/queries/workspaces';
 
 // Type aliases for backward compatibility
 type Workspace = WorkspacesWorkspace;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type RoleBindingBySubject = RoleBindingsRoleBindingBySubject;
 import {
   AppState,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ServiceAccount,
-  cloneState,
-  updateGroup,
-  addRolesToGroup,
-  removeRolesFromGroup,
   addMembersToGroup,
-  removeMembersFromGroup,
+  addRolesToGroup,
+  cloneState,
   findGroup,
   getGroupMembers,
   getGroupRoles,
+  removeMembersFromGroup,
+  removeRolesFromGroup,
+  updateGroup,
 } from './immutable-state';
 
 // Special system groups - these are global and shown to admin users
@@ -61,10 +63,41 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     return newMap;
   };
 
-  // Mock roles for default groups
+  // Mock roles for default groups (kept for potential future use)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const defaultSystemRoles: Role[] = [
-    { uuid: 'role-viewer-1', name: 'Viewer', display_name: 'Viewer', description: 'Read-only access', system: true, platform_default: false, admin_default: false, created: '2023-01-01T00:00:00Z', modified: '2023-01-01T00:00:00Z', policyCount: 1, accessCount: 5, applications: ['insights'], groups_in: [], groups_in_count: 0 },
-    { uuid: 'role-editor-1', name: 'Editor', display_name: 'Editor', description: 'Edit access', system: true, platform_default: false, admin_default: false, created: '2023-01-01T00:00:00Z', modified: '2023-01-01T00:00:00Z', policyCount: 1, accessCount: 10, applications: ['insights'], groups_in: [], groups_in_count: 0 },
+    {
+      uuid: 'role-viewer-1',
+      name: 'Viewer',
+      display_name: 'Viewer',
+      description: 'Read-only access',
+      system: true,
+      platform_default: false,
+      admin_default: false,
+      created: '2023-01-01T00:00:00Z',
+      modified: '2023-01-01T00:00:00Z',
+      policyCount: 1,
+      accessCount: 5,
+      applications: ['insights'],
+      groups_in: [],
+      groups_in_count: 0,
+    },
+    {
+      uuid: 'role-editor-1',
+      name: 'Editor',
+      display_name: 'Editor',
+      description: 'Edit access',
+      system: true,
+      platform_default: false,
+      admin_default: false,
+      created: '2023-01-01T00:00:00Z',
+      modified: '2023-01-01T00:00:00Z',
+      policyCount: 1,
+      accessCount: 10,
+      applications: ['insights'],
+      groups_in: [],
+      groups_in_count: 0,
+    },
   ];
 
   // Store the ORIGINAL initial state with deep copies
@@ -73,20 +106,20 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     groups: [
       // Always include the special system groups, but allow overrides from initialState
       // IMPORTANT: Deep copy all group objects to prevent mutation of original state
-      ...(initialState.groups?.map(g => ({ ...g })) || []),
+      ...(initialState.groups?.map((g) => ({ ...g })) || []),
       // Add default system groups ONLY if not already provided in initialState
-      ...(initialState.groups?.some(g => g.uuid === 'system-default') ? [] : [{ ...mockSystemGroup }]),
-      ...(initialState.groups?.some(g => g.uuid === 'admin-default') ? [] : [{ ...mockAdminGroup }]),
+      ...(initialState.groups?.some((g) => g.uuid === 'system-default') ? [] : [{ ...mockSystemGroup }]),
+      ...(initialState.groups?.some((g) => g.uuid === 'admin-default') ? [] : [{ ...mockAdminGroup }]),
     ],
-    users: initialState.users ? initialState.users.map(u => ({ ...u })) : [],
-    roles: initialState.roles ? initialState.roles.map(r => ({ ...r })) : [],
-    workspaces: initialState.workspaces ? initialState.workspaces.map(w => ({ ...w })) : [],
-    serviceAccounts: initialState.serviceAccounts ? initialState.serviceAccounts.map(sa => ({ ...sa })) : [],
+    users: initialState.users ? initialState.users.map((u) => ({ ...u })) : [],
+    roles: initialState.roles ? initialState.roles.map((r) => ({ ...r })) : [],
+    workspaces: initialState.workspaces ? initialState.workspaces.map((w) => ({ ...w })) : [],
+    serviceAccounts: initialState.serviceAccounts ? initialState.serviceAccounts.map((sa) => ({ ...sa })) : [],
     groupMembers: deepCopyMap(initialState.groupMembers),
     groupRoles: deepCopyMap(initialState.groupRoles),
     workspaceRoleBindings: deepCopyMap(initialState.workspaceRoleBindings),
   };
-  
+
   // Initialize default group roles (minimal set for manual testing)
   if (!originalInitialState.groupRoles.has('system-default')) {
     // System default group gets first 2 roles for manual testing visibility
@@ -98,39 +131,45 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     const sampleRoles = originalInitialState.roles.slice(2, 4);
     originalInitialState.groupRoles.set('admin-default', sampleRoles);
   }
-  
+
   // Initialize sample data for groups that have counts but no actual data
   // This makes manual testing more realistic
   // Tests that want empty groups should explicitly pass empty Maps for groupMembers/groupRoles
-  originalInitialState.groups.forEach(group => {
+  originalInitialState.groups.forEach((group) => {
     // Skip default groups - they're handled above
     if (group.uuid === 'system-default' || group.uuid === 'admin-default') {
       return;
     }
-    
+
     // Only auto-initialize if NO explicit data was provided
     const hasRolesData = originalInitialState.groupRoles.has(group.uuid);
     const hasMembersData = originalInitialState.groupMembers.has(group.uuid);
-    
+
     // Initialize roles based on roleCount (only if not already set)
     if (!hasRolesData && group.roleCount && typeof group.roleCount === 'number' && group.roleCount > 0) {
       const availableRoles = originalInitialState.roles;
       if (availableRoles.length > 0) {
         const rolesToAdd = availableRoles.slice(0, Math.min(group.roleCount, availableRoles.length));
-        originalInitialState.groupRoles.set(group.uuid, rolesToAdd.map(r => ({ ...r })));
+        originalInitialState.groupRoles.set(
+          group.uuid,
+          rolesToAdd.map((r) => ({ ...r })),
+        );
       }
     }
-    
+
     // Initialize members based on principalCount (only if not already set)
     if (!hasMembersData && group.principalCount && typeof group.principalCount === 'number' && group.principalCount > 0) {
       const availableUsers = originalInitialState.users;
       if (availableUsers.length > 0) {
         const usersToAdd = availableUsers.slice(0, Math.min(group.principalCount, availableUsers.length));
-        originalInitialState.groupMembers.set(group.uuid, usersToAdd.map(u => ({ ...u })));
+        originalInitialState.groupMembers.set(
+          group.uuid,
+          usersToAdd.map((u) => ({ ...u })),
+        );
       }
     }
   });
-  
+
   let state: AppState = cloneState(originalInitialState);
 
   return [
@@ -140,7 +179,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       state = cloneState(originalInitialState);
       return HttpResponse.json({ message: 'State reset successfully' });
     }),
-    
+
     // Groups endpoints
     http.get('*/api/rbac/v1/groups/', ({ request }) => {
       const url = new URL(request.url);
@@ -153,7 +192,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
       // Handle admin default group query
       if (adminDefault === 'true') {
-        const adminGroup = state.groups.find(g => g.admin_default);
+        const adminGroup = state.groups.find((g) => g.admin_default);
         return HttpResponse.json({
           data: adminGroup ? [adminGroup] : [],
           meta: { count: adminGroup ? 1 : 0, limit, offset },
@@ -162,7 +201,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
       // Handle platform default group query
       if (platformDefault === 'true') {
-        const platformGroup = state.groups.find(g => g.platform_default);
+        const platformGroup = state.groups.find((g) => g.platform_default);
         return HttpResponse.json({
           data: platformGroup ? [platformGroup] : [],
           meta: { count: platformGroup ? 1 : 0, limit, offset },
@@ -191,10 +230,10 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     // Get single group by ID
     http.get('*/api/rbac/v1/groups/:groupId/', ({ params }) => {
       const groupId = params.groupId as string;
-      
+
       // Use immutable accessor (returns a clone, never the original)
       const group = findGroup(state, groupId);
-      
+
       if (!group) {
         return new HttpResponse(null, { status: 404 });
       }
@@ -265,7 +304,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       const offset = parseInt(url.searchParams.get('offset') || '0');
       const principalType = url.searchParams.get('principal_type');
       const groupId = params.groupId as string;
-      
+
       // Only handle 'user' principal type or default (service accounts handled separately)
       if (principalType && principalType !== 'user') {
         return HttpResponse.json({
@@ -273,12 +312,12 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
           meta: { count: 0, limit, offset },
         });
       }
-      
+
       // Handle unmodified default groups - return empty, they conceptually include "all users"
       // But if the group has been modified (system: false), return actual members from state
       const group = findGroup(state, groupId);
       const isUnmodifiedDefault = (groupId === 'admin-default' || groupId === 'system-default') && group?.system !== false;
-      
+
       if (isUnmodifiedDefault) {
         // Both default groups return empty when unmodified - shows special card message
         // Admin default: "All org admins are members"
@@ -288,30 +327,30 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
           meta: { count: 0, limit, offset },
         });
       }
-      
+
       // Get members for this group (using immutable accessor)
       const members = getGroupMembers(state, groupId);
       const paginated = members.slice(offset, offset + limit);
-      
+
       return HttpResponse.json({
         data: paginated,
         meta: { count: members.length, limit, offset },
       });
     }),
-    
+
     http.post('*/api/rbac/v1/groups/:groupId/principals/', async ({ params, request }) => {
       const groupId = params.groupId as string;
       const body = (await request.json()) as { principals: Array<{ username: string }> };
-      
+
       // Check if group exists
       const group = findGroup(state, groupId);
       if (!group) {
         return new HttpResponse(null, { status: 404 });
       }
-      
+
       // Check if this is the system default group being modified for the first time
       const isSystemDefaultUnchanged = group.platform_default && group.system !== false;
-      
+
       // If modifying unchanged default group, modify it in-place (matching real backend behavior)
       if (isSystemDefaultUnchanged) {
         state = updateGroup(state, groupId, {
@@ -321,22 +360,22 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
           modified: new Date().toISOString(),
         });
       }
-      
+
       // Add members to the group (immutably)
-      const usernames = body.principals.map(p => p.username);
+      const usernames = body.principals.map((p) => p.username);
       state = addMembersToGroup(state, groupId, usernames);
-      
+
       return HttpResponse.json({ message: 'Principals added successfully' });
     }),
-    
+
     http.delete('*/api/rbac/v1/groups/:groupId/principals/', async ({ params, request }) => {
       const groupId = params.groupId as string;
       const url = new URL(request.url);
       const usernames = url.searchParams.get('usernames')?.split(',') || [];
-      
+
       // Remove members from the group (immutably)
       state = removeMembersFromGroup(state, groupId, usernames);
-      
+
       return new HttpResponse(null, { status: 204 });
     }),
 
@@ -347,41 +386,41 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       const offset = parseInt(url.searchParams.get('offset') || '0');
       const exclude = url.searchParams.get('exclude');
       const groupId = params.groupId as string;
-      
+
       // Get roles for this group (using immutable accessor)
       const groupRoles = getGroupRoles(state, groupId);
-      
+
       let result: Role[];
-      
+
       if (exclude === 'true') {
         // Return roles NOT in the group (available to add)
-        result = state.roles.filter(role => !groupRoles.find(gr => gr.uuid === role.uuid));
+        result = state.roles.filter((role) => !groupRoles.find((gr) => gr.uuid === role.uuid));
       } else {
         // Return roles IN the group
         result = groupRoles;
       }
-      
+
       const paginated = result.slice(offset, offset + limit);
-      
+
       return HttpResponse.json({
         data: paginated,
         meta: { count: result.length, limit, offset },
       });
     }),
-    
+
     http.post('*/api/rbac/v1/groups/:groupId/roles/', async ({ params, request }) => {
       const groupId = params.groupId as string;
       const body = (await request.json()) as { roles: string[] };
-      
+
       // Check if group exists
       const group = findGroup(state, groupId);
       if (!group) {
         return new HttpResponse(null, { status: 404 });
       }
-      
+
       // Check if this is the system default group being modified for the first time
       const isSystemDefaultUnchanged = group.platform_default && group.system !== false;
-      
+
       // If modifying unchanged default group, modify it in-place (matching real backend behavior)
       if (isSystemDefaultUnchanged) {
         state = updateGroup(state, groupId, {
@@ -391,21 +430,21 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
           modified: new Date().toISOString(),
         });
       }
-      
+
       // Add roles to the group (immutably)
       state = addRolesToGroup(state, groupId, body.roles);
-      
+
       return HttpResponse.json({ message: 'Roles added successfully' });
     }),
-    
+
     http.delete('*/api/rbac/v1/groups/:groupId/roles/', async ({ params, request }) => {
       const groupId = params.groupId as string;
       const url = new URL(request.url);
       const roleUuids = url.searchParams.get('roles')?.split(',') || [];
-      
+
       // Remove roles from the group (immutably)
       state = removeRolesFromGroup(state, groupId, roleUuids);
-      
+
       return new HttpResponse(null, { status: 204 });
     }),
 
@@ -461,14 +500,14 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
       // Handle application filtering (used by MyUserAccess)
       if (application) {
-        const apps = application.split(',').map(a => a.trim());
+        const apps = application.split(',').map((a) => a.trim());
         // Filter roles that have at least one matching application
         // If role has no applications field, include it (legacy roles)
         filtered = filtered.filter((r) => {
           if (!r.applications || r.applications.length === 0) {
             return true; // Include roles without applications field
           }
-          return r.applications.some(roleApp => apps.includes(roleApp));
+          return r.applications.some((roleApp) => apps.includes(roleApp));
         });
       }
 
@@ -502,8 +541,8 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
     // Create a new role
     http.post('*/api/rbac/v1/roles/', async ({ request }) => {
-      const body = (await request.json()) as { name: string; display_name?: string; description?: string; access: any[] };
-      
+      const body = (await request.json()) as { name: string; display_name?: string; description?: string; access: { permission: string }[] };
+
       const newRole: Role = {
         uuid: `role-${Date.now()}`,
         name: body.name,
@@ -529,7 +568,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     // Get single role by ID
     http.get('*/api/rbac/v1/roles/:roleId/', ({ params }) => {
       const role = state.roles.find((r) => r.uuid === params.roleId);
-      
+
       if (!role) {
         return new HttpResponse(null, { status: 404 });
       }
@@ -666,30 +705,30 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     // Note: The 404 for /apps/rbac/env.json is expected for non-ITLess environments
     http.put('/change-users-status', async ({ request }) => {
       const body = (await request.json()) as { users: Array<{ username: string; is_active: boolean }> };
-      
+
       // Update the is_active status for each user in the state
       body.users.forEach(({ username, is_active }) => {
-        const user = state.users.find(u => u.username === username);
+        const user = state.users.find((u) => u.username === username);
         if (user) {
           user.is_active = is_active;
         }
       });
-      
+
       return HttpResponse.json({ message: 'Users status updated successfully' }, { status: 200 });
     }),
 
     // Invite users endpoint
     http.post('/user/invite', async ({ request }) => {
       const body = (await request.json()) as { emails: string[]; isAdmin?: boolean };
-      
+
       // In a real implementation, this would send invitation emails
       // For now, just return success
       return HttpResponse.json(
-        { 
+        {
           message: `Successfully sent ${body.emails.length} invitation(s)`,
           invited: body.emails,
-        }, 
-        { status: 200 }
+        },
+        { status: 200 },
       );
     }),
 
@@ -697,10 +736,10 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     // This is used by the "My User Access" page
     http.get('*/api/rbac/v1/access/', ({ request }) => {
       const url = new URL(request.url);
-      const application = url.searchParams.get('application') || '';
+      const _application = url.searchParams.get('application') || '';
       const limit = parseInt(url.searchParams.get('limit') || '50');
       const offset = parseInt(url.searchParams.get('offset') || '0');
-      
+
       // For non-admin users, return empty or minimal access
       // For admin users, this would return their permissions across applications
       // Since we're mocking, return a simple structure based on RBAC only
@@ -718,7 +757,7 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
           verb: 'read',
         },
       ];
-      
+
       return HttpResponse.json({
         data: accessData.slice(offset, offset + limit),
         meta: {
@@ -800,11 +839,11 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     http.get('*/api/rbac/v2/role-bindings/by-subject', ({ request }) => {
       const url = new URL(request.url);
       const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
-      const resourceType = url.searchParams.get('resourceType') || url.searchParams.get('resource_type');
-      const subjectType = url.searchParams.get('subjectType') || url.searchParams.get('subject_type');
+      const _resourceType = url.searchParams.get('resourceType') || url.searchParams.get('resource_type');
+      const _subjectType = url.searchParams.get('subjectType') || url.searchParams.get('subject_type');
       const limit = parseInt(url.searchParams.get('limit') || '10000');
       const offset = parseInt(url.searchParams.get('offset') || '0');
-      
+
       if (!resourceId) {
         // No resource_id specified, return empty
         return HttpResponse.json({
@@ -812,13 +851,13 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
           meta: { count: 0, limit, offset },
         });
       }
-      
+
       // Get role bindings for this specific workspace
       const bindings = state.workspaceRoleBindings.get(resourceId) || [];
-      
+
       // Apply pagination
       const paginatedBindings = bindings.slice(offset, offset + limit);
-      
+
       return HttpResponse.json({
         data: paginatedBindings,
         meta: {

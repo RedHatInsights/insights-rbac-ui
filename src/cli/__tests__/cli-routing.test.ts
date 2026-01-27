@@ -8,7 +8,7 @@
  * - Bypass of Ink TUI for headless commands
  */
 
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 describe('CLI Command Routing', () => {
   // ==========================================================================

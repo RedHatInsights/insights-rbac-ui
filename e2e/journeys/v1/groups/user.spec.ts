@@ -12,7 +12,7 @@
  * 5. Verify NO Edit/Delete actions
  */
 
-import { test, expect, AUTH_V1_USER, setupPage, getSeededGroupName, getSeededGroupData } from '../../../utils';
+import { AUTH_V1_USER, expect, getSeededGroupData, getSeededGroupName, setupPage, test } from '../../../utils';
 
 test.use({ storageState: AUTH_V1_USER });
 

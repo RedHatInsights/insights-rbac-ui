@@ -5,7 +5,7 @@
  * Regular users can only view workspaces, not create/edit/delete.
  */
 
-import { test, expect, AUTH_V2_USER, setupPage, getSeededWorkspaceName, getSeededWorkspaceData } from '../../../utils';
+import { AUTH_V2_USER, expect, getSeededWorkspaceData, getSeededWorkspaceName, setupPage, test } from '../../../utils';
 
 test.use({ storageState: AUTH_V2_USER });
 

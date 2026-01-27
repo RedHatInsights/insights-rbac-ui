@@ -9,7 +9,7 @@ export interface PermissionsArgs {
   userAccessAdministrator?: boolean;
 }
 
-// Chrome decorator arguments  
+// Chrome decorator arguments
 export interface ChromeArgs {
   environment?: 'prod' | 'stage' | 'ci-beta' | 'ci-stable' | 'qa-beta' | 'qa-stable';
 }
@@ -68,4 +68,4 @@ export const DECORATOR_ARG_TYPES = {
       category: 'Feature Flags',
     },
   },
-} as const; 
+} as const;
