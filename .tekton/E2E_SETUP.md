@@ -81,16 +81,21 @@ Ensure:
 2. **Create the ConfigMap files** in the appropriate directory:
    ```
    konflux-release-data/
-   └── konflux-tenant-rh-platform-experien/
+   └── tenants-config/cluster/stone-prd-rh01/tenants/rh-platform-experien-tenant/
        ├── insights-rbac-ui-app-caddy-config.yaml
        └── insights-rbac-ui-dev-proxy-caddyfile.yaml
    ```
 
-3. **Submit a merge request** to add these files
+3. **Add ConfigMaps to kustomization.yaml** in the same directory
 
-4. **Reference PR for example:**
-   - https://gitlab.cee.redhat.com/releng/konflux-release-data/-/merge_requests/13221/diffs
-   - (learning-resources ConfigMaps)
+4. **Submit a merge request** to add these files
+
+5. **Reference MRs for examples:**
+   - **insights-rbac-ui (this project):** Branch `add-insights-rbac-ui-e2e-configmaps`
+     - Contains the actual Plumber-generated ConfigMaps for this repository
+     - Shows the exact directory structure and kustomization.yaml update
+   - **learning-resources:** https://gitlab.cee.redhat.com/releng/konflux-release-data/-/merge_requests/13221/diffs
+     - Another working example of E2E ConfigMaps
 
 ### Reference: What Plumber Generates
 
@@ -160,6 +165,29 @@ data:
 </details>
 
 **Note:** These are examples - Plumber will generate the actual routes based on your repository's configuration files.
+
+### What Was Generated for insights-rbac-ui
+
+For this repository, Plumber successfully extracted the following routes from `deploy/frontend.yaml` and generated ConfigMaps:
+
+**Routes extracted:**
+- `/apps/rbac`
+- `/iam`
+- `/iam/my-user-access`
+- `/settings/rbac`
+- `/iam/user-access`
+- `/iam/access-management`
+
+**ConfigMaps generated:**
+- `insights-rbac-ui-app-caddy-config.yaml` (4.8KB, 198 lines)
+- `insights-rbac-ui-dev-proxy-caddyfile.yaml` (889 bytes, 50 lines)
+
+**Submission:**
+- Branch: `add-insights-rbac-ui-e2e-configmaps` in konflux-release-data
+- Status: Pending merge
+- Location: `tenants-config/cluster/stone-prd-rh01/tenants/rh-platform-experien-tenant/`
+
+Both files passed yamllint validation with zero errors.
 
 ## Required Vault Secrets
 
@@ -292,13 +320,15 @@ Configure different trigger conditions (e.g., E2E only on specific branches or l
 
 1. ✅ Playwright tests created
 2. ✅ E2E pipeline configuration created
-3. ⬜ Install and run Plumber to generate ConfigMaps
-4. ⬜ Submit generated ConfigMaps to konflux-release-data
+3. ✅ Install and run Plumber to generate ConfigMaps
+4. ✅ Submit generated ConfigMaps to konflux-release-data
+   - Branch: `add-insights-rbac-ui-e2e-configmaps` (pending merge)
 5. ⬜ Set up Vault secrets
 6. ⬜ Create or verify Dockerfile
-7. ⬜ Test pipeline with a PR
-8. ⬜ Iterate and fix any issues
-9. ⬜ Switch production pipeline to E2E version
+7. ⬜ Wait for ConfigMaps MR to be approved and merged
+8. ⬜ Test pipeline with a PR
+9. ⬜ Iterate and fix any issues
+10. ⬜ Switch production pipeline to E2E version
 
 ## Additional Resources
 
