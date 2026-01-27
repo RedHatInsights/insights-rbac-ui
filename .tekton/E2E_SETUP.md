@@ -19,104 +19,58 @@ The E2E pipeline has been configured to run Playwright tests automatically on ev
 
 ## Required ConfigMaps
 
-The following ConfigMaps must be created in the **internal** `konflux-release-data` repository (GitLab):
+ConfigMaps must be created in the **internal** `konflux-release-data` repository (GitLab).
 
-### 1. App Caddy Configuration
+### Use Plumber to Generate ConfigMaps (Recommended)
 
-Create a ConfigMap for routing requests to the RBAC app assets:
+**Plumber** is a Python tool that automatically generates the required Kubernetes ConfigMaps by reading your repository's configuration files.
 
-**File:** `konfluxtenant-rh-platform-experien/insights-rbac-ui-app-caddy-config.yaml`
+#### Step 1: Install Plumber
 
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: insights-rbac-ui-app-caddy-config
-  namespace: rh-platform-experien-tenant
-data:
-  Caddyfile: |
-    :8000 {
-      # Route for the main app assets
-      handle /apps/rbac/* {
-        root * /srv/dist
-        try_files {path} /apps/rbac/index.html
-        file_server
-      }
+```bash
+# Clone the plumber repository
+git clone https://github.com/catastrophe-brandon/plumber.git
+cd plumber
 
-      # Route for IAM paths (if needed)
-      handle /iam/* {
-        root * /srv/dist
-        try_files {path} /apps/rbac/index.html
-        file_server
-      }
-
-      # Fed-mods.json manifest
-      handle /apps/rbac/fed-mods.json {
-        root * /srv/dist
-        file_server
-      }
-    }
+# Install using uv (recommended) or pip
+uv pip install -e .
+# OR
+pip install -e .
 ```
 
-**Notes:**
-- Verify `/srv/dist` is the correct location in your container image
-- You may need to adjust paths based on actual asset structure
-- To verify: Run `podman run -it <your-image> /bin/sh` and explore filesystem
+#### Step 2: Run Plumber
 
-### 2. Frontend Developer Proxy Caddyfile
-
-Create a ConfigMap for the proxy routing logic:
-
-**File:** `konflux-tenant-rh-platform-experien/insights-rbac-ui-dev-proxy-caddyfile.yaml`
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: insights-rbac-ui-dev-proxy-caddyfile
-  namespace: rh-platform-experien-tenant
-data:
-  Caddyfile: |
-    {
-      admin off
-      auto_https off
-      log {
-        level INFO
-      }
-    }
-
-    :8080 {
-      log {
-        level DEBUG
-      }
-
-      # Route RBAC app requests to the app assets sidecar
-      @rbac_app {
-        path /apps/rbac/*
-        path /iam/*
-      }
-      reverse_proxy @rbac_app localhost:8000
-
-      # Route chrome assets to the chrome sidecar
-      @chrome {
-        path /apps/chrome/*
-        path /beta/apps/chrome/*
-      }
-      reverse_proxy @chrome localhost:9912
-
-      # Everything else goes to stage environment
-      reverse_proxy https://console.stage.redhat.com {
-        header_up Host console.stage.redhat.com
-      }
-    }
+```bash
+plumber insights-rbac-ui \
+  https://github.com/RedHatInsights/insights-rbac-ui.git \
+  --app-configmap-name insights-rbac-ui-app-caddy-config \
+  --proxy-configmap-name insights-rbac-ui-dev-proxy-caddyfile \
+  --namespace rh-platform-experien-tenant
 ```
 
-**Notes:**
-- Port 8000 = insights-rbac-ui app assets sidecar
-- Port 9912 = insights-chrome assets sidecar
-- Unmatched routes proxy to stage environment
+**What Plumber Does:**
+- Reads routes from `deploy/frontend.yaml` or `fec.config.js`
+- Generates two YAML files:
+  - `insights-rbac-ui-app-caddy-config.yaml` - App asset routing configuration
+  - `insights-rbac-ui-dev-proxy-caddyfile.yaml` - Reverse proxy routing configuration
+- Validates output using yamllint
+- Creates Kubernetes-ready ConfigMaps with correct structure
 
-### How to Create ConfigMaps
+#### Step 3: Verify Generated ConfigMaps
+
+Review the generated files in your current directory:
+
+```bash
+cat insights-rbac-ui-app-caddy-config.yaml
+cat insights-rbac-ui-dev-proxy-caddyfile.yaml
+```
+
+Ensure:
+- Routes match your application paths (e.g., `/apps/rbac/*`, `/iam/*`)
+- Namespace is `rh-platform-experien-tenant`
+- ConfigMap names match pipeline configuration
+
+#### Step 4: Submit to konflux-release-data
 
 1. **Access the internal repository:**
    ```bash
@@ -127,16 +81,118 @@ data:
 2. **Create the ConfigMap files** in the appropriate directory:
    ```
    konflux-release-data/
-   └── konflux-tenant-rh-platform-experien/
+   └── tenants-config/cluster/stone-prd-rh01/tenants/rh-platform-experien-tenant/
        ├── insights-rbac-ui-app-caddy-config.yaml
        └── insights-rbac-ui-dev-proxy-caddyfile.yaml
    ```
 
-3. **Submit a merge request** to add these files
+3. **Add ConfigMaps to kustomization.yaml** in the same directory
 
-4. **Reference PR for example:**
-   - https://gitlab.cee.redhat.com/releng/konflux-release-data/-/merge_requests/13221/diffs
-   - (learning-resources ConfigMaps)
+4. **Submit a merge request** to add these files
+
+5. **Reference MRs for examples:**
+   - **insights-rbac-ui (this project):** Branch `add-insights-rbac-ui-e2e-configmaps`
+     - Contains the actual Plumber-generated ConfigMaps for this repository
+     - Shows the exact directory structure and kustomization.yaml update
+   - **learning-resources:** https://gitlab.cee.redhat.com/releng/konflux-release-data/-/merge_requests/13221/diffs
+     - Another working example of E2E ConfigMaps
+
+### Reference: What Plumber Generates
+
+For educational purposes, here's what the generated ConfigMaps typically look like:
+
+<details>
+<summary>Example: insights-rbac-ui-app-caddy-config.yaml</summary>
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: insights-rbac-ui-app-caddy-config
+  namespace: rh-platform-experien-tenant
+data:
+  Caddyfile: |
+    :8000 {
+      # Routes generated from frontend.yaml paths
+      handle /apps/rbac/* {
+        root * /srv/dist
+        try_files {path} /apps/rbac/index.html
+        file_server
+      }
+
+      handle /iam/* {
+        root * /srv/dist
+        try_files {path} /apps/rbac/index.html
+        file_server
+      }
+
+      # Additional routes as needed
+    }
+```
+</details>
+
+<details>
+<summary>Example: insights-rbac-ui-dev-proxy-caddyfile.yaml</summary>
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: insights-rbac-ui-dev-proxy-caddyfile
+  namespace: rh-platform-experien-tenant
+data:
+  Caddyfile: |
+    :8080 {
+      # Route app requests to port 8000
+      @rbac_app {
+        path /apps/rbac/*
+        path /iam/*
+      }
+      reverse_proxy @rbac_app localhost:8000
+
+      # Route chrome to port 9912
+      @chrome {
+        path /apps/chrome/*
+      }
+      reverse_proxy @chrome localhost:9912
+
+      # Everything else to stage
+      reverse_proxy https://console.stage.redhat.com {
+        header_up Host console.stage.redhat.com
+      }
+    }
+```
+</details>
+
+**Note:** These are examples - Plumber will generate the actual routes based on your repository's configuration files.
+
+### What Was Generated for insights-rbac-ui
+
+For this repository, Plumber successfully extracted the following routes from `deploy/frontend.yaml` and generated ConfigMaps:
+
+**Routes extracted:**
+- `/apps/rbac`
+- `/iam`
+- `/iam/my-user-access`
+- `/settings/rbac`
+- `/iam/user-access`
+- `/iam/access-management`
+
+**ConfigMaps generated:**
+- `insights-rbac-ui-app-caddy-config.yaml` (4.8KB, 198 lines)
+- `insights-rbac-ui-dev-proxy-caddyfile.yaml` (889 bytes, 50 lines)
+
+**Submission:**
+- Branch: `add-insights-rbac-ui-e2e-configmaps` in konflux-release-data
+- MR: https://gitlab.cee.redhat.com/releng/konflux-release-data/-/merge_requests/14023
+- Status: Pending merge
+- Location: `tenants-config/cluster/stone-prd-rh01/tenants/rh-platform-experien-tenant/`
+- Files submitted:
+  - `insights-rbac-ui-app-caddy-config.yaml` (ConfigMap)
+  - `insights-rbac-ui-dev-proxy-caddyfile.yaml` (ConfigMap)
+  - `insights-rbac-ui-credentials-secret.yaml` (ExternalSecret)
+
+All files passed yamllint validation with zero errors.
 
 ## Required Vault Secrets
 
@@ -146,13 +202,28 @@ The pipeline needs E2E test user credentials stored in Vault.
 `insights-rbac-ui-credentials-secret`
 
 ### Required Keys
-- `E2E_USER` - Test automation user username
-- `E2E_PASSWORD` - Test automation user password
+All 4 keys are required by the E2E pipeline:
+- `e2e-user` - Test automation user username
+- `e2e-password` - Test automation user password
+- `e2e-hcc-env-url` - HCC environment URL for testing
+- `e2e-stage-actual-hostname` - Stage environment hostname
+
+### ExternalSecret Configuration
+
+The ExternalSecret YAML has been generated and submitted to konflux-release-data (see MR above). This configuration will automatically sync credentials from Vault to the Kubernetes secret.
+
+**Vault Path:** `creds/konflux/insights-rbac-ui`
+
+The ExternalSecret uses the `insights-appsre-vault` ClusterSecretStore and refreshes credentials every 15 minutes.
 
 ### Setup Instructions
 1. Refer to the **Platform Engineer Survival Guide** for Vault setup
-2. Create credentials for your specific application
-3. Configure the serviceAccount (`build-pipeline-insights-rbac-ui`) to access the secret
+2. Create credentials in Vault at path `creds/konflux/insights-rbac-ui` with all 4 required properties:
+   - `username` - Test automation user username (mapped to e2e-user)
+   - `password` - Test automation user password (mapped to e2e-password)
+   - `e2e-hcc-env-url` - HCC environment URL
+   - `e2e-stage-actual-hostname` - Stage environment hostname
+3. Verify the serviceAccount (`build-pipeline-insights-rbac-ui`) has necessary permissions
 
 **Note:** The existing Cypress tests use:
 - `CHROME_ACCOUNT` / `CHROME_PASSWORD`
@@ -269,15 +340,23 @@ Configure different trigger conditions (e.g., E2E only on specific branches or l
 
 1. ✅ Playwright tests created
 2. ✅ E2E pipeline configuration created
-3. ⬜ Create ConfigMaps in konflux-release-data
-4. ⬜ Set up Vault secrets
-5. ⬜ Create or verify Dockerfile
-6. ⬜ Test pipeline with a PR
-7. ⬜ Iterate and fix any issues
-8. ⬜ Switch production pipeline to E2E version
+3. ✅ Install and run Plumber to generate ConfigMaps
+4. ✅ Submit generated ConfigMaps to konflux-release-data
+   - Branch: `add-insights-rbac-ui-e2e-configmaps`
+   - MR: https://gitlab.cee.redhat.com/releng/konflux-release-data/-/merge_requests/14023
+5. ✅ Generate ExternalSecret YAML for Vault credentials
+   - ⬜ Add credentials to Vault at `creds/konflux/insights-rbac-ui`
+6. ⬜ Create or verify Dockerfile
+7. ⬜ Wait for MR (ConfigMaps + ExternalSecret) to be approved and merged
+8. ⬜ Test pipeline with a PR
+9. ⬜ Iterate and fix any issues
+10. ⬜ Switch production pipeline to E2E version
 
 ## Additional Resources
 
+- **Plumber (ConfigMap Generator):** https://github.com/catastrophe-brandon/plumber
+  - Automatically generates ConfigMaps from repository configuration
+  - Required for E2E pipeline setup
 - **Shared E2E Pipeline:** https://github.com/RedHatInsights/konflux-pipelines/blob/main/pipelines/platform-ui/docker-build-run-all-tests.yaml
 - **Public E2E Docs:** https://github.com/RedHatInsights/frontend-experience-docs/blob/master/pages/testing/e2e-pipeline.md
 - **Caddy Documentation:** https://caddyserver.com/docs/caddyfile
