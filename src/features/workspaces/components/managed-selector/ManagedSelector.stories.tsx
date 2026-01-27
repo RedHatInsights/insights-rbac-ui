@@ -66,8 +66,8 @@ This component includes comprehensive testing for:
 - Duplicate workspace name scenarios
 - Selection callbacks and state management
 
-## Storybook-First Testing
-These stories provide comprehensive component testing through Storybook play functions.
+## Converted from Cypress Tests
+These stories replace the previous Cypress component tests for more integrated development workflow.
         `,
       },
     },
