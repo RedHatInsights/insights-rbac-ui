@@ -10,7 +10,7 @@
  * - JSON output mapping
  */
 
-import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 // Use vi.hoisted to create mock that can be used in vi.mock factory
 const { mockReadFile } = vi.hoisted(() => ({
@@ -41,7 +41,7 @@ vi.mock('../../auth-bridge.js', () => ({
   })),
 }));
 
-import { runSeeder, type SeederOptions } from '../seeder.js';
+import { type SeederOptions, runSeeder } from '../seeder.js';
 import { getCurrentEnv, getEnvConfig } from '../../auth-bridge.js';
 import { getApiClient } from '../../api-client.js';
 
@@ -155,9 +155,11 @@ describe('seeder command', () => {
     });
 
     test('fails with exit code 1 when payload schema is invalid', async () => {
-      mockReadFile.mockResolvedValue(JSON.stringify({
-        roles: [{ invalidField: 'no name field' }],
-      }));
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          roles: [{ invalidField: 'no name field' }],
+        }),
+      );
 
       const exitCode = await runSeeder({ file: 'invalid-schema.json' });
 
@@ -177,16 +179,15 @@ describe('seeder command', () => {
       };
       mockGetApiClient.mockReturnValue(mockClient as any);
 
-      mockReadFile.mockResolvedValue(JSON.stringify({
-        roles: [{ name: 'my-role' }],
-      }));
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          roles: [{ name: 'my-role' }],
+        }),
+      );
 
       await runSeeder({ file: 'payload.json', prefix: 'ci-123-' });
 
-      expect(mockClient.post).toHaveBeenCalledWith(
-        '/api/rbac/v1/roles/',
-        expect.objectContaining({ name: 'ci-123-my-role' }),
-      );
+      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v1/roles/', expect.objectContaining({ name: 'ci-123-my-role' }));
     });
 
     test('prepends prefix to group names', async () => {
@@ -196,16 +197,15 @@ describe('seeder command', () => {
       };
       mockGetApiClient.mockReturnValue(mockClient as any);
 
-      mockReadFile.mockResolvedValue(JSON.stringify({
-        groups: [{ name: 'my-group' }],
-      }));
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          groups: [{ name: 'my-group' }],
+        }),
+      );
 
       await runSeeder({ file: 'payload.json', prefix: 'test-' });
 
-      expect(mockClient.post).toHaveBeenCalledWith(
-        '/api/rbac/v1/groups/',
-        expect.objectContaining({ name: 'test-my-group' }),
-      );
+      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v1/groups/', expect.objectContaining({ name: 'test-my-group' }));
     });
 
     test('prepends prefix to workspace names', async () => {
@@ -215,16 +215,15 @@ describe('seeder command', () => {
       };
       mockGetApiClient.mockReturnValue(mockClient as any);
 
-      mockReadFile.mockResolvedValue(JSON.stringify({
-        workspaces: [{ name: 'my-workspace' }],
-      }));
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          workspaces: [{ name: 'my-workspace' }],
+        }),
+      );
 
       await runSeeder({ file: 'payload.json', prefix: 'e2e-' });
 
-      expect(mockClient.post).toHaveBeenCalledWith(
-        '/api/rbac/v2/workspaces/',
-        expect.objectContaining({ name: 'e2e-my-workspace' }),
-      );
+      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v2/workspaces/', expect.objectContaining({ name: 'e2e-my-workspace' }));
     });
 
     test('works without prefix (no modification to names)', async () => {
@@ -234,16 +233,15 @@ describe('seeder command', () => {
       };
       mockGetApiClient.mockReturnValue(mockClient as any);
 
-      mockReadFile.mockResolvedValue(JSON.stringify({
-        roles: [{ name: 'original-name' }],
-      }));
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          roles: [{ name: 'original-name' }],
+        }),
+      );
 
       await runSeeder({ file: 'payload.json' });
 
-      expect(mockClient.post).toHaveBeenCalledWith(
-        '/api/rbac/v1/roles/',
-        expect.objectContaining({ name: 'original-name' }),
-      );
+      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v1/roles/', expect.objectContaining({ name: 'original-name' }));
     });
   });
 
@@ -268,11 +266,13 @@ describe('seeder command', () => {
     });
 
     test('fails with exit code 1 when all arrays are empty', async () => {
-      mockReadFile.mockResolvedValue(JSON.stringify({
-        roles: [],
-        groups: [],
-        workspaces: [],
-      }));
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          roles: [],
+          groups: [],
+          workspaces: [],
+        }),
+      );
 
       const mockClient = {
         post: vi.fn(),
@@ -298,9 +298,11 @@ describe('seeder command', () => {
       };
       mockGetApiClient.mockReturnValue(mockClient as any);
 
-      mockReadFile.mockResolvedValue(JSON.stringify({
-        roles: [{ name: 'role-1' }, { name: 'role-2' }],
-      }));
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          roles: [{ name: 'role-1' }, { name: 'role-2' }],
+        }),
+      );
 
       const exitCode = await runSeeder({ file: 'payload.json' });
 
@@ -309,16 +311,19 @@ describe('seeder command', () => {
 
     test('returns exit code 1 when some operations fail', async () => {
       const mockClient = {
-        post: vi.fn()
+        post: vi
+          .fn()
           .mockResolvedValueOnce({ data: { uuid: 'success-uuid' } })
           .mockRejectedValueOnce(new Error('API error')),
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
       };
       mockGetApiClient.mockReturnValue(mockClient as any);
 
-      mockReadFile.mockResolvedValue(JSON.stringify({
-        roles: [{ name: 'role-1' }, { name: 'role-2' }],
-      }));
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          roles: [{ name: 'role-1' }, { name: 'role-2' }],
+        }),
+      );
 
       const exitCode = await runSeeder({ file: 'payload.json' });
 

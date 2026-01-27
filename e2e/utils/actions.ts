@@ -33,7 +33,8 @@ export async function openRoleActionsMenu(page: Page, roleName: string) {
  */
 export async function openDetailPageActionsMenu(page: Page) {
   // Try to find an Actions button first (for pages that have one)
-  let actionsButton = page.getByRole('button', { name: 'Actions' });
+  // Use exact match to avoid matching "Actions overflow menu" responsive button
+  let actionsButton = page.getByRole('button', { name: 'Actions', exact: true });
 
   if (!(await actionsButton.isVisible().catch(() => false))) {
     // If no Actions button, look for kebab menu by ID (for group detail pages)

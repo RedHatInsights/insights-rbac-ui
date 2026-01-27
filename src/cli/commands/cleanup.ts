@@ -17,7 +17,8 @@
 import type { AxiosInstance } from 'axios';
 import { getApiClient, initializeApiClient } from '../api-client.js';
 import { getToken } from '../auth.js';
-import { getCurrentEnv, getEnvConfig } from '../auth-bridge.js';
+import { getEnvConfig } from '../auth-bridge.js';
+import { assertNotProduction, assertValidPattern, type PatternType } from './safety.js';
 
 // ============================================================================
 // Types
@@ -45,60 +46,6 @@ interface Resource {
   system?: boolean;
   platform_default?: boolean;
   type?: string;
-}
-
-// ============================================================================
-// Safety Rails
-// ============================================================================
-
-const MIN_PATTERN_LENGTH = 4;
-
-/**
- * CRITICAL: Block cleanup in production environments.
- * This prevents accidental data deletion in production via CI/CD.
- */
-function assertNotProduction(): void {
-  const env = getCurrentEnv();
-  const envLower = env.toLowerCase();
-
-  if (envLower === 'prod' || envLower === 'production') {
-    throw new Error(
-      'Cleanup is not allowed in production via headless mode.\n' +
-        'This safety rail prevents accidental data deletion in production.\n' +
-        'Set RBAC_ENV=stage to use the cleanup command.',
-    );
-  }
-}
-
-/**
- * CRITICAL: Validate pattern length to prevent mass deletion.
- * Rejects patterns that are too short or too broad.
- */
-function assertValidPattern(pattern: string | undefined, type: 'prefix' | 'name-match'): string {
-  if (!pattern) {
-    throw new Error(`--${type} is required for cleanup operations.`);
-  }
-
-  // Remove glob characters for length check
-  const cleanPattern = pattern.replace(/[*?[\]]/g, '');
-
-  if (cleanPattern.length < MIN_PATTERN_LENGTH) {
-    throw new Error(
-      `${type} must be at least ${MIN_PATTERN_LENGTH} characters (excluding wildcards) to prevent mass deletion.\n` +
-        `Received: "${pattern}" (effective length: ${cleanPattern.length})\n` +
-        `Example valid patterns: "test-run-", "ci-build-123-", "e2e-suite-"`,
-    );
-  }
-
-  // Reject overly broad patterns
-  const broadPatterns = ['*', '**', 'test', 'dev', 'qa', 'ci'];
-  if (broadPatterns.includes(pattern.toLowerCase())) {
-    throw new Error(
-      `Pattern "${pattern}" is too broad and could cause mass deletion.\n` + `Please use a more specific pattern.`,
-    );
-  }
-
-  return pattern;
 }
 
 // ============================================================================
@@ -213,13 +160,7 @@ async function fetchWorkspaces(client: AxiosInstance): Promise<Resource[]> {
 /**
  * Delete a role by UUID.
  */
-async function deleteRole(
-  client: AxiosInstance,
-  uuid: string,
-  name: string,
-  errors: string[],
-  dryRun: boolean,
-): Promise<boolean> {
+async function deleteRole(client: AxiosInstance, uuid: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
   if (dryRun) {
     console.error(`  🔍 Would delete role "${name}" (${uuid})`);
     return true;
@@ -240,13 +181,7 @@ async function deleteRole(
 /**
  * Delete a group by UUID.
  */
-async function deleteGroup(
-  client: AxiosInstance,
-  uuid: string,
-  name: string,
-  errors: string[],
-  dryRun: boolean,
-): Promise<boolean> {
+async function deleteGroup(client: AxiosInstance, uuid: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
   if (dryRun) {
     console.error(`  🔍 Would delete group "${name}" (${uuid})`);
     return true;
@@ -267,13 +202,7 @@ async function deleteGroup(
 /**
  * Delete a workspace by ID.
  */
-async function deleteWorkspace(
-  client: AxiosInstance,
-  id: string,
-  name: string,
-  errors: string[],
-  dryRun: boolean,
-): Promise<boolean> {
+async function deleteWorkspace(client: AxiosInstance, id: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
   if (dryRun) {
     console.error(`  🔍 Would delete workspace "${name}" (${id})`);
     return true;
@@ -298,12 +227,7 @@ async function deleteWorkspace(
 /**
  * Execute cleanup operations.
  */
-async function executeCleanup(
-  client: AxiosInstance,
-  prefix?: string,
-  nameMatch?: string,
-  dryRun: boolean = false,
-): Promise<CleanupResult> {
+async function executeCleanup(client: AxiosInstance, prefix?: string, nameMatch?: string, dryRun: boolean = false): Promise<CleanupResult> {
   const result: CleanupResult = {
     success: true,
     roles: { deleted: 0, failed: 0 },
@@ -387,13 +311,13 @@ export async function runCleanup(options: CleanupOptions): Promise<number> {
   try {
     // SAFETY RAIL 1: Block production (unless dry-run)
     if (!options.dryRun) {
-      assertNotProduction();
+      assertNotProduction('Cleanup');
     }
 
     // SAFETY RAIL 2: Validate pattern length
     const pattern = options.prefix || options.nameMatch;
-    const patternType = options.prefix ? 'prefix' : 'name-match';
-    assertValidPattern(pattern, patternType as 'prefix' | 'name-match');
+    const patternType: PatternType = options.prefix ? 'prefix' : 'name-match';
+    assertValidPattern(pattern, patternType, 'cleanup');
 
     const envConfig = getEnvConfig();
     console.error(`\n🧹 RBAC Cleanup${options.dryRun ? ' [DRY-RUN MODE]' : ''}`);

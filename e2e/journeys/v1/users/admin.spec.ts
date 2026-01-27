@@ -8,8 +8,7 @@
  * These tests focus on viewing and filtering users.
  */
 
-import { test, expect } from '@playwright/test';
-import { AUTH_V1_ADMIN } from '../../../utils';
+import { test, expect, AUTH_V1_ADMIN, setupPage } from '../../../utils';
 
 test.use({ storageState: AUTH_V1_ADMIN });
 
@@ -17,16 +16,10 @@ test.describe('V1 Users - Admin', () => {
   const USERS_URL = '/iam/user-access/users';
 
   test.beforeEach(async ({ page }) => {
+    await setupPage(page);
     await page.goto(USERS_URL);
-    await page.waitForLoadState('networkidle');
-  });
-
-  /**
-   * Verify the users page loads correctly
-   */
-  test('Users page loads', async ({ page }) => {
+    // Wait for page content to load (heading indicates data is ready)
     await expect(page.getByRole('heading', { name: /users/i })).toBeVisible();
-    await expect(page.getByRole('grid')).toBeVisible();
   });
 
   /**
@@ -46,9 +39,9 @@ test.describe('V1 Users - Admin', () => {
 
     if (await searchInput.isVisible()) {
       await searchInput.fill('test');
-      await page.waitForLoadState('networkidle');
 
-      // Table should still be visible
+      // Wait for filter to apply - table should still be visible
+      await page.waitForTimeout(500);
       await expect(page.getByRole('grid')).toBeVisible();
     }
   });
@@ -61,9 +54,8 @@ test.describe('V1 Users - Admin', () => {
 
     if (await firstUserLink.isVisible()) {
       await firstUserLink.click();
-      await page.waitForLoadState('networkidle');
 
-      // Should navigate to user detail page
+      // Wait for detail page to load
       await expect(page).toHaveURL(/\/users\//);
     }
   });

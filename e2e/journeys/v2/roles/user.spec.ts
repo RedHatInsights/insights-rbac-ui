@@ -5,25 +5,21 @@
  * Regular users can only view roles, not create/edit/delete.
  */
 
-import { test, expect } from '@playwright/test';
-import { AUTH_V2_USER, SEEDED_ROLE_NAME } from '../../../utils';
-
-const TEST_PREFIX = process.env.TEST_PREFIX;
+import { test, expect, AUTH_V2_USER, setupPage, getSeededRoleName, getSeededRoleData } from '../../../utils';
 
 test.use({ storageState: AUTH_V2_USER });
+
+// Get seeded role name and data from seed map/fixture
+const SEEDED_ROLE_NAME = getSeededRoleName();
+const SEEDED_ROLE_DATA = getSeededRoleData();
 
 test.describe('V2 Roles - User (Read Only)', () => {
   const ROLES_URL = '/iam/access-management/roles';
 
   test.beforeEach(async ({ page }) => {
+    await setupPage(page);
     await page.goto(ROLES_URL);
-    await page.waitForLoadState('networkidle');
-  });
-
-  /**
-   * Verify the roles page loads correctly
-   */
-  test('Roles page loads', async ({ page }) => {
+    // Wait for page content to load (heading indicates data is ready)
     await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible();
   });
 
@@ -31,14 +27,14 @@ test.describe('V2 Roles - User (Read Only)', () => {
    * Search for seeded role and verify it's visible
    */
   test('Can view seeded role', async ({ page }) => {
+    test.skip(!SEEDED_ROLE_NAME, 'No seeded role found in seed map');
     const searchInput = page.getByPlaceholder(/filter|search/i);
 
-    if (await searchInput.isVisible() && TEST_PREFIX) {
-      const prefixedName = `${TEST_PREFIX}__${SEEDED_ROLE_NAME}`;
-      await searchInput.fill(prefixedName);
-      await page.waitForLoadState('networkidle');
+    if (await searchInput.isVisible()) {
+      await searchInput.fill(SEEDED_ROLE_NAME!);
 
-      await expect(page.getByText(prefixedName)).toBeVisible();
+      // Verify the seeded role appears in the table (auto-waits for search results)
+      await expect(page.getByRole('grid').getByText(SEEDED_ROLE_NAME!)).toBeVisible();
     }
   });
 
@@ -51,41 +47,66 @@ test.describe('V2 Roles - User (Read Only)', () => {
   });
 
   /**
-   * Can view role detail page
+   * Can view seeded role detail page with expected content
    */
   test('Can view role detail', async ({ page }) => {
-    const firstRoleLink = page.locator('tbody tr').first().getByRole('link').first();
+    test.skip(!SEEDED_ROLE_NAME, 'No seeded role found in seed map');
+    const searchInput = page.getByPlaceholder(/filter|search/i);
 
-    if (await firstRoleLink.isVisible()) {
-      await firstRoleLink.click();
-      await page.waitForLoadState('networkidle');
+    // Search for the seeded role
+    await searchInput.fill(SEEDED_ROLE_NAME!);
+
+    // Click on the seeded role in the table (auto-waits for element)
+    const roleLink = page.getByRole('grid').getByRole('link', { name: SEEDED_ROLE_NAME! });
+    await roleLink.click();
+
+    // Wait for URL to change to detail page
+    await expect(page).toHaveURL(/\/roles\//);
+
+    // Wait for the role name heading to appear (indicates detail page loaded)
+    await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME! })).toBeVisible({ timeout: 15000 });
+
+    // Verify description is visible (if defined in seed fixture)
+    if (SEEDED_ROLE_DATA?.description) {
+      await expect(page.getByText(SEEDED_ROLE_DATA.description)).toBeVisible({ timeout: 30000 });
     }
   });
 
   /**
-   * Verify Edit/Delete actions are NOT available for regular users
+   * Verify Edit/Delete actions are NOT available for regular users on seeded role
    */
   test('Edit and Delete actions are NOT available', async ({ page }) => {
-    const firstRoleLink = page.locator('tbody tr').first().getByRole('link').first();
+    test.skip(!SEEDED_ROLE_NAME, 'No seeded role found in seed map');
+    const searchInput = page.getByPlaceholder(/filter|search/i);
 
-    if (await firstRoleLink.isVisible()) {
-      await firstRoleLink.click();
-      await page.waitForLoadState('networkidle');
+    // Search for and navigate to the seeded role
+    await searchInput.fill(SEEDED_ROLE_NAME!);
+    const roleLink = page.getByRole('grid').getByRole('link', { name: SEEDED_ROLE_NAME! });
+    await roleLink.click();
 
-      const editButton = page.getByRole('button', { name: /edit/i });
-      await expect(editButton).not.toBeVisible();
+    // Wait for detail page to load
+    await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME! })).toBeVisible({ timeout: 15000 });
 
-      const deleteButton = page.getByRole('button', { name: /delete/i });
-      await expect(deleteButton).not.toBeVisible();
-    }
+    const editButton = page.getByRole('button', { name: /edit/i });
+    await expect(editButton).not.toBeVisible();
+
+    const deleteButton = page.getByRole('button', { name: /delete/i });
+    await expect(deleteButton).not.toBeVisible();
   });
 
   /**
-   * Verify row kebab menu doesn't have edit/delete for regular users
+   * Verify row kebab menu doesn't have edit/delete for regular users on seeded role
    */
   test('Row actions do NOT include Edit or Delete', async ({ page }) => {
-    const firstRow = page.locator('tbody tr').first();
-    const kebabButton = firstRow.getByRole('button', { name: /actions/i });
+    test.skip(!SEEDED_ROLE_NAME, 'No seeded role found in seed map');
+    const searchInput = page.getByPlaceholder(/filter|search/i);
+
+    // Search for the seeded role
+    await searchInput.fill(SEEDED_ROLE_NAME!);
+
+    // Find the row with the seeded role (auto-waits for search results)
+    const seededRow = page.getByRole('row').filter({ hasText: SEEDED_ROLE_NAME! });
+    const kebabButton = seededRow.getByRole('button', { name: /actions/i });
 
     if (await kebabButton.isVisible()) {
       await kebabButton.click();

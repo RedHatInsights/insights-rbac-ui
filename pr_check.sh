@@ -20,36 +20,20 @@ IQE_FILTER_EXPRESSION=""
 
 set -exv
 
-CHROME_SHA=$(curl -X GET "https://quay.io/api/v1/repository/cloudservices/insights-chrome-frontend/tag/?onlyActiveTags=true&limit=100" | jq '.tags | [.[] | select(.name | test("^[a-zA-Z0-9]{7,40}$"))] | .[0].name' -r)
-CHROME_CONTAINER_NAME=chrome-$CHROME_SHA
-
-docker run -d --name $CHROME_CONTAINER_NAME --replace --network bridge quay.io/cloudservices/insights-chrome-frontend:$CHROME_SHA
-mkdir -p dist
-docker cp $CHROME_CONTAINER_NAME:/opt/app-root/src/build/stable/index.html dist/
-
-CHROME_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CHROME_CONTAINER_NAME)
-
-docker run -t \
-  -v $PWD:/e2e:ro,Z \
-  -w /e2e \
-  -e CHROME_ACCOUNT=$CHROME_ACCOUNT \
-  -e CHROME_PASSWORD=$CHROME_PASSWORD \
-  -e RBAC_FRONTEND_USER=$RBAC_FRONTEND_USER \
-  -e RBAC_FRONTEND_PASSWORD=$RBAC_FRONTEND_PASSWORD \
-  -e CHROME_HOST=$CHROME_HOST \
-  --add-host stage.foo.redhat.com:127.0.0.1 \
-  --add-host prod.foo.redhat.com:127.0.0.1 \
-  --entrypoint bash \
-  --network bridge \
-  quay.io/cloudservices/cypress-e2e-image:b8480a8 /e2e/run-e2e.sh
-
-echo "After docker run"
-
+# --------------------------------------------
+# Run frontend build
+# --------------------------------------------
 # source is preferred to | bash -s in this case to avoid a subshell
 source <(curl -sSL $COMMON_BUILDER/src/frontend-build.sh)
 BUILD_RESULTS=$?
 
-# Stubbed out for now
+# --------------------------------------------
+# E2E tests are run separately via Playwright
+# See e2e/README.md for local testing instructions
+# CI E2E tests require auth setup and are handled
+# in a dedicated pipeline step
+# --------------------------------------------
+
 mkdir -p $WORKSPACE/artifacts
 cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
 <testsuite tests="1">
@@ -57,5 +41,4 @@ cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
 </testsuite>
 EOF
 
-# teardown_docker
 exit $BUILD_RESULTS

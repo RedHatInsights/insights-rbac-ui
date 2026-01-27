@@ -129,13 +129,21 @@ The CLI solves these by providing:
 Performs automated SSO login and exports Playwright-compatible storage state.
 
 ```bash
-# Basic headless login (saves to auth.json)
-RBAC_USERNAME=your-user \
-RBAC_PASSWORD=your-pass \
-npm run cli -- login --headless --save-state auth.json
+# V1 Admin (org admin for User Access pages)
+RBAC_USERNAME=your-admin RBAC_PASSWORD=your-pass \
+  npm run cli -- login --headless --save-state e2e/auth/v1-admin.json
 
-# Output token to stdout (for piping)
-npm run cli -- login --headless --stdout
+# V1 User (regular user for read-only tests)
+RBAC_USERNAME=your-user RBAC_PASSWORD=your-pass \
+  npm run cli -- login --headless --save-state e2e/auth/v1-user.json
+
+# V2 Admin (org admin for Access Management pages)
+RBAC_USERNAME=your-v2-admin RBAC_PASSWORD=your-pass \
+  npm run cli -- login --headless --save-state e2e/auth/v2-admin.json
+
+# V2 User (regular user for V2 read-only tests)
+RBAC_USERNAME=your-v2-user RBAC_PASSWORD=your-pass \
+  npm run cli -- login --headless --save-state e2e/auth/v2-user.json
 ```
 
 **Dual-Proxy Support:**
@@ -159,14 +167,29 @@ npm run cli -- login --headless
 
 ---
 
-#### `seed --file --prefix --json` — Data Injection
+#### `seed --file --prefix --json --output [--dry-run]` — Data Injection
 
 Creates resources and outputs a name→UUID mapping for test navigation.
 
 ```bash
-# Seed from file with unique prefix
-npm run cli -- seed --file test-data.json --prefix "ci-run-42-" --json > seed-map.json
+# V1 tests: seed roles and groups (no workspaces)
+npm run cli -- seed --file e2e/fixtures/seed-v1.json --prefix "ci-run-42-" --json --output e2e/seed-map.json
+
+# V2 tests: seed roles, groups, and workspaces
+npm run cli -- seed --file e2e/fixtures/seed-v2.json --prefix "ci-run-42-" --json --output e2e/seed-map.json
+
+# Dry-run: authenticates and discovers system resources, but skips mutations
+npm run cli -- seed --file e2e/fixtures/seed-v1.json --prefix "ci-run-42-" --dry-run
 ```
+
+The `--output` flag writes the UUID map to a file while keeping stdout free for logs.
+
+**Dry-run behavior:**
+- ✅ Authenticates to the API (validates credentials work)
+- ✅ Discovers system roles and groups (Phase 1 runs normally)
+- ❌ Skips resource creation (Phase 2 outputs curl commands instead)
+
+This lets you verify the seed configuration and see available system resources without creating anything.
 
 **Payload Schema:**
 
@@ -269,28 +292,31 @@ The key to stable E2E tests is **never hardcoding UUIDs**. Instead, we:
 **Example Test Structure:**
 
 ```typescript
-// e2e/roles.spec.ts
+// e2e/journeys/v1/roles/admin.spec.ts
 import { test, expect } from '@playwright/test';
-import seedMap from '../../seed-map.json'; // Adjust path depth based on file location
+import { AUTH_V1_ADMIN, getPrefixedName, SEEDED_ROLE_NAME } from '../../../utils';
 
-test.use({ storageState: 'auth-admin.json' });
+test.use({ storageState: AUTH_V1_ADMIN });
 
-test.describe('Role Management', () => {
-  const roleUuid = seedMap.roles['ci-run-42-analyst'];
-
-  test('can view role details', async ({ page }) => {
-    // Navigate using dynamic UUID from seed map
-    await page.goto(`/iam/user-access/roles/detail/${roleUuid}`);
+test.describe('V1 Roles (Admin)', () => {
+  test('can search for seeded role', async ({ page }) => {
+    await page.goto('/iam/user-access/roles');
     
-    await expect(page.getByRole('heading', { name: /Cost Analyst/i }))
-      .toBeVisible();
+    // Search for the prefixed seeded role
+    const searchInput = page.getByPlaceholder(/search/i);
+    await searchInput.fill(getPrefixedName(SEEDED_ROLE_NAME));
+    
+    await expect(page.getByText(getPrefixedName(SEEDED_ROLE_NAME))).toBeVisible();
   });
 
-  test('can edit role permissions', async ({ page }) => {
-    await page.goto(`/iam/user-access/roles/detail/${roleUuid}/edit`);
+  test('can view role details', async ({ page }) => {
+    await page.goto('/iam/user-access/roles');
     
-    // Test editing flow...
-    await page.getByRole('button', { name: 'Add permission' }).click();
+    // Click on the seeded role to view details
+    await page.getByText(getPrefixedName(SEEDED_ROLE_NAME)).click();
+    
+    await expect(page.getByRole('heading', { name: /Seeded Role/i }))
+      .toBeVisible();
   });
 });
 ```
@@ -299,18 +325,22 @@ test.describe('Role Management', () => {
 
 ### Multi-Persona Support
 
-Different tests require different permission levels. We support this via separate storage state files:
+Different tests require different permission levels. We support this via separate storage state files for each API version:
 
 | File | Persona | Use Case |
 |------|---------|----------|
-| `auth-admin.json` | Organization Admin | Full access tests, CRUD operations |
-| `auth-user.json` | Regular User | Read-only tests, permission denial |
+| `e2e/auth/v1-admin.json` | V1 Organization Admin | Full CRUD on User Access pages |
+| `e2e/auth/v1-user.json` | V1 Regular User | Read-only tests on User Access pages |
+| `e2e/auth/v2-admin.json` | V2 Organization Admin | Full CRUD on Access Management pages |
+| `e2e/auth/v2-user.json` | V2 Regular User | Read-only tests on Access Management pages |
 
 **Switching Personas in Tests:**
 
 ```typescript
-// admin-flows.spec.ts
-test.use({ storageState: 'auth-admin.json' });
+// e2e/journeys/v1/roles/admin.spec.ts
+import { AUTH_V1_ADMIN } from '../../../utils';
+
+test.use({ storageState: AUTH_V1_ADMIN });
 
 test('admin can create role', async ({ page }) => {
   await page.goto('/iam/user-access/roles');
@@ -318,8 +348,10 @@ test('admin can create role', async ({ page }) => {
   // Admin can see the create button
 });
 
-// user-flows.spec.ts
-test.use({ storageState: 'auth-user.json' });
+// e2e/journeys/v1/roles/user.spec.ts
+import { AUTH_V1_USER } from '../../../utils';
+
+test.use({ storageState: AUTH_V1_USER });
 
 test('regular user cannot create role', async ({ page }) => {
   await page.goto('/iam/user-access/roles');
@@ -329,52 +361,80 @@ test('regular user cannot create role', async ({ page }) => {
 });
 ```
 
-**Generating Persona Storage States:**
+**Generating All Four Auth Files:**
 
 ```bash
-# Admin login
+# V1 Admin
 RBAC_USERNAME=admin-user RBAC_PASSWORD=admin-pass \
-npm run cli -- login --headless --save-state auth-admin.json
+  npm run cli -- login --headless --save-state e2e/auth/v1-admin.json
 
-# Regular user login  
+# V1 User
 RBAC_USERNAME=regular-user RBAC_PASSWORD=user-pass \
-npm run cli -- login --headless --save-state auth-user.json
+  npm run cli -- login --headless --save-state e2e/auth/v1-user.json
+
+# V2 Admin (may require different account with V2 feature flags)
+RBAC_USERNAME=v2-admin RBAC_PASSWORD=admin-pass \
+  npm run cli -- login --headless --save-state e2e/auth/v2-admin.json
+
+# V2 User
+RBAC_USERNAME=v2-user RBAC_PASSWORD=user-pass \
+  npm run cli -- login --headless --save-state e2e/auth/v2-user.json
 ```
 
 ---
 
 ## 👨‍🍳 Developer Cookbook
 
-### Run the Full E2E Suite Locally
+### One-Shot Commands (Recommended)
 
-**Complete Sequence:**
+Run the entire E2E lifecycle with a single command:
 
 ```bash
-# 1. Authenticate (generates storage state)
-RBAC_USERNAME=your-user RBAC_PASSWORD=your-pass \
-npm run cli -- login --headless --save-state auth.json
+# V1 Admin tests (full CRUD on User Access pages)
+TEST_PREFIX=jdoe RBAC_USERNAME=your-admin RBAC_PASSWORD=secret npm run e2e:v1:admin
 
-# 2. Seed test data (generates seed map)
-npm run cli -- seed --file e2e/fixtures/test-data.json \
-  --prefix "local-$(date +%s)-" \
-  --json > e2e/seed-map.json
+# V1 User tests (read-only verification)
+TEST_PREFIX=jdoe RBAC_USERNAME=your-user RBAC_PASSWORD=secret npm run e2e:v1:user
 
-# 3. Run Playwright tests
-npx playwright test --config=e2e/playwright.config.ts
+# V2 Admin tests (Access Management pages)
+TEST_PREFIX=jdoe RBAC_USERNAME=your-v2-admin RBAC_PASSWORD=secret npm run e2e:v2:admin
 
-# 4. Cleanup (extract prefix from your seed-map.json)
-npm run cli -- cleanup --prefix "local-1234567890-"
+# V2 User tests
+TEST_PREFIX=jdoe RBAC_USERNAME=your-v2-user RBAC_PASSWORD=secret npm run e2e:v2:user
 ```
 
-**One-liner for CI:**
+**What happens under the hood:**
+
+1. **Auth** (`e2e:auth:*`) — Logs in via headless browser, saves session state
+2. **Seed** (`e2e:seed`) — Creates test data with `TEST_PREFIX`, outputs UUID map
+3. **Test** (`e2e:test:*`) — Runs the specific Playwright specs
+4. **Cleanup** (`e2e:cleanup`) — Deletes all data matching `TEST_PREFIX`
+
+### CI Pipeline
 
 ```bash
-# CI pipeline script
-RBAC_USERNAME=$CI_USER RBAC_PASSWORD=$CI_PASS \
-npm run cli -- login --headless --save-state auth.json && \
-npm run cli -- seed --file e2e/fixtures/data.json --prefix "ci-$CI_JOB_ID-" --json > e2e/seed-map.json && \
-npx playwright test || true && \
-npm run cli -- cleanup --prefix "ci-$CI_JOB_ID-"
+# Single command handles everything
+TEST_PREFIX="ci-$CI_JOB_ID" \
+RBAC_USERNAME=$CI_USER \
+RBAC_PASSWORD=$CI_PASS \
+npm run e2e:v1:admin
+```
+
+### Manual Workflow (Debugging)
+
+When you need to run steps individually:
+
+```bash
+# Set environment once (prefix must be at least 4 characters)
+export TEST_PREFIX=jdoe
+export RBAC_USERNAME=your-admin
+export RBAC_PASSWORD=secret
+
+# Run primitives as needed
+npm run e2e:auth:v1:admin    # Auth (once per session)
+npm run e2e:seed             # Seed test data
+npm run e2e:test:v1:admin    # Run tests (repeat while debugging)
+npm run e2e:cleanup          # Cleanup when done
 ```
 
 ---
@@ -383,23 +443,26 @@ npm run cli -- cleanup --prefix "ci-$CI_JOB_ID-"
 
 ```bash
 # Run single test with UI mode
-npx playwright test e2e/roles.spec.ts --ui
+npx playwright test e2e/journeys/v1/roles/admin.spec.ts --ui
 
 # Run with debug flag (step-through debugging)
-npx playwright test e2e/roles.spec.ts --debug
+npx playwright test e2e/journeys/v1/roles/admin.spec.ts --debug
 
 # Run headed (visible browser)
-npx playwright test e2e/roles.spec.ts --headed
+npx playwright test e2e/journeys/v1/roles/admin.spec.ts --headed
 
 # Generate trace for failed test
-npx playwright test e2e/roles.spec.ts --trace on
+npx playwright test e2e/journeys/v1/roles/admin.spec.ts --trace on
 ```
 
 **Viewing Traces:**
 
 ```bash
 # Open trace viewer
-npx playwright show-trace test-results/roles-spec-ts/trace.zip
+npx playwright show-trace test-results/*/trace.zip
+
+# View HTML report
+npx playwright show-report
 ```
 
 ---
@@ -423,15 +486,38 @@ cat e2e/seed-map.json | jq '.roles | keys'
 
 ### Quick Reference Commands
 
+**One-Shot (Full Lifecycle):**
+
+| Command | Description |
+|---------|-------------|
+| `npm run e2e:v1:admin` | Auth → Seed → Test V1 Admin → Cleanup |
+| `npm run e2e:v1:user` | Auth → Seed → Test V1 User → Cleanup |
+| `npm run e2e:v2:admin` | Auth → Seed → Test V2 Admin → Cleanup |
+| `npm run e2e:v2:user` | Auth → Seed → Test V2 User → Cleanup |
+
+**Primitives (Individual Steps):**
+
 | Task | Command |
 |------|---------|
-| Interactive login | `npm run cli -- login` |
-| Headless login | `npm run cli -- login --headless --save-state auth.json` |
-| List roles | `npm run cli -- roles --json` |
-| Seed data | `npm run cli -- seed --file data.json --prefix "test-" --json` |
-| Cleanup | `npm run cli -- cleanup --prefix "test-"` |
-| Run E2E tests | `npx playwright test --config=e2e/playwright.config.ts` |
-| Debug test | `npx playwright test --debug` |
+| Auth V1 Admin | `npm run e2e:auth:v1:admin` |
+| Auth V1 User | `npm run e2e:auth:v1:user` |
+| Auth V2 Admin | `npm run e2e:auth:v2:admin` |
+| Auth V2 User | `npm run e2e:auth:v2:user` |
+| Seed data | `npm run e2e:seed` |
+| Cleanup | `npm run e2e:cleanup` |
+| Test V1 Admin | `npm run e2e:test:v1:admin` |
+| Test V1 User | `npm run e2e:test:v1:user` |
+| Test V2 Admin | `npm run e2e:test:v2:admin` |
+| Test V2 User | `npm run e2e:test:v2:user` |
+
+**Debugging:**
+
+| Task | Command |
+|------|---------|
+| Run specific test | `npx playwright test e2e/journeys/v1/roles/admin.spec.ts` |
+| Headed mode | `npx playwright test --headed` |
+| Debug mode | `npx playwright test --debug` |
+| UI mode | `npx playwright test --ui` |
 | View report | `npx playwright show-report` |
 
 ---

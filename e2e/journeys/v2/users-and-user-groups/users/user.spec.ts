@@ -5,8 +5,7 @@
  * with regular user privileges.
  */
 
-import { test, expect } from '@playwright/test';
-import { AUTH_V2_USER } from '../../../../utils';
+import { test, expect, AUTH_V2_USER, setupPage } from '../../../../utils';
 
 test.use({ storageState: AUTH_V2_USER });
 
@@ -14,14 +13,9 @@ test.describe('V2 Users - User (Read Only)', () => {
   const USERS_URL = '/iam/access-management/users-and-user-groups/users';
 
   test.beforeEach(async ({ page }) => {
+    await setupPage(page);
     await page.goto(USERS_URL);
-    await page.waitForLoadState('networkidle');
-  });
-
-  /**
-   * Verify the users page loads correctly
-   */
-  test('Users page loads', async ({ page }) => {
+    // Wait for page to load
     await expect(page.locator('body')).toBeVisible();
   });
 
