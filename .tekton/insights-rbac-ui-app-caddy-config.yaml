@@ -1,0 +1,197 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: insights-rbac-ui-app-caddy-config
+  namespace: rh-platform-experien-tenant
+data:
+  Caddyfile: |
+    # Caddyfile config for the application undergoing testing (This is NOT JSON)
+    {
+      	auto_https disable_redirects
+      	servers {
+      		metrics
+      	}
+      }
+
+      :9000 {
+      	metrics /metrics
+      }
+
+      :8000 {
+      	log
+
+      	# Handle main app route
+      	@app_match {
+      		path /apps/insights-rbac-ui*
+      	}
+      	handle @app_match {
+      		uri strip_prefix /apps/insights-rbac-ui
+      		file_server * {
+      			root /srv/dist
+      			browse
+      		}
+      	}
+
+        # Handle env based main route
+        @env_match {
+            path /default*
+        }
+
+        handle @env_match {
+            uri strip_prefix /default
+            file_server * {
+                root /srv/dist
+                browse
+            }
+        }
+
+      # Basic handling for application name without any prefixes in path
+      @insights-rbac-ui_match {
+          path /insights-rbac-ui/insights-rbac-ui/
+      }
+      handle @insights-rbac-ui_match {
+          uri strip_prefix /insights-rbac-ui
+          rewrite / /index.html
+          file_server * {
+              root /srv/dist
+          }
+      }
+
+      @insights-rbac-ui_subpath {
+          path /insights-rbac-ui/*
+      }
+      handle @insights-rbac-ui_subpath {
+          uri strip_prefix /insights-rbac-ui
+          file_server * {
+              root /srv/dist
+          }
+      }
+
+      # Beginning of dynamically-generated insights-rbac-ui routes from appUrl
+        @apps_rbac_match {
+          path /apps/rbac /apps/rbac/
+        }
+        handle @apps_rbac_match {
+            uri strip_prefix /apps/rbac
+            rewrite / /index.html
+            file_server * {
+                root /srv/dist
+            }
+        }
+
+        @apps_rbac_subpath {
+            path /apps/rbac/*
+        }
+        handle @apps_rbac_subpath {
+            uri strip_prefix /apps/rbac
+            file_server * {
+                root /srv/dist
+            }
+        }
+        @iam_match {
+          path /iam /iam/
+        }
+        handle @iam_match {
+            uri strip_prefix /iam
+            rewrite / /index.html
+            file_server * {
+                root /srv/dist
+            }
+        }
+
+        @iam_subpath {
+            path /iam/*
+        }
+        handle @iam_subpath {
+            uri strip_prefix /iam
+            file_server * {
+                root /srv/dist
+            }
+        }
+        @iam_my-user-access_match {
+          path /iam/my-user-access /iam/my-user-access/
+        }
+        handle @iam_my-user-access_match {
+            uri strip_prefix /iam/my-user-access
+            rewrite / /index.html
+            file_server * {
+                root /srv/dist
+            }
+        }
+
+        @iam_my-user-access_subpath {
+            path /iam/my-user-access/*
+        }
+        handle @iam_my-user-access_subpath {
+            uri strip_prefix /iam/my-user-access
+            file_server * {
+                root /srv/dist
+            }
+        }
+        @settings_rbac_match {
+          path /settings/rbac /settings/rbac/
+        }
+        handle @settings_rbac_match {
+            uri strip_prefix /settings/rbac
+            rewrite / /index.html
+            file_server * {
+                root /srv/dist
+            }
+        }
+
+        @settings_rbac_subpath {
+            path /settings/rbac/*
+        }
+        handle @settings_rbac_subpath {
+            uri strip_prefix /settings/rbac
+            file_server * {
+                root /srv/dist
+            }
+        }
+        @iam_user-access_match {
+          path /iam/user-access /iam/user-access/
+        }
+        handle @iam_user-access_match {
+            uri strip_prefix /iam/user-access
+            rewrite / /index.html
+            file_server * {
+                root /srv/dist
+            }
+        }
+
+        @iam_user-access_subpath {
+            path /iam/user-access/*
+        }
+        handle @iam_user-access_subpath {
+            uri strip_prefix /iam/user-access
+            file_server * {
+                root /srv/dist
+            }
+        }
+        @iam_access-management_match {
+          path /iam/access-management /iam/access-management/
+        }
+        handle @iam_access-management_match {
+            uri strip_prefix /iam/access-management
+            rewrite / /index.html
+            file_server * {
+                root /srv/dist
+            }
+        }
+
+        @iam_access-management_subpath {
+            path /iam/access-management/*
+        }
+        handle @iam_access-management_subpath {
+            uri strip_prefix /iam/access-management
+            file_server * {
+                root /srv/dist
+            }
+        }
+
+      # Handle the root path
+      handle / {
+        redir /apps/chrome/index.html permanent
+      }
+    }
