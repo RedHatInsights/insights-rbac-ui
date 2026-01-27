@@ -12,7 +12,7 @@
  *   const fixture = getSeedFixture();
  */
 import * as fs from 'fs';
-import { SEED_MAP_PATH, SEED_FILE_V1, SEED_FILE_V2 } from './paths';
+import { SEED_FILE_V1, SEED_FILE_V2, SEED_MAP_PATH } from './paths';
 
 export interface SeedMap {
   roles: Record<string, string>;
@@ -71,9 +71,7 @@ let cachedSeedFixtureVersion: 'v1' | 'v2' | null = null;
 export function getSeedMap(): SeedMap {
   try {
     if (!fs.existsSync(SEED_MAP_PATH)) {
-      console.warn(
-        '[SeedMap] seed-map.json not found. Run: npm run e2e:seed'
-      );
+      console.warn('[SeedMap] seed-map.json not found. Run: npm run e2e:seed');
       return EMPTY_SEED_MAP;
     }
 
@@ -98,11 +96,7 @@ export function getSeedMap(): SeedMap {
  */
 export function hasSeedData(): boolean {
   const seedMap = getSeedMap();
-  return (
-    Object.keys(seedMap.roles).length > 0 ||
-    Object.keys(seedMap.groups).length > 0 ||
-    Object.keys(seedMap.workspaces).length > 0
-  );
+  return Object.keys(seedMap.roles).length > 0 || Object.keys(seedMap.groups).length > 0 || Object.keys(seedMap.workspaces).length > 0;
 }
 
 /**
@@ -204,7 +198,7 @@ export function getSeedFixture(version?: 'v1' | 'v2'): SeedFixture {
   }
 
   const seedFile = version === 'v2' ? SEED_FILE_V2 : SEED_FILE_V1;
-  
+
   try {
     if (!fs.existsSync(seedFile)) {
       // Try the other version

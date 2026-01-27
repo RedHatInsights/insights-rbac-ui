@@ -20,7 +20,7 @@ vi.mock('../../auth-bridge.js', () => ({
   })),
 }));
 
-import { type LoginHeadlessOptions, runLoginHeadless } from '../login-headless.js';
+import { runLoginHeadless } from '../login-headless.js';
 import { performHeadlessLogin } from '../../auth-bridge.js';
 
 describe('login-headless command', () => {

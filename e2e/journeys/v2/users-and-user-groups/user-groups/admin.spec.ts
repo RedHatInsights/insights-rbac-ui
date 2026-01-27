@@ -10,7 +10,7 @@
  * - CRUD lifecycle uses serial mode to maintain state across create → edit → delete
  */
 
-import { test, expect, Page, AUTH_V2_ADMIN, setupPage, getSeededGroupName, getSeededGroupData } from '../../../../utils';
+import { AUTH_V2_ADMIN, Page, expect, getSeededGroupData, getSeededGroupName, setupPage, test } from '../../../../utils';
 
 // Safety rail: Require TEST_PREFIX for any test that creates data
 const TEST_PREFIX = process.env.TEST_PREFIX;
@@ -26,7 +26,7 @@ if (!TEST_PREFIX) {
       '║                                                                      ║\n' +
       '║    TEST_PREFIX=yourprefix npx playwright test v2/user-groups        ║\n' +
       '║                                                                      ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n'
+      '╚══════════════════════════════════════════════════════════════════════╝\n',
   );
 }
 
@@ -156,17 +156,26 @@ test.describe('V2 User Groups - Admin CRUD Lifecycle', () => {
       await page.waitForTimeout(500);
 
       // Check if on Review or need one more Next
-      const reviewHeading = page.locator('[role="dialog"]').getByText(/review/i).first();
+      const reviewHeading = page
+        .locator('[role="dialog"]')
+        .getByText(/review/i)
+        .first();
       if (!(await reviewHeading.isVisible({ timeout: 1000 }).catch(() => false))) {
         await clickWizardNext();
       }
     });
 
     await test.step('Review and submit', async () => {
-      const reviewHeading = page.locator('[role="dialog"]').getByText(/review/i).first();
+      const reviewHeading = page
+        .locator('[role="dialog"]')
+        .getByText(/review/i)
+        .first();
       await expect(reviewHeading).toBeVisible({ timeout: 5000 });
 
-      const submitButton = page.locator('[role="dialog"]').getByRole('button', { name: /submit|create/i }).first();
+      const submitButton = page
+        .locator('[role="dialog"]')
+        .getByRole('button', { name: /submit|create/i })
+        .first();
       await expect(submitButton).toBeEnabled({ timeout: 5000 });
       await submitButton.click();
 

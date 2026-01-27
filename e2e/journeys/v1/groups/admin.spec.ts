@@ -16,17 +16,9 @@
  * - CLEANUP: Delete created data at journey end (not afterAll, for visibility)
  */
 
-import { test, expect, Page } from '@playwright/test';
-import {
-  AUTH_V1_ADMIN,
-  setupPage,
-  openRowActionsMenu,
-  openDetailPageActionsMenu,
-  clickMenuItem,
-  verifySuccessNotification,
-  waitForPageToLoad,
-} from '../../../utils';
-import { getSeededGroupName, getSeededGroupData, getSeededRoleName } from '../../../utils/seed-map';
+import { Page, expect, test } from '@playwright/test';
+import { AUTH_V1_ADMIN, clickMenuItem, openDetailPageActionsMenu, openRowActionsMenu, setupPage, verifySuccessNotification } from '../../../utils';
+import { getSeededGroupData, getSeededGroupName, getSeededRoleName } from '../../../utils/seed-map';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -45,7 +37,7 @@ if (!TEST_PREFIX) {
       '║                                                                      ║\n' +
       '║    TEST_PREFIX=e2e npx playwright test v1/groups/admin              ║\n' +
       '║                                                                      ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n'
+      '╚══════════════════════════════════════════════════════════════════════╝\n',
   );
 }
 
@@ -59,9 +51,7 @@ const SEEDED_GROUP_DATA = getSeededGroupData();
 const SEEDED_ROLE_NAME = getSeededRoleName();
 
 if (!SEEDED_GROUP_NAME) {
-  throw new Error(
-    'No seeded group found in seed map. Run: npm run e2e:seed:v1'
-  );
+  throw new Error('No seeded group found in seed map. Run: npm run e2e:seed:v1');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -122,11 +112,7 @@ async function navigateToGroupDetail(page: Page, groupName: string): Promise<voi
  * 4. Add Service Accounts (select first available, if step exists)
  * 5. Review & Create
  */
-async function fillCreateGroupWizard(
-  page: Page,
-  groupName: string,
-  description: string
-): Promise<void> {
+async function fillCreateGroupWizard(page: Page, groupName: string, description: string): Promise<void> {
   // Find the wizard dialog (use OUIA ID to avoid PF6 modal wrapper)
   const wizard = page.locator('[data-ouia-component-id="add-group-wizard"]');
   await expect(wizard).toBeVisible({ timeout: 10000 });
@@ -147,9 +133,7 @@ async function fillCreateGroupWizard(
       if (isInPagination) continue;
 
       // Check if button is enabled
-      const isDisabled = await btn.evaluate(
-        (el) => el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true'
-      );
+      const isDisabled = await btn.evaluate((el) => el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true');
       if (isDisabled) continue;
 
       // Found an enabled, non-pagination Next button
@@ -185,10 +169,10 @@ async function fillCreateGroupWizard(
           /next/i.test(btn.textContent || '') &&
           !btn.closest('.pf-v6-c-pagination') &&
           !btn.hasAttribute('disabled') &&
-          btn.getAttribute('aria-disabled') !== 'true'
+          btn.getAttribute('aria-disabled') !== 'true',
       );
     },
-    { timeout: 15000 }
+    { timeout: 15000 },
   );
   await clickWizardNextButton();
 
@@ -198,10 +182,12 @@ async function fillCreateGroupWizard(
   // Wait for roles to load and click the first role checkbox
   await page.waitForFunction(
     () => {
-      const checkboxes = document.querySelectorAll('[data-ouia-component-id="add-group-wizard"] [role="checkbox"], [data-ouia-component-id="add-group-wizard"] input[type="checkbox"]');
+      const checkboxes = document.querySelectorAll(
+        '[data-ouia-component-id="add-group-wizard"] [role="checkbox"], [data-ouia-component-id="add-group-wizard"] input[type="checkbox"]',
+      );
       return checkboxes.length > 1;
     },
-    { timeout: 8000 }
+    { timeout: 8000 },
   );
 
   // Get fresh reference and click (select first role - index 1, as 0 is often "select all")
@@ -221,10 +207,12 @@ async function fillCreateGroupWizard(
   // Wait for users to load
   await page.waitForFunction(
     () => {
-      const checkboxes = document.querySelectorAll('[data-ouia-component-id="add-group-wizard"] [role="checkbox"], [data-ouia-component-id="add-group-wizard"] input[type="checkbox"]');
+      const checkboxes = document.querySelectorAll(
+        '[data-ouia-component-id="add-group-wizard"] [role="checkbox"], [data-ouia-component-id="add-group-wizard"] input[type="checkbox"]',
+      );
       return checkboxes.length > 1;
     },
-    { timeout: 8000 }
+    { timeout: 8000 },
   );
 
   // Get fresh reference and click first user
@@ -252,7 +240,7 @@ async function fillCreateGroupWizard(
         const text = wizard.textContent || '';
         return /service account/i.test(text);
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
     hasServiceAccountsStep = true;
   } catch {
@@ -263,10 +251,12 @@ async function fillCreateGroupWizard(
     // Wait for service accounts to load
     await page.waitForFunction(
       () => {
-        const checkboxes = document.querySelectorAll('[data-ouia-component-id="add-group-wizard"] [role="checkbox"], [data-ouia-component-id="add-group-wizard"] input[type="checkbox"]');
+        const checkboxes = document.querySelectorAll(
+          '[data-ouia-component-id="add-group-wizard"] [role="checkbox"], [data-ouia-component-id="add-group-wizard"] input[type="checkbox"]',
+        );
         return checkboxes.length > 1;
       },
-      { timeout: 8000 }
+      { timeout: 8000 },
     );
 
     // Get fresh reference and click first service account
@@ -293,7 +283,7 @@ async function fillCreateGroupWizard(
       if (!mainContent) return false;
       return /review/i.test(mainContent.textContent || '');
     },
-    { timeout: 8000 }
+    { timeout: 8000 },
   );
 
   // Verify the review shows the group name we entered
@@ -308,10 +298,10 @@ async function fillCreateGroupWizard(
         (btn) =>
           /create|submit|finish|add.*group/i.test(btn.textContent || '') &&
           !btn.hasAttribute('disabled') &&
-          btn.getAttribute('aria-disabled') !== 'true'
+          btn.getAttribute('aria-disabled') !== 'true',
       );
     },
-    { timeout: 5000 }
+    { timeout: 5000 },
   );
 
   const createButton = wizard
@@ -329,11 +319,7 @@ async function fillCreateGroupWizard(
  * Fills the Edit Group modal and saves.
  * PORTED VERBATIM from EditGroupModal.helpers.tsx (Storybook helper).
  */
-async function fillEditGroupModal(
-  page: Page,
-  newName: string,
-  newDescription: string
-): Promise<void> {
+async function fillEditGroupModal(page: Page, newName: string, newDescription: string): Promise<void> {
   // Step 1: Wait for edit modal to appear
   const dialog = page.getByRole('dialog').first();
   await expect(dialog).toBeVisible({ timeout: 5000 });
@@ -350,7 +336,7 @@ async function fillEditGroupModal(
       const nameField = textboxes[0] as HTMLInputElement;
       return nameField.value !== '';
     },
-    { timeout: 5000 }
+    { timeout: 5000 },
   );
 
   // Get fields by role - they're in order: name, description
@@ -381,11 +367,11 @@ async function fillEditGroupModal(
 
 /**
  * Confirms deletion in the delete group modal.
- * 
+ *
  * IMPORTANT: The V1 RemoveGroupModal renders in two phases:
  * 1. Loading state: Shows "Removing group" title with skeleton and a no-op Remove button
  * 2. Loaded state: Shows "Remove group {name}?" with functional Remove button
- * 
+ *
  * We MUST wait for the loaded state before clicking, otherwise we click
  * a button that does nothing and the modal stays open.
  */
@@ -393,7 +379,7 @@ async function confirmGroupDeletion(page: Page, groupName: string): Promise<void
   const dialog = page.getByRole('dialog').first();
   await expect(dialog).toBeVisible({ timeout: 5000 });
 
-  // Wait for loading to complete - the title changes from "Removing group" 
+  // Wait for loading to complete - the title changes from "Removing group"
   // to include the actual group name
   await expect(dialog.getByRole('heading', { name: new RegExp(groupName, 'i') })).toBeVisible({
     timeout: 30000,
@@ -565,11 +551,13 @@ test.describe('V1 Groups - Admin CRUD Lifecycle Journey', () => {
       await expect(rolesGrid).toBeVisible({ timeout: 10000 });
       const roleRows = rolesGrid.getByRole('row');
       // Should have header row + at least 1 data row
-      await expect(roleRows).toHaveCount(2, { timeout: 10000 }).catch(async () => {
-        // If exact count fails, just verify we have more than 1 row (header + data)
-        const count = await roleRows.count();
-        expect(count).toBeGreaterThan(1);
-      });
+      await expect(roleRows)
+        .toHaveCount(2, { timeout: 10000 })
+        .catch(async () => {
+          // If exact count fails, just verify we have more than 1 row (header + data)
+          const count = await roleRows.count();
+          expect(count).toBeGreaterThan(1);
+        });
       console.log(`[View] ✓ Roles tab verified - has assigned roles`);
 
       // ── Verify MEMBERS tab has the user we selected ──
@@ -581,10 +569,12 @@ test.describe('V1 Groups - Admin CRUD Lifecycle Journey', () => {
       const membersGrid = page.getByRole('grid');
       await expect(membersGrid).toBeVisible({ timeout: 10000 });
       const memberRows = membersGrid.getByRole('row');
-      await expect(memberRows).toHaveCount(2, { timeout: 10000 }).catch(async () => {
-        const count = await memberRows.count();
-        expect(count).toBeGreaterThan(1);
-      });
+      await expect(memberRows)
+        .toHaveCount(2, { timeout: 10000 })
+        .catch(async () => {
+          const count = await memberRows.count();
+          expect(count).toBeGreaterThan(1);
+        });
       console.log(`[View] ✓ Members tab verified - has assigned members`);
 
       // ── Verify SERVICE ACCOUNTS tab (if present) ──
@@ -597,10 +587,12 @@ test.describe('V1 Groups - Admin CRUD Lifecycle Journey', () => {
         const saGrid = page.getByRole('grid');
         await expect(saGrid).toBeVisible({ timeout: 10000 });
         const saRows = saGrid.getByRole('row');
-        await expect(saRows).toHaveCount(2, { timeout: 10000 }).catch(async () => {
-          const count = await saRows.count();
-          expect(count).toBeGreaterThan(1);
-        });
+        await expect(saRows)
+          .toHaveCount(2, { timeout: 10000 })
+          .catch(async () => {
+            const count = await saRows.count();
+            expect(count).toBeGreaterThan(1);
+          });
         console.log(`[View] ✓ Service Accounts tab verified - has assigned SAs`);
       }
 

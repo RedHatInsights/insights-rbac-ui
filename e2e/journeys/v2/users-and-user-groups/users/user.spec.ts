@@ -5,7 +5,7 @@
  * with regular user privileges.
  */
 
-import { test, expect, AUTH_V2_USER, setupPage } from '../../../../utils';
+import { AUTH_V2_USER, expect, setupPage, test } from '../../../../utils';
 
 test.use({ storageState: AUTH_V2_USER });
 

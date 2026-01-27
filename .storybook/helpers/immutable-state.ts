@@ -1,9 +1,9 @@
 /**
  * Immutable State Management for MSW Handlers
- * 
+ *
  * This module provides type-safe immutable state operations to prevent
  * the spread operator bugs and state pollution we've been experiencing.
- * 
+ *
  * Key principles:
  * 1. All state updates return NEW objects (never mutate)
  * 2. Deep cloning for nested structures
@@ -12,7 +12,7 @@
  */
 
 import { Group, Principal, Role } from '../types/entities';
-import type { WorkspacesWorkspace, RoleBindingsRoleBindingBySubject } from '../../src/data/queries/workspaces';
+import type { RoleBindingsRoleBindingBySubject, WorkspacesWorkspace } from '../../src/data/queries/workspaces';
 
 // Type aliases for backward compatibility with existing mock data
 type Workspace = WorkspacesWorkspace;
@@ -48,7 +48,10 @@ function cloneMap<K, V>(map: Map<K, V[]>): Map<K, V[]> {
   const newMap = new Map<K, V[]>();
   map.forEach((value, key) => {
     // Create new array with cloned items
-    newMap.set(key, value.map(item => ({ ...item } as V)));
+    newMap.set(
+      key,
+      value.map((item) => ({ ...item }) as V),
+    );
   });
   return newMap;
 }
@@ -77,10 +80,10 @@ function cloneGroup(group: Group): Group {
 export function cloneState(state: AppState): AppState {
   return {
     groups: state.groups.map(cloneGroup),
-    users: state.users.map(u => ({ ...u })),
-    roles: state.roles.map(r => ({ ...r })),
-    workspaces: state.workspaces.map(w => ({ ...w })),
-    serviceAccounts: state.serviceAccounts.map(sa => ({ ...sa })),
+    users: state.users.map((u) => ({ ...u })),
+    roles: state.roles.map((r) => ({ ...r })),
+    workspaces: state.workspaces.map((w) => ({ ...w })),
+    serviceAccounts: state.serviceAccounts.map((sa) => ({ ...sa })),
     groupMembers: cloneMap(state.groupMembers),
     groupRoles: cloneMap(state.groupRoles),
     workspaceRoleBindings: cloneMap(state.workspaceRoleBindings),
@@ -92,14 +95,14 @@ export function cloneState(state: AppState): AppState {
  * Returns a NEW state object with the updated group
  */
 export function updateGroup(state: AppState, groupId: string, updates: Partial<Group>): AppState {
-  const groupIndex = state.groups.findIndex(g => g.uuid === groupId);
+  const groupIndex = state.groups.findIndex((g) => g.uuid === groupId);
   if (groupIndex === -1) {
     return state; // Group not found, return unchanged state
   }
 
   const oldGroup = state.groups[groupIndex];
   const newGroup = cloneGroup(oldGroup);
-  
+
   // Apply updates explicitly (no spread!)
   if (updates.name !== undefined) newGroup.name = updates.name;
   if (updates.description !== undefined) newGroup.description = updates.description;
@@ -128,9 +131,9 @@ export function addRolesToGroup(state: AppState, groupId: string, roleUuids: str
   const currentRoles = state.groupRoles.get(groupId) || [];
   const newRoles = [...currentRoles];
 
-  roleUuids.forEach(roleUuid => {
-    const role = state.roles.find(r => r.uuid === roleUuid);
-    if (role && !newRoles.find(r => r.uuid === roleUuid)) {
+  roleUuids.forEach((roleUuid) => {
+    const role = state.roles.find((r) => r.uuid === roleUuid);
+    if (role && !newRoles.find((r) => r.uuid === roleUuid)) {
       newRoles.push({ ...role });
     }
   });
@@ -139,7 +142,7 @@ export function addRolesToGroup(state: AppState, groupId: string, roleUuids: str
   newGroupRoles.set(groupId, newRoles);
 
   // Update roleCount on the group
-  const groupIndex = state.groups.findIndex(g => g.uuid === groupId);
+  const groupIndex = state.groups.findIndex((g) => g.uuid === groupId);
   let newGroups = state.groups;
   if (groupIndex !== -1) {
     newGroups = [...state.groups];
@@ -161,13 +164,13 @@ export function addRolesToGroup(state: AppState, groupId: string, roleUuids: str
  */
 export function removeRolesFromGroup(state: AppState, groupId: string, roleUuids: string[]): AppState {
   const currentRoles = state.groupRoles.get(groupId) || [];
-  const newRoles = currentRoles.filter(r => !roleUuids.includes(r.uuid));
+  const newRoles = currentRoles.filter((r) => !roleUuids.includes(r.uuid));
 
   const newGroupRoles = cloneMap(state.groupRoles);
   newGroupRoles.set(groupId, newRoles);
 
   // Update roleCount on the group
-  const groupIndex = state.groups.findIndex(g => g.uuid === groupId);
+  const groupIndex = state.groups.findIndex((g) => g.uuid === groupId);
   let newGroups = state.groups;
   if (groupIndex !== -1) {
     newGroups = [...state.groups];
@@ -191,9 +194,9 @@ export function addMembersToGroup(state: AppState, groupId: string, usernames: s
   const currentMembers = state.groupMembers.get(groupId) || [];
   const newMembers = [...currentMembers];
 
-  usernames.forEach(username => {
-    const user = state.users.find(u => u.username === username);
-    if (user && !newMembers.find(m => m.username === username)) {
+  usernames.forEach((username) => {
+    const user = state.users.find((u) => u.username === username);
+    if (user && !newMembers.find((m) => m.username === username)) {
       newMembers.push({ ...user });
     }
   });
@@ -202,7 +205,7 @@ export function addMembersToGroup(state: AppState, groupId: string, usernames: s
   newGroupMembers.set(groupId, newMembers);
 
   // Update principalCount on the group
-  const groupIndex = state.groups.findIndex(g => g.uuid === groupId);
+  const groupIndex = state.groups.findIndex((g) => g.uuid === groupId);
   let newGroups = state.groups;
   if (groupIndex !== -1) {
     newGroups = [...state.groups];
@@ -224,13 +227,13 @@ export function addMembersToGroup(state: AppState, groupId: string, usernames: s
  */
 export function removeMembersFromGroup(state: AppState, groupId: string, usernames: string[]): AppState {
   const currentMembers = state.groupMembers.get(groupId) || [];
-  const newMembers = currentMembers.filter(m => !usernames.includes(m.username || ''));
+  const newMembers = currentMembers.filter((m) => !usernames.includes(m.username || ''));
 
   const newGroupMembers = cloneMap(state.groupMembers);
   newGroupMembers.set(groupId, newMembers);
 
   // Update principalCount on the group
-  const groupIndex = state.groups.findIndex(g => g.uuid === groupId);
+  const groupIndex = state.groups.findIndex((g) => g.uuid === groupId);
   let newGroups = state.groups;
   if (groupIndex !== -1) {
     newGroups = [...state.groups];
@@ -251,7 +254,7 @@ export function removeMembersFromGroup(state: AppState, groupId: string, usernam
  * Find a group by UUID (returns a clone, never the original)
  */
 export function findGroup(state: AppState, groupId: string): Group | undefined {
-  const group = state.groups.find(g => g.uuid === groupId);
+  const group = state.groups.find((g) => g.uuid === groupId);
   return group ? cloneGroup(group) : undefined;
 }
 
@@ -260,7 +263,7 @@ export function findGroup(state: AppState, groupId: string): Group | undefined {
  */
 export function getGroupMembers(state: AppState, groupId: string): Principal[] {
   const members = state.groupMembers.get(groupId);
-  return members ? members.map(m => ({ ...m })) : [];
+  return members ? members.map((m) => ({ ...m })) : [];
 }
 
 /**
@@ -268,6 +271,5 @@ export function getGroupMembers(state: AppState, groupId: string): Principal[] {
  */
 export function getGroupRoles(state: AppState, groupId: string): Role[] {
   const roles = state.groupRoles.get(groupId);
-  return roles ? roles.map(r => ({ ...r })) : [];
+  return roles ? roles.map((r) => ({ ...r })) : [];
 }
-

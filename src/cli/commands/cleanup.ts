@@ -18,7 +18,7 @@ import type { AxiosInstance } from 'axios';
 import { getApiClient, initializeApiClient } from '../api-client.js';
 import { getToken } from '../auth.js';
 import { getEnvConfig } from '../auth-bridge.js';
-import { assertNotProduction, assertValidPattern, type PatternType } from './safety.js';
+import { type PatternType, assertNotProduction, assertValidPattern } from './safety.js';
 
 // ============================================================================
 // Types

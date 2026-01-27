@@ -5,7 +5,7 @@
  * Regular users may have limited visibility into the user list.
  */
 
-import { test, expect, AUTH_V1_USER, setupPage } from '../../../utils';
+import { AUTH_V1_USER, expect, setupPage, test } from '../../../utils';
 
 test.use({ storageState: AUTH_V1_USER });
 

@@ -31,9 +31,11 @@ vi.mock('../../auth-bridge.js', () => ({
   })),
 }));
 
-import { type CleanupOptions, runCleanup } from '../cleanup.js';
+import { runCleanup } from '../cleanup.js';
 import { getCurrentEnv } from '../../auth-bridge.js';
 import { getApiClient } from '../../api-client.js';
+
+type MockApiClient = ReturnType<typeof getApiClient>;
 
 describe('cleanup command', () => {
   const originalEnv = { ...process.env };
@@ -80,7 +82,7 @@ describe('cleanup command', () => {
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
         delete: vi.fn(),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       await runCleanup({ prefix: 'test-prefix-' });
 
@@ -95,7 +97,7 @@ describe('cleanup command', () => {
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
         delete: vi.fn(),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       await runCleanup({ prefix: 'test-prefix-' });
 
@@ -113,7 +115,7 @@ describe('cleanup command', () => {
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
         delete: vi.fn(),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
     });
 
     test('BLOCKS execution when prefix is empty', async () => {
@@ -210,7 +212,7 @@ describe('cleanup command', () => {
           .mockResolvedValueOnce({ data: { data: [] } }),
         delete: vi.fn().mockResolvedValue({}),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       await runCleanup({ prefix: 'ci-123-' });
 
@@ -240,7 +242,7 @@ describe('cleanup command', () => {
           .mockResolvedValueOnce({ data: { data: [] } }),
         delete: vi.fn().mockResolvedValue({}),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       await runCleanup({ nameMatch: 'test-*-run' });
 
@@ -266,7 +268,7 @@ describe('cleanup command', () => {
           .mockResolvedValueOnce({ data: { data: [] } }),
         delete: vi.fn().mockResolvedValue({}),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       await runCleanup({ prefix: 'test-prefix-' });
 
@@ -298,7 +300,7 @@ describe('cleanup command', () => {
           .mockResolvedValueOnce({ data: { data: [] } }),
         delete: vi.fn().mockResolvedValue({}),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       await runCleanup({ prefix: 'test-' });
 
@@ -323,7 +325,7 @@ describe('cleanup command', () => {
           .mockResolvedValueOnce({ data: { data: [] } }), // workspaces
         delete: vi.fn().mockResolvedValue({}),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       await runCleanup({ prefix: 'test-' });
 
@@ -347,7 +349,7 @@ describe('cleanup command', () => {
           }), // workspaces
         delete: vi.fn().mockResolvedValue({}),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       await runCleanup({ prefix: 'test-' });
 
@@ -370,7 +372,7 @@ describe('cleanup command', () => {
         }),
         delete: vi.fn().mockResolvedValue({}),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       const exitCode = await runCleanup({ prefix: 'test-' });
 
@@ -389,7 +391,7 @@ describe('cleanup command', () => {
         }),
         delete: vi.fn().mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('Delete failed')),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       const exitCode = await runCleanup({ prefix: 'test-' });
 
@@ -401,7 +403,7 @@ describe('cleanup command', () => {
         get: vi.fn().mockResolvedValue({ data: { data: [] } }),
         delete: vi.fn(),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       const exitCode = await runCleanup({ prefix: 'nonexistent-prefix-' });
 
@@ -440,7 +442,7 @@ describe('cleanup command', () => {
           .mockResolvedValueOnce({ data: { data: [] } }),
         delete: vi.fn().mockResolvedValue({}),
       };
-      mockGetApiClient.mockReturnValue(mockClient as any);
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
       await runCleanup({ prefix: 'prefix-', nameMatch: 'match-*' });
 

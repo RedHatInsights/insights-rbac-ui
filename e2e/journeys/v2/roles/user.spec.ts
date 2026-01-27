@@ -5,7 +5,7 @@
  * Regular users can only view roles, not create/edit/delete.
  */
 
-import { test, expect, AUTH_V2_USER, setupPage, getSeededRoleName, getSeededRoleData } from '../../../utils';
+import { AUTH_V2_USER, expect, getSeededRoleData, getSeededRoleName, setupPage, test } from '../../../utils';
 
 test.use({ storageState: AUTH_V2_USER });
 

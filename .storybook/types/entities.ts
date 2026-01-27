@@ -26,7 +26,7 @@ export interface Principal {
 
 export interface Access {
   permission: string;
-  resourceDefinitions?: any[];
+  resourceDefinitions?: { attributeFilter?: { key: string; operation: string; value: string } }[];
 }
 
 export interface Role {

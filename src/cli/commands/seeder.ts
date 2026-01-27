@@ -25,7 +25,7 @@ import { getApiClient, initializeApiClient } from '../api-client.js';
 import { getToken } from '../auth.js';
 import { getEnvConfig } from '../auth-bridge.js';
 import { assertNotProduction, assertValidPrefix } from './safety.js';
-import { createRolesApi, createGroupsApi, type RolesApiClient, type GroupsApiClient, type RoleIn } from '../queries.js';
+import { type GroupsApiClient, type RoleIn, type RolesApiClient, createGroupsApi, createRolesApi } from '../queries.js';
 
 // ============================================================================
 // Types
@@ -128,7 +128,6 @@ async function fetchSystemGroups(client: AxiosInstance): Promise<SystemGroup[]> 
   }
 }
 
-
 // ============================================================================
 // Payload Processing
 // ============================================================================
@@ -230,12 +229,7 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
  *
  * @throws Error if creation fails (caller should handle)
  */
-async function createGroup(
-  groupsApi: GroupsApiClient,
-  group: GroupInput,
-  mapping: ResourceMapping,
-  roleMapping: ResourceMapping,
-): Promise<void> {
+async function createGroup(groupsApi: GroupsApiClient, group: GroupInput, mapping: ResourceMapping, roleMapping: ResourceMapping): Promise<void> {
   const groupData = {
     name: group.name,
     description: group.description,
@@ -264,12 +258,7 @@ async function createGroup(
       }
 
       if (roleUuids.length > 0) {
-        logCurl(
-          'POST',
-          `/api/rbac/v1/groups/${uuid}/roles/`,
-          { roles: roleUuids },
-          `Attach ${roleUuids.length} role(s) to group`,
-        );
+        logCurl('POST', `/api/rbac/v1/groups/${uuid}/roles/`, { roles: roleUuids }, `Attach ${roleUuids.length} role(s) to group`);
         await groupsApi.addRoleToGroup({ uuid, groupRoleIn: { roles: roleUuids } });
         console.error(`    ✓ Attached ${roleUuids.length} role(s) to group`);
       }
@@ -282,12 +271,7 @@ async function createGroup(
  *
  * @throws Error if creation fails (caller should handle)
  */
-async function createWorkspace(
-  client: AxiosInstance,
-  workspace: WorkspaceInput,
-  mapping: ResourceMapping,
-  rootWorkspaceId?: string,
-): Promise<void> {
+async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput, mapping: ResourceMapping, rootWorkspaceId?: string): Promise<void> {
   const payload = {
     name: workspace.name,
     description: workspace.description,

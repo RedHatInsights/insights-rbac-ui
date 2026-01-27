@@ -9,7 +9,7 @@
  * - Pattern matching for glob filters
  */
 
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { LOGIN_SELECTORS, getCurrentEnv, getEnvConfig, getLaunchOptions } from '../auth-bridge.js';
 
 describe('auth-bridge', () => {
