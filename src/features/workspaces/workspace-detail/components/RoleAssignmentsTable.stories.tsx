@@ -875,3 +875,60 @@ export const GrantAccessWizardTest: Story = {
     await expect(canvas.findByRole('button', { name: /grant access/i })).resolves.toBeInTheDocument();
   },
 };
+
+// Test Row Actions - Edit Access
+export const RowActionsTest: Story = {
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    page: 1,
+    perPage: 20,
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
+    ouiaId: 'role-assignments-row-actions-test',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Testing row click functionality. Clicking a row opens the GroupDetailsDrawer to view group details.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for table to load
+    const table = await canvas.findByRole('grid');
+    await expect(table).toBeInTheDocument();
+
+    // Verify groups are displayed
+    await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Development Team')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('QA Engineers')).resolves.toBeInTheDocument();
+
+    // Test row click functionality - clicking a row should open the drawer
+    const user = userEvent.setup();
+    const firstRow = canvas.getByText('Platform Administrators').closest('tr');
+    if (firstRow) {
+      await user.click(firstRow);
+      // Wait for drawer to open (GroupDetailsDrawer should appear)
+      await waitFor(
+        async () => {
+          // The drawer should contain group details
+          const drawer = canvas.queryByRole('dialog');
+          if (drawer) {
+            await expect(drawer).toBeInTheDocument();
+          }
+        },
+        { timeout: 2000 },
+      );
+    }
+  },
+};

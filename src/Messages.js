@@ -3004,6 +3004,11 @@ export default defineMessages({
     description: 'Review step description',
     defaultMessage: 'This step is currently blank and ready for implementation.',
   },
+  editAccess: {
+    id: 'editAccess',
+    description: 'Edit access action text',
+    defaultMessage: 'Edit access',
+  },
   editAccessForThisWorkspace: {
     id: 'editAccessForThisWorkspace',
     description: 'Edit access for this workspace button text',
@@ -3058,6 +3063,27 @@ export default defineMessages({
     id: 'noGroupsAvailable',
     description: 'Message when no groups are available for selection',
     defaultMessage: 'No groups available',
+  },
+  grantOrRemoveAccess: {
+    id: 'grantOrRemoveAccess',
+    description: 'Edit access modal instruction text',
+    defaultMessage:
+      'Grant or remove access to the <b>{groupName}</b> group within the <b>{workspaceName}</b> workspace by selecting or deselecting roles below.',
+  },
+  all: {
+    id: 'all',
+    description: 'All tab label',
+    defaultMessage: 'All',
+  },
+  selected: {
+    id: 'selected',
+    description: 'Selected tab label',
+    defaultMessage: 'Selected',
+  },
+  update: {
+    id: 'update',
+    description: 'Update button label',
+    defaultMessage: 'Update',
   },
   // Error handling messages for race conditions and permission errors
   itemAlreadyRemovedTitle: {
