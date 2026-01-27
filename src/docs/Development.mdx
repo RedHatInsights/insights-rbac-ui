@@ -268,28 +268,26 @@ describe('User Management Integration', () => {
 });
 ```
 
-### E2E Testing with Cypress
+### E2E Testing with Playwright
+
+For comprehensive E2E testing documentation, see **[E2E Testing Strategy](/docs/documentation-e2e-testing-strategy--docs)** in this Storybook.
 
 ```typescript
-// cypress/e2e/user-management.cy.ts
-describe('User Management', () => {
-  beforeEach(() => {
-    cy.login(); // Custom command for authentication
-    cy.visit('/users');
-  });
+// e2e/journeys/v1/roles/admin.spec.ts
+import { test, expect } from '@playwright/test';
+import { AUTH_V1_ADMIN, SEEDED_ROLE_NAME, getPrefixedName } from '../../../utils';
 
-  it('should display user list', () => {
-    cy.get('[data-testid="user-list"]').should('be.visible');
-    cy.get('[data-testid="user-item"]').should('have.length.greaterThan', 0);
-  });
+test.use({ storageState: AUTH_V1_ADMIN });
 
-  it('should create a new user', () => {
-    cy.get('[data-testid="add-user-button"]').click();
-    cy.get('[data-testid="user-name-input"]').type('New User');
-    cy.get('[data-testid="user-email-input"]').type('newuser@example.com');
-    cy.get('[data-testid="save-user-button"]').click();
+test.describe('V1 Roles (Admin)', () => {
+  test('can search for seeded role', async ({ page }) => {
+    await page.goto('/iam/user-access/roles');
     
-    cy.get('[data-testid="success-message"]').should('contain', 'User created successfully');
+    // Search for the seeded role
+    const searchInput = page.getByPlaceholder(/search/i);
+    await searchInput.fill(getPrefixedName(SEEDED_ROLE_NAME));
+    
+    await expect(page.getByText(getPrefixedName(SEEDED_ROLE_NAME))).toBeVisible();
   });
 });
 ```
@@ -410,8 +408,7 @@ npm run analyze          # Analyze bundle size
 npm test                 # Run unit tests
 npm run test:watch       # Run tests in watch mode
 npm run test:coverage    # Generate coverage report
-npm run test:e2e         # Run E2E tests
-npm run cypress          # Open Cypress GUI
+npm run test:e2e         # Run Playwright E2E tests
 
 # Code Quality
 npm run lint             # Run ESLint

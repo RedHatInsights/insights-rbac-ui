@@ -8,7 +8,7 @@
  * - Option parsing
  */
 
-import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 // Mock the auth-bridge module before importing the command
 vi.mock('../../auth-bridge.js', () => ({
@@ -20,7 +20,7 @@ vi.mock('../../auth-bridge.js', () => ({
   })),
 }));
 
-import { runLoginHeadless, type LoginHeadlessOptions } from '../login-headless.js';
+import { type LoginHeadlessOptions, runLoginHeadless } from '../login-headless.js';
 import { performHeadlessLogin } from '../../auth-bridge.js';
 
 describe('login-headless command', () => {

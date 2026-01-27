@@ -73,27 +73,24 @@ npm run cli -- groups -l 100 --json    # Combined options
 
 ### Corporate Proxy Configuration
 
-If you're behind a corporate VPN with a PAC file, you'll need to configure the proxy:
+**macOS Auto-Detection:** On macOS, the CLI automatically detects your system's PAC proxy settings via `scutil --proxy`. No configuration needed - just run `npm run cli` and it will use your VPN proxy if configured.
 
-```bash
-# Find your PAC URL (macOS)
-scutil --proxy | grep ProxyAutoConfigURLString
-
-# Run CLI with PAC proxy (replace with your PAC URL)
-NODE_TLS_REJECT_UNAUTHORIZED=0 \
-RBAC_PAC_URL="https://your-proxy-pac-url/proxy.pac" \
-npm run cli -- roles
-
-# Or export for the session
-export NODE_TLS_REJECT_UNAUTHORIZED=0
-export RBAC_PAC_URL="https://your-proxy-pac-url/proxy.pac"
-npm run cli -- roles
+You'll see this in the output when auto-detected:
+```
+[CLI] Auto-detected PAC proxy: https://your-corp-proxy/proxy.pac
 ```
 
-### Using a Direct Proxy
+**Manual Override:** If auto-detection doesn't work or you need a different proxy:
 
 ```bash
+# Explicit PAC URL
+RBAC_PAC_URL="https://your-proxy-pac-url/proxy.pac" npm run cli -- roles
+
+# Direct proxy URL
 RBAC_PROXY=http://proxy.example.com:8080 npm run cli -- roles
+
+# CI sidecar proxy
+HTTPS_PROXY=http://ci-proxy:8080 npm run cli -- roles
 ```
 
 ## Seed Payload Schema

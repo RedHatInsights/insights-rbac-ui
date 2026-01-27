@@ -5,8 +5,7 @@
  * Regular users may have limited visibility into the user list.
  */
 
-import { test, expect } from '@playwright/test';
-import { AUTH_V1_USER } from '../../../utils';
+import { test, expect, AUTH_V1_USER, setupPage } from '../../../utils';
 
 test.use({ storageState: AUTH_V1_USER });
 
@@ -14,16 +13,9 @@ test.describe('V1 Users - User (Read Only)', () => {
   const USERS_URL = '/iam/user-access/users';
 
   test.beforeEach(async ({ page }) => {
+    await setupPage(page);
     await page.goto(USERS_URL);
-    await page.waitForLoadState('networkidle');
-  });
-
-  /**
-   * Verify the users page loads correctly
-   */
-  test('Users page loads', async ({ page }) => {
-    // Page should load without errors
-    // Content may vary based on user permissions
+    // Wait for page to load
     await expect(page.locator('body')).toBeVisible();
   });
 

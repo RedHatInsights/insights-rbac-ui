@@ -8,8 +8,7 @@
  * These tests focus on viewing and filtering users in the V2 interface.
  */
 
-import { test, expect } from '@playwright/test';
-import { AUTH_V2_ADMIN } from '../../../../utils';
+import { test, expect, AUTH_V2_ADMIN, setupPage } from '../../../../utils';
 
 test.use({ storageState: AUTH_V2_ADMIN });
 
@@ -17,14 +16,9 @@ test.describe('V2 Users - Admin', () => {
   const USERS_URL = '/iam/access-management/users-and-user-groups/users';
 
   test.beforeEach(async ({ page }) => {
+    await setupPage(page);
     await page.goto(USERS_URL);
-    await page.waitForLoadState('networkidle');
-  });
-
-  /**
-   * Verify the users page loads correctly
-   */
-  test('Users page loads', async ({ page }) => {
+    // Wait for page content to load (heading indicates data is ready)
     await expect(page.getByRole('heading', { name: /users/i })).toBeVisible();
   });
 
@@ -48,7 +42,8 @@ test.describe('V2 Users - Admin', () => {
 
     if (await searchInput.isVisible()) {
       await searchInput.fill('test');
-      await page.waitForLoadState('networkidle');
+      // Wait for filter to apply
+      await page.waitForTimeout(500);
     }
   });
 
@@ -60,7 +55,8 @@ test.describe('V2 Users - Admin', () => {
 
     if (await firstUserLink.isVisible()) {
       await firstUserLink.click();
-      await page.waitForLoadState('networkidle');
+      // Wait for detail page/drawer to load
+      await page.waitForTimeout(500);
     }
   });
 

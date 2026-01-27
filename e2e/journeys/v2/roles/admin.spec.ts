@@ -1,17 +1,16 @@
 /**
  * V2 Roles - Admin Tests
  *
- * Tests for the V2 Roles page (/iam/access-management/roles) with admin privileges.
- * Admin users can view, create, edit, and delete custom roles.
+ * Tests for the V2 Roles page (/iam/access-management/roles)
+ * with admin privileges.
  *
  * Test Pattern:
- * 1. Search for seeded role (verify found)
- * 2. View seeded role detail (verify values)
- * 3. CRUD lifecycle: Create → Verify → Edit → Verify → Delete → Verify gone
+ * - Use `test.step()` to group related assertions within a single test
+ * - Pay the "page load tax" once per test, not per assertion
+ * - CRUD lifecycle uses serial mode to maintain state across create → edit → delete
  */
 
-import { test, expect, Page } from '@playwright/test';
-import { AUTH_V2_ADMIN, SEEDED_ROLE_NAME } from '../../../utils';
+import { test, expect, Page, AUTH_V2_ADMIN, setupPage, getSeededRoleName, getSeededRoleData } from '../../../utils';
 
 // Safety rail: Require TEST_PREFIX for any test that creates data
 const TEST_PREFIX = process.env.TEST_PREFIX;
@@ -25,7 +24,7 @@ if (!TEST_PREFIX) {
       '║  This test creates data that must be prefixed to avoid polluting    ║\n' +
       '║  the shared environment. Set TEST_PREFIX before running:            ║\n' +
       '║                                                                      ║\n' +
-      '║    TEST_PREFIX=e2e npx playwright test v2/roles/admin               ║\n' +
+      '║    TEST_PREFIX=yourprefix npx playwright test v2/roles              ║\n' +
       '║                                                                      ║\n' +
       '╚══════════════════════════════════════════════════════════════════════╝\n'
   );
@@ -33,59 +32,65 @@ if (!TEST_PREFIX) {
 
 test.use({ storageState: AUTH_V2_ADMIN });
 
+// Get seeded role name and data from seed map/fixture
+const SEEDED_ROLE_NAME = getSeededRoleName();
+const SEEDED_ROLE_DATA = getSeededRoleData();
+
 test.describe('V2 Roles - Admin', () => {
   const ROLES_URL = '/iam/access-management/roles';
 
-  test.beforeEach(async ({ page }) => {
+  /**
+   * Admin can find and inspect a seeded role
+   * Single page load, multiple verification steps
+   */
+  test('Can find and inspect seeded role', async ({ page }) => {
+    test.skip(!SEEDED_ROLE_NAME, 'No seeded role found in seed map');
+    await setupPage(page);
     await page.goto(ROLES_URL);
-    await page.waitForLoadState('networkidle');
-  });
-
-  /**
-   * Verify the roles page loads correctly
-   */
-  test('Roles page loads', async ({ page }) => {
     await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible();
-  });
 
-  /**
-   * Search for seeded role and verify it's found
-   */
-  test('Can search for seeded role', async ({ page }) => {
-    const searchInput = page.getByPlaceholder(/filter|search/i);
+    await test.step('Verify Create Role button is visible', async () => {
+      const createButton = page.getByRole('button', { name: /create role/i });
+      await expect(createButton).toBeVisible();
+    });
 
-    if (await searchInput.isVisible()) {
-      const prefixedName = `${TEST_PREFIX}__${SEEDED_ROLE_NAME}`;
-      await searchInput.fill(prefixedName);
-      await page.waitForLoadState('networkidle');
+    await test.step('Search for the seeded role', async () => {
+      const searchInput = page.getByPlaceholder(/filter|search/i);
+      await searchInput.fill(SEEDED_ROLE_NAME!);
 
-      await expect(page.getByText(prefixedName)).toBeVisible();
-    }
-  });
+      // Verify the seeded role appears in the table
+      await expect(page.getByRole('grid').getByText(SEEDED_ROLE_NAME!)).toBeVisible({ timeout: 10000 });
+    });
 
-  /**
-   * View role detail page
-   */
-  test('Can view role detail', async ({ page }) => {
-    const firstRoleLink = page.locator('tbody tr').first().getByRole('link').first();
+    await test.step('Navigate to detail view', async () => {
+      const roleLink = page.getByRole('grid').getByRole('link', { name: SEEDED_ROLE_NAME! });
+      await roleLink.click();
 
-    if (await firstRoleLink.isVisible()) {
-      await firstRoleLink.click();
-      await page.waitForLoadState('networkidle');
-    }
-  });
+      await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME! })).toBeVisible({ timeout: 15000 });
+    });
 
-  /**
-   * Admin can see Create Role button
-   */
-  test('Create Role button is visible', async ({ page }) => {
-    const createButton = page.getByRole('button', { name: /create role/i });
-    await expect(createButton).toBeVisible();
+    await test.step('Verify role details', async () => {
+      // Verify the expected description is visible (if defined in seed fixture)
+      if (SEEDED_ROLE_DATA?.description) {
+        await expect(page.getByText(SEEDED_ROLE_DATA.description)).toBeVisible({ timeout: 30000 });
+      }
+
+      // Verify action buttons are available for admin
+      const actionsButton = page.getByRole('button', { name: /actions/i });
+      await expect(actionsButton).toBeVisible();
+    });
   });
 });
 
 /**
  * CRUD Lifecycle Tests
+ *
+ * These tests run in serial mode to maintain state across:
+ * Create → Verify → Edit → Delete → Verify Deleted
+ *
+ * Structure:
+ * 1. "Create role" - Complex wizard flow, needs its own test
+ * 2. "Manage role lifecycle" - All post-creation operations in one test with steps
  */
 test.describe('V2 Roles - Admin CRUD Lifecycle', () => {
   test.describe.configure({ mode: 'serial' });
@@ -104,6 +109,7 @@ test.describe('V2 Roles - Admin CRUD Lifecycle', () => {
 
     const context = await browser.newContext({ storageState: AUTH_V2_ADMIN });
     page = await context.newPage();
+    await setupPage(page);
 
     console.log(`\n[V2 Roles Admin] Using prefix: ${TEST_PREFIX}`);
     console.log(`[V2 Roles Admin] Role name: ${roleName}\n`);
@@ -114,182 +120,172 @@ test.describe('V2 Roles - Admin CRUD Lifecycle', () => {
   });
 
   /**
-   * Step 1: Create a new role
+   * Create a new role via the wizard
    */
   test('Create role', async () => {
     await page.goto('/iam/access-management/roles');
-    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible();
 
-    const createButton = page.getByRole('button', { name: /create role/i });
-    await expect(createButton).toBeVisible();
-    await createButton.click();
+    await test.step('Open wizard and fill role name', async () => {
+      const createButton = page.getByRole('button', { name: /create role/i });
+      await expect(createButton).toBeVisible();
+      await createButton.click();
 
-    await page.waitForLoadState('networkidle');
+      const modal = page.locator('[role="dialog"]');
+      await expect(modal).toBeVisible({ timeout: 10000 });
 
-    // Fill in role name
-    const nameInput = page.getByLabel(/name/i).first();
-    await expect(nameInput).toBeVisible({ timeout: 5000 });
-    await nameInput.fill(roleName);
-
-    // Fill in description if available
-    const descriptionInput = page.getByLabel(/description/i);
-    if (await descriptionInput.isVisible()) {
-      await descriptionInput.fill(roleDescription);
-    }
-
-    // Navigate through wizard or submit form
-    const nextButton = page.getByRole('button', { name: /next/i });
-    if (await nextButton.isVisible()) {
-      await nextButton.click();
-      await page.waitForLoadState('networkidle');
-
-      const nextButton2 = page.getByRole('button', { name: /next/i });
-      if (await nextButton2.isVisible()) {
-        await nextButton2.click();
-        await page.waitForLoadState('networkidle');
+      // Select "Create from scratch" if visible
+      const createFromScratchOption = modal.getByRole('radio', { name: /create.*scratch/i });
+      if (await createFromScratchOption.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await createFromScratchOption.click();
       }
 
-      const submitButton = page.getByRole('button', { name: /submit|create|save/i });
+      const nameInput = modal.getByLabel(/role name/i);
+      await expect(nameInput).toBeVisible({ timeout: 5000 });
+      await nameInput.fill(roleName);
+
+      await page.waitForTimeout(1500); // Async validation
+    });
+
+    await test.step('Add permissions', async () => {
+      const modal = page.locator('[role="dialog"]');
+
+      const nextButton1 = modal.getByRole('button', { name: /^next$/i }).first();
+      await expect(nextButton1).toBeEnabled({ timeout: 10000 });
+      await nextButton1.click();
+      await page.waitForTimeout(500);
+
+      // Select at least one permission
+      const permissionCheckboxes = modal.getByRole('checkbox');
+      const checkboxCount = await permissionCheckboxes.count();
+      if (checkboxCount > 1) {
+        await permissionCheckboxes.nth(1).click();
+      }
+
+      const nextButton2 = modal.getByRole('button', { name: /^next$/i }).first();
+      await expect(nextButton2).toBeEnabled({ timeout: 5000 });
+      await nextButton2.click();
+    });
+
+    await test.step('Review and submit', async () => {
+      const modal = page.locator('[role="dialog"]');
+      await page.waitForTimeout(500);
+
+      // Add description if available
+      const descriptionInput = modal.locator('textarea').first();
+      if (await descriptionInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await descriptionInput.fill(roleDescription);
+      }
+
+      const submitButton = modal.getByRole('button', { name: /submit/i });
+      await expect(submitButton).toBeEnabled({ timeout: 5000 });
       await submitButton.click();
-    } else {
-      const submitButton = page.getByRole('button', { name: /submit|create|save/i });
-      await submitButton.click();
-    }
 
-    await page.waitForLoadState('networkidle');
+      // Wait for success screen and exit
+      await expect(modal.getByText(/successfully created/i)).toBeVisible({ timeout: 10000 });
+      const exitButton = modal.getByRole('button', { name: /exit/i });
+      await exitButton.click();
 
-    // Verify role was created
-    await page.goto('/iam/access-management/roles');
-    await page.waitForLoadState('networkidle');
+      await expect(modal).not.toBeVisible({ timeout: 5000 });
+    });
 
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
+    await test.step('Verify role appears in list', async () => {
+      const searchInput = page.getByPlaceholder(/filter|search/i);
       await searchInput.fill(roleName);
-      await page.waitForLoadState('networkidle');
-    }
-
-    await expect(page.getByText(roleName)).toBeVisible({ timeout: 10000 });
-    console.log(`[Step 1] Created role: ${roleName}`);
+      await expect(page.getByRole('grid').getByText(roleName)).toBeVisible({ timeout: 10000 });
+      console.log(`[Create] Created role: ${roleName}`);
+    });
   });
 
   /**
-   * Step 2: Verify role details
+   * Manage role lifecycle: View → Edit → Delete
+   * Single page load, multiple operations via steps
    */
-  test('Verify role details', async () => {
+  test('Manage role lifecycle', async () => {
     await page.goto('/iam/access-management/roles');
-    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible();
 
     const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
+    await searchInput.fill(roleName);
+    await expect(page.getByRole('grid').getByText(roleName)).toBeVisible({ timeout: 10000 });
+
+    await test.step('View role details', async () => {
+      const roleLink = page.getByRole('grid').getByRole('link', { name: roleName });
+      await roleLink.click();
+
+      await expect(page.getByRole('heading', { name: roleName })).toBeVisible({ timeout: 10000 });
+      console.log(`[View] Verified role details: ${roleName}`);
+
+      // Navigate back to list
+      await page.goto('/iam/access-management/roles');
+      await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible();
       await searchInput.fill(roleName);
-      await page.waitForLoadState('networkidle');
-    }
+      await expect(page.getByRole('grid').getByText(roleName)).toBeVisible({ timeout: 10000 });
+    });
 
-    const roleLink = page.getByRole('link', { name: roleName });
-    await expect(roleLink).toBeVisible();
-    await roleLink.click();
-    await page.waitForLoadState('networkidle');
-
-    console.log(`[Step 2] Verified role details: ${roleName}`);
-  });
-
-  /**
-   * Step 3: Edit role
-   */
-  test('Edit role', async () => {
-    await page.goto('/iam/access-management/roles');
-    await page.waitForLoadState('networkidle');
-
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
-      await searchInput.fill(roleName);
-      await page.waitForLoadState('networkidle');
-    }
-
-    const roleRow = page.locator('tbody tr', { has: page.getByText(roleName) });
-    const kebabButton = roleRow.getByRole('button', { name: /actions/i });
-
-    if (await kebabButton.isVisible()) {
+    await test.step('Edit role description', async () => {
+      const roleRow = page.locator('tbody tr', { has: page.getByText(roleName) });
+      const kebabButton = roleRow.getByRole('button', { name: /actions/i });
+      await expect(kebabButton).toBeVisible();
       await kebabButton.click();
 
       const editOption = page.getByRole('menuitem', { name: /edit/i });
-      if (await editOption.isVisible()) {
-        await editOption.click();
-        await page.waitForLoadState('networkidle');
+      await expect(editOption).toBeVisible();
+      await editOption.click();
 
-        const descriptionInput = page.getByLabel(/description/i);
-        if (await descriptionInput.isVisible()) {
-          await descriptionInput.clear();
-          await descriptionInput.fill(editedDescription);
-        }
+      const modal = page.locator('[role="dialog"]');
+      await expect(modal).toBeVisible({ timeout: 5000 });
 
-        const saveButton = page.getByRole('button', { name: /save|submit|update/i });
-        await saveButton.click();
-        await page.waitForLoadState('networkidle');
-
-        console.log(`[Step 3] Edited role: ${roleName}`);
+      const descriptionInput = modal.locator('textarea, input[name*="description"]');
+      if (await descriptionInput.isVisible()) {
+        await descriptionInput.clear();
+        await descriptionInput.fill(editedDescription);
       }
-    }
-  });
 
-  /**
-   * Step 4: Delete role
-   */
-  test('Delete role', async () => {
-    await page.goto('/iam/access-management/roles');
-    await page.waitForLoadState('networkidle');
+      const saveButton = modal.getByRole('button', { name: /save|submit|update/i });
+      await expect(saveButton).toBeEnabled();
+      await saveButton.click();
+      await expect(modal).not.toBeVisible({ timeout: 10000 });
+      console.log(`[Edit] Edited role: ${roleName}`);
+    });
 
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
+    await test.step('Delete role', async () => {
+      await searchInput.clear();
       await searchInput.fill(roleName);
-      await page.waitForLoadState('networkidle');
-    }
+      await expect(page.getByRole('grid').getByText(roleName)).toBeVisible({ timeout: 10000 });
 
-    const roleRow = page.locator('tbody tr', { has: page.getByText(roleName) });
-    const kebabButton = roleRow.getByRole('button', { name: /actions/i });
-
-    if (await kebabButton.isVisible()) {
+      const roleRow = page.locator('tbody tr', { has: page.getByText(roleName) });
+      const kebabButton = roleRow.getByRole('button', { name: /actions/i });
+      await expect(kebabButton).toBeVisible();
       await kebabButton.click();
 
       const deleteOption = page.getByRole('menuitem', { name: /delete/i });
-      if (await deleteOption.isVisible()) {
-        await deleteOption.click();
+      await expect(deleteOption).toBeVisible();
+      await deleteOption.click();
 
-        const modal = page.getByRole('dialog');
-        await expect(modal).toBeVisible();
+      const modal = page.getByRole('dialog');
+      await expect(modal).toBeVisible({ timeout: 5000 });
 
-        const checkbox = modal.getByRole('checkbox');
-        if (await checkbox.isVisible()) {
-          await checkbox.click();
-        }
-
-        const confirmButton = modal.getByRole('button', { name: /delete|remove|confirm/i });
-        await confirmButton.click();
-
-        await expect(modal).not.toBeVisible({ timeout: 5000 });
-        await page.waitForLoadState('networkidle');
-
-        console.log(`[Step 4] Deleted role: ${roleName}`);
+      const checkbox = modal.getByRole('checkbox');
+      if (await checkbox.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await checkbox.click();
       }
-    }
-  });
 
-  /**
-   * Step 5: Verify deletion
-   */
-  test('Verify role deleted', async () => {
-    await page.goto('/iam/access-management/roles');
-    await page.waitForLoadState('networkidle');
+      const confirmButton = modal.getByRole('button', { name: /delete|remove|confirm/i });
+      await expect(confirmButton).toBeEnabled();
+      await confirmButton.click();
+      await expect(modal).not.toBeVisible({ timeout: 10000 });
+      console.log(`[Delete] Deleted role: ${roleName}`);
+    });
 
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
+    await test.step('Verify role is deleted', async () => {
+      await searchInput.clear();
       await searchInput.fill(roleName);
-      await page.waitForLoadState('networkidle');
-    }
+      await page.waitForTimeout(1000);
 
-    await expect(page.getByText(roleName)).not.toBeVisible({ timeout: 10000 });
-
-    console.log(`[Step 5] Verified deletion: ${roleName}`);
-    console.log(`\n[V2 Roles Admin] Lifecycle test completed successfully!\n`);
+      await expect(page.getByRole('grid').getByText(roleName)).not.toBeVisible({ timeout: 10000 });
+      console.log(`[Verify] Verified deletion: ${roleName}`);
+      console.log(`\n[V2 Roles Admin] Lifecycle test completed successfully!\n`);
+    });
   });
 });

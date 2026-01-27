@@ -5,13 +5,12 @@
  * with admin privileges.
  *
  * Test Pattern:
- * 1. Search for seeded group (verify found)
- * 2. View seeded group detail (verify values)
- * 3. CRUD lifecycle: Create → Verify → Edit → Verify → Delete → Verify gone
+ * - Use `test.step()` to group related assertions within a single test
+ * - Pay the "page load tax" once per test, not per assertion
+ * - CRUD lifecycle uses serial mode to maintain state across create → edit → delete
  */
 
-import { test, expect, Page } from '@playwright/test';
-import { AUTH_V2_ADMIN, SEEDED_GROUP_NAME } from '../../../../utils';
+import { test, expect, Page, AUTH_V2_ADMIN, setupPage, getSeededGroupName, getSeededGroupData } from '../../../../utils';
 
 // Safety rail: Require TEST_PREFIX for any test that creates data
 const TEST_PREFIX = process.env.TEST_PREFIX;
@@ -25,7 +24,7 @@ if (!TEST_PREFIX) {
       '║  This test creates data that must be prefixed to avoid polluting    ║\n' +
       '║  the shared environment. Set TEST_PREFIX before running:            ║\n' +
       '║                                                                      ║\n' +
-      '║    TEST_PREFIX=e2e npx playwright test v2/users-and-user-groups     ║\n' +
+      '║    TEST_PREFIX=yourprefix npx playwright test v2/user-groups        ║\n' +
       '║                                                                      ║\n' +
       '╚══════════════════════════════════════════════════════════════════════╝\n'
   );
@@ -33,59 +32,65 @@ if (!TEST_PREFIX) {
 
 test.use({ storageState: AUTH_V2_ADMIN });
 
+// Get seeded group name and data from seed map/fixture
+const SEEDED_GROUP_NAME = getSeededGroupName();
+const SEEDED_GROUP_DATA = getSeededGroupData();
+
 test.describe('V2 User Groups - Admin', () => {
   const GROUPS_URL = '/iam/access-management/users-and-user-groups/user-groups';
 
-  test.beforeEach(async ({ page }) => {
+  /**
+   * Admin can find and inspect a seeded group
+   * Single page load, multiple verification steps
+   */
+  test('Can find and inspect seeded group', async ({ page }) => {
+    test.skip(!SEEDED_GROUP_NAME, 'No seeded group found in seed map');
+    await setupPage(page);
     await page.goto(GROUPS_URL);
-    await page.waitForLoadState('networkidle');
-  });
-
-  /**
-   * Verify the user groups page loads correctly
-   */
-  test('User Groups page loads', async ({ page }) => {
     await expect(page.getByRole('heading', { name: /user groups/i })).toBeVisible();
-  });
 
-  /**
-   * Search for seeded group and verify it's found
-   */
-  test('Can search for seeded group', async ({ page }) => {
-    const searchInput = page.getByPlaceholder(/filter|search/i);
+    await test.step('Verify Create User Group button is visible', async () => {
+      const createButton = page.getByRole('button', { name: /create.*group/i });
+      await expect(createButton).toBeVisible();
+    });
 
-    if (await searchInput.isVisible()) {
-      const prefixedName = `${TEST_PREFIX}__${SEEDED_GROUP_NAME}`;
-      await searchInput.fill(prefixedName);
-      await page.waitForLoadState('networkidle');
+    await test.step('Search for the seeded group', async () => {
+      const searchInput = page.getByPlaceholder(/filter|search/i);
+      await searchInput.fill(SEEDED_GROUP_NAME!);
 
-      await expect(page.getByText(prefixedName)).toBeVisible();
-    }
-  });
+      // Verify the seeded group appears in the table
+      await expect(page.getByRole('grid').getByText(SEEDED_GROUP_NAME!)).toBeVisible({ timeout: 10000 });
+    });
 
-  /**
-   * View group detail page
-   */
-  test('Can view group detail', async ({ page }) => {
-    const firstGroupLink = page.locator('tbody tr').first().getByRole('link').first();
+    await test.step('Navigate to detail view', async () => {
+      const groupLink = page.getByRole('grid').getByRole('link', { name: SEEDED_GROUP_NAME! });
+      await groupLink.click();
 
-    if (await firstGroupLink.isVisible()) {
-      await firstGroupLink.click();
-      await page.waitForLoadState('networkidle');
-    }
-  });
+      await expect(page.getByRole('heading', { name: SEEDED_GROUP_NAME! })).toBeVisible({ timeout: 15000 });
+    });
 
-  /**
-   * Admin can see Create User Group button
-   */
-  test('Create User Group button is visible', async ({ page }) => {
-    const createButton = page.getByRole('button', { name: /create.*group/i });
-    await expect(createButton).toBeVisible();
+    await test.step('Verify group details', async () => {
+      // Verify the expected description is visible (if defined in seed fixture)
+      if (SEEDED_GROUP_DATA?.description) {
+        await expect(page.getByText(SEEDED_GROUP_DATA.description)).toBeVisible({ timeout: 30000 });
+      }
+
+      // Verify action buttons are available for admin
+      const actionsButton = page.getByRole('button', { name: /actions/i });
+      await expect(actionsButton).toBeVisible();
+    });
   });
 });
 
 /**
  * CRUD Lifecycle Tests
+ *
+ * These tests run in serial mode to maintain state across:
+ * Create → Verify → Edit → Delete → Verify Deleted
+ *
+ * Structure:
+ * 1. "Create user group" - Complex wizard flow, needs its own test
+ * 2. "Manage user group lifecycle" - All post-creation operations in one test with steps
  */
 test.describe('V2 User Groups - Admin CRUD Lifecycle', () => {
   test.describe.configure({ mode: 'serial' });
@@ -104,6 +109,7 @@ test.describe('V2 User Groups - Admin CRUD Lifecycle', () => {
 
     const context = await browser.newContext({ storageState: AUTH_V2_ADMIN });
     page = await context.newPage();
+    await setupPage(page);
 
     console.log(`\n[V2 User Groups Admin] Using prefix: ${TEST_PREFIX}`);
     console.log(`[V2 User Groups Admin] Group name: ${groupName}\n`);
@@ -114,166 +120,156 @@ test.describe('V2 User Groups - Admin CRUD Lifecycle', () => {
   });
 
   /**
-   * Step 1: Create a new user group
+   * Create a new user group via the wizard
    */
   test('Create user group', async () => {
     await page.goto('/iam/access-management/users-and-user-groups/user-groups');
-    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('heading', { name: /user groups/i })).toBeVisible();
 
-    const createButton = page.getByRole('button', { name: /create.*group/i });
-    await expect(createButton).toBeVisible();
-    await createButton.click();
+    await test.step('Open wizard and fill name/description', async () => {
+      const createButton = page.getByRole('button', { name: /create.*group/i });
+      await expect(createButton).toBeVisible();
+      await createButton.click();
 
-    await page.waitForLoadState('networkidle');
+      const nameInput = page.locator('#group-name');
+      await expect(nameInput).toBeVisible({ timeout: 10000 });
+      await nameInput.fill(groupName);
 
-    // Fill in group name
-    const nameInput = page.getByLabel(/name/i).first();
-    await expect(nameInput).toBeVisible({ timeout: 5000 });
-    await nameInput.fill(groupName);
+      const descriptionInput = page.locator('#group-description');
+      if (await descriptionInput.isVisible()) {
+        await descriptionInput.fill(groupDescription);
+      }
+    });
 
-    // Fill in description if available
-    const descriptionInput = page.getByLabel(/description/i);
-    if (await descriptionInput.isVisible()) {
-      await descriptionInput.fill(groupDescription);
-    }
+    await test.step('Navigate through wizard steps', async () => {
+      const clickWizardNext = async () => {
+        const nextButton = page.locator('[role="dialog"]').getByRole('button', { name: /next/i }).first();
+        await expect(nextButton).toBeEnabled({ timeout: 10000 });
+        await nextButton.click();
+      };
 
-    // Submit
-    const submitButton = page.getByRole('button', { name: /submit|create|save/i });
-    await submitButton.click();
-    await page.waitForLoadState('networkidle');
+      await clickWizardNext();
+      await page.waitForTimeout(500);
+      await clickWizardNext();
+      await page.waitForTimeout(500);
+      await clickWizardNext();
+      await page.waitForTimeout(500);
 
-    // Verify group was created
-    await page.goto('/iam/access-management/users-and-user-groups/user-groups');
-    await page.waitForLoadState('networkidle');
+      // Check if on Review or need one more Next
+      const reviewHeading = page.locator('[role="dialog"]').getByText(/review/i).first();
+      if (!(await reviewHeading.isVisible({ timeout: 1000 }).catch(() => false))) {
+        await clickWizardNext();
+      }
+    });
 
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
+    await test.step('Review and submit', async () => {
+      const reviewHeading = page.locator('[role="dialog"]').getByText(/review/i).first();
+      await expect(reviewHeading).toBeVisible({ timeout: 5000 });
+
+      const submitButton = page.locator('[role="dialog"]').getByRole('button', { name: /submit|create/i }).first();
+      await expect(submitButton).toBeEnabled({ timeout: 5000 });
+      await submitButton.click();
+
+      await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 15000 });
+    });
+
+    await test.step('Verify group appears in list', async () => {
+      const searchInput = page.getByPlaceholder(/filter|search/i);
       await searchInput.fill(groupName);
-      await page.waitForLoadState('networkidle');
-    }
-
-    await expect(page.getByText(groupName)).toBeVisible({ timeout: 10000 });
-    console.log(`[Step 1] Created group: ${groupName}`);
+      await expect(page.getByRole('grid').getByText(groupName)).toBeVisible({ timeout: 10000 });
+      console.log(`[Create] Created group: ${groupName}`);
+    });
   });
 
   /**
-   * Step 2: Verify group details
+   * Manage user group lifecycle: View → Edit → Delete
+   * Single page load, multiple operations via steps
    */
-  test('Verify group details', async () => {
+  test('Manage user group lifecycle', async () => {
     await page.goto('/iam/access-management/users-and-user-groups/user-groups');
-    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('heading', { name: /user groups/i })).toBeVisible();
 
     const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
+    await searchInput.fill(groupName);
+    await expect(page.getByRole('grid').getByText(groupName)).toBeVisible({ timeout: 10000 });
+
+    await test.step('View group details', async () => {
+      const groupLink = page.getByRole('grid').getByRole('link', { name: groupName });
+      await groupLink.click();
+
+      await expect(page.getByRole('heading', { name: groupName })).toBeVisible({ timeout: 10000 });
+      console.log(`[View] Verified group details: ${groupName}`);
+
+      // Navigate back to list
+      await page.goto('/iam/access-management/users-and-user-groups/user-groups');
+      await expect(page.getByRole('heading', { name: /user groups/i })).toBeVisible();
       await searchInput.fill(groupName);
-      await page.waitForLoadState('networkidle');
-    }
+      await expect(page.getByRole('grid').getByText(groupName)).toBeVisible({ timeout: 10000 });
+    });
 
-    const groupLink = page.getByRole('link', { name: groupName });
-    await expect(groupLink).toBeVisible();
-    await groupLink.click();
-    await page.waitForLoadState('networkidle');
-
-    console.log(`[Step 2] Verified group details: ${groupName}`);
-  });
-
-  /**
-   * Step 3: Edit group
-   */
-  test('Edit group', async () => {
-    await page.goto('/iam/access-management/users-and-user-groups/user-groups');
-    await page.waitForLoadState('networkidle');
-
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
-      await searchInput.fill(groupName);
-      await page.waitForLoadState('networkidle');
-    }
-
-    const groupRow = page.locator('tbody tr', { has: page.getByText(groupName) });
-    const kebabButton = groupRow.getByRole('button', { name: /actions/i });
-
-    if (await kebabButton.isVisible()) {
+    await test.step('Edit group description', async () => {
+      const groupRow = page.locator('tbody tr', { has: page.getByText(groupName) });
+      const kebabButton = groupRow.getByRole('button', { name: /actions/i });
+      await expect(kebabButton).toBeVisible();
       await kebabButton.click();
 
       const editOption = page.getByRole('menuitem', { name: /edit/i });
-      if (await editOption.isVisible()) {
-        await editOption.click();
-        await page.waitForLoadState('networkidle');
+      await expect(editOption).toBeVisible();
+      await editOption.click();
 
-        const descriptionInput = page.getByLabel(/description/i);
-        if (await descriptionInput.isVisible()) {
-          await descriptionInput.clear();
-          await descriptionInput.fill(editedDescription);
-        }
+      const modal = page.locator('[role="dialog"]');
+      await expect(modal).toBeVisible({ timeout: 5000 });
 
-        const saveButton = page.getByRole('button', { name: /save|submit|update/i });
-        await saveButton.click();
-        await page.waitForLoadState('networkidle');
-
-        console.log(`[Step 3] Edited group: ${groupName}`);
+      const descriptionInput = modal.locator('textarea, input[name*="description"], #group-description');
+      if (await descriptionInput.isVisible()) {
+        await descriptionInput.clear();
+        await descriptionInput.fill(editedDescription);
       }
-    }
-  });
 
-  /**
-   * Step 4: Delete group
-   */
-  test('Delete group', async () => {
-    await page.goto('/iam/access-management/users-and-user-groups/user-groups');
-    await page.waitForLoadState('networkidle');
+      const saveButton = modal.getByRole('button', { name: /save|submit|update/i });
+      await expect(saveButton).toBeEnabled();
+      await saveButton.click();
+      await expect(modal).not.toBeVisible({ timeout: 10000 });
+      console.log(`[Edit] Edited group: ${groupName}`);
+    });
 
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
+    await test.step('Delete group', async () => {
+      await searchInput.clear();
       await searchInput.fill(groupName);
-      await page.waitForLoadState('networkidle');
-    }
+      await expect(page.getByRole('grid').getByText(groupName)).toBeVisible({ timeout: 10000 });
 
-    const groupRow = page.locator('tbody tr', { has: page.getByText(groupName) });
-    const kebabButton = groupRow.getByRole('button', { name: /actions/i });
-
-    if (await kebabButton.isVisible()) {
+      const groupRow = page.locator('tbody tr', { has: page.getByText(groupName) });
+      const kebabButton = groupRow.getByRole('button', { name: /actions/i });
+      await expect(kebabButton).toBeVisible();
       await kebabButton.click();
 
       const deleteOption = page.getByRole('menuitem', { name: /delete/i });
-      if (await deleteOption.isVisible()) {
-        await deleteOption.click();
+      await expect(deleteOption).toBeVisible();
+      await deleteOption.click();
 
-        const modal = page.getByRole('dialog');
-        await expect(modal).toBeVisible();
+      const modal = page.getByRole('dialog');
+      await expect(modal).toBeVisible({ timeout: 5000 });
 
-        const checkbox = modal.getByRole('checkbox');
-        if (await checkbox.isVisible()) {
-          await checkbox.click();
-        }
-
-        const confirmButton = modal.getByRole('button', { name: /delete|remove|confirm/i });
-        await confirmButton.click();
-
-        await expect(modal).not.toBeVisible({ timeout: 5000 });
-        await page.waitForLoadState('networkidle');
-
-        console.log(`[Step 4] Deleted group: ${groupName}`);
+      const checkbox = modal.getByRole('checkbox');
+      if (await checkbox.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await checkbox.click();
       }
-    }
-  });
 
-  /**
-   * Step 5: Verify deletion
-   */
-  test('Verify group deleted', async () => {
-    await page.goto('/iam/access-management/users-and-user-groups/user-groups');
-    await page.waitForLoadState('networkidle');
+      const confirmButton = modal.getByRole('button', { name: /delete|remove|confirm/i });
+      await expect(confirmButton).toBeEnabled();
+      await confirmButton.click();
+      await expect(modal).not.toBeVisible({ timeout: 10000 });
+      console.log(`[Delete] Deleted group: ${groupName}`);
+    });
 
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    if (await searchInput.isVisible()) {
+    await test.step('Verify group is deleted', async () => {
+      await searchInput.clear();
       await searchInput.fill(groupName);
-      await page.waitForLoadState('networkidle');
-    }
+      await page.waitForTimeout(1000);
 
-    await expect(page.getByText(groupName)).not.toBeVisible({ timeout: 10000 });
-
-    console.log(`[Step 5] Verified deletion: ${groupName}`);
-    console.log(`\n[V2 User Groups Admin] Lifecycle test completed successfully!\n`);
+      await expect(page.getByRole('grid').getByText(groupName)).not.toBeVisible({ timeout: 10000 });
+      console.log(`[Verify] Verified deletion: ${groupName}`);
+      console.log(`\n[V2 User Groups Admin] Lifecycle test completed successfully!\n`);
+    });
   });
 });

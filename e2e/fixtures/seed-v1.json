@@ -1,0 +1,22 @@
+{
+  "$schema": "./seed-schema.json",
+  "description": "V1 seed data: roles and groups only (V1 does not support workspaces)",
+  "roles": [
+    {
+      "name": "Seeded Role",
+      "display_name": "Seeded Role",
+      "description": "Controlled test role for search and view tests",
+      "permissions": [
+        "inventory:hosts:read",
+        "inventory:groups:read"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "Seeded Group",
+      "description": "Controlled test group for search and view tests",
+      "roles_list": ["Seeded Role"]
+    }
+  ]
+}

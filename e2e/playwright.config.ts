@@ -6,16 +6,27 @@
  *
  * Usage:
  *   npx playwright test --config=e2e/playwright.config.ts
+ *
+ * Environment Variables:
+ *   E2E_BASE_URL - Override the base URL (default: https://console.stage.redhat.com)
+ *                  Set to https://stage.foo.redhat.com:1337 for local dev server testing
+ *                  (HTTPS errors are ignored for self-signed certs)
+ *
+ * Global Setup:
+ *   The globalSetup script warms the asset cache before any tests run.
+ *   This downloads JS/CSS/fonts once and serves them from HAR cache.
  */
 
 import { defineConfig, devices } from '@playwright/test';
+
+const baseURL = process.env.E2E_BASE_URL || 'https://console.stage.redhat.com';
 
 export default defineConfig({
   testDir: '.',
   testMatch: '**/*.spec.ts',
 
-  /* Global setup - login before all tests */
-  // globalSetup: require.resolve('./global-setup'),
+  /* Global setup - warms asset cache before all tests */
+  globalSetup: require.resolve('./setup/global.setup.ts'),
 
   /* Storage state files are relative to this config file's directory (e2e/) */
   // Note: Tests using `test.use({ storageState: 'e2e/auth-admin.json' })` should
@@ -30,13 +41,16 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
 
-  /* Reporter to use */
-  reporter: process.env.CI ? 'github' : 'html',
+  /* Reporter to use - disable auto-open for local HTML reports */
+  reporter: process.env.CI ? 'github' : [['html', { open: 'never' }]],
 
   /* Shared settings for all projects */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
-    baseURL: 'https://console.stage.redhat.com',
+    baseURL,
+
+    /* Ignore HTTPS errors (needed for local dev server with self-signed certs) */
+    ignoreHTTPSErrors: true,
 
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',

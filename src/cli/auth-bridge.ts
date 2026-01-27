@@ -129,8 +129,10 @@ export function getLaunchOptions(headless: boolean): LaunchOptions {
  * Patterns to block during browser automation.
  * These can cause flaky tests or slow down login flows.
  * Using partial string matches to catch all subdomains and paths.
+ *
+ * Exported for reuse in E2E test fixtures.
  */
-const BLOCKED_PATTERNS = [
+export const BLOCKED_PATTERNS = [
   // TrustArc consent overlay (all domains, scripts, and CDN paths)
   'trustarc.com',
   'trustarc.stage',
@@ -138,6 +140,11 @@ const BLOCKED_PATTERNS = [
   '/trustarc/', // Catches CDN-hosted scripts like static.redhat.com/libs/.../trustarc/
   // Amplitude analytics
   'amplitude.com',
+  // Pendo analytics
+  'pendo.io',
+  // Segment analytics
+  'segment.com',
+  'segment.io',
 ];
 
 /**
@@ -220,8 +227,7 @@ export async function launchBrowser(headless: boolean): Promise<BrowserSession> 
 
   const context = await browser.newContext({
     viewport: headless ? { width: 1280, height: 720 } : null,
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   });
 
   const page = await context.newPage();

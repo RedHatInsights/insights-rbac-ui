@@ -18,10 +18,65 @@
  *   RBAC_API_URL      - API base URL override
  *   RBAC_USERNAME     - Username for headless login
  *   RBAC_PASSWORD     - Password for headless login
- *   RBAC_PAC_URL      - PAC file URL for proxy auto-config
+ *   RBAC_PAC_URL      - PAC file URL for proxy auto-config (auto-detected on macOS)
  *   HTTPS_PROXY       - CI sidecar proxy URL
  *   DEBUG_CLI         - Enable verbose debugging
  */
+
+import { execSync } from 'child_process';
+
+// ============================================================================
+// SUPPRESS NODE WARNINGS (Before anything else)
+// ============================================================================
+
+// Suppress the NODE_TLS_REJECT_UNAUTHORIZED warning - we know what we're doing
+// when connecting to corporate proxies with self-signed certificates
+const originalEmitWarning = process.emitWarning;
+process.emitWarning = (warning, ...args) => {
+  if (typeof warning === 'string' && warning.includes('NODE_TLS_REJECT_UNAUTHORIZED')) {
+    return;
+  }
+  return originalEmitWarning.call(process, warning, ...args);
+};
+
+// ============================================================================
+// AUTO-DETECT PROXY SETTINGS (Before anything else)
+// ============================================================================
+
+/**
+ * On macOS, auto-detect PAC proxy URL from system settings.
+ * This eliminates the need for separate `cli` vs `cli:vpn` scripts.
+ */
+function autoDetectProxy(): void {
+  // Skip if already configured
+  if (process.env.RBAC_PAC_URL || process.env.RBAC_PROXY || process.env.HTTPS_PROXY) {
+    return;
+  }
+
+  // Only auto-detect on macOS
+  if (process.platform !== 'darwin') {
+    return;
+  }
+
+  try {
+    // Use scutil to get system proxy settings
+    const output = execSync('scutil --proxy 2>/dev/null', { encoding: 'utf-8' });
+    const pacMatch = output.match(/ProxyAutoConfigURLString\s*:\s*(\S+)/);
+
+    if (pacMatch && pacMatch[1]) {
+      const pacUrl = pacMatch[1];
+      process.env.RBAC_PAC_URL = pacUrl;
+      // Corporate proxies often use self-signed certs
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      console.error(`[CLI] Auto-detected PAC proxy: ${pacUrl}`);
+    }
+  } catch {
+    // scutil not available or failed - continue without proxy
+  }
+}
+
+// Run auto-detection immediately
+autoDetectProxy();
 
 // ============================================================================
 // HEADLESS COMMAND ROUTING (Early Detection - Before React/Ink)
@@ -103,6 +158,7 @@ async function runHeadlessCommand(command: { type: 'login-headless' | 'seed' | '
         prefix: typeof parsedArgs['prefix'] === 'string' ? parsedArgs['prefix'] : undefined,
         dryRun: parsedArgs['dry-run'] === true,
         json: parsedArgs['json'] === true,
+        output: typeof parsedArgs['output'] === 'string' ? parsedArgs['output'] : undefined,
       });
       break;
     }
@@ -244,8 +300,8 @@ async function runInteractiveCli(): Promise<void> {
       </AppWrapper>,
       {
         exitOnCtrlC: true,
-        // Don't let Ink intercept console output - we handle it ourselves via stderr
-        patchConsole: false,
+        // Let Ink manage console output to prevent terminal corruption from warnings/errors
+        patchConsole: true,
       },
     );
 
@@ -490,8 +546,9 @@ async function runInteractiveCli(): Promise<void> {
     .option('--json <payload>', 'JSON string containing roles/groups/workspaces to create')
     .option('--file <path>', 'Read JSON payload from file (headless mode)')
     .option('--prefix <string>', 'Prefix to prepend to all resource names')
+    .option('--output <path>', 'Write JSON seed map to file instead of stdout')
     .option('--dry-run', 'Preview what would be created without making changes')
-    .action(async (options: { json?: string; file?: string; prefix?: string; dryRun?: boolean }) => {
+    .action(async (options: { json?: string; file?: string; prefix?: string; output?: string; dryRun?: boolean }) => {
       // If --file, this should have been caught above for headless mode
       // But handle it here as fallback
       if (options.file) {
@@ -501,6 +558,7 @@ async function runInteractiveCli(): Promise<void> {
           prefix: options.prefix,
           dryRun: options.dryRun,
           json: true,
+          output: options.output,
         });
         process.exit(exitCode);
       }

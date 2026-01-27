@@ -12,12 +12,15 @@
  *      npx playwright test e2e/smoke.spec.ts
  */
 
-import { test, expect } from '@playwright/test';
-import { AUTH_V1_ADMIN } from './utils';
+import { test, expect, AUTH_V1_ADMIN, setupPage } from './utils';
 
 test.use({ storageState: AUTH_V1_ADMIN });
 
 test.describe('Smoke Test - V1 Pages Load', () => {
+  test.beforeEach(async ({ page }) => {
+    await setupPage(page);
+  });
+
   test('My User Access page loads', async ({ page }) => {
     await page.goto('/iam/my-user-access');
     await page.waitForLoadState('networkidle');
@@ -44,6 +47,10 @@ test.describe('Smoke Test - V1 Pages Load', () => {
 });
 
 test.describe('Smoke Test - V2 Pages Load', () => {
+  test.beforeEach(async ({ page }) => {
+    await setupPage(page);
+  });
+
   test('Users page loads', async ({ page }) => {
     await page.goto('/iam/access-management/users-and-user-groups/users');
     await page.waitForLoadState('networkidle');

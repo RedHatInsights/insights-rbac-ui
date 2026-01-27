@@ -9,13 +9,8 @@
  * - Pattern matching for glob filters
  */
 
-import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
-import {
-  getCurrentEnv,
-  getEnvConfig,
-  getLaunchOptions,
-  LOGIN_SELECTORS,
-} from '../auth-bridge.js';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { LOGIN_SELECTORS, getCurrentEnv, getEnvConfig, getLaunchOptions } from '../auth-bridge.js';
 
 describe('auth-bridge', () => {
   // Store original env

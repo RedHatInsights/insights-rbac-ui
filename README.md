@@ -59,25 +59,9 @@ Builds the production version of the application. The output will be placed in t
 
 Runs the unit tests suite using Jest.
 
-### `npm test:e2e`
+### `npm run test:e2e`
 
-Runs the e2e (end-to-end) test suite. This script requires environment variables to be set for authentication purposes, and a working VPN connection. You can use a command like:
-
-```bash
-E2E_USER=<your-e2e-user> E2E_PASSWORD=<your-e2e-password> E2E_WORKSPACES_USER=<your-workspaces-user> E2E_WORKSPACES_PASSWORD=<your-workspaces-password> npm test
-```
-
-Replace the placeholders with appropriate values.
-
-### `npm run cypress`
-
-Opens the Cypress GUI for running end-to-end tests. Similar to `npm test`, this script requires environment variables for authentication:
-
-```bash
-E2E_USER=<your-e2e-user> E2E_PASSWORD=<your-e2e-password> E2E_WORKSPACES_USER=<your-workspaces-user> E2E_WORKSPACES_PASSWORD=<your-workspaces-password> npm run cypress -- open
-```
-
-Replace the placeholders with appropriate values.
+Runs the Playwright E2E test suite against stage. See [`e2e/README.md`](./e2e/README.md) for complete setup instructions including authentication and data seeding.
 
 ### `npm run lint`
 
