@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.0.2...v2.1.0) (2026-01-27)
+
+
+### Features
+
+* migrate workspace permissions to Kessel access checks ([1fd7495](https://github.com/RedHatInsights/insights-rbac-ui/commit/1fd7495501a0f40c65d2d63c9f4c4008f08341e4))
+
 ## [2.0.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.0.1...v2.0.2) (2026-01-22)
 
 
