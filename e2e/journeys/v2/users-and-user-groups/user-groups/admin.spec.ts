@@ -93,13 +93,15 @@ async function openGroupDrawer(page: Page, groupName: string): Promise<void> {
 }
 
 /**
- * Closes the group details drawer.
+ * Closes the group details drawer by clicking the same row again (toggle behavior).
  */
-async function closeGroupDrawer(page: Page): Promise<void> {
-  const drawer = page.locator('[data-ouia-component-id="groups-details-drawer"]');
-  const closeButton = drawer.getByRole('button', { name: 'Close drawer panel' });
-  await closeButton.click();
-  await expect(drawer).not.toBeVisible({ timeout: 5000 });
+async function closeGroupDrawer(page: Page, groupName: string): Promise<void> {
+  // Click the same row again to toggle drawer closed
+  const groupCell = page.getByRole('grid').getByText(groupName);
+  await groupCell.click();
+
+  // Verify drawer is closed by checking the heading is no longer visible
+  await expect(page.getByRole('heading', { name: groupName, level: 2 })).not.toBeVisible({ timeout: 5000 });
 }
 
 /**
@@ -197,7 +199,7 @@ test.describe('V2 User Groups - Admin Seeded Data Journey', () => {
       await expect(drawer.getByRole('tab', { name: /service accounts/i })).toBeVisible();
       await expect(drawer.getByRole('tab', { name: /assigned roles/i })).toBeVisible();
 
-      await closeGroupDrawer(page);
+      await closeGroupDrawer(page, SEEDED_GROUP_NAME!);
     });
   });
 });
@@ -261,7 +263,7 @@ test.describe('V2 User Groups - Admin CRUD Lifecycle Journey', () => {
       const drawer = page.locator('[data-ouia-component-id="groups-details-drawer"]');
       await expect(drawer.getByRole('tab', { name: /users/i })).toBeVisible();
 
-      await closeGroupDrawer(page);
+      await closeGroupDrawer(page, uniqueGroupName);
 
       console.log(`[View] ✓ Drawer verified`);
     });
