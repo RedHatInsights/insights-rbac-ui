@@ -202,8 +202,11 @@ The pipeline needs E2E test user credentials stored in Vault.
 `insights-rbac-ui-credentials-secret`
 
 ### Required Keys
+All 4 keys are required by the E2E pipeline:
 - `e2e-user` - Test automation user username
 - `e2e-password` - Test automation user password
+- `e2e-hcc-env-url` - HCC environment URL for testing
+- `e2e-stage-actual-hostname` - Stage environment hostname
 
 ### ExternalSecret Configuration
 
@@ -215,9 +218,11 @@ The ExternalSecret uses the `insights-appsre-vault` ClusterSecretStore and refre
 
 ### Setup Instructions
 1. Refer to the **Platform Engineer Survival Guide** for Vault setup
-2. Create credentials in Vault at path `creds/konflux/insights-rbac-ui` with properties:
-   - `username` - Test automation user username
-   - `password` - Test automation user password
+2. Create credentials in Vault at path `creds/konflux/insights-rbac-ui` with all 4 required properties:
+   - `username` - Test automation user username (mapped to e2e-user)
+   - `password` - Test automation user password (mapped to e2e-password)
+   - `e2e-hcc-env-url` - HCC environment URL
+   - `e2e-stage-actual-hostname` - Stage environment hostname
 3. Verify the serviceAccount (`build-pipeline-insights-rbac-ui`) has necessary permissions
 
 **Note:** The existing Cypress tests use:
