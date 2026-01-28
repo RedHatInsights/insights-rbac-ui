@@ -5,13 +5,12 @@
  * Regular users can only view roles, not create/edit/delete.
  */
 
-import { AUTH_V2_USER, expect, getSeededRoleData, getSeededRoleName, setupPage, test } from '../../../utils';
+import { AUTH_V2_USER, expect, getSeededRoleName, setupPage, test } from '../../../utils';
 
 test.use({ storageState: AUTH_V2_USER });
 
-// Get seeded role name and data from seed map/fixture
+// Get seeded role name from seed map/fixture
 const SEEDED_ROLE_NAME = getSeededRoleName();
-const SEEDED_ROLE_DATA = getSeededRoleData();
 
 test.describe('V2 Roles - User (Read Only)', () => {
   const ROLES_URL = '/iam/access-management/roles';
@@ -47,7 +46,7 @@ test.describe('V2 Roles - User (Read Only)', () => {
   });
 
   /**
-   * Can view seeded role detail page with expected content
+   * Can view seeded role details in drawer
    */
   test('Can view role detail', async ({ page }) => {
     test.skip(!SEEDED_ROLE_NAME, 'No seeded role found in seed map');
@@ -56,42 +55,44 @@ test.describe('V2 Roles - User (Read Only)', () => {
     // Search for the seeded role
     await searchInput.fill(SEEDED_ROLE_NAME!);
 
-    // Click on the seeded role in the table (auto-waits for element)
-    const roleLink = page.getByRole('grid').getByRole('link', { name: SEEDED_ROLE_NAME! });
-    await roleLink.click();
+    // V2 uses row click to open drawer (no link navigation)
+    const roleCell = page.getByRole('grid').getByText(SEEDED_ROLE_NAME!);
+    await roleCell.click();
 
-    // Wait for URL to change to detail page
-    await expect(page).toHaveURL(/\/roles\//);
+    // Drawer opens with role name as heading
+    await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME!, level: 2 })).toBeVisible({ timeout: 15000 });
 
-    // Wait for the role name heading to appear (indicates detail page loaded)
-    await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME! })).toBeVisible({ timeout: 15000 });
-
-    // Verify description is visible (if defined in seed fixture)
-    if (SEEDED_ROLE_DATA?.description) {
-      await expect(page.getByText(SEEDED_ROLE_DATA.description)).toBeVisible({ timeout: 30000 });
-    }
+    // V2 drawer has Permissions and Assigned user groups tabs
+    await expect(page.getByRole('tab', { name: /permissions/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /assigned user groups/i })).toBeVisible();
   });
 
   /**
    * Verify Edit/Delete actions are NOT available for regular users on seeded role
+   * V2 uses drawer + kebab menu instead of detail page buttons
    */
   test('Edit and Delete actions are NOT available', async ({ page }) => {
     test.skip(!SEEDED_ROLE_NAME, 'No seeded role found in seed map');
     const searchInput = page.getByPlaceholder(/filter|search/i);
 
-    // Search for and navigate to the seeded role
+    // Search for the seeded role
     await searchInput.fill(SEEDED_ROLE_NAME!);
-    const roleLink = page.getByRole('grid').getByRole('link', { name: SEEDED_ROLE_NAME! });
-    await roleLink.click();
 
-    // Wait for detail page to load
-    await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME! })).toBeVisible({ timeout: 15000 });
+    // Find the row with the seeded role
+    const seededRow = page.getByRole('row').filter({ hasText: SEEDED_ROLE_NAME! });
+    const kebabButton = seededRow.getByRole('button', { name: /actions/i });
 
-    const editButton = page.getByRole('button', { name: /edit/i });
-    await expect(editButton).not.toBeVisible();
+    // For regular users, kebab menu should not be visible or should not have edit/delete
+    if (await kebabButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await kebabButton.click();
 
-    const deleteButton = page.getByRole('button', { name: /delete/i });
-    await expect(deleteButton).not.toBeVisible();
+      const editOption = page.getByRole('menuitem', { name: /edit/i });
+      await expect(editOption).not.toBeVisible();
+
+      const deleteOption = page.getByRole('menuitem', { name: /delete/i });
+      await expect(deleteOption).not.toBeVisible();
+    }
+    // If kebab is not visible at all, that's also acceptable for read-only users
   });
 
   /**
