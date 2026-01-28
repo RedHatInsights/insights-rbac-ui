@@ -2,7 +2,7 @@ import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
 import {
   defaultKesselGroupMembers,
@@ -385,7 +385,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     // Verify the role assignments table shows workspace-specific groups
     // Production workspace should show only Production Admins and Viewers
     // Wait for the table to load completely with data
-    await canvas.findByLabelText('Role Assignments Table', {}, { timeout: 10000 });
+    await canvas.findByLabelText('Role Assignments Table', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
 
     // Wait for data to load - look for either loading state to disappear or data to appear
     await waitFor(
@@ -394,7 +394,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
         const hasData = canvas.queryByText('Production Admins') || canvas.queryByText('Viewers');
         expect(loadingElements.length === 0 || hasData).toBe(true);
       },
-      { timeout: 10000 },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
     );
 
     // The table should now have data loaded
@@ -407,10 +407,10 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     // Click on a group name (the row is clickable) to open the drawer
     const productionAdminsText = await canvas.findByText('Production Admins');
     await user.click(productionAdminsText);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify the drawer opens - scope queries to the drawer panel
-    await delay(300); // Wait for drawer animation
+    await delay(TEST_TIMEOUTS.AFTER_CLICK); // Wait for drawer animation
     const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
     expect(drawerPanel).toBeInTheDocument();
     const drawer = within(drawerPanel);
@@ -430,7 +430,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
 
     // Switch to Users tab
     await user.click(usersTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify Users tab shows mock members
     await drawer.findByText('john.doe');
@@ -441,7 +441,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     // The drawer should automatically close when switching tabs
     const parentWorkspacesTab = await canvas.findByRole('tab', { name: /roles assigned in parent workspaces/i });
     await user.click(parentWorkspacesTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify the drawer is closed (component unmounted)
     const drawerAfterSwitch = document.querySelector('.pf-v6-c-drawer__panel');
@@ -456,7 +456,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
 
     // Click on Viewers group to open drawer and verify its details
     await user.click(viewersText);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify the drawer opens for Viewers group
     const viewersDrawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
@@ -477,7 +477,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
 
     // Switch to Users tab
     await user.click(viewersUsersTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify Users tab shows mock member
     await viewersDrawer.findByText('viewer.user');

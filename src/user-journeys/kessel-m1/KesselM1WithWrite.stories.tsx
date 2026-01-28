@@ -2,7 +2,7 @@ import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { fillWorkspaceForm, navigateToPage, openWorkspaceWizard, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, fillWorkspaceForm, navigateToPage, openWorkspaceWizard, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
 import { defaultKesselRoles } from '../../../.storybook/fixtures/kessel-groups-roles';
 import { delay } from 'msw';
@@ -360,12 +360,12 @@ Tests the M1 create workspace journey.
     });
 
     await user.click(nextButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // On Review step, click Submit
     const submitButton = await wizard.findByRole('button', { name: /^submit$/i });
     await user.click(submitButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify wizard closes after submission
     await waitFor(() => {

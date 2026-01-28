@@ -3,7 +3,7 @@ import React from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { navigateToPage, resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS, navigateToPage, resetStoryState } from '../_shared/helpers';
 import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-handlers';
 import { defaultGroups } from '../../../.storybook/fixtures/groups';
 import { defaultUsers } from '../../../.storybook/fixtures/users';
@@ -215,7 +215,7 @@ Entry point for exploring the Management Fabric experience as a regular (non-adm
     const canvas = within(context.canvasElement);
 
     // Wait for the page to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify My User Access page loads
     await expect(canvas.findByText(/my user access/i)).resolves.toBeInTheDocument();
@@ -244,7 +244,7 @@ Tests that regular users can view the V2 Users and User Groups page in read-only
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify the page loads
     await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
@@ -260,7 +260,7 @@ Tests that regular users can view the V2 Users and User Groups page in read-only
     // Switch to User Groups tab
     const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
     await user.click(groupsTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Regular users should NOT see "Create group" button
     const createGroupButton = canvas.queryByRole('button', { name: /create group/i });
@@ -289,7 +289,7 @@ Tests that regular users can view workspaces but cannot create, edit, or delete 
     await resetStoryState();
     const canvas = within(context.canvasElement);
 
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify workspaces are visible
     await expect(canvas.findByText('Default Workspace')).resolves.toBeInTheDocument();
@@ -322,20 +322,20 @@ Tests that regular users can navigate the V2 sidebar but with appropriate restri
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Navigate to Overview (should work)
     await navigateToPage(user, canvas, 'Overview');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Navigate to Users and User Groups (should work, read-only)
     await navigateToPage(user, canvas, 'Users and User Groups');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
 
     // Navigate to Workspaces (should work, read-only)
     await navigateToPage(user, canvas, 'Workspaces');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify no admin actions are available
     const createButton = canvas.queryByRole('button', { name: /create workspace/i });

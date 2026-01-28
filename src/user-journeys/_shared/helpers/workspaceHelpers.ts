@@ -14,6 +14,7 @@
 
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { delay } from 'msw';
+import { TEST_TIMEOUTS } from './testUtils';
 
 /**
  * Opens the Create Workspace wizard from a button and returns the wizard scope
@@ -90,7 +91,7 @@ export async function openParentWorkspaceSelector(user: ReturnType<typeof userEv
   await user.click(parentSelector);
 
   // Wait for the tree view panel to open
-  await delay(500);
+  await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
   // The tree view panel renders in document.body
   const treePanel = document.querySelector('.rbac-c-workspace-selector-menu');
@@ -112,17 +113,19 @@ export async function expandWorkspaceInTree(
   treePanelScope: ReturnType<typeof within>,
   workspaceName: string,
 ) {
-  // Find the workspace node by name
-  const workspaceNode = treePanelScope.getByText(workspaceName).closest('li');
+  // Use findByText (async) to wait for the workspace node to appear
+  const workspaceText = await treePanelScope.findByText(workspaceName, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+  const workspaceNode = workspaceText.closest('li');
   expect(workspaceNode).toBeInTheDocument();
 
-  // Find the toggle button (expand/collapse) by its class
-  const toggleButton = workspaceNode?.querySelector('.pf-v6-c-tree-view__node-toggle');
-  expect(toggleButton).toBeInTheDocument();
+  // Wait for toggle button (CSS selector needed as PatternFly tree view toggle lacks accessible name)
+  await waitFor(() => expect(workspaceNode?.querySelector('.pf-v6-c-tree-view__node-toggle')).toBeInTheDocument(), {
+    timeout: TEST_TIMEOUTS.ELEMENT_WAIT,
+  });
+  const toggleButton = workspaceNode!.querySelector('.pf-v6-c-tree-view__node-toggle') as Element;
 
-  // Click to expand
-  await user.click(toggleButton as Element);
-  await delay(300);
+  await user.click(toggleButton);
+  await delay(TEST_TIMEOUTS.AFTER_CLICK);
 }
 
 /**
@@ -142,7 +145,7 @@ export async function selectWorkspaceFromTree(
   const workspaceButton = await treePanelScope.findByRole('button', { name: workspaceName });
   expect(workspaceButton).toBeInTheDocument();
   await user.click(workspaceButton);
-  await delay(300);
+  await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
   // Click the "Select Workspace" button to confirm (may be in portal)
   // The button might be labeled "Select Workspace" or just contain that text
@@ -161,7 +164,7 @@ export async function selectWorkspaceFromTree(
   if (selectButton) {
     await user.click(selectButton);
   }
-  await delay(500);
+  await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 }
 
 /**
@@ -201,7 +204,7 @@ export async function clickWizardButton(
   expect(button).toBeInTheDocument();
   expect(button).toBeEnabled();
   await user.click(button);
-  await delay(500);
+  await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 }
 
 /**
@@ -216,16 +219,17 @@ export async function clickWizardButton(
  * ```
  */
 export async function openWorkspaceKebabMenu(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, workspaceName: string) {
-  // Find the workspace row
-  const workspaceRow = canvas.getByText(workspaceName).closest('tr') as HTMLElement;
+  // Use findByText (async) to wait for element after mutations
+  const workspaceText = await canvas.findByText(workspaceName, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+  const workspaceRow = workspaceText.closest('tr') as HTMLElement;
   expect(workspaceRow).toBeInTheDocument();
 
-  // Find and click the kebab menu button
+  // Use findByLabelText (async) to wait for kebab button
   const rowScope = within(workspaceRow);
-  const kebabButton = rowScope.getByLabelText(/kebab toggle|actions/i);
-  expect(kebabButton).toBeInTheDocument();
+  const kebabButton = await rowScope.findByLabelText(/kebab toggle|actions/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+
   await user.click(kebabButton);
-  await delay(300);
+  await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
   // Menu opens in document.body
   return within(document.body);
@@ -276,7 +280,7 @@ export async function confirmDelete(user: ReturnType<typeof userEvent.setup>) {
   const checkbox = await modal.findByRole('checkbox', { name: /understand.*irreversible/i });
   expect(checkbox).toBeInTheDocument();
   await user.click(checkbox);
-  await delay(300);
+  await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
   // Click Delete button
   const deleteButton = await modal.findByRole('button', { name: /delete/i });

@@ -5,6 +5,7 @@ import { HttpResponse, delay, http } from 'msw';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
 import { ENVIRONMENTS } from './_shared/environments';
 import {
+  TEST_TIMEOUTS,
   clickMenuItem,
   confirmDeleteModal,
   navigateToPage,
@@ -404,8 +405,8 @@ export const EditGroupFromList: Story = {
 
     // Verify success and updated group name in list
     await verifySuccessNotification();
-    await delay(500);
-    await canvas.findByText('Customer Support Team', {}, { timeout: 10000 });
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await canvas.findByText('Customer Support Team', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
     expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
   },
 };
@@ -461,7 +462,7 @@ export const EditGroupFromDetailPage: Story = {
         await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
         expect(canvas.queryByRole('heading', { name: 'Customer Support Team' })).not.toBeInTheDocument();
       },
-      { timeout: 10000 },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
     ); // Increased timeout to allow for API response
 
     // Verify we're on the detail page
@@ -601,7 +602,7 @@ export const DeleteGroupFromDetailPage: Story = {
     // Click on the "Support Team" link to navigate to detail page
     const groupLink = canvas.getByRole('link', { name: 'Support Team' });
     await user.click(groupLink);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Wait for group detail page to load
     await waitFor(async () => {
@@ -612,7 +613,7 @@ export const DeleteGroupFromDetailPage: Story = {
     await expect(canvas.getByRole('tab', { name: /members/i })).toBeInTheDocument();
     const membersTab = canvas.getByRole('tab', { name: /members/i });
     await user.click(membersTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Wait for group detail page to fully load and actions to be available
     await waitFor(async () => {
@@ -711,7 +712,7 @@ Tests the full flow of adding members to an existing group.
     // Click on the "Support Team" link to navigate to detail page
     const groupLink = canvas.getByRole('link', { name: 'Support Team' });
     await user.click(groupLink);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 1: Wait for group detail page to load
     await waitFor(async () => {
@@ -721,10 +722,10 @@ Tests the full flow of adding members to an existing group.
     // Click Members tab
     const membersTab = canvas.getByRole('tab', { name: /members/i });
     await user.click(membersTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 2: Click "Add member" button
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
     const addMemberBtn = canvas.getByRole('button', { name: /add member/i });
     await user.click(addMemberBtn);
 
@@ -739,7 +740,7 @@ Tests the full flow of adding members to an existing group.
         const notification = body.getByText(/success adding members to group/i);
         await expect(notification).toBeInTheDocument();
       },
-      { timeout: 10000 },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
     );
 
     // Step 6: Verify members appear in the list
@@ -807,7 +808,7 @@ Tests the full flow of removing members from a group.
     // Click on the "Platform Admins" link to navigate to detail page
     const groupLink = canvas.getByRole('link', { name: 'Platform Admins' });
     await user.click(groupLink);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Wait for group detail page to load
     await waitFor(async () => {
@@ -817,16 +818,16 @@ Tests the full flow of removing members from a group.
     // Click Members tab
     const membersTab = canvas.getByRole('tab', { name: /members/i });
     await user.click(membersTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Wait for members table to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Select first member checkbox
     const memberCheckboxes = canvas.getAllByRole('checkbox');
     // First checkbox is bulk select, individual row checkboxes start at index 1
     await user.click(memberCheckboxes[1]);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Click the bulk actions kebab menu
     const bulkActionsBtn = canvas.getByRole('button', { name: 'Member bulk actions' });
@@ -837,7 +838,7 @@ Tests the full flow of removing members from a group.
     await user.click(removeMenuItem);
 
     const body = within(document.body);
-    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
+    const modal = await body.findByRole('dialog', {}, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
     expect(modal).toBeInTheDocument();
 
     const confirmRemoveBtn = within(modal).getByRole('button', { name: /remove/i });
@@ -914,7 +915,7 @@ Tests the full flow of adding roles to an existing group.
     // Click on the "Support Team" link to navigate to detail page
     const groupLink = canvas.getByRole('link', { name: 'Support Team' });
     await user.click(groupLink);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 1: Wait for group detail page to load
     await waitFor(async () => {
@@ -924,7 +925,7 @@ Tests the full flow of adding roles to an existing group.
     // Click Roles tab
     const rolesTab = canvas.getByRole('tab', { name: /roles/i });
     await user.click(rolesTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 2: Wait for roles tab to fully load
     // Wait for empty state message or roles to appear (group starts with no roles)
@@ -935,10 +936,10 @@ Tests the full flow of adding roles to an existing group.
     });
 
     // Give the page time to fetch available roles count and enable the button
-    await delay(2000);
+    await delay(TEST_TIMEOUTS.LONG_OPERATION);
 
     // Button should now be enabled - click it
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
     const addRoleBtnToClick = canvas.getByRole('button', { name: /add role/i });
     await expect(addRoleBtnToClick).toBeEnabled();
     await user.click(addRoleBtnToClick);
@@ -1018,7 +1019,7 @@ Tests the full flow of removing roles from a group.
     // Click on the "Platform Admins" link to navigate to detail page
     const groupLink = canvas.getByRole('link', { name: 'Platform Admins' });
     await user.click(groupLink);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Wait for group detail page to load
     await waitFor(async () => {
@@ -1028,7 +1029,7 @@ Tests the full flow of removing roles from a group.
     // Click Roles tab
     const rolesTab = canvas.getByRole('tab', { name: /roles/i });
     await user.click(rolesTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Wait for roles tab content to load - verify roles appear
     await waitFor(async () => {
@@ -1036,12 +1037,12 @@ Tests the full flow of removing roles from a group.
       await expect(canvas.getByText('Viewer')).toBeInTheDocument();
     });
 
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Select first role checkbox
     const roleCheckbox = canvas.getByRole('checkbox', { name: /select row 0/i });
     await user.click(roleCheckbox);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Remove the selected role using the Actions dropdown
     await removeSelectedRolesFromGroup(user, canvas);
@@ -1111,7 +1112,7 @@ export const CreateRoleJourney: Story = {
     // Click "Create role" button
     const createButton = await canvas.findByRole('button', { name: /create role/i });
     await user.click(createButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Fill and submit the wizard
     await fillCreateRoleWizard(user, 'Automation Test Role', 'A test custom role for automation', ['insights:*:*']);
@@ -1125,7 +1126,7 @@ export const CreateRoleJourney: Story = {
       () => {
         expect(canvas.getByText('Automation Test Role')).toBeInTheDocument();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
   },
 };
@@ -1193,7 +1194,7 @@ This story verifies:
     await verifySuccessNotification();
 
     // Small delay for list to refresh
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify the updated role appears in the list
     await waitFor(async () => {
@@ -1257,7 +1258,7 @@ This story verifies:
     // Click on the "Custom Role" link to navigate to detail page
     const roleLink = canvas.getByRole('link', { name: 'Custom Role' });
     await user.click(roleLink);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Wait for role detail page to load
     await waitFor(async () => {
@@ -1406,7 +1407,7 @@ This story verifies:
     // Click on the "Custom Role" link to navigate to detail page
     const roleLink = canvas.getByRole('link', { name: 'Custom Role' });
     await user.click(roleLink);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Wait for role detail page to load
     await waitFor(async () => {
@@ -1449,7 +1450,7 @@ async function navigateToUserDetailPage(user: ReturnType<typeof userEvent.setup>
   // Click on the username to navigate to detail page
   const usernameLink = canvas.getByRole('link', { name: username });
   await user.click(usernameLink);
-  await delay(500);
+  await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
   // Wait for user detail page to load - look for the "Add user to a group" button
   await waitForPageToLoad(canvas, 'Add user to a group');
@@ -1553,7 +1554,7 @@ Tests adding a user to groups from the user detail page.
     // Click "Add user to a group" button
     const addToGroupButton = await canvas.findByRole('button', { name: /add user to a group/i });
     await user.click(addToGroupButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Modal should open - find it in document body
     const modal = await waitFor(() => {
@@ -1569,12 +1570,12 @@ Tests adding a user to groups from the user detail page.
     const row = groupRow.closest('tr');
     const groupCheckbox = within(row as HTMLElement).getByRole('checkbox');
     await user.click(groupCheckbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Submit - button has aria-label="Save"
     const addButton = modalContent.getByRole('button', { name: 'Save' });
     await user.click(addButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify success notification
     await verifySuccessNotification();
@@ -1632,16 +1633,16 @@ Tests deactivating users from the users list.
     // Select an active user (john.doe - row 0)
     const userCheckbox = canvas.getByRole('checkbox', { name: 'Select row 0' });
     await user.click(userCheckbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Open kebab menu
     const kebabButton = canvas.getByRole('button', { name: /kebab dropdown toggle/i });
     await user.click(kebabButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Click "Deactivate users" option
     await clickMenuItem(user, 'Deactivate users');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Modal opens - check the confirmation checkbox first
     const modal = await waitFor(() => {
@@ -1655,12 +1656,12 @@ Tests deactivating users from the users list.
     // Check the confirmation checkbox
     const confirmCheckbox = modalContent.getByRole('checkbox', { name: /yes, i confirm that i want to deactivate these users/i });
     await user.click(confirmCheckbox);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Now click the Deactivate button (should be enabled now)
     const deactivateButton = modalContent.getByRole('button', { name: /deactivate user/i });
     await user.click(deactivateButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify success notification
     await verifySuccessNotification();
@@ -1718,16 +1719,16 @@ Tests activating inactive users from the users list.
     // Select an inactive user (bob.johnson - row 2)
     const userCheckbox = canvas.getByRole('checkbox', { name: 'Select row 2' });
     await user.click(userCheckbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Open kebab menu
     const kebabButton = canvas.getByRole('button', { name: /kebab dropdown toggle/i });
     await user.click(kebabButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Click "Activate users" option
     await clickMenuItem(user, 'Activate users');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Modal opens - check the confirmation checkbox first
     const modal = await waitFor(() => {
@@ -1741,12 +1742,12 @@ Tests activating inactive users from the users list.
     // Check the confirmation checkbox
     const confirmCheckbox = modalContent.getByRole('checkbox', { name: /yes, i confirm that i want to add these users/i });
     await user.click(confirmCheckbox);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Now click the Activate button (should be enabled now)
     const activateButton = modalContent.getByRole('button', { name: /activate user/i });
     await user.click(activateButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify success notification
     await verifySuccessNotification();
@@ -1807,7 +1808,7 @@ Tests inviting new users to the organization.
     // Click "Invite users" button
     const inviteButton = canvas.getByRole('button', { name: /invite users/i });
     await user.click(inviteButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Modal should open
     const modal = await waitFor(() => {
@@ -1824,23 +1825,23 @@ Tests inviting new users to the organization.
     // Fill in email addresses (required field)
     const emailInput = modalContent.getByRole('textbox', { name: /enter the e-mail addresses/i });
     await user.type(emailInput, 'newuser1@example.com, newuser2@example.com');
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Optionally add a message
     const messageInput = modalContent.getByRole('textbox', { name: /send a message with the invite/i });
     await user.type(messageInput, 'Welcome to our organization!');
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Check the org admin checkbox
     const orgAdminCheckbox = modalContent.getByRole('checkbox', { name: /organization administrators/i });
     await user.click(orgAdminCheckbox);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Submit the form
     const submitButton = modalContent.getByRole('button', { name: /invite new users/i });
     await waitFor(() => expect(submitButton).toBeEnabled());
     await user.click(submitButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify success notification
     await verifySuccessNotification();
@@ -1916,7 +1917,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
     // Click on "Default access" link
     const groupLink = canvas.getByRole('link', { name: 'Default access' });
     await user.click(groupLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for group detail page
     await waitFor(async () => {
@@ -1926,7 +1927,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
     // Click Roles tab
     const rolesTab = canvas.getByRole('tab', { name: /roles/i });
     await user.click(rolesTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Click "Add role" - wait for it to be visible and enabled (fetchAddRolesForGroup is async)
     const addRoleBtn = await waitFor(
@@ -1935,7 +1936,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
         expect(btn).toBeEnabled();
         return btn;
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
     await user.click(addRoleBtn);
 
@@ -1955,7 +1956,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
 
         expect(warningModal).not.toBeNull();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     // Now interact with the warning modal
@@ -1968,11 +1969,11 @@ Tests the full flow of copying "Default access" group when adding a role for the
         expect(checkbox).toBeInTheDocument();
         return checkbox;
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     await user.click(confirmCheckbox);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Find and click Continue button by its OUIA ID (more reliable)
     const continueButton = await waitFor(
@@ -1983,7 +1984,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
         expect(button).toBeEnabled();
         return button;
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     await user.click(continueButton);
@@ -2025,7 +2026,7 @@ Tests the full flow of copying "Default access" group when adding a role for the
     });
 
     // CRITICAL: Verify the alert does NOT appear for this regular group
-    await delay(500); // Give time for any alert to potentially show
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND); // Give time for any alert to potentially show
     const alertOnRegularGroup = canvas.queryByText(/Default access group has changed/i);
     expect(alertOnRegularGroup).not.toBeInTheDocument();
   },
@@ -2095,7 +2096,7 @@ Tests that modifying an already-copied "Custom default access" group does NOT sh
     // Click on "Custom default access"
     const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
     await user.click(groupLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for group detail page
     await waitFor(async () => {
@@ -2113,7 +2114,7 @@ Tests that modifying an already-copied "Custom default access" group does NOT sh
         expect(btn).toBeEnabled();
         return btn;
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
     await user.click(addRoleBtn);
 
@@ -2217,7 +2218,7 @@ Tests that REMOVING roles from an already-copied "Custom default access" group d
     // Click on "Custom default access"
     const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
     await user.click(groupLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for group detail page
     await waitFor(async () => {
@@ -2227,7 +2228,7 @@ Tests that REMOVING roles from an already-copied "Custom default access" group d
     // Click Roles tab
     const rolesTab = canvas.getByRole('tab', { name: /roles/i });
     await user.click(rolesTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for roles to load
     await waitFor(async () => {
@@ -2237,14 +2238,14 @@ Tests that REMOVING roles from an already-copied "Custom default access" group d
     // Select first role checkbox
     const roleCheckbox = canvas.getByRole('checkbox', { name: /select row 0/i });
     await user.click(roleCheckbox);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Use the helper to remove selected roles - but DON'T auto-confirm
     // because we want to check what modal appears
     await removeSelectedRolesFromGroup(user, canvas, false);
 
     // A WarningModal for confirming the removal should appear
-    const warningModal = await within(document.body).findByRole('dialog', {}, { timeout: 5000 });
+    const warningModal = await within(document.body).findByRole('dialog', {}, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
     expect(warningModal).toBeInTheDocument();
 
     // CRITICAL: Verify this is NOT the DefaultGroupChangeModal
@@ -2420,7 +2421,7 @@ default group back to its original system-managed state.
     // Click on "Custom default access"
     const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
     await user.click(groupLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for group detail page
     await waitFor(async () => {
@@ -2434,12 +2435,12 @@ default group back to its original system-managed state.
         expect(link).toBeInTheDocument();
         return link;
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     // Click "Restore to default"
     await user.click(restoreLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Find the warning modal
     let warningModal: HTMLElement | null = null;
@@ -2457,7 +2458,7 @@ default group back to its original system-managed state.
 
         expect(warningModal).not.toBeNull();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     // Interact with the warning modal
@@ -2479,7 +2480,7 @@ default group back to its original system-managed state.
         expect(btn).toBeEnabled();
         return btn;
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     await user.click(continueButton);
@@ -2559,7 +2560,7 @@ instead of a table, with the message about all org admins being members.
     // Click on "Default admin access"
     const groupLink = canvas.getByRole('link', { name: 'Default admin access' });
     await user.click(groupLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for group detail page
     await waitFor(() => {
@@ -2569,7 +2570,7 @@ instead of a table, with the message about all org admins being members.
     // Click Members tab
     const membersTab = canvas.getByRole('tab', { name: /members/i });
     await user.click(membersTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Should show the special default card message
     await waitFor(() => {
@@ -2630,7 +2631,7 @@ message about all users being members (not admin-specific message).
     // Click on "Default access"
     const groupLink = canvas.getByRole('link', { name: 'Default access' });
     await user.click(groupLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for group detail page
     await waitFor(() => {
@@ -2640,7 +2641,7 @@ message about all users being members (not admin-specific message).
     // Click Members tab
     const membersTab = canvas.getByRole('tab', { name: /members/i });
     await user.click(membersTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Should show the special default card message (for all users, not just org admins)
     await waitFor(() => {
@@ -2705,7 +2706,7 @@ message about service accounts not being automatically included for security rea
     // Click on "Default admin access"
     const groupLink = canvas.getByRole('link', { name: 'Default admin access' });
     await user.click(groupLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for group detail page
     await waitFor(() => {
@@ -2715,7 +2716,7 @@ message about service accounts not being automatically included for security rea
     // Click Service Accounts tab
     const serviceAccountsTab = canvas.getByRole('tab', { name: /service accounts/i });
     await user.click(serviceAccountsTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Should show the special security message
     await waitFor(() => {
@@ -2778,7 +2779,7 @@ message about service accounts not being automatically included for security rea
     // Click on "Default access"
     const groupLink = canvas.getByRole('link', { name: 'Default access' });
     await user.click(groupLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for group detail page
     await waitFor(() => {
@@ -2788,7 +2789,7 @@ message about service accounts not being automatically included for security rea
     // Click Service Accounts tab
     const serviceAccountsTab = canvas.getByRole('tab', { name: /service accounts/i });
     await user.click(serviceAccountsTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Should show the special security message (slightly different wording from admin default)
     await waitFor(() => {

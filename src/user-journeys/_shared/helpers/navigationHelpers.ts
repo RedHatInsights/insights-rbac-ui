@@ -1,19 +1,28 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { delay } from 'msw';
+import { TEST_TIMEOUTS } from './testUtils';
 
 /**
  * Expands a workspace row in the hierarchical table if it's collapsed
+ *
+ * Uses async findByText to wait for the row to appear (critical after mutations)
+ * and waitFor to ensure the toggle button is present before interacting.
  */
 export async function expandWorkspaceRow(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, workspaceName: string) {
-  const workspaceRow = canvas.getByText(workspaceName).closest('tr') as HTMLElement;
+  // Use findByText (async) to wait for element after mutations
+  const workspaceText = await canvas.findByText(workspaceName, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+  const workspaceRow = workspaceText.closest('tr') as HTMLElement;
   expect(workspaceRow).toBeInTheDocument();
 
+  // Wait for toggle button (CSS selector needed as PatternFly doesn't provide accessible name)
+  await waitFor(() => expect(workspaceRow.querySelector('.pf-v6-c-table__toggle button')).toBeInTheDocument(), {
+    timeout: TEST_TIMEOUTS.ELEMENT_WAIT,
+  });
   const toggleButton = workspaceRow.querySelector('.pf-v6-c-table__toggle button') as HTMLButtonElement;
-  expect(toggleButton).toBeInTheDocument();
 
   if (toggleButton.getAttribute('aria-expanded') === 'false') {
     await user.click(toggleButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
   }
 }
 
@@ -23,7 +32,7 @@ export async function expandWorkspaceRow(user: ReturnType<typeof userEvent.setup
 export async function openRowActionsMenu(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, rowName: string) {
   const kebabButton = await canvas.findByRole('button', { name: `${rowName} actions` });
   await user.click(kebabButton);
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
   // Wait for menu to appear
   await waitFor(async () => {
@@ -38,7 +47,7 @@ export async function openRowActionsMenu(user: ReturnType<typeof userEvent.setup
 export async function openRoleActionsMenu(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, roleName: string) {
   const kebabButton = await canvas.findByRole('button', { name: `Actions for role ${roleName}` });
   await user.click(kebabButton);
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
   // Wait for menu to appear
   await waitFor(async () => {
@@ -75,7 +84,7 @@ export async function openDetailPageActionsMenu(user: ReturnType<typeof userEven
 
   if (actionsButton) {
     await user.click(actionsButton);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Wait for menu to appear
     await waitFor(async () => {
@@ -94,7 +103,7 @@ export async function clickMenuItem(user: ReturnType<typeof userEvent.setup>, me
   const menuItem = await within(document.body).findByText(menuItemText);
   await expect(menuItem).toBeInTheDocument();
   await user.click(menuItem);
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 }
 
 /**
@@ -107,7 +116,7 @@ export async function confirmDeleteModal(user: ReturnType<typeof userEvent.setup
     expect(modal).toBeInTheDocument();
   });
 
-  await delay(300); // Give user time to "read" the confirmation
+  await delay(TEST_TIMEOUTS.AFTER_CLICK); // Give user time to "read" the confirmation
 
   // Click confirmation button (Remove, Activate, Deactivate, etc.)
   const modal = document.querySelector('[role="dialog"]') as HTMLElement;
@@ -140,7 +149,7 @@ export async function verifySuccessNotification() {
       expect(errorNotification).toBeNull();
       expect(warningNotification).toBeNull();
     },
-    { timeout: 5000 },
+    { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
   );
 }
 
@@ -152,7 +161,7 @@ export async function waitForPageToLoad(canvas: ReturnType<typeof within>, eleme
     async () => {
       await expect(canvas.getByText(elementText)).toBeInTheDocument();
     },
-    { timeout: 10000 }, // Increased timeout for journey tests where full app bootstraps
+    { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
   );
 }
 
@@ -162,5 +171,5 @@ export async function waitForPageToLoad(canvas: ReturnType<typeof within>, eleme
 export async function navigateToPage(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, linkText: string) {
   const navLink = canvas.getByRole('link', { name: linkText });
   await user.click(navLink);
-  await delay(300); // Wait for navigation
+  await delay(TEST_TIMEOUTS.AFTER_CLICK);
 }

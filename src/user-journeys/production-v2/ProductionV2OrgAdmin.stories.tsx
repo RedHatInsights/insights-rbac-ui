@@ -3,7 +3,7 @@ import React from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-handlers';
 import { defaultGroups } from '../../../.storybook/fixtures/groups';
 import { defaultUsers } from '../../../.storybook/fixtures/users';
@@ -226,7 +226,7 @@ Use the Controls panel to:
     const canvas = within(context.canvasElement);
 
     // Wait for the page to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify the V2 Users and User Groups page loads
     await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
@@ -259,21 +259,21 @@ Tests navigation through all V2 Access Management sidebar items.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Navigate to Users and User Groups
     await navigateToPage(user, canvas, 'Users and User Groups');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
 
     // Navigate to Workspaces
     await navigateToPage(user, canvas, 'Workspaces');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await expect(canvas.findByText('Default Workspace')).resolves.toBeInTheDocument();
 
     // Navigate back to Overview
     await navigateToPage(user, canvas, 'Overview');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
   },
 };
 
@@ -299,7 +299,7 @@ Tests the new Users and User Groups page functionality.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify Users tab is active
     const usersTab = await canvas.findByRole('tab', { name: /users/i });
@@ -308,14 +308,14 @@ Tests the new Users and User Groups page functionality.
     // Switch to User Groups tab
     const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
     await user.click(groupsTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify User Groups tab is now active
     expect(groupsTab).toHaveAttribute('aria-selected', 'true');
 
     // Switch back to Users
     await user.click(usersTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     expect(usersTab).toHaveAttribute('aria-selected', 'true');
   },
 };
