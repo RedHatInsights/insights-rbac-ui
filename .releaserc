@@ -16,7 +16,7 @@
           "package.json",
           "CHANGELOG.md"
         ],
-        "message": "chore: publish ${nextRelease.version} <no> [skip ci]"
+        "message": "chore: publish ${nextRelease.version} <no>"
       }
     ]
   ]
