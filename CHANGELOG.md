@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.0...v2.1.1) (2026-01-28)
+
+
+### Bug Fixes
+
+* **workspaces:** use official API types and fix React hooks violation ([32ef97e](https://github.com/RedHatInsights/insights-rbac-ui/commit/32ef97eec2867f06e48bbfe6052bb104c865e5b8))
+
 # [2.1.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.0.2...v2.1.0) (2026-01-27)
 
 
