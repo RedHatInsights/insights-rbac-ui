@@ -1,16 +1,12 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react-webpack5';
 import { MemoryRouter } from 'react-router-dom';
-import { BundleCard } from './BundleCard';
+import { BundleCard, type EntitlementTuple } from './BundleCard';
 
-interface BundleCardProps {
-  header?: string;
-  entitlements?: Array<[string, any]>;
-  isDisabled?: boolean;
-  currentBundle: string;
-}
+type BundleCardProps = React.ComponentProps<typeof BundleCard>;
+type EntitlementValue = EntitlementTuple[1];
 
-const meta: Meta<BundleCardProps> = {
+const meta: Meta<typeof BundleCard> = {
   component: BundleCard,
   tags: ['autodocs', 'custom-css'],
   parameters: {
@@ -81,19 +77,19 @@ export default meta;
 type Story = StoryObj<BundleCardProps>;
 
 // Sample entitlements data
-const sampleEntitlements: Array<[string, any]> = [
+const sampleEntitlements: Array<[string, EntitlementValue]> = [
   ['openshift', { is_entitled: true, is_trial: false }],
   ['rhel', { is_entitled: true, is_trial: false }],
   ['ansible', { is_entitled: true, is_trial: false }],
   ['settings', { is_entitled: true, is_trial: false }],
 ];
 
-const limitedEntitlements: Array<[string, any]> = [
+const limitedEntitlements: Array<[string, EntitlementValue]> = [
   ['rhel', { is_entitled: true, is_trial: false }],
   ['settings', { is_entitled: true, is_trial: false }],
 ];
 
-const singleEntitlement: Array<[string, any]> = [['openshift', { is_entitled: true, is_trial: false }]];
+const singleEntitlement: Array<[string, EntitlementValue]> = [['openshift', { is_entitled: true, is_trial: false }]];
 
 export const Default: Story = {
   args: {

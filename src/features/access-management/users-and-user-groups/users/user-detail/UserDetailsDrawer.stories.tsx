@@ -8,7 +8,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { HttpResponse, delay, http } from 'msw';
 
 import { UserDetailsDrawer } from './UserDetailsDrawer';
-import { User } from '../../../../../redux/users/reducer';
+import type { User } from '../../../../../data/queries/users';
 
 // Mock user data for testing
 const mockUser: User = {
@@ -19,7 +19,6 @@ const mockUser: User = {
   is_active: true,
   is_org_admin: false,
   external_source_id: 123,
-  uuid: 456,
 };
 
 // Component to simulate DataView table row clicks for testing

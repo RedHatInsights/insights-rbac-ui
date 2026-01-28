@@ -4,25 +4,29 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceHeader } from './WorkspaceHeader';
 import { IntlProvider } from 'react-intl';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { Workspace } from '../../../redux/workspaces/reducer';
+import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import messages from '../../../locales/data.json';
 import { locale } from '../../../locales/locale';
 
 // Mock workspace data
-const mockWorkspace: Workspace = {
+const mockWorkspace: WorkspacesWorkspace = {
   id: 'workspace-1',
   name: 'Production Environment',
   description: 'Main production workspace for critical services and applications',
   type: 'root',
   parent_id: '',
+  created: '2024-01-01T00:00:00Z',
+  modified: '2024-01-01T00:00:00Z',
 };
 
-const mockChildWorkspace: Workspace = {
+const mockChildWorkspace: WorkspacesWorkspace = {
   id: 'workspace-2',
   name: 'Web Services',
   description: 'Frontend web applications and API services',
   type: 'standard',
   parent_id: 'workspace-1',
+  created: '2024-01-02T00:00:00Z',
+  modified: '2024-01-02T00:00:00Z',
 };
 
 // Mock hierarchy data (from root to current)
@@ -34,7 +38,7 @@ const mockHierarchy = [
 const mockSingleWorkspaceHierarchy = [{ name: 'Production Environment', id: 'workspace-1' }];
 
 // Story decorator to provide necessary context
-const withProviders = (Story: any, context: any) => {
+const withProviders = (Story: React.ComponentType, context: { parameters?: { route?: string } }) => {
   const route = context.parameters?.route || '/iam/access-management/workspaces/detail/workspace-1';
   return (
     <MemoryRouter initialEntries={[route]}>

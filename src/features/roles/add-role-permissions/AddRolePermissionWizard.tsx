@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { Wizard } from '@patternfly/react-core/deprecated';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
@@ -7,7 +6,7 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { useFlag } from '@unleash/proxy-client-react';
-import { updateRole } from '../../../redux/roles/actions';
+import { type Access, type ResourceDefinition, type RoleWithAccess, useUpdateRoleMutation } from '../../../data/queries/roles';
 import AddPermissionsTable from '../add-role/AddPermissions';
 import AddRolePermissionSummaryContent from './AddRolePermissionSummaryContent';
 import AddRolePermissionSuccess from './AddRolePermissionSuccess';
@@ -19,16 +18,8 @@ import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import { AddRolePermissionWizardContext } from './AddRolePermissionWizardContext';
 
-interface Role {
-  uuid: string;
-  display_name: string;
-  description: string;
-  access: { permission: string }[];
-  accessCount: number;
-}
-
 interface AddRolePermissionWizardProps {
-  role: Role;
+  role: RoleWithAccess;
 }
 
 interface WizardContextValue {
@@ -38,10 +29,34 @@ interface WizardContextValue {
   hideForm: boolean;
 }
 
-interface FormData {
-  'add-permissions-table': { uuid: string; requires?: string[] }[];
-  'cost-resources': { permission: string; resources: string[] }[];
-  'inventory-groups-role': { permission: string; groups?: { id: string }[] }[];
+/**
+ * Form data structure matching the wizard schema.
+ * Each field corresponds to a step in the wizard.
+ */
+interface AddRolePermissionFormData extends Record<string, unknown> {
+  'add-permissions-table': Array<{
+    uuid: string;
+    requires?: string[];
+  }>;
+  'cost-resources'?: Array<{
+    permission: string;
+    resources: string[];
+  }>;
+  'inventory-groups-role'?: Array<{
+    permission: string;
+    groups?: Array<{ id: string }>;
+  }>;
+}
+
+/**
+ * Type guard to validate form data structure.
+ */
+function isAddRolePermissionFormData(data: Record<string, unknown>): data is AddRolePermissionFormData {
+  return (
+    Array.isArray(data['add-permissions-table']) &&
+    (data['cost-resources'] === undefined || Array.isArray(data['cost-resources'])) &&
+    (data['inventory-groups-role'] === undefined || Array.isArray(data['inventory-groups-role']))
+  );
 }
 
 const FormTemplate = (props: React.ComponentProps<typeof Pf4FormTemplate>) => <Pf4FormTemplate {...props} showFormControls={false} />;
@@ -53,12 +68,12 @@ export const mapperExtension = {
   review: AddRolePermissionSummaryContent,
 };
 
-const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role = {} as Role }) => {
+const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role }) => {
   const intl = useIntl();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [currentRoleID, setCurrentRoleID] = useState('');
   const navigate = useAppNavigate();
-  const dispatch = useDispatch();
+  const updateRoleMutation = useUpdateRoleMutation();
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
   const [wizardContextValue, setWizardContextValue] = useState<WizardContextValue>({
     success: false,
@@ -84,64 +99,72 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
   };
 
   const onSubmit = async (formData: Record<string, unknown>) => {
-    const typedFormData = formData as unknown as FormData;
+    // Type-safe form data extraction with validation
+    if (!isAddRolePermissionFormData(formData)) {
+      console.error('Invalid form data structure', formData);
+      return;
+    }
+
     const {
       'add-permissions-table': selectedPermissions,
       'cost-resources': costResources = [],
       'inventory-groups-role': invResources = [],
-    } = typedFormData;
+    } = formData;
 
     const selectedPermissionIds = [...role.access.map((record) => record.permission), ...selectedPermissions.map((record) => record.uuid)];
-    type AccessItem = {
-      permission: string;
-      resourceDefinitions: { attributeFilter: { key: string; operation: string; value: (string | undefined)[] } }[];
-    };
 
-    const newAccess = selectedPermissions.reduce<AccessItem[]>(
+    const newAccess = selectedPermissions.reduce<Access[]>(
       (acc, { uuid: permission, requires = [] }) => [
         ...acc,
-        ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((perm) => ({
-          permission: perm,
-          resourceDefinitions: [...costResources, ...invResources]?.find((r) => r.permission === perm)
-            ? perm.includes('inventory')
-              ? [
-                  {
-                    attributeFilter: {
-                      key: 'group.id',
-                      operation: 'in',
-                      value: invResources?.find((g) => g.permission === perm)?.groups?.map((group) => group?.id) ?? [],
-                    },
-                  },
-                ]
-              : perm.includes('cost-management') && (costResources?.find((r) => r.permission === perm)?.resources.length ?? 0) > 0
-                ? [
+        ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map(
+          (perm): Access => ({
+            permission: perm,
+            resourceDefinitions: [...costResources, ...invResources]?.find((r) => r.permission === perm)
+              ? perm.includes('inventory')
+                ? ([
                     {
                       attributeFilter: {
-                        key: `cost-management.${perm.split(':')[1]}`,
+                        key: 'group.id',
                         operation: 'in',
-                        value: costResources?.find((r) => r.permission === perm)?.resources ?? [],
+                        value: invResources?.find((g) => g.permission === perm)?.groups?.map((group) => group?.id) ?? [],
                       },
                     },
-                  ]
-                : []
-            : [],
-        })),
+                  ] as ResourceDefinition[])
+                : perm.includes('cost-management') && (costResources?.find((r) => r.permission === perm)?.resources.length ?? 0) > 0
+                  ? ([
+                      {
+                        attributeFilter: {
+                          key: `cost-management.${perm.split(':')[1]}`,
+                          operation: 'in',
+                          value: costResources?.find((r) => r.permission === perm)?.resources ?? [],
+                        },
+                      },
+                    ] as ResourceDefinition[])
+                  : []
+              : [],
+          }),
+        ),
       ],
-      (role.access as AccessItem[]) || [],
+      (role.access as Access[]) || [],
     );
 
     const roleData = {
       ...role,
       access: [...newAccess],
-      accessCount: role.accessCount + selectedPermissions.length,
+      accessCount: (role.accessCount ?? 0) + selectedPermissions.length,
     };
 
     setWizardContextValue((prev) => ({ ...prev, submitting: true }));
-    (
-      dispatch(
-        updateRole(currentRoleID, roleData as unknown as Parameters<typeof updateRole>[1], false) as unknown as { type: string },
-      ) as unknown as Promise<void>
-    )
+    updateRoleMutation
+      .mutateAsync({
+        uuid: currentRoleID,
+        rolePut: {
+          name: roleData.display_name,
+          display_name: roleData.display_name,
+          description: roleData.description,
+          access: newAccess,
+        },
+      })
       .then(() => setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true })))
       .catch(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
@@ -191,7 +214,7 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
           componentMapper={{ ...componentMapper, ...mapperExtension }}
           onSubmit={onSubmit}
           onCancel={(values: Record<string, unknown>) => {
-            if (values && (values['add-permissions-table'] as unknown[])?.length > 0) {
+            if (values && isAddRolePermissionFormData(values) && values['add-permissions-table'].length > 0) {
               handleWizardCancel();
             } else {
               handleConfirmCancel();

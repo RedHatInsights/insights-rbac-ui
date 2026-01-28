@@ -73,8 +73,8 @@ const setRolesSchema = {
 
 // Wrapper component to provide FormRenderer context
 const SetRolesWithForm: React.FC<{
-  onSubmit?: (values: any) => void;
-  initialValues?: any;
+  onSubmit?: (values: Record<string, unknown>) => void;
+  initialValues?: Record<string, unknown>;
 }> = ({ onSubmit = () => {}, initialValues = { 'roles-list': [] } }) => {
   return (
     <FormRenderer
@@ -206,7 +206,8 @@ export const RoleSelection: Story = {
     // Should submit with selected roles
     await waitFor(() => {
       expect(args.onSubmit).toHaveBeenCalled();
-      const submittedData = (args.onSubmit as any).mock.calls[0][0];
+      const mockFn = args.onSubmit as ReturnType<typeof fn>;
+      const submittedData = mockFn.mock.calls[0][0] as Record<string, unknown>;
       expect(submittedData['roles-list']).toBeDefined();
       expect(Array.isArray(submittedData['roles-list'])).toBe(true);
     });

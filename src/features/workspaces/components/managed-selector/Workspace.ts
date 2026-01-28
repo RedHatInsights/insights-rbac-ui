@@ -1,4 +1,4 @@
-import WorkspaceType from './WorkspaceType';
+import { WorkspacesWorkspaceTypes } from '@redhat-cloud-services/rbac-client/v2/types';
 
 /**
  * Represents a Workspace object.
@@ -6,12 +6,14 @@ import WorkspaceType from './WorkspaceType';
 interface Workspace {
   id: string;
   parent_id?: string;
-  type: WorkspaceType;
+  type: WorkspacesWorkspaceTypes;
   name: string;
   description?: string;
   created?: string;
   updated?: string;
 }
+
+const VALID_WORKSPACE_TYPES: string[] = Object.values(WorkspacesWorkspaceTypes);
 
 export const isWorkspace = (obj: unknown): obj is Workspace => {
   if (typeof obj !== 'object' || obj === null) {
@@ -20,7 +22,7 @@ export const isWorkspace = (obj: unknown): obj is Workspace => {
   if (!('id' in obj) || typeof (obj as Workspace).id !== 'string') {
     return false;
   }
-  if (!('type' in obj) || !Object.values(WorkspaceType).includes((obj as Workspace).type)) {
+  if (!('type' in obj) || !VALID_WORKSPACE_TYPES.includes((obj as Workspace).type)) {
     return false;
   }
   if (!('name' in obj) || typeof (obj as Workspace).name !== 'string') {

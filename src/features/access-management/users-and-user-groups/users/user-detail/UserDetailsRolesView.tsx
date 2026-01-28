@@ -1,17 +1,12 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
-import { useDispatch, useSelector } from 'react-redux';
-import { useIntl } from 'react-intl';
-import messages from '../../../../../Messages';
+import { type Role, useRolesQuery } from '../../../../../data/queries/roles';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
-import { fetchRoles } from '../../../../../redux/roles/actions';
-import { selectIsRolesLoading, selectRoles, selectRolesErrorState } from '../../../../../redux/roles/selectors';
-import { mappedProps } from '../../../../../helpers/dataUtilities';
-import { TableView } from '../../../../../components/table-view/TableView';
+import { TableView, useTableState } from '../../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../components/table-view/types';
 
 interface UserRolesViewProps {
@@ -28,33 +23,51 @@ interface RoleData {
 
 const columns = ['name', 'userGroup', 'workspace'] as const;
 
+/**
+ * UserDetailsRolesView - Shows assigned roles for a user
+ *
+ * Displays roles with their user group and workspace assignments.
+ * This data comes from V2-style role bindings API (gap:guessed-v2-api).
+ */
 const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ userId, ouiaId }) => {
-  const dispatch = useDispatch();
-  const intl = useIntl();
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      name: { label: 'Roles' },
+      userGroup: { label: 'User Group' },
+      workspace: { label: 'Workspace' },
+    }),
+    [],
+  );
 
-  const columnConfig: ColumnConfigMap<typeof columns> = {
-    name: { label: intl.formatMessage(messages.roles) },
-    userGroup: { label: intl.formatMessage(messages.userGroup) },
-    workspace: { label: intl.formatMessage(messages.workspace) },
-  };
+  const cellRenderers: CellRendererMap<typeof columns, RoleData> = useMemo(
+    () => ({
+      name: (role) => role.name,
+      userGroup: (role) => role.userGroup || '—',
+      workspace: (role) => role.workspace || '—',
+    }),
+    [],
+  );
 
-  const cellRenderers: CellRendererMap<typeof columns, RoleData> = {
-    name: (role) => role.name,
-    userGroup: () => '?', // TODO: Update once API provides user group data
-    workspace: () => '?', // TODO: Update once API provides workspace data
-  };
+  // Use useTableState for table state management
+  const tableState = useTableState<typeof columns, RoleData>({
+    columns,
+    getRowId: (role) => role.uuid,
+    initialPerPage: 100, // Show all items in detail views
+    syncWithUrl: false, // Drawer tables shouldn't sync with URL
+  });
 
-  const roles = useSelector(selectRoles);
-  const isLoading = useSelector(selectIsRolesLoading);
-  const error = useSelector(selectRolesErrorState);
+  // Use React Query for data fetching
+  // Note: The V1 roles API supports filtering by username
+  const { data, isLoading, error } = useRolesQuery({
+    limit: tableState.apiParams.limit,
+    offset: tableState.apiParams.offset,
+    // username filter to get roles for this user
+    username: userId,
+    system: false,
+  });
 
-  const fetchData = useCallback(() => {
-    dispatch(fetchRoles({ ...mappedProps({ username: userId }), usesMetaInURL: true, system: false }));
-  }, [dispatch, userId]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // Extract roles from typed response
+  const roles: Role[] = data?.data ?? [];
 
   // Show error state
   if (error) {
@@ -73,9 +86,11 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     </EmptyState>
   );
 
-  const roleData: RoleData[] = roles.map((role: any) => ({
+  const roleData: RoleData[] = roles.map((role) => ({
     uuid: role.uuid,
-    name: role.name,
+    name: role.name ?? role.display_name ?? 'Unknown',
+    userGroup: role.userGroup,
+    workspace: role.workspace,
   }));
 
   return (
@@ -87,14 +102,11 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
         totalCount={roleData.length}
         getRowId={(role) => role.uuid}
         cellRenderers={cellRenderers}
-        page={1}
-        perPage={roleData.length || 10}
-        onPageChange={() => {}}
-        onPerPageChange={() => {}}
         ariaLabel="UserRolesView"
         ouiaId={ouiaId}
         emptyStateNoData={emptyState}
         emptyStateNoResults={emptyState}
+        {...tableState}
       />
     </div>
   );

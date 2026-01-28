@@ -5,7 +5,6 @@
  */
 
 import React, { Fragment, Suspense, lazy, useCallback, useMemo, useState } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { TableVariant } from '@patternfly/react-table';
@@ -13,7 +12,8 @@ import { SkeletonTableBody } from '@patternfly/react-component-groups';
 
 import { TableView, useTableState } from '../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../components/table-view/types';
-import { fetchRoleForPrincipal, fetchRoles } from '../../redux/roles/actions';
+import { useRoleForPrincipalQuery, useRolesQuery } from '../../data/queries/roles';
+import type { ResourceDefinition, RoleOutDynamic, RoleWithAccess } from '../../data/api/roles';
 import messages from '../../Messages';
 import { ResourceDefinitionsLink } from './components/ResourceDefinitionsLink';
 import type { ResourceDefinitionsConfig } from './types';
@@ -27,19 +27,6 @@ interface RolesTableProps {
   showResourceDefinitions?: boolean;
 }
 
-interface RoleData {
-  uuid: string;
-  display_name?: string;
-  name: string;
-  description: string;
-  accessCount: number;
-}
-
-interface RoleAccess {
-  permission: string;
-  resourceDefinitions: any[];
-}
-
 // Column definitions
 const columns = ['display_name', 'description', 'permissions'] as const;
 type SortableColumnId = 'display_name';
@@ -47,20 +34,37 @@ type CompoundColumnId = 'permissions';
 
 export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefinitions = false }) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
 
-  // Redux selectors
-  const { roles, isLoading, rolesWithAccess } = useSelector(
-    ({ roleReducer: { roles, isLoading, rolesWithAccess } }: any) => ({
-      roles,
-      isLoading,
-      rolesWithAccess,
-    }),
-    shallowEqual,
-  );
+  // Query params state for React Query
+  const [queryParams, setQueryParams] = useState({
+    limit: 20,
+    offset: 0,
+    orderBy: 'display_name' as const,
+    scope: 'principal' as const,
+    application: apps.join(','),
+    name: undefined as string | undefined,
+  });
 
-  const totalCount = roles?.meta?.count || 0;
-  const rolesData: RoleData[] = roles?.data || [];
+  // Track which roles have been expanded to fetch their access data
+  const [expandedRoleId, setExpandedRoleId] = useState<string | null>(null);
+
+  // React Query for roles list
+  const { data: rolesResponse, isLoading } = useRolesQuery(queryParams);
+  const totalCount = rolesResponse?.meta?.count ?? 0;
+  const rolesData = rolesResponse?.data ?? [];
+
+  // React Query for expanded role access
+  const { data: expandedRoleAccess, isLoading: isLoadingAccess } = useRoleForPrincipalQuery(expandedRoleId ?? '', {
+    enabled: !!expandedRoleId,
+  });
+
+  // Build a map of fetched role access data
+  const rolesWithAccess = useMemo<Record<string, RoleWithAccess>>(() => {
+    if (expandedRoleId && expandedRoleAccess) {
+      return { [expandedRoleId]: expandedRoleAccess };
+    }
+    return {};
+  }, [expandedRoleId, expandedRoleAccess]);
 
   // Resource definitions modal state
   const [rdConfig, setRdConfig] = useState<ResourceDefinitionsConfig>({
@@ -101,22 +105,20 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
       const applicationFilter = params.filters.application as string[] | undefined;
       const applicationParam = applicationFilter?.length ? applicationFilter.join(',') : apps.join(',');
 
-      dispatch(
-        fetchRoles({
-          limit: params.limit,
-          offset: params.offset,
-          orderBy: params.orderBy,
-          scope: 'principal',
-          application: applicationParam,
-          ...(roleFilter && roleFilter.trim() ? { name: roleFilter } : {}),
-        }) as any,
-      );
+      setQueryParams({
+        limit: params.limit,
+        offset: params.offset,
+        orderBy: (params.orderBy as 'display_name') || 'display_name',
+        scope: 'principal',
+        application: applicationParam,
+        name: roleFilter && roleFilter.trim() ? roleFilter : undefined,
+      });
     },
-    [dispatch, apps],
+    [apps],
   );
 
   // useTableState for all state management
-  const tableState = useTableState<typeof columns, RoleData, SortableColumnId, CompoundColumnId>({
+  const tableState = useTableState<typeof columns, RoleOutDynamic, SortableColumnId, CompoundColumnId>({
     columns,
     sortableColumns: ['display_name'] as const,
     compoundColumns: ['permissions'] as const,
@@ -128,17 +130,14 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
   });
 
   // Handle expansion to fetch role permissions
-  const handleExpand = useCallback(
-    (role: RoleData, columnId: CompoundColumnId) => {
-      if (columnId === 'permissions' && !rolesWithAccess?.[role.uuid]) {
-        dispatch(fetchRoleForPrincipal(role.uuid) as any);
-      }
-    },
-    [dispatch, rolesWithAccess],
-  );
+  const handleExpand = useCallback((role: RoleOutDynamic, columnId: CompoundColumnId) => {
+    if (columnId === 'permissions') {
+      setExpandedRoleId(role.uuid);
+    }
+  }, []);
 
   // Handle resource definitions click
-  const handleRdClick = useCallback((permission: string, resourceDefinitions: any[]) => {
+  const handleRdClick = useCallback((permission: string, resourceDefinitions: ResourceDefinition[]) => {
     setRdConfig({
       rdOpen: true,
       rdPermission: permission,
@@ -147,10 +146,10 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
   }, []);
 
   // Cell renderers
-  const cellRenderers: CellRendererMap<typeof columns, RoleData> = useMemo(
+  const cellRenderers: CellRendererMap<typeof columns, RoleOutDynamic> = useMemo(
     () => ({
-      display_name: (role) => role.display_name || role.name,
-      description: (role) => role.description || '—',
+      display_name: (role) => role.display_name ?? role.name,
+      description: (role) => role.description ?? '—',
       permissions: (role) => role.accessCount,
     }),
     [],
@@ -168,13 +167,14 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
   );
 
   // Expansion renderers for compound expansion
-  const expansionRenderers: ExpansionRendererMap<CompoundColumnId, RoleData> = useMemo(
+  const expansionRenderers: ExpansionRendererMap<CompoundColumnId, RoleOutDynamic> = useMemo(
     () => ({
       permissions: (role) => {
-        const rolePermissions = rolesWithAccess?.[role.uuid];
+        const rolePermissions = rolesWithAccess[role.uuid];
+        const isLoadingThisRole = expandedRoleId === role.uuid && isLoadingAccess;
 
         // Show loading skeleton while permissions are being fetched
-        if (!rolePermissions) {
+        if (!rolePermissions || isLoadingThisRole) {
           return (
             <Table ouiaId="permissions-in-role-nested-table" aria-label="Permissions Table" borders={false} variant={TableVariant.compact}>
               <Thead>
@@ -199,7 +199,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
               </Tr>
             </Thead>
             <Tbody>
-              {rolePermissions.access.map((access: RoleAccess, index: number) => (
+              {rolePermissions.access.map((access, index) => (
                 <Tr key={`${role.uuid}-permission-${access.permission || index}`}>
                   {access.permission.split(':').map((part, partIndex) => (
                     <Td key={partIndex}>{part}</Td>
@@ -216,12 +216,12 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
         );
       },
     }),
-    [rolesWithAccess, permissionColumns, showResourceDefinitions, handleRdClick],
+    [rolesWithAccess, permissionColumns, showResourceDefinitions, handleRdClick, expandedRoleId, isLoadingAccess],
   );
 
   return (
     <Fragment>
-      <TableView<typeof columns, RoleData, SortableColumnId, CompoundColumnId>
+      <TableView<typeof columns, RoleOutDynamic, SortableColumnId, CompoundColumnId>
         columns={columns}
         columnConfig={columnConfig}
         sortableColumns={['display_name'] as const}

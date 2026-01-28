@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Group } from '../../../redux/groups/reducer';
+import { type Group } from '../../../data/queries/groups';
 
 /**
  * Hook to manage the "Default group changed" alert visibility

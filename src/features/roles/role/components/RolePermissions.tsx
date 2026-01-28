@@ -12,11 +12,12 @@ import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../..
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view/types';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
+import type { ResourceDefinition } from '../../../../data/api/roles';
 
 interface FilteredPermission {
   uuid: string;
   permission: string;
-  resourceDefinitions: any[];
+  resourceDefinitions: ResourceDefinition[];
   modified: string;
 }
 
@@ -90,7 +91,11 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
   const [perPage, setPerPage] = useState(20);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<() => void>(() => {});
-  const [deleteInfo, setDeleteInfo] = useState({ title: '', text: '', confirmButtonLabel: '' });
+  const [deleteInfo, setDeleteInfo] = useState<{ title: string; text: string | React.ReactNode; confirmButtonLabel: string }>({
+    title: '',
+    text: '',
+    confirmButtonLabel: '',
+  });
   const [selectedRows, setSelectedRows] = useState<FilteredPermission[]>([]);
 
   // Calculate paginated data
@@ -110,7 +115,7 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
 
   const initiateRemove = useCallback(
     (permissionsToRemove: FilteredPermission[], title: string, text: string | React.ReactNode, confirmButtonLabel: string) => {
-      setDeleteInfo({ title, text: text as any, confirmButtonLabel });
+      setDeleteInfo({ title, text, confirmButtonLabel });
       setConfirmDelete(() => () => removePermissions(permissionsToRemove.map((p) => ({ uuid: p.uuid }))));
       setShowRemoveModal(true);
     },

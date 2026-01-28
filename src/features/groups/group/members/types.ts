@@ -1,8 +1,14 @@
 import React from 'react';
-import { Member } from '../../../../redux/groups/reducer';
 
-// Re-export Member from Redux for convenience
-export type { Member };
+// Member type - aligned with React Query
+export interface Member {
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  is_active?: boolean;
+  is_org_admin?: boolean;
+}
 
 export interface MemberTableRow {
   id: string;

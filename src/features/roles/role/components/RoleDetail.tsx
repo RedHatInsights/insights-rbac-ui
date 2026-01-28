@@ -6,7 +6,6 @@ import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/
 import { PageLayout } from '../../../../components/layout/PageLayout';
 import { EmptyWithAction } from '../../../../components/ui-states/EmptyState';
 import { AppLink } from '../../../../components/navigation/AppLink';
-
 export interface RoleDetailProps {
   title?: string;
   description?: string;

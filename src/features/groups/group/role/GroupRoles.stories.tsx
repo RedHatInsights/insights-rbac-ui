@@ -1,11 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import React, { useEffect } from 'react';
-import { MemoryRouter, Route, Routes, useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import React from 'react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { GroupRoles } from './GroupRoles';
-import { fetchGroup } from '../../../../redux/groups/actions';
 
 // Spy for testing API calls
 const getRolesSpy = fn();
@@ -178,23 +176,8 @@ const mockDefaultGroup = {
   modified: '2023-01-15T12:00:00.000Z',
 };
 
-// Wrapper component that loads group data into Redux
-const GroupRolesWrapper: React.FC<{ groupId?: string }> = () => {
-  const dispatch = useDispatch();
-  const { groupId } = useParams<{ groupId: string }>();
-
-  useEffect(() => {
-    if (groupId) {
-      // Load the group data so Redux state is populated
-      dispatch(fetchGroup(groupId));
-    }
-  }, [dispatch, groupId]);
-
-  return <GroupRoles />;
-};
-
-const meta: Meta<typeof GroupRolesWrapper> = {
-  component: GroupRolesWrapper,
+const meta: Meta<typeof GroupRoles> = {
+  component: GroupRoles,
   tags: ['custom-css'], // NO autodocs on meta
   decorators: [
     (Story, { parameters }) => (
@@ -211,7 +194,7 @@ const meta: Meta<typeof GroupRolesWrapper> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof GroupRolesWrapper>;
+type Story = StoryObj<typeof GroupRoles>;
 
 export const Default: Story = {
   tags: ['autodocs', 'perm:user-access-admin'],

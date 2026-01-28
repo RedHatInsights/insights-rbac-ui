@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -15,6 +15,7 @@ const mockRole = {
   name: 'Platform Administrator',
   display_name: 'Platform Administrator',
   description: 'Full platform access',
+  created: '2024-01-01T00:00:00Z',
   modified: '2024-01-15T10:30:00Z',
   accessCount: 2,
   system: false,
@@ -50,7 +51,7 @@ const mockPermissions = [
 ];
 
 // Router decorator
-const withRouter = (Story: any) => {
+const withRouter = (Story: StoryFn) => {
   return (
     <BrowserRouter>
       <Routes>

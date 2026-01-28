@@ -4,30 +4,36 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { GroupServiceAccounts } from './GroupServiceAccounts';
+import type { RawServiceAccountFromApi } from '../../../../data/queries/groups';
 
-const mockServiceAccounts = [
+/**
+ * Mock service accounts representing raw API responses.
+ * These are returned by MSW handlers and converted to milliseconds by the query layer.
+ * Shape matches RawServiceAccountFromApi - using Required to ensure test data is complete.
+ */
+const mockServiceAccounts: Required<RawServiceAccountFromApi>[] = [
   {
-    uuid: 'uuid-ci-pipeline-service', // Add UUID for selection to work
-    name: 'ci-pipeline-service', // reducer sets uuid = item.name
+    username: 'service-account-123',
+    name: 'ci-pipeline-service',
     clientId: 'service-account-123',
     owner: 'platform-team',
-    time_created: 1642636800, // Unix timestamp (will be multiplied by 1000 in reducer)
+    time_created: 1642636800, // Jan 20, 2022 in seconds
     description: 'CI/CD pipeline automation service account',
   },
   {
-    uuid: 'uuid-monitoring-collector', // Add UUID for selection to work
+    username: 'service-account-456',
     name: 'monitoring-collector',
     clientId: 'service-account-456',
     owner: 'ops-team',
-    time_created: 1642550400,
+    time_created: 1642550400, // Jan 19, 2022 in seconds
     description: 'Monitoring and metrics collection service',
   },
   {
-    uuid: 'uuid-backup-automation', // Add UUID for selection to work
+    username: 'service-account-789',
     name: 'backup-automation',
     clientId: 'service-account-789',
     owner: 'infrastructure-team',
-    time_created: 1642464000,
+    time_created: 1642464000, // Jan 18, 2022 in seconds
     description: 'Automated backup and data management',
   },
 ];
@@ -35,7 +41,7 @@ const mockServiceAccounts = [
 // 🎯 API SPIES: Proper spy pattern for testing API calls
 const clearFiltersSpy = fn();
 
-// Simple wrapper that just renders the component (Redux provider is global)
+// Simple wrapper that just renders the component (React Query provider is global)
 const GroupServiceAccountsWrapper: React.FC = () => {
   return <GroupServiceAccounts />;
 };
@@ -125,7 +131,7 @@ For testing specific scenarios and edge cases, see these additional stories:
 
 ## What This Tests
 
-- ✅ Service account data loads from API via Redux orchestration
+- ✅ Service account data loads from API via React Query orchestration
 - ✅ Table displays service account information correctly
 - ✅ Pagination handles large datasets properly
 - ✅ Filtering and search functionality works
@@ -468,7 +474,7 @@ export const ServiceAccountsFilteringWithData: Story = {
         }),
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
           const url = new URL(request.url);
-          // Use the actual parameter names sent by the Redux action
+          // Use the actual parameter names sent by the React Query mutation
           const clientIdFilter = url.searchParams.get('principal_username') || ''; // Maps to clientId in UI
           const nameFilter = url.searchParams.get('service_account_name') || '';
           const descFilter = url.searchParams.get('service_account_description') || '';
@@ -609,7 +615,6 @@ export const ServiceAccountsFilteringWithData: Story = {
  * Test story specifically for validating "Add service account" button link generation
  */
 export const AddServiceAccountLinkTest: Story = {
-  name: 'Add Service Account Link Test',
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true }, // Hide from docs as this is a test story
@@ -675,7 +680,6 @@ export const AddServiceAccountLinkTest: Story = {
  * Test story specifically for validating row actions and toolbar actions
  */
 export const BulkActionsTest: Story = {
-  name: 'Bulk Actions Test',
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true },
@@ -704,18 +708,18 @@ export const BulkActionsTest: Story = {
             return HttpResponse.json({
               data: [
                 {
-                  uuid: 'sa-1-uuid',
+                  username: 'client-1',
                   name: 'test-service-1',
                   clientId: 'client-1',
                   owner: 'test-user',
-                  time_created: Date.now(),
+                  time_created: Math.floor(Date.now() / 1000), // Unix timestamp in seconds
                 },
                 {
-                  uuid: 'sa-2-uuid',
+                  username: 'client-2',
                   name: 'test-service-2',
                   clientId: 'client-2',
                   owner: 'test-user',
-                  time_created: Date.now(),
+                  time_created: Math.floor(Date.now() / 1000), // Unix timestamp in seconds
                 },
               ],
               meta: { count: 2, limit: 20, offset: 0 },
@@ -926,7 +930,6 @@ export const SelectAllTest: Story = {
 // - Updated RemoveGroupServiceAccounts modal to use UUIDs from URL params for API calls
 
 export const ActionsTest: Story = {
-  name: 'Actions Test',
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true }, // Hide from docs as this is a test story

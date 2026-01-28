@@ -1,8 +1,6 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { Fragment, Suspense, useCallback, useContext, useMemo, useRef } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
-import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 
@@ -10,25 +8,13 @@ import { TableView, useTableState } from '../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view/types';
 import { ActionDropdown } from '../../../../components/ActionDropdown';
 import { getBackRoute } from '../../../../helpers/navigation';
-import { fetchGroup, fetchGroups, fetchMembersForGroup, removeMembersFromGroup } from '../../../../redux/groups/actions';
-import { Group } from '../../../../redux/groups/reducer';
-import {
-  selectGroupMembers,
-  selectGroupMembersMeta,
-  selectGroupsFilters,
-  selectGroupsPagination,
-  selectIsAdminDefaultGroup,
-  selectIsChangedDefaultGroup,
-  selectIsGroupMembersLoading,
-  selectIsPlatformDefaultGroup,
-  selectSelectedGroup,
-  selectSystemGroupUUID,
-} from '../../../../redux/groups/selectors';
+import { useGroupMembersQuery, useGroupQuery, useGroupsQuery, useRemoveMembersFromGroupMutation } from '../../../../data/queries/groups';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import { useGroupRemoveModal } from '../../hooks/useGroupRemoveModal';
 import pathnames from '../../../../utilities/pathnames';
 import messages from '../../../../Messages';
+import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import { DefaultMembersCard } from '../../components/DefaultMembersCard';
 import { RemoveGroupMembers } from './RemoveGroupMembers';
 import { GroupMembersEmptyState } from './components/GroupMembersEmptyState';
@@ -42,32 +28,70 @@ interface GroupMembersProps {
 // Column definitions
 const columns = ['status', 'username', 'email', 'lastName', 'firstName'] as const;
 
+/**
+ * GroupMembers - fetches its own data via React Query.
+ *
+ * Component is self-contained with React Query data fetching.
+ */
 const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
-  const addNotification = useAddNotification();
 
   // Permissions
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
-  // Redux selectors
-  const members = useSelector(selectGroupMembers);
-  const meta = useSelector(selectGroupMembersMeta);
-  const totalCount = meta.count || 0;
-  const isLoading = useSelector(selectIsGroupMembersLoading);
-  const group = useSelector(selectSelectedGroup) as Group | undefined;
-  const adminDefault = useSelector(selectIsAdminDefaultGroup);
-  const platformDefault = useSelector(selectIsPlatformDefaultGroup);
-  const isChanged = useSelector(selectIsChangedDefaultGroup);
-  const systemGroupUuid = useSelector(selectSystemGroupUUID);
-  const groupsPagination = useSelector(selectGroupsPagination);
-  const groupsFilters = useSelector(selectGroupsFilters);
+  // For default access groups, we need to first get the system group UUID
+  const isPlatformDefaultRoute = groupId === DEFAULT_ACCESS_GROUP_ID;
 
-  // Show default cards for default groups
-  const showDefaultCard = (adminDefault || platformDefault) && group?.system;
+  // Fetch system group UUID when viewing default access group
+  const { data: systemGroupData } = useGroupsQuery({ platformDefault: true, limit: 1 }, { enabled: isPlatformDefaultRoute });
+  const systemGroupUuid = systemGroupData?.data?.[0]?.uuid;
+
+  // Resolve actual group ID (handle default access group)
+  const actualGroupId = useMemo(() => (isPlatformDefaultRoute ? systemGroupUuid : groupId), [isPlatformDefaultRoute, systemGroupUuid, groupId]);
+
+  // Fetch group data
+  const { data: groupData } = useGroupQuery(actualGroupId ?? '', {
+    enabled: !!actualGroupId,
+  });
+
+  // Derive group flags from the group data
+  const platformDefault = groupData?.platform_default === true;
+  const adminDefault = groupData?.admin_default === true;
+  const isSystemGroup = groupData?.system === true;
+  const isChanged = platformDefault && !isSystemGroup;
+  const group = groupData;
+
+  // Show default cards for default groups that haven't been modified
+  const showDefaultCard = (adminDefault || platformDefault) && isSystemGroup;
+
+  // useTableState for all state management - provides apiParams for queries
+  const tableState = useTableState<typeof columns, Member>({
+    columns,
+    initialPerPage: 20,
+    perPageOptions: [10, 20, 50, 100],
+    getRowId: (member) => member.username,
+  });
+
+  // Fetch members using apiParams from tableState
+  const { data: membersData, isLoading: isMembersLoading } = useGroupMembersQuery(
+    actualGroupId ?? '',
+    {
+      limit: tableState.apiParams.limit,
+      offset: tableState.apiParams.offset,
+      orderBy: tableState.apiParams.orderBy,
+      username: (tableState.apiParams.filters.name as string) || undefined,
+    },
+    { enabled: !!actualGroupId && !showDefaultCard },
+  );
+
+  const members = membersData?.members ?? [];
+  const totalCount = membersData?.totalCount ?? 0;
+
+  // Remove members mutation
+  const removeMembersMutation = useRemoveMembersFromGroupMutation();
 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
@@ -94,31 +118,6 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
     [intl],
   );
 
-  // Handle data fetching via onStaleData
-  const handleStaleData = useCallback(
-    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
-      if (!groupId) return;
-
-      const usernameFilter = params.filters.name as string | undefined;
-      dispatch(
-        fetchMembersForGroup(groupId, usernameFilter, {
-          limit: params.limit,
-          offset: params.offset,
-        }),
-      );
-    },
-    [dispatch, groupId],
-  );
-
-  // useTableState for all state management
-  const tableState = useTableState<typeof columns, Member>({
-    columns,
-    initialPerPage: 20,
-    perPageOptions: [10, 20, 50, 100],
-    getRowId: (member) => member.username,
-    onStaleData: handleStaleData,
-  });
-
   // Track members to remove (needed for the confirm callback)
   const membersToRemoveRef = useRef<Member[]>([]);
 
@@ -127,23 +126,14 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
     itemType: 'member',
     groupName: group?.name || '',
     onConfirm: async () => {
-      if (!groupId) return;
+      if (!actualGroupId) return;
 
       const usernames = membersToRemoveRef.current.map((m) => m.username);
-      await dispatch(removeMembersFromGroup(groupId, usernames));
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.removeGroupMembersSuccessTitle),
-        description: intl.formatMessage(messages.removeGroupMembersSuccessDescription),
-        dismissable: true,
+      await removeMembersMutation.mutateAsync({
+        groupId: actualGroupId,
+        usernames,
       });
       tableState.clearSelection();
-      handleStaleData({
-        offset: 0,
-        limit: tableState.perPage,
-        filters: tableState.filters,
-      });
-      dispatch(fetchGroups({ usesMetaInURL: true }));
     },
   });
 
@@ -157,13 +147,6 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   );
 
   const removeModalState = removeModal.modalState;
-
-  // Fetch group details on mount
-  useEffect(() => {
-    if (groupId) {
-      dispatch(fetchGroup(groupId));
-    }
-  }, [groupId, dispatch]);
 
   // Cell renderers
   const cellRenderers: CellRendererMap<typeof columns, Member> = useMemo(
@@ -223,7 +206,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
         <TableView<typeof columns, Member>
           columns={columns}
           columnConfig={columnConfig}
-          data={isLoading ? undefined : members}
+          data={isMembersLoading ? undefined : members}
           totalCount={totalCount}
           getRowId={(member) => member.username}
           cellRenderers={cellRenderers}
@@ -275,13 +258,11 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
                 submitRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
               },
               [pathnames['group-members-remove-group'].path]: {
-                postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true })),
+                postMethod: () => {
+                  // With React Query, cache invalidation happens automatically
+                },
                 cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-                submitRoute: getBackRoute(
-                  pathnames.groups.link,
-                  { ...groupsPagination, offset: 0, limit: (groupsPagination as any)?.limit || 20 },
-                  groupsFilters,
-                ),
+                submitRoute: getBackRoute(pathnames.groups.link, { offset: 0, limit: 20 }, {}),
                 groupsUuid: [group],
               },
               [pathnames['group-add-members'].path]: {
@@ -291,12 +272,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
                 fetchUuid: systemGroupUuid,
                 groupName: group?.name,
                 cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-                afterSubmit: () =>
-                  handleStaleData({
-                    offset: 0,
-                    limit: tableState.perPage,
-                    filters: tableState.filters,
-                  }),
+                // No afterSubmit needed - mutations invalidate the cache automatically
               },
             }}
           />

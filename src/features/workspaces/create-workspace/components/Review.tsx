@@ -32,7 +32,7 @@ export const ReviewStep = () => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>{intl.formatMessage(messages.parentWorkspace)}</DescriptionListTerm>
-          <DescriptionListDescription>{values[WORKSPACE_PARENT].name}</DescriptionListDescription>
+          <DescriptionListDescription>{values[WORKSPACE_PARENT]?.name ?? '-'}</DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>{intl.formatMessage(messages.workspaceDetails)}</DescriptionListTerm>

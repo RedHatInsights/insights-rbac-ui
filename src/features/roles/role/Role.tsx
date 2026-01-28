@@ -1,21 +1,18 @@
-import React, { Fragment, Suspense, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { Outlet, useNavigationType, useParams } from 'react-router-dom';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { Outlet, useNavigationType, useParams, useNavigate as useRouterNavigate } from 'react-router-dom';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import { fetchRole, fetchRolesWithPolicies } from '../../../redux/roles/actions';
-import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../../redux/groups/actions';
+import { useQueryClient } from '@tanstack/react-query';
+import { useGroupQuery, useSystemGroupQuery } from '../../../data/queries/groups';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
-import { BAD_UUID } from '../../../helpers/dataUtilities';
 import { getBackRoute } from '../../../helpers/navigation';
 import useAppNavigate from '../../../hooks/useAppNavigate';
-import { PaginationDefaultI, defaultSettings } from '../../../helpers/pagination';
+import { defaultSettings } from '../../../helpers/pagination';
 import useUserData from '../../../hooks/useUserData';
 import { useAppLink } from '../../../hooks/useAppLink';
+import { rolesKeys, useRoleQuery } from '../../../data/queries/roles';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
-import { Role as RoleType } from '../../../redux/roles/reducer';
-import { Group } from '../../../redux/groups/reducer';
 import { RoleDetail } from './components/RoleDetail';
 import { RolePermissions } from './components/RolePermissions';
 import { useRolePermissions } from './useRolePermissions';
@@ -24,34 +21,14 @@ interface RoleProps {
   onDelete?: () => void;
 }
 
-interface RootState {
-  roleReducer: {
-    selectedRole?: RoleType;
-    isRecordLoading: boolean;
-    error?: string;
-    roles?: {
-      pagination?: PaginationDefaultI;
-      filters?: Record<string, any>;
-    };
-  };
-  groupReducer: {
-    selectedGroup?: Group;
-    systemGroup?: { uuid: string };
-    error?: string;
-    groups?: {
-      pagination?: PaginationDefaultI;
-      filters?: Record<string, any>;
-    };
-  };
-}
-
 const Role: React.FC<RoleProps> = ({ onDelete }) => {
   const intl = useIntl();
   const chrome = useChrome();
   const navigate = useAppNavigate();
+  const routerNavigate = useRouterNavigate(); // For delta navigation (back)
   const navigationType = useNavigationType();
+  const queryClient = useQueryClient();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
   const [permissionFilters, setPermissionFilters] = useState<{ applications: string[]; resources: string[]; operations: string[] }>({
     applications: [],
     resources: [],
@@ -60,33 +37,31 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   const { roleId, groupId } = useParams<{ roleId: string; groupId?: string }>();
   const { orgAdmin, userAccessAdministrator } = useUserData();
 
-  const { role, group, isLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters, systemGroupUuid } = useSelector(
-    (state: RootState) => ({
-      role: state.roleReducer.selectedRole,
-      isLoading: state.roleReducer.isRecordLoading,
-      ...(groupId && { group: state.groupReducer.selectedGroup }),
-      systemGroupUuid: state.groupReducer.systemGroup?.uuid,
-      rolesPagination: state.roleReducer?.roles?.pagination || defaultSettings,
-      rolesFilters: state.roleReducer?.roles?.filters || {},
-      groupsPagination: state.groupReducer?.groups?.pagination || defaultSettings,
-      groupsFilters: state.groupReducer?.groups?.filters || {},
-    }),
-    shallowEqual,
-  );
+  // Use TanStack Query for role data
+  const { data: role, isLoading: isRoleLoading, isError: isRoleError } = useRoleQuery(roleId ?? '');
+  const roleExists = !isRoleError;
 
-  const roleExists = useSelector((state: RootState) => {
-    const {
-      roleReducer: { error },
-    } = state;
-    return error !== BAD_UUID;
+  // Use React Query for system group data (only needed when viewing role from default group)
+  const needsSystemGroup = groupId === DEFAULT_ACCESS_GROUP_ID;
+  const { data: systemGroup } = useSystemGroupQuery({ enabled: needsSystemGroup });
+  const systemGroupUuid = systemGroup?.uuid;
+
+  // Determine actual group ID (handle DEFAULT_ACCESS_GROUP_ID)
+  const actualGroupId = needsSystemGroup ? systemGroupUuid : groupId;
+
+  // Fetch group details via React Query
+  const { data: group, isError: isGroupError } = useGroupQuery(actualGroupId ?? '', {
+    enabled: !!actualGroupId,
   });
 
-  const groupExists = useSelector((state: RootState) => {
-    const {
-      groupReducer: { error },
-    } = state;
-    return error !== BAD_UUID;
-  });
+  const groupExists = !isGroupError;
+
+  // Use default pagination for breadcrumbs
+  const groupsPagination = defaultSettings;
+  const groupsFilters: Record<string, string> = {};
+  const rolesPagination = defaultSettings;
+  const rolesFilters: Record<string, string> = {};
+  const isLoading = isRoleLoading;
 
   // Use the permissions hook for business logic
   const {
@@ -100,58 +75,54 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
     onNavigateToAddPermissions,
   } = useRolePermissions(permissionFilters);
 
-  const dispatch = useDispatch();
   const toAppLink = useAppLink();
 
-  const fetchData = useCallback(() => {
-    if (!roleId) return;
-    dispatch(fetchRole(roleId as string) as any);
-    if (groupId) {
-      if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
-        dispatch(fetchGroup(groupId as string) as any);
-      } else {
-        if (systemGroupUuid) {
-          dispatch(fetchRolesForGroup(systemGroupUuid, {}) as any);
-          chrome.appObjectId(systemGroupUuid as string);
-          return () => (chrome.appObjectId as any)(undefined);
-        } else {
-          dispatch(fetchSystemGroup({ chrome }) as any);
-        }
-      }
-    }
-  }, [roleId, groupId, systemGroupUuid, dispatch]);
+  // Refetch role data (for use after edits)
+  const refetchRole = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: rolesKeys.detail(roleId ?? '') });
+  }, [queryClient, roleId]);
 
+  // Set chrome app object ID for analytics
   useEffect(() => {
-    fetchData();
     if (roleId) {
       chrome.appObjectId(roleId);
+    } else if (actualGroupId) {
+      chrome.appObjectId(actualGroupId);
     }
-    return () => (chrome.appObjectId as any)(undefined);
-  }, [fetchData, roleId]);
+    return () => (chrome.appObjectId as (id: string | undefined) => void)(undefined);
+  }, [roleId, actualGroupId, chrome]);
 
-  useEffect(() => {
-    // Disable for system roles
+  // Derived: Determine if role cannot have permissions added
+  // System roles and preconfigured roles (for admins) are non-editable
+  const isNonPermissionAddingRole = useMemo(() => {
     const isSystemRole = role?.system;
-
-    // Disable for preconfigured roles when user is Org Admin or User Access Admin
     const isPreconfiguredRoleForAdmin = (orgAdmin || userAccessAdministrator) && (role?.platform_default || role?.admin_default);
+    return Boolean(isSystemRole || isPreconfiguredRoleForAdmin);
+  }, [role?.system, role?.platform_default, role?.admin_default, orgAdmin, userAccessAdministrator]);
 
-    if (isSystemRole || isPreconfiguredRoleForAdmin) {
-      setIsNonPermissionAddingRole(true);
-    } else {
-      setIsNonPermissionAddingRole(false);
-    }
-  }, [role, orgAdmin, userAccessAdministrator]);
+  interface Breadcrumb {
+    title: string | undefined;
+    to?: string;
+    isLoading?: boolean;
+    isActive?: boolean;
+  }
 
-  const breadcrumbsList = (): any[] => [
+  // Helper to convert getBackRoute result to string
+  const routeToString = (route: { pathname: string; search: string }) => `${route.pathname}${route.search}`;
+
+  const breadcrumbsList = (): Breadcrumb[] => [
     groupId
       ? {
           title: intl.formatMessage(messages.groups),
-          to: getBackRoute(toAppLink(pathnames.groups.link) as string, groupsPagination as { limit: number; offset: number }, groupsFilters),
+          to: routeToString(
+            getBackRoute(toAppLink(pathnames.groups.link) as string, groupsPagination as { limit: number; offset: number }, groupsFilters),
+          ),
         }
       : {
           title: intl.formatMessage(messages.roles),
-          to: getBackRoute(toAppLink(pathnames.roles.link) as string, rolesPagination as { limit: number; offset: number }, rolesFilters),
+          to: routeToString(
+            getBackRoute(toAppLink(pathnames.roles.link) as string, rolesPagination as { limit: number; offset: number }, rolesFilters),
+          ),
         },
 
     ...(groupExists && groupId && (groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupExists)
@@ -159,7 +130,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
         ? [
             {
               title: group && group.name,
-              to: toAppLink(pathnames['group-detail-roles'].link.replace(':groupId', groupId)),
+              to: toAppLink(pathnames['group-detail-roles'].link.replace(':groupId', groupId)) as string,
               isLoading: false,
             },
           ]
@@ -184,7 +155,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
 
   const handleBackClick = () => {
     if (navigationType !== 'POP') {
-      (navigate as any)(-1);
+      routerNavigate(-1); // Use native navigate for delta navigation
     } else {
       navigate(pathnames.roles.link);
     }
@@ -197,16 +168,8 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   const outletContext = {
     [pathnames['role-detail-remove'].path]: {
       afterSubmit: () => {
-        dispatch(
-          fetchRolesWithPolicies({
-            ...rolesPagination,
-            offset: 0,
-            limit: rolesPagination.limit || defaultSettings.limit,
-            filters: rolesFilters,
-            usesMetaInURL: true,
-            chrome,
-          }) as any,
-        );
+        // Invalidate roles list cache after deletion
+        queryClient.invalidateQueries({ queryKey: rolesKeys.all });
       },
       cancelRoute: pathnames['role-detail'].link.replace(':roleId', roleId || ''),
       submitRoute: getBackRoute(
@@ -217,7 +180,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
       isLoading,
     },
     [pathnames['role-detail-edit'].path]: {
-      afterSubmit: fetchData,
+      afterSubmit: refetchRole,
       cancelRoute: pathnames['role-detail'].link.replace(':roleId', roleId || ''),
       isLoading,
     },

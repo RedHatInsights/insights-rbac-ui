@@ -4,11 +4,13 @@
  * Displays a list of groups using the TableView component.
  * All table state (pagination, sorting, filtering, selection, expansion)
  * is managed by useTableState with URL synchronization.
+ *
+ * Data fetching is handled by React Query. Mutations automatically
+ * invalidate the cache, so no manual refresh is needed.
  */
 
 import React, { Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 
 // PatternFly imports
@@ -34,12 +36,9 @@ import {
   sortableColumns,
   useGroupsTableConfig,
 } from './useGroupsTableConfig';
-import { useGroupsFetcher } from './useGroupsFetcher';
-import { useGroupsMutationRefresh } from './useGroupsMutationRefresh';
 
-// Redux
-import { fetchMembersForExpandedGroup, fetchRolesForExpandedGroup } from '../../redux/groups/actions';
-import { selectGroupsPagination, selectIsGroupsLoading, selectMergedGroupsWithDefaults } from '../../redux/groups/selectors';
+// React Query
+import { useAdminGroupQuery, useGroupsQuery } from '../../data/queries/groups';
 
 // Helpers and utilities
 import { getBackRoute } from '../../helpers/navigation';
@@ -54,7 +53,6 @@ import type { Group } from './types';
 
 export const Groups: React.FC = () => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const chrome = useChrome();
   const toAppLink = useAppLink();
@@ -62,11 +60,6 @@ export const Groups: React.FC = () => {
   // Permissions
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
-
-  // Redux state
-  const groups = useSelector(selectMergedGroupsWithDefaults);
-  const pagination = useSelector(selectGroupsPagination);
-  const isLoading = useSelector(selectIsGroupsLoading);
 
   // Local state for route management
   const [removeGroupsList, setRemoveGroupsList] = useState<Group[]>([]);
@@ -76,9 +69,6 @@ export const Groups: React.FC = () => {
     intl,
     toAppLink,
   });
-
-  // Data fetching using hook
-  const fetchData = useGroupsFetcher();
 
   // Use the table state hook - handles pagination, sort, filters, selection, expansion with URL sync
   const tableState = useTableState<typeof columns, Group, SortableColumnId, CompoundColumnId>({
@@ -90,14 +80,63 @@ export const Groups: React.FC = () => {
     getRowId: (group) => group.uuid,
     isRowSelectable: (group) => !group.platform_default && !group.admin_default,
     syncWithUrl: true,
-    onStaleData: fetchData,
   });
 
-  // Mutation refresh helper
-  const refreshAfterMutation = useGroupsMutationRefresh(tableState, fetchData);
+  // Fetch groups via React Query
+  const nameFilter = typeof tableState.filters.name === 'string' ? tableState.filters.name : '';
+  const { data: groupsData, isLoading } = useGroupsQuery({
+    limit: tableState.apiParams.limit,
+    offset: tableState.apiParams.offset,
+    orderBy: tableState.apiParams.orderBy,
+    name: nameFilter || undefined,
+  });
 
-  // Total count from Redux pagination
-  const totalCount = pagination?.count ?? 0;
+  // Fetch admin group for merging
+  const { data: adminGroup } = useAdminGroupQuery();
+
+  // Fetch system default group
+  const { data: systemGroupData } = useGroupsQuery({ platformDefault: true, limit: 1 });
+  const systemGroup = systemGroupData?.data?.[0];
+
+  // Merge default groups with regular groups
+  // Map API GroupOut to local Group type (ensure boolean fields are not undefined)
+  const groups = useMemo(() => {
+    type ApiGroup = NonNullable<NonNullable<typeof groupsData>['data']>[number];
+
+    const mapToGroup = (g: ApiGroup): Group => ({
+      ...g,
+      uuid: g.uuid,
+      name: g.name,
+      description: g.description,
+      platform_default: g.platform_default ?? false,
+      system: g.system ?? false,
+      admin_default: g.admin_default ?? false,
+      principalCount: g.principalCount,
+      roleCount: g.roleCount,
+    });
+
+    const regularGroups: Group[] = (groupsData?.data ?? []).map(mapToGroup);
+    const merged: Group[] = [...regularGroups];
+
+    // Add admin group if it matches the filter (or no filter)
+    if (adminGroup && (!nameFilter || adminGroup.name.toLowerCase().includes(nameFilter.toLowerCase()))) {
+      if (!merged.find((g) => g.uuid === adminGroup.uuid)) {
+        merged.unshift(mapToGroup(adminGroup as ApiGroup));
+      }
+    }
+
+    // Add system group if it matches the filter (or no filter)
+    if (systemGroup && (!nameFilter || systemGroup.name.toLowerCase().includes(nameFilter.toLowerCase()))) {
+      if (!merged.find((g) => g.uuid === systemGroup.uuid)) {
+        merged.unshift(mapToGroup(systemGroup as ApiGroup));
+      }
+    }
+
+    return merged;
+  }, [groupsData?.data, adminGroup, systemGroup, nameFilter]);
+
+  // Total count from query response
+  const totalCount = groupsData?.meta?.count ?? 0;
 
   // Transform data for display (default groups show "All" for member count)
   const data = useMemo(
@@ -116,18 +155,6 @@ export const Groups: React.FC = () => {
   useEffect(() => {
     chrome.appNavClick({ id: 'groups', secondaryNav: true });
   }, [chrome]);
-
-  // Handle expansion - fetch data for expanded row
-  const handleExpand = useCallback(
-    (group: Group, column: CompoundColumnId) => {
-      if (column === 'roles') {
-        dispatch(fetchRolesForExpandedGroup(group.uuid, { limit: 100 }) as any);
-      } else if (column === 'members') {
-        dispatch(fetchMembersForExpandedGroup(group.uuid, undefined, { limit: 100 }) as any);
-      }
-    },
-    [dispatch],
-  );
 
   // =============================================================================
   // Action Handlers
@@ -207,9 +234,8 @@ export const Groups: React.FC = () => {
           // Selection
           selectable={isAdmin}
           isRowSelectable={(group) => !group.platform_default && !group.admin_default}
-          // Expansion
+          // Expansion - components fetch their own data via React Query
           isCellExpandable={isCellExpandable}
-          onExpand={handleExpand}
           // Row actions
           renderActions={
             isAdmin
@@ -261,22 +287,17 @@ export const Groups: React.FC = () => {
               filters,
               [pathnames['add-group'].path]: {
                 orderBy: tableState.apiParams.orderBy,
-                postMethod: () => refreshAfterMutation({ clearFilters: true }),
+                // Mutations invalidate cache automatically, no postMethod needed
               },
               [pathnames['edit-group'].path]: {
-                postMethod: () => refreshAfterMutation({ clearFilters: true }),
                 cancelRoute: getBackRoute(pathnames['groups'].link, tableState.apiParams, filters),
                 submitRoute: getBackRoute(pathnames['groups'].link, { ...tableState.apiParams, offset: 0 }, filters),
+                // Mutations invalidate cache automatically, no postMethod needed
               },
               [pathnames['remove-group'].path]: {
-                postMethod: (ids: string[]) =>
-                  refreshAfterMutation({
-                    clearFilters: removingAllRows,
-                    resetPage: true,
-                    removedIds: ids,
-                  }),
                 cancelRoute: getBackRoute(pathnames['groups'].link, tableState.apiParams, filters),
                 submitRoute: getBackRoute(pathnames['groups'].link, { ...tableState.apiParams, offset: 0 }, removingAllRows ? {} : filters),
+                // Mutations invalidate cache automatically, no postMethod needed
               },
             }}
           />

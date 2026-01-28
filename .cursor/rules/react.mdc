@@ -302,6 +302,56 @@ interface ButtonProps {
 }
 ```
 
+## Generic Components and Type Safety
+
+### Using Generics with TableView and Similar Components
+
+**CRITICAL**: Always pass type parameters to generic components - never cast types in callbacks.
+
+```typescript
+// ✅ DO - Pass generics to the component, let callbacks infer types
+<TableView<typeof columns, User, SortableColumnId>
+  columns={columns}
+  rows={users}
+  getRowId={(user) => user.username}  // 'user' is correctly typed as User
+  renderActions={(user) => <UserActions user={user} />}
+/>
+
+// ❌ DON'T - Cast types in callbacks
+<TableView
+  columns={columns}
+  rows={users}
+  getRowId={(user: User) => user.username}  // Manual cast hides type errors
+  renderActions={(user: User) => <UserActions user={user} />}
+/>
+```
+
+### Why This Matters
+- Casting in callbacks **hides type errors** at the call site
+- If `TableView` receives wrong data, the cast silently accepts it
+- Generic parameters enforce type consistency across the entire component
+
+### Defining Generic Component Props
+```typescript
+// Component definition with proper generics
+interface TableViewProps<TColumns, TRow, TSortKey> {
+  columns: TColumns;
+  rows: TRow[];
+  getRowId: (row: TRow) => string;
+  renderActions?: (row: TRow) => React.ReactNode;
+  sortKey?: TSortKey;
+}
+
+export function TableView<TColumns, TRow, TSortKey>({
+  columns,
+  rows,
+  getRowId,
+  renderActions,
+}: TableViewProps<TColumns, TRow, TSortKey>) {
+  // Implementation
+}
+```
+
 ## Common Pitfalls to Avoid
 
 - ❌ Don't create overly restrictive custom interfaces when PatternFly types exist
@@ -310,6 +360,7 @@ interface ButtonProps {
 - ❌ Don't ignore TypeScript errors - fix them with proper types
 - ❌ Don't use default exports - always use named exports
 - ❌ Don't pass translated strings as props to presentational components
+- ❌ Don't cast types in generic component callbacks - pass generics instead
 
 ## Key Patterns
 

@@ -1,5 +1,8 @@
-// Re-export types from Redux to ensure consistency
-export type { ServiceAccount } from '../../../../redux/groups/reducer';
+import type { ReactNode } from 'react';
+import type { ServiceAccount } from '../../../../data/queries/groups';
+
+// Re-export ServiceAccount for external consumers
+export type { ServiceAccount };
 
 export interface ServiceAccountFilters {
   clientId: string;
@@ -7,11 +10,9 @@ export interface ServiceAccountFilters {
   description: string;
 }
 
-import type { ServiceAccount } from '../../../../redux/groups/reducer';
-
 export interface ServiceAccountTableRow {
   id: string;
-  row: React.ReactNode[];
+  row: ReactNode[];
   item: ServiceAccount;
 }
 

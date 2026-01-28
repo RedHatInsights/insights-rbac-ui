@@ -1,15 +1,18 @@
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
-import { fetchWorkspace, fetchWorkspaces, updateWorkspace } from '../../redux/workspaces/actions';
-import { Workspace, isWorkspace } from '../../redux/workspaces/reducer';
-import { selectSelectedWorkspace, selectWorkspaces } from '../../redux/workspaces/selectors';
+import {
+  type WorkspacesWorkspace,
+  isWorkspace,
+  useUpdateWorkspaceMutation,
+  useWorkspaceQuery,
+  useWorkspacesQuery,
+} from '../../data/queries/workspaces';
 import paths from '../../utilities/pathnames';
 import { ModalFormTemplate } from '../../components/forms/ModalFormTemplate';
 
@@ -21,12 +24,17 @@ interface EditWorkspaceModalProps {
 export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps> = ({ afterSubmit, onCancel }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
-  const dispatch = useDispatch();
   const params = useParams();
   const workspaceId = params.workspaceId;
-  const workspace = useSelector(selectSelectedWorkspace);
-  const allWorkspaces = useSelector(selectWorkspaces);
   const addNotification = useAddNotification();
+
+  // React Query hooks
+  const { data: workspace, isLoading: isWorkspaceLoading } = useWorkspaceQuery(workspaceId || '', {
+    enabled: !!workspaceId,
+  });
+  const { data: workspacesData } = useWorkspacesQuery();
+  const allWorkspaces = workspacesData?.data ?? [];
+  const updateWorkspaceMutation = useUpdateWorkspaceMutation();
 
   // Derive initial form data from workspace (no setState needed)
   const initialFormData = useMemo(() => {
@@ -39,18 +47,6 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     return null;
   }, [workspace]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await Promise.all([dispatch(fetchWorkspaces()), workspaceId ? dispatch(fetchWorkspace(workspaceId)) : Promise.resolve()]);
-      } catch (error) {
-        // Handle fetch error
-        console.error('Failed to fetch workspace data:', error);
-      }
-    };
-    fetchData();
-  }, [dispatch, workspaceId]);
-
   const createEditWorkspaceSchema = useMemo(
     () => ({
       fields: [
@@ -60,7 +56,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
           component: componentTypes.TEXT_FIELD,
           validate: [
             { type: validatorTypes.REQUIRED },
-            (value: string, currData: unknown | Workspace) => {
+            (value: string, currData: unknown | WorkspacesWorkspace) => {
               if (isWorkspace(currData)) {
                 if (value === initialFormData?.name) {
                   return undefined;
@@ -100,18 +96,14 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     }
   };
 
-  const handleSubmit = async (data: Record<string, any>) => {
+  const handleSubmit = async (data: Record<string, unknown>) => {
     try {
-      await dispatch(
-        updateWorkspace({
-          id: workspaceId!,
-          workspacesPatchWorkspaceRequest: { name: data.name, description: data.description },
-        }),
-      );
+      await updateWorkspaceMutation.mutateAsync({
+        id: workspaceId!,
+        workspacesPatchWorkspaceRequest: { name: data.name as string, description: data.description as string },
+      });
 
-      // Refetch workspaces to update the list (don't await - let it run in background)
-      dispatch(fetchWorkspaces());
-
+      // Mutation handles cache invalidation and notifications
       if (afterSubmit) {
         afterSubmit();
       } else {
@@ -120,7 +112,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
       }
     } catch {
       // If update fails, still call afterSubmit to close modal
-      // The error notification is already shown by the redux action
+      // The error notification is already shown by the mutation
       if (afterSubmit) {
         afterSubmit();
       }
@@ -132,6 +124,11 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     return workspace ? { ...workspace } : {};
   }, [workspace]);
 
+  // Show loading state while fetching workspace
+  if (isWorkspaceLoading) {
+    return null;
+  }
+
   return (
     <FormRenderer
       schema={createEditWorkspaceSchema}
@@ -139,7 +136,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
       initialValues={formInitialValues}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
-      FormTemplate={(props: any) => (
+      FormTemplate={(props: Record<string, unknown>) => (
         <ModalFormTemplate
           {...props}
           ModalProps={{

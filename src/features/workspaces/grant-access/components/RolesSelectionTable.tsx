@@ -12,11 +12,20 @@ import type {
   FilterState,
   SortState,
 } from '../../../../components/table-view/types';
-import { Role } from '../../../../redux/roles/reducer';
 import messages from '../../../../Messages';
 
+// Role type compatible with API response
+interface RoleRow {
+  uuid: string;
+  name?: string;
+  display_name?: string;
+  description?: string;
+  accessCount?: number;
+  access?: { permission: string }[];
+}
+
 // List of permissions for expanded view with each permission on its own line
-const PermissionsList: React.FC<{ role: Role }> = ({ role }) => {
+const PermissionsList: React.FC<{ role: RoleRow }> = ({ role }) => {
   const intl = useIntl();
 
   if (!role.access || role.access.length === 0) {
@@ -39,7 +48,7 @@ const PermissionsList: React.FC<{ role: Role }> = ({ role }) => {
 };
 
 interface RolesSelectionTableProps {
-  roles: Role[];
+  roles: RoleRow[];
   selectedRoles: string[];
   onRoleSelection: (roleIds: string[]) => void;
   isLoading?: boolean;
@@ -68,7 +77,7 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
     [intl],
   );
 
-  const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(
+  const cellRenderers: CellRendererMap<typeof columns, RoleRow> = useMemo(
     () => ({
       name: (role) => role.display_name || role.name,
       description: (role) => role.description || '—',
@@ -77,7 +86,7 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
     [],
   );
 
-  const expansionRenderers: ExpansionRendererMap<CompoundColumn, Role> = useMemo(
+  const expansionRenderers: ExpansionRendererMap<CompoundColumn, RoleRow> = useMemo(
     () => ({
       permissions: (role) => <PermissionsList role={role} />,
     }),
@@ -101,7 +110,9 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
     const searchValue = (filters.name as string) || '';
 
     // Filter roles based on search
-    let filtered = searchValue ? roles.filter((role) => (role.display_name || role.name).toLowerCase().includes(searchValue.toLowerCase())) : roles;
+    let filtered = searchValue
+      ? roles.filter((role) => (role.display_name || role.name || '').toLowerCase().includes(searchValue.toLowerCase()))
+      : roles;
 
     // Sort the filtered roles
     const sorted = [...filtered].sort((a, b) => {
@@ -132,7 +143,7 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
   const selectedRows = useMemo(() => roles.filter((r) => selectedRoles.includes(r.uuid)), [roles, selectedRoles]);
 
   const handleSelectRow = useCallback(
-    (role: Role, selected: boolean) => {
+    (role: RoleRow, selected: boolean) => {
       if (selected) {
         onRoleSelection([...selectedRoles, role.uuid]);
       } else {
@@ -143,7 +154,7 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
   );
 
   const handleSelectAll = useCallback(
-    (selected: boolean, rows: Role[]) => {
+    (selected: boolean, rows: RoleRow[]) => {
       if (selected) {
         const newIds = rows.map((r) => r.uuid).filter((id) => !selectedRoles.includes(id));
         onRoleSelection([...selectedRoles, ...newIds]);
@@ -175,7 +186,7 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
   }, []);
 
   return (
-    <TableView<typeof columns, Role, SortableColumn, CompoundColumn>
+    <TableView<typeof columns, RoleRow, SortableColumn, CompoundColumn>
       columns={columns}
       columnConfig={columnConfig}
       sortableColumns={sortableColumns}

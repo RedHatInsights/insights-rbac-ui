@@ -6,10 +6,10 @@ interface GroupRowWrapperProps {
   row: {
     isAdminDefault?: boolean;
     isPlatformDefault?: boolean;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   className?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const GroupRowWrapper: React.FC<GroupRowWrapperProps> = ({ className, row, ...props }) => {

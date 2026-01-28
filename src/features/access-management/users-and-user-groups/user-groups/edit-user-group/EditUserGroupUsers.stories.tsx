@@ -53,12 +53,12 @@ const meta: Meta<typeof EditGroupUsersTable> = {
 - **User Selection**: Bulk and individual selection with visual feedback
 - **Data Management**: Tracks initial vs updated user associations for efficient API calls
 - **Search & Pagination**: Built-in filtering and pagination for large user lists
-- **State Management**: Integrates with Redux for user data and loading states
+- **State Management**: Uses React Query for user data and loading states
 - **Change Tracking**: Reports user additions/removals through onChange callback
 
 ### Integration Patterns
 - **Form Field**: Designed to work within @data-driven-forms workflows
-- **Redux Connected**: Fetches user data and manages loading states through Redux
+- **Data Fetching**: Fetches user data and manages loading states through React Query
 - **Container Separation**: Pure table logic separated from form integration
 - **MSW Compatible**: Stories use MSW handlers for realistic data scenarios
 
@@ -94,7 +94,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     groupId: 'group-123',
-    initialUserIds: ['1'], // John is initially in the group
+    initialUserIds: ['john.doe'], // John is initially in the group (using username)
     onChange: fn(),
   },
   parameters: {
@@ -200,7 +200,7 @@ export const EmptyState: Story = {
 export const UserSelection: Story = {
   args: {
     groupId: 'group-123',
-    initialUserIds: ['1'], // John is initially selected
+    initialUserIds: ['john.doe'], // John is initially selected (using username)
     onChange: fn(),
   },
   parameters: {
@@ -262,7 +262,7 @@ export const UserSelection: Story = {
 export const PreSelectedUsers: Story = {
   args: {
     groupId: 'group-123',
-    initialUserIds: ['1', '2'], // John and Jane are initially in the group
+    initialUserIds: ['john.doe', 'jane.smith'], // John and Jane are initially in the group (using username)
     onChange: fn(),
   },
   parameters: {

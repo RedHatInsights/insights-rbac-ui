@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { fn } from 'storybook/test';
 import { ManagedSelector } from './ManagedSelector';
-import WorkspaceType from './WorkspaceType';
+import { WorkspacesWorkspaceTypes } from '@redhat-cloud-services/rbac-client/v2/types';
 import { emptyWorkspacesHandler, errorWorkspacesHandler, slowWorkspaceHandlers, workspaceHandlers } from '../../../../test/msw-handlers';
 import { HttpResponse, delay, http } from 'msw';
 
@@ -11,7 +11,7 @@ const duplicateWorkspacesResponse = {
   data: [
     {
       id: 'F',
-      type: WorkspaceType.ROOT,
+      type: WorkspacesWorkspaceTypes.Root,
       name: 'Root Workspace',
       description: 'This is a duplicate workspace',
       created: '2023-01-11T00:00:00Z',
@@ -20,7 +20,7 @@ const duplicateWorkspacesResponse = {
     {
       id: 'G',
       parent_id: 'F',
-      type: WorkspaceType.DEFAULT,
+      type: WorkspacesWorkspaceTypes.Default,
       name: 'Duplicate Workspace',
       description: 'This is a duplicate workspace',
       created: '2023-01-13T00:00:00Z',
@@ -29,7 +29,7 @@ const duplicateWorkspacesResponse = {
     {
       id: 'H',
       parent_id: 'F',
-      type: WorkspaceType.DEFAULT,
+      type: WorkspacesWorkspaceTypes.Default,
       name: 'Duplicate Workspace',
       description: 'This is a duplicate workspace',
       created: '2023-01-15T00:00:00Z',
@@ -66,8 +66,8 @@ This component includes comprehensive testing for:
 - Duplicate workspace name scenarios
 - Selection callbacks and state management
 
-## Converted from Cypress Tests
-These stories replace the previous Cypress component tests for more integrated development workflow.
+## Storybook-First Testing
+These stories provide comprehensive component testing through Storybook play functions.
         `,
       },
     },
@@ -201,7 +201,7 @@ export const WithInitialSelection: Story = {
         name: 'Production Environment',
         description: 'Main production workspace',
         parent_id: undefined,
-        type: WorkspaceType.ROOT,
+        type: WorkspacesWorkspaceTypes.Root,
         created: '2024-01-01T00:00:00Z',
         updated: '2024-01-01T00:00:00Z',
       },
@@ -260,7 +260,7 @@ export const SelectionCallback: Story = {
           workspace: expect.objectContaining({
             id: 'workspace-1',
             name: 'Production Environment',
-            type: WorkspaceType.ROOT,
+            type: WorkspacesWorkspaceTypes.Root,
           }),
         }),
       );
@@ -291,7 +291,7 @@ export const SelectionCallback: Story = {
             id: 'workspace-3',
             name: 'API Services',
             parent_id: 'workspace-1',
-            type: WorkspaceType.STANDARD,
+            type: WorkspacesWorkspaceTypes.Standard,
           }),
         }),
       );

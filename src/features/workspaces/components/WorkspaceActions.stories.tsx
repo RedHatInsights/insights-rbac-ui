@@ -1,30 +1,34 @@
-import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceActions } from './WorkspaceActions';
 import { BrowserRouter } from 'react-router-dom';
 import { IntlProvider } from 'react-intl';
-import { Workspace } from '../../../redux/workspaces/reducer';
+import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
 
 // Mock workspace data
-const mockWorkspace: Workspace = {
+const mockWorkspace: WorkspacesWorkspace = {
   id: 'workspace-1',
   name: 'Production Environment',
   description: 'Main production workspace for critical services',
   type: 'root',
   parent_id: '',
+  created: '2024-01-01T00:00:00Z',
+  modified: '2024-01-01T00:00:00Z',
 };
 
-const mockSubWorkspace: Workspace = {
+const mockSubWorkspace: WorkspacesWorkspace = {
   id: 'workspace-2',
   name: 'Web Services',
   description: 'Frontend web applications and services',
   type: 'standard',
   parent_id: 'workspace-1',
+  created: '2024-01-02T00:00:00Z',
+  modified: '2024-01-02T00:00:00Z',
 };
 
 // Story decorator to provide necessary context
-const withProviders = (Story: any) => {
+const withProviders = (Story: StoryFn) => {
   return (
     <BrowserRouter>
       <IntlProvider locale="en" messages={{}}>

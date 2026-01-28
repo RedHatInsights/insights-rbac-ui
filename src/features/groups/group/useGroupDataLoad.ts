@@ -1,31 +1,31 @@
 import { useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
-import { fetchGroup, fetchSystemGroup } from '../../../redux/groups/actions';
 
 interface UseGroupDataLoadProps {
   groupId?: string;
   systemGroupUuid?: string;
   isPlatformDefault: boolean;
-  chrome: any;
+  chrome: {
+    appObjectId: (id: string) => void;
+  };
 }
 
 /**
- * Custom hook for loading Group component data
- * Handles data fetching, Chrome app object ID, and cleanup
+ * Custom hook for Chrome app object ID management
+ * Data fetching is handled by React Query in useGroupData
+ *
+ * Fetching logic is in useGroupData with React Query.
  */
 export const useGroupDataLoad = ({ groupId, systemGroupUuid, isPlatformDefault, chrome }: UseGroupDataLoadProps) => {
-  const dispatch = useDispatch();
   const currentAppObjectId = useRef<string>('');
 
-  // Fetch system group and current group, set Chrome app object ID
-  useEffect(() => {
-    dispatch(fetchSystemGroup({ chrome }));
-    const currId = !isPlatformDefault ? groupId : systemGroupUuid;
+  // Determine the effective group ID based on whether this is the platform default
+  const effectiveGroupId = !isPlatformDefault ? groupId : systemGroupUuid;
 
-    if (currId && currId !== currentAppObjectId.current) {
-      dispatch(fetchGroup(currId));
-      chrome.appObjectId(currId);
-      currentAppObjectId.current = currId;
+  // Set Chrome app object ID when group changes
+  useEffect(() => {
+    if (effectiveGroupId && effectiveGroupId !== currentAppObjectId.current) {
+      chrome.appObjectId(effectiveGroupId);
+      currentAppObjectId.current = effectiveGroupId;
     }
 
     return () => {
@@ -34,5 +34,5 @@ export const useGroupDataLoad = ({ groupId, systemGroupUuid, isPlatformDefault, 
         currentAppObjectId.current = '';
       }
     };
-  }, [groupId, systemGroupUuid, dispatch, isPlatformDefault]);
+  }, [effectiveGroupId, chrome]);
 };

@@ -19,55 +19,75 @@ import {
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import { FormattedMessage } from 'react-intl';
 import { ActionsColumn } from '@patternfly/react-table';
-import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
 import messages from '../../../Messages';
 import { AppLink } from '../../../components/navigation/AppLink';
-import { Workspace } from '../../../redux/workspaces/reducer';
 import pathnames from '../../../utilities/pathnames';
 import paths from '../../../utilities/pathnames';
+import type { WorkspaceFilters, WorkspaceWithChildren, WorkspacesWorkspace } from '../types';
 
 interface WorkspaceListTableProps {
   // Data props
-  workspaces: Workspace[];
+  workspaces: WorkspacesWorkspace[];
   isLoading: boolean;
-  error: string;
+  error: string | null;
 
   // Action callbacks
-  onDeleteWorkspaces: (workspaces: Workspace[]) => Promise<void>;
-  onMoveWorkspace: (workspace: Workspace, targetParentId: string) => Promise<void>;
+  onDeleteWorkspaces: (workspaces: WorkspacesWorkspace[]) => Promise<void>;
+  onMoveWorkspace: (workspace: WorkspacesWorkspace, targetParentId: string) => Promise<void>;
 
-  // User permissions
-  userPermissions: {
-    permission: string;
-    resourceDefinitions: any[];
-  };
+  /**
+   * Function to check if user can edit a specific workspace.
+   * Used for edit, move, delete actions.
+   */
+  canEdit: (workspaceId: string) => boolean;
+
+  /**
+   * Function to check if user can create workspaces within a parent.
+   * Used for "Create workspace" and "Create subworkspace" row actions.
+   */
+  canCreateIn: (workspaceId: string) => boolean;
+
+  /**
+   * Whether the user can edit at least one workspace.
+   * Used for enabling/disabling bulk actions like "Delete workspaces".
+   */
+  canEditAny: boolean;
+
+  /**
+   * Whether the user can create top-level workspaces (under root).
+   * Used for the main "Create workspace" toolbar button.
+   */
+  canCreateTopLevel: boolean;
 
   // Optional children (e.g., modals)
   children?: React.ReactNode;
 }
 
-interface WorkspaceFilters {
-  name: string;
-}
+const isValidType = (workspace: WorkspacesWorkspace, validTypes: string[]) => validTypes.includes(workspace.type ?? '');
+const isValidEditType = (workspace: WorkspacesWorkspace) => isValidType(workspace, ['default', 'standard']);
+const isValidMoveType = (workspace: WorkspacesWorkspace) => isValidType(workspace, ['standard']);
+const isValidDeleteType = (workspace: WorkspacesWorkspace) => isValidType(workspace, ['standard']);
 
-const isValidType = (workspace: Workspace, validTypes: string[]) => validTypes.includes(workspace.type);
-const isValidEditType = (workspace: Workspace) => isValidType(workspace, ['default', 'standard']);
-const isValidMoveType = (workspace: Workspace) => isValidType(workspace, ['standard']);
-const isValidDeleteType = (workspace: Workspace) => isValidType(workspace, ['standard']);
+const mapWorkspacesToHierarchy = (workspaceData: WorkspacesWorkspace[]): WorkspaceWithChildren | undefined => {
+  const idMap = new Map<string, WorkspaceWithChildren>();
+  let root: WorkspaceWithChildren | undefined = undefined;
 
-const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace | undefined => {
-  const idMap = new Map();
-  let root = undefined;
-
-  workspaceData.forEach((ws) => idMap.set(ws.id, { ...ws, children: [] }));
+  workspaceData.forEach((ws) => idMap.set(ws.id ?? '', { ...ws, children: [] }));
   workspaceData.forEach((ws) => {
-    const node = idMap.get(ws.id);
+    const node = idMap.get(ws.id ?? '');
     if (ws.type === 'root') root = node;
-    else idMap.get(ws.parent_id)?.children.push(node);
+    else if (ws.parent_id && node) {
+      const parent = idMap.get(ws.parent_id);
+      if (parent) {
+        parent.children = parent.children || [];
+        parent.children.push(node);
+      }
+    }
   });
 
   return root;
@@ -94,29 +114,29 @@ const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ 
   );
 };
 
-const ErrorStateTable: React.FunctionComponent<{ errorTitle: string; errorDescription?: string }> = ({ errorTitle, errorDescription }) => {
+const ErrorStateTable: React.FunctionComponent<{ errorTitle: string; errorDescription?: string | null }> = ({ errorTitle, errorDescription }) => {
   return (
     <tbody>
       <tr>
         <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
-          <ErrorState titleText={errorTitle} bodyText={errorDescription} />
+          <ErrorState titleText={errorTitle} bodyText={errorDescription ?? undefined} />
         </td>
       </tr>
     </tbody>
   );
 };
 
-const search = (workspaceTree: Workspace[], filter: string): Workspace[] => {
-  const matches: Workspace[] = [];
+const search = (workspaceTree: WorkspaceWithChildren[], filter: string): WorkspaceWithChildren[] => {
+  const matches: WorkspaceWithChildren[] = [];
   if (!Array.isArray(workspaceTree)) {
     return matches;
   }
 
   workspaceTree.forEach((obj) => {
-    if (obj.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())) {
+    if (obj.name?.toLocaleLowerCase().includes(filter.toLocaleLowerCase())) {
       matches.push(obj);
     } else {
-      const childResults: Workspace[] = obj.children ? search(obj.children, filter) : [];
+      const childResults: WorkspaceWithChildren[] = obj.children ? search(obj.children, filter) : [];
       if (childResults.length) {
         matches.push({ ...obj, children: childResults });
       }
@@ -131,13 +151,16 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   error,
   onDeleteWorkspaces,
   onMoveWorkspace,
-  userPermissions,
+  canEdit,
+  canCreateIn,
+  canEditAny,
+  canCreateTopLevel,
   children,
 }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
+  const [currentWorkspaces, setCurrentWorkspaces] = useState<WorkspacesWorkspace[]>([]);
 
   // Feature flags via custom hook (see WORKSPACE_FEATURE_FLAGS.md for complete documentation)
   // M3: RBAC detail pages with read-only role bindings
@@ -145,38 +168,44 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   const hasRbacDetailPages = useWorkspacesFlag('m3'); // M3+ or master flag
   const hasAllFeatures = useWorkspacesFlag('m5'); // Master flag only
 
-  const handleModalToggle = (workspaces: Workspace[]) => {
-    setCurrentWorkspaces(workspaces);
+  const handleModalToggle = (workspacesToDelete: WorkspacesWorkspace[]) => {
+    setCurrentWorkspaces(workspacesToDelete);
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  // Check if user has write permissions at all
-  const hasWritePermissions = () => {
-    return ['inventory:groups:write', 'inventory:groups:*'].includes(userPermissions.permission);
-  };
+  /**
+   * Check if user can perform an action on a workspace.
+   * Combines Kessel permission check with workspace type constraints.
+   */
+  const canModify = (workspace: WorkspacesWorkspace, action: 'edit' | 'move' | 'delete' | 'create') => {
+    const workspaceId = workspace.id ?? '';
 
-  const canModify = (workspace: Workspace, action: 'edit' | 'move' | 'delete' | 'create') => {
-    if (
-      hasWritePermissions() &&
-      (userPermissions.resourceDefinitions.length === 0 ||
-        userPermissions.resourceDefinitions.some((item) => item.attributeFilter.value.includes(workspace.id)))
-    ) {
-      if (action === 'edit' && isValidEditType(workspace)) {
-        return true;
-      } else if (action === 'move' && isValidMoveType(workspace)) {
-        return true;
-      } else if (action === 'delete' && isValidDeleteType(workspace)) {
-        return true;
-      } else if (action === 'create') {
-        return true;
-      }
+    // For 'create' action (creating children), check 'create' permission on this workspace
+    if (action === 'create') {
+      return canCreateIn(workspaceId);
     }
-    return false;
+
+    // For edit/move/delete, check 'edit' permission first
+    if (!canEdit(workspaceId)) {
+      return false;
+    }
+
+    // Then check workspace type constraints (e.g., can't delete root workspace)
+    switch (action) {
+      case 'edit':
+        return isValidEditType(workspace);
+      case 'move':
+        return isValidMoveType(workspace);
+      case 'delete':
+        return isValidDeleteType(workspace);
+      default:
+        return false;
+    }
   };
 
-  const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
-    workspaces.map((workspace) => ({
-      id: workspace.id,
+  const buildRows = (workspacesData: WorkspaceWithChildren[]): DataViewTrTree[] =>
+    workspacesData.map((workspace) => ({
+      id: workspace.id ?? '',
       row: Object.values({
         name:
           // Determine where workspace names should link based on milestone:
@@ -184,14 +213,14 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
           // M1-M2: Link to Inventory (or plain text in M1)
           hasRbacDetailPages ? (
             <AppLink
-              to={pathnames['workspace-detail'].path.replace(':workspaceId', workspace.id)}
+              to={pathnames['workspace-detail'].path.replace(':workspaceId', workspace.id ?? '')}
               key={`${workspace.id}-detail`}
               className="rbac-m-hide-on-sm"
             >
               {workspace.name}
             </AppLink>
           ) : // M1-M2: Link to Inventory for standard/ungrouped-hosts types
-          ['standard', 'ungrouped-hosts'].includes(workspace?.type) ? (
+          ['standard', 'ungrouped-hosts'].includes(workspace?.type ?? '') ? (
             <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
               {workspace.name}
             </Link>
@@ -206,18 +235,18 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
                 {
                   title: 'Edit workspace',
                   onClick: () => {
-                    navigate(pathnames['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
+                    navigate(pathnames['edit-workspaces-list'].link.replace(':workspaceId', workspace.id ?? ''));
                   },
                   isDisabled: !canModify(workspace, 'edit'),
                 },
                 {
                   title: 'Create workspace',
-                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id)),
+                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id ?? '')),
                   isDisabled: !canModify(workspace, 'create'),
                 },
                 {
                   title: 'Create subworkspace',
-                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id)),
+                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id ?? '')),
                   isDisabled: !canModify(workspace, 'create'),
                 },
                 {
@@ -261,7 +290,6 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
         : {}),
     }));
 
-  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const [searchParams, setSearchParams] = useSearchParams();
   const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<WorkspaceFilters>({
     initialFilters: { name: '' },
@@ -274,15 +302,14 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   const rows = useMemo(() => (filteredTree ? buildRows(filteredTree) : []), [filteredTree]);
   const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
 
-  useEffect(() => {
-    if (isLoading) {
-      setActiveState(DataViewState.loading);
-    } else if (error) {
-      setActiveState(DataViewState.error);
-    } else {
-      workspaces.length === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
-    }
-  }, [workspaces, isLoading, error]);
+  // Derived: Calculate active state directly from props (no useEffect sync needed)
+  const activeState: DataViewState | undefined = isLoading
+    ? DataViewState.loading
+    : error
+      ? DataViewState.error
+      : workspaces.length === 0
+        ? DataViewState.empty
+        : undefined;
 
   return (
     <React.Fragment>
@@ -341,11 +368,11 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             }
             actions={
               <>
-                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)} isDisabled={!hasWritePermissions()}>
+                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)} isDisabled={!canCreateTopLevel}>
                   {intl.formatMessage(messages.createWorkspace)}
                 </Button>
                 {hasAllFeatures && (
-                  <Button variant="secondary" onClick={() => handleModalToggle(workspaces)} isDisabled={!hasWritePermissions()}>
+                  <Button variant="secondary" onClick={() => handleModalToggle(workspaces)} isDisabled={!canEditAny}>
                     {intl.formatMessage(messages.deleteWorkspacesAction)}
                   </Button>
                 )}

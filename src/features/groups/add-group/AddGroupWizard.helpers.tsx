@@ -313,12 +313,11 @@ export async function fillAddGroupWizardForm(
     await waitFor(
       () => {
         // Build expected group data to match actual form submission
-        // Note: AddGroupWizard always includes user_list and roles_list (even if empty)
+        // Note: The rbac-client API sends only name and description in the create call.
+        // Users and roles are added via separate API calls after group creation.
         const expectedGroupData: Record<string, unknown> = {
           name: data.name,
           description: data.description,
-          user_list: data.selectUsers ? [{ username: 'alice.johnson' }] : [],
-          roles_list: data.selectRoles ? ['role-1'] : [],
         };
 
         // Verify that the group creation API was called with the correct data

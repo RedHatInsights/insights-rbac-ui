@@ -32,7 +32,15 @@ const mockPermissions = [
   {
     uuid: 'inventory:hosts:read',
     permission: 'inventory:hosts:read',
-    resourceDefinitions: [{ attributeFilter: { value: ['host-1', 'host-2'] } }],
+    resourceDefinitions: [
+      {
+        attributeFilter: {
+          key: 'hostId',
+          operation: 'in' as const,
+          value: ['host-1', 'host-2'],
+        },
+      },
+    ],
     modified: '2024-01-15T10:30:00Z',
   },
   {

@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { Access, Role } from '../../redux/roles/reducer';
+import type { Access, RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
 import { useIntl } from 'react-intl';
 import Messages from '../../Messages';
 import { TableView } from '../../components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '../../components/table-view/types';
 
 interface RolePermissionsTableProps {
-  viewedRole?: Role;
+  viewedRole?: RoleOutDynamic;
 }
 
 interface PermissionRow {

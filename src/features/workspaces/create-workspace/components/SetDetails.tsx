@@ -12,32 +12,29 @@ import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components
 import { useFlag } from '@unleash/proxy-client-react';
 import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
 import messages from '../../../../Messages';
 import InputHelpPopover from '../../../../components/forms/InputHelpPopover';
 import { useWorkspacesFlag } from '../../../../hooks/useWorkspacesFlag';
-import { fetchWorkspaces } from '../../../../redux/workspaces/actions';
-import { selectWorkspacesForForm } from '../../../../redux/workspaces/selectors';
+import { useWorkspacesQuery } from '../../../../data/queries/workspaces';
 
 import { ManagedSelector } from '../../components/managed-selector/ManagedSelector';
 import { instanceOfTreeViewWorkspaceItem } from '../../components/managed-selector/TreeViewWorkspaceItem';
+import { findDefaultParentWorkspace } from '../../workspaceTypes';
 import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from '../schema';
 
 export const SetDetails = () => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const enableBillingFeatures = useFlag('platform.rbac.workspaces-billing-features');
   const enableWorkspaceHierarchy = useWorkspacesFlag('m2'); // M2 or higher
   const enableWorkspaces = useWorkspacesFlag('m5'); // Master flag
   const formOptions = useFormApi();
   const values = formOptions.getState().values;
-  const { isLoading, workspaces } = useSelector(selectWorkspacesForForm);
+
+  // React Query hook
+  const { data: workspacesData, isLoading } = useWorkspacesQuery();
+  const workspaces = workspacesData?.data ?? [];
 
   const isWorkspaceSelectorEnabled = enableWorkspaceHierarchy || enableWorkspaces;
-
-  useEffect(() => {
-    dispatch(fetchWorkspaces());
-  }, [dispatch]);
 
   useEffect(() => {
     !values[WORKSPACE_PARENT] &&
@@ -47,7 +44,7 @@ export const SetDetails = () => {
       );
   }, [workspaces.length]);
 
-  const defaultWorkspace = workspaces.find((workspace) => workspace.type === 'default');
+  const defaultWorkspace = findDefaultParentWorkspace(workspaces);
 
   useEffect(() => {
     if (defaultWorkspace && !values[WORKSPACE_PARENT]) {

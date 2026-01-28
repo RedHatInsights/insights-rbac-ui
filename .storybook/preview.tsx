@@ -1,16 +1,48 @@
 import type { Preview } from '@storybook/react-webpack5';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/patternfly/patternfly-addons.css';
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { IntlProvider } from 'react-intl';
-import { Provider } from 'react-redux';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
-import { registryFactory, RegistryContext } from '../src/utilities/store';
-import { ChromeProvider, FeatureFlagsProvider, type ChromeConfig, type FeatureFlagsConfig } from './context-providers';
+import { ChromeProvider, FeatureFlagsProvider, AccessCheckProvider_, type ChromeConfig, type FeatureFlagsConfig, type AccessCheckConfig } from './context-providers';
 import { initialize, mswLoader } from 'msw-storybook-addon';
+
+// Create a fresh QueryClient for each story to prevent state leaking
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false, // Don't retry in tests/stories
+        staleTime: 0, // Always refetch - required for stories that test API calls after interactions
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+
+// Wrapper that provides a fresh QueryClient for each story to prevent state leaking
+const QueryClientWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [queryClient] = useState(() => createTestQueryClient());
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      {typeof document !== 'undefined' && createPortal(
+        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />,
+        document.body
+      )}
+      {children}
+    </QueryClientProvider>
+  );
+};
+
 
 // Mock insights global for Storybook
 declare global {
@@ -87,11 +119,14 @@ const preview: Preview = {
     featureFlags: {
       'platform.rbac.itless': false,
     },
+    // Default Kessel access check config - user can edit and create everywhere
+    accessCheck: {
+      canEdit: () => true,
+      canCreate: () => true,
+    },
   },
   decorators: [
     (Story, { parameters, args }) => {
-      const registry = registryFactory();
-
       const permissions = {
         userAccessAdministrator: false,
         orgAdmin: false,
@@ -139,15 +174,21 @@ const preview: Preview = {
         }),
       };
 
+      // Kessel access check configuration
+      const accessCheckConfig: AccessCheckConfig = {
+        canEdit: () => true, // Default: user can edit everything
+        canCreate: () => true, // Default: user can create everywhere
+        ...parameters.accessCheck,
+        // Override with args if provided
+        ...(args.canEdit !== undefined && { canEdit: args.canEdit }),
+        ...(args.canCreate !== undefined && { canCreate: args.canCreate }),
+      };
+
       return (
-        <RegistryContext.Provider
-          value={{
-            getRegistry: () => registry,
-          }}
-        >
-          <Provider store={registry.getStore()}>
-            <ChromeProvider value={chromeConfig}>
-              <FeatureFlagsProvider value={featureFlags}>
+        <QueryClientWrapper>
+          <ChromeProvider value={chromeConfig}>
+            <FeatureFlagsProvider value={featureFlags}>
+              <AccessCheckProvider_ value={accessCheckConfig}>
                 <PermissionsContext.Provider value={permissions}>
                   <IntlProvider locale={locale} messages={messages[locale]}>
                     <Fragment>
@@ -157,10 +198,10 @@ const preview: Preview = {
                     </Fragment>
                   </IntlProvider>
                 </PermissionsContext.Provider>
-              </FeatureFlagsProvider>
-            </ChromeProvider>
-          </Provider>
-        </RegistryContext.Provider>
+              </AccessCheckProvider_>
+            </FeatureFlagsProvider>
+          </ChromeProvider>
+        </QueryClientWrapper>
       );
     },
   ],

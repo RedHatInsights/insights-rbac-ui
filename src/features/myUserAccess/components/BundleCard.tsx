@@ -13,7 +13,7 @@ import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useFlag } from '@unleash/proxy-client-react';
 import { bundleData } from '../bundleData';
 
-export type EntitlementTuple = [string, { is_entitled: boolean }];
+export type EntitlementTuple = [string, { is_entitled: boolean; is_trial?: boolean }];
 export type Entitlements = EntitlementTuple[];
 
 interface BundleCardProps {

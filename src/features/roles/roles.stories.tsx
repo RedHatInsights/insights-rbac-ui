@@ -1,13 +1,23 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { BrowserRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { Roles } from './Roles';
+import { withRouter } from '../../../.storybook/helpers/router-test-utils';
+import {
+  PAGINATION_TEST_DEFAULT_PER_PAGE,
+  PAGINATION_TEST_SMALL_PER_PAGE,
+  PAGINATION_TEST_TOTAL_ITEMS,
+  expectLocationParams,
+  getLastCallArg,
+  openPerPageMenu,
+  selectPerPage,
+} from '../../../.storybook/helpers/pagination-test-utils';
+import { waitForPageToLoad } from '../../user-journeys/_shared/helpers';
 
 // Spy functions to track API calls
 const fetchRolesSpy = fn();
 const fetchAdminGroupSpy = fn();
+const paginationSpy = fn();
 
 // Mock role data
 const mockRoles = [
@@ -89,14 +99,25 @@ const mockAdminGroup = {
   admin_default: true,
 };
 
-// Router decorator for components that use navigation
-const withRouter = (Story: any) => (
-  <BrowserRouter>
-    <div style={{ minHeight: '600px' }}>
-      <Story />
-    </div>
-  </BrowserRouter>
-);
+// Larger dataset for pagination stories (must exceed perPage to enable next/prev)
+const mockRolesLarge = Array.from({ length: PAGINATION_TEST_TOTAL_ITEMS }, (_v, idx) => {
+  const i = idx + 1;
+  return {
+    uuid: `role-${i}`,
+    name: `Role ${i}`,
+    display_name: `Role ${i}`,
+    description: `Role description ${i}`,
+    system: false,
+    platform_default: false,
+    admin_default: false,
+    accessCount: 1,
+    applications: ['rbac'],
+    modified: '2023-12-01T10:30:00Z',
+    groups_in_count: 0,
+    groups_in: [],
+    access: [{ permission: 'rbac:*:*' }],
+  };
+});
 
 const meta: Meta<typeof Roles> = {
   component: Roles,
@@ -108,15 +129,10 @@ const meta: Meta<typeof Roles> = {
 **Roles** is a container component that manages the roles list page at \`/iam/user-access/roles\`.
 
 ## Container Responsibilities
-- **Redux State Management**: Manages role data, filters, pagination through Redux
-- **API Orchestration**: Dispatches \`fetchRolesWithPolicies\` and \`fetchAdminGroup\` actions
+- **Data Fetching**: Uses TanStack Query hooks for role data and admin group
 - **Permission Context**: Uses \`orgAdmin\` and \`userAccessAdministrator\` from PermissionsContext
 - **URL Synchronization**: Manages pagination and filters in URL parameters
 - **Table Management**: Provides data and callbacks to TableView component
-
-## Known Issue (TO BE FIXED)
-This component currently makes unauthorized API calls for non-admin users, causing 403 error toast spam.
-The stories below test both the bug scenario and expected behavior after fix.
         `,
       },
     },
@@ -136,14 +152,11 @@ export const AdminUserWithRoles: Story = {
 
 ## Additional Test Stories
 
-For testing specific scenarios and the permission bug, see these additional stories:
+For testing specific scenarios, see these additional stories:
 
-- **[NonAdminUserUnauthorizedCalls](?path=/story/features-roles-roles--non-admin-user-unauthorized-calls)**: Tests the BUG - non-admin users trigger unauthorized API calls
+- **[NonAdminUserUnauthorizedCalls](?path=/story/features-roles-roles--non-admin-user-unauthorized-calls)**: Verifies non-admin users see UnauthorizedAccess and make no API calls
 - **[LoadingState](?path=/story/features-roles-roles--loading-state)**: Tests container behavior during API loading
 - **[EmptyRoles](?path=/story/features-roles-roles--empty-roles)**: Tests container response to empty role data
-
-## Expected Fix Behavior
-After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass with zero API calls made.
         `,
       },
     },
@@ -219,8 +232,8 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
               limit,
               offset,
             },
-            // Include filters and pagination for Redux state management
-            // When displayNameFilter is null (parameter not in URL), use empty string for Redux
+            // Include filters and pagination for React Query state management
+            // When displayNameFilter is null (parameter not in URL), use empty string for React Query
             filters: {
               display_name: displayNameFilter || '',
             },
@@ -267,7 +280,7 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
     console.log('SB: 🔍 Roles spy calls:', fetchRolesSpy.mock.calls.length);
     console.log('SB: 🔍 Admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
 
-    // Wait for container to load data through Redux
+    // Wait for container to load data through React Query
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
     expect(await canvas.findByText('Cost Management Viewer')).toBeInTheDocument();
     expect(await canvas.findByText('Vulnerability Administrator')).toBeInTheDocument();
@@ -280,7 +293,7 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
     const table = await canvas.findByRole('grid');
     expect(table).toBeInTheDocument();
 
-    // Verify role data is rendered through Redux state
+    // Verify role data is rendered through React Query state
     const tableContent = within(table);
     expect(await tableContent.findByText('Platform Administrator')).toBeInTheDocument();
     expect(await tableContent.findByText('25')).toBeInTheDocument(); // accessCount
@@ -292,19 +305,9 @@ export const NonAdminUserUnauthorizedCalls: Story = {
     docs: {
       description: {
         story: `
-**BUG REPLICATION**: This story demonstrates the unauthorized API call issue for non-admin users.
+**Non-Admin User Access**: Verifies that non-admin users do not trigger unauthorized API calls.
 
-## Current Behavior (BUG)
-Non-admin users accessing \`/iam/user-access/roles\` trigger unauthorized API calls that result in 403 errors and toast spam.
-
-## Expected Test Result: ❌ FAIL (shows the bug exists)
-This test currently **FAILS** with: \`expect(spy).not.toHaveBeenCalled()\` because unauthorized calls ARE being made.
-
-## Expected Behavior (AFTER FIX)  
-Non-admin users should NOT trigger any API calls and should see a NotAuthorized component instead. The component should check permissions before making API requests.
-
-## Test Validation
-After the fix is applied, this test should **PASS** with zero API calls.
+Non-admin users should see a NotAuthorized component and make zero API calls to the roles or admin group endpoints.
         `,
       },
     },
@@ -356,18 +359,12 @@ After the fix is applied, this test should **PASS** with zero API calls.
 
     await delay(300);
 
-    console.log('SB: 🐛 BUG TEST: Non-admin roles spy calls:', fetchRolesSpy.mock.calls.length);
-    console.log('SB: 🐛 BUG TEST: Non-admin admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
-
-    // 🐛 BUG DEMONSTRATION: These tests currently FAIL because unauthorized API calls are made
-    // This proves the bug exists - non-admin users trigger API calls when they shouldn't
+    // Verify no API calls were made
     expect(fetchRolesSpy).not.toHaveBeenCalled();
     expect(fetchAdminGroupSpy).not.toHaveBeenCalled();
 
-    // After fix: Verify NotAuthorized component is shown instead of making API calls
+    // Verify NotAuthorized component is shown
     expect(await canvas.findByText(/You do not have access to User Access Administration/i)).toBeInTheDocument();
-
-    console.log('SB: 🧪 NON-ADMIN: NotAuthorized component shown, no unauthorized API calls made');
   },
 };
 
@@ -376,7 +373,7 @@ export const LoadingState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests container behavior during API loading via Redux state management.',
+        story: 'Tests container behavior during API loading via React Query state management.',
       },
     },
     permissions: {
@@ -413,7 +410,7 @@ export const EmptyRoles: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests container handling of empty role data from Redux.',
+        story: 'Tests container handling of empty role data from React Query.',
       },
     },
     permissions: {
@@ -508,8 +505,8 @@ export const AdminUserWithRolesFiltering: Story = {
               limit,
               offset,
             },
-            // Include filters and pagination for Redux state management
-            // When displayNameFilter is null (not in URL), use empty string for Redux
+            // Include filters and pagination for React Query state management
+            // When displayNameFilter is null (not in URL), use empty string for React Query
             filters: {
               display_name: displayNameFilter || '',
             },
@@ -558,7 +555,7 @@ export const AdminUserWithRolesFiltering: Story = {
     console.log('SB: 🧪 FILTERING: Typing "vulner" filter');
     await userEvent.type(filterInput, 'vulner');
 
-    // Wait for debounce + Redux state update + re-render
+    // Wait for debounce + React Query state update + re-render
     await waitFor(
       () => {
         expect(filterSpy).toHaveBeenCalledWith('vulner');
@@ -774,13 +771,10 @@ export const AdminUserWithRolesSorting: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for debounced functions to settle
-    await delay(300);
-
     console.log('SB: 🧪 SORTING: Starting column sorting test');
 
-    // Wait for initial data load
-    expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
+    // Wait for initial data load - table should be fully rendered with sortable headers
+    await waitForPageToLoad(canvas, 'Platform Administrator');
 
     // Test sorting by Name column (display_name)
     console.log('SB: 🧪 Testing Name column sorting...');
@@ -798,6 +792,9 @@ export const AdminUserWithRolesSorting: Story = {
       expect(sortSpy).toHaveBeenCalledWith('-display_name');
     });
 
+    // Wait for table to reload after sort
+    await waitForPageToLoad(canvas, 'Platform Administrator');
+
     // Re-find the button after table re-render
     nameColumnHeader = await canvas.findByRole('columnheader', { name: /name/i });
     nameButton = await within(nameColumnHeader).findByRole('button');
@@ -812,6 +809,9 @@ export const AdminUserWithRolesSorting: Story = {
     await waitFor(() => {
       expect(sortSpy).toHaveBeenCalledWith('display_name');
     });
+
+    // Wait for table to reload after sort
+    await waitForPageToLoad(canvas, 'Platform Administrator');
 
     // Test sorting by Last Modified column
     console.log('SB: 🧪 Testing Last Modified column sorting...');
@@ -828,6 +828,9 @@ export const AdminUserWithRolesSorting: Story = {
     await waitFor(() => {
       expect(sortSpy).toHaveBeenCalledWith('modified');
     });
+
+    // Wait for table to reload after sort
+    await waitForPageToLoad(canvas, 'Platform Administrator');
 
     // Re-find the button after table re-render
     lastModifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
@@ -911,3 +914,97 @@ export const AdminUserWithRolesPrimaryActions: Story = {
     console.log('SB: 🧪 ACTIONS: Primary actions test completed');
   },
 };
+
+export const PaginationUrlSync: Story = {
+  tags: ['perm:org-admin', 'sbtest:roles-pagination'],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interaction test: verifies Roles pagination updates URL search params (`page`, `perPage`) when changing page size and navigating to next page.',
+      },
+    },
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
+    // Use MemoryRouter so we can assert location.search deterministically
+    routerInitialEntries: [`/iam/user-access/roles?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/roles/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || String(PAGINATION_TEST_DEFAULT_PER_PAGE), 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          paginationSpy({ limit, offset });
+
+          return HttpResponse.json({
+            data: mockRolesLarge.slice(offset, offset + limit),
+            meta: { count: mockRolesLarge.length, limit, offset },
+            filters: { display_name: '' },
+            pagination: { count: mockRolesLarge.length, limit, offset },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          if (url.searchParams.get('admin_default') === 'true') {
+            return HttpResponse.json({ data: [mockAdminGroup], meta: { count: 1 } });
+          }
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+
+    paginationSpy.mockClear();
+
+    // Wait for initial load - rely on UI state instead of a fixed delay
+    await expect(canvas.findByText('Role 1')).resolves.toBeInTheDocument();
+
+    // Assert initial URL params
+    const locEl = canvas.getByTestId('router-location');
+    await expectLocationParams(locEl, {
+      page: null, // page=1 is represented by absence of the param (see updatePageInUrl)
+      perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE),
+    });
+
+    await openPerPageMenu(body);
+    await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
+    await expectLocationParams(locEl, {
+      page: null, // perPage change resets page and deletes the page param
+      perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
+    });
+
+    await waitFor(() => {
+      expect(paginationSpy).toHaveBeenCalled();
+      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(0);
+    });
+
+    // Navigate to next page
+    const nextButtons = canvas.getAllByRole('button', { name: /go to next page/i });
+    await userEvent.click(nextButtons[0]);
+
+    await expectLocationParams(locEl, {
+      page: '2',
+      perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
+    });
+
+    await waitFor(() => {
+      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
+      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      expect(last.offset).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+    });
+  },
+};
+
+// NOTE: PaginationOutOfRangeClampsToLastPage test was REMOVED from here.
+// Page clamping is now handled centrally by TableView and tested in:
+// src/components/table-view/TableView.stories.tsx -> PageClampingOutOfRange
+//
+// This avoids duplicating the same test across Roles, Users, and Groups stories.
+// All tables using TableView automatically get page clamping behavior.

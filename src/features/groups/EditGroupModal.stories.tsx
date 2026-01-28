@@ -34,8 +34,14 @@ const systemGroup = {
   platform_default: true,
 };
 
+interface EditGroupModalWrapperProps {
+  group: typeof mockGroup | typeof systemGroup;
+  onClose?: () => void;
+  initialRoute?: string;
+}
+
 // Wrapper component with button to open modal
-const EditGroupModalWrapper: React.FC<any> = (props) => {
+const EditGroupModalWrapper: React.FC<EditGroupModalWrapperProps> = (props) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const handleOpenModal = () => setIsOpen(true);
@@ -56,7 +62,7 @@ const meta: Meta<typeof EditGroupModalWrapper> = {
   component: EditGroupModalWrapper,
   decorators: [
     (Story, context) => {
-      const { initialRoute } = context.args;
+      const { initialRoute = '/groups/edit/group-1' } = context.args;
       return (
         <MemoryRouter initialEntries={[initialRoute]}>
           <Routes>
@@ -89,7 +95,7 @@ const meta: Meta<typeof EditGroupModalWrapper> = {
 
         // Update group API handler
         http.put('/api/rbac/v1/groups/:groupId/', async ({ request }) => {
-          const body = (await request.json()) as any;
+          const body = (await request.json()) as Record<string, unknown>;
           return HttpResponse.json({
             ...(body || {}),
             message: 'Group updated successfully',
@@ -245,7 +251,7 @@ export const FormSubmission: Story = {
 
         // 🔍 SPY: Update group API handler with parameter verification
         http.put('/api/rbac/v1/groups/:groupId/', async ({ request, params }) => {
-          const body = (await request.json()) as any;
+          const body = (await request.json()) as Record<string, unknown>;
           const { groupId } = params;
 
           // 🕵️ CRITICAL SPY: Call API spy with parameters for testing
@@ -307,13 +313,13 @@ export const FormSubmission: Story = {
     ); // Don't wait for completion - we'll verify API calls ourselves
 
     // ✅ VERIFY PUT API CALL: Check that the correct group data was sent
+    // Note: The rbac-client sends uuid in the URL path, not in the request body
     await waitFor(
       async () => {
         await expect(updateGroupApiSpy).toHaveBeenCalledWith({
           groupId: 'test-group-id',
           method: 'PUT',
           body: {
-            uuid: 'test-group-id',
             name: 'Updated Group Name',
             description: 'Updated description',
           },

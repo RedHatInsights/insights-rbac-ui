@@ -1,16 +1,24 @@
 import { useMemo } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
-import { BAD_UUID } from '../../../helpers/dataUtilities';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
 import pathnames from '../../../utilities/pathnames';
-import type { GroupState, RBACStore, TabItem } from '../types';
+import { type Group, useGroupQuery, useGroupsQuery } from '../../../data/queries/groups';
+
+// Tab item interface for navigation tabs
+interface TabItem {
+  eventKey: number;
+  title: string;
+  name: string;
+  to: string;
+}
 
 /**
  * Custom hook for managing Group component data and configuration
- * Handles Redux selectors, URL parameters, feature flags, and tab configuration
+ * Handles data fetching via React Query, URL parameters, feature flags, and tab configuration
+ *
+ * Uses React Query for data fetching.
  */
 export const useGroupData = () => {
   const chrome = useChrome();
@@ -22,23 +30,35 @@ export const useGroupData = () => {
     (chrome.isBeta() && useFlag('platform.rbac.group-service-accounts')) ||
     (!chrome.isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
 
-  // Group existence and system group data
-  const { groupExists, systemGroupUuid } = useSelector(
-    ({ groupReducer }: RBACStore) => ({
-      groupExists: groupReducer?.error !== BAD_UUID,
-      systemGroupUuid: groupReducer?.systemGroup?.uuid,
-    }),
-    shallowEqual,
-  );
+  // Fetch system group (platform default) to get its UUID
+  const { data: systemGroupData } = useGroupsQuery({ platformDefault: true, limit: 1 }, { enabled: true });
+  const systemGroupUuid = systemGroupData?.data?.[0]?.uuid;
 
-  // Group details and loading state
-  const { group, isGroupLoading } = useSelector(
-    ({ groupReducer }: RBACStore) => ({
-      group: groupReducer?.selectedGroup as GroupState | undefined,
-      isGroupLoading: groupReducer?.isRecordLoading || false,
-    }),
-    shallowEqual,
-  );
+  // Determine which group ID to fetch
+  const effectiveGroupId = isPlatformDefault ? systemGroupUuid : groupId;
+
+  // Fetch the group data
+  const { data: groupData, isLoading: isGroupLoading, isError } = useGroupQuery(effectiveGroupId ?? '', { enabled: !!effectiveGroupId });
+
+  // Transform to expected shape with required defaults
+  // The API returns optional booleans, but components expect required booleans
+  const group = groupData
+    ? {
+        uuid: groupData.uuid,
+        name: groupData.name,
+        description: groupData.description,
+        platform_default: groupData.platform_default ?? false,
+        admin_default: groupData.admin_default ?? false,
+        system: groupData.system ?? false,
+        principalCount: (groupData as Group).principalCount,
+        roleCount: (groupData as Group).roleCount,
+        created: groupData.created,
+        modified: groupData.modified,
+      }
+    : undefined;
+
+  // Group exists if we have data and no error (404 = doesn't exist)
+  const groupExists = !isError;
 
   // Tab configuration with conditional service accounts tab
   const tabItems: TabItem[] = useMemo(

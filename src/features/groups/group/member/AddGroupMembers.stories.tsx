@@ -114,7 +114,7 @@ const mockUsers = [
 // const mockPrincipals = mockUsers.map((user) => ({ ...user, uuid: `user-${user.username}` }));
 
 // 🎯 WRAPPER COMPONENT: Provides button to open modal
-const AddGroupMembersWrapper = (props: any) => {
+const AddGroupMembersWrapper = (props: React.ComponentProps<typeof AddGroupMembers>) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -125,7 +125,7 @@ const AddGroupMembersWrapper = (props: any) => {
   );
 };
 
-const meta: Meta<any> = {
+const meta: Meta<typeof AddGroupMembersWrapper> = {
   component: AddGroupMembersWrapper,
   // NO autodocs on meta
   decorators: [

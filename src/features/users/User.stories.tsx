@@ -85,8 +85,8 @@ const mockAdminGroup = {
 };
 
 // Router decorator with username param
-const withRouter = (Story: any, context: any) => {
-  const username = context.parameters.routeUsername || 'john.doe';
+const withRouter = (Story: React.ComponentType, context: { parameters?: { routeUsername?: string } }) => {
+  const username = context.parameters?.routeUsername || 'john.doe';
   return (
     <BrowserRouter>
       <Routes>
@@ -515,7 +515,10 @@ export const FilterRoles: Story = {
     await waitFor(
       () => {
         const calls = fetchRolesSpy.mock.calls;
-        const filterCalls = calls.filter((call: any[]) => call[0]?.displayName && call[0].displayName.length > 0);
+        const filterCalls = calls.filter((call: unknown[]) => {
+          const arg = call[0] as { displayName?: string } | undefined;
+          return arg?.displayName && arg.displayName.length > 0;
+        });
         expect(filterCalls.length).toBeGreaterThan(0);
         // Verify the filter value was passed correctly
         const lastFilterCall = filterCalls[filterCalls.length - 1];

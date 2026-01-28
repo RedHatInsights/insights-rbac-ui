@@ -62,7 +62,7 @@ const meta: Meta<typeof EditUserGroup> = {
 ### Feature Responsibilities
 - **Form Management**: Uses data-driven-forms with FormRenderer for dynamic form creation
 - **Validation**: Implements complex validation including name uniqueness checks
-- **Redux Integration**: Manages group data, loading states, and API interactions through Redux
+- **Data Integration**: Manages group data, loading states, and API interactions through React Query
 - **Route Management**: Handles both create and edit modes based on route parameters
 - **Custom Components**: Integrates custom form components for users and service accounts
 - **Navigation**: Provides breadcrumb navigation and form cancellation handling
@@ -72,7 +72,7 @@ This component follows the **feature container pattern**:
 - **Feature Container (this component)**: Handles form orchestration, validation, and business logic
 - **Data-Driven Forms**: Uses FormRenderer with custom component mapper for dynamic forms
 - **Child Components**: EditGroupUsersAndServiceAccounts component for complex user/service account selection
-- **Redux Connected**: Uses actions for group creation, updates, and data fetching
+- **Data Fetching**: Uses mutations for group creation, updates, and queries for data fetching
 
 ### Form Features
 - **Dynamic Schema**: Form schema adapts based on create vs edit mode
@@ -81,7 +81,7 @@ This component follows the **feature container pattern**:
 - **Loading States**: Displays spinner during data fetching and form initialization
 
 ### Testing Focus
-These stories test the feature's form handling, validation logic, Redux integration, and routing behavior.
+These stories test the feature's form handling, validation logic, React Query integration, and routing behavior.
 Child components like EditGroupUsersAndServiceAccounts are tested separately with their own stories.
         `,
       },
@@ -115,7 +115,7 @@ export const EditExistingGroup: Story = {
     docs: {
       description: {
         story: `
-**Edit Mode**: Feature container in edit mode with existing group data. Component fetches group data via Redux, populates form fields, and handles updates.
+**Edit Mode**: Feature container in edit mode with existing group data. Component fetches group data via React Query, populates form fields, and handles updates.
 
 ## Form Validation Features
 
@@ -124,7 +124,7 @@ This story demonstrates:
 - **Form Population**: Form fields pre-populated with existing group data
 - **Name Validation**: Real-time validation prevents duplicate group names
 - **Custom Components**: Integration with EditGroupUsersAndServiceAccounts component
-- **Update Flow**: Form submission triggers \`updateGroup\` Redux action
+- **Update Flow**: Form submission triggers \`updateGroup\` React Query mutation
 - **API Integration**: Tests complete workflow with user/service account selection and form submission
 - **API Verification**: Uses spies to verify correct API calls with expected payloads
 
@@ -240,7 +240,7 @@ For testing specific feature scenarios, see these additional stories:
 
         // Update group
         http.put('/api/rbac/v1/groups/:groupId/', async ({ request, params }) => {
-          const requestBody = (await request.json()) as Record<string, any>;
+          const requestBody = (await request.json()) as Record<string, unknown>;
           console.log('SB: MSW: Update group called:', params.groupId, requestBody);
 
           // Call the spy with the API call data
@@ -351,7 +351,7 @@ This story demonstrates:
 - **User/Service Account Selection**: Interactive selection from available lists
 - **Form Validation**: Real-time validation including duplicate name checking
 - **API Integration**: Complete workflow from form filling to submission
-- **Redux Integration**: Uses Redux for data fetching and form submission
+- **Data Integration**: Uses React Query for data fetching and form submission
         `,
       },
     },
@@ -367,7 +367,7 @@ This story demonstrates:
 
         // Create new group
         http.post('/api/rbac/v1/groups/', async ({ request }) => {
-          const requestBody = (await request.json()) as Record<string, any>;
+          const requestBody = (await request.json()) as Record<string, unknown>;
           console.log('SB: MSW: Create group called:', requestBody);
 
           // Call the spy with the API call data
@@ -416,6 +416,26 @@ This story demonstrates:
               createdAt: Math.floor(Date.now() / 1000),
             },
           ]);
+        }),
+
+        // Add members to new group
+        http.post('/api/rbac/v1/groups/:uuid/principals/', async ({ params, request }) => {
+          const body = (await request.json()) as { principals: Array<{ username: string }> };
+          console.log(`SB: MSW: Adding ${body.principals.length} members to group ${params.uuid}`);
+          return HttpResponse.json({
+            data: body.principals,
+            meta: { count: body.principals.length },
+          });
+        }),
+
+        // Add service accounts to new group (V2 API - guessed)
+        http.post('/api/rbac/v2/groups/:uuid/service-accounts/', async ({ params, request }) => {
+          const body = (await request.json()) as { service_accounts: Array<{ clientId: string }> };
+          console.log(`SB: MSW: Adding ${body.service_accounts.length} service accounts to group ${params.uuid} (V2)`);
+          return HttpResponse.json({
+            data: body.service_accounts,
+            meta: { count: body.service_accounts.length },
+          });
         }),
 
         // Group principals API for checking existing group members (empty for new groups)
@@ -604,6 +624,23 @@ export const LoadingState: Story = {
               createdAt: Math.floor(Date.now() / 1000),
             },
           ]);
+        }),
+
+        // Group members handlers for loading state
+        http.get('/api/rbac/v1/groups/:uuid/principals/', async () => {
+          await delay('infinite');
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
+        }),
+
+        http.post('/api/rbac/v1/groups/:uuid/principals/', async () => {
+          await delay('infinite');
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
+        }),
+
+        // Service accounts POST handler for loading state (V2 API - guessed)
+        http.post('/api/rbac/v2/groups/:uuid/service-accounts/', async () => {
+          await delay('infinite');
+          return HttpResponse.json({ data: [], meta: { count: 0 } });
         }),
       ],
     },

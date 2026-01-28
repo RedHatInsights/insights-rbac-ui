@@ -3,7 +3,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { useIntl } from 'react-intl';
-import { Workspace } from '../../../redux/workspaces/reducer';
+import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { ManagedSelector } from './managed-selector/ManagedSelector';
 import { TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
@@ -18,9 +18,9 @@ export interface MoveWorkspaceDialogProps {
   /** Callback when form is submitted with selected destination workspace */
   onSubmit: (destinationWorkspace: TreeViewWorkspaceItem) => void;
   /** The workspace to be moved */
-  workspaceToMove: Workspace | null;
+  workspaceToMove: WorkspacesWorkspace | null;
   /** Available workspaces for selection */
-  availableWorkspaces: Workspace[];
+  availableWorkspaces: WorkspacesWorkspace[];
   /** Whether submission is in progress */
   isSubmitting?: boolean;
   /** Initial selected workspace (typically the current parent) */

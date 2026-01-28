@@ -1,7 +1,8 @@
 // WorkspaceTreeBuilder.test.ts (no JSX needed)
+// Note: describe, expect, it are provided by Jest globals
 import { default as buildWorkspaceTree, getWorkspaceDescendantIds, getWorkspaceDescendants } from './WorkspaceTreeBuilder';
 import Workspace from './Workspace';
-import WorkspaceType from './WorkspaceType';
+import { WorkspacesWorkspaceTypes } from '@redhat-cloud-services/rbac-client/v2/types';
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 
 describe('WorkspaceTreeBuilder', () => {
@@ -10,73 +11,73 @@ describe('WorkspaceTreeBuilder', () => {
       id: 'root-1',
       name: 'Root 1',
       parent_id: '',
-      type: WorkspaceType.ROOT,
+      type: WorkspacesWorkspaceTypes.Root,
     },
     {
       id: 'root-1-child-1',
       name: 'Root 1 > Child 1 ',
       parent_id: 'root-1',
-      type: WorkspaceType.STANDARD,
+      type: WorkspacesWorkspaceTypes.Standard,
     },
     {
       id: 'root-1-child-2',
       name: 'Root 1 > Child 2',
       parent_id: 'root-1',
-      type: WorkspaceType.STANDARD,
+      type: WorkspacesWorkspaceTypes.Standard,
     },
     {
       id: 'root-2',
       name: 'Root 2',
       parent_id: '',
-      type: WorkspaceType.ROOT,
+      type: WorkspacesWorkspaceTypes.Root,
     },
     {
       id: 'root-2-child-1',
       name: 'Root 2 > Child 1 ',
       parent_id: 'root-2',
-      type: WorkspaceType.STANDARD,
+      type: WorkspacesWorkspaceTypes.Standard,
     },
     {
       id: 'root-2-child-1-granchild-1',
       name: 'Root 2 > Child 1 > Granchild 1',
       parent_id: 'root-2-child-1',
-      type: WorkspaceType.STANDARD,
+      type: WorkspacesWorkspaceTypes.Standard,
     },
     {
       id: 'root-2-child-2',
       name: 'Root 2 > Child 2',
       parent_id: 'root-2',
-      type: WorkspaceType.STANDARD,
+      type: WorkspacesWorkspaceTypes.Standard,
     },
     {
       id: 'root-3',
       name: 'Root 3',
       parent_id: '',
-      type: WorkspaceType.ROOT,
+      type: WorkspacesWorkspaceTypes.Root,
     },
     {
       id: 'root-3-child-1',
       name: 'Root 3 > Child 1 ',
       parent_id: 'root-3',
-      type: WorkspaceType.STANDARD,
+      type: WorkspacesWorkspaceTypes.Standard,
     },
     {
       id: 'root-3-child-2',
       name: 'Root 3 > Child 2',
       parent_id: 'root-3',
-      type: WorkspaceType.STANDARD,
+      type: WorkspacesWorkspaceTypes.Standard,
     },
     {
       id: 'root-3-child-2-granchild-1',
       name: 'Root 3 > Child 2 > Granchild 1',
       parent_id: 'root-3-child-2',
-      type: WorkspaceType.STANDARD,
+      type: WorkspacesWorkspaceTypes.Standard,
     },
     {
       id: 'root-3-child-2-granchild-1-greatGranchild-1',
       name: 'Root 3 > Child 2 > Granchild 1 > Great Grantchild 1',
       parent_id: 'root-3-child-2-granchild-1',
-      type: WorkspaceType.STANDARD,
+      type: WorkspacesWorkspaceTypes.Standard,
     },
   ];
 
@@ -231,7 +232,7 @@ describe('WorkspaceTreeBuilder', () => {
           id: 'orphan',
           name: 'Orphan Workspace',
           parent_id: undefined,
-          type: WorkspaceType.STANDARD,
+          type: WorkspacesWorkspaceTypes.Standard,
         };
 
         const workspacesWithOrphan = [...workspaces, orphanWorkspace];

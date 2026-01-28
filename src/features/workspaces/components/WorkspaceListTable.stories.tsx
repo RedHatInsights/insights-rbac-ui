@@ -19,10 +19,11 @@ const defaultProps = {
   error: '',
   onDeleteWorkspaces: fn(),
   onMoveWorkspace: fn(),
-  userPermissions: {
-    permission: 'inventory:groups:write',
-    resourceDefinitions: [],
-  },
+  // Default: user can edit and create workspaces
+  canEdit: () => true,
+  canCreateIn: () => true,
+  canEditAny: true,
+  canCreateTopLevel: true,
 };
 
 const meta: Meta<typeof WorkspaceListTable> = {
@@ -129,10 +130,10 @@ export const ErrorState: Story = {
 export const NoPermissions: Story = {
   args: {
     ...defaultProps,
-    userPermissions: {
-      permission: 'inventory:groups:read', // Read-only permission
-      resourceDefinitions: [],
-    },
+    canEdit: () => false, // User cannot edit any workspace
+    canCreateIn: () => false,
+    canEditAny: false,
+    canCreateTopLevel: false,
   },
   parameters: {
     docs: {
@@ -175,12 +176,7 @@ export const NoPermissions: Story = {
 export const RestrictedPermissions: Story = {
   args: {
     ...defaultProps,
-    userPermissions: {
-      permission: 'inventory:groups:write',
-      resourceDefinitions: [
-        { attributeFilter: { key: 'group.id', operation: 'equal', value: ['1'] } }, // Only workspace '1'
-      ],
-    },
+    canEdit: (workspaceId: string) => workspaceId === '1', // User can only edit workspace '1'
   },
   parameters: {
     docs: {
@@ -233,10 +229,7 @@ export const RestrictedPermissions: Story = {
 export const RootWorkspaceRestrictions: Story = {
   args: {
     ...defaultProps,
-    userPermissions: {
-      permission: 'inventory:groups:*', // Full permission
-      resourceDefinitions: [], // No restrictions
-    },
+    canEdit: () => true, // User has full permissions
   },
   parameters: {
     docs: {
@@ -271,10 +264,7 @@ export const RootWorkspaceRestrictions: Story = {
 export const FullPermissions: Story = {
   args: {
     ...defaultProps,
-    userPermissions: {
-      permission: 'inventory:groups:*', // Full permission
-      resourceDefinitions: [], // No restrictions
-    },
+    canEdit: () => true, // User has full permissions
   },
   parameters: {
     docs: {

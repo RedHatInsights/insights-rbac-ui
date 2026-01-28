@@ -5,7 +5,7 @@ import { HttpResponse, http } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { UsersList } from './UsersList';
 
-// Mock users data - use uuid field that Redux expects
+// Mock users data - use uuid field that React Query expects
 const mockUsers = [
   {
     username: 'alice.doe',
@@ -75,14 +75,16 @@ const mockUsers = [
 // API spy for tracking calls
 const usersApiSpy = fn();
 
+import type { User } from './types';
+
 // Wrapper to capture selection changes
-const UsersListWrapper: React.FC<{ onSelect?: (users: any[]) => void; initialSelectedUsers?: any[] }> = ({
+const UsersListWrapper: React.FC<{ onSelect?: (users: User[]) => void; initialSelectedUsers?: User[] }> = ({
   onSelect = () => {},
   initialSelectedUsers = [],
 }) => {
-  const [selectedUsers, setSelectedUsers] = useState<any[]>(initialSelectedUsers);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>(initialSelectedUsers);
 
-  const handleSelect = (users: any[]) => {
+  const handleSelect = (users: User[]) => {
     setSelectedUsers(users);
     onSelect(users);
   };

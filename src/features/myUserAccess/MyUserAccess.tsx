@@ -48,8 +48,8 @@ export const MyUserAccess: React.FC = () => {
   const { userAccessAdministrator } = useContext(PermissionsContext);
 
   useEffect(() => {
-    chrome.auth.getUser().then((user: any) => {
-      const { identity, entitlements } = user || {};
+    chrome.auth.getUser().then((chromeUser) => {
+      const { identity, entitlements } = chromeUser || {};
       setUser({
         entitlements,
         isOrgAdmin: identity?.user?.is_org_admin,

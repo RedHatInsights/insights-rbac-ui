@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import AppEntry from '../../../AppEntry';
+import { AppShell } from '../../../AppEntry';
 import MyUserAccess from '../../../features/myUserAccess/MyUserAccess';
 import WorkspaceDetail from '../../../features/workspaces/workspace-detail/WorkspaceDetail';
 import { FakeAddressBar } from './FakeAddressBar';
@@ -56,8 +56,8 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
             />
             {/* Explicit workspace detail route for M3+ */}
             <Route path="/iam/user-access/workspaces/detail/:workspaceId" element={<WorkspaceDetail />} />
-            <Route path="/iam/user-access/*" element={<AppEntry withNotificationPortal={false} />} />
-            <Route path="/iam/access-management/*" element={<AppEntry withNotificationPortal={false} />} />
+            <Route path="/iam/user-access/*" element={<AppShell />} />
+            <Route path="/iam/access-management/*" element={<AppShell />} />
           </Routes>
         </Suspense>
       </Page>
@@ -69,11 +69,15 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
  * Helper to create dynamic environment parameters from story args
  */
 export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) => {
+  const { orgAdmin = false, userAccessAdministrator = false } = args;
+
+  // Determine if user has write permissions for Kessel access checks
+  const hasWritePermissions = orgAdmin || userAccessAdministrator;
+
   return {
     chrome: {
       environment: 'prod',
       getUserPermissions: () => {
-        const { orgAdmin = false, userAccessAdministrator = false } = args;
         let permissions;
         if (orgAdmin) {
           permissions = [
@@ -122,7 +126,8 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
         getToken: () => Promise.resolve('mock-token-12345'),
       },
       isBeta: () => false,
-      getEnvironment: () => 'prod',
+      isProd: () => false,
+      getEnvironment: () => 'stage',
       getBundle: () => 'iam',
       getApp: () => 'user-access',
     },
@@ -137,6 +142,11 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
       'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] ?? false,
       'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] ?? false,
       'platform.rbac.itless': false,
+    },
+    // Kessel access check configuration - mirrors the permission logic above
+    accessCheck: {
+      canEdit: () => hasWritePermissions,
+      canCreate: () => hasWritePermissions,
     },
   };
 };

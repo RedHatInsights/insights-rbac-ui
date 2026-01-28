@@ -31,7 +31,7 @@ const meta: Meta<typeof BulkDeactivateUsersModal> = {
 This is a **presentational component** that:
 - Receives minimal props (isOpen, usernames, callbacks)
 - Handles its own internationalization and validation
-- Has no knowledge of Redux or business logic
+- Has no knowledge of external state or business logic
 - Focuses purely on user confirmation workflow
         `,
       },

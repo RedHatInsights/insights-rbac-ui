@@ -1,5 +1,4 @@
 import { delay } from 'msw';
-import { resetRegistry } from '../../../utilities/store';
 
 /**
  * Helper function to reset story state and clean up notifications
@@ -8,7 +7,7 @@ import { resetRegistry } from '../../../utilities/store';
 export async function resetStoryState(): Promise<void> {
   // Set up window.insights.chrome for components that access it directly
   if (typeof window !== 'undefined') {
-    (window as any).insights = {
+    (window as { insights?: unknown }).insights = {
       chrome: {
         auth: {
           getToken: () => Promise.resolve('mock-token-12345'),
@@ -30,12 +29,11 @@ export async function resetStoryState(): Promise<void> {
             }),
         },
         isProd: () => false,
+        getEnvironment: () => 'stage',
+        isBeta: () => false,
       },
     };
   }
-
-  // Reset Redux store to fresh state
-  resetRegistry();
 
   // Reset MSW state for test isolation
   const response = await fetch('/api/test/reset-state', { method: 'POST' });

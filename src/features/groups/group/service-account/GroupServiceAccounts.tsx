@@ -1,6 +1,5 @@
 import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo } from 'react';
 import { Outlet, createSearchParams, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
@@ -13,18 +12,7 @@ import { AppLink } from '../../../../components/navigation/AppLink';
 import { DefaultServiceAccountsAlert } from '../../components/DefaultServiceAccountsAlert';
 
 import { columns, useGroupServiceAccountsTableConfig } from './useGroupServiceAccountsTableConfig';
-
-import { fetchGroup, fetchServiceAccountsForGroup } from '../../../../redux/groups/actions';
-import {
-  selectGroupServiceAccounts,
-  selectGroupServiceAccountsMeta,
-  selectIsAdminDefaultGroup,
-  selectIsChangedDefaultGroup,
-  selectIsGroupServiceAccountsLoading,
-  selectIsPlatformDefaultGroup,
-  selectSelectedGroup,
-  selectSystemGroupUUID,
-} from '../../../../redux/groups/selectors';
+import { useGroupQuery, useGroupServiceAccountsQuery, useGroupsQuery } from '../../../../data/queries/groups';
 
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import PermissionsContext from '../../../../utilities/permissionsContext';
@@ -33,9 +21,13 @@ import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
 import type { GroupServiceAccountsProps, ServiceAccount } from './types';
 
+/**
+ * GroupServiceAccounts - fetches its own data via React Query.
+ *
+ * Component is self-contained with React Query data fetching.
+ */
 export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
 
@@ -43,71 +35,59 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = orgAdmin || userAccessAdministrator;
 
-  // Redux state
-  const serviceAccounts = useSelector(selectGroupServiceAccounts);
-  const pagination = useSelector(selectGroupServiceAccountsMeta);
-  const isReduxLoading = useSelector(selectIsGroupServiceAccountsLoading);
-  const isPlatformDefault = useSelector(selectIsPlatformDefaultGroup);
-  const isAdminDefault = useSelector(selectIsAdminDefaultGroup);
-  const isChanged = useSelector(selectIsChangedDefaultGroup);
-  const systemGroupUuid = useSelector(selectSystemGroupUUID);
-  const group = useSelector(selectSelectedGroup);
+  // For default access groups, we need to first get the system group UUID
+  const isPlatformDefaultRoute = groupId === DEFAULT_ACCESS_GROUP_ID;
+
+  // Fetch system group UUID when viewing default access group
+  const { data: systemGroupData } = useGroupsQuery({ platformDefault: true, limit: 1 }, { enabled: isPlatformDefaultRoute });
+  const systemGroupUuid = systemGroupData?.data?.[0]?.uuid;
 
   // Resolve actual group ID (handle default access group)
-  const actualGroupId = useMemo(() => (groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId! : systemGroupUuid), [groupId, systemGroupUuid]);
+  const actualGroupId = useMemo(() => (isPlatformDefaultRoute ? systemGroupUuid : groupId), [isPlatformDefaultRoute, systemGroupUuid, groupId]);
+
+  // Fetch group data
+  const { data: groupData, isLoading: isGroupLoading } = useGroupQuery(actualGroupId ?? '', {
+    enabled: !!actualGroupId,
+  });
+
+  // Derive group flags from the group data
+  const isPlatformDefault = groupData?.platform_default === true;
+  const isAdminDefault = groupData?.admin_default === true;
+  const isSystemGroup = groupData?.system === true;
+  const isChanged = isPlatformDefault && !isSystemGroup;
+  const group = groupData;
 
   // Table configuration
   const { columnConfig, cellRenderers, filterConfig } = useGroupServiceAccountsTableConfig({ intl });
 
-  // Data fetching function
-  const fetchData = useCallback(
-    (params: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
-      if (!actualGroupId) return;
-
-      const clientIdFilter = typeof params.filters.clientId === 'string' ? params.filters.clientId : '';
-      const nameFilter = typeof params.filters.name === 'string' ? params.filters.name : '';
-
-      dispatch(
-        fetchServiceAccountsForGroup(actualGroupId, {
-          limit: params.limit,
-          offset: params.offset,
-          clientId: clientIdFilter || undefined,
-          name: nameFilter || undefined,
-        }) as any,
-      );
-    },
-    [dispatch, actualGroupId],
-  );
-
-  // Table state hook
+  // useTableState for all state management - provides apiParams for queries
   const tableState = useTableState<typeof columns, ServiceAccount>({
     columns,
     initialPerPage: 20,
     getRowId: (account) => account.uuid,
     syncWithUrl: false,
-    onStaleData: fetchData,
   });
 
-  // Total count from Redux pagination
-  const totalCount = pagination?.count ?? 0;
+  // Fetch service accounts using apiParams from tableState
+  const { data: serviceAccountsData, isLoading: isServiceAccountsLoading } = useGroupServiceAccountsQuery(
+    actualGroupId ?? '',
+    {
+      limit: tableState.apiParams.limit,
+      offset: tableState.apiParams.offset,
+      clientId: (tableState.apiParams.filters.clientId as string) || undefined,
+      name: (tableState.apiParams.filters.name as string) || undefined,
+    },
+    { enabled: !!actualGroupId },
+  );
+
+  const serviceAccounts = serviceAccountsData?.data ?? [];
+  const totalCount = serviceAccountsData?.meta?.count ?? 0;
 
   // Permission flag for modifying service accounts (non-default groups with permissions)
   const canModifyServiceAccounts = hasPermissions && !isAdminDefault && !isPlatformDefault;
 
   // Enable selection when user can modify
   const selectable = canModifyServiceAccounts;
-
-  // Refetch when actualGroupId becomes available (handles default access group case)
-  // This effect intentionally only depends on actualGroupId to avoid refetching on every param change
-  useEffect(() => {
-    if (actualGroupId) {
-      fetchData({
-        offset: tableState.apiParams.offset,
-        limit: tableState.apiParams.limit,
-        filters: tableState.apiParams.filters,
-      });
-    }
-  }, [actualGroupId]);
 
   // Handle default group changes
   useEffect(() => {
@@ -178,8 +158,17 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     );
   }, [canModifyServiceAccounts, tableState.selectedRows.length, intl, handleRemoveSelectedServiceAccounts]);
 
-  // Show special card for system default groups
-  if ((isAdminDefault || isPlatformDefault) && group?.system) {
+  // Show loading state
+  if (isGroupLoading) {
+    return (
+      <Section type="content" id="tab-service-accounts">
+        <div>Loading...</div>
+      </Section>
+    );
+  }
+
+  // Show special card for system default groups (not yet modified)
+  if ((isAdminDefault || isPlatformDefault) && isSystemGroup) {
     return (
       <Section type="content" id="tab-service-accounts">
         <DefaultServiceAccountsAlert isPlatformDefault={isPlatformDefault} />
@@ -206,7 +195,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
         <TableView<typeof columns, ServiceAccount>
           columns={columns}
           columnConfig={columnConfig}
-          data={isReduxLoading ? undefined : serviceAccounts}
+          data={isServiceAccountsLoading ? undefined : serviceAccounts}
           totalCount={totalCount}
           getRowId={(account) => account.uuid}
           cellRenderers={cellRenderers}
@@ -259,17 +248,9 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
               submitRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!),
             },
             [pathnames['group-service-accounts-remove-group'].path]: {
-              postMethod: (promise: Promise<unknown>) => {
+              postMethod: () => {
                 navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!));
-                if (promise) {
-                  promise.then?.(() =>
-                    fetchData({
-                      offset: tableState.apiParams.offset,
-                      limit: tableState.apiParams.limit,
-                      filters: tableState.apiParams.filters,
-                    }),
-                  );
-                }
+                // Note: With React Query, cache invalidation happens automatically
               },
             },
             [pathnames['group-add-service-account'].path]: {
@@ -278,20 +259,9 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
               onDefaultGroupChanged: props.onDefaultGroupChanged,
               fetchUuid: systemGroupUuid,
               groupName: group?.name,
-              postMethod: (promise: Promise<unknown>) => {
+              postMethod: () => {
                 navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!));
-                if (promise) {
-                  promise.then?.(() => {
-                    if ((isPlatformDefault || isAdminDefault) && !isChanged) {
-                      dispatch(fetchGroup(groupId!) as any);
-                    }
-                    fetchData({
-                      offset: tableState.apiParams.offset,
-                      limit: tableState.apiParams.limit,
-                      filters: tableState.apiParams.filters,
-                    });
-                  });
-                }
+                // Note: With React Query, cache invalidation happens automatically
               },
             },
           }}

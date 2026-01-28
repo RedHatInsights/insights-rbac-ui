@@ -1,37 +1,96 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { UsersTable } from './UsersTable';
-import { User } from '../../../../../redux/users/reducer';
+import type { User } from '../../../../../data/queries/users';
 
-// Mock user data for testing
-const createMockUser = (id: string, overrides: Partial<User> = {}): User => ({
-  id,
-  username: `user${id}`,
-  email: `user${id}@example.com`,
-  first_name: `First${id}`,
-  last_name: `Last${id}`,
+// Mock user data for testing - matches Principal type from rbac-client
+const createMockUser = (username: string, overrides: Partial<User> = {}): User => ({
+  username,
+  email: `${username}@example.com`,
+  first_name: username.split('.')[0] || username,
+  last_name: username.split('.')[1] || '',
   is_active: true,
   is_org_admin: false,
-  external_source_id: parseInt(id),
   ...overrides,
 });
 
 const mockUsers: User[] = [
-  createMockUser('1', { username: 'john.doe', email: 'john.doe@redhat.com', first_name: 'John', last_name: 'Doe' }),
-  createMockUser('2', { username: 'jane.smith', email: 'jane.smith@redhat.com', first_name: 'Jane', last_name: 'Smith', is_org_admin: true }),
-  createMockUser('3', { username: 'bob.wilson', email: 'bob.wilson@redhat.com', first_name: 'Bob', last_name: 'Wilson', is_active: false }),
-  createMockUser('4', { username: 'alice.brown', email: 'alice.brown@redhat.com', first_name: 'Alice', last_name: 'Brown' }),
-  createMockUser('5', {
-    username: 'charlie.davis',
-    email: 'charlie.davis@redhat.com',
-    first_name: 'Charlie',
-    last_name: 'Davis',
-    is_org_admin: true,
-  }),
+  createMockUser('john.doe', { email: 'john.doe@redhat.com', first_name: 'John', last_name: 'Doe' }),
+  createMockUser('jane.smith', { email: 'jane.smith@redhat.com', first_name: 'Jane', last_name: 'Smith', is_org_admin: true }),
+  createMockUser('bob.wilson', { email: 'bob.wilson@redhat.com', first_name: 'Bob', last_name: 'Wilson', is_active: false }),
+  createMockUser('alice.brown', { email: 'alice.brown@redhat.com', first_name: 'Alice', last_name: 'Brown' }),
+  createMockUser('charlie.davis', { email: 'charlie.davis@redhat.com', first_name: 'Charlie', last_name: 'Davis', is_org_admin: true }),
 ];
+
+// Stateful wrapper that provides real selection state management
+const UsersTableWithState: React.FC<
+  Omit<React.ComponentProps<typeof UsersTable>, 'tableState'> & {
+    initialSelectedRows?: User[];
+  }
+> = ({ initialSelectedRows = [], ...props }) => {
+  const [selectedRows, setSelectedRows] = useState<User[]>(initialSelectedRows);
+  const [sort, setSort] = useState<{ column: 'username'; direction: 'asc' | 'desc' } | null>({
+    column: 'username',
+    direction: 'asc',
+  });
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(20);
+  const [filters, setFilters] = useState<Record<string, string | string[]>>({ username: '', email: '' });
+
+  const onSelectRow = useCallback((row: User, selected: boolean) => {
+    setSelectedRows((prev) => (selected ? [...prev, row] : prev.filter((r) => r.username !== row.username)));
+  }, []);
+
+  const onSelectAll = useCallback((selected: boolean, rows: User[]) => {
+    setSelectedRows(selected ? rows : []);
+  }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedRows([]);
+  }, []);
+
+  const isRowSelected = useCallback((row: User) => selectedRows.some((r) => r.username === row.username), [selectedRows]);
+
+  const onFiltersChange = useCallback((newFilters: Record<string, string | string[]>) => {
+    setFilters(newFilters);
+  }, []);
+
+  const tableState = useMemo(
+    () => ({
+      sort,
+      onSortChange: (column: 'username', direction: 'asc' | 'desc') => setSort({ column, direction }),
+      page,
+      perPage,
+      perPageOptions: [10, 20, 50, 100],
+      onPageChange: setPage,
+      onPerPageChange: setPerPage,
+      selectedRows,
+      onSelectRow,
+      onSelectAll,
+      clearSelection,
+      expandedCell: null,
+      onToggleExpand: fn(),
+      filters,
+      onFiltersChange,
+      clearAllFilters: () => setFilters({ username: '', email: '' }),
+      isRowSelected,
+      isCellExpanded: () => false,
+      isAnyExpanded: () => false,
+      apiParams: {
+        offset: (page - 1) * perPage,
+        limit: perPage,
+        orderBy: sort ? (`${sort.direction === 'desc' ? '-' : ''}${sort.column}` as const) : undefined,
+        filters,
+      },
+    }),
+    [sort, page, perPage, selectedRows, onSelectRow, onSelectAll, clearSelection, isRowSelected, filters, onFiltersChange],
+  );
+
+  return <UsersTable {...props} tableState={tableState} />;
+};
 
 const defaultArgs = {
   users: mockUsers,
@@ -42,30 +101,18 @@ const defaultArgs = {
   isProd: false,
   defaultPerPage: 20,
   ouiaId: 'test-users-table',
-  onAddUserClick: fn(),
+  onAddUserToGroup: fn(),
+  onRemoveUserFromGroup: fn(),
   onInviteUsersClick: fn(),
   onToggleUserStatus: fn(),
   onToggleOrgAdmin: fn(),
   onDeleteUser: fn(),
-  onBulkStatusChange: fn(),
-  searchParams: new URLSearchParams(),
-  setSearchParams: fn(),
-  // Data view props required by the component
-  sortBy: 'username',
-  direction: 'asc' as const,
-  onSort: fn(),
-  filters: { username: '', email: '' },
-  onSetFilters: fn(),
-  clearAllFilters: fn(),
-  page: 1,
-  perPage: 20,
-  onSetPage: fn(),
-  onPerPageSelect: fn(),
-  pagination: {},
+  onBulkActivate: fn(),
+  onBulkDeactivate: fn(),
 };
 
-const meta: Meta<typeof UsersTable> = {
-  component: UsersTable,
+const meta: Meta<typeof UsersTableWithState> = {
+  component: UsersTableWithState,
   tags: ['autodocs', 'perm:org-admin'],
   parameters: {
     docs: {
@@ -333,7 +380,7 @@ export const StatusToggle: Story = {
 
     // Verify callback was called with user and new status
     await expect(defaultArgs.onToggleUserStatus).toHaveBeenCalledWith(
-      expect.objectContaining({ id: '1' }),
+      expect.objectContaining({ username: 'john.doe' }),
       false, // toggling from active to inactive
     );
   },
@@ -364,7 +411,7 @@ export const OrgAdminToggle: Story = {
 
     // Verify callback was called with user and new org admin status
     await expect(defaultArgs.onToggleOrgAdmin).toHaveBeenCalledWith(
-      expect.objectContaining({ id: '1' }),
+      expect.objectContaining({ username: 'john.doe' }),
       true, // toggling from non-admin to admin
     );
   },
@@ -408,7 +455,7 @@ export const AddUsersToGroup: Story = {
     await userEvent.click(addToGroupButton!);
 
     // Verify callback was called with selected users
-    await expect(defaultArgs.onAddUserClick).toHaveBeenCalled();
+    await expect(defaultArgs.onAddUserToGroup).toHaveBeenCalled();
   },
 };
 
@@ -523,9 +570,9 @@ export const MixedUserStates: Story = {
   args: {
     ...defaultArgs,
     users: [
-      createMockUser('1', { username: 'active.user', is_active: true, is_org_admin: false }),
-      createMockUser('2', { username: 'admin.user', is_active: true, is_org_admin: true }),
-      createMockUser('3', { username: 'inactive.user', is_active: false, is_org_admin: false }),
+      createMockUser('active.user', { is_active: true, is_org_admin: false }),
+      createMockUser('admin.user', { is_active: true, is_org_admin: true }),
+      createMockUser('inactive.user', { is_active: false, is_org_admin: false }),
     ],
   },
   parameters: {
@@ -558,9 +605,9 @@ export const FilterUsers: Story = {
   args: {
     ...defaultArgs,
     users: [
-      createMockUser('1', { username: 'john.doe', email: 'john.doe@redhat.com', first_name: 'John', last_name: 'Doe' }),
-      createMockUser('2', { username: 'jane.smith', email: 'jane.smith@redhat.com', first_name: 'Jane', last_name: 'Smith' }),
-      createMockUser('3', { username: 'bob.wilson', email: 'bob.wilson@company.com', first_name: 'Bob', last_name: 'Wilson' }),
+      createMockUser('john.doe', { email: 'john.doe@redhat.com', first_name: 'John', last_name: 'Doe' }),
+      createMockUser('jane.smith', { email: 'jane.smith@redhat.com', first_name: 'Jane', last_name: 'Smith' }),
+      createMockUser('bob.wilson', { email: 'bob.wilson@company.com', first_name: 'Bob', last_name: 'Wilson' }),
     ],
   },
   parameters: {
@@ -588,28 +635,21 @@ Perfect for testing filter state management and ensuring all filter controls wor
     await canvas.findByText('jane.smith');
     await canvas.findByText('bob.wilson');
 
-    // Clear any previous calls to the mock
-    defaultArgs.onSetFilters.mockClear();
-    defaultArgs.clearAllFilters.mockClear();
-
     // TEST FILTER INPUT
     // Multi-field filter pattern: only ONE textbox is visible at a time
     const filterInput = await canvas.findByRole('textbox');
 
     await userEvent.type(filterInput, 'john');
 
-    // Verify onSetFilters was called
-    await waitFor(() => expect(defaultArgs.onSetFilters).toHaveBeenCalled());
-
     // Verify filter input has the value
-    expect(filterInput).toHaveValue('john');
+    await waitFor(() => expect(filterInput).toHaveValue('john'));
 
     // TEST CLEAR FILTERS
     // Find and click "Clear filters" button (there may be two toolbars, use the first one)
     const clearButtons = await canvas.findAllByText('Clear filters');
     await userEvent.click(clearButtons[0]);
 
-    // Verify clearAllFilters was called
-    await waitFor(() => expect(defaultArgs.clearAllFilters).toHaveBeenCalled());
+    // Verify filter input is cleared
+    await waitFor(() => expect(filterInput).toHaveValue(''));
   },
 };

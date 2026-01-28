@@ -2,11 +2,17 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
-import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
+import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import { RemoveGroupModal } from './RemoveGroupModal';
 
+interface RemoveGroupModalWrapperProps {
+  initialRoute: string;
+  cancelRoute?: string;
+  submitRoute?: string;
+}
+
 // Wrapper component with button to open modal
-const RemoveGroupModalWrapper: React.FC<any> = ({ postMethod, initialRoute, ...props }) => {
+const RemoveGroupModalWrapper: React.FC<RemoveGroupModalWrapperProps> = ({ initialRoute, ...props }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const handleOpenModal = () => setIsOpen(true);
@@ -17,10 +23,7 @@ const RemoveGroupModalWrapper: React.FC<any> = ({ postMethod, initialRoute, ...p
       {isOpen && (
         <MemoryRouter initialEntries={[initialRoute]}>
           <Routes>
-            <Route
-              path="/groups/remove-group/:groupId"
-              element={<RemoveGroupModal postMethod={postMethod} pagination={{ limit: 20 }} cancelRoute="/groups" submitRoute="/groups" {...props} />}
-            />
+            <Route path="/groups/remove-group/:groupId" element={<RemoveGroupModal cancelRoute="/groups" submitRoute="/groups" {...props} />} />
             {/* Route for useAppNavigate with /iam/user-access basename */}
             <Route path="/iam/user-access/groups" element={<div data-testid="groups-list">Groups List Page</div>} />
           </Routes>
@@ -32,16 +35,11 @@ const RemoveGroupModalWrapper: React.FC<any> = ({ postMethod, initialRoute, ...p
 
 const meta: Meta<typeof RemoveGroupModalWrapper> = {
   component: RemoveGroupModalWrapper,
-  args: {
-    postMethod: fn(),
-  },
+  args: {},
   argTypes: {
     initialRoute: {
       description: 'Initial route for the story',
       control: 'text',
-    },
-    postMethod: {
-      description: 'Callback function called after group removal',
     },
   },
   parameters: {
@@ -85,7 +83,7 @@ const meta: Meta<typeof RemoveGroupModalWrapper> = {
           return HttpResponse.json({ message: 'Groups deleted successfully' });
         }),
 
-        // Default "loaded" state handler - provides initial group for Redux
+        // Default "loaded" state handler - provides initial group for React Query
         http.get('/api/rbac/v1/groups/', () => {
           return HttpResponse.json({
             data: [],
@@ -120,7 +118,6 @@ export const SingleGroup: Story = {
   tags: ['autodocs'], // ONLY story with autodocs
   args: {
     initialRoute: '/groups/remove-group/test-group-id',
-    postMethod: fn(),
   },
   parameters: {
     docs: {
@@ -140,13 +137,13 @@ For testing specific scenarios, see these additional stories:
 - **Single vs Multiple Detection**: Automatically detects comma-separated group IDs for bulk operations
 - **Group Data Loading**: Fetches individual group details for single group removal (shows group name)
 - **System Group Handling**: Supports removal of special system/platform default groups  
-- **API Integration**: Real API calls with postMethod callback after successful removal
+- **API Integration**: Real API calls with React Query cache invalidation after successful removal
 - **Loading States**: Shows skeleton loader while fetching group details for single groups
         `,
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     await delay(300); // Required for MSW
 
     const canvas = within(canvasElement);
@@ -181,10 +178,10 @@ For testing specific scenarios, see these additional stories:
     const removeButton = within(modal).getByRole('button', { name: /remove/i });
     await userEvent.click(removeButton);
 
-    // ✅ Verify postMethod spy was called with correct parameters
+    // ✅ Verify modal closes after successful deletion (navigation occurs)
     await waitFor(
       () => {
-        expect(args.postMethod).toHaveBeenCalledWith(['test-group-id'], { limit: 20 });
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       },
       { timeout: 3000 },
     );
@@ -194,9 +191,8 @@ For testing specific scenarios, see these additional stories:
 export const SystemGroup: Story = {
   args: {
     initialRoute: '/groups/remove-group/system-group-id',
-    postMethod: fn(),
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     await delay(300); // Required for MSW
 
     const canvas = within(canvasElement);
@@ -231,9 +227,9 @@ export const SystemGroup: Story = {
     const removeButton = within(modal).getByRole('button', { name: /remove/i });
     await userEvent.click(removeButton);
 
-    // ✅ Verify postMethod spy was called with system group ID
+    // ✅ Verify modal closes after successful deletion (navigation occurs)
     await waitFor(() => {
-      expect(args.postMethod).toHaveBeenCalledWith(['system-group-id'], { limit: 20 });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   },
 };
@@ -241,9 +237,8 @@ export const SystemGroup: Story = {
 export const MultipleGroups: Story = {
   args: {
     initialRoute: '/groups/remove-group/group-1,group-2,group-3',
-    postMethod: fn(),
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     await delay(300); // Required for MSW
 
     const canvas = within(canvasElement);
@@ -277,9 +272,9 @@ export const MultipleGroups: Story = {
     const removeButton = within(modal).getByRole('button', { name: /remove/i });
     await userEvent.click(removeButton);
 
-    // ✅ Verify postMethod spy was called with all group IDs
+    // ✅ Verify modal closes after successful deletion (navigation occurs)
     await waitFor(() => {
-      expect(args.postMethod).toHaveBeenCalledWith(['group-1', 'group-2', 'group-3'], { limit: 20 });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   },
 };

@@ -4,7 +4,7 @@ import { fn } from 'storybook/test';
 import { expect, userEvent, within } from 'storybook/test';
 import { WorkspaceSelector } from './WorkspaceSelector';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
-import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { TreeView } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import { Alert, AlertVariant } from '@patternfly/react-core/dist/dynamic/components/Alert';
@@ -41,14 +41,30 @@ const mockWorkspaces: TreeViewDataItem[] = [
   },
 ];
 
-// Simple render functions
-const renderMenuToggle = ({ menuToggleRef, onMenuToggleClick, isDisabled, selectedItem }: any) => (
+// Simple render functions - use MenuToggleElement for proper typing
+interface MenuToggleRenderProps {
+  menuToggleRef: React.RefObject<MenuToggleElement>;
+  onMenuToggleClick: () => void;
+  isDisabled: boolean;
+  isMenuToggleExpanded: boolean;
+  selectedItem: TreeViewDataItem | null;
+}
+
+interface TreeViewRenderProps {
+  treeElements: TreeViewDataItem[];
+  selectedItem: TreeViewDataItem | null;
+  onSelect: (event: React.MouseEvent, item: TreeViewDataItem) => void;
+  isLoading: boolean;
+  isError: boolean;
+}
+
+const renderMenuToggle = ({ menuToggleRef, onMenuToggleClick, isDisabled, selectedItem }: MenuToggleRenderProps) => (
   <MenuToggle ref={menuToggleRef} onClick={onMenuToggleClick} isDisabled={isDisabled}>
     {selectedItem ? selectedItem.name : 'Select workspace'}
   </MenuToggle>
 );
 
-const renderTreeView = ({ treeElements, selectedItem, onSelect, isLoading, isError }: any) => {
+const renderTreeView = ({ treeElements, selectedItem, onSelect, isLoading, isError }: TreeViewRenderProps) => {
   if (isError) return <Alert variant={AlertVariant.danger} title="Failed to load workspaces" />;
   if (isLoading) return <Spinner />;
   if (treeElements.length === 0) return <p>No workspaces available</p>;

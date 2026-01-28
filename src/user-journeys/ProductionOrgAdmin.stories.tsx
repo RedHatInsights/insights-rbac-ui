@@ -1,4 +1,4 @@
-import type { StoryObj } from '@storybook/react-webpack5';
+import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
@@ -34,11 +34,23 @@ import { makeChrome } from './_shared/helpers/chrome';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
 
+interface StoryArgs {
+  typingDelay?: number;
+  orgAdmin?: boolean;
+  userAccessAdministrator?: boolean;
+  'platform.rbac.workspaces'?: boolean;
+  'platform.rbac.group-service-accounts'?: boolean;
+  'platform.rbac.group-service-accounts.stable'?: boolean;
+  'platform.rbac.common-auth-model'?: boolean;
+  'platform.rbac.common.userstable'?: boolean;
+  initialRoute?: string;
+}
+
 /**
  * Create dynamic environment parameters based on story args
  * This allows Storybook controls to override feature flags and permissions
  */
-function createDynamicEnvironment(args: any) {
+function createDynamicEnvironment(args: StoryArgs) {
   return {
     chrome: makeChrome({
       environment: 'prod',
@@ -64,10 +76,10 @@ function createDynamicEnvironment(args: any) {
 
 const meta = {
   component: AppEntryWithRouter,
-  title: 'User Journeys/Production Org Admin',
+  title: 'User Journeys/Production/V1 (Current)/Org Admin',
   tags: ['prod-org-admin'],
   decorators: [
-    (Story: any, context: any) => {
+    ((Story, context: StoryContext<StoryArgs>) => {
       // Apply dynamic environment parameters based on current args
       const dynamicEnv = createDynamicEnvironment(context.args);
       // Replace parameters entirely instead of mutating to ensure React sees the change
@@ -75,7 +87,7 @@ const meta = {
       // Force remount when controls change by using args as key
       const argsKey = JSON.stringify(context.args);
       return <Story key={argsKey} />;
-    },
+    }) as Decorator<StoryArgs>,
   ],
   argTypes: {
     // Demo Controls
@@ -181,7 +193,6 @@ export default meta;
  * Production environment uses its own manual testing story
  */
 export const ManualTesting: Story = {
-  name: 'Manual Testing',
   args: {
     initialRoute: '/iam/my-user-access',
   },
@@ -1424,7 +1435,7 @@ This story verifies:
 };
 
 // Helper: Navigate to a user's detail page
-async function navigateToUserDetailPage(user: any, canvas: any, username: string) {
+async function navigateToUserDetailPage(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, username: string) {
   // Navigate to Users from My User Access
   await navigateToPage(user, canvas, 'Users');
 
@@ -2125,6 +2136,131 @@ Tests that modifying an already-copied "Custom default access" group does NOT sh
       const alert = canvas.queryByText(/Default access group has changed/i);
       await expect(alert).toBeInTheDocument();
     });
+  },
+};
+
+/**
+ * Remove Roles from Already-Copied Default Group Journey
+ *
+ * Tests that REMOVING roles from an already-modified "Custom default access" group
+ * does NOT show the confirmation modal. This is the counterpart to
+ * ModifyAlreadyCopiedGroupJourney which tests adding roles.
+ *
+ * This test ensures the isChanged flag is correctly derived in GroupRoles.tsx:
+ * - isChanged = (platform_default || admin_default) && !system
+ * - For system: false, isChanged = true, so NO confirmation modal
+ *
+ * @see ModifyAlreadyCopiedGroupJourney - tests adding roles (same behavior expected)
+ */
+export const RemoveRolesFromCopiedDefaultGroupJourney: Story = {
+  name: 'Groups / Remove roles from already-copied default group (no confirmation)',
+  tags: ['copy-default-group'],
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: [
+          ...defaultGroups.filter((g) => g.uuid !== 'system-default'),
+          // Use the system-default group but mark it as already modified
+          {
+            uuid: 'system-default',
+            name: 'Custom default access',
+            description: 'Modified platform default group',
+            platform_default: true,
+            admin_default: false,
+            system: false, // Key: system=false means it's been modified, so isChanged=true
+            created: '2024-01-15T10:30:00Z',
+            modified: '2024-01-16T14:20:00Z',
+            principalCount: 5,
+            roleCount: 2,
+          },
+        ],
+        users: defaultUsers,
+        roles: defaultRoles,
+        // Pre-populate roles for the group so we can remove them
+        groupRoles: new Map([['system-default', [defaultRoles[0], defaultRoles[1]]]]),
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests that REMOVING roles from an already-copied "Custom default access" group does NOT show the confirmation modal.
+
+**Why this test matters:**
+- Catches bugs where \`isChanged\` is incorrectly calculated or hardcoded
+- The \`isChanged\` flag should be derived as: \`(platform_default || admin_default) && !system\`
+- For \`system: false\` (already-modified), \`isChanged = true\`, so NO confirmation modal should appear
+
+**Journey Flow:**
+- Navigate to "Custom default access" group (already copied, system=false)
+- Go to Roles tab
+- Select a role to remove
+- Click "Remove selected"
+- **NO confirmation modal** (direct removal because group is already modified)
+- Verify success
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Groups
+    await navigateToPage(user, canvas, 'Groups');
+    await waitForPageToLoad(canvas, 'Custom default access');
+
+    // Click on "Custom default access"
+    const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
+    await user.click(groupLink);
+    await delay(500);
+
+    // Wait for group detail page
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: /Custom default access/i })).toBeInTheDocument();
+    });
+
+    // Click Roles tab
+    const rolesTab = canvas.getByRole('tab', { name: /roles/i });
+    await user.click(rolesTab);
+    await delay(500);
+
+    // Wait for roles to load
+    await waitFor(async () => {
+      await expect(canvas.getByText('Administrator')).toBeInTheDocument();
+    });
+
+    // Select first role checkbox
+    const roleCheckbox = canvas.getByRole('checkbox', { name: /select row 0/i });
+    await user.click(roleCheckbox);
+    await delay(300);
+
+    // Use the helper to remove selected roles - but DON'T auto-confirm
+    // because we want to check what modal appears
+    await removeSelectedRolesFromGroup(user, canvas, false);
+
+    // A WarningModal for confirming the removal should appear
+    const warningModal = await within(document.body).findByRole('dialog', {}, { timeout: 5000 });
+    expect(warningModal).toBeInTheDocument();
+
+    // CRITICAL: Verify this is NOT the DefaultGroupChangeModal
+    // The DefaultGroupChangeModal has a required checkbox with "I understand, and I want to continue"
+    // The standard removal modal does NOT have a checkbox
+    const confirmationCheckbox = within(warningModal).queryByRole('checkbox');
+
+    // Should NOT have a checkbox (that would indicate DefaultGroupChangeModal appeared due to isChanged being incorrectly false)
+    expect(confirmationCheckbox).toBeNull();
+
+    // Click the confirm button in the warning modal
+    const confirmButton = within(warningModal).getByRole('button', { name: /remove/i });
+    await user.click(confirmButton);
+
+    // Verify success notification appears (confirms operation completed)
+    await verifySuccessNotification();
   },
 };
 

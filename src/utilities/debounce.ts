@@ -20,11 +20,11 @@ export const DEFAULT_DEBOUNCE_DELAY = 250;
  * @example
  * const safeFetch = debounce(fetchId, 300, { onlyResolvesLast: true });
  */
-export function debounce<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
+export function debounce<TArgs extends unknown[], TReturn>(
+  fn: (...args: TArgs) => Promise<TReturn>,
   wait: number,
   options: AwesomeDebounceOptions & { onlyResolvesLast: true },
-): T & { cancel(): void };
+): ((...args: TArgs) => Promise<TReturn>) & { cancel(): void };
 
 /**
  * Debounces a function (sync or async without race guards)
@@ -40,24 +40,28 @@ export function debounce<T extends (...args: any[]) => Promise<any>>(
  *   async (query: string) => fetchResults(query)
  * );
  *
- * // Redux dispatch
+ * // React Query refetch
  * const debouncedFetch = debounce(fetchData);
  *
  * // Cleanup on unmount
  * useEffect(() => () => debouncedFetch.cancel(), []);
  */
-export function debounce<T extends (...args: any[]) => any>(
-  fn: T,
+export function debounce<TArgs extends unknown[], TReturn>(
+  fn: (...args: TArgs) => TReturn,
   wait?: number,
   options?: DebounceSettings,
-): T & { cancel(): void; flush(): ReturnType<T> | undefined };
+): ((...args: TArgs) => TReturn | undefined) & { cancel(): void; flush(): TReturn | undefined };
 
 // Implementation
-export function debounce(fn: any, wait = DEFAULT_DEBOUNCE_DELAY, options: any = {}) {
+export function debounce<TArgs extends unknown[], TReturn>(
+  fn: (...args: TArgs) => TReturn,
+  wait = DEFAULT_DEBOUNCE_DELAY,
+  options: (AwesomeDebounceOptions & { onlyResolvesLast: true }) | DebounceSettings = {},
+) {
   if ('onlyResolvesLast' in options && options.onlyResolvesLast === true) {
     return awesomeDebouncePromise(fn, wait, options);
   }
-  return lodashDebounce(fn, wait, options);
+  return lodashDebounce(fn, wait, options as DebounceSettings);
 }
 
 /**
@@ -70,10 +74,12 @@ export function debounce(fn: any, wait = DEFAULT_DEBOUNCE_DELAY, options: any = 
  *
  * @deprecated Use debounce() with { onlyResolvesLast: true } when you need race-safe debouncing
  */
-export function debounceAsync<T extends (...args: any[]) => Promise<any>>(
-  asyncFunction: T,
+export function debounceAsync<TArgs extends unknown[], TReturn>(
+  asyncFunction: (...args: TArgs) => Promise<TReturn>,
   debounceTime = DEFAULT_DEBOUNCE_DELAY,
   options: Partial<AwesomeDebounceOptions> = { onlyResolvesLast: false },
-): T & { cancel(): void } {
-  return awesomeDebouncePromise(asyncFunction, debounceTime, options) as T & { cancel(): void };
+): ((...args: TArgs) => Promise<TReturn>) & { cancel(): void } {
+  return awesomeDebouncePromise(asyncFunction, debounceTime, options) as ((...args: TArgs) => Promise<TReturn>) & {
+    cancel(): void;
+  };
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import { Badge } from '@patternfly/react-core';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Chip } from '@patternfly/react-core/dist/dynamic/deprecated/components/Chip';
@@ -19,15 +19,13 @@ import { TextInputGroupUtilities } from '@patternfly/react-core';
 import { ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { fetchInventoryGroups } from '../../../redux/inventory/actions';
+import { useFlag } from '@unleash/proxy-client-react';
+import { useInventoryGroupsQuery } from '../../../data/queries/inventory';
 import { debounce } from '../../../utilities/debounce';
 import messages from '../../../Messages';
-import { useFlag } from '@unleash/proxy-client-react';
-import type { RBACStore } from '../../../redux/store.d';
 
 interface ResourceItem {
   id: string | null;
@@ -52,12 +50,6 @@ type Action =
   | { type: 'setFilter'; key: string; filterValue: string }
   | { type: 'setPage'; key: string; page: number }
   | { type: 'clear'; key: string };
-
-const selector = ({ inventoryReducer: { resourceTypes, total, isLoading } }: RBACStore) => ({
-  resourceTypes: resourceTypes as unknown as Record<string, Record<string, ResourceItem>>,
-  totalCount: total as number,
-  isLoading: isLoading as boolean,
-});
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -162,33 +154,67 @@ interface InventoryGroupsRoleProps {
 
 const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const isHosts = (permissionID: string) => permissionID.includes('hosts:');
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
 
-  const { resourceTypes, totalCount, isLoading } = useSelector(selector, shallowEqual);
+  // Track current search filters per permission
+  const [searchFilters, setSearchFilters] = useState<Record<string, { name: string; page: number }>>({});
+
   const permissions =
     (formOptions.getState().values['add-permissions-table'] as { uuid: string }[])
       .filter(({ uuid }) => uuid.split(':')[0].includes('inventory'))
       .map(({ uuid }) => uuid) || [];
 
-  const fetchData = useCallback(
-    (perms: string[], apiProps: Record<string, unknown>) =>
-      dispatch(fetchInventoryGroups(perms as unknown as Parameters<typeof fetchInventoryGroups>[0], apiProps) as unknown as { type: string }),
-    [dispatch],
+  // Use TanStack Query for inventory groups
+  // We use a single query that aggregates results
+  const activePermission = permissions[0] || '';
+  const currentFilter = searchFilters[activePermission] || { name: '', page: 1 };
+
+  const { data: inventoryGroupsData, isLoading } = useInventoryGroupsQuery({
+    name: currentFilter.name || undefined,
+    page: currentFilter.page,
+    perPage: 10,
+  });
+
+  // Convert inventory groups to resource types map
+  const resourceTypes = useMemo(() => {
+    if (!inventoryGroupsData?.data) return {} as Record<string, Record<string, ResourceItem>>;
+    const result: Record<string, Record<string, ResourceItem>> = {};
+    permissions.forEach((permission) => {
+      result[permission] = inventoryGroupsData.data.reduce(
+        (acc, group) => {
+          if (group.name && group.id) {
+            acc[group.name] = { id: group.id, name: group.name };
+          }
+          return acc;
+        },
+        {} as Record<string, ResourceItem>,
+      );
+    });
+    return result;
+  }, [inventoryGroupsData, permissions]);
+
+  const totalCount = inventoryGroupsData?.meta?.count || 0;
+
+  // Debounced search handler
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((permissionID: string, name: string) => {
+        setSearchFilters((prev) => ({
+          ...prev,
+          [permissionID]: { name, page: 1 },
+        }));
+      }),
+    [],
   );
 
-  // Memoize debounced fetchData to maintain consistent cancellation/flush behavior
-  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
-
-  // Cleanup debounced function on unmount
   useEffect(() => {
     return () => {
-      debouncedFetchData?.cancel?.();
+      debouncedSearch?.cancel?.();
     };
-  }, [debouncedFetchData]);
+  }, [debouncedSearch]);
 
   const onSelect = (_event: unknown, selection: string, selectAll: boolean, key: string) => {
     const ungroupedSystems = { id: null, name: 'null' };
@@ -225,7 +251,6 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
   );
 
   useEffect(() => {
-    fetchData(permissions, {});
     formOptions.change('inventory-group-permissions', []);
   }, []);
 
@@ -239,7 +264,16 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
 
   const onTextInputChange = (_event: unknown, value: string, permissionID: string) => {
     dispatchLocally({ type: 'setFilter', key: permissionID, filterValue: value });
-    debouncedFetchData([permissionID], { name: value });
+    debouncedSearch(permissionID, value);
+  };
+
+  const loadMore = (permissionID: string) => {
+    const currentPage = searchFilters[permissionID]?.page || 1;
+    setSearchFilters((prev) => ({
+      ...prev,
+      [permissionID]: { ...prev[permissionID], page: currentPage + 1 },
+    }));
+    dispatchLocally({ type: 'setPage', key: permissionID, page: currentPage + 1 });
   };
 
   const toggle = (toggleRef: React.Ref<HTMLButtonElement>, permissionID: string) => (
@@ -356,10 +390,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
                   <SelectOption
                     {...(!isLoading && { isLoadButton: true })}
                     {...(isLoading && { isLoading: true })}
-                    onClick={() => {
-                      fetchData([permissionID], { page: (state[permissionID]?.page || 1) + 1, name: state[permissionID]?.filterValue || '' });
-                      dispatchLocally({ type: 'setPage', key: permissionID, page: (state[permissionID]?.page || 1) + 1 });
-                    }}
+                    onClick={() => loadMore(permissionID)}
                     value="loader"
                   >
                     {isLoading ? <Spinner size="lg" /> : intl.formatMessage(messages.seeMore)}

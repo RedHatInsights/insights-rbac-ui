@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { expect, userEvent, within } from 'storybook/test';
 import { screen } from 'storybook/test';
@@ -44,7 +43,7 @@ const mockResourceDefinitions = [
 const emptyResourceDefinitions: ResourceDefinition[] = [];
 
 // Modal Wrapper Component for Testing
-const ModalWrapper = ({ permission, resourceDefinitions }: { permission: string; resourceDefinitions: any[] }) => {
+const ModalWrapper = ({ permission, resourceDefinitions }: { permission: string; resourceDefinitions: ResourceDefinition[] }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -60,13 +59,9 @@ const ModalWrapper = ({ permission, resourceDefinitions }: { permission: string;
   );
 };
 
-ModalWrapper.propTypes = {
-  permission: PropTypes.string.isRequired,
-  resourceDefinitions: PropTypes.arrayOf(PropTypes.object).isRequired,
-};
-
 const meta: Meta<typeof ModalWrapper> = {
-  component: ModalWrapper,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: ModalWrapper as any,
   tags: ['autodocs'],
   parameters: {
     docs: {

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
-import { Role } from '../../redux/roles/reducer';
+import type { Role } from './useRolesWithWorkspaces';
 import { DrawerActions } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerCloseButton } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerHead } from '@patternfly/react-core/dist/dynamic/components/Drawer';

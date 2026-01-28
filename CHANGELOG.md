@@ -1,3 +1,92 @@
+## [2.1.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.0...v2.1.1) (2026-01-28)
+
+
+### Bug Fixes
+
+* **workspaces:** use official API types and fix React hooks violation ([32ef97e](https://github.com/RedHatInsights/insights-rbac-ui/commit/32ef97eec2867f06e48bbfe6052bb104c865e5b8))
+
+# [2.1.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.0.2...v2.1.0) (2026-01-27)
+
+
+### Features
+
+* migrate workspace permissions to Kessel access checks ([1fd7495](https://github.com/RedHatInsights/insights-rbac-ui/commit/1fd7495501a0f40c65d2d63c9f4c4008f08341e4))
+
+## [2.0.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.0.1...v2.0.2) (2026-01-22)
+
+
+### Bug Fixes
+
+* **nav:** change pathname ([#2106](https://github.com/RedHatInsights/insights-rbac-ui/issues/2106)) ([7f5002f](https://github.com/RedHatInsights/insights-rbac-ui/commit/7f5002f866b27b3c73e9d3984ec3fd20b237fd5c))
+
+## [2.0.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.0.0...v2.0.1) (2026-01-21)
+
+
+### Bug Fixes
+
+* correctly render the Time created column for the service accounts ([25c830d](https://github.com/RedHatInsights/insights-rbac-ui/commit/25c830d1fb586d504feac0c24f766bb947db67fa))
+* **navigation:** remove redundant service-accounts entry ([426b24a](https://github.com/RedHatInsights/insights-rbac-ui/commit/426b24a365289edac2235991c4199828b7d25239))
+
+# [2.0.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.82.0...v2.0.0) (2026-01-20)
+
+
+### Features
+
+* complete Redux removal ([1c42dc3](https://github.com/RedHatInsights/insights-rbac-ui/commit/1c42dc37f60eb4e0422d745f444a0536f3c894bd))
+* **groups:** migrate Groups slice from Redux to React Query ([82c8537](https://github.com/RedHatInsights/insights-rbac-ui/commit/82c853725c8cedc6f2e087c6f937916c84c40e75))
+* remove Redux from type definitions and error handling ([9ad29a3](https://github.com/RedHatInsights/insights-rbac-ui/commit/9ad29a3c0e1342f8632606968b2291773aa691aa))
+* **roles,users:** migrate Role.tsx and User.tsx from Redux to React Query ([c45e532](https://github.com/RedHatInsights/insights-rbac-ui/commit/c45e532109e00f66630d477dee02921017b9ff94))
+* **workspaces:** migrate Workspaces feature from Redux to React Query ([80543f7](https://github.com/RedHatInsights/insights-rbac-ui/commit/80543f7df9b86278d56447031baaeaf63c26b0f2))
+
+
+### BREAKING CHANGES
+
+* Redux removed from codebase
+* **groups:** Components now fetch their own data via React Query
+instead of relying on Redux state prepared by parent components.
+
+# [1.82.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.81.0...v1.82.0) (2026-01-20)
+
+
+### Features
+
+* **access-management:** complete feature implementation with V2 API gap documentation ([3adf5c8](https://github.com/RedHatInsights/insights-rbac-ui/commit/3adf5c8947ca1d4835c1bd868d78111a8e3a69d2))
+* **storybook:** add feature gap tests for V2 Users/UserGroups and Roles ([18da917](https://github.com/RedHatInsights/insights-rbac-ui/commit/18da91744ea2b3c8fa34b6d37e7ef0f72d0415f3))
+
+# [1.81.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.2...v1.81.0) (2026-01-20)
+
+
+### Features
+
+* centralize the pagination clamping check and logic to TableView ([f25c366](https://github.com/RedHatInsights/insights-rbac-ui/commit/f25c366c4e23476efad62c0b61c3214897ec3896))
+
+## [1.80.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.1...v1.80.2) (2026-01-19)
+
+
+### Bug Fixes
+
+* **navigation:** remove explicit bundleSegment for service-accounts and learning resources ([#2096](https://github.com/RedHatInsights/insights-rbac-ui/issues/2096)) ([79e16bf](https://github.com/RedHatInsights/insights-rbac-ui/commit/79e16bfe54689d48993996c6208c0d2fbcac6b09))
+
+## [1.80.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.80.0...v1.80.1) (2026-01-15)
+
+
+### Bug Fixes
+
+* **deps:** update babel monorepo to v7.28.6 ([6033474](https://github.com/RedHatInsights/insights-rbac-ui/commit/60334740fa85eb8f9460da8373df5019f18f5a5b))
+* **deps:** update dependency @redhat-cloud-services/frontend-components-utilities to v7.0.20 ([343cc09](https://github.com/RedHatInsights/insights-rbac-ui/commit/343cc09714dc88fe8e380cef9f39bed95e220e24))
+
+# [1.80.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.8...v1.80.0) (2026-01-15)
+
+
+### Bug Fixes
+
+* remove delay(300) before table render in sorting test ([c4fb616](https://github.com/RedHatInsights/insights-rbac-ui/commit/c4fb616780b3501f5d8b0dc296e50bfd6ba67070))
+
+
+### Features
+
+* migrate Roles slice from Redux to TanStack Query ([23f668d](https://github.com/RedHatInsights/insights-rbac-ui/commit/23f668df8970f870ef79a9a8f5ea5fd39ee3ddd7))
+
 ## [1.79.8](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.79.7...v1.79.8) (2026-01-14)
 
 

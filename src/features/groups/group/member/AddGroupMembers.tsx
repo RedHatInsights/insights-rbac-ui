@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
@@ -11,8 +10,7 @@ import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import { addMembersToGroup, fetchGroup, fetchGroups, fetchMembersForGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
+import { useAddMembersToGroupMutation, useGroupQuery } from '../../../../data/queries/groups';
 import { UsersList } from '../../add-group/components/stepUsers/UsersList';
 import { ActiveUsers } from '../../../../components/user-management/ActiveUsers';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
@@ -28,27 +26,24 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
   onDefaultGroupChanged,
   fetchUuid,
   groupName: name,
-  afterSubmit,
 }) => {
-  const chrome = useChrome();
   const intl = useIntl();
   const navigate = useAppNavigate();
   const { groupId: uuid } = useParams<{ groupId: string }>();
-  const dispatch = useDispatch();
   const isITLess = useFlag('platform.rbac.itless');
   const addNotification = useAddNotification();
 
-  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<Array<{ username: string; uuid?: string }>>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // Use fetchUuid for default groups, otherwise use route param
   const groupId = isDefault && fetchUuid ? fetchUuid : uuid;
 
-  useEffect(() => {
-    if (!name && groupId) {
-      dispatch(fetchGroup(groupId));
-    }
-  }, [name, groupId, dispatch]);
+  // Fetch group data via React Query (only if name not provided)
+  useGroupQuery(groupId ?? '', { enabled: !name && !!groupId });
+
+  // Add members mutation - handles notifications and cache invalidation automatically
+  const addMembersMutation = useAddMembersToGroupMutation();
 
   const onSubmit = () => {
     // If this is a default group that hasn't been changed yet, show confirmation modal
@@ -60,46 +55,28 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
     handleAddMembers();
   };
 
-  const handleAddMembers = () => {
-    const userList = selectedUsers.map((user) => ({ username: user.username || user.label }));
-    if (userList.length > 0) {
+  const handleAddMembers = async () => {
+    const usernames = selectedUsers.map((user) => user.username).filter(Boolean);
+    if (usernames.length > 0 && groupId) {
       addNotification({
         variant: 'info',
-        title: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
-        description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
+        title: intl.formatMessage(usernames.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
+        description: intl.formatMessage(usernames.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
       });
-      (dispatch(addMembersToGroup(groupId!, userList)) as any)
-        .then(() => {
-          addNotification({
-            variant: 'success',
-            title: intl.formatMessage(userList.length > 1 ? messages.addGroupMembersSuccessTitle : messages.addGroupMemberSuccessTitle),
-            description: intl.formatMessage(
-              userList.length > 1 ? messages.addGroupMembersSuccessDescription : messages.addGroupMemberSuccessDescription,
-            ),
-          });
-          // If we just modified a default group, re-fetch to get the updated name
-          if (isDefault && !isChanged) {
-            dispatch(fetchGroup(groupId!));
-          }
-          dispatch(fetchMembersForGroup(groupId!));
-          dispatch(fetchGroups({ usesMetaInURL: true, chrome }));
-          afterSubmit && afterSubmit();
-        })
-        .catch((error: Error) => {
-          addNotification({
-            variant: 'danger',
-            title: intl.formatMessage(userList.length > 1 ? messages.addGroupMembersErrorTitle : messages.addGroupMemberErrorTitle),
-            description: intl.formatMessage(userList.length > 1 ? messages.addGroupMembersErrorDescription : messages.addGroupMemberErrorDescription),
-          });
-          console.error('Failed to add members to group:', error);
-        });
+
+      try {
+        await addMembersMutation.mutateAsync({ groupId, usernames });
+        // Success notification is handled by the mutation
+      } catch (error) {
+        // Error notification is handled by the mutation
+        console.error('Failed to add members to group:', error);
+      }
     }
     navigate(cancelRoute);
   };
 
   const handleConfirm = () => {
     setShowConfirmModal(false);
-    dispatch(invalidateSystemGroup());
     // Show the alert that the default group has been changed
     if (onDefaultGroupChanged) {
       onDefaultGroupChanged(true);

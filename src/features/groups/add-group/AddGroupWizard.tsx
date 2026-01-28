@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
 
@@ -8,9 +7,7 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { schemaBuilder } from './schema';
-import { addGroup, addServiceAccountsToGroup } from '../../../redux/groups/actions';
-import { ServiceAccount } from '../../../redux/service-accounts/types';
-import { Group, PrincipalIn } from '@redhat-cloud-services/rbac-client/types';
+import { type ServiceAccount, useAddServiceAccountsToGroupMutationV1, useCreateGroupMutation } from '../../../data/queries/groups';
 import { SetName } from './components/stepName/SetName';
 import { SetRoles } from './components/stepRoles/SetRoles';
 import { SetUsers } from './components/stepUsers/SetUsers';
@@ -39,10 +36,13 @@ interface AddGroupWizardProps {
 }
 
 export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const chrome = useChrome();
   const addNotification = useAddNotification();
+
+  // React Query mutations
+  const createGroupMutation = useCreateGroupMutation();
+  const addServiceAccountsMutation = useAddServiceAccountsToGroupMutationV1();
 
   // Feature flags for wizard configuration
   const enableServiceAccounts =
@@ -89,11 +89,8 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
       'service-accounts-list': serviceAccounts,
     } = formData;
 
-    // Prepare all group data for single API call
-    const groupData: Group & {
-      user_list?: PrincipalIn[];
-      roles_list?: string[];
-    } = {
+    // Prepare group data
+    const groupData = {
       name,
       description,
       // Add users if any are selected
@@ -110,33 +107,21 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
         }
       }
 
-      // Create group with all data in one call
-      const newGroupAction = dispatch(addGroup(groupData)) as unknown as Promise<Group | { value?: Group; [key: string]: unknown }>;
-      const newGroup = await newGroupAction;
-
-      // Extract the created group data from redux-promise-middleware response structure
-      const createdGroup = (newGroup as { value?: Group })?.value || (newGroup as Group);
+      // Create group with React Query mutation
+      const createdGroup = await createGroupMutation.mutateAsync(groupData);
 
       // Check if group creation actually succeeded
-      if (!createdGroup) {
-        throw new Error('Group creation failed: No group returned');
-      }
-
-      // Cast to handle both Group and error response types
-      const groupResponse = createdGroup as Group & { error?: boolean; uuid?: string };
-
-      if (groupResponse?.error) {
-        throw new Error('Group creation returned error: ' + JSON.stringify(createdGroup));
-      }
-      if (!groupResponse.uuid) {
-        throw new Error('Group creation failed: No UUID returned. Response: ' + JSON.stringify(createdGroup));
+      if (!createdGroup?.uuid) {
+        throw new Error('Group creation failed: No UUID returned.');
       }
 
       // Handle service accounts separately (if enabled)
       if (serviceAccounts && serviceAccounts.length > 0) {
-        const serviceAccountObjects = serviceAccounts.map((sa) => ({ uuid: sa.uuid }));
-        const serviceAccountAction = dispatch(addServiceAccountsToGroup(groupResponse.uuid, serviceAccountObjects)) as { payload: Promise<unknown> };
-        await serviceAccountAction.payload;
+        await addServiceAccountsMutation.mutateAsync({
+          groupId: createdGroup.uuid,
+          // ServiceAccount has uuid (which is clientId) - mutation expects string array of clientIds
+          serviceAccounts: serviceAccounts.map((sa) => sa.uuid),
+        });
       }
 
       // Success! Show notification

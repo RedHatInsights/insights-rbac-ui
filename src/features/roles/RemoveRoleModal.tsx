@@ -1,19 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { ButtonVariant } from '@patternfly/react-core';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
-import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
-import { removeRole } from '../../redux/roles/actions';
-import { fetchRole } from '../../redux/roles/helper';
-import { roleNameSelector } from './roleSelectors';
+import { useDeleteRoleMutation, useRoleQuery } from '../../data/queries/roles';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
-import type { RBACStore } from '../../redux/store.d';
 
 type RouteLocation =
   | string
@@ -34,52 +29,32 @@ const RemoveRoleModal: React.FC<RemoveRoleModalProps> = ({ cancelRoute, submitRo
   const intl = useIntl();
   const { roleId } = useParams<{ roleId: string }>();
   const roles = roleId?.split(',') || [];
-  const roleName = useSelector((state: RBACStore) => {
-    if (roles.length === 1) {
-      return roleNameSelector(state, roles[0]);
-    }
-
-    return roles.length;
-  });
-  const [internalRoleName, setInternalRoleName] = useState<string | number | undefined>(roleName);
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
-  const addNotification = useAddNotification();
+  const deleteRoleMutation = useDeleteRoleMutation();
 
-  useEffect(() => {
-    if (roles && roleName) {
-      setInternalRoleName(roleName);
-    } else if (roles && roles.length === 1) {
-      fetchRole(roles[0])
-        .then((role) => setInternalRoleName(role.display_name))
-        .catch((error: { errors?: { detail?: string }[] }) =>
-          addNotification({ variant: 'danger', title: 'Could not get role', description: error?.errors?.[0]?.detail }),
-        );
-    }
-  }, [roleName, roles.join(',')]);
+  // Fetch role data for single role deletion (to display the name)
+  const singleRoleId = roles.length === 1 ? roles[0] : '';
+  const { data: roleData } = useRoleQuery(singleRoleId);
+
+  // Role name: either the fetched role's display_name or the count for bulk delete
+  const roleName = roles.length === 1 ? roleData?.display_name : roles.length;
 
   const onSubmit = async () => {
     try {
-      await Promise.all(roles.map((id) => (dispatch(removeRole(id)) as any).payload));
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.removeRoleSuccessTitle),
-        description: intl.formatMessage(messages.removeRoleSuccessDescription),
-      });
+      // Delete all roles (supports bulk deletion)
+      await Promise.all(roles.map((id) => deleteRoleMutation.mutateAsync(id)));
       afterSubmit();
     } catch (error) {
       console.error('Failed to remove role:', error);
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.removeRoleErrorTitle),
-        description: intl.formatMessage(messages.removeRoleErrorDescription),
-      });
+      // Error notification is handled by useDeleteRoleMutation
     }
     navigate(submitRoute);
   };
 
   const onCancel = () => navigate(cancelRoute, { replace: true });
-  if (!internalRoleName) {
+
+  // Don't render until we have the role name (for single role) or immediately for bulk delete
+  if (roles.length === 1 && !roleName) {
     return null;
   }
 
@@ -100,7 +75,7 @@ const RemoveRoleModal: React.FC<RemoveRoleModalProps> = ({ cancelRoute, submitRo
             {...messages.roleWilBeRemovedWithPermissions}
             values={{
               strong: (text: React.ReactNode) => <strong>{text}</strong>,
-              name: internalRoleName,
+              name: roleName,
               count: roles.length,
             }}
           />

@@ -14,7 +14,7 @@ import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import { WarningModal } from '@patternfly/react-component-groups';
-import { Workspace } from '../../../redux/workspaces/reducer';
+import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { Outlet } from 'react-router-dom';
 import pathnames from '../../../utilities/pathnames';
 import paths from '../../../utilities/pathnames';
@@ -33,7 +33,7 @@ enum ActionType {
 
 interface WorkspaceActionsProps {
   isDisabled?: boolean;
-  currentWorkspace: Workspace;
+  currentWorkspace: WorkspacesWorkspace;
   hasAssets: boolean;
 }
 
@@ -84,7 +84,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
       setIsDeleteModalOpen(true);
     }
     if (action === ActionType.EDIT_WORKSPACE) {
-      navigate(paths['edit-workspace'].link.replace(':workspaceId', currentWorkspace.id));
+      navigate(paths['edit-workspace'].link.replace(':workspaceId', currentWorkspace.id ?? ''));
     }
   };
 

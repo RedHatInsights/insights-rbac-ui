@@ -1,0 +1,143 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Management Fabric/Access Management/V2 API Strategy" />
+
+# RBAC V2 API Strategy
+
+> **Source:** RBAC v2 specs review meeting (Jan 13, 2026)
+
+---
+
+## Summary
+
+V2 APIs are being rolled out **incrementally** with feature flag control. Both V1 and V2 experiences must be supported during the rollout period.
+
+**Timeline:** V2 role and role binding APIs estimated at **4-6 weeks** from Jan 13, 2026.
+
+---
+
+## Feature Flag
+
+| Flag | Purpose |
+|------|---------|
+| `platform.rbac.workspaces` | **M5 Master Flag** - Controls V2 enablement including workspaces and roles |
+
+- Initially limited to **handpicked customers** via organization IDs
+- May have a secondary M5 flag for granular rollout control
+
+---
+
+## API Status by Feature
+
+### Roles
+
+| Operation | API Version | Endpoint | Status |
+|-----------|-------------|----------|--------|
+| List roles | **V2 (NEW)** | `GET /api/rbac/v2/roles/` | ⚠️ Planned - Currently using V1 |
+| Get role by UUID | **V2 (NEW)** | `GET /api/rbac/v2/roles/:uuid/` | ⚠️ Planned |
+| Create role | **V2 (NEW)** | `POST /api/rbac/v2/roles/` | ⚠️ Planned |
+| Edit role | **V2 (NEW)** | `PUT /api/rbac/v2/roles/:uuid/` | ⚠️ Planned |
+| Delete role | **V2 (NEW)** | `DELETE /api/rbac/v2/roles/:uuid/` | ⚠️ Planned - Currently using V1 |
+| List permissions | **V2 (NEW)** | `GET /api/rbac/v2/permissions/` | ⚠️ Planned |
+
+**Notes from Meeting:**
+- ✅ Roles table columns: **Name, Description, Permissions count, Last modified**
+- ❌ **Removed from design:** Workspaces and User groups columns (were included by mistake)
+- Sorting limited to **name** and **last modified** (parity with V1)
+- Pagination supported, but **NOT for permissions** within a single role view (M5)
+- ✅ **Bulk delete supported**; ❌ Bulk edit NOT supported
+- Create/Edit APIs should **return the created/updated role object** (per Riccardo's request)
+
+---
+
+### Role Bindings
+
+| Operation | API Version | Endpoint | Status |
+|-----------|-------------|----------|--------|
+| Role bindings by role | **V1 (existing)** | `GET /api/rbac/v1/roles/:uuid/bindings/` | ✅ Use V1 |
+| Role bindings by subject | **V1 (existing)** | `GET /api/rbac/v1/bindings/` | ✅ Use V1 |
+| CRUD role bindings | **TBD** | TBD | ⚠️ Under discussion |
+
+**Notes:**
+- Shows assigned user groups and workspaces for a role
+- Definitive API approach still under discussion (separate CRUD vs single PATCH)
+
+---
+
+### User Groups
+
+| Operation | API Version | Endpoint | Status |
+|-----------|-------------|----------|--------|
+| List user groups | **V1** | `GET /api/rbac/v1/groups/` | ✅ Use V1 |
+| Get user group | **V1** | `GET /api/rbac/v1/groups/:uuid/` | ✅ Use V1 |
+| Create user group | **V1** | `POST /api/rbac/v1/groups/` | ✅ Use V1 |
+| Update user group | **V1** | `PUT /api/rbac/v1/groups/:uuid/` | ✅ Use V1 |
+| Delete user group | **V1** | `DELETE /api/rbac/v1/groups/:uuid/` | ✅ Use V1 |
+| Add members | **V1** | `POST /api/rbac/v1/groups/:uuid/principals/` | ✅ Use V1 |
+| Remove members | **V1** | `DELETE /api/rbac/v1/groups/:uuid/principals/` | ✅ Use V1 |
+| Edit flow (users + SAs) | **V2 (NEW)** | TBD | ⚠️ May require V2 |
+
+**Notes:**
+- User groups table simplified: **removed roles and workspaces columns**
+- Sorting limited to user group name and last modified
+- **Most V1 APIs can be reused**
+- Edit flow for updating users AND service accounts **may need V2**
+
+---
+
+### Users (Principals)
+
+| Operation | API Version | Endpoint | Status |
+|-----------|-------------|----------|--------|
+| List users | **V1** | `GET /api/rbac/v1/principals/` | ✅ Use V1 |
+| Change user status | **External** | IT API | ✅ Use existing |
+
+---
+
+### Service Accounts
+
+| Operation | API Version | Endpoint | Status |
+|-----------|-------------|----------|--------|
+| List service accounts | **SSO API** | `/auth/realms/.../apis/service_accounts/v1` | ✅ Use existing |
+
+---
+
+## Current Implementation Status
+
+The UI currently uses:
+- **V1 APIs** for all roles operations (via `RolesWithWorkspaces` component)
+- **V1 APIs** for all user groups operations
+- Feature flag `platform.rbac.workspaces` enables the new UI components but they **still call V1 APIs**
+
+### What's Working Now (V1)
+
+```
+✅ Roles CRUD           → /api/rbac/v1/roles/
+✅ Permissions listing  → /api/rbac/v1/access/
+✅ Role bindings        → /api/rbac/v2/role-bindings/
+✅ User groups CRUD     → /api/rbac/v1/groups/
+✅ Users listing        → /api/rbac/v1/principals/
+```
+
+---
+
+## GAPs to Address When V2 APIs Are Ready
+
+| Priority | Gap | Action Required |
+|----------|-----|-----------------|
+| 🔴 High | Roles List | Switch `RolesWithWorkspaces` to V2 `GET /api/rbac/v2/roles/` |
+| 🔴 High | Role Delete | Switch to V2 `DELETE /api/rbac/v2/roles/:uuid/` |
+| 🔴 High | Role Create/Edit | Implement V2 create/edit endpoints |
+| 🟡 Medium | Permissions Listing | Use V2 permissions API for role editing |
+| 🟡 Medium | MSW Handlers | Update Storybook handlers from V1 to V2 |
+| 🟢 Low | Bulk Delete | Verify V2 supports bulk delete |
+
+---
+
+## Meeting Action Items
+
+1. **Sneha Gunta** will share the spec for the roles views (within a couple of days)
+2. **Keith Walsh** will add two questions to the agenda for the next call:
+   - How the selected functionality should work from a UX perspective
+   - Confirming with UX about bulk delete vs bulk edit ambiguity
+3. **Follow-up session** to go over user groups principal and permission APIs when more details are available

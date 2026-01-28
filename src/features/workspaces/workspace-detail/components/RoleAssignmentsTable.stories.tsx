@@ -3,7 +3,7 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { RoleAssignmentsTable } from './RoleAssignmentsTable';
-import { Group } from '../../../../redux/groups/reducer';
+import { type Group } from '../../../../data/queries/groups';
 import { HttpResponse, http } from 'msw';
 
 // Mock group data
@@ -389,7 +389,7 @@ export const PaginationTest: Story = {
 
     // Verify the callback was called and the second argument is the page number
     await expect(args.onSetPage).toHaveBeenCalled();
-    const mockFn = args.onSetPage as any;
+    const mockFn = args.onSetPage as jest.Mock;
     const lastCall = mockFn.mock.calls[mockFn.mock.calls.length - 1];
     expect(lastCall[1]).toBe(2); // Second argument should be the page number
   },

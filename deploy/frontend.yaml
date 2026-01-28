@@ -64,13 +64,6 @@ objects:
               args:
                 - platform.rbac.workspaces-list
                 - true
-        - section: iam
-          group: iam
-          id: serviceAccounts
-          href: /iam/service-accounts
-          title: Service Accounts
-          description: Authenticate and connect securely to APIs from multiple services.
-          icon: ServicesIcon
       bundleSegments:
         - segmentId: module-rbac-ui
           bundleId: iam
@@ -118,19 +111,13 @@ objects:
                   product: Identity & Access Management
                 - id: roles
                   title: Roles
-                  href: /iam/user-access/roles
-                  permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
-                - id: service-accounts
-                  title: Service Accounts
-                  href: /iam/service-accounts
+                  href: /iam/access-management/roles
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
                 - id: workspaces
                   title: Workspaces
-                  href: /iam/user-access/workspaces
+                  href: /iam/access-management/workspaces
                   icon: PlaceholderIcon
                   permissions:
                     - method: featureFlag
@@ -175,14 +162,6 @@ objects:
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
-            - id: learning-resources
-              title: Learning Resources
-              href: /iam/learning-resources
-              permissions:
-                - method: featureFlag
-                  args:
-                    - platform.rbac.workspaces-organization-management
-                    - true
             # Legacy navigation structure (when new feature flag is off)
             - id: my-user-access
               title: My User Access

@@ -16,10 +16,10 @@ import messages from '../../../../../Messages';
 
 interface SetNameProps {
   name: string;
-  // Data-driven-forms props
-  input?: any;
-  meta?: any;
-  [key: string]: any;
+  // Data-driven-forms pass-through props
+  input?: { onChange: (value: unknown) => void; value: unknown };
+  meta?: { error?: string; touched?: boolean };
+  [key: string]: unknown;
 }
 
 const groupNameValidated = (groupName?: string, groupNameError?: string): 'error' | 'default' =>

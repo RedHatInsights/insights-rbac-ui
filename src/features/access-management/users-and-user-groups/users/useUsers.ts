@@ -1,25 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
+import { useCallback, useMemo, useState } from 'react';
 
-import { useDataViewFilters, useDataViewPagination, useDataViewSelection, useDataViewSort } from '@patternfly/react-data-view';
-
-import { fetchUsers } from '../../../../redux/users/actions';
-import { selectIsUsersLoading, selectUsers, selectUsersTotalCount } from '../../../../redux/users/selectors';
-import { mappedProps } from '../../../../helpers/dataUtilities';
+import { useTableState } from '../../../../components/table-view/hooks/useTableState';
+import { type User, useUsersQuery } from '../../../../data/queries/users';
 import { defaultSettings } from '../../../../helpers/pagination';
-import { User } from '../../../../redux/users/reducer';
-
-import type {} from '@patternfly/react-data-view';
-
-// Import the exact type that fetchUsers expects
-interface FetchUsersApiProps {
-  limit?: number;
-  offset?: number;
-  orderBy?: string;
-  filters?: any;
-  usesMetaInURL?: boolean;
-}
+import { type SortableColumnId, standardColumns } from './components/useUsersTableConfig';
 
 export interface UsersFilters {
   username: string;
@@ -42,104 +26,67 @@ export interface UseUsersReturn {
   orgAdmin: boolean;
   userAccessAdministrator: boolean;
 
-  // DataView hooks
-  filters: ReturnType<typeof useDataViewFilters<UsersFilters>>['filters'];
+  // Table state from useTableState
+  tableState: ReturnType<typeof useTableState<typeof standardColumns, User, SortableColumnId, never>>;
+
+  // Convenience accessors for backwards compatibility
+  filters: UsersFilters;
   sortBy: string;
   direction: 'asc' | 'desc';
-  onSort: ReturnType<typeof useDataViewSort>['onSort'];
-  pagination: ReturnType<typeof useDataViewPagination>;
-  selection: ReturnType<typeof useDataViewSelection>;
 
   // User focus for drawer
   focusedUser: User | null;
   setFocusedUser: (user: User | null) => void;
 
   // Actions
-  fetchData: (params: FetchUsersApiProps) => void;
+  refetch: () => void;
   handleRowClick: (user: User) => void;
-
-  // Clear all filters
-  clearAllFilters: () => void;
-  onSetFilters: ReturnType<typeof useDataViewFilters<UsersFilters>>['onSetFilters'];
 }
 
 /**
- * Custom hook for managing Users business logic
+ * Custom hook for managing Users business logic.
+ * Uses useTableState for all table state and React Query for data fetching.
  */
 export const useUsers = (options: UseUsersOptions = {}): UseUsersReturn => {
   const { enableAdminFeatures = true } = options;
 
-  const dispatch = useDispatch();
-  const [searchParams, setSearchParams] = useSearchParams();
-
   // Focus state for drawer
   const [focusedUser, setFocusedUser] = useState<User | null>(null);
 
-  // Data view hooks - use search params for persistence
-  const { sortBy, direction, onSort } = useDataViewSort({
-    searchParams,
-    setSearchParams,
-    initialSort: {
-      sortBy: 'username',
-      direction: 'asc',
-    },
-  });
-
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<UsersFilters>({
+  // useTableState handles ALL table state with URL synchronization
+  const tableState = useTableState<typeof standardColumns, User, SortableColumnId>({
+    columns: standardColumns,
+    sortableColumns: ['username'] as const,
+    initialSort: { column: 'username', direction: 'asc' },
+    initialPerPage: defaultSettings.limit,
     initialFilters: { username: '', email: '', status: '' },
-    searchParams,
-    setSearchParams,
+    getRowId: (user) => user.username,
+    syncWithUrl: true, // Page-level tables sync with URL
   });
 
-  const pagination = useDataViewPagination({
-    perPage: defaultSettings.limit,
-    searchParams,
-    setSearchParams,
+  // Use React Query for data fetching - using apiParams from tableState
+  const { data, isLoading, refetch } = useUsersQuery({
+    limit: tableState.apiParams.limit,
+    offset: tableState.apiParams.offset,
+    orderBy: tableState.sort?.column || 'username',
+    username: (tableState.apiParams.filters.username as string) || undefined,
+    email: (tableState.apiParams.filters.email as string) || undefined,
+    status: (tableState.apiParams.filters.status as 'enabled' | 'disabled' | 'all') || undefined,
+    sortOrder: tableState.sort?.direction || 'asc',
   });
 
-  const selection = useDataViewSelection({
-    matchOption: (a, b) => a.username === b.username,
-  });
-
-  // Redux selectors with proper typing - using memoized selectors
-  const users = useSelector(selectUsers);
-  const isLoading = useSelector(selectIsUsersLoading);
-  const totalCount = useSelector(selectUsersTotalCount);
+  // Extract data from typed query response
+  const users = useMemo(() => (data?.users ?? []) as User[], [data]);
+  const totalCount = useMemo(() => data?.totalCount ?? 0, [data]);
 
   // Permission context
-  const orgAdmin = enableAdminFeatures; // Simplified for now
-  const userAccessAdministrator = enableAdminFeatures; // Simplified for now
-
-  // Fetch data function
-  const fetchData = useCallback(
-    (params: FetchUsersApiProps) => {
-      // mappedProps expects Record<string, unknown>, so we cast back
-      const mappedParams = mappedProps(params as Record<string, unknown>);
-      const payload: FetchUsersApiProps = {
-        ...mappedParams,
-        usesMetaInURL: true,
-      };
-      dispatch(fetchUsers(payload));
-    },
-    [dispatch],
-  );
-
-  // Auto-fetch when dependencies change
-  useEffect(() => {
-    const { page, perPage } = pagination;
-    const limit = perPage;
-    const offset = (page - 1) * perPage;
-    const orderBy = sortBy || 'username';
-    const filtersForApi = filters;
-
-    fetchData({ limit, offset, orderBy, filters: filtersForApi });
-  }, [fetchData, pagination.page, pagination.perPage, sortBy, filters.username]);
+  const orgAdmin = enableAdminFeatures;
+  const userAccessAdministrator = enableAdminFeatures;
 
   // Handle row click for user focus
   const handleRowClick = useCallback(
     (user: User) => {
       setFocusedUser(user);
-      // Note: DataView events context integration can be added later if needed
     },
     [setFocusedUser],
   );
@@ -154,24 +101,24 @@ export const useUsers = (options: UseUsersOptions = {}): UseUsersReturn => {
     orgAdmin: enableAdminFeatures && orgAdmin,
     userAccessAdministrator: enableAdminFeatures && userAccessAdministrator,
 
-    // DataView hooks
-    filters,
-    sortBy: sortBy || 'username',
-    direction: direction || 'asc',
-    onSort,
-    pagination,
-    selection,
+    // Full table state
+    tableState,
+
+    // Convenience accessors for backwards compatibility
+    filters: {
+      username: (tableState.filters.username as string) || '',
+      email: (tableState.filters.email as string) || '',
+      status: (tableState.filters.status as string) || '',
+    } as UsersFilters,
+    sortBy: tableState.sort?.column || 'username',
+    direction: tableState.sort?.direction || 'asc',
 
     // User focus for drawer
     focusedUser,
     setFocusedUser,
 
     // Actions
-    fetchData,
+    refetch,
     handleRowClick,
-
-    // Clear all filters
-    clearAllFilters,
-    onSetFilters,
   };
 };
