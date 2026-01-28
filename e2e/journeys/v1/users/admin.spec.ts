@@ -4,70 +4,132 @@
  * Tests for the V1 Users page (/iam/user-access/users) with admin privileges.
  * Admin users can view all users in the organization.
  *
+ * V1 Pattern:
+ * - View details: Uses page navigation (link click)
+ *
  * Note: Users are managed externally (SSO), so we don't have CRUD lifecycle tests.
- * These tests focus on viewing and filtering users.
+ * These tests use the admin username (RBAC_USERNAME) for filtering and detail view.
  */
 
-import { AUTH_V1_ADMIN, expect, setupPage, test, waitForTableUpdate } from '../../../utils';
+import { expect, test } from '@playwright/test';
+import { AUTH_V1_ADMIN, getAdminUsername, setupPage, waitForTableUpdate } from '../../../utils';
 
 test.use({ storageState: AUTH_V1_ADMIN });
 
-test.describe('V1 Users - Admin', () => {
-  const USERS_URL = '/iam/user-access/users';
+const USERS_URL = '/iam/user-access/users';
 
-  test.beforeEach(async ({ page }) => {
+// Get the admin username we're logged in as
+const ADMIN_USERNAME = getAdminUsername();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// JOURNEY: USERS TABLE AND DETAIL PAGE
+// ═══════════════════════════════════════════════════════════════════════════
+
+test.describe('V1 Users - Admin', () => {
+  test('Can view and filter users', async ({ page }) => {
+    test.skip(!ADMIN_USERNAME, 'RBAC_USERNAME not set - cannot verify user filtering');
     await setupPage(page);
     await page.goto(USERS_URL);
-    // Wait for page content to load (heading indicates data is ready)
-    await expect(page.getByRole('heading', { name: /users/i })).toBeVisible();
-  });
 
-  /**
-   * Verify user table has expected columns
-   */
-  test('Users table displays data', async ({ page }) => {
-    // Should have at least one user row
-    const rows = page.locator('tbody tr');
-    await expect(rows.first()).toBeVisible();
-  });
+    await test.step('Verify page loads with users table', async () => {
+      await expect(page.getByRole('heading', { name: /users/i })).toBeVisible();
+      const grid = page.getByRole('grid');
+      await expect(grid).toBeVisible();
+    });
 
-  /**
-   * Can search/filter users
-   */
-  test('Can filter users', async ({ page }) => {
-    const searchInput = page.getByPlaceholder(/filter|search/i);
+    await test.step('Verify table has expected columns', async () => {
+      // V1 Users table should have Username, Email, First name, Last name, Status columns
+      await expect(page.getByRole('columnheader', { name: /username/i })).toBeVisible();
+      await expect(page.getByRole('columnheader', { name: /status/i })).toBeVisible();
+    });
 
-    if (await searchInput.isVisible()) {
-      await searchInput.fill('test');
+    await test.step('Filter users by admin username', async () => {
+      const searchInput = page.getByRole('searchbox').or(page.getByPlaceholder(/filter|search/i));
+      await expect(searchInput).toBeVisible();
 
-      // Wait for filter to apply - table should still be visible
+      // Filter by the admin username we're logged in as
+      await searchInput.fill(ADMIN_USERNAME!);
       await waitForTableUpdate(page);
+
+      // Verify the admin user appears in filtered results (exact match link)
+      await expect(page.getByRole('grid').getByRole('link', { name: ADMIN_USERNAME!, exact: true })).toBeVisible({ timeout: 10000 });
+    });
+
+    await test.step('Clear filter and verify table resets', async () => {
+      const searchInput = page.getByRole('searchbox').or(page.getByPlaceholder(/filter|search/i));
+      await searchInput.clear();
+      await waitForTableUpdate(page);
+
+      // Verify table has rows
       await expect(page.getByRole('grid')).toBeVisible();
-    }
+    });
   });
 
-  /**
-   * Can view user detail
-   */
-  test('Can view user detail', async ({ page }) => {
-    const firstUserLink = page.locator('tbody tr').first().getByRole('link').first();
+  test('Can view user detail page', async ({ page }) => {
+    test.skip(!ADMIN_USERNAME, 'RBAC_USERNAME not set - cannot verify user detail');
+    await setupPage(page);
+    await page.goto(USERS_URL);
+    await expect(page.getByRole('heading', { name: /users/i })).toBeVisible();
 
-    if (await firstUserLink.isVisible()) {
-      await firstUserLink.click();
+    await test.step('Search for admin user', async () => {
+      const searchInput = page.getByRole('searchbox').or(page.getByPlaceholder(/filter|search/i));
+      await searchInput.fill(ADMIN_USERNAME!);
+      await waitForTableUpdate(page);
 
-      // Wait for detail page to load
-      await expect(page).toHaveURL(/\/users\//);
-    }
+      // Verify admin user is visible (exact match to avoid matching similar usernames)
+      const userLink = page.getByRole('grid').getByRole('link', { name: ADMIN_USERNAME!, exact: true });
+      await expect(userLink).toBeVisible({ timeout: 10000 });
+    });
+
+    await test.step('Click user link to navigate to detail page', async () => {
+      // V1 uses links for navigation - click on the exact admin username link
+      const userLink = page.getByRole('grid').getByRole('link', { name: ADMIN_USERNAME!, exact: true });
+      await userLink.click();
+
+      // Should navigate to user detail page
+      await expect(page).toHaveURL(/\/users\//, { timeout: 10000 });
+    });
+
+    await test.step('Verify detail page header', async () => {
+      // Detail page should have heading with username
+      await expect(page.getByRole('heading', { name: ADMIN_USERNAME! })).toBeVisible({ timeout: 5000 });
+    });
+
+    await test.step('Verify roles table on detail page', async () => {
+      // V1 user detail page shows roles assigned to the user
+      const rolesTable = page.getByRole('grid');
+
+      // Table may have roles or show empty state
+      const tableVisible = await rolesTable.isVisible().catch(() => false);
+      const emptyState = page.getByText(/no roles|no results/i);
+      const emptyVisible = await emptyState.isVisible().catch(() => false);
+
+      expect(tableVisible || emptyVisible).toBe(true);
+    });
+
+    await test.step('Navigate back to users list', async () => {
+      // Use back navigation or click Users breadcrumb
+      const usersBreadcrumb = page.getByRole('link', { name: /users/i });
+      if (await usersBreadcrumb.isVisible().catch(() => false)) {
+        await usersBreadcrumb.click();
+      } else {
+        await page.goto(USERS_URL);
+      }
+      await expect(page.getByRole('heading', { name: /users/i })).toBeVisible();
+    });
   });
 
-  /**
-   * Admin can invite users (if feature is available)
-   */
-  test('Invite users option may be visible', async ({ page }) => {
-    // This may vary based on environment/feature flags
-    const inviteButton = page.getByRole('button', { name: /invite/i });
-    // Just check if it's present, don't fail if not
-    const isVisible = await inviteButton.isVisible();
-    console.log(`[V1 Users Admin] Invite button visible: ${isVisible}`);
+  test('Admin features are available', async ({ page }) => {
+    await setupPage(page);
+    await page.goto(USERS_URL);
+    await expect(page.getByRole('heading', { name: /users/i })).toBeVisible();
+
+    await test.step('Verify admin actions are available', async () => {
+      // Check for Invite users button (may not be visible in all environments)
+      const inviteButton = page.getByRole('button', { name: /invite/i });
+      const inviteVisible = await inviteButton.isVisible().catch(() => false);
+
+      console.log(`[V1 Users Admin] Invite button visible: ${inviteVisible}`);
+    });
   });
 });

@@ -10,7 +10,7 @@
  * - CRUD lifecycle uses serial mode to maintain state across create → edit → delete
  */
 
-import { AUTH_V2_ADMIN, Page, expect, getSeededWorkspaceData, getSeededWorkspaceName, setupPage, test, waitForTableUpdate } from '../../../utils';
+import { AUTH_V2_ADMIN, expect, getSeededWorkspaceData, getSeededWorkspaceName, setupPage, test, waitForTableUpdate } from '../../../utils';
 
 // Safety rail: Require TEST_PREFIX for any test that creates data
 const TEST_PREFIX = process.env.TEST_PREFIX;
@@ -82,55 +82,39 @@ test.describe('V2 Workspaces - Admin', () => {
   });
 });
 
-/**
- * CRUD Lifecycle Tests
- *
- * These tests run in serial mode to maintain state across:
- * Create → Verify → Edit → Delete → Verify Deleted
- *
- * Structure:
- * 1. "Create workspace" - Needs its own test
- * 2. "Manage workspace lifecycle" - All post-creation operations in one test with steps
- */
-test.describe('V2 Workspaces - Admin CRUD Lifecycle', () => {
-  test.describe.configure({ mode: 'serial' });
+// ═══════════════════════════════════════════════════════════════════════════
+// JOURNEY 2: CRUD LIFECYCLE (Ephemeral Data)
+// ═══════════════════════════════════════════════════════════════════════════
 
+test.describe('V2 Workspaces - Admin CRUD Lifecycle Journey', () => {
+  // Generate unique name for this test run (parallel-safe)
   const timestamp = Date.now();
   const workspaceName = `${TEST_PREFIX}__Lifecycle_Workspace_${timestamp}`;
   const workspaceDescription = 'E2E lifecycle test workspace';
   const editedDescription = 'E2E lifecycle test workspace (edited)';
 
-  let page: Page;
+  const WORKSPACES_URL = '/iam/access-management/workspaces';
 
-  test.beforeAll(async ({ browser }) => {
-    if (!process.env.TEST_PREFIX) {
-      throw new Error('TEST_PREFIX environment variable is required');
-    }
-
-    const context = await browser.newContext({ storageState: AUTH_V2_ADMIN });
-    page = await context.newPage();
+  test('Create → View → Edit → Delete → Verify Deleted', async ({ page }) => {
     await setupPage(page);
 
-    console.log(`\n[V2 Workspaces Admin] Using prefix: ${TEST_PREFIX}`);
-    console.log(`[V2 Workspaces Admin] Workspace name: ${workspaceName}\n`);
-  });
+    console.log(`\n[V2 Workspaces CRUD] Starting lifecycle test`);
+    console.log(`[V2 Workspaces CRUD] Workspace name: ${workspaceName}\n`);
 
-  test.afterAll(async () => {
-    await page.close();
-  });
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 1: CREATE
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 1: Create new workspace via modal', async () => {
+      await page.goto(WORKSPACES_URL);
+      await expect(page.getByRole('heading', { name: /workspaces/i })).toBeVisible();
 
-  /**
-   * Create a new workspace
-   */
-  test('Create workspace', async () => {
-    await page.goto('/iam/access-management/workspaces');
-    await expect(page.getByRole('heading', { name: /workspaces/i })).toBeVisible();
-
-    await test.step('Open modal and fill workspace details', async () => {
+      // Click Create Workspace button
       const createButton = page.getByRole('button', { name: /create workspace/i });
       await expect(createButton).toBeVisible();
+      await expect(createButton).toBeEnabled({ timeout: 10000 });
       await createButton.click();
 
+      // Fill modal form
       const modal = page.locator('[role="dialog"]');
       await expect(modal).toBeVisible({ timeout: 10000 });
 
@@ -142,60 +126,69 @@ test.describe('V2 Workspaces - Admin CRUD Lifecycle', () => {
       if (await descriptionInput.isVisible()) {
         await descriptionInput.fill(workspaceDescription);
       }
-    });
 
-    await test.step('Submit and verify', async () => {
-      const modal = page.locator('[role="dialog"]');
-
+      // Submit
       const submitButton = modal.getByRole('button', { name: /submit|create|save/i });
       await expect(submitButton).toBeEnabled();
       await submitButton.click();
 
       await expect(modal).not.toBeVisible({ timeout: 15000 });
 
+      console.log(`[Create] ✓ Workspace created`);
+    });
+
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 2: VERIFY CREATION
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 2: Verify workspace appears in table', async () => {
       const searchInput = page.getByPlaceholder(/filter|search/i);
       await searchInput.fill(workspaceName);
+      await waitForTableUpdate(page);
+
       await expect(page.getByRole('grid').getByText(workspaceName)).toBeVisible({ timeout: 10000 });
-      console.log(`[Create] Created workspace: ${workspaceName}`);
+
+      console.log(`[Verify] ✓ Workspace found in table`);
     });
-  });
 
-  /**
-   * Manage workspace lifecycle: View → Edit → Delete
-   * Single page load, multiple operations via steps
-   */
-  test('Manage workspace lifecycle', async () => {
-    await page.goto('/iam/access-management/workspaces');
-    await expect(page.getByRole('heading', { name: /workspaces/i })).toBeVisible();
-
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    await searchInput.fill(workspaceName);
-    await expect(page.getByRole('grid').getByText(workspaceName)).toBeVisible({ timeout: 10000 });
-
-    await test.step('View workspace details', async () => {
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 3: VIEW DETAILS
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 3: Navigate to detail page and verify', async () => {
       const workspaceLink = page.getByRole('grid').getByRole('link', { name: workspaceName });
       await workspaceLink.click();
 
+      // Verify detail page loads
       await expect(page.getByRole('heading', { name: workspaceName })).toBeVisible({ timeout: 10000 });
-      console.log(`[View] Verified workspace details: ${workspaceName}`);
 
       // Navigate back to list
-      await page.goto('/iam/access-management/workspaces');
+      await page.goto(WORKSPACES_URL);
       await expect(page.getByRole('heading', { name: /workspaces/i })).toBeVisible();
-      await searchInput.fill(workspaceName);
-      await expect(page.getByRole('grid').getByText(workspaceName)).toBeVisible({ timeout: 10000 });
+
+      console.log(`[View] ✓ Detail page verified`);
     });
 
-    await test.step('Edit workspace description', async () => {
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 4: EDIT
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 4: Edit workspace from kebab menu', async () => {
+      // Search for workspace
+      const searchInput = page.getByPlaceholder(/filter|search/i);
+      await searchInput.fill(workspaceName);
+      await waitForTableUpdate(page);
+      await expect(page.getByRole('grid').getByText(workspaceName)).toBeVisible({ timeout: 10000 });
+
+      // Open kebab menu
       const workspaceRow = page.locator('tbody tr', { has: page.getByText(workspaceName) });
       const kebabButton = workspaceRow.getByRole('button', { name: /actions/i });
       await expect(kebabButton).toBeVisible();
       await kebabButton.click();
 
+      // Click Edit
       const editOption = page.getByRole('menuitem', { name: /edit/i });
       await expect(editOption).toBeVisible();
       await editOption.click();
 
+      // Fill edit modal
       const modal = page.locator('[role="dialog"]');
       await expect(modal).toBeVisible({ timeout: 5000 });
 
@@ -205,30 +198,42 @@ test.describe('V2 Workspaces - Admin CRUD Lifecycle', () => {
         await descriptionInput.fill(editedDescription);
       }
 
+      // Save
       const saveButton = modal.getByRole('button', { name: /save|submit|update/i });
       await expect(saveButton).toBeEnabled();
       await saveButton.click();
       await expect(modal).not.toBeVisible({ timeout: 10000 });
-      console.log(`[Edit] Edited workspace: ${workspaceName}`);
+
+      console.log(`[Edit] ✓ Workspace edited`);
     });
 
-    await test.step('Delete workspace', async () => {
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 5: DELETE
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 5: Delete workspace from kebab menu', async () => {
+      // Search for workspace
+      const searchInput = page.getByPlaceholder(/filter|search/i);
       await searchInput.clear();
       await searchInput.fill(workspaceName);
+      await waitForTableUpdate(page);
       await expect(page.getByRole('grid').getByText(workspaceName)).toBeVisible({ timeout: 10000 });
 
+      // Open kebab menu
       const workspaceRow = page.locator('tbody tr', { has: page.getByText(workspaceName) });
       const kebabButton = workspaceRow.getByRole('button', { name: /actions/i });
       await expect(kebabButton).toBeVisible();
       await kebabButton.click();
 
+      // Click Delete
       const deleteOption = page.getByRole('menuitem', { name: /delete/i });
       await expect(deleteOption).toBeVisible();
       await deleteOption.click();
 
+      // Confirm deletion
       const modal = page.getByRole('dialog');
       await expect(modal).toBeVisible({ timeout: 5000 });
 
+      // Check confirmation checkbox if present
       const checkbox = modal.getByRole('checkbox');
       if (await checkbox.isVisible({ timeout: 2000 }).catch(() => false)) {
         await checkbox.click();
@@ -238,17 +243,23 @@ test.describe('V2 Workspaces - Admin CRUD Lifecycle', () => {
       await expect(confirmButton).toBeEnabled();
       await confirmButton.click();
       await expect(modal).not.toBeVisible({ timeout: 10000 });
-      console.log(`[Delete] Deleted workspace: ${workspaceName}`);
+
+      console.log(`[Delete] ✓ Workspace deleted`);
     });
 
-    await test.step('Verify workspace is deleted', async () => {
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 6: VERIFY DELETION
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 6: Verify workspace is deleted', async () => {
+      const searchInput = page.getByPlaceholder(/filter|search/i);
       await searchInput.clear();
       await searchInput.fill(workspaceName);
       await waitForTableUpdate(page);
 
       await expect(page.getByRole('grid').getByText(workspaceName)).not.toBeVisible({ timeout: 10000 });
-      console.log(`[Verify] Verified deletion: ${workspaceName}`);
-      console.log(`\n[V2 Workspaces Admin] Lifecycle test completed successfully!\n`);
+
+      console.log(`[Verify] ✓ Workspace no longer in table`);
+      console.log(`\n[V2 Workspaces CRUD] Lifecycle test completed successfully!\n`);
     });
   });
 });
