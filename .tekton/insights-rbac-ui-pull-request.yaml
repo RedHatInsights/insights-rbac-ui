@@ -53,14 +53,12 @@ spec:
   - name: chrome-port
     value: "9912"  # Port where chrome assets will be served
 
-  # Application startup script
-  - name: run-app-script
+  # Application startup script  - name: run-app-script
     value: |
       #!/bin/bash
       set -ex
 
       # Start Caddy server to serve application assets
-      # The ConfigMap insights-rbac-ui-app-caddy-config contains the Caddyfile
       caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
 
   # E2E test execution script
@@ -88,16 +86,12 @@ spec:
       # Run Playwright tests
       npm run test:playwright
 
-  # Credentials for E2E tests (TODO: Create these in Vault)
+  # Credentials for E2E tests
   - name: e2e-credentials-secret
-    value: "insights-rbac-ui-credentials-secret"  # TODO: Set up in Vault
+    value: "insights-rbac-ui-credentials-secret"
 
-  # App Caddy ConfigMap (serves app assets on port 8000)
-  - name: app-caddy-config
-    value: "insights-rbac-ui-app-caddy-config"
-
-  # Dev proxy Caddyfile configuration (proxy routing on port 8080)
-  - name: dev-proxy-caddyfile
+  # Frontend proxy routes ConfigMap (proxy routing configuration)
+  - name: frontend-proxy-routes-configmap
     value: "insights-rbac-ui-dev-proxy-caddyfile"
 
   pipelineRef:
