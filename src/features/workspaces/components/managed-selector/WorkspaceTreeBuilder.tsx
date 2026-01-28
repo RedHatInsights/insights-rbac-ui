@@ -1,6 +1,6 @@
+import { WorkspacesWorkspaceTypes } from '@redhat-cloud-services/rbac-client/v2/types';
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import Workspace from './Workspace';
-import WorkspaceType from './WorkspaceType';
 
 export default function buildWorkspaceTree(wps: Workspace[], excludeWorkspaceIds?: string[]): TreeViewWorkspaceItem | undefined {
   if (wps.length == 0) {
@@ -36,7 +36,7 @@ export default function buildWorkspaceTree(wps: Workspace[], excludeWorkspaceIds
 
     // Get the root workspace. The Kessel team has confirmed that there only
     // exists one root workspace per organization. Take the first one found.
-    if (tvwi.workspace.type === WorkspaceType.ROOT && rootWorkspace === undefined) {
+    if (tvwi.workspace.type === WorkspacesWorkspaceTypes.Root && rootWorkspace === undefined) {
       rootWorkspace = tvwi;
     }
 
@@ -44,7 +44,7 @@ export default function buildWorkspaceTree(wps: Workspace[], excludeWorkspaceIds
     // extremely rare case where there is a non-root workspace without a parent
     // ID, we should just log it to help figure out why an incomplete list of
     // workspaces might be shown.
-    if (tvwi.workspace.parent_id === undefined && tvwi.workspace.type !== WorkspaceType.ROOT) {
+    if (tvwi.workspace.parent_id === undefined && tvwi.workspace.type !== WorkspacesWorkspaceTypes.Root) {
       console.warn(
         `WARNING: non-root workspace has no parent ID. It will not be added to the root workspace and might seem like it is missing: ${JSON.stringify(tvwi.workspace)}`,
       );
