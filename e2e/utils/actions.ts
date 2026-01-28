@@ -4,6 +4,7 @@
  */
 
 import { Page, expect } from '@playwright/test';
+import { waitForTreeExpand } from './waiters';
 
 /**
  * Opens a row's kebab menu (actions dropdown) by the row's name
@@ -74,6 +75,6 @@ export async function expandWorkspaceRow(page: Page, workspaceName: string) {
   const isExpanded = await toggleButton.getAttribute('aria-expanded');
   if (isExpanded === 'false') {
     await toggleButton.click();
-    await page.waitForTimeout(500);
+    await waitForTreeExpand(page);
   }
 }
