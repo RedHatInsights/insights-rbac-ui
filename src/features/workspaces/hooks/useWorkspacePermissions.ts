@@ -5,12 +5,12 @@ type WorkspaceResource = { id: string; type: 'workspace' };
 type NonEmptyResources = [WorkspaceResource, ...WorkspaceResource[]];
 
 /**
- * Noop hook that matches useSelfAccessCheck return shape.
- * Used when there are no workspaces to check, avoiding unnecessary API calls.
+ * Dummy resource used when there are no workspaces to check.
+ * This allows us to always call useSelfAccessCheck unconditionally,
+ * maintaining consistent hook order (Rules of Hooks compliance).
  */
-function useNoopAccessCheck() {
-  return { data: [] as const, loading: false };
-}
+const NOOP_RESOURCE: WorkspaceResource = { id: '__noop__', type: 'workspace' };
+const NOOP_RESOURCES: NonEmptyResources = [NOOP_RESOURCE];
 
 interface Workspace {
   id?: string;
@@ -77,30 +77,34 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
     return { workspaceIds: ids, rootId: root };
   }, [workspaces]);
 
+  // Derive hasRealResources directly from workspaceIds
+  const hasRealResources = workspaceIds.length > 0;
+
   // Build resources for bulk checks - explicit tuple construction for type safety
-  const resources = useMemo<NonEmptyResources | null>(() => {
-    if (workspaceIds.length === 0) return null;
+  // Uses NOOP_RESOURCES when empty to maintain consistent hook call order (Rules of Hooks)
+  const resources = useMemo<NonEmptyResources>(() => {
+    if (!hasRealResources) return NOOP_RESOURCES;
     const [first, ...rest] = workspaceIds;
     const toResource = (id: string): WorkspaceResource => ({ id, type: 'workspace' });
     return [toResource(first), ...rest.map(toResource)];
-  }, [workspaceIds]);
+  }, [workspaceIds, hasRealResources]);
 
-  // Bulk check 'edit' permission on all workspaces (noop when no workspaces)
-  const { data: editChecks, loading: editLoading } = resources ? useSelfAccessCheck({ relation: 'edit', resources }) : useNoopAccessCheck();
-
-  // Bulk check 'create' permission on all workspaces (noop when no workspaces)
-  const { data: createChecks, loading: createLoading } = resources ? useSelfAccessCheck({ relation: 'create', resources }) : useNoopAccessCheck();
+  // Always call useSelfAccessCheck unconditionally (Rules of Hooks compliance)
+  // Results are ignored when hasRealResources is false
+  const { data: editChecks, loading: editLoading } = useSelfAccessCheck({ relation: 'edit', resources });
+  const { data: createChecks, loading: createLoading } = useSelfAccessCheck({ relation: 'create', resources });
 
   // Build Sets of allowed IDs for O(1) lookups
+  // No need to filter NOOP_RESOURCE - we guard with hasRealResources
   const editAllowedIds = useMemo(() => {
-    if (!Array.isArray(editChecks)) return new Set<string>();
+    if (!hasRealResources || !Array.isArray(editChecks)) return new Set<string>();
     return new Set(editChecks.filter((c) => c.allowed && c.resource.id).map((c) => c.resource.id));
-  }, [editChecks]);
+  }, [editChecks, hasRealResources]);
 
   const createAllowedIds = useMemo(() => {
-    if (!Array.isArray(createChecks)) return new Set<string>();
+    if (!hasRealResources || !Array.isArray(createChecks)) return new Set<string>();
     return new Set(createChecks.filter((c) => c.allowed && c.resource.id).map((c) => c.resource.id));
-  }, [createChecks]);
+  }, [createChecks, hasRealResources]);
 
   // Stable function references
   const canEdit = useCallback((workspaceId: string): boolean => editAllowedIds.has(workspaceId), [editAllowedIds]);
@@ -109,7 +113,7 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
 
   const canEditAny = editAllowedIds.size > 0;
   const canCreateTopLevel = rootId !== '' && createAllowedIds.has(rootId);
-  const isLoading = resources !== null && (editLoading || createLoading);
+  const isLoading = hasRealResources && (editLoading || createLoading);
 
   return { canEdit, canCreateIn, canEditAny, canCreateTopLevel, isLoading };
 }

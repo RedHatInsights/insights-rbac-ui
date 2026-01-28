@@ -19,6 +19,7 @@ import { useWorkspacesQuery } from '../../../../data/queries/workspaces';
 
 import { ManagedSelector } from '../../components/managed-selector/ManagedSelector';
 import { instanceOfTreeViewWorkspaceItem } from '../../components/managed-selector/TreeViewWorkspaceItem';
+import { findDefaultParentWorkspace } from '../../workspaceTypes';
 import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from '../schema';
 
 export const SetDetails = () => {
@@ -43,7 +44,7 @@ export const SetDetails = () => {
       );
   }, [workspaces.length]);
 
-  const defaultWorkspace = workspaces.find((workspace) => workspace.type === 'default');
+  const defaultWorkspace = findDefaultParentWorkspace(workspaces);
 
   useEffect(() => {
     if (defaultWorkspace && !values[WORKSPACE_PARENT]) {

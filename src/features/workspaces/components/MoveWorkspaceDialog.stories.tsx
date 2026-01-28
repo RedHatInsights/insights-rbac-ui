@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { IntlProvider } from 'react-intl';
 import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { TreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
-import WorkspaceType from './managed-selector/WorkspaceType';
+import { WorkspacesWorkspaceTypes } from '@redhat-cloud-services/rbac-client/v2/types';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { HttpResponse, delay, http } from 'msw';
 
@@ -54,7 +54,7 @@ const mockWorkspaces: WorkspacesWorkspace[] = [
 const convertToTreeViewItem = (workspace: WorkspacesWorkspace): TreeViewWorkspaceItem => ({
   name: workspace.name,
   id: workspace.id,
-  workspace: { ...workspace, type: workspace.type as WorkspaceType },
+  workspace: { ...workspace, type: workspace.type as WorkspacesWorkspaceTypes },
   children: [],
 });
 

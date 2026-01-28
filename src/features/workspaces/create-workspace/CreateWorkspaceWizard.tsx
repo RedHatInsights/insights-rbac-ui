@@ -58,10 +58,13 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
 
   const onSubmit = async (_v: Record<string, unknown>, form: FormApi) => {
     const values = form.getState().values;
+    // Note: parent_id uses optional chaining as defensive coding. In practice,
+    // SetDetails.tsx always sets a default parent via useEffect, and the form
+    // requires a parent selection. If parent_id is undefined, the API will reject it.
     await createWorkspaceMutation.mutateAsync({
       name: values[WORKSPACE_NAME],
       description: values[WORKSPACE_DESCRIPTION],
-      parent_id: values[WORKSPACE_PARENT].id,
+      parent_id: values[WORKSPACE_PARENT]?.id,
     });
     (afterSubmit || defaultAfterSubmit)();
   };

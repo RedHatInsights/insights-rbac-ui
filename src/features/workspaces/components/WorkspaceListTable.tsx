@@ -26,14 +26,9 @@ import useAppNavigate from '../../../hooks/useAppNavigate';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
 import messages from '../../../Messages';
 import { AppLink } from '../../../components/navigation/AppLink';
-import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import pathnames from '../../../utilities/pathnames';
 import paths from '../../../utilities/pathnames';
-
-// Extended workspace type with children for tree view
-interface WorkspaceWithChildren extends WorkspacesWorkspace {
-  children?: WorkspaceWithChildren[];
-}
+import type { WorkspaceFilters, WorkspaceWithChildren, WorkspacesWorkspace } from '../types';
 
 interface WorkspaceListTableProps {
   // Data props
@@ -71,10 +66,6 @@ interface WorkspaceListTableProps {
 
   // Optional children (e.g., modals)
   children?: React.ReactNode;
-}
-
-interface WorkspaceFilters {
-  name: string;
 }
 
 const isValidType = (workspace: WorkspacesWorkspace, validTypes: string[]) => validTypes.includes(workspace.type ?? '');

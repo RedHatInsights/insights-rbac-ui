@@ -6,7 +6,7 @@ import { type WorkspacesWorkspace, useDeleteWorkspaceMutation, useMoveWorkspaceM
 import { useWorkspacePermissions } from './hooks/useWorkspacePermissions';
 import { MoveWorkspaceDialog } from './components/MoveWorkspaceDialog';
 import { TreeViewWorkspaceItem } from './components/managed-selector/TreeViewWorkspaceItem';
-import WorkspaceType from './components/managed-selector/WorkspaceType';
+import { WorkspacesWorkspaceTypes } from '@redhat-cloud-services/rbac-client/v2/types';
 import messages from '../../Messages';
 
 // Convert workspace to TreeViewWorkspaceItem
@@ -17,7 +17,7 @@ const convertToTreeViewItem = (workspace: WorkspacesWorkspace): TreeViewWorkspac
     id: workspace.id ?? '',
     name: workspace.name ?? '',
     description: workspace.description,
-    type: (workspace.type as WorkspaceType) ?? 'standard',
+    type: (workspace.type as WorkspacesWorkspaceTypes) ?? WorkspacesWorkspaceTypes.Standard,
     parent_id: workspace.parent_id ?? '',
   },
   children: [],
