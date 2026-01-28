@@ -16,7 +16,7 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
 import { userGroupsMembership as baseUserGroupsMembership, mockGroups, mockUsers } from './_shared/mockData';
 import { v1Handlers } from './_shared/handlers';
 
@@ -60,7 +60,7 @@ const createTestHandlers = () => [
 
   // Override principals endpoint to include dynamic group count
   http.get('/api/rbac/v1/principals/', async ({ request }) => {
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
     const url = new URL(request.url);
     const limit = parseInt(url.searchParams.get('limit') || '20', 10);
     const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -78,7 +78,7 @@ const createTestHandlers = () => [
 
   // Override groups for user endpoint (used in drawer)
   http.get('/api/rbac/v1/groups/', async ({ request }) => {
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
     const url = new URL(request.url);
     const username = url.searchParams.get('username');
     const limit = parseInt(url.searchParams.get('limit') || '20', 10);
@@ -100,7 +100,7 @@ const createTestHandlers = () => [
 
   // Add members to group - WITH STATE UPDATE
   http.post('/api/rbac/v1/groups/:uuid/principals/', async ({ request, params }) => {
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
     const groupId = params.uuid as string;
     const body = (await request.json()) as { principals: Array<{ username: string }> };
 
@@ -163,7 +163,7 @@ async function verifyUserGroupMembership(
     } else {
       await user.click(userText);
     }
-    await delay(800); // Give more time for drawer to open
+    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN); // Give more time for drawer to open
   }
 
   // Wait for the drawer panel to appear (not hidden)
@@ -172,7 +172,7 @@ async function verifyUserGroupMembership(
       const panel = document.querySelector('.pf-v6-c-drawer__panel-main, .pf-v6-c-drawer__panel:not([hidden])');
       expect(panel).toBeInTheDocument();
     },
-    { timeout: 5000 },
+    { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
   );
   const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel-main, .pf-v6-c-drawer__panel:not([hidden])') as HTMLElement;
   const drawerScope = within(drawerPanel);
@@ -180,7 +180,7 @@ async function verifyUserGroupMembership(
   // Click on User groups tab if not already selected - look for the tab within the drawer
   const userGroupsTab = await drawerScope.findByRole('tab', { name: /user groups/i });
   await user.click(userGroupsTab);
-  await delay(500);
+  await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
   // Find the active tab panel to scope our queries
   // This avoids finding duplicate text in other tabs (e.g., "Admin group" in Roles tab's User Group column)
@@ -199,7 +199,7 @@ async function verifyUserGroupMembership(
   if (closeDrawer) {
     // Close the drawer by pressing Escape
     await user.keyboard('{Escape}');
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
   }
 }
 
@@ -325,7 +325,7 @@ This test performs full end-to-end verification:
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for data to load
-    await delay(800);
+    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
 
     // =========================================================================
     // PRE-CONDITION: Verify "adumble" is NOT in "Powerpuff girls" group
@@ -353,14 +353,14 @@ This test performs full end-to-end verification:
     const adumbleCheckbox = adumbleRowElement?.querySelector('input[type="checkbox"]');
     expect(adumbleCheckbox).toBeInTheDocument();
     await user.click(adumbleCheckbox!);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Click "Add to user group" button
     const addButton = await canvas.findByRole('button', { name: /add to user group/i });
     expect(addButton).toBeInTheDocument();
     expect(addButton).not.toBeDisabled();
     await user.click(addButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify modal opens
     const modal = await within(document.body).findByRole('dialog');
@@ -376,13 +376,13 @@ This test performs full end-to-end verification:
     const powerpuffCheckbox = powerpuffRow?.querySelector('input[type="checkbox"]');
     expect(powerpuffCheckbox).toBeInTheDocument();
     await user.click(powerpuffCheckbox!);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Click Add button
     const confirmAddButton = await modalScope.findByRole('button', { name: /^add$/i });
     expect(confirmAddButton).not.toBeDisabled();
     await user.click(confirmAddButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // =========================================================================
     // API VERIFICATION: Check the API was called with correct data
@@ -397,7 +397,7 @@ This test performs full end-to-end verification:
     expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
 
     // Wait for UI to update
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // =========================================================================
     // POST-CONDITION: Verify "adumble" IS NOW in "Powerpuff girls" group
@@ -449,7 +449,7 @@ export const MultipleUsers: Story = {
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(800);
+    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
 
     // =========================================================================
     // PRE-CONDITION: Verify both users are NOT in "Powerpuff girls"
@@ -470,12 +470,12 @@ export const MultipleUsers: Story = {
     const bbunnyRow = await canvas.findByText('bbunny');
     const bbunnyCheckbox = bbunnyRow.closest('tr')?.querySelector('input[type="checkbox"]');
     await user.click(bbunnyCheckbox!);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Click Add to user group
     const addButton = await canvas.findByRole('button', { name: /add to user group/i });
     await user.click(addButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Select Powerpuff girls in modal
     const modal = await within(document.body).findByRole('dialog');
@@ -483,12 +483,12 @@ export const MultipleUsers: Story = {
     const powerpuffText = await modalScope.findByText('Powerpuff girls');
     const powerpuffCheckbox = powerpuffText.closest('tr')?.querySelector('input[type="checkbox"]');
     await user.click(powerpuffCheckbox!);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Confirm
     const confirmButton = await modalScope.findByRole('button', { name: /^add$/i });
     await user.click(confirmButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // =========================================================================
     // API VERIFICATION
@@ -502,7 +502,7 @@ export const MultipleUsers: Story = {
     // =========================================================================
     // POST-CONDITION: Both users now in group
     // =========================================================================
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await verifyUserGroupMembership(user, canvas, 'adumble', [{ name: 'Powerpuff girls', shouldBePresent: true }]);
     await verifyUserGroupMembership(user, canvas, 'bbunny', [{ name: 'Powerpuff girls', shouldBePresent: true }]);
   },
@@ -533,7 +533,7 @@ Verifies that canceling the modal:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(800);
+    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
 
     // Verify pre-condition
     await verifyUserGroupMembership(user, canvas, 'adumble', [{ name: 'Powerpuff girls', shouldBePresent: false }]);
@@ -542,11 +542,11 @@ Verifies that canceling the modal:
     const adumbleRow = await canvas.findByText('adumble');
     const adumbleCheckbox = adumbleRow.closest('tr')?.querySelector('input[type="checkbox"]');
     await user.click(adumbleCheckbox!);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     const addButton = await canvas.findByRole('button', { name: /add to user group/i });
     await user.click(addButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Select a group
     const modal = await within(document.body).findByRole('dialog');
@@ -554,12 +554,12 @@ Verifies that canceling the modal:
     const powerpuffText = await modalScope.findByText('Powerpuff girls');
     const powerpuffCheckbox = powerpuffText.closest('tr')?.querySelector('input[type="checkbox"]');
     await user.click(powerpuffCheckbox!);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // CANCEL instead of confirming
     const cancelButton = await modalScope.findByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // =========================================================================
     // VERIFICATION: No API call, no state change
@@ -598,7 +598,7 @@ Verifies:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(800);
+    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
 
     // Pre-condition: adumble is not in Powerpuff or Spice girls
     await verifyUserGroupMembership(user, canvas, 'adumble', [
@@ -610,12 +610,12 @@ Verifies:
     const adumbleRow = await canvas.findByText('adumble');
     const adumbleCheckbox = adumbleRow.closest('tr')?.querySelector('input[type="checkbox"]');
     await user.click(adumbleCheckbox!);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Open modal
     const addButton = await canvas.findByRole('button', { name: /add to user group/i });
     await user.click(addButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Select multiple groups
     const modal = await within(document.body).findByRole('dialog');
@@ -628,12 +628,12 @@ Verifies:
     const goldenText = await modalScope.findByText('Golden girls');
     const goldenCheckbox = goldenText.closest('tr')?.querySelector('input[type="checkbox"]');
     await user.click(goldenCheckbox!);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Confirm
     const confirmButton = await modalScope.findByRole('button', { name: /^add$/i });
     await user.click(confirmButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // =========================================================================
     // API VERIFICATION: Should be called for each group
@@ -651,7 +651,7 @@ Verifies:
     // =========================================================================
     // POST-CONDITION: User in both groups (drawer is already open from pre-condition check)
     // =========================================================================
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await verifyUserGroupMembership(
       user,
       canvas,

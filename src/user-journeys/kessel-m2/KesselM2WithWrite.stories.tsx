@@ -3,6 +3,7 @@ import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import {
+  TEST_TIMEOUTS,
   clickWizardButton,
   expandWorkspaceInTree,
   expandWorkspaceRow,
@@ -570,7 +571,7 @@ Tests that users with \`inventory:groups:write\` permission can move workspaces 
 
     // Click to open parent selector
     await user.click(parentSelector);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Find the tree panel and expand Default Workspace to see Production
     const treePanel = document.querySelector('.rbac-c-workspace-selector-menu');
@@ -656,14 +657,14 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     const editButton = await body.findByText(/^edit workspace$/i);
     expect(editButton).toBeInTheDocument();
     await user.click(editButton);
-    await delay(300); // Allow modal to open
+    await delay(TEST_TIMEOUTS.AFTER_CLICK); // Allow modal to open
 
     // Edit modal should open (findByRole waits automatically)
     const modal = await body.findByRole('dialog', { name: /edit workspace information/i });
     const modalScope = within(modal);
 
     // Allow form to populate with workspace data from mock
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Get form inputs (findByDisplayValue waits automatically)
     const nameInput = await modalScope.findByDisplayValue('Production');
@@ -676,7 +677,7 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     // Modify the description
     await user.clear(descriptionInput);
     await user.type(descriptionInput, 'Updated production environment');
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Save changes
     const saveButton = modalScope.getByRole('button', { name: /^save$/i });
@@ -761,7 +762,7 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
 
     // Check the confirmation checkbox
     await user.click(checkbox);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // The delete/confirm button should now be enabled
     const confirmButton = await body.findByRole('button', { name: /^delete$/i });
@@ -830,7 +831,7 @@ Tests that workspace names link to Inventory in M2 (before workspace detail page
     // Click on "Production" workspace link
     const productionLink = await canvas.findByRole('link', { name: /^production$/i });
     await user.click(productionLink);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // In M2, should navigate to Inventory
     const addressBar = canvas.getByTestId('fake-address-bar');

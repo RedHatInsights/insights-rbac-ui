@@ -15,7 +15,7 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers } from './_shared';
 import { mockGroups, mockUsers, userGroupsMembership } from './_shared/mockData';
 
@@ -57,7 +57,7 @@ const getUserGroups = (username: string): string[] => {
 
 // Handler for removing members from group
 const removeMembersHandler = http.delete('/api/rbac/v1/groups/:uuid/principals/', async ({ params, request }) => {
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
   const url = new URL(request.url);
   const usernames = url.searchParams.get('usernames')?.split(',') || [];
   const groupId = params.uuid as string;
@@ -81,7 +81,7 @@ const removeMembersHandler = http.delete('/api/rbac/v1/groups/:uuid/principals/'
 
 // Handler for listing users with dynamic group counts
 const listUsersHandler = http.get('/api/rbac/v1/principals/', async ({ request }) => {
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
   const url = new URL(request.url);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -106,7 +106,7 @@ const listUsersHandler = http.get('/api/rbac/v1/principals/', async ({ request }
 
 // Handler for listing groups (for modal)
 const listGroupsHandler = http.get('/api/rbac/v1/groups/', async ({ request }) => {
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
   const url = new URL(request.url);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -288,12 +288,12 @@ Tests the complete "Remove from user group" workflow:
     // 3. OPEN ROW KEBAB MENU
     const kebabButton = within(userRowElement).getByRole('button', { name: /actions/i });
     await user.click(kebabButton);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 4. CLICK "REMOVE FROM USER GROUP" in row kebab
     const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
     await user.click(removeOption);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // 5. VERIFY MODAL OPENS
     const modal = await within(document.body).findByRole('dialog');
@@ -307,18 +307,18 @@ Tests the complete "Remove from user group" workflow:
     // Find the Spice girls group checkbox
     const spiceGirlsCheckbox = await modalScope.findByRole('checkbox', { name: /spice girls/i });
     await user.click(spiceGirlsCheckbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 7. CHECK CONFIRMATION CHECKBOX
     const confirmCheckbox = await modalScope.findByRole('checkbox', { name: /understand|irreversible/i });
     await user.click(confirmCheckbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 8. CLICK REMOVE BUTTON
     const removeButton = await modalScope.findByRole('button', { name: /^remove$/i });
     expect(removeButton).not.toBeDisabled();
     await user.click(removeButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // 9. API VERIFICATION
     expect(removeMembersSpy).toHaveBeenCalled();
@@ -335,7 +335,7 @@ Tests the complete "Remove from user group" workflow:
     });
 
     // 11. VISUAL VERIFICATION: User groups count decreased to 1
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     const updatedUserRow = await within(usersTable).findByText(TARGET_USER.username);
     const updatedRowElement = updatedUserRow.closest('tr')!;
     expect(within(updatedRowElement).getByText('1')).toBeInTheDocument();
@@ -386,17 +386,17 @@ Tests canceling the remove from user group modal.
     // 3. OPEN ROW KEBAB AND CLICK REMOVE
     const kebabButton = within(userRowElement).getByRole('button', { name: /actions/i });
     await user.click(kebabButton);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
     await user.click(removeOption);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // 4. CLICK CANCEL
     const modal = await within(document.body).findByRole('dialog');
     const cancelButton = await within(modal).findByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // 5. VERIFY MODAL CLOSED
     expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
@@ -452,11 +452,11 @@ Tests that the remove button requires confirmation.
 
     const kebabButton = within(userRowElement).getByRole('button', { name: /actions/i });
     await user.click(kebabButton);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
     await user.click(removeOption);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // 3. VERIFY MODAL IS OPEN
     const modal = await within(document.body).findByRole('dialog');
@@ -469,7 +469,7 @@ Tests that the remove button requires confirmation.
     // 5. SELECT A GROUP
     const spiceGirlsCheckbox = await modalScope.findByRole('checkbox', { name: /spice girls/i });
     await user.click(spiceGirlsCheckbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 6. VERIFY REMOVE BUTTON IS STILL DISABLED (no confirmation yet)
     expect(removeButton).toBeDisabled();
@@ -477,7 +477,7 @@ Tests that the remove button requires confirmation.
     // 7. CHECK CONFIRMATION CHECKBOX
     const confirmCheckbox = await modalScope.findByRole('checkbox', { name: /understand|irreversible/i });
     await user.click(confirmCheckbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 8. VERIFY REMOVE BUTTON IS NOW ENABLED
     expect(removeButton).not.toBeDisabled();
@@ -525,11 +525,11 @@ Tests that the remove button requires group selection.
 
     const kebabButton = within(userRowElement).getByRole('button', { name: /actions/i });
     await user.click(kebabButton);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
     await user.click(removeOption);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // 3. VERIFY MODAL IS OPEN
     const modal = await within(document.body).findByRole('dialog');
@@ -542,7 +542,7 @@ Tests that the remove button requires group selection.
     // 5. CHECK CONFIRMATION CHECKBOX (but no group selected)
     const confirmCheckbox = await modalScope.findByRole('checkbox', { name: /understand|irreversible/i });
     await user.click(confirmCheckbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 6. VERIFY REMOVE BUTTON IS STILL DISABLED (no group selected)
     expect(removeButton).toBeDisabled();
@@ -550,7 +550,7 @@ Tests that the remove button requires group selection.
     // 7. SELECT A GROUP
     const spiceGirlsCheckbox = await modalScope.findByRole('checkbox', { name: /spice girls/i });
     await user.click(spiceGirlsCheckbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 8. VERIFY REMOVE BUTTON IS NOW ENABLED
     expect(removeButton).not.toBeDisabled();

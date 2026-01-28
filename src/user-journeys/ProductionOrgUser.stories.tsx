@@ -4,7 +4,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
 import { ENVIRONMENTS } from './_shared/environments';
-import { navigateToPage, resetStoryState, waitForPageToLoad } from './_shared/helpers';
+import { TEST_TIMEOUTS, navigateToPage, resetStoryState, waitForPageToLoad } from './_shared/helpers';
 import { createStatefulHandlers } from '../../.storybook/helpers/stateful-handlers';
 import { defaultGroups } from '../../.storybook/fixtures/groups';
 import { defaultUsers } from '../../.storybook/fixtures/users';
@@ -533,7 +533,7 @@ Tests that regular users receive an appropriate access denied message when tryin
     const canvas = within(context.canvasElement);
 
     // Wait for the page to render
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Should see access denied message (not a broken page)
     const accessDeniedMessage = await canvas.findByText(/you do not have access to user access administration/i);

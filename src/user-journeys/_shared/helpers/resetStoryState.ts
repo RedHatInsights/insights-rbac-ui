@@ -1,4 +1,5 @@
 import { delay } from 'msw';
+import { TEST_TIMEOUTS } from './testUtils';
 
 /**
  * Helper function to reset story state and clean up notifications
@@ -54,5 +55,5 @@ export async function resetStoryState(): Promise<void> {
 
   // Give React time to process any state updates and re-renders
   // This ensures components refetch fresh data after the reset
-  await delay(500);
+  await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 }
