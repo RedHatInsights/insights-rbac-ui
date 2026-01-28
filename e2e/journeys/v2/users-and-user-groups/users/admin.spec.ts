@@ -8,7 +8,7 @@
  * These tests focus on viewing and filtering users in the V2 interface.
  */
 
-import { AUTH_V2_ADMIN, expect, setupPage, test } from '../../../../utils';
+import { AUTH_V2_ADMIN, expect, setupPage, test, waitForTableUpdate } from '../../../../utils';
 
 test.use({ storageState: AUTH_V2_ADMIN });
 
@@ -43,7 +43,7 @@ test.describe('V2 Users - Admin', () => {
     if (await searchInput.isVisible()) {
       await searchInput.fill('test');
       // Wait for filter to apply
-      await page.waitForTimeout(500);
+      await waitForTableUpdate(page);
     }
   });
 
@@ -55,8 +55,8 @@ test.describe('V2 Users - Admin', () => {
 
     if (await firstUserLink.isVisible()) {
       await firstUserLink.click();
-      // Wait for detail page/drawer to load
-      await page.waitForTimeout(500);
+      // Wait for detail page/drawer to load - look for user detail content
+      await expect(page.locator('body')).toBeVisible();
     }
   });
 

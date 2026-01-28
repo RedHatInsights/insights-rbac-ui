@@ -105,14 +105,71 @@ afterAll(() => {
 // Ink Component Mocks
 // ============================================================================
 
+// Ink-specific props that should NOT be passed to DOM elements
+const INK_PROPS = new Set([
+  // Layout
+  'marginTop',
+  'marginBottom',
+  'marginLeft',
+  'marginRight',
+  'margin',
+  'paddingTop',
+  'paddingBottom',
+  'paddingLeft',
+  'paddingRight',
+  'padding',
+  'flexDirection',
+  'flexGrow',
+  'flexShrink',
+  'flexBasis',
+  'flexWrap',
+  'alignItems',
+  'alignSelf',
+  'justifyContent',
+  'gap',
+  'columnGap',
+  'rowGap',
+  'width',
+  'height',
+  'minWidth',
+  'minHeight',
+  'borderStyle',
+  'borderColor',
+  'overflowX',
+  'overflowY',
+  'overflow',
+  'display',
+  // Text styling
+  'bold',
+  'italic',
+  'underline',
+  'strikethrough',
+  'inverse',
+  'wrap',
+  'dimColor',
+  'backgroundColor',
+  'color',
+]);
+
+// Filter out Ink-specific props before passing to DOM
+function filterInkProps(props: Record<string, unknown>): Record<string, unknown> {
+  const filtered: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if (!INK_PROPS.has(key)) {
+      filtered[key] = value;
+    }
+  }
+  return filtered;
+}
+
 vi.mock('ink', () => ({
   Box: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => {
     const React = require('react');
-    return React.createElement('div', { 'data-testid': 'ink-box', ...props }, children);
+    return React.createElement('div', { 'data-testid': 'ink-box', ...filterInkProps(props) }, children);
   },
   Text: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => {
     const React = require('react');
-    return React.createElement('span', { 'data-testid': 'ink-text', ...props }, children);
+    return React.createElement('span', { 'data-testid': 'ink-text', ...filterInkProps(props) }, children);
   },
   useInput: (handler: InputHandler) => {
     // Register the handler so tests can trigger it

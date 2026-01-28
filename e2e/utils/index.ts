@@ -10,6 +10,7 @@ export * from './notifications';
 export * from './workspaces';
 export * from './paths';
 export * from './seed-map';
+export * from './waiters';
 export { test, expect, blockAnalytics, enableAssetCache, setupPage, type Page, type BrowserContext } from './fixtures';
 
 /**
