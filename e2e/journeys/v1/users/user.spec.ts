@@ -1,44 +1,49 @@
 /**
- * V1 Users - User Tests
+ * V1 Users - User Tests (Read Only)
  *
  * Tests for the V1 Users page (/iam/user-access/users) with regular user privileges.
  * Regular users may have limited visibility into the user list.
  */
 
-import { AUTH_V1_USER, expect, setupPage, test } from '../../../utils';
+import { expect, test } from '@playwright/test';
+import { AUTH_V1_USER, setupPage } from '../../../utils';
 
 test.use({ storageState: AUTH_V1_USER });
 
-test.describe('V1 Users - User (Read Only)', () => {
-  const USERS_URL = '/iam/user-access/users';
+const USERS_URL = '/iam/user-access/users';
 
-  test.beforeEach(async ({ page }) => {
+test.describe('V1 Users - User (Read Only)', () => {
+  test('Can view users list with limited permissions', async ({ page }) => {
     await setupPage(page);
     await page.goto(USERS_URL);
-    // Wait for page to load
-    await expect(page.locator('body')).toBeVisible();
-  });
 
-  /**
-   * Users table may be visible with limited data
-   */
-  test('Users list visible or access denied', async ({ page }) => {
-    // Depending on permissions, user may see limited list or access denied
-    const table = page.getByRole('grid');
-    const accessDenied = page.getByText(/access denied|not authorized|forbidden/i);
+    await test.step('Verify page loads', async () => {
+      // Wait for page content - either table or access denied message
+      await expect(page.locator('body')).toBeVisible();
+    });
 
-    // One of these should be true
-    const tableVisible = await table.isVisible();
-    const accessDeniedVisible = await accessDenied.isVisible();
+    await test.step('Verify users list or access denied', async () => {
+      const table = page.getByRole('grid');
+      const accessDenied = page.getByText(/access denied|not authorized|forbidden/i);
 
-    expect(tableVisible || accessDeniedVisible).toBe(true);
-  });
+      // Depending on permissions, user may see limited list or access denied
+      const tableVisible = await table.isVisible().catch(() => false);
+      const accessDeniedVisible = await accessDenied.isVisible().catch(() => false);
 
-  /**
-   * Verify NO invite users button for regular users
-   */
-  test('Invite users button is NOT visible', async ({ page }) => {
-    const inviteButton = page.getByRole('button', { name: /invite/i });
-    await expect(inviteButton).not.toBeVisible();
+      // One of these should be true
+      expect(tableVisible || accessDeniedVisible).toBe(true);
+
+      if (tableVisible) {
+        console.log('[V1 Users User] Table visible - user has read access');
+      } else {
+        console.log('[V1 Users User] Access denied - expected for non-admin');
+      }
+    });
+
+    await test.step('Verify admin actions are NOT available', async () => {
+      // Invite button should not be visible for regular users
+      const inviteButton = page.getByRole('button', { name: /invite/i });
+      await expect(inviteButton).not.toBeVisible();
+    });
   });
 });

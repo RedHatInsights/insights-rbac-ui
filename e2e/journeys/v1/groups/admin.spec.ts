@@ -479,6 +479,7 @@ test.describe('V1 Groups - Admin Read-Only Journey', () => {
 
         // Verify we navigated to the role detail page
         await expect(page).toHaveURL(/\/roles\//, { timeout: 10000 });
+        // Role detail page should show the role name in the heading
         await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME })).toBeVisible({
           timeout: 15000,
         });

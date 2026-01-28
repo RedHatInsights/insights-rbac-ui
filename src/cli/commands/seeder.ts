@@ -222,10 +222,11 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
 }
 
 /**
- * Create a group via the Groups API and optionally attach roles.
+ * Create a group via the Groups API and optionally attach roles and members.
  *
  * Uses the typed GroupsApiClient from src/data/api/groups.ts.
  * If roles_list is provided, resolves role names to UUIDs and attaches them.
+ * If RBAC_USERNAME is set, adds the admin user as a member for testing.
  *
  * @throws Error if creation fails (caller should handle)
  */
@@ -261,6 +262,24 @@ async function createGroup(groupsApi: GroupsApiClient, group: GroupInput, mappin
         logCurl('POST', `/api/rbac/v1/groups/${uuid}/roles/`, { roles: roleUuids }, `Attach ${roleUuids.length} role(s) to group`);
         await groupsApi.addRoleToGroup({ uuid, groupRoleIn: { roles: roleUuids } });
         console.error(`    ✓ Attached ${roleUuids.length} role(s) to group`);
+      }
+    }
+
+    // Add admin user as member if RBAC_USERNAME is set
+    // This enables testing the group's Users tab and user's User groups tab
+    const adminUsername = process.env.RBAC_USERNAME;
+    if (adminUsername) {
+      const principalData = { principals: [{ username: adminUsername }] };
+      logCurl('POST', `/api/rbac/v1/groups/${uuid}/principals/`, principalData, `Add admin user to group`);
+      try {
+        await groupsApi.addPrincipalToGroup({
+          uuid,
+          groupPrincipalIn: principalData as Parameters<typeof groupsApi.addPrincipalToGroup>[0]['groupPrincipalIn'],
+        });
+        console.error(`    ✓ Added admin user "${adminUsername}" to group`);
+      } catch (error) {
+        // Don't fail if user is already in group or other non-critical error
+        console.error(`    ⚠ Could not add admin user to group: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
   }

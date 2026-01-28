@@ -43,3 +43,12 @@ export function getPrefixedName(baseName: string): string {
   const prefix = process.env.TEST_PREFIX;
   return prefix ? `${prefix}__${baseName}` : baseName;
 }
+
+/**
+ * Get the admin username from environment.
+ * This is the user we're logged in as for admin tests.
+ * Set via RBAC_USERNAME in the auth env files.
+ */
+export function getAdminUsername(): string | undefined {
+  return process.env.RBAC_USERNAME;
+}

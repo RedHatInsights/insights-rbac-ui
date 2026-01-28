@@ -11,6 +11,8 @@
  *   E2E_BASE_URL - Override the base URL (default: https://console.stage.redhat.com)
  *                  Set to https://stage.foo.redhat.com:1337 for local dev server testing
  *                  (HTTPS errors are ignored for self-signed certs)
+ *   RBAC_USERNAME - Username for filtering/verifying user tests
+ *   TEST_PREFIX - Prefix for test data isolation
  *
  * Global Setup:
  *   The globalSetup script warms the asset cache before any tests run.
@@ -19,11 +21,17 @@
 
 import { defineConfig, devices } from '@playwright/test';
 
+// Note: Environment variables are loaded via `dotenv -e` in npm scripts
+// (e.g., e2e:test:v1:admin loads e2e/auth/.env.v1-admin)
+
 const baseURL = process.env.E2E_BASE_URL || 'https://console.stage.redhat.com';
 
 export default defineConfig({
   testDir: '.',
   testMatch: '**/*.spec.ts',
+
+  /* Output directory for screenshots, traces, etc. */
+  outputDir: './test-results',
 
   /* Global setup - warms asset cache before all tests */
   globalSetup: require.resolve('./setup/global.setup.ts'),
@@ -41,8 +49,10 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
 
-  /* Reporter to use - disable auto-open for local HTML reports */
-  reporter: process.env.CI ? 'github' : [['html', { open: 'never' }]],
+  /* Reporter to use - JSON for machine-readable results, HTML for humans */
+  reporter: process.env.CI
+    ? 'github'
+    : [['list'], ['html', { open: 'never', outputFolder: './playwright-report' }], ['json', { outputFile: './test-results/results.json' }]],
 
   /* Shared settings for all projects */
   use: {
@@ -50,7 +60,7 @@ export default defineConfig({
     baseURL,
 
     /* Ignore HTTPS errors (needed for local dev server with self-signed certs) */
-    ignoreHTTPSErrors: true,
+    ignoreHTTPSErrors: !process.env.CI,
 
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
