@@ -259,6 +259,16 @@ const pathnames: Pathnames = {
     path: 'create-user-group',
     title: 'Users & User Groups',
   },
+  'organization-management': {
+    link: '/organization-management',
+    path: '/organization-management/*',
+    title: 'Organization Management',
+  },
+  'organization-wide-access': {
+    link: '/organization-management/organization-wide-access',
+    path: 'organization-wide-access',
+    title: 'Organization-Wide Access',
+  },
 };
 
 export default pathnames;

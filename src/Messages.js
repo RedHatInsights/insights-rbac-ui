@@ -2628,6 +2628,16 @@ export default defineMessages({
     description: 'Create user group label',
     defaultMessage: 'Create user group',
   },
+  organizationWideAccessTitle: {
+    id: 'organizationWideAccessTitle',
+    description: 'Organization-Wide Access page title',
+    defaultMessage: 'Organization-Wide Access',
+  },
+  organizationWideAccessSubtitle: {
+    id: 'organizationWideAccessSubtitle',
+    description: 'Organization-Wide Access page subtitle',
+    defaultMessage: 'Grant organization-level access to users and groups.',
+  },
   usersAndUserGroupsEditUserGroup: {
     id: 'usersAndUserGroupsEditUserGroup',
     description: 'Edit user group label',

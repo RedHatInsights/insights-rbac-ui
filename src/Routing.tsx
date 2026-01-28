@@ -51,6 +51,7 @@ const UsersAndUserGroups = lazy(() => import('./features/access-management/users
 const AccessManagementUsers = lazy(() => import('./features/access-management/users-and-user-groups/users/Users'));
 const AccessManagementUserGroups = lazy(() => import('./features/access-management/users-and-user-groups/user-groups/UserGroups'));
 const EditUserGroup = lazy(() => import('./features/access-management/users-and-user-groups/user-groups/edit-user-group/EditUserGroup'));
+const OrganizationManagement = lazy(() => import('./features/organization-management/OrganizationManagement'));
 
 const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel, hideWorkspaceDetails }: Record<string, boolean>) => [
   {
@@ -104,6 +105,10 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
         element: EditWorkspaceModal,
       },
     ],
+  },
+  {
+    path: pathnames['organization-management'].path,
+    element: OrganizationManagement,
   },
   !hideWorkspaceDetails && {
     path: pathnames['workspace-detail'].path,
