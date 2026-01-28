@@ -53,7 +53,8 @@ spec:
   - name: chrome-port
     value: "9912"  # Port where chrome assets will be served
 
-  # Application startup script  - name: run-app-script
+  # Application startup script
+  - name: run-app-script
     value: |
       #!/bin/bash
       set -ex
