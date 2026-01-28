@@ -17,7 +17,16 @@
  */
 
 import { Page, expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, clickMenuItem, openDetailPageActionsMenu, openRoleActionsMenu, setupPage, verifySuccessNotification } from '../../../utils';
+import {
+  AUTH_V1_ADMIN,
+  clickMenuItem,
+  openDetailPageActionsMenu,
+  openRoleActionsMenu,
+  setupPage,
+  verifySuccessNotification,
+  waitForNextEnabled,
+  waitForTableUpdate,
+} from '../../../utils';
 import { getSeededRoleData, getSeededRoleName } from '../../../utils/seed-map';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -65,7 +74,7 @@ async function searchForRole(page: Page, roleName: string): Promise<void> {
   await searchInput.clear();
   await searchInput.fill(roleName);
   // Wait for table to update with filtered results
-  await page.waitForTimeout(500);
+  await waitForTableUpdate(page);
 }
 
 /**
@@ -134,12 +143,12 @@ async function fillCreateRoleWizard(page: Page, roleName: string, description: s
   const createFromScratchOption = wizard.getByRole('radio', { name: /create.*scratch/i });
   if (await createFromScratchOption.isVisible({ timeout: 2000 }).catch(() => false)) {
     await createFromScratchOption.click();
-    await page.waitForTimeout(300);
   }
 
   // ─────────────────────────────────────────────────────────────────────
   // STEP 2: Enter role name AND description (both in same step per SetName.tsx)
   // ─────────────────────────────────────────────────────────────────────
+  // Wait for name input to appear (indicates step transition complete)
   const nameInput = wizard.getByLabel(/role name/i);
   await expect(nameInput).toBeVisible({ timeout: 5000 });
   await nameInput.fill(roleName);
@@ -151,20 +160,16 @@ async function fillCreateRoleWizard(page: Page, roleName: string, description: s
   await descriptionInput.fill(description);
   console.log(`[Wizard] ✓ Description entered: ${description}`);
 
-  // Wait for async validation (name uniqueness check)
-  await page.waitForTimeout(1500);
+  // Wait for async validation (name uniqueness check) by waiting for Next to be enabled
+  const nextButton1 = getWizardNextButton();
+  await waitForNextEnabled(page);
 
   // Click Next to proceed to permissions
-  const nextButton1 = getWizardNextButton();
-  await expect(nextButton1).toBeEnabled({ timeout: 10000 });
   await nextButton1.click();
 
   // ─────────────────────────────────────────────────────────────────────
   // STEP 3: Add permissions (FULL TEST - select multiple)
   // ─────────────────────────────────────────────────────────────────────
-  // Wait for step transition
-  await page.waitForTimeout(500);
-
   // Wait for permission checkboxes to appear (indicates step has loaded)
   const permissionCheckboxes = wizard.getByRole('checkbox');
   await expect(permissionCheckboxes.first()).toBeVisible({ timeout: 8000 });
@@ -192,9 +197,6 @@ async function fillCreateRoleWizard(page: Page, roleName: string, description: s
   // ─────────────────────────────────────────────────────────────────────
   // STEP 4: Review (verify data, no inputs here)
   // ─────────────────────────────────────────────────────────────────────
-  // Wait for step transition
-  await page.waitForTimeout(500);
-
   // Wait for review step (look in main content area, not nav)
   const wizardContent = wizard.locator('.pf-v6-c-wizard__main-body, .pf-v6-c-wizard__main, .pf-v6-c-wizard__inner-wrap');
   await expect(wizardContent.getByText(/review/i).first()).toBeVisible({ timeout: 8000 });
@@ -243,7 +245,6 @@ async function fillEditRoleModal(page: Page, newName: string, newDescription: st
 
   // Wait for modal to show "Edit role information" text
   await expect(dialog.getByText('Edit role information')).toBeVisible({ timeout: 5000 });
-  await page.waitForTimeout(300);
 
   // Fill in new name - use getByLabel like Storybook helper
   const nameInput = dialog.getByLabel(/name/i);
@@ -251,7 +252,6 @@ async function fillEditRoleModal(page: Page, newName: string, newDescription: st
   await nameInput.selectText();
   await page.keyboard.press('Backspace');
   await nameInput.fill(newName);
-  await page.waitForTimeout(200);
 
   // Fill in new description
   const descInput = dialog.getByLabel(/description/i);
@@ -259,7 +259,6 @@ async function fillEditRoleModal(page: Page, newName: string, newDescription: st
   await descInput.selectText();
   await page.keyboard.press('Backspace');
   await descInput.fill(newDescription);
-  await page.waitForTimeout(200);
 
   // Wait for validation and click Save button
   const saveButton = dialog.getByRole('button', { name: /save/i });
@@ -281,13 +280,11 @@ async function confirmRoleDeletion(page: Page): Promise<void> {
 
   // Wait for dialog content to load - look for the heading first
   await expect(dialog.getByRole('heading', { name: /delete role/i })).toBeVisible({ timeout: 10000 });
-  await page.waitForTimeout(300);
 
   // Check the confirmation checkbox (required by WarningModal withCheckbox)
   const checkbox = dialog.getByRole('checkbox');
   await expect(checkbox).toBeVisible({ timeout: 5000 });
   await checkbox.click();
-  await page.waitForTimeout(200);
 
   // Click the Delete button - wait for it to be enabled after checkbox
   const deleteButton = dialog.getByRole('button', { name: /delete role/i });

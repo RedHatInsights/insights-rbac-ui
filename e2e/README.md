@@ -4,30 +4,50 @@ This directory contains the Playwright E2E test suite for RBAC UI.
 
 > **📚 Full Documentation**: For the complete testing strategy and architecture, see the [E2E Testing Strategy](https://master--687a10bbc18d4b17063770ba.chromatic.com/?path=/docs/documentation-e2e-testing-strategy--docs) in Storybook.
 
-## Quick Start: One-Shot Commands
+## Quick Start
+
+### 1. Setup Credentials (One-Time)
+
+Copy the template env files and fill in your credentials:
+
+```bash
+# Copy templates
+cp e2e/auth/.env.v1-admin.template e2e/auth/.env.v1-admin
+cp e2e/auth/.env.v1-user.template e2e/auth/.env.v1-user
+cp e2e/auth/.env.v2-admin.template e2e/auth/.env.v2-admin
+cp e2e/auth/.env.v2-user.template e2e/auth/.env.v2-user
+
+# Edit each file with your credentials
+# RBAC_USERNAME=your-user@redhat.com
+# RBAC_PASSWORD=your-password
+```
+
+### 2. Run Tests (One-Shot Commands)
 
 Run the entire E2E lifecycle (Auth → Seed → Test → Cleanup) with a single command:
 
 ```bash
 # V1 Admin tests (full CRUD on User Access pages)
-TEST_PREFIX=jdoe RBAC_USERNAME=your-admin RBAC_PASSWORD=secret npm run e2e:v1:admin
+TEST_PREFIX=jdoe npm run e2e:v1:admin
 
 # V1 User tests (read-only verification)
-TEST_PREFIX=jdoe RBAC_USERNAME=your-user RBAC_PASSWORD=secret npm run e2e:v1:user
+TEST_PREFIX=jdoe npm run e2e:v1:user
 
 # V2 Admin tests (full CRUD on Access Management pages)
-TEST_PREFIX=jdoe RBAC_USERNAME=your-v2-admin RBAC_PASSWORD=secret npm run e2e:v2:admin
+TEST_PREFIX=jdoe npm run e2e:v2:admin
 
 # V2 User tests (read-only verification)
-TEST_PREFIX=jdoe RBAC_USERNAME=your-v2-user RBAC_PASSWORD=secret npm run e2e:v2:user
+TEST_PREFIX=jdoe npm run e2e:v2:user
 ```
 
+> **Note**: Credentials are loaded from `e2e/auth/.env.*` files via `dotenv-cli`.
+
 **What happens:**
-1. **Auth** — Logs in and saves browser session state
-2. **Seed** — Creates test data prefixed with `TEST_PREFIX`
+1. **Seed** — Creates test data prefixed with `TEST_PREFIX` (uses API auth)
    - V1 seeds roles and groups only (`seed-v1.json`)
    - V2 seeds roles, groups, and workspaces (`seed-v2.json`)
-3. **Test** — Runs the specific test suite
+2. **Auth** — Logs in via browser and saves session state for Playwright
+3. **Test** — Runs the specific test suite using saved browser session
 4. **Cleanup** — Deletes all data matching `TEST_PREFIX`
 
 ### Prerequisites
@@ -41,9 +61,9 @@ TEST_PREFIX=jdoe RBAC_USERNAME=your-v2-user RBAC_PASSWORD=secret npm run e2e:v2:
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `TEST_PREFIX` | Yes | Prefix for seeded data (min 4 chars, e.g., `jdoe`) |
-| `RBAC_USERNAME` | Yes | Username for stage login |
-| `RBAC_PASSWORD` | Yes | Password for stage login |
 | `E2E_BASE_URL` | No | Override target URL (default: `https://console.stage.redhat.com`) |
+
+Credentials (`RBAC_USERNAME`, `RBAC_PASSWORD`) are loaded from env files in `e2e/auth/`.
 
 **Testing against localhost:**
 
@@ -70,7 +90,7 @@ E2E_BASE_URL=http://localhost:1337 TEST_PREFIX=jdoe npm run e2e:test:v1:admin
 
 ### Primitives (For Debugging)
 
-Run individual steps when troubleshooting:
+Run individual steps when troubleshooting. Credentials are loaded from `e2e/auth/.env.*` files:
 
 | Command | Description |
 |---------|-------------|
@@ -78,9 +98,10 @@ Run individual steps when troubleshooting:
 | `npm run e2e:auth:v1:user` | Login as V1 user |
 | `npm run e2e:auth:v2:admin` | Login as V2 admin |
 | `npm run e2e:auth:v2:user` | Login as V2 user |
-| `npm run e2e:seed:v1` | Seed V1 data: roles, groups (no workspaces) |
-| `npm run e2e:seed:v2` | Seed V2 data: roles, groups, workspaces |
-| `npm run e2e:cleanup` | Cleanup test data (requires `TEST_PREFIX`) |
+| `npm run e2e:seed:v1:admin` | Seed V1 data as admin |
+| `npm run e2e:seed:v2:admin` | Seed V2 data as admin |
+| `npm run e2e:cleanup:v1:admin` | Cleanup as V1 admin |
+| `npm run e2e:cleanup:v2:admin` | Cleanup as V2 admin |
 | `npm run e2e:test:v1:admin` | Run only V1 admin specs |
 | `npm run e2e:test:v1:user` | Run only V1 user specs |
 | `npm run e2e:test:v2:admin` | Run only V2 admin specs |
@@ -95,15 +116,12 @@ When you need more control, run steps individually:
 ```bash
 # 1. Set environment (prefix must be at least 4 characters)
 export TEST_PREFIX=jdoe
-export RBAC_USERNAME=your-admin
-export RBAC_PASSWORD=secret
 
-# 2. Auth (once per session, or when expired)
+# 2. Seed test data (uses API auth internally)
+npm run e2e:seed:v1:admin
+
+# 3. Auth (saves browser session for Playwright)
 npm run e2e:auth:v1:admin
-
-# 3. Seed test data (use v1 or v2 based on which tests you're running)
-npm run e2e:seed:v1   # For V1 tests (roles, groups)
-# npm run e2e:seed:v2 # For V2 tests (roles, groups, workspaces)
 
 # 4. Run tests (repeatedly while debugging)
 npm run e2e:test:v1:admin
@@ -112,7 +130,7 @@ npm run e2e:test:v1:admin
 npx playwright test e2e/journeys/v1/roles/admin.spec.ts --headed
 
 # 5. Cleanup when done
-npm run e2e:cleanup
+npm run e2e:cleanup:v1:admin
 ```
 
 ---

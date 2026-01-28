@@ -8,7 +8,7 @@
  * These tests focus on viewing and filtering users.
  */
 
-import { AUTH_V1_ADMIN, expect, setupPage, test } from '../../../utils';
+import { AUTH_V1_ADMIN, expect, setupPage, test, waitForTableUpdate } from '../../../utils';
 
 test.use({ storageState: AUTH_V1_ADMIN });
 
@@ -41,7 +41,7 @@ test.describe('V1 Users - Admin', () => {
       await searchInput.fill('test');
 
       // Wait for filter to apply - table should still be visible
-      await page.waitForTimeout(500);
+      await waitForTableUpdate(page);
       await expect(page.getByRole('grid')).toBeVisible();
     }
   });

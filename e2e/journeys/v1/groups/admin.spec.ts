@@ -17,7 +17,16 @@
  */
 
 import { Page, expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, clickMenuItem, openDetailPageActionsMenu, openRowActionsMenu, setupPage, verifySuccessNotification } from '../../../utils';
+import {
+  AUTH_V1_ADMIN,
+  clickMenuItem,
+  openDetailPageActionsMenu,
+  openRowActionsMenu,
+  setupPage,
+  verifySuccessNotification,
+  waitForTabContent,
+  waitForTableUpdate,
+} from '../../../utils';
 import { getSeededGroupData, getSeededGroupName, getSeededRoleName } from '../../../utils/seed-map';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -67,7 +76,7 @@ async function searchForGroup(page: Page, groupName: string): Promise<void> {
   await searchInput.clear();
   await searchInput.fill(groupName);
   // Wait for table to update with filtered results
-  await page.waitForTimeout(500);
+  await waitForTableUpdate(page);
 }
 
 /**
@@ -453,7 +462,7 @@ test.describe('V1 Groups - Admin Read-Only Journey', () => {
       await rolesTab.click();
 
       // Wait for roles tab content to load
-      await page.waitForTimeout(500);
+      await waitForTabContent(page);
 
       // Verify the seeded role appears in the roles list
       if (SEEDED_ROLE_NAME) {
@@ -544,7 +553,7 @@ test.describe('V1 Groups - Admin CRUD Lifecycle Journey', () => {
       // ── Verify ROLES tab has the role we selected ──
       const rolesTab = page.getByRole('tab', { name: /roles/i });
       await rolesTab.click();
-      await page.waitForTimeout(500);
+      await waitForTabContent(page);
 
       // Verify at least 1 role exists in the table
       const rolesGrid = page.getByRole('grid');
@@ -563,7 +572,7 @@ test.describe('V1 Groups - Admin CRUD Lifecycle Journey', () => {
       // ── Verify MEMBERS tab has the user we selected ──
       const membersTab = page.getByRole('tab', { name: /members/i });
       await membersTab.click();
-      await page.waitForTimeout(500);
+      await waitForTabContent(page);
 
       // Verify at least 1 member exists in the table
       const membersGrid = page.getByRole('grid');
@@ -581,7 +590,7 @@ test.describe('V1 Groups - Admin CRUD Lifecycle Journey', () => {
       const serviceAccountsTab = page.getByRole('tab', { name: /service accounts/i });
       if (await serviceAccountsTab.isVisible().catch(() => false)) {
         await serviceAccountsTab.click();
-        await page.waitForTimeout(500);
+        await waitForTabContent(page);
 
         // Verify at least 1 service account exists
         const saGrid = page.getByRole('grid');

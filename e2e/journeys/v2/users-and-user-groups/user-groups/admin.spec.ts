@@ -10,7 +10,7 @@
  * - CRUD lifecycle uses serial mode to maintain state across create → edit → delete
  */
 
-import { AUTH_V2_ADMIN, Page, expect, getSeededGroupData, getSeededGroupName, setupPage, test } from '../../../../utils';
+import { AUTH_V2_ADMIN, Page, expect, getSeededGroupData, getSeededGroupName, setupPage, test, waitForTableUpdate } from '../../../../utils';
 
 // Safety rail: Require TEST_PREFIX for any test that creates data
 const TEST_PREFIX = process.env.TEST_PREFIX;
@@ -148,12 +148,10 @@ test.describe('V2 User Groups - Admin CRUD Lifecycle', () => {
         await nextButton.click();
       };
 
+      // Navigate through wizard steps - clickWizardNext waits for button to be enabled
       await clickWizardNext();
-      await page.waitForTimeout(500);
       await clickWizardNext();
-      await page.waitForTimeout(500);
       await clickWizardNext();
-      await page.waitForTimeout(500);
 
       // Check if on Review or need one more Next
       const reviewHeading = page
@@ -274,7 +272,7 @@ test.describe('V2 User Groups - Admin CRUD Lifecycle', () => {
     await test.step('Verify group is deleted', async () => {
       await searchInput.clear();
       await searchInput.fill(groupName);
-      await page.waitForTimeout(1000);
+      await waitForTableUpdate(page);
 
       await expect(page.getByRole('grid').getByText(groupName)).not.toBeVisible({ timeout: 10000 });
       console.log(`[Verify] Verified deletion: ${groupName}`);

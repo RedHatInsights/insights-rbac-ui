@@ -4,6 +4,7 @@
  */
 
 import { Page, expect } from '@playwright/test';
+import { waitForMenuOpen, waitForTreeExpand } from './waiters';
 
 /**
  * Opens the Create Workspace wizard from a button and returns the wizard locator
@@ -64,7 +65,7 @@ export async function expandWorkspaceInTree(page: Page, treePanel: ReturnType<ty
   // Find and click the toggle button
   const toggleButton = workspaceNode.locator('.pf-v6-c-tree-view__node-toggle');
   await toggleButton.click();
-  await page.waitForTimeout(300);
+  await waitForTreeExpand(page);
 }
 
 /**
@@ -74,12 +75,14 @@ export async function selectWorkspaceFromTree(page: Page, treePanel: ReturnType<
   // Find and click the workspace button
   const workspaceButton = treePanel.getByRole('button', { name: workspaceName });
   await workspaceButton.click();
-  await page.waitForTimeout(300);
 
-  // Click the "Select Workspace" button to confirm
+  // Click the "Select Workspace" button to confirm - wait for it to be visible/enabled
   const selectButton = page.getByRole('button', { name: /select workspace/i });
+  await expect(selectButton).toBeEnabled({ timeout: 3000 });
   await selectButton.click();
-  await page.waitForTimeout(500);
+
+  // Wait for menu to close
+  await expect(treePanel).not.toBeVisible({ timeout: 3000 });
 }
 
 /**
@@ -98,7 +101,7 @@ export async function clickWizardButton(page: Page, wizard: ReturnType<typeof pa
   const button = wizard.getByRole('button', { name: new RegExp(`^${buttonName}$`, 'i') });
   await expect(button).toBeEnabled();
   await button.click();
-  await page.waitForTimeout(500);
+  // Wait for wizard to process (button will re-enable on next step)
 }
 
 /**
@@ -111,5 +114,5 @@ export async function openWorkspaceKebabMenu(page: Page, workspaceName: string) 
   // Find and click the kebab menu button
   const kebabButton = workspaceRow.getByLabel(/kebab toggle|actions/i);
   await kebabButton.click();
-  await page.waitForTimeout(300);
+  await waitForMenuOpen(page);
 }

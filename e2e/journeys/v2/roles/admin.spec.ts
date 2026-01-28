@@ -10,7 +10,17 @@
  * - CRUD lifecycle uses serial mode to maintain state across create → edit → delete
  */
 
-import { AUTH_V2_ADMIN, Page, expect, getSeededRoleData, getSeededRoleName, setupPage, test } from '../../../utils';
+import {
+  AUTH_V2_ADMIN,
+  Page,
+  expect,
+  getSeededRoleData,
+  getSeededRoleName,
+  setupPage,
+  test,
+  waitForNextEnabled,
+  waitForTableUpdate,
+} from '../../../utils';
 
 // Safety rail: Require TEST_PREFIX for any test that creates data
 const TEST_PREFIX = process.env.TEST_PREFIX;
@@ -144,18 +154,17 @@ test.describe('V2 Roles - Admin CRUD Lifecycle', () => {
       await expect(nameInput).toBeVisible({ timeout: 5000 });
       await nameInput.fill(roleName);
 
-      await page.waitForTimeout(1500); // Async validation
+      // Wait for async validation (name uniqueness check) by waiting for Next to be enabled
+      await waitForNextEnabled(page);
     });
 
     await test.step('Add permissions', async () => {
       const modal = page.locator('[role="dialog"]');
 
       const nextButton1 = modal.getByRole('button', { name: /^next$/i }).first();
-      await expect(nextButton1).toBeEnabled({ timeout: 10000 });
       await nextButton1.click();
-      await page.waitForTimeout(500);
 
-      // Select at least one permission
+      // Wait for permission checkboxes to appear (indicates step has loaded)
       const permissionCheckboxes = modal.getByRole('checkbox');
       const checkboxCount = await permissionCheckboxes.count();
       if (checkboxCount > 1) {
@@ -169,7 +178,6 @@ test.describe('V2 Roles - Admin CRUD Lifecycle', () => {
 
     await test.step('Review and submit', async () => {
       const modal = page.locator('[role="dialog"]');
-      await page.waitForTimeout(500);
 
       // Add description if available
       const descriptionInput = modal.locator('textarea').first();
@@ -281,7 +289,7 @@ test.describe('V2 Roles - Admin CRUD Lifecycle', () => {
     await test.step('Verify role is deleted', async () => {
       await searchInput.clear();
       await searchInput.fill(roleName);
-      await page.waitForTimeout(1000);
+      await waitForTableUpdate(page);
 
       await expect(page.getByRole('grid').getByText(roleName)).not.toBeVisible({ timeout: 10000 });
       console.log(`[Verify] Verified deletion: ${roleName}`);

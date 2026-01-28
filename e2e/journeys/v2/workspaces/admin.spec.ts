@@ -10,7 +10,7 @@
  * - CRUD lifecycle uses serial mode to maintain state across create → edit → delete
  */
 
-import { AUTH_V2_ADMIN, Page, expect, getSeededWorkspaceData, getSeededWorkspaceName, setupPage, test } from '../../../utils';
+import { AUTH_V2_ADMIN, Page, expect, getSeededWorkspaceData, getSeededWorkspaceName, setupPage, test, waitForTableUpdate } from '../../../utils';
 
 // Safety rail: Require TEST_PREFIX for any test that creates data
 const TEST_PREFIX = process.env.TEST_PREFIX;
@@ -244,7 +244,7 @@ test.describe('V2 Workspaces - Admin CRUD Lifecycle', () => {
     await test.step('Verify workspace is deleted', async () => {
       await searchInput.clear();
       await searchInput.fill(workspaceName);
-      await page.waitForTimeout(1000);
+      await waitForTableUpdate(page);
 
       await expect(page.getByRole('grid').getByText(workspaceName)).not.toBeVisible({ timeout: 10000 });
       console.log(`[Verify] Verified deletion: ${workspaceName}`);
