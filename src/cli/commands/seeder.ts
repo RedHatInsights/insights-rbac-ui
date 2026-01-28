@@ -304,6 +304,22 @@ async function fetchRootWorkspaceId(client: AxiosInstance): Promise<string | und
   }
 }
 
+/**
+ * Fetch Default workspace ID for creating child workspaces.
+ * The Default workspace is a better place for test workspaces than root.
+ */
+async function fetchDefaultWorkspaceId(client: AxiosInstance): Promise<string | undefined> {
+  try {
+    const response = await client.get('/api/rbac/v2/workspaces/', {
+      params: { type: 'default' },
+    });
+    return response.data?.data?.[0]?.id;
+  } catch {
+    console.error('  ⚠ Could not fetch default workspace');
+    return undefined;
+  }
+}
+
 // ============================================================================
 // Logging Helpers
 // ============================================================================
@@ -468,11 +484,19 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
 
   // Create workspaces (sequentially, bail on first error)
   // Note: Workspaces use V2 API, no typed client available yet
+  // Create under Default workspace (not root) for better organization
   if (workspaces.length > 0) {
     console.error(`\n📦 Creating ${workspaces.length} workspace(s)...`);
-    const rootWorkspaceId = await fetchRootWorkspaceId(client);
+    // Try Default workspace first, fall back to root
+    let parentWorkspaceId = await fetchDefaultWorkspaceId(client);
+    if (!parentWorkspaceId) {
+      console.error('  ⚠ Default workspace not found, falling back to root');
+      parentWorkspaceId = await fetchRootWorkspaceId(client);
+    } else {
+      console.error(`  → Using Default workspace as parent: ${parentWorkspaceId}`);
+    }
     for (const workspace of workspaces) {
-      await createWorkspace(client, workspace, result.workspaces, rootWorkspaceId);
+      await createWorkspace(client, workspace, result.workspaces, parentWorkspaceId);
     }
   }
 
