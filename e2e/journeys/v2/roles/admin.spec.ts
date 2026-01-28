@@ -1,28 +1,29 @@
 /**
- * V2 Roles - Admin Tests
+ * V2 Roles - Admin Journey Tests
  *
  * Tests for the V2 Roles page (/iam/access-management/roles)
  * with admin privileges.
  *
- * Test Pattern:
- * - Use `test.step()` to group related assertions within a single test
- * - Pay the "page load tax" once per test, not per assertion
- * - CRUD lifecycle uses serial mode to maintain state across create → edit → delete
+ * Journey Pattern:
+ * - Pay the "page load tax" once per journey, not per assertion
+ * - Use test.step() to organize logical phases
+ * - Use strict accessibility selectors
+ *
+ * Key V2 Differences from V1:
+ * - View detail: Row click → drawer (not link → page)
+ * - Edit: Navigates to separate page (not modal)
+ * - Delete: Modal with specific OUIA ID
  */
 
-import {
-  AUTH_V2_ADMIN,
-  Page,
-  expect,
-  getSeededRoleData,
-  getSeededRoleName,
-  setupPage,
-  test,
-  waitForNextEnabled,
-  waitForTableUpdate,
-} from '../../../utils';
+import { expect, test } from '@playwright/test';
+import { AUTH_V2_ADMIN, setupPage } from '../../../utils';
+import { getSeededRoleName } from '../../../utils/seed-map';
+import { fillCreateRoleWizard, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../../utils/roleHelpers';
 
-// Safety rail: Require TEST_PREFIX for any test that creates data
+// ═══════════════════════════════════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════
+
 const TEST_PREFIX = process.env.TEST_PREFIX;
 
 if (!TEST_PREFIX) {
@@ -34,7 +35,7 @@ if (!TEST_PREFIX) {
       '║  This test creates data that must be prefixed to avoid polluting    ║\n' +
       '║  the shared environment. Set TEST_PREFIX before running:            ║\n' +
       '║                                                                      ║\n' +
-      '║    TEST_PREFIX=yourprefix npx playwright test v2/roles              ║\n' +
+      '║    TEST_PREFIX=e2e npx playwright test v2/roles/admin               ║\n' +
       '║                                                                      ║\n' +
       '╚══════════════════════════════════════════════════════════════════════╝\n',
   );
@@ -42,17 +43,105 @@ if (!TEST_PREFIX) {
 
 test.use({ storageState: AUTH_V2_ADMIN });
 
-// Get seeded role name and data from seed map/fixture
+const ROLES_URL = '/iam/access-management/roles';
+
+// Get seeded role name from seed map/fixture
 const SEEDED_ROLE_NAME = getSeededRoleName();
-const SEEDED_ROLE_DATA = getSeededRoleData();
 
-test.describe('V2 Roles - Admin', () => {
-  const ROLES_URL = '/iam/access-management/roles';
+// ═══════════════════════════════════════════════════════════════════════════
+// V2-SPECIFIC HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════
 
-  /**
-   * Admin can find and inspect a seeded role
-   * Single page load, multiple verification steps
-   */
+/**
+ * Opens role details drawer by clicking on the role row.
+ * V2-specific: Uses drawer instead of page navigation.
+ */
+async function openRoleDrawer(page: import('@playwright/test').Page, roleName: string): Promise<void> {
+  const roleCell = page.getByRole('grid').getByText(roleName);
+  await roleCell.click();
+  // Drawer opens with role name as h2 heading
+  await expect(page.getByRole('heading', { name: roleName, level: 2 })).toBeVisible({ timeout: 10000 });
+}
+
+/**
+ * Closes the role details drawer.
+ */
+async function closeRoleDrawer(page: import('@playwright/test').Page, roleName: string): Promise<void> {
+  const closeButton = page.locator('[data-ouia-component-id="RolesTable-drawer-close-button"]');
+  await closeButton.click();
+  await expect(page.getByRole('heading', { name: roleName, level: 2 })).not.toBeVisible({ timeout: 5000 });
+}
+
+/**
+ * Opens the kebab menu for a role row.
+ */
+async function openRoleKebabMenu(page: import('@playwright/test').Page, roleName: string): Promise<void> {
+  const roleRow = page.locator('tbody tr', { has: page.getByText(roleName) });
+  const kebabButton = roleRow.getByRole('button', { name: /actions/i });
+  await expect(kebabButton).toBeVisible();
+  await kebabButton.click();
+}
+
+/**
+ * Fills the V2 Edit Role page and saves.
+ * V2-specific: Edit is a full page (EditRole.tsx), not a modal.
+ *
+ * Note: Form uses DDF with pristine check - must actually change content for Save to enable.
+ */
+async function fillEditRolePage(page: import('@playwright/test').Page, newName: string, newDescription: string): Promise<void> {
+  // Wait for edit page to load
+  await expect(page).toHaveURL(/\/roles\/edit\//, { timeout: 10000 });
+
+  // Wait for the form to be visible
+  const nameInput = page.getByLabel(/^name/i);
+  await expect(nameInput).toBeVisible({ timeout: 10000 });
+
+  // Change name - clear and fill with new value
+  await nameInput.click();
+  await nameInput.selectText();
+  await page.keyboard.press('Backspace');
+  await nameInput.fill(newName);
+
+  // Change description
+  const descInput = page.getByLabel(/description/i);
+  await expect(descInput).toBeVisible({ timeout: 5000 });
+  await descInput.click();
+  await descInput.selectText();
+  await page.keyboard.press('Backspace');
+  await descInput.fill(newDescription);
+
+  // Wait for form to recognize changes and enable Save
+  const saveButton = page.getByRole('button', { name: /save/i });
+  await expect(saveButton).toBeEnabled({ timeout: 10000 });
+  await saveButton.click();
+
+  // After save, should navigate back to roles list (may have query params)
+  await expect(page).toHaveURL(/\/roles(\?|$)/, { timeout: 15000 });
+}
+
+/**
+ * Confirms role deletion in the V2 delete modal.
+ */
+async function confirmRoleDeletion(page: import('@playwright/test').Page): Promise<void> {
+  const deleteModal = page.locator('[data-ouia-component-id="RolesTable-remove-role-modal"]');
+  await expect(deleteModal).toBeVisible({ timeout: 5000 });
+
+  const checkbox = deleteModal.getByRole('checkbox');
+  if (await checkbox.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await checkbox.click();
+  }
+
+  const confirmButton = deleteModal.getByRole('button', { name: /delete/i });
+  await expect(confirmButton).toBeEnabled();
+  await confirmButton.click();
+  await expect(deleteModal).not.toBeVisible({ timeout: 10000 });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// JOURNEY 1: SEEDED DATA (Read-Only)
+// ═══════════════════════════════════════════════════════════════════════════
+
+test.describe('V2 Roles - Admin Seeded Data Journey', () => {
   test('Can find and inspect seeded role', async ({ page }) => {
     test.skip(!SEEDED_ROLE_NAME, 'No seeded role found in seed map');
     await setupPage(page);
@@ -65,235 +154,152 @@ test.describe('V2 Roles - Admin', () => {
     });
 
     await test.step('Search for the seeded role', async () => {
-      const searchInput = page.getByPlaceholder(/filter|search/i);
-      await searchInput.fill(SEEDED_ROLE_NAME!);
-
-      // Verify the seeded role appears in the table
-      await expect(page.getByRole('grid').getByText(SEEDED_ROLE_NAME!)).toBeVisible({ timeout: 10000 });
+      await searchForRole(page, SEEDED_ROLE_NAME!);
+      await verifyRoleInTable(page, SEEDED_ROLE_NAME!);
     });
 
-    await test.step('Navigate to detail view', async () => {
-      const roleLink = page.getByRole('grid').getByRole('link', { name: SEEDED_ROLE_NAME! });
-      await roleLink.click();
-
-      await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME! })).toBeVisible({ timeout: 15000 });
+    await test.step('Open role details drawer', async () => {
+      await openRoleDrawer(page, SEEDED_ROLE_NAME!);
     });
 
-    await test.step('Verify role details', async () => {
-      // Verify the expected description is visible (if defined in seed fixture)
-      if (SEEDED_ROLE_DATA?.description) {
-        await expect(page.getByText(SEEDED_ROLE_DATA.description)).toBeVisible({ timeout: 30000 });
-      }
+    await test.step('Verify drawer content', async () => {
+      // V2 drawer has Permissions and Assigned user groups tabs
+      await expect(page.getByRole('tab', { name: /permissions/i })).toBeVisible();
+      await expect(page.getByRole('tab', { name: /assigned user groups/i })).toBeVisible();
 
-      // Verify action buttons are available for admin
-      const actionsButton = page.getByRole('button', { name: /actions/i });
-      await expect(actionsButton).toBeVisible();
+      // Close drawer
+      await closeRoleDrawer(page, SEEDED_ROLE_NAME!);
     });
   });
 });
 
-/**
- * CRUD Lifecycle Tests
- *
- * These tests run in serial mode to maintain state across:
- * Create → Verify → Edit → Delete → Verify Deleted
- *
- * Structure:
- * 1. "Create role" - Complex wizard flow, needs its own test
- * 2. "Manage role lifecycle" - All post-creation operations in one test with steps
- */
-test.describe('V2 Roles - Admin CRUD Lifecycle', () => {
-  test.describe.configure({ mode: 'serial' });
+// ═══════════════════════════════════════════════════════════════════════════
+// JOURNEY 2: CRUD LIFECYCLE (Ephemeral Data)
+// ═══════════════════════════════════════════════════════════════════════════
 
+test.describe('V2 Roles - Admin CRUD Lifecycle Journey', () => {
+  // Generate unique name for this test run (parallel-safe)
   const timestamp = Date.now();
-  const roleName = `${TEST_PREFIX}__V2_Lifecycle_Role_${timestamp}`;
-  const roleDescription = 'E2E V2 lifecycle test role';
-  const editedDescription = 'E2E V2 lifecycle test role (edited)';
+  const uniqueRoleName = `${TEST_PREFIX}__V2_Lifecycle_${timestamp}`;
+  const roleDescription = 'E2E V2 lifecycle test role - created by automated tests';
+  const editedRoleName = `${uniqueRoleName}_Edited`;
+  const editedDescription = 'E2E V2 lifecycle test role - EDITED by automated tests';
 
-  let page: Page;
-
-  test.beforeAll(async ({ browser }) => {
-    if (!process.env.TEST_PREFIX) {
-      throw new Error('TEST_PREFIX environment variable is required');
-    }
-
-    const context = await browser.newContext({ storageState: AUTH_V2_ADMIN });
-    page = await context.newPage();
+  test('Create → View → Edit → Delete → Verify Deleted', async ({ page }) => {
     await setupPage(page);
 
-    console.log(`\n[V2 Roles Admin] Using prefix: ${TEST_PREFIX}`);
-    console.log(`[V2 Roles Admin] Role name: ${roleName}\n`);
-  });
+    console.log(`\n[V2 Roles CRUD] Starting lifecycle test`);
+    console.log(`[V2 Roles CRUD] Role name: ${uniqueRoleName}\n`);
 
-  test.afterAll(async () => {
-    await page.close();
-  });
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 1: CREATE
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 1: Create new role via wizard', async () => {
+      await page.goto(ROLES_URL);
+      await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible();
 
-  /**
-   * Create a new role via the wizard
-   */
-  test('Create role', async () => {
-    await page.goto('/iam/access-management/roles');
-    await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible();
-
-    await test.step('Open wizard and fill role name', async () => {
+      // Open Create Role wizard
       const createButton = page.getByRole('button', { name: /create role/i });
       await expect(createButton).toBeVisible();
       await createButton.click();
 
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 10000 });
+      // Fill wizard and submit (uses shared helper - same wizard as V1)
+      await fillCreateRoleWizard(page, uniqueRoleName, roleDescription);
 
-      // Select "Create from scratch" if visible
-      const createFromScratchOption = modal.getByRole('radio', { name: /create.*scratch/i });
-      if (await createFromScratchOption.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await createFromScratchOption.click();
-      }
-
-      const nameInput = modal.getByLabel(/role name/i);
-      await expect(nameInput).toBeVisible({ timeout: 5000 });
-      await nameInput.fill(roleName);
-
-      // Wait for async validation (name uniqueness check) by waiting for Next to be enabled
-      await waitForNextEnabled(page);
+      console.log(`[Create] ✓ Wizard completed`);
     });
 
-    await test.step('Add permissions', async () => {
-      const modal = page.locator('[role="dialog"]');
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 2: VERIFY CREATION
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 2: Verify role appears in table', async () => {
+      await searchForRole(page, uniqueRoleName);
+      await verifyRoleInTable(page, uniqueRoleName);
 
-      const nextButton1 = modal.getByRole('button', { name: /^next$/i }).first();
-      await nextButton1.click();
-
-      // Wait for permission checkboxes to appear (indicates step has loaded)
-      const permissionCheckboxes = modal.getByRole('checkbox');
-      const checkboxCount = await permissionCheckboxes.count();
-      if (checkboxCount > 1) {
-        await permissionCheckboxes.nth(1).click();
-      }
-
-      const nextButton2 = modal.getByRole('button', { name: /^next$/i }).first();
-      await expect(nextButton2).toBeEnabled({ timeout: 5000 });
-      await nextButton2.click();
+      console.log(`[Verify] ✓ Role found in table`);
     });
 
-    await test.step('Review and submit', async () => {
-      const modal = page.locator('[role="dialog"]');
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 3: VIEW IN DRAWER (V2-specific)
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 3: Open drawer and verify role data', async () => {
+      await openRoleDrawer(page, uniqueRoleName);
 
-      // Add description if available
-      const descriptionInput = modal.locator('textarea').first();
-      if (await descriptionInput.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await descriptionInput.fill(roleDescription);
-      }
+      // Verify drawer has expected tabs
+      await expect(page.getByRole('tab', { name: /permissions/i })).toBeVisible();
+      await expect(page.getByRole('tab', { name: /assigned user groups/i })).toBeVisible();
 
-      const submitButton = modal.getByRole('button', { name: /submit/i });
-      await expect(submitButton).toBeEnabled({ timeout: 5000 });
-      await submitButton.click();
+      // Close drawer
+      await closeRoleDrawer(page, uniqueRoleName);
 
-      // Wait for success screen and exit
-      await expect(modal.getByText(/successfully created/i)).toBeVisible({ timeout: 10000 });
-      const exitButton = modal.getByRole('button', { name: /exit/i });
-      await exitButton.click();
-
-      await expect(modal).not.toBeVisible({ timeout: 5000 });
+      console.log(`[View] ✓ Drawer verified`);
     });
 
-    await test.step('Verify role appears in list', async () => {
-      const searchInput = page.getByPlaceholder(/filter|search/i);
-      await searchInput.fill(roleName);
-      await expect(page.getByRole('grid').getByText(roleName)).toBeVisible({ timeout: 10000 });
-      console.log(`[Create] Created role: ${roleName}`);
-    });
-  });
-
-  /**
-   * Manage role lifecycle: View → Edit → Delete
-   * Single page load, multiple operations via steps
-   */
-  test('Manage role lifecycle', async () => {
-    await page.goto('/iam/access-management/roles');
-    await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible();
-
-    const searchInput = page.getByPlaceholder(/filter|search/i);
-    await searchInput.fill(roleName);
-    await expect(page.getByRole('grid').getByText(roleName)).toBeVisible({ timeout: 10000 });
-
-    await test.step('View role details', async () => {
-      const roleLink = page.getByRole('grid').getByRole('link', { name: roleName });
-      await roleLink.click();
-
-      await expect(page.getByRole('heading', { name: roleName })).toBeVisible({ timeout: 10000 });
-      console.log(`[View] Verified role details: ${roleName}`);
-
-      // Navigate back to list
-      await page.goto('/iam/access-management/roles');
-      await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible();
-      await searchInput.fill(roleName);
-      await expect(page.getByRole('grid').getByText(roleName)).toBeVisible({ timeout: 10000 });
-    });
-
-    await test.step('Edit role description', async () => {
-      const roleRow = page.locator('tbody tr', { has: page.getByText(roleName) });
-      const kebabButton = roleRow.getByRole('button', { name: /actions/i });
-      await expect(kebabButton).toBeVisible();
-      await kebabButton.click();
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 4: EDIT (V2 uses full page, not modal)
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 4: Edit role from kebab menu', async () => {
+      await openRoleKebabMenu(page, uniqueRoleName);
 
       const editOption = page.getByRole('menuitem', { name: /edit/i });
       await expect(editOption).toBeVisible();
       await editOption.click();
 
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      // V2 navigates to edit page
+      await fillEditRolePage(page, editedRoleName, editedDescription);
 
-      const descriptionInput = modal.locator('textarea, input[name*="description"]');
-      if (await descriptionInput.isVisible()) {
-        await descriptionInput.clear();
-        await descriptionInput.fill(editedDescription);
-      }
-
-      const saveButton = modal.getByRole('button', { name: /save|submit|update/i });
-      await expect(saveButton).toBeEnabled();
-      await saveButton.click();
-      await expect(modal).not.toBeVisible({ timeout: 10000 });
-      console.log(`[Edit] Edited role: ${roleName}`);
+      console.log(`[Edit] ✓ Role renamed to: ${editedRoleName}`);
     });
 
-    await test.step('Delete role', async () => {
-      await searchInput.clear();
-      await searchInput.fill(roleName);
-      await expect(page.getByRole('grid').getByText(roleName)).toBeVisible({ timeout: 10000 });
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 5: VERIFY EDIT
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 5: Verify edit was applied', async () => {
+      // Search for the edited name
+      await searchForRole(page, editedRoleName);
+      await verifyRoleInTable(page, editedRoleName);
 
-      const roleRow = page.locator('tbody tr', { has: page.getByText(roleName) });
-      const kebabButton = roleRow.getByRole('button', { name: /actions/i });
-      await expect(kebabButton).toBeVisible();
-      await kebabButton.click();
+      // Verify original name no longer exists
+      await searchForRole(page, uniqueRoleName);
+      const originalNameVisible = await page
+        .getByRole('grid')
+        .getByText(uniqueRoleName, { exact: true })
+        .isVisible({ timeout: 2000 })
+        .catch(() => false);
+      expect(originalNameVisible).toBe(false);
+
+      console.log(`[Verify Edit] ✓ Role renamed, original name gone`);
+    });
+
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 6: DELETE
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 6: Delete role', async () => {
+      // Search for the edited role first
+      await searchForRole(page, editedRoleName);
+      await openRoleKebabMenu(page, editedRoleName);
 
       const deleteOption = page.getByRole('menuitem', { name: /delete/i });
       await expect(deleteOption).toBeVisible();
       await deleteOption.click();
 
-      const modal = page.getByRole('dialog');
-      await expect(modal).toBeVisible({ timeout: 5000 });
+      await confirmRoleDeletion(page);
 
-      const checkbox = modal.getByRole('checkbox');
-      if (await checkbox.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await checkbox.click();
-      }
-
-      const confirmButton = modal.getByRole('button', { name: /delete|remove|confirm/i });
-      await expect(confirmButton).toBeEnabled();
-      await confirmButton.click();
-      await expect(modal).not.toBeVisible({ timeout: 10000 });
-      console.log(`[Delete] Deleted role: ${roleName}`);
+      console.log(`[Delete] ✓ Deletion confirmed`);
     });
 
-    await test.step('Verify role is deleted', async () => {
-      await searchInput.clear();
-      await searchInput.fill(roleName);
-      await waitForTableUpdate(page);
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 7: VERIFY DELETION
+    // ─────────────────────────────────────────────────────────────────────
+    await test.step('Phase 7: Verify role is deleted', async () => {
+      // Wait for table to update after deletion
+      await expect(page.getByRole('heading', { name: /roles/i })).toBeVisible({ timeout: 15000 });
 
-      await expect(page.getByRole('grid').getByText(roleName)).not.toBeVisible({ timeout: 10000 });
-      console.log(`[Verify] Verified deletion: ${roleName}`);
-      console.log(`\n[V2 Roles Admin] Lifecycle test completed successfully!\n`);
+      await searchForRole(page, editedRoleName);
+      await verifyRoleNotInTable(page, editedRoleName);
+
+      console.log(`[Verify Delete] ✓ Role no longer exists`);
+      console.log(`\n[V2 Roles CRUD] ✓ Lifecycle test completed successfully!\n`);
     });
   });
 });
