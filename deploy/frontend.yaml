@@ -105,7 +105,7 @@ objects:
               routes:
                 - id: users-and-groups
                   title: Users and Groups
-                  href: /iam/access-management/users-and-groups
+                  href: /iam/access-management/users-and-user-groups
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
