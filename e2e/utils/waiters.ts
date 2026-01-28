@@ -182,7 +182,7 @@ export async function waitForTabContent(page: Page, options: { timeout?: number 
   const spinner = page.locator('.pf-v6-c-spinner, .pf-c-spinner');
   try {
     // Check if spinner exists first
-    if (await spinner.count() > 0) {
+    if ((await spinner.count()) > 0) {
       await spinner.first().waitFor({ state: 'hidden', timeout });
     }
   } catch {
@@ -192,7 +192,7 @@ export async function waitForTabContent(page: Page, options: { timeout?: number 
   // Also wait for any skeleton loaders
   const skeleton = page.locator('.pf-v6-c-skeleton, .pf-c-skeleton');
   try {
-    if (await skeleton.count() > 0) {
+    if ((await skeleton.count()) > 0) {
       await skeleton.first().waitFor({ state: 'hidden', timeout });
     }
   } catch {

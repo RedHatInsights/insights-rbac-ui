@@ -16,13 +16,19 @@ import {
 } from '../components/shared/index.js';
 import { type WorkspacesWorkspace as Workspace, useCreateWorkspaceMutation, useDeleteWorkspaceMutation, useWorkspacesQuery } from '../queries.js';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 15;
 
 interface WorkspacesListProps {
   queryClient: QueryClient;
 }
 
 type Mode = 'browse' | 'search' | 'create' | 'confirm-delete';
+
+// Breadcrumb item for navigation
+interface BreadcrumbItem {
+  id: string;
+  name: string;
+}
 
 export function WorkspacesList({ queryClient }: WorkspacesListProps): React.ReactElement {
   const navigate = useNavigate();
@@ -37,23 +43,120 @@ export function WorkspacesList({ queryClient }: WorkspacesListProps): React.Reac
   const [formFields, setFormFields] = useState({ name: '', description: '' });
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Queries
-  const workspacesQuery = useWorkspacesQuery({ limit: PAGE_SIZE, offset: page * PAGE_SIZE, name: searchTerm || undefined }, { queryClient });
-  // Query root workspace to get parent_id for new workspaces
-  const rootWorkspaceQuery = useWorkspacesQuery({ type: 'root' }, { queryClient });
-  const rootWorkspaceId = rootWorkspaceQuery.data?.data?.[0]?.id;
+  // Navigation state: current parent workspace (null = show root level)
+  const [currentParentId, setCurrentParentId] = useState<string | null>(null);
+  const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([]);
+
+  // Fetch all workspaces (API doesn't support parent_id filtering)
+  const allWorkspacesQuery = useWorkspacesQuery({ type: 'all', limit: 1000 }, { queryClient });
+
+  // Combined loading/error state
+  const isLoading = allWorkspacesQuery.isLoading;
+  const isError = allWorkspacesQuery.isError;
+
+  // Get all workspaces
+  const allWorkspaces = allWorkspacesQuery.data?.data ?? [];
+
+  // Find root workspace
+  const rootWorkspace = useMemo(() => allWorkspaces.find((ws) => ws.type === 'root'), [allWorkspaces]);
+  const rootWorkspaceId = rootWorkspace?.id;
+
+  // Determine which parent to show children for
+  const effectiveParentId = currentParentId ?? rootWorkspaceId;
+
+  // Get current parent workspace object
+  const currentParentWorkspace = useMemo(() => {
+    if (!effectiveParentId) return null;
+    return allWorkspaces.find((ws) => ws.id === effectiveParentId) ?? null;
+  }, [allWorkspaces, effectiveParentId]);
+
+  // Filter to get children of current parent (client-side filtering)
+  const workspacesList = useMemo(() => {
+    if (!effectiveParentId) return [];
+
+    // Get direct children of current parent
+    const children = allWorkspaces.filter((ws) => ws.parent_id === effectiveParentId);
+
+    // Sort: default first, then alphabetically
+    return children.sort((a, b) => {
+      if (a.type === 'default' && b.type !== 'default') return -1;
+      if (a.type !== 'default' && b.type === 'default') return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }, [allWorkspaces, effectiveParentId]);
+
+  // Filter by search
+  const filteredWorkspaces = useMemo(() => {
+    if (!searchTerm) return workspacesList;
+    return workspacesList.filter((ws) => ws.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  }, [workspacesList, searchTerm]);
+
+  // Client-side pagination
+  const totalCount = filteredWorkspaces.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+
+  // Slice for current page
+  const pageWorkspaces = useMemo(() => {
+    const start = page * PAGE_SIZE;
+    return filteredWorkspaces.slice(start, start + PAGE_SIZE);
+  }, [filteredWorkspaces, page]);
+
+  const selectedWorkspace = pageWorkspaces[selectedIndex];
+
+  // Build a map of child counts for each workspace
+  const childCountMap = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const ws of allWorkspaces) {
+      if (ws.parent_id) {
+        counts.set(ws.parent_id, (counts.get(ws.parent_id) || 0) + 1);
+      }
+    }
+    return counts;
+  }, [allWorkspaces]);
+
+  // Helper to get child count for a workspace
+  const getChildCount = useCallback(
+    (wsId: string | undefined) => {
+      if (!wsId) return 0;
+      return childCountMap.get(wsId) || 0;
+    },
+    [childCountMap],
+  );
 
   // Mutations
   const createWorkspace = useCreateWorkspaceMutation({ queryClient });
   const deleteWorkspace = useDeleteWorkspaceMutation({ queryClient });
 
-  // Computed
-  const workspacesList = useMemo(() => workspacesQuery.data?.data ?? [], [workspacesQuery.data]);
-  const totalCount = workspacesList.length;
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
-  const selectedWorkspace = workspacesList[selectedIndex] as Workspace | undefined;
-
   const isSystemWorkspace = (ws: Workspace) => ws.type === 'root' || ws.type === 'default';
+
+  // Navigation handlers
+  const drillInto = useCallback((workspace: Workspace) => {
+    if (!workspace.id) return;
+    setBreadcrumbs((prev) => [...prev, { id: workspace.id!, name: workspace.name }]);
+    setCurrentParentId(workspace.id);
+    setSelectedIndex(0);
+    setPage(0);
+  }, []);
+
+  const goBack = useCallback(() => {
+    if (breadcrumbs.length === 0) return;
+
+    const newBreadcrumbs = breadcrumbs.slice(0, -1);
+    setBreadcrumbs(newBreadcrumbs);
+
+    // Go to parent of last breadcrumb, or null (root level)
+    const newParentId = newBreadcrumbs.length > 0 ? newBreadcrumbs[newBreadcrumbs.length - 1].id : null;
+    setCurrentParentId(newParentId);
+    setSelectedIndex(0);
+    setPage(0);
+  }, [breadcrumbs]);
+
+  const goToRoot = useCallback(() => {
+    setBreadcrumbs([]);
+    setCurrentParentId(null);
+    setSelectedIndex(0);
+    setPage(0);
+  }, []);
 
   // Handlers
   const handleCreate = useCallback(async () => {
@@ -61,23 +164,26 @@ export function WorkspacesList({ queryClient }: WorkspacesListProps): React.Reac
       setStatus({ message: 'Name is required', type: 'error' });
       return;
     }
-    if (!rootWorkspaceId) {
-      setStatus({ message: 'Cannot create workspace: root workspace not found', type: 'error' });
+    // Create under current parent (or root if at top level)
+    const parentId = effectiveParentId;
+    if (!parentId) {
+      setStatus({ message: 'Cannot create workspace: no parent selected', type: 'error' });
       return;
     }
     try {
       await createWorkspace.mutateAsync({
         name: formFields.name,
         description: formFields.description,
-        parent_id: rootWorkspaceId,
+        parent_id: parentId,
       });
       setStatus({ message: 'Workspace created successfully', type: 'success' });
       setFormFields({ name: '', description: '' });
       setMode('browse');
+      allWorkspacesQuery.refetch();
     } catch (err) {
       setStatus({ message: `Failed to create: ${err instanceof Error ? err.message : 'Unknown error'}`, type: 'error' });
     }
-  }, [formFields, createWorkspace, setStatus, rootWorkspaceId]);
+  }, [formFields, createWorkspace, setStatus, effectiveParentId, allWorkspacesQuery]);
 
   const handleDelete = useCallback(async () => {
     if (!selectedWorkspace?.id) return;
@@ -86,21 +192,18 @@ export function WorkspacesList({ queryClient }: WorkspacesListProps): React.Reac
       await deleteWorkspace.mutateAsync({ id: selectedWorkspace.id, name: selectedWorkspace.name });
       setStatus({ message: 'Workspace deleted successfully', type: 'success' });
       setSelectedIndex(Math.max(0, selectedIndex - 1));
+      allWorkspacesQuery.refetch();
     } catch (err) {
       setStatus({ message: `Failed to delete: ${err instanceof Error ? err.message : 'Unknown error'}`, type: 'error' });
     } finally {
       setDeletingId(null);
       setMode('browse');
     }
-  }, [selectedWorkspace, selectedIndex, deleteWorkspace, setStatus]);
+  }, [selectedWorkspace, selectedIndex, deleteWorkspace, setStatus, allWorkspacesQuery]);
 
   // Input handling
   useInput((input, key) => {
-    // In search mode, don't handle any input - let SearchInput handle it
-    if (mode === 'search') {
-      return;
-    }
-
+    if (mode === 'search') return;
     if (mode === 'create') return;
     if (mode === 'confirm-delete') return;
 
@@ -108,15 +211,25 @@ export function WorkspacesList({ queryClient }: WorkspacesListProps): React.Reac
     if (key.upArrow) {
       setSelectedIndex((prev) => Math.max(0, prev - 1));
     } else if (key.downArrow) {
-      setSelectedIndex((prev) => Math.min(workspacesList.length - 1, prev + 1));
+      setSelectedIndex((prev) => Math.min(pageWorkspaces.length - 1, prev + 1));
     } else if (key.leftArrow) {
-      setPage((prev) => Math.max(0, prev - 1));
-      setSelectedIndex(0);
+      if (totalPages > 1) {
+        setPage((prev) => Math.max(0, prev - 1));
+        setSelectedIndex(0);
+      }
     } else if (key.rightArrow) {
-      setPage((prev) => Math.min(totalPages - 1, prev + 1));
-      setSelectedIndex(0);
-    } else if (key.return && selectedWorkspace?.id) {
-      navigate(`/workspaces/${selectedWorkspace.id}`);
+      if (totalPages > 1) {
+        setPage((prev) => Math.min(totalPages - 1, prev + 1));
+        setSelectedIndex(0);
+      }
+    } else if (key.return && selectedWorkspace) {
+      // Enter: drill into workspace to see children
+      drillInto(selectedWorkspace);
+    } else if (key.backspace || key.escape || input.toLowerCase() === 'b') {
+      // Back: go up one level
+      if (breadcrumbs.length > 0) {
+        goBack();
+      }
     } else if (input === '/') {
       setSearchInput(searchTerm);
       setMode('search');
@@ -130,20 +243,68 @@ export function WorkspacesList({ queryClient }: WorkspacesListProps): React.Reac
         setMode('confirm-delete');
       }
     } else if (input.toLowerCase() === 'r') {
-      workspacesQuery.refetch();
+      allWorkspacesQuery.refetch();
       setStatus({ message: 'Refreshed', type: 'info' });
+    } else if (input.toLowerCase() === 'c') {
+      setSearchTerm('');
+      setSelectedIndex(0);
+      setStatus({ message: 'Search cleared', type: 'info' });
+    } else if (input.toLowerCase() === 'v' && selectedWorkspace?.id) {
+      // V: view workspace detail page
+      navigate(`/workspaces/${selectedWorkspace.id}`);
+    } else if (input.toLowerCase() === 'h') {
+      // H: go to root/home
+      goToRoot();
     }
   });
 
   // Render
-  if (workspacesQuery.isError) {
-    return <ErrorMessage message="Failed to load workspaces" onRetry={() => workspacesQuery.refetch()} />;
+  if (isError) {
+    return (
+      <ErrorMessage
+        message="Failed to load workspaces"
+        onRetry={() => {
+          allWorkspacesQuery.refetch();
+        }}
+      />
+    );
   }
 
   return (
     <Box flexDirection="row">
       {/* List Panel */}
       <Box flexDirection="column" width="60%">
+        {/* Parent workspace header */}
+        <Box flexDirection="column" marginBottom={1}>
+          <Box>
+            <Text color={colors.info} bold>
+              📁{' '}
+            </Text>
+            <Text color={colors.success} bold>
+              {currentParentWorkspace?.name ?? 'root'}
+            </Text>
+            {currentParentWorkspace?.type && <Text color={colors.warning}> [{currentParentWorkspace.type}]</Text>}
+          </Box>
+          <Box>
+            <Text color={colors.muted} dimColor>
+              {'   '}ID: {effectiveParentId ?? '—'}
+            </Text>
+          </Box>
+          {breadcrumbs.length > 0 && (
+            <Box>
+              <Text color={colors.muted} dimColor>
+                {'   '}Path: root{breadcrumbs.map((c) => ` / ${c.name}`).join('')}
+              </Text>
+            </Box>
+          )}
+          <Box marginTop={1}>
+            <Text color={colors.muted}>
+              Children ({totalCount}):
+              {breadcrumbs.length > 0 && <Text dimColor> B=back H=home</Text>}
+            </Text>
+          </Box>
+        </Box>
+
         {mode === 'search' && (
           <SearchInput
             value={searchInput}
@@ -174,13 +335,26 @@ export function WorkspacesList({ queryClient }: WorkspacesListProps): React.Reac
 
         {(mode === 'browse' || mode === 'search') && (
           <>
-            {workspacesQuery.isLoading ? (
+            {searchTerm && (
+              <Box marginBottom={1}>
+                <Text color={colors.muted}>
+                  Filter: &quot;{searchTerm}&quot; <Text dimColor>(press C to clear)</Text>
+                </Text>
+              </Box>
+            )}
+            {isLoading ? (
               <Loading message="Loading workspaces..." />
-            ) : workspacesList.length === 0 ? (
-              <EmptyState message="No workspaces found" />
+            ) : pageWorkspaces.length === 0 ? (
+              <EmptyState message={searchTerm ? 'No workspaces match filter' : 'No child workspaces'} />
             ) : (
-              workspacesList.map((ws, i) => (
-                <WorkspaceRow key={ws.id} workspace={ws} isSelected={i === selectedIndex} isDeleting={deletingId === ws.id} />
+              pageWorkspaces.map((ws, i) => (
+                <WorkspaceRow
+                  key={ws.id}
+                  workspace={ws}
+                  isSelected={i === selectedIndex}
+                  isDeleting={deletingId === ws.id}
+                  childCount={getChildCount(ws.id)}
+                />
               ))
             )}
             <Pagination page={page} totalPages={totalPages} totalItems={totalCount} />
@@ -197,6 +371,13 @@ export function WorkspacesList({ queryClient }: WorkspacesListProps): React.Reac
               <Text bold>Desc:</Text> {selectedWorkspace.description?.slice(0, 60) || '—'}
             </Text>
             <DetailField label="Type" value={selectedWorkspace.type || 'standard'} />
+            <DetailField label="ID" value={selectedWorkspace.id || '—'} />
+            <DetailField label="Children" value={String(getChildCount(selectedWorkspace.id))} />
+            <Box marginTop={1}>
+              <Text color={colors.muted} dimColor>
+                Enter: drill in • V: details • B: back
+              </Text>
+            </Box>
           </PreviewPanel>
         ) : (
           <PreviewPanel title="Preview">
@@ -212,14 +393,32 @@ export function WorkspacesList({ queryClient }: WorkspacesListProps): React.Reac
 // Row Component
 // ============================================================================
 
-function WorkspaceRow({ workspace, isSelected, isDeleting }: { workspace: Workspace; isSelected: boolean; isDeleting: boolean }): React.ReactElement {
+function WorkspaceRow({
+  workspace,
+  isSelected,
+  isDeleting,
+  childCount,
+}: {
+  workspace: Workspace;
+  isSelected: boolean;
+  isDeleting: boolean;
+  childCount: number;
+}): React.ReactElement {
+  // Badge for workspace type
   const badge = workspace.type === 'root' ? '[root]' : workspace.type === 'default' ? '[def]' : '';
+
+  // Color based on type
+  const typeColor = workspace.type === 'root' ? colors.success : workspace.type === 'default' ? colors.info : undefined;
+
   return (
     <Box>
       <Text backgroundColor={isSelected ? colors.highlight : undefined} color={isSelected ? '#FFFFFF' : undefined}>
         {isSelected ? '▸ ' : '  '}
-        <Text bold>{workspace.name.slice(0, 40).padEnd(40)}</Text>
+        <Text bold color={typeColor}>
+          {workspace.name.slice(0, 35).padEnd(35)}
+        </Text>
         <Text color={isSelected ? '#FFFFFF' : colors.muted}> {workspace.id?.slice(0, 8)}</Text>
+        {childCount > 0 && <Text color={colors.info}> ({childCount})</Text>}
         {badge && <Text color={colors.warning}> {badge}</Text>}
         {isDeleting && <Text color={colors.danger}> deleting...</Text>}
       </Text>
