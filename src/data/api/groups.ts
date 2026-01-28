@@ -1,4 +1,5 @@
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
+import type { AxiosInstance } from 'axios';
 import listGroups from '@redhat-cloud-services/rbac-client/ListGroups';
 import getGroup from '@redhat-cloud-services/rbac-client/GetGroup';
 import createGroup from '@redhat-cloud-services/rbac-client/CreateGroup';
@@ -28,10 +29,26 @@ const groupEndpoints = {
 };
 
 /**
- * Groups API client - fully typed via rbac-client library.
- * Includes CRUD operations and member management.
+ * Type for the Groups API client returned by APIFactory.
  */
-export const groupsApi = APIFactory(RBAC_API_BASE, groupEndpoints, { axios: apiClient });
+export type GroupsApiClient = ReturnType<typeof APIFactory<typeof groupEndpoints>>;
+
+/**
+ * Create a Groups API client with a custom axios instance.
+ * Use this for dependency injection in shared hooks.
+ *
+ * @param axios - Custom axios instance (e.g., from ServiceContext)
+ * @returns Fully typed Groups API client
+ */
+export function createGroupsApi(axios: AxiosInstance): GroupsApiClient {
+  return APIFactory(RBAC_API_BASE, groupEndpoints, { axios });
+}
+
+/**
+ * Default Groups API client - uses the browser apiClient.
+ * For shared hooks, prefer createGroupsApi() with injected axios.
+ */
+export const groupsApi = createGroupsApi(apiClient);
 
 // Re-export types from rbac-client
 export type { ListGroupsParams, ListGroupsOrderByEnum } from '@redhat-cloud-services/rbac-client/ListGroups';

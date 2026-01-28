@@ -1,13 +1,14 @@
 import { renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useStaleDataEffect } from '../useStaleDataEffect';
 
 describe('useStaleDataEffect - edge cases not covered by useTableState', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   describe('no callback provided', () => {
@@ -24,14 +25,14 @@ describe('useStaleDataEffect - edge cases not covered by useTableState', () => {
 
       expect(() => {
         rerender({ params: { page: 2 } });
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       }).not.toThrow();
     });
   });
 
   describe('unmount cancellation', () => {
     it('should cancel pending debounced call on unmount', () => {
-      const onStaleData = jest.fn();
+      const onStaleData = vi.fn();
 
       const { rerender, unmount } = renderHook(({ params }) => useStaleDataEffect(params, onStaleData, 300), {
         initialProps: { params: { page: 1 } },
@@ -48,7 +49,7 @@ describe('useStaleDataEffect - edge cases not covered by useTableState', () => {
       unmount();
 
       // Advance timer past debounce
-      jest.advanceTimersByTime(500);
+      vi.advanceTimersByTime(500);
 
       // Callback should NOT have been called (was cancelled)
       expect(onStaleData).toHaveBeenCalledTimes(0);
@@ -57,8 +58,8 @@ describe('useStaleDataEffect - edge cases not covered by useTableState', () => {
 
   describe('callback ref stability', () => {
     it('should use latest callback without causing extra calls', () => {
-      const callback1 = jest.fn();
-      const callback2 = jest.fn();
+      const callback1 = vi.fn();
+      const callback2 = vi.fn();
 
       const { rerender } = renderHook(({ params, callback }) => useStaleDataEffect(params, callback, 300), {
         initialProps: { params: { page: 1 }, callback: callback1 },
@@ -81,7 +82,7 @@ describe('useStaleDataEffect - edge cases not covered by useTableState', () => {
       rerender({ params: { page: 2 }, callback: callback2 });
 
       // Advance debounce timer
-      jest.advanceTimersByTime(300);
+      vi.advanceTimersByTime(300);
 
       // Should call the NEW callback (callback2), not the old one
       expect(callback1).toHaveBeenCalledTimes(0);
@@ -106,7 +107,7 @@ describe('useStaleDataEffect - edge cases not covered by useTableState', () => {
         rerender({ params: { page: 1 } }); // Same params, new inline callback each time
       }
 
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
 
       // The key assertion: should NOT have called 50+ times (one per rerender)
       // It's OK if it called a few times (initial mount, etc.), but not hundreds

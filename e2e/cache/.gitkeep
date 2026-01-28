@@ -1,0 +1,3 @@
+# This directory stores the session-assets.har cache file.
+# The cache is regenerated on each test run.
+# HAR files should NOT be committed.

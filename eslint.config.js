@@ -39,8 +39,8 @@ module.exports = defineConfig(
     rules: {
       'react/prop-types': 'off',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['error'],
-      '@typescript-eslint/no-explicit-any': 1,
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'error',
       // Enforce appendTo={getModalContainer()} on Modal components to ensure proper portal rendering
       'no-restricted-syntax': [
         'error',
@@ -50,6 +50,21 @@ module.exports = defineConfig(
           message: 'Modal must have appendTo={getModalContainer()} prop for proper portal rendering in Storybook and production.',
         },
       ],
+    },
+  },
+  {
+    // Config, E2E, and Storybook TypeScript files
+    files: ['config/**/*.ts', 'e2e/**/*.ts', '.storybook/**/*.ts', '.storybook/**/*.tsx'],
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    languageOptions: {
+      parser: tsParser,
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'error',
     },
   },
   {

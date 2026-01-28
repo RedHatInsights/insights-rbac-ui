@@ -19,7 +19,7 @@ const columns = ['name', 'clientId', 'owner', 'timeCreated', 'description'] as c
 
 const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAccountsTableProps> = ({
   onChange,
-  groupId: _groupId, // eslint-disable-line @typescript-eslint/no-unused-vars
+  groupId: _groupId,
   initialServiceAccountIds,
 }) => {
   const intl = useIntl();

@@ -7,11 +7,20 @@ import { IntlProvider } from 'react-intl';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
-import { ChromeProvider, FeatureFlagsProvider, AccessCheckProvider_, type ChromeConfig, type FeatureFlagsConfig, type AccessCheckConfig } from './context-providers';
+import {
+  type AccessCheckConfig,
+  AccessCheckProvider_,
+  type ChromeConfig,
+  ChromeProvider,
+  type FeatureFlagsConfig,
+  FeatureFlagsProvider,
+} from './context-providers';
 import { initialize, mswLoader } from 'msw-storybook-addon';
+import { ServiceProvider, createBrowserServices } from '../src/services';
 
 // Create a fresh QueryClient for each story to prevent state leaking
 const createTestQueryClient = () =>
@@ -27,22 +36,26 @@ const createTestQueryClient = () =>
     },
   });
 
-
 // Wrapper that provides a fresh QueryClient for each story to prevent state leaking
 const QueryClientWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [queryClient] = useState(() => createTestQueryClient());
-  
+
   return (
     <QueryClientProvider client={queryClient}>
-      {typeof document !== 'undefined' && createPortal(
-        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />,
-        document.body
-      )}
+      {typeof document !== 'undefined' && createPortal(<ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />, document.body)}
       {children}
     </QueryClientProvider>
   );
 };
 
+// Wrapper that provides ServiceProvider with browser services
+// Must be inside NotificationsProvider to use useAddNotification
+const ServiceProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const addNotification = useAddNotification();
+  const services = createBrowserServices(addNotification);
+
+  return <ServiceProvider value={services}>{children}</ServiceProvider>;
+};
 
 // Mock insights global for Storybook
 declare global {
@@ -56,32 +69,34 @@ declare global {
 // Mock global insights object for libraries that access it directly (e.g. RBACHook)
 const mockInsightsChrome = {
   getEnvironment: () => 'prod',
-  getUserPermissions: () => Promise.resolve([
-    { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-    { permission: 'inventory:hosts:write', resourceDefinitions: [] },
-    { permission: 'inventory:groups:write', resourceDefinitions: [] },
-    { permission: 'cost-management:*:*', resourceDefinitions: [] },
-    { permission: 'rbac:*:*', resourceDefinitions: [] },
-  ]),
+  getUserPermissions: () =>
+    Promise.resolve([
+      { permission: 'inventory:hosts:read', resourceDefinitions: [] },
+      { permission: 'inventory:hosts:write', resourceDefinitions: [] },
+      { permission: 'inventory:groups:write', resourceDefinitions: [] },
+      { permission: 'cost-management:*:*', resourceDefinitions: [] },
+      { permission: 'rbac:*:*', resourceDefinitions: [] },
+    ]),
   auth: {
-    getUser: () => Promise.resolve({
-      identity: {
-        user: {
-          username: 'test-user',
-          email: 'test@redhat.com',
-          is_org_admin: true,
-          is_internal: false,
+    getUser: () =>
+      Promise.resolve({
+        identity: {
+          user: {
+            username: 'test-user',
+            email: 'test@redhat.com',
+            is_org_admin: true,
+            is_internal: false,
+          },
         },
-      },
-    }),
+      }),
     getToken: () => Promise.resolve('mock-jwt-token-12345'),
   },
 };
 
 if (typeof global !== 'undefined') {
-  (global as any).insights = { chrome: mockInsightsChrome };
+  (global as unknown as { insights: { chrome: typeof mockInsightsChrome } }).insights = { chrome: mockInsightsChrome };
 } else if (typeof window !== 'undefined') {
-  (window as any).insights = { chrome: mockInsightsChrome };
+  (window as unknown as { insights: { chrome: typeof mockInsightsChrome } }).insights = { chrome: mockInsightsChrome };
 }
 
 const preview: Preview = {
@@ -193,7 +208,9 @@ const preview: Preview = {
                   <IntlProvider locale={locale} messages={messages[locale]}>
                     <Fragment>
                       <NotificationsProvider>
-                        <Story />
+                        <ServiceProviderWrapper>
+                          <Story />
+                        </ServiceProviderWrapper>
                       </NotificationsProvider>
                     </Fragment>
                   </IntlProvider>

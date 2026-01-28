@@ -6,11 +6,11 @@
  */
 
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import type { IntlShape } from 'react-intl';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view';
+import { AppLink } from '../../../../components/navigation/AppLink';
 import { getDateFormat } from '../../../../helpers/stringUtilities';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
@@ -34,6 +34,7 @@ interface UseGroupRolesTableConfigReturn {
   filterConfig: FilterConfig[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function useGroupRolesTableConfig({ intl, groupId }: UseGroupRolesTableConfigOptions): UseGroupRolesTableConfigReturn {
   // Column configuration with labels
   // Note: Sorting is not supported by the roles API
@@ -49,15 +50,11 @@ export function useGroupRolesTableConfig({ intl, groupId }: UseGroupRolesTableCo
   // Cell renderers for each column
   const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(
     () => ({
-      name: (role) => (
-        <Link to={pathnames['group-detail-role-detail'].link.replace(':groupId', groupId).replace(':roleId', role.uuid)}>
-          {role.display_name || role.name}
-        </Link>
-      ),
+      name: (role) => <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.display_name || role.name}</AppLink>,
       description: (role) => role.description || '—',
       modified: (role) => (role.modified ? <DateFormat date={role.modified} type={getDateFormat(role.modified)} /> : '—'),
     }),
-    [groupId],
+    [],
   );
 
   // Filter configuration

@@ -1,6 +1,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { act, renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import { useOptionalSearchParams } from '../useOptionalSearchParams';
 
 describe('useOptionalSearchParams - behavior outside Router context', () => {

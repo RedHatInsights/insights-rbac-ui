@@ -1,24 +1,18 @@
-import axios, { type AxiosError } from 'axios';
-
 /**
- * Handle 401 Unauthorized by reloading the page to force re-authentication.
- * This is critical for session expiration handling.
+ * API Client Exports
+ *
+ * This module provides:
+ * - apiClient: Browser-specific axios instance with 401 handling (re-exported from browser entry)
+ * - API base path constants
+ *
+ * Note: The apiClient uses browser globals (window.location.reload on 401).
+ * For environment-agnostic code, use the create*Api() factories with injected axios
+ * from useAppServices() instead of the default singleton API instances.
  */
-const handle401Error = (error: AxiosError) => {
-  if (error.response?.status === 401) {
-    window.location.reload();
-  }
-  return Promise.reject(error);
-};
 
-/**
- * Axios instance for API calls.
- * Includes 401 interceptor for automatic session expiration handling.
- * Other errors (403, 500) are handled by React Query's QueryCache/MutationCache
- * in ApiErrorBoundary.
- */
-export const apiClient = axios.create();
-apiClient.interceptors.response.use(undefined, handle401Error);
+// Re-export browser axios client for backward compatibility with existing code
+// The 401 handler lives in src/entry/browser.tsx where all browser-specific code belongs
+export { browserApiClient as apiClient } from '../../entry/browser';
 
 // Export base paths
 export { RBAC_API_BASE, RBAC_API_BASE_2, COST_API_BASE, INVENTORY_API_BASE } from '../../utilities/constants';

@@ -42,7 +42,7 @@ interface GroupDetailsDrawerProps {
 const GroupDetailsDrawer: React.FunctionComponent<GroupDetailsDrawerProps> = ({
   isOpen,
   groupName,
-  groupId: _groupId, // eslint-disable-line @typescript-eslint/no-unused-vars
+  groupId: _groupId,
   onClose,
   onEditGroup,
   children,

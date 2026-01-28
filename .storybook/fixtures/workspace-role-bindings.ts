@@ -5,12 +5,12 @@ type RoleBindingBySubject = RoleBindingsRoleBindingBySubject;
 
 /**
  * Workspace-specific role bindings for M3+ stories
- * 
+ *
  * Structure: Map<workspaceId, RoleBindingBySubject[]>
- * 
+ *
  * This creates variance across workspaces:
  * - Production (ws-1): Has Production Admins and Viewers groups
- * - Development (ws-2): Has Development Team and Viewers groups  
+ * - Development (ws-2): Has Development Team and Viewers groups
  * - Staging (ws-3): Has Viewers group only
  * - Marketing (ws-4): Has Marketing Team group
  */
@@ -49,7 +49,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
       },
     ],
   ],
-  
+
   // Production workspace - has admin and viewer groups
   [
     'ws-1',
@@ -114,7 +114,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
       },
     ],
   ],
-  
+
   // Development workspace - has development team
   [
     'ws-2',
@@ -175,7 +175,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
       },
     ],
   ],
-  
+
   // Staging workspace - only viewers (minimal permissions)
   [
     'ws-3',
@@ -209,7 +209,7 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
       },
     ],
   ],
-  
+
   // Marketing workspace - has marketing-specific group
   [
     'ws-4',
@@ -254,17 +254,14 @@ export function getRoleBindingsForWorkspace(workspaceId: string): RoleBindingByS
 
 /**
  * Helper to get inherited role bindings from parent workspaces
- * 
+ *
  * @param workspaceId - Current workspace ID
  * @param workspaces - All workspaces to build hierarchy
  * @returns Role bindings from all parent workspaces
  */
-export function getInheritedRoleBindings(
-  workspaceId: string,
-  workspaces: Array<{ id: string; parent_id: string | null }>
-): RoleBindingBySubject[] {
+export function getInheritedRoleBindings(workspaceId: string, workspaces: Array<{ id: string; parent_id: string | null }>): RoleBindingBySubject[] {
   const inheritedBindings: RoleBindingBySubject[] = [];
-  
+
   // Build parent chain
   const getParentChain = (wsId: string): string[] => {
     const workspace = workspaces.find((w) => w.id === wsId);
@@ -273,15 +270,14 @@ export function getInheritedRoleBindings(
     }
     return [workspace.parent_id, ...getParentChain(workspace.parent_id)];
   };
-  
+
   const parentIds = getParentChain(workspaceId);
-  
+
   // Collect bindings from all parents
   for (const parentId of parentIds) {
     const parentBindings = getRoleBindingsForWorkspace(parentId);
     inheritedBindings.push(...parentBindings);
   }
-  
+
   return inheritedBindings;
 }
-

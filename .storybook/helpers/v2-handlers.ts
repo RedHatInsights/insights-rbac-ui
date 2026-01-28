@@ -8,7 +8,7 @@
  * @tag api-v2-mock
  */
 
-import { http, HttpResponse } from 'msw';
+import { HttpResponse, http } from 'msw';
 import type { RoleV2 } from '../../src/data/api/rolesV2';
 
 // =============================================================================
@@ -70,9 +70,7 @@ const mockRoleAssignments: Record<string, Array<{ userGroup: string; workspace: 
     { userGroup: 'Developers', workspace: 'Development' },
     { userGroup: 'DevOps Team', workspace: 'Production' },
   ],
-  'role-rhel-inventory': [
-    { userGroup: 'Viewers', workspace: 'All' },
-  ],
+  'role-rhel-inventory': [{ userGroup: 'Viewers', workspace: 'All' }],
 };
 
 // =============================================================================
