@@ -17,6 +17,7 @@ interface KesselAppEntryWithRouterProps {
   'platform.rbac.workspace-hierarchy'?: boolean;
   'platform.rbac.workspaces-role-bindings'?: boolean;
   'platform.rbac.workspaces-role-bindings-write'?: boolean;
+  'platform.rbac.workspaces-organization-management'?: boolean;
   'platform.rbac.group-service-accounts'?: boolean;
   'platform.rbac.group-service-accounts.stable'?: boolean;
   'platform.rbac.common-auth-model'?: boolean;
@@ -123,6 +124,7 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
       'platform.rbac.workspace-hierarchy': args['platform.rbac.workspace-hierarchy'] ?? false,
       'platform.rbac.workspaces-role-bindings': args['platform.rbac.workspaces-role-bindings'] ?? false,
       'platform.rbac.workspaces-role-bindings-write': args['platform.rbac.workspaces-role-bindings-write'] ?? false,
+      'platform.rbac.workspaces-organization-management': args['platform.rbac.workspaces-organization-management'] ?? false,
       'platform.rbac.group-service-accounts': args['platform.rbac.group-service-accounts'] ?? false,
       'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'] ?? false,
       'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] ?? false,

@@ -1,3 +1,10 @@
+## [2.1.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.3...v2.1.4) (2026-01-29)
+
+
+### Bug Fixes
+
+* **routing:** align access-management routes with navigation feature flags ([4c5f4cf](https://github.com/RedHatInsights/insights-rbac-ui/commit/4c5f4cf8a74149dc935918617b1dfd3d91a3eb62))
+
 ## [2.1.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.2...v2.1.3) (2026-01-29)
 
 
