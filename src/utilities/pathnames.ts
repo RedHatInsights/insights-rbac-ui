@@ -290,6 +290,12 @@ const myUserAccess: PathnameConfig = {
   title: 'My User Access',
 };
 
+const organizationManagement: PathnameConfig = {
+  link: () => '/organization-management/organization-wide-access',
+  path: '/organization-management/organization-wide-access/*',
+  title: 'Organization Management',
+};
+
 // ===========================================
 // Access Management Section - /access-management/*
 // ===========================================
@@ -408,6 +414,7 @@ const pathnames = {
   'workspace-detail': workspaceDetail,
   'quickstarts-test': quickstartsTest,
   'my-user-access': myUserAccess,
+  'organization-management': organizationManagement,
   'users-and-user-groups': usersAndUserGroups,
   'users-new': usersNew,
   'user-groups': userGroups,
@@ -468,6 +475,7 @@ export {
   workspaceDetail,
   quickstartsTest,
   myUserAccess,
+  organizationManagement,
   usersAndUserGroups,
   usersNew,
   userGroups,
