@@ -34,7 +34,6 @@ interface UseGroupRolesTableConfigReturn {
   filterConfig: FilterConfig[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function useGroupRolesTableConfig({ intl, groupId }: UseGroupRolesTableConfigOptions): UseGroupRolesTableConfigReturn {
   // Column configuration with labels
   // Note: Sorting is not supported by the roles API
