@@ -1,5 +1,5 @@
 /**
- * V2 Roles - Admin Journey Tests
+ * V2 Roles - OrgAdmin Journey Tests
  *
  * Tests for the V2 Roles page (/iam/access-management/roles)
  * with admin privileges.
@@ -141,7 +141,7 @@ async function confirmRoleDeletion(page: import('@playwright/test').Page): Promi
 // JOURNEY 1: SEEDED DATA (Read-Only)
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('V2 Roles - Admin Seeded Data Journey', () => {
+test.describe('V2 Roles - OrgAdmin Seeded Data Journey', () => {
   test('Can find and inspect seeded role', async ({ page }) => {
     test.skip(!SEEDED_ROLE_NAME, 'No seeded role found in seed map');
     await setupPage(page);
@@ -177,7 +177,7 @@ test.describe('V2 Roles - Admin Seeded Data Journey', () => {
 // JOURNEY 2: CRUD LIFECYCLE (Ephemeral Data)
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('V2 Roles - Admin CRUD Lifecycle Journey', () => {
+test.describe('V2 Roles - OrgAdmin CRUD Lifecycle Journey', () => {
   // Generate unique name for this test run (parallel-safe)
   const timestamp = Date.now();
   const uniqueRoleName = `${TEST_PREFIX}__V2_Lifecycle_${timestamp}`;

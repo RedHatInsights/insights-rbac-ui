@@ -1,19 +1,20 @@
 /**
- * V2 User Groups - User Tests
+ * V2 User Groups - User Viewer Tests
  *
  * Tests for the V2 User Groups page (/iam/access-management/users-and-user-groups/user-groups)
- * with regular user privileges.
+ * with User Viewer privileges.
+ * User Viewers (rbac:*:read) can view user groups but not create/edit/delete.
  */
 
-import { AUTH_V2_USER, expect, getSeededGroupData, getSeededGroupName, setupPage, test } from '../../../../utils';
+import { AUTH_V2_USERVIEWER, expect, getSeededGroupData, getSeededGroupName, setupPage, test } from '../../../../utils';
 
-test.use({ storageState: AUTH_V2_USER });
+test.use({ storageState: AUTH_V2_USERVIEWER });
 
 // Get seeded group name and data from seed map/fixture
 const SEEDED_GROUP_NAME = getSeededGroupName();
 const SEEDED_GROUP_DATA = getSeededGroupData();
 
-test.describe('V2 User Groups - User (Read Only)', () => {
+test.describe('V2 User Groups - UserViewer', () => {
   const GROUPS_URL = '/iam/access-management/users-and-user-groups/user-groups';
 
   test.beforeEach(async ({ page }) => {

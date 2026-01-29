@@ -1,9 +1,9 @@
 /**
- * V2 Users - Regular User Tests
+ * V2 - Regular User Unauthorized Access Tests
  *
- * Tests for regular users (non-admin) in the V2 Access Management experience.
- * Regular users only have access to the "My User Access" page.
- * All admin pages should show unauthorized access.
+ * Tests for regular users (non-admin) attempting to access management pages.
+ * Regular users should see unauthorized access when navigating to admin pages.
+ * My User Access tests are in the parameterized my-user-access.spec.ts file.
  */
 
 import { expect, test } from '@playwright/test';
@@ -11,31 +11,8 @@ import { AUTH_V2_USER, setupPage } from '../../../../utils';
 
 test.use({ storageState: AUTH_V2_USER });
 
-test.describe('V2 - Regular User Access', () => {
-  test.describe('My User Access Page', () => {
-    test('Can access My User Access page', async ({ page }) => {
-      await setupPage(page);
-
-      await test.step('Navigate to My User Access', async () => {
-        await page.goto('/iam/my-user-access');
-        await expect(page).toHaveURL(/\/iam\/my-user-access/);
-      });
-
-      await test.step('Verify page content loads', async () => {
-        // My User Access page should show the user's permissions
-        const pageContent = page.locator('main, [class*="page"], section').first();
-        await expect(pageContent).toBeVisible({ timeout: 15000 });
-      });
-
-      await test.step('Verify no admin actions are available', async () => {
-        // Admin actions should not be visible
-        const inviteButton = page.getByRole('button', { name: /invite/i });
-        await expect(inviteButton).not.toBeVisible();
-      });
-    });
-  });
-
-  test.describe('Unauthorized Access to Management Pages', () => {
+test.describe('V2 - ReadOnlyUser Unauthorized Access', () => {
+  test.describe('Management Pages', () => {
     test('Users page shows unauthorized access', async ({ page }) => {
       await setupPage(page);
 
@@ -44,12 +21,7 @@ test.describe('V2 - Regular User Access', () => {
       });
 
       await test.step('Verify unauthorized access message', async () => {
-        const unauthorizedMessage = page
-          .getByText(/you do not have access|not authorized|access denied|forbidden/i)
-          .or(page.getByText(/organization administrator/i));
-
-        await expect(unauthorizedMessage).toBeVisible({ timeout: 15000 });
-        console.log('[V2 User] ✓ Users page correctly shows unauthorized access');
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
       });
     });
 
@@ -61,12 +33,7 @@ test.describe('V2 - Regular User Access', () => {
       });
 
       await test.step('Verify unauthorized access message', async () => {
-        const unauthorizedMessage = page
-          .getByText(/you do not have access|not authorized|access denied|forbidden/i)
-          .or(page.getByText(/organization administrator/i));
-
-        await expect(unauthorizedMessage).toBeVisible({ timeout: 15000 });
-        console.log('[V2 User] ✓ User Groups page correctly shows unauthorized access');
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
       });
     });
 
@@ -78,12 +45,7 @@ test.describe('V2 - Regular User Access', () => {
       });
 
       await test.step('Verify unauthorized access message', async () => {
-        const unauthorizedMessage = page
-          .getByText(/you do not have access|not authorized|access denied|forbidden/i)
-          .or(page.getByText(/organization administrator/i));
-
-        await expect(unauthorizedMessage).toBeVisible({ timeout: 15000 });
-        console.log('[V2 User] ✓ Roles page correctly shows unauthorized access');
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
       });
     });
 
@@ -95,12 +57,7 @@ test.describe('V2 - Regular User Access', () => {
       });
 
       await test.step('Verify unauthorized access message', async () => {
-        const unauthorizedMessage = page
-          .getByText(/you do not have access|not authorized|access denied|forbidden/i)
-          .or(page.getByText(/organization administrator/i));
-
-        await expect(unauthorizedMessage).toBeVisible({ timeout: 15000 });
-        console.log('[V2 User] ✓ Workspaces page correctly shows unauthorized access');
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
       });
     });
   });

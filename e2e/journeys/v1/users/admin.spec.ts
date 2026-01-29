@@ -1,5 +1,5 @@
 /**
- * V1 Users - Admin Tests
+ * V1 Users - OrgAdmin Tests
  *
  * Tests for the V1 Users page (/iam/user-access/users) with admin privileges.
  * Admin users can view all users in the organization.
@@ -25,7 +25,7 @@ const ADMIN_USERNAME = getAdminUsername();
 // JOURNEY: USERS TABLE AND DETAIL PAGE
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('V1 Users - Admin', () => {
+test.describe('V1 Users - OrgAdmin', () => {
   test('Can view and filter users', async ({ page }) => {
     test.skip(!ADMIN_USERNAME, 'RBAC_USERNAME not set - cannot verify user filtering');
     await setupPage(page);

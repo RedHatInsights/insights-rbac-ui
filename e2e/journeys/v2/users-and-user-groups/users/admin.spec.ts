@@ -1,5 +1,5 @@
 /**
- * V2 Users - Admin Tests
+ * V2 Users - OrgAdmin Tests
  *
  * Tests for the V2 Users page (/iam/access-management/users-and-user-groups/users)
  * with admin privileges.
@@ -25,7 +25,7 @@ const ADMIN_USERNAME = getAdminUsername();
 // JOURNEY: USERS TABLE AND DRAWER
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('V2 Users - Admin', () => {
+test.describe('V2 Users - OrgAdmin', () => {
   test('Can view and filter users', async ({ page }) => {
     test.skip(!ADMIN_USERNAME, 'RBAC_USERNAME not set - cannot verify user filtering');
     await setupPage(page);

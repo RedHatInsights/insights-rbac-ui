@@ -1,19 +1,19 @@
 /**
- * V2 Workspaces - User Tests
+ * V2 Workspaces - User Viewer Tests
  *
- * Tests for the V2 Workspaces page (/iam/access-management/workspaces) with regular user privileges.
- * Regular users can only view workspaces, not create/edit/delete.
+ * Tests for the V2 Workspaces page (/iam/access-management/workspaces) with User Viewer privileges.
+ * User Viewers (rbac:*:read) can view workspaces but not create/edit/delete.
  */
 
-import { AUTH_V2_USER, expect, getSeededWorkspaceData, getSeededWorkspaceName, setupPage, test } from '../../../utils';
+import { AUTH_V2_USERVIEWER, expect, getSeededWorkspaceData, getSeededWorkspaceName, setupPage, test } from '../../../utils';
 
-test.use({ storageState: AUTH_V2_USER });
+test.use({ storageState: AUTH_V2_USERVIEWER });
 
 // Get seeded workspace name and data from seed map/fixture
 const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName();
 const SEEDED_WORKSPACE_DATA = getSeededWorkspaceData();
 
-test.describe('V2 Workspaces - User (Read Only)', () => {
+test.describe('V2 Workspaces - UserViewer', () => {
   const WORKSPACES_URL = '/iam/access-management/workspaces';
 
   test.beforeEach(async ({ page }) => {

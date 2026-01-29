@@ -337,8 +337,8 @@ export async function runCleanup(options: CleanupOptions): Promise<number> {
 
     console.error(`\n🔐 Authenticating...`);
 
-    // Get token and initialize API client
-    const token = await getToken();
+    // Always authenticate fresh - cleanup uses admin credentials from env, not cached token
+    const token = await getToken({ skipCache: true });
     initializeApiClient(token);
     const client = getApiClient();
 

@@ -1,8 +1,8 @@
 /**
- * V1 Groups - User Tests
+ * V1 Groups - User Viewer Tests
  *
- * Tests for the V1 Groups page (/iam/user-access/groups) with regular user privileges.
- * Regular users can only view groups, not create/edit/delete.
+ * Tests for the V1 Groups page (/iam/user-access/groups) with User Viewer privileges.
+ * User Viewers (rbac:*:read) can view groups but not create/edit/delete.
  *
  * Test Pattern:
  * 1. Navigate to page
@@ -12,15 +12,15 @@
  * 5. Verify NO Edit/Delete actions
  */
 
-import { AUTH_V1_USER, expect, getSeededGroupData, getSeededGroupName, setupPage, test } from '../../../utils';
+import { AUTH_V1_USERVIEWER, expect, getSeededGroupData, getSeededGroupName, setupPage, test } from '../../../utils';
 
-test.use({ storageState: AUTH_V1_USER });
+test.use({ storageState: AUTH_V1_USERVIEWER });
 
 // Get seeded group name and data from seed map/fixture
 const SEEDED_GROUP_NAME = getSeededGroupName();
 const SEEDED_GROUP_DATA = getSeededGroupData();
 
-test.describe('V1 Groups - User (Read Only)', () => {
+test.describe('V1 Groups - UserViewer', () => {
   const GROUPS_URL = '/iam/user-access/groups';
 
   test.beforeEach(async ({ page }) => {
