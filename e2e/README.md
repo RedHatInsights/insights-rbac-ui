@@ -11,11 +11,15 @@ This directory contains the Playwright E2E test suite for RBAC UI.
 Copy the template env files and fill in your credentials:
 
 ```bash
-# Copy templates
+# Copy templates for all personas
 cp e2e/auth/.env.v1-admin.template e2e/auth/.env.v1-admin
 cp e2e/auth/.env.v1-user.template e2e/auth/.env.v1-user
+cp e2e/auth/.env.v1-useradmin.template e2e/auth/.env.v1-useradmin
+cp e2e/auth/.env.v1-userviewer.template e2e/auth/.env.v1-userviewer
 cp e2e/auth/.env.v2-admin.template e2e/auth/.env.v2-admin
 cp e2e/auth/.env.v2-user.template e2e/auth/.env.v2-user
+cp e2e/auth/.env.v2-useradmin.template e2e/auth/.env.v2-useradmin
+cp e2e/auth/.env.v2-userviewer.template e2e/auth/.env.v2-userviewer
 
 # Edit each file with your credentials
 # RBAC_USERNAME=your-user@redhat.com
@@ -83,10 +87,17 @@ E2E_BASE_URL=http://localhost:1337 TEST_PREFIX=jdoe npm run e2e:test:v1:admin
 
 | Command | Description |
 |---------|-------------|
-| `npm run e2e:v1:admin` | Full lifecycle for V1 admin tests |
+| `npm run e2e:v1:admin` | Full lifecycle for V1 admin tests (seed → auth → test → cleanup) |
 | `npm run e2e:v1:user` | Full lifecycle for V1 user tests |
+| `npm run e2e:v1:useradmin` | Auth + test for V1 User Access Administrator |
+| `npm run e2e:v1:userviewer` | Auth + test for V1 User Viewer |
 | `npm run e2e:v2:admin` | Full lifecycle for V2 admin tests |
 | `npm run e2e:v2:user` | Full lifecycle for V2 user tests |
+| `npm run e2e:v2:useradmin` | Auth + test for V2 User Access Administrator |
+| `npm run e2e:v2:userviewer` | Auth + test for V2 User Viewer |
+
+> **Note**: `useradmin` and `userviewer` commands don't include seed/cleanup because they
+> use the existing seeded data from admin tests.
 
 ### Primitives (For Debugging)
 
@@ -96,16 +107,24 @@ Run individual steps when troubleshooting. Credentials are loaded from `e2e/auth
 |---------|-------------|
 | `npm run e2e:auth:v1:admin` | Login as V1 admin |
 | `npm run e2e:auth:v1:user` | Login as V1 user |
+| `npm run e2e:auth:v1:useradmin` | Login as V1 User Access Administrator |
+| `npm run e2e:auth:v1:userviewer` | Login as V1 User Viewer |
 | `npm run e2e:auth:v2:admin` | Login as V2 admin |
 | `npm run e2e:auth:v2:user` | Login as V2 user |
+| `npm run e2e:auth:v2:useradmin` | Login as V2 User Access Administrator |
+| `npm run e2e:auth:v2:userviewer` | Login as V2 User Viewer |
 | `npm run e2e:seed:v1:admin` | Seed V1 data as admin |
 | `npm run e2e:seed:v2:admin` | Seed V2 data as admin |
 | `npm run e2e:cleanup:v1:admin` | Cleanup as V1 admin |
 | `npm run e2e:cleanup:v2:admin` | Cleanup as V2 admin |
 | `npm run e2e:test:v1:admin` | Run only V1 admin specs |
 | `npm run e2e:test:v1:user` | Run only V1 user specs |
+| `npm run e2e:test:v1:useradmin` | Run only V1 User Admin specs |
+| `npm run e2e:test:v1:userviewer` | Run only V1 User Viewer specs |
 | `npm run e2e:test:v2:admin` | Run only V2 admin specs |
 | `npm run e2e:test:v2:user` | Run only V2 user specs |
+| `npm run e2e:test:v2:useradmin` | Run only V2 User Admin specs |
+| `npm run e2e:test:v2:userviewer` | Run only V2 User Viewer specs |
 
 ---
 
@@ -140,10 +159,14 @@ npm run e2e:cleanup:v1:admin
 ```
 e2e/
 ├── auth/                    # Auth storage state files (gitignored)
-│   ├── v1-admin.json
-│   ├── v1-user.json
-│   ├── v2-admin.json
-│   └── v2-user.json
+│   ├── v1-admin.json        # Org Admin
+│   ├── v1-user.json         # Regular user
+│   ├── v1-useradmin.json    # User Access Administrator (rbac:*:*)
+│   ├── v1-userviewer.json   # User Viewer (read-only)
+│   ├── v2-admin.json        # Org Admin (Preview mode)
+│   ├── v2-user.json         # Regular user (Preview mode)
+│   ├── v2-useradmin.json    # User Access Administrator (Preview mode)
+│   └── v2-userviewer.json   # User Viewer (Preview mode)
 ├── fixtures/
 │   ├── seed-v1.json        # V1 seed: roles, groups (no workspaces)
 │   └── seed-v2.json        # V2 seed: roles, groups, workspaces
@@ -208,15 +231,35 @@ All data-creating operations **require** `TEST_PREFIX` to prevent polluting the 
 - **Minimum length**: 4 characters (e.g., `jdoe`, `ci-42`)
 - **Forbidden values**: `test`, `dev`, `qa`, `ci`, `e2e` (too generic)
 
-### Admin vs User Tests
+### Test Personas
 
-- **`admin.spec.ts`** — Tests CRUD operations with full permissions
-- **`user.spec.ts`** — Verifies read-only access, checks that "Create" buttons are hidden
+The E2E suite supports 8 different user personas (4 per version):
+
+| Persona | SSO Flag | RBAC Permissions | What They Can Do |
+|---------|----------|------------------|------------------|
+| **admin** | `is_org_admin: true` | Full access | Full CRUD on all resources |
+| **user** | `is_org_admin: false` | None | My User Access page only |
+| **useradmin** | `is_org_admin: false` | `rbac:*:*` | CRUD via RBAC role (User Access Administrator) |
+| **userviewer** | `is_org_admin: false` | `rbac:*:read` | Read-only (may show as no access) |
+
+**Prerequisites for useradmin/userviewer:**
+
+These users require RBAC role setup (one-time manual configuration):
+
+1. Create SSO users that are NOT org admins
+2. Create RBAC roles:
+   - "E2E User Administrator" with `rbac:*:*` permission
+   - "E2E User Viewer" with `rbac:*:read` permission (or similar read-only)
+3. Create RBAC groups with these roles attached
+4. Add the useradmin/userviewer users to the appropriate groups
+
+> **Note**: The app may not have explicit "viewer" support. Users with only read permissions
+> may see the UnauthorizedAccess screen (same as regular user). Tests should document this behavior.
 
 ### V1 vs V2
 
-- **V1** — User Access pages (`/iam/user-access/*`)
-- **V2** — Access Management pages (`/iam/access-management/*`)
+- **V1** — User Access pages (`/iam/user-access/*`) - Legacy experience
+- **V2** — Access Management pages (`/iam/access-management/*`) - Preview mode enabled
 
 ---
 
