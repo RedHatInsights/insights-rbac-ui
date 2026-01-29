@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.2...v2.1.3) (2026-01-29)
+
+
+### Bug Fixes
+
+* **users:** remove /management prefix from IT API URLs ([a29a4e5](https://github.com/RedHatInsights/insights-rbac-ui/commit/a29a4e570f053ceba670862e7a9f3f8002aa0b7d))
+
 ## [2.1.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.1...v2.1.2) (2026-01-28)
 
 
