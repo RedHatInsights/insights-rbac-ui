@@ -242,20 +242,14 @@ objects:
             - api.console
             - api.iam.service_accounts
         modules:
-          - id: my-user-access
-            module: ./MyUserAccess
-            routes:
-              - pathname: /iam
-              - pathname: /iam/my-user-access
           - id: settings-user-access
             module: ./SettingsUserAccess
             routes:
               - pathname: /settings/rbac
           - id: iam-user-access
-            module: ./IamUserAccess
+            module: ./Iam
             routes:
-              - pathname: /iam/user-access
-              - pathname: /iam/access-management
+              - pathname: /iam
 
 parameters:
   - name: ENV_NAME

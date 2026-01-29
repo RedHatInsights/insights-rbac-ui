@@ -65,15 +65,12 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
           role.groups_in.map((group: RoleGroup, index: number) => (
             <Tr key={`${role.uuid}-group-${group.uuid ?? index}`}>
               <Td dataLabel={groupColumns[0]}>
-                {group.uuid ? <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink> : group.name}
+                {group.uuid ? <AppLink to={pathnames['group-detail'].link(group.uuid)}>{group.name}</AppLink> : group.name}
               </Td>
               <Td dataLabel={groupColumns[1]}>{group.description}</Td>
               <Td className="pf-v6-u-text-align-right">
                 {shouldShowAddRoleToGroupLink(adminGroup, group) && group.uuid && (
-                  <AppLink
-                    to={pathnames['roles-add-group-roles'].link.replace(':roleId', role.uuid).replace(':groupId', group.uuid)}
-                    state={{ name: group.name }}
-                  >
+                  <AppLink to={pathnames['roles-add-group-roles'].link(role.uuid, group.uuid)} state={{ name: group.name }}>
                     {intl.formatMessage(messages.addRoleToThisGroup)}
                   </AppLink>
                 )}
@@ -267,7 +264,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
               )}
 
               <Td dataLabel={columns[0].title}>
-                <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.display_name || role.name}</AppLink>
+                <AppLink to={pathnames['role-detail'].link(role.uuid)}>{role.display_name || role.name}</AppLink>
               </Td>
 
               <Td dataLabel={columns[1].title}>{role.description}</Td>

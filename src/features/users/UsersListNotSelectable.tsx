@@ -57,8 +57,8 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   const addNotification = useAddNotification();
   const { orgAdmin } = useContext(PermissionsContext) as PermissionsContextType;
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
-  const { getBundle, getApp, isProd, auth } = useChrome();
-  const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
+  const { isProd, auth } = useChrome();
+  const appNavigate = useAppNavigate();
   const isITLess = useFlag('platform.rbac.itless');
 
   const [token, setToken] = useState<string | null>(null);
@@ -212,8 +212,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
           </Fragment>
         );
       },
-      username: (user) =>
-        userLinks ? <AppLink to={pathnames['user-detail'].link.replace(':username', user.username)}>{user.username}</AppLink> : user.username,
+      username: (user) => (userLinks ? <AppLink to={pathnames['user-detail'].link(user.username)}>{user.username}</AppLink> : user.username),
       email: (user) => user.email,
       first_name: (user) => user.first_name ?? '',
       last_name: (user) => user.last_name ?? '',
@@ -313,7 +312,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
     if (!orgAdmin || !isCommonAuthModel) return null;
     return (
       <>
-        <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
+        <AppLink to={paths['invite-users'].link()} key="invite-users" className="rbac-m-hide-on-sm">
           <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
             {intl.formatMessage(messages.inviteUsers)}
           </Button>
@@ -441,7 +440,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         <Outlet
           context={{
             fetchData: () => {
-              appNavigate(paths['users'].link);
+              appNavigate(paths['users'].link());
               // Refetch will happen automatically via URL change and onStaleData
             },
           }}

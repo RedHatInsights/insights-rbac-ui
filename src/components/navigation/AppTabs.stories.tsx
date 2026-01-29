@@ -14,9 +14,9 @@ type AppTabsStoryProps = AppTabsProps & {
  * @description Sample tab navigation items for demonstration
  */
 const mockTabItems: TabItem[] = [
-  { eventKey: 0, title: 'Roles', name: '/groups/test-group-1/roles', to: 'roles' },
-  { eventKey: 1, title: 'Members', name: '/groups/test-group-1/members', to: 'members' },
-  { eventKey: 2, title: 'Service accounts', name: '/groups/test-group-1/service-accounts', to: 'service-accounts' },
+  { eventKey: 0, title: 'Roles', name: '/user-access/groups/test-group-1/roles', to: 'roles' },
+  { eventKey: 1, title: 'Members', name: '/user-access/groups/test-group-1/members', to: 'members' },
+  { eventKey: 2, title: 'Service accounts', name: '/user-access/groups/test-group-1/service-accounts', to: 'service-accounts' },
 ];
 
 export default {
@@ -46,7 +46,7 @@ export default {
   },
   decorators: [
     (Story: StoryFn, { args }: { args: AppTabsStoryProps }) => (
-      <MemoryRouter initialEntries={[args.initialRoute || '/groups/test-group-1/roles']}>
+      <MemoryRouter initialEntries={[args.initialRoute || '/user-access/groups/test-group-1/roles']}>
         <Story />
       </MemoryRouter>
     ),
@@ -72,11 +72,11 @@ export const HeaderTabs: Story = {
 export const WithMoreTabs: Story = {
   args: {
     tabItems: [
-      { eventKey: 0, title: 'Overview', name: '/groups/test-group-1/overview', to: 'overview' },
-      { eventKey: 1, title: 'Roles', name: '/groups/test-group-1/roles', to: 'roles' },
-      { eventKey: 2, title: 'Members', name: '/groups/test-group-1/members', to: 'members' },
-      { eventKey: 3, title: 'Service Accounts', name: '/groups/test-group-1/service-accounts', to: 'service-accounts' },
-      { eventKey: 4, title: 'Settings', name: '/groups/test-group-1/settings', to: 'settings' },
+      { eventKey: 0, title: 'Overview', name: '/user-access/groups/test-group-1/overview', to: 'overview' },
+      { eventKey: 1, title: 'Roles', name: '/user-access/groups/test-group-1/roles', to: 'roles' },
+      { eventKey: 2, title: 'Members', name: '/user-access/groups/test-group-1/members', to: 'members' },
+      { eventKey: 3, title: 'Service Accounts', name: '/user-access/groups/test-group-1/service-accounts', to: 'service-accounts' },
+      { eventKey: 4, title: 'Settings', name: '/user-access/groups/test-group-1/settings', to: 'settings' },
     ],
     isHeader: false,
   },
@@ -91,7 +91,7 @@ export const ActiveOnMembers: Story = {
   args: {
     tabItems: mockTabItems,
     isHeader: false,
-    initialRoute: '/groups/test-group-1/members',
+    initialRoute: '/user-access/groups/test-group-1/members',
   },
 };
 
@@ -104,6 +104,6 @@ export const ActiveOnServiceAccounts: Story = {
   args: {
     tabItems: mockTabItems,
     isHeader: false,
-    initialRoute: '/groups/test-group-1/service-accounts',
+    initialRoute: '/user-access/groups/test-group-1/service-accounts',
   },
 };

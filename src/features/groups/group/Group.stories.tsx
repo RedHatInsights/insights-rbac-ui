@@ -41,14 +41,14 @@ const withRouter = (Story: StoryFn) => {
     <BrowserRouter>
       <Routes>
         <Route
-          path="/groups/:groupId/*"
+          path="/user-access/groups/:groupId/*"
           element={
             <div style={{ minHeight: '100vh' }}>
               <Story />
             </div>
           }
         />
-        <Route path="*" element={<Navigate to="/groups/123e4567-e89b-12d3-a456-426614174000/roles" replace />} />
+        <Route path="*" element={<Navigate to="/user-access/groups/123e4567-e89b-12d3-a456-426614174000/roles" replace />} />
       </Routes>
     </BrowserRouter>
   );

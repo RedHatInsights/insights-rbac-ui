@@ -181,9 +181,9 @@ const meta: Meta<typeof GroupRoles> = {
   tags: ['custom-css'], // NO autodocs on meta
   decorators: [
     (Story, { parameters }) => (
-      <MemoryRouter initialEntries={[`/groups/detail/${parameters?.groupId || 'test-group-id'}/roles`]}>
+      <MemoryRouter initialEntries={[`/user-access/groups/detail/${parameters?.groupId || 'test-group-id'}/roles`]}>
         <Routes>
-          <Route path="/groups/detail/:groupId/roles" element={<Story />} />
+          <Route path="/user-access/groups/detail/:groupId/roles" element={<Story />} />
         </Routes>
       </MemoryRouter>
     ),

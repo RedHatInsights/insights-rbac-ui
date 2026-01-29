@@ -94,7 +94,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     () => [
       {
         title: intl.formatMessage(Messages.userGroups),
-        to: pathnames['users-and-user-groups'].link,
+        to: pathnames['users-and-user-groups'].link(),
       },
       {
         title: pageTitle,
@@ -190,7 +190,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   );
 
   const returnToPreviousPage = useCallback(() => {
-    navigate(pathnames['user-groups'].link);
+    navigate(pathnames['user-groups'].link());
   }, [navigate]);
 
   const handleSubmit = async (values: EditUserGroupFormValues) => {

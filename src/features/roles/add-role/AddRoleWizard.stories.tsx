@@ -75,7 +75,7 @@ const withRouter = (Story: StoryFn) => {
           }
         />
         <Route path="/roles" element={<div data-testid="roles-page">Roles Page</div>} />
-        <Route path="/groups" element={<div data-testid="groups-page">Groups Page</div>} />
+        <Route path="/user-access/groups" element={<div data-testid="groups-page">Groups Page</div>} />
         <Route path="*" element={<Navigate to="/roles/create-role" replace />} />
       </Routes>
     </BrowserRouter>

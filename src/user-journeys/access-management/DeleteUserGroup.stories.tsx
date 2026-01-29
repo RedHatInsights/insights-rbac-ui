@@ -113,7 +113,7 @@ const meta = {
         deleteGroupHandler,
         listGroupsHandler,
         // Default handlers (excluding the ones we're overriding)
-        ...defaultHandlers.filter((h) => !h.info?.path?.toString().includes('/groups/')),
+        ...defaultHandlers.filter((h) => !h.info?.path?.toString().includes('/user-access/groups/')),
       ],
     },
     docs: {

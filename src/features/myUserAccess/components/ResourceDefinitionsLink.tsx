@@ -1,3 +1,4 @@
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
@@ -18,13 +19,8 @@ export const ResourceDefinitionsLink: React.FC<ResourceDefinitionsLinkProps> = (
   return access.resourceDefinitions.length === 0 ? (
     <span>{intl.formatMessage(messages.notApplicable)}</span>
   ) : (
-    <a
-      onClick={() => {
-        onClick();
-        return false;
-      }}
-    >
+    <Button variant="link" isInline onClick={onClick}>
       {access.resourceDefinitions.length}
-    </a>
+    </Button>
   );
 };

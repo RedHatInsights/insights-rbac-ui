@@ -23,7 +23,10 @@ const RemoveGroupModalWrapper: React.FC<RemoveGroupModalWrapperProps> = ({ initi
       {isOpen && (
         <MemoryRouter initialEntries={[initialRoute]}>
           <Routes>
-            <Route path="/groups/remove-group/:groupId" element={<RemoveGroupModal cancelRoute="/groups" submitRoute="/groups" {...props} />} />
+            <Route
+              path="/user-access/groups/remove-group/:groupId"
+              element={<RemoveGroupModal cancelRoute="/user-access/groups" submitRoute="/user-access/groups" {...props} />}
+            />
             {/* Route for useAppNavigate with /iam/user-access basename */}
             <Route path="/iam/user-access/groups" element={<div data-testid="groups-list">Groups List Page</div>} />
           </Routes>
@@ -117,7 +120,7 @@ type Story = StoryObj<typeof meta>;
 export const SingleGroup: Story = {
   tags: ['autodocs'], // ONLY story with autodocs
   args: {
-    initialRoute: '/groups/remove-group/test-group-id',
+    initialRoute: '/user-access/groups/remove-group/test-group-id',
   },
   parameters: {
     docs: {
@@ -190,7 +193,7 @@ For testing specific scenarios, see these additional stories:
 
 export const SystemGroup: Story = {
   args: {
-    initialRoute: '/groups/remove-group/system-group-id',
+    initialRoute: '/user-access/groups/remove-group/system-group-id',
   },
   play: async ({ canvasElement }) => {
     await delay(300); // Required for MSW
@@ -236,7 +239,7 @@ export const SystemGroup: Story = {
 
 export const MultipleGroups: Story = {
   args: {
-    initialRoute: '/groups/remove-group/group-1,group-2,group-3',
+    initialRoute: '/user-access/groups/remove-group/group-1,group-2,group-3',
   },
   play: async ({ canvasElement }) => {
     await delay(300); // Required for MSW

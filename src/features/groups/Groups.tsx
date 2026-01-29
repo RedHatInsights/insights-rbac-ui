@@ -10,7 +10,7 @@
  */
 
 import React, { Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 
 // PatternFly imports
@@ -25,6 +25,7 @@ import { PageLayout } from '../../components/layout/PageLayout';
 import { TableView, useTableState } from '../../components/table-view';
 import { ActionDropdown } from '../../components/ActionDropdown';
 import { GroupsEmptyState } from './components/GroupsEmptyState';
+import { AppLink } from '../../components/navigation/AppLink';
 
 // Hooks
 import { useAppLink } from '../../hooks/useAppLink';
@@ -162,8 +163,7 @@ export const Groups: React.FC = () => {
 
   const handleEdit = useCallback(
     (groupId: string) => {
-      const editPath = (pathnames['edit-group'].link as string).replace(':groupId', groupId);
-      navigate(toAppLink(editPath));
+      navigate(toAppLink(pathnames['edit-group'].link(groupId)));
     },
     [navigate, toAppLink],
   );
@@ -172,8 +172,7 @@ export const Groups: React.FC = () => {
     (groupsToDelete: Group[]) => {
       setRemoveGroupsList(groupsToDelete);
       const groupIds = groupsToDelete.map(({ uuid }) => uuid);
-      const removePath = (pathnames['remove-group'].link as string).replace(':groupId', groupIds.join(','));
-      navigate(toAppLink(removePath));
+      navigate(toAppLink(pathnames['remove-group'].link(groupIds.join(','))));
       tableState.clearSelection();
     },
     [navigate, toAppLink, tableState],
@@ -184,11 +183,11 @@ export const Groups: React.FC = () => {
   // =============================================================================
 
   const toolbarActions = isAdmin ? (
-    <Link to={toAppLink(pathnames['add-group'].link)}>
+    <AppLink to={pathnames['add-group'].link()}>
       <Button ouiaId="create-group-button" variant="primary">
         {intl.formatMessage(messages.createGroup)}
       </Button>
-    </Link>
+    </AppLink>
   ) : undefined;
 
   const bulkActions =
@@ -290,13 +289,13 @@ export const Groups: React.FC = () => {
                 // Mutations invalidate cache automatically, no postMethod needed
               },
               [pathnames['edit-group'].path]: {
-                cancelRoute: getBackRoute(pathnames['groups'].link, tableState.apiParams, filters),
-                submitRoute: getBackRoute(pathnames['groups'].link, { ...tableState.apiParams, offset: 0 }, filters),
+                cancelRoute: getBackRoute(pathnames['groups'].link(), tableState.apiParams, filters),
+                submitRoute: getBackRoute(pathnames['groups'].link(), { ...tableState.apiParams, offset: 0 }, filters),
                 // Mutations invalidate cache automatically, no postMethod needed
               },
               [pathnames['remove-group'].path]: {
-                cancelRoute: getBackRoute(pathnames['groups'].link, tableState.apiParams, filters),
-                submitRoute: getBackRoute(pathnames['groups'].link, { ...tableState.apiParams, offset: 0 }, removingAllRows ? {} : filters),
+                cancelRoute: getBackRoute(pathnames['groups'].link(), tableState.apiParams, filters),
+                submitRoute: getBackRoute(pathnames['groups'].link(), { ...tableState.apiParams, offset: 0 }, removingAllRows ? {} : filters),
                 // Mutations invalidate cache automatically, no postMethod needed
               },
             }}

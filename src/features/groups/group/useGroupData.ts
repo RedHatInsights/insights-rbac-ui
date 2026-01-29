@@ -63,14 +63,14 @@ export const useGroupData = () => {
   // Tab configuration with conditional service accounts tab
   const tabItems: TabItem[] = useMemo(
     () => [
-      { eventKey: 0, title: 'Roles', name: pathnames['group-detail-roles'].link.replace(':groupId', groupId || ''), to: 'roles' },
-      { eventKey: 1, title: 'Members', name: pathnames['group-detail-members'].link.replace(':groupId', groupId || ''), to: 'members' },
+      { eventKey: 0, title: 'Roles', name: pathnames['group-detail-roles'].link(groupId || ''), to: 'roles' },
+      { eventKey: 1, title: 'Members', name: pathnames['group-detail-members'].link(groupId || ''), to: 'members' },
       ...(enableServiceAccounts
         ? [
             {
               eventKey: 2,
               title: 'Service accounts',
-              name: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId || ''),
+              name: pathnames['group-detail-service-accounts'].link(groupId || ''),
               to: 'service-accounts',
             },
           ]

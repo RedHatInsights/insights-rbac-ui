@@ -45,7 +45,7 @@ const meta: Meta<typeof EditUserGroup> = {
             <Route path="/access-management/user-groups" element={<div>User Groups List</div>} />
             {/* Route for useAppNavigate with /iam/user-access basename */}
             <Route
-              path="/iam/user-access/users-and-user-groups/user-groups"
+              path="/iam/access-management/users-and-user-groups/user-groups"
               element={<div data-testid="user-groups-list">User Groups List Page</div>}
             />
           </Routes>

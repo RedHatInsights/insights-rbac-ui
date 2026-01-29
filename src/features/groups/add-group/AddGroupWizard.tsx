@@ -16,6 +16,7 @@ import { SummaryContent } from './components/stepReview/SummaryContent';
 import { AddGroupSuccess } from './AddGroupSuccess';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
+import pathnames from '../../../utilities/pathnames';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
@@ -130,7 +131,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
         title: 'Group created successfully',
         description: 'The group has been created and configured successfully.',
       });
-      navigate('/groups');
+      navigate(pathnames.groups.link());
     } catch (error) {
       let description = 'There was an error creating the group. Please try again.';
 
@@ -157,7 +158,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
 
   const onCancelWarningConfirm = () => {
     setCancelWarningVisible(false);
-    navigate('/groups');
+    navigate(pathnames.groups.link());
   };
 
   const schema = schemaBuilder(enableServiceAccounts, enableRoles);

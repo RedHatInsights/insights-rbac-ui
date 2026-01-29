@@ -108,11 +108,7 @@ export const createRows = (
             </Fragment>
           ),
           {
-            title: userLinks ? (
-              <AppLink to={pathnames['user-detail'].link.replace(':username', username)}>{username.toString()}</AppLink>
-            ) : (
-              username.toString()
-            ),
+            title: userLinks ? <AppLink to={pathnames['user-detail'].link(username)}>{username.toString()}</AppLink> : username.toString(),
           },
           email,
           firstName,

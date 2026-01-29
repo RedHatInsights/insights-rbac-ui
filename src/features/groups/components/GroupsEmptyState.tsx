@@ -37,7 +37,7 @@ export const GroupsEmptyState: React.FC<GroupsEmptyStateProps> = ({ hasActiveFil
       {isAdmin && (
         <EmptyStateFooter>
           <EmptyStateActions>
-            <AppLink to={pathnames['add-group'].link}>
+            <AppLink to={pathnames['add-group'].link()}>
               <Button variant="primary">{intl.formatMessage(messages.createGroup)}</Button>
             </AppLink>
           </EmptyStateActions>

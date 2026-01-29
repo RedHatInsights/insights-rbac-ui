@@ -26,7 +26,7 @@ const GroupsPage: React.FC = () => {
           cursor: 'pointer',
           fontSize: '14px',
         }}
-        onClick={() => navigate('/groups/add-group')}
+        onClick={() => navigate('/user-access/groups/add-group')}
       >
         Add Group
       </button>
@@ -37,10 +37,10 @@ const GroupsPage: React.FC = () => {
 // Wrapper that renders the actual AddGroupWizard component
 const AddGroupWizardWithRouter: React.FC = () => {
   return (
-    <MemoryRouter initialEntries={['/groups']}>
+    <MemoryRouter initialEntries={['/user-access/groups']}>
       <Routes>
-        <Route path="/groups" element={<GroupsPage />} />
-        <Route path="/groups/add-group" element={<AddGroupWizard />} />
+        <Route path="/user-access/groups" element={<GroupsPage />} />
+        <Route path="/user-access/groups/add-group" element={<AddGroupWizard />} />
         {/* Routes for useAppNavigate with /iam/user-access basename */}
         <Route path="/iam/user-access/groups" element={<div data-testid="groups-list">Groups List Page</div>} />
         <Route path="/iam/user-access/groups/add-group" element={<AddGroupWizard />} />

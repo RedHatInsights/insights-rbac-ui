@@ -10,6 +10,7 @@ import messages from '../../../../Messages';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { GrantAccessWizard } from '../../grant-access/GrantAccessWizard';
+import pathnames from '../../../../utilities/pathnames';
 import { useWorkspacesFlag } from '../../../../hooks/useWorkspacesFlag';
 import { TableView } from '../../../../components/table-view/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
@@ -125,7 +126,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
       inheritedFrom: (row) => {
         if (isGroupWithInheritance(row) && row.inheritedFrom) {
           return (
-            <AppLink to={`#/workspaces/${row.inheritedFrom.workspaceId}`} linkBasename="/iam" className="pf-v6-c-button pf-m-link pf-m-inline">
+            <AppLink to={pathnames['workspace-detail'].link(row.inheritedFrom.workspaceId)} className="pf-v6-c-button pf-m-link pf-m-inline">
               {row.inheritedFrom.workspaceName}
             </AppLink>
           );

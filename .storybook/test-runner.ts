@@ -127,6 +127,14 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
   { pattern: /Warning:.*key.*is not a prop.*Trying to access it will result in.*undefined.*being returned/, label: 'React key access warning' },
   
   /**
+   * EXTERNAL: PatternFly DataViewCheckboxFilter key warning
+   * WHERE: AddRolePermissionWizard filters using ToolbarFilter
+   * UPSTREAM: https://github.com/patternfly/react-data-view
+   * WORKAROUND: None, issue is in PatternFly library
+   */
+  { pattern: /Each child in a list should have a unique "key" prop/, label: 'Duplicate key warning (PatternFly ToolbarFilter)' },
+  
+  /**
    * BUG: Controlled/uncontrolled input switching
    * WHERE: Form inputs that start undefined then get a value
    * HOW TO FIX: Initialize form values to empty string instead of undefined:

@@ -48,7 +48,7 @@ export const Group: React.FC = () => {
     (id: string) => {
       // Navigate to the group detail roles page
       // useAppNavigate automatically adds the proper basename (/iam/user-access)
-      navigate(pathnames['group-detail-roles'].link.replace(':groupId', id));
+      navigate(pathnames['group-detail-roles'].link(id));
     },
     [navigate],
   );

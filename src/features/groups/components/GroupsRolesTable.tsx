@@ -61,7 +61,7 @@ export const GroupsRolesTable: React.FC<GroupsRolesTableProps> = ({ group }) => 
           roles.map((role, index) => (
             <Tr key={`${group.uuid}-role-${role.uuid || index}`}>
               <Td dataLabel={compoundRolesCells[0]}>
-                <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink>
+                <AppLink to={pathnames['role-detail'].link(role.uuid)}>{role.name}</AppLink>
               </Td>
               <Td dataLabel={compoundRolesCells[1]}>{role.description}</Td>
               <Td dataLabel={compoundRolesCells[2]}>

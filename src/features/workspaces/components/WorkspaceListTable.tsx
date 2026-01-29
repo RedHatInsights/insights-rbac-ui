@@ -21,13 +21,14 @@ import { FormattedMessage } from 'react-intl';
 import { ActionsColumn } from '@patternfly/react-table';
 import React, { Suspense, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { Link, Outlet, useSearchParams } from 'react-router-dom';
+import { Outlet, useSearchParams } from 'react-router-dom';
+import { ExternalLink } from '../../../components/navigation/ExternalLink';
 import useAppNavigate from '../../../hooks/useAppNavigate';
+import useExternalLink from '../../../hooks/useExternalLink';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
 import messages from '../../../Messages';
 import { AppLink } from '../../../components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
-import paths from '../../../utilities/pathnames';
 import type { WorkspaceFilters, WorkspaceWithChildren, WorkspacesWorkspace } from '../types';
 
 interface WorkspaceListTableProps {
@@ -159,6 +160,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
 }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
+  const externalLink = useExternalLink();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<WorkspacesWorkspace[]>([]);
 
@@ -221,9 +223,14 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             </AppLink>
           ) : // M1-M2: Link to Inventory for standard/ungrouped-hosts types
           ['standard', 'ungrouped-hosts'].includes(workspace?.type ?? '') ? (
-            <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
+            <ExternalLink
+              replace
+              to={`/insights/inventory/workspaces/${workspace.id}`}
+              key={`${workspace.id}-inventory-link`}
+              className="rbac-m-hide-on-sm"
+            >
               {workspace.name}
-            </Link>
+            </ExternalLink>
           ) : (
             workspace.name
           ),
@@ -235,18 +242,18 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
                 {
                   title: 'Edit workspace',
                   onClick: () => {
-                    navigate(pathnames['edit-workspaces-list'].link.replace(':workspaceId', workspace.id ?? ''));
+                    navigate(pathnames['edit-workspaces-list'].link(workspace.id ?? ''));
                   },
                   isDisabled: !canModify(workspace, 'edit'),
                 },
                 {
                   title: 'Create workspace',
-                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id ?? '')),
+                  onClick: () => navigate(pathnames['create-workspace'].link()),
                   isDisabled: !canModify(workspace, 'create'),
                 },
                 {
                   title: 'Create subworkspace',
-                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id ?? '')),
+                  onClick: () => navigate(pathnames['create-workspace'].link()),
                   isDisabled: !canModify(workspace, 'create'),
                 },
                 {
@@ -259,11 +266,11 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
                 },
                 {
                   title: 'Manage integrations',
-                  onClick: () => navigate(paths.integrations.path),
+                  onClick: () => externalLink.navigate('/settings/integrations'),
                 },
                 {
                   title: 'Manage notifications',
-                  onClick: () => navigate(paths.notifications.path),
+                  onClick: () => externalLink.navigate('/settings/notifications'),
                 },
                 {
                   title: <Divider component="li" key="divider" />,
@@ -368,7 +375,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             }
             actions={
               <>
-                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)} isDisabled={!canCreateTopLevel}>
+                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link())} isDisabled={!canCreateTopLevel}>
                   {intl.formatMessage(messages.createWorkspace)}
                 </Button>
                 {hasAllFeatures && (

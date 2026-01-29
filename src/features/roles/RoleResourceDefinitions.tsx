@@ -120,7 +120,7 @@ const RoleResourceDefinitions: React.FC = () => {
 
   // Toolbar actions
   const toolbarActions = !role?.system ? (
-    <AppLink to={paths['role-detail-permission-edit'].link.replace(':roleId', roleId!).replace(':permissionId', permissionId!)}>
+    <AppLink to={paths['role-detail-permission-edit'].link(roleId!, permissionId!)}>
       <Button variant="primary" aria-label="Edit">
         {intl.formatMessage(messages.edit)}
       </Button>
@@ -134,9 +134,9 @@ const RoleResourceDefinitions: React.FC = () => {
           title: intl.formatMessage(messages.roles),
           // Construct URL string from getBackRoute's pathname and search
           to: (() => {
-            const basePath = toAppLink(paths['roles'].link);
+            const basePath = toAppLink(paths['roles'].link());
             // toAppLink returns string when passed a string
-            const pathStr = typeof basePath === 'string' ? basePath : basePath.pathname || paths['roles'].link;
+            const pathStr = typeof basePath === 'string' ? basePath : basePath.pathname || paths['roles'].link();
             const route = getBackRoute(pathStr, { limit: 20, offset: 0 }, {});
             return `${route.pathname}?${route.search}`;
           })(),
@@ -145,7 +145,7 @@ const RoleResourceDefinitions: React.FC = () => {
           title: isRoleLoading ? undefined : role && (role.display_name || role.name),
           // toAppLink returns string when passed a string, but TS needs help
           to: (() => {
-            const link = toAppLink(paths['role-detail'].link.replace(':roleId', roleId!));
+            const link = toAppLink(paths['role-detail'].link(roleId!));
             return typeof link === 'string' ? link : link.pathname;
           })(),
         },
@@ -193,7 +193,7 @@ const RoleResourceDefinitions: React.FC = () => {
         <Suspense>
           <Outlet
             context={{
-              cancelRoute: paths['role-detail-permission'].link.replace(':roleId', roleId!).replace(':permissionId', permissionId!),
+              cancelRoute: paths['role-detail-permission'].link(roleId!, permissionId!),
             }}
           />
         </Suspense>

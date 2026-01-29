@@ -51,9 +51,9 @@ const meta: Meta<typeof GroupServiceAccountsWrapper> = {
   tags: ['custom-css'], // NO autodocs on meta
   decorators: [
     (Story) => (
-      <MemoryRouter initialEntries={['/groups/detail/test-group-id/service-accounts']}>
+      <MemoryRouter initialEntries={['/user-access/groups/detail/test-group-id/service-accounts']}>
         <Routes>
-          <Route path="/groups/detail/:groupId/service-accounts" element={<Story />} />
+          <Route path="/user-access/groups/detail/:groupId/service-accounts" element={<Story />} />
         </Routes>
       </MemoryRouter>
     ),

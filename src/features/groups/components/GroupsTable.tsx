@@ -20,6 +20,7 @@ import { useIntl } from 'react-intl';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import { getDateFormat } from '../../../helpers/stringUtilities';
 import { AppLink } from '../../../components/navigation/AppLink';
+import pathnames from '../../../utilities/pathnames';
 import { DefaultInfoPopover } from '../components/DefaultInfoPopover';
 import messages from '../../../Messages';
 import { EmptyGroupsState } from './EmptyGroupsState';
@@ -352,7 +353,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
               <Td dataLabel={columns[0].title} component="th">
                 {isAdmin ? (
                   <>
-                    <AppLink to={`/groups/detail/${group.uuid}/roles`} state={{ uuid: group.uuid }}>
+                    <AppLink to={pathnames['group-detail-roles'].link(group.uuid)} state={{ uuid: group.uuid }}>
                       {group.name}
                     </AppLink>
                     {(group.platform_default || group.admin_default) && (

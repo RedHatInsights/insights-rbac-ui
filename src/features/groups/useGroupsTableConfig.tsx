@@ -6,11 +6,12 @@
  */
 
 import React, { useCallback, useMemo } from 'react';
-import { Link, type To } from 'react-router-dom';
+import { type To } from 'react-router-dom';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import type { IntlShape } from 'react-intl';
 
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../components/table-view';
+import { AppLink } from '../../components/navigation/AppLink';
 import { DefaultInfoPopover } from './components/DefaultInfoPopover';
 import { GroupsRolesTable } from './components/GroupsRolesTable';
 import { GroupsMembersTable } from './components/GroupsMembersTable';
@@ -62,7 +63,7 @@ export function useGroupsTableConfig({ intl, toAppLink }: UseGroupsTableConfigOp
     () => ({
       name: (group) => (
         <>
-          <Link to={toAppLink((pathnames['group-detail-roles'].link as string).replace(':groupId', group.uuid))}>{group.name}</Link>
+          <AppLink to={pathnames['group-detail-roles'].link(group.uuid)}>{group.name}</AppLink>
           {(group.platform_default || group.admin_default) && (
             <DefaultInfoPopover
               id={`default${group.admin_default ? '-admin' : ''}-group-popover`}

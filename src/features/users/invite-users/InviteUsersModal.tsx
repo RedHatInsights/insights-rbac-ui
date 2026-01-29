@@ -67,7 +67,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
         dismissable: true,
       });
       fetchData();
-      navigate(toAppLink(paths.users.link) as string);
+      navigate(toAppLink(paths.users.link()) as string);
     } catch (err) {
       console.error(err);
       addNotification({
@@ -101,7 +101,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
       title: intl.formatMessage(messages.inviteUsers),
       description: intl.formatMessage(messages.inviteUsersCancelled),
     });
-    navigate(toAppLink(paths.users.link) as string);
+    navigate(toAppLink(paths.users.link()) as string);
   };
 
   useEffect(() => {

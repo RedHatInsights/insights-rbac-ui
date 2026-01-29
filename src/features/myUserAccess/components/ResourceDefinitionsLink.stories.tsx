@@ -39,7 +39,7 @@ This indicates that the permission applies to all resources of that type.
 
 ## 🎨 Design Notes
 
-- Count appears as a clickable link (styled as \`<a>\` tag)
+- Count appears as a clickable button styled as a link
 - "N/A" appears as plain text
 - Uses consistent internationalization via react-intl
 - No additional styling needed - inherits from context
@@ -110,7 +110,7 @@ export const WithResourceDefinitions: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText('5', { selector: 'a' }));
+    await userEvent.click(canvas.getByRole('button', { name: '5' }));
     await expect(args.onClick).toHaveBeenCalled();
   },
 };
@@ -149,7 +149,7 @@ export const SingleResourceDefinition: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText('1', { selector: 'a' }));
+    await userEvent.click(canvas.getByRole('button', { name: '1' }));
     await expect(args.onClick).toHaveBeenCalled();
   },
 };
@@ -167,7 +167,7 @@ export const ManyResourceDefinitions: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByText('42', { selector: 'a' }));
+    await userEvent.click(canvas.getByRole('button', { name: '42' }));
     await expect(args.onClick).toHaveBeenCalled();
   },
 };

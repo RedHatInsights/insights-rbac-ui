@@ -38,6 +38,7 @@ interface FiltersProps {
 interface AddRoleWizardProps {
   pagination: PaginationProps;
   filters: FiltersProps;
+  cancelRoute?: string;
 }
 
 interface DescriptionProps {
@@ -102,7 +103,7 @@ export const mapperExtension = {
   'type-selector': TypeSelector,
 };
 
-const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination, filters }) => {
+const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination, filters, cancelRoute }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
@@ -130,7 +131,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
 
   const onClose = () =>
     navigate({
-      pathname: paths.roles.link,
+      pathname: cancelRoute || paths.roles.link(),
       search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
     });
 
@@ -145,7 +146,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
     setCancelWarningVisible(false);
 
     navigate({
-      pathname: paths.roles.link,
+      pathname: cancelRoute || paths.roles.link(),
       search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
     });
   };
@@ -276,7 +277,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
                       setWizardSuccess(false);
                     }}
                     onAddToGroup={() => {
-                      navigate(paths.groups.link);
+                      navigate(paths.groups.link());
                     }}
                   />
                 ),

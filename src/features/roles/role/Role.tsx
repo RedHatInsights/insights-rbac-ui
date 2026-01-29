@@ -115,13 +115,13 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
       ? {
           title: intl.formatMessage(messages.groups),
           to: routeToString(
-            getBackRoute(toAppLink(pathnames.groups.link) as string, groupsPagination as { limit: number; offset: number }, groupsFilters),
+            getBackRoute(toAppLink(pathnames.groups.link()) as string, groupsPagination as { limit: number; offset: number }, groupsFilters),
           ),
         }
       : {
           title: intl.formatMessage(messages.roles),
           to: routeToString(
-            getBackRoute(toAppLink(pathnames.roles.link) as string, rolesPagination as { limit: number; offset: number }, rolesFilters),
+            getBackRoute(toAppLink(pathnames.roles.link()) as string, rolesPagination as { limit: number; offset: number }, rolesFilters),
           ),
         },
 
@@ -130,7 +130,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
         ? [
             {
               title: group && group.name,
-              to: toAppLink(pathnames['group-detail-roles'].link.replace(':groupId', groupId)) as string,
+              to: toAppLink(pathnames['group-detail-roles'].link(groupId)) as string,
               isLoading: false,
             },
           ]
@@ -157,7 +157,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
     if (navigationType !== 'POP') {
       routerNavigate(-1); // Use native navigate for delta navigation
     } else {
-      navigate(pathnames.roles.link);
+      navigate(pathnames.roles.link());
     }
   };
 
@@ -171,9 +171,9 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
         // Invalidate roles list cache after deletion
         queryClient.invalidateQueries({ queryKey: rolesKeys.all });
       },
-      cancelRoute: pathnames['role-detail'].link.replace(':roleId', roleId || ''),
+      cancelRoute: pathnames['role-detail'].link(roleId || ''),
       submitRoute: getBackRoute(
-        pathnames['roles'].link,
+        pathnames['roles'].link(),
         { ...rolesPagination, offset: 0, limit: rolesPagination.limit || defaultSettings.limit },
         rolesFilters,
       ),
@@ -181,7 +181,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
     },
     [pathnames['role-detail-edit'].path]: {
       afterSubmit: refetchRole,
-      cancelRoute: pathnames['role-detail'].link.replace(':roleId', roleId || ''),
+      cancelRoute: pathnames['role-detail'].link(roleId || ''),
       isLoading,
     },
     [pathnames['role-add-permission'].path]: {
@@ -202,8 +202,8 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
         isDropdownOpen={isDropdownOpen}
         onDropdownToggle={handleDropdownToggle}
         breadcrumbs={breadcrumbsList()}
-        editLink={pathnames['role-detail-edit'].link.replace(':roleId', roleId || '')}
-        deleteLink={pathnames['role-detail-remove'].link.replace(':roleId', roleId || '')}
+        editLink={pathnames['role-detail-edit'].link(roleId || '')}
+        deleteLink={pathnames['role-detail-remove'].link(roleId || '')}
         onDelete={onDelete}
         onBackClick={handleBackClick}
         hasPermission={orgAdmin || userAccessAdministrator}

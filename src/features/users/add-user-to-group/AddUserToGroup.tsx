@@ -86,7 +86,7 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
       console.error('Failed to add user to group:', error);
       // Error notification is handled by the mutation
     }
-    navigate(pathnames['user-detail'].link.replace(':username', username!), { state: { username } });
+    navigate(pathnames['user-detail'].link(username!), { state: { username } });
   };
 
   const onCancel = () => (tableState.selectedRows.length > 0 && setCancelWarningVisible(true)) || redirectToUserDetail();
@@ -97,7 +97,7 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
       title: intl.formatMessage(messages.addingGroupMemberTitle),
       description: intl.formatMessage(messages.addingGroupMemberCancelled),
     });
-    navigate(pathnames['user-detail'].link.replace(':username', username!));
+    navigate(pathnames['user-detail'].link(username!));
   };
 
   // Column config

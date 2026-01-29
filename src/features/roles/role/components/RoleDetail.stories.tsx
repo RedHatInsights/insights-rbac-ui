@@ -188,8 +188,8 @@ export const WithGroupContext: Story = {
   args: {
     ...Default.args,
     breadcrumbs: [
-      { title: 'Groups', to: '/groups' },
-      { title: 'Engineering Team', to: '/groups/group-456' },
+      { title: 'Groups', to: '/user-access/groups' },
+      { title: 'Engineering Team', to: '/user-access/groups/group-456' },
       { title: 'Custom Administrator Role', isActive: true },
     ],
   },

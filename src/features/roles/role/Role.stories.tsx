@@ -149,12 +149,12 @@ const mockSystemGroup = {
 // Router wrapper for component that uses routing
 const withRouter = (Story: React.ComponentType, context: { parameters?: { routeParams?: { roleId?: string; groupId?: string } } }) => {
   const { roleId = 'role-123', groupId } = context.parameters?.routeParams || {};
-  const targetPath = groupId ? `/groups/${groupId}/roles/${roleId}` : `/roles/${roleId}`;
+  const targetPath = groupId ? `/user-access/groups/${groupId}/roles/${roleId}` : `/roles/${roleId}`;
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/groups/:groupId/roles/:roleId" element={<Story />} />
+        <Route path="/user-access/groups/:groupId/roles/:roleId" element={<Story />} />
         <Route path="/roles/:roleId" element={<Story />} />
         <Route path="*" element={<Navigate to={targetPath} replace />} />
       </Routes>
