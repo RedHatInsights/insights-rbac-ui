@@ -17,7 +17,7 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
 import {
   clickCancelButton,
   clickCreateUserGroupButton,
@@ -117,7 +117,7 @@ async function switchToServiceAccountsTab(canvas: ReturnType<typeof within>, use
   // Find the Service accounts tab within the form (not the drawer)
   const serviceAccountsTab = await canvas.findByRole('tab', { name: /service accounts/i });
   await user.click(serviceAccountsTab);
-  await delay(300);
+  await delay(TEST_TIMEOUTS.AFTER_CLICK);
 }
 
 // =============================================================================
@@ -201,7 +201,7 @@ const addServiceAccountsHandler = http.post('/api/rbac/v2/groups/:uuid/service-a
 });
 
 const listGroupsSpyHandler = http.get('/api/rbac/v1/groups/', async ({ request }) => {
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
   const url = new URL(request.url);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -293,7 +293,7 @@ const groupServiceAccountsHandler = http.get('/api/rbac/v1/groups/:uuid/service_
 
 // Handler for users list in the form
 const usersListHandler = http.get('/api/rbac/v1/principals/', async ({ request }) => {
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
   const url = new URL(request.url);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -306,12 +306,12 @@ const usersListHandler = http.get('/api/rbac/v1/principals/', async ({ request }
 
 // Handler for service accounts list in the form
 const serviceAccountsListHandler = http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', async () => {
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
   return HttpResponse.json(mockServiceAccounts);
 });
 
 const serviceAccountsListHandlerStage = http.get('https://sso.stage.redhat.com/realms/redhat-external/apis/service_accounts/v1', async () => {
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
   return HttpResponse.json(mockServiceAccounts);
 });
 
@@ -360,7 +360,7 @@ const meta = {
           const info = h.info as { path?: string };
           const path = info?.path?.toString() || '';
           return (
-            !path.includes('/groups/') &&
+            !path.includes('/user-access/groups/') &&
             !path.includes('/principals/') &&
             !path.includes('/service-accounts/') &&
             !path.includes('sso.redhat.com') &&
@@ -532,33 +532,33 @@ Tests the complete "Create user group" workflow including user and service accou
     // Service accounts to select: CI/CD Pipeline, Monitoring Agent
 
     // Wait for data to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Step 1: Click "Create user group" button
     await clickCreateUserGroupButton(canvas, user);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Step 2: Verify we're on the create form page
     await expect(canvas.findByRole('heading', { name: /Create user group/i })).resolves.toBeInTheDocument();
 
     // Step 3: Fill in group name
     await fillGroupName(canvas, user, testGroupName);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Step 4: Fill in description
     await fillGroupDescription(canvas, user, testGroupDescription);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Step 5: Wait for users to load in the form and select users
     await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
 
     // Select first user (adumble)
     await selectUserInForm(canvas, user, 'adumble');
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Select second user (bbunny)
     await selectUserInForm(canvas, user, 'bbunny');
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Step 6: Switch to Service Accounts tab
     await switchToServiceAccountsTab(canvas, user);
@@ -568,15 +568,15 @@ Tests the complete "Create user group" workflow including user and service accou
 
     // Select first service account (CI/CD Pipeline)
     await selectServiceAccountInForm(canvas, user, 'CI/CD Pipeline');
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Select second service account (Monitoring Agent)
     await selectServiceAccountInForm(canvas, user, 'Monitoring Agent');
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Step 8: Submit form
     await clickSubmitButton(canvas, user);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // ==========================================================================
     // API SPY VERIFICATION
@@ -644,7 +644,7 @@ Tests the complete "Create user group" workflow including user and service accou
         const groupNotification = body.getByText(/group created successfully/i);
         await expect(groupNotification).toBeInTheDocument();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     // Verify members added notification
@@ -653,7 +653,7 @@ Tests the complete "Create user group" workflow including user and service accou
         const membersNotification = body.getByText(/success adding members to group/i);
         await expect(membersNotification).toBeInTheDocument();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     // Verify service accounts added notification
@@ -662,7 +662,7 @@ Tests the complete "Create user group" workflow including user and service accou
         const serviceAccountsNotification = body.getByText(/success adding service accounts to group/i);
         await expect(serviceAccountsNotification).toBeInTheDocument();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     // ==========================================================================
@@ -670,12 +670,12 @@ Tests the complete "Create user group" workflow including user and service accou
     // ==========================================================================
 
     // Step 10: Wait for redirect back to groups table
-    await delay(1000);
+    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
     await verifyUserGroupsTabSelected(canvas);
 
     // Step 11: Find and click on the newly created group to open drawer
     await openGroupDrawer(canvas, user, testGroupName);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Step 12: Verify group details in drawer
     const drawerScope = getDrawerScope(context.canvasElement);
@@ -687,7 +687,7 @@ Tests the complete "Create user group" workflow including user and service accou
     const usersTab = await drawerScope.findByRole('tab', { name: /^users$/i });
     expect(usersTab).toBeInTheDocument();
     await user.click(usersTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify the users we selected during creation are shown in the drawer
     await expect(drawerScope.findByText('adumble')).resolves.toBeInTheDocument();
@@ -696,7 +696,7 @@ Tests the complete "Create user group" workflow including user and service accou
     // Step 14: Verify service accounts are shown in the drawer
     const serviceAccountsTab = await drawerScope.findByRole('tab', { name: /service accounts/i });
     await user.click(serviceAccountsTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify the service accounts we selected during creation are shown in the drawer
     // Note: mockServiceAccounts uses 'name' as the display field
@@ -737,19 +737,19 @@ Tests creating a group with only the required name field.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for data to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Navigate to create form
     await clickCreateUserGroupButton(canvas, user);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Fill in only the name
     await fillGroupName(canvas, user, 'Minimal Group');
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Submit form
     await clickSubmitButton(canvas, user);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // ==========================================================================
     // API SPY VERIFICATION
@@ -767,7 +767,7 @@ Tests creating a group with only the required name field.
     expect(listGroupsSpy).toHaveBeenCalled();
 
     // Verify redirect
-    await delay(1000);
+    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
     await verifyUserGroupsTabSelected(canvas);
   },
 };
@@ -803,11 +803,11 @@ Tests that the group name is required.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for data to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Navigate to create form
     await clickCreateUserGroupButton(canvas, user);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Try to submit without filling name
     const submitButton = await canvas.findByRole('button', { name: /submit|create|save/i });
@@ -851,18 +851,18 @@ Tests that duplicate group names show validation error.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for data to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Navigate to create form
     await clickCreateUserGroupButton(canvas, user);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Enter duplicate name (Admin group exists in mockGroups)
     await fillGroupName(canvas, user, 'Admin group');
 
     // Blur the name field to trigger validation (tab to description)
     await user.tab();
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify validation error appears
     await expect(canvas.findByText(/already exists|taken/i)).resolves.toBeInTheDocument();
@@ -907,19 +907,19 @@ Tests canceling the create group form.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for data to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Navigate to create form
     await clickCreateUserGroupButton(canvas, user);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Fill in some data
     await fillGroupName(canvas, user, 'Test Group');
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Click Cancel
     await clickCancelButton(canvas, user);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify we're back on groups table
     await verifyUserGroupsTabSelected(canvas);

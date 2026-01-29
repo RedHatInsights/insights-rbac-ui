@@ -16,7 +16,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers } from './_shared';
 
 const meta = {
@@ -176,7 +176,7 @@ Tests the user details drawer matching \`static/mocks/Users tab/Frame 108.png\`.
     // Click on Betty White's row
     const bwhiteRow = await canvas.findByText('bwhite');
     await user.click(bwhiteRow);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify drawer opens with user info
     const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
@@ -293,7 +293,7 @@ Shows roles assigned to the user with:
     // Click on a user row
     const adumbleRow = await canvas.findByText('adumble');
     await user.click(adumbleRow);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Get drawer
     const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
@@ -303,7 +303,7 @@ Shows roles assigned to the user with:
     // Click on Assigned roles tab (use role selector to avoid multiple matches)
     const rolesTab = await drawerScope.findByRole('tab', { name: /Assigned roles/i });
     await user.click(rolesTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify roles are displayed
     // adumble is in group-admin which has Tenant Administrator and Workspace Administrator roles
@@ -397,7 +397,7 @@ Tests selecting users to enable bulk actions matching \`static/mocks/Users tab/F
     // Select first two data rows (skip header if present)
     await user.click(checkboxes[1]);
     await user.click(checkboxes[2]);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Verify Add to user group button is now enabled
     const addButton = await canvas.findByText(/Add to user group/i);

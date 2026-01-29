@@ -14,7 +14,7 @@ import React from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { openRoleActionsMenu, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, openRoleActionsMenu, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { handlersWithV2Gaps, mockRolesV2 } from './_shared';
 import { getRolesTable, verifyNoApiCalls } from './_shared/tableHelpers';
 
@@ -42,7 +42,7 @@ const resetMutableState = () => {
 
 // Custom update handler that tracks updates and calls spy
 const updateRoleHandler = http.put('/api/rbac/v1/roles/:uuid/', async ({ params, request }) => {
-  await delay(100);
+  await delay(TEST_TIMEOUTS.QUICK_SETTLE);
   const roleId = params.uuid as string;
   const body = (await request.json()) as {
     name?: string;
@@ -76,7 +76,7 @@ const updateRoleHandler = http.put('/api/rbac/v1/roles/:uuid/', async ({ params,
 
 // Custom list handler that returns updated roles
 const listRolesHandler = http.get('/api/rbac/v1/roles/', async ({ request }) => {
-  await delay(100);
+  await delay(TEST_TIMEOUTS.QUICK_SETTLE);
   const url = new URL(request.url);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -153,7 +153,7 @@ const mockRolePermissions: Record<string, Array<{ permission: string; resourceDe
 
 // Custom single role handler for edit form
 const getRoleHandler = http.get('/api/rbac/v1/roles/:uuid/', async ({ params }) => {
-  await delay(100);
+  await delay(TEST_TIMEOUTS.QUICK_SETTLE);
   const roleId = params.uuid as string;
   const role = mockRolesV2.find((r) => r.uuid === roleId);
 
@@ -207,7 +207,7 @@ const mockPermissions = [
 
 // Custom permissions list handler for the edit form
 const getPermissionsHandler = http.get('/api/rbac/v1/permissions/', async ({ request }) => {
-  await delay(100);
+  await delay(TEST_TIMEOUTS.QUICK_SETTLE);
   const url = new URL(request.url);
   const limit = parseInt(url.searchParams.get('limit') || '10', 10);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -376,12 +376,12 @@ Tests the complete edit role workflow including permission changes:
 
     // 2. Click kebab menu on the target role
     await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 3. Select "Edit"
     const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
     await user.click(editOption);
-    await delay(1000); // Wait for navigation and form to load
+    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD); // Wait for navigation and form to load
 
     // 4. Visual check: Edit form appears with role data pre-filled
     await expect(canvas.findByRole('heading', { name: /edit/i })).resolves.toBeInTheDocument();
@@ -397,7 +397,7 @@ Tests the complete edit role workflow including permission changes:
     const descriptionInput = await canvas.findByRole('textbox', { name: /description/i });
     await user.tripleClick(descriptionInput);
     await user.keyboard('Updated role description with new permissions');
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 7. Add a new permission - find and click inventory:groups:write checkbox
     // The permissions table should show the permission as unchecked
@@ -427,7 +427,7 @@ Tests the complete edit role workflow including permission changes:
 
     if (groupsWriteCheckbox) {
       await user.click(groupsWriteCheckbox);
-      await delay(200);
+      await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
       // Now should show 4 selected
       const newSelectedText = await canvas.findByText(/4 selected/i);
       expect(newSelectedText).toBeInTheDocument();
@@ -440,7 +440,7 @@ Tests the complete edit role workflow including permission changes:
     const saveButton = await canvas.findByRole('button', { name: /save|submit/i });
     expect(saveButton).not.toBeDisabled();
     await user.click(saveButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // 9. API spy: Verify PUT API call was made with correct data
     expect(updateRoleSpy).toHaveBeenCalledWith(
@@ -459,12 +459,12 @@ Tests the complete edit role workflow including permission changes:
 
     // 10. Post-condition: Verify we're back on the roles table
     // Wait for navigation and table to load
-    await delay(1000);
+    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
     const rolesTable = await getRolesTable(canvas);
     expect(rolesTable).toBeInTheDocument();
 
     // Wait for table data to populate
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await waitForPageToLoad(canvas, TARGET_ROLE.name);
 
     // 11. Click on the role row to open the drawer
@@ -472,7 +472,7 @@ Tests the complete edit role workflow including permission changes:
     const tableScope = within(rolesTable);
     const roleNameCell = await tableScope.findByText(TARGET_ROLE.name);
     await user.click(roleNameCell);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // 12. Visual verification (drawer): Verify the drawer opened and shows the role
     const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel-main, .pf-v6-c-drawer__panel:not([hidden])');
@@ -535,7 +535,7 @@ Tests opening the edit role page from the kebab menu.
 
     // 2. Click kebab menu on the target role
     await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 3. Visual check: Verify "Edit" option is present
     const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
@@ -543,7 +543,7 @@ Tests opening the edit role page from the kebab menu.
 
     // 4. Click "Edit"
     await user.click(editOption);
-    await delay(1000);
+    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
 
     // 5. Visual check: Verify edit form appears with role data
     await expect(canvas.findByRole('heading', { name: /edit/i })).resolves.toBeInTheDocument();
@@ -586,11 +586,11 @@ Tests editing the role name.
     // Navigate to edit form
     await waitForPageToLoad(canvas, TARGET_ROLE.name);
     await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
     await user.click(editOption);
-    await delay(1000);
+    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
 
     // 2. Visual check: Verify current name is pre-filled
     const nameInput = await canvas.findByRole('textbox', { name: /name/i });
@@ -599,12 +599,12 @@ Tests editing the role name.
     // 3. Change the name
     await user.tripleClick(nameInput);
     await user.keyboard('Renamed RHEL DevOps Role');
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 4. Save changes
     const saveButton = await canvas.findByRole('button', { name: /save|submit/i });
     await user.click(saveButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // 5. API spy: Verify PUT call includes new name
     expect(updateRoleSpy).toHaveBeenCalledWith(
@@ -661,7 +661,7 @@ Tests that system/canned roles cannot be edited.
 
     // 2. Click kebab menu on the system role
     await openRoleActionsMenu(user, canvas, systemRoleName);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 3. Visual check: Verify "Edit" option is NOT present
     // Note: The kebab menu should still show but Edit should be missing or disabled
@@ -713,22 +713,22 @@ Tests canceling the edit role form.
     // Navigate to edit form
     await waitForPageToLoad(canvas, TARGET_ROLE.name);
     await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
     await user.click(editOption);
-    await delay(1000);
+    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
 
     // 2. Make changes to the name
     const nameInput = await canvas.findByRole('textbox', { name: /name/i });
     await user.tripleClick(nameInput);
     await user.keyboard('This should not be saved');
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // 3. Click Cancel
     const cancelButton = await canvas.findByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // 4. Visual check: Verify we're back on the roles table
     const rolesTable = await getRolesTable(canvas);

@@ -2,7 +2,7 @@ import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
 import { defaultKesselRoles } from '../../../.storybook/fixtures/kessel-groups-roles';
 import { delay } from 'msw';
@@ -369,7 +369,7 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     const productionRowScope = within(productionRow);
     const kebabButton = productionRowScope.getByLabelText(/kebab toggle|actions/i);
     await user.click(kebabButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Menu opens in document.body
     const body = within(document.body);
@@ -388,12 +388,12 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     // Modify the name
     await user.clear(nameInput);
     await user.type(nameInput, 'Production Updated');
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Modify the description
     await user.clear(descInput);
     await user.type(descInput, 'Updated production environment');
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Find and click Save button
     const saveButton = await body.findByRole('button', { name: /save/i });
@@ -467,7 +467,7 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
     const stagingRowScope = within(stagingRow);
     const kebabButton = stagingRowScope.getByLabelText(/kebab toggle|actions/i);
     await user.click(kebabButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Menu opens in document.body
     const body = within(document.body);
@@ -487,7 +487,7 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
 
     // Check the confirmation checkbox
     await user.click(checkbox);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // The delete/confirm button should now be enabled
     const confirmButton = await body.findByRole('button', { name: /^delete$/i });

@@ -134,9 +134,9 @@ const meta: Meta<typeof AddGroupRoles> = {
   },
   decorators: [
     (Story) => (
-      <MemoryRouter initialEntries={['/groups/detail/test-group-id/roles/add-roles']}>
+      <MemoryRouter initialEntries={['/user-access/groups/detail/test-group-id/roles/add-roles']}>
         <Routes>
-          <Route path="/groups/detail/:groupId/roles/add-roles" element={<Story />} />
+          <Route path="/user-access/groups/detail/:groupId/roles/add-roles" element={<Story />} />
           <Route path="/iam/user-access/groups/detail/:groupId/roles" element={<div data-testid="group-roles-page">Group Roles Page</div>} />
         </Routes>
       </MemoryRouter>

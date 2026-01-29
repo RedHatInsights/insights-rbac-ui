@@ -92,7 +92,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
       onCancel();
     } else {
       // Navigate back to workspace list if no onCancel provided
-      navigate(paths.workspaces.link);
+      navigate(paths.workspaces.link());
     }
   };
 
@@ -108,7 +108,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
         afterSubmit();
       } else {
         // Navigate back to workspace list if no afterSubmit provided
-        navigate(paths.workspaces.link);
+        navigate(paths.workspaces.link());
       }
     } catch {
       // If update fails, still call afterSubmit to close modal

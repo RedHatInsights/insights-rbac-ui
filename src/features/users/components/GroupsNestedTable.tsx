@@ -60,15 +60,12 @@ export const GroupsNestedTable: React.FC<GroupsNestedTableProps> = ({ groups, us
           .map((group) => (
             <Tr key={group.uuid}>
               <Td dataLabel={intl.formatMessage(messages.name)}>
-                <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid ?? '')}>{group.name}</AppLink>
+                <AppLink to={pathnames['group-detail'].link(group.uuid ?? '')}>{group.name}</AppLink>
               </Td>
               <Td dataLabel={intl.formatMessage(messages.description)}>{group.description}</Td>
               <Td className="pf-v6-u-text-align-right">
                 {!adminGroup || !group.uuid || adminGroup.uuid === group.uuid ? null : (
-                  <AppLink
-                    to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', group.uuid ?? '')}
-                    state={{ name: group.name }}
-                  >
+                  <AppLink to={pathnames['user-add-group-roles'].link(username, group.uuid ?? '')} state={{ name: group.name }}>
                     {intl.formatMessage(messages.addRoleToThisGroup)}
                   </AppLink>
                 )}

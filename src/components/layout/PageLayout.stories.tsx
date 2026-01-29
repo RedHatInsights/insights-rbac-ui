@@ -125,7 +125,7 @@ export const DeepNavigation: Story = {
       },
       {
         title: 'Groups',
-        to: '/groups',
+        to: '/user-access/groups',
         isActive: false,
       },
       {

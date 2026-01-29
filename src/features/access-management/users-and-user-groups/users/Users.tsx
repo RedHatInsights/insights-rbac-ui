@@ -29,8 +29,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   const addNotification = useAddNotification();
   const authModel = useFlag('platform.rbac.common-auth-model');
   const isITLess = useFlag('platform.rbac.itless');
-  const { getBundle, getApp } = useChrome();
-  const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
+  const appNavigate = useAppNavigate();
 
   // Use React Query mutation for status changes
   const changeUserStatusMutation = useChangeUserStatusMutation();
@@ -158,7 +157,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
 
   // Invite users handler
   const handleInviteUsers = useCallback(() => {
-    appNavigate(paths['invite-group-users'].link);
+    appNavigate(paths['invite-group-users'].link());
   }, [appNavigate]);
 
   // Add user to group handler (from UsersView)

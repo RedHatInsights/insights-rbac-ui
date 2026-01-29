@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
-import { expect, fn, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AddRolePermissionWizard } from './AddRolePermissionWizard';
@@ -279,6 +279,56 @@ export const PermissionsTableRendered: Story = {
       },
       { timeout: 3000 },
     );
+  },
+};
+
+/**
+ * Permissions filters are wired correctly (Application/Resource/Operation) and update the query.
+ * (IQE: test_permissions_filters)
+ */
+export const PermissionsFilteringInteraction: Story = {
+  parameters: {
+    msw: {
+      handlers: createDefaultHandlers(),
+    },
+  },
+  play: async () => {
+    await delay(500);
+    const body = within(document.body);
+
+    // Wait for wizard and initial permissions load
+    await body.findAllByRole('dialog');
+    await waitFor(() => {
+      expect(fetchPermissionsSpy).toHaveBeenCalled();
+    });
+
+    // Reset spy so we only capture calls triggered by our interaction
+    fetchPermissionsSpy.mockClear();
+
+    // Open the Applications checkbox filter dropdown (DataViewCheckboxFilter renders via portal)
+    const appFilterToggle =
+      document.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') ??
+      body.getByRole('button', { name: /filter by application/i });
+    await userEvent.click(appFilterToggle as HTMLElement);
+
+    // Select the "inventory" option (dropdown renders via portal)
+    const inventoryMenuItem = await body.findByRole('menuitem', { name: /^inventory$/i });
+    const inventoryCheckbox = within(inventoryMenuItem).getByRole('checkbox');
+    await userEvent.click(inventoryCheckbox);
+
+    // Verify API was called with application filter
+    await waitFor(() => {
+      expect(fetchPermissionsSpy).toHaveBeenCalled();
+      const lastCall = fetchPermissionsSpy.mock.calls[fetchPermissionsSpy.mock.calls.length - 1][0];
+      expect(lastCall.application).toBe('inventory');
+    });
+
+    // Verify non-inventory permission is not visible after filtering
+    await waitFor(() => {
+      const filteredTable = document.querySelector('[role="grid"]');
+      expect(filteredTable).toBeInTheDocument();
+      expect(within(filteredTable as HTMLElement).queryByText('rate')).not.toBeInTheDocument();
+    });
   },
 };
 

@@ -75,7 +75,7 @@ export const SupportingFeaturesSection: React.FC<SupportingFeaturesSectionProps>
         >
           <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle1)}</p>
           <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle2)}</p>
-          <AppLink to={pathnames.groups.link}>
+          <AppLink to={pathnames.groups.link()}>
             <Button variant="link" isInline>
               {intl.formatMessage(messages.viewDefaultGroupsLink)}
             </Button>

@@ -15,7 +15,7 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
 import { defaultHandlers, findGroupRow, getUserGroupsTable } from './_shared';
 import { mockGroups } from './_shared/mockData';
 
@@ -46,14 +46,14 @@ const deleteGroupHandler = http.delete('/api/rbac/v1/groups/:uuid/', async ({ pa
   const uuid = params.uuid as string;
   deleteGroupSpy(uuid);
   deletedGroupIds.add(uuid);
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
   return new HttpResponse(null, { status: 204 });
 });
 
 // Override list groups to exclude deleted groups
 const listGroupsHandler = http.get('/api/rbac/v1/groups/', async ({ request }) => {
   listGroupsSpy();
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
   const url = new URL(request.url);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -113,7 +113,7 @@ const meta = {
         deleteGroupHandler,
         listGroupsHandler,
         // Default handlers (excluding the ones we're overriding)
-        ...defaultHandlers.filter((h) => !h.info?.path?.toString().includes('/groups/')),
+        ...defaultHandlers.filter((h) => !h.info?.path?.toString().includes('/user-access/groups/')),
       ],
     },
     docs: {
@@ -171,12 +171,12 @@ const openDeleteModalForGroup = async (
   // Click kebab menu
   const kebabButton = await rowScope.findByLabelText(/actions/i);
   await user.click(kebabButton);
-  await delay(200);
+  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
   // Click "Delete user group"
   const deleteOption = await within(document.body).findByText(/Delete user group/i);
   await user.click(deleteOption);
-  await delay(300);
+  await delay(TEST_TIMEOUTS.AFTER_CLICK);
 };
 
 /**
@@ -247,7 +247,7 @@ Tests the complete "Delete user group" workflow:
     // ==========================================================================
     // PRE-CONDITION: Verify group exists
     // ==========================================================================
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     const table = await getUserGroupsTable(canvas);
     await expect(within(table).findByText(targetGroup)).resolves.toBeInTheDocument();
 
@@ -268,14 +268,14 @@ Tests the complete "Delete user group" workflow:
     // Step 4: Check the acknowledgment checkbox
     const checkbox = await modalScope.findByRole('checkbox');
     await user.click(checkbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Step 5: Delete button should now be enabled
     expect(deleteButton).not.toBeDisabled();
 
     // Step 6: Click Delete button
     await user.click(deleteButton);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // ==========================================================================
     // API CALL VERIFICATION
@@ -292,7 +292,7 @@ Tests the complete "Delete user group" workflow:
         const notification = body.getByText(/group deleted successfully/i);
         await expect(notification).toBeInTheDocument();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     // ==========================================================================
@@ -311,7 +311,7 @@ Tests the complete "Delete user group" workflow:
         const tableAfter = await getUserGroupsTable(canvas);
         expect(within(tableAfter).queryByText(targetGroup)).not.toBeInTheDocument();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
   },
 };
@@ -353,7 +353,7 @@ Tests canceling the delete confirmation modal.
     // ==========================================================================
     // PRE-CONDITION: Verify group exists
     // ==========================================================================
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await expect(canvas.findByText(targetGroup)).resolves.toBeInTheDocument();
 
     // ==========================================================================
@@ -364,7 +364,7 @@ Tests canceling the delete confirmation modal.
     const modal = await within(document.body).findByRole('dialog');
     const cancelButton = await within(modal).findByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // ==========================================================================
     // VERIFICATION
@@ -414,7 +414,7 @@ Tests that the delete button requires checkbox acknowledgment.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
     const targetGroup = 'Golden girls';
 
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // ==========================================================================
     // ACTION: Open delete modal
@@ -434,7 +434,7 @@ Tests that the delete button requires checkbox acknowledgment.
     // ==========================================================================
     const checkbox = await modalScope.findByRole('checkbox');
     await user.click(checkbox);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // ==========================================================================
     // VERIFICATION: Delete button now enabled
@@ -477,7 +477,7 @@ Tests closing the delete modal with the X button.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
     const targetGroup = 'Golden girls';
 
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // ==========================================================================
     // ACTION: Open modal and close with X
@@ -487,7 +487,7 @@ Tests closing the delete modal with the X button.
     const modal = await within(document.body).findByRole('dialog');
     const closeButton = await within(modal).findByLabelText(/close/i);
     await user.click(closeButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // ==========================================================================
     // VERIFICATION

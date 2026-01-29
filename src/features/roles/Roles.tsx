@@ -75,15 +75,12 @@ const GroupsTable: React.FC<{ role: RoleListItem; adminGroup: AdminGroup | null 
           role.groups_in.map((group: RoleGroup, index: number) => (
             <Tr key={`${role.uuid}-group-${group.uuid || index}`}>
               <Td dataLabel={groupColumns[0]}>
-                <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink>
+                <AppLink to={pathnames['group-detail'].link(group.uuid)}>{group.name}</AppLink>
               </Td>
               <Td dataLabel={groupColumns[1]}>{group.description}</Td>
               <Td dataLabel={groupColumns[2]} className="pf-v6-u-text-align-right">
                 {shouldShowAddRoleToGroupLink(adminGroup, group) && (
-                  <AppLink
-                    to={pathnames['roles-add-group-roles'].link.replace(':roleId', role.uuid).replace(':groupId', group.uuid)}
-                    state={{ name: group.name }}
-                  >
+                  <AppLink to={pathnames['roles-add-group-roles'].link(role.uuid, group.uuid)} state={{ name: group.name }}>
                     {intl.formatMessage(messages.addRoleToThisGroup)}
                   </AppLink>
                 )}
@@ -272,7 +269,7 @@ export const Roles: React.FC = () => {
   // Cell renderers
   const cellRenderers: CellRendererMap<typeof columns, RoleListItem> = useMemo(
     () => ({
-      name: (role) => <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.display_name || role.name}</AppLink>,
+      name: (role) => <AppLink to={pathnames['role-detail'].link(role.uuid)}>{role.display_name || role.name}</AppLink>,
       description: (role) => role.description || '—',
       groups: (role) => role.groups_in_count,
       permissions: (role) => role.accessCount,
@@ -293,7 +290,7 @@ export const Roles: React.FC = () => {
   // Navigation handlers
   const handleEditRole = useCallback(
     (roleId: string) => {
-      navigate(toAppLink(pathnames['edit-role'].link.replace(':roleId', roleId)));
+      navigate(toAppLink(pathnames['edit-role'].link(roleId)));
     },
     [navigate, toAppLink],
   );
@@ -302,7 +299,7 @@ export const Roles: React.FC = () => {
     (roleIds: string[]) => {
       const rolesToDelete = roles.filter((role) => roleIds.includes(role.uuid)).map((role) => ({ uuid: role.uuid, label: role.name }));
       setRemoveRolesList(rolesToDelete);
-      navigate(toAppLink(pathnames['remove-role'].link.replace(':roleId', roleIds.join(','))));
+      navigate(toAppLink(pathnames['remove-role'].link(roleIds.join(','))));
     },
     [roles, navigate, toAppLink],
   );
@@ -339,7 +336,7 @@ export const Roles: React.FC = () => {
           renderActions={isAdmin ? renderActions : undefined}
           toolbarActions={
             isAdmin ? (
-              <AppLink to={pathnames['add-role'].link}>
+              <AppLink to={pathnames['add-role'].link()}>
                 <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
                   {intl.formatMessage(messages.createRole)}
                 </Button>
@@ -380,16 +377,17 @@ export const Roles: React.FC = () => {
               [pathnames['add-role'].path]: {
                 pagination: { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage, count: totalCount },
                 filters: { display_name: (tableState.filters.display_name as string) || '' },
+                cancelRoute: pathnames.roles.link(),
               },
               [pathnames['remove-role'].path]: {
                 isLoading,
                 cancelRoute: getBackRoute(
-                  pathnames.roles.link,
+                  pathnames.roles.link(),
                   { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
                   { display_name: (tableState.filters.display_name as string) || '' },
                 ),
                 submitRoute: getBackRoute(
-                  pathnames.roles.link,
+                  pathnames.roles.link(),
                   { limit: tableState.perPage, offset: 0 },
                   removingAllRows ? {} : { display_name: (tableState.filters.display_name as string) || '' },
                 ),
@@ -402,7 +400,7 @@ export const Roles: React.FC = () => {
               [pathnames['edit-role'].path]: {
                 isLoading,
                 cancelRoute: getBackRoute(
-                  pathnames.roles.link,
+                  pathnames.roles.link(),
                   { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
                   { display_name: (tableState.filters.display_name as string) || '' },
                 ),
@@ -413,7 +411,7 @@ export const Roles: React.FC = () => {
               },
               [pathnames['roles-add-group-roles'].path]: {
                 closeUrl: getBackRoute(
-                  pathnames.roles.link,
+                  pathnames.roles.link(),
                   { limit: tableState.perPage, offset: (tableState.page - 1) * tableState.perPage },
                   { display_name: (tableState.filters.display_name as string) || '' },
                 ),

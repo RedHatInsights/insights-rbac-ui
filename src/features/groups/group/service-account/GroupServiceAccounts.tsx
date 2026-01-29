@@ -8,7 +8,7 @@ import Section from '@redhat-cloud-services/frontend-components/Section';
 
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, useTableState } from '../../../../components/table-view';
 import { ActionDropdown } from '../../../../components/ActionDropdown';
-import { AppLink } from '../../../../components/navigation/AppLink';
+import { ExternalLink } from '../../../../components/navigation/ExternalLink';
 import { DefaultServiceAccountsAlert } from '../../components/DefaultServiceAccountsAlert';
 
 import { columns, useGroupServiceAccountsTableConfig } from './useGroupServiceAccountsTableConfig';
@@ -100,7 +100,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
   const handleRemoveServiceAccount = useCallback(
     (account: ServiceAccount) => {
       navigate({
-        pathname: pathnames['group-service-accounts-remove-group'].link.replace(':groupId', groupId!),
+        pathname: pathnames['group-service-accounts-remove-group'].link(groupId!),
         search: createSearchParams({ uuid: account.uuid }).toString(),
       });
     },
@@ -116,7 +116,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     });
 
     navigate({
-      pathname: pathnames['group-service-accounts-remove-group'].link.replace(':groupId', groupId!),
+      pathname: pathnames['group-service-accounts-remove-group'].link(groupId!),
       search: searchParams.toString(),
     });
 
@@ -132,7 +132,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
         key="add-service-account"
         variant="primary"
         ouiaId="add-service-account-button"
-        onClick={() => navigate(pathnames['group-add-service-account'].link.replace(':groupId', groupId!))}
+        onClick={() => navigate(pathnames['group-add-service-account'].link(groupId!))}
       >
         {intl.formatMessage(messages.addServiceAccount)}
       </Button>
@@ -184,11 +184,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
           variant="info"
           isInline
           title={intl.formatMessage(messages.visitServiceAccountsPage, {
-            link: (
-              <AppLink to="/service-accounts" linkBasename="/iam">
-                {intl.formatMessage(messages.serviceAccountsPage)}
-              </AppLink>
-            ),
+            link: <ExternalLink to="/service-accounts">{intl.formatMessage(messages.serviceAccountsPage)}</ExternalLink>,
           })}
         />
 
@@ -244,12 +240,12 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
           context={{
             [pathnames['group-service-accounts-edit-group'].path]: {
               group,
-              cancelRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!),
-              submitRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!),
+              cancelRoute: pathnames['group-detail-service-accounts'].link(groupId!),
+              submitRoute: pathnames['group-detail-service-accounts'].link(groupId!),
             },
             [pathnames['group-service-accounts-remove-group'].path]: {
               postMethod: () => {
-                navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!));
+                navigate(pathnames['group-detail-service-accounts'].link(groupId!));
                 // Note: With React Query, cache invalidation happens automatically
               },
             },
@@ -260,7 +256,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
               fetchUuid: systemGroupUuid,
               groupName: group?.name,
               postMethod: () => {
-                navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!));
+                navigate(pathnames['group-detail-service-accounts'].link(groupId!));
                 // Note: With React Query, cache invalidation happens automatically
               },
             },

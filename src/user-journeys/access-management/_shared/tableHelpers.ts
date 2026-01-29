@@ -11,6 +11,7 @@
 
 import { expect, waitFor, within } from 'storybook/test';
 import type { UserEvent } from '@testing-library/user-event';
+import { TEST_TIMEOUTS } from '../../_shared/helpers/testUtils';
 
 // Canvas type is the return type of within()
 type Canvas = ReturnType<typeof within>;
@@ -176,7 +177,7 @@ export const verifyRoleNotExists = async (canvas: Canvas, roleName: string): Pro
         expect(tableScope.queryByText(roleName)).not.toBeInTheDocument();
       }
     },
-    { timeout: 10000 },
+    { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
   );
 };
 

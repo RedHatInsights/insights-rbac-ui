@@ -33,7 +33,7 @@ export const EditRole: FunctionComponent = () => {
   const updateRoleMutation = useUpdateRoleMutation();
 
   const navigateToRoles = () => {
-    navigate(pathnames['roles'].link, { replace: true });
+    navigate(pathnames['access-management-roles'].link(), { replace: true });
   };
 
   const handleSubmit = async (values: FormValues) => {

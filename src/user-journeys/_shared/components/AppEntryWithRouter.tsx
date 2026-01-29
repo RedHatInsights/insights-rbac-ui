@@ -1,7 +1,6 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { AppShell } from '../../../AppEntry';
-import MyUserAccess from '../../../features/myUserAccess/MyUserAccess';
+import { IamShell } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
 import { LeftNavigation } from './LeftNavigation';
 import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
@@ -21,7 +20,8 @@ interface AppEntryWithRouterProps {
 }
 
 /**
- * Wrapper component for routing with address bar and navigation for user journey tests
+ * Wrapper component for routing with address bar and navigation for user journey tests.
+ * IamShell handles all /iam/* routes via the unified Routing component.
  */
 export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
@@ -38,19 +38,9 @@ export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialR
       >
         <FakeAddressBar />
         <GlobalBreadcrumb />
-        <Suspense fallback={<div>Loading...</div>}>
-          <Routes>
-            <Route
-              path="/iam/my-user-access"
-              element={
-                <div style={{ padding: 0, margin: 0 }}>
-                  <MyUserAccess />
-                </div>
-              }
-            />
-            <Route path="/iam/user-access/*" element={<AppShell />} />
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route path="/iam/*" element={<IamShell />} />
+        </Routes>
       </Page>
     </MemoryRouter>
   );

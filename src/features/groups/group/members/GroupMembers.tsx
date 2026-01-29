@@ -190,7 +190,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   // Handle add members
   const handleAddMembers = useCallback(() => {
     if (groupId) {
-      navigate(pathnames['group-add-members'].link.replace(':groupId', groupId));
+      navigate(pathnames['group-add-members'].link(groupId));
     }
   }, [navigate, groupId]);
 
@@ -254,15 +254,15 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
             context={{
               [pathnames['group-members-edit-group'].path]: {
                 group,
-                cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-                submitRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
+                cancelRoute: pathnames['group-detail-members'].link(groupId),
+                submitRoute: pathnames['group-detail-members'].link(groupId),
               },
               [pathnames['group-members-remove-group'].path]: {
                 postMethod: () => {
                   // With React Query, cache invalidation happens automatically
                 },
-                cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-                submitRoute: getBackRoute(pathnames.groups.link, { offset: 0, limit: 20 }, {}),
+                cancelRoute: pathnames['group-detail-members'].link(groupId),
+                submitRoute: getBackRoute(pathnames.groups.link(), { offset: 0, limit: 20 }, {}),
                 groupsUuid: [group],
               },
               [pathnames['group-add-members'].path]: {
@@ -271,7 +271,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
                 onDefaultGroupChanged: props.onDefaultGroupChanged,
                 fetchUuid: systemGroupUuid,
                 groupName: group?.name,
-                cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
+                cancelRoute: pathnames['group-detail-members'].link(groupId),
                 // No afterSubmit needed - mutations invalidate the cache automatically
               },
             }}

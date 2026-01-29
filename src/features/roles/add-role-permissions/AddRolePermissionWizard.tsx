@@ -95,7 +95,7 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
   };
 
   const handleConfirmCancel = () => {
-    navigate(pathnames['role-detail'].link.replace(':roleId', role.uuid));
+    navigate(pathnames['role-detail'].link(role.uuid));
   };
 
   const onSubmit = async (formData: Record<string, unknown>) => {
@@ -168,7 +168,7 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
       .then(() => setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true })))
       .catch(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
-        navigate(pathnames['role-detail'].link.replace(':roleId', role.uuid));
+        navigate(pathnames['role-detail'].link(role.uuid));
       });
   };
 

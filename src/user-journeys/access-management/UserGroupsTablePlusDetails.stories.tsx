@@ -16,7 +16,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers } from './_shared';
 
 const meta = {
@@ -182,7 +182,7 @@ Tests the group details drawer matching \`static/mocks/User groups table plus de
     // Click on Golden girls group
     const goldenGirlsRow = await canvas.findByText('Golden girls');
     await user.click(goldenGirlsRow);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify drawer opens
     const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
@@ -235,7 +235,7 @@ Tests the Service accounts tab matching \`static/mocks/User groups table plus de
     // Click on Admin group
     const adminGroupRow = await canvas.findByText('Admin group');
     await user.click(adminGroupRow);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Get drawer
     const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
@@ -245,7 +245,7 @@ Tests the Service accounts tab matching \`static/mocks/User groups table plus de
     // Click on Service accounts tab
     const saTab = await drawerScope.findByText(/Service accounts/i);
     await user.click(saTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify service accounts content loads
     // Note: Currently using mock data from external SSO API simulation
@@ -338,7 +338,7 @@ Tests the Roles tab in the group details drawer.
     // Click on Admin group
     const adminGroupRow = await canvas.findByText('Admin group');
     await user.click(adminGroupRow);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Get drawer
     const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
@@ -348,7 +348,7 @@ Tests the Roles tab in the group details drawer.
     // Click on Roles tab (use role selector to avoid multiple matches)
     const rolesTab = await drawerScope.findByRole('tab', { name: /Assigned roles/i });
     await user.click(rolesTab);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Verify roles content loads - Admin group has Tenant Administrator and Workspace Administrator
     await expect(drawerScope.findByText('Tenant Administrator')).resolves.toBeInTheDocument();
@@ -390,7 +390,7 @@ Tests the kebab menu actions matching \`static/mocks/User groups table plus deta
 
     // Click the kebab for the last row (Golden girls)
     await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Verify menu options
     await expect(within(document.body).findByText(/Edit user group/i)).resolves.toBeInTheDocument();
@@ -439,7 +439,7 @@ Tests the empty state matching \`static/mocks/User groups table plus details/Bas
       async () => {
         await expect(canvas.getByText(/no user group found/i)).toBeInTheDocument();
       },
-      { timeout: 10000 },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
     );
 
     // Verify empty state message (singular form)

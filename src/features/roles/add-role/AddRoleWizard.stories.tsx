@@ -75,7 +75,7 @@ const withRouter = (Story: StoryFn) => {
           }
         />
         <Route path="/roles" element={<div data-testid="roles-page">Roles Page</div>} />
-        <Route path="/groups" element={<div data-testid="groups-page">Groups Page</div>} />
+        <Route path="/user-access/groups" element={<div data-testid="groups-page">Groups Page</div>} />
         <Route path="*" element={<Navigate to="/roles/create-role" replace />} />
       </Routes>
     </BrowserRouter>
@@ -364,5 +364,76 @@ export const RoleNameInputAcceptsText: Story = {
     const nameInput = nameInputs[0];
     await userEvent.type(nameInput, 'Test Role Name');
     expect(nameInput).toHaveValue('Test Role Name');
+  },
+};
+
+/**
+ * Duplicate role name validation blocks progress (IQE: test_enter_duplicate_role_name)
+ */
+export const DuplicateRoleNameValidation: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        // Override Roles API to return an existing role when name_match=exact is used
+        http.get('/api/rbac/v1/roles/', async ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
+
+          const nameMatch = url.searchParams.get('name_match') || url.searchParams.get('nameMatch');
+          const name = url.searchParams.get('name');
+          const displayName = url.searchParams.get('display_name') || url.searchParams.get('displayName');
+
+          if (String(nameMatch).toLowerCase() === 'exact' && (name === 'Duplicate Role' || displayName === 'Duplicate Role')) {
+            return HttpResponse.json({
+              data: [
+                {
+                  uuid: 'existing-role-uuid',
+                  name: 'Duplicate Role',
+                  display_name: 'Duplicate Role',
+                  description: 'Existing role used to validate duplicate name behavior',
+                  accessCount: 1,
+                  system: false,
+                },
+              ],
+              meta: { count: 1, limit, offset },
+            });
+          }
+
+          // Fall back to the default mock roles list
+          fetchRolesSpy({ limit, offset });
+          await delay(100);
+          return HttpResponse.json({
+            data: mockRoles.slice(offset, offset + limit),
+            meta: { count: mockRoles.length, limit, offset },
+          });
+        }),
+        ...createDefaultHandlers(),
+      ],
+    },
+  },
+  play: async () => {
+    await delay(500);
+    const body = within(document.body);
+
+    // Wizard should be visible
+    await body.findAllByRole('dialog');
+
+    // Select create from scratch
+    const createOption = body.getByText(/create a role from scratch/i);
+    await userEvent.click(createOption);
+    await delay(300);
+
+    // Type duplicate role name (validator is debounced)
+    const roleNameInput = body.getByLabelText('Role name');
+    await userEvent.clear(roleNameInput);
+    await userEvent.type(roleNameInput, 'Duplicate Role');
+
+    // Wait for duplicate-name error message
+    await expect(body.findByText(/already been taken/i)).resolves.toBeInTheDocument();
+
+    // Next should be disabled while the name is invalid
+    const nextButton = body.getByRole('button', { name: /next/i });
+    expect(nextButton).toBeDisabled();
   },
 };

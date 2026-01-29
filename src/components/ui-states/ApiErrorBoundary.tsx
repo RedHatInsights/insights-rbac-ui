@@ -38,11 +38,7 @@ const errorStates: Record<number, React.FC<{ serviceName: string }>> = {
         <FormattedMessage
           {...messages.contactOrgAdmin}
           values={{
-            link: (
-              <AppLink to={pathnames['my-user-access'].link} linkBasename="/iam">
-                My User Access
-              </AppLink>
-            ),
+            link: <AppLink to={pathnames['my-user-access'].link()}>My User Access</AppLink>,
           }}
         />
       }

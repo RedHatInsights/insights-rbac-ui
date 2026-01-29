@@ -21,7 +21,7 @@ const AddRolePermissionSuccess: React.FC<AddRolePermissionSuccessProps> = ({ cur
       <EmptyState headingLevel="h4" icon={CheckCircleIcon} titleText={<>{intl.formatMessage(messages.permissionsAddedSuccessfully)}</>}>
         <EmptyStateBody />
         <EmptyStateFooter>
-          <AppLink to={pathnames['role-detail'].link.replace(':roleId', currentRoleID)}>
+          <AppLink to={pathnames['role-detail'].link(currentRoleID)}>
             {/* Button is only for styling - AppLink handles navigation, mutation already invalidated cache */}
             <Button>{intl.formatMessage(messages.exit)}</Button>
           </AppLink>

@@ -13,13 +13,12 @@ const meta = {
       description: {
         component: `
 AppLink is a wrapper around react-router-dom's Link component that automatically handles basename routing for the application.
-It merges the provided 'to' prop with the current app's basename to ensure proper navigation within the Red Hat Console environment.
+It merges the provided 'to' prop with the /iam basename to ensure proper navigation within the Red Hat Console environment.
 
 ## Features
-- Automatically resolves app basename from Chrome service
+- Automatically resolves app basename to /iam
 - Supports both string and object 'to' props
 - Handles path merging with proper "/" cleanup
-- Custom basename override support
 - Forward ref support
         `,
       },
@@ -43,10 +42,6 @@ It merges the provided 'to' prop with the current app's basename to ensure prope
       description: 'The destination path or location object for navigation',
       control: 'text',
     },
-    linkBasename: {
-      description: 'Custom basename to override the default app basename',
-      control: 'text',
-    },
     children: {
       description: 'Content to display inside the link',
       control: 'text',
@@ -68,17 +63,6 @@ export const Default: Story = {
   args: {
     children: 'Go to Dashboard',
     to: '/dashboard',
-  },
-};
-
-/**
- * AppLink with a custom basename override
- */
-export const CustomBasename: Story = {
-  args: {
-    children: 'External Service Link',
-    to: '/external-page',
-    linkBasename: '/custom-app',
   },
 };
 
@@ -138,21 +122,15 @@ export const PathMerging: Story = {
       <ul style={{ listStyle: 'none', padding: 0 }}>
         <li style={{ marginBottom: '8px' }}>
           <AppLink to="/simple-path">Simple Path</AppLink>
-          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /iam/user-access/simple-path</span>
+          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /iam/simple-path</span>
         </li>
         <li style={{ marginBottom: '8px' }}>
           <AppLink to="nested/deep/path">Nested Path (no leading slash)</AppLink>
-          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /iam/user-access/nested/deep/path</span>
-        </li>
-        <li style={{ marginBottom: '8px' }}>
-          <AppLink to="/" linkBasename="/custom">
-            Custom Basename
-          </AppLink>
-          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /custom/</span>
+          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /iam/nested/deep/path</span>
         </li>
         <li style={{ marginBottom: '8px' }}>
           <AppLink to="/with//double//slashes">Double Slashes Cleanup</AppLink>
-          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /iam/user-access/with/double/slashes</span>
+          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /iam/with/double/slashes</span>
         </li>
       </ul>
     </div>

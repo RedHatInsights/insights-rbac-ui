@@ -12,7 +12,7 @@ import { useParams } from 'react-router-dom';
 import type { ServiceAccount } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
 import { useAddServiceAccountsToGroupMutationV1, useGroupQuery, useGroupsQuery } from '../../../../data/queries/groups';
 import messages from '../../../../Messages';
-import { AppLink } from '../../../../components/navigation/AppLink';
+import { ExternalLink } from '../../../../components/navigation/ExternalLink';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import { ServiceAccountsList } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
@@ -131,11 +131,7 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
                 isInline
                 isPlain
                 title={intl.formatMessage(messages.visitServiceAccountsPage, {
-                  link: (
-                    <AppLink to="/service-accounts" linkBasename="/iam">
-                      {intl.formatMessage(messages.serviceAccountsPage)}
-                    </AppLink>
-                  ),
+                  link: <ExternalLink to="/service-accounts">{intl.formatMessage(messages.serviceAccountsPage)}</ExternalLink>,
                 })}
               />
             </Content>

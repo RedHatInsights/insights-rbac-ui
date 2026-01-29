@@ -122,7 +122,7 @@ export const useRolePermissions = (filters: { applications: string[]; resources:
     if (!role) {
       throw new Error('Cannot navigate: role data not loaded. Check isRecordLoading before calling.');
     }
-    navigate(pathnames['role-add-permission'].link.replace(':roleId', role.uuid));
+    navigate(pathnames['role-add-permission'].link(role.uuid));
   };
 
   return {

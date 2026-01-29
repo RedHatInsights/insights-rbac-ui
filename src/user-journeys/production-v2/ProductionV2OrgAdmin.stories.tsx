@@ -1,9 +1,9 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
-import { delay } from 'msw';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, navigateToPage, resetStoryState, verifySuccessNotification, waitForPageToLoad } from '../_shared/helpers';
 import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-handlers';
 import { defaultGroups } from '../../../.storybook/fixtures/groups';
 import { defaultUsers } from '../../../.storybook/fixtures/users';
@@ -226,7 +226,7 @@ Use the Controls panel to:
     const canvas = within(context.canvasElement);
 
     // Wait for the page to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify the V2 Users and User Groups page loads
     await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
@@ -259,21 +259,21 @@ Tests navigation through all V2 Access Management sidebar items.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Navigate to Users and User Groups
     await navigateToPage(user, canvas, 'Users and User Groups');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
 
     // Navigate to Workspaces
     await navigateToPage(user, canvas, 'Workspaces');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await expect(canvas.findByText('Default Workspace')).resolves.toBeInTheDocument();
 
     // Navigate back to Overview
     await navigateToPage(user, canvas, 'Overview');
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
   },
 };
 
@@ -299,7 +299,7 @@ Tests the new Users and User Groups page functionality.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify Users tab is active
     const usersTab = await canvas.findByRole('tab', { name: /users/i });
@@ -308,14 +308,14 @@ Tests the new Users and User Groups page functionality.
     // Switch to User Groups tab
     const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
     await user.click(groupsTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify User Groups tab is now active
     expect(groupsTab).toHaveAttribute('aria-selected', 'true');
 
     // Switch back to Users
     await user.click(usersTab);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     expect(usersTab).toHaveAttribute('aria-selected', 'true');
   },
 };
@@ -346,5 +346,162 @@ Tests workspace management with all M5 features enabled.
     // Verify create button is enabled (M5 features)
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });
     expect(createButton).toBeEnabled();
+  },
+};
+
+// API spy for invite users - tracks API calls made by the invite modal
+const inviteUsersSpyV2 = fn();
+
+// Expected URL pattern for invite users API (stage environment in tests)
+// Format: https://api.access.stage.redhat.com/account/v1/accounts/{accountId}/users/invite
+const EXPECTED_INVITE_URL_PATTERN_V2 = /^https:\/\/api\.access\.(stage\.)?redhat\.com\/account\/v1\/accounts\/\d+\/users\/invite$/;
+
+/**
+ * Users / Invite users (V2)
+ *
+ * Tests the user invitation flow from the V2 Users and User Groups page.
+ * CRITICAL: Also verifies the correct API URL is called (regression test for /management bug).
+ *
+ * Journey:
+ * 1. Start on V2 Users and User Groups page (Users tab)
+ * 2. Click "Invite users" button
+ * 3. Fill in email addresses
+ * 4. Optionally add a message and check org admin checkbox
+ * 5. Submit the invitation
+ * 6. Verify success notification
+ * 7. Verify API was called with exact expected URL format
+ */
+export const InviteUsersJourney: Story = {
+  name: 'Users / Invite users',
+  args: {
+    initialRoute: '/iam/access-management/users-and-user-groups/users',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests inviting new users to the organization from the V2 interface.
+
+**What this tests:**
+- Navigating to invite users modal from V2 Users tab
+- Email input validation (required field)
+- Optional message field
+- Optional org admin checkbox
+- Form submission
+- Success notification
+- **API URL verification** - ensures the exact URL format is correct (regression test)
+
+**Expected API URL format:**
+\`https://api.access.stage.redhat.com/account/v1/accounts/{accountId}/users/invite\`
+
+**NOT:**
+\`https://api.access.stage.redhat.com/management/account/v1/accounts/{accountId}/users/invite\`
+        `,
+      },
+    },
+    msw: {
+      handlers: [
+        // Intercept ALL calls to the invite endpoint (both correct and incorrect URLs)
+        http.post(/https:\/\/api\.access\.(stage\.)?redhat\.com\/(management\/)?account\/v1\/accounts\/.*\/users\/invite/, async ({ request }) => {
+          const body = (await request.json()) as { emails: string[]; roles?: string[]; message?: string };
+
+          // Record the exact URL that was called
+          inviteUsersSpyV2({
+            url: request.url,
+            emails: body.emails,
+            roles: body.roles,
+          });
+
+          return HttpResponse.json({ success: true }, { status: 200 });
+        }),
+        ...createStatefulHandlers({
+          groups: defaultGroups,
+          users: defaultUsers,
+          roles: defaultRoles,
+          workspaces: defaultWorkspaces,
+        }),
+      ],
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    inviteUsersSpyV2.mockClear();
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // Wait for the V2 Users tab to load
+    await delay(500);
+
+    // Verify we're on the Users tab
+    const usersTab = await canvas.findByRole('tab', { name: /users/i });
+    expect(usersTab).toHaveAttribute('aria-selected', 'true');
+
+    // Wait for users to load
+    await waitForPageToLoad(canvas, 'john.doe');
+
+    // Click "Invite users" button
+    const inviteButton = await canvas.findByRole('button', { name: /invite users/i });
+    await user.click(inviteButton);
+    await delay(500);
+
+    // Modal should open
+    const modal = await waitFor(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      expect(dialog).toBeInTheDocument();
+      return dialog as HTMLElement;
+    });
+
+    const modalContent = within(modal);
+
+    // Wait for modal title (use heading role to avoid conflict with button text)
+    await modalContent.findByRole('heading', { name: /invite new users/i });
+
+    // Fill in email addresses (required field)
+    const emailInput = modalContent.getByRole('textbox', { name: /enter the e-mail addresses/i });
+    await user.type(emailInput, 'newuser1@example.com, newuser2@example.com');
+    await delay(300);
+
+    // Optionally add a message
+    const messageInput = modalContent.getByRole('textbox', { name: /send a message with the invite/i });
+    await user.type(messageInput, 'Welcome to our organization!');
+    await delay(300);
+
+    // Check the org admin checkbox
+    const orgAdminCheckbox = modalContent.getByRole('checkbox', { name: /organization administrators/i });
+    await user.click(orgAdminCheckbox);
+    await delay(300);
+
+    // Submit the form
+    const submitButton = modalContent.getByRole('button', { name: /invite new users/i });
+    await waitFor(() => expect(submitButton).toBeEnabled());
+    await user.click(submitButton);
+    await delay(500);
+
+    // Verify success notification
+    await verifySuccessNotification();
+
+    // CRITICAL: Verify API was called
+    await waitFor(
+      () => {
+        expect(inviteUsersSpyV2).toHaveBeenCalled();
+      },
+      { timeout: 5000 },
+    );
+
+    // Verify the API call details
+    const spyCall = inviteUsersSpyV2.mock.calls[0][0];
+    expect(spyCall).toBeDefined();
+
+    // CRITICAL: Verify the URL matches the exact expected format
+    // Should be: https://api.access.stage.redhat.com/account/v1/accounts/{accountId}/users/invite
+    // Should NOT be: https://api.access.stage.redhat.com/management/account/v1/...
+    expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN_V2);
+
+    // Verify correct data was sent
+    expect(spyCall.emails).toContain('newuser1@example.com');
+    expect(spyCall.emails).toContain('newuser2@example.com');
+
+    // Verify org admin role was included (checkbox was checked)
+    expect(spyCall.roles).toContain('organization_administrator');
   },
 };

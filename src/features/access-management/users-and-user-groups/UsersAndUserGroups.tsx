@@ -15,17 +15,17 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   const usersRef = React.createRef<HTMLElement>();
   const groupsRef = React.createRef<HTMLElement>();
 
-  const navigate = useAppNavigate('/iam/access-management');
+  const navigate = useAppNavigate();
   const location = useLocation();
-  const activeTabIndex = useMemo(() => Number(location.pathname.endsWith(pathnames['user-groups'].link)), [location.pathname]);
+  const activeTabIndex = useMemo(() => Number(location.pathname.endsWith(pathnames['user-groups'].link())), [location.pathname]);
 
   useEffect(() => {
-    location.pathname.endsWith(pathnames['users-and-user-groups'].link) && navigate(pathnames['users-new'].link, { replace: true });
+    location.pathname.endsWith(pathnames['users-and-user-groups'].link()) && navigate(pathnames['users-new'].link(), { replace: true });
   }, [location.pathname, navigate]);
 
   const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
     activeTabIndex !== Number(key) &&
-      navigate((activeTabIndex ? pathnames['users-new'] : pathnames['user-groups']).link, {
+      navigate((activeTabIndex ? pathnames['users-new'] : pathnames['user-groups']).link(), {
         replace: true,
       });
   };

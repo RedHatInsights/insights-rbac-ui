@@ -72,7 +72,7 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
   // Handle edit group navigation
   const handleEditGroup = useCallback(
     (group: Group) => {
-      navigate(pathnames['users-and-user-groups-edit-group'].link.replace(':groupId', group.uuid));
+      navigate(pathnames['users-and-user-groups-edit-group'].link(group.uuid));
     },
     [navigate],
   );
@@ -190,11 +190,11 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
           context={{
             [pathnames['create-user-group'].path]: {
               afterSubmit: () => {
-                navigate({ pathname: pathnames['user-groups'].link });
+                navigate({ pathname: pathnames['user-groups'].link() });
               },
               onCancel: () =>
                 navigate({
-                  pathname: pathnames['user-groups'].link,
+                  pathname: pathnames['user-groups'].link(),
                   search: searchParams.toString(),
                 }),
               enableRoles: false,

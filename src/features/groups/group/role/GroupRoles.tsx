@@ -159,7 +159,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
         variant="primary"
         ouiaId={generateOuiaID(group?.name || '')}
         isDisabled={disableAddRoles}
-        onClick={() => navigate(pathnames['group-add-roles'].link.replace(':groupId', groupId!))}
+        onClick={() => navigate(pathnames['group-add-roles'].link(groupId!))}
       >
         {intl.formatMessage(messages.addRole)}
       </Button>
@@ -271,18 +271,18 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
                 onDefaultGroupChanged: props.onDefaultGroupChanged,
                 fetchUuid: systemGroupUuid,
                 groupName: group?.name,
-                closeUrl: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+                closeUrl: pathnames['group-detail-roles'].link(groupId),
                 // Mutations invalidate cache automatically, no postMethod/afterSubmit needed
               },
               [pathnames['group-roles-edit-group'].path]: {
                 group,
-                cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
-                submitRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+                cancelRoute: pathnames['group-detail-roles'].link(groupId),
+                submitRoute: pathnames['group-detail-roles'].link(groupId),
                 // Mutations invalidate cache automatically
               },
               [pathnames['group-roles-remove-group'].path]: {
-                cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
-                submitRoute: getBackRoute(pathnames.groups.link, { limit: tableState.apiParams.limit, offset: 0 }, {}),
+                cancelRoute: pathnames['group-detail-roles'].link(groupId),
+                submitRoute: getBackRoute(pathnames.groups.link(), { limit: tableState.apiParams.limit, offset: 0 }, {}),
                 // Mutations invalidate cache automatically
               },
             }}

@@ -15,7 +15,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { openRoleActionsMenu, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, openRoleActionsMenu, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { handlersWithV2Gaps, mockRolesV2 } from './_shared';
 import {
   clickModalCancelButton,
@@ -54,7 +54,7 @@ const resetDeletedRoles = () => {
 // Custom delete handler that tracks deletions
 // Note: RolesWithWorkspaces uses V1 API for deletion
 const deleteRoleHandler = http.delete('/api/rbac/v1/roles/:uuid/', async ({ params }) => {
-  await delay(100);
+  await delay(TEST_TIMEOUTS.QUICK_SETTLE);
   const roleId = params.uuid as string;
   const role = mockRolesV2.find((r) => r.uuid === roleId);
 
@@ -76,7 +76,7 @@ const deleteRoleHandler = http.delete('/api/rbac/v1/roles/:uuid/', async ({ para
 // Custom list handler that filters out deleted roles
 // Returns V1 format (with display_name) for compatibility with RolesWithWorkspaces component
 const listRolesHandler = http.get('/api/rbac/v1/roles/', async ({ request }) => {
-  await delay(100);
+  await delay(TEST_TIMEOUTS.QUICK_SETTLE);
   const url = new URL(request.url);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -249,19 +249,19 @@ Tests the complete delete role workflow:
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for page to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Step 1: Pre-condition - Verify role exists
     await waitForPageToLoad(canvas, TARGET_ROLE.name);
 
     // Step 2: Open kebab menu for the target role
     await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     // Step 3: Click "Delete role" option
     const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
     await user.click(deleteOption);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 4: Verify modal appears with delete confirmation
     const modalScope = await waitForModal();
@@ -274,12 +274,12 @@ Tests the complete delete role workflow:
     const checkbox = modalScope.queryByRole('checkbox');
     if (checkbox) {
       await user.click(checkbox);
-      await delay(200);
+      await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
     }
 
     // Step 6: Click Delete button
     await clickModalDeleteButton(user);
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Step 7: API Spy - Verify delete API called with correct role ID
     verifyDeleteRoleApiCall(deleteRoleSpy, TARGET_ROLE.uuid);
@@ -324,23 +324,23 @@ Tests canceling the delete confirmation modal.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for page to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Step 1: Pre-condition - Verify role exists
     await waitForPageToLoad(canvas, TARGET_ROLE.name);
 
     // Step 2: Open kebab menu and click delete
     await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
     await user.click(deleteOption);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 3: Click Cancel in modal
     await waitForModal();
     await clickModalCancelButton(user);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 4: API Spy - Verify NO delete API call made
     verifyNoApiCalls(deleteRoleSpy);
@@ -380,7 +380,7 @@ V2 API needed for proper role type identification.
     const canvas = within(context.canvasElement);
 
     // Wait for page to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Verify system roles are displayed
     const systemRole = mockRolesV2.find((r) => r.system);
@@ -422,15 +422,15 @@ Tests that the delete button requires checkbox acknowledgment.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for page to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Step 1: Open kebab menu and click delete
     await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
     await user.click(deleteOption);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 2: Verify modal appears
     const modalScope = await waitForModal();
@@ -443,7 +443,7 @@ Tests that the delete button requires checkbox acknowledgment.
 
       // Check checkbox
       await clickModalCheckbox(user);
-      await delay(200);
+      await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
       // Delete button should now be enabled
       await verifyDeleteButtonEnabled();
@@ -488,24 +488,24 @@ Tests closing the delete modal with the X button.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for page to load
-    await delay(500);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Step 1: Pre-condition - Verify role exists
     await waitForPageToLoad(canvas, TARGET_ROLE.name);
 
     // Step 2: Open kebab menu and click delete
     await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(200);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
     const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
     await user.click(deleteOption);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 3: Click X button to close modal
     const modalScope = await waitForModal();
     const closeButton = await modalScope.findByLabelText(/close/i);
     await user.click(closeButton);
-    await delay(300);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Step 4: API Spy - Verify NO delete API call made
     verifyNoApiCalls(deleteRoleSpy);

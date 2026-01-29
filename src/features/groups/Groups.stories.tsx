@@ -123,8 +123,8 @@ const meta: Meta<typeof Groups> = {
   parameters: {
     // Groups stories expect to be under the /groups route
     routerUseMemoryRouter: true,
-    routerPath: '/groups',
-    routerDefaultInitialEntries: ['/groups'],
+    routerPath: '/user-access/groups',
+    routerDefaultInitialEntries: ['/user-access/groups'],
     msw: {
       handlers: [
         // Groups API
@@ -721,7 +721,7 @@ export const PaginationUrlSync: Story = {
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: true, userAccessAdministrator: false },
-    routerInitialEntries: [`/groups?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
+    routerInitialEntries: [`/user-access/groups?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
     msw: {
       handlers: [
         http.get('/api/rbac/v1/groups/', ({ request }) => {

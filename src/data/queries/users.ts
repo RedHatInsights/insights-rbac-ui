@@ -152,10 +152,10 @@ export function useUsersQuery(params: UseUsersQueryParams = {}, options?: { enab
 // ============================================================================
 
 /**
- * Get the IT API base URL based on environment
+ * Get the IT API base URL based on environment.
  */
 function getITApiUrl(isProd: boolean): string {
-  return isProd ? 'https://api.access.redhat.com/management' : 'https://api.access.stage.redhat.com/management';
+  return isProd ? 'https://api.access.redhat.com' : 'https://api.access.stage.redhat.com';
 }
 
 // ============================================================================

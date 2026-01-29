@@ -37,7 +37,7 @@ export const useGroupNavigation = ({
     () => [
       {
         title: intl.formatMessage(messages.groups),
-        to: pathnames.groups.link,
+        to: pathnames.groups.link(),
       },
       groupExists
         ? { title: isGroupLoading ? undefined : group?.name, isActive: true }
@@ -66,7 +66,7 @@ export const useGroupNavigation = ({
 
   // Navigation helpers
   const navigateBack = () => {
-    navigate(navigationType !== 'POP' ? '../' : pathnames.groups.link);
+    navigate(navigationType !== 'POP' ? '../' : pathnames.groups.link());
   };
 
   return {

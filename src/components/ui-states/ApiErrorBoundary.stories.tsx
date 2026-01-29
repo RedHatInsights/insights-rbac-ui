@@ -81,7 +81,7 @@ const NavigationTestComponent: React.FC = () => {
       <Button variant="link" onClick={() => navigate('/users')}>
         Go to /users
       </Button>
-      <Button variant="link" onClick={() => navigate('/groups')}>
+      <Button variant="link" onClick={() => navigate('/user-access/groups')}>
         Go to /groups
       </Button>
       <Button variant="link" onClick={() => navigate('/other')}>
@@ -239,7 +239,7 @@ export const Error500ServerError: Story = {
     },
   },
   render: () => (
-    <StoryWrapper initialPath="/groups">
+    <StoryWrapper initialPath="/user-access/groups">
       <ApiTriggerComponent endpoint="/api/test/server-error" />
     </StoryWrapper>
   ),
@@ -459,7 +459,7 @@ export const SectionNameDetection: Story = {
         story: `
 The error state displays a service name based on the current URL path:
 - \`/users\` → "Users"
-- \`/groups\` → "Groups"
+- \`/user-access/groups\` → "Groups"
 - Other paths → "RBAC"
         `,
       },

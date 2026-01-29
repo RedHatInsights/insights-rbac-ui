@@ -1,3 +1,20 @@
+## [2.1.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.2...v2.1.3) (2026-01-29)
+
+
+### Bug Fixes
+
+* **users:** remove /management prefix from IT API URLs ([a29a4e5](https://github.com/RedHatInsights/insights-rbac-ui/commit/a29a4e570f053ceba670862e7a9f3f8002aa0b7d))
+
+## [2.1.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.1...v2.1.2) (2026-01-28)
+
+
+### Bug Fixes
+
+* pairing this down to minimal changes ([6ee97f5](https://github.com/RedHatInsights/insights-rbac-ui/commit/6ee97f5b6089dfe127f4eddb6a413913f12730d0))
+* removed some unnecessary things / file that shouldn't have been tracked ([d2771cd](https://github.com/RedHatInsights/insights-rbac-ui/commit/d2771cdc2cf523a162a126fbb4fb5b077f46a7e6))
+* simplified things and began noting AI agent usage ([94687e6](https://github.com/RedHatInsights/insights-rbac-ui/commit/94687e69ca2cc676217ef000903d6a745af450d5))
+* started simplifying unneeded changes ([4e4d781](https://github.com/RedHatInsights/insights-rbac-ui/commit/4e4d781917a4dcd8dc0ff5ff903ccf06fe36a727))
+
 ## [2.1.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.0...v2.1.1) (2026-01-28)
 
 
