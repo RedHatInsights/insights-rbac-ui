@@ -38,6 +38,8 @@ export const makeChrome = ({
       getUser: () =>
         Promise.resolve({
           identity: {
+            org_id: '12510751', // Required for IT API calls (invite users, status changes, etc.)
+            account_number: '123456',
             user: {
               username: 'test-user',
               email: 'test@redhat.com',

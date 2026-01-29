@@ -491,8 +491,8 @@ export const BulkDeactivateModalIntegration: Story = {
             meta: { count: 2, limit: 20, offset: 0 },
           });
         }),
-        // User status API for bulk activate/deactivate
-        http.post('https://api.access.redhat.com/management/account/v1/accounts/:accountId/users/:userId/status', () => {
+        // User status API for bulk activate/deactivate (without /management - that was a bug)
+        http.post('https://api.access.redhat.com/account/v1/accounts/:accountId/users/:userId/status', () => {
           return HttpResponse.json({ success: true });
         }),
       ],
