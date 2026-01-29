@@ -23,11 +23,21 @@ export const AUTH_DIR = path.join(E2E_ROOT, 'auth');
  *
  * V1 = Legacy User Access experience (/iam/user-access/*)
  * V2 = Access Management experience (/iam/access-management/*)
+ *
+ * User Types:
+ * - admin: Org Admin (SSO flag)
+ * - user: Regular user (no special permissions)
+ * - useradmin: Non-org-admin with rbac:*:* permission (User Access Administrator)
+ * - userviewer: Non-org-admin with read-only permissions (may not be fully supported)
  */
 export const AUTH_V1_ADMIN = path.join(AUTH_DIR, 'v1-admin.json');
 export const AUTH_V1_USER = path.join(AUTH_DIR, 'v1-user.json');
+export const AUTH_V1_USERADMIN = path.join(AUTH_DIR, 'v1-useradmin.json');
+export const AUTH_V1_USERVIEWER = path.join(AUTH_DIR, 'v1-userviewer.json');
 export const AUTH_V2_ADMIN = path.join(AUTH_DIR, 'v2-admin.json');
 export const AUTH_V2_USER = path.join(AUTH_DIR, 'v2-user.json');
+export const AUTH_V2_USERADMIN = path.join(AUTH_DIR, 'v2-useradmin.json');
+export const AUTH_V2_USERVIEWER = path.join(AUTH_DIR, 'v2-userviewer.json');
 
 // Legacy exports for backward compatibility during migration
 export const AUTH_ADMIN = AUTH_V1_ADMIN;
