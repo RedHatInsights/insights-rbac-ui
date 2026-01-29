@@ -37,12 +37,14 @@ const meta = {
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
     'platform.rbac.common.userstable': true,
+    'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
     ...createDynamicEnvironment({
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
       'platform.rbac.common.userstable': true,
+      'platform.rbac.workspaces-organization-management': true,
     }),
     msw: {
       handlers: defaultHandlers,

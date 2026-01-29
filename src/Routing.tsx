@@ -53,7 +53,14 @@ const AccessManagementUserGroups = lazy(() => import('./features/access-manageme
 const EditUserGroup = lazy(() => import('./features/access-management/users-and-user-groups/user-groups/edit-user-group/EditUserGroup'));
 const MyUserAccessPage = lazy(() => import('./features/myUserAccess/MyUserAccess'));
 
-const getRoutes = ({ enableServiceAccounts, isITLess, isCommonAuthModel, hideWorkspaceDetails, hasWorkspacesList }: Record<string, boolean>) => [
+const getRoutes = ({
+  enableServiceAccounts,
+  isITLess,
+  isCommonAuthModel,
+  hideWorkspaceDetails,
+  hasWorkspacesList,
+  hasAccessManagement,
+}: Record<string, boolean>) => [
   {
     path: pathnames['users-and-user-groups'].path,
     element: UsersAndUserGroups,
@@ -168,7 +175,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isCommonAuthModel, hideWor
       },
     ],
   },
-  ...(hasWorkspacesList
+  ...(hasAccessManagement
     ? [
         {
           path: pathnames['access-management-workspaces'].path,
@@ -372,6 +379,7 @@ const Routing = () => {
   const hasWorkspacesList = useWorkspacesFlag('m1'); // M1 or higher
   const isWorkspacesFlag = useWorkspacesFlag('m5'); // Master flag (for routing config)
   const hideWorkspaceDetails = hasWorkspacesList && !hasRbacDetailPages; // M1-M2 only (no RBAC detail pages yet)
+  const hasAccessManagement = useFlag('platform.rbac.workspaces-organization-management'); // Controls access-management routes
   const toAppLink = useAppLink();
 
   useEffect(() => {
@@ -397,6 +405,7 @@ const Routing = () => {
     isCommonAuthModel,
     hideWorkspaceDetails,
     hasWorkspacesList,
+    hasAccessManagement,
   });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
 

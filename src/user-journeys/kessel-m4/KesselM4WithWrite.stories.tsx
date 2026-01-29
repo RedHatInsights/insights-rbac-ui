@@ -108,6 +108,7 @@ const meta = {
     'platform.rbac.workspaces-role-bindings': true,
     'platform.rbac.workspaces-role-bindings-write': true,
     'platform.rbac.workspaces': false,
+    'platform.rbac.workspaces-organization-management': true,
     'platform.rbac.group-service-accounts': false,
     'platform.rbac.group-service-accounts.stable': false,
     'platform.rbac.common-auth-model': false,
@@ -122,6 +123,7 @@ const meta = {
       'platform.rbac.workspaces-role-bindings': true,
       'platform.rbac.workspaces-role-bindings-write': true,
       'platform.rbac.workspaces': false,
+      'platform.rbac.workspaces-organization-management': true,
       'platform.rbac.group-service-accounts': false,
       'platform.rbac.group-service-accounts.stable': false,
       'platform.rbac.common-auth-model': false,
@@ -312,6 +314,7 @@ export const ManualTesting: Story = {
     'platform.rbac.workspaces-role-bindings': true,
     'platform.rbac.workspaces-role-bindings-write': true,
     'platform.rbac.workspaces': false,
+    'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
     docs: {
