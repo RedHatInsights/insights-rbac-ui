@@ -26,7 +26,11 @@ import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Td } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { useIntl } from 'react-intl';
-import { useNavigate } from 'react-router-dom';
+import useAppNavigate from '../../../hooks/useAppNavigate';
+import { useAppLink } from '../../../hooks/useAppLink';
+import useExternalLink from '../../../hooks/useExternalLink';
+import { ExternalLink } from '../../../components/navigation/ExternalLink';
+import pathnames from '../../../utilities/pathnames';
 
 const VIEW_DEFAULT_GROUPS = 'https://console.redhat.com/iam/user-access/groups';
 // to do - update link when available
@@ -36,7 +40,9 @@ const workspacesIcon = '/apps/frontend-assets/technology-icons/iam.svg';
 export const WorkspacesOverview = () => {
   // const [isExpanded, setIsExpanded] = React.useState(false);
   const intl = useIntl();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
+  const toAppLink = useAppLink();
+  const externalLink = useExternalLink();
 
   return (
     <>
@@ -74,10 +80,10 @@ export const WorkspacesOverview = () => {
                   variant={ButtonVariant.primary}
                   isInline
                   component="a"
-                  href="/iam/access-management/workspaces"
+                  href={toAppLink(pathnames['access-management-workspaces'].link()) as string}
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate('/iam/access-management/workspaces');
+                    navigate(pathnames['access-management-workspaces'].link());
                   }}
                 >
                   Workspaces
@@ -98,10 +104,10 @@ export const WorkspacesOverview = () => {
                   variant={ButtonVariant.secondary}
                   isInline
                   component="a"
-                  href="/iam/access-management/users-and-user-groups?&activeTab=user-groups"
+                  href={`${toAppLink(pathnames['users-and-user-groups'].link())}?activeTab=user-groups`}
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate('/iam/access-management/users-and-user-groups?&activeTab=user-groups');
+                    navigate({ pathname: pathnames['users-and-user-groups'].link(), search: '?activeTab=user-groups' });
                   }}
                 >
                   View groups
@@ -122,10 +128,10 @@ export const WorkspacesOverview = () => {
                   variant={ButtonVariant.secondary}
                   isInline
                   component="a"
-                  href="/iam/access-management/roles"
+                  href={toAppLink(pathnames['access-management-roles'].link()) as string}
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate('/iam/access-management/roles');
+                    navigate(pathnames['access-management-roles'].link());
                   }}
                 >
                   View roles
@@ -142,16 +148,7 @@ export const WorkspacesOverview = () => {
               description={intl.formatMessage(messages.bindingsServiceCardDescription)}
               icon={<LinkIcon className="pf-v6-u-primary-color-100 pf-v6-c-icon pf-m-lg" />}
               footer={
-                <Button
-                  variant={ButtonVariant.secondary}
-                  isInline
-                  component="a"
-                  href="/iam/access-management/access-requests"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate('/iam/access-management/access-requests');
-                  }}
-                >
+                <Button variant={ButtonVariant.secondary} isInline onClick={() => externalLink.navigate('/iam/access-management/access-requests')}>
                   View access requests
                 </Button>
               }
@@ -222,9 +219,9 @@ export const WorkspacesOverview = () => {
               </Td>
               <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
-                <a href="">
+                <ExternalLink to="#">
                   Begin Quick start <ExternalLinkAltIcon />
-                </a>
+                </ExternalLink>
               </Td>
             </Tr>
             <Tr>
@@ -234,9 +231,9 @@ export const WorkspacesOverview = () => {
               </Td>
               <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
-                <a href="">
+                <ExternalLink to="#">
                   View documentation <ExternalLinkAltIcon />
-                </a>
+                </ExternalLink>
               </Td>
             </Tr>
             <Tr>
@@ -246,9 +243,9 @@ export const WorkspacesOverview = () => {
               </Td>
               <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
-                <a href="">
+                <ExternalLink to="#">
                   View documentation <ExternalLinkAltIcon />
-                </a>
+                </ExternalLink>
               </Td>
             </Tr>
             <Tr>
@@ -258,17 +255,17 @@ export const WorkspacesOverview = () => {
               </Td>
               <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
-                <a href="">
+                <ExternalLink to="#">
                   View documentation <ExternalLinkAltIcon />
-                </a>
+                </ExternalLink>
               </Td>
             </Tr>
           </Tbody>
         </Table>
 
-        <a href={`/settings/learning-resources`} className="pf-v6-u-mb-lg">
+        <ExternalLink to="/settings/learning-resources" className="pf-v6-u-mb-lg">
           View all Identity and Access Management Learning resources
-        </a>
+        </ExternalLink>
       </PageSection>
     </>
   );

@@ -51,8 +51,9 @@ const UsersAndUserGroups = lazy(() => import('./features/access-management/users
 const AccessManagementUsers = lazy(() => import('./features/access-management/users-and-user-groups/users/Users'));
 const AccessManagementUserGroups = lazy(() => import('./features/access-management/users-and-user-groups/user-groups/UserGroups'));
 const EditUserGroup = lazy(() => import('./features/access-management/users-and-user-groups/user-groups/edit-user-group/EditUserGroup'));
+const MyUserAccessPage = lazy(() => import('./features/myUserAccess/MyUserAccess'));
 
-const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel, hideWorkspaceDetails }: Record<string, boolean>) => [
+const getRoutes = ({ enableServiceAccounts, isITLess, isCommonAuthModel, hideWorkspaceDetails, hasWorkspacesList }: Record<string, boolean>) => [
   {
     path: pathnames['users-and-user-groups'].path,
     element: UsersAndUserGroups,
@@ -89,7 +90,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
   },
   {
     path: pathnames.overview.path,
-    element: isWorkspacesFlag ? WorkspacesOverview : Overview,
+    element: hasWorkspacesList ? WorkspacesOverview : Overview,
   },
   {
     path: pathnames.workspaces.path,
@@ -167,20 +168,34 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
       },
     ],
   },
-  ...(isWorkspacesFlag
+  ...(hasWorkspacesList
     ? [
         {
-          path: pathnames.roles.path,
+          path: pathnames['access-management-workspaces'].path,
+          element: WorkspaceList,
+          childRoutes: [
+            {
+              path: pathnames['create-workspace'].path,
+              element: CreateWorkspaceWizard,
+            },
+            {
+              path: pathnames['edit-workspaces-list'].path,
+              element: EditWorkspaceModal,
+            },
+          ],
+        },
+        {
+          path: pathnames['access-management-roles'].path,
           element: RolesWithWorkspaces,
           childRoutes: [
             {
-              path: pathnames['add-role'].path,
+              path: pathnames['access-management-add-role'].path,
               element: AddRoleWizard,
             },
           ],
         },
         {
-          path: `${pathnames.roles.link}/${pathnames['edit-role'].path}`,
+          path: `${pathnames['access-management-roles'].link()}/${pathnames['access-management-edit-role'].path}`,
           element: newEditRole,
         },
       ]
@@ -310,6 +325,14 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
         },
       ]
     : []),
+
+  // ===========================================
+  // My User Access Section
+  // ===========================================
+  {
+    path: pathnames['my-user-access'].path,
+    element: MyUserAccessPage,
+  },
 ];
 
 interface RouteType {
@@ -373,6 +396,7 @@ const Routing = () => {
     isWorkspacesFlag,
     isCommonAuthModel,
     hideWorkspaceDetails,
+    hasWorkspacesList,
   });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
 
@@ -381,8 +405,8 @@ const Routing = () => {
       <QuickstartsTestButtons />
       <RouterRoutes>
         {renderedRoutes}
-        {/* Catch all unmatched routes */}
-        <RouterRoute path="*" element={<Navigate to={toAppLink(pathnames.users.link)} />} />
+        {/* Catch all unmatched routes - redirect to My User Access */}
+        <RouterRoute path="*" element={<Navigate to={toAppLink(pathnames['my-user-access'].link())} />} />
       </RouterRoutes>
     </Suspense>
   );

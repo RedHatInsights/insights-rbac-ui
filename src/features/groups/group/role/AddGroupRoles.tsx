@@ -15,6 +15,7 @@ import { RolesList } from '../../add-group/components/stepRoles/RolesList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import { getModalContainer } from '../../../../helpers/modal-container';
 import messages from '../../../../Messages';
+import pathnames from '../../../../utilities/pathnames';
 
 interface Role {
   uuid: string;
@@ -69,7 +70,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({ afterSubmit, close
       title: intl.formatMessage(messages.addingGroupRolesCancelled),
       description: 'Adding roles to group has been cancelled.',
     });
-    navigate(closeUrl || `/groups/detail/${groupId}/roles`);
+    navigate(closeUrl || pathnames['group-detail-roles'].link(groupId!));
   };
 
   const onSubmit = async () => {
@@ -84,7 +85,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({ afterSubmit, close
       await addRolesMutation.mutateAsync({ groupId, roleUuids });
 
       afterSubmit?.();
-      navigate(closeUrl || `/groups/detail/${groupId}/roles`);
+      navigate(closeUrl || pathnames['group-detail-roles'].link(groupId!));
     } catch (error) {
       // Error notification is handled by the mutation
       console.error('Failed to add roles to group:', error);

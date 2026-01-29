@@ -44,7 +44,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   // Default handlers for when component is used as a route element
   const defaultAfterSubmit = () => {
     // Cache is automatically invalidated by the mutation
-    navigate(pathnames.workspaces.link);
+    navigate(pathnames.workspaces.link());
   };
 
   const defaultOnCancel = () => {
@@ -53,7 +53,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
       title: intl.formatMessage(messages.createWorkspace),
       description: intl.formatMessage(messages.creatingWorkspaceCancel),
     });
-    navigate(pathnames.workspaces.link);
+    navigate(pathnames.workspaces.link());
   };
 
   const onSubmit = async (_v: Record<string, unknown>, form: FormApi) => {

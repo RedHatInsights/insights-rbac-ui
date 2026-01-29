@@ -130,8 +130,8 @@ const createTestHandlers = () => [
   ...v1Handlers.filter(
     (h) =>
       !h.info?.path?.toString().includes('/principals/') &&
-      !h.info?.path?.toString().includes('/groups/') &&
-      !h.info?.path?.toString().includes('/groups/:uuid/principals/'),
+      !h.info?.path?.toString().includes('/user-access/groups/') &&
+      !h.info?.path?.toString().includes('/user-access/groups/:uuid/principals/'),
   ),
 ];
 

@@ -174,7 +174,7 @@ const meta = {
         ...defaultHandlers.filter((h) => {
           const path = h.info?.path?.toString() || '';
           if (path.includes('/principals/') && h.info?.method === 'GET') return false;
-          if (path.includes('/groups/') && h.info?.method === 'GET') return false;
+          if (path.includes('/user-access/groups/') && h.info?.method === 'GET') return false;
           if (path.includes('/principals/') && h.info?.method === 'DELETE') return false;
           return true;
         }),

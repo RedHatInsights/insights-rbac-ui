@@ -16,9 +16,15 @@ import type { RolesEmptyStateProps } from '../types';
 
 interface RolesEmptyStateFullProps extends RolesEmptyStateProps {
   isAdmin?: boolean;
+  addRoleLink?: string;
 }
 
-export const RolesEmptyState: React.FC<RolesEmptyStateFullProps> = ({ hasActiveFilters, isAdmin = false, onClearFilters }) => {
+export const RolesEmptyState: React.FC<RolesEmptyStateFullProps> = ({
+  hasActiveFilters,
+  isAdmin = false,
+  onClearFilters,
+  addRoleLink = pathnames['add-role'].link(),
+}) => {
   const intl = useIntl();
 
   if (hasActiveFilters) {
@@ -55,7 +61,7 @@ export const RolesEmptyState: React.FC<RolesEmptyStateFullProps> = ({ hasActiveF
         {isAdmin && (
           <EmptyStateFooter>
             <EmptyStateActions>
-              <AppLink to={pathnames['add-role'].link}>
+              <AppLink to={addRoleLink}>
                 <Button variant="primary" aria-label={intl.formatMessage(messages.createRole)}>
                   {intl.formatMessage(messages.createRole)}
                 </Button>

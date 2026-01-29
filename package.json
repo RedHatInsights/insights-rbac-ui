@@ -126,6 +126,7 @@
     "lint:js:fix": "eslint config src cypress --fix",
     "server:ctr": "node src/server/generateServerKey.js",
     "start": "HOT=true fec dev-proxy",
+    "start:no-proxy": "HOT=true fec dev",
     "translations": "npm-run-all translations:*",
     "translations:extract": "npx formatjs extract ./src/*.js --out-file ./locales/translation-template.json",
     "translations:compile": "npx formatjs compile ./locales/translation-template.json --out-file ./src/locales/translations.json",

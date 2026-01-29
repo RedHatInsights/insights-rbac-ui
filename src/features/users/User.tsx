@@ -150,7 +150,7 @@ const User: React.FC = () => {
   };
 
   const breadcrumbsList = [
-    { title: intl.formatMessage(messages.users), to: toAppLink(pathnames.users.link) as string },
+    { title: intl.formatMessage(messages.users), to: toAppLink(pathnames.users.link()) as string },
     { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
   ];
 
@@ -170,7 +170,7 @@ const User: React.FC = () => {
   ];
 
   const toolbarActions = isAdmin ? (
-    <AppLink to={pathnames['add-user-to-group'].link.replace(':username', username!)} key="add-user-to-group">
+    <AppLink to={pathnames['add-user-to-group'].link(username!)} key="add-user-to-group">
       <Button ouiaId="add-user-to-group-button" variant="primary" aria-label="Add user to a group">
         {intl.formatMessage(messages.addUserToGroup)}
       </Button>
@@ -250,7 +250,7 @@ const User: React.FC = () => {
                   // add group roles:
                   selectedRoles: selectedAddRoles,
                   setSelectedRoles: setSelectedAddRoles,
-                  closeUrl: pathnames['user-detail'].link.replace(':username', username!),
+                  closeUrl: pathnames['user-detail'].link(username!),
                   addRolesToGroup: async (groupId: string, rolesArg: string[]) => {
                     await addRolesToGroupMutation.mutateAsync({ groupId, roleUuids: rolesArg });
                   },
@@ -271,7 +271,7 @@ const User: React.FC = () => {
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => navigate(navigationType !== 'POP' ? (-1 as unknown as string) : pathnames.users.link)}
+                onClick={() => navigate(navigationType !== 'POP' ? (-1 as unknown as string) : pathnames.users.link())}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,

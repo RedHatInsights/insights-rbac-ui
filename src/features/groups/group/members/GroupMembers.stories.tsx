@@ -102,12 +102,12 @@ const meta: Meta<typeof GroupMembers> = {
     (Story, { parameters }) => {
       // Use story-specific groupId if provided, otherwise default
       const groupId = parameters?.groupId || 'group-123';
-      const initialEntries = parameters.routerInitialEntries || [`/groups/${groupId}/members`];
+      const initialEntries = parameters.routerInitialEntries || [`/user-access/groups/${groupId}/members`];
       return (
         <MemoryRouter initialEntries={initialEntries}>
           <Routes>
             <Route
-              path="/groups/:groupId/members"
+              path="/user-access/groups/:groupId/members"
               element={
                 <div style={{ height: '100vh', padding: '1rem' }}>
                   <Story />

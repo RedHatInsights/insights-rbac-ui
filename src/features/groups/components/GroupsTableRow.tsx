@@ -1,6 +1,6 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Tbody, Td, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { ExpandableRowContent } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
@@ -12,6 +12,7 @@ import { GroupsMembersTable } from './GroupsMembersTable';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { getDateFormat } from '../../../helpers/stringUtilities';
 import { useAppLink } from '../../../hooks/useAppLink';
+import { AppLink } from '../../../components/navigation/AppLink';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import type { Group } from '../types';
@@ -73,7 +74,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
           ))}
         {/* Name */}
         <Td dataLabel="Name">
-          <Link to={toAppLink((pathnames['group-detail-roles'].link as string).replace(':groupId', item.uuid))}>{item.name}</Link>
+          <AppLink to={pathnames['group-detail-roles'].link(item.uuid)}>{item.name}</AppLink>
           {(item.platform_default || item.admin_default) && (
             <DefaultInfoPopover
               id={`default${item.admin_default ? '-admin' : ''}-group-popover`}
@@ -130,8 +131,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
                 <DropdownItem
                   key="edit"
                   onClick={() => {
-                    const editPath = (pathnames['edit-group'].link as string).replace(':groupId', item.uuid);
-                    navigate(toAppLink(editPath));
+                    navigate(toAppLink(pathnames['edit-group'].link(item.uuid)));
                   }}
                 >
                   {intl.formatMessage(messages.edit)}
@@ -140,8 +140,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
                   key="delete"
                   onClick={() => {
                     onRemoveGroupsChange([item]);
-                    const removePath = (pathnames['remove-group'].link as string).replace(':groupId', item.uuid);
-                    navigate(toAppLink(removePath));
+                    navigate(toAppLink(pathnames['remove-group'].link(item.uuid)));
                   }}
                 >
                   {intl.formatMessage(messages.delete)}

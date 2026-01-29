@@ -1,8 +1,6 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { AppShell } from '../../../AppEntry';
-import MyUserAccess from '../../../features/myUserAccess/MyUserAccess';
-import WorkspaceDetail from '../../../features/workspaces/workspace-detail/WorkspaceDetail';
+import { IamShell } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
 import { KesselNavigation } from './KesselNavigation';
 import { ProductionHeader } from './ProductionHeader';
@@ -26,8 +24,9 @@ interface KesselAppEntryWithRouterProps {
 }
 
 /**
- * Wrapper component for Kessel (Workspaces) journey tests
- * Uses KesselNavigation instead of LeftNavigation to include Workspaces link
+ * Wrapper component for Kessel (Workspaces) journey tests.
+ * Uses KesselNavigation instead of LeftNavigation to include Workspaces link.
+ * IamShell handles all /iam/* routes via the unified Routing component.
  */
 export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
@@ -44,22 +43,9 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
       >
         <FakeAddressBar />
         <GlobalBreadcrumb />
-        <Suspense fallback={<div>Loading...</div>}>
-          <Routes>
-            <Route
-              path="/iam/my-user-access"
-              element={
-                <div style={{ padding: 0, margin: 0 }}>
-                  <MyUserAccess />
-                </div>
-              }
-            />
-            {/* Explicit workspace detail route for M3+ */}
-            <Route path="/iam/user-access/workspaces/detail/:workspaceId" element={<WorkspaceDetail />} />
-            <Route path="/iam/user-access/*" element={<AppShell />} />
-            <Route path="/iam/access-management/*" element={<AppShell />} />
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route path="/iam/*" element={<IamShell />} />
+        </Routes>
       </Page>
     </MemoryRouter>
   );
@@ -129,7 +115,7 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
       isProd: () => false,
       getEnvironment: () => 'stage',
       getBundle: () => 'iam',
-      getApp: () => 'user-access',
+      getApp: () => '',
     },
     featureFlags: {
       'platform.rbac.workspaces': args['platform.rbac.workspaces'] ?? false,

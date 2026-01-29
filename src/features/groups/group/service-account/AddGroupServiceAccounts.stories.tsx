@@ -34,9 +34,9 @@ const meta: Meta<typeof AddGroupServiceAccounts> = {
   tags: ['add-group-service-accounts'],
   decorators: [
     (Story) => (
-      <MemoryRouter initialEntries={['/groups/detail/test-group-id/service-accounts/add']}>
+      <MemoryRouter initialEntries={['/user-access/groups/detail/test-group-id/service-accounts/add']}>
         <Routes>
-          <Route path="/groups/detail/:groupId/service-accounts/add" element={<Story />} />
+          <Route path="/user-access/groups/detail/:groupId/service-accounts/add" element={<Story />} />
         </Routes>
       </MemoryRouter>
     ),

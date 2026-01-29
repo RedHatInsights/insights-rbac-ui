@@ -110,7 +110,7 @@ const meta = {
         ...defaultHandlers.filter((h) => {
           const path = h.info?.path?.toString() || '';
           // Keep non-group handlers
-          if (!path.includes('/groups/')) return true;
+          if (!path.includes('/user-access/groups/')) return true;
           // Keep members/principals and service-accounts sub-routes
           if (path.includes('/principals/') || path.includes('/service-accounts/')) return true;
           // Filter out top-level group handlers (we provide our own)

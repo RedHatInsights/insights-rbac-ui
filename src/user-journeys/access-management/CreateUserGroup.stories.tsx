@@ -360,7 +360,7 @@ const meta = {
           const info = h.info as { path?: string };
           const path = info?.path?.toString() || '';
           return (
-            !path.includes('/groups/') &&
+            !path.includes('/user-access/groups/') &&
             !path.includes('/principals/') &&
             !path.includes('/service-accounts/') &&
             !path.includes('sso.redhat.com') &&

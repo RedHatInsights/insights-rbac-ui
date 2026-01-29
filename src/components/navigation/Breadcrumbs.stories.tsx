@@ -55,7 +55,7 @@ export const Default: Story = {
       },
       {
         title: 'Groups',
-        to: '/groups',
+        to: '/user-access/groups',
       },
       {
         title: 'Engineering Team',
@@ -109,7 +109,7 @@ export const WithPlaceholder: Story = {
       },
       {
         title: 'Groups',
-        to: '/groups',
+        to: '/user-access/groups',
       },
       {
         // No title - will show placeholder
@@ -135,11 +135,11 @@ export const ComplexPath: Story = {
       },
       {
         title: 'Groups',
-        to: '/groups',
+        to: '/user-access/groups',
       },
       {
         title: 'Engineering',
-        to: '/groups/engineering',
+        to: '/user-access/groups/engineering',
       },
       {
         title: 'Members',
@@ -204,11 +204,11 @@ export const LinkGenerationTest: Story = {
     breadcrumbs: [
       {
         title: 'Groups',
-        to: '/groups',
+        to: '/user-access/groups',
       },
       {
         title: 'Test Group',
-        to: '/groups/detail/test-id/roles',
+        to: '/user-access/groups/detail/test-id/roles',
       },
       {
         title: 'Current Page',
@@ -227,7 +227,7 @@ export const LinkGenerationTest: Story = {
     const testGroupLink = await canvas.findByRole('link', { name: 'Test Group' });
 
     // Verify that links have proper basename prefixes
-    // The useAppLink hook should convert "/groups" to "/iam/user-access/groups"
+    // The useAppLink hook should convert "/user-access/groups" to "/iam/user-access/groups"
     expect(groupsLink.getAttribute('href')).toBe('/iam/user-access/groups');
     expect(testGroupLink.getAttribute('href')).toBe('/iam/user-access/groups/detail/test-id/roles');
 

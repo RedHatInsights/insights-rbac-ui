@@ -9,7 +9,7 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../../../Messages';
-import { AppLink } from '../../../../../components/navigation/AppLink';
+import { ExternalLink } from '../../../../../components/navigation/ExternalLink';
 import ServiceAccountsList, { type ServiceAccount } from './ServiceAccountsList';
 
 interface SetServiceAccountProps {
@@ -41,11 +41,7 @@ const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ n
                 isInline
                 isPlain
                 title={intl.formatMessage(messages.visitServiceAccountsPage, {
-                  link: (
-                    <AppLink to="/service-accounts" linkBasename="/iam">
-                      {intl.formatMessage(messages.serviceAccountsPage)}
-                    </AppLink>
-                  ),
+                  link: <ExternalLink to="/service-accounts">{intl.formatMessage(messages.serviceAccountsPage)}</ExternalLink>,
                 })}
               />
             </Content>

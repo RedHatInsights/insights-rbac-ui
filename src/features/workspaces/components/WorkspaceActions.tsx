@@ -84,7 +84,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
       setIsDeleteModalOpen(true);
     }
     if (action === ActionType.EDIT_WORKSPACE) {
-      navigate(paths['edit-workspace'].link.replace(':workspaceId', currentWorkspace.id ?? ''));
+      navigate(paths['edit-workspace'].link(currentWorkspace.id ?? ''));
     }
   };
 
@@ -227,10 +227,10 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
           context={{
             [pathnames['edit-workspace'].path]: {
               afterSubmit: () => {
-                navigate(toAppLink(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
+                navigate(toAppLink(paths['workspace-detail'].link(currentWorkspace.id ?? '')));
               },
               onCancel: () => {
-                navigate(toAppLink(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
+                navigate(toAppLink(paths['workspace-detail'].link(currentWorkspace.id ?? '')));
               },
             },
           }}

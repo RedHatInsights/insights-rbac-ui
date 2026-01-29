@@ -120,7 +120,7 @@ const AddGroupMembersWrapper = (props: React.ComponentProps<typeof AddGroupMembe
   return (
     <>
       <button onClick={() => setIsModalOpen(true)}>Open Add Members Modal</button>
-      {isModalOpen && <AddGroupMembers {...props} cancelRoute="/groups/detail/test-group-id/members" />}
+      {isModalOpen && <AddGroupMembers {...props} cancelRoute="/user-access/groups/detail/test-group-id/members" />}
     </>
   );
 };
@@ -130,11 +130,11 @@ const meta: Meta<typeof AddGroupMembersWrapper> = {
   // NO autodocs on meta
   decorators: [
     (Story) => (
-      <MemoryRouter initialEntries={['/groups/detail/test-group-id/members']}>
+      <MemoryRouter initialEntries={['/user-access/groups/detail/test-group-id/members']}>
         <Routes>
-          <Route path="/groups/detail/:groupId/members" element={<Story />} />
+          <Route path="/user-access/groups/detail/:groupId/members" element={<Story />} />
           {/* Route for navigation after cancel/submit */}
-          <Route path="/groups/detail/:groupId/members/*" element={<Story />} />
+          <Route path="/user-access/groups/detail/:groupId/members/*" element={<Story />} />
           {/* Route for useAppNavigate with /iam/user-access basename */}
           <Route path="/iam/user-access/groups/detail/:groupId/members" element={<div data-testid="group-members-page">Group Members Page</div>} />
         </Routes>

@@ -10,7 +10,6 @@ import PageHeader from '@patternfly/react-component-groups/dist/esm/PageHeader';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { Outlet } from 'react-router-dom';
-import paths from '../../utilities/pathnames';
 import RolesDetails from './RolesWithWorkspacesDetails';
 import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/react-component-groups';
 import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
@@ -61,7 +60,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
       if (!role) {
         return;
       }
-      navigate(paths['edit-role'].link.replace(':roleId', role.uuid));
+      navigate(pathnames['access-management-edit-role'].link(role.uuid));
     },
     [navigate],
   );
@@ -195,7 +194,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
   const toolbarActions = useMemo(
     () => (
       <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
-        <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(`roles/${paths['add-role'].path}`)} isPinned>
+        <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(pathnames['access-management-add-role'].link())} isPinned>
           {intl.formatMessage(messages.createRole)}
         </ResponsiveAction>
       </ResponsiveActions>
@@ -296,15 +295,16 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
           variant="compact"
           ariaLabel={intl.formatMessage(messages.roles)}
           ouiaId={ouiaId}
-          emptyStateNoData={<RolesEmptyState hasActiveFilters={false} />}
-          emptyStateNoResults={<RolesEmptyState hasActiveFilters={true} />}
+          emptyStateNoData={<RolesEmptyState hasActiveFilters={false} addRoleLink={pathnames['access-management-add-role'].link()} />}
+          emptyStateNoResults={<RolesEmptyState hasActiveFilters={true} addRoleLink={pathnames['access-management-add-role'].link()} />}
         />
         <Suspense>
           <Outlet
             context={{
-              [pathnames['add-role'].path]: {
+              [pathnames['access-management-add-role'].path]: {
                 pagination,
                 filters: { display_name: filters.display_name },
+                cancelRoute: pathnames['access-management-roles'].link(),
               },
             }}
           />

@@ -44,7 +44,7 @@ const QuickstartsTestButtons: React.FC = () => {
   };
 
   const handleOpenCatalog = () => {
-    navigate(pathnames['quickstarts-test'].link);
+    navigate(pathnames['quickstarts-test'].link());
   };
 
   const btnStyle: React.CSSProperties = {

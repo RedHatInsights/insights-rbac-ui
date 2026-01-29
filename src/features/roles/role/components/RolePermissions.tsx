@@ -179,11 +179,7 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
           (row.permission.includes('cost-management') || row.permission.includes('inventory')) && resourceDefinitionsCount > 0;
 
         if (hasResourceDefinitions) {
-          return (
-            <AppLink to={pathnames['role-detail-permission'].link.replace(':roleId', roleUuid).replace(':permissionId', row.permission)}>
-              {resourceDefinitionsCount}
-            </AppLink>
-          );
+          return <AppLink to={pathnames['role-detail-permission'].link(roleUuid, row.permission)}>{resourceDefinitionsCount}</AppLink>;
         }
         return <span className="rbac-c-text__disabled">{intl.formatMessage(messages.notApplicable)}</span>;
       },

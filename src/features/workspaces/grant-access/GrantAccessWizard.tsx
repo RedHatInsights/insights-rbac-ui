@@ -36,7 +36,7 @@ export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> 
   const addNotification = useAddNotification();
 
   const defaultAfterSubmit = () => {
-    navigate(pathnames.workspaces.link);
+    navigate(pathnames.workspaces.link());
   };
 
   const defaultOnCancel = () => {
@@ -45,7 +45,7 @@ export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> 
       title: intl.formatMessage(messages.grantAccess),
       description: 'Grant access cancelled',
     });
-    navigate(pathnames.workspaces.link);
+    navigate(pathnames.workspaces.link());
   };
 
   const onSubmit = async (_v: Record<string, unknown>, form: FormApi) => {

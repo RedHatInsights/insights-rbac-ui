@@ -53,7 +53,7 @@ const EditGroupModalWrapper: React.FC<EditGroupModalWrapperProps> = (props) => {
   return (
     <div style={{ height: '100vh' }}>
       <button onClick={handleOpenModal}>Edit Group</button>
-      {isOpen && <EditGroupModal cancelRoute="/groups" submitRoute="/groups" onClose={handleCloseModal} {...props} />}
+      {isOpen && <EditGroupModal cancelRoute="/user-access/groups" submitRoute="/user-access/groups" onClose={handleCloseModal} {...props} />}
     </div>
   );
 };
@@ -62,11 +62,11 @@ const meta: Meta<typeof EditGroupModalWrapper> = {
   component: EditGroupModalWrapper,
   decorators: [
     (Story, context) => {
-      const { initialRoute = '/groups/edit/group-1' } = context.args;
+      const { initialRoute = '/user-access/groups/edit/group-1' } = context.args;
       return (
         <MemoryRouter initialEntries={[initialRoute]}>
           <Routes>
-            <Route path="/groups/edit/:groupId" element={<Story />} />
+            <Route path="/user-access/groups/edit/:groupId" element={<Story />} />
             {/* Route for useAppNavigate with /iam/user-access basename */}
             <Route path="/iam/user-access/groups" element={<div data-testid="groups-list">Groups List Page</div>} />
           </Routes>
@@ -132,7 +132,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   tags: ['autodocs'], // ONLY story with autodocs
   args: {
-    initialRoute: '/groups/edit/test-group-id',
+    initialRoute: '/user-access/groups/edit/test-group-id',
   },
   parameters: {
     docs: {
@@ -199,7 +199,7 @@ For testing specific scenarios and edge cases, see these additional stories:
 
 export const SystemGroup: Story = {
   args: {
-    initialRoute: '/groups/edit/system-group-id',
+    initialRoute: '/user-access/groups/edit/system-group-id',
   },
   play: async ({ canvasElement }) => {
     await delay(300); // Required for MSW
@@ -230,7 +230,7 @@ export const SystemGroup: Story = {
 
 export const FormSubmission: Story = {
   args: {
-    initialRoute: '/groups/edit/test-group-id',
+    initialRoute: '/user-access/groups/edit/test-group-id',
     onClose: fn(),
   },
   parameters: {
@@ -359,7 +359,7 @@ export const FormSubmission: Story = {
 
 export const ValidationErrors: Story = {
   args: {
-    initialRoute: '/groups/edit/test-group-id',
+    initialRoute: '/user-access/groups/edit/test-group-id',
   },
   play: async ({ canvasElement }) => {
     await delay(300); // Required for MSW
@@ -407,7 +407,7 @@ export const ValidationErrors: Story = {
 
 export const CancelAction: Story = {
   args: {
-    initialRoute: '/groups/edit/test-group-id',
+    initialRoute: '/user-access/groups/edit/test-group-id',
     onClose: fn(),
   },
   play: async ({ canvasElement }) => {
@@ -440,7 +440,7 @@ export const CancelAction: Story = {
 
 export const ErrorNotification: Story = {
   args: {
-    initialRoute: '/groups/edit/test-group-id',
+    initialRoute: '/user-access/groups/edit/test-group-id',
   },
   parameters: {
     msw: {

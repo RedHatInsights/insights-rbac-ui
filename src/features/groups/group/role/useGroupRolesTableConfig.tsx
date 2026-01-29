@@ -6,11 +6,11 @@
  */
 
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import type { IntlShape } from 'react-intl';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view';
+import { AppLink } from '../../../../components/navigation/AppLink';
 import { getDateFormat } from '../../../../helpers/stringUtilities';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
@@ -49,11 +49,7 @@ export function useGroupRolesTableConfig({ intl, groupId }: UseGroupRolesTableCo
   // Cell renderers for each column
   const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(
     () => ({
-      name: (role) => (
-        <Link to={pathnames['group-detail-role-detail'].link.replace(':groupId', groupId).replace(':roleId', role.uuid)}>
-          {role.display_name || role.name}
-        </Link>
-      ),
+      name: (role) => <AppLink to={pathnames['group-detail-role-detail'].link(groupId, role.uuid)}>{role.display_name || role.name}</AppLink>,
       description: (role) => role.description || '—',
       modified: (role) => (role.modified ? <DateFormat date={role.modified} type={getDateFormat(role.modified)} /> : '—'),
     }),

@@ -37,17 +37,13 @@ export const useGroupActions = ({
 
   // Generate URLs for dropdown actions
   const getEditUrl = useCallback(() => {
-    return (location.pathname.includes('members') ? pathnames['group-members-edit-group'] : pathnames['group-roles-edit-group']).link.replace(
-      ':groupId',
-      isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : groupId || '',
-    );
+    const pathname = location.pathname.includes('members') ? pathnames['group-members-edit-group'] : pathnames['group-roles-edit-group'];
+    return pathname.link(isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : groupId || '');
   }, [location.pathname, isPlatformDefault, groupId]);
 
   const getDeleteUrl = useCallback(() => {
-    return (location.pathname.includes('members') ? pathnames['group-members-remove-group'] : pathnames['group-roles-remove-group']).link.replace(
-      ':groupId',
-      groupId || '',
-    );
+    const pathname = location.pathname.includes('members') ? pathnames['group-members-remove-group'] : pathnames['group-roles-remove-group'];
+    return pathname.link(groupId || '');
   }, [location.pathname, groupId]);
 
   // Handle reset warning confirmation

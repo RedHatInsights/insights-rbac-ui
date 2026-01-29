@@ -77,15 +77,14 @@ export const Default: Story = {
 
     const groupsLink = await canvas.findByRole('link', { name: 'View groups' });
     await expect(groupsLink).toBeInTheDocument();
-    await expect(groupsLink).toHaveAttribute('href', '/iam/access-management/users-and-user-groups?&activeTab=user-groups');
+    await expect(groupsLink).toHaveAttribute('href', '/iam/access-management/users-and-user-groups?activeTab=user-groups');
 
     const rolesLink = await canvas.findByRole('link', { name: 'View roles' });
     await expect(rolesLink).toBeInTheDocument();
     await expect(rolesLink).toHaveAttribute('href', '/iam/access-management/roles');
 
-    const bindingsLink = await canvas.findByRole('link', { name: 'View access requests' });
-    await expect(bindingsLink).toBeInTheDocument();
-    await expect(bindingsLink).toHaveAttribute('href', '/iam/access-management/access-requests');
+    const bindingsButton = await canvas.findByRole('button', { name: 'View access requests' });
+    await expect(bindingsButton).toBeInTheDocument();
 
     // Verify understanding access section
     await expect(canvas.findByText('Understanding access')).resolves.toBeInTheDocument();
@@ -160,13 +159,13 @@ export const ServiceCardNavigation: Story = {
     await expect(workspacesLink).toHaveAttribute('href', '/iam/access-management/workspaces');
 
     const groupsLink = await canvas.findByRole('link', { name: 'View groups' });
-    await expect(groupsLink).toHaveAttribute('href', '/iam/access-management/users-and-user-groups?&activeTab=user-groups');
+    await expect(groupsLink).toHaveAttribute('href', '/iam/access-management/users-and-user-groups?activeTab=user-groups');
 
     const rolesLink = await canvas.findByRole('link', { name: 'View roles' });
     await expect(rolesLink).toHaveAttribute('href', '/iam/access-management/roles');
 
-    const bindingsLink = await canvas.findByRole('link', { name: 'View access requests' });
-    await expect(bindingsLink).toHaveAttribute('href', '/iam/access-management/access-requests');
+    const bindingsButton = await canvas.findByRole('button', { name: 'View access requests' });
+    await expect(bindingsButton).toBeInTheDocument();
 
     // Test Understanding access section
     await expect(canvas.findByText('Understanding access')).resolves.toBeInTheDocument();
@@ -313,7 +312,7 @@ export const ResponsiveLayout: Story = {
     await expect(canvas.findByRole('link', { name: 'Workspaces' })).resolves.toBeInTheDocument();
     await expect(canvas.findByRole('link', { name: 'View groups' })).resolves.toBeInTheDocument();
     await expect(canvas.findByRole('link', { name: 'View roles' })).resolves.toBeInTheDocument();
-    await expect(canvas.findByRole('link', { name: 'View access requests' })).resolves.toBeInTheDocument();
+    await expect(canvas.findByRole('button', { name: 'View access requests' })).resolves.toBeInTheDocument();
 
     // Content sections should remain accessible
     await expect(canvas.findByText('Understanding access')).resolves.toBeInTheDocument();

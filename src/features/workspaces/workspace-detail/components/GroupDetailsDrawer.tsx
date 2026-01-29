@@ -20,7 +20,11 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclama
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 
-import { type Group } from '../../../../data/queries/groups';
+import { type Group, type GroupRole, useGroupMembersQuery, useGroupRolesQuery } from '../../../../data/queries/groups';
+import { extractErrorMessage } from '../../../../utilities/errorUtils';
+import messages from '../../../../Messages';
+import { AppLink } from '../../../../components/navigation/AppLink';
+import pathnames from '../../../../utilities/pathnames';
 
 // Group with inheritance info (for workspace context)
 export interface GroupWithInheritance extends Group {
@@ -29,10 +33,6 @@ export interface GroupWithInheritance extends Group {
     workspaceName: string;
   };
 }
-import { type GroupRole, useGroupMembersQuery, useGroupRolesQuery } from '../../../../data/queries/groups';
-import { extractErrorMessage } from '../../../../utilities/errorUtils';
-import messages from '../../../../Messages';
-import { AppLink } from '../../../../components/navigation/AppLink';
 import { TableView } from '../../../../components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../components/table-view/types';
 
@@ -162,8 +162,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
               })}
             >
               <AppLink
-                to={`/workspaces/detail/${groupWithInheritance.inheritedFrom.workspaceId}`}
-                linkBasename="/iam/access-management"
+                to={pathnames['workspace-detail'].link(groupWithInheritance.inheritedFrom.workspaceId)}
                 className="pf-v6-c-button pf-m-link pf-m-inline"
               >
                 {groupWithInheritance.inheritedFrom.workspaceName}
@@ -178,11 +177,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                 workspaceName: currentWorkspace.name,
               })}
             >
-              <AppLink
-                to={`/workspaces/detail/${currentWorkspace.id}`}
-                linkBasename="/iam/access-management"
-                className="pf-v6-c-button pf-m-link pf-m-inline"
-              >
+              <AppLink to={pathnames['workspace-detail'].link(currentWorkspace.id)} className="pf-v6-c-button pf-m-link pf-m-inline">
                 {currentWorkspace.name}
               </AppLink>
             </Tooltip>
@@ -208,7 +203,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   const roleCellRenderersWithInheritance: CellRendererMap<typeof roleColumnsWithInheritance, GroupRole> = useMemo(
     () => ({
       role: (row) => (
-        <AppLink to={`/roles/detail/${row.uuid}`} className="pf-v6-c-button pf-m-link pf-m-inline">
+        <AppLink to={pathnames['role-detail'].link(row.uuid)} className="pf-v6-c-button pf-m-link pf-m-inline">
           {row.display_name || row.name || ''}
         </AppLink>
       ),
@@ -221,9 +216,12 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                 workspaceName: groupWithInheritance.inheritedFrom.workspaceName,
               })}
             >
-              <a href={`#/workspaces/${groupWithInheritance.inheritedFrom.workspaceId}`} className="pf-v6-c-button pf-m-link pf-m-inline">
+              <AppLink
+                to={pathnames['workspace-detail'].link(groupWithInheritance.inheritedFrom.workspaceId)}
+                className="pf-v6-c-button pf-m-link pf-m-inline"
+              >
                 {groupWithInheritance.inheritedFrom.workspaceName}
-              </a>
+              </AppLink>
             </Tooltip>
           );
         }
@@ -237,7 +235,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   const roleCellRenderersWithoutInheritance: CellRendererMap<typeof roleColumnsWithoutInheritance, GroupRole> = useMemo(
     () => ({
       role: (row) => (
-        <AppLink to={`/roles/detail/${row.uuid}`} className="pf-v6-c-button pf-m-link pf-m-inline">
+        <AppLink to={pathnames['role-detail'].link(row.uuid)} className="pf-v6-c-button pf-m-link pf-m-inline">
           {row.display_name || row.name || ''}
         </AppLink>
       ),

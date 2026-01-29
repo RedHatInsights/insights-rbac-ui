@@ -8,6 +8,7 @@ import { useDeleteGroupMutation, useGroupQuery } from '../../data/queries/groups
 import { FormItemLoader } from '../../components/ui-states/LoaderPlaceholders';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { getModalContainer } from '../../helpers/modal-container';
+import pathnames from '../../utilities/pathnames';
 
 interface RemoveGroupModalProps {
   cancelRoute: string | { pathname: string; search: string };
@@ -51,7 +52,7 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ cancelRoute,
     } catch (navError) {
       console.error('Cancel navigation error:', navError);
       // Last resort - navigate to groups list
-      navigate('/groups');
+      navigate(pathnames.groups.link());
     }
   };
 
