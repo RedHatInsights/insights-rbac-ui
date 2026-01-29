@@ -136,7 +136,7 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
    * WORKAROUND: None, issue is in PatternFly library
    */
   { pattern: /Each child in a list should have a unique "key" prop/, label: 'Duplicate key warning (PatternFly ToolbarFilter)' },
-  
+
   /**
    * BUG: Controlled/uncontrolled input switching
    * WHERE: Form inputs that start undefined then get a value
