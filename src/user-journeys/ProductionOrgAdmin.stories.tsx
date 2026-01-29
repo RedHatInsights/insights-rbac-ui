@@ -1,6 +1,6 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
 import { ENVIRONMENTS } from './_shared/environments';
@@ -1754,10 +1754,18 @@ Tests activating inactive users from the users list.
   },
 };
 
+// API spy for invite users - tracks API calls made by the invite modal
+const inviteUsersSpy = fn();
+
+// Expected URL pattern for invite users API (stage environment in tests)
+// Format: https://api.access.stage.redhat.com/account/v1/accounts/{accountId}/users/invite
+const EXPECTED_INVITE_URL_PATTERN = /^https:\/\/api\.access\.(stage\.)?redhat\.com\/account\/v1\/accounts\/\d+\/users\/invite$/;
+
 /**
  * Users / Invite users
  *
  * Tests the user invitation flow from the users list.
+ * CRITICAL: Also verifies the correct API URL is called (regression test for /management bug).
  *
  * Journey:
  * 1. Start on My User Access page
@@ -1767,6 +1775,7 @@ Tests activating inactive users from the users list.
  * 5. Optionally add a message and check org admin checkbox
  * 6. Submit the invitation
  * 7. Verify success notification
+ * 8. Verify API was called with exact expected URL format
  */
 export const InviteUsersJourney: Story = {
   name: 'Users / Invite users',
@@ -1786,18 +1795,36 @@ Tests inviting new users to the organization.
 - Optional org admin checkbox
 - Form submission
 - Success notification
-
-**Covered interactions:**
-- Button clicks
-- Text input in textarea
-- Checkbox interaction
-- Form submission
-        `,
+- **API URL verification** - ensures the exact URL format is correct (regression test)
+`,
       },
+    },
+    msw: {
+      handlers: [
+        // Intercept ALL calls to the invite endpoint (both correct and incorrect URLs)
+        http.post(/https:\/\/api\.access\.(stage\.)?redhat\.com\/(management\/)?account\/v1\/accounts\/.*\/users\/invite/, async ({ request }) => {
+          const body = (await request.json()) as { emails: string[]; roles?: string[]; message?: string };
+
+          // Record the exact URL that was called
+          inviteUsersSpy({
+            url: request.url,
+            emails: body.emails,
+            roles: body.roles,
+          });
+
+          return HttpResponse.json({ success: true }, { status: 200 });
+        }),
+        ...createStatefulHandlers({
+          groups: defaultGroups,
+          users: defaultUsers,
+          roles: defaultRoles,
+        }),
+      ],
     },
   },
   play: async (context) => {
     await resetStoryState();
+    inviteUsersSpy.mockClear();
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
@@ -1845,6 +1872,27 @@ Tests inviting new users to the organization.
 
     // Verify success notification
     await verifySuccessNotification();
+
+    // CRITICAL: Verify API was called
+    await waitFor(
+      () => {
+        expect(inviteUsersSpy).toHaveBeenCalled();
+      },
+      { timeout: 5000 },
+    );
+
+    // Verify the API call details
+    const spyCall = inviteUsersSpy.mock.calls[0][0];
+    expect(spyCall).toBeDefined();
+
+    expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN);
+
+    // Verify correct data was sent
+    expect(spyCall.emails).toContain('newuser1@example.com');
+    expect(spyCall.emails).toContain('newuser2@example.com');
+
+    // Verify org admin role was included (checkbox was checked)
+    expect(spyCall.roles).toContain('organization_administrator');
   },
 };
 
