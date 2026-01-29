@@ -1,3 +1,11 @@
+# [2.2.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.4...v2.2.0) (2026-01-29)
+
+
+### Features
+
+* add correct routing path ([bd34fd1](https://github.com/RedHatInsights/insights-rbac-ui/commit/bd34fd1bb02fa205b734272d2983343f77f0346a))
+* add organization management page ([add41ae](https://github.com/RedHatInsights/insights-rbac-ui/commit/add41ae76471cdcb8a96087103651eb0b51baefe))
+
 ## [2.1.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.3...v2.1.4) (2026-01-29)
 
 
