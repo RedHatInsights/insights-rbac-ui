@@ -52,6 +52,7 @@ const AccessManagementUsers = lazy(() => import('./features/access-management/us
 const AccessManagementUserGroups = lazy(() => import('./features/access-management/users-and-user-groups/user-groups/UserGroups'));
 const EditUserGroup = lazy(() => import('./features/access-management/users-and-user-groups/user-groups/edit-user-group/EditUserGroup'));
 const MyUserAccessPage = lazy(() => import('./features/myUserAccess/MyUserAccess'));
+const OrganizationManagement = lazy(() => import('./features/organization-management/OrganizationManagement'));
 
 const getRoutes = ({
   enableServiceAccounts,
@@ -112,6 +113,10 @@ const getRoutes = ({
         element: EditWorkspaceModal,
       },
     ],
+  },
+  {
+    path: pathnames['organization-management'].path,
+    element: OrganizationManagement,
   },
   !hideWorkspaceDetails && {
     path: pathnames['workspace-detail'].path,
