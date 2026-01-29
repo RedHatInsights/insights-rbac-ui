@@ -113,18 +113,20 @@ Run individual steps when troubleshooting. Credentials are loaded from `e2e/auth
 | `npm run e2e:auth:v2:user` | Login as V2 user |
 | `npm run e2e:auth:v2:useradmin` | Login as V2 User Access Administrator |
 | `npm run e2e:auth:v2:userviewer` | Login as V2 User Viewer |
-| `npm run e2e:seed:v1:admin` | Seed V1 data as admin |
-| `npm run e2e:seed:v2:admin` | Seed V2 data as admin |
-| `npm run e2e:cleanup:v1:admin` | Cleanup as V1 admin |
-| `npm run e2e:cleanup:v2:admin` | Cleanup as V2 admin |
-| `npm run e2e:test:v1:admin` | Run only V1 admin specs |
-| `npm run e2e:test:v1:user` | Run only V1 user specs |
-| `npm run e2e:test:v1:useradmin` | Run only V1 User Admin specs |
-| `npm run e2e:test:v1:userviewer` | Run only V1 User Viewer specs |
-| `npm run e2e:test:v2:admin` | Run only V2 admin specs |
-| `npm run e2e:test:v2:user` | Run only V2 user specs |
-| `npm run e2e:test:v2:useradmin` | Run only V2 User Admin specs |
-| `npm run e2e:test:v2:userviewer` | Run only V2 User Viewer specs |
+| `npm run e2e:seed:v1` | Seed V1 test data (requires admin credentials) |
+| `npm run e2e:seed:v2` | Seed V2 test data (requires admin credentials) |
+| `npm run e2e:cleanup:v1` | Cleanup V1 test data (requires admin credentials) |
+| `npm run e2e:cleanup:v2` | Cleanup V2 test data (requires admin credentials) |
+| `npm run e2e:test:v1:admin` | Run V1 OrgAdmin specs |
+| `npm run e2e:test:v1:user` | Run V1 ReadOnlyUser specs |
+| `npm run e2e:test:v1:useradmin` | Run V1 OrgAdmin specs as UserAdmin* |
+| `npm run e2e:test:v1:userviewer` | Run V1 UserViewer specs |
+| `npm run e2e:test:v2:admin` | Run V2 OrgAdmin specs |
+| `npm run e2e:test:v2:user` | Run V2 ReadOnlyUser specs |
+| `npm run e2e:test:v2:useradmin` | Run V2 OrgAdmin specs as UserAdmin* |
+| `npm run e2e:test:v2:userviewer` | Run V2 UserViewer specs |
+
+> \* **UserAdmin runs OrgAdmin tests**: UserAdmin and OrgAdmin have identical capabilities for RBAC management (view/edit/delete users, roles, groups). The only difference is UserAdmin cannot grant User Access Admin permissions to others.
 
 ---
 
@@ -136,8 +138,8 @@ When you need more control, run steps individually:
 # 1. Set environment (prefix must be at least 4 characters)
 export TEST_PREFIX=jdoe
 
-# 2. Seed test data (uses API auth internally)
-npm run e2e:seed:v1:admin
+# 2. Seed test data (always uses admin credentials)
+npm run e2e:seed:v1
 
 # 3. Auth (saves browser session for Playwright)
 npm run e2e:auth:v1:admin
@@ -148,8 +150,8 @@ npm run e2e:test:v1:admin
 # Or run specific file
 npx playwright test e2e/journeys/v1/roles/admin.spec.ts --headed
 
-# 5. Cleanup when done
-npm run e2e:cleanup:v1:admin
+# 5. Cleanup when done (always uses admin credentials)
+npm run e2e:cleanup:v1
 ```
 
 ---
@@ -258,7 +260,7 @@ These users require RBAC role setup (one-time manual configuration):
 
 ### V1 vs V2
 
-- **V1** — User Access pages (`/iam/user-access/*`) - Legacy experience
+- **V1** — User Access pages (`/iam/user-access/*`) - Current production experience
 - **V2** — Access Management pages (`/iam/access-management/*`) - Preview mode enabled
 
 ---

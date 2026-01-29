@@ -1,5 +1,5 @@
 /**
- * V1 Groups - Admin Journey Tests
+ * V1 Groups - OrgAdmin Journey Tests
  *
  * Optimized end-to-end journey tests that consolidate multiple verifications
  * into single page loads using test.step() blocks.
@@ -407,7 +407,7 @@ async function confirmGroupDeletion(page: Page, groupName: string): Promise<void
 // JOURNEY 1: READ-ONLY (Seeded Data)
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('V1 Groups - Admin Read-Only Journey', () => {
+test.describe('V1 Groups - OrgAdmin Read-Only Journey', () => {
   test('Seeded Group: Search → Table → Detail Page', async ({ page }) => {
     await setupPage(page);
     await page.goto(GROUPS_URL);
@@ -495,7 +495,7 @@ test.describe('V1 Groups - Admin Read-Only Journey', () => {
 // JOURNEY 2: CRUD LIFECYCLE (Ephemeral Data)
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('V1 Groups - Admin CRUD Lifecycle Journey', () => {
+test.describe('V1 Groups - OrgAdmin CRUD Lifecycle Journey', () => {
   // Generate unique name for this test run (parallel-safe)
   const timestamp = Date.now();
   const uniqueGroupName = `${TEST_PREFIX}__E2E_Lifecycle_${timestamp}`;

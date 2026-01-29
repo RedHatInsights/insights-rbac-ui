@@ -1,5 +1,5 @@
 /**
- * V2 User Groups - Admin Tests
+ * V2 User Groups - OrgAdmin Tests
  *
  * Tests for the V2 User Groups page (/iam/access-management/users-and-user-groups/user-groups)
  * with admin privileges.
@@ -170,7 +170,7 @@ async function confirmGroupDeletion(page: Page): Promise<void> {
 // JOURNEY 1: SEEDED DATA (Read-Only)
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('V2 User Groups - Admin Seeded Data Journey', () => {
+test.describe('V2 User Groups - OrgAdmin Seeded Data Journey', () => {
   test('Can find and inspect seeded group', async ({ page }) => {
     test.skip(!SEEDED_GROUP_NAME, 'No seeded group found in seed map');
     await setupPage(page);
@@ -208,7 +208,7 @@ test.describe('V2 User Groups - Admin Seeded Data Journey', () => {
 // JOURNEY 2: CRUD LIFECYCLE (Ephemeral Data)
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('V2 User Groups - Admin CRUD Lifecycle Journey', () => {
+test.describe('V2 User Groups - OrgAdmin CRUD Lifecycle Journey', () => {
   // Generate unique name for this test run (parallel-safe)
   const timestamp = Date.now();
   const uniqueGroupName = `${TEST_PREFIX}__V2_Lifecycle_${timestamp}`;

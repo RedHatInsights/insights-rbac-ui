@@ -1,18 +1,18 @@
 /**
- * V2 Roles - User Tests
+ * V2 Roles - User Viewer Tests
  *
- * Tests for the V2 Roles page (/iam/access-management/roles) with regular user privileges.
- * Regular users can only view roles, not create/edit/delete.
+ * Tests for the V2 Roles page (/iam/access-management/roles) with User Viewer privileges.
+ * User Viewers (rbac:*:read) can view roles but not create/edit/delete.
  */
 
-import { AUTH_V2_USER, expect, getSeededRoleName, setupPage, test } from '../../../utils';
+import { AUTH_V2_USERVIEWER, expect, getSeededRoleName, setupPage, test } from '../../../utils';
 
-test.use({ storageState: AUTH_V2_USER });
+test.use({ storageState: AUTH_V2_USERVIEWER });
 
 // Get seeded role name from seed map/fixture
 const SEEDED_ROLE_NAME = getSeededRoleName();
 
-test.describe('V2 Roles - User (Read Only)', () => {
+test.describe('V2 Roles - UserViewer', () => {
   const ROLES_URL = '/iam/access-management/roles';
 
   test.beforeEach(async ({ page }) => {

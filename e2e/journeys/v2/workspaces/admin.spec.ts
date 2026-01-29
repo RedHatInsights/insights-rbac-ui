@@ -1,5 +1,5 @@
 /**
- * V2 Workspaces - Admin Tests
+ * V2 Workspaces - OrgAdmin Tests
  *
  * Tests for the V2 Workspaces page (/iam/access-management/workspaces)
  * with admin privileges.
@@ -36,7 +36,7 @@ test.use({ storageState: AUTH_V2_ADMIN });
 const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName();
 const SEEDED_WORKSPACE_DATA = getSeededWorkspaceData();
 
-test.describe('V2 Workspaces - Admin', () => {
+test.describe('V2 Workspaces - OrgAdmin', () => {
   const WORKSPACES_URL = '/iam/access-management/workspaces';
 
   /**
@@ -86,7 +86,7 @@ test.describe('V2 Workspaces - Admin', () => {
 // JOURNEY 2: CRUD LIFECYCLE (Ephemeral Data)
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('V2 Workspaces - Admin CRUD Lifecycle Journey', () => {
+test.describe('V2 Workspaces - OrgAdmin CRUD Lifecycle Journey', () => {
   // Generate unique name for this test run (parallel-safe)
   const timestamp = Date.now();
   const workspaceName = `${TEST_PREFIX}__Lifecycle_Workspace_${timestamp}`;

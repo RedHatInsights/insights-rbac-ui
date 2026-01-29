@@ -1,9 +1,9 @@
 /**
- * V1 Users - Regular User Tests
+ * V1 - Regular User Unauthorized Access Tests
  *
- * Tests for regular users (non-admin) in the V1 experience.
- * Regular users only have access to the "My User Access" page.
- * All admin pages (users, groups, roles) should show unauthorized access.
+ * Tests for regular users (non-admin) attempting to access management pages.
+ * Regular users should see unauthorized access when navigating to admin pages.
+ * My User Access tests are in the parameterized my-user-access.spec.ts file.
  */
 
 import { expect, test } from '@playwright/test';
@@ -11,32 +11,8 @@ import { AUTH_V1_USER, setupPage } from '../../../utils';
 
 test.use({ storageState: AUTH_V1_USER });
 
-test.describe('V1 - Regular User Access', () => {
-  test.describe('My User Access Page', () => {
-    test('Can access My User Access page', async ({ page }) => {
-      await setupPage(page);
-
-      await test.step('Navigate to My User Access', async () => {
-        await page.goto('/iam/my-user-access');
-        await expect(page).toHaveURL(/\/iam\/my-user-access/);
-      });
-
-      await test.step('Verify page content loads', async () => {
-        // My User Access page should show the user's permissions
-        // Look for common elements on this page
-        const pageContent = page.locator('main, [class*="page"], section').first();
-        await expect(pageContent).toBeVisible({ timeout: 15000 });
-      });
-
-      await test.step('Verify no admin actions are available', async () => {
-        // Admin actions like "Invite users" should not be visible
-        const inviteButton = page.getByRole('button', { name: /invite/i });
-        await expect(inviteButton).not.toBeVisible();
-      });
-    });
-  });
-
-  test.describe('Unauthorized Access to Management Pages', () => {
+test.describe('V1 - ReadOnlyUser Unauthorized Access', () => {
+  test.describe('Management Pages', () => {
     test('Users page shows unauthorized access', async ({ page }) => {
       await setupPage(page);
 
@@ -45,14 +21,8 @@ test.describe('V1 - Regular User Access', () => {
       });
 
       await test.step('Verify unauthorized access message', async () => {
-        // The UnauthorizedAccess component should be displayed
-        // It typically shows "You do not have access to User Access Administration"
-        const unauthorizedMessage = page
-          .getByText(/you do not have access|not authorized|access denied|forbidden/i)
-          .or(page.getByText(/organization administrator/i));
-
-        await expect(unauthorizedMessage).toBeVisible({ timeout: 15000 });
-        console.log('[V1 User] ✓ Users page correctly shows unauthorized access');
+        // The app shows "You do not have access to RBAC Users"
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
       });
     });
 
@@ -64,12 +34,8 @@ test.describe('V1 - Regular User Access', () => {
       });
 
       await test.step('Verify unauthorized access message', async () => {
-        const unauthorizedMessage = page
-          .getByText(/you do not have access|not authorized|access denied|forbidden/i)
-          .or(page.getByText(/organization administrator/i));
-
-        await expect(unauthorizedMessage).toBeVisible({ timeout: 15000 });
-        console.log('[V1 User] ✓ Groups page correctly shows unauthorized access');
+        // The app shows "You do not have access to RBAC Groups"
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
       });
     });
 
@@ -81,12 +47,8 @@ test.describe('V1 - Regular User Access', () => {
       });
 
       await test.step('Verify unauthorized access message', async () => {
-        const unauthorizedMessage = page
-          .getByText(/you do not have access|not authorized|access denied|forbidden/i)
-          .or(page.getByText(/organization administrator/i));
-
-        await expect(unauthorizedMessage).toBeVisible({ timeout: 15000 });
-        console.log('[V1 User] ✓ Roles page correctly shows unauthorized access');
+        // The app shows "You do not have access to RBAC Roles"
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
       });
     });
   });

@@ -563,7 +563,8 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
 
     // Authenticate (needed for both dry-run and live mode)
     console.error(`\n🔐 Authenticating...`);
-    const token = await getToken();
+    // Always authenticate fresh - seeder uses admin credentials from env, not cached token
+    const token = await getToken({ skipCache: true });
     initializeApiClient(token);
     const client = getApiClient();
     console.error(`✓ Authenticated`);

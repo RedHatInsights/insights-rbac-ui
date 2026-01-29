@@ -226,19 +226,22 @@ function hasCredentials(): { username: string; password: string } | null {
  * If RBAC_USERNAME and RBAC_PASSWORD are set, uses automatic headless login.
  * Otherwise, opens a browser for manual login.
  *
+ * @param options.skipCache - If true, always authenticate fresh (never use cached token)
  * Returns a valid Bearer token string.
  */
-export async function getToken(): Promise<string> {
-  // Check for cached token
-  const cached = await readCachedToken();
+export async function getToken(options?: { skipCache?: boolean }): Promise<string> {
+  // Check for cached token (unless skipping cache)
+  if (!options?.skipCache) {
+    const cached = await readCachedToken();
 
-  if (cached && isTokenValid(cached)) {
-    console.error('🔑 Using cached authentication token');
-    return cached.token;
-  }
+    if (cached && isTokenValid(cached)) {
+      console.error('🔑 Using cached authentication token');
+      return cached.token;
+    }
 
-  if (cached) {
-    console.error('⚠️  Cached token has expired, re-authenticating...');
+    if (cached) {
+      console.error('⚠️  Cached token has expired, re-authenticating...');
+    }
   }
 
   // Check for credentials - use headless login if available
