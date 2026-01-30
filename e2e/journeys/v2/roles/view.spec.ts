@@ -11,7 +11,7 @@ import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER } from '../../../utils';
 import { RolesPage } from '../../../pages/v2/RolesPage';
 import { getSeededRoleName } from '../../../utils/seed-map';
 
-const SEEDED_ROLE_NAME = getSeededRoleName();
+const SEEDED_ROLE_NAME = getSeededRoleName('v2');
 
 if (!SEEDED_ROLE_NAME) {
   throw new Error('No seeded role found in seed map. Run: npm run e2e:seed:v2');

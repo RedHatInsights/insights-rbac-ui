@@ -1,34 +1,37 @@
 /**
  * Playwright Configuration for E2E Tests
  *
- * This config is used for running E2E tests that verify the
- * headless CLI commands work correctly with Playwright.
+ * Auth Strategy:
+ *   Each persona has an auth setup project that runs the CLI login command.
+ *   Test projects depend on their auth setup, ensuring fresh tokens.
  *
  * Usage:
- *   npx playwright test --config=e2e/playwright.config.ts
+ *   # Run all V1 tests (all personas in one run, results preserved):
+ *   npm run e2e:v1
+ *
+ *   # Run specific persona:
+ *   npm run e2e:v1:admin
+ *
+ *   # Run directly with Playwright:
+ *   npx playwright test --project=v1-admin --project=v1-userviewer
  *
  * Environment Variables:
  *   E2E_BASE_URL - Override the base URL (default: https://console.stage.redhat.com)
- *                  Set to https://stage.foo.redhat.com:1337 for local dev server testing
- *                  (HTTPS errors are ignored for self-signed certs)
- *   RBAC_USERNAME - Username for filtering/verifying user tests
- *   TEST_PREFIX - Prefix for test data isolation
- *
- * Global Setup:
- *   The globalSetup script warms the asset cache before any tests run.
- *   This downloads JS/CSS/fonts once and serves them from HAR cache.
+ *   TEST_PREFIX_V1 - Prefix for V1 test data isolation (required for V1 CRUD tests)
+ *   TEST_PREFIX_V2 - Prefix for V2 test data isolation (required for V2 CRUD tests)
+ *   TEST_VERSION - Set by npm scripts to indicate which version is running (v1 or v2)
  */
 
 import { defineConfig, devices } from '@playwright/test';
-
-// Note: Environment variables are loaded via `dotenv -e` in npm scripts
-// (e.g., e2e:test:v1:admin loads e2e/auth/.env.v1-admin)
+import path from 'path';
 
 const baseURL = process.env.E2E_BASE_URL || 'https://console.stage.redhat.com';
 
+// Auth file paths
+const authDir = path.join(__dirname, 'auth');
+
 export default defineConfig({
   testDir: '.',
-  testMatch: '**/*.spec.ts',
 
   /* Output directory for screenshots, traces, etc. */
   outputDir: './test-results',
@@ -36,11 +39,7 @@ export default defineConfig({
   /* Global setup - warms asset cache before all tests */
   globalSetup: require.resolve('./setup/global.setup.ts'),
 
-  /* Storage state files are relative to this config file's directory (e2e/) */
-  // Note: Tests using `test.use({ storageState: 'e2e/auth-admin.json' })` should
-  // use paths relative to the project root, OR use __dirname for absolute paths.
-
-  /* Run tests in parallel */
+  /* Run tests in files in parallel, but projects run based on dependencies */
   fullyParallel: true,
 
   /* Fail the build on CI if you accidentally left test.only in the source code */
@@ -56,19 +55,10 @@ export default defineConfig({
 
   /* Shared settings for all projects */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')` */
     baseURL,
-
-    /* Ignore HTTPS errors (needed for local dev server with self-signed certs) */
     ignoreHTTPSErrors: !process.env.CI,
-
-    /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
-
-    /* Screenshot on failure */
     screenshot: 'only-on-failure',
-
-    /* Video on failure */
     video: 'on-first-retry',
   },
 
@@ -80,18 +70,119 @@ export default defineConfig({
     timeout: 30000,
   },
 
-  /* Configure projects for major browsers */
+  /* Configure projects with auth dependencies */
   projects: [
+    // ═══════════════════════════════════════════════════════════════════════
+    // V1 Auth Setup Projects
+    // ═══════════════════════════════════════════════════════════════════════
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'auth-v1-admin',
+      testMatch: /auth-v1-admin\.setup\.ts/,
+    },
+    {
+      name: 'auth-v1-userviewer',
+      testMatch: /auth-v1-userviewer\.setup\.ts/,
+    },
+    {
+      name: 'auth-v1-readonly',
+      testMatch: /auth-v1-readonly\.setup\.ts/,
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // V1 Test Projects (depend on auth)
+    // ═══════════════════════════════════════════════════════════════════════
+    {
+      name: 'v1-admin',
+      testMatch: 'journeys/v1/**/*.spec.ts',
+      grep: /\[Admin\]/,
+      dependencies: ['auth-v1-admin'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.join(authDir, 'v1-admin.json'),
+      },
+    },
+    {
+      name: 'v1-userviewer',
+      testMatch: 'journeys/v1/**/*.spec.ts',
+      grep: /\[UserViewer\]/,
+      dependencies: ['auth-v1-userviewer'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.join(authDir, 'v1-userviewer.json'),
+      },
+    },
+    {
+      name: 'v1-readonly',
+      testMatch: 'journeys/v1/**/*.spec.ts',
+      grep: /\[ReadOnlyUser\]/,
+      dependencies: ['auth-v1-readonly'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.join(authDir, 'v1-readonly.json'),
+      },
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // V2 Auth Setup Projects
+    // ═══════════════════════════════════════════════════════════════════════
+    {
+      name: 'auth-v2-admin',
+      testMatch: /auth-v2-admin\.setup\.ts/,
+    },
+    {
+      name: 'auth-v2-userviewer',
+      testMatch: /auth-v2-userviewer\.setup\.ts/,
+    },
+    {
+      name: 'auth-v2-readonly',
+      testMatch: /auth-v2-readonly\.setup\.ts/,
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // V2 Test Projects (depend on auth)
+    // ═══════════════════════════════════════════════════════════════════════
+    {
+      name: 'v2-admin',
+      testMatch: 'journeys/v2/**/*.spec.ts',
+      grep: /\[Admin\]/,
+      dependencies: ['auth-v2-admin'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.join(authDir, 'v2-admin.json'),
+      },
+    },
+    {
+      name: 'v2-userviewer',
+      testMatch: 'journeys/v2/**/*.spec.ts',
+      grep: /\[UserViewer\]/,
+      dependencies: ['auth-v2-userviewer'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.join(authDir, 'v2-userviewer.json'),
+      },
+    },
+    {
+      name: 'v2-readonly',
+      testMatch: 'journeys/v2/**/*.spec.ts',
+      grep: /\[ReadOnlyUser\]/,
+      dependencies: ['auth-v2-readonly'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.join(authDir, 'v2-readonly.json'),
+      },
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Utility Projects
+    // ═══════════════════════════════════════════════════════════════════════
+    {
+      name: 'smoke',
+      testMatch: 'smoke.spec.ts',
+      dependencies: ['auth-v1-admin'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.join(authDir, 'v1-admin.json'),
+      },
     },
   ],
-
-  /* Run local dev server before starting the tests (optional) */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });

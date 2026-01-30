@@ -53,6 +53,10 @@ export async function fillCreateRoleWizard(page: Page, roleName: string, descrip
   await expect(nameInput).toBeVisible({ timeout: 5000 });
   await nameInput.fill(roleName);
 
+  // Wait for async validation debounce (250ms debounce + API call time)
+  // The Storybook helper waits 1000ms here
+  await page.waitForTimeout(1500);
+
   // Fill description - use aria-label which is more reliable than ID
   // SetName.tsx: <TextArea id="role-description" aria-label="Role description" ...>
   const descriptionInput = wizard.getByLabel('Role description');
@@ -129,6 +133,118 @@ export async function fillCreateRoleWizard(page: Page, roleName: string, descrip
   // Click Exit to close wizard
   const exitButton = wizard.getByRole('button', { name: /exit/i });
   await exitButton.click();
+
+  // Wait for wizard to close
+  await expect(wizard).not.toBeVisible({ timeout: 5000 });
+}
+
+/**
+ * Fills the Create Role wizard to copy an existing role.
+ * Uses the seeded role as the source to ensure consistency.
+ *
+ * Wizard Steps:
+ * 1. Choose type (Copy existing role)
+ * 2. Select source role from table
+ * 3. Enter NEW role name (required to be unique)
+ * 4. Review permissions (inherited from source)
+ * 5. Submit & verify success
+ */
+export async function fillCreateRoleWizardAsCopy(page: Page, newRoleName: string, sourceRoleName: string, description?: string): Promise<void> {
+  // Dialog opens via URL routing - wait for URL to contain add-role and dialog to appear
+  await page.waitForURL(/add-role/, { timeout: 10000 });
+
+  // Use same pattern as fillCreateRoleWizard - .first() to handle PF6 modal wrapper
+  const wizard = page.getByRole('dialog').first();
+  await expect(wizard).toBeVisible({ timeout: 10000 });
+
+  // Helper to get wizard Next button (same as fillCreateRoleWizard)
+  const getWizardNextButton = () => {
+    return wizard
+      .getByRole('button', { name: /^next$/i })
+      .filter({ hasNot: page.locator('.pf-v6-c-pagination') })
+      .first();
+  };
+
+  // ─────────────────────────────────────────────────────────────────────
+  // STEP 1: Choose "Copy an existing role"
+  // ─────────────────────────────────────────────────────────────────────
+  const copyRadio = wizard.getByRole('radio', { name: /copy an existing role/i });
+  await expect(copyRadio).toBeVisible({ timeout: 5000 });
+  await copyRadio.click();
+  console.log(`[Wizard] ✓ Selected "Copy an existing role"`);
+
+  // ─────────────────────────────────────────────────────────────────────
+  // STEP 2: Select source role from table
+  // ─────────────────────────────────────────────────────────────────────
+  // Wait for roles table
+  await expect(wizard.getByRole('grid', { name: /roles/i })).toBeVisible({ timeout: 10000 });
+
+  // Search for the source role
+  const searchInput = wizard.getByRole('textbox', { name: /search|filter/i });
+  if (await searchInput.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await searchInput.fill(sourceRoleName);
+    await searchInput.press('Enter');
+    console.log(`[Wizard] ✓ Searched for role: ${sourceRoleName}`);
+  }
+
+  // Click the radio button for the source role
+  await wizard.getByRole('radio', { name: new RegExp(sourceRoleName, 'i') }).click();
+  console.log(`[Wizard] ✓ Selected source role: ${sourceRoleName}`);
+
+  await waitForNextEnabled(page);
+  await getWizardNextButton().click();
+
+  // ─────────────────────────────────────────────────────────────────────
+  // STEP 3: Enter NEW role name (same pattern as fillCreateRoleWizard)
+  // ─────────────────────────────────────────────────────────────────────
+  const nameInput = wizard.getByLabel(/role name/i);
+  await expect(nameInput).toBeVisible({ timeout: 5000 });
+  await nameInput.fill(newRoleName);
+  console.log(`[Wizard] ✓ New role name entered: ${newRoleName}`);
+
+  // Wait for async validation debounce (250ms debounce + API call time)
+  // The Storybook helper waits 1000ms here
+  await page.waitForTimeout(1500);
+
+  // Fill description - use exact aria-label (same as fillCreateRoleWizard)
+  const descriptionInput = wizard.getByLabel('Role description');
+  await expect(descriptionInput).toBeVisible({ timeout: 5000 });
+  await descriptionInput.fill(description || '');
+  console.log(`[Wizard] ✓ Description entered: ${description}`);
+
+  // Wait for async validation then click Next (same as fillCreateRoleWizard)
+  await waitForNextEnabled(page);
+  await getWizardNextButton().click();
+
+  // ─────────────────────────────────────────────────────────────────────
+  // STEP 4: Permissions (may be skipped if inherited)
+  // ─────────────────────────────────────────────────────────────────────
+  const hasPermissions = await wizard
+    .getByRole('checkbox')
+    .first()
+    .isVisible({ timeout: 3000 })
+    .catch(() => false);
+
+  if (hasPermissions) {
+    console.log(`[Wizard] ✓ Permissions inherited from source`);
+    await waitForNextEnabled(page);
+    await getWizardNextButton().click();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // STEP 5: Review and Submit
+  // ─────────────────────────────────────────────────────────────────────
+  await expect(wizard.getByText(/review/i)).toBeVisible({ timeout: 8000 });
+  await expect(wizard.getByText(newRoleName)).toBeVisible({ timeout: 5000 });
+
+  await wizard.getByRole('button', { name: /submit/i }).click();
+
+  // Wait for success
+  await expect(wizard.getByText(/successfully created/i)).toBeVisible({ timeout: 15000 });
+  console.log(`[Wizard] ✓ Role copied successfully`);
+
+  // Exit wizard
+  await wizard.getByRole('button', { name: /exit/i }).click();
 
   // Wait for wizard to close
   await expect(wizard).not.toBeVisible({ timeout: 5000 });

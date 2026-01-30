@@ -6,7 +6,7 @@
  *
  * Usage:
  *   1. Generate auth storage state:
- *      RBAC_USERNAME=user RBAC_PASSWORD=pass npm run cli -- login --headless --save-state e2e/auth/v1-admin.json
+ *      npm run e2e:v1:auth:admin
  *
  *   2. Run this test:
  *      npx playwright test e2e/smoke.spec.ts

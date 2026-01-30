@@ -8,7 +8,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_USER, setupPage } from '../../../utils';
+import { AUTH_V2_READONLY, setupPage } from '../../../utils';
 
 const USERS_URL = '/iam/access-management/users-and-user-groups/users';
 
@@ -16,7 +16,7 @@ const USERS_URL = '/iam/access-management/users-and-user-groups/users';
 // Personas that should be BLOCKED from Users page
 // ═══════════════════════════════════════════════════════════════════════════
 
-const blockedPersonas = [{ name: 'ReadOnlyUser', auth: AUTH_V2_USER }];
+const blockedPersonas = [{ name: 'ReadOnlyUser', auth: AUTH_V2_READONLY }];
 
 blockedPersonas.forEach(({ name, auth }) => {
   test.describe(name, () => {

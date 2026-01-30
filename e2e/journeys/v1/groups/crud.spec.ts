@@ -8,22 +8,29 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN } from '../../../utils';
+import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
+import { getSeededGroupName } from '../../../utils/seed-map';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX;
+const TEST_PREFIX = process.env.TEST_PREFIX_V1;
 
 if (!TEST_PREFIX) {
   throw new Error(
     '\n\n' +
       '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX environment variable is REQUIRED          ║\n' +
+      '║  SAFETY RAIL: TEST_PREFIX_V1 environment variable is REQUIRED       ║\n' +
       '╚══════════════════════════════════════════════════════════════════════╝\n',
   );
+}
+
+// Golden rule: always interact with seeded data from the seed map
+const SEEDED_GROUP_NAME = getSeededGroupName('v1');
+if (!SEEDED_GROUP_NAME) {
+  throw new Error('No seeded group found in seed map. Run: npm run e2e:v1:seed');
 }
 
 // Generate unique name for this test run
@@ -51,10 +58,9 @@ test.describe('Admin', () => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
-    // Open row actions on first group
-    const firstRow = groupsPage.table.getByRole('row').nth(1);
-    const kebab = firstRow.getByRole('button', { name: /actions/i });
-    await kebab.click();
+    // Search for seeded group (system groups don't have edit/delete actions)
+    await groupsPage.searchFor(SEEDED_GROUP_NAME);
+    await groupsPage.openRowActions(SEEDED_GROUP_NAME);
 
     // Verify actions
     await expect(page.getByRole('menuitem', { name: /edit/i })).toBeVisible();
@@ -95,7 +101,8 @@ test.describe('Admin', () => {
       await groupsPage.navigateToDetail(uniqueGroupName);
 
       await expect(groupsPage.getDetailHeading(uniqueGroupName)).toBeVisible({ timeout: 10000 });
-      await expect(page.getByText(groupDescription)).toBeVisible();
+      // Description should appear as subtitle once group data loads
+      await expect(page.getByText(groupDescription)).toBeVisible({ timeout: 15000 });
 
       console.log(`[View] ✓ Detail page verified`);
     });
@@ -121,7 +128,8 @@ test.describe('Admin', () => {
       await groupsPage.verifyGroupInTable(editedGroupName);
 
       await groupsPage.navigateToDetail(editedGroupName);
-      await expect(page.getByText(editedDescription)).toBeVisible();
+      // Description should appear as subtitle once group data loads
+      await expect(page.getByText(editedDescription)).toBeVisible({ timeout: 15000 });
 
       console.log(`[Verify Edit] ✓ Changes confirmed`);
     });
@@ -168,9 +176,12 @@ test.describe('UserViewer', () => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
-    // Try to find any kebab menu - it may not exist for UserViewer
-    const firstRow = groupsPage.table.getByRole('row').nth(1);
-    const kebab = firstRow.getByRole('button', { name: /actions/i });
+    // Search for seeded group
+    await groupsPage.searchFor(SEEDED_GROUP_NAME);
+
+    // Try to find the kebab menu for the seeded group - it may not exist for UserViewer
+    const seededGroupRow = groupsPage.getGroupRow(SEEDED_GROUP_NAME);
+    const kebab = seededGroupRow.getByRole('button', { name: /actions/i });
 
     if (await kebab.isVisible().catch(() => false)) {
       await kebab.click();

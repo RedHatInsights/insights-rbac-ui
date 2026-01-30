@@ -104,4 +104,109 @@ export class UsersPage {
     }
     await expect(this.heading).toBeVisible();
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // User Management (Activate/Deactivate)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  get bulkActionsButton(): Locator {
+    return this.page.getByRole('button', { name: /kebab dropdown toggle/i });
+  }
+
+  async selectUserRows(count: number): Promise<void> {
+    for (let i = 0; i < count; i++) {
+      await this.page.getByRole('checkbox', { name: new RegExp(`select row ${i}`, 'i') }).click();
+      await this.page.waitForTimeout(200);
+    }
+  }
+
+  async openBulkActions(): Promise<void> {
+    await this.bulkActionsButton.click();
+    await this.page.waitForTimeout(300);
+  }
+
+  async deactivateSelectedUsers(): Promise<void> {
+    await this.openBulkActions();
+    await this.page.getByRole('menuitem', { name: /deactivate/i }).click();
+
+    // Confirm in modal
+    const modal = this.page.getByRole('dialog').first();
+    await expect(modal).toBeVisible({ timeout: 5000 });
+
+    // Check the confirmation checkbox
+    const confirmCheckbox = modal.getByRole('checkbox', { name: /yes, i confirm/i });
+    await confirmCheckbox.click();
+
+    // Click deactivate button
+    await modal.getByRole('button', { name: /deactivate/i }).click();
+    await expect(modal).not.toBeVisible({ timeout: 10000 });
+  }
+
+  async activateSelectedUsers(): Promise<void> {
+    await this.openBulkActions();
+    await this.page.getByRole('menuitem', { name: /activate/i }).click();
+
+    // Confirm in modal
+    const modal = this.page.getByRole('dialog').first();
+    await expect(modal).toBeVisible({ timeout: 5000 });
+
+    // Check the confirmation checkbox
+    const confirmCheckbox = modal.getByRole('checkbox', { name: /yes, i confirm/i });
+    await confirmCheckbox.click();
+
+    // Click activate button
+    await modal.getByRole('button', { name: /activate/i }).click();
+    await expect(modal).not.toBeVisible({ timeout: 10000 });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // User Invitation
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async openInviteModal(): Promise<void> {
+    await this.inviteButton.click();
+    await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
+  }
+
+  async fillInviteForm(emails: string[], options?: { message?: string; makeOrgAdmin?: boolean }): Promise<void> {
+    const modal = this.page.getByRole('dialog').first();
+    await expect(modal).toBeVisible({ timeout: 5000 });
+
+    // Wait for modal to fully render
+    await modal.getByRole('heading', { name: /invite new users/i }).waitFor({ timeout: 5000 });
+
+    // Fill emails
+    const emailInput = modal.getByRole('textbox', { name: /enter the e-mail addresses/i });
+    await emailInput.fill(emails.join(', '));
+
+    // Optional: Add message
+    if (options?.message) {
+      const messageInput = modal.getByRole('textbox', { name: /send a message/i });
+      await messageInput.fill(options.message);
+    }
+
+    // Optional: Make org admin
+    if (options?.makeOrgAdmin) {
+      const orgAdminCheckbox = modal.getByRole('checkbox', { name: /organization administrators/i });
+      await orgAdminCheckbox.click();
+    }
+  }
+
+  async submitInvite(): Promise<void> {
+    const modal = this.page.getByRole('dialog').first();
+    const submitButton = modal.getByRole('button', { name: /invite new users/i });
+    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    await submitButton.click();
+    await expect(modal).not.toBeVisible({ timeout: 10000 });
+  }
+
+  async inviteUsers(emails: string[], options?: { message?: string; makeOrgAdmin?: boolean }): Promise<void> {
+    await this.openInviteModal();
+    await this.fillInviteForm(emails, options);
+    await this.submitInvite();
+  }
+
+  async verifySuccess(): Promise<void> {
+    await expect(this.page.getByText(/success/i).first()).toBeVisible({ timeout: 10000 });
+  }
 }

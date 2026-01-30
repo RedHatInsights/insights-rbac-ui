@@ -147,91 +147,228 @@ export class GroupsPage {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Member Management
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  get addMemberButton(): Locator {
+    return this.page.getByRole('button', { name: /add member/i });
+  }
+
+  get memberBulkActionsButton(): Locator {
+    return this.page.getByRole('button', { name: /member bulk actions/i });
+  }
+
+  async openAddMembersModal(): Promise<void> {
+    await this.addMemberButton.click();
+    await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
+  }
+
+  async selectMembersInModal(count: number): Promise<void> {
+    const modal = this.page.getByRole('dialog', { name: /add members/i });
+    await expect(modal).toBeVisible({ timeout: 5000 });
+
+    // Wait for table rows to appear
+    const table = modal.getByRole('grid', { name: /users/i });
+    await expect(table).toBeVisible({ timeout: 10000 });
+
+    // Select members by clicking row checkboxes - use fresh locators each time
+    for (let i = 0; i < count; i++) {
+      // Re-query the checkbox each iteration to avoid stale references
+      const checkbox = modal.getByRole('checkbox', { name: new RegExp(`select row ${i}`, 'i') });
+      await checkbox.click();
+    }
+  }
+
+  async submitAddMembersModal(): Promise<void> {
+    // Use the specific modal title to identify this dialog
+    const addMembersModal = this.page.getByRole('dialog', { name: /add members/i });
+    const submitButton = addMembersModal.getByRole('button', { name: /add to group/i });
+
+    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    await submitButton.click();
+
+    // Wait for this specific modal to close - use the same locator, not a stored reference
+    await expect(this.page.getByRole('dialog', { name: /add members/i })).not.toBeVisible({ timeout: 30000 });
+  }
+
+  async addMembersToGroup(count: number): Promise<void> {
+    await this.openAddMembersModal();
+    await this.selectMembersInModal(count);
+    await this.submitAddMembersModal();
+  }
+
+  async selectMemberRows(count: number): Promise<void> {
+    const table = this.page.getByRole('grid').first();
+    for (let i = 0; i < count; i++) {
+      await table.getByRole('checkbox', { name: new RegExp(`select row ${i}`, 'i') }).click();
+      await this.page.waitForTimeout(200);
+    }
+  }
+
+  async removeMembersFromGroup(count: number): Promise<void> {
+    await this.selectMemberRows(count);
+    await this.memberBulkActionsButton.click();
+    await this.page.getByRole('menuitem', { name: /remove/i }).click();
+
+    // Confirm removal
+    const confirmDialog = this.page.getByRole('dialog').first();
+    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    await confirmDialog.getByRole('button', { name: /remove/i }).click();
+    await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Role Management
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  get addRoleButton(): Locator {
+    return this.page.getByRole('button', { name: /add role/i });
+  }
+
+  get roleBulkActionsButton(): Locator {
+    return this.page.getByRole('button', { name: /role bulk actions/i }).or(this.page.getByRole('button', { name: /actions/i }).first());
+  }
+
+  async openAddRolesModal(): Promise<void> {
+    await this.addRoleButton.click();
+    await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
+  }
+
+  async selectRolesInModal(count: number): Promise<void> {
+    const modal = this.page.getByRole('dialog', { name: /add roles/i });
+    await expect(modal).toBeVisible({ timeout: 5000 });
+
+    // Wait for table to appear
+    const table = modal.getByRole('grid', { name: /roles/i });
+    await expect(table).toBeVisible({ timeout: 10000 });
+
+    // Select roles by clicking row checkboxes - use fresh locators each time
+    for (let i = 0; i < count; i++) {
+      const checkbox = modal.getByRole('checkbox', { name: new RegExp(`select row ${i}`, 'i') });
+      await checkbox.click();
+    }
+  }
+
+  async submitAddRolesModal(): Promise<void> {
+    const modal = this.page.getByRole('dialog', { name: /add roles/i });
+    const submitButton = modal.getByRole('button', { name: /add to group/i });
+
+    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    await submitButton.click();
+
+    // Wait for this specific modal to close - fresh locator
+    await expect(this.page.getByRole('dialog', { name: /add roles/i })).not.toBeVisible({ timeout: 30000 });
+  }
+
+  async addRolesToGroup(count: number): Promise<void> {
+    await this.openAddRolesModal();
+    await this.selectRolesInModal(count);
+    await this.submitAddRolesModal();
+  }
+
+  async selectRoleRows(count: number): Promise<void> {
+    // Wait for roles table to be visible
+    await expect(this.page.getByRole('grid')).toBeVisible({ timeout: 5000 });
+
+    // Select rows using fresh locators each time
+    for (let i = 0; i < count; i++) {
+      const checkbox = this.page.getByRole('checkbox', { name: new RegExp(`select row ${i}`, 'i') });
+      await checkbox.click();
+    }
+  }
+
+  async removeRolesFromGroup(): Promise<void> {
+    // Click the bulk actions button (specific name to avoid strict mode violation)
+    await this.page.getByRole('button', { name: 'bulk actions' }).click();
+
+    // Click "Remove" from the dropdown menu
+    await this.page.getByRole('menuitem', { name: /remove/i }).click();
+
+    // Click confirm button in the modal - button text is "Remove role"
+    await this.page
+      .getByRole('dialog')
+      .getByRole('button', { name: /remove role/i })
+      .click();
+
+    // Wait for dialog to close
+    await expect(this.page.getByRole('dialog')).not.toBeVisible({ timeout: 15000 });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // CRUD Operations (for admin tests)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async fillCreateWizard(name: string, description: string): Promise<void> {
-    const wizard = this.page.locator('[data-ouia-component-id="add-group-wizard"]');
-    await expect(wizard).toBeVisible({ timeout: 10000 });
+    // Dialog opens via URL routing - wait for URL and wizard to appear
+    await this.page.waitForURL(/add-group/, { timeout: 10000 });
+    await expect(this.page.locator('[data-ouia-component-id="add-group-wizard"]')).toBeVisible({ timeout: 10000 });
 
-    // Helper to click wizard Next button
-    const clickNext = async () => {
-      const nextButtons = wizard.getByRole('button', { name: /next/i });
-      const count = await nextButtons.count();
-      for (let i = 0; i < count; i++) {
-        const btn = nextButtons.nth(i);
-        const isInPagination = await btn.evaluate((el) => !!el.closest('.pf-v6-c-pagination'));
-        if (isInPagination) continue;
-        const isDisabled = await btn.evaluate((el) => el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true');
-        if (isDisabled) continue;
-        await btn.click();
-        return;
-      }
-      throw new Error('No enabled Next button found');
+    // Helper to click wizard Next button - always use fresh locator
+    const clickWizardNext = async () => {
+      // Find Next button that's NOT in pagination - use contentinfo (footer) region
+      const footerNext = this.page
+        .locator('[data-ouia-component-id="add-group-wizard"]')
+        .locator('footer, [class*="wizard__footer"]')
+        .getByRole('button', { name: /next/i });
+
+      await expect(footerNext).toBeEnabled({ timeout: 10000 });
+      await footerNext.click();
     };
 
-    // Step 1: Name & Description
-    await this.page.locator('#group-name').fill(name);
-    const descInput = this.page.locator('#group-description').first();
-    if (await descInput.isVisible().catch(() => false)) {
-      await descInput.fill(description);
-    }
+    // Step 1: Name & Description - scope to wizard to avoid conflicts
+    const wizard = this.page.locator('[data-ouia-component-id="add-group-wizard"]');
+
+    // Name input - fill and blur to trigger validation
+    const nameInput = wizard.locator('#group-name');
+    await expect(nameInput).toBeVisible({ timeout: 5000 });
+    await nameInput.fill(name);
+    await nameInput.blur();
+
+    // Wait for validation to settle
     await this.page.waitForTimeout(500);
-    await clickNext();
 
-    // Step 2: Roles
-    await this.page.waitForFunction(
-      () => {
-        const checkboxes = document.querySelectorAll('[data-ouia-component-id="add-group-wizard"] [role="checkbox"]');
-        return checkboxes.length > 1;
-      },
-      { timeout: 8000 },
-    );
-    await wizard.getByRole('checkbox').nth(1).click();
-    await clickNext();
+    // Description - there are 2 textareas (DDF hidden + SetName visible), use first()
+    const descInput = wizard.locator('textarea').first();
+    await expect(descInput).toBeVisible({ timeout: 5000 });
+    await descInput.fill(description);
 
-    // Step 3: Members
-    await this.page.waitForFunction(
-      () => {
-        const checkboxes = document.querySelectorAll('[data-ouia-component-id="add-group-wizard"] [role="checkbox"]');
-        return checkboxes.length > 1;
-      },
-      { timeout: 8000 },
-    );
-    await wizard.getByRole('checkbox').nth(1).click();
-    await clickNext();
+    // Wait for Next to enable then click
+    await clickWizardNext();
 
-    // Step 4: Service Accounts (optional)
+    // Step 2: Roles - wait for table, select first role (scope to wizard)
+    await expect(wizard.getByRole('grid', { name: /roles/i })).toBeVisible({ timeout: 10000 });
+    await wizard.getByRole('checkbox', { name: /select row 0/i }).click();
+    await clickWizardNext();
+
+    // Step 3: Members - wait for table, select first member (scope to wizard)
+    await expect(wizard.getByRole('grid', { name: /users|members/i })).toBeVisible({ timeout: 10000 });
+    await wizard.getByRole('checkbox', { name: /select row 0/i }).click();
+    await clickWizardNext();
+
+    // Step 4: Service Accounts (optional) - try to select one if the step exists
     try {
-      await this.page.waitForFunction(
-        () => {
-          const wizard = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-          return wizard && /service account/i.test(wizard.textContent || '');
-        },
-        { timeout: 3000 },
-      );
-      await this.page.waitForFunction(
-        () => {
-          const checkboxes = document.querySelectorAll('[data-ouia-component-id="add-group-wizard"] [role="checkbox"]');
-          return checkboxes.length > 1;
-        },
-        { timeout: 8000 },
-      );
-      await wizard.getByRole('checkbox').nth(1).click();
-      await clickNext();
+      const serviceAccountsHeading = wizard.getByRole('heading', { name: /service account/i });
+      await expect(serviceAccountsHeading).toBeVisible({ timeout: 3000 });
+      // If we're on service accounts step, select one and continue (scope to wizard)
+      const saCheckbox = wizard.getByRole('checkbox', { name: /select row 0/i });
+      if (await saCheckbox.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await saCheckbox.click();
+      }
+      await clickWizardNext();
     } catch {
-      // No service accounts step
+      // No service accounts step or already past it
     }
 
-    // Final: Submit
+    // Final: Submit - wait for review step and click create
     await this.page.waitForFunction(
       () => {
-        const wizard = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const mainContent = wizard?.querySelector('.pf-v6-c-wizard__main-body, .pf-v6-c-wizard__main');
+        const wiz = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
+        const mainContent = wiz?.querySelector('.pf-v6-c-wizard__main-body, .pf-v6-c-wizard__main');
         return mainContent && /review/i.test(mainContent.textContent || '');
       },
       { timeout: 8000 },
     );
+
     const createButton = wizard
       .getByRole('button')
       .filter({ hasText: /create|submit|finish/i })

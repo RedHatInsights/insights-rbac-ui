@@ -1,6 +1,11 @@
 {
   "$schema": "./seed-schema.json",
   "description": "V1 seed data: roles and groups only (V1 does not support workspaces)",
+  "personas": {
+    "admin": { "username": "rbac-e2e-admin-v1" },
+    "userviewer": { "username": "rbac-e2e-userviewer-v1" },
+    "readonly": { "username": "rbac-e2e-user-v1" }
+  },
   "roles": [
     {
       "name": "Seeded Role",

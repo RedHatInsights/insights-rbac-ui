@@ -11,9 +11,9 @@ import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
 import { getSeededGroupData, getSeededGroupName, getSeededRoleName } from '../../../utils/seed-map';
 
-const SEEDED_GROUP_NAME = getSeededGroupName();
+const SEEDED_GROUP_NAME = getSeededGroupName('v1');
 const SEEDED_GROUP_DATA = getSeededGroupData();
-const SEEDED_ROLE_NAME = getSeededRoleName();
+const SEEDED_ROLE_NAME = getSeededRoleName('v1');
 
 if (!SEEDED_GROUP_NAME) {
   throw new Error('No seeded group found in seed map. Run: npm run e2e:seed:v1');
@@ -61,9 +61,9 @@ viewPersonas.forEach(({ name, auth }) => {
       // Verify detail page
       await expect(groupsPage.getDetailHeading(SEEDED_GROUP_NAME)).toBeVisible({ timeout: 15000 });
 
-      // Verify description if available
+      // Description should appear as subtitle once group data loads
       if (SEEDED_GROUP_DATA?.description) {
-        await expect(page.getByText(SEEDED_GROUP_DATA.description)).toBeVisible({ timeout: 30000 });
+        await expect(page.getByText(SEEDED_GROUP_DATA.description)).toBeVisible({ timeout: 15000 });
       }
 
       // Verify tabs

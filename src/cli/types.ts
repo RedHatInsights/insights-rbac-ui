@@ -46,9 +46,18 @@ export const WorkspaceInputSchema = z.object({
 });
 
 /**
+ * Persona input schema for test user definitions.
+ * These usernames are added to seeded groups automatically.
+ */
+export const PersonaInputSchema = z.object({
+  username: z.string().min(1, 'Username is required'),
+});
+
+/**
  * Seed payload schema - wrapper for batch operations
  */
 export const SeedPayloadSchema = z.object({
+  personas: z.record(z.string(), PersonaInputSchema).optional(),
   roles: z.array(RoleInputSchema).optional(),
   groups: z.array(GroupInputSchema).optional(),
   workspaces: z.array(WorkspaceInputSchema).optional(),

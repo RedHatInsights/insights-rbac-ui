@@ -50,9 +50,12 @@ export async function enableAssetCache(page: Page): Promise<void> {
     return;
   }
 
-  const stats = fs.statSync(HAR_PATH);
-  const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
-  console.log(`[Asset Cache] Using HAR cache (${sizeMB} MB)`);
+  // Only log in verbose mode (DEBUG or PW_TEST_DEBUG set)
+  if (process.env.DEBUG || process.env.PW_TEST_DEBUG) {
+    const stats = fs.statSync(HAR_PATH);
+    const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
+    console.log(`[Asset Cache] Using HAR cache (${sizeMB} MB)`);
+  }
 
   await page.routeFromHAR(HAR_PATH, {
     update: false,

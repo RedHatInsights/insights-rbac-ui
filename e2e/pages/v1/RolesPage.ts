@@ -7,7 +7,7 @@
 
 import { type Locator, type Page, expect } from '@playwright/test';
 import { clickMenuItem, openDetailPageActionsMenu, openRoleActionsMenu, setupPage, verifySuccessNotification, waitForTableUpdate } from '../../utils';
-import { fillCreateRoleWizard, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
+import { fillCreateRoleWizard, fillCreateRoleWizardAsCopy, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
 
 const ROLES_URL = '/iam/user-access/roles';
 
@@ -130,6 +130,10 @@ export class RolesPage {
 
   async fillCreateWizard(name: string, description: string): Promise<void> {
     await fillCreateRoleWizard(this.page, name, description);
+  }
+
+  async fillCreateWizardAsCopy(newRoleName: string, sourceRoleName: string, description?: string): Promise<void> {
+    await fillCreateRoleWizardAsCopy(this.page, newRoleName, sourceRoleName, description);
   }
 
   async fillEditModal(newName: string, newDescription: string): Promise<void> {

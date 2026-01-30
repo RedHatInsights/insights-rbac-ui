@@ -6,12 +6,12 @@
  * CRITICAL: This includes a regression test for the /management URL bug.
  * The external IT API is intercepted to prevent actual emails from being sent.
  *
- * Personas that CAN invite: OrgAdmin, UserAdmin
+ * Personas that CAN invite: Admin
  * Personas that CANNOT invite: UserViewer, ReadOnlyUser
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN, AUTH_V2_USER, AUTH_V2_USERADMIN, AUTH_V2_USERVIEWER } from '../../../utils';
+import { AUTH_V2_ADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER } from '../../../utils';
 import { UsersPage } from '../../../pages/v2/UsersPage';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -52,10 +52,7 @@ async function interceptInviteApi(page: import('@playwright/test').Page) {
 // Personas that CAN invite users
 // ═══════════════════════════════════════════════════════════════════════════
 
-const canInvitePersonas = [
-  { name: 'OrgAdmin', auth: AUTH_V2_ADMIN },
-  { name: 'UserAdmin', auth: AUTH_V2_USERADMIN },
-];
+const canInvitePersonas = [{ name: 'Admin', auth: AUTH_V2_ADMIN }];
 
 canInvitePersonas.forEach(({ name, auth }) => {
   test.describe(name, () => {
@@ -101,7 +98,7 @@ canInvitePersonas.forEach(({ name, auth }) => {
 
 const cannotInvitePersonas = [
   { name: 'UserViewer', auth: AUTH_V2_USERVIEWER },
-  { name: 'ReadOnlyUser', auth: AUTH_V2_USER },
+  { name: 'ReadOnlyUser', auth: AUTH_V2_READONLY },
 ];
 
 cannotInvitePersonas.forEach(({ name, auth }) => {

@@ -11,7 +11,8 @@ import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN, getAdminUsername } from '../../../utils';
 import { UsersPage } from '../../../pages/v1/UsersPage';
 
-const ADMIN_USERNAME = getAdminUsername();
+// Get known admin username from seed fixture (not from env vars)
+const ADMIN_USERNAME = getAdminUsername('v1');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests - Admin Only
@@ -30,7 +31,7 @@ test.describe('Admin', () => {
   });
 
   test(`Can search for users [Admin]`, async ({ page }) => {
-    test.skip(!ADMIN_USERNAME, 'RBAC_USERNAME not set');
+    test.skip(!ADMIN_USERNAME, 'Admin username not configured in seed fixture');
 
     const usersPage = new UsersPage(page);
     await usersPage.goto();
@@ -43,7 +44,7 @@ test.describe('Admin', () => {
   });
 
   test(`Can view user detail page [Admin]`, async ({ page }) => {
-    test.skip(!ADMIN_USERNAME, 'RBAC_USERNAME not set');
+    test.skip(!ADMIN_USERNAME, 'Admin username not configured in seed fixture');
 
     const usersPage = new UsersPage(page);
     await usersPage.goto();

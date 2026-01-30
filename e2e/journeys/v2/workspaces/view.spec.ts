@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test';
 import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, getSeededWorkspaceData, getSeededWorkspaceName } from '../../../utils';
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
-const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName();
+const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName('v2');
 const SEEDED_WORKSPACE_DATA = getSeededWorkspaceData();
 
 if (!SEEDED_WORKSPACE_NAME) {
