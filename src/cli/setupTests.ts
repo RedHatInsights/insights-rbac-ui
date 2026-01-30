@@ -84,17 +84,89 @@ export function typeText(text: string): void {
 }
 
 // ============================================================================
-// MSW Setup
+// MSW Setup with Request Tracking
 // ============================================================================
+
+interface TrackedRequest {
+  method: string;
+  url: string;
+  body?: unknown;
+  timestamp: number;
+}
+
+let trackedRequests: TrackedRequest[] = [];
+
+/**
+ * Get all API requests made since the last reset
+ */
+export function getTrackedRequests(): TrackedRequest[] {
+  return [...trackedRequests];
+}
+
+/**
+ * Get requests matching a pattern
+ */
+export function getRequestsMatching(method: string, urlPattern: string | RegExp): TrackedRequest[] {
+  return trackedRequests.filter((req) => {
+    const methodMatches = req.method.toUpperCase() === method.toUpperCase();
+    const urlMatches = typeof urlPattern === 'string' ? req.url.includes(urlPattern) : urlPattern.test(req.url);
+    return methodMatches && urlMatches;
+  });
+}
+
+/**
+ * Assert that a specific API call was made
+ */
+export function expectApiCall(method: string, urlPattern: string | RegExp, options?: { count?: number }): void {
+  const matching = getRequestsMatching(method, urlPattern);
+  const expectedCount = options?.count ?? 1;
+
+  if (matching.length !== expectedCount) {
+    const allUrls = trackedRequests.map((r) => `${r.method} ${r.url}`).join('\n  ');
+    throw new Error(
+      `Expected ${expectedCount} ${method} request(s) matching "${urlPattern}", found ${matching.length}.\n` +
+        `All requests:\n  ${allUrls || '(none)'}`,
+    );
+  }
+}
+
+/**
+ * Clear tracked requests (called automatically between tests)
+ */
+export function clearTrackedRequests(): void {
+  trackedRequests = [];
+}
 
 beforeAll(() => {
   server.listen({
     onUnhandledRequest: 'warn',
   });
+
+  // Track all requests using MSW's lifecycle events
+  server.events.on('request:start', async ({ request }) => {
+    let body: unknown = undefined;
+    try {
+      const cloned = request.clone();
+      const text = await cloned.text();
+      if (text) {
+        body = JSON.parse(text);
+      }
+    } catch {
+      // Ignore parse errors for non-JSON bodies
+    }
+
+    trackedRequests.push({
+      method: request.method,
+      url: request.url,
+      body,
+      timestamp: Date.now(),
+    });
+  });
 });
 
 afterEach(() => {
   server.resetHandlers();
+  clearTrackedRequests();
 });
 
 afterAll(() => {
@@ -201,10 +273,41 @@ vi.mock('ink-text-input', () => ({
   },
 }));
 
+// ============================================================================
+// Status Message Tracking
+// ============================================================================
+
+interface StatusMessage {
+  message: string;
+  type: string;
+}
+
+let lastStatus: StatusMessage | null = null;
+
+/**
+ * Get the last status message set by a component
+ */
+export function getLastStatus(): StatusMessage | null {
+  return lastStatus;
+}
+
+/**
+ * Clear the last status message (called automatically between tests)
+ */
+export function clearLastStatus(): void {
+  lastStatus = null;
+}
+
 // Mock the AppLayout - use a persistent setStatus function
-const mockSetStatus = vi.fn((status: { message: string; type: string }) => {
-  // Store in a global for test assertions
+const mockSetStatus = vi.fn((status: StatusMessage) => {
+  lastStatus = status;
+  // Keep globalThis for backward compatibility with existing tests
   (globalThis as Record<string, unknown>).__lastStatus = status;
+});
+
+// Reset status between tests
+beforeEach(() => {
+  clearLastStatus();
 });
 
 vi.mock('./layouts/AppLayout', () => {
@@ -222,6 +325,10 @@ vi.mock('./layouts/AppLayout', () => {
     useStatus: () => ({
       setStatus: mockSetStatus,
       status: { message: null, type: 'info' },
+    }),
+    useInputFocus: () => ({
+      isInputFocused: false,
+      setInputFocused: () => {},
     }),
     AppLayout: ({ children }: { children: React.ReactNode }) => {
       const React = require('react');

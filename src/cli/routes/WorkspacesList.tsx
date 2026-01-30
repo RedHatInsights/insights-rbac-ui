@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { useNavigate } from 'react-router-dom';
 import type { QueryClient } from '@tanstack/react-query';
-import { colors, useStatus } from '../layouts/AppLayout.js';
+import { colors, useInputFocus, useStatus } from '../layouts/AppLayout.js';
 import {
   ConfirmDialog,
   DetailField,
@@ -46,6 +46,14 @@ export function WorkspacesList({ queryClient }: WorkspacesListProps): React.Reac
   // Navigation state: current parent workspace (null = show root level)
   const [currentParentId, setCurrentParentId] = useState<string | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([]);
+
+  // Disable global hotkeys when in text input mode
+  const { setInputFocused } = useInputFocus();
+  useEffect(() => {
+    // Create and search modes have text inputs
+    setInputFocused(mode === 'create' || mode === 'search');
+    return () => setInputFocused(false);
+  }, [mode, setInputFocused]);
 
   // Fetch all workspaces (API doesn't support parent_id filtering)
   const allWorkspacesQuery = useWorkspacesQuery({ type: 'all', limit: 1000 }, { queryClient });

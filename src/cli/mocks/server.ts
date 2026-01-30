@@ -16,7 +16,22 @@ import { AppState } from '../../../.storybook/helpers/immutable-state';
 // Default Initial State for CLI Tests
 // ============================================================================
 
+// Initialize Maps for group relationships
+const groupMembers = new Map<string, Array<{ username: string; email?: string; first_name?: string; last_name?: string; is_active?: boolean }>>();
+groupMembers.set('group-1', [
+  { username: 'testuser1', email: 'test1@example.com', first_name: 'Test', last_name: 'User1', is_active: true },
+  { username: 'testuser2', email: 'test2@example.com', first_name: 'Test', last_name: 'User2', is_active: true },
+]);
+
+const groupRoles = new Map<string, Array<{ uuid: string; name: string; description?: string; system?: boolean }>>();
+groupRoles.set('group-1', [{ uuid: 'role-1', name: 'Test Role 1', description: 'A test role', system: false }]);
+
+const workspaceRoleBindings = new Map<string, Array<{ subject?: { id: string }; role?: { id: string } }>>();
+
 const defaultInitialState: Partial<AppState> = {
+  groupMembers,
+  groupRoles,
+  workspaceRoleBindings,
   roles: [
     {
       uuid: 'role-1',
@@ -115,6 +130,51 @@ const defaultInitialState: Partial<AppState> = {
       description: 'The root workspace',
       parent_id: '',
       type: 'root',
+      created: '2024-01-01T00:00:00Z',
+      modified: '2024-01-01T00:00:00Z',
+    },
+    {
+      id: 'ws-default',
+      name: 'Default Workspace',
+      description: 'The default workspace for all users',
+      parent_id: 'ws-root',
+      type: 'default',
+      created: '2024-01-01T00:00:00Z',
+      modified: '2024-01-01T00:00:00Z',
+    },
+    {
+      id: 'ws-dev',
+      name: 'Development',
+      description: 'Development team workspace',
+      parent_id: 'ws-root',
+      type: 'standard',
+      created: '2024-01-01T00:00:00Z',
+      modified: '2024-01-01T00:00:00Z',
+    },
+    {
+      id: 'ws-prod',
+      name: 'Production',
+      description: 'Production team workspace',
+      parent_id: 'ws-root',
+      type: 'standard',
+      created: '2024-01-01T00:00:00Z',
+      modified: '2024-01-01T00:00:00Z',
+    },
+    {
+      id: 'ws-dev-frontend',
+      name: 'Frontend',
+      description: 'Frontend development',
+      parent_id: 'ws-dev',
+      type: 'standard',
+      created: '2024-01-01T00:00:00Z',
+      modified: '2024-01-01T00:00:00Z',
+    },
+    {
+      id: 'ws-dev-backend',
+      name: 'Backend',
+      description: 'Backend development',
+      parent_id: 'ws-dev',
+      type: 'standard',
       created: '2024-01-01T00:00:00Z',
       modified: '2024-01-01T00:00:00Z',
     },

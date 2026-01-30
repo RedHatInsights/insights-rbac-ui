@@ -1,8 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { QueryClient } from '@tanstack/react-query';
-import { colors, useStatus } from '../layouts/AppLayout.js';
+import { colors, useInputFocus, useStatus } from '../layouts/AppLayout.js';
 import { ConfirmDialog, DetailField, EntityForm, ErrorMessage, Loading, TabBar } from '../components/shared/index.js';
 import { useDeleteWorkspaceMutation, useUpdateWorkspaceMutation, useWorkspaceGroupBindingsQuery, useWorkspaceQuery } from '../queries.js';
 
@@ -25,6 +25,13 @@ export function WorkspaceDetail({ queryClient }: WorkspaceDetailProps): React.Re
   const [mode, setMode] = useState<Mode>('browse');
   const [activeTab, setActiveTab] = useState<Tab>('info');
   const [formFields, setFormFields] = useState({ name: '', description: '' });
+
+  // Disable global hotkeys when in text input mode
+  const { setInputFocused } = useInputFocus();
+  useEffect(() => {
+    setInputFocused(mode === 'edit');
+    return () => setInputFocused(false);
+  }, [mode, setInputFocused]);
 
   // Queries
   const workspaceQuery = useWorkspaceQuery(id!, { queryClient });

@@ -1,9 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import TextInput from 'ink-text-input';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { QueryClient } from '@tanstack/react-query';
-import { colors, useStatus } from '../layouts/AppLayout.js';
+import { colors, useInputFocus, useStatus } from '../layouts/AppLayout.js';
 import { ConfirmDialog, DetailField, EntityForm, ErrorMessage, Loading, TabBar } from '../components/shared/index.js';
 import { type Access, useDeleteRoleMutation, useRoleQuery, useUpdateRoleMutation } from '../queries.js';
 
@@ -28,6 +28,13 @@ export function RoleDetail({ queryClient }: RoleDetailProps): React.ReactElement
   const [formFields, setFormFields] = useState({ name: '', description: '' });
   const [newPermission, setNewPermission] = useState('');
   const [selectedPermIndex, setSelectedPermIndex] = useState(0);
+
+  // Disable global hotkeys when in text input mode
+  const { setInputFocused } = useInputFocus();
+  useEffect(() => {
+    setInputFocused(mode === 'edit' || mode === 'add-permission');
+    return () => setInputFocused(false);
+  }, [mode, setInputFocused]);
 
   // Query
   const roleQuery = useRoleQuery(id!, { queryClient });
