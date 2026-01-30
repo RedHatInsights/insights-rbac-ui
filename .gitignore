@@ -41,6 +41,7 @@ PR_DESCRIPTION.md
 e2e/auth/*.json
 e2e/auth/.env.*
 !e2e/auth/.env.*.template
+!e2e/auth/.env.*.ci
 e2e/seed-map.json
 test-results/
 playwright-report/

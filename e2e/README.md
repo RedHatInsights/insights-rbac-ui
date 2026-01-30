@@ -156,6 +156,50 @@ npm run e2e:cleanup:v1
 
 ---
 
+## CI Setup (Konflux)
+
+In CI environments, credentials come from Vault instead of local `.env` files. The `e2e:ci:setup` script generates the `.env` files from CI environment variables.
+
+**Required Konflux secrets (16 total):**
+
+| Secret Name | Description |
+|-------------|-------------|
+| `E2E_V1_ADMIN_USERNAME` | V1 Org Admin username |
+| `E2E_V1_ADMIN_PASSWORD` | V1 Org Admin password |
+| `E2E_V1_USER_USERNAME` | V1 ReadOnlyUser username |
+| `E2E_V1_USER_PASSWORD` | V1 ReadOnlyUser password |
+| `E2E_V1_USERADMIN_USERNAME` | V1 UserAdmin username |
+| `E2E_V1_USERADMIN_PASSWORD` | V1 UserAdmin password |
+| `E2E_V1_USERVIEWER_USERNAME` | V1 UserViewer username |
+| `E2E_V1_USERVIEWER_PASSWORD` | V1 UserViewer password |
+| `E2E_V2_ADMIN_USERNAME` | V2 Org Admin username |
+| `E2E_V2_ADMIN_PASSWORD` | V2 Org Admin password |
+| `E2E_V2_USER_USERNAME` | V2 ReadOnlyUser username |
+| `E2E_V2_USER_PASSWORD` | V2 ReadOnlyUser password |
+| `E2E_V2_USERADMIN_USERNAME` | V2 UserAdmin username |
+| `E2E_V2_USERADMIN_PASSWORD` | V2 UserAdmin password |
+| `E2E_V2_USERVIEWER_USERNAME` | V2 UserViewer username |
+| `E2E_V2_USERVIEWER_PASSWORD` | V2 UserViewer password |
+
+**CI Pipeline usage:**
+
+```bash
+# 1. Konflux sets E2E_* vars from Vault
+# 2. Generate .env files from templates
+npm run e2e:ci:setup
+
+# 3. Run tests normally
+npm run e2e:v1:admin
+npm run e2e:v1:user
+# ... etc
+```
+
+The templates are in `e2e/auth/*.ci` files and use `envsubst` to expand the environment variables.
+
+> **Safety check**: The `e2e:ci:setup` script only runs when the `CI` env var is set (standard in CI environments). This prevents accidentally overwriting local `.env` files.
+
+---
+
 ## Test Structure
 
 ```
