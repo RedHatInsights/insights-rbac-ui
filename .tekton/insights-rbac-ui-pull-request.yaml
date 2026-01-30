@@ -96,8 +96,8 @@ spec:
       # Export test environment configuration
       # E2E_* credentials are mapped automatically by scripts/run-with-env.sh
       export TEST_PREFIX=insights-rbac-ui-{{revision}}
-      export TEST_PREFIX_V1=insights-rbac-ui-{{revision}}
-      export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}
+      export TEST_PREFIX_V1=insights-rbac-ui-{{revision}}-v1
+      export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}-v2
       export RBAC_ENV=stage
 
       npm run e2e
