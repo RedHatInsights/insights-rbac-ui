@@ -1,7 +1,6 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, within } from 'storybook/test';
 import { navigateToPage } from '../helpers/navigationHelpers';
-import { TEST_TIMEOUTS } from '../helpers/testUtils';
 import type { KesselAppEntryWithRouter } from '../components/KesselAppEntryWithRouter';
 
 /**
@@ -85,16 +84,13 @@ This story includes automated verification for admin users:
     // Verify we're on My User Access page
     await navigateToPage(user, canvas, 'My User Access');
 
-    // Scope queries to main content area (not navigation)
-    const mainElement = document.querySelector('main') || context.canvasElement;
-    const mainContent = within(mainElement as HTMLElement);
-
-    // Verify the page loaded - look for the page title (with extended timeout for test env)
-    const title = await mainContent.findByText(/My user access/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    // Wait for the page title to appear (proves page has loaded)
+    // Don't scope to 'main' synchronously as it may not exist yet after navigation
+    const title = await canvas.findByText(/My user access/i);
     expect(title).toBeInTheDocument();
 
     // Verify the table component renders (even if in loading state)
-    const table = await mainContent.findByRole('grid', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    const table = await canvas.findByRole('grid');
     expect(table).toBeInTheDocument();
 
     // For now, just verify basic structure is present
@@ -134,16 +130,13 @@ This story includes automated verification for read-only users:
     // Verify we're on My User Access page
     await navigateToPage(user, canvas, 'My User Access');
 
-    // Scope queries to main content area (not navigation)
-    const mainElement = document.querySelector('main') || context.canvasElement;
-    const mainContent = within(mainElement as HTMLElement);
-
-    // Verify the page loaded - look for the page title (with extended timeout for test env)
-    const title = await mainContent.findByText(/My user access/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    // Wait for the page title to appear (proves page has loaded)
+    // Don't scope to 'main' synchronously as it may not exist yet after navigation
+    const title = await canvas.findByText(/My user access/i);
     expect(title).toBeInTheDocument();
 
     // Verify the table component renders (even if in loading state)
-    const table = await mainContent.findByRole('grid', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    const table = await canvas.findByRole('grid');
     expect(table).toBeInTheDocument();
 
     // For now, just verify basic structure is present
