@@ -1,3 +1,26 @@
+# [2.3.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.2.0...v2.3.0) (2026-01-30)
+
+
+### Bug Fixes
+
+* **cli:** create seeded workspaces under Default workspace ([5045993](https://github.com/RedHatInsights/insights-rbac-ui/commit/5045993d89f6cb5acd7af461f93899f2418fc4f3))
+* **e2e:** update V2 tests for drawer and page-based patterns ([89134bd](https://github.com/RedHatInsights/insights-rbac-ui/commit/89134bd84c75616d52f4cfa69c4ae91aa727f53d))
+* **storybook:** fix flaky tests by using async queries ([28d6e02](https://github.com/RedHatInsights/insights-rbac-ui/commit/28d6e02e29da829021aa09511713177823e066ff))
+* **storybook:** simplify ManualTestingStory play function ([8ebff4c](https://github.com/RedHatInsights/insights-rbac-ui/commit/8ebff4cfe7c51c88f1c7a8c5b5b07e487a5c6f7f))
+
+
+### Features
+
+* automatic headless login for the cli ([7f84b95](https://github.com/RedHatInsights/insights-rbac-ui/commit/7f84b9591bb35df739e90636b3141bbe21b4f73b))
+* **cli:** add terminal UI for RBAC management using react-ink ([7e96837](https://github.com/RedHatInsights/insights-rbac-ui/commit/7e9683725e0e74b01de3c8d0eeb67a56ce998262))
+* **cli:** fix TUI input focus and add comprehensive tests ([bc159cd](https://github.com/RedHatInsights/insights-rbac-ui/commit/bc159cd7f09b187c37cb1f8b752da3c18cba016e))
+* **cli:** improve workspaces TUI with tree navigation ([7ab3603](https://github.com/RedHatInsights/insights-rbac-ui/commit/7ab36033c7f99b36e6a3919adb425d765e52dfa0))
+* convert Storybook e2e user journeys to PlayWright ([7300be1](https://github.com/RedHatInsights/insights-rbac-ui/commit/7300be18804354e9cd8bcd3171b4361f316d409f))
+* **e2e:** add CI setup for Konflux ([ca2959e](https://github.com/RedHatInsights/insights-rbac-ui/commit/ca2959e629adfd3ef8187125a4fd265c0a8d3852))
+* **e2e:** add infrastructure for 8 test personas ([abe6d59](https://github.com/RedHatInsights/insights-rbac-ui/commit/abe6d59712f9370bf081386d2594ed21b9065814))
+* **e2e:** improve test patterns and seeder admin user support ([56d0d4e](https://github.com/RedHatInsights/insights-rbac-ui/commit/56d0d4ebbe4c48b650f8dab056191a553ed8c969))
+* **e2e:** unified V1+V2 test architecture with separate seed maps ([0b7c6b9](https://github.com/RedHatInsights/insights-rbac-ui/commit/0b7c6b997a080133fec5ea10b377aa754a26ea80))
+
 # [2.2.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.1.4...v2.2.0) (2026-01-29)
 
 
