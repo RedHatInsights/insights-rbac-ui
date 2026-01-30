@@ -156,6 +156,7 @@
     "e2e:test:v2:user": "dotenv -e e2e/auth/.env.v2-user -- npx playwright test --config=e2e/playwright.config.ts -g 'V2.*ReadOnlyUser'",
     "e2e:test:v2:useradmin": "dotenv -e e2e/auth/.env.v2-useradmin -- npx playwright test --config=e2e/playwright.config.ts -g 'V2.*OrgAdmin'",
     "e2e:test:v2:userviewer": "dotenv -e e2e/auth/.env.v2-userviewer -- npx playwright test --config=e2e/playwright.config.ts -g 'V2.*UserViewer'",
+    "e2e:ci:setup": "test -n \"$CI\" && for f in e2e/auth/.env.*.ci; do envsubst < \"$f\" > \"${f%.ci}\"; done || echo 'Skipped: CI env var not set (run in CI only)'",
     "e2e:v1:admin": "npm run e2e:seed:v1 && npm run e2e:auth:v1:admin && npm run e2e:test:v1:admin; npm run e2e:cleanup:v1",
     "e2e:v1:user": "npm run e2e:seed:v1 && npm run e2e:auth:v1:user && npm run e2e:test:v1:user; npm run e2e:cleanup:v1",
     "e2e:v1:useradmin": "npm run e2e:seed:v1 && npm run e2e:auth:v1:useradmin && npm run e2e:test:v1:useradmin; npm run e2e:cleanup:v1",
