@@ -133,9 +133,16 @@ export class UserGroupsPage {
   }
 
   async confirmDelete(): Promise<void> {
-    const modal = this.page.locator('[data-ouia-component-id="groups-remove-group-modal"]');
+    // Use generic dialog selector - OUIA ID may vary
+    const modal = this.page.getByRole('dialog');
     await expect(modal).toBeVisible({ timeout: 5000 });
-    await modal.getByRole('button', { name: /remove|delete/i }).click();
+
+    // Check the confirmation checkbox - required for delete
+    const checkbox = modal.getByRole('checkbox');
+    await expect(checkbox).toBeVisible({ timeout: 3000 });
+    await checkbox.click();
+
+    await modal.getByRole('button', { name: /delete/i }).click();
     await expect(modal).not.toBeVisible({ timeout: 10000 });
   }
 }

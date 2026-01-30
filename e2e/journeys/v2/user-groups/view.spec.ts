@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test';
 import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, getSeededGroupName } from '../../../utils';
 import { UserGroupsPage } from '../../../pages/v2/UserGroupsPage';
 
-const SEEDED_GROUP_NAME = getSeededGroupName();
+const SEEDED_GROUP_NAME = getSeededGroupName('v2');
 
 if (!SEEDED_GROUP_NAME) {
   throw new Error('No seeded group found in seed map. Run: npm run e2e:seed:v2');

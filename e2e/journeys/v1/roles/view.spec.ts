@@ -11,7 +11,7 @@ import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
 import { RolesPage } from '../../../pages/v1/RolesPage';
 import { getSeededRoleData, getSeededRoleName } from '../../../utils/seed-map';
 
-const SEEDED_ROLE_NAME = getSeededRoleName();
+const SEEDED_ROLE_NAME = getSeededRoleName('v1');
 const SEEDED_ROLE_DATA = getSeededRoleData();
 
 if (!SEEDED_ROLE_NAME) {

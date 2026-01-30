@@ -13,22 +13,25 @@ export * from './seed-map';
 export * from './waiters';
 export { test, expect, blockAnalytics, enableAssetCache, setupPage, type Page, type BrowserContext } from './fixtures';
 
+import { ApiVersion } from './seed-map';
+
 /**
- * Helper to require TEST_PREFIX environment variable
+ * Helper to require TEST_PREFIX_V1 or TEST_PREFIX_V2 environment variable
  * Use this at the top of any test file that creates data
  */
-export function requireTestPrefix(): string {
-  const prefix = process.env.TEST_PREFIX;
+export function requireTestPrefix(version: ApiVersion): string {
+  const envVar = version === 'v2' ? 'TEST_PREFIX_V2' : 'TEST_PREFIX_V1';
+  const prefix = process.env[envVar];
   if (!prefix) {
     throw new Error(
       '\n\n' +
         '╔══════════════════════════════════════════════════════════════════════╗\n' +
-        '║  SAFETY RAIL: TEST_PREFIX environment variable is REQUIRED          ║\n' +
+        `║  SAFETY RAIL: ${envVar} environment variable is REQUIRED       ║\n` +
         '║                                                                      ║\n' +
         '║  This test creates data that must be prefixed to avoid polluting    ║\n' +
-        '║  the shared environment. Set TEST_PREFIX before running:            ║\n' +
+        '║  the shared environment. Set the prefix before running:             ║\n' +
         '║                                                                      ║\n' +
-        '║    TEST_PREFIX=e2e npx playwright test                              ║\n' +
+        `║    ${envVar}=e2e npx playwright test                           ║\n` +
         '║                                                                      ║\n' +
         '╚══════════════════════════════════════════════════════════════════════╝\n',
     );
@@ -39,16 +42,7 @@ export function requireTestPrefix(): string {
 /**
  * Get the prefixed name for a seeded resource
  */
-export function getPrefixedName(baseName: string): string {
-  const prefix = process.env.TEST_PREFIX;
+export function getPrefixedName(baseName: string, version: ApiVersion): string {
+  const prefix = version === 'v2' ? process.env.TEST_PREFIX_V2 : process.env.TEST_PREFIX_V1;
   return prefix ? `${prefix}__${baseName}` : baseName;
-}
-
-/**
- * Get the admin username from environment.
- * This is the user we're logged in as for admin tests.
- * Set via RBAC_USERNAME in the auth env files.
- */
-export function getAdminUsername(): string | undefined {
-  return process.env.RBAC_USERNAME;
 }

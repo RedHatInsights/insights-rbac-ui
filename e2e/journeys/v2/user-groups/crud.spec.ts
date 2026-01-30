@@ -15,13 +15,13 @@ import { UserGroupsPage } from '../../../pages/v2/UserGroupsPage';
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX;
+const TEST_PREFIX = process.env.TEST_PREFIX_V2;
 
 if (!TEST_PREFIX) {
   throw new Error(
     '\n\n' +
       '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX environment variable is REQUIRED          ║\n' +
+      '║  SAFETY RAIL: TEST_PREFIX_V2 environment variable is REQUIRED       ║\n' +
       '╚══════════════════════════════════════════════════════════════════════╝\n',
   );
 }

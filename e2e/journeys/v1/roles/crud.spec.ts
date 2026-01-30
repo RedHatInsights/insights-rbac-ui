@@ -9,21 +9,28 @@
 
 import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
+import { getSeededRoleName } from '../../../utils/seed-map';
 import { RolesPage } from '../../../pages/v1/RolesPage';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX;
+const TEST_PREFIX = process.env.TEST_PREFIX_V1;
 
 if (!TEST_PREFIX) {
   throw new Error(
     '\n\n' +
       '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX environment variable is REQUIRED          ║\n' +
+      '║  SAFETY RAIL: TEST_PREFIX_V1 environment variable is REQUIRED       ║\n' +
       '╚══════════════════════════════════════════════════════════════════════╝\n',
   );
+}
+
+// Golden rule: always interact with seeded data from the seed map
+const SEEDED_ROLE_NAME = getSeededRoleName('v1');
+if (!SEEDED_ROLE_NAME) {
+  throw new Error('No seeded role found in seed map. Run: npm run e2e:v1:seed');
 }
 
 // Generate unique name for this test run
@@ -32,6 +39,10 @@ const uniqueRoleName = `${TEST_PREFIX}__E2E_Lifecycle_${timestamp}`;
 const roleDescription = 'E2E lifecycle test role';
 const editedRoleName = `${uniqueRoleName}_Edited`;
 const editedDescription = 'E2E lifecycle test role - EDITED';
+
+// Name for copied role test
+const copiedRoleName = `${TEST_PREFIX}__E2E_Copy_${timestamp}`;
+const copiedRoleDescription = 'E2E copy test role';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests - Admin Only
@@ -51,10 +62,12 @@ test.describe('Admin', () => {
     const rolesPage = new RolesPage(page);
     await rolesPage.goto();
 
-    // Navigate to any custom role's detail
-    const firstCustomRoleLink = rolesPage.table.getByRole('link').first();
-    await firstCustomRoleLink.click();
-    await expect(page).toHaveURL(/\/roles\//);
+    // Navigate to seeded role's detail (system roles don't have edit/delete actions)
+    await rolesPage.searchFor(SEEDED_ROLE_NAME);
+    await rolesPage.navigateToDetail(SEEDED_ROLE_NAME);
+
+    // Wait for detail page to fully render
+    await expect(rolesPage.getDetailHeading(SEEDED_ROLE_NAME)).toBeVisible({ timeout: 15000 });
 
     await rolesPage.openDetailActions();
     await expect(page.getByRole('menuitem', { name: /edit/i })).toBeVisible();
@@ -148,6 +161,69 @@ test.describe('Admin', () => {
       console.log(`[Verify Delete] ✓ Role no longer exists`);
     });
   });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Copy Role Lifecycle - Uses seeded role as source
+  // Based on Storybook: Create role by copying an existing role
+  // ─────────────────────────────────────────────────────────────────────────
+
+  test.describe.serial('Copy Role Lifecycle [Admin]', () => {
+    test('Create role by copying seeded role', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.createButton.click();
+      await rolesPage.fillCreateWizardAsCopy(copiedRoleName, SEEDED_ROLE_NAME, copiedRoleDescription);
+
+      console.log(`[Copy] ✓ Role copied from: ${SEEDED_ROLE_NAME} to: ${copiedRoleName}`);
+    });
+
+    test('Verify copied role appears in table', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(copiedRoleName);
+      await rolesPage.verifyRoleInTable(copiedRoleName);
+
+      console.log(`[Verify Copy] ✓ Copied role found in table`);
+    });
+
+    test('Verify copied role has inherited permissions', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(copiedRoleName);
+      await rolesPage.navigateToDetail(copiedRoleName);
+
+      await expect(rolesPage.getDetailHeading(copiedRoleName)).toBeVisible({ timeout: 10000 });
+
+      // Verify the copied role has permissions (inherited from source)
+      // The Permissions tab should show permissions
+      const permissionsTab = page.getByRole('tab', { name: /permissions/i });
+      if (await permissionsTab.isVisible().catch(() => false)) {
+        await permissionsTab.click();
+        // Should have at least one permission row
+        const table = page.getByRole('grid');
+        const rows = table.getByRole('row');
+        const rowCount = await rows.count();
+        expect(rowCount).toBeGreaterThan(1); // More than just header row
+
+        console.log(`[Verify Permissions] ✓ Copied role has ${rowCount - 1} permissions`);
+      }
+    });
+
+    test('Delete copied role (cleanup)', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(copiedRoleName);
+      await rolesPage.openRowActions(copiedRoleName);
+      await rolesPage.clickRowAction('Delete');
+      await rolesPage.confirmDelete();
+
+      console.log(`[Cleanup] ✓ Copied role deleted`);
+    });
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -168,10 +244,9 @@ test.describe('UserViewer', () => {
     const rolesPage = new RolesPage(page);
     await rolesPage.goto();
 
-    // Navigate to any role's detail
-    const firstRoleLink = rolesPage.table.getByRole('link').first();
-    await firstRoleLink.click();
-    await expect(page).toHaveURL(/\/roles\//);
+    // Navigate to seeded role's detail
+    await rolesPage.searchFor(SEEDED_ROLE_NAME);
+    await rolesPage.navigateToDetail(SEEDED_ROLE_NAME);
 
     // Actions button should not exist or not have Edit/Delete
     const actionsButton = rolesPage.detailActionsButton;

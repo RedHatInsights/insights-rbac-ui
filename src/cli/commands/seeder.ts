@@ -165,11 +165,14 @@ async function readPayload(filePath: string): Promise<SeedPayload> {
  * Apply prefix to resource names using double-underscore separator.
  * All custom resources in the payload get prefixed.
  * Role references in groups are also prefixed to match.
+ * Personas are passed through unchanged (they are real usernames).
  */
 function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
   const separator = '__';
 
   return {
+    // Personas are real usernames - do NOT prefix
+    personas: payload.personas,
     roles: payload.roles?.map((role) => ({
       ...role,
       name: `${prefix}${separator}${role.name}`,
@@ -226,11 +229,17 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
  *
  * Uses the typed GroupsApiClient from src/data/api/groups.ts.
  * If roles_list is provided, resolves role names to UUIDs and attaches them.
- * If RBAC_USERNAME is set, adds the admin user as a member for testing.
+ * If personas are provided, adds all persona usernames as members.
  *
  * @throws Error if creation fails (caller should handle)
  */
-async function createGroup(groupsApi: GroupsApiClient, group: GroupInput, mapping: ResourceMapping, roleMapping: ResourceMapping): Promise<void> {
+async function createGroup(
+  groupsApi: GroupsApiClient,
+  group: GroupInput,
+  mapping: ResourceMapping,
+  roleMapping: ResourceMapping,
+  personas?: Record<string, { username: string }>,
+): Promise<void> {
   const groupData = {
     name: group.name,
     description: group.description,
@@ -265,21 +274,20 @@ async function createGroup(groupsApi: GroupsApiClient, group: GroupInput, mappin
       }
     }
 
-    // Add admin user as member if RBAC_USERNAME is set
-    // This enables testing the group's Users tab and user's User groups tab
-    const adminUsername = process.env.RBAC_USERNAME;
-    if (adminUsername) {
-      const principalData = { principals: [{ username: adminUsername }] };
-      logCurl('POST', `/api/rbac/v1/groups/${uuid}/principals/`, principalData, `Add admin user to group`);
+    // Add all personas as members to enable testing group membership
+    if (personas && Object.keys(personas).length > 0) {
+      const usernames = Object.values(personas).map((p) => p.username);
+      const principalData = { principals: usernames.map((username) => ({ username })) };
+      logCurl('POST', `/api/rbac/v1/groups/${uuid}/principals/`, principalData, `Add ${usernames.length} persona(s) to group`);
       try {
         await groupsApi.addPrincipalToGroup({
           uuid,
           groupPrincipalIn: principalData as Parameters<typeof groupsApi.addPrincipalToGroup>[0]['groupPrincipalIn'],
         });
-        console.error(`    ✓ Added admin user "${adminUsername}" to group`);
+        console.error(`    ✓ Added ${usernames.length} persona(s) to group: ${usernames.join(', ')}`);
       } catch (error) {
-        // Don't fail if user is already in group or other non-critical error
-        console.error(`    ⚠ Could not add admin user to group: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        // Don't fail if users are already in group or other non-critical error
+        console.error(`    ⚠ Could not add personas to group: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
   }
@@ -494,10 +502,11 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
 
   // Create custom groups (sequentially, bail on first error)
   // Pass roleMapping so groups can reference roles by name
+  // Pass personas so all test users get added to each group
   if (customGroups.length > 0) {
     console.error(`\n📦 Creating ${customGroups.length} group(s)...`);
     for (const group of customGroups) {
-      await createGroup(groupsApi, group, result.groups, result.roles);
+      await createGroup(groupsApi, group, result.groups, result.roles, payload.personas);
     }
   }
 
