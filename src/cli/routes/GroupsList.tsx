@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { useNavigate } from 'react-router-dom';
 import type { QueryClient } from '@tanstack/react-query';
-import { colors, useStatus } from '../layouts/AppLayout.js';
+import { colors, useInputFocus, useStatus } from '../layouts/AppLayout.js';
 import {
   ConfirmDialog,
   DetailField,
@@ -36,6 +36,13 @@ export function GroupsList({ queryClient }: GroupsListProps): React.ReactElement
   const [searchInput, setSearchInput] = useState('');
   const [formFields, setFormFields] = useState({ name: '', description: '' });
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Disable global hotkeys when in text input mode
+  const { setInputFocused } = useInputFocus();
+  useEffect(() => {
+    setInputFocused(mode === 'create' || mode === 'search');
+    return () => setInputFocused(false);
+  }, [mode, setInputFocused]);
 
   // Queries
   const groupsQuery = useGroupsQuery({ limit: PAGE_SIZE, offset: page * PAGE_SIZE, name: searchTerm || undefined }, { queryClient });

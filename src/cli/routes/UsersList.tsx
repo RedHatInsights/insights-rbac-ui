@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import type { QueryClient } from '@tanstack/react-query';
-import { colors, useStatus } from '../layouts/AppLayout.js';
+import { colors, useInputFocus, useStatus } from '../layouts/AppLayout.js';
 import { DetailField, EmptyState, ErrorMessage, Loading, Pagination, PreviewPanel, SearchInput } from '../components/shared/index.js';
 import { type User, useUsersQuery } from '../queries.js';
 
@@ -22,6 +22,13 @@ export function UsersList({ queryClient }: UsersListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchInput, setSearchInput] = useState('');
+
+  // Disable global hotkeys when in text input mode
+  const { setInputFocused } = useInputFocus();
+  useEffect(() => {
+    setInputFocused(mode === 'search');
+    return () => setInputFocused(false);
+  }, [mode, setInputFocused]);
 
   // Queries
   const usersQuery = useUsersQuery({ limit: PAGE_SIZE, offset: page * PAGE_SIZE, username: searchTerm || undefined }, { queryClient });

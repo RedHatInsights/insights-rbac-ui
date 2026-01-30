@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { QueryClient } from '@tanstack/react-query';
-import { colors, useStatus } from '../layouts/AppLayout.js';
+import { colors, useInputFocus, useStatus } from '../layouts/AppLayout.js';
 import { ConfirmDialog, DetailField, EntityForm, ErrorMessage, Loading, TabBar } from '../components/shared/index.js';
 import {
   useAddMembersToGroupMutation,
@@ -40,6 +40,13 @@ export function GroupDetail({ queryClient }: GroupDetailProps): React.ReactEleme
   const [selectedMemberIndex, setSelectedMemberIndex] = useState(0);
   const [selectedRoleIndex, setSelectedRoleIndex] = useState(0);
   const [selectedItemToRemove, setSelectedItemToRemove] = useState<string | null>(null);
+
+  // Disable global hotkeys when in text input mode
+  const { setInputFocused } = useInputFocus();
+  useEffect(() => {
+    setInputFocused(mode === 'edit');
+    return () => setInputFocused(false);
+  }, [mode, setInputFocused]);
 
   // Queries
   const groupQuery = useGroupQuery(id!, { queryClient });

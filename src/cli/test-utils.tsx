@@ -208,16 +208,8 @@ export { resetMockData, resetMockDataWithState, server } from './mocks/server';
 // Re-export input simulation helpers
 export { pressKey, typeText } from './setupTests';
 
-/**
- * Get the last status message set via setStatus
- */
-export function getLastStatus(): { message: string; type: string } | undefined {
-  return (globalThis as Record<string, unknown>).__lastStatus as { message: string; type: string } | undefined;
-}
+// Re-export status tracking helpers
+export { clearLastStatus, getLastStatus } from './setupTests';
 
-/**
- * Clear the last status
- */
-export function clearLastStatus(): void {
-  delete (globalThis as Record<string, unknown>).__lastStatus;
-}
+// Re-export API request tracking helpers
+export { clearTrackedRequests, expectApiCall, getRequestsMatching, getTrackedRequests } from './setupTests';

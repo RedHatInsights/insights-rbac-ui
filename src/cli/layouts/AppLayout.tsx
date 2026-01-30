@@ -40,6 +40,22 @@ export function useStatus() {
 }
 
 // ============================================================================
+// Input Focus Context
+// ============================================================================
+// Used to disable global hotkeys when a text input is active
+
+const InputFocusContext = React.createContext<{
+  isInputFocused: boolean;
+  setInputFocused: (focused: boolean) => void;
+} | null>(null);
+
+export function useInputFocus() {
+  const context = React.useContext(InputFocusContext);
+  // Return no-op defaults if used outside provider (e.g., in tests)
+  return context ?? { isInputFocused: false, setInputFocused: () => {} };
+}
+
+// ============================================================================
 // Header Component
 // ============================================================================
 
@@ -237,35 +253,40 @@ function GlobalNavigation({ children }: { children: ReactNode }): React.ReactEle
   const navigate = useNavigate();
   const location = useLocation();
   const { exit } = useApp();
+  const { isInputFocused } = useInputFocus();
 
   const isListView = location.pathname.split('/').filter(Boolean).length === 1;
 
-  useInput((input, key) => {
-    // Escape to go back
-    if (key.escape) {
-      navigate(-1);
-      return;
-    }
-
-    // Quit
-    if (input.toLowerCase() === 'q') {
-      exit();
-      return;
-    }
-
-    // Entity switching only in list views
-    if (isListView) {
-      if (input === '1') {
-        navigate('/roles');
-      } else if (input === '2') {
-        navigate('/groups');
-      } else if (input === '3') {
-        navigate('/workspaces');
-      } else if (input === '4') {
-        navigate('/users');
+  // Disable global hotkeys when a text input is focused
+  useInput(
+    (input, key) => {
+      // Escape to go back
+      if (key.escape) {
+        navigate(-1);
+        return;
       }
-    }
-  });
+
+      // Quit
+      if (input.toLowerCase() === 'q') {
+        exit();
+        return;
+      }
+
+      // Entity switching only in list views
+      if (isListView) {
+        if (input === '1') {
+          navigate('/roles');
+        } else if (input === '2') {
+          navigate('/groups');
+        } else if (input === '3') {
+          navigate('/workspaces');
+        } else if (input === '4') {
+          navigate('/users');
+        }
+      }
+    },
+    { isActive: !isInputFocused },
+  );
 
   return <>{children}</>;
 }
@@ -280,6 +301,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps): React.ReactElement {
   const [status, setStatus] = useState<StatusState>({ message: null, type: 'info' });
+  const [isInputFocused, setInputFocused] = useState(false);
 
   // Auto-clear status after delay
   useEffect(() => {
@@ -290,15 +312,17 @@ export function AppLayout({ children }: AppLayoutProps): React.ReactElement {
   }, [status.message]);
 
   return (
-    <StatusContext.Provider value={{ status, setStatus }}>
-      <GlobalNavigation>
-        <Box flexDirection="column">
-          <Header />
-          <StatusBar status={status} />
-          {children}
-          <NavigationHelp />
-        </Box>
-      </GlobalNavigation>
-    </StatusContext.Provider>
+    <InputFocusContext.Provider value={{ isInputFocused, setInputFocused }}>
+      <StatusContext.Provider value={{ status, setStatus }}>
+        <GlobalNavigation>
+          <Box flexDirection="column">
+            <Header />
+            <StatusBar status={status} />
+            {children}
+            <NavigationHelp />
+          </Box>
+        </GlobalNavigation>
+      </StatusContext.Provider>
+    </InputFocusContext.Provider>
   );
 }
