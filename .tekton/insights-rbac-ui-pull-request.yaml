@@ -99,6 +99,7 @@ spec:
       export TEST_PREFIX_V1=insights-rbac-ui-{{revision}}-v1
       export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}-v2
       export RBAC_ENV=stage
+      export E2E_BASE_URL=https://stage.foo.redhat.com:1337
 
       npm run e2e
 
