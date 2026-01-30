@@ -101,7 +101,7 @@ spec:
       export RBAC_ENV=stage
 
       npm run e2e:ci:setup
-      npm run e2e
+      CI=true npm run e2e
 
   # Credentials for E2E tests
   - name: e2e-credentials-secret
