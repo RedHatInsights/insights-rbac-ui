@@ -100,8 +100,10 @@ spec:
       export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}
       export RBAC_ENV=stage
 
+      # Setting CI on the npm command didn't work, let's try exporting
+      export CI=true
       npm run e2e:ci:setup
-      CI=true npm run e2e
+      npm run e2e
 
   # Credentials for E2E tests
   - name: e2e-credentials-secret
