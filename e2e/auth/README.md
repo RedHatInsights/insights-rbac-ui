@@ -40,6 +40,8 @@ RBAC_PASSWORD=your-password
 
 ## Usage
 
+### Local Development
+
 All E2E scripts automatically load credentials from env files via `dotenv-cli`.
 Auth is handled automatically by Playwright's setup projects - you don't need to run auth manually.
 
@@ -54,6 +56,13 @@ TEST_PREFIX_V2=jdoe npm run e2e:v2
 TEST_PREFIX_V1=jdoe-v1 TEST_PREFIX_V2=jdoe-v2 npm run e2e
 ```
 
+### CI Environment
+
+In CI, credentials are provided via environment variables instead of `.env` files:
+- Konflux provides `E2E_V1_ADMIN_USERNAME`, `E2E_V1_ADMIN_PASSWORD`, etc. from Vault
+- The scripts automatically map these to `RBAC_USERNAME`, `RBAC_PASSWORD` when no `.env` file exists
+- No `envsubst` or manual env file creation is needed
+
 ## Persona Requirements
 
 | Persona | SSO Role | RBAC Permissions | Notes |
@@ -67,7 +76,7 @@ TEST_PREFIX_V1=jdoe-v1 TEST_PREFIX_V2=jdoe-v2 npm run e2e
 ## Notes
 
 - `.env.*` files are gitignored (contain credentials)
-- `.env.*.template` files are committed (empty templates)
-- `.env.*.ci` files are templates for CI (use `envsubst`)
+- `.env.*.template` files are committed (empty templates for local setup)
+- `.env.*.ci` files document the CI variable mappings (legacy, not used by scripts)
 - Auth JSON files are gitignored (contain session tokens)
 - Auth files expire - regenerate if tests fail with auth errors
