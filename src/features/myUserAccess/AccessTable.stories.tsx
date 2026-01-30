@@ -430,45 +430,28 @@ export const SortingInteraction: Story = {
     const canvas = within(canvasElement);
 
     // Initial load should call API with default sorting (application, asc)
-    await waitFor(
-      () => {
-        expect(accessApiCallSpy).toHaveBeenCalled();
-        const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.order_by).toBe('application');
-      },
-      { timeout: 1000 },
-    );
+    await waitFor(() => {
+      expect(accessApiCallSpy).toHaveBeenCalled();
+      const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
+      expect(lastCall.order_by).toBe('application');
+    });
 
-    // Wait for loading to complete - real data should appear
-    await waitFor(
-      async () => {
-        // Verify real data is present, indicating loading is complete
-        expect(await canvas.findByText('policies')).toBeInTheDocument();
-      },
-      { timeout: 2000 },
-    );
+    // Wait for actual data to load (not skeleton) - "policies" is from "compliance:policies:read"
+    // findByText has built-in retry, no need for inflated timeout
+    await canvas.findByText('policies');
 
-    // Wait for skeleton loading to complete and real content to appear
-    const applicationHeaderCheck = await canvas.findByRole('columnheader', { name: /application/i });
-    const buttons = within(applicationHeaderCheck).queryAllByRole('button');
-    expect(buttons.length).toBeGreaterThan(0);
-
-    // Test clicking Application column header for descending sort
-    const applicationHeader = await canvas.findByRole('columnheader', { name: /application/i });
-    const applicationButton = await within(applicationHeader).findByRole('button');
+    // Now that data is loaded, query fresh for the sort button
+    const applicationHeader = canvas.getByRole('columnheader', { name: /application/i });
+    const applicationButton = within(applicationHeader).getByRole('button');
 
     await userEvent.click(applicationButton);
 
-    // Wait for immediate API call and verify descending sort
-    await waitFor(
-      () => {
-        expect(accessApiCallSpy).toHaveBeenCalled();
-        const calls = accessApiCallSpy.mock.calls;
-        const lastCall = calls[calls.length - 1][0];
-        expect(lastCall.order_by).toBe('-application');
-      },
-      { timeout: 1000 },
-    ); // Shorter timeout since no debounce
+    // Verify descending sort API call
+    await waitFor(() => {
+      const calls = accessApiCallSpy.mock.calls;
+      const lastCall = calls[calls.length - 1][0];
+      expect(lastCall.order_by).toBe('-application');
+    });
 
     // Test clicking Resource Type column header
     const resourceTypeHeader = await canvas.findByRole('columnheader', { name: /resource type/i });

@@ -169,7 +169,8 @@ export async function waitForPageToLoad(canvas: ReturnType<typeof within>, eleme
  * Navigates to a page by clicking the sidebar navigation link
  */
 export async function navigateToPage(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, linkText: string) {
-  const navLink = canvas.getByRole('link', { name: linkText });
+  // Use findByRole (async) to wait for navigation to render
+  const navLink = await canvas.findByRole('link', { name: linkText }, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
   await user.click(navLink);
   await delay(TEST_TIMEOUTS.AFTER_CLICK);
 }
