@@ -137,7 +137,7 @@
     "test:watch": "TZ=UTC vitest",
     "test:ui": "TZ=UTC vitest --ui",
     "test:e2e": "npx playwright test --config=e2e/playwright.config.ts",
-    "e2e:ci:setup": "test -n \"$CI\" && for f in e2e/auth/.env.*.ci; do envsubst < \"$f\" > \"${f%.ci}\"; done || echo 'Skipped: CI env var not set (run in CI only)'",
+    "e2e:ci:setup": "set -e && test -n \"$CI\" && for f in e2e/auth/.env.*.ci; do envsubst < \"$f\" > \"${f%.ci}\"; done || echo 'Skipped: CI env var not set (run in CI only)'",
     "e2e:v1:seed": "dotenv -e e2e/auth/.env.v1-admin -- npm run cli -- seed --file e2e/fixtures/seed-v1.json --prefix \"${TEST_PREFIX_V1}\" --json --output e2e/seed-map-v1.json",
     "e2e:v1:cleanup": "dotenv -e e2e/auth/.env.v1-admin -- npm run cli -- cleanup --prefix \"${TEST_PREFIX_V1}\"",
     "e2e:v1:test": "TEST_VERSION=v1 npx playwright test --config=e2e/playwright.config.ts --project=v1-admin --project=v1-userviewer --project=v1-readonly",
