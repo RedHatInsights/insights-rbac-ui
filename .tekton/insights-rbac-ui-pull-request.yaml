@@ -88,14 +88,18 @@ spec:
         exit 1
       }
 
+      # Debug: Check what E2E_* environment variables are available
+      echo "=== Available E2E_* environment variables ==="
+      env | grep -E '^E2E_' || echo "No E2E_* variables found"
+      echo "=============================================="
+
       # Export test environment configuration
       # E2E_* credentials are mapped automatically by scripts/run-with-env.sh
-      export TEST_PREFIX=insights-rbac-ui-{{revision}}
       export TEST_PREFIX_V1=insights-rbac-ui-{{revision}}
-      export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}
       export RBAC_ENV=stage
 
-      npm run e2e
+      # Only run V1 tests for now - V2 credentials not configured in CI yet
+      npm run e2e:v1
 
   # Credentials for E2E tests
   - name: e2e-credentials-secret
