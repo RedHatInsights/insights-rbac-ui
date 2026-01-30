@@ -88,21 +88,13 @@ spec:
         exit 1
       }
 
-      # We're doing a dance with base64 to sidestep the limiting nature of vault secrets
-      echo $E2E_PASSWORD | base64 -d > .env.v1-admin
-      source .env.v1-admin
-
-      # Map E2E credentials to what the CLI expects
-      export RBAC_USERNAME="${E2E_V1_ADMIN_USERNAME}"
-      export RBAC_PASSWORD="${E2E_V1_ADMIN_PASSWORD}"
+      # Export test environment configuration
+      # E2E_* credentials are mapped automatically by scripts/run-with-env.sh
       export TEST_PREFIX=insights-rbac-ui-{{revision}}
       export TEST_PREFIX_V1=insights-rbac-ui-{{revision}}
       export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}
       export RBAC_ENV=stage
 
-      # Setting CI on the npm command didn't work, let's try exporting
-      export CI=true
-      npm run e2e:ci:setup
       npm run e2e
 
   # Credentials for E2E tests
