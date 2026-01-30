@@ -31,13 +31,20 @@ spec:
   - name: dockerfile
     value: ./build-tools/Dockerfile
 
+  # Workspace setup - runs once before all tests
+  - name: workspace-setup-script
+    value: |
+      #!/bin/bash
+      set -ex
+
+      npm install
+
   # Unit tests configuration (still runs before E2E tests)
   - name: unit-tests-script
     value: |
       #!/bin/bash
       set -ex
 
-      npm install
       npm run lint
       NODE_OPTIONS="--max-old-space-size=1536" npm test -- --runInBand --no-cache --logHeapUsage --coverage=false
   - name: unit-tests-memory-request
@@ -71,9 +78,6 @@ spec:
       # Set up /etc/hosts for stage.foo.redhat.com
       echo "127.0.0.1 stage.foo.redhat.com" | tee -a /etc/hosts
       echo "::1 stage.foo.redhat.com" | tee -a /etc/hosts
-
-      # Install dependencies
-      npm install
 
       # Install Playwright browsers
       npx playwright install --with-deps chromium
