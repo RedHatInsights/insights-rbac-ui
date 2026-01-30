@@ -84,9 +84,9 @@ This story includes automated verification for admin users:
     // Verify we're on My User Access page
     await navigateToPage(user, canvas, 'My User Access');
 
-    // Wait for the page title to appear (proves page has loaded)
-    // Don't scope to 'main' synchronously as it may not exist yet after navigation
-    const title = await canvas.findByText(/My user access/i);
+    // Wait for the page heading to appear (proves page has loaded)
+    // Use findByRole('heading') to avoid matching the nav link which also contains "My User Access"
+    const title = await canvas.findByRole('heading', { name: /My user access/i });
     expect(title).toBeInTheDocument();
 
     // Verify the table component renders (even if in loading state)
@@ -130,9 +130,9 @@ This story includes automated verification for read-only users:
     // Verify we're on My User Access page
     await navigateToPage(user, canvas, 'My User Access');
 
-    // Wait for the page title to appear (proves page has loaded)
-    // Don't scope to 'main' synchronously as it may not exist yet after navigation
-    const title = await canvas.findByText(/My user access/i);
+    // Wait for the page heading to appear (proves page has loaded)
+    // Use findByRole('heading') to avoid matching the nav link which also contains "My User Access"
+    const title = await canvas.findByRole('heading', { name: /My user access/i });
     expect(title).toBeInTheDocument();
 
     // Verify the table component renders (even if in loading state)
