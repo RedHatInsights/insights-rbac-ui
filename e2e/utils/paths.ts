@@ -24,20 +24,34 @@ export const AUTH_DIR = path.join(E2E_ROOT, 'auth');
  * V1 = User Access experience (/iam/user-access/*)
  * V2 = Access Management experience (/iam/access-management/*)
  *
- * User Types:
- * - admin: Org Admin (SSO flag)
- * - user: Regular user (no special permissions)
- * - useradmin: Non-org-admin with rbac:*:* permission (User Access Administrator)
- * - userviewer: Non-org-admin with read-only permissions (may not be fully supported)
+ * Personas (based on Karel's clarification 2026-01-30):
+ *
+ * V1 (User Access):
+ *   - OrgAdmin (SSO flag) and UserAdmin (rbac:*:*) have IDENTICAL access
+ *   - We only need to test with OrgAdmin
+ *
+ * V2 (Access Management):
+ *   - OrgAdmin flag is IGNORED - only RBAC permissions matter
+ *   - UserAdmin (rbac:*:*) is the "real" admin
+ *
+ * Persona Types:
+ * - admin: V1=OrgAdmin (SSO flag), V2=UserAdmin (rbac:*:*)
+ * - userviewer: Read-only access (rbac:*:read)
+ * - readonly: No RBAC permissions (should see "unauthorized")
  */
 export const AUTH_V1_ADMIN = path.join(AUTH_DIR, 'v1-admin.json');
-export const AUTH_V1_USER = path.join(AUTH_DIR, 'v1-user.json');
-export const AUTH_V1_USERADMIN = path.join(AUTH_DIR, 'v1-useradmin.json');
 export const AUTH_V1_USERVIEWER = path.join(AUTH_DIR, 'v1-userviewer.json');
+export const AUTH_V1_READONLY = path.join(AUTH_DIR, 'v1-readonly.json');
+
 export const AUTH_V2_ADMIN = path.join(AUTH_DIR, 'v2-admin.json');
-export const AUTH_V2_USER = path.join(AUTH_DIR, 'v2-user.json');
-export const AUTH_V2_USERADMIN = path.join(AUTH_DIR, 'v2-useradmin.json');
 export const AUTH_V2_USERVIEWER = path.join(AUTH_DIR, 'v2-userviewer.json');
+export const AUTH_V2_READONLY = path.join(AUTH_DIR, 'v2-readonly.json');
+
+// Legacy aliases (for backward compatibility during migration)
+/** @deprecated Use AUTH_V1_READONLY */
+export const AUTH_V1_USER = AUTH_V1_READONLY;
+/** @deprecated Use AUTH_V2_READONLY */
+export const AUTH_V2_USER = AUTH_V2_READONLY;
 
 /**
  * Seed map file path
