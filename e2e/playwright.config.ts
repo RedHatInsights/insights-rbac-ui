@@ -56,7 +56,7 @@ export default defineConfig({
   /* Shared settings for all projects */
   use: {
     baseURL,
-    ignoreHTTPSErrors: !process.env.CI,
+    ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
