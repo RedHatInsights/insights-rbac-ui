@@ -159,6 +159,7 @@
     "e2e:v2:readonly": "npm run e2e:v2:seed && npm run e2e:v2:test:readonly; E2E_EXIT=$?; npm run e2e:v2:cleanup; exit $E2E_EXIT",
     "e2e:seed": "npm run e2e:v1:seed; npm run e2e:v2:seed",
     "e2e:cleanup": "npm run e2e:v1:cleanup; npm run e2e:v2:cleanup",
+    "e2e:clean": "rm -rf e2e/auth/*.json e2e/cache/*.har e2e/test-results e2e/playwright-report",
     "e2e:test": "npx playwright test --config=e2e/playwright.config.ts --project=v1-admin --project=v1-userviewer --project=v1-readonly --project=v2-admin --project=v2-userviewer --project=v2-readonly",
     "e2e": "npm run e2e:seed && npm run e2e:test; E2E_EXIT=$?; npm run e2e:cleanup; exit $E2E_EXIT",
     "lint": "npm-run-all lint:*",
