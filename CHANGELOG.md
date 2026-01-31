@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.3.0...v2.3.1) (2026-01-31)
+
+
+### Bug Fixes
+
+* **providers:** add missing ServiceProvider to Iam component ([56c0a10](https://github.com/RedHatInsights/insights-rbac-ui/commit/56c0a1090f7e72ba632f4a6b9871d9432ead2b14))
+
 # [2.3.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.2.0...v2.3.0) (2026-01-30)
 
 
