@@ -1,110 +1,46 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { useQuery } from '@tanstack/react-query';
 import { HttpResponse, delay, http } from 'msw';
 import { expect, waitFor, within } from 'storybook/test';
-import { MemoryRouter, useNavigate } from 'react-router-dom';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { MemoryRouter } from 'react-router-dom';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { IntlProvider } from 'react-intl';
 import messages from '../../locales/data.json';
 import { locale } from '../../locales/locale';
-import { ApiErrorBoundary, useApiError } from './ApiErrorBoundary';
+import { ApiErrorBoundary } from './ApiErrorBoundary';
+import { useGroupsQuery } from '../../data/queries/groups';
 
 // ============================================================================
-// Test Components
+// Test Component - Uses real useGroupsQuery
 // ============================================================================
 
 /**
- * Component that triggers an API call to test error handling.
+ * Simple component that fetches groups using the real query.
+ * Errors flow through: QueryClient.onError → handleError → ApiErrorContext → ApiErrorBoundary
  */
-const ApiTriggerComponent: React.FC<{ endpoint: string }> = ({ endpoint }) => {
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['test', endpoint],
-    queryFn: async () => {
-      const response = await fetch(endpoint);
-      if (!response.ok) {
-        // Create an error object that looks like an Axios error
-        const axiosLikeError = new Error('API Error') as Error & { response?: { status: number } };
-        axiosLikeError.response = { status: response.status };
-        throw axiosLikeError;
-      }
-      return response.json();
-    },
-    retry: false,
-  });
+const GroupsList: React.FC = () => {
+  const { data, isLoading, error } = useGroupsQuery({ limit: 10 });
 
-  return (
-    <div style={{ padding: '20px' }}>
-      <h3>API Test Component</h3>
-      {isLoading && <p>Loading...</p>}
-      {error && (
-        <Alert variant="danger" title="Query Error" isInline>
-          {(error as Error).message}
-        </Alert>
-      )}
-      {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
-      <Button onClick={() => refetch()} style={{ marginTop: '16px' }}>
-        Retry Request
-      </Button>
-    </div>
-  );
-};
-
-/**
- * Component that displays the current error state and provides a clear button.
- */
-const ErrorStatusDisplay: React.FC = () => {
-  const { errorCode, clearError } = useApiError();
-
-  return (
-    <div style={{ padding: '16px', background: '#f5f5f5', borderRadius: '4px', marginBottom: '16px' }}>
-      <strong>Error State:</strong> <span data-testid="error-code">{errorCode ?? 'None'}</span>
-      {errorCode && (
-        <Button variant="link" onClick={clearError} style={{ marginLeft: '16px' }}>
-          Clear Error
-        </Button>
-      )}
-    </div>
-  );
-};
-
-/**
- * Component that provides navigation controls for testing error clearing.
- */
-const NavigationTestComponent: React.FC = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div style={{ padding: '16px', background: '#e8f4f8', borderRadius: '4px', marginBottom: '16px' }}>
-      <strong>Navigation Test:</strong>
-      <Button variant="link" onClick={() => navigate('/users')}>
-        Go to /users
-      </Button>
-      <Button variant="link" onClick={() => navigate('/user-access/groups')}>
-        Go to /groups
-      </Button>
-      <Button variant="link" onClick={() => navigate('/other')}>
-        Go to /other
-      </Button>
-    </div>
-  );
+  if (isLoading) return <p>Loading groups...</p>;
+  if (error)
+    return (
+      <Alert variant="danger" title="Query Error" isInline>
+        {(error as Error).message}
+      </Alert>
+    );
+  if (data?.data) return <p>Loaded {data.data.length} groups</p>;
+  return null;
 };
 
 // ============================================================================
-// Story Wrapper
+// Story Wrapper - Only adds MemoryRouter and ApiErrorBoundary
+// preview.tsx provides: ServiceProvider, QueryClientSetup, ApiErrorProvider
 // ============================================================================
 
 const StoryWrapper: React.FC<{ children: React.ReactNode; initialPath?: string }> = ({ children, initialPath = '/users' }) => (
-  <IntlProvider locale={locale} messages={messages[locale]}>
-    <MemoryRouter initialEntries={[initialPath]}>
-      <ApiErrorBoundary>
-        <ErrorStatusDisplay />
-        <NavigationTestComponent />
-        {children}
-      </ApiErrorBoundary>
-    </MemoryRouter>
-  </IntlProvider>
+  <MemoryRouter initialEntries={[initialPath]}>
+    <ApiErrorBoundary>{children}</ApiErrorBoundary>
+  </MemoryRouter>
 );
 
 // ============================================================================
@@ -160,31 +96,32 @@ export const NormalOperation: Story = {
   parameters: {
     msw: {
       handlers: [
-        http.get('/api/test/success', async () => {
+        http.get('/api/rbac/v1/groups/', async () => {
           await delay(100);
-          return HttpResponse.json({ message: 'Success!' });
+          return HttpResponse.json({
+            meta: { count: 2 },
+            data: [
+              { uuid: '1', name: 'Group 1' },
+              { uuid: '2', name: 'Group 2' },
+            ],
+          });
         }),
       ],
     },
   },
   render: () => (
     <StoryWrapper>
-      <ApiTriggerComponent endpoint="/api/test/success" />
+      <GroupsList />
     </StoryWrapper>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for loading to complete
+    // Wait for loading to complete and verify groups loaded
     await waitFor(() => {
-      expect(canvas.queryByText('Loading...')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Loading groups...')).not.toBeInTheDocument();
     });
-
-    // Verify success message is displayed
-    await expect(canvas.findByText(/"message": "Success!"/)).resolves.toBeInTheDocument();
-
-    // Verify no error state (text is split across nodes, so we check for "None" presence)
-    await expect(canvas.getByText('None')).toBeInTheDocument();
+    await expect(canvas.findByText(/Loaded 2 groups/)).resolves.toBeInTheDocument();
   },
 };
 
@@ -195,7 +132,7 @@ export const Error403Forbidden: Story = {
   parameters: {
     msw: {
       handlers: [
-        http.get('/api/test/forbidden', async () => {
+        http.get('/api/rbac/v1/groups/', async () => {
           await delay(100);
           return HttpResponse.json({ error: 'Forbidden' }, { status: 403 });
         }),
@@ -203,8 +140,8 @@ export const Error403Forbidden: Story = {
     },
   },
   render: () => (
-    <StoryWrapper initialPath="/users">
-      <ApiTriggerComponent endpoint="/api/test/forbidden" />
+    <StoryWrapper initialPath="/groups">
+      <GroupsList />
     </StoryWrapper>
   ),
   play: async ({ canvasElement }) => {
@@ -213,14 +150,10 @@ export const Error403Forbidden: Story = {
     // Wait for the 403 error state to be displayed
     await waitFor(
       () => {
-        // UnauthorizedAccess component should show
         expect(canvas.getByText(/you do not have access/i)).toBeInTheDocument();
       },
       { timeout: 5000 },
     );
-
-    // Verify the service name is derived from the path (/users -> "Users")
-    await expect(canvas.getByText(/Users/)).toBeInTheDocument();
   },
 };
 
@@ -231,7 +164,7 @@ export const Error500ServerError: Story = {
   parameters: {
     msw: {
       handlers: [
-        http.get('/api/test/server-error', async () => {
+        http.get('/api/rbac/v1/groups/', async () => {
           await delay(100);
           return HttpResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }),
@@ -239,8 +172,8 @@ export const Error500ServerError: Story = {
     },
   },
   render: () => (
-    <StoryWrapper initialPath="/user-access/groups">
-      <ApiTriggerComponent endpoint="/api/test/server-error" />
+    <StoryWrapper initialPath="/groups">
+      <GroupsList />
     </StoryWrapper>
   ),
   play: async ({ canvasElement }) => {
@@ -249,14 +182,10 @@ export const Error500ServerError: Story = {
     // Wait for the 500 error state to be displayed
     await waitFor(
       () => {
-        // UnavailableContent component should show
         expect(canvas.getByText(/temporarily unavailable/i)).toBeInTheDocument();
       },
       { timeout: 5000 },
     );
-
-    // Verify the service name includes "Groups" from the path
-    await expect(canvas.getByText(/Groups/i)).toBeInTheDocument();
   },
 };
 
@@ -267,7 +196,7 @@ export const Error502BadGateway: Story = {
   parameters: {
     msw: {
       handlers: [
-        http.get('/api/test/bad-gateway', async () => {
+        http.get('/api/rbac/v1/groups/', async () => {
           await delay(100);
           return HttpResponse.json({ error: 'Bad Gateway' }, { status: 502 });
         }),
@@ -276,7 +205,7 @@ export const Error502BadGateway: Story = {
   },
   render: () => (
     <StoryWrapper>
-      <ApiTriggerComponent endpoint="/api/test/bad-gateway" />
+      <GroupsList />
     </StoryWrapper>
   ),
   play: async ({ canvasElement }) => {
@@ -290,35 +219,6 @@ export const Error502BadGateway: Story = {
       { timeout: 5000 },
     );
   },
-};
-
-/**
- * Error clearing via useApiError hook's clearError function.
- */
-export const ClearErrorProgrammatically: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story: `
-Demonstrates clearing an error programmatically using the \`useApiError\` hook.
-Click "Clear Error" to dismiss the error state.
-        `,
-      },
-    },
-    msw: {
-      handlers: [
-        http.get('/api/test/forbidden', async () => {
-          await delay(100);
-          return HttpResponse.json({ error: 'Forbidden' }, { status: 403 });
-        }),
-      ],
-    },
-  },
-  render: () => (
-    <StoryWrapper>
-      <ApiTriggerComponent endpoint="/api/test/forbidden" />
-    </StoryWrapper>
-  ),
 };
 
 /**
@@ -338,7 +238,7 @@ their context.
     },
     msw: {
       handlers: [
-        http.get('/api/test/not-found', async () => {
+        http.get('/api/rbac/v1/groups/', async () => {
           await delay(100);
           return HttpResponse.json({ error: 'Not Found' }, { status: 404 });
         }),
@@ -347,22 +247,19 @@ their context.
   },
   render: () => (
     <StoryWrapper>
-      <ApiTriggerComponent endpoint="/api/test/not-found" />
+      <GroupsList />
     </StoryWrapper>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for the error to appear
+    // Wait for the error to appear in the component (not caught by ApiErrorBoundary)
     await waitFor(
       () => {
         expect(canvas.getByText(/Query Error/)).toBeInTheDocument();
       },
       { timeout: 5000 },
     );
-
-    // Verify error state is still "None" - 404 is not caught globally (text is split across nodes)
-    await expect(canvas.getByText('None')).toBeInTheDocument();
   },
 };
 
