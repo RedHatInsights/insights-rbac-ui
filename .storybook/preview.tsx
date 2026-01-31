@@ -1,10 +1,10 @@
 import type { Preview } from '@storybook/react-webpack5';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/patternfly/patternfly-addons.css';
-import React, { Fragment, useState } from 'react';
+import React from 'react';
 import { createPortal } from 'react-dom';
 import { IntlProvider } from 'react-intl';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientSetup } from '../src/components/QueryClientSetup';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
@@ -21,41 +21,7 @@ import {
 } from './context-providers';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 import { ServiceProvider, createBrowserServices } from '../src/services';
-
-// Create a fresh QueryClient for each story to prevent state leaking
-const createTestQueryClient = () =>
-  new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false, // Don't retry in tests/stories
-        staleTime: 0, // Always refetch - required for stories that test API calls after interactions
-      },
-      mutations: {
-        retry: false,
-      },
-    },
-  });
-
-// Wrapper that provides a fresh QueryClient for each story to prevent state leaking
-const QueryClientWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [queryClient] = useState(() => createTestQueryClient());
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      {typeof document !== 'undefined' && createPortal(<ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />, document.body)}
-      {children}
-    </QueryClientProvider>
-  );
-};
-
-// Wrapper that provides ServiceProvider with browser services
-// Must be inside NotificationsProvider to use useAddNotification
-const ServiceProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const addNotification = useAddNotification();
-  const services = createBrowserServices(addNotification);
-
-  return <ServiceProvider value={services}>{children}</ServiceProvider>;
-};
+import { ApiErrorProvider } from '../src/contexts/ApiErrorContext';
 
 // Mock insights global for Storybook
 declare global {
@@ -98,6 +64,25 @@ if (typeof global !== 'undefined') {
 } else if (typeof window !== 'undefined') {
   (window as unknown as { insights: { chrome: typeof mockInsightsChrome } }).insights = { chrome: mockInsightsChrome };
 }
+
+// Wrapper that provides all providers for component stories (non-journey)
+// This must be inside NotificationsProvider to access useAddNotification
+// Includes: ApiErrorProvider → ServiceProvider → QueryClientSetup
+const ComponentProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const addNotification = useAddNotification();
+  const services = createBrowserServices(addNotification);
+
+  return (
+    <ApiErrorProvider>
+      <ServiceProvider value={services}>
+        <QueryClientSetup testMode>
+          {typeof document !== 'undefined' && createPortal(<ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />, document.body)}
+          {children}
+        </QueryClientSetup>
+      </ServiceProvider>
+    </ApiErrorProvider>
+  );
+};
 
 const preview: Preview = {
   beforeAll: async () => {
@@ -199,26 +184,37 @@ const preview: Preview = {
         ...(args.canCreate !== undefined && { canCreate: args.canCreate }),
       };
 
-      return (
-        <QueryClientWrapper>
+      // Journey stories set noWrapping: true and provide their own providers via Iam
+      // This allows them to test the full production component tree
+      if (parameters.noWrapping) {
+        return (
           <ChromeProvider value={chromeConfig}>
             <FeatureFlagsProvider value={featureFlags}>
               <AccessCheckProvider_ value={accessCheckConfig}>
-                <PermissionsContext.Provider value={permissions}>
-                  <IntlProvider locale={locale} messages={messages[locale]}>
-                    <Fragment>
-                      <NotificationsProvider>
-                        <ServiceProviderWrapper>
-                          <Story />
-                        </ServiceProviderWrapper>
-                      </NotificationsProvider>
-                    </Fragment>
-                  </IntlProvider>
-                </PermissionsContext.Provider>
+                <Story />
               </AccessCheckProvider_>
             </FeatureFlagsProvider>
           </ChromeProvider>
-        </QueryClientWrapper>
+        );
+      }
+
+      // Component stories get full provider wrapping (QueryClient, ServiceProvider, etc.)
+      return (
+        <ChromeProvider value={chromeConfig}>
+          <FeatureFlagsProvider value={featureFlags}>
+            <AccessCheckProvider_ value={accessCheckConfig}>
+              <PermissionsContext.Provider value={permissions}>
+                <IntlProvider locale={locale} messages={messages[locale]}>
+                  <NotificationsProvider>
+                    <ComponentProviders>
+                      <Story />
+                    </ComponentProviders>
+                  </NotificationsProvider>
+                </IntlProvider>
+              </PermissionsContext.Provider>
+            </AccessCheckProvider_>
+          </FeatureFlagsProvider>
+        </ChromeProvider>
       );
     },
   ],
