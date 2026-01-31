@@ -1,6 +1,6 @@
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { IamShell } from '../../../Iam';
+import Iam from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
 import { KesselNavigation } from './KesselNavigation';
 import { ProductionHeader } from './ProductionHeader';
@@ -26,8 +26,10 @@ interface KesselAppEntryWithRouterProps {
 
 /**
  * Wrapper component for Kessel (Workspaces) journey tests.
+ * Uses the production Iam component directly for maximum fidelity.
+ * testMode enables test-friendly QueryClient settings (no cache, no retries)
+ * while keeping full error handling wired up (403/500 → ApiErrorBoundary).
  * Uses KesselNavigation instead of LeftNavigation to include Workspaces link.
- * IamShell handles all /iam/* routes via the unified Routing component.
  */
 export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
@@ -45,7 +47,7 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
         <FakeAddressBar />
         <GlobalBreadcrumb />
         <Routes>
-          <Route path="/iam/*" element={<IamShell />} />
+          <Route path="/iam/*" element={<Iam testMode />} />
         </Routes>
       </Page>
     </MemoryRouter>
@@ -62,6 +64,8 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
   const hasWritePermissions = orgAdmin || userAccessAdministrator;
 
   return {
+    // Journey stories use Iam directly - skip preview.tsx provider wrapping
+    noWrapping: true,
     chrome: {
       environment: 'prod',
       getUserPermissions: () => {

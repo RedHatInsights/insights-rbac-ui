@@ -1,6 +1,6 @@
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { IamShell } from '../../../Iam';
+import Iam from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
 import { LeftNavigation } from './LeftNavigation';
 import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
@@ -20,8 +20,11 @@ interface AppEntryWithRouterProps {
 }
 
 /**
- * Wrapper component for routing with address bar and navigation for user journey tests.
- * IamShell handles all /iam/* routes via the unified Routing component.
+ * Wrapper component for user journey tests.
+ * Uses the production Iam component directly for maximum fidelity.
+ * testMode enables test-friendly QueryClient settings (no cache, no retries)
+ * while keeping full error handling wired up (403/500 → ApiErrorBoundary).
+ * Only adds MemoryRouter (for test navigation) and visual chrome (header, sidebar, breadcrumb).
  */
 export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
@@ -39,7 +42,7 @@ export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialR
         <FakeAddressBar />
         <GlobalBreadcrumb />
         <Routes>
-          <Route path="/iam/*" element={<IamShell />} />
+          <Route path="/iam/*" element={<Iam testMode />} />
         </Routes>
       </Page>
     </MemoryRouter>

@@ -15,6 +15,8 @@ export const ENVIRONMENTS = {
    * - No workspaces
    */
   PROD_ORG_ADMIN: {
+    // Journey stories use Iam directly - skip preview.tsx provider wrapping
+    noWrapping: true,
     permissions: {
       orgAdmin: true,
       userAccessAdministrator: false,
@@ -44,6 +46,8 @@ export const ENVIRONMENTS = {
    * - No workspaces
    */
   PROD_ORG_USER: {
+    // Journey stories use Iam directly - skip preview.tsx provider wrapping
+    noWrapping: true,
     permissions: {
       orgAdmin: false,
       userAccessAdministrator: false,
@@ -72,6 +76,8 @@ export const ENVIRONMENTS = {
    * - Workspaces feature flag enabled
    */
   WORKSPACES_ENABLED: {
+    // Journey stories use Iam directly - skip preview.tsx provider wrapping
+    noWrapping: true,
     permissions: {
       orgAdmin: true,
       userAccessAdministrator: false,

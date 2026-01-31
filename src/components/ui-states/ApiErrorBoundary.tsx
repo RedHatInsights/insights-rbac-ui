@@ -1,29 +1,27 @@
-import React, { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';
+/**
+ * API Error Boundary - Error UI Component
+ *
+ * Renders error UI (403/500) based on ApiErrorContext state.
+ * Clears errors on navigation.
+ *
+ * Note: This component only handles UI rendering. Error state management
+ * is in ApiErrorContext, and QueryClient setup is in QueryClientSetup.
+ */
+
+import React, { type ReactNode, useEffect } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useLocation } from 'react-router-dom';
-import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import UnavailableContent from '@patternfly/react-component-groups/dist/dynamic/UnavailableContent';
 import { AppLink } from '../navigation/AppLink';
-import type { AxiosError } from 'axios';
 
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
+import { useApiError } from '../../contexts/ApiErrorContext';
 
-// ============================================================================
-// Error Context
-// ============================================================================
-
-type ApiErrorCode = 403 | 500 | null;
-
-interface ApiErrorContextValue {
-  errorCode: ApiErrorCode;
-  clearError: () => void;
-}
-
-const ApiErrorContext = createContext<ApiErrorContextValue>({ errorCode: null, clearError: () => {} });
-
-export const useApiError = () => useContext(ApiErrorContext);
+// Re-export for backward compatibility
+export { useApiError } from '../../contexts/ApiErrorContext';
+export type { ApiErrorCode } from '../../contexts/ApiErrorContext';
 
 // ============================================================================
 // Error States UI
@@ -55,67 +53,7 @@ const errorStates: Record<number, React.FC<{ serviceName: string }>> = {
 };
 
 // ============================================================================
-// Query Client Factory
-// ============================================================================
-
-/**
- * Determine if we should retry a failed request.
- * Don't retry on auth errors or not-found.
- */
-function shouldRetry(failureCount: number, error: unknown): boolean {
-  if (failureCount >= 1) return false;
-
-  if (error && typeof error === 'object' && 'response' in error) {
-    const axiosError = error as AxiosError;
-    const status = axiosError.response?.status;
-    if (status === 401 || status === 403 || status === 404) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * Creates a QueryClient that reports 403/500 errors to the provided callback.
- */
-export function createQueryClient(onApiError: (code: ApiErrorCode) => void): QueryClient {
-  const handleError = (error: unknown) => {
-    if (error && typeof error === 'object' && 'response' in error) {
-      const axiosError = error as AxiosError;
-      const status = axiosError.response?.status;
-      if (status === 403) {
-        onApiError(403);
-      } else if (status && status >= 500) {
-        onApiError(500);
-      }
-    }
-  };
-
-  return new QueryClient({
-    queryCache: new QueryCache({
-      onError: handleError,
-    }),
-    mutationCache: new MutationCache({
-      onError: handleError,
-    }),
-    defaultOptions: {
-      queries: {
-        staleTime: 30_000,
-        gcTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-        retry: shouldRetry,
-      },
-      mutations: {
-        retry: false,
-      },
-    },
-  });
-}
-
-// ============================================================================
-// Provider Component
+// Error Boundary Component
 // ============================================================================
 
 interface ApiErrorBoundaryProps {
@@ -123,30 +61,34 @@ interface ApiErrorBoundaryProps {
 }
 
 /**
- * Provides React Query client with built-in API error handling.
- * Catches 403/500 errors from queries and mutations, displaying appropriate error UI.
+ * Renders error UI when API errors (403/500) are detected.
+ * Clears errors automatically on route navigation.
+ *
+ * Must be used within:
+ * - ApiErrorProvider (for error state)
+ * - Router (for useLocation)
+ * - IntlProvider (for messages)
  *
  * Usage:
  * ```tsx
- * <ApiErrorBoundary>
- *   <App />
- * </ApiErrorBoundary>
+ * <ApiErrorProvider>
+ *   <QueryClientSetup>
+ *     <ApiErrorBoundary>
+ *       <App />
+ *     </ApiErrorBoundary>
+ *   </QueryClientSetup>
+ * </ApiErrorProvider>
  * ```
  */
 export const ApiErrorBoundary: React.FC<ApiErrorBoundaryProps> = ({ children }) => {
-  const [errorCode, setErrorCode] = useState<ApiErrorCode>(null);
+  const { errorCode, clearError } = useApiError();
   const location = useLocation();
   const intl = useIntl();
 
-  // Create query client with error callback
-  const [queryClient] = useState(() => createQueryClient(setErrorCode));
-
   // Clear error on navigation
   useEffect(() => {
-    setErrorCode(null);
-  }, [location?.pathname]);
-
-  const clearError = useCallback(() => setErrorCode(null), []);
+    clearError();
+  }, [location?.pathname, clearError]);
 
   const sectionTitles: Record<string, string> = {
     '/users': intl.formatMessage(messages.rbacUsers),
@@ -159,21 +101,11 @@ export const ApiErrorBoundary: React.FC<ApiErrorBoundaryProps> = ({ children }) 
     const name = sectionTitles[Object.keys(sectionTitles).find((key) => location?.pathname.includes(key)) || ''] || 'RBAC';
 
     if (State) {
-      return (
-        <ApiErrorContext.Provider value={{ errorCode, clearError }}>
-          <QueryClientProvider client={queryClient}>
-            <State serviceName={name} />
-          </QueryClientProvider>
-        </ApiErrorContext.Provider>
-      );
+      return <State serviceName={name} />;
     }
   }
 
-  return (
-    <ApiErrorContext.Provider value={{ errorCode, clearError }}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </ApiErrorContext.Provider>
-  );
+  return <>{children}</>;
 };
 
 export default ApiErrorBoundary;
