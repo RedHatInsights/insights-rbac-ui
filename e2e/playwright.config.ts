@@ -36,8 +36,7 @@ export default defineConfig({
   /* Output directory for screenshots, traces, etc. */
   outputDir: './test-results',
 
-  /* Global setup - warms asset cache before all tests */
-  globalSetup: require.resolve('./setup/global.setup.ts'),
+  /* Cache warming is done in auth-v1-admin.setup.ts after login */
 
   /* Run tests in files in parallel, but projects run based on dependencies */
   fullyParallel: true,
@@ -56,7 +55,7 @@ export default defineConfig({
   /* Shared settings for all projects */
   use: {
     baseURL,
-    ignoreHTTPSErrors: !process.env.CI,
+    ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
