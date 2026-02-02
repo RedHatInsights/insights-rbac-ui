@@ -42,7 +42,10 @@ objects:
           description: Manage your organization's role-based access control (RBAC) to services.
           icon: PlaceholderIcon
           permissions:
-            - method: isOrgAdmin
+            - method: loosePermissions
+              args:
+                - - 'rbac:*:*'
+                  - 'rbac:principal:read'
         - section: iam
           group: iam
           id: groups
@@ -51,7 +54,10 @@ objects:
           description: ""
           icon: PlaceholderIcon
           permissions:
-            - method: isOrgAdmin
+            - method: loosePermissions
+              args:
+                - - 'rbac:*:*'
+                  - 'rbac:principal:read'
         - section: iam
           group: iam
           id: workspaces
@@ -81,7 +87,10 @@ objects:
                   args:
                     - platform.rbac.overview
                     - true
-                - method: isOrgAdmin
+                - method: loosePermissions
+                  args:
+                    - - 'rbac:*:*'
+                      - 'rbac:principal:read'
               product: Identity & Access Management
             - id: my-access
               title: My Access
@@ -102,18 +111,25 @@ objects:
                 - method: loosePermissions
                   args:
                     - - 'rbac:*:*'
+                      - 'rbac:principal:read'
               routes:
                 - id: users-and-groups
                   title: Users and Groups
                   href: /iam/access-management/users-and-user-groups
                   permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissions
+                      args:
+                        - - 'rbac:*:*'
+                          - 'rbac:principal:read'
                   product: Identity & Access Management
                 - id: roles
                   title: Roles
                   href: /iam/access-management/roles
                   permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissions
+                      args:
+                        - - 'rbac:*:*'
+                          - 'rbac:principal:read'
                   product: Identity & Access Management
                 - id: workspaces
                   title: Workspaces
@@ -178,6 +194,7 @@ objects:
                 - method: loosePermissions
                   args:
                     - - 'rbac:*:*'
+                      - 'rbac:principal:read'
                 - method: featureFlag
                   args:
                     - platform.rbac.workspaces
@@ -195,26 +212,38 @@ objects:
                       args:
                         - platform.rbac.overview
                         - true
-                    - method: isOrgAdmin
+                    - method: loosePermissions
+                      args:
+                        - - 'rbac:*:*'
+                          - 'rbac:principal:read'
                   product: Identity & Access Management
                 - id: users
                   title: Users
                   href: /iam/user-access/users
                   permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissions
+                      args:
+                        - - 'rbac:*:*'
+                          - 'rbac:principal:read'
                   icon: PlaceholderIcon
                   product: Identity & Access Management
                 - id: roles
                   title: Roles
                   href: /iam/user-access/roles
                   permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissions
+                      args:
+                        - - 'rbac:*:*'
+                          - 'rbac:principal:read'
                   product: Identity & Access Management
                 - id: groups
                   title: Groups
                   href: /iam/user-access/groups
                   permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissions
+                      args:
+                        - - 'rbac:*:*'
+                          - 'rbac:principal:read'
                   icon: PlaceholderIcon
                   product: Identity & Access Management
                 - id: workspaces
