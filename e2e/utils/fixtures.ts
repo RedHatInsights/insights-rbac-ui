@@ -83,12 +83,31 @@ export async function blockAnalytics(page: Page): Promise<void> {
 }
 
 /**
- * Combined setup: enables asset cache and blocks analytics.
+ * Combined setup: enables asset cache, blocks analytics, and initializes auth.
  * Convenience function for test.beforeEach hooks.
+ *
+ * IMPORTANT: This navigates to root (/) first to initialize the chrome.insights
+ * auth context before the test navigates to its target page. Direct navigation
+ * to deep URLs can fail because the Console auth isn't initialized yet.
  */
 export async function setupPage(page: Page): Promise<void> {
   await enableAssetCache(page);
   await blockAnalytics(page);
+
+  // Navigate to root to initialize chrome.insights and auth context
+  // This prevents auth failures when tests navigate directly to deep URLs
+  await page.goto('/');
+
+  // Wait for auth initialization (indicated by the main nav being present)
+  // This is a lightweight check that the app shell has loaded
+  await page
+    .getByRole('navigation')
+    .first()
+    .waitFor({ timeout: 10000 })
+    .catch(() => {
+      // If no navigation found, that's okay - some pages might not have it
+      // The important thing is we triggered the initial page load
+    });
 }
 
 // Re-export base test and expect
