@@ -7,14 +7,17 @@
 
 import { type Locator, type Page, expect } from '@playwright/test';
 import { setupPage, waitForTableUpdate } from '../../utils';
+import { ManagedWorkspaceSelectorComponent } from '../components/ManagedWorkspaceSelectorComponent';
 
 const WORKSPACES_URL = '/iam/access-management/workspaces';
 
 export class WorkspacesPage {
   readonly page: Page;
+  readonly workspaceSelector: ManagedWorkspaceSelectorComponent;
 
   constructor(page: Page) {
     this.page = page;
+    this.workspaceSelector = new ManagedWorkspaceSelectorComponent(page);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -81,9 +84,21 @@ export class WorkspacesPage {
   // CRUD Operations
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async fillCreateModal(name: string, description: string): Promise<void> {
+  /**
+   * Fill the create workspace modal/wizard
+   * @param name - Workspace name
+   * @param description - Workspace description
+   * @param parentWorkspace - Optional parent workspace to select (requires expanding parentPath first)
+   * @param parentPath - Optional path to parent (workspace to expand before selecting)
+   */
+  async fillCreateModal(name: string, description: string, parentWorkspace?: string, parentPath?: string): Promise<void> {
     const modal = this.page.locator('[role="dialog"]');
     await expect(modal).toBeVisible({ timeout: 10000 });
+
+    // Select parent workspace if specified
+    if (parentWorkspace) {
+      await this.workspaceSelector.selectWorkspaceByPath(parentWorkspace, parentPath);
+    }
 
     await modal.getByLabel(/name/i).first().fill(name);
     const descInput = modal.getByLabel(/description/i);

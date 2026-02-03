@@ -4,7 +4,7 @@ import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { useIntl } from 'react-intl';
 import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
-import { ManagedSelector } from './managed-selector/ManagedSelector';
+import { ManagedWorkspaceSelector } from './managed-selector/ManagedWorkspaceSelector';
 import { TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import messages from '../../../Messages';
@@ -100,7 +100,7 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
 
         <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
           <h4 style={{ marginBottom: '0.5rem' }}>Parent workspace</h4>
-          <ManagedSelector
+          <ManagedWorkspaceSelector
             onSelect={(workspace: TreeViewDataItem) => {
               // Convert TreeViewDataItem to TreeViewWorkspaceItem if possible
               if (instanceOfTreeViewWorkspaceItem(workspace)) {

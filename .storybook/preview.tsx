@@ -93,7 +93,7 @@ const preview: Preview = {
     options: {
       storySort: {
         method: 'alphabetical',
-        order: ['User Journeys', '*'],
+        order: ['Documentation', 'Federated Modules', 'User Journeys', 'Features', 'Components', '*'],
       },
     },
     layout: 'fullscreen',

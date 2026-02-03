@@ -19,13 +19,11 @@ module.exports = {
   hotReload: process.env.HOT === 'true',
   moduleFederation: {
     exposes: {
-      './Iam': path.resolve(__dirname, './src/Iam.tsx'),
-      './CreateWorkspaceWizardModule': path.resolve(__dirname, './src/features/workspaces/create-workspace/CreateWorkspaceWizardModule.tsx'),
-      './Workspaces/ManagedSelector': path.resolve(__dirname, './src/features/workspaces/components/managed-selector/ManagedSelector.tsx'),
-      './Workspaces/WorkspaceSelector': path.resolve(
-        __dirname,
-        './src/features/workspaces/components/managed-selector/components/WorkspaceSelector.tsx',
-      ),
+      // Application entry point
+      './Iam': path.resolve(__dirname, './src/federated-modules/Iam.tsx'),
+      // Shared modules (self-contained with providers)
+      './modules/CreateWorkspaceWizard': path.resolve(__dirname, './src/federated-modules/CreateWorkspaceWizard.tsx'),
+      './modules/WorkspaceSelector': path.resolve(__dirname, './src/federated-modules/WorkspaceSelector.tsx'),
     },
     exclude: ['react-router-dom'],
     shared: [{ 'react-router-dom': { singleton: true, version: '^6.18.0', requiredVersion: '*' } }],

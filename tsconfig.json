@@ -20,13 +20,5 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/presentational-components/shared/AppLink.js", "src/presentational-components/shared/AppLink.js", "src/smart-components/role/RolesTable.js"  ],
-  "exclude": [
-    "node_modules",
-    "src/cli/**/*",
-    "**/__tests__/**",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.spec.ts",
-    "**/*.spec.tsx"
-  ]
+  "exclude": ["node_modules", "src/cli/**/*"]
 }
