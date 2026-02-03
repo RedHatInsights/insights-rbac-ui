@@ -173,7 +173,7 @@ export const createWorkspaceDataFetcher = (
         storeActions.setIsFetchingWorkspacesFromRBACError(false);
 
         // Store the RAW fetched workspaces from RBAC in the state variable
-        // Axios wraps response in .data, API returns { data: Workspace[], meta: {...} }
+        // Axios wraps response in .data, API returns { data: Workspace[] }
         storeActions.setFetchedWorkspaces(rbacResponse.data.data);
 
         // Build the tree of workspaces with the fetched results.
@@ -458,7 +458,7 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
  * ```
  *
  * @api-endpoint `/api/rbac/v2/workspaces/` (GET)
- * @api-response `{ data: Workspace[], meta: {...} }`
+ * @api-response `{ data: Workspace[] }`
  *
  * @exports
  * - `ManagedSelector`: Main component (default export for module federation)
