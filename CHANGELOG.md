@@ -1,3 +1,17 @@
+# [2.4.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.3.1...v2.4.0) (2026-02-03)
+
+
+### Bug Fixes
+
+* **managed-ws:** add unit and e2e tests to managed WS ([edc80ca](https://github.com/RedHatInsights/insights-rbac-ui/commit/edc80cac452c3f039046b36fa33dc1143cf06104))
+* **typescript:** do not run typescript for test files ([55cfeb3](https://github.com/RedHatInsights/insights-rbac-ui/commit/55cfeb393f6362802957da3e86415a58c6f2fb1a))
+
+
+### Features
+
+* migrate WorkspaceSelector to React Query and reorganize federated modules ([aef5e25](https://github.com/RedHatInsights/insights-rbac-ui/commit/aef5e25fb0e2e0f9980f526ec3d4a7d9e51a1556))
+* **ws-selector:** add documentation and expose managed selector ([d41569d](https://github.com/RedHatInsights/insights-rbac-ui/commit/d41569db2e63c3c671a7b094253950cdbd8ca5f0))
+
 ## [2.3.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.3.0...v2.3.1) (2026-01-31)
 
 
