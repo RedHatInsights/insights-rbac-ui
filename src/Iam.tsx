@@ -77,7 +77,7 @@ const IamProviders: React.FC<IamProps> = ({ testMode }) => {
  * - ApiErrorBoundary (error UI)
  * - IamShell (permissions + routing)
  */
-const Iam: React.FC<IamProps> = ({ testMode = false }) => {
+export const Iam: React.FC<IamProps> = ({ testMode = false }) => {
   // Kessel access check API configuration
   // baseUrl is the current origin, apiPath points to the inventory API
   const accessCheckBaseUrl = typeof window !== 'undefined' ? window.location.origin : '';
@@ -93,5 +93,3 @@ const Iam: React.FC<IamProps> = ({ testMode = false }) => {
     </IntlProvider>
   );
 };
-
-export default Iam;

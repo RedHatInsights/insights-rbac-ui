@@ -83,10 +83,13 @@ export const WorkspaceSelector = <T extends TreeViewDataItem>({
     };
   }, [onFetchData]);
 
+  // Toggle is always enabled - users can click while loading to see the spinner inside.
+  // This is intentional UX: a disabled toggle might suggest the feature is unavailable,
+  // whereas seeing a loading spinner clearly communicates data is being fetched.
   const menuToggle = renderMenuToggle({
     menuToggleRef: toggleRef,
     onMenuToggleClick: () => setIsMenuExpanded(!isMenuExpanded),
-    isDisabled: isLoading,
+    isDisabled: false,
     isMenuToggleExpanded: isMenuExpanded,
     selectedItem,
   });
@@ -118,7 +121,7 @@ export const WorkspaceSelector = <T extends TreeViewDataItem>({
       <PanelFooter>
         <Flex justifyContent={{ default: 'justifyContentCenter' }}>
           <FlexItem>
-            <Button onClick={onButtonClick} variant={ButtonVariant.secondary}>
+            <Button onClick={onButtonClick} variant={ButtonVariant.secondary} data-testid="workspace-selector-confirm">
               {buttonText}
             </Button>
           </FlexItem>

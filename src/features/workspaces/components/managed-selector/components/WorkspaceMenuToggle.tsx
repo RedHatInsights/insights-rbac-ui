@@ -37,6 +37,7 @@ export const WorkspaceMenuToggle: React.FC<WorkspaceMenuToggleProps> = ({
       isExpanded={isMenuToggleExpanded}
       className="workspace-selector-toggle"
       isFullWidth
+      data-testid="workspace-selector-toggle"
     >
       {content}
     </MenuToggle>

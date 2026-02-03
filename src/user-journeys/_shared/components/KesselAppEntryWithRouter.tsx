@@ -1,6 +1,6 @@
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import Iam from '../../../Iam';
+import { Iam } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
 import { KesselNavigation } from './KesselNavigation';
 import { ProductionHeader } from './ProductionHeader';

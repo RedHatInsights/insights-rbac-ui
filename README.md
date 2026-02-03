@@ -16,25 +16,11 @@ Stories are automatically deployed on:
 - ✅ Pull requests from [@RedHatInsights/experience-ui-committers](https://github.com/orgs/RedHatInsights/teams/experience-ui-committers) team members
 - ✅ Pull requests from RedHatInsights organization admins
 
-## Shared Components
+## Federated Modules
 
-### ManagedSelector
+This application exposes components via module federation for use by other Red Hat Console applications.
 
-The `ManagedSelector` component is a fully managed workspace selector that can be consumed via module federation by other Red Hat Cloud Services applications.
-
-**Usage**:
-```tsx
-import { AsyncComponent } from '@redhat-cloud-services/frontend-components';
-
-<AsyncComponent
-  scope="rbac"
-  module="./Workspaces/ManagedSelector"
-  onSelect={handleWorkspaceSelect}
-  fallback={<div id="fallback-modal" />}
-/>
-```
-
-See the [full documentation](src/features/workspaces/components/managed-selector/README.md) for complete API reference, examples, and integration guides.
+See the [Module Federation Guide](https://master--687a10bbc18d4b17063770ba.chromatic.com/?path=/docs/documentation-module-federation-guide--docs) for available modules, usage examples, and API reference.
 
 ## Contributing
 
