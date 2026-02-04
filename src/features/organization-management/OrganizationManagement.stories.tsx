@@ -16,12 +16,16 @@ The OrganizationManagement component provides the organization-wide access page.
 ## Features
 - Displays PageHeader with title and subtitle
 - Shows organization details (name, account number, organization ID)
-- Simple read-only view for organization-level access management
+- Displays RoleAssignmentsTable for organization-level role bindings
+- Fetches organization data from Chrome auth service
+- Supports pagination, sorting, and filtering of role assignments
 
 ## Component Responsibilities
 - Renders organization-wide access page title and description
-- Displays placeholder organization information
-- Provides foundation for future organization access management features
+- Fetches and displays organization information (name, account number, organization ID)
+- Manages table state (pagination, sorting, filtering) for role assignments
+- Fetches organization-level role bindings data
+- Provides comprehensive role assignment management interface
 `,
       },
     },
@@ -53,9 +57,11 @@ export const Default: Story = {
     await expect(canvas.findByText('Account number:')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('Organization ID:')).resolves.toBeInTheDocument();
 
-    // Test that placeholder values are shown
-    const naElements = canvas.getAllByText('N/A');
-    expect(naElements).toHaveLength(3); // Three N/A placeholders
+    // Test that the RoleAssignmentsTable is rendered
+    await expect(canvas.findByRole('table')).resolves.toBeInTheDocument();
+
+    // Test that organization data is shown (placeholder or real data)
+    await expect(canvas.findByText('Red Hat Organization')).resolves.toBeInTheDocument();
   },
 };
 
@@ -93,13 +99,12 @@ export const ContentValidation: Story = {
     const organizationSection = canvas.getByText('Organization name:').closest('div');
     expect(organizationSection).toBeInTheDocument();
 
-    // Verify all placeholder values
-    const naValues = canvas.getAllByText('N/A');
-    expect(naValues).toHaveLength(3);
+    // Verify table is present for role assignments
+    const table = await canvas.findByRole('table');
+    expect(table).toBeInTheDocument();
 
-    // Each organization detail should have a label and N/A value
-    naValues.forEach((naElement) => {
-      expect(naElement).toBeInTheDocument();
-    });
+    // Verify organization name is displayed (placeholder data)
+    const organizationName = await canvas.findByText('Red Hat Organization');
+    expect(organizationName).toBeInTheDocument();
   },
 };
