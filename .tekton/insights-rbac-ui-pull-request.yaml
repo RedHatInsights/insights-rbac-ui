@@ -82,11 +82,122 @@ spec:
       # Install Playwright browsers
       npx playwright install --with-deps chromium
 
-      # Wait for the development server to be ready
-      timeout 120 bash -c 'until curl -k https://stage.foo.redhat.com:1337 > /dev/null 2>&1; do sleep 2; done' || {
-        echo "Server did not become ready in time"
-        exit 1
-      }
+      echo "════════════════════════════════════════════════════════════════"
+      echo "RBAC UI E2E Pre-flight Validation"
+      echo "════════════════════════════════════════════════════════════════"
+
+      FAILURES=0
+
+      echo ""
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      echo "Phase 1: Sidecar Health Checks"
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      # Check RBAC app (port 8000)
+      echo -n "Checking RBAC app (port 8000)... "
+      if curl -f -s -m 5 http://127.0.0.1:8000/ -o /dev/null; then
+          echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo -n "Checking app.info.json... "
+      if curl -f -s -m 5 http://127.0.0.1:8000/app.info.json -o /tmp/app.info.json; then
+          echo "✅ OK"
+          echo "  Content: $(cat /tmp/app.info.json | head -c 200)"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo -n "Checking RBAC index.html... "
+      if curl -f -s -m 5 http://127.0.0.1:8000/index.html -o /dev/null; then
+          echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      # Check Chrome (port 9912)
+      echo -n "Checking Chrome shell (port 9912)... "
+      if curl -f -s -m 5 http://127.0.0.1:9912/ -o /dev/null; then
+          echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo -n "Checking Chrome /apps/chrome/... "
+      if curl -f -s -m 5 http://127.0.0.1:9912/apps/chrome/index.html -o /dev/null; then
+          echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo ""
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      echo "Phase 2: Proxy & Routing Validation"
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      # Wait for proxy
+      echo "Waiting for frontend-dev-proxy (port 1337)..."
+      timeout 120 bash -c 'until curl -k -s -m 5 https://stage.foo.redhat.com:1337 > /dev/null 2>&1; do
+          echo "  Waiting..."
+          sleep 5
+      done'
+
+      echo -n "Proxy responding... "
+      if curl -k -f -s -m 10 https://stage.foo.redhat.com:1337 -o /dev/null; then
+          echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      # Test routing
+      for route in "/apps/chrome/index.html" "/apps/rbac/" "/iam/" "/settings/rbac/" "/iam/my-user-access"; do
+          echo -n "Route $route... "
+          if curl -k -f -s -m 10 "https://stage.foo.redhat.com:1337$route" -o /dev/null; then
+              echo "✅ OK"
+          else
+              echo "❌ FAILED"
+              FAILURES=$((FAILURES + 1))
+          fi
+      done
+
+      # Download and inspect main page
+      echo ""
+      echo "Downloading /iam/my-user-access page..."
+      if curl -k -s -m 10 https://stage.foo.redhat.com:1337/iam/my-user-access -o /tmp/rbac-page.html 2>/dev/null; then
+          echo "Page content (first 500 chars):"
+          head -c 500 /tmp/rbac-page.html
+          echo ""
+          echo -n "HTML structure check... "
+          if grep -qi '<!DOCTYPE html\|<html' /tmp/rbac-page.html; then
+              echo "✅ OK"
+          else
+              echo "❌ FAILED (no HTML found)"
+              FAILURES=$((FAILURES + 1))
+          fi
+      fi
+
+      echo ""
+      echo "════════════════════════════════════════════════════════════════"
+      if [ $FAILURES -eq 0 ]; then
+          echo "✅ ALL CHECKS PASSED - Starting Playwright tests"
+      else
+          echo "❌ $FAILURES CHECKS FAILED - Review output above"
+          echo "Common causes:"
+          echo "  - ConfigMaps not synced by ArgoCD"
+          echo "  - Sidecar containers not fully started"
+          echo "  - Missing files in application image"
+          echo "  - Routing configuration errors"
+          exit 1
+      fi
+      echo "════════════════════════════════════════════════════════════════"
+      echo ""
 
       # Decode E2E credentials from Vault secret
       echo "$E2E_PASSWORD" | base64 -d > /tmp/e2e-credentials.sh
