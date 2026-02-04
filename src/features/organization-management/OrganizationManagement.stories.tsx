@@ -4,6 +4,7 @@ import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { OrganizationManagement } from './OrganizationManagement';
 import { ChromeUser } from '@redhat-cloud-services/types';
+import { ChromeProvider } from '../../../.storybook/context-providers';
 
 const meta: Meta<typeof OrganizationManagement> = {
   component: OrganizationManagement,
@@ -30,26 +31,30 @@ The OrganizationManagement component provides the organization-wide access page.
     },
   },
   decorators: [
-    (Story) => (
-      <MemoryRouter>
-        <Story />
-      </MemoryRouter>
-    ),
+    (Story, context) => {
+      const chromeConfig = context.parameters?.chromeConfig || createChromeConfig(mockChromeUserMinimal);
+      return (
+        <MemoryRouter>
+          <ChromeProvider value={chromeConfig}>
+            <Story />
+          </ChromeProvider>
+        </MemoryRouter>
+      );
+    },
   ],
 };
 
 export default meta;
 type Story = StoryObj<typeof OrganizationManagement>;
 
-// Helper to create user identity mock data
-const userIdentityMock = (response: ChromeUser) => [
-  {
-    url: '/beta/chrome/user-identity',
-    method: 'GET',
-    status: 200,
-    response,
+// Chrome context mock factory for DRY setup
+const createChromeConfig = (userData: ChromeUser) => ({
+  environment: 'prod' as const,
+  auth: {
+    getUser: () => Promise.resolve(userData),
+    getToken: () => Promise.resolve('mock-jwt-token-12345'),
   },
-];
+});
 
 // Base ChromeUser template for DRY mock data
 const baseChromeUser: ChromeUser = {
@@ -133,7 +138,7 @@ const expectOrgDetails = async (canvas: ReturnType<typeof within>, exp: OrgExpec
 
 export const Default: Story = {
   parameters: {
-    mockData: userIdentityMock(mockChromeUserMinimal),
+    chromeConfig: createChromeConfig(mockChromeUserMinimal),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -152,7 +157,7 @@ export const Default: Story = {
 
 export const WithFullOrganizationData: Story = {
   parameters: {
-    mockData: userIdentityMock(mockChromeUserWithAllData),
+    chromeConfig: createChromeConfig(mockChromeUserWithAllData),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -168,7 +173,7 @@ export const WithFullOrganizationData: Story = {
 
 export const WithPartialOrganizationData: Story = {
   parameters: {
-    mockData: userIdentityMock(mockChromeUserPartialData),
+    chromeConfig: createChromeConfig(mockChromeUserPartialData),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -184,7 +189,7 @@ export const WithPartialOrganizationData: Story = {
 
 export const AccessibilityCheck: Story = {
   parameters: {
-    mockData: userIdentityMock(mockChromeUserWithAllData),
+    chromeConfig: createChromeConfig(mockChromeUserWithAllData),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -208,7 +213,7 @@ export const AccessibilityCheck: Story = {
 
 export const ContentValidation: Story = {
   parameters: {
-    mockData: userIdentityMock(mockChromeUserWithAllData),
+    chromeConfig: createChromeConfig(mockChromeUserWithAllData),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -232,14 +237,13 @@ export const ContentValidation: Story = {
 
 export const ErrorState: Story = {
   parameters: {
-    mockData: [
-      {
-        url: '/beta/chrome/user-identity',
-        method: 'GET',
-        status: 500,
-        response: { error: 'Internal Server Error' },
+    chromeConfig: {
+      environment: 'prod' as const,
+      auth: {
+        getUser: () => Promise.reject(new Error('Network error')),
+        getToken: () => Promise.resolve('mock-jwt-token-12345'),
       },
-    ],
+    },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
