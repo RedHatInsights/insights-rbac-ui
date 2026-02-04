@@ -68,6 +68,12 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
   // Kessel journey tests - Inventory route errors (intentional for testing navigation targets)
   { pattern: /No routes matched location "\/insights\/inventory\/workspaces\//, label: 'Inventory routes (intentional)' },
 
+  // OrganizationManagement error state testing (intentional for testing error handling)
+  {
+    pattern: /OrganizationManagement: (Failed to fetch user data|No user data received|User identity not available)/,
+    label: 'OrganizationManagement error testing (intentional)',
+  },
+
   // Storybook/Testing Library informational warnings (not runtime issues)
   { pattern: /You are using Testing Library's `screen` object/, label: 'Testing Library screen warning' },
 

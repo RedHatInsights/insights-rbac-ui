@@ -3,12 +3,12 @@ import { PageHeader } from '@patternfly/react-component-groups';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Flex } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import messages from '../../Messages';
 import { useIntl } from 'react-intl';
 import { RoleAssignmentsTable } from '../workspaces/workspace-detail/components/RoleAssignmentsTable';
 import { workspacesApi } from '../../data/api/workspaces';
 import { Group } from '../../data/queries/groups';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 export const OrganizationManagement = () => {
   const intl = useIntl();
@@ -18,6 +18,7 @@ export const OrganizationManagement = () => {
   const [organizationName] = useState(intl.formatMessage(messages.redHatOrganizationPlaceholder)); // Will need separate API for actual name
   const [accountNumber, setAccountNumber] = useState('');
   const [organizationId, setOrganizationId] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   // State for RoleAssignmentsTable
   const [page, setPage] = useState(1);
@@ -82,6 +83,7 @@ export const OrganizationManagement = () => {
       // The API returns RoleBindingBySubject objects grouped by subject
       const transformedData: Group[] =
         result.data?.data?.map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (binding: any): Group => ({
             uuid: binding.subject?.id || '',
             name: binding.subject?.group?.name || binding.subject?.user?.username || intl.formatMessage(messages.unknownSubjectName),
@@ -114,17 +116,32 @@ export const OrganizationManagement = () => {
       try {
         const user = await chrome.auth.getUser();
 
+        if (!user) {
+          console.warn('OrganizationManagement: No user data received from chrome.auth.getUser()');
+          setError('User data not available');
+          return;
+        }
+
+        const { identity } = user;
+        if (!identity) {
+          console.warn('OrganizationManagement: User identity not available');
+          setError('User identity not available');
+          return;
+        }
+
         // Set organization ID and account number from user identity
-        const orgId = user?.identity?.org_id || '';
-        const accountNum = user?.identity?.account_number || user?.identity?.internal?.account_id || '';
+        const orgId = identity.org_id || '';
+        const accountNum = identity.account_number || identity.internal?.account_id || '';
 
         setOrganizationId(orgId);
         setAccountNumber(accountNum);
+        setError(null);
 
         // Organization name is not available in user identity - would need separate API call
         // For now, keeping the placeholder until proper org name API is implemented
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('OrganizationManagement: Failed to fetch user data:', error);
+        setError('Failed to load organization data');
       }
     };
 
@@ -145,44 +162,60 @@ export const OrganizationManagement = () => {
         subtitle={intl.formatMessage(messages.organizationWideAccessSubtitle)}
       >
         <Flex spaceItems={{ default: 'spaceItemsLg' }} className="pf-v5-u-mt-md">
-          <FlexItem>
-            <p>
-              <strong>{intl.formatMessage(messages.organizationNameLabel)} </strong>
-              {organizationName}
-            </p>
-          </FlexItem>
-          <FlexItem>
-            <p>
-              <strong>{intl.formatMessage(messages.accountNumberLabel)} </strong>
-              {accountNumber}
-            </p>
-          </FlexItem>
-          <FlexItem>
-            <p>
-              <strong>{intl.formatMessage(messages.organizationIdLabel)} </strong>
-              {organizationId}
-            </p>
-          </FlexItem>
+          {error && (
+            <FlexItem>
+              <p style={{ color: 'var(--pf-global--danger-color--100)' }}>
+                <strong>Error: </strong>
+                {error}
+              </p>
+            </FlexItem>
+          )}
+          {!error && organizationName && (
+            <FlexItem>
+              <p>
+                <strong>{intl.formatMessage(messages.organizationNameLabel)} </strong>
+                {organizationName}
+              </p>
+            </FlexItem>
+          )}
+          {!error && accountNumber && (
+            <FlexItem>
+              <p>
+                <strong>{intl.formatMessage(messages.accountNumberLabel)} </strong>
+                {accountNumber}
+              </p>
+            </FlexItem>
+          )}
+          {!error && organizationId && (
+            <FlexItem>
+              <p>
+                <strong>{intl.formatMessage(messages.organizationIdLabel)} </strong>
+                {organizationId}
+              </p>
+            </FlexItem>
+          )}
         </Flex>
       </PageHeader>
-      <PageSection>
-        <RoleAssignmentsTable
-          groups={roleBindings}
-          totalCount={roleBindingsTotalCount}
-          isLoading={roleBindingsIsLoading}
-          page={page}
-          perPage={perPage}
-          onSetPage={handleSetPage}
-          onPerPageSelect={handlePerPageSelect}
-          sortBy={sortBy}
-          direction={direction}
-          onSort={handleSort}
-          filters={filters}
-          onSetFilters={handleSetFilters}
-          clearAllFilters={clearAllFilters}
-          ouiaId="organization-role-assignments-table"
-        />
-      </PageSection>
+      {!error && (
+        <PageSection>
+          <RoleAssignmentsTable
+            groups={roleBindings}
+            totalCount={roleBindingsTotalCount}
+            isLoading={roleBindingsIsLoading}
+            page={page}
+            perPage={perPage}
+            onSetPage={handleSetPage}
+            onPerPageSelect={handlePerPageSelect}
+            sortBy={sortBy}
+            direction={direction}
+            onSort={handleSort}
+            filters={filters}
+            onSetFilters={handleSetFilters}
+            clearAllFilters={clearAllFilters}
+            ouiaId="organization-role-assignments-table"
+          />
+        </PageSection>
+      )}
     </>
   );
 };
