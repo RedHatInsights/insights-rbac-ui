@@ -9,8 +9,9 @@ import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
 import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
-import { type WorkspacesWorkspace, useRoleBindingsQuery, useWorkspaceQuery, useWorkspacesQuery } from '../../../data/queries/workspaces';
+import { type WorkspacesWorkspace, useWorkspaceQuery, useWorkspacesQuery } from '../../../data/queries/workspaces';
 import type { Group } from '../../../data/queries/groups';
+import { useRoleAssignmentsQuery } from '../../../data/queries/rolesV2';
 
 // Extended subject type for role bindings (API returns more than the type definition)
 interface RoleBindingSubject {
@@ -128,15 +129,10 @@ export const WorkspaceDetail = () => {
 
   // Role bindings queries
   const shouldFetchRoleBindings = activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-workspace';
-  const { data: roleBindingsData, isLoading: roleBindingsIsLoading } = useRoleBindingsQuery(
-    {
-      limit: perPage,
-      subjectType: 'group',
-      resourceType: 'workspace',
-      resourceId: workspaceId || '',
-    },
-    { enabled: shouldFetchRoleBindings && !!workspaceId },
-  );
+  const { data: roleBindingsData, isLoading: roleBindingsIsLoading } = useRoleAssignmentsQuery(workspaceId || '', {
+    enabled: shouldFetchRoleBindings && !!workspaceId,
+    limit: perPage,
+  });
 
   // Parent role bindings query
   const shouldFetchParentBindings =
@@ -144,15 +140,11 @@ export const WorkspaceDetail = () => {
     enableRoles &&
     activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces' &&
     !!selectedWorkspace?.parent_id;
-  const { data: parentBindingsData, isLoading: parentGroupsIsLoading } = useRoleBindingsQuery(
-    {
-      limit: parentPerPage,
-      subjectType: 'group',
-      resourceType: 'workspace',
-      resourceId: selectedWorkspace?.parent_id || '',
-    },
-    { enabled: shouldFetchParentBindings },
-  );
+  const { data: parentBindingsData, isLoading: parentGroupsIsLoading } = useRoleAssignmentsQuery(selectedWorkspace?.parent_id || '', {
+    enabled: shouldFetchParentBindings,
+    limit: parentPerPage,
+    parentRoleBindings: true,
+  });
 
   // Transform role bindings to Group structure for the table
   // Note: These are role binding representations, not actual RBAC groups,

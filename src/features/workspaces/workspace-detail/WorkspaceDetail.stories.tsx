@@ -125,6 +125,7 @@ const workspaceDetailHandlers = [
   http.get('/api/rbac/v2/role-bindings/by-subject', ({ request }) => {
     const url = new URL(request.url);
     const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
+    const parentRoleBindings = url.searchParams.get('parent_role_bindings') === 'true';
 
     // Mock role bindings for workspace-2 (Web Services)
     const mockRoleBindings = [
@@ -154,6 +155,13 @@ const workspaceDetailHandlers = [
             description: 'Frontend web applications and services',
           },
         },
+        // Include inherited_from when parent_role_bindings is true
+        ...(parentRoleBindings && {
+          inherited_from: {
+            name: 'Production Environment',
+            type: 'workspace',
+          },
+        }),
       },
       {
         last_modified: '2024-08-23T10:00:00Z',
@@ -181,6 +189,13 @@ const workspaceDetailHandlers = [
             description: 'Frontend web applications and services',
           },
         },
+        // Include inherited_from when parent_role_bindings is true
+        ...(parentRoleBindings && {
+          inherited_from: {
+            name: 'Production Environment',
+            type: 'workspace',
+          },
+        }),
       },
     ];
 
