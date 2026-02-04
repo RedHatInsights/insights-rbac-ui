@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, within } from 'storybook/test';
+import { expect, waitFor, within } from 'storybook/test';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { OrganizationManagement } from './OrganizationManagement';
@@ -41,50 +41,20 @@ The OrganizationManagement component provides the organization-wide access page.
 export default meta;
 type Story = StoryObj<typeof OrganizationManagement>;
 
-// Mock Chrome user data for testing different scenarios
-const mockChromeUserWithAllData: ChromeUser = {
-  identity: {
-    account_number: '123456789',
-    org_id: 'org-987654321',
-    type: 'User',
-    organization: {
-      name: 'Red Hat Test Organization',
-    },
-    user: {
-      username: 'testuser',
-      email: 'test@redhat.com',
-      first_name: 'Test',
-      last_name: 'User',
-      is_active: true,
-      is_internal: false,
-      is_org_admin: true,
-      locale: 'en_US',
-    },
+// Helper to create user identity mock data
+const userIdentityMock = (response: ChromeUser) => [
+  {
+    url: '/beta/chrome/user-identity',
+    method: 'GET',
+    status: 200,
+    response,
   },
-  entitlements: {},
-};
+];
 
-const mockChromeUserPartialData: ChromeUser = {
+// Base ChromeUser template for DRY mock data
+const baseChromeUser: ChromeUser = {
   identity: {
-    org_id: 'org-987654321',
-    type: 'User',
-    user: {
-      username: 'testuser',
-      email: 'test@redhat.com',
-      first_name: 'Test',
-      last_name: 'User',
-      is_active: true,
-      is_internal: false,
-      is_org_admin: true,
-      locale: 'en_US',
-    },
-  },
-  entitlements: {},
-};
-
-const mockChromeUserNoData: ChromeUser = {
-  identity: {
-    org_id: 'org-minimal',
+    org_id: 'org-base',
     type: 'User',
     user: {
       username: 'testuser',
@@ -100,111 +70,121 @@ const mockChromeUserNoData: ChromeUser = {
   entitlements: {},
 };
 
+// Helper to create ChromeUser variations
+const withIdentity = (overrides: Partial<ChromeUser['identity']>): ChromeUser => ({
+  ...baseChromeUser,
+  identity: { ...baseChromeUser.identity, ...overrides },
+});
+
+// Mock Chrome user data for testing different scenarios
+const mockChromeUserWithAllData = withIdentity({
+  account_number: '123456789',
+  org_id: 'org-987654321',
+  organization: { name: 'Red Hat Test Organization' },
+  user: { ...baseChromeUser.identity.user!, is_org_admin: true },
+});
+
+const mockChromeUserPartialData = withIdentity({
+  org_id: 'org-987654321',
+  user: { ...baseChromeUser.identity.user!, is_org_admin: true },
+});
+
+const mockChromeUserMinimal = withIdentity({
+  org_id: 'org-minimal',
+});
+
+// Shared expectation helper
+type OrgExpectations = {
+  name?: string | null;
+  account?: string | null;
+  orgId: string;
+};
+
+const expectOrgDetails = async (canvas: ReturnType<typeof within>, exp: OrgExpectations) => {
+  // Always expect the main heading
+  await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
+
+  // Wait for org ID to appear (this indicates useEffect has run)
+  await expect(canvas.findByText(exp.orgId)).resolves.toBeInTheDocument();
+
+  // Check organization name
+  if (exp.name) {
+    await expect(canvas.findByText('Organization name:')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(exp.name)).resolves.toBeInTheDocument();
+  } else {
+    await waitFor(() => {
+      expect(canvas.queryByText('Organization name:')).not.toBeInTheDocument();
+    });
+  }
+
+  // Check account number
+  if (exp.account) {
+    await expect(canvas.findByText('Account number:')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(exp.account)).resolves.toBeInTheDocument();
+  } else {
+    await waitFor(() => {
+      expect(canvas.queryByText('Account number:')).not.toBeInTheDocument();
+    });
+  }
+
+  // Always check that org ID is present
+  await expect(canvas.findByText('Organization ID:')).resolves.toBeInTheDocument();
+};
+
 export const Default: Story = {
   parameters: {
-    mockData: [
-      {
-        url: 'http://localhost:8002/beta/chrome/user-identity',
-        method: 'GET',
-        status: 200,
-        response: mockChromeUserNoData,
-      },
-    ],
+    mockData: userIdentityMock(mockChromeUserMinimal),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Test that the main page title is rendered
-    await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
-
     // Test that the subtitle text is present
     await expect(canvas.findByText('Grant organization-level access to users and groups.')).resolves.toBeInTheDocument();
 
-    // When minimal organization data is available, some elements should be hidden
-    // Wait a moment for useEffect to run
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // Test that unavailable data is not shown
-    expect(canvas.queryByText('Organization name:')).not.toBeInTheDocument();
-    expect(canvas.queryByText('Account number:')).not.toBeInTheDocument();
-
-    // Test that available data is shown
-    await expect(canvas.findByText('Organization ID:')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('org-minimal')).resolves.toBeInTheDocument();
+    // Test minimal organization data scenario
+    await expectOrgDetails(canvas, {
+      orgId: 'org-minimal',
+      name: null,
+      account: null,
+    });
   },
 };
 
 export const WithFullOrganizationData: Story = {
   parameters: {
-    mockData: [
-      {
-        url: 'http://localhost:8002/beta/chrome/user-identity',
-        method: 'GET',
-        status: 200,
-        response: mockChromeUserWithAllData,
-      },
-    ],
+    mockData: userIdentityMock(mockChromeUserWithAllData),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Test that the main page title is rendered
-    await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
-
-    // Wait a moment for useEffect to run and data to load
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // Test that all organization details are shown when data is available
-    await expect(canvas.findByText('Organization name:')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Red Hat Test Organization')).resolves.toBeInTheDocument();
-
-    await expect(canvas.findByText('Account number:')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('123456789')).resolves.toBeInTheDocument();
-
-    await expect(canvas.findByText('Organization ID:')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('org-987654321')).resolves.toBeInTheDocument();
+    // Test full organization data scenario
+    await expectOrgDetails(canvas, {
+      name: 'Red Hat Test Organization',
+      account: '123456789',
+      orgId: 'org-987654321',
+    });
   },
 };
 
 export const WithPartialOrganizationData: Story = {
   parameters: {
-    mockData: [
-      {
-        url: 'http://localhost:8002/beta/chrome/user-identity',
-        method: 'GET',
-        status: 200,
-        response: mockChromeUserPartialData,
-      },
-    ],
+    mockData: userIdentityMock(mockChromeUserPartialData),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Test that the main page title is rendered
-    await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
-
-    // Wait a moment for useEffect to run and data to load
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // Test that only available organization details are shown
-    expect(canvas.queryByText('Organization name:')).not.toBeInTheDocument(); // No org name
-    expect(canvas.queryByText('Account number:')).not.toBeInTheDocument(); // No account number
-
-    await expect(canvas.findByText('Organization ID:')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('org-987654321')).resolves.toBeInTheDocument();
+    // Test partial organization data scenario
+    await expectOrgDetails(canvas, {
+      orgId: 'org-987654321',
+      name: null,
+      account: null,
+    });
   },
 };
 
 export const AccessibilityCheck: Story = {
   parameters: {
-    mockData: [
-      {
-        url: 'http://localhost:8002/beta/chrome/user-identity',
-        method: 'GET',
-        status: 200,
-        response: mockChromeUserWithAllData,
-      },
-    ],
+    mockData: userIdentityMock(mockChromeUserWithAllData),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -212,8 +192,8 @@ export const AccessibilityCheck: Story = {
     // Test semantic structure
     await expect(canvas.findByRole('heading')).resolves.toBeInTheDocument();
 
-    // Wait for data to load
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Wait for organization data to load and then test accessibility
+    await expect(canvas.findByText('Red Hat Test Organization')).resolves.toBeInTheDocument();
 
     // Test that content is properly structured when data is available
     const organizationDetails = canvas.getAllByText(/Organization name:|Account number:|Organization ID:/);
@@ -228,41 +208,57 @@ export const AccessibilityCheck: Story = {
 
 export const ContentValidation: Story = {
   parameters: {
+    mockData: userIdentityMock(mockChromeUserWithAllData),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Verify subtitle content
+    const subtitle = await canvas.findByText('Grant organization-level access to users and groups.');
+    expect(subtitle).toBeInTheDocument();
+
+    // Use shared helper to validate all organization content
+    await expectOrgDetails(canvas, {
+      name: 'Red Hat Test Organization',
+      account: '123456789',
+      orgId: 'org-987654321',
+    });
+
+    // Verify organization details structure when data is available
+    const organizationSection = canvas.getByText('Organization name:').closest('div');
+    expect(organizationSection).toBeInTheDocument();
+  },
+};
+
+export const ErrorState: Story = {
+  parameters: {
     mockData: [
       {
-        url: 'http://localhost:8002/beta/chrome/user-identity',
+        url: '/beta/chrome/user-identity',
         method: 'GET',
-        status: 200,
-        response: mockChromeUserWithAllData,
+        status: 500,
+        response: { error: 'Internal Server Error' },
       },
     ],
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Verify main heading content
-    const heading = await canvas.findByRole('heading', { name: 'Organization-Wide Access' });
-    expect(heading).toBeInTheDocument();
+    // Test that the main page title is rendered even with errors
+    await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
 
-    // Verify subtitle content
-    const subtitle = await canvas.findByText('Grant organization-level access to users and groups.');
-    expect(subtitle).toBeInTheDocument();
+    // Test that the subtitle text is present
+    await expect(canvas.findByText('Grant organization-level access to users and groups.')).resolves.toBeInTheDocument();
 
-    // Wait for data to load
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Test that error message is displayed
+    await expect(canvas.findByText('Failed to load organization data')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Error:')).resolves.toBeInTheDocument();
 
-    // Verify organization details structure when data is available
-    const organizationSection = canvas.getByText('Organization name:').closest('div');
-    expect(organizationSection).toBeInTheDocument();
-
-    // Verify all organization data values are displayed
-    await expect(canvas.findByText('Red Hat Test Organization')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('123456789')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('org-987654321')).resolves.toBeInTheDocument();
-
-    // Each organization detail should have a label and actual value
-    await expect(canvas.findByText('Organization name:')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Account number:')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Organization ID:')).resolves.toBeInTheDocument();
+    // Test that no organization details are shown when there's an error
+    await waitFor(() => {
+      expect(canvas.queryByText('Organization name:')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Account number:')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Organization ID:')).not.toBeInTheDocument();
+    });
   },
 };
