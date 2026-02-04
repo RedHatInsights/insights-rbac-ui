@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.4.0...v2.5.0) (2026-02-04)
+
+
+### Features
+
+* update frontend components and use user data for org-mangement ([4ee9916](https://github.com/RedHatInsights/insights-rbac-ui/commit/4ee991663a7537d718bcb698f22b91981ea5ad55))
+
 # [2.4.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.3.1...v2.4.0) (2026-02-03)
 
 
