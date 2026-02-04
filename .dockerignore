@@ -1,0 +1,7 @@
+node_modules
+.git
+.cache
+dist
+e2e/auth/*.json
+e2e/cache
+*.log

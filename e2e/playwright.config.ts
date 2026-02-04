@@ -36,27 +36,29 @@ export default defineConfig({
   /* Output directory for screenshots, traces, etc. */
   outputDir: './test-results',
 
-  /* Global setup - warms asset cache before all tests */
-  globalSetup: require.resolve('./setup/global.setup.ts'),
+  /* Asset cache warming is done in auth-v1-admin.setup.ts (first auth to run) */
 
-  /* Run tests in files in parallel, but projects run based on dependencies */
-  fullyParallel: true,
+  /* Run tests in files in parallel locally, sequential in CI for stability */
+  fullyParallel: !process.env.CI,
+
+  /* Single worker in CI to avoid OOM and scrambled output */
+  workers: process.env.CI ? 1 : undefined,
 
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
 
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  /* No retries - fail fast */
+  retries: 0,
 
-  /* Reporter to use - JSON for machine-readable results, HTML for humans */
+  /* Reporter to use - list for CI, multiple for local dev */
   reporter: process.env.CI
-    ? 'github'
+    ? 'list'
     : [['list'], ['html', { open: 'never', outputFolder: './playwright-report' }], ['json', { outputFile: './test-results/results.json' }]],
 
   /* Shared settings for all projects */
   use: {
     baseURL,
-    ignoreHTTPSErrors: !process.env.CI,
+    ignoreHTTPSErrors: true, // Always ignore - dev server uses self-signed certs
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
