@@ -10,6 +10,7 @@ import PermissionGuard from './components/PermissionGuard';
 import EditWorkspaceModal from './features/workspaces/EditWorkspaceModal';
 import pathnames from './utilities/pathnames';
 import QuickstartsTestButtons from './utilities/quickstartsTestButtons';
+import { type PermissionConfig, getPermissions } from './utilities/route-definitions';
 
 const Overview = lazy(() => import('./features/overview/overview'));
 
@@ -55,6 +56,12 @@ const EditUserGroup = lazy(() => import('./features/access-management/users-and-
 const MyUserAccessPage = lazy(() => import('./features/myUserAccess/MyUserAccess'));
 const OrganizationManagement = lazy(() => import('./features/organization-management/OrganizationManagement'));
 
+/**
+ * Helper to get permissions from route-definitions.ts (single source of truth)
+ * Use with pathnames[...].link() to get the full path
+ */
+const p = (fullPath: string): PermissionConfig => getPermissions(fullPath.replace(/\/\*$/, ''));
+
 const getRoutes = ({
   enableServiceAccounts,
   isITLess,
@@ -62,39 +69,36 @@ const getRoutes = ({
   hideWorkspaceDetails,
   hasWorkspacesList,
   hasAccessManagement,
-}: Record<string, boolean>): RootRoute[] => [
+}: Record<string, boolean>): Route[] => [
   // ===========================================
   // Access Management (V2) - Users & User Groups
   // ===========================================
   {
     path: pathnames['users-and-user-groups'].path,
     element: UsersAndUserGroups,
-    permissions: ['rbac:principal:read', 'rbac:group:read'],
-    checkAll: false, // OR logic - can see if has users OR groups permission
+    ...p(pathnames['users-and-user-groups'].link()),
     childRoutes: [
       {
         path: pathnames['users-new'].path,
         element: AccessManagementUsers,
-        permissions: ['rbac:principal:read'],
-        inheritPermissions: false, // Tab uses only its own permission
+        ...p(pathnames['users-new'].link()),
         childRoutes: [
           isCommonAuthModel && {
             path: pathnames['invite-group-users'].path,
             element: InviteUsersModalCommonAuth,
-            permissions: ['rbac:principal:write'],
+            ...p(pathnames['invite-group-users'].link()),
           },
-        ].filter(Boolean) as ChildRoute[],
+        ].filter(Boolean) as Route[],
       },
       {
         path: pathnames['user-groups'].path,
         element: AccessManagementUserGroups,
-        permissions: ['rbac:group:read'],
-        inheritPermissions: false, // Tab uses only its own permission
+        ...p(pathnames['user-groups'].link()),
         childRoutes: [
           {
             path: pathnames['create-user-group'].path,
             element: AddGroupWizard,
-            permissions: ['rbac:group:write'],
+            ...p(pathnames['create-user-group'].link()),
           },
         ],
       },
@@ -103,12 +107,12 @@ const getRoutes = ({
   {
     path: pathnames['users-and-user-groups-edit-group'].path,
     element: EditUserGroup,
-    permissions: ['rbac:group:write'],
+    ...p(pathnames['users-and-user-groups-edit-group'].link(':groupId')),
   },
   {
     path: pathnames['users-and-user-groups-create-group'].path,
     element: (() => <EditUserGroup createNewGroup />) as React.FC,
-    permissions: ['rbac:group:write'],
+    ...p(pathnames['users-and-user-groups-create-group'].link()),
   },
 
   // ===========================================
@@ -117,7 +121,7 @@ const getRoutes = ({
   {
     path: pathnames.overview.path,
     element: hasWorkspacesList ? WorkspacesOverview : Overview,
-    permissions: ['rbac:*:read'],
+    ...p(pathnames.overview.link()),
   },
 
   // ===========================================
@@ -126,17 +130,17 @@ const getRoutes = ({
   {
     path: pathnames.workspaces.path,
     element: WorkspaceList,
-    permissions: ['inventory:groups:read'],
+    ...p(pathnames.workspaces.link()),
     childRoutes: [
       {
         path: pathnames['create-workspace'].path,
         element: CreateWorkspaceWizard,
-        permissions: ['inventory:groups:write'],
+        ...p(pathnames['create-workspace'].link()),
       },
       {
         path: pathnames['edit-workspaces-list'].path,
         element: EditWorkspaceModal,
-        permissions: ['inventory:groups:write'],
+        ...p(pathnames['edit-workspaces-list'].link(':workspaceId')),
       },
     ],
   },
@@ -148,8 +152,7 @@ const getRoutes = ({
   {
     path: pathnames['organization-management'].path,
     element: OrganizationManagement,
-    permissions: [],
-    requireOrgAdmin: true,
+    ...p(pathnames['organization-management'].link()),
   },
 
   // ===========================================
@@ -161,15 +164,15 @@ const getRoutes = ({
         {
           path: pathnames['workspace-detail'].path,
           element: WorkspaceDetail,
-          permissions: ['inventory:groups:read'],
+          ...p(pathnames['workspace-detail'].link(':workspaceId')),
           childRoutes: [
             {
               path: pathnames['edit-workspace'].path,
               element: EditWorkspaceModal,
-              permissions: ['inventory:groups:write'],
+              ...p(pathnames['edit-workspace'].link(':workspaceId')),
             },
           ],
-        } as RootRoute,
+        },
       ]),
 
   // ===========================================
@@ -178,17 +181,17 @@ const getRoutes = ({
   {
     path: pathnames['user-detail'].path,
     element: UserDetail,
-    permissions: ['rbac:principal:read'],
+    ...p(pathnames['user-detail'].link(':username')),
     childRoutes: [
       {
         path: pathnames['add-user-to-group'].path,
         element: AddUserToGroup,
-        permissions: ['rbac:principal:write'],
+        ...p(pathnames['add-user-to-group'].link(':username')),
       },
       {
         path: pathnames['user-add-group-roles'].path,
         element: AddGroupRoles,
-        permissions: ['rbac:group:write'],
+        ...p(pathnames['user-add-group-roles'].link(':username', ':groupId')),
       },
     ],
   },
@@ -199,14 +202,14 @@ const getRoutes = ({
   {
     path: pathnames.users.path,
     element: Users,
-    permissions: ['rbac:principal:read'],
+    ...p(pathnames.users.link()),
     childRoutes: [
       (isITLess || isCommonAuthModel) && {
         path: pathnames['invite-users'].path,
         element: isCommonAuthModel ? InviteUsersModalCommonAuth : InviteUsersModal,
-        permissions: ['rbac:principal:write'],
+        ...p(pathnames['invite-users'].link()),
       },
-    ].filter(Boolean) as ChildRoute[],
+    ].filter(Boolean) as Route[],
   },
 
   // ===========================================
@@ -215,22 +218,22 @@ const getRoutes = ({
   {
     path: pathnames['role-detail'].path,
     element: Role,
-    permissions: ['rbac:role:read'],
+    ...p(pathnames['role-detail'].link(':roleId')),
     childRoutes: [
       {
         path: pathnames['role-detail-remove'].path,
         element: RemoveRole,
-        permissions: ['rbac:role:write'],
+        ...p(pathnames['role-detail-remove'].link(':roleId')),
       },
       {
         path: pathnames['role-detail-edit'].path,
         element: EditRole,
-        permissions: ['rbac:role:write'],
+        ...p(pathnames['role-detail-edit'].link(':roleId')),
       },
       {
         path: pathnames['role-add-permission'].path,
         element: AddRolePermissionWizard,
-        permissions: ['rbac:role:write'],
+        ...p(pathnames['role-add-permission'].link(':roleId')),
       },
     ],
   },
@@ -241,12 +244,12 @@ const getRoutes = ({
   {
     path: pathnames['role-detail-permission'].path,
     element: ResourceDefinitions,
-    permissions: ['rbac:role:read'],
+    ...p(pathnames['role-detail-permission'].link(':roleId', ':permissionId')),
     childRoutes: [
       {
         path: pathnames['role-detail-permission-edit'].path,
         element: EditResourceDefinitionsModal,
-        permissions: ['rbac:role:write'],
+        ...p(pathnames['role-detail-permission-edit'].link(':roleId', ':permissionId')),
       },
     ],
   },
@@ -260,68 +263,68 @@ const getRoutes = ({
         {
           path: pathnames['access-management-workspaces'].path,
           element: WorkspaceList,
-          permissions: ['inventory:groups:read'],
+          ...p(pathnames['access-management-workspaces'].link()),
           childRoutes: [
             {
               path: pathnames['create-workspace'].path,
               element: CreateWorkspaceWizard,
-              permissions: ['inventory:groups:write'],
+              ...p(pathnames['create-workspace'].link()),
             },
             {
               path: pathnames['edit-workspaces-list'].path,
               element: EditWorkspaceModal,
-              permissions: ['inventory:groups:write'],
+              ...p(pathnames['edit-workspaces-list'].link(':workspaceId')),
             },
           ],
-        } as RootRoute,
+        },
         // Access Management (V2) - Roles
         {
           path: pathnames['access-management-roles'].path,
           element: RolesWithWorkspaces,
-          permissions: ['rbac:role:read'],
+          ...p(pathnames['access-management-roles'].link()),
           childRoutes: [
             {
               path: pathnames['access-management-add-role'].path,
               element: AddRoleWizard,
-              permissions: ['rbac:role:write'],
+              ...p(pathnames['access-management-add-role'].link()),
             },
           ],
-        } as RootRoute,
+        },
         {
           path: `${pathnames['access-management-roles'].link()}/${pathnames['access-management-edit-role'].path}`,
           element: newEditRole,
-          permissions: ['rbac:role:write'],
-        } as RootRoute,
+          ...p(pathnames['access-management-edit-role'].link(':roleId')),
+        },
       ]
     : [
         // User Access (V1) - Roles
         {
           path: pathnames.roles.path,
           element: Roles,
-          permissions: ['rbac:role:read'],
+          ...p(pathnames.roles.link()),
           childRoutes: [
             {
               path: pathnames['roles-add-group-roles'].path,
               element: AddGroupRoles,
-              // Inherits read from parent
+              // Inherits read from parent (no permissions override)
             },
             {
               path: pathnames['add-role'].path,
               element: AddRoleWizard,
-              permissions: ['rbac:role:write'],
+              ...p(pathnames['add-role'].link()),
             },
             {
               path: pathnames['remove-role'].path,
               element: RemoveRole,
-              permissions: ['rbac:role:write'],
+              ...p(pathnames['remove-role'].link(':roleId')),
             },
             {
               path: pathnames['edit-role'].path,
               element: EditRole,
-              permissions: ['rbac:role:write'],
+              ...p(pathnames['edit-role'].link(':roleId')),
             },
           ],
-        } as RootRoute,
+        },
       ]),
 
   // ===========================================
@@ -330,7 +333,7 @@ const getRoutes = ({
   {
     path: pathnames['group-detail-role-detail'].path,
     element: Role,
-    permissions: ['rbac:role:read'],
+    ...p(pathnames['group-detail-role-detail'].link(':groupId', ':roleId')),
   },
 
   // ===========================================
@@ -339,7 +342,7 @@ const getRoutes = ({
   {
     path: pathnames['group-detail'].path,
     element: Group,
-    permissions: ['rbac:group:read'],
+    ...p(pathnames['group-detail'].link(':groupId')),
     childRoutes: [
       {
         path: pathnames['group-detail'].path,
@@ -355,17 +358,17 @@ const getRoutes = ({
           {
             path: pathnames['group-roles-edit-group'].path,
             element: EditGroup,
-            permissions: ['rbac:group:write'],
+            ...p(pathnames['group-roles-edit-group'].link(':groupId')),
           },
           {
             path: pathnames['group-roles-remove-group'].path,
             element: RemoveGroup,
-            permissions: ['rbac:group:write'],
+            ...p(pathnames['group-roles-remove-group'].link(':groupId')),
           },
           {
             path: pathnames['group-add-roles'].path,
             element: AddGroupRoles,
-            permissions: ['rbac:group:write'],
+            ...p(pathnames['group-add-roles'].link(':groupId')),
           },
         ],
       },
@@ -377,17 +380,17 @@ const getRoutes = ({
           {
             path: pathnames['group-members-edit-group'].path,
             element: EditGroup,
-            permissions: ['rbac:group:write'],
+            ...p(pathnames['group-members-edit-group'].link(':groupId')),
           },
           {
             path: pathnames['group-members-remove-group'].path,
             element: RemoveGroup,
-            permissions: ['rbac:group:write'],
+            ...p(pathnames['group-members-remove-group'].link(':groupId')),
           },
           {
             path: pathnames['group-add-members'].path,
             element: AddGroupMembers,
-            permissions: ['rbac:group:write'],
+            ...p(pathnames['group-add-members'].link(':groupId')),
           },
         ],
       },
@@ -401,20 +404,20 @@ const getRoutes = ({
                 {
                   path: pathnames['group-service-accounts-edit-group'].path,
                   element: EditGroup,
-                  permissions: ['rbac:group:write'],
+                  ...p(pathnames['group-service-accounts-edit-group'].link(':groupId')),
                 },
                 {
                   path: pathnames['group-service-accounts-remove-group'].path,
                   element: RemoveServiceAccountFromGroup,
-                  permissions: ['rbac:group:write'],
+                  ...p(pathnames['group-service-accounts-remove-group'].link(':groupId')),
                 },
                 {
                   path: pathnames['group-add-service-account'].path,
                   element: AddGroupServiceAccounts,
-                  permissions: ['rbac:group:write'],
+                  ...p(pathnames['group-add-service-account'].link(':groupId')),
                 },
               ],
-            } as ChildRoute,
+            },
           ]
         : []),
     ],
@@ -426,22 +429,22 @@ const getRoutes = ({
   {
     path: pathnames.groups.path,
     element: Groups,
-    permissions: ['rbac:group:read'],
+    ...p(pathnames.groups.link()),
     childRoutes: [
       {
         path: pathnames['add-group'].path,
         element: AddGroupWizard,
-        permissions: ['rbac:group:write'],
+        ...p(pathnames['add-group'].link()),
       },
       {
         path: pathnames['edit-group'].path,
         element: EditGroup,
-        permissions: ['rbac:group:write'],
+        ...p(pathnames['edit-group'].link(':groupId')),
       },
       {
         path: pathnames['remove-group'].path,
         element: RemoveGroup,
-        permissions: ['rbac:group:write'],
+        ...p(pathnames['remove-group'].link(':groupId')),
       },
     ],
   },
@@ -454,8 +457,8 @@ const getRoutes = ({
         {
           path: pathnames['quickstarts-test'].path,
           element: QuickstartsTest,
-          permissions: [], // Public
-        } as RootRoute,
+          ...p(pathnames['quickstarts-test'].link()),
+        },
       ]
     : []),
 
@@ -465,54 +468,50 @@ const getRoutes = ({
   {
     path: pathnames['my-user-access'].path,
     element: MyUserAccessPage,
-    permissions: [], // Public - users can see their own access
+    ...p(pathnames['my-user-access'].link()),
   },
 ];
 
 // ===========================================
-// Route Type Hierarchy (Compile-Time Enforcement)
+// Route Type (unified for root and child routes)
 // ===========================================
 
-/** Shared properties for all routes */
-interface BaseRoute {
+interface Route {
   path?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   element: React.ComponentType<any>;
   elementProps?: Record<string, unknown>;
-  /** true = AND logic (default), false = OR logic */
-  checkAll?: boolean;
-  /** true = requires orgAdmin platform flag (not the same as rbac:*:* permission) */
-  requireOrgAdmin?: boolean;
-}
-
-/** Child routes - permissions OPTIONAL (inherit from parent if omitted) */
-interface ChildRoute extends BaseRoute {
-  /** Optional - inherits from parent if omitted */
+  /** Required permissions (empty = public route) */
   permissions?: string[];
   /** true = inherit parent permissions (default), false = own only */
   inheritPermissions?: boolean;
-  childRoutes?: ChildRoute[];
-}
-
-/** Root routes - permissions REQUIRED (TypeScript enforced) */
-interface RootRoute extends BaseRoute {
-  /** REQUIRED - compile error if missing */
-  permissions: string[];
-  childRoutes?: ChildRoute[];
+  /** true = AND logic (default), false = OR logic */
+  checkAll?: boolean;
+  /** true = requires orgAdmin platform flag */
+  requireOrgAdmin?: boolean;
+  childRoutes?: Route[];
 }
 
 // ===========================================
 // Route Rendering with Permission Guards
 // ===========================================
 
-/** Internal helper for recursive rendering (accepts ChildRoute[] for children) */
-const renderChildRoutes = (routes: ChildRoute[] = [], parentPermissions: string[] = [], parentRequireOrgAdmin = false): React.ReactNode =>
+/** Recursive route renderer with permission inheritance */
+const renderRoutes = (routes: Route[], parentPermissions: string[] = [], parentRequireOrgAdmin = false): React.ReactNode =>
   routes
     .filter(Boolean)
     .map(
-      ({ path, element: Element, childRoutes, elementProps, permissions, checkAll = true, inheritPermissions = true, requireOrgAdmin = false }) => {
-        const ownPermissions = permissions ?? [];
-        const effectivePermissions = inheritPermissions ? [...parentPermissions, ...ownPermissions] : ownPermissions;
+      ({
+        path,
+        element: Element,
+        childRoutes,
+        elementProps,
+        permissions = [],
+        inheritPermissions = true,
+        checkAll = true,
+        requireOrgAdmin = false,
+      }) => {
+        const effectivePermissions = inheritPermissions ? [...parentPermissions, ...permissions] : permissions;
         const effectiveRequireOrgAdmin = inheritPermissions ? parentRequireOrgAdmin || requireOrgAdmin : requireOrgAdmin;
 
         return (
@@ -527,29 +526,11 @@ const renderChildRoutes = (routes: ChildRoute[] = [], parentPermissions: string[
               </PermissionGuard>
             }
           >
-            {renderChildRoutes(childRoutes, effectivePermissions, effectiveRequireOrgAdmin)}
+            {renderRoutes(childRoutes ?? [], effectivePermissions, effectiveRequireOrgAdmin)}
           </RouterRoute>
         );
       },
     );
-
-/** Entry point - accepts RootRoute[] (permissions required) */
-const renderRoutes = (routes: RootRoute[]): React.ReactNode =>
-  routes.filter(Boolean).map(({ path, element: Element, childRoutes, elementProps, permissions, checkAll = true, requireOrgAdmin = false }) => (
-    <RouterRoute
-      key={path}
-      path={path}
-      element={
-        <PermissionGuard permissions={permissions} checkAll={checkAll} requireOrgAdmin={requireOrgAdmin}>
-          <ElementWrapper path={path}>
-            <Element {...elementProps} />
-          </ElementWrapper>
-        </PermissionGuard>
-      }
-    >
-      {renderChildRoutes(childRoutes, permissions, requireOrgAdmin)}
-    </RouterRoute>
-  ));
 
 const Routing = () => {
   const location = useLocation();
