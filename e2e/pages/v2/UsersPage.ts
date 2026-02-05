@@ -52,8 +52,12 @@ export class UsersPage {
     return this.page.getByRole('searchbox').or(this.page.getByPlaceholder(/filter|search/i));
   }
 
-  get inviteButton(): Locator {
-    return this.page.getByRole('button', { name: /invite users/i });
+  get actionsMenu(): Locator {
+    return this.page.getByRole('button', { name: /actions overflow menu/i });
+  }
+
+  get inviteMenuItem(): Locator {
+    return this.page.getByRole('menuitem', { name: /invite users/i });
   }
 
   get addToGroupButton(): Locator {
@@ -158,10 +162,12 @@ export class UsersPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * Open the invite users modal
+   * Open the invite users modal (via Actions dropdown menu)
    */
   async openInviteModal(): Promise<void> {
-    await this.inviteButton.click();
+    await this.actionsMenu.click();
+    await expect(this.inviteMenuItem).toBeVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+    await this.inviteMenuItem.click();
     await expect(this.modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
     await expect(this.page.getByRole('heading', { name: /invite new users/i })).toBeVisible();
   }
