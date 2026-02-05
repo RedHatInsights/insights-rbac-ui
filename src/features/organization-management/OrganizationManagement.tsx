@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PageHeader } from '@patternfly/react-component-groups';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Flex } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
@@ -7,15 +7,15 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 import messages from '../../Messages';
 import { useIntl } from 'react-intl';
 import { RoleAssignmentsTable } from '../workspaces/workspace-detail/components/RoleAssignmentsTable';
-import { workspacesApi } from '../../data/api/workspaces';
-import { Group } from '../../data/queries/groups';
+import { useRoleBindingsQuery } from '../../data/queries/workspaces';
+import { mapRoleBindingsToGroups } from '../../helpers/dataUtilities';
 
 export const OrganizationManagement = () => {
   const intl = useIntl();
   const chrome = useChrome();
 
   // User/organization data from chrome.auth.getUser()
-  const [organizationName] = useState(intl.formatMessage(messages.redHatOrganizationPlaceholder)); // Will need separate API for actual name
+  const [organizationName, setOrganizationName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [organizationId, setOrganizationId] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -27,10 +27,18 @@ export const OrganizationManagement = () => {
   const [direction, setDirection] = useState<'asc' | 'desc'>('asc');
   const [filters, setFilters] = useState({ name: '' });
 
-  // Data state for organization role assignments
-  const [roleBindings, setRoleBindings] = useState<Group[]>([]);
-  const [roleBindingsTotalCount, setRoleBindingsTotalCount] = useState(0);
-  const [roleBindingsIsLoading, setRoleBindingsIsLoading] = useState(false);
+  // Role bindings query
+  const roleBindingsQuery = useRoleBindingsQuery(
+    {
+      resourceId: organizationId,
+      resourceType: 'organization',
+      subjectType: 'group',
+      limit: perPage,
+      orderBy: direction === 'desc' ? `-${sortBy === 'name' ? 'subject.group.name' : sortBy}` : sortBy === 'name' ? 'subject.group.name' : sortBy,
+      parentRoleBindings: false,
+    },
+    { enabled: !!organizationId },
+  );
 
   // Handlers for RoleAssignmentsTable
   const handleSetPage = (event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
@@ -57,58 +65,10 @@ export const OrganizationManagement = () => {
     setPage(1);
   };
 
-  // Fetch organization-level role bindings
-  const fetchRoleBindingsData = useCallback(async () => {
-    if (!organizationId) {
-      // Can't fetch data without organization ID
-      setRoleBindingsIsLoading(false);
-      return;
-    }
-
-    setRoleBindingsIsLoading(true);
-    try {
-      // For organization-wide access, we fetch role bindings for the organization
-      // Using the organization ID as resource_id and 'organization' as resource_type
-      const result = await workspacesApi.roleBindingsListBySubject({
-        limit: perPage,
-        subjectType: 'group', // Filter for group subjects
-        resourceType: 'organization', // Organization-level access
-        resourceId: organizationId, // Use actual organization ID
-        orderBy: sortBy === 'name' ? 'subject.group.name' : sortBy,
-        // Include parent role bindings if needed
-        parentRoleBindings: false,
-      });
-
-      // Transform role bindings data to match the expected Group structure
-      // The API returns RoleBindingBySubject objects grouped by subject
-      const transformedData: Group[] =
-        result.data?.data?.map(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (binding: any): Group => ({
-            uuid: binding.subject?.id || '',
-            name: binding.subject?.group?.name || binding.subject?.user?.username || intl.formatMessage(messages.unknownSubjectName),
-            description: binding.subject?.group?.description || '',
-            principalCount: binding.subject?.group?.user_count || 0,
-            roleCount: binding.roles?.length || 0,
-            created: binding.last_modified || '',
-            modified: binding.last_modified || '',
-            platform_default: false,
-            system: false,
-            admin_default: false,
-          }),
-        ) || [];
-
-      setRoleBindings(transformedData);
-      setRoleBindingsTotalCount(result.data?.data?.length ?? 0);
-    } catch (error) {
-      console.error('Error fetching organization role bindings:', error);
-      // If organization resource type is not supported, we'll show empty state
-      setRoleBindings([]);
-      setRoleBindingsTotalCount(0);
-    } finally {
-      setRoleBindingsIsLoading(false);
-    }
-  }, [organizationId, perPage, sortBy, direction, filters]);
+  // Derive data from role bindings query
+  const roleBindings = roleBindingsQuery.data?.data ? mapRoleBindingsToGroups(roleBindingsQuery.data.data, intl) : [];
+  const roleBindingsTotalCount = roleBindingsQuery.data?.data?.length ?? 0;
+  const roleBindingsIsLoading = roleBindingsQuery.isLoading;
 
   // Fetch user/organization data
   useEffect(() => {
@@ -129,16 +89,15 @@ export const OrganizationManagement = () => {
           return;
         }
 
-        // Set organization ID and account number from user identity
+        // Set organization data from user identity
         const orgId = identity.org_id || '';
         const accountNum = identity.account_number || identity.internal?.account_id || '';
+        const orgName = identity.organization?.name || '';
 
         setOrganizationId(orgId);
         setAccountNumber(accountNum);
+        setOrganizationName(orgName);
         setError(null);
-
-        // Organization name is not available in user identity - would need separate API call
-        // For now, keeping the placeholder until proper org name API is implemented
       } catch (error) {
         console.error('OrganizationManagement: Failed to fetch user data:', error);
         setError('Failed to load organization data');
@@ -149,11 +108,6 @@ export const OrganizationManagement = () => {
       fetchUserData();
     }
   }, [chrome]);
-
-  // Fetch data on component mount and when dependencies change
-  useEffect(() => {
-    fetchRoleBindingsData();
-  }, [fetchRoleBindingsData]);
 
   return (
     <>

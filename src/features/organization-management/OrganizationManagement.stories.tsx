@@ -61,7 +61,7 @@ const mockChromeUserMinimal = withIdentity({
 // Mock role bindings API response data matching OpenAPI spec
 const mockRoleBindingsResponse = {
   meta: {
-    limit: 20,
+    limit: 20, // Only limit is available in cursor-based pagination
   },
   links: {
     next: null,
@@ -215,23 +215,8 @@ const mockRoleBindingsResponse = {
 };
 
 // API handler factory for DRY mock setup
-const createRoleBindingsMockHandler = (responseData: typeof mockRoleBindingsResponse) => {
-  return http.get('*/api/rbac/v2/role-bindings/by-subject/', ({ request }) => {
-    const url = new URL(request.url);
-    const resourceType = url.searchParams.get('resource_type');
-    const resourceId = url.searchParams.get('resource_id');
-
-    // Log for debugging
-    console.log('MSW intercepted role bindings request:', {
-      resourceType,
-      resourceId,
-      url: url.toString(),
-    });
-
-    // Return our mock response regardless of query params for now
-    return HttpResponse.json(responseData);
-  });
-};
+const createRoleBindingsMockHandler = (responseData: typeof mockRoleBindingsResponse) =>
+  http.get('*/api/rbac/v2/role-bindings/by-subject/', () => HttpResponse.json(responseData));
 
 const meta: Meta<typeof OrganizationManagement> = {
   component: OrganizationManagement,
@@ -281,6 +266,15 @@ The OrganizationManagement component provides the organization-wide access page.
 export default meta;
 type Story = StoryObj<typeof OrganizationManagement>;
 
+// Helper functions for story parameters
+const withRoleBindings = (response: typeof mockRoleBindingsResponse) => ({
+  msw: { handlers: [createRoleBindingsMockHandler(response)] },
+});
+
+const withStoryDescription = (story: string) => ({
+  docs: { description: { story } },
+});
+
 // Shared expectation helper
 type OrgExpectations = {
   name?: string | null;
@@ -295,13 +289,15 @@ const expectOrgDetails = async (canvas: ReturnType<typeof within>, exp: OrgExpec
   // Wait for org ID to appear (this indicates useEffect has run)
   await expect(canvas.findByText(exp.orgId)).resolves.toBeInTheDocument();
 
-  // Organization name is always shown (hardcoded placeholder)
-  await expect(canvas.findByText('Organization name:')).resolves.toBeInTheDocument();
+  // Organization name is only shown when available from ChromeUser
   if (exp.name) {
+    await expect(canvas.findByText('Organization name:')).resolves.toBeInTheDocument();
     await expect(canvas.findByText(exp.name)).resolves.toBeInTheDocument();
   } else {
-    // Should show the default placeholder
-    await expect(canvas.findByText('Red Hat Organization')).resolves.toBeInTheDocument();
+    // If no organization name, the section should not be rendered at all
+    await waitFor(() => {
+      expect(canvas.queryByText('Organization name:')).not.toBeInTheDocument();
+    });
   }
 
   // Check account number
@@ -369,7 +365,7 @@ export const WithFullOrganizationData: Story = {
 
     // Test full organization data scenario
     await expectOrgDetails(canvas, {
-      name: null, // Component shows hardcoded "Red Hat Organization" placeholder
+      name: 'Red Hat Test Organization', // From mockChromeUserWithAllData
       account: '123456789',
       orgId: 'org-987654321',
     });
@@ -439,8 +435,8 @@ export const AccessibilityCheck: Story = {
     // Test semantic structure
     await expect(canvas.findByRole('heading')).resolves.toBeInTheDocument();
 
-    // Wait for organization data to load - component shows placeholder organization name
-    await expect(canvas.findByText('Red Hat Organization')).resolves.toBeInTheDocument();
+    // Wait for organization data to load - component shows actual organization name from ChromeUser
+    await expect(canvas.findByText('Red Hat Test Organization')).resolves.toBeInTheDocument();
 
     // Test that content is properly structured when data is available
     const organizationDetails = canvas.getAllByText(/Organization name:|Account number:|Organization ID:/);
@@ -470,9 +466,8 @@ export const ContentValidation: Story = {
     expect(subtitle).toBeInTheDocument();
 
     // Use shared helper to validate all organization content
-    // Note: name is null because component uses hardcoded placeholder
     await expectOrgDetails(canvas, {
-      name: null, // Component shows hardcoded "Red Hat Organization" placeholder
+      name: 'Red Hat Test Organization', // From mockChromeUserWithAllData
       account: '123456789',
       orgId: 'org-987654321',
     });
@@ -487,14 +482,8 @@ export const WithRoleBindingsTableTest: Story = {
   name: 'Role Bindings Table Functionality',
   parameters: {
     chromeConfig: createChromeConfig(mockChromeUserWithAllData),
-    msw: {
-      handlers: [createRoleBindingsMockHandler(mockRoleBindingsResponse)],
-    },
-    docs: {
-      description: {
-        story: 'Tests the role bindings table functionality with comprehensive mock data.',
-      },
-    },
+    ...withRoleBindings(mockRoleBindingsResponse),
+    ...withStoryDescription('Tests the role bindings table functionality with comprehensive mock data.'),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
