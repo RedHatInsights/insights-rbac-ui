@@ -3095,7 +3095,7 @@ export default defineMessages({
     description: 'Description for notification when user lacks permission',
     defaultMessage: 'You do not have permission to perform this action. Please contact your administrator.',
   },
-  organizationNameLabel: {
+organizationNameLabel: {
     id: 'organizationNameLabel',
     description: 'Label for organization name field',
     defaultMessage: 'Organization name:',
@@ -3119,5 +3119,15 @@ export default defineMessages({
     id: 'unknownSubjectName',
     description: 'Fallback text when subject name is not available',
     defaultMessage: 'Unknown',
+  },
+  unauthorizedAccessServiceName: {
+    id: 'unauthorizedAccessServiceName',
+    description: 'Generic service name displayed on unauthorized access pages',
+    defaultMessage: 'this page',
+  },
+  unauthorizedAccessBodyText: {
+    id: 'unauthorizedAccessBodyText',
+    description: 'Body text displayed on unauthorized access pages',
+    defaultMessage: "You don't have permission to view this page.",
   },
 });

@@ -114,6 +114,20 @@ module.exports = defineConfig(
     },
   },
   {
+    // Routing.tsx: Forbid hardcoded permissions - must use p() helper from route-definitions.ts
+    files: ['src/Routing.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Property[key.name="permissions"][value.type="ArrayExpression"]',
+          message:
+            'Do not hardcode permissions in Routing.tsx. Use ...p(path) spread from route-definitions.ts to get permissions from the single source of truth.',
+        },
+      ],
+    },
+  },
+  {
     // Story files need TypeScript parser but don't need the strict navigation rules
     files: ['src/**/*.stories.tsx', 'src/user-journeys/**/*.tsx', 'src/user-journeys/**/*.ts'],
     plugins: {
