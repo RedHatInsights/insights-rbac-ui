@@ -5,10 +5,11 @@
  * ALSO warms the asset cache after auth - this runs first so
  * all subsequent tests can use cached assets.
  */
-import { chromium, test as setup } from '@playwright/test';
+import { chromium, expect, test as setup } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 import { authenticatePersona } from '../utils/auth';
+import { E2E_TIMEOUTS } from '../utils/timeouts';
 
 const AUTH_FILE = path.join(__dirname, '../auth/v1-admin.json');
 const CACHE_DIR = path.join(__dirname, '../cache');
@@ -72,7 +73,11 @@ setup('authenticate v1 admin', async () => {
     const warmupURL = `${baseURL}/iam/my-user-access`;
 
     console.log(`[Cache Warmer] Navigating to: ${warmupURL}`);
-    await page.goto(warmupURL, { waitUntil: 'networkidle', timeout: 60000 });
+    await page.goto(warmupURL, { timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
+    // Wait for page content to render (not networkidle - we're a SPA)
+    await expect(page.getByRole('heading', { name: /my user access/i })).toBeVisible({
+      timeout: E2E_TIMEOUTS.DETAIL_CONTENT,
+    });
 
     // Always log page state for debugging
     const currentUrl = page.url();
