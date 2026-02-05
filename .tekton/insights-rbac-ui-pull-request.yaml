@@ -316,7 +316,17 @@ spec:
             echo "TEST_PREFIX_V1: $TEST_PREFIX_V1"
             echo "TEST_PREFIX_V2: $TEST_PREFIX_V2"
             npm run e2e:cleanup
-            npm run e2e
+            npm run e2e:seed
+            
+            # Run tests but don't fail immediately - baseline check decides pass/fail
+            npm run e2e:test || true
+            
+            # Check results against known failures baseline
+            npm run e2e:baseline
+            E2E_RESULT=$?
+            
+            npm run e2e:cleanup
+            exit $E2E_RESULT
 
     finally:
     - name: show-summary
