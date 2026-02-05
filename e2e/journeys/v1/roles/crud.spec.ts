@@ -11,6 +11,7 @@ import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
 import { getSeededRoleName } from '../../../utils/seed-map';
 import { RolesPage } from '../../../pages/v1/RolesPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
@@ -67,7 +68,7 @@ test.describe('Admin', () => {
     await rolesPage.navigateToDetail(SEEDED_ROLE_NAME);
 
     // Wait for detail page to fully render
-    await expect(rolesPage.getDetailHeading(SEEDED_ROLE_NAME)).toBeVisible({ timeout: 15000 });
+    await expect(rolesPage.getDetailHeading(SEEDED_ROLE_NAME)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     await rolesPage.openDetailActions();
     await expect(page.getByRole('menuitem', { name: /edit/i })).toBeVisible();
@@ -107,7 +108,7 @@ test.describe('Admin', () => {
       await rolesPage.searchFor(uniqueRoleName);
       await rolesPage.navigateToDetail(uniqueRoleName);
 
-      await expect(rolesPage.getDetailHeading(uniqueRoleName)).toBeVisible({ timeout: 10000 });
+      await expect(rolesPage.getDetailHeading(uniqueRoleName)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       await expect(page.getByText(roleDescription)).toBeVisible();
 
       console.log(`[View] ✓ Detail page verified`);
@@ -195,7 +196,7 @@ test.describe('Admin', () => {
       await rolesPage.searchFor(copiedRoleName);
       await rolesPage.navigateToDetail(copiedRoleName);
 
-      await expect(rolesPage.getDetailHeading(copiedRoleName)).toBeVisible({ timeout: 10000 });
+      await expect(rolesPage.getDetailHeading(copiedRoleName)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
       // Verify the copied role has permissions (inherited from source)
       // The Permissions tab should show permissions

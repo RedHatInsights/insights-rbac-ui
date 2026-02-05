@@ -9,6 +9,7 @@
 
 import { expect, test } from '@playwright/test';
 import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, getAdminUsername } from '../../../utils';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { UsersPage } from '../../../pages/v2/UsersPage';
 
 // Get known admin username from seed fixture (for filter/search tests)
@@ -50,7 +51,7 @@ viewPersonas.forEach(({ name, auth }) => {
 
       // Filter by known admin user
       await usersPage.filterByUsername(KNOWN_USERNAME!);
-      await expect(usersPage.getUserRow(KNOWN_USERNAME!)).toBeVisible({ timeout: 10000 });
+      await expect(usersPage.getUserRow(KNOWN_USERNAME!)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
       // Clear filter
       await usersPage.clearFilter();

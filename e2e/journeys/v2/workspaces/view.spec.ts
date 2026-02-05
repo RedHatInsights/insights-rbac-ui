@@ -8,6 +8,7 @@
 
 import { expect, test } from '@playwright/test';
 import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, getSeededWorkspaceData, getSeededWorkspaceName } from '../../../utils';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
 const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName('v2');
@@ -58,7 +59,7 @@ viewPersonas.forEach(({ name, auth }) => {
 
       // Verify description if available
       if (SEEDED_WORKSPACE_DATA?.description) {
-        await expect(page.getByText(SEEDED_WORKSPACE_DATA.description)).toBeVisible({ timeout: 30000 });
+        await expect(page.getByText(SEEDED_WORKSPACE_DATA.description)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
       }
     });
   });

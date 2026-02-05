@@ -24,6 +24,7 @@
 
 import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
+import { E2E_TIMEOUTS } from './utils/timeouts';
 
 const baseURL = process.env.E2E_BASE_URL || 'https://console.stage.redhat.com';
 
@@ -65,11 +66,11 @@ export default defineConfig({
   },
 
   /* Global timeout for each test */
-  timeout: 60000,
+  timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD,
 
   /* Expect timeout */
   expect: {
-    timeout: 30000,
+    timeout: E2E_TIMEOUTS.SLOW_DATA,
   },
 
   /* Configure projects with auth dependencies */

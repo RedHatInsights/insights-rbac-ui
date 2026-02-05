@@ -17,8 +17,11 @@ export const E2E_TIMEOUTS = {
   /** Drawer/panel slide animation */
   DRAWER_ANIMATION: 1_000,
 
-  /** Modal appear animation */
+  /** Modal appear animation (just the animation) */
   MODAL_ANIMATION: 1_000,
+
+  /** Modal/dialog with content to load */
+  DIALOG_CONTENT: 5_000,
 
   /** Menu/dropdown open */
   MENU_ANIMATION: 500,
@@ -28,6 +31,9 @@ export const E2E_TIMEOUTS = {
 
   /** URL change after click (before content loads) */
   URL_CHANGE: 2_000,
+
+  /** Very quick UI settle (React re-render buffer) */
+  QUICK_SETTLE: 100,
 
   // ─────────────────────────────────────────────────────────────────────
   // Data Loading (network, can be slow)

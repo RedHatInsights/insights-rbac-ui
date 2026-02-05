@@ -10,6 +10,7 @@
 import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN, getAdminUsername } from '../../../utils';
 import { UsersPage } from '../../../pages/v1/UsersPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 // Get known admin username from seed fixture (not from env vars)
 const ADMIN_USERNAME = getAdminUsername('v1');
@@ -37,7 +38,7 @@ test.describe('Admin', () => {
     await usersPage.goto();
 
     await usersPage.searchFor(ADMIN_USERNAME!);
-    await expect(usersPage.getUserLink(ADMIN_USERNAME!)).toBeVisible({ timeout: 10000 });
+    await expect(usersPage.getUserLink(ADMIN_USERNAME!)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     await usersPage.clearSearch();
     await expect(usersPage.table).toBeVisible();
@@ -53,7 +54,7 @@ test.describe('Admin', () => {
     await usersPage.navigateToDetail(ADMIN_USERNAME!);
 
     // Verify detail page
-    await expect(usersPage.getDetailHeading(ADMIN_USERNAME!)).toBeVisible({ timeout: 5000 });
+    await expect(usersPage.getDetailHeading(ADMIN_USERNAME!)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Navigate back
     await usersPage.navigateBackToList();

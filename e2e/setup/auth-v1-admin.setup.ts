@@ -97,7 +97,7 @@ setup('authenticate v1 admin', async () => {
     }
 
     // Give extra time for lazy-loaded chunks
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(E2E_TIMEOUTS.MODAL_ANIMATION);
     console.log('[Cache Warmer] Asset collection complete');
   } catch (error) {
     // Don't fail the test if cache warming fails - tests can still run without cache

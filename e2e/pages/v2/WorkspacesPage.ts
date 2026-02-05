@@ -8,6 +8,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import { setupPage, waitForTableUpdate } from '../../utils';
 import { ManagedWorkspaceSelectorComponent } from '../components/ManagedWorkspaceSelectorComponent';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const WORKSPACES_URL = '/iam/access-management/workspaces';
 
@@ -68,16 +69,16 @@ export class WorkspacesPage {
   }
 
   async verifyWorkspaceInTable(name: string): Promise<void> {
-    await expect(this.table.getByText(name)).toBeVisible({ timeout: 10000 });
+    await expect(this.table.getByText(name)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async verifyWorkspaceNotInTable(name: string): Promise<void> {
-    await expect(this.table.getByText(name)).not.toBeVisible({ timeout: 10000 });
+    await expect(this.table.getByText(name)).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async navigateToDetail(name: string): Promise<void> {
     await this.getWorkspaceLink(name).click();
-    await expect(this.page.getByRole('heading', { name })).toBeVisible({ timeout: 15000 });
+    await expect(this.page.getByRole('heading', { name })).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -93,7 +94,7 @@ export class WorkspacesPage {
    */
   async fillCreateModal(name: string, description: string, parentWorkspace?: string, parentPath?: string): Promise<void> {
     const modal = this.page.locator('[role="dialog"]');
-    await expect(modal).toBeVisible({ timeout: 10000 });
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     // Select parent workspace if specified
     if (parentWorkspace) {
@@ -107,13 +108,13 @@ export class WorkspacesPage {
     }
 
     await modal.getByRole('button', { name: /submit|create|save/i }).click();
-    await expect(modal).not.toBeVisible({ timeout: 15000 });
+    await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
   }
 
   async fillEditForm(newDescription: string): Promise<void> {
     // Edit workspace form on detail page
     const nameInput = this.page.getByLabel(/name/i);
-    await expect(nameInput).toBeVisible({ timeout: 5000 });
+    await expect(nameInput).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     // Note: Workspace names often can't be edited, only description
 
     const descInput = this.page.getByLabel(/description/i);
@@ -129,14 +130,14 @@ export class WorkspacesPage {
 
   async confirmDelete(): Promise<void> {
     const modal = this.page.locator('[role="dialog"]');
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     const checkbox = modal.getByRole('checkbox');
-    if (await checkbox.isVisible({ timeout: 2000 }).catch(() => false)) {
+    if (await checkbox.isVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION }).catch(() => false)) {
       await checkbox.click();
     }
 
     await modal.getByRole('button', { name: /delete|remove/i }).click();
-    await expect(modal).not.toBeVisible({ timeout: 10000 });
+    await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 }
