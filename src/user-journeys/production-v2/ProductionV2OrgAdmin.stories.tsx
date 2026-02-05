@@ -4,6 +4,8 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, navigateToPage, resetStoryState, verifySuccessNotification, waitForPageToLoad } from '../_shared/helpers';
+import { fillCopyRoleWizard } from '../../features/roles/CopyRole.helpers';
+import { fillCreateRoleWizard } from '../../features/roles/CreateRole.helpers';
 import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-handlers';
 import { defaultGroups } from '../../../.storybook/fixtures/groups';
 import { defaultUsers } from '../../../.storybook/fixtures/users';
@@ -503,5 +505,180 @@ Tests inviting new users to the organization from the V2 interface.
 
     // Verify org admin role was included (checkbox was checked)
     expect(spyCall.roles).toContain('organization_administrator');
+  },
+};
+
+/**
+ * Create Role Journey (V2)
+ *
+ * Tests the full end-to-end role creation flow (simple path: create from scratch)
+ * in the V2/Management Fabric environment.
+ *
+ * Steps:
+ * 1. Navigate to Roles page
+ * 2. Click "Create role"
+ * 3. Select "Create role from scratch"
+ * 4. Enter role name
+ * 5. Add permissions
+ * 6. Review and submit
+ * 7. Verify success screen
+ * 8. Close wizard
+ * 9. Verify newly created role appears in the table
+ */
+export const CreateRoleJourney: Story = {
+  name: 'Roles / Create new role',
+  args: {
+    initialRoute: '/iam/access-management/roles',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: defaultRoles,
+        workspaces: defaultWorkspaces,
+      }),
+    },
+    test: {
+      dangerouslyIgnoreUnhandledErrors: true,
+    },
+    docs: {
+      description: {
+        story: `
+Tests the full flow of creating a role from scratch in the V2 environment.
+
+**Journey Flow:**
+- Navigate to Roles page
+- Click "Create role"
+- Select "Create role from scratch"
+- Enter role name
+- Add permissions
+- Review and submit
+- Verify success
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // Navigate to Roles page
+    await navigateToPage(user, canvas, 'Roles');
+
+    // Wait for roles list to load
+    await waitForPageToLoad(canvas, 'Viewer');
+
+    // Click "Create role" button
+    const createButton = await canvas.findByRole('button', { name: /create role/i });
+    await user.click(createButton);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Fill and submit the wizard
+    await fillCreateRoleWizard(user, 'V2 Automation Test Role', 'A test custom role for V2 automation', ['insights:*:*']);
+
+    // Verify we're back on the roles list and the new role appears
+    await waitForPageToLoad(canvas, 'Viewer');
+
+    // CRITICAL: Verify the newly created role appears in the table
+    await waitFor(
+      () => {
+        expect(canvas.getByText('V2 Automation Test Role')).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+    );
+  },
+};
+
+/**
+ * Copy Role Journey (V2)
+ *
+ * Tests the full end-to-end role creation flow by copying an existing role
+ * in the V2/Management Fabric environment.
+ *
+ * This is a regression test for a bug where the Next button stayed disabled
+ * after filling in the role name and description.
+ *
+ * Steps:
+ * 1. Navigate to Roles page
+ * 2. Click "Create role"
+ * 3. Select "Copy an existing role"
+ * 4. Select a source role from the table
+ * 5. Keep the default name/description ("Copy of [source]")
+ * 6. Click Next (validates the fix for the disabled button bug)
+ * 7. Review permissions (inherited from source)
+ * 8. Submit
+ * 9. Verify newly created role appears in the table
+ */
+export const CopyRoleJourney: Story = {
+  name: 'Roles / Copy existing role',
+  args: {
+    initialRoute: '/iam/access-management/roles',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: defaultRoles,
+        workspaces: defaultWorkspaces,
+      }),
+    },
+    test: {
+      dangerouslyIgnoreUnhandledErrors: true,
+    },
+    docs: {
+      description: {
+        story: `
+Tests the full flow of creating a role by copying an existing one in V2.
+
+**Regression test for:** Copy role wizard Next button stays disabled after validation.
+
+**Journey Flow:**
+- Navigate to Roles page
+- Click "Create role"
+- Select "Copy an existing role"
+- Select source role (Custom Role)
+- Keep default name ("Copy of Custom Role")
+- **Critical:** Next button becomes enabled after async validation
+- Review inherited permissions
+- Submit and verify success
+- Verify new role appears in table
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // Navigate to Roles page
+    await navigateToPage(user, canvas, 'Roles');
+
+    // Wait for roles list to load
+    await waitForPageToLoad(canvas, 'Custom Role');
+
+    // Click "Create role" button
+    const createButton = await canvas.findByRole('button', { name: /create role/i });
+    await user.click(createButton);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Fill the copy role wizard - uses default "Copy of Custom Role" name
+    // CRITICAL: This tests that the Next button becomes enabled after async validation
+    await fillCopyRoleWizard(user, 'Custom Role');
+
+    // Verify we're back on the roles list and the new role appears
+    await waitForPageToLoad(canvas, 'Custom Role');
+
+    // CRITICAL: Verify the newly created role appears in the table
+    // This confirms the wizard completed successfully and the role was created
+    await waitFor(
+      () => {
+        expect(canvas.getByText('Copy of Custom Role')).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+    );
   },
 };

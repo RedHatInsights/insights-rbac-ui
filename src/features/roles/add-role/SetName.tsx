@@ -22,14 +22,20 @@ const roleDescriptionValidated = (roleDescription: string | undefined): 'error' 
 
 interface SetNameProps {
   name: string;
-  description?: string;
+  /** Field name for the role name value (defaults to 'role-name') */
+  nameFieldKey?: string;
+  /** Field name for the role description value (defaults to 'role-description') */
+  descriptionFieldKey?: string;
 }
 
 const SetName: React.FC<SetNameProps> = (props) => {
+  const { nameFieldKey = 'role-name', descriptionFieldKey = 'role-description' } = props;
   const intl = useIntl();
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
-  const { 'role-name': name, 'role-description': description } = formOptions.getState().values;
+  const formValues = formOptions.getState().values;
+  const name = formValues[nameFieldKey] as string | undefined;
+  const description = formValues[descriptionFieldKey] as string | undefined;
   const [roleName, setRoleName] = useState<string | undefined>(name || '');
   const [roleNameError, setRoleNameError] = useState<string | undefined>();
   const [roleDescription, setRoleDescription] = useState<string | undefined>(description);
@@ -85,7 +91,7 @@ const SetName: React.FC<SetNameProps> = (props) => {
             validated={roleDescriptionValid}
             onChange={(_event, value) => {
               setRoleDescription(value);
-              formOptions.change('role-description', value);
+              formOptions.change(descriptionFieldKey, value);
             }}
             aria-label="Role description"
             resizeOrientation="vertical"
