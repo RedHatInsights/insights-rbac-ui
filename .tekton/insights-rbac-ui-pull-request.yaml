@@ -277,7 +277,18 @@ spec:
       export RBAC_ENV=stage
       export E2E_BASE_URL=https://stage.foo.redhat.com:1337
 
-      npm run e2e
+      # TEMPORARY: Run only minimal tests for troubleshooting
+      # This runs auth setup + one test file to diagnose federated module loading
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      echo "Running minimal test suite for troubleshooting"
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      npm run e2e:v1:seed
+      TEST_VERSION=v1 npx playwright test --config=e2e/playwright.config.ts \
+        --project=v1-admin \
+        e2e/journeys/v1/groups/crud.spec.ts:50
+      E2E_EXIT=$?
+      npm run e2e:v1:cleanup
+      exit $E2E_EXIT
 
   # Credentials for E2E tests
   - name: e2e-credentials-secret
