@@ -116,6 +116,19 @@ spec:
           echo "✅ OK"
           echo "  Size: $(wc -c < /tmp/fed-mods.json) bytes"
           echo "  Content: $(cat /tmp/fed-mods.json | head -c 200)"
+
+          # Try to fetch a JS module from the manifest
+          MODULE_PATH=$(cat /tmp/fed-mods.json | grep -o '"[^"]*\.js"' | head -1 | tr -d '"' || echo "")
+          if [ -n "$MODULE_PATH" ]; then
+              echo -n "  Checking module JS ($MODULE_PATH)... "
+              if curl -f -s -m 5 "http://127.0.0.1:8000/apps/rbac/$MODULE_PATH" -o /tmp/module.js; then
+                  JS_SIZE=$(wc -c < /tmp/module.js)
+                  echo "✅ OK (${JS_SIZE} bytes)"
+              else
+                  echo "❌ FAILED"
+                  FAILURES=$((FAILURES + 1))
+              fi
+          fi
       else
           echo "❌ FAILED"
           FAILURES=$((FAILURES + 1))
@@ -201,6 +214,19 @@ spec:
           echo "✅ OK"
           echo "  Size: $(wc -c < /tmp/fed-mods-proxy.json) bytes"
           echo "  Content: $(cat /tmp/fed-mods-proxy.json | head -c 200)"
+
+          # Try to fetch a JS module through the proxy
+          MODULE_PATH=$(cat /tmp/fed-mods-proxy.json | grep -o '"[^"]*\.js"' | head -1 | tr -d '"' || echo "")
+          if [ -n "$MODULE_PATH" ]; then
+              echo -n "  Checking module JS via proxy ($MODULE_PATH)... "
+              if curl -k -f -s -m 10 "https://stage.foo.redhat.com:1337/apps/rbac/$MODULE_PATH" -o /tmp/module-proxy.js; then
+                  JS_SIZE=$(wc -c < /tmp/module-proxy.js)
+                  echo "✅ OK (${JS_SIZE} bytes)"
+              else
+                  echo "❌ FAILED"
+                  FAILURES=$((FAILURES + 1))
+              fi
+          fi
       else
           echo "❌ FAILED"
           FAILURES=$((FAILURES + 1))
