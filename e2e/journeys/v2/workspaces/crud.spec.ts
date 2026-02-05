@@ -9,6 +9,7 @@
 
 import { expect, test } from '@playwright/test';
 import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, waitForTableUpdate } from '../../../utils';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -106,7 +107,7 @@ test.describe('Admin', () => {
       await workspacesPage.searchFor(workspaceName);
       await workspacesPage.navigateToDetail(workspaceName);
 
-      await expect(page.getByText(editedDescription)).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(editedDescription)).toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
 
       console.log(`[Verify Edit] ✓ Changes confirmed`);
     });

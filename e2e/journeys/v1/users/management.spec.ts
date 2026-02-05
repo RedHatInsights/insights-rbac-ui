@@ -16,6 +16,7 @@
 import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN } from '../../../utils';
 import { UsersPage } from '../../../pages/v1/UsersPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
@@ -43,7 +44,7 @@ test.describe('Admin - User Status Management', () => {
     const usersPage = new UsersPage(page);
     await usersPage.goto();
 
-    await expect(usersPage.inviteButton).toBeVisible({ timeout: 10000 });
+    await expect(usersPage.inviteButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     console.log('[Users] ✓ Invite button is visible');
   });
@@ -73,8 +74,8 @@ test.describe('Admin - User Status Management', () => {
     await usersPage.goto();
 
     // Wait for table to load
-    await expect(usersPage.table).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(1000);
+    await expect(usersPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await page.waitForTimeout(E2E_TIMEOUTS.DRAWER_ANIMATION);
 
     // Select first user
     await usersPage.selectUserRows(1);
@@ -109,8 +110,8 @@ test.describe('Admin - User Status Management', () => {
     await usersPage.goto();
 
     // Wait for table to load
-    await expect(usersPage.table).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(1000);
+    await expect(usersPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await page.waitForTimeout(E2E_TIMEOUTS.DRAWER_ANIMATION);
 
     // Select first active user
     await usersPage.selectUserRows(1);
@@ -129,8 +130,8 @@ test.describe('Admin - User Status Management', () => {
     await usersPage.goto();
 
     // Wait for table to load
-    await expect(usersPage.table).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(1000);
+    await expect(usersPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await page.waitForTimeout(E2E_TIMEOUTS.DRAWER_ANIMATION);
 
     // Select an inactive user (need to filter or find one)
     await usersPage.selectUserRows(1);

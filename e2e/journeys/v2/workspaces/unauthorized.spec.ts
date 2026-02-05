@@ -22,6 +22,6 @@ test.describe('ReadOnlyUser', () => {
     await setupPage(page);
     await page.goto(WORKSPACES_URL);
 
-    await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
   });
 });

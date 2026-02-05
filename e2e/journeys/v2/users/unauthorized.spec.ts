@@ -9,6 +9,7 @@
 
 import { expect, test } from '@playwright/test';
 import { AUTH_V2_READONLY, setupPage } from '../../../utils';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 const USERS_URL = '/iam/access-management/users-and-user-groups/users';
 
@@ -26,7 +27,7 @@ blockedPersonas.forEach(({ name, auth }) => {
       await setupPage(page);
       await page.goto(USERS_URL);
 
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
     });
 
     test(`Navigation links should not be visible [${name}]`, async ({ page }) => {
@@ -37,7 +38,7 @@ blockedPersonas.forEach(({ name, auth }) => {
       const nav = page.locator('nav, [class*="nav"]');
 
       // Wait for navigation to render
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(E2E_TIMEOUTS.DRAWER_ANIMATION);
 
       // These admin-only links should NOT be visible
       const usersNavLink = nav.getByRole('link', { name: /^users$/i });

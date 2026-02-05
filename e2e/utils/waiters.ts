@@ -7,6 +7,7 @@
 
 import type { Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
+import { E2E_TIMEOUTS } from './timeouts';
 
 // ============================================================================
 // Form Validation Waiters
@@ -31,7 +32,7 @@ export async function waitForValidation(
     timeout?: number;
   } = {},
 ): Promise<void> {
-  const { successIndicator, timeout = 5000 } = options;
+  const { successIndicator, timeout = E2E_TIMEOUTS.TABLE_DATA } = options;
 
   if (successIndicator) {
     // Wait for the success indicator to be enabled
@@ -40,13 +41,13 @@ export async function waitForValidation(
     // Wait for any validation spinner/loading to disappear
     const validationSpinner = page.locator('[data-testid="validation-spinner"], .pf-v6-c-spinner');
     try {
-      await validationSpinner.waitFor({ state: 'hidden', timeout: 500 });
+      await validationSpinner.waitFor({ state: 'hidden', timeout: E2E_TIMEOUTS.MENU_ANIMATION });
     } catch {
       // No spinner found, that's fine
     }
 
     // Wait for error message to either appear or not
-    await page.waitForTimeout(100); // Small buffer for state to settle
+    await page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE); // Small buffer for state to settle
 
     // Check for aria-invalid state change
     const isInvalid = await input.getAttribute('aria-invalid');
@@ -70,20 +71,20 @@ export async function waitForValidation(
  * await waitForTableUpdate(page);
  */
 export async function waitForTableUpdate(page: Page, options: { timeout?: number } = {}): Promise<void> {
-  const { timeout = 5000 } = options;
+  const { timeout = E2E_TIMEOUTS.TABLE_DATA } = options;
 
   // Wait for any loading indicators to disappear
   const loadingIndicators = page.locator('.pf-v6-c-spinner, [data-loading="true"], .pf-m-loading');
 
   try {
     // First check if any loading indicator appears
-    await loadingIndicators.first().waitFor({ state: 'visible', timeout: 500 });
+    await loadingIndicators.first().waitFor({ state: 'visible', timeout: E2E_TIMEOUTS.MENU_ANIMATION });
     // Then wait for it to disappear
     await loadingIndicators.first().waitFor({ state: 'hidden', timeout });
   } catch {
     // No loading indicator appeared, table might update instantly
     // Give a small buffer for React to re-render
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
   }
 }
 
@@ -94,7 +95,7 @@ export async function waitForTableUpdate(page: Page, options: { timeout?: number
  * await waitForRowToDisappear(page, 'my-role-name');
  */
 export async function waitForRowToDisappear(page: Page, rowText: string, options: { timeout?: number } = {}): Promise<void> {
-  const { timeout = 10000 } = options;
+  const { timeout = E2E_TIMEOUTS.TABLE_DATA } = options;
   const grid = page.getByRole('grid');
   await expect(grid.getByText(rowText)).not.toBeVisible({ timeout });
 }
@@ -112,7 +113,7 @@ export async function waitForRowToDisappear(page: Page, rowText: string, options
  * await waitForModalReady(page);
  */
 export async function waitForModalReady(page: Page, options: { timeout?: number } = {}): Promise<void> {
-  const { timeout = 5000 } = options;
+  const { timeout = E2E_TIMEOUTS.TABLE_DATA } = options;
 
   const modal = page.locator('[role="dialog"]');
   await modal.waitFor({ state: 'visible', timeout });
@@ -120,7 +121,7 @@ export async function waitForModalReady(page: Page, options: { timeout?: number 
   // Wait for any spinners inside modal to disappear
   const modalSpinner = modal.locator('.pf-v6-c-spinner');
   try {
-    await modalSpinner.waitFor({ state: 'hidden', timeout: 500 });
+    await modalSpinner.waitFor({ state: 'hidden', timeout: E2E_TIMEOUTS.MENU_ANIMATION });
   } catch {
     // No spinner in modal
   }
@@ -139,7 +140,7 @@ export async function waitForModalReady(page: Page, options: { timeout?: number 
  * await waitForWizardStep(page, 'Permissions'); // Wait for step title
  */
 export async function waitForWizardStep(page: Page, stepIdentifier: string | RegExp, options: { timeout?: number } = {}): Promise<void> {
-  const { timeout = 5000 } = options;
+  const { timeout = E2E_TIMEOUTS.TABLE_DATA } = options;
 
   // Wait for step content to appear
   const stepContent = page.getByText(stepIdentifier);
@@ -156,7 +157,7 @@ export async function waitForWizardStep(page: Page, stepIdentifier: string | Reg
  * await nextButton.click();
  */
 export async function waitForNextEnabled(page: Page, options: { timeout?: number } = {}): Promise<void> {
-  const { timeout = 10000 } = options;
+  const { timeout = E2E_TIMEOUTS.TABLE_DATA } = options;
 
   // Use exact match to avoid matching pagination buttons ("Go to next page")
   const nextButton = page.getByRole('button', { name: 'Next', exact: true });
@@ -176,7 +177,7 @@ export async function waitForNextEnabled(page: Page, options: { timeout?: number
  * await waitForTabContent(page);
  */
 export async function waitForTabContent(page: Page, options: { timeout?: number } = {}): Promise<void> {
-  const { timeout = 5000 } = options;
+  const { timeout = E2E_TIMEOUTS.TABLE_DATA } = options;
 
   // Wait for any loading spinners to disappear (page-wide)
   const spinner = page.locator('.pf-v6-c-spinner, .pf-c-spinner');
@@ -200,7 +201,7 @@ export async function waitForTabContent(page: Page, options: { timeout?: number 
   }
 
   // Small buffer for React to settle
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
 }
 
 // ============================================================================
@@ -215,7 +216,7 @@ export async function waitForTabContent(page: Page, options: { timeout?: number 
  * await waitForMenuOpen(page);
  */
 export async function waitForMenuOpen(page: Page, options: { timeout?: number } = {}): Promise<void> {
-  const { timeout = 3000 } = options;
+  const { timeout = E2E_TIMEOUTS.MENU_ANIMATION } = options;
 
   const menu = page.locator('[role="menu"], .pf-v6-c-menu');
   await menu.waitFor({ state: 'visible', timeout });
@@ -233,7 +234,7 @@ export async function waitForMenuOpen(page: Page, options: { timeout?: number } 
  * await waitForTreeExpand(page);
  */
 export async function waitForTreeExpand(page: Page, options: { timeout?: number } = {}): Promise<void> {
-  const { timeout = 1000 } = options;
+  const { timeout = E2E_TIMEOUTS.DRAWER_ANIMATION } = options;
 
   // PatternFly tree uses CSS transitions, wait for animation
   // The expanded state is indicated by aria-expanded="true"

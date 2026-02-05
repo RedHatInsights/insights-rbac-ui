@@ -9,6 +9,7 @@
 
 import { type Locator, type Page, expect } from '@playwright/test';
 import { setupPage } from '../../utils';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const MY_USER_ACCESS_URL = '/iam/my-user-access';
 
@@ -26,7 +27,7 @@ export class MyUserAccessPage {
   async goto(): Promise<void> {
     await setupPage(this.page);
     await this.page.goto(MY_USER_ACCESS_URL);
-    await expect(this.heading).toBeVisible({ timeout: 15000 });
+    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -53,6 +54,6 @@ export class MyUserAccessPage {
     await expect(this.heading).toBeVisible();
     // Table may show permissions or empty state
     const tableOrEmpty = this.table.or(this.page.getByText(/no permissions|no results/i));
-    await expect(tableOrEmpty).toBeVisible({ timeout: 10000 });
+    await expect(tableOrEmpty).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 }

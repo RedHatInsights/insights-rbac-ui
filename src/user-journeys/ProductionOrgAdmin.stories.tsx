@@ -2005,7 +2005,7 @@ Tests inviting new users to the organization.
       () => {
         expect(inviteUsersSpy).toHaveBeenCalled();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     // Verify the API call details

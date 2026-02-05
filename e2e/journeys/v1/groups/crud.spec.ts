@@ -11,6 +11,7 @@ import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
 import { getSeededGroupName } from '../../../utils/seed-map';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
@@ -100,9 +101,9 @@ test.describe('Admin', () => {
       await groupsPage.searchFor(uniqueGroupName);
       await groupsPage.navigateToDetail(uniqueGroupName);
 
-      await expect(groupsPage.getDetailHeading(uniqueGroupName)).toBeVisible({ timeout: 10000 });
+      await expect(groupsPage.getDetailHeading(uniqueGroupName)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       // Description should appear as subtitle once group data loads
-      await expect(page.getByText(groupDescription)).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText(groupDescription)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
       console.log(`[View] ✓ Detail page verified`);
     });
@@ -129,7 +130,7 @@ test.describe('Admin', () => {
 
       await groupsPage.navigateToDetail(editedGroupName);
       // Description should appear as subtitle once group data loads
-      await expect(page.getByText(editedDescription)).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText(editedDescription)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
       console.log(`[Verify Edit] ✓ Changes confirmed`);
     });

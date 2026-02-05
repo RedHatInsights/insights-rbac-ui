@@ -10,6 +10,7 @@
 
 import { type Locator, type Page, expect } from '@playwright/test';
 import { setupPage, waitForTableUpdate } from '../../utils';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const USERS_URL = '/iam/user-access/users';
 
@@ -84,7 +85,7 @@ export class UsersPage {
 
   async navigateToDetail(username: string): Promise<void> {
     await this.getUserLink(username).click();
-    await expect(this.page).toHaveURL(/\/users\//, { timeout: 10000 });
+    await expect(this.page).toHaveURL(/\/users\//, { timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -116,13 +117,13 @@ export class UsersPage {
   async selectUserRows(count: number): Promise<void> {
     for (let i = 0; i < count; i++) {
       await this.page.getByRole('checkbox', { name: new RegExp(`select row ${i}`, 'i') }).click();
-      await this.page.waitForTimeout(200);
+      await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
     }
   }
 
   async openBulkActions(): Promise<void> {
     await this.bulkActionsButton.click();
-    await this.page.waitForTimeout(300);
+    await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
   }
 
   async deactivateSelectedUsers(): Promise<void> {
@@ -131,7 +132,7 @@ export class UsersPage {
 
     // Confirm in modal
     const modal = this.page.getByRole('dialog').first();
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Check the confirmation checkbox
     const confirmCheckbox = modal.getByRole('checkbox', { name: /yes, i confirm/i });
@@ -139,7 +140,7 @@ export class UsersPage {
 
     // Click deactivate button
     await modal.getByRole('button', { name: /deactivate/i }).click();
-    await expect(modal).not.toBeVisible({ timeout: 10000 });
+    await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async activateSelectedUsers(): Promise<void> {
@@ -148,7 +149,7 @@ export class UsersPage {
 
     // Confirm in modal
     const modal = this.page.getByRole('dialog').first();
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Check the confirmation checkbox
     const confirmCheckbox = modal.getByRole('checkbox', { name: /yes, i confirm/i });
@@ -156,7 +157,7 @@ export class UsersPage {
 
     // Click activate button
     await modal.getByRole('button', { name: /activate/i }).click();
-    await expect(modal).not.toBeVisible({ timeout: 10000 });
+    await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -165,15 +166,15 @@ export class UsersPage {
 
   async openInviteModal(): Promise<void> {
     await this.inviteButton.click();
-    await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
+    await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
   }
 
   async fillInviteForm(emails: string[], options?: { message?: string; makeOrgAdmin?: boolean }): Promise<void> {
     const modal = this.page.getByRole('dialog').first();
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Wait for modal to fully render
-    await modal.getByRole('heading', { name: /invite new users/i }).waitFor({ timeout: 5000 });
+    await modal.getByRole('heading', { name: /invite new users/i }).waitFor({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Fill emails
     const emailInput = modal.getByRole('textbox', { name: /enter the e-mail addresses/i });
@@ -195,9 +196,9 @@ export class UsersPage {
   async submitInvite(): Promise<void> {
     const modal = this.page.getByRole('dialog').first();
     const submitButton = modal.getByRole('button', { name: /invite new users/i });
-    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    await expect(submitButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
     await submitButton.click();
-    await expect(modal).not.toBeVisible({ timeout: 10000 });
+    await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async inviteUsers(emails: string[], options?: { message?: string; makeOrgAdmin?: boolean }): Promise<void> {
@@ -207,6 +208,6 @@ export class UsersPage {
   }
 
   async verifySuccess(): Promise<void> {
-    await expect(this.page.getByText(/success/i).first()).toBeVisible({ timeout: 10000 });
+    await expect(this.page.getByText(/success/i).first()).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 }

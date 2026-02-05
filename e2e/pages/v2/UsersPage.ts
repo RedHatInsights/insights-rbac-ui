@@ -12,6 +12,7 @@
 
 import { type Locator, type Page, expect } from '@playwright/test';
 import { setupPage, waitForTableUpdate } from '../../utils';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const USERS_URL = '/iam/access-management/users-and-user-groups/users';
 
@@ -119,7 +120,7 @@ export class UsersPage {
    */
   async openUserDrawer(username: string): Promise<void> {
     await this.getUserRow(username).click();
-    await expect(this.drawer).toBeVisible({ timeout: 10000 });
+    await expect(this.drawer).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   /**
@@ -127,7 +128,7 @@ export class UsersPage {
    */
   async closeUserDrawer(username: string): Promise<void> {
     await this.getUserRow(username).click();
-    await expect(this.drawer).not.toBeVisible({ timeout: 5000 });
+    await expect(this.drawer).not.toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -147,7 +148,9 @@ export class UsersPage {
   async clickDrawerTab(name: string): Promise<void> {
     await this.getDrawerTab(name).click();
     // Wait for tab content to load
-    await expect(this.drawer.locator('[role="tabpanel"]').or(this.drawer.locator('.pf-v6-c-tab-content'))).toBeVisible({ timeout: 5000 });
+    await expect(this.drawer.locator('[role="tabpanel"]').or(this.drawer.locator('.pf-v6-c-tab-content'))).toBeVisible({
+      timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -159,7 +162,7 @@ export class UsersPage {
    */
   async openInviteModal(): Promise<void> {
     await this.inviteButton.click();
-    await expect(this.modal).toBeVisible({ timeout: 5000 });
+    await expect(this.modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
     await expect(this.page.getByRole('heading', { name: /invite new users/i })).toBeVisible();
   }
 
@@ -186,7 +189,7 @@ export class UsersPage {
     await expect(submitButton).toBeEnabled();
     await submitButton.click();
     // Wait for modal to close (indicates success)
-    await expect(this.modal).not.toBeVisible({ timeout: 10000 });
+    await expect(this.modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   /**

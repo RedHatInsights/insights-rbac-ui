@@ -12,6 +12,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import { setupPage, waitForTableUpdate } from '../../utils';
 import { fillCreateRoleWizard, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const ROLES_URL = '/iam/access-management/roles';
 
@@ -83,13 +84,13 @@ export class RolesPage {
 
   async openDrawer(name: string): Promise<void> {
     await this.table.getByText(name).click();
-    await expect(this.page.getByRole('heading', { name, level: 2 })).toBeVisible({ timeout: 10000 });
+    await expect(this.page.getByRole('heading', { name, level: 2 })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async closeDrawer(name: string): Promise<void> {
     const closeButton = this.page.locator('[data-ouia-component-id="RolesTable-drawer-close-button"]');
     await closeButton.click();
-    await expect(this.page.getByRole('heading', { name, level: 2 })).not.toBeVisible({ timeout: 5000 });
+    await expect(this.page.getByRole('heading', { name, level: 2 })).not.toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -114,7 +115,7 @@ export class RolesPage {
   }
 
   async fillEditPage(newName: string, newDescription: string): Promise<void> {
-    await expect(this.page).toHaveURL(/\/roles\/edit\//, { timeout: 10000 });
+    await expect(this.page).toHaveURL(/\/roles\/edit\//, { timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     const nameInput = this.page.getByLabel(/^name/i);
     await nameInput.click();
@@ -129,19 +130,19 @@ export class RolesPage {
     await descInput.fill(newDescription);
 
     await this.page.getByRole('button', { name: /save/i }).click();
-    await expect(this.page).toHaveURL(/\/roles(\?|$)/, { timeout: 15000 });
+    await expect(this.page).toHaveURL(/\/roles(\?|$)/, { timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
   }
 
   async confirmDelete(): Promise<void> {
     const modal = this.page.locator('[data-ouia-component-id="RolesTable-remove-role-modal"]');
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     const checkbox = modal.getByRole('checkbox');
-    if (await checkbox.isVisible({ timeout: 2000 }).catch(() => false)) {
+    if (await checkbox.isVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION }).catch(() => false)) {
       await checkbox.click();
     }
 
     await modal.getByRole('button', { name: /delete/i }).click();
-    await expect(modal).not.toBeVisible({ timeout: 10000 });
+    await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 }

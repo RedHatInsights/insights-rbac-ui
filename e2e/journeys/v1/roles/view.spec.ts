@@ -10,6 +10,7 @@ import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
 import { RolesPage } from '../../../pages/v1/RolesPage';
 import { getSeededRoleData, getSeededRoleName } from '../../../utils/seed-map';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 const SEEDED_ROLE_NAME = getSeededRoleName('v1');
 const SEEDED_ROLE_DATA = getSeededRoleData();
@@ -58,15 +59,15 @@ viewPersonas.forEach(({ name, auth }) => {
       await rolesPage.navigateToDetail(SEEDED_ROLE_NAME);
 
       // Verify detail page
-      await expect(rolesPage.getDetailHeading(SEEDED_ROLE_NAME)).toBeVisible({ timeout: 15000 });
+      await expect(rolesPage.getDetailHeading(SEEDED_ROLE_NAME)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
       // Verify description if available
       if (SEEDED_ROLE_DATA?.description) {
-        await expect(page.getByText(SEEDED_ROLE_DATA.description)).toBeVisible({ timeout: 30000 });
+        await expect(page.getByText(SEEDED_ROLE_DATA.description)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
       }
 
       // Verify permissions grid
-      await expect(rolesPage.table).toBeVisible({ timeout: 10000 });
+      await expect(rolesPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     });
   });
 });
