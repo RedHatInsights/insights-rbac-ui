@@ -277,18 +277,18 @@ spec:
       export RBAC_ENV=stage
       export E2E_BASE_URL=https://stage.foo.redhat.com:1337
 
-      # TEMPORARY: Run subset of tests SEQUENTIALLY for troubleshooting
-      # Using --workers=1 to force sequential execution and reduce race conditions
+      # Run full E2E test suite SEQUENTIALLY
+      # Using --workers=1 to force sequential execution and prevent race conditions
       echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-      echo "Running test subset SEQUENTIALLY (workers=1) for troubleshooting"
+      echo "Running FULL E2E test suite SEQUENTIALLY (workers=1)"
       echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-      npm run e2e:v1:seed
-      TEST_VERSION=v1 npx playwright test --config=e2e/playwright.config.ts \
-        --project=v1-admin \
-        --workers=1 \
-        e2e/journeys/v1/groups/
+      npm run e2e:seed
+      npx playwright test --config=e2e/playwright.config.ts \
+        --project=v1-admin --project=v1-userviewer --project=v1-readonly \
+        --project=v2-admin --project=v2-userviewer --project=v2-readonly \
+        --workers=1
       E2E_EXIT=$?
-      npm run e2e:v1:cleanup
+      npm run e2e:cleanup
       exit $E2E_EXIT
 
   # Credentials for E2E tests
