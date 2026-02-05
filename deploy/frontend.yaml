@@ -112,7 +112,10 @@ objects:
                     - true
                 - method: loosePermissions
                   args:
-                    - - 'rbac:*:*'
+                    - - rbac:principal:read
+                    - - rbac:group:read
+                    - - rbac:role:read
+                    - - inventory:groups:read
               routes:
                 - id: users-and-groups
                   title: Users and Groups
@@ -121,7 +124,7 @@ objects:
                     - method: loosePermissions
                       args:
                         - - rbac:principal:read
-                          - rbac:group:read
+                        - - rbac:group:read
                   product: Identity & Access Management
                 - id: roles
                   title: Roles
@@ -193,7 +196,10 @@ objects:
               permissions:
                 - method: loosePermissions
                   args:
-                    - - 'rbac:*:*'
+                    - - rbac:principal:read
+                    - - rbac:group:read
+                    - - rbac:role:read
+                    - - inventory:groups:read
                 - method: featureFlag
                   args:
                     - platform.rbac.workspaces
