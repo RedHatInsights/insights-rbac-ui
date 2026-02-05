@@ -113,10 +113,9 @@ spec:
 
       echo -n "Checking RBAC index.html... "
       if curl -f -s -m 5 http://127.0.0.1:8000/index.html -o /dev/null; then
-          echo "✅ OK"
+          echo "✅ OK (unexpected - federated modules shouldn't have index.html)"
       else
-          echo "❌ FAILED"
-          FAILURES=$((FAILURES + 1))
+          echo "⚠️  SKIPPED (expected - federated module has no index.html)"
       fi
 
       # Check Chrome (port 9912)
@@ -131,6 +130,25 @@ spec:
       echo -n "Checking Chrome /apps/chrome/... "
       if curl -f -s -m 5 http://127.0.0.1:9912/apps/chrome/index.html -o /dev/null; then
           echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo -n "Checking Chrome direct /index.html... "
+      if curl -f -s -m 5 http://127.0.0.1:9912/index.html -o /tmp/chrome-index.html; then
+          echo "✅ OK"
+          echo "  Chrome index.html size: $(wc -c < /tmp/chrome-index.html) bytes"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo -n "Checking Chrome catchall route (/iam)... "
+      if curl -f -s -m 5 http://127.0.0.1:9912/iam/my-user-access -o /tmp/chrome-iam-test.html; then
+          echo "✅ OK"
+          echo "  Chrome /iam response size: $(wc -c < /tmp/chrome-iam-test.html) bytes"
+          echo "  First 200 chars: $(head -c 200 /tmp/chrome-iam-test.html)"
       else
           echo "❌ FAILED"
           FAILURES=$((FAILURES + 1))
