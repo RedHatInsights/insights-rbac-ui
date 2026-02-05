@@ -94,64 +94,65 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   // Check if user can be deleted
   const isDeleteDisabled = !orgAdmin || isProd;
 
-  // Toolbar actions: "Add to user group" button + overflow kebab
+  // Toolbar actions: "Add to user group" button + overflow kebab (only visible with write permission)
   const toolbarActions = useMemo(
-    () => (
-      <Split hasGutter>
-        <SplitItem>
-          <Button
-            variant="primary"
-            isDisabled={selectedRows.length === 0}
-            onClick={() => onAddUserToGroup(selectedRows)}
-            ouiaId={`${ouiaId}-add-user-button`}
-          >
-            {intl.formatMessage(messages['addToUserGroup'])}
-          </Button>
-        </SplitItem>
-        <SplitItem>
-          <ActionDropdown
-            ariaLabel="Actions overflow menu"
-            ouiaId={`${ouiaId}-toolbar-overflow`}
-            items={[
-              {
-                key: 'activate',
-                label: intl.formatMessage(messages.activateUsersButton),
-                onClick: () => onBulkActivate(selectedRows),
-                isDisabled: selectedRows.length === 0,
-              },
-              {
-                key: 'deactivate',
-                label: intl.formatMessage(messages.deactivateUsersButton),
-                onClick: () => onBulkDeactivate(selectedRows),
-                isDisabled: selectedRows.length === 0,
-              },
-              {
-                key: 'divider-1',
-                label: '',
-                isDivider: true,
-              },
-              {
-                key: 'remove-from-group',
-                label: intl.formatMessage(messages.removeFromUserGroup),
-                onClick: () => onRemoveUserFromGroup(selectedRows),
-                isDisabled: selectedRows.length === 0,
-              },
-              {
-                key: 'divider-2',
-                label: '',
-                isDivider: true,
-              },
-              {
-                key: 'invite',
-                label: intl.formatMessage(messages.inviteUsers),
-                onClick: onInviteUsersClick,
-              },
-            ]}
-          />
-        </SplitItem>
-      </Split>
-    ),
-    [intl, selectedRows, onAddUserToGroup, onRemoveUserFromGroup, onBulkActivate, onBulkDeactivate, onInviteUsersClick, ouiaId],
+    () =>
+      orgAdmin ? (
+        <Split hasGutter>
+          <SplitItem>
+            <Button
+              variant="primary"
+              isDisabled={selectedRows.length === 0}
+              onClick={() => onAddUserToGroup(selectedRows)}
+              ouiaId={`${ouiaId}-add-user-button`}
+            >
+              {intl.formatMessage(messages['addToUserGroup'])}
+            </Button>
+          </SplitItem>
+          <SplitItem>
+            <ActionDropdown
+              ariaLabel="Actions overflow menu"
+              ouiaId={`${ouiaId}-toolbar-overflow`}
+              items={[
+                {
+                  key: 'activate',
+                  label: intl.formatMessage(messages.activateUsersButton),
+                  onClick: () => onBulkActivate(selectedRows),
+                  isDisabled: selectedRows.length === 0,
+                },
+                {
+                  key: 'deactivate',
+                  label: intl.formatMessage(messages.deactivateUsersButton),
+                  onClick: () => onBulkDeactivate(selectedRows),
+                  isDisabled: selectedRows.length === 0,
+                },
+                {
+                  key: 'divider-1',
+                  label: '',
+                  isDivider: true,
+                },
+                {
+                  key: 'remove-from-group',
+                  label: intl.formatMessage(messages.removeFromUserGroup),
+                  onClick: () => onRemoveUserFromGroup(selectedRows),
+                  isDisabled: selectedRows.length === 0,
+                },
+                {
+                  key: 'divider-2',
+                  label: '',
+                  isDivider: true,
+                },
+                {
+                  key: 'invite',
+                  label: intl.formatMessage(messages.inviteUsers),
+                  onClick: onInviteUsersClick,
+                },
+              ]}
+            />
+          </SplitItem>
+        </Split>
+      ) : undefined,
+    [intl, selectedRows, onAddUserToGroup, onRemoveUserFromGroup, onBulkActivate, onBulkDeactivate, onInviteUsersClick, ouiaId, orgAdmin],
   );
 
   return (
@@ -168,42 +169,46 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         getRowId={(user) => user.username}
         // Renderers
         cellRenderers={cellRenderers}
-        // Selection
-        selectable={true}
+        // Selection (only with write permission)
+        selectable={orgAdmin}
         isRowSelectable={() => true}
         // Row click
         isRowClickable={() => !!onRowClick}
         onRowClick={handleRowClick}
-        // Row actions
-        renderActions={(user) => (
-          <ActionDropdown
-            ariaLabel={`Actions for user ${user.username}`}
-            ouiaId={`${ouiaId}-${user.username}-actions`}
-            items={[
-              {
-                key: 'add-to-group',
-                label: intl.formatMessage(messages['addToUserGroup']),
-                onClick: () => onAddUserToGroup([user]),
-              },
-              {
-                key: 'remove-from-group',
-                label: intl.formatMessage(messages.removeFromUserGroup),
-                onClick: () => onRemoveUserFromGroup([user]),
-              },
-              {
-                key: 'divider',
-                label: '',
-                isDivider: true,
-              },
-              {
-                key: 'delete',
-                label: intl.formatMessage(messages.delete),
-                onClick: () => onDeleteUser(user),
-                isDisabled: isDeleteDisabled,
-              },
-            ]}
-          />
-        )}
+        // Row actions (only with write permission)
+        renderActions={
+          orgAdmin
+            ? (user) => (
+                <ActionDropdown
+                  ariaLabel={`Actions for user ${user.username}`}
+                  ouiaId={`${ouiaId}-${user.username}-actions`}
+                  items={[
+                    {
+                      key: 'add-to-group',
+                      label: intl.formatMessage(messages['addToUserGroup']),
+                      onClick: () => onAddUserToGroup([user]),
+                    },
+                    {
+                      key: 'remove-from-group',
+                      label: intl.formatMessage(messages.removeFromUserGroup),
+                      onClick: () => onRemoveUserFromGroup([user]),
+                    },
+                    {
+                      key: 'divider',
+                      label: '',
+                      isDivider: true,
+                    },
+                    {
+                      key: 'delete',
+                      label: intl.formatMessage(messages.delete),
+                      onClick: () => onDeleteUser(user),
+                      isDisabled: isDeleteDisabled,
+                    },
+                  ]}
+                />
+              )
+            : undefined
+        }
         // Filtering
         filterConfig={filterConfig}
         // Toolbar

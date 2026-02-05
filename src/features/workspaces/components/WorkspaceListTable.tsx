@@ -60,10 +60,11 @@ interface WorkspaceListTableProps {
   canEditAny: boolean;
 
   /**
-   * Whether the user can create top-level workspaces (under root).
+   * Whether the user can create workspaces in at least one workspace.
    * Used for the main "Create workspace" toolbar button.
+   * The button is enabled if ANY workspace allows creation.
    */
-  canCreateTopLevel: boolean;
+  canCreateAny: boolean;
 
   // Optional children (e.g., modals)
   children?: React.ReactNode;
@@ -155,7 +156,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   canEdit,
   canCreateIn,
   canEditAny,
-  canCreateTopLevel,
+  canCreateAny,
   children,
 }) => {
   const intl = useIntl();
@@ -375,7 +376,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             }
             actions={
               <>
-                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link())} isDisabled={!canCreateTopLevel}>
+                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link())} isDisabled={!canCreateAny}>
                   {intl.formatMessage(messages.createWorkspace)}
                 </Button>
                 {hasAllFeatures && (

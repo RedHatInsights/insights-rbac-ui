@@ -2,7 +2,6 @@ import React, { Suspense, useCallback, useContext, useEffect, useMemo, useState 
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
@@ -242,8 +241,8 @@ export const Roles: React.FC = () => {
     };
   }, [tableState.perPage, tableState.page, tableState.sort, tableState.filters]);
 
-  // TanStack Query for roles data - only fetch if user is admin
-  const { data: rolesData, isLoading, refetch } = useRolesQuery(queryParams, { enabled: isAdmin });
+  // TanStack Query for roles data
+  const { data: rolesData, isLoading, refetch } = useRolesQuery(queryParams);
 
   const roles = (rolesData?.data as RoleListItem[] | undefined) ?? [];
   const totalCount = rolesData?.meta?.count ?? 0;
@@ -255,16 +254,6 @@ export const Roles: React.FC = () => {
   useEffect(() => {
     chrome.appNavClick?.({ id: 'roles', secondaryNav: true });
   }, [chrome]);
-
-  // Show UnauthorizedAccess component for users without proper permissions
-  if (!isAdmin) {
-    return (
-      <UnauthorizedAccess
-        serviceName="User Access Administration"
-        bodyText="You need User Access Administrator or Organization Administrator permissions to view roles."
-      />
-    );
-  }
 
   // Cell renderers
   const cellRenderers: CellRendererMap<typeof columns, RoleListItem> = useMemo(

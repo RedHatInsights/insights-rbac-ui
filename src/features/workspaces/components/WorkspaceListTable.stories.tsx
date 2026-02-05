@@ -23,7 +23,7 @@ const defaultProps = {
   canEdit: () => true,
   canCreateIn: () => true,
   canEditAny: true,
-  canCreateTopLevel: true,
+  canCreateAny: true,
 };
 
 const meta: Meta<typeof WorkspaceListTable> = {
@@ -133,7 +133,7 @@ export const NoPermissions: Story = {
     canEdit: () => false, // User cannot edit any workspace
     canCreateIn: () => false,
     canEditAny: false,
-    canCreateTopLevel: false,
+    canCreateAny: false,
   },
   parameters: {
     docs: {

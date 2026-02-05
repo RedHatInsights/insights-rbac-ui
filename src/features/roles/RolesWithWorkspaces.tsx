@@ -5,6 +5,7 @@ import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Dr
 import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import EllipsisVIcon from '@patternfly/react-icons/dist/dynamic/icons/ellipsis-v-icon';
+import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
 
 import PageHeader from '@patternfly/react-component-groups/dist/esm/PageHeader';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -38,6 +39,9 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentRoles, setCurrentRoles] = useState<Role[]>([]);
   const [actionsDropdownOpen, setActionsDropdownOpen] = useState<string | null>(null);
+
+  // Check write permission for actions
+  const { hasAccess: canWriteRoles } = usePermissions('rbac', ['rbac:role:write']);
 
   // Use the custom hook for all Roles business logic
   const { roles, isLoading, totalCount, filters, sortBy, direction, onSort, pagination, selection, clearAllFilters, onSetFilters } = useRoles({
@@ -190,31 +194,33 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
     [handleEditRole, actionsDropdownOpen, intl],
   );
 
-  // Toolbar actions
+  // Toolbar actions (only visible with write permission)
   const toolbarActions = useMemo(
-    () => (
-      <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
-        <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(pathnames['access-management-add-role'].link())} isPinned>
-          {intl.formatMessage(messages.createRole)}
-        </ResponsiveAction>
-      </ResponsiveActions>
-    ),
-    [navigate, intl],
+    () =>
+      canWriteRoles ? (
+        <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
+          <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(pathnames['access-management-add-role'].link())} isPinned>
+            {intl.formatMessage(messages.createRole)}
+          </ResponsiveAction>
+        </ResponsiveActions>
+      ) : undefined,
+    [navigate, intl, canWriteRoles],
   );
 
-  // Bulk actions
+  // Bulk actions (only visible with write permission)
   const bulkActions = useMemo(
-    () => (
-      <ResponsiveAction
-        isDisabled={selectedRows.length === 0 || selectedRows.some(isRowSystemOrPlatformDefault)}
-        onClick={() => {
-          handleModalToggle(selectedRows);
-        }}
-      >
-        {intl.formatMessage(messages.deleteRolesAction)}
-      </ResponsiveAction>
-    ),
-    [selectedRows, intl],
+    () =>
+      canWriteRoles ? (
+        <ResponsiveAction
+          isDisabled={selectedRows.length === 0 || selectedRows.some(isRowSystemOrPlatformDefault)}
+          onClick={() => {
+            handleModalToggle(selectedRows);
+          }}
+        >
+          {intl.formatMessage(messages.deleteRolesAction)}
+        </ResponsiveAction>
+      ) : undefined,
+    [selectedRows, intl, canWriteRoles],
   );
 
   // Handle row click for drawer
@@ -279,7 +285,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
             onPerPageSelect(undefined, newPerPage);
             onSetPage(undefined, 1);
           }}
-          selectable={true}
+          selectable={canWriteRoles}
           selectedRows={selectedRows}
           onSelectRow={handleSelectRow}
           onSelectAll={handleSelectAll}
@@ -289,7 +295,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
           clearAllFilters={clearAllFilters}
           toolbarActions={toolbarActions}
           bulkActions={bulkActions}
-          renderActions={renderActions}
+          renderActions={canWriteRoles ? renderActions : undefined}
           onRowClick={handleRowClick}
           isRowClickable={() => true}
           variant="compact"

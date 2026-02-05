@@ -78,16 +78,17 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
     [onRowClick, focusedGroup],
   );
 
-  // Toolbar actions
+  // Toolbar actions (only visible with write permission)
   const toolbarActions = useMemo(
-    () => (
-      <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
-        <ResponsiveAction ouiaId="add-usergroup-button" isPinned onClick={() => navigate(pathnames['users-and-user-groups-create-group'].link())}>
-          {intl.formatMessage(messages.createUserGroup)}
-        </ResponsiveAction>
-      </ResponsiveActions>
-    ),
-    [intl, navigate, ouiaId],
+    () =>
+      canModifyGroups ? (
+        <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
+          <ResponsiveAction ouiaId="add-usergroup-button" isPinned onClick={() => navigate(pathnames['users-and-user-groups-create-group'].link())}>
+            {intl.formatMessage(messages.createUserGroup)}
+          </ResponsiveAction>
+        </ResponsiveActions>
+      ) : undefined,
+    [intl, navigate, ouiaId, canModifyGroups],
   );
 
   return (

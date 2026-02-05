@@ -11,7 +11,6 @@ import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { WarningModal } from '@patternfly/react-component-groups';
-import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { AppLink } from '../../components/navigation/AppLink';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ButtonVariant, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
@@ -119,7 +118,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   }, [tableState.apiParams, tableState.filters]);
 
   // React Query for users data
-  const { data: usersData, isLoading } = useUsersQuery(queryParams, { enabled: !!orgAdmin });
+  const { data: usersData, isLoading } = useUsersQuery(queryParams);
   const users: User[] = useMemo(
     () =>
       (usersData?.users ?? []).map((u) => ({
@@ -357,11 +356,6 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       </Dropdown>
     );
   }, [orgAdmin, isCommonAuthModel, intl, tableState.selectedRows.length, isKebabOpen]);
-
-  // Show UnauthorizedAccess component for users without proper permissions
-  if (!orgAdmin) {
-    return <UnauthorizedAccess serviceName="User Access Administration" bodyText="You need Organization Administrator permissions to view users." />;
-  }
 
   return (
     <React.Fragment>
