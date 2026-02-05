@@ -1,3 +1,11 @@
+## [2.5.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.1...v2.5.2) (2026-02-05)
+
+
+### Bug Fixes
+
+* attempt at fixing issue with user access roles not seeing what they should in rbac UI ([f1c44d1](https://github.com/RedHatInsights/insights-rbac-ui/commit/f1c44d1ae82713ba11f4dc485f5de15101f1e540))
+* use correct granular permissions for each route ([e5012a3](https://github.com/RedHatInsights/insights-rbac-ui/commit/e5012a325b813ba989c05f292938dc2e05859b2e))
+
 ## [2.5.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.0...v2.5.1) (2026-02-05)
 
 
