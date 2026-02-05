@@ -4,7 +4,7 @@ import AddPermissionTemplate from './AddPermissionTemplate';
 import CreateRoleStepTemplate from './CreateRoleStepTemplate';
 import ReviewTemplate from './ReviewTemplate';
 import CostResourcesTemplate from './CostResourcesTemplate';
-import { ValidatorReset, debouncedAsyncValidator } from './validators';
+import { ValidatorReset } from './validators';
 import ReviewStepButtons from '../../../components/review-step-buttons';
 import WizardButtons from '../../../components/wizard/WizardButtons';
 import { createIntl, createIntlCache } from 'react-intl';
@@ -128,18 +128,17 @@ export const schemaBuilder = (featureFlag: boolean) => {
             nextStep: 'add-permissions',
             fields: [
               {
-                component: 'text-field',
+                component: 'set-name',
                 name: 'role-copy-name',
+                nameFieldKey: 'role-copy-name',
+                descriptionFieldKey: 'role-copy-description',
                 type: 'text',
-                label: intl.formatMessage(messages.roleName),
-                isRequired: true,
                 validate: [
-                  debouncedAsyncValidator,
                   {
                     type: validatorTypes.REQUIRED,
                   },
                   {
-                    type: 'max-length',
+                    type: validatorTypes.MAX_LENGTH,
                     threshold: 150,
                   },
                 ],
@@ -147,14 +146,7 @@ export const schemaBuilder = (featureFlag: boolean) => {
               {
                 component: 'text-field',
                 name: 'role-copy-description',
-                type: 'text',
-                label: intl.formatMessage(messages.roleDescription),
-                validate: [
-                  {
-                    type: 'max-length',
-                    threshold: 150,
-                  },
-                ],
+                hideField: true,
               },
             ],
           },

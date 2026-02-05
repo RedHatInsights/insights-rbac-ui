@@ -22,6 +22,7 @@ import { fillAddGroupMembersModal } from '../features/groups/AddGroupMembers.hel
 import { fillAddGroupRolesModal } from '../features/groups/AddGroupRoles.helpers';
 import { removeSelectedRolesFromGroup } from '../features/groups/RemoveGroupRoles.helpers';
 import { fillCreateRoleWizard } from '../features/roles/CreateRole.helpers';
+import { fillCopyRoleWizard } from '../features/roles/CopyRole.helpers';
 import { fillEditRoleModal } from '../features/roles/EditRole.helpers';
 import { confirmDeleteRoleModal } from '../features/roles/DeleteRole.helpers';
 import { mockRoles, mockServiceAccounts, mockUsers } from '../features/groups/add-group/AddGroupWizard.mocks';
@@ -1110,6 +1111,97 @@ export const CreateRoleJourney: Story = {
     await waitFor(
       () => {
         expect(canvas.getByText('Automation Test Role')).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+    );
+  },
+};
+
+/**
+ * Copy Role Journey
+ *
+ * Tests the full end-to-end role creation flow by copying an existing role.
+ * This is a regression test for a bug where the Next button stayed disabled
+ * after filling in the role name and description.
+ *
+ * Steps:
+ * 1. Navigate to Roles page
+ * 2. Click "Create role"
+ * 3. Select "Copy an existing role"
+ * 4. Select a source role from the table
+ * 5. Keep the default name/description ("Copy of [source]")
+ * 6. Click Next (validates the fix for the disabled button bug)
+ * 7. Review permissions (inherited from source)
+ * 8. Submit
+ * 9. Verify newly created role appears in the table
+ */
+export const CopyRoleJourney: Story = {
+  name: 'Roles / Copy existing role',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    chrome: ENVIRONMENTS.PROD_ORG_ADMIN.chrome,
+    featureFlags: ENVIRONMENTS.PROD_ORG_ADMIN.featureFlags,
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: defaultRoles,
+      }),
+    },
+    test: {
+      dangerouslyIgnoreUnhandledErrors: true,
+    },
+    docs: {
+      description: {
+        story: `
+Tests the full flow of creating a role by copying an existing one.
+
+**Regression test for:** Copy role wizard Next button stays disabled after validation.
+
+**Journey Flow:**
+- Navigate to Roles page
+- Click "Create role"
+- Select "Copy an existing role"
+- Select source role (Custom Role)
+- Keep default name ("Copy of Custom Role")
+- **Critical:** Next button becomes enabled after async validation
+- Review inherited permissions
+- Submit and verify success
+- Verify new role appears in table
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // Navigate to Roles from My User Access
+    await navigateToPage(user, canvas, 'Roles');
+
+    // Wait for roles list to load
+    await waitForPageToLoad(canvas, 'Custom Role');
+
+    // Click "Create role" button
+    const createButton = await canvas.findByRole('button', { name: /create role/i });
+    await user.click(createButton);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Fill the copy role wizard - uses default "Copy of Custom Role" name
+    // CRITICAL: This tests that the Next button becomes enabled after async validation
+    await fillCopyRoleWizard(user, 'Custom Role');
+
+    // Verify we're back on the roles list and the new role appears
+    await waitForPageToLoad(canvas, 'Custom Role');
+
+    // CRITICAL: Verify the newly created role appears in the table
+    // This confirms the wizard completed successfully and the role was created
+    await waitFor(
+      () => {
+        expect(canvas.getByText('Copy of Custom Role')).toBeInTheDocument();
       },
       { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
