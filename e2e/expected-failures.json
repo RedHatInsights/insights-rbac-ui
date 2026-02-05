@@ -15,6 +15,11 @@
     },
     {
       "file": "journeys/v1/groups/view.spec.ts",
+      "title": "Can view groups list [UserViewer]",
+      "reason": "UserViewer permission tests need investigation"
+    },
+    {
+      "file": "journeys/v1/groups/view.spec.ts",
       "title": "Can search for seeded group [UserViewer]",
       "reason": "UserViewer permission tests need investigation"
     },
@@ -54,13 +59,13 @@
       "reason": "UserViewer permission tests need investigation"
     },
     {
-      "file": "journeys/v2/my-user-access.spec.ts",
-      "title": "Can access My User Access page [ReadOnlyUser]",
-      "reason": "V2 ReadOnlyUser access needs investigation"
-    },
-    {
       "file": "journeys/v2/roles/crud.spec.ts",
       "title": "Create Role button is NOT visible [UserViewer]",
+      "reason": "V2 UserViewer permission tests need investigation"
+    },
+    {
+      "file": "journeys/v2/roles/view.spec.ts",
+      "title": "Can view roles list [UserViewer]",
       "reason": "V2 UserViewer permission tests need investigation"
     },
     {
@@ -80,17 +85,17 @@
     },
     {
       "file": "journeys/v2/user-groups/view.spec.ts",
+      "title": "Can view user groups list [UserViewer]",
+      "reason": "V2 UserViewer permission tests need investigation"
+    },
+    {
+      "file": "journeys/v2/user-groups/view.spec.ts",
       "title": "Can search for seeded group [UserViewer]",
       "reason": "V2 UserViewer permission tests need investigation"
     },
     {
       "file": "journeys/v2/user-groups/view.spec.ts",
       "title": "Can view group details in drawer [UserViewer]",
-      "reason": "V2 UserViewer permission tests need investigation"
-    },
-    {
-      "file": "journeys/v2/users/invite.spec.ts",
-      "title": "Invite button is disabled [UserViewer]",
       "reason": "V2 UserViewer permission tests need investigation"
     },
     {

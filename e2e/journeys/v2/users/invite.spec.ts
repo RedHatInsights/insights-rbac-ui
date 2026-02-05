@@ -107,17 +107,27 @@ cannotInvitePersonas.forEach(({ name, auth }) => {
 
     /**
      * This test documents EXPECTED behavior that is NOT YET IMPLEMENTED.
-     * The test will FAIL until the UI disables the invite button for non-admin users.
+     * The test will FAIL until the UI disables/hides the invite action for non-admin users.
      *
-     * TODO: Remove this comment once the UI is fixed.
+     * In V2, "Invite new users" is inside the Actions dropdown menu.
+     * For non-admin users, this menu item should either be disabled or not visible.
      */
     test(`Invite button is disabled [${name}]`, async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
-      // The invite button should be disabled for non-admin users
-      // NOTE: This test will FAIL if the button is visible and enabled
-      await expect(usersPage.inviteButton).toBeDisabled();
+      // Open the actions menu
+      await usersPage.actionsMenu.click();
+
+      // The invite menu item should be disabled or not visible for non-admin users
+      const inviteItem = usersPage.inviteMenuItem;
+      const isVisible = await inviteItem.isVisible().catch(() => false);
+
+      if (isVisible) {
+        // If visible, it should be disabled
+        await expect(inviteItem).toBeDisabled();
+      }
+      // If not visible, that's also acceptable (hidden from non-admins)
     });
   });
 });
