@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.0...v2.5.1) (2026-02-05)
+
+
+### Bug Fixes
+
+* copy role wizard Next button stays disabled after validation ([740d52a](https://github.com/RedHatInsights/insights-rbac-ui/commit/740d52af75e346ca9d4a7f25e0d41efa8d62746b))
+
 # [2.5.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.4.0...v2.5.0) (2026-02-04)
 
 
