@@ -195,6 +195,17 @@ spec:
           fi
       done
 
+      # Test federated module manifest through proxy
+      echo -n "Federated module manifest via proxy... "
+      if curl -k -f -s -m 10 https://stage.foo.redhat.com:1337/apps/rbac/fed-mods.json -o /tmp/fed-mods-proxy.json; then
+          echo "✅ OK"
+          echo "  Size: $(wc -c < /tmp/fed-mods-proxy.json) bytes"
+          echo "  Content: $(cat /tmp/fed-mods-proxy.json | head -c 200)"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
       # Download and inspect main page
       echo ""
       echo "Downloading /iam/my-user-access page..."
