@@ -1,3 +1,10 @@
+## [2.5.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.2...v2.5.3) (2026-02-05)
+
+
+### Bug Fixes
+
+* **nav:** use OR logic for permission checks in navigation ([b77c7d6](https://github.com/RedHatInsights/insights-rbac-ui/commit/b77c7d6da5a6a96ffd871ca76bc25c40adae125c))
+
 ## [2.5.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.1...v2.5.2) (2026-02-05)
 
 
