@@ -23,18 +23,7 @@ export function authenticatePersona(persona: Persona): string {
   console.log(`[Auth] Logging in as ${persona}...`);
 
   // Use execFileSync with argument array to avoid shell injection vulnerabilities
-  execFileSync('node', [
-    'scripts/run-with-env.js',
-    envFile,
-    'npm',
-    'run',
-    'cli',
-    '--',
-    'login',
-    '--headless',
-    '--save-state',
-    authFile,
-  ], {
+  execFileSync('node', ['scripts/run-with-env.js', envFile, 'npm', 'run', 'cli', '--', 'login', '--headless', '--save-state', authFile], {
     stdio: 'inherit',
     cwd,
   });

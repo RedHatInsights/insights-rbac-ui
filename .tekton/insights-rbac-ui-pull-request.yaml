@@ -189,9 +189,10 @@ spec:
             echo "Waiting for source code..."
             while [ ! -f package.json ]; do sleep 2; done
             echo "Source found, installing dependencies..."
-            npm ci --silent
-            echo "Starting static server..."
-            npm run static
+            npm ci --silent 2>&1
+            echo "Starting static server (output silenced)..."
+            # Silence webpack and http-server output to keep logs clean
+            npm run static > /dev/null 2>&1
         - name: frontend-proxy
           image: quay.io/redhat-user-workloads/hcc-platex-services-tenant/frontend-development-proxy:latest
           env:
@@ -211,7 +212,8 @@ spec:
               "/apps/rbac*": { "url": "http://[::1]:8003" }
             }
             EOF
-            exec /usr/local/bin/entrypoint.sh
+            # Silence proxy logs to keep logs clean
+            exec /usr/local/bin/entrypoint.sh > /dev/null 2>&1
         steps:
         - name: e2e
           image: mcr.microsoft.com/playwright:v1.57.0-noble
