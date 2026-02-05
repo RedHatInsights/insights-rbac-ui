@@ -81,7 +81,7 @@ export const Iam: React.FC<IamProps> = ({ testMode = false }) => {
   // Kessel access check API configuration
   // baseUrl is the current origin, apiPath points to the inventory API
   const accessCheckBaseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const accessCheckApiPath = '/api/inventory/v1beta2';
+  const accessCheckApiPath = '/api/kessel/v1beta2';
 
   return (
     <IntlProvider locale={locale} messages={messages[locale]}>

@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
@@ -60,8 +61,11 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   const { auth, isProd } = useChrome();
   const [token, setToken] = useState<string | null>(null);
 
-  // Use the context orgAdmin for actual permissions
-  const orgAdmin = contextOrgAdmin;
+  // Check write permission for user actions
+  const { hasAccess: canWriteUsers } = usePermissions('rbac', ['rbac:principal:write']);
+
+  // Use the context orgAdmin for actual permissions (combines with granular check)
+  const orgAdmin = (contextOrgAdmin ?? false) && (canWriteUsers ?? false);
 
   useEffect(() => {
     const getToken = async () => {

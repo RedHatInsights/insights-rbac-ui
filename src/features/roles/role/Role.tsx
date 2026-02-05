@@ -3,6 +3,7 @@ import { useIntl } from 'react-intl';
 import { Outlet, useNavigationType, useParams, useNavigate as useRouterNavigate } from 'react-router-dom';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useQueryClient } from '@tanstack/react-query';
+import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
 import { useGroupQuery, useSystemGroupQuery } from '../../../data/queries/groups';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
 import { getBackRoute } from '../../../helpers/navigation';
@@ -36,6 +37,9 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   });
   const { roleId, groupId } = useParams<{ roleId: string; groupId?: string }>();
   const { orgAdmin, userAccessAdministrator } = useUserData();
+
+  // Check granular permissions for read and write access
+  const { hasAccess: canWriteRoles } = usePermissions('rbac', ['rbac:role:write']);
 
   // Use TanStack Query for role data
   const { data: role, isLoading: isRoleLoading, isError: isRoleError } = useRoleQuery(roleId ?? '');
@@ -207,6 +211,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
         onDelete={onDelete}
         onBackClick={handleBackClick}
         hasPermission={orgAdmin || userAccessAdministrator}
+        canEdit={canWriteRoles}
         errorType={groupExists ? 'role' : 'group'}
       >
         <RolePermissions

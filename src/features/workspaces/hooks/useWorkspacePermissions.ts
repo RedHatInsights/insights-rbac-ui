@@ -1,15 +1,25 @@
 import { useCallback, useMemo } from 'react';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
 
-type WorkspaceResource = { id: string; type: 'workspace' };
+type WorkspaceResource = {
+  id: string;
+  type: 'workspace';
+  reporter: { type: string };
+};
 type NonEmptyResources = [WorkspaceResource, ...WorkspaceResource[]];
+
+/**
+ * Reporter configuration for Kessel access checks.
+ * The reporter identifies the source system for the resource.
+ */
+const REPORTER = { type: 'rbac' } as const;
 
 /**
  * Dummy resource used when there are no workspaces to check.
  * This allows us to always call useSelfAccessCheck unconditionally,
  * maintaining consistent hook order (Rules of Hooks compliance).
  */
-const NOOP_RESOURCE: WorkspaceResource = { id: '__noop__', type: 'workspace' };
+const NOOP_RESOURCE: WorkspaceResource = { id: '__noop__', type: 'workspace', reporter: REPORTER };
 const NOOP_RESOURCES: NonEmptyResources = [NOOP_RESOURCE];
 
 interface Workspace {
@@ -39,8 +49,16 @@ export interface UseWorkspacePermissionsResult {
   canEditAny: boolean;
 
   /**
+   * Whether the user can create workspaces in at least one workspace.
+   * This is the permission for the main "Create workspace" toolbar button.
+   * The button should be enabled if ANY workspace allows creation.
+   */
+  canCreateAny: boolean;
+
+  /**
    * Whether the user can create top-level workspaces (under root).
-   * This is the permission for the main "Create workspace" button.
+   * @deprecated Use canCreateAny for the toolbar button. This is kept for
+   * specific cases where only root-level creation permission matters.
    */
   canCreateTopLevel: boolean;
 
@@ -59,10 +77,10 @@ export interface UseWorkspacePermissionsResult {
  *
  * @example
  * ```tsx
- * const { canEdit, canCreateIn, canEditAny, canCreateTopLevel, isLoading } = useWorkspacePermissions(workspaces);
+ * const { canEdit, canCreateIn, canEditAny, canCreateAny, isLoading } = useWorkspacePermissions(workspaces);
  *
- * // Top-level create button:
- * <Button disabled={!canCreateTopLevel}>Create Workspace</Button>
+ * // Main toolbar "Create workspace" button - enabled if user can create in ANY workspace:
+ * <Button disabled={!canCreateAny}>Create Workspace</Button>
  *
  * // Row-level actions:
  * <Button disabled={!canEdit(workspace.id)}>Edit</Button>
@@ -85,7 +103,7 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
   const resources = useMemo<NonEmptyResources>(() => {
     if (!hasRealResources) return NOOP_RESOURCES;
     const [first, ...rest] = workspaceIds;
-    const toResource = (id: string): WorkspaceResource => ({ id, type: 'workspace' });
+    const toResource = (id: string): WorkspaceResource => ({ id, type: 'workspace', reporter: REPORTER });
     return [toResource(first), ...rest.map(toResource)];
   }, [workspaceIds, hasRealResources]);
 
@@ -112,8 +130,9 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
   const canCreateIn = useCallback((workspaceId: string): boolean => createAllowedIds.has(workspaceId), [createAllowedIds]);
 
   const canEditAny = editAllowedIds.size > 0;
+  const canCreateAny = createAllowedIds.size > 0;
   const canCreateTopLevel = rootId !== '' && createAllowedIds.has(rootId);
   const isLoading = hasRealResources && (editLoading || createLoading);
 
-  return { canEdit, canCreateIn, canEditAny, canCreateTopLevel, isLoading };
+  return { canEdit, canCreateIn, canEditAny, canCreateAny, canCreateTopLevel, isLoading };
 }
