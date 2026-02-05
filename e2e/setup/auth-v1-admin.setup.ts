@@ -42,6 +42,29 @@ setup('authenticate v1 admin', async () => {
   });
   const page = await context.newPage();
 
+  // Enable browser logging to catch any errors during cache warming
+  page.on('console', (msg) => {
+    const type = msg.type();
+    if (type === 'error') {
+      console.error(`🔴 [Browser Console] ${msg.text()}`);
+    } else if (type === 'warning') {
+      console.warn(`⚠️  [Browser Console] ${msg.text()}`);
+    }
+  });
+
+  page.on('pageerror', (error) => {
+    console.error('💥 [Uncaught Exception]', error.message);
+    console.error(error.stack);
+  });
+
+  page.on('requestfailed', (request) => {
+    const failure = request.failure();
+    console.error(`❌ [Request Failed] ${request.method()} ${request.url()}`);
+    if (failure) {
+      console.error(`   Error: ${failure.errorText}`);
+    }
+  });
+
   try {
     // Record static assets to HAR
     await page.routeFromHAR(HAR_PATH, {
