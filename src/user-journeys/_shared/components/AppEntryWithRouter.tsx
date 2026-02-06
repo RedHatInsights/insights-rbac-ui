@@ -2,7 +2,7 @@ import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Iam } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
-import { LeftNavigation } from './LeftNavigation';
+import { FrontendYamlNavigation } from './FrontendYamlNavigation';
 import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
 import { ProductionHeader } from './ProductionHeader';
 import { GlobalBreadcrumb } from './GlobalBreadcrumb';
@@ -34,7 +34,7 @@ export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialR
         sidebar={
           <PageSidebar>
             <PageSidebarBody>
-              <LeftNavigation />
+              <FrontendYamlNavigation />
             </PageSidebarBody>
           </PageSidebar>
         }

@@ -9,8 +9,8 @@ type Story = StoryObj<typeof AppEntryWithRouter>;
 
 const meta = {
   component: AppEntryWithRouter,
-  title: 'User Journeys/Production/V1 (Current)/Org User',
-  tags: ['prod-org-user'],
+  title: 'User Journeys/Production/V1 (Current)/User Viewer',
+  tags: ['prod-user-viewer'],
   // No custom decorator - preview.tsx reads args directly
   argTypes: {
     typingDelay: {
@@ -21,39 +21,45 @@ const meta = {
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    // NO permissions - regular user without RBAC access
-    permissions: [],
+    // Minimal permission - can only view users
+    permissions: ['rbac:principal:read'],
     orgAdmin: false,
     'platform.rbac.workspaces': false,
     'platform.rbac.workspaces-organization-management': false, // V1 navigation
   },
   parameters: {
-    ...ENVIRONMENTS.PROD_ORG_USER,
+    ...ENVIRONMENTS.PROD_USER_VIEWER,
     docs: {
       description: {
         component: `
-# Production V1: Org User Persona
+# Production V1: User Viewer Persona
 
-This environment simulates a **regular user** with **NO RBAC permissions**.
+This environment simulates a user with **minimal read permission** - only \`rbac:principal:read\`.
 
 ## Permission Configuration
 
-- **Permissions**: \`[]\` (empty - no RBAC permissions)
+- **Permissions**: \`['rbac:principal:read']\`
 - **Org Admin**: false
-- **Feature Flags**: V1 navigation (workspaces-organization-management: false)
+- **Feature Flags**: V1 navigation
 
 ## Expected Sidebar
 
 - ✅ My User Access (visible)
-- ❌ User Access section (NOT visible - requires rbac permissions)
+- ✅ User Access section (visible - has rbac:principal:read)
+  - ✅ Users (visible - has rbac:principal:read)
+  - ❌ Groups (NOT visible - no rbac:group:read)
+  - ❌ Roles (NOT visible - no rbac:role:read)
 
 ## User Journeys
 
-### What Regular Users Can Do
-- View their own access via "My User Access" page
+### What User Viewer Can Do
+- View "My User Access" page
+- View Users list (read-only)
 
-### What Regular Users CANNOT Do
-- Access Users, Groups, or Roles pages (no sidebar link, unauthorized if direct URL)
+### What User Viewer CANNOT Do
+- Access Groups page (no permission)
+- Access Roles page (no permission)
+- Create/Edit/Delete anything
         `,
       },
     },
@@ -74,9 +80,11 @@ export const ManualTesting: Story = {
     docs: {
       description: {
         story: `
-Entry point for manual testing of the Org User persona.
+Entry point for manual testing of the User Viewer persona.
 
-**Expected:** Only "My User Access" in sidebar - NO "User Access" section.
+**Expected Sidebar:**
+- My User Access
+- User Access → Users only (no Groups, no Roles)
         `,
       },
     },
@@ -91,10 +99,10 @@ Entry point for manual testing of the Org User persona.
 };
 
 /**
- * Verify sidebar shows only My User Access
+ * Sidebar validation - verify correct items visible
  */
 export const SidebarValidation: Story = {
-  name: 'Sidebar / Only My User Access visible',
+  name: 'Sidebar / Correct items visible',
   args: {
     initialRoute: '/iam/my-user-access',
   },
@@ -102,14 +110,14 @@ export const SidebarValidation: Story = {
     docs: {
       description: {
         story: `
-Validates that Org User (no permissions) only sees "My User Access" in the sidebar.
+Validates that User Viewer sees the correct sidebar items.
 
 **Checks:**
 - ✅ "My User Access" link IS present
-- ❌ "User Access" expandable section is NOT present
-- ❌ "Users" link is NOT present
-- ❌ "Groups" link is NOT present
-- ❌ "Roles" link is NOT present
+- ✅ "User Access" expandable section IS present
+- ✅ "Users" link IS present
+- ❌ "Groups" link is NOT present (no rbac:group:read)
+- ❌ "Roles" link is NOT present (no rbac:role:read)
         `,
       },
     },
@@ -124,60 +132,29 @@ Validates that Org User (no permissions) only sees "My User Access" in the sideb
     const myUserAccess = await canvas.findByRole('link', { name: /my user access/i });
     expect(myUserAccess).toBeInTheDocument();
 
-    // ❌ User Access expandable should NOT be visible
-    const userAccessSection = canvas.queryByRole('button', { name: /user access/i });
-    expect(userAccessSection).not.toBeInTheDocument();
+    // ✅ User Access expandable should be visible (user has rbac:principal:read)
+    const userAccessSection = await canvas.findByRole('button', { name: /user access/i });
+    expect(userAccessSection).toBeInTheDocument();
 
-    // ❌ Individual nav items should NOT be visible
-    const usersLink = canvas.queryByRole('link', { name: /^users$/i });
-    expect(usersLink).not.toBeInTheDocument();
+    // ✅ Users link should be visible (has rbac:principal:read)
+    const usersLink = await canvas.findByRole('link', { name: /^users$/i });
+    expect(usersLink).toBeInTheDocument();
 
+    // ❌ Groups link should NOT be visible (no rbac:group:read)
     const groupsLink = canvas.queryByRole('link', { name: /^groups$/i });
     expect(groupsLink).not.toBeInTheDocument();
 
+    // ❌ Roles link should NOT be visible (no rbac:role:read)
     const rolesLink = canvas.queryByRole('link', { name: /^roles$/i });
     expect(rolesLink).not.toBeInTheDocument();
   },
 };
 
 /**
- * My User Access / View own permissions
+ * Users page - authorized access
  */
-export const ViewMyUserAccess: Story = {
-  name: 'My User Access / View own permissions',
-  args: {
-    initialRoute: '/iam/my-user-access',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: `
-Tests that Org User can view their own access page.
-
-**What this tests:**
-- My User Access page loads correctly
-- User sees their (empty) permissions
-        `,
-      },
-    },
-  },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // Verify the page loaded
-    const heading = await canvas.findByRole('heading', { name: /my user access/i });
-    expect(heading).toBeInTheDocument();
-  },
-};
-
-/**
- * Direct navigation to Users page - should show unauthorized
- */
-export const UsersPageUnauthorized: Story = {
-  name: 'Users / Direct URL - Unauthorized',
+export const ViewUsersList: Story = {
+  name: 'Users / View users list (authorized)',
   args: {
     initialRoute: '/iam/user-access/users',
   },
@@ -185,12 +162,12 @@ export const UsersPageUnauthorized: Story = {
     docs: {
       description: {
         story: `
-Tests that direct navigation to Users page shows unauthorized.
+Tests that User Viewer can access the Users page.
 
 **Scenario:**
-1. User navigates directly to /iam/user-access/users via URL
-2. Should see "Unauthorized" or "Access denied" message
-3. "Users" link should NOT be in sidebar
+1. Navigate to Users page
+2. Should see list of users
+3. Should NOT see any edit/delete actions
         `,
       },
     },
@@ -201,18 +178,18 @@ Tests that direct navigation to Users page shows unauthorized.
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Users link should NOT be in sidebar
-    const usersLink = canvas.queryByRole('link', { name: /^users$/i });
-    expect(usersLink).not.toBeInTheDocument();
+    // Should see users table
+    const usersTable = await canvas.findByRole('grid');
+    expect(usersTable).toBeInTheDocument();
 
-    // Should show unauthorized/access denied
-    const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
-    expect(unauthorized).toBeInTheDocument();
+    // Should NOT see add/create button
+    const addButton = canvas.queryByRole('button', { name: /add|create|invite/i });
+    expect(addButton).not.toBeInTheDocument();
   },
 };
 
 /**
- * Direct navigation to Groups page - should show unauthorized
+ * Groups page - direct URL should show unauthorized
  */
 export const GroupsPageUnauthorized: Story = {
   name: 'Groups / Direct URL - Unauthorized',
@@ -223,7 +200,9 @@ export const GroupsPageUnauthorized: Story = {
     docs: {
       description: {
         story: `
-Tests that direct navigation to Groups page shows unauthorized.
+Tests that:
+1. Groups link is NOT in sidebar (no rbac:group:read)
+2. Direct URL navigation shows unauthorized
         `,
       },
     },
@@ -238,14 +217,14 @@ Tests that direct navigation to Groups page shows unauthorized.
     const groupsLink = canvas.queryByRole('link', { name: /^groups$/i });
     expect(groupsLink).not.toBeInTheDocument();
 
-    // Should show unauthorized/access denied
+    // Should show unauthorized
     const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
     expect(unauthorized).toBeInTheDocument();
   },
 };
 
 /**
- * Direct navigation to Roles page - should show unauthorized
+ * Roles page - direct URL should show unauthorized
  */
 export const RolesPageUnauthorized: Story = {
   name: 'Roles / Direct URL - Unauthorized',
@@ -256,7 +235,9 @@ export const RolesPageUnauthorized: Story = {
     docs: {
       description: {
         story: `
-Tests that direct navigation to Roles page shows unauthorized.
+Tests that:
+1. Roles link is NOT in sidebar (no rbac:role:read)
+2. Direct URL navigation shows unauthorized
         `,
       },
     },
@@ -271,7 +252,7 @@ Tests that direct navigation to Roles page shows unauthorized.
     const rolesLink = canvas.queryByRole('link', { name: /^roles$/i });
     expect(rolesLink).not.toBeInTheDocument();
 
-    // Should show unauthorized/access denied
+    // Should show unauthorized
     const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
     expect(unauthorized).toBeInTheDocument();
   },

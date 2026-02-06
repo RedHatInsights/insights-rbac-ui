@@ -50,6 +50,34 @@ export interface MockState {
   userIdentity?: MockUserIdentity;
 }
 
+/**
+ * Storybook story parameters consumed by preview.tsx decorator.
+ * Use this type for environment configs and story parameters.
+ */
+export interface StoryParameters {
+  /** Skip preview.tsx provider wrapping - journey stories use Iam directly */
+  noWrapping?: boolean;
+  /** Explicit permission strings (e.g., 'rbac:group:read', 'inventory:groups:write') */
+  permissions?: readonly string[];
+  /** Is this user an Org Admin? */
+  orgAdmin?: boolean;
+  /** Environment: 'staging' or 'production' */
+  environment?: 'staging' | 'production';
+  /** Workspace permissions for Kessel stories */
+  workspacePermissions?: {
+    edit: string[];
+    create: string[];
+  };
+  /** User identity for auth.getUser() */
+  userIdentity?: MockUserIdentity;
+  /** Feature flags */
+  featureFlags?: Record<string, boolean>;
+  /** MSW handlers */
+  msw?: {
+    handlers: unknown[];
+  };
+}
+
 const defaultState: MockState = {
   environment: 'staging',
   isOrgAdmin: false,

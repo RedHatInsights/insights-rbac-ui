@@ -1,5 +1,4 @@
-import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
-import React from 'react';
+import type { StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
@@ -32,61 +31,14 @@ import { defaultUsers } from '../../.storybook/fixtures/users';
 import { defaultRoles } from '../../.storybook/fixtures/roles';
 import { rolesAddToGroupVisibilityFixtures } from '../../.storybook/fixtures/roles-add-to-group-visibility';
 import { expandRoleGroups, expectAddRoleLinkHidden, expectAddRoleLinkVisible, getGroupRow } from './_shared/helpers/rolesTableHelpers';
-import { makeChrome } from './_shared/helpers/chrome';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
-
-interface StoryArgs {
-  typingDelay?: number;
-  orgAdmin?: boolean;
-  userAccessAdministrator?: boolean;
-  'platform.rbac.workspaces'?: boolean;
-  'platform.rbac.group-service-accounts'?: boolean;
-  'platform.rbac.group-service-accounts.stable'?: boolean;
-  'platform.rbac.common-auth-model'?: boolean;
-  'platform.rbac.common.userstable'?: boolean;
-  initialRoute?: string;
-}
-
-/**
- * Create dynamic environment parameters based on story args
- * This allows Storybook controls to override feature flags and permissions
- * Note: userIdentity is set in ENVIRONMENTS config - decorator order means we can't override it here
- */
-function createDynamicEnvironment(args: StoryArgs) {
-  const isOrgAdmin = args.orgAdmin ?? true;
-  return {
-    chrome: makeChrome({
-      environment: 'prod',
-      isOrgAdmin,
-      userAccessAdministrator: args.userAccessAdministrator ?? false,
-    }),
-    featureFlags: {
-      'platform.rbac.workspaces': args['platform.rbac.workspaces'] ?? false,
-      'platform.rbac.group-service-accounts': args['platform.rbac.group-service-accounts'] ?? false,
-      'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'] ?? true,
-      'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] ?? true,
-      'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] ?? false,
-    },
-    // Note: MSW handlers are set at meta level, not here, because mswLoader reads them before decorators run
-  };
-}
 
 const meta = {
   component: AppEntryWithRouter,
   title: 'User Journeys/Production/V1 (Current)/Org Admin',
   tags: ['prod-org-admin'],
-  decorators: [
-    ((Story, context: StoryContext<StoryArgs>) => {
-      // Apply dynamic environment parameters based on current args
-      const dynamicEnv = createDynamicEnvironment(context.args);
-      // Replace parameters entirely instead of mutating to ensure React sees the change
-      context.parameters = { ...context.parameters, ...dynamicEnv };
-      // Force remount when controls change by using args as key
-      const argsKey = JSON.stringify(context.args);
-      return <Story key={argsKey} />;
-    }) as Decorator<StoryArgs>,
-  ],
+  // No custom decorator - preview.tsx reads args directly
   argTypes: {
     // Demo Controls
     typingDelay: {
@@ -106,10 +58,10 @@ const meta = {
       table: { category: 'Permissions', defaultValue: { summary: 'false' } },
     },
     // Feature Flag Controls
-    'platform.rbac.workspaces': {
+    'platform.rbac.workspaces-list': {
       control: 'boolean',
-      description: 'Enable Workspaces feature',
-      table: { category: 'Feature Flags', defaultValue: { summary: 'false' } },
+      description: 'Show Workspaces page inside User Access',
+      table: { category: 'Feature Flags', defaultValue: { summary: 'true' } },
     },
     'platform.rbac.group-service-accounts': {
       control: 'boolean',
@@ -135,9 +87,13 @@ const meta = {
   args: {
     // Default values (Production Org Admin environment)
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
+    // Explicit permissions - passed to preview.tsx via args (not computed in decorator)
+    permissions: ['rbac:*:*', 'inventory:groups:read', 'inventory:groups:write'],
     orgAdmin: true,
     userAccessAdministrator: false,
-    'platform.rbac.workspaces': false,
+    // V1 navigation flags
+    'platform.rbac.workspaces-list': true, // Show Workspaces page inside User Access
+    'platform.rbac.workspaces-organization-management': false, // V1 navigation
     'platform.rbac.group-service-accounts': false,
     'platform.rbac.group-service-accounts.stable': true,
     'platform.rbac.common-auth-model': true,
@@ -155,11 +111,11 @@ This environment simulates a **production** RBAC instance with **Org Admin** pri
 ## Environment Configuration
 
 - **User Role**: Organization Administrator
-- **Permissions**: Full RBAC access (\`rbac:*:*\`)
+- **Permissions**: Full RBAC + inventory access (\`rbac:*:*\`, \`inventory:groups:read\`, \`inventory:groups:write\`)
 - **Feature Flags**:
   - \`platform.rbac.group-service-accounts\`: false (legacy)
   - \`platform.rbac.group-service-accounts.stable\`: enabled (current)
-  - \`platform.rbac.workspaces\`: false
+  - \`platform.rbac.workspaces\`: true (Workspaces page enabled)
 
 ## Available User Journeys
 
@@ -223,27 +179,106 @@ This story includes automated verification:
     },
   },
   play: async (context) => {
+    await resetStoryState();
     const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Verify we're on My User Access page
-    await navigateToPage(user, canvas, 'My User Access');
+    // Wait for the permissions section to render - this is the most reliable indicator the page is ready
+    await expect(canvas.findByText(/your red hat enterprise linux/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).resolves.toBeInTheDocument();
+  },
+};
 
-    // Scope queries to main content area (not navigation)
-    const mainElement = document.querySelector('main') || context.canvasElement;
-    const mainContent = within(mainElement as HTMLElement);
+/**
+ * Sidebar validation - verify all expected items are visible
+ */
+export const SidebarValidation: Story = {
+  name: 'Sidebar / All admin items visible',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Validates that Org Admin sees all sidebar items.
 
-    // Verify the page loaded - look for the page title (with extended timeout for test env)
-    const pageTitle = await mainContent.findByText(/my user access/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    expect(pageTitle).toBeInTheDocument();
+**Checks:**
+- ✅ "My User Access" link IS present
+- ✅ "User Access" expandable section IS present
+- ✅ "Users" link IS present
+- ✅ "Groups" link IS present
+- ✅ "Roles" link IS present
+- ✅ "Workspaces" link IS present (requires inventory:groups:read + workspaces flag)
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    const canvas = within(context.canvasElement);
 
-    // Verify the table component renders (even if in loading state)
-    const table = await mainContent.findByRole('grid', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    expect(table).toBeInTheDocument();
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // For now, just verify basic structure is present
-    // Data loading verification is skipped due to timing issues in test environment
-    // The browser-based testing shows data loads correctly
+    // ✅ My User Access should be visible
+    const myUserAccess = await canvas.findByRole('link', { name: /my user access/i });
+    expect(myUserAccess).toBeInTheDocument();
+
+    // ✅ User Access expandable should be visible
+    const userAccessSection = await canvas.findByRole('button', { name: /user access/i });
+    expect(userAccessSection).toBeInTheDocument();
+
+    // ✅ All admin links should be visible
+    const usersLink = await canvas.findByRole('link', { name: /^users$/i });
+    expect(usersLink).toBeInTheDocument();
+
+    const groupsLink = await canvas.findByRole('link', { name: /^groups$/i });
+    expect(groupsLink).toBeInTheDocument();
+
+    const rolesLink = await canvas.findByRole('link', { name: /^roles$/i });
+    expect(rolesLink).toBeInTheDocument();
+
+    // ✅ Workspaces link should be visible (has inventory:groups:read + workspaces flag)
+    const workspacesLink = await canvas.findByRole('link', { name: /workspaces/i });
+    expect(workspacesLink).toBeInTheDocument();
+  },
+};
+
+/**
+ * Workspaces / View workspaces list
+ *
+ * Tests that V1 Org Admin can access the Workspaces page.
+ */
+export const ViewWorkspacesList: Story = {
+  name: 'Workspaces / View workspaces list',
+  args: {
+    initialRoute: '/iam/user-access/workspaces',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests that V1 Org Admin can access the Workspaces page.
+
+**What this tests:**
+- Workspaces page loads correctly in V1 navigation
+- Workspaces list renders
+- Create workspace button is visible for admin
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    const canvas = within(context.canvasElement);
+
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Verify workspaces page loads - look for the main page heading (h1)
+    const workspacesHeading = await canvas.findByRole('heading', { name: /workspaces/i, level: 1 });
+    expect(workspacesHeading).toBeInTheDocument();
+
+    // Admin should see create button
+    const createButton = await canvas.findByRole('button', { name: /create workspace/i });
+    expect(createButton).toBeInTheDocument();
   },
 };
 
@@ -1073,7 +1108,6 @@ export const CreateRoleJourney: Story = {
     initialRoute: '/iam/my-user-access',
   },
   parameters: {
-    chrome: ENVIRONMENTS.PROD_ORG_ADMIN.chrome,
     featureFlags: ENVIRONMENTS.PROD_ORG_ADMIN.featureFlags,
     msw: {
       handlers: createStatefulHandlers({
@@ -1143,7 +1177,6 @@ export const CopyRoleJourney: Story = {
     initialRoute: '/iam/my-user-access',
   },
   parameters: {
-    chrome: ENVIRONMENTS.PROD_ORG_ADMIN.chrome,
     featureFlags: ENVIRONMENTS.PROD_ORG_ADMIN.featureFlags,
     msw: {
       handlers: createStatefulHandlers({

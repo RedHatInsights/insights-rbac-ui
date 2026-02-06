@@ -2,7 +2,7 @@ import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Iam } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
-import { KesselNavigation } from './KesselNavigation';
+import { FrontendYamlNavigation } from './FrontendYamlNavigation';
 import { ProductionHeader } from './ProductionHeader';
 import { GlobalBreadcrumb } from './GlobalBreadcrumb';
 import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
@@ -18,6 +18,8 @@ export const KESSEL_PERMISSIONS = {
   READ_ONLY: ['rbac:group:read', 'rbac:role:read', 'inventory:groups:read'],
   /** Workspace admin - can manage workspaces */
   WORKSPACE_ADMIN: ['inventory:groups:read', 'inventory:groups:write'],
+  /** User viewer - can only view users (rbac:principal:read) */
+  USER_VIEWER: ['rbac:principal:read'],
   /** No permissions - should see unauthorized */
   NONE: [],
 } as const;
@@ -58,7 +60,7 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
         sidebar={
           <PageSidebar>
             <PageSidebarBody>
-              <KesselNavigation />
+              <FrontendYamlNavigation />
             </PageSidebarBody>
           </PageSidebar>
         }
@@ -115,32 +117,30 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
     environment: args.environment ?? 'staging',
     // Workspace permissions for useSelfAccessCheck mock (workspace IDs user can edit/create in)
     workspacePermissions,
+    // User identity for auth.getUser() - used by StorybookMockContext
+    userIdentity: {
+      org_id: '12510751',
+      account_number: '123456',
+      user: {
+        username: 'test-user',
+        email: 'test@redhat.com',
+        first_name: 'Test',
+        last_name: 'User',
+        is_org_admin: isOrgAdmin,
+      },
+      entitlements: {
+        ansible: { is_entitled: true },
+        cost_management: { is_entitled: true },
+        insights: { is_entitled: true },
+        openshift: { is_entitled: true },
+        rhel: { is_entitled: true },
+        smart_management: { is_entitled: false },
+      },
+    },
+    // Chrome config (for compatibility - most values now come from StorybookMockContext)
     chrome: {
       environment,
       getUserPermissions: () => Promise.resolve(chromePermissions),
-      auth: {
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              user: {
-                username: 'test-user',
-                email: 'test@redhat.com',
-                first_name: 'Test',
-                last_name: 'User',
-                is_org_admin: isOrgAdmin,
-              },
-            },
-            entitlements: {
-              ansible: { is_entitled: true },
-              cost_management: { is_entitled: true },
-              insights: { is_entitled: true },
-              openshift: { is_entitled: true },
-              rhel: { is_entitled: true },
-              smart_management: { is_entitled: false },
-            },
-          }),
-        getToken: () => Promise.resolve('mock-token-12345'),
-      },
       isBeta: () => false,
       isProd: () => false,
       getEnvironment: () => 'stage',
