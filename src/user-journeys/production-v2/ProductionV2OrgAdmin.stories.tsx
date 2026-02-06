@@ -2,7 +2,7 @@ import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, navigateToPage, resetStoryState, verifySuccessNotification, waitForPageToLoad } from '../_shared/helpers';
 import { fillCopyRoleWizard } from '../../features/roles/CopyRole.helpers';
 import { fillCreateRoleWizard } from '../../features/roles/CreateRole.helpers';
@@ -106,8 +106,8 @@ const meta = {
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
-    userAccessAdministrator: false,
     // All V2/Management Fabric flags enabled
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': true,
@@ -121,8 +121,8 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
-      userAccessAdministrator: false,
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': true,
       'platform.rbac.workspaces-role-bindings': true,

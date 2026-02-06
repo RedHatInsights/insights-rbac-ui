@@ -28,12 +28,14 @@ interface StoryArgs {
 /**
  * Create dynamic environment parameters based on story args
  * This allows Storybook controls to override feature flags and permissions
+ * Note: userIdentity is set in ENVIRONMENTS config - decorator order means we can't override it here
  */
 function createDynamicEnvironment(args: StoryArgs) {
+  const isOrgAdmin = args.orgAdmin ?? false;
   return {
     chrome: makeChrome({
       environment: 'prod',
-      isOrgAdmin: args.orgAdmin ?? false,
+      isOrgAdmin,
       userAccessAdministrator: args.userAccessAdministrator ?? false,
     }),
     featureFlags: {
@@ -450,8 +452,7 @@ Tests that regular users receive an appropriate access denied message when tryin
 - No roles are visible without proper permissions
 
 **Expected UI:**
-- "You do not have access to User Access Administration" message
-- Message explains required permissions
+- "You don't have permission to view this page" message
 - No roles list or admin actions
         `,
       },
@@ -465,13 +466,9 @@ Tests that regular users receive an appropriate access denied message when tryin
     // Navigate to Roles
     await navigateToPage(user, canvas, 'Roles');
 
-    // Wait for access denied message to appear
-    const accessDeniedMessage = await canvas.findByText(/you do not have access to user access administration/i);
+    // Wait for access denied message to appear (new PermissionGuard text)
+    const accessDeniedMessage = await canvas.findByText(/you don't have permission to view this page/i);
     expect(accessDeniedMessage).toBeInTheDocument();
-
-    // Verify the explanation is present
-    const explanation = await canvas.findByText(/you need user access administrator or organization administrator permissions/i);
-    expect(explanation).toBeInTheDocument();
 
     // Verify no roles are visible
     const viewerRole = canvas.queryByText('Viewer');
@@ -506,7 +503,7 @@ Tests that regular users receive an appropriate access denied message when tryin
 - Consistent permissions enforcement at detail level
 
 **Expected UI:**
-- Same access denied message as roles list
+- "You don't have permission to view this page" message
 - No broken error pages shown to users
 - Graceful handling of unauthorized access attempts
         `,
@@ -521,11 +518,7 @@ Tests that regular users receive an appropriate access denied message when tryin
     await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Should see access denied message (not a broken page)
-    const accessDeniedMessage = await canvas.findByText(/you do not have access to user access administration/i);
+    const accessDeniedMessage = await canvas.findByText(/you don't have permission to view this page/i);
     expect(accessDeniedMessage).toBeInTheDocument();
-
-    // Verify this is not an error page, but a proper access denied screen
-    const explanation = await canvas.findByText(/you need user access administrator or organization administrator permissions/i);
-    expect(explanation).toBeInTheDocument();
   },
 };

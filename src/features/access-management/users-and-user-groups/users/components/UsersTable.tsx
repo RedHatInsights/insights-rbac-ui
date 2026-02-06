@@ -21,7 +21,6 @@ interface UsersTableProps {
   // Configuration
   authModel: boolean;
   orgAdmin: boolean;
-  isProd: boolean;
   defaultPerPage?: number;
   ouiaId?: string;
 
@@ -50,7 +49,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   focusedUser,
   authModel,
   orgAdmin,
-  isProd,
   ouiaId = 'iam-users-table',
   onAddUserToGroup,
   onRemoveUserFromGroup,
@@ -71,7 +69,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
     intl,
     authModel,
     orgAdmin,
-    isProd,
     focusedUser,
     ouiaId,
     onToggleUserStatus,
@@ -91,8 +88,8 @@ export const UsersTable: React.FC<UsersTableProps> = ({
     [onRowClick, focusedUser],
   );
 
-  // Check if user can be deleted
-  const isDeleteDisabled = !orgAdmin || isProd;
+  // Check if user can be deleted (only org admins can delete users)
+  const isDeleteDisabled = !orgAdmin;
 
   // Toolbar actions: "Add to user group" button + overflow kebab (only visible with write permission)
   const toolbarActions = useMemo(

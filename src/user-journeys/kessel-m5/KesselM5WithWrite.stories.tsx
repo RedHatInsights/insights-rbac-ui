@@ -1,7 +1,7 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
 import { defaultKesselRoles } from '../../../.storybook/fixtures/kessel-groups-roles';
@@ -102,8 +102,8 @@ const meta = {
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    orgAdmin: true,
-    userAccessAdministrator: false,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
+    orgAdmin: true, // User identity
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': true,
     'platform.rbac.workspaces-role-bindings': true,
@@ -117,8 +117,8 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
-      userAccessAdministrator: false,
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': true,
       'platform.rbac.workspaces-role-bindings': true,

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useIntl } from 'react-intl';
-import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
+import { useAccessPermissions } from '../hooks/useAccessPermissions';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { AppPlaceholder } from './ui-states/LoaderPlaceholders';
 import PermissionsContext from '../utilities/permissionsContext';
@@ -31,7 +31,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({ permissions, checkAll
 
   // Always call the hook with a dummy permission for public routes to keep hook order consistent
   // (React requires hooks to be called in the same order on every render)
-  const { hasAccess, isLoading } = usePermissions('rbac', permissions.length > 0 ? permissions : ['rbac:*:*'], false, checkAll);
+  const { hasAccess, isLoading } = useAccessPermissions(permissions.length > 0 ? permissions : ['rbac:*:*'], { checkAll });
 
   // Empty permissions array and no orgAdmin requirement = public route (skip permission check)
   if (permissions.length === 0 && !requireOrgAdmin) {

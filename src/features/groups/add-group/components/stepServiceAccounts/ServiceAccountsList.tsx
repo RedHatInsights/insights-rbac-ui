@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformAuth } from '../../../../../hooks/usePlatformAuth';
+import { usePlatformEnvironment } from '../../../../../hooks/usePlatformEnvironment';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import { TableView, useTableState } from '../../../../../components/table-view';
@@ -27,16 +28,16 @@ interface ServiceAccountsListProps {
 const columns = ['name', 'description', 'clientId', 'owner', 'timeCreated'] as const;
 
 export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ initialSelectedServiceAccounts, onSelect }) => {
-  const { auth, getEnvironmentDetails } = useChrome();
+  const { getToken } = usePlatformAuth();
+  const { ssoUrl } = usePlatformEnvironment();
   const intl = useIntl();
 
-  // Get auth token and SSO URL
+  // Get auth token
   const [token, setToken] = useState<string | undefined>();
-  const ssoUrl = getEnvironmentDetails()?.sso;
 
   useEffect(() => {
-    auth.getToken().then(setToken);
-  }, [auth]);
+    getToken().then(setToken);
+  }, [getToken]);
 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(

@@ -1,7 +1,7 @@
 import React, { Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useIntl } from 'react-intl';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformTracking } from '../../hooks/usePlatformTracking';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
@@ -183,7 +183,7 @@ export const Roles: React.FC = () => {
   const intl = useIntl();
   const navigate = useNavigate();
   const toAppLink = useAppLink();
-  const chrome = useChrome();
+  const { trackNavigation } = usePlatformTracking();
 
   // Permissions
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
@@ -252,8 +252,8 @@ export const Roles: React.FC = () => {
 
   // Initialize nav on mount
   useEffect(() => {
-    chrome.appNavClick?.({ id: 'roles', secondaryNav: true });
-  }, [chrome]);
+    trackNavigation('roles', true);
+  }, [trackNavigation]);
 
   // Cell renderers
   const cellRenderers: CellRendererMap<typeof columns, RoleListItem> = useMemo(

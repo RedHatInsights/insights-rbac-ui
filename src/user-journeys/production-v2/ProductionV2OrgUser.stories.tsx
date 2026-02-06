@@ -2,7 +2,7 @@ import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack
 import React from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, navigateToPage, resetStoryState } from '../_shared/helpers';
 import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-handlers';
 import { defaultGroups } from '../../../.storybook/fixtures/groups';
@@ -104,8 +104,8 @@ const meta = {
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
+    permissions: KESSEL_PERMISSIONS.READ_ONLY,
     orgAdmin: false,
-    userAccessAdministrator: false,
     // All V2/Management Fabric flags enabled, but limited write permissions
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': true,
@@ -119,8 +119,8 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.READ_ONLY,
       orgAdmin: false,
-      userAccessAdministrator: false,
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': true,
       'platform.rbac.workspaces-role-bindings': true,

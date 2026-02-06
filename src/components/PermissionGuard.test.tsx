@@ -6,10 +6,9 @@ import { IntlProvider } from 'react-intl';
 import PermissionGuard from './PermissionGuard';
 import PermissionsContext from '../utilities/permissionsContext';
 
-// Mock the usePermissions hook
-vi.mock('@redhat-cloud-services/frontend-components-utilities/RBACHook', () => ({
-  __esModule: true,
-  default: vi.fn(),
+// Mock the useAccessPermissions hook
+vi.mock('../hooks/useAccessPermissions', () => ({
+  useAccessPermissions: vi.fn(),
 }));
 
 // Mock the components to simplify testing
@@ -28,9 +27,9 @@ vi.mock('./ui-states/LoaderPlaceholders', () => ({
 }));
 
 // Import the mocked hook for type-safe manipulation
-import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
+import { useAccessPermissions } from '../hooks/useAccessPermissions';
 
-const mockUsePermissions = usePermissions as Mock;
+const mockUseAccessPermissions = useAccessPermissions as Mock;
 
 // Wrapper component that provides both IntlProvider and PermissionsContext
 const TestWrapper: React.FC<{ children: React.ReactNode; contextValue?: { orgAdmin: boolean; userAccessAdministrator: boolean } }> = ({
@@ -54,7 +53,7 @@ describe('PermissionGuard', () => {
 
   describe('loading state', () => {
     it('shows loading placeholder while permissions are being checked', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: undefined, isLoading: true });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: undefined, isLoading: true });
 
       renderWithProviders(
         <PermissionGuard permissions={['rbac:role:read']}>
@@ -69,7 +68,7 @@ describe('PermissionGuard', () => {
 
   describe('unauthorized state', () => {
     it('shows UnauthorizedAccess when user lacks required permissions', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: false, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: false, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={['rbac:role:write']}>
@@ -86,7 +85,7 @@ describe('PermissionGuard', () => {
 
   describe('authorized state', () => {
     it('renders children when user has required permissions', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={['rbac:role:read']}>
@@ -102,7 +101,7 @@ describe('PermissionGuard', () => {
 
   describe('empty permissions (public routes)', () => {
     it('renders children immediately without permission check when permissions array is empty', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: false, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: false, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={[]}>
@@ -116,7 +115,7 @@ describe('PermissionGuard', () => {
     });
 
     it('passes dummy permission to hook when permissions array is empty', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={[]}>
@@ -125,13 +124,13 @@ describe('PermissionGuard', () => {
       );
 
       // Hook should be called with dummy permission to keep hook order consistent
-      expect(mockUsePermissions).toHaveBeenCalledWith('rbac', ['rbac:*:*'], false, true);
+      expect(mockUseAccessPermissions).toHaveBeenCalledWith(['rbac:*:*'], { checkAll: true });
     });
   });
 
   describe('checkAll logic', () => {
     it('uses AND logic by default (checkAll=true)', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={['rbac:role:read', 'rbac:group:read']}>
@@ -139,17 +138,12 @@ describe('PermissionGuard', () => {
         </PermissionGuard>,
       );
 
-      // Should pass checkAll=true (4th argument) by default
-      expect(mockUsePermissions).toHaveBeenCalledWith(
-        'rbac',
-        ['rbac:role:read', 'rbac:group:read'],
-        false,
-        true, // checkAll=true (AND logic)
-      );
+      // Should pass checkAll: true in options by default
+      expect(mockUseAccessPermissions).toHaveBeenCalledWith(['rbac:role:read', 'rbac:group:read'], { checkAll: true });
     });
 
     it('uses OR logic when checkAll=false', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={['rbac:role:read', 'rbac:group:read']} checkAll={false}>
@@ -157,19 +151,14 @@ describe('PermissionGuard', () => {
         </PermissionGuard>,
       );
 
-      // Should pass checkAll=false (4th argument)
-      expect(mockUsePermissions).toHaveBeenCalledWith(
-        'rbac',
-        ['rbac:role:read', 'rbac:group:read'],
-        false,
-        false, // checkAll=false (OR logic)
-      );
+      // Should pass checkAll: false in options
+      expect(mockUseAccessPermissions).toHaveBeenCalledWith(['rbac:role:read', 'rbac:group:read'], { checkAll: false });
     });
   });
 
   describe('hook call order (Rules of Hooks compliance)', () => {
-    it('always calls usePermissions even for public routes', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+    it('always calls useAccessPermissions even for public routes', () => {
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={[]}>
@@ -178,13 +167,13 @@ describe('PermissionGuard', () => {
       );
 
       // Hook should always be called to maintain consistent hook order
-      expect(mockUsePermissions).toHaveBeenCalled();
+      expect(mockUseAccessPermissions).toHaveBeenCalled();
     });
   });
 
   describe('requireOrgAdmin', () => {
     it('renders children when orgAdmin is true and requireOrgAdmin is true', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={[]} requireOrgAdmin={true}>
@@ -198,7 +187,7 @@ describe('PermissionGuard', () => {
     });
 
     it('shows UnauthorizedAccess when orgAdmin is false and requireOrgAdmin is true', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={[]} requireOrgAdmin={true}>
@@ -212,7 +201,7 @@ describe('PermissionGuard', () => {
     });
 
     it('checks both orgAdmin and granular permissions when both are specified', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={['rbac:role:read']} requireOrgAdmin={true}>
@@ -225,7 +214,7 @@ describe('PermissionGuard', () => {
     });
 
     it('fails when orgAdmin is true but granular permissions are missing', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: false, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: false, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={['rbac:role:write']} requireOrgAdmin={true}>
@@ -239,7 +228,7 @@ describe('PermissionGuard', () => {
     });
 
     it('fails when granular permissions pass but orgAdmin is false', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={['rbac:role:read']} requireOrgAdmin={true}>
@@ -253,7 +242,7 @@ describe('PermissionGuard', () => {
     });
 
     it('ignores orgAdmin check when requireOrgAdmin is false (default)', () => {
-      mockUsePermissions.mockReturnValue({ hasAccess: true, isLoading: false });
+      mockUseAccessPermissions.mockReturnValue({ hasAccess: true, isLoading: false });
 
       renderWithProviders(
         <PermissionGuard permissions={['rbac:role:read']}>

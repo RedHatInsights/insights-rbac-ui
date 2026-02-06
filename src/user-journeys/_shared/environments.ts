@@ -17,14 +17,32 @@ export const ENVIRONMENTS = {
   PROD_ORG_ADMIN: {
     // Journey stories use Iam directly - skip preview.tsx provider wrapping
     noWrapping: true,
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    // Full admin permissions
+    permissions: ['rbac:*:*'],
+    // User identity flags
+    orgAdmin: true,
     chrome: makeChrome({
       environment: 'prod',
       isOrgAdmin: true,
     }),
+    // User identity for auth.getUser() - used by StorybookMockContext
+    userIdentity: {
+      org_id: '12510751',
+      account_number: '123456',
+      user: {
+        username: 'test-user',
+        email: 'test@redhat.com',
+        first_name: 'Test',
+        last_name: 'User',
+        is_org_admin: true,
+      },
+      entitlements: {
+        ansible: { is_entitled: true },
+        openshift: { is_entitled: true },
+        rhel: { is_entitled: true },
+        settings: { is_entitled: true },
+      },
+    },
     featureFlags: {
       'platform.rbac.group-service-accounts': false, // OLD feature flag, DO NOT USE
       'platform.rbac.group-service-accounts.stable': true, // current feature flag, used after isBeta deprecation
@@ -42,20 +60,38 @@ export const ENVIRONMENTS = {
 
   /**
    * Production environment with Org User (non-admin) privileges
-   * - Read-only RBAC permissions
+   * - Read-only RBAC permissions (can view but not modify)
    * - No workspaces
    */
   PROD_ORG_USER: {
     // Journey stories use Iam directly - skip preview.tsx provider wrapping
     noWrapping: true,
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
+    // Limited permissions - can view groups but NOT roles (tests access denied)
+    permissions: ['rbac:group:read', 'rbac:principal:read'],
+    // User identity flags
+    orgAdmin: false,
     chrome: makeChrome({
       environment: 'prod',
       isOrgAdmin: false,
     }),
+    // User identity for auth.getUser() - used by StorybookMockContext
+    userIdentity: {
+      org_id: '12510751',
+      account_number: '123456',
+      user: {
+        username: 'regular-user',
+        email: 'user@example.com',
+        first_name: 'Regular',
+        last_name: 'User',
+        is_org_admin: false,
+      },
+      entitlements: {
+        ansible: { is_entitled: true },
+        openshift: { is_entitled: true },
+        rhel: { is_entitled: true },
+        settings: { is_entitled: true },
+      },
+    },
     featureFlags: {
       'platform.rbac.group-service-accounts': false,
       'platform.rbac.group-service-accounts.stable': true,
@@ -78,14 +114,32 @@ export const ENVIRONMENTS = {
   WORKSPACES_ENABLED: {
     // Journey stories use Iam directly - skip preview.tsx provider wrapping
     noWrapping: true,
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    // Full admin permissions plus workspace permissions
+    permissions: ['rbac:*:*', 'inventory:groups:read', 'inventory:groups:write'],
+    // User identity flags
+    orgAdmin: true,
     chrome: makeChrome({
       environment: 'prod',
       isOrgAdmin: true,
     }),
+    // User identity for auth.getUser() - used by StorybookMockContext
+    userIdentity: {
+      org_id: '12510751',
+      account_number: '123456',
+      user: {
+        username: 'test-user',
+        email: 'test@redhat.com',
+        first_name: 'Test',
+        last_name: 'User',
+        is_org_admin: true,
+      },
+      entitlements: {
+        ansible: { is_entitled: true },
+        openshift: { is_entitled: true },
+        rhel: { is_entitled: true },
+        settings: { is_entitled: true },
+      },
+    },
     featureFlags: {
       'platform.rbac.group-service-accounts.stable': true,
       'platform.rbac.workspaces': true,
