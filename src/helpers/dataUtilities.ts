@@ -2,6 +2,7 @@ import type { RoleBindingsRoleBindingBySubject } from '../data/api/workspaces';
 import type { Group } from '../data/queries/groups';
 import messages from '../Messages';
 import { useIntl } from 'react-intl';
+import { z } from 'zod';
 
 export const BAD_UUID = 'bad uuid';
 
@@ -61,19 +62,34 @@ export const isExternalIdp = (token: string = ''): boolean => {
 };
 
 // ============================================================================
-// Role Bindings Type Guards and Transformations
+// Role Bindings Schemas and Transformations
 // ============================================================================
 
-// Type guards for role binding subjects
-export const isGroupSubject = (
-  subject: unknown,
-): subject is { id: string; type: 'group'; group: { name?: string; description?: string; user_count?: number } } => {
-  return typeof subject === 'object' && subject !== null && 'type' in subject && (subject as { type: string }).type === 'group' && 'group' in subject;
-};
+// Zod schemas for role binding subjects
+const GroupSubjectSchema = z.object({
+  id: z.string(),
+  type: z.literal('group'),
+  group: z.object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    user_count: z.number().optional(),
+  }),
+});
 
-export const isUserSubject = (subject: unknown): subject is { id: string; type: 'user'; user: { username?: string } } => {
-  return typeof subject === 'object' && subject !== null && 'type' in subject && (subject as { type: string }).type === 'user' && 'user' in subject;
-};
+const UserSubjectSchema = z.object({
+  id: z.string(),
+  type: z.literal('user'),
+  user: z.object({
+    username: z.string().optional(),
+  }),
+});
+
+const SubjectSchema = z.union([GroupSubjectSchema, UserSubjectSchema]);
+
+// Type-safe validation functions
+export const parseGroupSubject = (subject: unknown) => GroupSubjectSchema.safeParse(subject);
+export const parseUserSubject = (subject: unknown) => UserSubjectSchema.safeParse(subject);
+export const parseSubject = (subject: unknown) => SubjectSchema.safeParse(subject);
 
 // Transform role bindings API response to Group structure
 export const mapRoleBindingsToGroups = (bindings: RoleBindingsRoleBindingBySubject[], intl: ReturnType<typeof useIntl>): Group[] =>
@@ -83,17 +99,31 @@ export const mapRoleBindingsToGroups = (bindings: RoleBindingsRoleBindingBySubje
     let name = intl.formatMessage(messages.unknownSubjectName);
     let description = '';
     let principalCount = 0;
+    let uuid = '';
 
-    if (isGroupSubject(subject)) {
-      name = subject.group.name || name;
-      description = subject.group.description || '';
-      principalCount = subject.group.user_count || 0;
-    } else if (isUserSubject(subject)) {
-      name = subject.user.username || name;
+    // Parse subject with Zod for type-safe validation
+    const groupResult = parseGroupSubject(subject);
+    const userResult = parseUserSubject(subject);
+
+    if (groupResult.success) {
+      const groupSubject = groupResult.data;
+      uuid = groupSubject.id;
+      name = groupSubject.group.name || name;
+      description = groupSubject.group.description || '';
+      principalCount = groupSubject.group.user_count || 0;
+    } else if (userResult.success) {
+      const userSubject = userResult.data;
+      uuid = userSubject.id;
+      name = userSubject.user.username || name;
+    } else {
+      // Fallback for unknown subject types
+      if (subject && typeof subject === 'object' && 'id' in subject) {
+        uuid = String((subject as { id: unknown }).id);
+      }
     }
 
     return {
-      uuid: subject?.id || '',
+      uuid,
       name,
       description,
       principalCount,
