@@ -55,6 +55,8 @@ interface KesselAppEntryWithRouterProps {
 export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
     <MemoryRouter initialEntries={[initialRoute]}>
+      {/* FakeAddressBar must be outside Page to avoid z-index conflicts with masthead */}
+      <FakeAddressBar />
       <Page
         masthead={<ProductionHeader />}
         sidebar={
@@ -65,7 +67,6 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
           </PageSidebar>
         }
       >
-        <FakeAddressBar />
         <GlobalBreadcrumb />
         <Routes>
           <Route path="/iam/*" element={<Iam testMode />} />

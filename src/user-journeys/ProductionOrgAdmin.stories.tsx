@@ -29,6 +29,7 @@ import { createStatefulHandlers } from '../../.storybook/helpers/stateful-handle
 import { defaultGroups } from '../../.storybook/fixtures/groups';
 import { defaultUsers } from '../../.storybook/fixtures/users';
 import { defaultRoles } from '../../.storybook/fixtures/roles';
+import { defaultWorkspaces } from '../../.storybook/fixtures/workspaces';
 import { rolesAddToGroupVisibilityFixtures } from '../../.storybook/fixtures/roles-add-to-group-visibility';
 import { expandRoleGroups, expectAddRoleLinkHidden, expectAddRoleLinkVisible, getGroupRow } from './_shared/helpers/rolesTableHelpers';
 
@@ -253,6 +254,14 @@ export const ViewWorkspacesList: Story = {
     initialRoute: '/iam/user-access/workspaces',
   },
   parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: defaultRoles,
+        workspaces: defaultWorkspaces,
+      }),
+    },
     docs: {
       description: {
         story: `
@@ -260,7 +269,7 @@ Tests that V1 Org Admin can access the Workspaces page.
 
 **What this tests:**
 - Workspaces page loads correctly in V1 navigation
-- Workspaces list renders
+- Workspaces list renders with data from API
 - Create workspace button is visible for admin
         `,
       },
@@ -272,9 +281,15 @@ Tests that V1 Org Admin can access the Workspaces page.
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Verify workspaces page loads - look for the main page heading (h1)
+    // Wait for workspaces data to load (fixture root workspace name)
+    await waitForPageToLoad(canvas, 'Default Workspace');
+
+    // Verify workspaces page heading
     const workspacesHeading = await canvas.findByRole('heading', { name: /workspaces/i, level: 1 });
     expect(workspacesHeading).toBeInTheDocument();
+
+    // Verify at least one workspace name from fixture is on screen
+    expect(canvas.getByText('Default Workspace')).toBeInTheDocument();
 
     // Admin should see create button
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });
