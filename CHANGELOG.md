@@ -1,3 +1,11 @@
+# [2.6.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.3...v2.6.0) (2026-02-06)
+
+
+### Features
+
+* add role bindings table to org-management ([a8dbad0](https://github.com/RedHatInsights/insights-rbac-ui/commit/a8dbad02556bcdf33db04781cf7f63e5aa637799))
+* use useRoleBindingsQuery in org-management table ([c8203a0](https://github.com/RedHatInsights/insights-rbac-ui/commit/c8203a06d67abd2928b78a3c530ec7c99589a3c9))
+
 ## [2.5.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.2...v2.5.3) (2026-02-05)
 
 
