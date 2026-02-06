@@ -156,10 +156,10 @@ Kessel M1 introduces the initial workspace list view. This is the foundational f
 - ✅ **Workspace List**: View all workspaces in a hierarchical tree structure  
   - Displays workspace names and descriptions
   - Tree view with expand/collapse for hierarchy
-  - Root workspace: "Default Workspace"
+  - Root workspace: "Root Workspace"
 - ✅ **Create Workspace**: Basic workspace creation
   - Simple form with name and description
-  - Parent workspace selector is present but disabled (fixed to "Default Workspace")
+  - Parent workspace selector is present but disabled (fixed to "Root Workspace")
   - No parent selection capability until M2
 - ✅ **Workspace Names**: Display as plain text (not clickable links)
   - Standard/ungrouped-hosts workspaces become links to Inventory in M2
@@ -174,7 +174,7 @@ Kessel M1 introduces the initial workspace list view. This is the foundational f
 Users with \`inventory:groups:write\` permission can:
 - View the complete workspace hierarchy
 - Expand/collapse workspace tree nodes
-- Create new workspaces (parent automatically set to "Default Workspace")
+- Create new workspaces (parent automatically set to "Root Workspace")
 - See workspace names and descriptions in table view
 
 ## What's Coming Next
@@ -233,7 +233,7 @@ Kessel M1 introduces the initial workspace list view, the foundational feature t
 
 **What's Available in M1:**
 - ✅ Workspace list view with hierarchy tree
-- ✅ Basic workspace creation (parent fixed to "Default Workspace")
+- ✅ Basic workspace creation (parent fixed to "Root Workspace")
 - ✅ Workspace names displayed as plain text (not clickable)
 - ❌ No parent selection capability (M2+)
 - ❌ No Edit/Move/Delete operations (M2+)
@@ -261,7 +261,7 @@ This story provides an entry point for manual testing and exploration of the RBA
 - Navigate to "Workspaces" using the left navigation
 - Expand/collapse workspace tree nodes
 - Click "Create workspace" button
-  - Parent selector IS visible but DISABLED (hardcoded to "Default Workspace")
+  - Parent selector IS visible but DISABLED (hardcoded to "Root Workspace")
   - Fill in name and description
   - Submit and verify workspace appears in list
 - Verify workspace names are plain text (not clickable - links come in M2)
@@ -317,7 +317,7 @@ Tests the M1 create workspace journey.
 
 **M1 Behavior:**
 - Create workspace wizard is available
-- Parent selection dropdown IS shown but DISABLED (hardcoded to "Default Workspace")
+- Parent selection dropdown IS shown but DISABLED (hardcoded to "Root Workspace")
 - Workspaces are created under the default parent
 - M2 will enable the parent selection dropdown
 
@@ -339,7 +339,7 @@ Tests the M1 create workspace journey.
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Open the Create Workspace wizard
     const wizard = await openWorkspaceWizard(user, canvas);
@@ -348,12 +348,12 @@ Tests the M1 create workspace journey.
     await fillWorkspaceForm(user, wizard, 'QA Environment', 'Quality Assurance testing workspace');
 
     // In M1, the parent selector IS present but DISABLED (not hidden)
-    // It shows "Default Workspace" and cannot be changed
+    // It shows "Root Workspace" (the root workspace) and cannot be changed
     const parentSelector = await wizard.findByText(/parent workspace/i);
     expect(parentSelector).toBeInTheDocument();
 
     // The parent dropdown should be disabled in M1
-    const parentDropdown = wizard.getByText('Default Workspace');
+    const parentDropdown = wizard.getByText('Root Workspace');
     expect(parentDropdown).toBeInTheDocument();
 
     // Wait for Next button to be enabled before clicking

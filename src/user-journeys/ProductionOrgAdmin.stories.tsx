@@ -282,14 +282,14 @@ Tests that V1 Org Admin can access the Workspaces page.
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Wait for workspaces data to load (fixture root workspace name)
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Verify workspaces page heading
     const workspacesHeading = await canvas.findByRole('heading', { name: /workspaces/i, level: 1 });
     expect(workspacesHeading).toBeInTheDocument();
 
-    // Verify at least one workspace name from fixture is on screen
-    expect(canvas.getByText('Default Workspace')).toBeInTheDocument();
+    // Verify root workspace from fixture is on screen
+    expect(canvas.getByText('Root Workspace')).toBeInTheDocument();
 
     // Admin should see create button
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });

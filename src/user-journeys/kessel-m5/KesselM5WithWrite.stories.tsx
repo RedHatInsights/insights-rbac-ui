@@ -359,9 +359,10 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Production
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Find the Production workspace row
@@ -406,7 +407,8 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
 
     // CRITICAL: Verify the workspace is updated in the list
     // This tests that cache invalidation is working correctly
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Verify the updated workspace appears in the list
@@ -457,9 +459,10 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Staging
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Find the Staging workspace row (it's a leaf node, can be deleted)
@@ -502,7 +505,8 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
 
     // CRITICAL: Verify the workspace is removed from the list
     // This tests that cache invalidation is working correctly
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Verify Staging is no longer in the list

@@ -3095,7 +3095,7 @@ export default defineMessages({
     description: 'Description for notification when user lacks permission',
     defaultMessage: 'You do not have permission to perform this action. Please contact your administrator.',
   },
-organizationNameLabel: {
+  organizationNameLabel: {
     id: 'organizationNameLabel',
     description: 'Label for organization name field',
     defaultMessage: 'Organization name:',
