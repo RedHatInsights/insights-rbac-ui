@@ -1,3 +1,9 @@
+import type { RoleBindingsRoleBindingBySubject } from '../data/api/workspaces';
+import type { Group } from '../data/queries/groups';
+import messages from '../Messages';
+import { useIntl } from 'react-intl';
+import { z } from 'zod';
+
 export const BAD_UUID = 'bad uuid';
 
 // Type for table row data that must have a uuid field
@@ -54,3 +60,78 @@ export const isExternalIdp = (token: string = ''): boolean => {
   }
   return false;
 };
+
+// ============================================================================
+// Role Bindings Schemas and Transformations
+// ============================================================================
+
+// Zod schemas for role binding subjects
+const GroupSubjectSchema = z.object({
+  id: z.string(),
+  type: z.literal('group'),
+  group: z.object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    user_count: z.number().optional(),
+  }),
+});
+
+const UserSubjectSchema = z.object({
+  id: z.string(),
+  type: z.literal('user'),
+  user: z.object({
+    username: z.string().optional(),
+  }),
+});
+
+const SubjectSchema = z.union([GroupSubjectSchema, UserSubjectSchema]);
+
+// Type-safe validation functions
+export const parseGroupSubject = (subject: unknown) => GroupSubjectSchema.safeParse(subject);
+export const parseUserSubject = (subject: unknown) => UserSubjectSchema.safeParse(subject);
+export const parseSubject = (subject: unknown) => SubjectSchema.safeParse(subject);
+
+// Transform role bindings API response to Group structure
+export const mapRoleBindingsToGroups = (bindings: RoleBindingsRoleBindingBySubject[], intl: ReturnType<typeof useIntl>): Group[] =>
+  bindings.map((binding): Group => {
+    const subject = binding.subject;
+
+    let name = intl.formatMessage(messages.unknownSubjectName);
+    let description = '';
+    let principalCount = 0;
+    let uuid = '';
+
+    // Parse subject with Zod for type-safe validation
+    const groupResult = parseGroupSubject(subject);
+    const userResult = parseUserSubject(subject);
+
+    if (groupResult.success) {
+      const groupSubject = groupResult.data;
+      uuid = groupSubject.id;
+      name = groupSubject.group.name || name;
+      description = groupSubject.group.description || '';
+      principalCount = groupSubject.group.user_count || 0;
+    } else if (userResult.success) {
+      const userSubject = userResult.data;
+      uuid = userSubject.id;
+      name = userSubject.user.username || name;
+    } else {
+      // Fallback for unknown subject types
+      if (subject && typeof subject === 'object' && 'id' in subject) {
+        uuid = String((subject as { id: unknown }).id);
+      }
+    }
+
+    return {
+      uuid,
+      name,
+      description,
+      principalCount,
+      roleCount: binding.roles?.length || 0,
+      created: binding.last_modified || '',
+      modified: binding.last_modified || '',
+      platform_default: false,
+      system: false,
+      admin_default: false,
+    };
+  });

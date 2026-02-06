@@ -3095,4 +3095,29 @@ export default defineMessages({
     description: 'Description for notification when user lacks permission',
     defaultMessage: 'You do not have permission to perform this action. Please contact your administrator.',
   },
+  organizationNameLabel: {
+    id: 'organizationNameLabel',
+    description: 'Label for organization name field',
+    defaultMessage: 'Organization name:',
+  },
+  accountNumberLabel: {
+    id: 'accountNumberLabel',
+    description: 'Label for account number field',
+    defaultMessage: 'Account number:',
+  },
+  organizationIdLabel: {
+    id: 'organizationIdLabel',
+    description: 'Label for organization ID field',
+    defaultMessage: 'Organization ID:',
+  },
+  redHatOrganizationPlaceholder: {
+    id: 'redHatOrganizationPlaceholder',
+    description: 'Placeholder text for organization name',
+    defaultMessage: 'Red Hat Organization',
+  },
+  unknownSubjectName: {
+    id: 'unknownSubjectName',
+    description: 'Fallback text when subject name is not available',
+    defaultMessage: 'Unknown',
+  },
 });
