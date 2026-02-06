@@ -168,21 +168,30 @@ export async function selectWorkspaceFromTree(
 }
 
 /**
- * Complete combo: Expand a parent workspace in tree and select a child
+ * Complete combo: Expand parent workspace(s) in tree and select a child
  *
  * Usage:
  * ```ts
- * await selectParentWorkspace(user, wizard, 'Default Workspace', 'Production');
+ * // Single level expansion
+ * await selectParentWorkspace(user, wizard, 'Root Workspace', 'Default Workspace');
+ * // Multi-level expansion (expand Root, then Default, then select Production)
+ * await selectParentWorkspace(user, wizard, ['Root Workspace', 'Default Workspace'], 'Production');
  * ```
  */
 export async function selectParentWorkspace(
   user: ReturnType<typeof userEvent.setup>,
   wizardScope: ReturnType<typeof within>,
-  parentToExpand: string,
+  parentsToExpand: string | string[],
   workspaceToSelect: string,
 ) {
   const treePanel = await openParentWorkspaceSelector(user, wizardScope);
-  await expandWorkspaceInTree(user, treePanel, parentToExpand);
+
+  // Support both single string and array of strings for multi-level expansion
+  const parents = Array.isArray(parentsToExpand) ? parentsToExpand : [parentsToExpand];
+  for (const parent of parents) {
+    await expandWorkspaceInTree(user, treePanel, parent);
+  }
+
   await selectWorkspaceFromTree(user, treePanel, workspaceToSelect);
 }
 

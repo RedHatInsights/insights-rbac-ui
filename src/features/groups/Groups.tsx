@@ -18,7 +18,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 
 // Red Hat components
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformTracking } from '../../hooks/usePlatformTracking';
 
 // Internal components
 import { PageLayout } from '../../components/layout/PageLayout';
@@ -55,7 +55,7 @@ import type { Group } from './types';
 export const Groups: React.FC = () => {
   const intl = useIntl();
   const navigate = useNavigate();
-  const chrome = useChrome();
+  const { trackNavigation } = usePlatformTracking();
   const toAppLink = useAppLink();
 
   // Permissions
@@ -154,8 +154,8 @@ export const Groups: React.FC = () => {
 
   // Chrome nav on mount
   useEffect(() => {
-    chrome.appNavClick({ id: 'groups', secondaryNav: true });
-  }, [chrome]);
+    trackNavigation('groups', true);
+  }, [trackNavigation]);
 
   // =============================================================================
   // Action Handlers

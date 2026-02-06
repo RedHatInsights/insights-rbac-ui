@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { IntlShape } from 'react-intl';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+import { usePlatformEnvironment } from '../../hooks/usePlatformEnvironment';
+import { usePlatformAuth } from '../../hooks/usePlatformAuth';
 import { OrgAdminDropdown as PresentationalOrgAdminDropdown } from './components/OrgAdminDropdown';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useUpdateUserOrgAdminMutation } from '../../data/queries/users';
@@ -15,7 +16,8 @@ const OrgAdminDropdown: React.FC<{
   userId: number | undefined;
   fetchData?: () => void;
 }> = ({ isOrgAdmin, username, userId, fetchData }) => {
-  const { auth, isProd } = useChrome();
+  const { environment } = usePlatformEnvironment();
+  const { getToken, getUser } = usePlatformAuth();
   const intl = useIntl();
   const addNotification = useAddNotification();
   const [isDisabled, setIsDisabled] = useState(false);
@@ -28,14 +30,14 @@ const OrgAdminDropdown: React.FC<{
   const updateOrgAdminMutation = useUpdateUserOrgAdminMutation();
 
   useEffect(() => {
-    const getToken = async () => {
-      const user = await auth.getUser();
+    const fetchAuth = async () => {
+      const user = await getUser();
       setAccountId(user?.identity?.org_id ?? null);
       setAccountUsername(user?.identity?.user?.username ?? null);
-      setToken((await auth.getToken()) ?? null);
+      setToken((await getToken()) ?? null);
     };
-    getToken();
-  }, [auth]);
+    fetchAuth();
+  }, [getToken, getUser]);
 
   useEffect(() => {
     if (accountUsername === username) {
@@ -52,7 +54,7 @@ const OrgAdminDropdown: React.FC<{
       await updateOrgAdminMutation.mutateAsync({
         userId: String(userId),
         isOrgAdmin: newStatus,
-        config: { isProd: isProd() || false, token, accountId },
+        config: { environment, token, accountId },
         itless: isITLess,
       });
       addNotification({

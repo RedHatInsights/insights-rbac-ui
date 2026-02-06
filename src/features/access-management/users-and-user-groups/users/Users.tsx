@@ -1,6 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformEnvironment } from '../../../../hooks/usePlatformEnvironment';
+import { usePlatformAuth } from '../../../../hooks/usePlatformAuth';
+import { useAccessPermissions } from '../../../../hooks/useAccessPermissions';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
@@ -57,19 +59,23 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   // Auth and permissions
   const [accountId, setAccountId] = useState<number | undefined>();
   const { orgAdmin: contextOrgAdmin } = useContext(PermissionsContext);
-  const { auth, isProd } = useChrome();
+  const { environment } = usePlatformEnvironment();
+  const { getToken, getUser } = usePlatformAuth();
   const [token, setToken] = useState<string | null>(null);
 
-  // Use the context orgAdmin for actual permissions
-  const orgAdmin = contextOrgAdmin;
+  // Check write permission for user actions
+  const { hasAccess: canWriteUsers } = useAccessPermissions(['rbac:principal:write']);
+
+  // Use the context orgAdmin for actual permissions (combines with granular check)
+  const orgAdmin = (contextOrgAdmin ?? false) && (canWriteUsers ?? false);
 
   useEffect(() => {
-    const getToken = async () => {
-      setToken((await auth.getToken()) as string);
-      setAccountId((await auth.getUser())?.identity.org_id as unknown as number);
+    const fetchAuth = async () => {
+      setToken((await getToken()) as string);
+      setAccountId((await getUser())?.identity?.org_id as unknown as number);
     };
-    getToken();
-  }, [auth]);
+    fetchAuth();
+  }, [getToken, getUser]);
 
   // User status toggle handler - now using React Query
   const handleToggleUserStatus = useCallback(
@@ -83,7 +89,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
               is_active: isActive,
             },
           ],
-          config: { isProd: isProd() || false, token, accountId },
+          config: { environment, token, accountId },
           itless: isITLess,
         });
         addNotification({
@@ -102,7 +108,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
         });
       }
     },
-    [changeUserStatusMutation, isProd, token, accountId, intl, isITLess, addNotification],
+    [changeUserStatusMutation, environment, token, accountId, intl, isITLess, addNotification],
   );
 
   // Org admin toggle handler
@@ -127,7 +133,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
             id: user.external_source_id,
             is_active: true,
           })),
-          config: { isProd: isProd() || false, token, accountId },
+          config: { environment, token, accountId },
           itless: isITLess,
         });
         addNotification({
@@ -146,7 +152,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
         });
       }
     },
-    [changeUserStatusMutation, isProd, token, accountId, intl, isITLess, addNotification],
+    [changeUserStatusMutation, environment, token, accountId, intl, isITLess, addNotification],
   );
 
   // Bulk deactivate handler (opens confirmation modal)
@@ -213,7 +219,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
           id: user.external_source_id,
           is_active: false,
         })),
-        config: { isProd: isProd() || false, token, accountId },
+        config: { environment, token, accountId },
         itless: isITLess,
       });
       addNotification({
@@ -233,7 +239,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     }
     setIsStatusModalOpen(false);
     setSelectedUsers([]);
-  }, [selectedUsers, changeUserStatusMutation, isProd, token, accountId, intl, isITLess, addNotification]);
+  }, [selectedUsers, changeUserStatusMutation, environment, token, accountId, intl, isITLess, addNotification]);
 
   // Render modals
   const deleteModal = (
@@ -280,7 +286,6 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
               focusedUser={localFocusedUser}
               authModel={authModel}
               orgAdmin={orgAdmin}
-              isProd={isProd() || false}
               defaultPerPage={defaultPerPage}
               ouiaId={ouiaId}
               onAddUserToGroup={handleOpenAddUserToGroupModal}

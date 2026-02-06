@@ -9,9 +9,9 @@ import messages from '../../Messages';
 import PermissionsContext, { PermissionsContextType } from '../../utilities/permissionsContext';
 import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformEnvironment } from '../../hooks/usePlatformEnvironment';
+import { usePlatformAuth } from '../../hooks/usePlatformAuth';
 import { WarningModal } from '@patternfly/react-component-groups';
-import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { AppLink } from '../../components/navigation/AppLink';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ButtonVariant, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
@@ -57,7 +57,8 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   const addNotification = useAddNotification();
   const { orgAdmin } = useContext(PermissionsContext) as PermissionsContextType;
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
-  const { isProd, auth } = useChrome();
+  const { environment } = usePlatformEnvironment();
+  const { getToken, getUser } = usePlatformAuth();
   const appNavigate = useAppNavigate();
   const isITLess = useFlag('platform.rbac.itless');
 
@@ -69,14 +70,14 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
 
   // Get token and account ID on mount
   useEffect(() => {
-    const getToken = async () => {
-      const user = await auth.getUser();
+    const fetchAuth = async () => {
+      const user = await getUser();
       setAccountId(user?.identity?.internal?.account_id ?? null);
-      setToken((await auth.getToken()) ?? null);
+      setToken((await getToken()) ?? null);
       setCurrAccountId(user?.identity?.internal?.account_id ?? undefined);
     };
-    getToken();
-  }, [auth]);
+    fetchAuth();
+  }, [getUser, getToken]);
 
   // Get user ID for row identification
   const getUserId = useCallback((user: User) => user.username, []);
@@ -119,7 +120,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   }, [tableState.apiParams, tableState.filters]);
 
   // React Query for users data
-  const { data: usersData, isLoading } = useUsersQuery(queryParams, { enabled: !!orgAdmin });
+  const { data: usersData, isLoading } = useUsersQuery(queryParams);
   const users: User[] = useMemo(
     () =>
       (usersData?.users ?? []).map((u) => ({
@@ -147,7 +148,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       try {
         await changeUserStatusMutation.mutateAsync({
           users: [{ ...updatedUser, id: updatedUser.external_source_id, is_active: isActive }],
-          config: { isProd: isProd() || false, token, accountId },
+          config: { environment, token, accountId },
           itless: isITLess,
         });
         addNotification({
@@ -164,7 +165,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         });
       }
     },
-    [changeUserStatusMutation, isProd, token, accountId, isITLess, addNotification, intl],
+    [changeUserStatusMutation, environment, token, accountId, isITLess, addNotification, intl],
   );
 
   // Column configuration
@@ -281,7 +282,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       try {
         await changeUserStatusMutation.mutateAsync({
           users: usersList,
-          config: { isProd: isProd() || false, token, accountId },
+          config: { environment, token, accountId },
           itless: isITLess,
         });
         addNotification({
@@ -304,7 +305,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
 
       userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
     },
-    [changeUserStatusMutation, tableState, isProd, token, accountId, isITLess, addNotification, intl],
+    [changeUserStatusMutation, tableState, environment, token, accountId, isITLess, addNotification, intl],
   );
 
   // Toolbar buttons
@@ -357,11 +358,6 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       </Dropdown>
     );
   }, [orgAdmin, isCommonAuthModel, intl, tableState.selectedRows.length, isKebabOpen]);
-
-  // Show UnauthorizedAccess component for users without proper permissions
-  if (!orgAdmin) {
-    return <UnauthorizedAccess serviceName="User Access Administration" bodyText="You need Organization Administrator permissions to view users." />;
-  }
 
   return (
     <React.Fragment>

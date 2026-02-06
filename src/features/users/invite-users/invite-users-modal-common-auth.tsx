@@ -10,7 +10,8 @@ import InlineError from '../../../components/ui-states/InlineError';
 import { useInviteUsersMutation } from '../../../data/queries/users';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useOutletContext } from 'react-router-dom';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformEnvironment } from '../../../hooks/usePlatformEnvironment';
+import { usePlatformAuth } from '../../../hooks/usePlatformAuth';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 // Portal subscription permission levels (moved from React Query helper)
@@ -43,7 +44,8 @@ const InviteUsers = () => {
   const [token, setToken] = React.useState<string | null>(null);
   const [accountId, setAccountId] = React.useState<string | null>(null);
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
-  const { auth, isProd } = useChrome();
+  const { environment } = usePlatformEnvironment();
+  const { getToken, getUser } = usePlatformAuth();
   const addNotification = useAddNotification();
 
   // React Query mutation for inviting users
@@ -54,13 +56,13 @@ const InviteUsers = () => {
   };
 
   React.useEffect(() => {
-    const getToken = async () => {
-      const user = await auth.getUser();
+    const fetchAuth = async () => {
+      const user = await getUser();
       setAccountId(user?.identity?.org_id ?? null);
-      setToken((await auth.getToken()) ?? null);
+      setToken((await getToken()) ?? null);
     };
-    getToken();
-  }, [auth]);
+    fetchAuth();
+  }, [getToken, getUser]);
 
   const onSubmit = async (values: Record<string, unknown>) => {
     const typedValues = values as SubmitValues;
@@ -72,7 +74,7 @@ const InviteUsers = () => {
         portal_manage_cases: typedValues['customer-portal-permissions']?.['manage-support-cases'],
         portal_download: typedValues['customer-portal-permissions']?.['download-software-updates'],
         portal_manage_subscriptions: typedValues['customer-portal-permissions']?.['manage-subscriptions'],
-        config: { isProd: isProd() || false, token, accountId },
+        config: { environment, token, accountId },
         itless: isITLess,
       });
 

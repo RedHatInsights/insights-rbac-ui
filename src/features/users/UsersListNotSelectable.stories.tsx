@@ -245,70 +245,7 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
   },
 };
 
-export const NonAdminUserUnauthorizedCalls: Story = {
-  args: defaultArgs,
-  parameters: {
-    docs: {
-      description: {
-        story: `
-**BUG REPLICATION**: This story demonstrates the unauthorized API call issue for non-admin users.
-
-## Current Behavior (BUG)
-Non-admin users accessing \`/iam/user-access/users\` trigger unauthorized API calls that result in 403 errors and toast spam.
-
-## Expected Test Result: ❌ FAIL (shows the bug exists)
-This test currently **FAILS** with: \`expect(spy).not.toHaveBeenCalled()\` because unauthorized calls ARE being made.
-
-## Expected Behavior (AFTER FIX)  
-Non-admin users should NOT trigger any API calls and should see a NotAuthorized component instead. The component should check permissions before making API requests.
-
-## Test Validation
-After the fix is applied, this test should **PASS** with zero API calls.
-        `,
-      },
-    },
-
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
-    msw: {
-      handlers: [
-        // Users API - returns 403 for non-admin users (simulates the production bug)
-        http.get('/api/rbac/v1/principals/', ({ request }) => {
-          fetchUsersSpy(request);
-          return new HttpResponse(
-            JSON.stringify({
-              error: 'You do not have permission to perform this action',
-              request_id: 'd725af14b571411ea0b31be7215e560a',
-            }),
-            {
-              status: 403,
-              headers: { 'Content-Type': 'application/json' },
-            },
-          );
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Wait for component to mount and potentially make API calls
-    await delay(300);
-
-    console.log('SB: 🐛 BUG TEST: Non-admin user spy calls:', fetchUsersSpy.mock.calls.length);
-
-    // 🐛 BUG DEMONSTRATION: This test currently FAILS because unauthorized API calls are made
-    // This proves the bug exists - non-admin users trigger API calls when they shouldn't
-    expect(fetchUsersSpy).not.toHaveBeenCalled();
-
-    // After fix: Verify NotAuthorized component is shown instead of making API calls
-    expect(await canvas.findByText(/You do not have access to User Access Administration/i)).toBeInTheDocument();
-
-    console.log('SB: 🧪 NON-ADMIN: NotAuthorized component shown, no unauthorized API calls made');
-  },
-};
+// NonAdminUserUnauthorizedCalls story removed - now handled by route-level PermissionGuard
 
 export const LoadingState: Story = {
   tags: ['perm:org-admin'],

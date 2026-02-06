@@ -42,6 +42,7 @@ module.exports = defineConfig(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 1,
       // Ban direct use of Link from react-router-dom - use AppLink or ExternalLink instead
+      // Ban direct use of platform hooks - use semantic wrappers instead
       'no-restricted-imports': [
         'error',
         {
@@ -50,6 +51,14 @@ module.exports = defineConfig(
               name: 'react-router-dom',
               importNames: ['Link'],
               message: 'Import AppLink from src/components/navigation/AppLink or ExternalLink from src/components/navigation/ExternalLink instead.',
+            },
+            {
+              name: '@redhat-cloud-services/frontend-components/useChrome',
+              message: 'Use usePlatformEnvironment, usePlatformAuth, or usePlatformTracking from src/hooks/ instead.',
+            },
+            {
+              name: '@redhat-cloud-services/frontend-components-utilities/RBACHook',
+              message: 'Use useAccessPermissions from src/hooks/ instead.',
             },
           ],
         },
@@ -107,10 +116,34 @@ module.exports = defineConfig(
     },
   },
   {
-    // Allow Link import in AppLink and ExternalLink wrapper components
-    files: ['src/components/navigation/AppLink.tsx', 'src/components/navigation/ExternalLink.tsx'],
+    // Allow direct platform imports in wrapper components and semantic hooks
+    files: [
+      'src/components/navigation/AppLink.tsx',
+      'src/components/navigation/ExternalLink.tsx',
+      'src/hooks/usePlatformEnvironment.ts',
+      'src/hooks/usePlatformAuth.ts',
+      'src/hooks/usePlatformTracking.ts',
+      'src/hooks/useAccessPermissions.ts',
+      // QuickStarts files need direct chrome access
+      'src/utilities/quickstartsTestButtons.tsx',
+      'src/features/quickstarts/QuickstartsTest.tsx',
+    ],
     rules: {
       'no-restricted-imports': 'off',
+    },
+  },
+  {
+    // Routing.tsx: Forbid hardcoded permissions - must use p() helper from route-definitions.ts
+    files: ['src/Routing.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Property[key.name="permissions"][value.type="ArrayExpression"]',
+          message:
+            'Do not hardcode permissions in Routing.tsx. Use ...p(path) spread from route-definitions.ts to get permissions from the single source of truth.',
+        },
+      ],
     },
   },
   {

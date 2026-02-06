@@ -5,13 +5,13 @@ type Workspace = WorkspacesWorkspace;
 
 /**
  * Default workspaces fixture for testing
- * Includes a root workspace and two child workspaces
+ * Hierarchy: Root Workspace > Default Workspace > (Production, Development, Staging)
  */
 export const defaultWorkspaces: Workspace[] = [
   {
     id: 'root-1',
-    name: 'Default Workspace',
-    description: 'Root workspace for the organization',
+    name: 'Root Workspace',
+    description: '',
     // Root workspace has no parent. API returns null, but TypeScript type expects string | undefined.
     parent_id: undefined,
     type: 'root', // API type for root workspace
@@ -19,10 +19,19 @@ export const defaultWorkspaces: Workspace[] = [
     modified: '2024-01-01T00:00:00Z',
   },
   {
+    id: 'default-1',
+    name: 'Default Workspace',
+    description: 'Default workspace for the organization',
+    parent_id: 'root-1',
+    type: 'standard',
+    created: '2024-01-01T12:00:00Z',
+    modified: '2024-01-01T12:00:00Z',
+  },
+  {
     id: 'ws-1',
     name: 'Production',
     description: 'Production environment workspace',
-    parent_id: 'root-1',
+    parent_id: 'default-1',
     type: 'standard',
     created: '2024-01-02T00:00:00Z',
     modified: '2024-01-02T00:00:00Z',
@@ -31,7 +40,7 @@ export const defaultWorkspaces: Workspace[] = [
     id: 'ws-2',
     name: 'Development',
     description: 'Development environment workspace',
-    parent_id: 'root-1',
+    parent_id: 'default-1',
     type: 'standard',
     created: '2024-01-03T00:00:00Z',
     modified: '2024-01-03T00:00:00Z',
@@ -40,7 +49,7 @@ export const defaultWorkspaces: Workspace[] = [
     id: 'ws-3',
     name: 'Staging',
     description: 'Staging environment workspace',
-    parent_id: 'root-1',
+    parent_id: 'default-1',
     type: 'standard',
     created: '2024-01-04T00:00:00Z',
     modified: '2024-01-04T00:00:00Z',

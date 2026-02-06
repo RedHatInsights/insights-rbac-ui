@@ -5,37 +5,79 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { MyUserAccess } from './MyUserAccess';
+import type { MockUserIdentity } from '../../../.storybook/contexts/StorybookMockContext';
+
+// ===== MOCK USER IDENTITIES =====
+// Reusable identity configurations for different test scenarios
+
+const standardEntitlements = {
+  rhel: { is_entitled: true, is_trial: false },
+  openshift: { is_entitled: true, is_trial: false },
+  ansible: { is_entitled: false, is_trial: false },
+  settings: { is_entitled: true, is_trial: false },
+};
+
+const fullEntitlements = {
+  rhel: { is_entitled: true, is_trial: false },
+  openshift: { is_entitled: true, is_trial: false },
+  ansible: { is_entitled: true, is_trial: false },
+  settings: { is_entitled: true, is_trial: false },
+};
+
+const limitedEntitlements = {
+  rhel: { is_entitled: true, is_trial: false },
+  openshift: { is_entitled: false, is_trial: false },
+  ansible: { is_entitled: false, is_trial: false },
+  settings: { is_entitled: true, is_trial: false },
+};
+
+const standardUser: MockUserIdentity = {
+  account_number: '12345',
+  org_id: '67890',
+  user: {
+    email: 'test@example.com',
+    first_name: 'Test',
+    last_name: 'User',
+    is_active: true,
+    is_org_admin: false,
+    username: 'testuser',
+  },
+  entitlements: standardEntitlements,
+};
+
+const adminUser: MockUserIdentity = {
+  account_number: '12345',
+  org_id: '67890',
+  user: {
+    email: 'admin@example.com',
+    first_name: 'Admin',
+    last_name: 'User',
+    is_active: true,
+    is_org_admin: true,
+    username: 'adminuser',
+  },
+  entitlements: fullEntitlements,
+};
+
+const limitedUser: MockUserIdentity = {
+  account_number: '12345',
+  org_id: '67890',
+  user: {
+    email: 'limited@example.com',
+    first_name: 'Limited',
+    last_name: 'User',
+    is_active: true,
+    is_org_admin: false,
+    username: 'limiteduser',
+  },
+  entitlements: limitedEntitlements,
+};
 
 const meta: Meta<typeof MyUserAccess> = {
   component: MyUserAccess,
   tags: ['custom-css'], // NO autodocs on meta
   parameters: {
-    // Use existing Chrome provider to mock user and entitlements
-    chrome: {
-      auth: {
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              account_number: '12345',
-              org_id: '67890',
-              user: {
-                email: 'test@example.com',
-                first_name: 'Test',
-                last_name: 'User',
-                is_active: true,
-                is_org_admin: false,
-                username: 'testuser',
-              },
-            },
-            entitlements: {
-              rhel: { is_entitled: true, is_trial: false },
-              openshift: { is_entitled: true, is_trial: false },
-              ansible: { is_entitled: false, is_trial: false },
-              settings: { is_entitled: true, is_trial: false },
-            },
-          }),
-      },
-    },
+    userIdentity: standardUser,
     permissions: {
       orgAdmin: false,
       userAccessAdministrator: false,
@@ -520,35 +562,7 @@ export const BundleSelection: Story = {
     bundle: 'rhel', // Start with RHEL selected
   },
   parameters: {
-    chrome: {
-      auth: {
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              account_number: '12345',
-              org_id: '67890',
-              user: {
-                email: 'test@example.com',
-                first_name: 'Test',
-                last_name: 'User',
-                is_active: true,
-                is_org_admin: false,
-                username: 'testuser',
-              },
-            },
-            entitlements: {
-              rhel: { is_entitled: true, is_trial: false },
-              openshift: { is_entitled: true, is_trial: false },
-              ansible: { is_entitled: false, is_trial: false },
-              settings: { is_entitled: true, is_trial: false },
-            },
-          }),
-      },
-    },
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
+    // Inherits userIdentity from meta (standardUser)
     docs: {
       description: {
         story: `
@@ -589,35 +603,7 @@ export const TableDataRefresh: Story = {
     bundle: 'rhel',
   },
   parameters: {
-    chrome: {
-      auth: {
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              account_number: '12345',
-              org_id: '67890',
-              user: {
-                email: 'test@example.com',
-                first_name: 'Test',
-                last_name: 'User',
-                is_active: true,
-                is_org_admin: false,
-                username: 'testuser',
-              },
-            },
-            entitlements: {
-              rhel: { is_entitled: true, is_trial: false },
-              openshift: { is_entitled: true, is_trial: false },
-              ansible: { is_entitled: false, is_trial: false },
-              settings: { is_entitled: true, is_trial: false },
-            },
-          }),
-      },
-    },
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
+    // Inherits userIdentity from meta (standardUser)
     msw: {
       handlers: [
         // Use same MSW logic as main meta for consistent data
@@ -724,35 +710,7 @@ export const FilterResetOnNavigation: Story = {
     bundle: 'rhel',
   },
   parameters: {
-    chrome: {
-      auth: {
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              account_number: '12345',
-              org_id: '67890',
-              user: {
-                email: 'test@example.com',
-                first_name: 'Test',
-                last_name: 'User',
-                is_active: true,
-                is_org_admin: false,
-                username: 'testuser',
-              },
-            },
-            entitlements: {
-              rhel: { is_entitled: true, is_trial: false },
-              openshift: { is_entitled: true, is_trial: false },
-              ansible: { is_entitled: false, is_trial: false },
-              settings: { is_entitled: true, is_trial: false },
-            },
-          }),
-      },
-    },
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
+    // Inherits userIdentity from meta (standardUser)
     msw: {
       handlers: [
         // Use same MSW logic as main meta for consistent data
@@ -895,33 +853,9 @@ export const OrgAdminView: Story = {
     bundle: undefined,
   },
   parameters: {
-    chrome: {
-      auth: {
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              account_number: '12345',
-              org_id: '67890',
-              user: {
-                email: 'admin@example.com',
-                first_name: 'Admin',
-                last_name: 'User',
-                is_active: true,
-                is_org_admin: true, // Admin user
-                username: 'adminuser',
-              },
-            },
-            entitlements: {
-              rhel: { is_entitled: true, is_trial: false },
-              openshift: { is_entitled: true, is_trial: false },
-              ansible: { is_entitled: true, is_trial: false },
-              settings: { is_entitled: true, is_trial: false },
-            },
-          }),
-      },
-    },
+    userIdentity: adminUser,
     permissions: {
-      orgAdmin: true, // Admin permissions
+      orgAdmin: true,
       userAccessAdministrator: false,
     },
   },
@@ -977,35 +911,7 @@ export const LimitedEntitlements: Story = {
     bundle: undefined,
   },
   parameters: {
-    chrome: {
-      auth: {
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              account_number: '12345',
-              org_id: '67890',
-              user: {
-                email: 'limited@example.com',
-                first_name: 'Limited',
-                last_name: 'User',
-                is_active: true,
-                is_org_admin: false,
-                username: 'limiteduser',
-              },
-            },
-            entitlements: {
-              rhel: { is_entitled: true, is_trial: false },
-              openshift: { is_entitled: false, is_trial: false },
-              ansible: { is_entitled: false, is_trial: false },
-              settings: { is_entitled: true, is_trial: false },
-            },
-          }),
-      },
-    },
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
+    userIdentity: limitedUser,
     msw: {
       handlers: [
         // Limited permissions for RHEL only
@@ -1055,33 +961,9 @@ export const ResponsiveNavigation: Story = {
     bundle: 'rhel', // Start with RHEL selected
   },
   parameters: {
-    chrome: {
-      auth: {
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              account_number: '12345',
-              org_id: '67890',
-              user: {
-                email: 'admin@example.com',
-                first_name: 'Admin',
-                last_name: 'User',
-                is_active: true,
-                is_org_admin: true, // Admin user to show dropdown
-                username: 'adminuser',
-              },
-            },
-            entitlements: {
-              rhel: { is_entitled: true, is_trial: false },
-              openshift: { is_entitled: true, is_trial: false },
-              ansible: { is_entitled: true, is_trial: false },
-              settings: { is_entitled: true, is_trial: false },
-            },
-          }),
-      },
-    },
+    userIdentity: adminUser,
     permissions: {
-      orgAdmin: true, // Admin permissions
+      orgAdmin: true,
       userAccessAdministrator: false,
     },
     docs: {

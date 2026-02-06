@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useMemo } from 'react';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 import { TableView, useTableState } from '../../../../../components/table-view';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../components/table-view/types';
@@ -27,8 +26,6 @@ interface RolesListProps {
 const columns = ['name', 'description'] as const;
 
 export const RolesList: React.FC<RolesListProps> = ({ initialSelectedRoles, onSelect, rolesExcluded = false, groupId }) => {
-  const chrome = useChrome();
-
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
@@ -94,12 +91,6 @@ export const RolesList: React.FC<RolesListProps> = ({ initialSelectedRoles, onSe
   useEffect(() => {
     onSelect(tableState.selectedRows);
   }, [tableState.selectedRows, onSelect]);
-
-  // Chrome global filter setup
-  useEffect(() => {
-    chrome?.hideGlobalFilter?.(true);
-    return () => chrome?.hideGlobalFilter?.(false);
-  }, [chrome]);
 
   // Cell renderers
   const cellRenderers: CellRendererMap<typeof columns, Role> = useMemo(

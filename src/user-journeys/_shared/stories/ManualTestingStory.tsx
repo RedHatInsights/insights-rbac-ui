@@ -1,6 +1,5 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, within } from 'storybook/test';
-import { navigateToPage } from '../helpers/navigationHelpers';
 import type { KesselAppEntryWithRouter } from '../components/KesselAppEntryWithRouter';
 
 /**
@@ -81,12 +80,19 @@ This story includes automated verification for admin users:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Verify we're on My User Access page
-    await navigateToPage(user, canvas, 'My User Access');
+    // Verify we're on My User Access page - V1 uses "My User Access", V2 uses "My Access"
+    // Try V2 first (newer), then fall back to V1
+    const myAccessLink = canvas.queryByRole('link', { name: /my access$/i });
+    const myUserAccessLink = canvas.queryByRole('link', { name: /my user access$/i });
+    const targetLink = myAccessLink || myUserAccessLink;
+
+    if (targetLink) {
+      await user.click(targetLink);
+    }
 
     // Wait for the page heading to appear (proves page has loaded)
-    // Use findByRole('heading') to avoid matching the nav link which also contains "My User Access"
-    const title = await canvas.findByRole('heading', { name: /My user access/i });
+    // Supports both V1 "My user access" and V2 "My access" headings
+    const title = await canvas.findByRole('heading', { name: /My (user )?access/i });
     expect(title).toBeInTheDocument();
 
     // Verify the table component renders (even if in loading state)
@@ -127,12 +133,19 @@ This story includes automated verification for read-only users:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Verify we're on My User Access page
-    await navigateToPage(user, canvas, 'My User Access');
+    // Verify we're on My User Access page - V1 uses "My User Access", V2 uses "My Access"
+    // Try V2 first (newer), then fall back to V1
+    const myAccessLink = canvas.queryByRole('link', { name: /my access$/i });
+    const myUserAccessLink = canvas.queryByRole('link', { name: /my user access$/i });
+    const targetLink = myAccessLink || myUserAccessLink;
+
+    if (targetLink) {
+      await user.click(targetLink);
+    }
 
     // Wait for the page heading to appear (proves page has loaded)
-    // Use findByRole('heading') to avoid matching the nav link which also contains "My User Access"
-    const title = await canvas.findByRole('heading', { name: /My user access/i });
+    // Supports both V1 "My user access" and V2 "My access" headings
+    const title = await canvas.findByRole('heading', { name: /My (user )?access/i });
     expect(title).toBeInTheDocument();
 
     // Verify the table component renders (even if in loading state)

@@ -32,9 +32,11 @@ const config: StorybookConfig = {
       ...config.resolve,
       alias: {
         ...config.resolve?.alias,
-        '@redhat-cloud-services/frontend-components/useChrome': path.resolve(process.cwd(), '.storybook/hooks/useChrome'),
+        // External dependency mocks
+        '@redhat-cloud-services/frontend-components/useChrome': path.resolve(process.cwd(), '.storybook/hooks/useChrome.tsx'),
+        '@redhat-cloud-services/frontend-components-utilities/RBACHook': path.resolve(process.cwd(), '.storybook/hooks/RBACHook'),
         '@unleash/proxy-client-react': path.resolve(process.cwd(), '.storybook/hooks/unleash'),
-        '@project-kessel/react-kessel-access-check': path.resolve(process.cwd(), '.storybook/hooks/kesselAccessCheck'),
+        '@project-kessel/react-kessel-access-check': path.resolve(process.cwd(), '.storybook/hooks/kesselAccessCheck.tsx'),
       },
     };
 
@@ -46,6 +48,12 @@ const config: StorybookConfig = {
     config.module.rules.push({
       test: /\.s[ac]ss$/i,
       use: ['style-loader', 'css-loader', 'sass-loader'],
+    });
+
+    // Add raw loader for YAML files with ?raw query
+    config.module.rules.push({
+      resourceQuery: /raw/,
+      type: 'asset/source',
     });
 
     return config;

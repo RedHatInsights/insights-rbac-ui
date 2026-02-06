@@ -22,7 +22,6 @@ interface UseUsersTableConfigOptions {
   intl: IntlShape;
   authModel: boolean;
   orgAdmin: boolean;
-  isProd: boolean;
   focusedUser?: User;
   ouiaId: string;
   onToggleUserStatus: (user: User, isActive: boolean) => void;
@@ -40,7 +39,6 @@ export function useUsersTableConfig({
   intl,
   authModel,
   orgAdmin,
-  isProd,
   focusedUser,
   ouiaId,
   onToggleUserStatus,
@@ -95,13 +93,13 @@ export function useUsersTableConfig({
           id={`${user.username}-org-admin-switch`}
           aria-label={`Toggle org admin for ${user.username}`}
           isChecked={user.is_org_admin || false}
-          isDisabled={!orgAdmin || !user.is_active || isProd}
+          isDisabled={!orgAdmin || !user.is_active}
           onChange={(_, checked) => onToggleOrgAdmin(user, checked)}
           ouiaId={`${ouiaId}-${user.username}-org-admin-switch`}
         />
       ),
     }),
-    [focusedUser, orgAdmin, isProd, ouiaId, onToggleUserStatus, onToggleOrgAdmin],
+    [focusedUser, orgAdmin, ouiaId, onToggleUserStatus, onToggleOrgAdmin],
   );
 
   const authModelCellRenderers: CellRendererMap<typeof authModelColumns, User> = useMemo(
@@ -111,7 +109,7 @@ export function useUsersTableConfig({
           id={`${user.username}-org-admin-switch`}
           aria-label={`Toggle org admin for ${user.username}`}
           isChecked={user.is_org_admin || false}
-          isDisabled={!orgAdmin || !user.is_active || isProd}
+          isDisabled={!orgAdmin || !user.is_active}
           onChange={(_, checked) => onToggleOrgAdmin(user, checked)}
           ouiaId={`${ouiaId}-${user.username}-org-admin-switch`}
         />
@@ -132,7 +130,7 @@ export function useUsersTableConfig({
       ),
       user_groups_count: (user) => (user.user_groups_count as number) ?? 0,
     }),
-    [focusedUser, orgAdmin, isProd, ouiaId, onToggleUserStatus, onToggleOrgAdmin],
+    [focusedUser, orgAdmin, ouiaId, onToggleUserStatus, onToggleOrgAdmin],
   );
 
   const filterConfig: FilterConfig[] = useMemo(

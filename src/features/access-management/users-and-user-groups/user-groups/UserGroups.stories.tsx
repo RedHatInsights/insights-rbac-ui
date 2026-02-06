@@ -6,6 +6,19 @@ import { HttpResponse, delay, http } from 'msw';
 
 import { UserGroups } from './UserGroups';
 import type { Group } from '../../../../data/queries/groups';
+import type { MockUserIdentity } from '../../../../../.storybook/contexts/StorybookMockContext';
+
+// Mock user identity for stories
+const standardUser: MockUserIdentity = {
+  org_id: '12345',
+  account_number: '123456',
+  user: {
+    username: 'testuser',
+    email: 'test@example.com',
+    first_name: 'Test',
+    last_name: 'User',
+  },
+};
 
 // Mock group data
 const mockGroups: Group[] = [
@@ -70,26 +83,11 @@ const meta: Meta<typeof UserGroups> = {
   tags: ['ff:platform.rbac.groups', 'env:prod', 'perm:org-admin'],
   decorators: [withRouter],
   parameters: {
-    permissions: { orgAdmin: true },
-    chrome: {
-      environment: 'prod',
-      auth: {
-        getToken: () => Promise.resolve('mock-token'),
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              org_id: '12345',
-              account_number: '123456',
-              user: {
-                username: 'testuser',
-                email: 'test@example.com',
-                first_name: 'Test',
-                last_name: 'User',
-              },
-            },
-          }),
-      },
-    },
+    // Groups routes require rbac:group:* permissions
+    permissions: ['rbac:group:read', 'rbac:group:write'],
+    // User is org admin with write permissions
+    orgAdmin: true,
+    userIdentity: standardUser,
     featureFlags: { 'platform.rbac.groups': true },
     docs: {
       description: {
@@ -612,6 +610,9 @@ export const GroupFocusInteraction: StoryObj<typeof meta> = {
 // Edit group navigation
 export const EditGroupNavigation: StoryObj<typeof meta> = {
   parameters: {
+    // Explicit permissions to ensure kebab actions are enabled
+    permissions: ['rbac:group:read', 'rbac:group:write'],
+    orgAdmin: true,
     msw: {
       handlers: [
         http.get('/api/rbac/v1/groups/', () => {
@@ -743,25 +744,9 @@ export const EditGroupNavigation: StoryObj<typeof meta> = {
 export const DeleteModalIntegration: StoryObj<typeof meta> = {
   tags: ['env:stage', 'perm:org-admin'],
   parameters: {
-    chrome: {
-      environment: 'stage', // Use non-production to enable delete actions
-      auth: {
-        getToken: () => Promise.resolve('mock-token'),
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              org_id: '12345',
-              account_number: '123456',
-              user: {
-                username: 'testuser',
-                email: 'test@example.com',
-                first_name: 'Test',
-                last_name: 'User',
-              },
-            },
-          }),
-      },
-    },
+    // Explicit permissions and settings to ensure actions are enabled
+    permissions: ['rbac:group:read', 'rbac:group:write'],
+    orgAdmin: true,
     msw: {
       handlers: [
         // Mock get groups API with spy
@@ -952,25 +937,7 @@ export const DeleteModalIntegration: StoryObj<typeof meta> = {
 export const SystemGroupProtection: StoryObj<typeof meta> = {
   tags: ['env:stage', 'perm:org-admin'],
   parameters: {
-    chrome: {
-      environment: 'stage', // Use non-production to test disabled state logic
-      auth: {
-        getToken: () => Promise.resolve('mock-token'),
-        getUser: () =>
-          Promise.resolve({
-            identity: {
-              org_id: '12345',
-              account_number: '123456',
-              user: {
-                username: 'testuser',
-                email: 'test@example.com',
-                first_name: 'Test',
-                last_name: 'User',
-              },
-            },
-          }),
-      },
-    },
+    // Inherits userIdentity from meta
     msw: {
       handlers: [
         http.get('/api/rbac/v1/groups/', () => {

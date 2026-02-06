@@ -16,7 +16,7 @@ type RoleBindingBySubject = RoleBindingsRoleBindingBySubject;
  */
 
 export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Map([
-  // Root/Default workspace - inherited by all children
+  // Root workspace - top of hierarchy
   [
     'root-1',
     [
@@ -41,9 +41,43 @@ export const workspaceRoleBindings: Map<string, RoleBindingBySubject[]> = new Ma
           id: 'root-1',
           type: 'workspace',
           workspace: {
-            name: 'Default Workspace',
+            name: 'Root Workspace',
             type: 'root',
-            description: 'Root workspace for the organization',
+            description: '',
+          },
+        },
+      },
+    ],
+  ],
+
+  // Default workspace - child of root, parent of environment workspaces
+  [
+    'default-1',
+    [
+      {
+        last_modified: '2024-08-11T08:00:00Z',
+        subject: {
+          id: 'group-3',
+          type: 'group',
+          group: {
+            name: 'Viewers',
+            description: 'Read-only access to production',
+            user_count: 25,
+          },
+        },
+        roles: [
+          {
+            id: 'role-2',
+            name: 'Workspace Viewer',
+          },
+        ],
+        resource: {
+          id: 'default-1',
+          type: 'workspace',
+          workspace: {
+            name: 'Default Workspace',
+            type: 'standard',
+            description: 'Default workspace for the organization',
           },
         },
       },

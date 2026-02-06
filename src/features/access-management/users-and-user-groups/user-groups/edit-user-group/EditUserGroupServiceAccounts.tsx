@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformAuth } from '../../../../../hooks/usePlatformAuth';
+import { usePlatformEnvironment } from '../../../../../hooks/usePlatformEnvironment';
 import Messages from '../../../../../Messages';
 import { TableView } from '../../../../../components/table-view/TableView';
 import { useTableState } from '../../../../../components/table-view/hooks/useTableState';
@@ -23,25 +24,19 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   initialServiceAccountIds,
 }) => {
   const intl = useIntl();
-  const { auth } = useChrome();
+  const { getToken } = usePlatformAuth();
+  const { ssoUrl } = usePlatformEnvironment();
 
   // Auth state
   const [token, setToken] = useState<string | null>(null);
-  const [ssoUrl, setSsoUrl] = useState<string>('');
 
   useEffect(() => {
     const initAuth = async () => {
-      const authToken = (await auth.getToken()) as string;
+      const authToken = (await getToken()) as string;
       setToken(authToken);
-      // Get SSO URL from environment - use stage for non-production
-      const user = await auth.getUser();
-      // Check if internal cross_access exists to determine environment
-      const internal = user?.identity?.internal as { cross_access?: boolean } | undefined;
-      const env = internal?.cross_access ? 'stage' : 'prod';
-      setSsoUrl(env === 'prod' ? 'https://sso.redhat.com' : 'https://sso.stage.redhat.com');
     };
     initAuth();
-  }, [auth]);
+  }, [getToken]);
 
   // Helper to get consistent service account ID
   const getServiceAccountId = useCallback((sa: ServiceAccount) => sa.clientId || sa.id, []);

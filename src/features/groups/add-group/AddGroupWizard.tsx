@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
 
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
@@ -38,7 +37,6 @@ interface AddGroupWizardProps {
 
 export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
   const navigate = useAppNavigate();
-  const chrome = useChrome();
   const addNotification = useAddNotification();
 
   // React Query mutations
@@ -46,9 +44,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
   const addServiceAccountsMutation = useAddServiceAccountsToGroupMutationV1();
 
   // Feature flags for wizard configuration
-  const enableServiceAccounts =
-    (chrome.isBeta() && useFlag('platform.rbac.group-service-accounts')) ||
-    (!chrome.isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
+  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts.stable');
 
   const enableWorkspaces = useWorkspacesFlag('m5'); // Master flag
 

@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformTracking } from '../hooks/usePlatformTracking';
 
 const PageActionRoute = ({ pageAction, children }) => {
-  const chrome = useChrome();
+  const { trackAction } = usePlatformTracking();
   useEffect(() => {
-    chrome.appAction(pageAction);
-    return () => chrome.appAction(undefined);
-  }, [pageAction]);
+    trackAction(pageAction);
+    return () => trackAction(undefined);
+  }, [pageAction, trackAction]);
   return children;
 };
 

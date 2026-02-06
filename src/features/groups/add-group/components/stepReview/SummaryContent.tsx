@@ -3,7 +3,6 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import messages from '../../../../../Messages';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
 
 interface SummaryContentProps {
@@ -34,7 +33,6 @@ interface SelectedServiceAccount {
 export const SummaryContent: React.FC<SummaryContentProps> = () => {
   const intl = useIntl();
   const formOptions = useFormApi();
-  const { isBeta } = useChrome();
   const {
     'group-name': name,
     'group-description': description,
@@ -42,8 +40,7 @@ export const SummaryContent: React.FC<SummaryContentProps> = () => {
     'roles-list': selectedRoles,
     'service-accounts-list': selectedServiceAccounts,
   } = formOptions.getState().values || {};
-  const enableServiceAccounts =
-    (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
+  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts.stable');
 
   return (
     <Stack hasGutter>

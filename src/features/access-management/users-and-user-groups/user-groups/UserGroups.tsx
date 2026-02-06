@@ -2,7 +2,7 @@ import React, { Fragment, Suspense, useCallback, useContext, useEffect, useState
 import { Outlet, useSearchParams } from 'react-router-dom';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { useAccessPermissions } from '../../../../hooks/useAccessPermissions';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 
 import { useDeleteGroupMutation } from '../../../../data/queries/groups';
@@ -44,9 +44,14 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
 
   // Note: focusedGroup is now properly typed as Group | undefined from the hook
 
-  // Permission and environment context
-  const { orgAdmin } = useContext(PermissionsContext);
-  const { isProd } = useChrome();
+  // Permission context
+  const { orgAdmin: contextOrgAdmin } = useContext(PermissionsContext);
+
+  // Check write permission for group actions
+  const { hasAccess: canWriteGroups } = useAccessPermissions(['rbac:group:write']);
+
+  // Combined permission check - user must be org admin AND have granular write permission
+  const orgAdmin = (contextOrgAdmin ?? false) && (canWriteGroups ?? false);
 
   // Extract perPage for outlet context
   const { perPage } = tableState;
@@ -165,9 +170,8 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
               isLoading={isLoading}
               focusedGroup={focusedGroup}
               defaultPerPage={defaultPerPage}
-              enableActions={true}
+              enableActions={orgAdmin}
               orgAdmin={orgAdmin}
-              isProd={isProd() || false}
               ouiaId={ouiaId}
               // Table state from useTableState - managed by container
               tableState={tableState}

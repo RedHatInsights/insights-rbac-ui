@@ -10,7 +10,8 @@ import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformEnvironment } from '../../../hooks/usePlatformEnvironment';
+import { usePlatformAuth } from '../../../hooks/usePlatformAuth';
 import { useFlag } from '@unleash/proxy-client-react';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
@@ -29,7 +30,8 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
   const navigate = useNavigate();
   const toAppLink = useAppLink();
   const addNotification = useAddNotification();
-  const { auth, isProd } = useChrome();
+  const { environment } = usePlatformEnvironment();
+  const { getToken, getUser } = usePlatformAuth();
   const isITLess = useFlag('platform.rbac.itless');
 
   const [isCheckboxLabelExpanded, setIsCheckboxLabelExpanded] = useState(false);
@@ -42,13 +44,13 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
 
   // Get token and account ID on mount
   useEffect(() => {
-    const getToken = async () => {
-      const user = await auth.getUser();
+    const fetchAuth = async () => {
+      const user = await getUser();
       setAccountId(user?.identity?.org_id ?? null);
-      setToken((await auth.getToken()) ?? null);
+      setToken((await getToken()) ?? null);
     };
-    getToken();
-  }, [auth]);
+    fetchAuth();
+  }, [getToken, getUser]);
 
   // React Query mutation for inviting users
   const inviteUsersMutation = useInviteUsersMutation();
@@ -58,7 +60,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
       await inviteUsersMutation.mutateAsync({
         emails: userEmailList,
         isAdmin: areNewUsersAdmins,
-        config: { isProd: isProd() || false, token, accountId },
+        config: { environment, token, accountId },
         itless: isITLess,
       });
       addNotification({

@@ -98,7 +98,6 @@ const defaultArgs = {
   isLoading: false,
   authModel: false,
   orgAdmin: true,
-  isProd: false,
   defaultPerPage: 20,
   ouiaId: 'test-users-table',
   onAddUserToGroup: fn(),
@@ -134,7 +133,7 @@ The UsersTable component provides a comprehensive data table for managing users 
 - **Column Layout**: Changes based on \`authModel\` flag - org admin column position varies
 - **Status Management**: Users can be activated/deactivated with appropriate permissions
 - **Bulk Operations**: Multiple users can be selected for bulk operations
-- **Permission Checks**: Org admin toggles respect user permissions and production environment
+- **Permission Checks**: Org admin toggles respect user permissions
 - **Focus Highlighting**: Focused user is displayed with bold username
 
 ## Interactive Behaviors
@@ -174,14 +173,6 @@ All business logic is handled through callback props, keeping this component foc
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'true' },
-      },
-    },
-    isProd: {
-      control: 'boolean',
-      description: 'Whether app is running in production environment',
-      table: {
-        type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' },
       },
     },
     isLoading: {
@@ -514,30 +505,6 @@ export const FocusedUser: Story = {
     // Other usernames should not be bold
     const regularUsername = await canvas.findByText('john.doe');
     await expect(regularUsername.tagName.toLowerCase()).not.toBe('strong');
-  },
-};
-
-// Production environment restrictions
-export const ProductionEnvironment: Story = {
-  args: {
-    ...defaultArgs,
-    isProd: true,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Tests behavior in production environment where certain administrative controls are restricted. Validates that org admin switches are properly disabled to prevent accidental privilege changes in production. Critical for production safety and compliance requirements.',
-      },
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Org admin switches should be disabled in production - switches render as checkboxes
-    const firstUserOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for john.doe/i);
-
-    await expect(firstUserOrgAdminSwitch).toBeDisabled();
   },
 };
 

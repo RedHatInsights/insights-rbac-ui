@@ -21,6 +21,8 @@ export interface RoleDetailProps {
   onDelete?: () => void;
   onBackClick: () => void;
   hasPermission: boolean;
+  /** Controls visibility of Edit/Delete actions (write permission) */
+  canEdit?: boolean;
   children: ReactNode;
   errorType?: 'role' | 'group';
 }
@@ -40,6 +42,7 @@ export const RoleDetail: React.FC<RoleDetailProps> = ({
   onDelete,
   onBackClick,
   hasPermission,
+  canEdit = true, // Default to true for backward compatibility
   children,
   errorType = 'role',
 }) => {
@@ -62,7 +65,7 @@ export const RoleDetail: React.FC<RoleDetailProps> = ({
             title,
             description,
             actionMenu:
-              !isLoading && title && !isSystemRole ? (
+              !isLoading && title && !isSystemRole && canEdit ? (
                 <Dropdown
                   popperProps={{ position: 'right' }}
                   toggle={(toggleRef: React.Ref<MenuToggleElement>) => (

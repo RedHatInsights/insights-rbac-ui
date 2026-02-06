@@ -1,5 +1,6 @@
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useEffect, useState } from 'react';
+import { usePlatformAuth } from './usePlatformAuth';
+import { useAccessPermissions } from './useAccessPermissions';
 
 interface UserData {
   ready: boolean;
@@ -7,20 +8,10 @@ interface UserData {
   userAccessAdministrator: boolean;
 }
 
-interface UserIdentity {
-  identity?: {
-    user?: {
-      is_org_admin?: boolean;
-    };
-  };
-}
-
-interface Permission {
-  permission: string;
-}
-
 const useUserData = (): UserData => {
-  const chrome = useChrome();
+  const { getUser } = usePlatformAuth();
+  const { hasAccess: hasRbacWildcard, isLoading: permissionsLoading } = useAccessPermissions(['rbac:*:*']);
+
   const [userData, setUserData] = useState<UserData>({
     ready: false,
     orgAdmin: false,
@@ -28,18 +19,16 @@ const useUserData = (): UserData => {
   });
 
   useEffect(() => {
-    if (chrome && !userData.ready) {
-      Promise.all([chrome.auth.getUser() as Promise<UserIdentity>, chrome.getUserPermissions('rbac') as Promise<Permission[]>]).then(
-        ([user, permissions]) => {
-          setUserData({
-            ready: true,
-            orgAdmin: user?.identity?.user?.is_org_admin || false,
-            userAccessAdministrator: !!permissions.find(({ permission }) => permission === 'rbac:*:*'),
-          });
-        },
-      );
+    if (!userData.ready && !permissionsLoading) {
+      getUser().then((user) => {
+        setUserData({
+          ready: true,
+          orgAdmin: user?.identity?.user?.is_org_admin || false,
+          userAccessAdministrator: hasRbacWildcard,
+        });
+      });
     }
-  }, [chrome, userData.ready]);
+  }, [getUser, hasRbacWildcard, permissionsLoading, userData.ready]);
 
   return userData;
 };

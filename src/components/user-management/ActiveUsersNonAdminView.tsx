@@ -1,4 +1,3 @@
-import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React, { FunctionComponent } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
@@ -11,9 +10,7 @@ export const ActiveUsersNonAdminView: FunctionComponent<ActiveUsersNonAdminViewP
   const intl = useIntl();
   return (
     <>
-      <Content className="pf-v6-u-mt-0" component={ContentVariants.h6}>
-        {`${intl.formatMessage(messages.usersDescription)} `}
-      </Content>
+      <span className="pf-v6-u-mt-0">{`${intl.formatMessage(messages.usersDescription)} `}</span>
       {children}
     </>
   );

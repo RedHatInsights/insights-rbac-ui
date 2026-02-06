@@ -2,7 +2,7 @@ import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, navigateToPage, resetStoryState, verifySuccessNotification, waitForPageToLoad } from '../_shared/helpers';
 import { fillCopyRoleWizard } from '../../features/roles/CopyRole.helpers';
 import { fillCreateRoleWizard } from '../../features/roles/CreateRole.helpers';
@@ -106,9 +106,10 @@ const meta = {
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
-    userAccessAdministrator: false,
     // All V2/Management Fabric flags enabled
+    'platform.rbac.workspaces-organization-management': true, // V2 Navigation
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': true,
     'platform.rbac.workspaces-role-bindings': true,
@@ -121,8 +122,9 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
-      userAccessAdministrator: false,
+      'platform.rbac.workspaces-organization-management': true, // V2 Navigation
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': true,
       'platform.rbac.workspaces-role-bindings': true,
@@ -188,7 +190,7 @@ export const ManualTesting: Story = {
   name: 'V2 Org Admin Manual Testing',
   tags: ['autodocs'],
   args: {
-    initialRoute: '/iam/access-management/users-and-user-groups',
+    initialRoute: '/iam/my-user-access',
   },
   parameters: {
     docs: {
@@ -227,15 +229,62 @@ Use the Controls panel to:
     await resetStoryState();
     const canvas = within(context.canvasElement);
 
-    // Wait for the page to load
+    // Wait for the permissions section to render - this is the most reliable indicator the page is ready
+    await expect(canvas.findByText(/your red hat enterprise linux/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).resolves.toBeInTheDocument();
+  },
+};
+
+/**
+ * Sidebar validation - verify all V2 admin items visible
+ */
+export const SidebarValidation: Story = {
+  name: 'Sidebar / All V2 admin items visible',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Validates that V2 Org Admin sees all sidebar items.
+
+**Checks:**
+- ✅ "My Access" link IS present (V2 label)
+- ✅ "Access Management" expandable section IS present
+- ✅ "Overview" link IS present
+- ✅ "Users and User Groups" link IS present
+- ✅ "Workspaces" link IS present
+- ✅ "Roles" link IS present
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    const canvas = within(context.canvasElement);
+
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Verify the V2 Users and User Groups page loads
-    await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
+    // ✅ My Access should be visible (V2 uses "My Access" label)
+    const myAccess = await canvas.findByRole('link', { name: /my access/i });
+    expect(myAccess).toBeInTheDocument();
 
-    // Verify tabs are present
-    await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
-    await expect(canvas.findByRole('tab', { name: /user groups/i })).resolves.toBeInTheDocument();
+    // ✅ Access Management expandable should be visible (V2 navigation)
+    const accessMgmtSection = await canvas.findByRole('button', { name: /access management/i });
+    expect(accessMgmtSection).toBeInTheDocument();
+
+    // ✅ All V2 admin links should be visible
+    const overviewLink = await canvas.findByRole('link', { name: /overview/i });
+    expect(overviewLink).toBeInTheDocument();
+
+    const usersLink = await canvas.findByRole('link', { name: /users and groups/i });
+    expect(usersLink).toBeInTheDocument();
+
+    const workspacesLink = await canvas.findByRole('link', { name: /workspaces/i });
+    expect(workspacesLink).toBeInTheDocument();
+
+    const rolesLink = await canvas.findByRole('link', { name: /roles/i });
+    expect(rolesLink).toBeInTheDocument();
   },
 };
 
@@ -263,15 +312,15 @@ Tests navigation through all V2 Access Management sidebar items.
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Navigate to Users and User Groups
-    await navigateToPage(user, canvas, 'Users and User Groups');
+    // Navigate to Users and Groups
+    await navigateToPage(user, canvas, 'Users and Groups');
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
+    await expect(canvas.findByRole('heading', { name: /users and (user )?groups/i })).resolves.toBeInTheDocument();
 
     // Navigate to Workspaces
     await navigateToPage(user, canvas, 'Workspaces');
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await expect(canvas.findByText('Default Workspace')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Root Workspace')).resolves.toBeInTheDocument();
 
     // Navigate back to Overview
     await navigateToPage(user, canvas, 'Overview');
@@ -343,7 +392,7 @@ Tests workspace management with all M5 features enabled.
     const canvas = within(context.canvasElement);
 
     // Wait for workspaces to load
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Verify create button is enabled (M5 features)
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });

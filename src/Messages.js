@@ -3120,4 +3120,14 @@ export default defineMessages({
     description: 'Fallback text when subject name is not available',
     defaultMessage: 'Unknown',
   },
+  unauthorizedAccessServiceName: {
+    id: 'unauthorizedAccessServiceName',
+    description: 'Generic service name displayed on unauthorized access pages',
+    defaultMessage: 'this page',
+  },
+  unauthorizedAccessBodyText: {
+    id: 'unauthorizedAccessBodyText',
+    description: 'Body text displayed on unauthorized access pages',
+    defaultMessage: "You don't have permission to view this page.",
+  },
 });

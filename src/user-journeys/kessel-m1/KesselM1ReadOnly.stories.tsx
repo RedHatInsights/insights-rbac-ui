@@ -1,7 +1,7 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, within } from 'storybook/test';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
 import { defaultKesselRoles } from '../../../.storybook/fixtures/kessel-groups-roles';
@@ -9,8 +9,8 @@ import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-han
 
 interface StoryArgs {
   typingDelay?: number;
-  orgAdmin?: boolean;
-  userAccessAdministrator?: boolean;
+  /** Explicit permissions (rbac:*, inventory:*, etc.) - use KESSEL_PERMISSIONS presets */
+  permissions?: readonly string[];
   'platform.rbac.workspaces-list'?: boolean;
   'platform.rbac.workspace-hierarchy'?: boolean;
   'platform.rbac.workspaces-role-bindings'?: boolean;
@@ -43,15 +43,10 @@ const meta = {
       description: 'Typing delay in ms for demo mode',
       table: { category: 'Demo', defaultValue: { summary: '0 in CI, 30 otherwise' } },
     },
-    orgAdmin: {
-      control: 'boolean',
-      description: 'Organization Administrator',
-      table: { category: 'Permissions', defaultValue: { summary: 'false' } },
-    },
-    userAccessAdministrator: {
-      control: 'boolean',
-      description: 'User Access Administrator',
-      table: { category: 'Permissions', defaultValue: { summary: 'false' } },
+    permissions: {
+      control: 'object',
+      description: 'Explicit permissions array (rbac:*, inventory:*, etc.)',
+      table: { category: 'Permissions', defaultValue: { summary: 'KESSEL_PERMISSIONS.READ_ONLY' } },
     },
     'platform.rbac.workspaces-list': {
       control: 'boolean',
@@ -101,8 +96,7 @@ const meta = {
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    orgAdmin: false,
-    userAccessAdministrator: false,
+    permissions: KESSEL_PERMISSIONS.READ_ONLY,
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': false,
     'platform.rbac.workspaces-role-bindings': false,
@@ -116,8 +110,7 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
-      orgAdmin: false,
-      userAccessAdministrator: false,
+      permissions: KESSEL_PERMISSIONS.READ_ONLY,
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': false,
       'platform.rbac.workspaces-role-bindings': false,
@@ -196,8 +189,8 @@ export const ManualTesting: Story = {
   args: {
     ...ManualTestingReadOnly.args,
     // Explicitly include feature flag args to ensure controls work
-    orgAdmin: false,
-    userAccessAdministrator: false,
+    permissions: KESSEL_PERMISSIONS.READ_ONLY,
+    orgAdmin: false, // User identity - not an org admin
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': false,
     'platform.rbac.workspaces-role-bindings': false,
@@ -317,7 +310,7 @@ cannot perform any workspace modification actions.
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // The "Create workspace" button should be visible but DISABLED
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });

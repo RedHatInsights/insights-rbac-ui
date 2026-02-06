@@ -1,8 +1,9 @@
 import React, { Fragment, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Outlet, useNavigationType, useParams, useNavigate as useRouterNavigate } from 'react-router-dom';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useQueryClient } from '@tanstack/react-query';
+import { usePlatformTracking } from '../../../hooks/usePlatformTracking';
+import { useAccessPermissions } from '../../../hooks/useAccessPermissions';
 import { useGroupQuery, useSystemGroupQuery } from '../../../data/queries/groups';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
 import { getBackRoute } from '../../../helpers/navigation';
@@ -23,7 +24,7 @@ interface RoleProps {
 
 const Role: React.FC<RoleProps> = ({ onDelete }) => {
   const intl = useIntl();
-  const chrome = useChrome();
+  const { trackObjectView } = usePlatformTracking();
   const navigate = useAppNavigate();
   const routerNavigate = useRouterNavigate(); // For delta navigation (back)
   const navigationType = useNavigationType();
@@ -36,6 +37,9 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   });
   const { roleId, groupId } = useParams<{ roleId: string; groupId?: string }>();
   const { orgAdmin, userAccessAdministrator } = useUserData();
+
+  // Check granular permissions for read and write access
+  const { hasAccess: canWriteRoles } = useAccessPermissions(['rbac:role:write']);
 
   // Use TanStack Query for role data
   const { data: role, isLoading: isRoleLoading, isError: isRoleError } = useRoleQuery(roleId ?? '');
@@ -85,12 +89,12 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   // Set chrome app object ID for analytics
   useEffect(() => {
     if (roleId) {
-      chrome.appObjectId(roleId);
+      trackObjectView(roleId);
     } else if (actualGroupId) {
-      chrome.appObjectId(actualGroupId);
+      trackObjectView(actualGroupId);
     }
-    return () => (chrome.appObjectId as (id: string | undefined) => void)(undefined);
-  }, [roleId, actualGroupId, chrome]);
+    return () => trackObjectView('');
+  }, [roleId, actualGroupId, trackObjectView]);
 
   // Derived: Determine if role cannot have permissions added
   // System roles and preconfigured roles (for admins) are non-editable
@@ -207,6 +211,7 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
         onDelete={onDelete}
         onBackClick={handleBackClick}
         hasPermission={orgAdmin || userAccessAdministrator}
+        canEdit={canWriteRoles}
         errorType={groupExists ? 'role' : 'group'}
       >
         <RolePermissions

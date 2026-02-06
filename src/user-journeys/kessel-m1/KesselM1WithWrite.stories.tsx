@@ -1,7 +1,7 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, fillWorkspaceForm, navigateToPage, openWorkspaceWizard, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
 import { defaultKesselRoles } from '../../../.storybook/fixtures/kessel-groups-roles';
@@ -10,8 +10,10 @@ import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-han
 
 interface StoryArgs {
   typingDelay?: number;
+  /** Explicit permissions (rbac:*, inventory:*, etc.) - use KESSEL_PERMISSIONS presets */
+  permissions?: readonly string[];
+  /** User identity - is this user an org admin? */
   orgAdmin?: boolean;
-  userAccessAdministrator?: boolean;
   'platform.rbac.workspaces-list'?: boolean;
   'platform.rbac.workspace-hierarchy'?: boolean;
   'platform.rbac.workspaces-role-bindings'?: boolean;
@@ -45,15 +47,15 @@ const meta = {
       description: 'Typing delay in ms for demo mode',
       table: { category: 'Demo', defaultValue: { summary: '0 in CI, 30 otherwise' } },
     },
+    permissions: {
+      control: 'object',
+      description: 'Explicit permissions array (rbac:*, inventory:*, etc.)',
+      table: { category: 'Permissions', defaultValue: { summary: 'KESSEL_PERMISSIONS.FULL_ADMIN' } },
+    },
     orgAdmin: {
       control: 'boolean',
-      description: 'Organization Administrator',
-      table: { category: 'Permissions', defaultValue: { summary: 'true' } },
-    },
-    userAccessAdministrator: {
-      control: 'boolean',
-      description: 'User Access Administrator',
-      table: { category: 'Permissions', defaultValue: { summary: 'false' } },
+      description: 'User identity - is org admin (separate from permissions)',
+      table: { category: 'Identity', defaultValue: { summary: 'true' } },
     },
     'platform.rbac.workspaces-list': {
       control: 'boolean',
@@ -103,8 +105,8 @@ const meta = {
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    orgAdmin: true,
-    userAccessAdministrator: false,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
+    orgAdmin: true, // User identity - is an org admin
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': false,
     'platform.rbac.workspaces-role-bindings': false,
@@ -118,8 +120,8 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
-      userAccessAdministrator: false,
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': false,
       'platform.rbac.workspaces-role-bindings': false,
@@ -154,10 +156,10 @@ Kessel M1 introduces the initial workspace list view. This is the foundational f
 - ✅ **Workspace List**: View all workspaces in a hierarchical tree structure  
   - Displays workspace names and descriptions
   - Tree view with expand/collapse for hierarchy
-  - Root workspace: "Default Workspace"
+  - Root workspace: "Root Workspace"
 - ✅ **Create Workspace**: Basic workspace creation
   - Simple form with name and description
-  - Parent workspace selector is present but disabled (fixed to "Default Workspace")
+  - Parent workspace selector is present but disabled (fixed to "Root Workspace")
   - No parent selection capability until M2
 - ✅ **Workspace Names**: Display as plain text (not clickable links)
   - Standard/ungrouped-hosts workspaces become links to Inventory in M2
@@ -172,7 +174,7 @@ Kessel M1 introduces the initial workspace list view. This is the foundational f
 Users with \`inventory:groups:write\` permission can:
 - View the complete workspace hierarchy
 - Expand/collapse workspace tree nodes
-- Create new workspaces (parent automatically set to "Default Workspace")
+- Create new workspaces (parent automatically set to "Root Workspace")
 - See workspace names and descriptions in table view
 
 ## What's Coming Next
@@ -207,8 +209,8 @@ export const ManualTesting: Story = {
   args: {
     ...ManualTestingWithWrite.args,
     // Explicitly include feature flag args to ensure controls work
-    orgAdmin: true,
-    userAccessAdministrator: false,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
+    orgAdmin: true, // User identity
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': false,
     'platform.rbac.workspaces-role-bindings': false,
@@ -231,7 +233,7 @@ Kessel M1 introduces the initial workspace list view, the foundational feature t
 
 **What's Available in M1:**
 - ✅ Workspace list view with hierarchy tree
-- ✅ Basic workspace creation (parent fixed to "Default Workspace")
+- ✅ Basic workspace creation (parent fixed to "Root Workspace")
 - ✅ Workspace names displayed as plain text (not clickable)
 - ❌ No parent selection capability (M2+)
 - ❌ No Edit/Move/Delete operations (M2+)
@@ -259,7 +261,7 @@ This story provides an entry point for manual testing and exploration of the RBA
 - Navigate to "Workspaces" using the left navigation
 - Expand/collapse workspace tree nodes
 - Click "Create workspace" button
-  - Parent selector IS visible but DISABLED (hardcoded to "Default Workspace")
+  - Parent selector IS visible but DISABLED (hardcoded to "Root Workspace")
   - Fill in name and description
   - Submit and verify workspace appears in list
 - Verify workspace names are plain text (not clickable - links come in M2)
@@ -315,7 +317,7 @@ Tests the M1 create workspace journey.
 
 **M1 Behavior:**
 - Create workspace wizard is available
-- Parent selection dropdown IS shown but DISABLED (hardcoded to "Default Workspace")
+- Parent selection dropdown IS shown but DISABLED (hardcoded to "Root Workspace")
 - Workspaces are created under the default parent
 - M2 will enable the parent selection dropdown
 
@@ -337,7 +339,7 @@ Tests the M1 create workspace journey.
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Open the Create Workspace wizard
     const wizard = await openWorkspaceWizard(user, canvas);
@@ -346,12 +348,12 @@ Tests the M1 create workspace journey.
     await fillWorkspaceForm(user, wizard, 'QA Environment', 'Quality Assurance testing workspace');
 
     // In M1, the parent selector IS present but DISABLED (not hidden)
-    // It shows "Default Workspace" and cannot be changed
+    // It shows "Root Workspace" (the root workspace) and cannot be changed
     const parentSelector = await wizard.findByText(/parent workspace/i);
     expect(parentSelector).toBeInTheDocument();
 
     // The parent dropdown should be disabled in M1
-    const parentDropdown = wizard.getByText('Default Workspace');
+    const parentDropdown = wizard.getByText('Root Workspace');
     expect(parentDropdown).toBeInTheDocument();
 
     // Wait for Next button to be enabled before clicking

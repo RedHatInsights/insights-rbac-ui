@@ -154,7 +154,6 @@ export const AdminUserWithRoles: Story = {
 
 For testing specific scenarios, see these additional stories:
 
-- **[NonAdminUserUnauthorizedCalls](?path=/story/features-roles-roles--non-admin-user-unauthorized-calls)**: Verifies non-admin users see UnauthorizedAccess and make no API calls
 - **[LoadingState](?path=/story/features-roles-roles--loading-state)**: Tests container behavior during API loading
 - **[EmptyRoles](?path=/story/features-roles-roles--empty-roles)**: Tests container response to empty role data
         `,
@@ -300,73 +299,7 @@ For testing specific scenarios, see these additional stories:
   },
 };
 
-export const NonAdminUserUnauthorizedCalls: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story: `
-**Non-Admin User Access**: Verifies that non-admin users do not trigger unauthorized API calls.
-
-Non-admin users should see a NotAuthorized component and make zero API calls to the roles or admin group endpoints.
-        `,
-      },
-    },
-
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
-    msw: {
-      handlers: [
-        // Roles API - returns 403 for non-admin users (simulates the production bug)
-        http.get('/api/rbac/v1/roles/', ({ request }) => {
-          fetchRolesSpy(request);
-          return new HttpResponse(
-            JSON.stringify({
-              error: 'You do not have permission to perform this action',
-              request_id: 'd725af14b571411ea0b31be7215e560a',
-            }),
-            {
-              status: 403,
-              headers: { 'Content-Type': 'application/json' },
-            },
-          );
-        }),
-
-        // Admin group API - returns 403 for non-admin users
-        http.get('/api/rbac/v1/groups/', ({ request }) => {
-          const url = new URL(request.url);
-          if (url.searchParams.get('admin_default') === 'true') {
-            fetchAdminGroupSpy(request);
-            return new HttpResponse(
-              JSON.stringify({
-                error: 'You do not have permission to perform this action',
-                request_id: 'd725af14b571411ea0b31be7215e560a',
-              }),
-              {
-                status: 403,
-                headers: { 'Content-Type': 'application/json' },
-              },
-            );
-          }
-          return HttpResponse.json({ data: [], meta: { count: 0 } });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await delay(300);
-
-    // Verify no API calls were made
-    expect(fetchRolesSpy).not.toHaveBeenCalled();
-    expect(fetchAdminGroupSpy).not.toHaveBeenCalled();
-
-    // Verify NotAuthorized component is shown
-    expect(await canvas.findByText(/You do not have access to User Access Administration/i)).toBeInTheDocument();
-  },
-};
+// NonAdminUserUnauthorizedCalls story removed - now handled by route-level PermissionGuard
 
 export const LoadingState: Story = {
   tags: ['perm:org-admin'],

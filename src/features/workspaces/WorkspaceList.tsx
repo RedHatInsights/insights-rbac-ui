@@ -37,7 +37,7 @@ export const WorkspaceList = () => {
   const moveWorkspaceMutation = useMoveWorkspaceMutation();
 
   // Check all permissions (edit, create) for workspaces via Kessel
-  const { canEdit, canCreateIn, canEditAny, canCreateTopLevel } = useWorkspacePermissions(workspaces);
+  const { canEdit, canCreateIn, canEditAny, canCreateAny } = useWorkspacePermissions(workspaces);
 
   // Move modal state
   const [currentMoveWorkspace, setCurrentMoveWorkspace] = useState<WorkspacesWorkspace | null>(null);
@@ -124,7 +124,7 @@ export const WorkspaceList = () => {
       canEdit={canEdit}
       canCreateIn={canCreateIn}
       canEditAny={canEditAny}
-      canCreateTopLevel={canCreateTopLevel}
+      canCreateAny={canCreateAny}
     >
       {/* Move workspace modal - only render when there's a workspace to move */}
       {currentMoveWorkspace &&

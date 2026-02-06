@@ -16,7 +16,7 @@ export const KesselNavigation: React.FC = () => {
     <Nav aria-label="Identity & Access Management Navigation">
       <NavList>
         <NavItem isActive={isActive('/iam/my-user-access')}>
-          <Link to="/iam/my-user-access">My User Access</Link>
+          <Link to="/iam/my-user-access">My Access</Link>
         </NavItem>
 
         <NavExpandable title="Access Management" isExpanded={true} isActive={isActive('/iam/access-management') || isActive('/iam/user-access')}>
@@ -27,7 +27,7 @@ export const KesselNavigation: React.FC = () => {
             <Link to="/iam/access-management/workspaces">Workspaces</Link>
           </NavItem>
           <NavItem isActive={isActive('/iam/access-management/users-and-user-groups')}>
-            <Link to="/iam/access-management/users-and-user-groups">Users and User Groups</Link>
+            <Link to="/iam/access-management/users-and-user-groups">Users and Groups</Link>
           </NavItem>
           <NavItem isActive={isActive('/iam/access-management/roles') || isActive('/iam/user-access/roles')}>
             <Link to="/iam/access-management/roles">Roles</Link>
