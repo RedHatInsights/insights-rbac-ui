@@ -29,6 +29,8 @@ interface AppEntryWithRouterProps {
 export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
     <MemoryRouter initialEntries={[initialRoute]}>
+      {/* FakeAddressBar must be outside Page to avoid z-index conflicts with masthead */}
+      <FakeAddressBar />
       <Page
         masthead={<ProductionHeader />}
         sidebar={
@@ -39,7 +41,6 @@ export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialR
           </PageSidebar>
         }
       >
-        <FakeAddressBar />
         <GlobalBreadcrumb />
         <Routes>
           <Route path="/iam/*" element={<Iam testMode />} />
