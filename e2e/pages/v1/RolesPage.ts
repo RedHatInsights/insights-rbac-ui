@@ -8,6 +8,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import { clickMenuItem, openDetailPageActionsMenu, openRoleActionsMenu, setupPage, verifySuccessNotification, waitForTableUpdate } from '../../utils';
 import { fillCreateRoleWizard, fillCreateRoleWizardAsCopy, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const ROLES_URL = '/iam/user-access/roles';
 
@@ -138,8 +139,8 @@ export class RolesPage {
 
   async fillEditModal(newName: string, newDescription: string): Promise<void> {
     const dialog = this.page.getByRole('dialog').first();
-    await expect(dialog).toBeVisible({ timeout: 5000 });
-    await expect(dialog.getByText('Edit role information')).toBeVisible({ timeout: 5000 });
+    await expect(dialog).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(dialog.getByText('Edit role information')).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     const nameInput = dialog.getByLabel(/name/i);
     await nameInput.click();
@@ -154,16 +155,16 @@ export class RolesPage {
     await descInput.fill(newDescription);
 
     await dialog.getByRole('button', { name: /save/i }).click();
-    await expect(dialog).not.toBeVisible({ timeout: 5000 });
+    await expect(dialog).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
   }
 
   async confirmDelete(): Promise<void> {
     const dialog = this.page.getByRole('dialog').first();
-    await expect(dialog).toBeVisible({ timeout: 5000 });
-    await expect(dialog.getByRole('heading', { name: /delete role/i })).toBeVisible({ timeout: 10000 });
+    await expect(dialog).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(dialog.getByRole('heading', { name: /delete role/i })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await dialog.getByRole('checkbox').click();
     await dialog.getByRole('button', { name: /delete role/i }).click();
-    await expect(dialog).not.toBeVisible({ timeout: 10000 });
+    await expect(dialog).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async verifySuccess(): Promise<void> {

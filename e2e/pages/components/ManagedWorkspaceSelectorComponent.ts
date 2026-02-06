@@ -21,6 +21,7 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 export class ManagedWorkspaceSelectorComponent {
   readonly page: Page;
@@ -65,12 +66,12 @@ export class ManagedWorkspaceSelectorComponent {
 
   async open(): Promise<void> {
     await this.menuToggleButton.click();
-    await expect(this.treePanel).toBeVisible({ timeout: 5000 });
+    await expect(this.treePanel).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async close(): Promise<void> {
     await this.page.keyboard.press('Escape');
-    await expect(this.treePanel).not.toBeVisible({ timeout: 3000 });
+    await expect(this.treePanel).not.toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -78,17 +79,17 @@ export class ManagedWorkspaceSelectorComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async search(searchTerm: string): Promise<void> {
-    await expect(this.searchInput).toBeVisible({ timeout: 5000 });
+    await expect(this.searchInput).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await this.searchInput.clear();
     await this.searchInput.fill(searchTerm);
     // Wait for tree to update after search filter
-    await expect(this.treeView).toBeVisible({ timeout: 3000 });
+    await expect(this.treeView).toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
   }
 
   async clearSearch(): Promise<void> {
     await this.searchInput.clear();
     // Wait for tree to update after clearing filter
-    await expect(this.treeView).toBeVisible({ timeout: 3000 });
+    await expect(this.treeView).toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -110,38 +111,38 @@ export class ManagedWorkspaceSelectorComponent {
 
   async expandWorkspace(workspaceName: string): Promise<void> {
     const toggle = this.getWorkspaceToggle(workspaceName);
-    await expect(toggle).toBeVisible({ timeout: 5000 });
+    await expect(toggle).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     const isExpanded = await toggle.getAttribute('aria-expanded');
     if (isExpanded !== 'true') {
       await toggle.click();
       // Wait for expanded state
-      await expect(toggle).toHaveAttribute('aria-expanded', 'true', { timeout: 3000 });
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true', { timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
     }
   }
 
   async collapseWorkspace(workspaceName: string): Promise<void> {
     const toggle = this.getWorkspaceToggle(workspaceName);
-    await expect(toggle).toBeVisible({ timeout: 5000 });
+    await expect(toggle).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     const isExpanded = await toggle.getAttribute('aria-expanded');
     if (isExpanded === 'true') {
       await toggle.click();
       // Wait for collapsed state
-      await expect(toggle).toHaveAttribute('aria-expanded', 'false', { timeout: 3000 });
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false', { timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
     }
   }
 
   async selectWorkspace(workspaceName: string): Promise<void> {
     const workspaceButton = this.getWorkspaceButton(workspaceName);
-    await expect(workspaceButton).toBeVisible({ timeout: 5000 });
+    await expect(workspaceButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await workspaceButton.click();
   }
 
   async confirmSelection(): Promise<void> {
-    await expect(this.selectButton).toBeEnabled({ timeout: 3000 });
+    await expect(this.selectButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
     await this.selectButton.click();
-    await expect(this.treePanel).not.toBeVisible({ timeout: 3000 });
+    await expect(this.treePanel).not.toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -177,11 +178,11 @@ export class ManagedWorkspaceSelectorComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async expectWorkspaceVisible(workspaceName: string): Promise<void> {
-    await expect(this.getWorkspaceButton(workspaceName)).toBeVisible({ timeout: 5000 });
+    await expect(this.getWorkspaceButton(workspaceName)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async expectWorkspaceNotVisible(workspaceName: string): Promise<void> {
-    await expect(this.getWorkspaceButton(workspaceName)).not.toBeVisible({ timeout: 3000 });
+    await expect(this.getWorkspaceButton(workspaceName)).not.toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
   }
 
   async expectSelectedWorkspace(workspaceName: string): Promise<void> {
@@ -189,10 +190,10 @@ export class ManagedWorkspaceSelectorComponent {
   }
 
   async expectLoading(): Promise<void> {
-    await expect(this.loadingIndicator).toBeVisible({ timeout: 5000 });
+    await expect(this.loadingIndicator).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async expectNotLoading(): Promise<void> {
-    await expect(this.loadingIndicator).not.toBeVisible({ timeout: 5000 });
+    await expect(this.loadingIndicator).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 }

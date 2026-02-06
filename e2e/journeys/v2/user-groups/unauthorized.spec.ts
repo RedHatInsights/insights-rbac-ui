@@ -8,6 +8,7 @@
 
 import { expect, test } from '@playwright/test';
 import { AUTH_V2_READONLY, setupPage } from '../../../utils';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 const GROUPS_URL = '/iam/access-management/users-and-user-groups/user-groups';
 
@@ -22,6 +23,6 @@ test.describe('ReadOnlyUser', () => {
     await setupPage(page);
     await page.goto(GROUPS_URL);
 
-    await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
   });
 });

@@ -11,6 +11,7 @@
 
 import { type Locator, type Page, expect } from '@playwright/test';
 import { setupPage, waitForTableUpdate } from '../../utils';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const GROUPS_URL = '/iam/access-management/users-and-user-groups/user-groups';
 
@@ -74,11 +75,11 @@ export class UserGroupsPage {
   }
 
   async verifyGroupInTable(name: string): Promise<void> {
-    await expect(this.getGroupRow(name)).toBeVisible({ timeout: 10000 });
+    await expect(this.getGroupRow(name)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async verifyGroupNotInTable(name: string): Promise<void> {
-    await expect(this.getGroupRow(name)).not.toBeVisible({ timeout: 10000 });
+    await expect(this.getGroupRow(name)).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -87,13 +88,13 @@ export class UserGroupsPage {
 
   async openDrawer(name: string): Promise<void> {
     await this.table.getByText(name).click();
-    await expect(this.drawer).toBeVisible({ timeout: 10000 });
-    await expect(this.drawer.getByRole('heading', { name })).toBeVisible({ timeout: 5000 });
+    await expect(this.drawer).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await expect(this.drawer.getByRole('heading', { name })).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
   }
 
   async closeDrawer(name: string): Promise<void> {
     await this.table.getByText(name).click();
-    await expect(this.drawer.getByRole('heading', { name })).not.toBeVisible({ timeout: 5000 });
+    await expect(this.drawer.getByRole('heading', { name })).not.toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -114,7 +115,7 @@ export class UserGroupsPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async fillGroupForm(name: string, description: string): Promise<void> {
-    await expect(this.page.locator('[data-ouia-component-id="edit-user-group-form"]')).toBeVisible({ timeout: 10000 });
+    await expect(this.page.locator('[data-ouia-component-id="edit-user-group-form"]')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     const nameInput = this.page.getByLabel(/^name/i);
     await nameInput.click();
@@ -129,20 +130,20 @@ export class UserGroupsPage {
     await descInput.fill(description);
 
     await this.page.getByRole('button', { name: /submit|save|create/i }).click();
-    await expect(this.page).toHaveURL(/\/user-groups(\?|$)/, { timeout: 15000 });
+    await expect(this.page).toHaveURL(/\/user-groups(\?|$)/, { timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
   }
 
   async confirmDelete(): Promise<void> {
     // Use generic dialog selector - OUIA ID may vary
     const modal = this.page.getByRole('dialog');
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Check the confirmation checkbox - required for delete
     const checkbox = modal.getByRole('checkbox');
-    await expect(checkbox).toBeVisible({ timeout: 3000 });
+    await expect(checkbox).toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
     await checkbox.click();
 
     await modal.getByRole('button', { name: /delete/i }).click();
-    await expect(modal).not.toBeVisible({ timeout: 10000 });
+    await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 }

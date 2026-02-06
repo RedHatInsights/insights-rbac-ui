@@ -15,6 +15,7 @@ import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN } from '../../../utils';
 import { getSeededGroupName } from '../../../utils/seed-map';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
@@ -51,13 +52,13 @@ test.describe('Admin - Group Member Management', () => {
     // Navigate to seeded group
     await groupsPage.searchFor(SEEDED_GROUP_NAME);
     await groupsPage.navigateToDetail(SEEDED_GROUP_NAME);
-    await expect(groupsPage.getDetailHeading(SEEDED_GROUP_NAME)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(SEEDED_GROUP_NAME)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click Members tab
     await groupsPage.clickTab('Members');
 
     // Should show Add member button (indicates we're on the right tab)
-    await expect(groupsPage.addMemberButton).toBeVisible({ timeout: 10000 });
+    await expect(groupsPage.addMemberButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     console.log('[Members] ✓ Members tab navigation works');
   });
@@ -72,8 +73,8 @@ test.describe('Admin - Group Member Management', () => {
     await groupsPage.clickTab('Members');
 
     // Wait for Add member button to be ready
-    await expect(groupsPage.addMemberButton).toBeVisible({ timeout: 10000 });
-    await expect(groupsPage.addMemberButton).toBeEnabled({ timeout: 5000 });
+    await expect(groupsPage.addMemberButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await expect(groupsPage.addMemberButton).toBeEnabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
 
     // Click Add member
     await groupsPage.openAddMembersModal();
@@ -100,8 +101,8 @@ test.describe('Admin - Group Member Management', () => {
       await groupsPage.clickTab('Members');
 
       // Wait for Add member button to be ready
-      await expect(groupsPage.addMemberButton).toBeVisible({ timeout: 10000 });
-      await expect(groupsPage.addMemberButton).toBeEnabled({ timeout: 5000 });
+      await expect(groupsPage.addMemberButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      await expect(groupsPage.addMemberButton).toBeEnabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
 
       // Add 1 member
       await groupsPage.addMembersToGroup(1);
@@ -122,7 +123,7 @@ test.describe('Admin - Group Member Management', () => {
       await groupsPage.clickTab('Members');
 
       // Wait for member table to load
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(E2E_TIMEOUTS.DRAWER_ANIMATION);
 
       // Select and remove 1 member
       await groupsPage.removeMembersFromGroup(1);
@@ -149,13 +150,13 @@ test.describe('Admin - Group Role Management', () => {
     // Navigate to seeded group
     await groupsPage.searchFor(SEEDED_GROUP_NAME);
     await groupsPage.navigateToDetail(SEEDED_GROUP_NAME);
-    await expect(groupsPage.getDetailHeading(SEEDED_GROUP_NAME)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(SEEDED_GROUP_NAME)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click Roles tab
     await groupsPage.clickTab('Roles');
 
     // Should show Add role button (indicates we're on the right tab)
-    await expect(groupsPage.addRoleButton).toBeVisible({ timeout: 10000 });
+    await expect(groupsPage.addRoleButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     console.log('[Roles] ✓ Roles tab navigation works');
   });
@@ -170,8 +171,8 @@ test.describe('Admin - Group Role Management', () => {
     await groupsPage.clickTab('Roles');
 
     // Wait for Add role button to be ready
-    await expect(groupsPage.addRoleButton).toBeVisible({ timeout: 10000 });
-    await expect(groupsPage.addRoleButton).toBeEnabled({ timeout: 10000 });
+    await expect(groupsPage.addRoleButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await expect(groupsPage.addRoleButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
 
     // Click Add role
     await groupsPage.openAddRolesModal();
@@ -198,8 +199,8 @@ test.describe('Admin - Group Role Management', () => {
       await groupsPage.clickTab('Roles');
 
       // Wait for Add role button to be ready
-      await expect(groupsPage.addRoleButton).toBeVisible({ timeout: 10000 });
-      await expect(groupsPage.addRoleButton).toBeEnabled({ timeout: 10000 });
+      await expect(groupsPage.addRoleButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      await expect(groupsPage.addRoleButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
 
       // Add 1 role
       await groupsPage.addRolesToGroup(1);
@@ -220,7 +221,7 @@ test.describe('Admin - Group Role Management', () => {
       await groupsPage.clickTab('Roles');
 
       // Wait for roles table to load
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(E2E_TIMEOUTS.DRAWER_ANIMATION);
 
       // Select 1 role
       await groupsPage.selectRoleRows(1);
