@@ -202,10 +202,6 @@ objects:
                     - - inventory:groups:read
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces
-                    - false
-                - method: featureFlag
-                  args:
                     - platform.rbac.workspaces-organization-management
                     - false
               routes:

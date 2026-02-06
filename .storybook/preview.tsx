@@ -122,6 +122,9 @@ const preview: Preview = {
         // Override with args if provided (for interactive controls)
         ...(args['platform.rbac.itless'] !== undefined && { 'platform.rbac.itless': args['platform.rbac.itless'] }),
         ...(args['platform.rbac.workspaces'] !== undefined && { 'platform.rbac.workspaces': args['platform.rbac.workspaces'] }),
+        ...(args['platform.rbac.workspaces-organization-management'] !== undefined && {
+          'platform.rbac.workspaces-organization-management': args['platform.rbac.workspaces-organization-management'],
+        }),
         ...(args['platform.rbac.workspaces-list'] !== undefined && { 'platform.rbac.workspaces-list': args['platform.rbac.workspaces-list'] }),
         ...(args['platform.rbac.workspace-hierarchy'] !== undefined && {
           'platform.rbac.workspace-hierarchy': args['platform.rbac.workspace-hierarchy'],

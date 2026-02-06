@@ -50,6 +50,12 @@ const config: StorybookConfig = {
       use: ['style-loader', 'css-loader', 'sass-loader'],
     });
 
+    // Add raw loader for YAML files with ?raw query
+    config.module.rules.push({
+      resourceQuery: /raw/,
+      type: 'asset/source',
+    });
+
     return config;
   },
   typescript: {
