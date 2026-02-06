@@ -87,7 +87,6 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
   { pattern: /Found an issue\? https:\/\/github\.com\/mswjs/, label: 'MSW help link' },
   { pattern: /Documentation:.*https:\/\/mswjs\.io/, label: 'MSW documentation link' },
   { pattern: /Client ID:.*%s.*\(%s\)/, label: 'MSW client logging' },
-  { pattern: /MSW intercepted role bindings request/, label: 'MSW role bindings debug' },
 
   // Storybook test debugging console.log (allowed in play functions)
   { pattern: /^SB:/, label: 'Storybook test debug' },
