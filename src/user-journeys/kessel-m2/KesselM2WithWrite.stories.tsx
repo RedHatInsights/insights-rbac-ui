@@ -377,7 +377,7 @@ In M1, this would be disabled or auto-select Default Workspace.
 
     // Navigate to Workspaces page first to load the list
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Open the Create Workspace wizard
     const wizard = await openWorkspaceWizard(user, canvas);
@@ -389,17 +389,18 @@ In M1, this would be disabled or auto-select Default Workspace.
     const parentLabel = await wizard.findByText(/parent workspace/i);
     expect(parentLabel).toBeInTheDocument();
 
-    // Select parent workspace from tree: expand Default Workspace, select Production
-    await selectParentWorkspace(user, wizard, 'Default Workspace', 'Production');
+    // Select parent workspace from tree: expand Root > Default Workspace, select Production
+    await selectParentWorkspace(user, wizard, ['Root Workspace', 'Default Workspace'], 'Production');
 
     // Navigate to review and submit
     await clickWizardButton(user, wizard, 'Next');
     await clickWizardButton(user, wizard, 'Submit');
 
     // Wizard should close and we should be back on the workspace list
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
-    // Expand Default Workspace (root) to see its children
+    // Expand Root > Default Workspace to see children
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Expand Production to reveal the new workspace
@@ -409,9 +410,9 @@ In M1, this would be disabled or auto-select Default Workspace.
     const newWorkspace = await canvas.findByText('Test Workspace M2');
     expect(newWorkspace).toBeInTheDocument();
 
-    // Verify it's at the correct hierarchy level (level 3 = grandchild of root)
+    // Verify it's at the correct hierarchy level (level 4 = great-grandchild of root: Root > Default > Production > Test)
     const newWorkspaceRow = newWorkspace.closest('tr') as HTMLElement;
-    expect(newWorkspaceRow.getAttribute('aria-level')).toBe('3');
+    expect(newWorkspaceRow.getAttribute('aria-level')).toBe('4');
   },
 };
 
@@ -461,9 +462,10 @@ Tests that admins can create a subworkspace from a parent's action menu in Kesse
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Production
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Open Production's kebab menu and click "Create subworkspace"
@@ -485,17 +487,18 @@ Tests that admins can create a subworkspace from a parent's action menu in Kesse
     const parentLabel = await wizardScope.findByText(/parent workspace/i);
     expect(parentLabel).toBeInTheDocument();
 
-    // Select parent workspace: expand Default Workspace, select Production
-    await selectParentWorkspace(user, wizardScope, 'Default Workspace', 'Production');
+    // Select parent workspace: expand Root > Default Workspace, select Production
+    await selectParentWorkspace(user, wizardScope, ['Root Workspace', 'Default Workspace'], 'Production');
 
     // Navigate to review and submit
     await clickWizardButton(user, wizardScope, 'Next');
     await clickWizardButton(user, wizardScope, 'Submit');
 
     // Wizard should close and we should be back on the workspace list
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
-    // Expand Default Workspace (root) to see its children
+    // Expand Root > Default Workspace to see children
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Expand Production to reveal the new subworkspace
@@ -505,9 +508,9 @@ Tests that admins can create a subworkspace from a parent's action menu in Kesse
     const newSubworkspace = await canvas.findByText('Test Subworkspace');
     expect(newSubworkspace).toBeInTheDocument();
 
-    // Verify it's at the correct hierarchy level (level 3 = grandchild of root)
+    // Verify it's at the correct hierarchy level (level 4 = great-grandchild of root: Root > Default > Production > Subworkspace)
     const newSubworkspaceRow = newSubworkspace.closest('tr') as HTMLElement;
-    expect(newSubworkspaceRow.getAttribute('aria-level')).toBe('3');
+    expect(newSubworkspaceRow.getAttribute('aria-level')).toBe('4');
   },
 };
 
@@ -552,9 +555,10 @@ Tests that users with \`inventory:groups:write\` permission can move workspaces 
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Staging
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Open Staging's kebab menu and click "Move workspace"
@@ -576,11 +580,12 @@ Tests that users with \`inventory:groups:write\` permission can move workspaces 
     await user.click(parentSelector);
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Find the tree panel and expand Default Workspace to see Production
+    // Find the tree panel and expand Root > Default Workspace to see Production
     const treePanel = document.querySelector('.rbac-c-workspace-selector-menu');
     expect(treePanel).toBeInTheDocument();
     const treePanelScope = within(treePanel as HTMLElement);
 
+    await expandWorkspaceInTree(user, treePanelScope, 'Root Workspace');
     await expandWorkspaceInTree(user, treePanelScope, 'Default Workspace');
     await selectWorkspaceFromTree(user, treePanelScope, 'Production');
 
@@ -591,9 +596,10 @@ Tests that users with \`inventory:groups:write\` permission can move workspaces 
     await user.click(submitButton);
 
     // Modal should close and we should see the updated workspace list (waitForPageToLoad handles waiting)
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
-    // Expand Default Workspace (root) to see its children
+    // Expand Root > Default Workspace to see children
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Expand Production to reveal the moved Staging workspace
@@ -603,9 +609,9 @@ Tests that users with \`inventory:groups:write\` permission can move workspaces 
     const stagingWorkspace = await canvas.findByText('Staging');
     expect(stagingWorkspace).toBeInTheDocument();
 
-    // Verify it's now at level 3 (was level 2, now moved under Production)
+    // Verify it's now at level 4 (was level 3, now moved under Production)
     const stagingRowAfterMove = stagingWorkspace.closest('tr') as HTMLElement;
-    expect(stagingRowAfterMove.getAttribute('aria-level')).toBe('3');
+    expect(stagingRowAfterMove.getAttribute('aria-level')).toBe('4');
   },
 };
 
@@ -650,9 +656,10 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Production
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Open Production's kebab menu and click "Edit workspace"
@@ -688,7 +695,8 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     await user.click(saveButton);
 
     // Verify modal closed and workspace list updated (waitForPageToLoad handles waiting)
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Verify the updated workspace appears in the list
@@ -743,9 +751,10 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Staging
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Open Staging's kebab menu and click "Delete workspace"
@@ -777,7 +786,8 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
 
     // CRITICAL: Verify the workspace is removed from the list
     // This tests that cache invalidation is working correctly
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Verify Staging is no longer in the list
@@ -826,9 +836,10 @@ Tests that workspace names link to Inventory in M2 (before workspace detail page
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Production
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Click on "Production" workspace link

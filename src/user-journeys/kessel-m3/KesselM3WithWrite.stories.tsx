@@ -360,9 +360,10 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Production
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Click on "Production" workspace to view detail
@@ -450,7 +451,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     const drawerAfterSwitch = document.querySelector('.pf-v6-c-drawer__panel');
     expect(drawerAfterSwitch).not.toBeInTheDocument();
 
-    // Verify parent workspace role bindings (inherited from Default Workspace/root-1)
+    // Verify parent workspace role bindings (inherited from Root Workspace/root-1)
     // Should show Viewers group from root workspace
     const viewersText = await canvas.findByText('Viewers');
 

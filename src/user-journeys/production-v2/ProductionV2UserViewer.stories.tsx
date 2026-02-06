@@ -370,7 +370,7 @@ Tests that:
     expect(accessDenied).toBeInTheDocument();
 
     // Should NOT see workspace data
-    const workspaceName = canvas.queryByText('Default Workspace');
+    const workspaceName = canvas.queryByText('Root Workspace');
     expect(workspaceName).not.toBeInTheDocument();
   },
 };

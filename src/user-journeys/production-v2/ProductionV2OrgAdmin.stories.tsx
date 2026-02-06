@@ -320,7 +320,7 @@ Tests navigation through all V2 Access Management sidebar items.
     // Navigate to Workspaces
     await navigateToPage(user, canvas, 'Workspaces');
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await expect(canvas.findByText('Default Workspace')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Root Workspace')).resolves.toBeInTheDocument();
 
     // Navigate back to Overview
     await navigateToPage(user, canvas, 'Overview');
@@ -392,7 +392,7 @@ Tests workspace management with all M5 features enabled.
     const canvas = within(context.canvasElement);
 
     // Wait for workspaces to load
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Verify create button is enabled (M5 features)
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });

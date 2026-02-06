@@ -310,7 +310,7 @@ cannot perform any workspace modification actions.
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // The "Create workspace" button should be visible but DISABLED
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });
