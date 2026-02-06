@@ -7,11 +7,30 @@ import { ProductionHeader } from './ProductionHeader';
 import { GlobalBreadcrumb } from './GlobalBreadcrumb';
 import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
 
+/**
+ * Common permission presets for Kessel journey stories.
+ * Use these instead of boolean flags for explicit permission testing.
+ */
+export const KESSEL_PERMISSIONS = {
+  /** Full admin - can do everything */
+  FULL_ADMIN: ['rbac:*:*', 'inventory:groups:read', 'inventory:groups:write'],
+  /** Read-only - can view workspaces but not create/edit */
+  READ_ONLY: ['rbac:group:read', 'rbac:role:read', 'inventory:groups:read'],
+  /** Workspace admin - can manage workspaces */
+  WORKSPACE_ADMIN: ['inventory:groups:read', 'inventory:groups:write'],
+  /** No permissions - should see unauthorized */
+  NONE: [],
+} as const;
+
 interface KesselAppEntryWithRouterProps {
   initialRoute?: string;
   typingDelay?: number;
+  /** Required: Explicit permissions (rbac:*, inventory:*, etc.) - use KESSEL_PERMISSIONS presets or custom array */
+  permissions?: readonly string[];
+  /** User identity: is this user an org admin? (separate from permissions) */
   orgAdmin?: boolean;
-  userAccessAdministrator?: boolean;
+  /** Environment: 'staging' (default) or 'production' */
+  environment?: 'staging' | 'production';
   'platform.rbac.workspaces'?: boolean;
   'platform.rbac.workspaces-list'?: boolean;
   'platform.rbac.workspace-hierarchy'?: boolean;
@@ -55,44 +74,50 @@ export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> =
 };
 
 /**
- * Helper to create dynamic environment parameters from story args
+ * Helper to create dynamic environment parameters from story args.
+ *
+ * Requires explicit permissions - no magic derivation from boolean flags.
+ * - `permissions`: What the user can DO (authorization) - supports rbac:*, inventory:*, etc.
+ * - `orgAdmin`: Who the user IS (identity for user profile)
  */
 export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) => {
-  const { orgAdmin = false, userAccessAdministrator = false } = args;
+  const permissions = args.permissions;
+  if (!permissions) {
+    throw new Error('permissions is required - use KESSEL_PERMISSIONS presets or provide explicit array');
+  }
 
-  // Determine if user has write permissions for Kessel access checks
-  const hasWritePermissions = orgAdmin || userAccessAdministrator;
+  // Derive write capability from permissions (has any :write or :* permission)
+  const hasWritePermissions = permissions.some((p) => p.includes(':write') || p.includes(':*') || p === 'rbac:*:*');
+
+  // Default workspace IDs from the fixtures - used by useSelfAccessCheck mock
+  // Stories using different fixtures should override workspacePermissions
+  const DEFAULT_WORKSPACE_IDS = ['root-1', 'ws-1', 'ws-2', 'ws-3'];
+  const workspacePermissions = hasWritePermissions ? { edit: DEFAULT_WORKSPACE_IDS, create: DEFAULT_WORKSPACE_IDS } : { edit: [], create: [] };
+
+  // orgAdmin is explicit - controls user identity, not permissions
+  const isOrgAdmin = args.orgAdmin === true;
+
+  // Environment - defaults to staging for test environments
+  const environment = args.environment === 'production' ? 'prod' : 'stage';
+
+  // Convert permission strings to chrome.getUserPermissions format
+  const chromePermissions = permissions.map((permission) => ({
+    permission,
+    resourceDefinitions: [],
+  }));
 
   return {
     // Journey stories use Iam directly - skip preview.tsx provider wrapping
     noWrapping: true,
+    // Explicit permissions for route-level permission guard
+    permissions,
+    // Environment setting
+    environment: args.environment ?? 'staging',
+    // Workspace permissions for useSelfAccessCheck mock (workspace IDs user can edit/create in)
+    workspacePermissions,
     chrome: {
-      environment: 'prod',
-      getUserPermissions: () => {
-        let permissions;
-        if (orgAdmin) {
-          permissions = [
-            { permission: 'rbac:*:*', resourceDefinitions: [] },
-            { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-            { permission: 'inventory:groups:write', resourceDefinitions: [] },
-            { permission: 'inventory:groups:*', resourceDefinitions: [] },
-          ];
-        } else if (userAccessAdministrator) {
-          permissions = [
-            { permission: 'rbac:group:*', resourceDefinitions: [] },
-            { permission: 'rbac:principal:*', resourceDefinitions: [] },
-            { permission: 'rbac:role:read', resourceDefinitions: [] },
-            { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-          ];
-        } else {
-          permissions = [
-            { permission: 'rbac:group:read', resourceDefinitions: [] },
-            { permission: 'rbac:role:read', resourceDefinitions: [] },
-            { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-          ];
-        }
-        return Promise.resolve(permissions);
-      },
+      environment,
+      getUserPermissions: () => Promise.resolve(chromePermissions),
       auth: {
         getUser: () =>
           Promise.resolve({
@@ -102,7 +127,7 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
                 email: 'test@redhat.com',
                 first_name: 'Test',
                 last_name: 'User',
-                is_org_admin: args.orgAdmin || false,
+                is_org_admin: isOrgAdmin,
               },
             },
             entitlements: {
@@ -134,11 +159,6 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
       'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] ?? false,
       'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] ?? false,
       'platform.rbac.itless': false,
-    },
-    // Kessel access check configuration - mirrors the permission logic above
-    accessCheck: {
-      canEdit: () => hasWritePermissions,
-      canCreate: () => hasWritePermissions,
     },
   };
 };

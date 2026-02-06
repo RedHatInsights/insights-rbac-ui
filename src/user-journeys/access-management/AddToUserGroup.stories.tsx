@@ -15,7 +15,7 @@ import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
 import { userGroupsMembership as baseUserGroupsMembership, mockGroups, mockUsers } from './_shared/mockData';
 import { v1Handlers } from './_shared/handlers';
@@ -222,6 +222,7 @@ const meta = {
   args: {
     initialRoute: '/iam/access-management/users-and-user-groups/users',
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
     'platform.rbac.common.userstable': true,
@@ -229,6 +230,7 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
       'platform.rbac.workspaces-organization-management': true,

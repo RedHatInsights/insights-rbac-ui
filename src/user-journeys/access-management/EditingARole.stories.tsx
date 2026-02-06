@@ -13,7 +13,7 @@ import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, openRoleActionsMenu, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { handlersWithV2Gaps, mockRolesV2 } from './_shared';
 import { getRolesTable, verifyNoApiCalls } from './_shared/tableHelpers';
@@ -259,6 +259,7 @@ const meta = {
   args: {
     initialRoute: '/iam/access-management/roles',
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
     'platform.rbac.workspaces': true, // M5 flag - enables V2 roles view with kebab menus
@@ -266,6 +267,7 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
       'platform.rbac.workspaces-organization-management': true,

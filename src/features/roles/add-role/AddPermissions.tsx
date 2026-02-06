@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
+import { usePlatformAuth } from '../../../hooks/usePlatformAuth';
+import { useAccessPermissions } from '../../../hooks/useAccessPermissions';
 import { useIntl } from 'react-intl';
 import { TableView } from '../../../components/table-view/TableView';
 import { useTableState } from '../../../components/table-view/hooks/useTableState';
@@ -44,10 +44,10 @@ const COLUMNS = ['application', 'resourceType', 'operation'] as const;
 const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const [isOrgAdmin, setIsOrgAdmin] = useState<boolean | null>(null);
   const [basePermissionsLoaded, setBasePermissionsLoaded] = useState(false);
-  const { auth } = useChrome();
+  const { getUser } = usePlatformAuth();
   const intl = useIntl();
-  const { hasAccess: hasCostAccess } = usePermissions('cost-management', ['cost-management:*:*']);
-  const { hasAccess: hasRbacAccess } = usePermissions('rbac', ['rbac:*:*']);
+  const { hasAccess: hasCostAccess } = useAccessPermissions(['cost-management:*:*']);
+  const { hasAccess: hasRbacAccess } = useAccessPermissions(['rbac:*:*']);
 
   const { input } = useFieldApi(props as { name: string });
   const formOptions = useFormApi();
@@ -68,15 +68,13 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
   // Check org admin status
   useEffect(() => {
     const setOrgAdminStatus = async () => {
-      const userData = await auth.getUser();
-      if (userData && 'identity' in userData) {
-        setIsOrgAdmin((userData as { identity: { user: { is_org_admin: boolean } } }).identity.user.is_org_admin);
+      const userData = await getUser();
+      if (userData?.identity?.user?.is_org_admin !== undefined) {
+        setIsOrgAdmin(userData.identity.user.is_org_admin);
       }
     };
-    if (auth) {
-      setOrgAdminStatus();
-    }
-  }, [auth]);
+    setOrgAdminStatus();
+  }, [getUser]);
 
   // Initialize form state
   useEffect(() => {

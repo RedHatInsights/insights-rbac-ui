@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useIntl } from 'react-intl';
+import { usePlatformTracking } from '../../hooks/usePlatformTracking';
 import { PageLayout } from '../../components/layout/PageLayout';
 import { useFlag } from '@unleash/proxy-client-react';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -16,7 +16,7 @@ const Users: React.FC = () => {
   const intl = useIntl();
   const location = useLocation();
   const activeUserPermissions = useContext(PermissionsContext) as PermissionsContextType;
-  const { appNavClick } = useChrome();
+  const { trackNavigation } = usePlatformTracking();
   const isITLess = useFlag('platform.rbac.itless');
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
   const commonUsersTable = useFlag('platform.rbac.common.userstable');
@@ -24,8 +24,8 @@ const Users: React.FC = () => {
   const description = <ActiveUsers linkDescription={intl.formatMessage(messages.addNewUsersText)} />;
 
   useEffect(() => {
-    appNavClick({ id: 'users', secondaryNav: true });
-  }, []);
+    trackNavigation('users', true);
+  }, [trackNavigation]);
 
   const usersListProps = {
     userLinks: activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin,

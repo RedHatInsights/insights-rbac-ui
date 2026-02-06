@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
+import { usePlatformTracking } from '../../../hooks/usePlatformTracking';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
 import pathnames from '../../../utilities/pathnames';
 import { type Group, useGroupQuery, useGroupsQuery } from '../../../data/queries/groups';
@@ -21,14 +21,12 @@ interface TabItem {
  * Uses React Query for data fetching.
  */
 export const useGroupData = () => {
-  const chrome = useChrome();
+  const { trackObjectView } = usePlatformTracking();
   const { groupId } = useParams<{ groupId: string }>();
   const isPlatformDefault = groupId === DEFAULT_ACCESS_GROUP_ID;
 
   // Feature flag for service accounts
-  const enableServiceAccounts =
-    (chrome.isBeta() && useFlag('platform.rbac.group-service-accounts')) ||
-    (!chrome.isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
+  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts.stable');
 
   // Fetch system group (platform default) to get its UUID
   const { data: systemGroupData } = useGroupsQuery({ platformDefault: true, limit: 1 }, { enabled: true });
@@ -96,7 +94,7 @@ export const useGroupData = () => {
     // Configuration
     tabItems,
 
-    // Chrome
-    chrome,
+    // Tracking
+    trackObjectView,
   };
 };

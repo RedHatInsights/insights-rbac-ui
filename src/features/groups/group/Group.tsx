@@ -19,7 +19,7 @@ import { useDefaultGroupChangedAlert } from './useDefaultGroupChangedAlert';
 
 export const Group: React.FC = () => {
   // Data and configuration
-  const { groupId, isPlatformDefault, group, isGroupLoading, groupExists, systemGroupUuid, tabItems, chrome } = useGroupData();
+  const { groupId, isPlatformDefault, group, isGroupLoading, groupExists, systemGroupUuid, tabItems, trackObjectView } = useGroupData();
 
   // Local state management
   const { isResetWarningVisible, setResetWarningVisible, isDropdownOpen, setDropdownOpen } = useGroupState();
@@ -63,12 +63,12 @@ export const Group: React.FC = () => {
     navigateToGroup,
   });
 
-  // Data loading for group and Chrome integration
+  // Tracking for group view
   useGroupDataLoad({
     groupId,
     systemGroupUuid,
     isPlatformDefault,
-    chrome,
+    trackObjectView,
   });
 
   return (

@@ -5,7 +5,7 @@ import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Dr
 import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import EllipsisVIcon from '@patternfly/react-icons/dist/dynamic/icons/ellipsis-v-icon';
-import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
+import { useAccessPermissions } from '../../hooks/useAccessPermissions';
 
 import PageHeader from '@patternfly/react-component-groups/dist/esm/PageHeader';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -41,7 +41,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
   const [actionsDropdownOpen, setActionsDropdownOpen] = useState<string | null>(null);
 
   // Check write permission for actions
-  const { hasAccess: canWriteRoles } = usePermissions('rbac', ['rbac:role:write']);
+  const { hasAccess: canWriteRoles } = useAccessPermissions(['rbac:role:write']);
 
   // Use the custom hook for all Roles business logic
   const { roles, isLoading, totalCount, filters, sortBy, direction, onSort, pagination, selection, clearAllFilters, onSetFilters } = useRoles({

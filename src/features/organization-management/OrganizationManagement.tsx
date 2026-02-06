@@ -3,21 +3,23 @@ import { PageHeader } from '@patternfly/react-component-groups';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Flex } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import { type UserIdentity, usePlatformAuth } from '../../hooks/usePlatformAuth';
 import messages from '../../Messages';
 import { useIntl } from 'react-intl';
 import { RoleAssignmentsTable } from '../workspaces/workspace-detail/components/RoleAssignmentsTable';
 import { useRoleBindingsQuery } from '../../data/queries/workspaces';
 import { mapRoleBindingsToGroups } from '../../helpers/dataUtilities';
 
+interface OrganizationData {
+  account_number?: string;
+  org_id?: string;
+  organization_name?: string;
+}
+
 export const OrganizationManagement = () => {
   const intl = useIntl();
-  const chrome = useChrome();
-
-  // User/organization data from chrome.auth.getUser()
-  const [organizationName, setOrganizationName] = useState('');
-  const [accountNumber, setAccountNumber] = useState('');
-  const [organizationId, setOrganizationId] = useState('');
+  const { getUser } = usePlatformAuth();
+  const [organizationData, setOrganizationData] = useState<OrganizationData>({});
   const [error, setError] = useState<string | null>(null);
 
   // State for RoleAssignmentsTable
@@ -26,6 +28,11 @@ export const OrganizationManagement = () => {
   const [sortBy, setSortBy] = useState('name');
   const [direction, setDirection] = useState<'asc' | 'desc'>('asc');
   const [filters, setFilters] = useState({ name: '' });
+
+  // Derive values for display
+  const organizationId = organizationData.org_id || '';
+  const organizationName = organizationData.organization_name || '';
+  const accountNumber = organizationData.account_number || '';
 
   // Role bindings query
   const roleBindingsQuery = useRoleBindingsQuery(
@@ -70,18 +77,10 @@ export const OrganizationManagement = () => {
   const roleBindingsTotalCount = roleBindingsQuery.data?.data?.length ?? 0;
   const roleBindingsIsLoading = roleBindingsQuery.isLoading;
 
-  // Fetch user/organization data
+  // Fetch user/organization data using semantic hook
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const user = await chrome.auth.getUser();
-
-        if (!user) {
-          console.warn('OrganizationManagement: No user data received from chrome.auth.getUser()');
-          setError('User data not available');
-          return;
-        }
-
+    getUser()
+      .then((user: UserIdentity) => {
         const { identity } = user;
         if (!identity) {
           console.warn('OrganizationManagement: User identity not available');
@@ -89,25 +88,18 @@ export const OrganizationManagement = () => {
           return;
         }
 
-        // Set organization data from user identity
-        const orgId = identity.org_id || '';
-        const accountNum = identity.account_number || identity.internal?.account_id || '';
-        const orgName = identity.organization?.name || '';
-
-        setOrganizationId(orgId);
-        setAccountNumber(accountNum);
-        setOrganizationName(orgName);
+        setOrganizationData({
+          account_number: identity.account_number,
+          org_id: identity.org_id,
+          organization_name: identity.organization?.name,
+        });
         setError(null);
-      } catch (error) {
-        console.error('OrganizationManagement: Failed to fetch user data:', error);
+      })
+      .catch((err) => {
+        console.error('OrganizationManagement: Failed to fetch user data:', err);
         setError('Failed to load organization data');
-      }
-    };
-
-    if (chrome) {
-      fetchUserData();
-    }
-  }, [chrome]);
+      });
+  }, [getUser]);
 
   return (
     <>

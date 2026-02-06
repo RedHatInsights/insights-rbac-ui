@@ -51,12 +51,14 @@ interface StoryArgs {
 /**
  * Create dynamic environment parameters based on story args
  * This allows Storybook controls to override feature flags and permissions
+ * Note: userIdentity is set in ENVIRONMENTS config - decorator order means we can't override it here
  */
 function createDynamicEnvironment(args: StoryArgs) {
+  const isOrgAdmin = args.orgAdmin ?? true;
   return {
     chrome: makeChrome({
       environment: 'prod',
-      isOrgAdmin: args.orgAdmin ?? true,
+      isOrgAdmin,
       userAccessAdministrator: args.userAccessAdministrator ?? false,
     }),
     featureFlags: {

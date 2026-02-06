@@ -1,9 +1,9 @@
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
 import React, { Suspense, lazy, useEffect, useMemo } from 'react';
 import { Navigate, Route as RouterRoute, Routes as RouterRoutes, matchPath, useLocation } from 'react-router-dom';
 import { mergeToBasename, useAppLink } from './hooks/useAppLink';
 import { useWorkspacesFlag } from './hooks/useWorkspacesFlag';
+import { usePlatformTracking } from './hooks/usePlatformTracking';
 import { AppPlaceholder } from './components/ui-states/LoaderPlaceholders';
 import ElementWrapper from './components/ElementWrapper';
 import PermissionGuard from './components/PermissionGuard';
@@ -534,11 +534,10 @@ const renderRoutes = (routes: Route[], parentPermissions: string[] = [], parentR
 
 const Routing = () => {
   const location = useLocation();
-  const { updateDocumentTitle, isBeta } = useChrome();
+  const { setDocumentTitle } = usePlatformTracking();
   const isITLess = useFlag('platform.rbac.itless');
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
-  const enableServiceAccounts =
-    (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
+  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts.stable');
 
   // Workspace feature flags
   const hasRbacDetailPages = useWorkspacesFlag('m3'); // M3 or master flag
@@ -560,9 +559,9 @@ const Routing = () => {
         ),
     );
     if (currPath?.title) {
-      updateDocumentTitle(`${currPath.title} - User Access`);
+      setDocumentTitle(`${currPath.title} - User Access`);
     }
-  }, [location.pathname, updateDocumentTitle]);
+  }, [location.pathname, setDocumentTitle]);
 
   const routes = getRoutes({
     enableServiceAccounts,

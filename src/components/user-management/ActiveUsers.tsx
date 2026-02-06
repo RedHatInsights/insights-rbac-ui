@@ -1,6 +1,6 @@
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
 import React, { FunctionComponent, useContext } from 'react';
+import { usePlatformEnvironment } from '../../hooks/usePlatformEnvironment';
 import PermissionsContext, { PermissionsContextType } from '../../utilities/permissionsContext';
 import { ActiveUsersAdminView } from './ActiveUsersAdminView';
 import { ActiveUsersNonAdminView } from './ActiveUsersNonAdminView';
@@ -12,9 +12,8 @@ type ActiveUserProps = {
 };
 
 export const ActiveUsers: FunctionComponent<ActiveUserProps> = ({ linkDescription, linkTitle, children }) => {
-  const chrome = useChrome();
-  const env = chrome.getEnvironment();
-  const prefix = chrome.isProd() ? '' : `${env}.`;
+  const { environment } = usePlatformEnvironment();
+  const prefix = environment === 'production' ? '' : `${environment}.`;
   const { orgAdmin } = useContext(PermissionsContext) as PermissionsContextType;
   const isITLess = useFlag('platform.rbac.itless');
   return !isITLess && orgAdmin ? (
