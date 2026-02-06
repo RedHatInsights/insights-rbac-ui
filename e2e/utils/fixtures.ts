@@ -83,12 +83,73 @@ export async function blockAnalytics(page: Page): Promise<void> {
 }
 
 /**
- * Combined setup: enables asset cache and blocks analytics.
+ * Set up browser console logging.
+ * Captures and logs all console messages, errors, and exceptions to terminal.
+ */
+export async function enableBrowserLogging(page: Page): Promise<void> {
+  // Capture console messages
+  page.on('console', (msg) => {
+    const type = msg.type();
+    const text = msg.text();
+    const location = msg.location();
+
+    // Format console output with file location
+    const prefix = location.url ? `[${location.url}:${location.lineNumber}]` : '[Browser]';
+
+    if (type === 'error') {
+      console.error(`🔴 ${prefix} ${text}`);
+    } else if (type === 'warning') {
+      console.warn(`⚠️  ${prefix} ${text}`);
+    } else if (type === 'log' || type === 'info') {
+      console.log(`ℹ️  ${prefix} ${text}`);
+    } else if (type === 'debug') {
+      console.log(`🐛 ${prefix} ${text}`);
+    }
+  });
+
+  // Capture page errors (uncaught exceptions)
+  page.on('pageerror', (error) => {
+    console.error('💥 [Uncaught Exception]', error.message);
+    console.error(error.stack);
+  });
+
+  // Capture failed requests
+  page.on('requestfailed', (request) => {
+    const failure = request.failure();
+    console.error(`❌ [Request Failed] ${request.method()} ${request.url()}`);
+    if (failure) {
+      console.error(`   Error: ${failure.errorText}`);
+    }
+  });
+}
+
+/**
+ * Combined setup: enables asset cache, blocks analytics, and initializes auth.
  * Convenience function for test.beforeEach hooks.
+ *
+ * IMPORTANT: This navigates to root (/) first to initialize the chrome.insights
+ * auth context before the test navigates to its target page. Direct navigation
+ * to deep URLs can fail because the Console auth isn't initialized yet.
  */
 export async function setupPage(page: Page): Promise<void> {
   await enableAssetCache(page);
   await blockAnalytics(page);
+  await enableBrowserLogging(page);
+
+  // Navigate to root to initialize chrome.insights and auth context
+  // This prevents auth failures when tests navigate directly to deep URLs
+  await page.goto('/');
+
+  // Wait for auth initialization (indicated by the main nav being present)
+  // This is a lightweight check that the app shell has loaded
+  await page
+    .getByRole('navigation')
+    .first()
+    .waitFor({ timeout: 10000 })
+    .catch(() => {
+      // If no navigation found, that's okay - some pages might not have it
+      // The important thing is we triggered the initial page load
+    });
 }
 
 // Re-export base test and expect

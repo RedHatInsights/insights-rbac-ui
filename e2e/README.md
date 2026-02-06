@@ -222,7 +222,7 @@ e2e/
 
 ## CI Setup (Konflux)
 
-In CI environments, credentials come from Vault. The `e2e:ci:setup` script generates `.env` files from CI environment variables.
+In CI environments, credentials come from Vault and are automatically mapped to the appropriate variables by `scripts/run-with-env.sh`. No manual setup is required.
 
 **Required Konflux secrets:**
 
@@ -245,10 +245,8 @@ In CI environments, credentials come from Vault. The `e2e:ci:setup` script gener
 
 ```bash
 # 1. Konflux sets E2E_* vars from Vault
-# 2. Generate .env files from templates
-npm run e2e:ci:setup
-
-# 3. Run tests
+# 2. Scripts automatically map E2E_* to RBAC_* based on context
+# 3. Run tests directly
 npm run e2e:v1
 npm run e2e:v2
 ```
