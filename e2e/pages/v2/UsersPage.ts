@@ -33,7 +33,7 @@ export class UsersPage {
   async goto(): Promise<void> {
     await setupPage(this.page);
     await this.page.goto(USERS_URL);
-    await expect(this.heading).toBeVisible();
+    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

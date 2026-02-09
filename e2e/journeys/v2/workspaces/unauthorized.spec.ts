@@ -8,6 +8,7 @@
 
 import { expect, test } from '@playwright/test';
 import { AUTH_V2_READONLY, setupPage } from '../../../utils';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 const WORKSPACES_URL = '/iam/access-management/workspaces';
 

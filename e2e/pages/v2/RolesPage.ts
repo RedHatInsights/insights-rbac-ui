@@ -30,7 +30,7 @@ export class RolesPage {
   async goto(): Promise<void> {
     await setupPage(this.page);
     await this.page.goto(ROLES_URL);
-    await expect(this.heading).toBeVisible();
+    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
