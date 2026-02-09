@@ -10,13 +10,16 @@ const testingLibrary = require('eslint-plugin-testing-library');
 
 module.exports = defineConfig(
   fecPlugin,
+  // Global ignores - files that should never be linted
+  {
+    ignores: ['node_modules/*', 'dist/*', 'src/test/**', 'e2e/_TEMPLATE.spec.ts'],
+  },
   {
     languageOptions: {
       globals: {
         insights: 'readonly',
       },
     },
-    ignores: ['node_modules/*', 'dist/*', 'src/test/**'],
     rules: {
       requireConfigFile: 'off',
       'sort-imports': [

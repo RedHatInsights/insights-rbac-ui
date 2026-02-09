@@ -32,8 +32,7 @@
  * - UTILS: Use page objects from e2e/pages/, not raw selectors
  */
 
-import { test } from '@playwright/test';
-// import { expect } from '@playwright/test'; // Uncomment when adding real assertions
+import { expect, test } from '@playwright/test';
 // Import auth fixtures - uncomment the version you need:
 // import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY } from '../../utils';
 // import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, AUTH_V2_READONLY } from '../../utils';
@@ -71,17 +70,17 @@ test.describe('[Feature Name]', () => {
     test.describe.serial('Admin Lifecycle', () => {
       // const uniqueName = `${TEST_PREFIX}-entity-${Date.now()}`;
 
-      test('Create [entity]', async ({ page: _page }) => {
+      test('Create [entity]', async ({ page }) => {
         // TODO: Navigate, fill form, submit, verify created
         test.skip(true, 'Template placeholder - implement me');
       });
 
-      test('Edit [entity]', async ({ page: _page }) => {
+      test('Edit [entity]', async ({ page }) => {
         // TODO: Find created entity, edit, verify changes
         test.skip(true, 'Template placeholder - implement me');
       });
 
-      test('Delete [entity]', async ({ page: _page }) => {
+      test('Delete [entity]', async ({ page }) => {
         // TODO: Find entity, delete, verify removed
         test.skip(true, 'Template placeholder - implement me');
       });
@@ -91,12 +90,12 @@ test.describe('[Feature Name]', () => {
     // Atomic Tests (Independent, can run in parallel)
     // Use for permission checks, button visibility, etc.
     // ─────────────────────────────────────────────────────────────────────────
-    test('Can see create button', async ({ page: _page }) => {
+    test('Can see create button', async ({ page }) => {
       // TODO: Navigate, verify button is visible and enabled
       test.skip(true, 'Template placeholder - implement me');
     });
 
-    test('Can see edit/delete actions on seeded entity', async ({ page: _page }) => {
+    test('Can see edit/delete actions on seeded entity', async ({ page }) => {
       // TODO: Navigate, find seeded entity, verify kebab actions
       test.skip(true, 'Template placeholder - implement me');
     });
@@ -109,14 +108,14 @@ test.describe('[Feature Name]', () => {
   test.describe('UserViewer', () => {
     // test.use({ storageState: AUTH_V1_USERVIEWER }); // or AUTH_V2_USERVIEWER
 
-    test('Cannot perform write actions [button hidden or disabled]', async ({ page: _page }) => {
+    test('Cannot perform write actions [button hidden or disabled]', async ({ page }) => {
       // TODO: Navigate, verify create button is hidden/disabled
       // TODO: Verify edit/delete actions are not available
       test.skip(true, 'Template placeholder - implement me');
     });
 
     // Alternative: If UserViewer should see "Unauthorized" page
-    // test('Gets unauthorized access message', async ({ page: _page }) => {
+    // test('Gets unauthorized access message', async ({ page }) => {
     //   // TODO: Navigate directly to URL, verify unauthorized message
     // });
   });
@@ -128,7 +127,7 @@ test.describe('[Feature Name]', () => {
   test.describe('ReadOnlyUser', () => {
     // test.use({ storageState: AUTH_V1_READONLY }); // or AUTH_V2_READONLY
 
-    test('Cannot access this page [unauthorized or redirect]', async ({ page: _page }) => {
+    test('Cannot access this page [unauthorized or redirect]', async ({ page }) => {
       // TODO: Navigate directly to URL, verify:
       // - Unauthorized message, OR
       // - Redirect to allowed page, OR
