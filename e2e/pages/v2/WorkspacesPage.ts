@@ -75,9 +75,9 @@ export class WorkspacesPage {
     const count = await expandButtons.count();
     for (let i = 0; i < count; i++) {
       const btn = expandButtons.nth(i);
-      if (await btn.isVisible({ timeout: 500 }).catch(() => false)) {
+      if (await btn.isVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION }).catch(() => false)) {
         await btn.click();
-        await this.page.waitForTimeout(300); // Wait for expansion animation
+        await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
       }
     }
     await expect(this.table.getByText(name)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
@@ -119,14 +119,15 @@ export class WorkspacesPage {
 
       // Expand Root Workspace first to see child workspaces
       const rootToggle = selectorPanel.getByRole('button', { name: /expand/i }).first();
-      if (await rootToggle.isVisible({ timeout: 1000 }).catch(() => false)) {
+      if (await rootToggle.isVisible({ timeout: E2E_TIMEOUTS.BUTTON_STATE }).catch(() => false)) {
         await rootToggle.click();
-        // Wait for expansion
-        await this.page.waitForTimeout(500);
+        await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
       }
 
       // Click on the parent workspace in the tree
-      const workspaceOption = selectorPanel.getByRole('treeitem', { name: new RegExp(parentWorkspace, 'i') }).or(selectorPanel.getByText(parentWorkspace, { exact: false }));
+      const workspaceOption = selectorPanel
+        .getByRole('treeitem', { name: new RegExp(parentWorkspace, 'i') })
+        .or(selectorPanel.getByText(parentWorkspace, { exact: false }));
       await workspaceOption.click();
 
       // Confirm selection
@@ -143,7 +144,7 @@ export class WorkspacesPage {
 
     // Click Next to proceed to review step, then submit
     const nextButton = modal.getByRole('button', { name: /next/i });
-    if (await nextButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+    if (await nextButton.isVisible({ timeout: E2E_TIMEOUTS.BUTTON_STATE }).catch(() => false)) {
       await nextButton.click();
       // Wait for review step
       await expect(modal.getByText(/review/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
