@@ -1,5 +1,16 @@
 # E2E Test Routing Index
 
+> 🛑 **IMPORTANT FOR AGENTS:**
+> When creating a NEW test file, you **MUST** copy the structure from [`e2e/_TEMPLATE.spec.ts`](./_TEMPLATE.spec.ts).
+> Do not write a file from scratch. Copy the template and fill in the blanks.
+>
+> **Checklist for new files:**
+> - [ ] Copied ASCII header from `_TEMPLATE.spec.ts`?
+> - [ ] Included `UserViewer` describe block for negative tests?
+> - [ ] Included `ReadOnlyUser` describe block if applicable?
+> - [ ] Added scenarios to the tables below?
+> - [ ] Used `E2E_TIMEOUTS` constants (no magic numbers)?
+
 Quick reference for where to add tests. Search this file before creating new tests.
 
 ## File Taxonomy
