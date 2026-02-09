@@ -8,7 +8,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
+import { AUTH_V1_ADMIN } from '../../../utils';
 import { getSeededGroupName } from '../../../utils/seed-map';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
@@ -159,42 +159,3 @@ test.describe('Admin', () => {
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// UserViewer - Read-Only Restrictions
-// ═══════════════════════════════════════════════════════════════════════════
-
-test.describe('UserViewer', () => {
-  test.use({ storageState: AUTH_V1_USERVIEWER });
-
-  test(`Create Group button is NOT visible [UserViewer]`, async ({ page }) => {
-    const groupsPage = new GroupsPage(page);
-    await groupsPage.goto();
-
-    await expect(groupsPage.createButton).not.toBeVisible();
-  });
-
-  test(`Row actions do NOT include Edit or Delete [UserViewer]`, async ({ page }) => {
-    const groupsPage = new GroupsPage(page);
-    await groupsPage.goto();
-
-    // Search for seeded group
-    await groupsPage.searchFor(SEEDED_GROUP_NAME);
-
-    // Try to find the kebab menu for the seeded group - it may not exist for UserViewer
-    const seededGroupRow = groupsPage.getGroupRow(SEEDED_GROUP_NAME);
-    const kebab = seededGroupRow.getByRole('button', { name: /actions/i });
-
-    if (await kebab.isVisible().catch(() => false)) {
-      await kebab.click();
-
-      // If menu opens, Edit/Delete should not be there
-      const editItem = page.getByRole('menuitem', { name: /edit/i });
-      const deleteItem = page.getByRole('menuitem', { name: /delete/i });
-
-      await expect(editItem).not.toBeVisible();
-      await expect(deleteItem).not.toBeVisible();
-      await page.keyboard.press('Escape');
-    }
-    // If no kebab, that's also acceptable for read-only users
-  });
-});

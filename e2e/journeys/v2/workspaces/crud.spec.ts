@@ -57,9 +57,11 @@ test.describe('Admin', () => {
       await workspacesPage.goto();
 
       await workspacesPage.createButton.click();
-      await workspacesPage.fillCreateModal(workspaceName, workspaceDescription);
+      // Workspaces cannot be created at root level (as siblings of Default Workspace)
+      // Must select a parent workspace first - use Default Workspace as parent
+      await workspacesPage.fillCreateModal(workspaceName, workspaceDescription, 'Default Workspace');
 
-      console.log(`[Create] ✓ Workspace created: ${workspaceName}`);
+      console.log(`[Create] ✓ Workspace created: ${workspaceName} (under Default Workspace)`);
     });
 
     test('Verify workspace appears in table', async ({ page }) => {
@@ -148,10 +150,12 @@ test.describe('Admin', () => {
 test.describe('UserViewer', () => {
   test.use({ storageState: AUTH_V2_USERVIEWER });
 
-  test(`Create Workspace button is NOT visible [UserViewer]`, async ({ page }) => {
+  test(`Create Workspace button is disabled [UserViewer]`, async ({ page }) => {
     const workspacesPage = new WorkspacesPage(page);
     await workspacesPage.goto();
 
-    await expect(workspacesPage.createButton).not.toBeVisible();
+    // UserViewer can see workspaces but cannot create them - button is visible but disabled
+    await expect(workspacesPage.createButton).toBeVisible();
+    await expect(workspacesPage.createButton).toBeDisabled();
   });
 });

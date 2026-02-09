@@ -11,7 +11,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER } from '../../../utils';
+import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER } from '../../../utils';
 import { UsersPage } from '../../../pages/v2/UsersPage';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -96,10 +96,9 @@ canInvitePersonas.forEach(({ name, auth }) => {
 // Personas that CANNOT invite users
 // ═══════════════════════════════════════════════════════════════════════════
 
-const cannotInvitePersonas = [
-  { name: 'UserViewer', auth: AUTH_V2_USERVIEWER },
-  { name: 'ReadOnlyUser', auth: AUTH_V2_READONLY },
-];
+// Note: ReadOnlyUser is NOT included here because they cannot access the Users page at all
+// (tested in unauthorized.spec.ts). Only UserViewer can see Users but cannot invite.
+const cannotInvitePersonas = [{ name: 'UserViewer', auth: AUTH_V2_USERVIEWER }];
 
 cannotInvitePersonas.forEach(({ name, auth }) => {
   test.describe(name, () => {

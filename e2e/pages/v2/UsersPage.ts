@@ -116,23 +116,37 @@ export class UsersPage {
    * Get a user row by username (exact match)
    */
   getUserRow(username: string): Locator {
-    return this.table.getByText(username, { exact: true });
+    return this.table.getByRole('row').filter({ hasText: username });
+  }
+
+  /**
+   * Get the username cell/text in a row (for clicking to open drawer)
+   */
+  getUsernameCell(username: string): Locator {
+    return this.table.getByRole('gridcell', { name: username });
   }
 
   /**
    * Click on a user row to open the details drawer
    */
   async openUserDrawer(username: string): Promise<void> {
-    await this.getUserRow(username).click();
+    // Click on the username gridcell to open the drawer
+    const usernameCell = this.getUsernameCell(username);
+    await usernameCell.click();
     await expect(this.drawer).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   /**
-   * Close the user details drawer by clicking the same row
+   * Close the user details drawer by clicking the X button
    */
-  async closeUserDrawer(username: string): Promise<void> {
-    await this.getUserRow(username).click();
-    await expect(this.drawer).not.toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
+  async closeUserDrawer(_username: string): Promise<void> {
+    // PatternFly 6 DrawerCloseButton has aria-label="Close drawer panel"
+    // Use the drawer__close container to find the button reliably
+    const closeButton = this.drawer.locator('.pf-v6-c-drawer__close button').or(this.drawer.getByRole('button', { name: /close drawer panel/i }));
+    await expect(closeButton).toBeVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+    await closeButton.click();
+    // Use TABLE_DATA timeout (10s) for drawer close - animation + state update can be slow
+    await expect(this.drawer).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -151,10 +165,19 @@ export class UsersPage {
    */
   async clickDrawerTab(name: string): Promise<void> {
     await this.getDrawerTab(name).click();
-    // Wait for tab content to load
-    await expect(this.drawer.locator('[role="tabpanel"]').or(this.drawer.locator('.pf-v6-c-tab-content'))).toBeVisible({
-      timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
-    });
+    // Wait for tab content to load - use the tab's aria-controls to find the specific panel
+    const tab = this.getDrawerTab(name);
+    const panelId = await tab.getAttribute('aria-controls');
+    if (panelId) {
+      await expect(this.drawer.locator(`#${panelId}`)).toBeVisible({
+        timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
+      });
+    } else {
+      // Fallback: wait for any non-hidden tabpanel
+      await expect(this.drawer.locator('[role="tabpanel"]:not([hidden])').first()).toBeVisible({
+        timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
+      });
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

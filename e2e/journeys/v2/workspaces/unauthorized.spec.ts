@@ -1,28 +1,31 @@
 /**
- * V2 Workspaces - Unauthorized Access Tests
+ * V2 Workspaces - Read-Only Access Tests
  *
- * Tests for users who should NOT have access to the Workspaces page.
+ * Tests for users who have READ but not WRITE access to the Workspaces page.
+ * ReadOnlyUser can VIEW workspaces but cannot create or delete them.
  *
  * Personas: ReadOnlyUser
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_READONLY, setupPage } from '../../../utils';
-import { E2E_TIMEOUTS } from '../../../utils/timeouts';
-
-const WORKSPACES_URL = '/iam/access-management/workspaces';
+import { AUTH_V2_READONLY } from '../../../utils';
+import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ReadOnlyUser - Blocked Access
+// ReadOnlyUser - Read-Only Access
 // ═══════════════════════════════════════════════════════════════════════════
 
 test.describe('ReadOnlyUser', () => {
   test.use({ storageState: AUTH_V2_READONLY });
 
-  test(`Workspaces page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
-    await setupPage(page);
-    await page.goto(WORKSPACES_URL);
+  test(`Can view workspaces but cannot create [ReadOnlyUser]`, async ({ page }) => {
+    const workspacesPage = new WorkspacesPage(page);
+    await workspacesPage.goto();
 
-    await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    // ReadOnlyUser CAN view the workspaces table
+    await expect(workspacesPage.table).toBeVisible();
+
+    // But Create workspace button is disabled
+    await expect(workspacesPage.createButton).toBeDisabled();
   });
 });

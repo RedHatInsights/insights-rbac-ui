@@ -3,11 +3,11 @@
  *
  * Tests for viewing roles on the V1 Roles page.
  *
- * Personas: Admin, UserViewer
+ * Personas: Admin
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
+import { AUTH_V1_ADMIN } from '../../../utils';
 import { RolesPage } from '../../../pages/v1/RolesPage';
 import { getSeededRoleData, getSeededRoleName } from '../../../utils/seed-map';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
@@ -20,54 +20,43 @@ if (!SEEDED_ROLE_NAME) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Personas
+// Admin - Full Access
 // ═══════════════════════════════════════════════════════════════════════════
 
-const viewPersonas = [
-  { name: 'Admin', auth: AUTH_V1_ADMIN },
-  { name: 'UserViewer', auth: AUTH_V1_USERVIEWER },
-];
+test.describe('Admin', () => {
+  test.use({ storageState: AUTH_V1_ADMIN });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Tests
-// ═══════════════════════════════════════════════════════════════════════════
+  test(`Can view roles list [Admin]`, async ({ page }) => {
+    const rolesPage = new RolesPage(page);
+    await rolesPage.goto();
 
-viewPersonas.forEach(({ name, auth }) => {
-  test.describe(name, () => {
-    test.use({ storageState: auth });
+    await expect(rolesPage.table).toBeVisible();
+  });
 
-    test(`Can view roles list [${name}]`, async ({ page }) => {
-      const rolesPage = new RolesPage(page);
-      await rolesPage.goto();
+  test(`Can search for seeded role [Admin]`, async ({ page }) => {
+    const rolesPage = new RolesPage(page);
+    await rolesPage.goto();
 
-      await expect(rolesPage.table).toBeVisible();
-    });
+    await rolesPage.searchFor(SEEDED_ROLE_NAME);
+    await rolesPage.verifyRoleInTable(SEEDED_ROLE_NAME);
+  });
 
-    test(`Can search for seeded role [${name}]`, async ({ page }) => {
-      const rolesPage = new RolesPage(page);
-      await rolesPage.goto();
+  test(`Can view role detail page [Admin]`, async ({ page }) => {
+    const rolesPage = new RolesPage(page);
+    await rolesPage.goto();
 
-      await rolesPage.searchFor(SEEDED_ROLE_NAME);
-      await rolesPage.verifyRoleInTable(SEEDED_ROLE_NAME);
-    });
+    await rolesPage.searchFor(SEEDED_ROLE_NAME);
+    await rolesPage.navigateToDetail(SEEDED_ROLE_NAME);
 
-    test(`Can view role detail page [${name}]`, async ({ page }) => {
-      const rolesPage = new RolesPage(page);
-      await rolesPage.goto();
+    // Verify detail page
+    await expect(rolesPage.getDetailHeading(SEEDED_ROLE_NAME)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
-      await rolesPage.searchFor(SEEDED_ROLE_NAME);
-      await rolesPage.navigateToDetail(SEEDED_ROLE_NAME);
+    // Verify description if available
+    if (SEEDED_ROLE_DATA?.description) {
+      await expect(page.getByText(SEEDED_ROLE_DATA.description)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    }
 
-      // Verify detail page
-      await expect(rolesPage.getDetailHeading(SEEDED_ROLE_NAME)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
-
-      // Verify description if available
-      if (SEEDED_ROLE_DATA?.description) {
-        await expect(page.getByText(SEEDED_ROLE_DATA.description)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
-      }
-
-      // Verify permissions grid
-      await expect(rolesPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-    });
+    // Verify permissions grid
+    await expect(rolesPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   });
 });

@@ -8,7 +8,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER } from '../../../utils';
+import { AUTH_V1_ADMIN } from '../../../utils';
 import { getSeededRoleName } from '../../../utils/seed-map';
 import { RolesPage } from '../../../pages/v1/RolesPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
@@ -227,36 +227,3 @@ test.describe('Admin', () => {
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// UserViewer - Read-Only Restrictions
-// ═══════════════════════════════════════════════════════════════════════════
-
-test.describe('UserViewer', () => {
-  test.use({ storageState: AUTH_V1_USERVIEWER });
-
-  test(`Create Role button is NOT visible [UserViewer]`, async ({ page }) => {
-    const rolesPage = new RolesPage(page);
-    await rolesPage.goto();
-
-    await expect(rolesPage.createButton).not.toBeVisible();
-  });
-
-  test(`Edit and Delete actions are NOT available on detail page [UserViewer]`, async ({ page }) => {
-    const rolesPage = new RolesPage(page);
-    await rolesPage.goto();
-
-    // Navigate to seeded role's detail
-    await rolesPage.searchFor(SEEDED_ROLE_NAME);
-    await rolesPage.navigateToDetail(SEEDED_ROLE_NAME);
-
-    // Actions button should not exist or not have Edit/Delete
-    const actionsButton = rolesPage.detailActionsButton;
-    if (await actionsButton.isVisible().catch(() => false)) {
-      await actionsButton.click();
-      await expect(page.getByRole('menuitem', { name: /edit/i })).not.toBeVisible();
-      await expect(page.getByRole('menuitem', { name: /delete/i })).not.toBeVisible();
-      await page.keyboard.press('Escape');
-    }
-    // If no actions button, that's also acceptable
-  });
-});

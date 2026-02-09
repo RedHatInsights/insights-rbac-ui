@@ -40,7 +40,8 @@ export class WorkspacesPage {
   }
 
   get table(): Locator {
-    return this.page.getByRole('grid');
+    // Workspaces uses a tree table with DataViewTable
+    return this.page.locator('[data-ouia-component-id="workspaces-list"]').or(this.page.getByRole('treegrid')).or(this.page.getByRole('grid'));
   }
 
   get searchInput(): Locator {
@@ -69,6 +70,16 @@ export class WorkspacesPage {
   }
 
   async verifyWorkspaceInTable(name: string): Promise<void> {
+    // Workspace might be in a collapsed tree - expand all visible parent nodes first
+    const expandButtons = this.table.getByRole('button', { name: /expand row/i });
+    const count = await expandButtons.count();
+    for (let i = 0; i < count; i++) {
+      const btn = expandButtons.nth(i);
+      if (await btn.isVisible({ timeout: 500 }).catch(() => false)) {
+        await btn.click();
+        await this.page.waitForTimeout(300); // Wait for expansion animation
+      }
+    }
     await expect(this.table.getByText(name)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
@@ -89,16 +100,39 @@ export class WorkspacesPage {
    * Fill the create workspace modal/wizard
    * @param name - Workspace name
    * @param description - Workspace description
-   * @param parentWorkspace - Optional parent workspace to select (requires expanding parentPath first)
-   * @param parentPath - Optional path to parent (workspace to expand before selecting)
+   * @param parentWorkspace - Parent workspace to select (required - cannot create at root level)
    */
-  async fillCreateModal(name: string, description: string, parentWorkspace?: string, parentPath?: string): Promise<void> {
+  async fillCreateModal(name: string, description: string, parentWorkspace?: string): Promise<void> {
     const modal = this.page.locator('[role="dialog"]');
     await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
-    // Select parent workspace if specified
+    // Select parent workspace - this is required because workspaces cannot be created at root level
+    // The wizard auto-selects root by default, so we must change it to a valid parent
     if (parentWorkspace) {
-      await this.workspaceSelector.selectWorkspaceByPath(parentWorkspace, parentPath);
+      // Click the workspace selector toggle - it's a button with "Select workspaces" text
+      const selectorToggle = modal.getByTestId('workspace-selector-toggle').or(modal.getByRole('button', { name: /select workspaces/i }));
+      await selectorToggle.click();
+
+      // Wait for the selector panel to appear
+      const selectorPanel = this.page.locator('.rbac-c-workspace-selector-menu');
+      await expect(selectorPanel).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+
+      // Expand Root Workspace first to see child workspaces
+      const rootToggle = selectorPanel.getByRole('button', { name: /expand/i }).first();
+      if (await rootToggle.isVisible({ timeout: 1000 }).catch(() => false)) {
+        await rootToggle.click();
+        // Wait for expansion
+        await this.page.waitForTimeout(500);
+      }
+
+      // Click on the parent workspace in the tree
+      const workspaceOption = selectorPanel.getByRole('treeitem', { name: new RegExp(parentWorkspace, 'i') }).or(selectorPanel.getByText(parentWorkspace, { exact: false }));
+      await workspaceOption.click();
+
+      // Confirm selection
+      const selectButton = selectorPanel.getByTestId('workspace-selector-confirm').or(selectorPanel.getByRole('button', { name: /select/i }));
+      await selectButton.click();
+      await expect(selectorPanel).not.toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
     }
 
     await modal.getByLabel(/name/i).first().fill(name);
@@ -107,7 +141,20 @@ export class WorkspacesPage {
       await descInput.fill(description);
     }
 
-    await modal.getByRole('button', { name: /submit|create|save/i }).click();
+    // Click Next to proceed to review step, then submit
+    const nextButton = modal.getByRole('button', { name: /next/i });
+    if (await nextButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await nextButton.click();
+      // Wait for review step
+      await expect(modal.getByText(/review/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+      // Submit from review step
+      const submitButton = modal.getByRole('button', { name: /submit|create/i });
+      await submitButton.click();
+    } else {
+      // Single-step modal (fallback)
+      await modal.getByRole('button', { name: /submit|create|save/i }).click();
+    }
+
     await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
   }
 

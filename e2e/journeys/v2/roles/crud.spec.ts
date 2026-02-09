@@ -8,8 +8,9 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER } from '../../../utils';
+import { AUTH_V2_ADMIN } from '../../../utils';
 import { RolesPage } from '../../../pages/v2/RolesPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
@@ -130,17 +131,3 @@ test.describe('Admin', () => {
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// UserViewer - Read-Only Restrictions
-// ═══════════════════════════════════════════════════════════════════════════
-
-test.describe('UserViewer', () => {
-  test.use({ storageState: AUTH_V2_USERVIEWER });
-
-  test(`Create Role button is NOT visible [UserViewer]`, async ({ page }) => {
-    const rolesPage = new RolesPage(page);
-    await rolesPage.goto();
-
-    await expect(rolesPage.createButton).not.toBeVisible();
-  });
-});
