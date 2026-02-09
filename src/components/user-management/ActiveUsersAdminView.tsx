@@ -20,7 +20,7 @@ export const ActiveUsersAdminView: FunctionComponent<ActiveUserAdminProps> = ({
   const intl = useIntl();
   return (
     <>
-      <p>
+      <span>
         {`${intl.formatMessage(messages.usersDescription)} `}
         {linkDescription}
         <Content
@@ -33,7 +33,7 @@ export const ActiveUsersAdminView: FunctionComponent<ActiveUserAdminProps> = ({
           <ExternalLinkAltIcon />
         </Content>
         .
-      </p>
+      </span>
       {children}
     </>
   );

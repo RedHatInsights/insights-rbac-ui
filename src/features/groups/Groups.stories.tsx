@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { Groups } from './Groups';
-import { chromeAppNavClickSpy } from '../../../.storybook/context-providers';
+import { chromeAppNavClickSpy } from '../../../.storybook/hooks/useChrome';
 import { withRouter } from '../../../.storybook/helpers/router-test-utils';
 import {
   PAGINATION_TEST_DEFAULT_PER_PAGE,

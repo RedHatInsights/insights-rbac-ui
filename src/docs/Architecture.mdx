@@ -291,9 +291,8 @@ Components are exposed for consumption by other applications:
 module.exports = {
   moduleFederation: {
     exposes: {
-      './CreateWorkspaceWizardModule': './src/features/workspaces/create-workspace/CreateWorkspaceWizardModule.tsx',
-      './Workspaces/ManagedSelector': './src/features/workspaces/components/managed-selector/ManagedSelector.tsx',
-      './Workspaces/WorkspaceSelector': './src/features/workspaces/components/managed-selector/components/WorkspaceSelector.tsx',
+      './CreateWorkspaceWizard': './src/federated-modules/CreateWorkspaceWizard.tsx',
+      './WorkspaceSelector': './src/federated-modules/WorkspaceSelector.tsx',
     }
   }
 };

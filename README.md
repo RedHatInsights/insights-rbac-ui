@@ -16,6 +16,12 @@ Stories are automatically deployed on:
 - ✅ Pull requests from [@RedHatInsights/experience-ui-committers](https://github.com/orgs/RedHatInsights/teams/experience-ui-committers) team members
 - ✅ Pull requests from RedHatInsights organization admins
 
+## Federated Modules
+
+This application exposes components via module federation for use by other Red Hat Console applications.
+
+See the [Module Federation Guide](https://master--687a10bbc18d4b17063770ba.chromatic.com/?path=/docs/documentation-module-federation-guide--docs) for available modules, usage examples, and API reference.
+
 ## Contributing
 
 This repository is now using experimental workflow checks. Your commits must use the [conventional commits format](https://www.conventionalcommits.org/en/v1.0.0/#examples).

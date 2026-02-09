@@ -27,10 +27,11 @@ const meta: Meta<typeof WorkspaceList> = {
   tags: ['ff:platform.rbac.workspaces', 'env:prod', 'perm:org-admin'],
   decorators: [withRouter],
   parameters: {
-    // Use global providers for these (configured in .storybook/preview.tsx)
-    permissions: {
-      orgAdmin: true, // Default for testing
-    },
+    // Workspace routes require inventory:groups:* permissions
+    permissions: ['inventory:groups:read', 'inventory:groups:write'],
+    orgAdmin: true,
+    // Workspace IDs from mockWorkspaces that user can edit/create in
+    workspacePermissions: { edit: ['root-1', '1', '2'], create: ['root-1', '1', '2'] },
     chrome: {
       environment: 'prod',
     },
@@ -211,10 +212,7 @@ export const PermissionIntegration: Story = {
       },
     },
     // Mock Kessel permissions - read-only user (cannot edit or create workspaces)
-    accessCheck: {
-      canEdit: () => false,
-      canCreate: () => false,
-    },
+    workspacePermissions: { edit: [], create: [] },
     chrome: {
       environment: 'prod',
     },
@@ -492,11 +490,8 @@ export const M1_ReadOnly: Story = {
       'platform.rbac.workspaces-role-bindings': false,
       'platform.rbac.workspaces': false,
     },
-    // Mock Kessel permissions - read-only user
-    accessCheck: {
-      canEdit: () => false,
-      canCreate: () => false,
-    },
+    // Mock Kessel permissions - read-only user (empty workspace IDs)
+    workspacePermissions: { edit: [], create: [] },
     chrome: {
       environment: 'prod',
     },
@@ -624,11 +619,8 @@ export const M2_ReadOnly: Story = {
       'platform.rbac.workspaces-role-bindings': false,
       'platform.rbac.workspaces': false,
     },
-    // Mock Kessel permissions - read-only user
-    accessCheck: {
-      canEdit: () => false,
-      canCreate: () => false,
-    },
+    // Mock Kessel permissions - read-only user (empty workspace IDs)
+    workspacePermissions: { edit: [], create: [] },
     chrome: {
       environment: 'prod',
     },
@@ -739,11 +731,8 @@ export const M3_ReadOnly: Story = {
       'platform.rbac.workspaces-role-bindings': true,
       'platform.rbac.workspaces': false,
     },
-    // Mock Kessel permissions - read-only user
-    accessCheck: {
-      canEdit: () => false,
-      canCreate: () => false,
-    },
+    // Mock Kessel permissions - read-only user (empty workspace IDs)
+    workspacePermissions: { edit: [], create: [] },
     chrome: {
       environment: 'prod',
     },
@@ -843,11 +832,8 @@ export const M5_ReadOnly: Story = {
     featureFlags: {
       'platform.rbac.workspaces': true,
     },
-    // Mock Kessel permissions - read-only user
-    accessCheck: {
-      canEdit: () => false,
-      canCreate: () => false,
-    },
+    // Mock Kessel permissions - read-only user (empty workspace IDs)
+    workspacePermissions: { edit: [], create: [] },
     chrome: {
       environment: 'prod',
     },

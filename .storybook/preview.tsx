@@ -11,59 +11,11 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
-import {
-  type AccessCheckConfig,
-  AccessCheckProvider_,
-  type ChromeConfig,
-  ChromeProvider,
-  type FeatureFlagsConfig,
-  FeatureFlagsProvider,
-} from './context-providers';
+import { type FeatureFlagsConfig, FeatureFlagsProvider } from './context-providers';
+import { type Environment, StorybookMockProvider } from './contexts/StorybookMockContext';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 import { ServiceProvider, createBrowserServices } from '../src/services';
 import { ApiErrorProvider } from '../src/contexts/ApiErrorContext';
-
-// Mock insights global for Storybook
-declare global {
-  var insights: {
-    chrome: {
-      getEnvironment: () => string;
-    };
-  };
-}
-
-// Mock global insights object for libraries that access it directly (e.g. RBACHook)
-const mockInsightsChrome = {
-  getEnvironment: () => 'prod',
-  getUserPermissions: () =>
-    Promise.resolve([
-      { permission: 'inventory:hosts:read', resourceDefinitions: [] },
-      { permission: 'inventory:hosts:write', resourceDefinitions: [] },
-      { permission: 'inventory:groups:write', resourceDefinitions: [] },
-      { permission: 'cost-management:*:*', resourceDefinitions: [] },
-      { permission: 'rbac:*:*', resourceDefinitions: [] },
-    ]),
-  auth: {
-    getUser: () =>
-      Promise.resolve({
-        identity: {
-          user: {
-            username: 'test-user',
-            email: 'test@redhat.com',
-            is_org_admin: true,
-            is_internal: false,
-          },
-        },
-      }),
-    getToken: () => Promise.resolve('mock-jwt-token-12345'),
-  },
-};
-
-if (typeof global !== 'undefined') {
-  (global as unknown as { insights: { chrome: typeof mockInsightsChrome } }).insights = { chrome: mockInsightsChrome };
-} else if (typeof window !== 'undefined') {
-  (window as unknown as { insights: { chrome: typeof mockInsightsChrome } }).insights = { chrome: mockInsightsChrome };
-}
 
 // Wrapper that provides all providers for component stories (non-journey)
 // This must be inside NotificationsProvider to access useAddNotification
@@ -93,7 +45,7 @@ const preview: Preview = {
     options: {
       storySort: {
         method: 'alphabetical',
-        order: ['User Journeys', '*'],
+        order: ['Documentation', 'Federated Modules', 'User Journeys', 'Features', 'Components', '*'],
       },
     },
     layout: 'fullscreen',
@@ -108,42 +60,61 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
-    // Default configurations for all stories (can be overridden per story)
-    permissions: {
-      userAccessAdministrator: false,
-      orgAdmin: false,
-    },
+    // Default permission flags (can be overridden per story)
+    // Note: for explicit permission arrays, use parameters.permissions = ['rbac:*:*'] etc.
+    orgAdmin: false,
+    userAccessAdministrator: false,
     chrome: {
       environment: 'prod',
     },
     featureFlags: {
       'platform.rbac.itless': false,
     },
-    // Default Kessel access check config - user can edit and create everywhere
-    accessCheck: {
-      canEdit: () => true,
-      canCreate: () => true,
-    },
+    // NOTE: Kessel access checks use workspacePermissions (workspace ID arrays)
+    // e.g., workspacePermissions: { edit: ['ws-1', 'ws-2'], create: ['ws-1'] }
   },
   decorators: [
     (Story, { parameters, args }) => {
-      const permissions = {
-        userAccessAdministrator: false,
-        orgAdmin: false,
-        ...parameters.permissions,
-        // Override with args if provided (for interactive controls)
-        ...(args.orgAdmin !== undefined && { orgAdmin: args.orgAdmin }),
-        ...(args.userAccessAdministrator !== undefined && { userAccessAdministrator: args.userAccessAdministrator }),
+      // Derive mock state from story args/parameters
+      // Support both legacy object format (parameters.permissions.orgAdmin) and direct params
+      const legacyPermissions = typeof parameters.permissions === 'object' && !Array.isArray(parameters.permissions) ? parameters.permissions : {};
+      const isOrgAdmin = args.orgAdmin ?? legacyPermissions.orgAdmin ?? parameters.orgAdmin ?? false;
+      const userAccessAdministrator =
+        args.userAccessAdministrator ?? legacyPermissions.userAccessAdministrator ?? parameters.userAccessAdministrator ?? false;
+
+      // Permissions for PermissionsContext (legacy - orgAdmin/userAccessAdministrator flags)
+      const permissionsContextValue = {
+        userAccessAdministrator,
+        orgAdmin: isOrgAdmin,
       };
 
-      // Merge chrome config from parameters (may include full Chrome API from createDynamicEnvironment)
-      // with any arg overrides
-      const chromeConfig: ChromeConfig = {
-        environment: 'prod',
-        ...parameters.chrome, // This may include getUserPermissions, auth, etc. from createDynamicEnvironment
-        // Override with args if provided (for interactive controls)
-        ...(args.environment !== undefined && { environment: args.environment }),
-      };
+      // Permissions: prefer explicit array from args or parameters, fallback to deriving from legacy flags
+      // Supports any app permissions (rbac:*, inventory:*, etc.)
+      // Check args first (for stories with decorators that modify parameters), then parameters
+      const permissions: string[] = Array.isArray(args.permissions)
+        ? args.permissions
+        : Array.isArray(parameters.permissions)
+          ? parameters.permissions
+          : Array.isArray(parameters.rbacPermissions)
+            ? parameters.rbacPermissions
+            : isOrgAdmin || userAccessAdministrator
+              ? ['rbac:*:*']
+              : [];
+
+      // Environment mapping - check explicit story parameter first, then chrome.environment
+      // Story-level parameters.environment takes precedence over default chrome.environment
+      const environment: Environment =
+        parameters.environment === 'staging'
+          ? 'staging'
+          : parameters.environment === 'production' || parameters.chrome?.environment === 'prod'
+            ? 'production'
+            : 'staging';
+
+      // Workspace permissions for Kessel stories
+      const workspacePermissions = parameters.workspacePermissions ?? { edit: [], create: [] };
+
+      // User identity for auth.getUser() - use userIdentity parameter
+      const userIdentity = parameters.userIdentity;
 
       const featureFlags: FeatureFlagsConfig = {
         'platform.rbac.itless': false,
@@ -151,6 +122,9 @@ const preview: Preview = {
         // Override with args if provided (for interactive controls)
         ...(args['platform.rbac.itless'] !== undefined && { 'platform.rbac.itless': args['platform.rbac.itless'] }),
         ...(args['platform.rbac.workspaces'] !== undefined && { 'platform.rbac.workspaces': args['platform.rbac.workspaces'] }),
+        ...(args['platform.rbac.workspaces-organization-management'] !== undefined && {
+          'platform.rbac.workspaces-organization-management': args['platform.rbac.workspaces-organization-management'],
+        }),
         ...(args['platform.rbac.workspaces-list'] !== undefined && { 'platform.rbac.workspaces-list': args['platform.rbac.workspaces-list'] }),
         ...(args['platform.rbac.workspace-hierarchy'] !== undefined && {
           'platform.rbac.workspace-hierarchy': args['platform.rbac.workspace-hierarchy'],
@@ -174,47 +148,45 @@ const preview: Preview = {
         }),
       };
 
-      // Kessel access check configuration
-      const accessCheckConfig: AccessCheckConfig = {
-        canEdit: () => true, // Default: user can edit everything
-        canCreate: () => true, // Default: user can create everywhere
-        ...parameters.accessCheck,
-        // Override with args if provided
-        ...(args.canEdit !== undefined && { canEdit: args.canEdit }),
-        ...(args.canCreate !== undefined && { canCreate: args.canCreate }),
-      };
-
       // Journey stories set noWrapping: true and provide their own providers via Iam
       // This allows them to test the full production component tree
       if (parameters.noWrapping) {
         return (
-          <ChromeProvider value={chromeConfig}>
+          <StorybookMockProvider
+            environment={environment}
+            isOrgAdmin={isOrgAdmin}
+            permissions={permissions}
+            workspacePermissions={workspacePermissions}
+            userIdentity={userIdentity}
+          >
             <FeatureFlagsProvider value={featureFlags}>
-              <AccessCheckProvider_ value={accessCheckConfig}>
-                <Story />
-              </AccessCheckProvider_>
+              <Story />
             </FeatureFlagsProvider>
-          </ChromeProvider>
+          </StorybookMockProvider>
         );
       }
 
       // Component stories get full provider wrapping (QueryClient, ServiceProvider, etc.)
       return (
-        <ChromeProvider value={chromeConfig}>
+        <StorybookMockProvider
+          environment={environment}
+          isOrgAdmin={isOrgAdmin}
+          permissions={permissions}
+          workspacePermissions={workspacePermissions}
+          userIdentity={userIdentity}
+        >
           <FeatureFlagsProvider value={featureFlags}>
-            <AccessCheckProvider_ value={accessCheckConfig}>
-              <PermissionsContext.Provider value={permissions}>
-                <IntlProvider locale={locale} messages={messages[locale]}>
-                  <NotificationsProvider>
-                    <ComponentProviders>
-                      <Story />
-                    </ComponentProviders>
-                  </NotificationsProvider>
-                </IntlProvider>
-              </PermissionsContext.Provider>
-            </AccessCheckProvider_>
+            <PermissionsContext.Provider value={permissionsContextValue}>
+              <IntlProvider locale={locale} messages={messages[locale]}>
+                <NotificationsProvider>
+                  <ComponentProviders>
+                    <Story />
+                  </ComponentProviders>
+                </NotificationsProvider>
+              </IntlProvider>
+            </PermissionsContext.Provider>
           </FeatureFlagsProvider>
-        </ChromeProvider>
+        </StorybookMockProvider>
       );
     },
   ],

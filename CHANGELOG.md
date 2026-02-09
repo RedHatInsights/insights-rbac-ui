@@ -1,3 +1,69 @@
+# [2.7.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.6.0...v2.7.0) (2026-02-09)
+
+
+### Bug Fixes
+
+* make FakeAddressBar visible in user journey stories ([457ee96](https://github.com/RedHatInsights/insights-rbac-ui/commit/457ee96ba4b3589314d501338c0522f3879f97b2))
+
+
+### Features
+
+* add Root Workspace as parent of Default Workspace in fixtures ([d8cc193](https://github.com/RedHatInsights/insights-rbac-ui/commit/d8cc193d3ea6a06726ce51f054b05f470cc7e18d))
+* add route permission validation to prevent drift ([64d00d8](https://github.com/RedHatInsights/insights-rbac-ui/commit/64d00d8b6f53f6f6fb150a6d033cc4eee386af56))
+* add user viewer journeys and fix test flakiness ([e2a40c4](https://github.com/RedHatInsights/insights-rbac-ui/commit/e2a40c426207892b51253e71335a74d3456d13d5))
+* enforce granular permissions for read-only users ([4979934](https://github.com/RedHatInsights/insights-rbac-ui/commit/49799344cc2af0224b21fc11094fdfcbf5edc26e))
+
+# [2.6.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.3...v2.6.0) (2026-02-06)
+
+
+### Features
+
+* add role bindings table to org-management ([a8dbad0](https://github.com/RedHatInsights/insights-rbac-ui/commit/a8dbad02556bcdf33db04781cf7f63e5aa637799))
+* use useRoleBindingsQuery in org-management table ([c8203a0](https://github.com/RedHatInsights/insights-rbac-ui/commit/c8203a06d67abd2928b78a3c530ec7c99589a3c9))
+
+## [2.5.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.2...v2.5.3) (2026-02-05)
+
+
+### Bug Fixes
+
+* **nav:** use OR logic for permission checks in navigation ([b77c7d6](https://github.com/RedHatInsights/insights-rbac-ui/commit/b77c7d6da5a6a96ffd871ca76bc25c40adae125c))
+
+## [2.5.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.1...v2.5.2) (2026-02-05)
+
+
+### Bug Fixes
+
+* attempt at fixing issue with user access roles not seeing what they should in rbac UI ([f1c44d1](https://github.com/RedHatInsights/insights-rbac-ui/commit/f1c44d1ae82713ba11f4dc485f5de15101f1e540))
+* use correct granular permissions for each route ([e5012a3](https://github.com/RedHatInsights/insights-rbac-ui/commit/e5012a325b813ba989c05f292938dc2e05859b2e))
+
+## [2.5.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.0...v2.5.1) (2026-02-05)
+
+
+### Bug Fixes
+
+* copy role wizard Next button stays disabled after validation ([740d52a](https://github.com/RedHatInsights/insights-rbac-ui/commit/740d52af75e346ca9d4a7f25e0d41efa8d62746b))
+
+# [2.5.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.4.0...v2.5.0) (2026-02-04)
+
+
+### Features
+
+* update frontend components and use user data for org-mangement ([4ee9916](https://github.com/RedHatInsights/insights-rbac-ui/commit/4ee991663a7537d718bcb698f22b91981ea5ad55))
+
+# [2.4.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.3.1...v2.4.0) (2026-02-03)
+
+
+### Bug Fixes
+
+* **managed-ws:** add unit and e2e tests to managed WS ([edc80ca](https://github.com/RedHatInsights/insights-rbac-ui/commit/edc80cac452c3f039046b36fa33dc1143cf06104))
+* **typescript:** do not run typescript for test files ([55cfeb3](https://github.com/RedHatInsights/insights-rbac-ui/commit/55cfeb393f6362802957da3e86415a58c6f2fb1a))
+
+
+### Features
+
+* migrate WorkspaceSelector to React Query and reorganize federated modules ([aef5e25](https://github.com/RedHatInsights/insights-rbac-ui/commit/aef5e25fb0e2e0f9980f526ec3d4a7d9e51a1556))
+* **ws-selector:** add documentation and expose managed selector ([d41569d](https://github.com/RedHatInsights/insights-rbac-ui/commit/d41569db2e63c3c671a7b094253950cdbd8ca5f0))
+
 ## [2.3.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.3.0...v2.3.1) (2026-01-31)
 
 

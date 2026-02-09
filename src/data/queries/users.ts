@@ -4,6 +4,7 @@ import { useAppServices } from '../../contexts/ServiceContext';
 import { isITLessProd, isInt, isStage } from '../../itLessConfig';
 import { useMutationQueryClient } from './utils';
 import { type MutationOptions, type QueryOptions } from './types';
+import type { Environment } from '../../hooks/usePlatformEnvironment';
 
 // ============================================================================
 // Environment URL Helpers
@@ -165,8 +166,8 @@ export function useUsersQuery(params: UseUsersQueryParams = {}, options?: QueryO
 /**
  * Get the IT API base URL based on environment.
  */
-function getITApiUrl(isProd: boolean): string {
-  return isProd ? 'https://api.access.redhat.com' : 'https://api.access.stage.redhat.com';
+function getITApiUrl(environment: Environment): string {
+  return environment === 'production' ? 'https://api.access.redhat.com' : 'https://api.access.stage.redhat.com';
 }
 
 // ============================================================================
@@ -180,7 +181,7 @@ interface ChangeUserStatusParams {
     is_active: boolean;
   }>;
   config: {
-    isProd: boolean;
+    environment: Environment;
     token: string | null;
     accountId?: string | number | null; // Handle both string and number since different components use different sources
   };
@@ -210,7 +211,7 @@ export function useChangeUserStatusMutation(options?: MutationOptions) {
         // External IT API for status change
         return Promise.all(
           users.map((user) => {
-            const url = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/${user.id}/status`;
+            const url = `${getITApiUrl(config.environment)}/account/v1/accounts/${config.accountId}/users/${user.id}/status`;
             return fetch(url, {
               method: 'POST',
               body: JSON.stringify({
@@ -252,7 +253,7 @@ interface UpdateUserOrgAdminParams {
   userId: string;
   isOrgAdmin: boolean;
   config: {
-    isProd: boolean;
+    environment: Environment;
     token: string | null;
     accountId: string | null;
   };
@@ -279,7 +280,7 @@ export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
 
       if (config.accountId && !itless) {
         // External IT API for org admin role management
-        const url = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/${userId}/roles`;
+        const url = `${getITApiUrl(config.environment)}/account/v1/accounts/${config.accountId}/users/${userId}/roles`;
         return fetch(url, {
           method: isOrgAdmin ? 'POST' : 'DELETE',
           body: JSON.stringify({
@@ -325,7 +326,7 @@ interface InviteUsersParams {
   portal_download?: boolean;
   portal_manage_subscriptions?: string;
   config: {
-    isProd: boolean;
+    environment: Environment;
     token: string | null;
     accountId: string | null;
   };
@@ -361,7 +362,7 @@ export function useInviteUsersMutation(options?: MutationOptions) {
 
       if (config.accountId && !itless) {
         // External IT API for user invitation
-        const url = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/invite`;
+        const url = `${getITApiUrl(config.environment)}/account/v1/accounts/${config.accountId}/users/invite`;
         const response = await fetch(url, {
           method: 'POST',
           body: JSON.stringify({

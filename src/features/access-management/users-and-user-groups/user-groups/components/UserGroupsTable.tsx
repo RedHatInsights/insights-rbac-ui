@@ -21,7 +21,6 @@ interface UserGroupsTableProps {
   defaultPerPage?: number;
   enableActions?: boolean;
   orgAdmin?: boolean;
-  isProd?: boolean;
   ouiaId?: string;
 
   // Table state from useTableState - managed by container
@@ -44,7 +43,6 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
 
   enableActions = true,
   orgAdmin = true,
-  isProd = false,
   ouiaId = 'iam-user-groups-table',
   tableState,
   onRowClick,
@@ -64,8 +62,8 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
   // Check if group can be edited
   const isGroupEditable = useCallback((group: Group) => !group.platform_default && !group.system, []);
 
-  // Check if group can be deleted
-  const isGroupDeletable = useCallback((group: Group) => !group.platform_default && !group.system && orgAdmin && !isProd, [orgAdmin, isProd]);
+  // Check if group can be deleted (platform_default and system groups cannot be deleted)
+  const isGroupDeletable = useCallback((group: Group) => !group.platform_default && !group.system && orgAdmin, [orgAdmin]);
 
   // Row click handler
   const handleRowClick = useCallback(
@@ -78,16 +76,17 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
     [onRowClick, focusedGroup],
   );
 
-  // Toolbar actions
+  // Toolbar actions (only visible with write permission)
   const toolbarActions = useMemo(
-    () => (
-      <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
-        <ResponsiveAction ouiaId="add-usergroup-button" isPinned onClick={() => navigate(pathnames['users-and-user-groups-create-group'].link())}>
-          {intl.formatMessage(messages.createUserGroup)}
-        </ResponsiveAction>
-      </ResponsiveActions>
-    ),
-    [intl, navigate, ouiaId],
+    () =>
+      canModifyGroups ? (
+        <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
+          <ResponsiveAction ouiaId="add-usergroup-button" isPinned onClick={() => navigate(pathnames['users-and-user-groups-create-group'].link())}>
+            {intl.formatMessage(messages.createUserGroup)}
+          </ResponsiveAction>
+        </ResponsiveActions>
+      ) : undefined,
+    [intl, navigate, ouiaId, canModifyGroups],
   );
 
   return (

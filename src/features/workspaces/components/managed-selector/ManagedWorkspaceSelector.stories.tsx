@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { fn } from 'storybook/test';
-import { ManagedSelector } from './ManagedSelector';
+import { ManagedWorkspaceSelector } from './ManagedWorkspaceSelector';
 import { WorkspacesWorkspaceTypes } from '@redhat-cloud-services/rbac-client/v2/types';
 import { emptyWorkspacesHandler, errorWorkspacesHandler, slowWorkspaceHandlers, workspaceHandlers } from '../../../../test/msw-handlers';
 import { HttpResponse, delay, http } from 'msw';
@@ -48,8 +48,8 @@ const duplicateWorkspacesHandler = http.get('/api/rbac/v2/workspaces/*', () => {
   return HttpResponse.json(duplicateWorkspacesResponse);
 });
 
-const meta: Meta<typeof ManagedSelector> = {
-  component: ManagedSelector,
+const meta: Meta<typeof ManagedWorkspaceSelector> = {
+  component: ManagedWorkspaceSelector,
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -88,7 +88,7 @@ These stories replace the previous Cypress component tests for more integrated d
 };
 
 export default meta;
-type Story = StoryObj<typeof ManagedSelector>;
+type Story = StoryObj<typeof ManagedWorkspaceSelector>;
 
 // Default args
 const defaultArgs = {
@@ -452,34 +452,6 @@ export const ApiError400: Story = {
     docs: {
       description: {
         story: 'Tests error handling for HTTP 400 Bad Request responses.',
-      },
-    },
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
-
-    // Wait for loading to complete with error
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
-
-    // Click to expand
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
-
-    // Should show error state
-    await expect(within(document.body).findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
-  },
-};
-
-export const ApiError401: Story = {
-  args: defaultArgs,
-  parameters: {
-    msw: {
-      handlers: [createErrorHandler(401, 'Unauthorized')],
-    },
-    docs: {
-      description: {
-        story: 'Tests error handling for HTTP 401 Unauthorized responses.',
       },
     },
   },

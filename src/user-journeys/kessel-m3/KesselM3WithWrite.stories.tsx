@@ -1,7 +1,7 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
 import {
@@ -108,8 +108,8 @@ const meta = {
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    orgAdmin: true,
-    userAccessAdministrator: false,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
+    orgAdmin: true, // User identity
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': true,
     'platform.rbac.workspaces-role-bindings': true,
@@ -123,8 +123,8 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
-      userAccessAdministrator: false,
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': true,
       'platform.rbac.workspaces-role-bindings': true,
@@ -360,9 +360,10 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
 
     // Navigate to Workspaces page
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Production
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Click on "Production" workspace to view detail
@@ -450,7 +451,7 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     const drawerAfterSwitch = document.querySelector('.pf-v6-c-drawer__panel');
     expect(drawerAfterSwitch).not.toBeInTheDocument();
 
-    // Verify parent workspace role bindings (inherited from Default Workspace/root-1)
+    // Verify parent workspace role bindings (inherited from Root Workspace/root-1)
     // Should show Viewers group from root workspace
     const viewersText = await canvas.findByText('Viewers');
 

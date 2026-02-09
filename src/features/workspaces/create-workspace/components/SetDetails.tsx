@@ -17,7 +17,7 @@ import InputHelpPopover from '../../../../components/forms/InputHelpPopover';
 import { useWorkspacesFlag } from '../../../../hooks/useWorkspacesFlag';
 import { useWorkspacesQuery } from '../../../../data/queries/workspaces';
 
-import { ManagedSelector } from '../../components/managed-selector/ManagedSelector';
+import { ManagedWorkspaceSelector } from '../../components/managed-selector/ManagedWorkspaceSelector';
 import { instanceOfTreeViewWorkspaceItem } from '../../components/managed-selector/TreeViewWorkspaceItem';
 import { findDefaultParentWorkspace } from '../../workspaceTypes';
 import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from '../schema';
@@ -70,7 +70,7 @@ export const SetDetails = () => {
 
   const renderWorkspaceSelector = () => {
     if (isWorkspaceSelectorEnabled) {
-      return <ManagedSelector onSelect={handleWorkspaceSelection} />;
+      return <ManagedWorkspaceSelector onSelect={handleWorkspaceSelection} />;
     }
 
     if (isLoading) {

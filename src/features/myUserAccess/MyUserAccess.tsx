@@ -13,7 +13,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import { usePlatformAuth } from '../../hooks/usePlatformAuth';
 import StatusLabel from './components/StatusLabel';
 import PermissionsContext from '../../utilities/permissionsContext';
 import { bundleData } from './bundleData';
@@ -40,7 +40,7 @@ interface User {
 
 export const MyUserAccess: React.FC = () => {
   const intl = useIntl();
-  const chrome = useChrome();
+  const { getUser } = usePlatformAuth();
   const location = useLocation();
   const [user, setUser] = useState<User>({});
   const [searchParams, setSearchParams] = useSearchParams();
@@ -48,7 +48,7 @@ export const MyUserAccess: React.FC = () => {
   const { userAccessAdministrator } = useContext(PermissionsContext);
 
   useEffect(() => {
-    chrome.auth.getUser().then((chromeUser) => {
+    getUser().then((chromeUser) => {
       const { identity, entitlements } = chromeUser || {};
       setUser({
         entitlements,
@@ -60,7 +60,7 @@ export const MyUserAccess: React.FC = () => {
     if (!bundle) {
       setSearchParams({ bundle: DEFAULT_MUA_BUNDLE });
     }
-  }, [bundle, setSearchParams]);
+  }, [bundle, setSearchParams, getUser]);
 
   const enhancedEntitlements: UserEntitlements = {
     ...user.entitlements,

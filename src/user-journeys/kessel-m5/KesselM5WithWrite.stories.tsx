@@ -1,7 +1,7 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
+import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
 import { defaultKesselRoles } from '../../../.storybook/fixtures/kessel-groups-roles';
@@ -102,8 +102,8 @@ const meta = {
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    orgAdmin: true,
-    userAccessAdministrator: false,
+    permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
+    orgAdmin: true, // User identity
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': true,
     'platform.rbac.workspaces-role-bindings': true,
@@ -117,8 +117,8 @@ const meta = {
   },
   parameters: {
     ...createDynamicEnvironment({
+      permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
-      userAccessAdministrator: false,
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': true,
       'platform.rbac.workspaces-role-bindings': true,
@@ -359,9 +359,10 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Production
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Find the Production workspace row
@@ -406,7 +407,8 @@ Tests that users with \`inventory:groups:write\` permission can edit workspace d
 
     // CRITICAL: Verify the workspace is updated in the list
     // This tests that cache invalidation is working correctly
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Verify the updated workspace appears in the list
@@ -457,9 +459,10 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
 
     // Expand Default Workspace to see Staging
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Find the Staging workspace row (it's a leaf node, can be deleted)
@@ -502,7 +505,8 @@ Tests that users with \`inventory:groups:write\` permission can delete workspace
 
     // CRITICAL: Verify the workspace is removed from the list
     // This tests that cache invalidation is working correctly
-    await waitForPageToLoad(canvas, 'Default Workspace');
+    await waitForPageToLoad(canvas, 'Root Workspace');
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
     await expandWorkspaceRow(user, canvas, 'Default Workspace');
 
     // Verify Staging is no longer in the list

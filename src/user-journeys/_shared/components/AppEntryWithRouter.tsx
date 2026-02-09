@@ -1,8 +1,8 @@
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import Iam from '../../../Iam';
+import { Iam } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
-import { LeftNavigation } from './LeftNavigation';
+import { FrontendYamlNavigation } from './FrontendYamlNavigation';
 import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
 import { ProductionHeader } from './ProductionHeader';
 import { GlobalBreadcrumb } from './GlobalBreadcrumb';
@@ -29,17 +29,18 @@ interface AppEntryWithRouterProps {
 export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
     <MemoryRouter initialEntries={[initialRoute]}>
+      {/* FakeAddressBar must be outside Page to avoid z-index conflicts with masthead */}
+      <FakeAddressBar />
       <Page
         masthead={<ProductionHeader />}
         sidebar={
           <PageSidebar>
             <PageSidebarBody>
-              <LeftNavigation />
+              <FrontendYamlNavigation />
             </PageSidebarBody>
           </PageSidebar>
         }
       >
-        <FakeAddressBar />
         <GlobalBreadcrumb />
         <Routes>
           <Route path="/iam/*" element={<Iam testMode />} />

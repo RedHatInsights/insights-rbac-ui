@@ -4,6 +4,7 @@ import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { Users } from './Users';
 import { BrowserRouter } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
+import type { MockUserIdentity } from '../../../../../.storybook/contexts/StorybookMockContext';
 
 // Spy for tracking API calls
 const addMembersToGroupSpy = fn();
@@ -53,22 +54,16 @@ const withRouter = (Story: StoryFn) => {
   );
 };
 
-// Create stable auth mock to prevent render loops
-const stableAuthMock = {
-  getToken: () => Promise.resolve('mock-token'),
-  getUser: () =>
-    Promise.resolve({
-      identity: {
-        org_id: 12345,
-        account_number: '123456',
-        user: {
-          username: 'testuser',
-          email: 'test@example.com',
-          first_name: 'Test',
-          last_name: 'User',
-        },
-      },
-    }),
+// Mock user identity for stories
+const standardUser: MockUserIdentity = {
+  org_id: '12345',
+  account_number: '123456',
+  user: {
+    username: 'testuser',
+    email: 'test@example.com',
+    first_name: 'Test',
+    last_name: 'User',
+  },
 };
 
 const meta: Meta<typeof Users> = {
@@ -76,14 +71,10 @@ const meta: Meta<typeof Users> = {
   tags: ['ff:platform.rbac.common-auth-model', 'env:prod', 'perm:org-admin'],
   decorators: [withRouter],
   parameters: {
-    // Use global providers for these (configured in .storybook/preview.tsx)
     permissions: {
-      orgAdmin: true, // Default for testing
+      orgAdmin: true,
     },
-    chrome: {
-      environment: 'prod',
-      auth: stableAuthMock,
-    },
+    userIdentity: standardUser,
     featureFlags: {
       'platform.rbac.common-auth-model': false,
     },
@@ -97,7 +88,7 @@ const meta: Meta<typeof Users> = {
 - **Authentication Integration**: Handles Chrome API integration for tokens and user context
 - **Modal Coordination**: Manages all modal states (delete, bulk actions, add to group)
 - **Feature Flag Integration**: Adapts UI based on auth model variations
-- **Permission Context**: Handles organization admin permissions and production environment checks
+- **Permission Context**: Handles organization admin permissions
 - **Business Logic Orchestration**: Coordinates user operations like status changes and group assignments
 
 ## Key Features
@@ -196,7 +187,6 @@ For testing specific scenarios, see these additional stories:
 - **[Loading](?path=/story/features-access-management-users-and-user-groups-users-users--loading)**: Tests container behavior during API loading via React Query
 - **[EmptyState](?path=/story/features-access-management-users-and-user-groups-users-users--empty-state)**: Tests container response to empty user data from React Query  
 - **[AddToGroupModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--add-to-group-modal-integration)**: Tests complete add-to-group modal workflow with React Query orchestration
-- **[DeleteUserModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--delete-user-modal-integration)**: Tests complete delete user modal workflow with React Query orchestration
 - **[BulkDeactivateModalIntegration](?path=/story/features-access-management-users-and-user-groups-users-users--bulk-deactivate-modal-integration)**: Tests bulk deactivation workflow with React Query state coordination
         `,
       },
@@ -402,76 +392,7 @@ export const AddToGroupModalIntegration: Story = {
   },
 };
 
-// Container delete user modal integration test
-export const DeleteUserModalIntegration: Story = {
-  tags: ['env:stage', 'perm:org-admin'],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Tests container delete user modal state management. Validates that clicking delete on a user properly opens the DeleteUserModal with the correct user information.',
-      },
-    },
-    // Override chrome environment to allow delete actions (production disables delete)
-    chrome: {
-      environment: 'stage', // Non-production environment to enable delete
-      auth: stableAuthMock,
-    },
-    // Ensure user has org admin permissions to enable delete
-    permissions: {
-      orgAdmin: true,
-    },
-    msw: {
-      handlers: [
-        // Principals API - let container fetch data naturally
-        http.get('/api/rbac/v1/principals/', () => {
-          return HttpResponse.json({
-            data: [mockUsers[0]], // Single user for focused testing
-            meta: { count: 1, limit: 20, offset: 0 },
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
-
-    // Wait for container to load data and render the user
-    await canvas.findByText('john.doe');
-
-    // Find the kebab menu button for the user's row actions
-    const kebabMenuButton = await canvas.findByLabelText('Actions for user john.doe');
-
-    // Click the kebab menu to open it
-    await userEvent.click(kebabMenuButton);
-
-    // Find the delete option in the opened dropdown
-    const deleteButton = await within(document.body).findByText('Delete');
-    await expect(deleteButton).toBeInTheDocument();
-
-    await userEvent.click(deleteButton);
-
-    // Verify delete modal appears with correct title
-    // Note: Modal content is rendered to document.body via portal, not in canvas
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
-    await expect(within(modal).getByText(/Remove from user groups\?/i)).toBeInTheDocument();
-
-    // Complete the workflow by confirming the deletion
-    const modalContent = within(modal);
-
-    // Find and click the Remove button
-    const removeButton = await modalContent.findByRole('button', { name: /remove/i });
-    await expect(removeButton).not.toBeDisabled();
-    await userEvent.click(removeButton);
-
-    // Verify modal closes after action (API calls are TODO in the actual component)
-    await waitFor(async () => {
-      await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    });
-  },
-};
+// DeleteUserModalIntegration story removed - delete user feature was removed from the app
 
 // Container bulk deactivate modal integration test
 export const BulkDeactivateModalIntegration: Story = {
