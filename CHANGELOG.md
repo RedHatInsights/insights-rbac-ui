@@ -1,3 +1,18 @@
+# [2.7.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.6.0...v2.7.0) (2026-02-09)
+
+
+### Bug Fixes
+
+* make FakeAddressBar visible in user journey stories ([457ee96](https://github.com/RedHatInsights/insights-rbac-ui/commit/457ee96ba4b3589314d501338c0522f3879f97b2))
+
+
+### Features
+
+* add Root Workspace as parent of Default Workspace in fixtures ([d8cc193](https://github.com/RedHatInsights/insights-rbac-ui/commit/d8cc193d3ea6a06726ce51f054b05f470cc7e18d))
+* add route permission validation to prevent drift ([64d00d8](https://github.com/RedHatInsights/insights-rbac-ui/commit/64d00d8b6f53f6f6fb150a6d033cc4eee386af56))
+* add user viewer journeys and fix test flakiness ([e2a40c4](https://github.com/RedHatInsights/insights-rbac-ui/commit/e2a40c426207892b51253e71335a74d3456d13d5))
+* enforce granular permissions for read-only users ([4979934](https://github.com/RedHatInsights/insights-rbac-ui/commit/49799344cc2af0224b21fc11094fdfcbf5edc26e))
+
 # [2.6.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.5.3...v2.6.0) (2026-02-06)
 
 
