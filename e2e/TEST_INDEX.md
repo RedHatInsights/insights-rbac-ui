@@ -5,11 +5,16 @@
 > Do not write a file from scratch. Copy the template and fill in the blanks.
 >
 > **Checklist for new files:**
-> - [ ] Copied ASCII header from `_TEMPLATE.spec.ts`?
-> - [ ] Included `UserViewer` describe block for negative tests?
-> - [ ] Included `ReadOnlyUser` describe block if applicable?
+> - [ ] Copied ASCII header (DECISION TREE, CAPABILITIES & PERSONAS, DATA PREREQUISITES) from `_TEMPLATE.spec.ts`?
+> - [ ] Each persona has its own `test.describe('PersonaName')` block with `test.use({ storageState: AUTH_... })`?
+> - [ ] Consulted [`TEST_PERSONAS.md`](./TEST_PERSONAS.md) for persona capabilities and page access?
 > - [ ] Added scenarios to the tables below?
 > - [ ] Used `E2E_TIMEOUTS` constants (no magic numbers)?
+>
+> **Required persona blocks** (see [TEST_PERSONAS.md](./TEST_PERSONAS.md) for details):
+> - `Admin` — Full CRUD tests, serial lifecycle
+> - `UserViewer` — Verify buttons disabled/hidden, no write access
+> - `ReadOnlyUser` — Verify unauthorized message or blocked access
 
 Quick reference for where to add tests. Search this file before creating new tests.
 

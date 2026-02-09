@@ -14,14 +14,14 @@
  * ✗ [Criteria 4 - e.g., "Testing detail page → use *-detail.spec.ts"]
  *
  * ═══════════════════════════════════════════════════════════════════════════════
- * CAPABILITIES & PERSONAS
+ * CAPABILITIES & PERSONAS (see TEST_PERSONAS.md for full details)
  * ═══════════════════════════════════════════════════════════════════════════════
  * @capability [List capabilities tested in this file]
  *
  * @personas
- * - Admin: Full CRUD access
- * - UserViewer: [Specific restrictions - e.g., "Can view but not modify"]
- * - ReadOnlyUser: [Blocked or limited - e.g., "Cannot access this page"]
+ * - Admin (`rbac:*:*`): Full CRUD access
+ * - UserViewer (`rbac:principal:read`): [Check route-definitions.ts for this page]
+ * - ReadOnlyUser (no permissions): [Usually blocked — verify with route-definitions.ts]
  *
  * ═══════════════════════════════════════════════════════════════════════════════
  * DATA PREREQUISITES
