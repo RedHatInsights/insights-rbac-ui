@@ -1,13 +1,37 @@
 /**
- * V2 Users - Invite Tests
+ * User Invite Tests
  *
  * Tests for the user invitation functionality.
  *
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * DECISION TREE - Add your test here if:
+ * ═══════════════════════════════════════════════════════════════════════════════
+ *   ✓ It invites users (modal, form validation, API)
+ *   ✓ It checks if invite button/action is visible/hidden/disabled
+ *   ✓ It verifies invite API calls
+ *
+ * DO NOT add here if:
+ *   ✗ It only views the users list → user-list.spec.ts
+ *   ✗ It tests search/filter functionality → user-list.spec.ts
+ *
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * CAPABILITIES & PERSONAS
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * @capability Invite Users
+ * @personas
+ *   - Admin: Can invite users
+ *   - UserViewer: Cannot invite users (button disabled)
+ *
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * DATA PREREQUISITES
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * @dependencies
+ *   - AUTH: Uses AUTH_V2_ADMIN, AUTH_V2_USERVIEWER from utils
+ *   - DATA: No seeded data required
+ *   - UTILS: Use UsersPage for invite modal interactions
+ *
  * CRITICAL: This includes a regression test for the /management URL bug.
  * The external IT API is intercepted to prevent actual emails from being sent.
- *
- * Personas that CAN invite: Admin
- * Personas that CANNOT invite: UserViewer, ReadOnlyUser
  */
 
 import { expect, test } from '@playwright/test';
@@ -49,16 +73,18 @@ async function interceptInviteApi(page: import('@playwright/test').Page) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Personas that CAN invite users
+// Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-const canInvitePersonas = [{ name: 'Admin', auth: AUTH_V2_ADMIN }];
+test.describe('User Invite', () => {
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ADMIN - Can invite users
+  // ═══════════════════════════════════════════════════════════════════════════
 
-canInvitePersonas.forEach(({ name, auth }) => {
-  test.describe(name, () => {
-    test.use({ storageState: auth });
+  test.describe('Admin', () => {
+    test.use({ storageState: AUTH_V2_ADMIN });
 
-    test(`Can invite users with correct API URL [${name}]`, async ({ page }) => {
+    test(`Can invite users with correct API URL [Admin]`, async ({ page }) => {
       const inviteApiCalls = await interceptInviteApi(page);
       const usersPage = new UsersPage(page);
 
@@ -87,22 +113,17 @@ canInvitePersonas.forEach(({ name, auth }) => {
       expect(apiCall.body).toHaveProperty('emails');
       expect((apiCall.body as { emails: string[] }).emails).toContain('testuser@example.com');
 
-      console.log(`[${name}] Invite API called with correct URL: ${apiCall.url}`);
+      console.log(`[Admin] Invite API called with correct URL: ${apiCall.url}`);
     });
   });
-});
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Personas that CANNOT invite users
-// ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
+  // USERVIEWER - Cannot invite users (button disabled)
+  // ═══════════════════════════════════════════════════════════════════════════
+  // UserViewer can see the Users page but cannot invite
 
-// Note: ReadOnlyUser is NOT included here because they cannot access the Users page at all
-// (tested in unauthorized.spec.ts). Only UserViewer can see Users but cannot invite.
-const cannotInvitePersonas = [{ name: 'UserViewer', auth: AUTH_V2_USERVIEWER }];
-
-cannotInvitePersonas.forEach(({ name, auth }) => {
-  test.describe(name, () => {
-    test.use({ storageState: auth });
+  test.describe('UserViewer', () => {
+    test.use({ storageState: AUTH_V2_USERVIEWER });
 
     /**
      * This test documents EXPECTED behavior that is NOT YET IMPLEMENTED.
@@ -111,7 +132,7 @@ cannotInvitePersonas.forEach(({ name, auth }) => {
      * In V2, "Invite new users" is inside the Actions dropdown menu.
      * For non-admin users, this menu item should either be disabled or not visible.
      */
-    test(`Invite button is disabled [${name}]`, async ({ page }) => {
+    test(`Invite button is disabled [UserViewer]`, async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
