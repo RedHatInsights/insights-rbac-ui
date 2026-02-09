@@ -167,6 +167,7 @@
     "lint": "npm-run-all lint:*",
     "lint:js": "eslint config src e2e .storybook",
     "lint:js:fix": "eslint config src e2e .storybook --fix",
+    "lint:e2e": "tsc --noEmit -p e2e/tsconfig.json",
     "lint:permissions": "npx tsx scripts/validate-permissions.ts",
     "server:ctr": "node src/server/generateServerKey.js",
     "start": "HOT=true fec dev-proxy",
