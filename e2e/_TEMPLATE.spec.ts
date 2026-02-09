@@ -45,15 +45,21 @@ import { expect, test } from '@playwright/test';
 // import { UsersPage } from '../../pages/v2/UsersPage';
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// CONFIGURATION - SELECT ONE VERSION (V1 or V2)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// SELECT ONE:
+// const TEST_PREFIX = process.env.TEST_PREFIX_V1; // For V1 features (groups, roles)
+// const TEST_PREFIX = process.env.TEST_PREFIX_V2; // For V2 features (workspaces, user-groups)
+
+// if (!TEST_PREFIX) throw new Error('TEST_PREFIX env var required');
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // TEST DATA
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// Seeded data (for read-only tests)
+// Seeded data (for read-only tests) - use 'v1' or 'v2' to match your version above
 // const SEEDED_ENTITY_NAME = getSeededGroupName('v1');
-
-// Test prefix (for CRUD lifecycle - creates unique names)
-// const TEST_PREFIX = process.env.TEST_PREFIX_V1 || process.env.TEST_PREFIX_V2;
-// if (!TEST_PREFIX) throw new Error('TEST_PREFIX_V1 or TEST_PREFIX_V2 required');
 
 test.describe('[Feature Name]', () => {
   // ═══════════════════════════════════════════════════════════════════════════
