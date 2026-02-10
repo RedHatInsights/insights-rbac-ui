@@ -549,7 +549,8 @@ export const ParentRoleBindingsWithInheritance: Story = {
     },
     docs: {
       description: {
-        story: 'Tests the "Roles assigned in parent workspaces" tab showing inherited role bindings with inheritance information from parent workspace.',
+        story:
+          'Tests the "Roles assigned in parent workspaces" tab showing inherited role bindings with inheritance information from parent workspace.',
       },
     },
   },
