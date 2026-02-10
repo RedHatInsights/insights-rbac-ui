@@ -27,6 +27,25 @@ interface RoleBindingSubject {
   };
 }
 
+// Role binding structure from API
+interface RoleBinding {
+  last_modified?: string;
+  subject?: RoleBindingSubject;
+  roles?: Array<{
+    id?: string;
+    name?: string;
+  }>;
+  resource?: {
+    id?: string;
+    name?: string;
+    type?: string;
+  };
+  inherited_from?: {
+    name?: string;
+    type?: string;
+  };
+}
+
 interface WorkspaceData {
   name: string;
   id: string;
@@ -151,7 +170,7 @@ export const WorkspaceDetail = () => {
   // but we use Group type for compatibility with RoleAssignmentsTable
   const roleBindings: Group[] = useMemo(() => {
     if (!roleBindingsData?.data) return [];
-    return roleBindingsData.data.map((binding) => {
+    return roleBindingsData.data.map((binding: RoleBinding) => {
       // Cast subject to extended type that includes group/user details
       const subject = binding.subject as RoleBindingSubject | undefined;
       return {
@@ -178,7 +197,7 @@ export const WorkspaceDetail = () => {
     const parentWorkspace = workspaces.find((w) => w.id === selectedWorkspace.parent_id);
     const parentWorkspaceName = parentWorkspace?.name || 'Parent Workspace';
 
-    return parentBindingsData.data.map((binding) => {
+    return parentBindingsData.data.map((binding: RoleBinding) => {
       // Cast subject to extended type that includes group/user details
       const subject = binding.subject as RoleBindingSubject | undefined;
       return {

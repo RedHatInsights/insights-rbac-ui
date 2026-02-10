@@ -540,3 +540,43 @@ export const RoleAssignmentTabSwitching: Story = {
     await expect(canvas.findByText('Platform Team')).resolves.toBeInTheDocument();
   },
 };
+
+export const ParentRoleBindingsWithInheritance: Story = {
+  parameters: {
+    route: '/iam/access-management/workspaces/detail/workspace-2?activeTab=roles&roleAssignmentTab=roles-assigned-in-parent-workspaces',
+    featureFlags: {
+      'platform.rbac.workspaces-role-bindings': true,
+    },
+    docs: {
+      description: {
+        story: 'Tests the "Roles assigned in parent workspaces" tab showing inherited role bindings with inheritance information from parent workspace.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300);
+    const canvas = within(canvasElement);
+
+    // Wait for skeleton loading to complete
+    await waitForSkeletonToDisappear(canvasElement);
+
+    // Verify we're on the parent workspaces tab
+    await expect(canvas.findByText('Roles assigned in parent workspaces')).resolves.toBeInTheDocument();
+
+    // Wait for the table to load by finding the first group name
+    await expect(canvas.findByText('Platform Team')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('QE Team')).resolves.toBeInTheDocument();
+
+    // Verify inherited_from information is displayed
+    // The API returns inherited_from with name "Production Environment" when parent_role_bindings=true
+    // Wait for table to be fully rendered by checking for the table role
+    await waitFor(async () => {
+      const table = canvas.getByRole('grid');
+      expect(table).toBeInTheDocument();
+    });
+
+    // Now check that Production Environment appears multiple times (breadcrumb and table)
+    const productionEnvElements = canvas.getAllByText('Production Environment');
+    expect(productionEnvElements.length).toBeGreaterThan(1); // Should appear at least in breadcrumb and table
+  },
+};

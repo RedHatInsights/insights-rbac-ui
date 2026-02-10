@@ -15,7 +15,7 @@ import React from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers, mockGroups } from './_shared';
 
 // Spy for tracking API calls
@@ -199,8 +199,8 @@ Tests the complete "Edit user group" workflow:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Golden girls');
 
     // ==========================================================================
     // PRE-CONDITION: Verify original state in table
@@ -327,8 +327,8 @@ Tests editing the group name.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Golden girls');
 
     // Open edit for a group
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
@@ -391,8 +391,8 @@ Tests that changing to an existing group name shows validation error.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Golden girls');
 
     // Open edit for Golden girls
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
@@ -453,8 +453,8 @@ Tests canceling the edit form.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    // Wait for page to load
+    await waitForPageToLoad(canvas, 'Golden girls');
 
     // Open edit
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
