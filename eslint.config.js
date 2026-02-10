@@ -7,6 +7,7 @@ const fecPlugin = require('@redhat-cloud-services/eslint-config-redhat-cloud-ser
 const tsParser = require('@typescript-eslint/parser');
 const tseslint = require('@typescript-eslint/eslint-plugin');
 const testingLibrary = require('eslint-plugin-testing-library');
+const requireUseTableState = require('./eslint-rules/require-use-table-state');
 
 module.exports = defineConfig(
   fecPlugin,
@@ -32,6 +33,7 @@ module.exports = defineConfig(
     ignores: ['src/test/**', 'src/**/*.stories.tsx', 'src/user-journeys/**', 'src/features/myUserAccess/useBundleApps.ts', 'src/cli/**'],
     plugins: {
       '@typescript-eslint': tseslint,
+      'rbac-local': { rules: { 'require-use-table-state': requireUseTableState } },
     },
     languageOptions: {
       parser: tsParser,
@@ -41,6 +43,8 @@ module.exports = defineConfig(
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 1,
+      // Ban TableView used without useTableState to prevent hand-rolled state bugs
+      'rbac-local/require-use-table-state': 'error',
       // Ban direct use of Link from react-router-dom - use AppLink or ExternalLink instead
       // Ban direct use of platform hooks - use semantic wrappers instead
       'no-restricted-imports': [

@@ -13,14 +13,14 @@ import messages from '../../Messages';
 import { Outlet } from 'react-router-dom';
 import RolesDetails from './RolesWithWorkspacesDetails';
 import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/react-component-groups';
-import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 import pathnames from '../../utilities/pathnames';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { type Role, useRoles } from './useRolesWithWorkspaces';
 import { useDeleteRoleMutation } from '../../data/queries/roles';
 import { RolesEmptyState } from './components/RolesEmptyState';
+// eslint-disable-next-line rbac-local/require-use-table-state -- tableState received from useRolesWithWorkspaces hook
 import { TableView } from '../../components/table-view/TableView';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig, SortDirection } from '../../components/table-view/types';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../components/table-view/types';
 
 const ouiaId = 'RolesTable';
 
@@ -43,16 +43,14 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
   // Check write permission for actions
   const { hasAccess: canWriteRoles } = useAccessPermissions(['rbac:role:write']);
 
-  // Use the custom hook for all Roles business logic
-  const { roles, isLoading, totalCount, filters, sortBy, direction, onSort, pagination, selection, clearAllFilters, onSetFilters } = useRoles({
+  // Use the custom hook for all Roles business logic (includes tableState)
+  const { roles, isLoading, totalCount, tableState } = useRoles({
     enableAdminFeatures: true,
   });
 
   const intl = useIntl();
   const navigate = useAppNavigate();
   const deleteRoleMutation = useDeleteRoleMutation();
-  const { page, perPage, onSetPage, onPerPageSelect } = pagination;
-  const { selected, onSelect } = selection;
 
   const handleModalToggle = (rolesToDelete: Role[]) => {
     setCurrentRoles(rolesToDelete);
@@ -104,61 +102,6 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
     ],
     [intl],
   );
-
-  // Sort handling
-  const currentSort = useMemo(
-    () =>
-      sortBy
-        ? {
-            column: sortBy as SortableColumn,
-            direction: direction as SortDirection,
-          }
-        : null,
-    [sortBy, direction],
-  );
-
-  const handleSortChange = useCallback(
-    (column: SortableColumn, newDirection: SortDirection) => {
-      onSort(undefined, column, newDirection);
-      onSetPage(undefined, 1);
-    },
-    [onSort, onSetPage],
-  );
-
-  // Handle filter change
-  const handleFilterChange = useCallback(
-    (newFilters: Record<string, string | string[]>) => {
-      onSetFilters({ display_name: newFilters.display_name as string });
-      onSetPage(undefined, 1);
-    },
-    [onSetFilters, onSetPage],
-  );
-
-  // Selection handlers
-  const handleSelectRow = useCallback(
-    (row: Role, isRowSelected: boolean) => {
-      const rowObj = { id: row.uuid, row: [] };
-      if (isRowSelected) {
-        onSelect(true, [rowObj]);
-      } else {
-        onSelect(false, [rowObj]);
-      }
-    },
-    [onSelect],
-  );
-
-  const handleSelectAll = useCallback(
-    (isAllSelected: boolean, currentRows: Role[]) => {
-      const rowObjs = currentRows.map((r) => ({ id: r.uuid, row: [] }));
-      onSelect(isAllSelected, rowObjs);
-    },
-    [onSelect],
-  );
-
-  // Map selected objects to Role objects
-  const selectedRows = useMemo(() => {
-    return roles.filter((role: Role) => selected.some((sel: { id: string }) => sel.id === role.uuid));
-  }, [roles, selected]);
 
   // Check if role is system or platform default
   const isRowSystemOrPlatformDefault = (role: Role) => {
@@ -212,15 +155,15 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
     () =>
       canWriteRoles ? (
         <ResponsiveAction
-          isDisabled={selectedRows.length === 0 || selectedRows.some(isRowSystemOrPlatformDefault)}
+          isDisabled={tableState.selectedRows.length === 0 || tableState.selectedRows.some(isRowSystemOrPlatformDefault)}
           onClick={() => {
-            handleModalToggle(selectedRows);
+            handleModalToggle(tableState.selectedRows);
           }}
         >
           {intl.formatMessage(messages.deleteRolesAction)}
         </ResponsiveAction>
       ) : undefined,
-    [selectedRows, intl, canWriteRoles],
+    [tableState.selectedRows, intl, canWriteRoles],
   );
 
   // Handle row click for drawer
@@ -275,24 +218,26 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
           totalCount={totalCount}
           getRowId={(row) => row.uuid}
           cellRenderers={cellRenderers}
-          sort={currentSort}
-          onSortChange={handleSortChange}
-          page={page}
-          perPage={perPage}
-          perPageOptions={PER_PAGE_OPTIONS.map((opt) => opt.value)}
-          onPageChange={(newPage) => onSetPage(undefined, newPage)}
-          onPerPageChange={(newPerPage) => {
-            onPerPageSelect(undefined, newPerPage);
-            onSetPage(undefined, 1);
-          }}
+          // Sort — from useTableState
+          sort={tableState.sort}
+          onSortChange={tableState.onSortChange}
+          // Pagination — from useTableState
+          page={tableState.page}
+          perPage={tableState.perPage}
+          perPageOptions={tableState.perPageOptions}
+          onPageChange={tableState.onPageChange}
+          onPerPageChange={tableState.onPerPageChange}
+          // Selection — from useTableState
           selectable={canWriteRoles}
-          selectedRows={selectedRows}
-          onSelectRow={handleSelectRow}
-          onSelectAll={handleSelectAll}
+          selectedRows={tableState.selectedRows}
+          onSelectRow={tableState.onSelectRow}
+          onSelectAll={tableState.onSelectAll}
+          // Filters — from useTableState
           filterConfig={filterConfig}
-          filters={{ display_name: filters.display_name || '' }}
-          onFiltersChange={handleFilterChange}
-          clearAllFilters={clearAllFilters}
+          filters={tableState.filters}
+          onFiltersChange={tableState.onFiltersChange}
+          clearAllFilters={tableState.clearAllFilters}
+          // Toolbar
           toolbarActions={toolbarActions}
           bulkActions={bulkActions}
           renderActions={canWriteRoles ? renderActions : undefined}
@@ -308,8 +253,6 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
           <Outlet
             context={{
               [pathnames['access-management-add-role'].path]: {
-                pagination,
-                filters: { display_name: filters.display_name },
                 cancelRoute: pathnames['access-management-roles'].link(),
               },
             }}

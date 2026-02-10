@@ -1,17 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { TableView } from '../../../../components/table-view/TableView';
+import { useTableState } from '../../../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
-import type {
-  CellRendererMap,
-  ColumnConfigMap,
-  ExpandedCell,
-  ExpansionRendererMap,
-  FilterConfig,
-  FilterState,
-  SortState,
-} from '../../../../components/table-view/types';
+import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../../../components/table-view/types';
 import messages from '../../../../Messages';
 
 // Role type compatible with API response
@@ -62,11 +55,16 @@ const sortableColumns = ['name', 'description', 'permissions'] as const;
 
 export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles, selectedRoles, onRoleSelection, isLoading = false }) => {
   const intl = useIntl();
-  const [expandedCell, setExpandedCell] = useState<ExpandedCell<CompoundColumn> | null>(null);
-  const [filters, setFilters] = useState<FilterState>({ name: '' });
-  const [sort, setSort] = useState<SortState<SortableColumn>>({ column: 'name', direction: 'asc' });
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+
+  // Table state via useTableState — manages sort, pagination, filters, expansion
+  const tableState = useTableState<typeof columns, RoleRow, SortableColumn, CompoundColumn>({
+    columns,
+    sortableColumns,
+    getRowId: (row: RoleRow) => row.uuid,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: 10,
+    initialFilters: { name: '' },
+  });
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
@@ -105,41 +103,36 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
     [intl],
   );
 
-  // Filter and sort roles
+  // Filter and sort roles (local data)
   const { totalCount, paginatedRoles } = useMemo(() => {
-    const searchValue = (filters.name as string) || '';
+    const searchValue = (tableState.filters.name as string) || '';
 
     // Filter roles based on search
-    let filtered = searchValue
+    const filtered = searchValue
       ? roles.filter((role) => (role.display_name || role.name || '').toLowerCase().includes(searchValue.toLowerCase()))
       : roles;
 
     // Sort the filtered roles
     const sorted = [...filtered].sort((a, b) => {
-      if (sort.column === 'name') {
-        const aVal = a.display_name || a.name || '';
-        const bVal = b.display_name || b.name || '';
-        return sort.direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-      } else if (sort.column === 'description') {
-        const aVal = a.description || '';
-        const bVal = b.description || '';
-        return sort.direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-      } else if (sort.column === 'permissions') {
-        const aVal = Number(a.accessCount) || 0;
-        const bVal = Number(b.accessCount) || 0;
-        return sort.direction === 'asc' ? aVal - bVal : bVal - aVal;
+      const dir = tableState.sort?.direction === 'desc' ? -1 : 1;
+      if (tableState.sort?.column === 'name') {
+        return dir * (a.display_name || a.name || '').localeCompare(b.display_name || b.name || '');
+      } else if (tableState.sort?.column === 'description') {
+        return dir * (a.description || '').localeCompare(b.description || '');
+      } else if (tableState.sort?.column === 'permissions') {
+        return dir * ((Number(a.accessCount) || 0) - (Number(b.accessCount) || 0));
       }
       return 0;
     });
 
     // Paginate
-    const startIndex = (page - 1) * perPage;
-    const paginated = sorted.slice(startIndex, startIndex + perPage);
+    const startIndex = (tableState.page - 1) * tableState.perPage;
+    const paginated = sorted.slice(startIndex, startIndex + tableState.perPage);
 
     return { totalCount: sorted.length, paginatedRoles: paginated };
-  }, [roles, filters.name, sort, page, perPage]);
+  }, [roles, tableState.filters.name, tableState.sort, tableState.page, tableState.perPage]);
 
-  // Selection - convert between Role objects and string IDs
+  // Selection — parent-controlled (string IDs), convert to/from RoleRow objects
   const selectedRows = useMemo(() => roles.filter((r) => selectedRoles.includes(r.uuid)), [roles, selectedRoles]);
 
   const handleSelectRow = useCallback(
@@ -166,25 +159,6 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
     [selectedRoles, onRoleSelection],
   );
 
-  // Compound expansion
-  const handleToggleExpand = useCallback((rowId: string, column: CompoundColumn) => {
-    setExpandedCell((prev) => (prev?.rowId === rowId && prev?.column === column ? null : { rowId, column }));
-  }, []);
-
-  const handleSortChange = useCallback((column: SortableColumn, direction: 'asc' | 'desc') => {
-    setSort({ column, direction });
-  }, []);
-
-  const handleFiltersChange = useCallback((newFilters: FilterState) => {
-    setFilters(newFilters);
-    setPage(1);
-  }, []);
-
-  const clearAllFilters = useCallback(() => {
-    setFilters({ name: '' });
-    setPage(1);
-  }, []);
-
   return (
     <TableView<typeof columns, RoleRow, SortableColumn, CompoundColumn>
       columns={columns}
@@ -195,25 +169,27 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
       getRowId={(role) => role.uuid}
       cellRenderers={cellRenderers}
       expansionRenderers={expansionRenderers}
-      sort={sort}
-      onSortChange={handleSortChange}
-      page={page}
-      perPage={perPage}
-      onPageChange={setPage}
-      onPerPageChange={(newPerPage) => {
-        setPerPage(newPerPage);
-        setPage(1);
-      }}
+      // Sort — from useTableState
+      sort={tableState.sort}
+      onSortChange={tableState.onSortChange}
+      // Pagination — from useTableState
+      page={tableState.page}
+      perPage={tableState.perPage}
+      onPageChange={tableState.onPageChange}
+      onPerPageChange={tableState.onPerPageChange}
+      // Selection — parent-controlled
       selectable={true}
       selectedRows={selectedRows}
       onSelectRow={handleSelectRow}
       onSelectAll={handleSelectAll}
-      expandedCell={expandedCell}
-      onToggleExpand={handleToggleExpand}
+      // Expansion — from useTableState
+      expandedCell={tableState.expandedCell}
+      onToggleExpand={tableState.onToggleExpand}
+      // Filters — from useTableState
       filterConfig={filterConfig}
-      filters={filters}
-      onFiltersChange={handleFiltersChange}
-      clearAllFilters={clearAllFilters}
+      filters={tableState.filters}
+      onFiltersChange={tableState.onFiltersChange}
+      clearAllFilters={tableState.clearAllFilters}
       variant="compact"
       ariaLabel={intl.formatMessage(messages.selectRoles)}
       ouiaId="roles-selection-table"
@@ -222,7 +198,7 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
         <DefaultEmptyStateNoResults
           title={intl.formatMessage(messages.noRolesFound)}
           body={intl.formatMessage(messages.noRolesFoundDescription)}
-          onClearFilters={clearAllFilters}
+          onClearFilters={tableState.clearAllFilters}
         />
       }
     />

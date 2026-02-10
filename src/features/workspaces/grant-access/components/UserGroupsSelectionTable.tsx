@@ -1,17 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { TableView } from '../../../../components/table-view/TableView';
+import { useTableState } from '../../../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
-import type {
-  CellRendererMap,
-  ColumnConfigMap,
-  ExpandedCell,
-  ExpansionRendererMap,
-  FilterConfig,
-  FilterState,
-  SortState,
-} from '../../../../components/table-view/types';
+import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../../../components/table-view/types';
 import { useGroupMembersQuery } from '../../../../data/queries/groups';
 import messages from '../../../../Messages';
 
@@ -81,11 +74,17 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
   isLoading = false,
 }) => {
   const intl = useIntl();
-  const [expandedCell, setExpandedCell] = useState<ExpandedCell<CompoundColumn> | null>(null);
-  const [filters, setFilters] = useState<FilterState>({ name: '' });
-  const [sort, setSort] = useState<SortState<SortableColumn>>({ column: 'name', direction: 'asc' });
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+
+  // Table state via useTableState — manages sort, pagination, filters, expansion
+  const tableState = useTableState<typeof columns, GroupRow, SortableColumn, CompoundColumn>({
+    columns,
+    sortableColumns,
+    getRowId: (row: GroupRow) => row.uuid,
+    isRowSelectable: (row: GroupRow) => !(row.platform_default || row.admin_default),
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: 10,
+    initialFilters: { name: '' },
+  });
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
@@ -122,35 +121,32 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
     [intl],
   );
 
-  // Filter and sort groups
+  // Filter and sort groups (local data)
   const { totalCount, paginatedGroups } = useMemo(() => {
-    const searchValue = (filters.name as string) || '';
+    const searchValue = (tableState.filters.name as string) || '';
 
     // Filter groups based on search
-    let filtered = searchValue ? groups.filter((group) => group.name.toLowerCase().includes(searchValue.toLowerCase())) : groups;
+    const filtered = searchValue ? groups.filter((group) => group.name.toLowerCase().includes(searchValue.toLowerCase())) : groups;
 
     // Sort the filtered groups
     const sorted = [...filtered].sort((a, b) => {
-      if (sort.column === 'name') {
-        const aVal = a.name || '';
-        const bVal = b.name || '';
-        return sort.direction === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-      } else if (sort.column === 'members') {
-        const aVal = Number(a.principalCount) || 0;
-        const bVal = Number(b.principalCount) || 0;
-        return sort.direction === 'asc' ? aVal - bVal : bVal - aVal;
+      const dir = tableState.sort?.direction === 'desc' ? -1 : 1;
+      if (tableState.sort?.column === 'name') {
+        return dir * (a.name || '').localeCompare(b.name || '');
+      } else if (tableState.sort?.column === 'members') {
+        return dir * ((Number(a.principalCount) || 0) - (Number(b.principalCount) || 0));
       }
       return 0;
     });
 
     // Paginate
-    const startIndex = (page - 1) * perPage;
-    const paginated = sorted.slice(startIndex, startIndex + perPage);
+    const startIndex = (tableState.page - 1) * tableState.perPage;
+    const paginated = sorted.slice(startIndex, startIndex + tableState.perPage);
 
     return { totalCount: sorted.length, paginatedGroups: paginated };
-  }, [groups, filters.name, sort, page, perPage]);
+  }, [groups, tableState.filters.name, tableState.sort, tableState.page, tableState.perPage]);
 
-  // Selection - convert between Group objects and string IDs
+  // Selection — parent-controlled (string IDs), convert to/from GroupRow objects
   const selectedRows = useMemo(() => groups.filter((g) => selectedGroups.includes(g.uuid)), [groups, selectedGroups]);
 
   const handleSelectRow = useCallback(
@@ -183,24 +179,6 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
   // Compound expansion - only non-default groups can expand
   const isCellExpandable = useCallback((group: GroupRow) => !(group.platform_default || group.admin_default), []);
 
-  const handleToggleExpand = useCallback((rowId: string, column: CompoundColumn) => {
-    setExpandedCell((prev) => (prev?.rowId === rowId && prev?.column === column ? null : { rowId, column }));
-  }, []);
-
-  const handleSortChange = useCallback((column: SortableColumn, direction: 'asc' | 'desc') => {
-    setSort({ column, direction });
-  }, []);
-
-  const handleFiltersChange = useCallback((newFilters: FilterState) => {
-    setFilters(newFilters);
-    setPage(1);
-  }, []);
-
-  const clearAllFilters = useCallback(() => {
-    setFilters({ name: '' });
-    setPage(1);
-  }, []);
-
   return (
     <TableView<typeof columns, GroupRow, SortableColumn, CompoundColumn>
       columns={columns}
@@ -211,27 +189,29 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
       getRowId={(group) => group.uuid}
       cellRenderers={cellRenderers}
       expansionRenderers={expansionRenderers}
-      sort={sort}
-      onSortChange={handleSortChange}
-      page={page}
-      perPage={perPage}
-      onPageChange={setPage}
-      onPerPageChange={(newPerPage) => {
-        setPerPage(newPerPage);
-        setPage(1);
-      }}
+      // Sort — from useTableState
+      sort={tableState.sort}
+      onSortChange={tableState.onSortChange}
+      // Pagination — from useTableState
+      page={tableState.page}
+      perPage={tableState.perPage}
+      onPageChange={tableState.onPageChange}
+      onPerPageChange={tableState.onPerPageChange}
+      // Selection — parent-controlled
       selectable={true}
       selectedRows={selectedRows}
       onSelectRow={handleSelectRow}
       onSelectAll={handleSelectAll}
       isRowSelectable={isRowSelectable}
-      expandedCell={expandedCell}
-      onToggleExpand={handleToggleExpand}
+      // Expansion — from useTableState
+      expandedCell={tableState.expandedCell}
+      onToggleExpand={tableState.onToggleExpand}
       isCellExpandable={isCellExpandable}
+      // Filters — from useTableState
       filterConfig={filterConfig}
-      filters={filters}
-      onFiltersChange={handleFiltersChange}
-      clearAllFilters={clearAllFilters}
+      filters={tableState.filters}
+      onFiltersChange={tableState.onFiltersChange}
+      clearAllFilters={tableState.clearAllFilters}
       variant="compact"
       ariaLabel={intl.formatMessage(messages.selectUserGroups)}
       ouiaId="user-groups-selection-table"
@@ -240,7 +220,7 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
         <DefaultEmptyStateNoResults
           title={intl.formatMessage(messages.noGroupsFound)}
           body={intl.formatMessage(messages.noGroupsFoundDescription)}
-          onClearFilters={clearAllFilters}
+          onClearFilters={tableState.clearAllFilters}
         />
       }
     />
