@@ -12,6 +12,7 @@
 
 import { type Locator, type Page, expect } from '@playwright/test';
 import { setupPage, waitForTableUpdate } from '../../utils';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const USERS_URL = '/iam/access-management/users-and-user-groups/users';
 
@@ -32,7 +33,7 @@ export class UsersPage {
   async goto(): Promise<void> {
     await setupPage(this.page);
     await this.page.goto(USERS_URL);
-    await expect(this.heading).toBeVisible();
+    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -51,8 +52,12 @@ export class UsersPage {
     return this.page.getByRole('searchbox').or(this.page.getByPlaceholder(/filter|search/i));
   }
 
-  get inviteButton(): Locator {
-    return this.page.getByRole('button', { name: /invite users/i });
+  get actionsMenu(): Locator {
+    return this.page.getByRole('button', { name: /actions overflow menu/i });
+  }
+
+  get inviteMenuItem(): Locator {
+    return this.page.getByRole('menuitem', { name: /invite users/i });
   }
 
   get addToGroupButton(): Locator {
@@ -111,23 +116,35 @@ export class UsersPage {
    * Get a user row by username (exact match)
    */
   getUserRow(username: string): Locator {
-    return this.table.getByText(username, { exact: true });
+    return this.table.getByRole('row').filter({ hasText: username });
   }
 
   /**
-   * Click on a user row to open the details drawer
+   * Get the username cell/text in a row (for clicking to open drawer)
+   */
+  getUsernameCell(username: string): Locator {
+    return this.table.getByRole('gridcell', { name: username, exact: true });
+  }
+
+  /**
+   * Click on a user row to open the details drawer.
+   * Waits for drawer content to appear (the "Assigned roles" tab is unique to the drawer).
    */
   async openUserDrawer(username: string): Promise<void> {
-    await this.getUserRow(username).click();
-    await expect(this.drawer).toBeVisible({ timeout: 10000 });
+    const userRow = this.getUserRow(username);
+    await userRow.click();
+    // The drawer is open when the user can see its content — "Assigned roles" tab is unique to the panel
+    await expect(this.page.getByRole('tab', { name: /assigned roles/i })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   /**
-   * Close the user details drawer by clicking the same row
+   * Close the user details drawer by clicking the close button.
+   * Waits for drawer content to disappear.
    */
-  async closeUserDrawer(username: string): Promise<void> {
-    await this.getUserRow(username).click();
-    await expect(this.drawer).not.toBeVisible({ timeout: 5000 });
+  async closeUserDrawer(_username: string): Promise<void> {
+    await this.page.getByRole('button', { name: /close drawer panel/i }).click();
+    // The drawer is closed when its content is no longer visible
+    await expect(this.page.getByRole('tab', { name: /assigned roles/i })).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -135,19 +152,28 @@ export class UsersPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * Get a tab in the drawer
+   * Get the drawer's tablist — scoped by finding the tablist that contains "Assigned roles"
+   * (unique to the drawer, not present in the main page tabs).
    */
-  getDrawerTab(name: string): Locator {
-    return this.drawer.getByRole('tab', { name: new RegExp(name, 'i') });
+  get drawerTablist(): Locator {
+    return this.page.getByRole('tablist').filter({ has: this.page.getByRole('tab', { name: /assigned roles/i }) });
   }
 
   /**
-   * Click a tab in the drawer
+   * Get a tab in the drawer
+   */
+  getDrawerTab(name: string): Locator {
+    return this.drawerTablist.getByRole('tab', { name: new RegExp(name, 'i') });
+  }
+
+  /**
+   * Click a tab in the drawer and wait for its content to load
    */
   async clickDrawerTab(name: string): Promise<void> {
-    await this.getDrawerTab(name).click();
-    // Wait for tab content to load
-    await expect(this.drawer.locator('[role="tabpanel"]').or(this.drawer.locator('.pf-v6-c-tab-content'))).toBeVisible({ timeout: 5000 });
+    const tab = this.getDrawerTab(name);
+    await tab.click();
+    // Wait for the tab to become selected
+    await expect(tab).toHaveAttribute('aria-selected', 'true', { timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -155,11 +181,13 @@ export class UsersPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * Open the invite users modal
+   * Open the invite users modal (via Actions dropdown menu)
    */
   async openInviteModal(): Promise<void> {
-    await this.inviteButton.click();
-    await expect(this.modal).toBeVisible({ timeout: 5000 });
+    await this.actionsMenu.click();
+    await expect(this.inviteMenuItem).toBeVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+    await this.inviteMenuItem.click();
+    await expect(this.modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
     await expect(this.page.getByRole('heading', { name: /invite new users/i })).toBeVisible();
   }
 
@@ -186,7 +214,7 @@ export class UsersPage {
     await expect(submitButton).toBeEnabled();
     await submitButton.click();
     // Wait for modal to close (indicates success)
-    await expect(this.modal).not.toBeVisible({ timeout: 10000 });
+    await expect(this.modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   /**

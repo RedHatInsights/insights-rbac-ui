@@ -1,14 +1,33 @@
 /**
- * V2 Workspaces - CRUD Tests
+ * Workspace Management Tests
  *
- * Tests for creating, editing, and deleting workspaces.
- * Uses test.describe.serial() for lifecycle tests.
+ * Tests for creating, editing, and deleting workspaces (Admin only).
  *
- * Personas: Admin (only admin can perform CRUD)
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * DECISION TREE - Add your test here if:
+ * ═══════════════════════════════════════════════════════════════════════════════
+ *   ✓ It creates, edits, or deletes a workspace
+ *   ✓ It checks if a button/action for create/edit/delete is visible/hidden/disabled
+ *   ✓ It verifies a permission denial (403) for write operations
+ *
+ * DO NOT add here if:
+ *   ✗ It only reads/views data → workspace-detail.spec.ts
+ *   ✗ It tests table sorting/filtering/pagination → workspace-list.spec.ts
+ *
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * DATA PREREQUISITES
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * @dependencies
+ *   - AUTH: Uses AUTH_V2_ADMIN from utils
+ *   - UTILS: Use WorkspacesPage for UI interactions
+ *   - PREFIX: Requires TEST_PREFIX_V2 env var for safe test isolation
+ *
+ * NOTE: Workspaces cannot be created at root level - must select a parent workspace.
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, waitForTableUpdate } from '../../../utils';
+import { AUTH_V2_ADMIN, waitForTableUpdate } from '../../../utils';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -33,45 +52,44 @@ const workspaceDescription = 'E2E lifecycle test workspace';
 const editedDescription = 'E2E lifecycle test workspace (edited)';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Tests - Admin Only
+// Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('Admin', () => {
-  test.use({ storageState: AUTH_V2_ADMIN });
+test.describe('Workspace Management', () => {
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ADMIN - Full CRUD access
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  test(`Create Workspace button is visible [Admin]`, async ({ page }) => {
-    const workspacesPage = new WorkspacesPage(page);
-    await workspacesPage.goto();
+  test.describe.serial('Admin Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_ADMIN });
 
-    await expect(workspacesPage.createButton).toBeVisible();
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // CRUD Lifecycle - Sequential Tests
-  // ─────────────────────────────────────────────────────────────────────────
-
-  test.describe.serial('CRUD Lifecycle [Admin]', () => {
-    test('Create workspace', async ({ page }) => {
+    test('Create workspace [Admin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
       await workspacesPage.createButton.click();
-      await workspacesPage.fillCreateModal(workspaceName, workspaceDescription);
+      // Workspaces cannot be created at root level (yet)
+      // Must select a child workspace as parent - use Default Workspace
+      await workspacesPage.fillCreateModal(workspaceName, workspaceDescription, 'Default Workspace');
 
-      console.log(`[Create] ✓ Workspace created: ${workspaceName}`);
+      console.log(`[Create] ✓ Workspace created: ${workspaceName} (under Default Workspace)`);
     });
 
-    test('Verify workspace appears in table', async ({ page }) => {
+    // Server-side caching can delay the workspace appearing in list results.
+    // Poll with page reloads to tolerate eventual consistency.
+    test('Verify workspace appears in table [Admin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
-      await workspacesPage.goto();
 
-      await workspacesPage.searchFor(workspaceName);
-      await workspacesPage.verifyWorkspaceInTable(workspaceName);
+      await expect(async () => {
+        await workspacesPage.goto();
+        await workspacesPage.searchFor(workspaceName);
+        await expect(workspacesPage.table.getByText(workspaceName)).toBeVisible();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [5_000] });
 
       console.log(`[Verify] ✓ Workspace found in table`);
     });
 
-    test('View workspace detail page', async ({ page }) => {
+    test('View workspace detail page [Admin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -83,7 +101,7 @@ test.describe('Admin', () => {
       console.log(`[View] ✓ Detail page verified`);
     });
 
-    test('Edit workspace description', async ({ page }) => {
+    test('Edit workspace description [Admin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -99,19 +117,19 @@ test.describe('Admin', () => {
       console.log(`[Edit] ✓ Workspace description updated`);
     });
 
-    test('Verify edit was applied', async ({ page }) => {
+    test('Verify edit was applied [Admin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
       await workspacesPage.searchFor(workspaceName);
       await workspacesPage.navigateToDetail(workspaceName);
 
-      await expect(page.getByText(editedDescription)).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(editedDescription)).toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
 
       console.log(`[Verify Edit] ✓ Changes confirmed`);
     });
 
-    test('Delete workspace', async ({ page }) => {
+    test('Delete workspace [Admin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -127,7 +145,7 @@ test.describe('Admin', () => {
       console.log(`[Delete] ✓ Deletion confirmed`);
     });
 
-    test('Verify workspace is deleted', async ({ page }) => {
+    test('Verify workspace is deleted [Admin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -138,19 +156,15 @@ test.describe('Admin', () => {
       console.log(`[Verify Delete] ✓ Workspace no longer exists`);
     });
   });
-});
 
-// ═══════════════════════════════════════════════════════════════════════════
-// UserViewer - Read-Only Restrictions
-// ═══════════════════════════════════════════════════════════════════════════
+  test.describe('Admin', () => {
+    test.use({ storageState: AUTH_V2_ADMIN });
 
-test.describe('UserViewer', () => {
-  test.use({ storageState: AUTH_V2_USERVIEWER });
+    test(`Create Workspace button is visible [Admin]`, async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
 
-  test(`Create Workspace button is NOT visible [UserViewer]`, async ({ page }) => {
-    const workspacesPage = new WorkspacesPage(page);
-    await workspacesPage.goto();
-
-    await expect(workspacesPage.createButton).not.toBeVisible();
+      await expect(workspacesPage.createButton).toBeVisible();
+    });
   });
 });

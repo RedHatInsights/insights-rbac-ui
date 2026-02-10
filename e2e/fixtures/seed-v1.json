@@ -6,6 +6,9 @@
     "userviewer": { "username": "rbac-e2e-userviewer-v1" },
     "readonly": { "username": "rbac-e2e-user-v1" }
   },
+  "seededUsers": [
+    { "username": "rbac-e2e-seed-user" }
+  ],
   "roles": [
     {
       "name": "Seeded Role",
@@ -22,6 +25,12 @@
       "name": "Seeded Group",
       "description": "Controlled test group for search and view tests",
       "roles_list": ["Seeded Role"]
+    }
+  ],
+  "workspaces": [
+    {
+      "name": "Seeded Workspace",
+      "description": "Controlled test workspace for V1 tests"
     }
   ]
 }

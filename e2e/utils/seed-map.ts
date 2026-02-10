@@ -86,8 +86,13 @@ export interface SeedWorkspaceInput {
   parent_id?: string;
 }
 
+export interface SeededUserInput {
+  username: string;
+}
+
 export interface SeedFixture {
   personas?: Partial<Record<PersonaType, SeedPersonaInput>>;
+  seededUsers?: SeededUserInput[];
   roles?: SeedRoleInput[];
   groups?: SeedGroupInput[];
   workspaces?: SeedWorkspaceInput[];
@@ -95,6 +100,7 @@ export interface SeedFixture {
 
 const EMPTY_SEED_FIXTURE: SeedFixture = {
   personas: {},
+  seededUsers: [],
   roles: [],
   groups: [],
   workspaces: [],
@@ -293,44 +299,29 @@ export function getSeededGroupData(): SeedGroupInput | undefined {
  * Get the seeded workspace's metadata (description, etc.)
  * Returns undefined if no seeded workspace exists.
  */
-export function getSeededWorkspaceData(): SeedWorkspaceInput | undefined {
-  const fixture = getSeedFixture();
+export function getSeededWorkspaceData(version?: ApiVersion): SeedWorkspaceInput | undefined {
+  const fixture = getSeedFixture(version);
   return fixture.workspaces?.[0];
 }
 
 // ============================================================================
-// Persona Helpers
+// Seeded Users Helpers
 // ============================================================================
 
 /**
- * Get the username for a specific persona from the seed fixture.
- * Use this instead of process.env.RBAC_USERNAME for test assertions.
+ * Get the list of seeded user usernames from the seed fixture.
+ * Seeded users are pre-existing stage accounts used as test data.
+ * They are NOT personas (which are auth-linked accounts for running tests).
  */
-export function getPersonaUsername(persona: PersonaType, version?: 'v1' | 'v2'): string | undefined {
+export function getSeededUsernames(version?: 'v1' | 'v2'): string[] {
   const fixture = getSeedFixture(version);
-  return fixture.personas?.[persona]?.username;
+  return (fixture.seededUsers ?? []).map((u) => u.username);
 }
 
 /**
- * Get the admin persona's username.
- * Convenience wrapper for getPersonaUsername('admin').
+ * Get a single seeded user username by index (default: first).
+ * Returns undefined if no seeded users are defined.
  */
-export function getAdminUsername(version?: 'v1' | 'v2'): string | undefined {
-  return getPersonaUsername('admin', version);
-}
-
-/**
- * Get the readonly persona's username.
- * Convenience wrapper for getPersonaUsername('readonly').
- */
-export function getReadonlyUsername(version?: 'v1' | 'v2'): string | undefined {
-  return getPersonaUsername('readonly', version);
-}
-
-/**
- * Get the userviewer persona's username.
- * Convenience wrapper for getPersonaUsername('userviewer').
- */
-export function getUserviewerUsername(version?: 'v1' | 'v2'): string | undefined {
-  return getPersonaUsername('userviewer', version);
+export function getSeededUsername(index = 0, version?: 'v1' | 'v2'): string | undefined {
+  return getSeededUsernames(version)[index];
 }
