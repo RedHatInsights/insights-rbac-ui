@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import type { ResourceDefinition } from '../types';
+// eslint-disable-next-line rbac-local/require-use-table-state -- static local data, no server pagination/sort
 import { TableView } from '../../../components/table-view/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../components/table-view/components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../components/table-view/types';

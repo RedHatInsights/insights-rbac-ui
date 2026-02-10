@@ -1,18 +1,18 @@
 import { useCallback, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 
-import { useDataViewFilters, useDataViewPagination, useDataViewSelection, useDataViewSort } from '@patternfly/react-data-view';
-
-import { defaultSettings } from '../../helpers/pagination';
+import { useTableState } from '../../components/table-view/hooks/useTableState';
+import type { UseTableStateReturn } from '../../components/table-view/types';
 import { type ListRolesParams, useRolesQuery } from '../../data/queries/roles';
 import type { RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
+import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 
 // Re-export Role type for backwards compatibility
 export type Role = RoleOutDynamic;
 
-export interface RoleFilters {
-  display_name: string;
-}
+// Column definition
+const columns = ['display_name', 'description', 'accessCount', 'modified'] as const;
+type SortableColumn = 'display_name' | 'modified';
+const sortableColumns = ['display_name', 'modified'] as const;
 
 export interface UseRolesOptions {
   /** Whether to enable admin functionality */
@@ -29,13 +29,8 @@ export interface UseRolesReturn {
   orgAdmin: boolean;
   userAccessAdministrator: boolean;
 
-  // DataView hooks
-  filters: ReturnType<typeof useDataViewFilters<RoleFilters>>['filters'];
-  sortBy: string;
-  direction: 'asc' | 'desc';
-  onSort: ReturnType<typeof useDataViewSort>['onSort'];
-  pagination: ReturnType<typeof useDataViewPagination>;
-  selection: ReturnType<typeof useDataViewSelection>;
+  // Table state (from useTableState)
+  tableState: UseTableStateReturn<typeof columns, Role, SortableColumn, never>;
 
   // Focus state
   focusedRole: Role | null;
@@ -44,56 +39,40 @@ export interface UseRolesReturn {
   // Actions
   refetch: () => void;
   handleRowClick: (role: Role) => void;
-
-  // Clear all filters
-  clearAllFilters: () => void;
-  onSetFilters: ReturnType<typeof useDataViewFilters<RoleFilters>>['onSetFilters'];
 }
 
 /**
- * Custom hook for managing Roles business logic
- * Migrated from React Query to TanStack Query
+ * Custom hook for managing Roles business logic.
+ * Uses useTableState for all table state management (sort, pagination, filters, selection).
  */
 export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
   const { enableAdminFeatures = true } = options;
 
-  const [searchParams, setSearchParams] = useSearchParams();
-
   // Focus state for drawer
   const [focusedRole, setFocusedRole] = useState<Role | null>(null);
 
-  // Data view hooks - use search params for persistence
-  const { sortBy, direction, onSort } = useDataViewSort({
-    searchParams,
-    setSearchParams,
-    initialSort: {
-      sortBy: 'display_name',
-      direction: 'asc',
-    },
-  });
-
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleFilters>({
+  // Table state via useTableState — single source of truth for sort, pagination, filters, selection
+  const tableState = useTableState<typeof columns, Role, SortableColumn>({
+    columns,
+    sortableColumns,
+    getRowId: (row: Role) => row.uuid!,
+    initialSort: { column: 'display_name', direction: 'asc' },
+    initialPerPage: 20,
+    perPageOptions: PER_PAGE_OPTIONS.map((opt) => opt.value),
     initialFilters: { display_name: '' },
-    searchParams,
-    setSearchParams,
+    syncWithUrl: true,
   });
 
-  const pagination = useDataViewPagination({
-    perPage: defaultSettings.limit,
-    searchParams,
-    setSearchParams,
-  });
-
-  const selection = useDataViewSelection({
-    matchOption: (a: { uuid: string }, b: { uuid: string }) => a.uuid === b.uuid,
-  });
-
-  // Build query params from data view state
+  // Build query params from table state
   const queryParams: ListRolesParams = {
-    limit: pagination.perPage,
-    offset: (pagination.page - 1) * pagination.perPage,
-    orderBy: (sortBy || 'display_name') as ListRolesParams['orderBy'],
-    displayName: filters.display_name || undefined,
+    limit: tableState.perPage,
+    offset: (tableState.page - 1) * tableState.perPage,
+    orderBy: (tableState.sort
+      ? tableState.sort.direction === 'desc'
+        ? `-${tableState.sort.column}`
+        : tableState.sort.column
+      : 'display_name') as ListRolesParams['orderBy'],
+    displayName: (tableState.filters.display_name as string) || undefined,
     nameMatch: 'partial',
     scope: 'org_id',
     addFields: ['groups_in_count', 'groups_in', 'access'],
@@ -128,13 +107,8 @@ export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
     orgAdmin: enableAdminFeatures && orgAdmin,
     userAccessAdministrator: enableAdminFeatures && userAccessAdministrator,
 
-    // DataView hooks
-    filters,
-    sortBy: sortBy || 'display_name',
-    direction: direction || 'asc',
-    onSort,
-    pagination,
-    selection,
+    // Table state
+    tableState,
 
     // Focus state
     focusedRole,
@@ -143,9 +117,5 @@ export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
     // Actions
     refetch,
     handleRowClick,
-
-    // Clear all filters
-    clearAllFilters,
-    onSetFilters,
   };
 };

@@ -33,6 +33,7 @@ export interface GroupWithInheritance extends Group {
     workspaceName: string;
   };
 }
+// eslint-disable-next-line rbac-local/require-use-table-state -- display-only drawer, fetches all data with high limit
 import { TableView } from '../../../../components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../components/table-view/types';
 

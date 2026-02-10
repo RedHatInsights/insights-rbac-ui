@@ -1,5 +1,6 @@
 export { GroupDetailsDrawer } from './GroupDetailsDrawer';
-export { RoleAssignmentsTable } from './RoleAssignmentsTable';
+export { BaseGroupAssignmentsTable } from './BaseGroupAssignmentsTable';
+export { InheritedGroupAssignmentsTable } from './InheritedGroupAssignmentsTable';
 
 // Re-export types that might be needed by consumers
 export type { Group } from '../../../../data/queries/groups';

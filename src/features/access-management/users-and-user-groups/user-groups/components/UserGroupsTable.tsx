@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { ResponsiveAction, ResponsiveActions } from '@patternfly/react-component-groups';
 
+// eslint-disable-next-line rbac-local/require-use-table-state -- tableState received as prop from parent container
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, type UseTableStateReturn } from '../../../../../components/table-view';
 import { ActionDropdown } from '../../../../../components/ActionDropdown';
 import type { Group } from '../../../../../data/queries/groups';

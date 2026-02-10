@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useCallback, useContext, useState } from 'react';
+import React, { Fragment, Suspense, useContext, useState } from 'react';
 import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -17,8 +17,9 @@ import PermissionsContext from '../../utilities/permissionsContext';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import { TableView } from '../../components/table-view/TableView';
+import { useTableState } from '../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../components/table-view/components/TableViewEmptyState';
-import type { ColumnConfigMap, ExpandedCell, ExpansionRendererMap, FilterConfig } from '../../components/table-view/types';
+import type { ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../components/table-view/types';
 import { PageLayout } from '../../components/layout/PageLayout';
 import { getDateFormat } from '../../helpers/stringUtilities';
 import { useAdminGroupQuery } from '../../data/queries/groups';
@@ -47,16 +48,20 @@ const User: React.FC = () => {
   const navigate = useAppNavigate();
   const navigationType = useNavigationType();
   const { username } = useParams<{ username: string }>();
-  const [filter, setFilter] = useState('');
-  const [expandedCell, setExpandedCell] = useState<ExpandedCell<CompoundColumnId> | null>(null);
   const [selectedAddRoles, setSelectedAddRoles] = useState<string[]>([]);
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
   const [expandedRoleId, setExpandedRoleId] = useState<string | null>(null);
   const toAppLink = useAppLink();
 
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
+
+  // Table state via useTableState
+  const tableState = useTableState<typeof columns, RoleWithGroupsIn, never, CompoundColumnId>({
+    columns,
+    getRowId: (row: RoleWithGroupsIn) => row.uuid!,
+    initialPerPage: 20,
+    initialFilters: { name: '' },
+  });
 
   // Fetch user data via React Query
   const { data: usersData, isLoading: isLoadingUsers } = useUsersQuery({ username, limit: 1 }, { enabled: !!username });
@@ -66,9 +71,9 @@ const User: React.FC = () => {
   // Fetch roles for this user via React Query
   const { data: rolesData, isLoading: isLoadingRoles } = useRolesQuery(
     {
-      limit: perPage,
-      offset: (page - 1) * perPage,
-      displayName: filter || undefined,
+      limit: tableState.perPage,
+      offset: (tableState.page - 1) * tableState.perPage,
+      displayName: (tableState.filters.name as string) || undefined,
       username,
       addFields: ['groups_in'],
     },
@@ -122,15 +127,16 @@ const User: React.FC = () => {
     },
   };
 
+  // Custom expansion handler — wraps useTableState's onToggleExpand with business logic
+  // to trigger a separate permissions fetch when the permissions column is expanded
   const handleToggleExpand = (rowId: string, column: CompoundColumnId) => {
-    const isCurrentlyExpanded = expandedCell?.rowId === rowId && expandedCell?.column === column;
+    const isCurrentlyExpanded = tableState.expandedCell?.rowId === rowId && tableState.expandedCell?.column === column;
+
+    tableState.onToggleExpand(rowId, column);
 
     if (isCurrentlyExpanded) {
-      setExpandedCell(null);
       setExpandedRoleId(null);
     } else {
-      setExpandedCell({ rowId, column });
-
       // Set the role ID to fetch permissions when expanding the permissions column
       if (column === 'permissions') {
         setExpandedRoleId(rowId);
@@ -140,26 +146,10 @@ const User: React.FC = () => {
     }
   };
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handlePerPageChange = (newPerPage: number) => {
-    setPerPage(newPerPage);
-    setPage(1);
-  };
-
   const breadcrumbsList = [
     { title: intl.formatMessage(messages.users), to: toAppLink(pathnames.users.link()) as string },
     { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
   ];
-
-  // Filter change handler - React Query will automatically refetch
-  const handleFilterChange = useCallback((filters: Record<string, string | string[]>) => {
-    const nameFilter = typeof filters.name === 'string' ? filters.name : '';
-    setFilter(nameFilter);
-    setPage(1);
-  }, []);
 
   const filterConfig: FilterConfig[] = [
     {
@@ -216,16 +206,19 @@ const User: React.FC = () => {
               getRowId={(row) => row.uuid!}
               cellRenderers={cellRenderers}
               expansionRenderers={expansionRenderers}
-              expandedCell={expandedCell}
+              // Expansion — custom handler wrapping useTableState
+              expandedCell={tableState.expandedCell}
               onToggleExpand={handleToggleExpand}
-              page={page}
-              perPage={perPage}
-              onPageChange={handlePageChange}
-              onPerPageChange={handlePerPageChange}
+              // Pagination — from useTableState
+              page={tableState.page}
+              perPage={tableState.perPage}
+              onPageChange={tableState.onPageChange}
+              onPerPageChange={tableState.onPerPageChange}
+              // Filters — from useTableState
               filterConfig={filterConfig}
-              filters={{ name: filter }}
-              onFiltersChange={handleFilterChange}
-              clearAllFilters={() => handleFilterChange({ name: '' })}
+              filters={tableState.filters}
+              onFiltersChange={tableState.onFiltersChange}
+              clearAllFilters={tableState.clearAllFilters}
               toolbarActions={toolbarActions}
               ariaLabel={intl.formatMessage(messages.roles)}
               ouiaId="user-details-table"

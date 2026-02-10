@@ -217,7 +217,7 @@ The OrganizationManagement component provides the organization-wide access page.
 ## Features
 - Displays PageHeader with title and subtitle
 - Shows organization details (name, account number, organization ID) from user identity
-- Displays RoleAssignmentsTable for organization-level role bindings
+- Displays BaseGroupAssignmentsTable for organization-level role bindings
 - Fetches organization data via usePlatformAuth hook
 - Supports pagination, sorting, and filtering of role assignments
 - Conditionally renders organization information when available

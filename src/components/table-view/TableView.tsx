@@ -32,6 +32,16 @@ import { DefaultEmptyStateError, DefaultEmptyStateNoData, DefaultEmptyStateNoRes
 /**
  * TableView - Unified table component for RBAC UI
  *
+ * **IMPORTANT**: When using TableView with server-side data (pagination, sorting, filtering),
+ * always pair it with the `useTableState` hook from `./hooks/useTableState`.
+ * Do NOT hand-roll pagination, sort, filter, or selection state with `useState` or
+ * `@patternfly/react-data-view` hooks — this leads to duplicated logic and subtle bugs
+ * (e.g., broken multi-select, ignored sort direction).
+ *
+ * Exceptions: display-only tables rendering small, fully-local datasets (e.g., from props)
+ * where no server-side state management is needed. Suppress the ESLint warning with:
+ * `// eslint-disable-next-line rbac-local/require-use-table-state -- <reason>`
+ *
  * @template TColumns - Const tuple of column IDs
  * @template TRow - Row data type
  * @template TSortable - Union of sortable column IDs

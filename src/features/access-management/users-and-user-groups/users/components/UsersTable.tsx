@@ -3,6 +3,7 @@ import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Split, SplitItem } from '@patternfly/react-core';
 
+// eslint-disable-next-line rbac-local/require-use-table-state -- tableState received as prop from parent container
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, type UseTableStateReturn } from '../../../../../components/table-view';
 import { ActionDropdown } from '../../../../../components/ActionDropdown';
 import type { User } from '../../../../../data/queries/users';

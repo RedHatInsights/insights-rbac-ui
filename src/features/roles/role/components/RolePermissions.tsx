@@ -8,6 +8,7 @@ import { DateFormat } from '@redhat-cloud-services/frontend-components/DateForma
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { getDateFormat } from '../../../../helpers/stringUtilities';
 import { TableView } from '../../../../components/table-view/TableView';
+import { useTableState } from '../../../../components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../components/table-view/components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../components/table-view/types';
 import messages from '../../../../Messages';
@@ -86,9 +87,7 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
 }) => {
   const intl = useIntl();
 
-  // Local state for UI
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
+  // Local state for UI (modal only)
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<() => void>(() => {});
   const [deleteInfo, setDeleteInfo] = useState<{ title: string; text: string | React.ReactNode; confirmButtonLabel: string }>({
@@ -96,21 +95,28 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
     text: '',
     confirmButtonLabel: '',
   });
-  const [selectedRows, setSelectedRows] = useState<FilteredPermission[]>([]);
 
-  // Calculate paginated data
-  const offset = (page - 1) * perPage;
+  // Table state via useTableState — manages pagination and selection
+  const tableState = useTableState<typeof columnsWithResourceDefs, FilteredPermission>({
+    columns: columnsWithResourceDefs,
+    getRowId: (row: FilteredPermission) => row.uuid,
+    initialPerPage: 20,
+    initialFilters: {},
+  });
+
+  // Calculate paginated data using tableState's pagination
   const paginatedPermissions = useMemo(() => {
-    return filteredPermissions.slice(offset, offset + perPage);
-  }, [filteredPermissions, offset, perPage]);
+    const offset = (tableState.page - 1) * tableState.perPage;
+    return filteredPermissions.slice(offset, offset + tableState.perPage);
+  }, [filteredPermissions, tableState.page, tableState.perPage]);
 
-  // Handle permission removal
+  // Handle permission removal — clears selection after
   const removePermissions = useCallback(
     async (permissions: Array<{ uuid: string }>) => {
       await onRemovePermissions(permissions);
-      setSelectedRows([]);
+      tableState.clearSelection();
     },
-    [onRemovePermissions],
+    [onRemovePermissions, tableState.clearSelection],
   );
 
   const initiateRemove = useCallback(
@@ -199,7 +205,7 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
     [],
   );
 
-  // Filter configuration
+  // Filter configuration (controlled by parent)
   const filterConfig: FilterConfig[] = useMemo(
     () => [
       {
@@ -224,7 +230,7 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
     [applications, resources, operations, intl],
   );
 
-  // Handle filter change
+  // Handle filter change — delegate to parent
   const handleFilterChange = useCallback(
     (newFilters: Record<string, string | string[]>) => {
       const typedFilters = {
@@ -237,34 +243,11 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
     [onFiltersChange],
   );
 
-  // Clear all filters handler
+  // Clear all filters handler — delegate to parent
   const handleClearAllFilters = useCallback(() => {
     const emptyFilters = { applications: [], resources: [], operations: [] };
     onFiltersChange?.(emptyFilters);
   }, [onFiltersChange]);
-
-  // Selection handlers
-  const handleSelectRow = useCallback((row: FilteredPermission, isSelected: boolean) => {
-    setSelectedRows((prev) => {
-      if (isSelected) {
-        return [...prev, row];
-      }
-      return prev.filter((r) => r.uuid !== row.uuid);
-    });
-  }, []);
-
-  const handleSelectAll = useCallback((isSelected: boolean, rows: FilteredPermission[]) => {
-    if (isSelected) {
-      setSelectedRows((prev) => {
-        const existingIds = new Set(prev.map((r) => r.uuid));
-        const newRows = rows.filter((r) => !existingIds.has(r.uuid));
-        return [...prev, ...newRows];
-      });
-    } else {
-      const rowIds = new Set(rows.map((r) => r.uuid));
-      setSelectedRows((prev) => prev.filter((r) => !rowIds.has(r.uuid)));
-    }
-  }, []);
 
   // Actions
   const toolbarActions = useMemo(() => {
@@ -289,14 +272,14 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
   const bulkActions = useMemo(() => {
     return (
       <ResponsiveAction
-        isDisabled={selectedRows.length === 0}
+        isDisabled={tableState.selectedRows.length === 0}
         onClick={() => {
-          const multiplePermissionsSelected = selectedRows.length > 1;
+          const multiplePermissionsSelected = tableState.selectedRows.length > 1;
           initiateRemove(
-            selectedRows,
+            tableState.selectedRows,
             intl.formatMessage(multiplePermissionsSelected ? messages.removePermissionsQuestion : messages.removePermissionQuestion),
             removeModalText(
-              multiplePermissionsSelected ? selectedRows.length : selectedRows[0]?.uuid,
+              multiplePermissionsSelected ? tableState.selectedRows.length : tableState.selectedRows[0]?.uuid,
               roleName,
               multiplePermissionsSelected || false,
             ),
@@ -307,7 +290,7 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
         {intl.formatMessage(messages.remove)}
       </ResponsiveAction>
     );
-  }, [selectedRows, initiateRemove, intl, roleName]);
+  }, [tableState.selectedRows, initiateRemove, intl, roleName]);
 
   // Empty state descriptions
   const emptyPropsDescription = cantAddPermissions ? '' : 'To configure user access to applications, add at least one permission to this role.';
@@ -350,17 +333,17 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
           totalCount={filteredPermissions.length}
           getRowId={(row) => row.uuid}
           cellRenderers={cellRenderersWithResourceDefs}
-          page={page}
-          perPage={perPage}
-          onPageChange={(newPage) => setPage(newPage)}
-          onPerPageChange={(newPerPage) => {
-            setPerPage(newPerPage);
-            setPage(1);
-          }}
+          // Pagination — from useTableState
+          page={tableState.page}
+          perPage={tableState.perPage}
+          onPageChange={tableState.onPageChange}
+          onPerPageChange={tableState.onPerPageChange}
+          // Selection — from useTableState
           selectable={enableSelection}
-          selectedRows={selectedRows}
-          onSelectRow={handleSelectRow}
-          onSelectAll={handleSelectAll}
+          selectedRows={tableState.selectedRows}
+          onSelectRow={tableState.onSelectRow}
+          onSelectAll={tableState.onSelectAll}
+          // Filters — controlled by parent
           filterConfig={filterConfig}
           filters={currentFilters}
           onFiltersChange={handleFilterChange}
@@ -384,17 +367,17 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
           totalCount={filteredPermissions.length}
           getRowId={(row) => row.uuid}
           cellRenderers={cellRenderersWithoutResourceDefs}
-          page={page}
-          perPage={perPage}
-          onPageChange={(newPage) => setPage(newPage)}
-          onPerPageChange={(newPerPage) => {
-            setPerPage(newPerPage);
-            setPage(1);
-          }}
+          // Pagination — from useTableState
+          page={tableState.page}
+          perPage={tableState.perPage}
+          onPageChange={tableState.onPageChange}
+          onPerPageChange={tableState.onPerPageChange}
+          // Selection — from useTableState
           selectable={enableSelection}
-          selectedRows={selectedRows}
-          onSelectRow={handleSelectRow}
-          onSelectAll={handleSelectAll}
+          selectedRows={tableState.selectedRows}
+          onSelectRow={tableState.onSelectRow}
+          onSelectAll={tableState.onSelectAll}
+          // Filters — controlled by parent
           filterConfig={filterConfig}
           filters={currentFilters}
           onFiltersChange={handleFilterChange}
