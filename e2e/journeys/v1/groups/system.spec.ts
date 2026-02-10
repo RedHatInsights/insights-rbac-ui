@@ -16,6 +16,7 @@
 import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN } from '../../../utils';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Default Groups Configuration
@@ -119,7 +120,7 @@ test.describe('Admin - Default Group Protection', () => {
 
     // Navigate to detail page
     await groupsPage.navigateToDetail(DEFAULT_ACCESS_GROUP);
-    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click Members tab
     await groupsPage.clickTab('Members');
@@ -127,7 +128,7 @@ test.describe('Admin - Default Group Protection', () => {
     // Should show the special message about all users being members
     // (NOT the admin-specific message)
     await expect(page.getByText(/all users in this organization are members of this group/i)).toBeVisible({
-      timeout: 10000,
+      timeout: E2E_TIMEOUTS.TABLE_DATA,
     });
 
     // Should NOT show a data table (no individual member rows)
@@ -222,14 +223,14 @@ test.describe('Admin - Default Group Protection', () => {
 
     // Navigate to detail page
     await groupsPage.navigateToDetail(DEFAULT_ADMIN_ACCESS_GROUP);
-    await expect(groupsPage.getDetailHeading(DEFAULT_ADMIN_ACCESS_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(DEFAULT_ADMIN_ACCESS_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click Members tab
     await groupsPage.clickTab('Members');
 
     // Should show the special message about all org admins being members
     await expect(page.getByText(/all organization administrators in this organization are members of this group/i)).toBeVisible({
-      timeout: 10000,
+      timeout: E2E_TIMEOUTS.TABLE_DATA,
     });
 
     // Should NOT show a data table (no individual member rows)
@@ -260,7 +261,7 @@ test.describe('Admin - Default Group Protection', () => {
 
     // Navigate to detail page
     await groupsPage.navigateToDetail(DEFAULT_ACCESS_GROUP);
-    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click Service Accounts tab
     await groupsPage.clickTab('Service accounts');
@@ -268,7 +269,7 @@ test.describe('Admin - Default Group Protection', () => {
     // Should show the security message about service accounts not being included
     await expect(
       page.getByText(/in adherence to security guidelines, service accounts are not automatically included in the default access group/i),
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     console.log('[Default Group] ✓ Default access shows security message on Service Accounts tab');
   });
@@ -290,7 +291,7 @@ test.describe('Admin - Default Group Protection', () => {
 
     // Navigate to detail page
     await groupsPage.navigateToDetail(DEFAULT_ADMIN_ACCESS_GROUP);
-    await expect(groupsPage.getDetailHeading(DEFAULT_ADMIN_ACCESS_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(DEFAULT_ADMIN_ACCESS_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click Service Accounts tab
     await groupsPage.clickTab('Service accounts');
@@ -298,7 +299,7 @@ test.describe('Admin - Default Group Protection', () => {
     // Should show the security message about service accounts not being included
     await expect(
       page.getByText(/in adherence to security guidelines, service accounts are not automatically included in the default admin access group/i),
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     console.log('[Default Group] ✓ Default admin access shows security message on Service Accounts tab');
   });

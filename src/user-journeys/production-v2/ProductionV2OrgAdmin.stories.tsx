@@ -536,7 +536,7 @@ Tests inviting new users to the organization from the V2 interface.
       () => {
         expect(inviteUsersSpyV2).toHaveBeenCalled();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
     );
 
     // Verify the API call details

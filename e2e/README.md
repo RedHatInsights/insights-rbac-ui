@@ -164,21 +164,20 @@ The E2E suite supports 3 personas per version:
 2. **UserViewer**: Regular user with a role granting `rbac:*:read`
 3. **ReadOnlyUser**: Regular user with no RBAC permissions
 
-### Persona Usernames
+### Seeded Users
 
-Usernames for filtering/verification are configured in seed fixtures, **not** environment variables:
+Pre-existing stage accounts used as test data (for search/filter/membership tests) are configured in seed fixtures under `seededUsers`, separate from personas:
 
 ```json
-// e2e/fixtures/seed-v1.json
+// e2e/fixtures/seed-v2.json
 {
-  "personas": {
-    "admin": { "username": "rbac-e2e-admin-v1" },
-    "readonly": { "username": "rbac-e2e-user-v1" }
-  }
+  "seededUsers": [
+    { "username": "rbac-e2e-seed-user" }
+  ]
 }
 ```
 
-Tests use `getAdminUsername('v1')` from `seed-map.ts` to access these values.
+Tests use `getSeededUsername()` from `seed-map.ts` to access these values. Seeded users are **not** personas — personas are auth-linked accounts used to run tests, while seeded users are data targets that tests interact with.
 
 ---
 

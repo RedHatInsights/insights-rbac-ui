@@ -13,6 +13,7 @@
 import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN } from '../../../utils';
 import { RolesPage } from '../../../pages/v1/RolesPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // System Roles Configuration
@@ -126,7 +127,7 @@ test.describe('Admin - System Role Protection', () => {
 
         // Navigate to detail page
         await rolesPage.navigateToDetail(systemRoleName);
-        await expect(rolesPage.getDetailHeading(systemRoleName)).toBeVisible({ timeout: 15000 });
+        await expect(rolesPage.getDetailHeading(systemRoleName)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
         // Check if Actions button exists
         const actionsButton = rolesPage.detailActionsButton;

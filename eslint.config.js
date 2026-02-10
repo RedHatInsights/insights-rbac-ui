@@ -2,6 +2,8 @@
 const storybook = require('eslint-plugin-storybook');
 
 /* eslint-disable @typescript-eslint/no-require-imports */
+const path = require('node:path');
+const { includeIgnoreFile } = require('@eslint/compat');
 const { defineConfig } = require('eslint/config');
 const fecPlugin = require('@redhat-cloud-services/eslint-config-redhat-cloud-services');
 const tsParser = require('@typescript-eslint/parser');
@@ -10,15 +12,23 @@ const testingLibrary = require('eslint-plugin-testing-library');
 
 module.exports = defineConfig(
   fecPlugin,
+  // Respect .gitignore patterns (e.g. dist, test-results, playwright-report, etc.)
+  includeIgnoreFile(path.resolve(__dirname, '.gitignore')),
+  // Additional ignores not covered by .gitignore
+  {
+    ignores: ['e2e/_TEMPLATE.spec.ts'],
+  },
   {
     languageOptions: {
       globals: {
         insights: 'readonly',
       },
     },
-    ignores: ['node_modules/*', 'dist/*', 'src/test/**'],
     rules: {
       requireConfigFile: 'off',
+      // Disable prettier/prettier from fecPlugin - it runs the entire Prettier engine
+      // per file inside ESLint, taking ~73% of total lint time. Run Prettier separately instead.
+      'prettier/prettier': 'off',
       'sort-imports': [
         'error',
         {
@@ -148,7 +158,8 @@ module.exports = defineConfig(
   },
   {
     // Story files need TypeScript parser but don't need the strict navigation rules
-    files: ['src/**/*.stories.tsx', 'src/user-journeys/**/*.tsx', 'src/user-journeys/**/*.ts'],
+    files: ['src/**/*.stories.tsx'],
+    ignores: ['src/user-journeys/**'],
     plugins: {
       '@typescript-eslint': tseslint,
     },
@@ -163,8 +174,38 @@ module.exports = defineConfig(
     },
   },
   {
-    // Config, E2E, CLI, and Storybook TypeScript files
-    files: ['config/**/*.ts', 'e2e/**/*.ts', 'src/cli/**/*.ts', 'src/cli/**/*.tsx', '.storybook/**/*.ts', '.storybook/**/*.tsx'],
+    // User journey test files - ban magic numbers in timeouts
+    files: ['src/user-journeys/**/*.tsx', 'src/user-journeys/**/*.ts'],
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    languageOptions: {
+      parser: tsParser,
+    },
+    rules: {
+      'react/prop-types': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 1,
+      // Ban magic numbers in timeouts - use TEST_TIMEOUTS constants instead
+      'no-restricted-syntax': [
+        'error',
+        {
+          // Catches: { timeout: 5000 }
+          selector: 'Property[key.name="timeout"][value.type="Literal"][value.raw=/^\\d+$/]',
+          message: 'Magic numbers in timeout are not allowed. Use TEST_TIMEOUTS constants from src/user-journeys/_shared/helpers/testUtils.ts instead.',
+        },
+        {
+          // Catches: waitForTimeout(5000)
+          selector: 'CallExpression[callee.property.name="waitForTimeout"] > Literal[raw=/^\\d+$/]',
+          message: 'Magic numbers in waitForTimeout are not allowed. Use TEST_TIMEOUTS constants from src/user-journeys/_shared/helpers/testUtils.ts instead.',
+        },
+      ],
+    },
+  },
+  {
+    // Config, CLI, and Storybook TypeScript files
+    files: ['config/**/*.ts', 'src/cli/**/*.ts', 'src/cli/**/*.tsx', '.storybook/**/*.ts', '.storybook/**/*.tsx'],
     plugins: {
       '@typescript-eslint': tseslint,
     },
@@ -175,6 +216,35 @@ module.exports = defineConfig(
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 1,
+    },
+  },
+  {
+    // E2E test files - ban magic numbers in timeouts
+    files: ['e2e/**/*.ts'],
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    languageOptions: {
+      parser: tsParser,
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 1,
+      // Ban magic numbers in timeouts - use E2E_TIMEOUTS constants instead
+      'no-restricted-syntax': [
+        'error',
+        {
+          // Catches: { timeout: 5000 }
+          selector: 'Property[key.name="timeout"][value.type="Literal"][value.raw=/^\\d+$/]',
+          message: 'Magic numbers in timeout are not allowed. Use E2E_TIMEOUTS constants from e2e/utils/timeouts.ts instead.',
+        },
+        {
+          // Catches: waitForTimeout(5000)
+          selector: 'CallExpression[callee.property.name="waitForTimeout"] > Literal[raw=/^\\d+$/]',
+          message: 'Magic numbers in waitForTimeout are not allowed. Use E2E_TIMEOUTS constants from e2e/utils/timeouts.ts instead.',
+        },
+      ],
     },
   },
   {

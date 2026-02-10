@@ -13,6 +13,7 @@
  */
 
 import { AUTH_V1_ADMIN, expect, setupPage, test } from './utils';
+import { E2E_TIMEOUTS } from './utils/timeouts';
 
 test.use({ storageState: AUTH_V1_ADMIN });
 
@@ -23,26 +24,24 @@ test.describe('Smoke Test - V1 Pages Load', () => {
 
   test('My User Access page loads', async ({ page }) => {
     await page.goto('/iam/my-user-access');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /my user access/i })).toBeVisible({
+      timeout: E2E_TIMEOUTS.DETAIL_CONTENT,
+    });
   });
 
   test('Users page loads', async ({ page }) => {
     await page.goto('/iam/user-access/users');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   });
 
   test('Roles page loads', async ({ page }) => {
     await page.goto('/iam/user-access/roles');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   });
 
   test('Groups page loads', async ({ page }) => {
     await page.goto('/iam/user-access/groups');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   });
 });
 
@@ -53,25 +52,21 @@ test.describe('Smoke Test - V2 Pages Load', () => {
 
   test('Users page loads', async ({ page }) => {
     await page.goto('/iam/access-management/users-and-user-groups/users');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   });
 
   test('User Groups page loads', async ({ page }) => {
     await page.goto('/iam/access-management/users-and-user-groups/user-groups');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   });
 
   test('Roles page loads', async ({ page }) => {
     await page.goto('/iam/access-management/roles');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   });
 
   test('Workspaces page loads', async ({ page }) => {
     await page.goto('/iam/access-management/workspaces');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('body')).toBeVisible();
+    await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   });
 });

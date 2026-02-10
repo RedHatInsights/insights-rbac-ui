@@ -65,9 +65,6 @@ export const AUTH_V2_USER = AUTH_V2_READONLY;
 export const SEED_MAP_V1_PATH = path.join(E2E_ROOT, 'seed-map-v1.json');
 export const SEED_MAP_V2_PATH = path.join(E2E_ROOT, 'seed-map-v2.json');
 
-/** @deprecated Use SEED_MAP_V1_PATH or SEED_MAP_V2_PATH */
-export const SEED_MAP_PATH = SEED_MAP_V1_PATH;
-
 /**
  * Fixture files
  *
