@@ -67,7 +67,7 @@ export async function runLoginHeadless(options: LoginHeadlessOptions): Promise<n
       process.stdout.write(result.token);
     } else {
       // Normal output to stderr
-      console.error('✅ Headless login successful!');
+      console.error(' Headless login successful!');
       if (result.storageStatePath) {
         console.error(`📁 Storage state saved to: ${result.storageStatePath}`);
       }
@@ -77,7 +77,7 @@ export async function runLoginHeadless(options: LoginHeadlessOptions): Promise<n
     return 0;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`❌ Headless login failed: ${message}`);
+    console.error(` Headless login failed: ${message}`);
 
     if (process.env.DEBUG_CLI) {
       console.error(error);
