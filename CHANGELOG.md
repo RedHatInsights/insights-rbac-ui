@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.7.0...v2.8.0) (2026-02-11)
+
+
+### Features
+
+* **e2e:** enhance Playwright test suite with page objects, pagination, and reliability fixes ([ae2d270](https://github.com/RedHatInsights/insights-rbac-ui/commit/ae2d270225914bae3bc90797c171ea22a00ba0f4))
+
 # [2.7.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.6.0...v2.7.0) (2026-02-09)
 
 
