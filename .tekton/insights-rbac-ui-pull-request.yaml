@@ -55,6 +55,8 @@ spec:
   # E2E testing configuration
   - name: e2e-app-port
     value: "8000"  # Port where app assets will be served
+  - name: e2e-tests-image
+    value: "mcr.microsoft.com/playwright:v1.57.0-jammy"
 
   # Application startup script
   - name: run-app-script
@@ -70,9 +72,6 @@ spec:
     value: |
       #!/bin/bash
       set -ex
-
-      # Install Playwright browsers
-      npx playwright install --with-deps chromium
 
       echo "════════════════════════════════════════════════════════════════"
       echo "RBAC UI E2E Pre-flight Validation"
@@ -153,16 +152,14 @@ spec:
           FAILURES=$((FAILURES + 1))
       fi
 
-      # Test routing
-      for route in "/apps/rbac/" "/iam/" "/settings/rbac/" "/iam/my-user-access"; do
-          echo -n "Route $route... "
-          if curl -k -f -s -m 10 "https://stage.foo.redhat.com:1337$route" -o /dev/null; then
-              echo "✅ OK"
-          else
-              echo "❌ FAILED"
-              FAILURES=$((FAILURES + 1))
-          fi
-      done
+      # Test federated module route (no chrome shell routes without sidecar)
+      echo -n "Route /apps/rbac/... "
+      if curl -k -f -s -m 10 "https://stage.foo.redhat.com:1337/apps/rbac/" -o /dev/null; then
+          echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
 
       # Test federated module manifest through proxy
       echo -n "Federated module manifest via proxy... "
@@ -188,22 +185,6 @@ spec:
           FAILURES=$((FAILURES + 1))
       fi
 
-      # Download and inspect main page
-      echo ""
-      echo "Downloading /iam/my-user-access page..."
-      if curl -k -s -m 10 https://stage.foo.redhat.com:1337/iam/my-user-access -o /tmp/rbac-page.html 2>/dev/null; then
-          echo "Page content (first 500 chars):"
-          head -c 500 /tmp/rbac-page.html
-          echo ""
-          echo -n "HTML structure check... "
-          if grep -qi '<!DOCTYPE html\|<html' /tmp/rbac-page.html; then
-              echo "✅ OK"
-          else
-              echo "❌ FAILED (no HTML found)"
-              FAILURES=$((FAILURES + 1))
-          fi
-      fi
-
       echo ""
       echo "════════════════════════════════════════════════════════════════"
       if [ $FAILURES -eq 0 ]; then
@@ -212,7 +193,7 @@ spec:
           echo "❌ $FAILURES CHECKS FAILED - Review output above"
           echo "Common causes:"
           echo "  - ConfigMaps not synced by ArgoCD"
-          echo "  - Sidecar containers not fully started"
+          echo "  - Proxy not fully started"
           echo "  - Missing files in application image"
           echo "  - Routing configuration errors"
           exit 1
