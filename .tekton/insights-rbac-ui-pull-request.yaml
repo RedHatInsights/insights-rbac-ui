@@ -56,7 +56,7 @@ spec:
   - name: e2e-app-port
     value: "8000"  # Port where app assets will be served
   - name: e2e-tests-image
-    value: "mcr.microsoft.com/playwright:v1.57.0-jammy"
+    value: "mcr.microsoft.com/playwright:v1.57.0-noble"
 
   # Application startup script
   - name: run-app-script
