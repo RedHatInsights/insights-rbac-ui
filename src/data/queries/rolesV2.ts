@@ -1,22 +1,25 @@
 /**
- * V2 Roles React Query Hooks - Temporary
+ * V2 Roles React Query Hooks
  *
- * These hooks provide React Query wrappers for the V2 Roles API.
- * They use temporary types and will be updated when V2 APIs are delivered.
- *
- * @see Meeting notes: "RBAC v2 specs review with team by Sneha"
- * @tag api-v2-temporary
+ * Wrappers for the V2 Roles API endpoints using @redhat-cloud-services/rbac-client.
+ * Uses cursor-based pagination (CursorPaginationMeta + CursorPaginationLinks).
  */
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import { apiClient } from '../api/client';
-import type { CreateRoleV2Request, ListRolesV2Params, RoleV2, RolesV2Pagination, UpdateRoleV2Request } from '../api/rolesV2';
-import type { Access, RoleOutDynamic } from '../api/roles';
+import { rolesV2Api } from '../api/rolesV2';
+import type {
+  CursorPaginationLinks,
+  RolesBatchDeleteRolesRequest,
+  RolesCreateOrUpdateRoleRequest,
+  RolesList200Response,
+  RolesListParams,
+  RolesRole,
+} from '../api/rolesV2';
 import messages from '../../Messages';
 import { useMutationQueryClient } from './utils';
-import { type MutationOptions } from './types';
+import type { MutationOptions } from './types';
 
 // =============================================================================
 // Query Keys Factory
@@ -25,10 +28,9 @@ import { type MutationOptions } from './types';
 export const rolesV2Keys = {
   all: ['roles-v2'] as const,
   lists: () => [...rolesV2Keys.all, 'list'] as const,
-  list: (params: ListRolesV2Params) => [...rolesV2Keys.lists(), params] as const,
+  list: (params: RolesListParams) => [...rolesV2Keys.lists(), params] as const,
   details: () => [...rolesV2Keys.all, 'detail'] as const,
   detail: (id: string) => [...rolesV2Keys.details(), id] as const,
-  assignments: (id: string) => [...rolesV2Keys.detail(id), 'assignments'] as const,
 };
 
 // =============================================================================
@@ -36,90 +38,42 @@ export const rolesV2Keys = {
 // =============================================================================
 
 /**
- * Fetch V2 roles list.
- * Uses V2 API when available, falls back to V1 for now.
+ * Fetch V2 roles list with cursor-based pagination.
  *
- * @tag api-v2-temporary - Will switch to V2 endpoint when delivered
+ * Response shape:
+ * - data: RolesRole[]
+ * - meta: { limit } (CursorPaginationMeta - no count)
+ * - links: { next, previous } (CursorPaginationLinks)
  */
-export function useRolesV2Query(params: ListRolesV2Params = {}, options?: { enabled?: boolean }) {
+export function useRolesV2Query(params: RolesListParams = {}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: rolesV2Keys.list(params),
-    queryFn: async (): Promise<RolesV2Pagination> => {
-      // TODO: Switch to V2 endpoint when available
-      // const response = await apiClient.get('/api/rbac/v2/roles/', { params });
-      // For now, use V1 endpoint with type adaptation
-      const response = await apiClient.get('/api/rbac/v1/roles/', {
-        params: {
-          limit: params.limit ?? 20,
-          offset: params.offset ?? 0,
-          name: params.name,
-          order_by: params.orderBy,
-        },
-      });
-
-      // Adapt V1 response to V2 format
-      return {
-        data: response.data.data.map((role: RoleOutDynamic) => ({
-          uuid: role.uuid,
-          name: role.name,
-          description: role.description,
-          permissions: role.accessCount ?? null,
-          modified: role.modified,
-          system: role.system,
-        })),
-        meta: response.data.meta,
-      };
+    queryFn: async (): Promise<RolesList200Response> => {
+      const response = await rolesV2Api.rolesList(params);
+      return response.data;
     },
     enabled: options?.enabled ?? true,
   });
 }
 
 /**
+ * Helper to extract cursor pagination links from V2 roles response.
+ */
+export function extractRolesV2Links(data: RolesList200Response | undefined): CursorPaginationLinks | null {
+  return data?.links ?? null;
+}
+
+/**
  * Fetch single V2 role by ID.
- *
- * @tag api-v2-temporary - Will switch to V2 endpoint when delivered
  */
 export function useRoleV2Query(id: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: rolesV2Keys.detail(id),
-    queryFn: async (): Promise<RoleV2> => {
-      // TODO: Switch to V2 endpoint when available
-      const response = await apiClient.get(`/api/rbac/v1/roles/${id}/`);
-      const role = response.data;
-
-      return {
-        uuid: role.uuid,
-        name: role.name,
-        description: role.description,
-        permissions: role.access?.length ?? null,
-        modified: role.modified,
-        system: role.system,
-        access: role.access?.map((a: Access) => ({
-          application: a.permission?.split(':')[0] || '',
-          resourceType: a.permission?.split(':')[1] || '',
-          operation: a.permission?.split(':')[2] || '',
-        })),
-      };
-    },
-    enabled: (options?.enabled ?? true) && !!id,
-  });
-}
-
-/**
- * Fetch role assignments (user groups/workspaces) for a role.
- *
- * @tag api-v2-temporary - Uses role bindings API
- */
-export function useRoleAssignmentsQuery(roleId: string, options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: rolesV2Keys.assignments(roleId),
-    queryFn: async () => {
-      const response = await apiClient.get('/api/rbac/v2/role-bindings/', {
-        params: { role_id: roleId },
-      });
+    queryFn: async (): Promise<RolesRole> => {
+      const response = await rolesV2Api.rolesRead({ id });
       return response.data;
     },
-    enabled: (options?.enabled ?? true) && !!roleId,
+    enabled: (options?.enabled ?? true) && !!id,
   });
 }
 
@@ -129,9 +83,6 @@ export function useRoleAssignmentsQuery(roleId: string, options?: { enabled?: bo
 
 /**
  * Create a new V2 role.
- * Returns the created role object (per Riccardo's request).
- *
- * @tag api-v2-temporary - Will use V2 POST when available
  */
 export function useCreateRoleV2Mutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
@@ -139,26 +90,11 @@ export function useCreateRoleV2Mutation(options?: MutationOptions) {
   const intl = useIntl();
 
   return useMutation({
-    mutationFn: async (data: CreateRoleV2Request): Promise<RoleV2> => {
-      // TODO: Switch to V2 endpoint when available
-      // const response = await apiClient.post('/api/rbac/v2/roles/', data);
-      // return response.data;
-
-      // For now, use V1 API
-      const response = await apiClient.post('/api/rbac/v1/roles/', {
-        name: data.name,
-        description: data.description,
-        access: data.permissions.map((p) => ({ permission: p })),
+    mutationFn: async (data: RolesCreateOrUpdateRoleRequest): Promise<RolesRole> => {
+      const response = await rolesV2Api.rolesCreate({
+        rolesCreateOrUpdateRoleRequest: data,
       });
-
-      return {
-        uuid: response.data.uuid,
-        name: response.data.name,
-        description: response.data.description,
-        permissions: data.permissions.length,
-        modified: new Date().toISOString(),
-        system: false,
-      };
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
@@ -180,9 +116,6 @@ export function useCreateRoleV2Mutation(options?: MutationOptions) {
 
 /**
  * Update a V2 role.
- * Returns the updated role object (per Riccardo's request).
- *
- * @tag api-v2-temporary - Will use V2 PUT when available
  */
 export function useUpdateRoleV2Mutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
@@ -190,22 +123,12 @@ export function useUpdateRoleV2Mutation(options?: MutationOptions) {
   const intl = useIntl();
 
   return useMutation({
-    mutationFn: async (data: UpdateRoleV2Request): Promise<RoleV2> => {
-      // TODO: Switch to V2 endpoint when available
-      const response = await apiClient.put(`/api/rbac/v1/roles/${data.uuid}/`, {
-        name: data.name,
-        description: data.description,
-        access: data.permissions.map((p) => ({ permission: p })),
+    mutationFn: async ({ id, ...data }: RolesCreateOrUpdateRoleRequest & { id: string }): Promise<RolesRole> => {
+      const response = await rolesV2Api.rolesUpdate({
+        id,
+        rolesCreateOrUpdateRoleRequest: data,
       });
-
-      return {
-        uuid: response.data.uuid,
-        name: response.data.name,
-        description: response.data.description,
-        permissions: data.permissions.length,
-        modified: new Date().toISOString(),
-        system: false,
-      };
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
@@ -226,18 +149,18 @@ export function useUpdateRoleV2Mutation(options?: MutationOptions) {
 }
 
 /**
- * Delete a V2 role.
- *
- * @tag api-v2-temporary - Will use V2 DELETE when available
+ * Batch delete V2 roles.
  */
-export function useDeleteRoleV2Mutation(options?: MutationOptions) {
+export function useBatchDeleteRolesV2Mutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
   const addNotification = useAddNotification();
   const intl = useIntl();
 
   return useMutation({
-    mutationFn: async (uuid: string) => {
-      await apiClient.delete(`/api/rbac/v1/roles/${uuid}/`);
+    mutationFn: async (data: RolesBatchDeleteRolesRequest): Promise<void> => {
+      await rolesV2Api.rolesBatchDelete({
+        rolesBatchDeleteRolesRequest: data,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
@@ -257,5 +180,14 @@ export function useDeleteRoleV2Mutation(options?: MutationOptions) {
   });
 }
 
-// Re-export types
-export type { RoleV2, RolesV2Pagination, ListRolesV2Params, CreateRoleV2Request, UpdateRoleV2Request } from '../api/rolesV2';
+// Re-export types for consumer convenience
+export type {
+  RolesListParams,
+  RolesList200Response,
+  RolesRole,
+  RolesPermission,
+  RolesCreateOrUpdateRoleRequest,
+  RolesBatchDeleteRolesRequest,
+  CursorPaginationMeta,
+  CursorPaginationLinks,
+} from '../api/rolesV2';

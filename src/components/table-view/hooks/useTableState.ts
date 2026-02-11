@@ -3,12 +3,17 @@
  *
  * Combined state management hook for TableView with optional URL synchronization.
  * Orchestrates smaller focused hooks for pagination, sorting, selection, expansion, and filters.
+ *
+ * Supports two pagination modes:
+ * - 'offset' (default): Standard offset/limit pagination with total count.
+ * - 'cursor': Cursor-based pagination for APIs returning CursorPaginationLinks.
  */
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import type { UseTableStateOptions, UseTableStateReturn } from '../types';
 import { useOptionalSearchParams } from './useOptionalSearchParams';
 import { usePaginationState } from './usePaginationState';
+import { useCursorPaginationState } from './useCursorPaginationState';
 import { useSortState } from './useSortState';
 import { useFiltersState } from './useFiltersState';
 import { useExpansionState } from './useExpansionState';
@@ -43,27 +48,24 @@ export function useTableState<
     getRowId,
     isRowSelectable = () => true,
     syncWithUrl = false,
+    paginationMode = 'offset',
     onStaleData,
     staleDataDebounceMs = 300,
   } = options;
+
+  const isCursorMode = paginationMode === 'cursor';
 
   // URL search params - safe to use outside Router context
   const { searchParams, setSearchParams, isRouterAvailable } = useOptionalSearchParams();
 
   // Only sync with URL if explicitly requested AND router is available
-  const shouldSyncUrl = syncWithUrl && isRouterAvailable;
+  // Note: cursor mode does not support URL sync (cursors are opaque tokens)
+  const shouldSyncUrl = syncWithUrl && isRouterAvailable && !isCursorMode;
 
   // -------------------------------------------------------------------------
-  // Pagination State
+  // Pagination State (offset or cursor mode)
   // -------------------------------------------------------------------------
-  const {
-    page,
-    perPage,
-    perPageOptions: returnedPerPageOptions,
-    onPageChange,
-    onPerPageChange,
-    resetPage,
-  } = usePaginationState({
+  const offsetPagination = usePaginationState({
     initialPerPage,
     perPageOptions,
     shouldSyncUrl,
@@ -71,16 +73,33 @@ export function useTableState<
     setSearchParams,
   });
 
+  const cursorPagination = useCursorPaginationState({
+    initialPerPage,
+    perPageOptions,
+  });
+
+  // Select the active pagination based on mode
+  const pagination = isCursorMode ? cursorPagination : offsetPagination;
+
   // -------------------------------------------------------------------------
   // Sort State
   // -------------------------------------------------------------------------
-  const { sort, onSortChange } = useSortState({
+  const { sort, onSortChange: rawOnSortChange } = useSortState({
     sortableColumns,
     initialSort,
     shouldSyncUrl,
     searchParams,
     setSearchParams,
   });
+
+  // Wrap onSortChange to reset pagination when sort changes
+  const onSortChange = useCallback(
+    (column: TSortable, direction: 'asc' | 'desc') => {
+      rawOnSortChange(column, direction);
+      pagination.resetPage();
+    },
+    [rawOnSortChange, pagination.resetPage],
+  );
 
   // -------------------------------------------------------------------------
   // Filters State
@@ -90,7 +109,7 @@ export function useTableState<
     shouldSyncUrl,
     searchParams,
     setSearchParams,
-    onFiltersChanged: resetPage,
+    onFiltersChanged: pagination.resetPage,
   });
 
   // -------------------------------------------------------------------------
@@ -111,14 +130,20 @@ export function useTableState<
   // API Params Helper
   // -------------------------------------------------------------------------
   const apiParams = useMemo(() => {
-    const offset = (page - 1) * perPage;
-    const limit = perPage;
+    const offset = isCursorMode ? 0 : (pagination.page - 1) * pagination.perPage;
     let orderBy: `${TSortable}` | `-${TSortable}` | undefined;
     if (sort) {
       orderBy = (sort.direction === 'desc' ? `-${sort.column}` : sort.column) as `${TSortable}` | `-${TSortable}`;
     }
-    return { offset, limit, orderBy, filters };
-  }, [page, perPage, sort, filters]);
+
+    return {
+      offset,
+      cursor: isCursorMode ? cursorPagination.cursor : undefined,
+      limit: pagination.perPage,
+      orderBy,
+      filters,
+    };
+  }, [isCursorMode, pagination.page, pagination.perPage, cursorPagination.cursor, sort, filters]);
 
   // -------------------------------------------------------------------------
   // Stale Data Notification
@@ -133,11 +158,21 @@ export function useTableState<
     sort,
     onSortChange,
     // Pagination
-    page,
-    perPage,
-    perPageOptions: returnedPerPageOptions,
-    onPageChange,
-    onPerPageChange,
+    page: pagination.page,
+    perPage: pagination.perPage,
+    perPageOptions: pagination.perPageOptions,
+    onPageChange: pagination.onPageChange,
+    onPerPageChange: pagination.onPerPageChange,
+    // Cursor pagination extras (undefined in offset mode)
+    hasNextPage: isCursorMode ? cursorPagination.hasNextPage : undefined,
+    hasPreviousPage: isCursorMode ? cursorPagination.hasPreviousPage : undefined,
+    cursorMeta: isCursorMode
+      ? {
+          setCursorLinks: cursorPagination.setCursorLinks,
+          hasNextPage: cursorPagination.hasNextPage,
+          hasPreviousPage: cursorPagination.hasPreviousPage,
+        }
+      : undefined,
     // Selection
     selectedRows,
     onSelectRow,

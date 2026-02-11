@@ -101,4 +101,79 @@ describe('useRowSelection - edge cases not covered by useTableState', () => {
       expect(result.current.selectedRows[0].id).toBe('99');
     });
   });
+
+  describe('initialSelectedRows re-sync', () => {
+    it('should update selection when initialSelectedRows reference changes', () => {
+      const emptySelection: TestRow[] = [];
+      const loadedSelection: TestRow[] = [rows[0], rows[1]];
+
+      const { result, rerender } = renderHook(
+        ({ initialSelectedRows }) =>
+          useRowSelection({
+            getRowId: (row: TestRow) => row.id,
+            initialSelectedRows,
+          }),
+        { initialProps: { initialSelectedRows: emptySelection } },
+      );
+
+      // Initially empty (data loading)
+      expect(result.current.selectedRows).toHaveLength(0);
+
+      // Data loads, consumer passes the real selection
+      rerender({ initialSelectedRows: loadedSelection });
+      expect(result.current.selectedRows).toHaveLength(2);
+      expect(result.current.selectedRows.map((r) => r.id)).toEqual(['1', '2']);
+    });
+
+    it('should not re-sync when same IDs are passed in a new array reference', () => {
+      const { result, rerender } = renderHook(
+        ({ initialSelectedRows }) =>
+          useRowSelection({
+            getRowId: (row: TestRow) => row.id,
+            initialSelectedRows,
+          }),
+        { initialProps: { initialSelectedRows: [rows[0]] } },
+      );
+
+      expect(result.current.selectedRows).toHaveLength(1);
+
+      // User manually selects another row
+      act(() => {
+        result.current.onSelectRow(rows[1], true);
+      });
+      expect(result.current.selectedRows).toHaveLength(2);
+
+      // Rerender with a NEW array reference containing the same row IDs
+      rerender({ initialSelectedRows: [rows[0]] });
+      // Should NOT reset — the value hasn't changed, only the reference
+      expect(result.current.selectedRows).toHaveLength(2);
+    });
+
+    it('should clear selection when initialSelectedRows changes from non-empty to empty', () => {
+      const initialSelection: TestRow[] = [rows[0], rows[1]];
+
+      const { result, rerender } = renderHook(
+        ({ initialSelectedRows }) =>
+          useRowSelection({
+            getRowId: (row: TestRow) => row.id,
+            initialSelectedRows,
+          }),
+        { initialProps: { initialSelectedRows: initialSelection } },
+      );
+
+      expect(result.current.selectedRows).toHaveLength(2);
+
+      // User manually selects another row
+      act(() => {
+        result.current.onSelectRow(rows[2], true);
+      });
+      expect(result.current.selectedRows).toHaveLength(3);
+
+      // Parent clears initialSelectedRows to an empty array
+      rerender({ initialSelectedRows: [] });
+
+      // Hook should re-sync and clear selectedRows
+      expect(result.current.selectedRows).toHaveLength(0);
+    });
+  });
 });

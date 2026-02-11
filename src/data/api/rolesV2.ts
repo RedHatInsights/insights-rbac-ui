@@ -1,89 +1,62 @@
 /**
- * V2 Roles API - Temporary Types and Client
+ * V2 Roles API Client
  *
- * These types are based on the RBAC V2 specs discussion (Jan 13, 2026).
- * They will be replaced with actual rbac-client types when V2 APIs are delivered.
+ * Uses the real V2 Roles endpoints from @redhat-cloud-services/rbac-client.
+ * Follows the same APIFactory pattern as workspaces.ts.
+ */
+
+import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
+import type { AxiosInstance } from 'axios';
+import rolesList from '@redhat-cloud-services/rbac-client/v2/RolesList';
+import rolesRead from '@redhat-cloud-services/rbac-client/v2/RolesRead';
+import rolesCreate from '@redhat-cloud-services/rbac-client/v2/RolesCreate';
+import rolesUpdate from '@redhat-cloud-services/rbac-client/v2/RolesUpdate';
+import rolesBatchDelete from '@redhat-cloud-services/rbac-client/v2/RolesBatchDelete';
+import { RBAC_API_BASE_2, apiClient } from './client';
+
+// Bundle roles V2 endpoints
+const rolesV2Endpoints = {
+  rolesList,
+  rolesRead,
+  rolesCreate,
+  rolesUpdate,
+  rolesBatchDelete,
+};
+
+/**
+ * Type for the Roles V2 API client returned by APIFactory.
+ */
+export type RolesV2ApiClient = ReturnType<typeof APIFactory<typeof rolesV2Endpoints>>;
+
+/**
+ * Create a Roles V2 API client with a custom axios instance.
+ * Use this for dependency injection in shared hooks.
  *
- * @see Meeting notes: "RBAC v2 specs review with team by Sneha"
- * @tag api-v2-temporary - Using temporary types until V2 API delivery
+ * @param axios - Custom axios instance (e.g., from ServiceContext)
+ * @returns Fully typed Roles V2 API client
  */
-
-/**
- * V2 Role type - simplified from V1, no workspaces/user groups in table columns
- */
-export interface RoleV2 {
-  uuid: string;
-  name: string;
-  description?: string;
-  permissions?: number | null; // null = "Not available"
-  modified?: string;
-  system: boolean;
-  // Detailed permissions for drawer view
-  access?: Array<{
-    application: string;
-    resourceType: string;
-    operation: string;
-  }>;
+export function createRolesV2Api(axios: AxiosInstance): RolesV2ApiClient {
+  return APIFactory(RBAC_API_BASE_2, rolesV2Endpoints, { axios });
 }
 
 /**
- * V2 Roles list response
+ * Default Roles V2 API client - uses the browser apiClient.
+ * For shared hooks, prefer createRolesV2Api() with injected axios.
  */
-export interface RolesV2Pagination {
-  data: RoleV2[];
-  meta: {
-    count: number;
-    limit: number;
-    offset: number;
-  };
-}
+export const rolesV2Api = createRolesV2Api(apiClient);
 
-/**
- * List roles V2 parameters
- * Per meeting: supports pagination and filtering by name, sorting by name/modified
- */
-export interface ListRolesV2Params {
-  limit?: number;
-  offset?: number;
-  name?: string;
-  orderBy?: 'name' | '-name' | 'modified' | '-modified';
-}
-
-/**
- * Create role V2 request
- * Per meeting: POST with name, description, permissions
- * Returns created role object (Riccardo's request)
- */
-export interface CreateRoleV2Request {
-  name: string;
-  description?: string;
-  permissions: string[];
-}
-
-/**
- * Update role V2 request
- * Per meeting: PUT with role ID, name, description, permissions
- * Returns updated role object
- */
-export interface UpdateRoleV2Request {
-  uuid: string;
-  name: string;
-  description?: string;
-  permissions: string[];
-}
-
-/**
- * Role assignment (binding) for drawer view
- * Per meeting: Still showing assigned user groups in drawer
- */
-export interface RoleAssignment {
-  userGroup: string;
-  workspace: string;
-}
-
-// Note: V2 API endpoints will be:
-// - GET /api/rbac/v2/roles/ - List roles (with pagination, filtering, sorting)
-// - GET /api/rbac/v2/roles/{uuid}/ - Get single role
-// - POST /api/rbac/v2/roles/ - Create role
-// - PUT /api/rbac/v2/roles/{uuid}/ - Update role
-// - DELETE /api/rbac/v2/roles/{uuid}/ - Delete role (bulk supported)
+// Re-export types from the client
+export type { RolesListParams, RolesListReturnType } from '@redhat-cloud-services/rbac-client/v2/RolesList';
+export type { RolesReadParams, RolesReadReturnType } from '@redhat-cloud-services/rbac-client/v2/RolesRead';
+export type { RolesCreateParams, RolesCreateReturnType } from '@redhat-cloud-services/rbac-client/v2/RolesCreate';
+export type { RolesUpdateParams, RolesUpdateReturnType } from '@redhat-cloud-services/rbac-client/v2/RolesUpdate';
+export type { RolesBatchDeleteParams, RolesBatchDeleteReturnType } from '@redhat-cloud-services/rbac-client/v2/RolesBatchDelete';
+export type {
+  RolesRole,
+  RolesPermission,
+  RolesList200Response,
+  RolesCreateOrUpdateRoleRequest,
+  RolesBatchDeleteRolesRequest,
+  CursorPaginationMeta,
+  CursorPaginationLinks,
+} from '@redhat-cloud-services/rbac-client/v2/types';

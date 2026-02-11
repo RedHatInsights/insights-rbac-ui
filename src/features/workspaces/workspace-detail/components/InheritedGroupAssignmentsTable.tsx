@@ -23,7 +23,8 @@ const sortableColumns = ['name', 'principalCount', 'roleCount', 'inheritedFrom',
 
 export interface InheritedGroupAssignmentsTableProps {
   groups: GroupWithInheritance[];
-  totalCount: number;
+  /** Total count of items. When omitted, PF Pagination renders in indeterminate mode. */
+  totalCount?: number;
   isLoading: boolean;
   workspaceName?: string;
   currentWorkspace?: { id: string; name: string };

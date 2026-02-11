@@ -47,15 +47,25 @@ export function usePaginationState({
   searchParams,
   setSearchParams,
 }: UsePaginationStateOptions): UsePaginationStateReturn {
-  const [page, setPageState] = useState(() => (shouldSyncUrl ? getPageFromUrl(searchParams, 1) : 1));
+  // Minimum valid perPage is the smallest perPageOption (typically 10)
+  const minPerPage = perPageOptions[0] ?? 10;
 
-  const [perPage, setPerPageState] = useState(() => (shouldSyncUrl ? getPerPageFromUrl(searchParams, initialPerPage) : initialPerPage));
+  const [page, setPageState] = useState(() => {
+    const raw = shouldSyncUrl ? getPageFromUrl(searchParams, 1) : 1;
+    return Math.max(1, raw);
+  });
+
+  const [perPage, setPerPageState] = useState(() => {
+    const raw = shouldSyncUrl ? getPerPageFromUrl(searchParams, initialPerPage) : initialPerPage;
+    return Math.max(minPerPage, raw);
+  });
 
   const onPageChange = useCallback(
     (newPage: number) => {
-      setPageState(newPage);
+      const clamped = Math.max(1, newPage);
+      setPageState(clamped);
       if (shouldSyncUrl) {
-        setSearchParams((prev) => updatePageInUrl(prev, newPage));
+        setSearchParams((prev) => updatePageInUrl(prev, clamped));
       }
     },
     [shouldSyncUrl, setSearchParams],
@@ -63,13 +73,14 @@ export function usePaginationState({
 
   const onPerPageChange = useCallback(
     (newPerPage: number) => {
-      setPerPageState(newPerPage);
+      const clamped = Math.max(minPerPage, newPerPage);
+      setPerPageState(clamped);
       setPageState(1);
       if (shouldSyncUrl) {
-        setSearchParams((prev) => updatePerPageInUrl(prev, newPerPage));
+        setSearchParams((prev) => updatePerPageInUrl(prev, clamped));
       }
     },
-    [shouldSyncUrl, setSearchParams],
+    [shouldSyncUrl, setSearchParams, minPerPage],
   );
 
   const resetPage = useCallback(() => {

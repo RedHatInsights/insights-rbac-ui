@@ -52,7 +52,7 @@ export type {
   WorkspacesWorkspace,
   WorkspacesWorkspaceListResponse,
   RoleBindingsRoleBindingBySubject,
-  RoleBindingsRoleBindingBySubjectListResponse,
+  RoleBindingsListBySubject200Response,
   RoleBindingsRole,
   RoleBindingsRoleBindingBySubjectSubject,
   RoleBindingsResource,

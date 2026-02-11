@@ -42,6 +42,12 @@ export { TableView } from './TableView';
 // Hooks
 export { useTableState } from './hooks/useTableState';
 export { useRowSelection, type UseRowSelectionOptions, type UseRowSelectionReturn } from './hooks/useRowSelection';
+export {
+  useCursorPaginationState,
+  type CursorLinks,
+  type UseCursorPaginationStateOptions,
+  type UseCursorPaginationStateReturn,
+} from './hooks/useCursorPaginationState';
 
 // Reusable Building Blocks (for custom implementations)
 export {

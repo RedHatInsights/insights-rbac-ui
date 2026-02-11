@@ -96,6 +96,56 @@ describe('useTableState', () => {
       expect(result.current.page).toBe(1);
       expect(result.current.perPage).toBe(50);
     });
+
+    it('should clamp page <= 0 from URL to 1', () => {
+      const { result } = renderHook(
+        () =>
+          useTableState<typeof columns, TestRow>({
+            columns,
+            getRowId: (row) => row.id,
+            syncWithUrl: true,
+          }),
+        { wrapper: createWrapper(['/?page=-3']) },
+      );
+
+      expect(result.current.page).toBe(1);
+    });
+
+    it('should clamp perPage <= 0 from URL to minimum perPage option', () => {
+      const { result } = renderHook(
+        () =>
+          useTableState<typeof columns, TestRow>({
+            columns,
+            getRowId: (row) => row.id,
+            syncWithUrl: true,
+          }),
+        { wrapper: createWrapper(['/?perPage=0']) },
+      );
+
+      // Minimum perPage option is 10 (first in default perPageOptions [10, 20, 50, 100])
+      expect(result.current.perPage).toBe(10);
+    });
+
+    it('should clamp onPageChange with <= 0 to 1', () => {
+      const { result } = renderHook(
+        () =>
+          useTableState<typeof columns, TestRow>({
+            columns,
+            getRowId: (row) => row.id,
+          }),
+        { wrapper: createWrapper() },
+      );
+
+      act(() => {
+        result.current.onPageChange(0);
+      });
+      expect(result.current.page).toBe(1);
+
+      act(() => {
+        result.current.onPageChange(-5);
+      });
+      expect(result.current.page).toBe(1);
+    });
   });
 
   describe('sorting', () => {

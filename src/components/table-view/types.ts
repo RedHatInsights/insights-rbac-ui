@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import type { CursorLinks } from './hooks/useCursorPaginationState';
 
 /**
  * TableView Type System
@@ -193,11 +194,28 @@ export interface UseTableStateOptions<
   syncWithUrl?: boolean;
 
   /**
+   * Pagination mode:
+   * - 'offset' (default): Standard offset/limit pagination with total count.
+   *   API returns { meta: { count, limit, offset } }.
+   * - 'cursor': Cursor-based pagination without total count.
+   *   API returns { meta: { limit }, links: { next, previous } }.
+   *   Uses PF Pagination indeterminate mode ("X - Y of many").
+   */
+  paginationMode?: 'offset' | 'cursor';
+
+  /**
    * Callback fired when table state changes and data should be refetched.
    * Called with the current API params (offset, limit, orderBy, filters).
+   * In cursor mode, includes `cursor` instead of `offset`.
    * Debounced internally to avoid excessive calls during rapid changes (e.g., typing in filter).
    */
-  onStaleData?: (params: { offset: number; limit: number; orderBy?: `${TSortable}` | `-${TSortable}`; filters: FilterState }) => void;
+  onStaleData?: (params: {
+    offset: number;
+    cursor?: string;
+    limit: number;
+    orderBy?: `${TSortable}` | `-${TSortable}`;
+    filters: FilterState;
+  }) => void;
 
   /** Debounce delay for onStaleData in ms (default: 300) */
   staleDataDebounceMs?: number;
@@ -276,10 +294,28 @@ export interface UseTableStateReturn<
   isAnyExpanded: (rowId: string) => boolean;
 
   // -------------------------------------------------------------------------
+  // Cursor pagination (only present when paginationMode: 'cursor')
+  // -------------------------------------------------------------------------
+  /** Whether there is a next page (cursor mode only, for TableView) */
+  hasNextPage?: boolean;
+  /** Whether there is a previous page (cursor mode only, for TableView) */
+  hasPreviousPage?: boolean;
+  /** Cursor pagination extras (undefined in offset mode) */
+  cursorMeta?: {
+    /** Feed the API response links back to the hook after each fetch */
+    setCursorLinks: (links: CursorLinks) => void;
+    /** Whether there is a next page */
+    hasNextPage: boolean;
+    /** Whether there is a previous page */
+    hasPreviousPage: boolean;
+  };
+
+  // -------------------------------------------------------------------------
   // API params helper - ready to pass to fetch functions
   // -------------------------------------------------------------------------
   apiParams: {
     offset: number;
+    cursor?: string;
     limit: number;
     orderBy?: `${TSortable}` | `-${TSortable}`;
     filters: FilterState;
@@ -315,8 +351,8 @@ export interface TableViewProps<
   // -------------------------------------------------------------------------
   /** Row data - undefined means loading state */
   data: TRow[] | undefined;
-  /** Total count of rows (for pagination) */
-  totalCount: number;
+  /** Total count of rows (for pagination). Omit for cursor-based pagination (indeterminate mode). */
+  totalCount?: number;
   /** Function to get unique ID from a row */
   getRowId: (row: TRow) => string;
 
@@ -349,6 +385,10 @@ export interface TableViewProps<
   onPageChange: (page: number) => void;
   /** Callback when per-page changes */
   onPerPageChange: (perPage: number) => void;
+  /** Whether there is a next page (cursor pagination mode) */
+  hasNextPage?: boolean;
+  /** Whether there is a previous page (cursor pagination mode) */
+  hasPreviousPage?: boolean;
 
   // -------------------------------------------------------------------------
   // Selection
