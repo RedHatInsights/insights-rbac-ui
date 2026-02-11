@@ -20,7 +20,8 @@ const sortableColumns = ['name', 'principalCount', 'roleCount', 'modified'] as c
 
 export interface BaseGroupAssignmentsTableProps {
   groups: Group[];
-  totalCount: number;
+  /** Total count of items. When omitted, PF Pagination renders in indeterminate mode. */
+  totalCount?: number;
   isLoading: boolean;
   workspaceName?: string;
   currentWorkspace?: { id: string; name: string };

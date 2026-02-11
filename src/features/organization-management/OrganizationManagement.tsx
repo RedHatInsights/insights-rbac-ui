@@ -31,15 +31,7 @@ export const OrganizationManagement = () => {
   );
 
   const roleBindings = roleBindingsQuery.data?.data ? mapRoleBindingsToGroups(roleBindingsQuery.data.data, intl) : [];
-  const roleBindingsTotalCount = roleBindingsQuery.data?.data?.length ?? 0;
   const roleBindingsIsLoading = roleBindingsQuery.isLoading;
-
-  if (roleBindingsTotalCount >= ROLE_BINDINGS_LIMIT) {
-    console.warn(
-      `[OrganizationManagement] Role bindings response returned ${roleBindingsTotalCount} items (limit: ${ROLE_BINDINGS_LIMIT}). ` +
-        'Results may be truncated. Consider implementing cursor-based pagination.',
-    );
-  }
 
   return (
     <>
@@ -84,12 +76,7 @@ export const OrganizationManagement = () => {
       </PageHeader>
       {!error && (
         <PageSection>
-          <BaseGroupAssignmentsTable
-            groups={roleBindings}
-            totalCount={roleBindingsTotalCount}
-            isLoading={roleBindingsIsLoading}
-            ouiaId="organization-role-assignments-table"
-          />
+          <BaseGroupAssignmentsTable groups={roleBindings} isLoading={roleBindingsIsLoading} ouiaId="organization-role-assignments-table" />
         </PageSection>
       )}
     </>

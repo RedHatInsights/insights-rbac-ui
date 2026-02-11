@@ -117,15 +117,6 @@ export const WorkspaceDetail = () => {
     });
   }, [roleBindingsData]);
 
-  const roleBindingsTotalCount = roleBindingsData?.data?.length ?? 0;
-
-  if (roleBindingsTotalCount >= ROLE_BINDINGS_LIMIT) {
-    console.warn(
-      `[WorkspaceDetail] Role bindings response returned ${roleBindingsTotalCount} items (limit: ${ROLE_BINDINGS_LIMIT}). ` +
-        'Results may be truncated. Consider implementing cursor-based pagination.',
-    );
-  }
-
   // Transform parent bindings with inheritance info
   const parentGroups: GroupWithInheritance[] = useMemo(() => {
     if (!parentBindingsData?.data || !selectedWorkspace?.parent_id) return [];
@@ -153,15 +144,6 @@ export const WorkspaceDetail = () => {
       } as GroupWithInheritance;
     });
   }, [parentBindingsData, selectedWorkspace, workspaces]);
-
-  const parentGroupsTotalCount = parentBindingsData?.data?.length ?? 0;
-
-  if (parentGroupsTotalCount >= ROLE_BINDINGS_LIMIT) {
-    console.warn(
-      `[WorkspaceDetail] Parent role bindings response returned ${parentGroupsTotalCount} items (limit: ${ROLE_BINDINGS_LIMIT}). ` +
-        'Results may be truncated. Consider implementing cursor-based pagination.',
-    );
-  }
 
   // Workspace hierarchy state
   const [workspaceHierarchy, setWorkspaceHierarchy] = useState<WorkspaceData[]>([]);
@@ -273,7 +255,6 @@ export const WorkspaceDetail = () => {
                 <BaseGroupAssignmentsTable
                   key="current-workspace-roles"
                   groups={roleBindings}
-                  totalCount={roleBindingsTotalCount}
                   isLoading={roleBindingsIsLoading}
                   workspaceName={selectedWorkspace?.name || ''}
                   currentWorkspace={currentWorkspace}
@@ -283,7 +264,6 @@ export const WorkspaceDetail = () => {
                 <InheritedGroupAssignmentsTable
                   key="parent-workspace-roles"
                   groups={parentGroups}
-                  totalCount={parentGroupsTotalCount}
                   isLoading={parentGroupsIsLoading}
                   workspaceName={selectedWorkspace?.name || ''}
                   currentWorkspace={currentWorkspace}

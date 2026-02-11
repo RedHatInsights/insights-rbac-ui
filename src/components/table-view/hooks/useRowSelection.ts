@@ -5,7 +5,7 @@
  * Handles single selection, bulk selection, and selection predicates.
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface UseRowSelectionOptions<TRow> {
   /** Function to get unique ID for each row */
@@ -48,6 +48,19 @@ export function useRowSelection<TRow>({
   initialSelectedRows = [],
 }: UseRowSelectionOptions<TRow>): UseRowSelectionReturn<TRow> {
   const [selectedRows, setSelectedRows] = useState<TRow[]>(initialSelectedRows);
+
+  // Derive a stable, sorted key from the initial selection so we can
+  // detect *value* changes without relying on reference identity.
+  // This avoids infinite render loops when consumers create the array inline.
+  const initialKey = useMemo(() => initialSelectedRows.map(getRowId).sort().join('\0'), [initialSelectedRows, getRowId]);
+
+  const prevKeyRef = useRef(initialKey);
+  useEffect(() => {
+    if (initialKey !== prevKeyRef.current) {
+      prevKeyRef.current = initialKey;
+      setSelectedRows(initialSelectedRows);
+    }
+  }, [initialKey, initialSelectedRows]);
 
   const onSelectRow = useCallback(
     (row: TRow, selected: boolean) => {

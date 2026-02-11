@@ -17,7 +17,7 @@ export type {
   WorkspacesPatchParams,
   RoleBindingsListBySubjectParams,
   RoleBindingsRoleBindingBySubject,
-  RoleBindingsRoleBindingBySubjectListResponse,
+  RoleBindingsListBySubject200Response,
   RoleBindingsRole,
   RoleBindingsRoleBindingBySubjectSubject,
   RoleBindingsResource,

@@ -5,6 +5,7 @@ import { HttpResponse, delay, http } from 'msw';
 import { useSearchParams } from 'react-router-dom';
 import { TableView } from './TableView';
 import { useTableState } from './hooks/useTableState';
+import type { CursorLinks } from './hooks/useCursorPaginationState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from './components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from './types';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -2021,6 +2022,389 @@ const tableState = useTableState({
     // Verify selection is cleared
     await waitFor(() => {
       expect(canvas.queryByRole('button', { name: /clear selection/i })).not.toBeInTheDocument();
+    });
+  },
+};
+
+// =============================================================================
+// CURSOR PAGINATION STORIES
+// =============================================================================
+
+/**
+ * MSW handler factory for cursor-paginated APIs.
+ * Simulates a V2 API that uses cursor-based pagination with CursorPaginationMeta + CursorPaginationLinks.
+ */
+function createCursorPaginatedHandler() {
+  const cursorApiCallSpy = fn();
+
+  const handler = http.get('/api/rbac/v2/roles/', async ({ request }) => {
+    await delay(100);
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '10');
+    const cursorParam = url.searchParams.get('cursor') || null;
+    const orderBy = url.searchParams.get('order_by') || 'name';
+    const nameFilter = url.searchParams.get('name') || '';
+
+    // Decode cursor to determine offset (cursor is base64-encoded offset)
+    let offset = 0;
+    if (cursorParam) {
+      try {
+        offset = parseInt(atob(cursorParam));
+      } catch {
+        offset = 0;
+      }
+    }
+
+    cursorApiCallSpy({
+      limit,
+      cursor: cursorParam,
+      offset,
+      orderBy,
+      nameFilter,
+    });
+
+    // Start with all mock data
+    let result = [...allMockRoles];
+
+    // Apply name filter
+    if (nameFilter.trim()) {
+      result = result.filter((r) => r.display_name.toLowerCase().includes(nameFilter.toLowerCase()));
+    }
+
+    // Apply sorting
+    const sortDesc = orderBy.startsWith('-');
+    const sortColumn = sortDesc ? orderBy.slice(1) : orderBy;
+    result.sort((a, b) => {
+      let aVal: string | number;
+      let bVal: string | number;
+      if (sortColumn === 'name') {
+        aVal = a.display_name.toLowerCase();
+        bVal = b.display_name.toLowerCase();
+      } else if (sortColumn === 'modified') {
+        aVal = new Date(a.modified).getTime();
+        bVal = new Date(b.modified).getTime();
+      } else {
+        return 0;
+      }
+      if (aVal < bVal) return sortDesc ? 1 : -1;
+      if (aVal > bVal) return sortDesc ? -1 : 1;
+      return 0;
+    });
+
+    // Get total before pagination
+    const totalItems = result.length;
+
+    // Apply cursor-based pagination
+    const paginatedData = result.slice(offset, offset + limit);
+
+    // Build cursor links
+    const nextOffset = offset + limit;
+    const prevOffset = offset - limit;
+
+    const links: CursorLinks = {
+      next: nextOffset < totalItems ? `/api/rbac/v2/roles/?limit=${limit}&cursor=${btoa(String(nextOffset))}` : null,
+      previous: prevOffset >= 0 ? `/api/rbac/v2/roles/?limit=${limit}&cursor=${btoa(String(prevOffset))}` : null,
+    };
+
+    return HttpResponse.json({
+      data: paginatedData,
+      meta: { limit }, // CursorPaginationMeta - no count, no offset
+      links,
+    });
+  });
+
+  return { handler, cursorApiCallSpy };
+}
+
+// =============================================================================
+// Cursor Pagination Table Wrapper Component
+// =============================================================================
+
+interface CursorPaginationResponse {
+  data: Role[];
+  meta: { limit: number };
+  links: CursorLinks;
+}
+
+interface CursorPaginatedTableProps {
+  ouiaId?: string;
+  enableFilters?: boolean;
+}
+
+/**
+ * Wrapper component that uses useTableState in cursor mode.
+ * Fetches data from a cursor-paginated V2 API.
+ */
+const CursorPaginatedTable: React.FC<CursorPaginatedTableProps> = ({ ouiaId = 'cursor-paginated-table', enableFilters = true }) => {
+  const [data, setData] = useState<Role[] | undefined>(undefined);
+
+  const tableState = useTableState<typeof columns, Role, SortableColumnId, never>({
+    columns,
+    sortableColumns,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: 10,
+    getRowId: (role) => role.uuid,
+    paginationMode: 'cursor',
+  });
+
+  // Fetch data when apiParams change
+  const fetchData = useCallback(async () => {
+    setData(undefined);
+    try {
+      const params = new URLSearchParams();
+      params.set('limit', String(tableState.apiParams.limit));
+
+      if (tableState.apiParams.cursor) {
+        params.set('cursor', tableState.apiParams.cursor);
+      }
+
+      if (tableState.apiParams.orderBy) {
+        params.set('order_by', tableState.apiParams.orderBy);
+      }
+
+      const nameFilter = tableState.apiParams.filters.name;
+      if (nameFilter && typeof nameFilter === 'string' && nameFilter.trim()) {
+        params.set('name', nameFilter);
+      }
+
+      const response = await fetch(`/api/rbac/v2/roles/?${params.toString()}`);
+      const json: CursorPaginationResponse = await response.json();
+      setData(json.data);
+      // Feed cursor links back to the hook
+      tableState.cursorMeta?.setCursorLinks(json.links);
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
+      setData([]);
+    }
+  }, [
+    tableState.apiParams.limit,
+    tableState.apiParams.cursor,
+    tableState.apiParams.orderBy,
+    tableState.apiParams.filters,
+    tableState.cursorMeta?.setCursorLinks,
+  ]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return (
+    <TableView
+      columns={columns}
+      columnConfig={columnConfigWithoutExpansion}
+      sortableColumns={sortableColumns}
+      data={data}
+      // totalCount is intentionally omitted for cursor pagination (indeterminate mode)
+      getRowId={(role) => role.uuid}
+      cellRenderers={cellRenderers}
+      filterConfig={enableFilters ? [filterConfig[0]] : undefined}
+      variant="default"
+      ouiaId={ouiaId}
+      ariaLabel="Cursor-paginated roles table"
+      {...tableState}
+    />
+  );
+};
+
+// Create shared handler and spy for cursor pagination stories
+const { handler: cursorHandler, cursorApiCallSpy } = createCursorPaginatedHandler();
+
+/**
+ * Cursor Pagination - Indeterminate mode.
+ *
+ * Demonstrates TableView with cursor-based pagination (paginationMode: 'cursor').
+ * - The API returns `meta.limit` (no count/offset) and `links.next`/`links.previous`
+ * - PF Pagination renders in indeterminate mode: "1 - 10 of many"
+ * - Only next/previous navigation is available (no page input, no first/last)
+ * - Page resets to 1 when filters or sort change
+ */
+export const CursorPagination: StoryObj<typeof CursorPaginatedTable> = {
+  render: (args) => <CursorPaginatedTable {...args} />,
+  parameters: {
+    msw: {
+      handlers: [cursorHandler],
+    },
+    docs: {
+      description: {
+        story: `
+## Cursor-Based Pagination
+
+For APIs that use cursor pagination (no total count), set \`paginationMode: 'cursor'\` on \`useTableState\`.
+Omit \`totalCount\` from \`TableView\` to activate PF's indeterminate pagination display.
+
+### API Response Shape:
+\`\`\`json
+{
+  "data": [...],
+  "meta": { "limit": 10 },
+  "links": {
+    "next": "/api/rbac/v2/roles/?limit=10&cursor=abc123",
+    "previous": null
+  }
+}
+\`\`\`
+
+### Usage:
+\`\`\`tsx
+const tableState = useTableState({
+  columns,
+  getRowId: (r) => r.id,
+  paginationMode: 'cursor',
+});
+
+// After fetching data:
+tableState.cursorMeta?.setCursorLinks(response.links);
+
+<TableView {...tableState} data={data} />
+// Note: no totalCount prop = indeterminate mode
+\`\`\`
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for initial data to load
+    await waitFor(() => {
+      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+    });
+
+    // Verify pagination renders in indeterminate mode
+    // PF renders "1 - 10 of many" when itemCount is omitted
+    await waitFor(() => {
+      const paginationText = canvasElement.querySelector('.pf-v6-c-pagination__total-items, .pf-v6-c-pagination');
+      expect(paginationText).toBeInTheDocument();
+    });
+
+    // Verify "next" button exists
+    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+    expect(nextButtons.length).toBeGreaterThan(0);
+  },
+};
+
+/**
+ * Cursor Pagination - Forward/Backward Navigation.
+ *
+ * Tests that navigating forward and backward works correctly:
+ * - Forward: cursor from links.next is sent to API
+ * - Backward: returns to previous cursor from stack
+ * - Data updates on each navigation
+ */
+export const CursorPaginationNavigation: StoryObj<typeof CursorPaginatedTable> = {
+  render: (args) => <CursorPaginatedTable {...args} enableFilters={false} />,
+  parameters: {
+    msw: {
+      handlers: [cursorHandler],
+    },
+  },
+  beforeEach: () => {
+    cursorApiCallSpy.mockClear();
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for initial data
+    await waitFor(() => {
+      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+    });
+
+    // Verify first page data (should show first 10 items sorted by name)
+    expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+
+    cursorApiCallSpy.mockClear();
+
+    // Navigate to page 2
+    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+    await userEvent.click(nextButtons[0]);
+
+    // Wait for page 2 to load
+    await waitFor(() => {
+      const { calls } = cursorApiCallSpy.mock;
+      // Should have been called with a cursor (non-null)
+      const cursorCall = calls.find((c) => c[0].cursor !== null);
+      expect(cursorCall).toBeDefined();
+    });
+
+    // Wait for page 2 data to render (different items)
+    await waitFor(() => {
+      // Page 2 should not show page 1's first item
+      expect(canvas.queryByText('Administrator 1')).not.toBeInTheDocument();
+    });
+
+    cursorApiCallSpy.mockClear();
+
+    // Navigate back to page 1
+    const prevButtons = canvas.getAllByRole('button', { name: /previous/i });
+    await userEvent.click(prevButtons[0]);
+
+    // Wait for page 1 to load again
+    await waitFor(() => {
+      const { calls } = cursorApiCallSpy.mock;
+      // Should have been called with null cursor (page 1)
+      const firstPageCall = calls.find((c) => c[0].cursor === null);
+      expect(firstPageCall).toBeDefined();
+    });
+
+    // Page 1 data should be back
+    await waitFor(() => {
+      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Cursor Pagination - Filter resets page.
+ *
+ * Tests that applying a filter resets cursor pagination to page 1.
+ */
+export const CursorPaginationFilterReset: StoryObj<typeof CursorPaginatedTable> = {
+  render: (args) => <CursorPaginatedTable {...args} />,
+  parameters: {
+    msw: {
+      handlers: [cursorHandler],
+    },
+  },
+  beforeEach: () => {
+    cursorApiCallSpy.mockClear();
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for initial data
+    await waitFor(() => {
+      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+    });
+
+    cursorApiCallSpy.mockClear();
+
+    // Navigate to page 2
+    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+    await userEvent.click(nextButtons[0]);
+
+    // Wait for page 2 data
+    await waitFor(() => {
+      expect(canvas.queryByText('Administrator 1')).not.toBeInTheDocument();
+    });
+
+    cursorApiCallSpy.mockClear();
+
+    // Apply a name filter
+    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+    await userEvent.type(filterInput, 'Admin');
+
+    // Wait for API to be called - should be back to first page (no cursor)
+    await waitFor(() => {
+      const { calls } = cursorApiCallSpy.mock;
+      const lastCall = calls[calls.length - 1]?.[0];
+      // Filter call should have no cursor (page 1)
+      expect(lastCall?.cursor).toBeNull();
+      expect(lastCall?.nameFilter).toContain('Admin');
+    });
+
+    // Filtered results should appear
+    await waitFor(() => {
+      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
     });
   },
 };
