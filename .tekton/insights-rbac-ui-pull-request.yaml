@@ -262,6 +262,17 @@ spec:
           - ip: "127.0.0.1"
             hostnames:
               - "stage.foo.redhat.com"
+        # Add ConfigMap volume for app Caddyfile
+        volumes:
+          - name: app-caddyfile
+            configMap:
+              name: insights-rbac-ui-app-caddy-config
+      sidecarSpecs:
+        # Mount app Caddyfile into run-application sidecar
+        - name: run-application
+          volumeMounts:
+            - name: app-caddyfile
+              mountPath: /etc/caddy
   workspaces:
   - name: workspace
     volumeClaimTemplate:
