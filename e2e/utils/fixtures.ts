@@ -83,12 +83,39 @@ export async function blockAnalytics(page: Page): Promise<void> {
 }
 
 /**
+ * Enable filtered browser console logging.
+ * Only logs errors and warnings, filtering out verbose info/debug messages.
+ * Call this in test.beforeEach or at the start of each test.
+ */
+export async function enableConsoleLogging(page: Page): Promise<void> {
+  page.on('console', (msg) => {
+    const type = msg.type();
+    // Only log errors and warnings
+    if (type === 'error' || type === 'warning') {
+      const location = msg.location();
+      const prefix = `[Browser ${type.toUpperCase()}]`;
+      console.log(`${prefix} ${msg.text()}`);
+      if (location.url) {
+        console.log(`  at ${location.url}:${location.lineNumber}:${location.columnNumber}`);
+      }
+    }
+  });
+
+  // Also log page errors (uncaught exceptions)
+  page.on('pageerror', (error) => {
+    console.log('[Browser EXCEPTION]', error.message);
+    console.log(error.stack);
+  });
+}
+
+/**
  * Combined setup: enables asset cache and blocks analytics.
  * Convenience function for test.beforeEach hooks.
  */
 export async function setupPage(page: Page): Promise<void> {
   await enableAssetCache(page);
   await blockAnalytics(page);
+  await enableConsoleLogging(page);
 }
 
 // Re-export base test and expect

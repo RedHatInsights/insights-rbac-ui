@@ -217,14 +217,16 @@ spec:
 
       # Run full E2E test suite SEQUENTIALLY
       # Using --workers=1 and CI=true to force sequential execution and prevent race conditions
+      # Using --max-failures=20 to stop early for faster debugging
       echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-      echo "Running FULL E2E test suite SEQUENTIALLY (workers=1, fullyParallel=false)"
+      echo "Running E2E test suite SEQUENTIALLY (workers=1, max-failures=20)"
       echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
       npm run e2e:seed
       npx playwright test --config=e2e/playwright.config.ts \
         --project=v1-admin --project=v1-userviewer --project=v1-readonly \
         --project=v2-admin --project=v2-userviewer --project=v2-readonly \
-        --workers=1
+        --workers=1 \
+        --max-failures=20
       E2E_EXIT=$?
       npm run e2e:cleanup
       exit $E2E_EXIT
