@@ -208,6 +208,7 @@ spec:
 
       # Export test environment configuration
       # E2E_* credentials are mapped automatically by scripts/run-with-env.sh
+      export CI=true
       export TEST_PREFIX=insights-rbac-ui-{{revision}}
       export TEST_PREFIX_V1=insights-rbac-ui-{{revision}}-v1
       export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}-v2
@@ -215,9 +216,9 @@ spec:
       export E2E_BASE_URL=https://stage.foo.redhat.com:1337
 
       # Run full E2E test suite SEQUENTIALLY
-      # Using --workers=1 to force sequential execution and prevent race conditions
+      # Using --workers=1 and CI=true to force sequential execution and prevent race conditions
       echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-      echo "Running FULL E2E test suite SEQUENTIALLY (workers=1)"
+      echo "Running FULL E2E test suite SEQUENTIALLY (workers=1, fullyParallel=false)"
       echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
       npm run e2e:seed
       npx playwright test --config=e2e/playwright.config.ts \
