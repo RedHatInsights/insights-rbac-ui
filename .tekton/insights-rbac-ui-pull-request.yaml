@@ -7,9 +7,9 @@ metadata:
     build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "master"
-    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch == "master"
+    # CHANGED: Updated to use E2E pipeline
+    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-all-tests.yaml
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: insights-rbac-ui
@@ -19,6 +19,7 @@ metadata:
   namespace: rh-platform-experien-tenant
 spec:
   params:
+  # Git repository configuration
   - name: git-url
     value: '{{source_url}}'
   - name: revision
@@ -29,35 +30,262 @@ spec:
     value: 5d
   - name: dockerfile
     value: ./build-tools/Dockerfile
-  - name: unit-tests-script
+
+  # Workspace setup - runs once before all tests
+  - name: workspace-setup-script
     value: |
       #!/bin/bash
       set -ex
 
       npm install
+
+  # Unit tests configuration (still runs before E2E tests)
+  - name: unit-tests-script
+    value: |
+      #!/bin/bash
+      set -ex
+
       npm run lint
       NODE_OPTIONS="--max-old-space-size=1536" npm test -- --runInBand --no-cache --logHeapUsage --coverage=false
   - name: unit-tests-memory-request
     value: "8Gi"
   - name: unit-tests-memory-limit
     value: "8Gi"
+
+  # E2E testing configuration
+  - name: e2e-app-port
+    value: "8000"  # Port where app assets will be served
+  - name: e2e-playwright-image
+    value: "mcr.microsoft.com/playwright:v1.57.0-noble"
+
+  # Application startup script
+  - name: run-app-script
+    value: |
+      #!/bin/bash
+      set -ex
+
+      # Start Caddy server to serve application assets
+      caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+
+  # E2E test execution script
+  - name: e2e-tests-script
+    value: |
+      #!/bin/bash
+      set -ex
+
+      echo "════════════════════════════════════════════════════════════════"
+      echo "RBAC UI E2E Pre-flight Validation"
+      echo "════════════════════════════════════════════════════════════════"
+
+      FAILURES=0
+
+      echo ""
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      echo "Phase 1: Sidecar Health Checks"
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      # Check RBAC app (port 8000)
+      echo -n "Checking RBAC app (port 8000)... "
+      if curl -f -s -m 5 http://127.0.0.1:8000/ -o /dev/null; then
+          echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo -n "Checking app.info.json... "
+      if curl -f -s -m 5 http://127.0.0.1:8000/app.info.json -o /tmp/app.info.json; then
+          echo "✅ OK"
+          echo "  Content: $(cat /tmp/app.info.json | head -c 200)"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo -n "Checking federated module manifest (fed-mods.json)... "
+      if curl -f -s -m 5 http://127.0.0.1:8000/apps/rbac/fed-mods.json -o /tmp/fed-mods.json; then
+          echo "✅ OK"
+          echo "  Size: $(wc -c < /tmp/fed-mods.json) bytes"
+          echo "  Content: $(cat /tmp/fed-mods.json | head -c 200)"
+
+          # Try to fetch a JS module from the manifest
+          MODULE_PATH=$(cat /tmp/fed-mods.json | grep -o '"[^"]*\.js"' | head -1 | tr -d '"' || echo "")
+          if [ -n "$MODULE_PATH" ]; then
+              echo -n "  Checking module JS ($MODULE_PATH)... "
+              if curl -f -s -m 5 "http://127.0.0.1:8000/apps/rbac/$MODULE_PATH" -o /tmp/module.js; then
+                  JS_SIZE=$(wc -c < /tmp/module.js)
+                  echo "✅ OK (${JS_SIZE} bytes)"
+              else
+                  echo "❌ FAILED"
+                  FAILURES=$((FAILURES + 1))
+              fi
+          fi
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo -n "Checking RBAC index.html... "
+      if curl -f -s -m 5 http://127.0.0.1:8000/index.html -o /dev/null; then
+          echo "✅ OK (unexpected - federated modules shouldn't have index.html)"
+      else
+          echo "⚠️  SKIPPED (expected - federated module has no index.html)"
+      fi
+
+      echo ""
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      echo "Phase 2: Proxy & Routing Validation"
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      # Wait for proxy
+      echo "Waiting for frontend-dev-proxy (port 1337)..."
+      timeout 120 bash -c 'until curl -k -s -m 5 https://stage.foo.redhat.com:1337 > /dev/null 2>&1; do
+          echo "  Waiting..."
+          sleep 5
+      done'
+
+      echo -n "Proxy responding... "
+      if curl -k -f -s -m 10 https://stage.foo.redhat.com:1337 -o /dev/null; then
+          echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      # Test federated module route (no chrome shell routes without sidecar)
+      echo -n "Route /apps/rbac/... "
+      if curl -k -f -s -m 10 "https://stage.foo.redhat.com:1337/apps/rbac/" -o /dev/null; then
+          echo "✅ OK"
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      # Test federated module manifest through proxy
+      echo -n "Federated module manifest via proxy... "
+      if curl -k -f -s -m 10 https://stage.foo.redhat.com:1337/apps/rbac/fed-mods.json -o /tmp/fed-mods-proxy.json; then
+          echo "✅ OK"
+          echo "  Size: $(wc -c < /tmp/fed-mods-proxy.json) bytes"
+          echo "  Content: $(cat /tmp/fed-mods-proxy.json | head -c 200)"
+
+          # Try to fetch a JS module through the proxy
+          MODULE_PATH=$(cat /tmp/fed-mods-proxy.json | grep -o '"[^"]*\.js"' | head -1 | tr -d '"' || echo "")
+          if [ -n "$MODULE_PATH" ]; then
+              echo -n "  Checking module JS via proxy ($MODULE_PATH)... "
+              if curl -k -f -s -m 10 "https://stage.foo.redhat.com:1337/apps/rbac/$MODULE_PATH" -o /tmp/module-proxy.js; then
+                  JS_SIZE=$(wc -c < /tmp/module-proxy.js)
+                  echo "✅ OK (${JS_SIZE} bytes)"
+              else
+                  echo "❌ FAILED"
+                  FAILURES=$((FAILURES + 1))
+              fi
+          fi
+      else
+          echo "❌ FAILED"
+          FAILURES=$((FAILURES + 1))
+      fi
+
+      echo ""
+      echo "════════════════════════════════════════════════════════════════"
+      if [ $FAILURES -eq 0 ]; then
+          echo "✅ ALL CHECKS PASSED - Starting Playwright tests"
+      else
+          echo "❌ $FAILURES CHECKS FAILED - Review output above"
+          echo "Common causes:"
+          echo "  - ConfigMaps not synced by ArgoCD"
+          echo "  - Proxy not fully started"
+          echo "  - Missing files in application image"
+          echo "  - Routing configuration errors"
+          exit 1
+      fi
+      echo "════════════════════════════════════════════════════════════════"
+      echo ""
+
+      # Decode E2E credentials from Vault secret
+      echo "$E2E_PASSWORD" | base64 -d > /tmp/e2e-credentials.sh
+      source /tmp/e2e-credentials.sh
+      rm /tmp/e2e-credentials.sh
+
+      # Export test environment configuration
+      # E2E_* credentials are mapped automatically by scripts/run-with-env.sh
+      export CI=true
+      export TEST_PREFIX=insights-rbac-ui-{{revision}}
+      export TEST_PREFIX_V1=insights-rbac-ui-{{revision}}-v1
+      export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}-v2
+      export RBAC_ENV=stage
+      export E2E_BASE_URL=https://stage.foo.redhat.com:1337
+
+      # Run full E2E test suite SEQUENTIALLY
+      # Using --workers=1 and CI=true to force sequential execution and prevent race conditions
+      # Using --max-failures=20 to stop early for faster debugging
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      echo "Running E2E test suite SEQUENTIALLY (workers=1, max-failures=20)"
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      npm run e2e:seed
+      npx playwright test --config=e2e/playwright.config.ts \
+        --project=v1-admin --project=v1-userviewer --project=v1-readonly \
+        --project=v2-admin --project=v2-userviewer --project=v2-readonly \
+        --workers=1 \
+        --max-failures=20
+      E2E_EXIT=$?
+      npm run e2e:cleanup
+      exit $E2E_EXIT
+
+  # Credentials for E2E tests
+  - name: e2e-credentials-secret
+    value: "insights-rbac-ui-credentials-secret"
+
+  # Frontend proxy routes ConfigMap (proxy routing configuration)
+  - name: frontend-proxy-routes-configmap
+    value: "insights-rbac-ui-dev-proxy-caddyfile"
+
   pipelineRef:
-    name: docker-build
+    resolver: git
+    params:
+      - name: url
+        value: https://github.com/RedHatInsights/konflux-pipelines
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: pipelines/platform-ui/docker-build-run-all-tests.yaml
   taskRunTemplate:
     serviceAccountName: build-pipeline-insights-rbac-ui
+  taskRunSpecs:
+    - pipelineTaskName: run-e2e-tests
+      serviceAccountName: build-pipeline-insights-rbac-ui
+      podTemplate:
+        # Override /etc/hosts to redirect stage.foo.redhat.com to localhost
+        hostAliases:
+          - ip: "::1"
+            hostnames:
+              - "stage.foo.redhat.com"
+          - ip: "127.0.0.1"
+            hostnames:
+              - "stage.foo.redhat.com"
+        # Add ConfigMap volume for app Caddyfile
+        volumes:
+          - name: app-caddyfile
+            configMap:
+              name: insights-rbac-ui-app-caddy-config
+      sidecarSpecs:
+        # Mount app Caddyfile into run-application sidecar
+        - name: run-application
+          volumeMounts:
+            - name: app-caddyfile
+              mountPath: /etc/caddy
   workspaces:
-  - name: workspace
-    volumeClaimTemplate:
-      metadata:
-        creationTimestamp: null
-      spec:
-        accessModes:
-        - ReadWriteOnce
-        resources:
-          requests:
-            storage: 1Gi
-      status: {}
-  - name: git-auth
-    secret:
-      secretName: '{{ git_auth_secret }}'
+    - name: workspace
+      volumeClaimTemplate:
+        metadata:
+          creationTimestamp: null
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 3Gi  # Increased for E2E tests
+        status: {}
+    - name: git-auth
+      secret:
+        secretName: '{{ git_auth_secret }}'
 status: {}
