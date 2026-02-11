@@ -1,3 +1,10 @@
+# [2.9.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.8.0...v2.9.0) (2026-02-11)
+
+
+### Features
+
+* support cursor-based pagination for V2 APIs ([c8d4229](https://github.com/RedHatInsights/insights-rbac-ui/commit/c8d42298c80ce1bd2771d719625cbd38672313cf))
+
 # [2.8.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.7.0...v2.8.0) (2026-02-11)
 
 
