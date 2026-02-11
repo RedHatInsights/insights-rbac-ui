@@ -15,6 +15,7 @@ import {
   waitForTabContent,
   waitForTableUpdate,
 } from '../../utils';
+import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const GROUPS_URL = '/iam/user-access/groups';
 
@@ -32,7 +33,7 @@ export class GroupsPage {
   async goto(): Promise<void> {
     await setupPage(this.page);
     await this.page.goto(GROUPS_URL);
-    await expect(this.heading).toBeVisible();
+    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -83,11 +84,11 @@ export class GroupsPage {
   }
 
   async verifyGroupInTable(name: string): Promise<void> {
-    await expect(this.getGroupRow(name)).toBeVisible({ timeout: 10000 });
+    await expect(this.getGroupRow(name)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async verifyGroupNotInTable(name: string): Promise<void> {
-    await expect(this.getGroupRow(name)).not.toBeVisible({ timeout: 10000 });
+    await expect(this.getGroupRow(name)).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async navigateToDetail(name: string): Promise<void> {
@@ -160,16 +161,16 @@ export class GroupsPage {
 
   async openAddMembersModal(): Promise<void> {
     await this.addMemberButton.click();
-    await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
+    await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
   }
 
   async selectMembersInModal(count: number): Promise<void> {
     const modal = this.page.getByRole('dialog', { name: /add members/i });
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Wait for table rows to appear
     const table = modal.getByRole('grid', { name: /users/i });
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await expect(table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     // Select members by clicking row checkboxes - use fresh locators each time
     for (let i = 0; i < count; i++) {
@@ -184,11 +185,11 @@ export class GroupsPage {
     const addMembersModal = this.page.getByRole('dialog', { name: /add members/i });
     const submitButton = addMembersModal.getByRole('button', { name: /add to group/i });
 
-    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    await expect(submitButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
     await submitButton.click();
 
     // Wait for this specific modal to close - use the same locator, not a stored reference
-    await expect(this.page.getByRole('dialog', { name: /add members/i })).not.toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByRole('dialog', { name: /add members/i })).not.toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
   async addMembersToGroup(count: number): Promise<void> {
@@ -201,7 +202,7 @@ export class GroupsPage {
     const table = this.page.getByRole('grid').first();
     for (let i = 0; i < count; i++) {
       await table.getByRole('checkbox', { name: new RegExp(`select row ${i}`, 'i') }).click();
-      await this.page.waitForTimeout(200);
+      await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
     }
   }
 
@@ -212,9 +213,9 @@ export class GroupsPage {
 
     // Confirm removal
     const confirmDialog = this.page.getByRole('dialog').first();
-    await expect(confirmDialog).toBeVisible({ timeout: 5000 });
+    await expect(confirmDialog).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
     await confirmDialog.getByRole('button', { name: /remove/i }).click();
-    await expect(confirmDialog).not.toBeVisible({ timeout: 10000 });
+    await expect(confirmDialog).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -231,16 +232,16 @@ export class GroupsPage {
 
   async openAddRolesModal(): Promise<void> {
     await this.addRoleButton.click();
-    await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
+    await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
   }
 
   async selectRolesInModal(count: number): Promise<void> {
     const modal = this.page.getByRole('dialog', { name: /add roles/i });
-    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Wait for table to appear
     const table = modal.getByRole('grid', { name: /roles/i });
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await expect(table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     // Select roles by clicking row checkboxes - use fresh locators each time
     for (let i = 0; i < count; i++) {
@@ -253,11 +254,11 @@ export class GroupsPage {
     const modal = this.page.getByRole('dialog', { name: /add roles/i });
     const submitButton = modal.getByRole('button', { name: /add to group/i });
 
-    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    await expect(submitButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
     await submitButton.click();
 
     // Wait for this specific modal to close - fresh locator
-    await expect(this.page.getByRole('dialog', { name: /add roles/i })).not.toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByRole('dialog', { name: /add roles/i })).not.toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
   async addRolesToGroup(count: number): Promise<void> {
@@ -268,7 +269,7 @@ export class GroupsPage {
 
   async selectRoleRows(count: number): Promise<void> {
     // Wait for roles table to be visible
-    await expect(this.page.getByRole('grid')).toBeVisible({ timeout: 5000 });
+    await expect(this.page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     // Select rows using fresh locators each time
     for (let i = 0; i < count; i++) {
@@ -291,7 +292,7 @@ export class GroupsPage {
       .click();
 
     // Wait for dialog to close
-    await expect(this.page.getByRole('dialog')).not.toBeVisible({ timeout: 15000 });
+    await expect(this.page.getByRole('dialog')).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -300,8 +301,8 @@ export class GroupsPage {
 
   async fillCreateWizard(name: string, description: string): Promise<void> {
     // Dialog opens via URL routing - wait for URL and wizard to appear
-    await this.page.waitForURL(/add-group/, { timeout: 10000 });
-    await expect(this.page.locator('[data-ouia-component-id="add-group-wizard"]')).toBeVisible({ timeout: 10000 });
+    await this.page.waitForURL(/add-group/, { timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await expect(this.page.locator('[data-ouia-component-id="add-group-wizard"]')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     // Helper to click wizard Next button - always use fresh locator
     const clickWizardNext = async () => {
@@ -311,7 +312,7 @@ export class GroupsPage {
         .locator('footer, [class*="wizard__footer"]')
         .getByRole('button', { name: /next/i });
 
-      await expect(footerNext).toBeEnabled({ timeout: 10000 });
+      await expect(footerNext).toBeEnabled({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       await footerNext.click();
     };
 
@@ -320,38 +321,38 @@ export class GroupsPage {
 
     // Name input - fill and blur to trigger validation
     const nameInput = wizard.locator('#group-name');
-    await expect(nameInput).toBeVisible({ timeout: 5000 });
+    await expect(nameInput).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await nameInput.fill(name);
     await nameInput.blur();
 
     // Wait for validation to settle
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
 
     // Description - there are 2 textareas (DDF hidden + SetName visible), use first()
     const descInput = wizard.locator('textarea').first();
-    await expect(descInput).toBeVisible({ timeout: 5000 });
+    await expect(descInput).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await descInput.fill(description);
 
     // Wait for Next to enable then click
     await clickWizardNext();
 
     // Step 2: Roles - wait for table, select first role (scope to wizard)
-    await expect(wizard.getByRole('grid', { name: /roles/i })).toBeVisible({ timeout: 10000 });
+    await expect(wizard.getByRole('grid', { name: /roles/i })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await wizard.getByRole('checkbox', { name: /select row 0/i }).click();
     await clickWizardNext();
 
     // Step 3: Members - wait for table, select first member (scope to wizard)
-    await expect(wizard.getByRole('grid', { name: /users|members/i })).toBeVisible({ timeout: 10000 });
+    await expect(wizard.getByRole('grid', { name: /users|members/i })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await wizard.getByRole('checkbox', { name: /select row 0/i }).click();
     await clickWizardNext();
 
     // Step 4: Service Accounts (optional) - try to select one if the step exists
     try {
       const serviceAccountsHeading = wizard.getByRole('heading', { name: /service account/i });
-      await expect(serviceAccountsHeading).toBeVisible({ timeout: 3000 });
+      await expect(serviceAccountsHeading).toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
       // If we're on service accounts step, select one and continue (scope to wizard)
       const saCheckbox = wizard.getByRole('checkbox', { name: /select row 0/i });
-      if (await saCheckbox.isVisible({ timeout: 2000 }).catch(() => false)) {
+      if (await saCheckbox.isVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION }).catch(() => false)) {
         await saCheckbox.click();
       }
       await clickWizardNext();
@@ -366,7 +367,7 @@ export class GroupsPage {
         const mainContent = wiz?.querySelector('.pf-v6-c-wizard__main-body, .pf-v6-c-wizard__main');
         return mainContent && /review/i.test(mainContent.textContent || '');
       },
-      { timeout: 8000 },
+      { timeout: E2E_TIMEOUTS.TABLE_DATA },
     );
 
     const createButton = wizard
@@ -374,13 +375,13 @@ export class GroupsPage {
       .filter({ hasText: /create|submit|finish/i })
       .first();
     await createButton.click();
-    await expect(wizard).not.toBeVisible({ timeout: 15000 });
+    await expect(wizard).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
   }
 
   async fillEditModal(newName: string, newDescription: string): Promise<void> {
     const dialog = this.page.getByRole('dialog').first();
-    await expect(dialog).toBeVisible({ timeout: 5000 });
-    await this.page.waitForTimeout(500);
+    await expect(dialog).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
 
     const textboxes = dialog.getByRole('textbox');
     await textboxes.nth(0).click();
@@ -394,15 +395,15 @@ export class GroupsPage {
     await textboxes.nth(1).fill(newDescription);
 
     await dialog.getByRole('button', { name: /save/i }).click();
-    await expect(dialog).not.toBeVisible({ timeout: 5000 });
+    await expect(dialog).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
   }
 
   async confirmDelete(groupName: string): Promise<void> {
     const dialog = this.page.getByRole('dialog').first();
-    await expect(dialog).toBeVisible({ timeout: 5000 });
-    await expect(dialog.getByRole('heading', { name: new RegExp(groupName, 'i') })).toBeVisible({ timeout: 30000 });
+    await expect(dialog).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(dialog.getByRole('heading', { name: new RegExp(groupName, 'i') })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     await dialog.getByRole('button', { name: /remove/i }).click();
-    await expect(dialog).not.toBeVisible({ timeout: 15000 });
+    await expect(dialog).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
   }
 
   async verifySuccess(): Promise<void> {

@@ -6,6 +6,9 @@
     "userviewer": { "username": "rbac-e2e-userviewer-v2" },
     "readonly": { "username": "rbac-e2e-user-v2" }
   },
+  "seededUsers": [
+    { "username": "rbac-e2e-seed-user" }
+  ],
   "roles": [
     {
       "name": "Seeded Role",

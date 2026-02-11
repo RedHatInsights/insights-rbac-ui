@@ -218,10 +218,8 @@ export const WorkspaceDetail = () => {
               <Tab title="Roles assigned in this workspace" />
               <Tab title="Roles assigned in parent workspaces" />
             </Tabs>
-            <RoleAssignmentsTable
-              readOnly={!enableRoleBindingsWrite}
-              {...props}
-            />
+            <BaseGroupAssignmentsTable {...props} />
+            {/* or InheritedGroupAssignmentsTable for parent tab */}
           </>
         )
       )}

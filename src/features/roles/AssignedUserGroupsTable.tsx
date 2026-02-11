@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import type { AdditionalGroup, RoleOutDynamic } from '@redhat-cloud-services/rbac-client/types';
 import { useIntl } from 'react-intl';
 import Messages from '../../Messages';
+// eslint-disable-next-line rbac-local/require-use-table-state -- display-only table from props, no server state
 import { TableView } from '../../components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '../../components/table-view/types';
 

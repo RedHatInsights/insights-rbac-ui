@@ -13,6 +13,7 @@
 import { type FullConfig, chromium } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
+import { E2E_TIMEOUTS } from '../utils/timeouts';
 
 const CACHE_DIR = path.join(__dirname, '..', 'cache');
 const HAR_PATH = path.join(CACHE_DIR, 'session-assets.har');
@@ -94,11 +95,11 @@ async function globalSetup(config: FullConfig) {
 
     // Wait for the page content to render (more reliable than networkidle)
     console.log('[Cache Warmer] Waiting for page content...');
-    await page.getByRole('heading', { name: 'My User Access' }).waitFor({ timeout: 30000 });
+    await page.getByRole('heading', { name: 'My User Access' }).waitFor({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     console.log('[Cache Warmer] Page loaded, waiting for lazy chunks...');
 
     // Give extra time for lazy-loaded chunks
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(E2E_TIMEOUTS.MODAL_ANIMATION);
   } catch (error) {
     console.error('[Cache Warmer] ❌ Error during warm-up:', error);
   } finally {

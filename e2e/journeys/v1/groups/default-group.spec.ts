@@ -21,6 +21,7 @@
 import { expect, test } from '@playwright/test';
 import { AUTH_V1_ADMIN } from '../../../utils';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration
@@ -66,7 +67,7 @@ test.describe('Admin - Default Group Copy Flow', () => {
 
     // Navigate to detail page
     await groupsPage.navigateToDetail(DEFAULT_ACCESS_GROUP);
-    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     console.log('[Default Group] ✓ Default access group exists and is accessible');
   });
@@ -83,13 +84,13 @@ test.describe('Admin - Default Group Copy Flow', () => {
     }
 
     await groupsPage.navigateToDetail(DEFAULT_ACCESS_GROUP);
-    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click Roles tab
     await groupsPage.clickTab('Roles');
 
     // Should show Add role button
-    await expect(groupsPage.addRoleButton).toBeVisible({ timeout: 10000 });
+    await expect(groupsPage.addRoleButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     console.log('[Default Group] ✓ Roles tab is accessible');
   });
@@ -103,14 +104,14 @@ test.describe('Admin - Default Group Copy Flow', () => {
 
     await groupsPage.searchFor(DEFAULT_ACCESS_GROUP);
     await groupsPage.navigateToDetail(DEFAULT_ACCESS_GROUP);
-    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click Roles tab
     await groupsPage.clickTab('Roles');
 
     // Wait for Add role button
-    await expect(groupsPage.addRoleButton).toBeVisible({ timeout: 10000 });
-    await expect(groupsPage.addRoleButton).toBeEnabled({ timeout: 10000 });
+    await expect(groupsPage.addRoleButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await expect(groupsPage.addRoleButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
 
     // Click Add role
     await groupsPage.openAddRolesModal();
@@ -123,7 +124,7 @@ test.describe('Admin - Default Group Copy Flow', () => {
 
     // Wait for the warning modal to appear
     const warningModal = page.locator('[data-ouia-component-id="WarningModal"]');
-    await expect(warningModal).toBeVisible({ timeout: 10000 });
+    await expect(warningModal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Verify confirmation checkbox is required
     const confirmCheckbox = warningModal.getByRole('checkbox', { name: /i understand/i });
@@ -138,13 +139,13 @@ test.describe('Admin - Default Group Copy Flow', () => {
     await continueButton.click();
 
     // Wait for modal to close
-    await expect(warningModal).not.toBeVisible({ timeout: 10000 });
+    await expect(warningModal).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Verify group name changed to "Custom default access"
-    await expect(page.getByRole('heading', { name: CUSTOM_DEFAULT_GROUP })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: CUSTOM_DEFAULT_GROUP })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     // Verify alert appears
-    await expect(page.getByText(/default access group has changed/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/default access group has changed/i)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     console.log('[Default Group] ✓ Modification triggered copy flow');
   });
@@ -164,11 +165,11 @@ test.describe('Admin - Default Group Copy Flow', () => {
     }
 
     await groupsPage.navigateToDetail(CUSTOM_DEFAULT_GROUP);
-    await expect(groupsPage.getDetailHeading(CUSTOM_DEFAULT_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(CUSTOM_DEFAULT_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Verify "Restore to default" button is visible
     const restoreButton = page.getByRole('button', { name: /restore to default/i });
-    await expect(restoreButton).toBeVisible({ timeout: 10000 });
+    await expect(restoreButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     console.log('[Default Group] ✓ Restore to default button is visible');
   });
@@ -187,7 +188,7 @@ test.describe('Admin - Default Group Copy Flow', () => {
     }
 
     await groupsPage.navigateToDetail(CUSTOM_DEFAULT_GROUP);
-    await expect(groupsPage.getDetailHeading(CUSTOM_DEFAULT_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(CUSTOM_DEFAULT_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click "Restore to default"
     const restoreButton = page.getByRole('button', { name: /restore to default/i });
@@ -195,16 +196,16 @@ test.describe('Admin - Default Group Copy Flow', () => {
 
     // Confirm in modal
     const confirmModal = page.getByRole('dialog').first();
-    await expect(confirmModal).toBeVisible({ timeout: 5000 });
+    await expect(confirmModal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     const confirmButton = confirmModal.getByRole('button', { name: /continue/i });
     await confirmButton.click();
 
     // Wait for modal to close
-    await expect(confirmModal).not.toBeVisible({ timeout: 10000 });
+    await expect(confirmModal).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
     // Verify group name changed back to "Default access"
-    await expect(page.getByRole('heading', { name: DEFAULT_ACCESS_GROUP })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: DEFAULT_ACCESS_GROUP })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     // Verify "Restore to default" button is no longer visible
     await expect(page.getByRole('button', { name: /restore to default/i })).not.toBeVisible();
@@ -234,13 +235,13 @@ test.describe('Admin - Already Modified Default Group', () => {
     }
 
     await groupsPage.navigateToDetail(CUSTOM_DEFAULT_GROUP);
-    await expect(groupsPage.getDetailHeading(CUSTOM_DEFAULT_GROUP)).toBeVisible({ timeout: 15000 });
+    await expect(groupsPage.getDetailHeading(CUSTOM_DEFAULT_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
     // Click Roles tab
     await groupsPage.clickTab('Roles');
 
     // Wait for Add role button
-    await expect(groupsPage.addRoleButton).toBeEnabled({ timeout: 10000 });
+    await expect(groupsPage.addRoleButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
 
     // Click Add role
     await groupsPage.openAddRolesModal();

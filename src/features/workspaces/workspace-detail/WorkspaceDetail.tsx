@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@patternfly/react-data-view';
 import messages from '../../../Messages';
 import AssetsCards from './components/AssetsCards';
-import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
+import { BaseGroupAssignmentsTable } from './components/BaseGroupAssignmentsTable';
+import { InheritedGroupAssignmentsTable } from './components/InheritedGroupAssignmentsTable';
 import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
@@ -51,11 +51,6 @@ interface WorkspaceData {
   id: string;
 }
 
-interface RoleAssignmentsFilters {
-  name: string;
-  inheritedFrom?: string;
-}
-
 const WORKSPACE_TABS = {
   roles: 0,
   assets: 1,
@@ -87,70 +82,16 @@ export const WorkspaceDetail = () => {
 
   const isLoading = isWorkspacesLoading || isWorkspaceLoading;
 
-  // DataView hooks for role assignments table
-  const { sortBy, direction, onSort } = useDataViewSort({
-    initialSort: {
-      sortBy: 'name',
-      direction: 'asc' as const,
-    },
-    searchParams,
-    setSearchParams,
-  });
+  // Role bindings queries — fetch all bindings up front, paginate/sort/filter client-side.
+  // The role bindings API uses cursor-based pagination (no offset), so true server-side
+  // pagination would require cursor iteration — a separate feature. Using a high limit
+  // and client-side TableView pagination is the current pragmatic approach.
+  const ROLE_BINDINGS_LIMIT = 1000;
 
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleAssignmentsFilters>({
-    initialFilters: { name: '', inheritedFrom: '' },
-    searchParams,
-    setSearchParams,
-  });
-
-  const { page, perPage, onSetPage, onPerPageSelect } = useDataViewPagination({
-    perPage: 20,
-    searchParams,
-    setSearchParams,
-  });
-
-  // Parent DataView hooks for parent role assignments table (separate state)
-  const [parentSearchParams, setParentSearchParams] = useState(new URLSearchParams());
-
-  const {
-    sortBy: parentSortBy,
-    direction: parentDirection,
-    onSort: parentOnSort,
-  } = useDataViewSort({
-    initialSort: {
-      sortBy: 'name',
-      direction: 'asc' as const,
-    },
-    searchParams: parentSearchParams,
-    setSearchParams: setParentSearchParams,
-  });
-
-  const {
-    filters: parentFilters,
-    onSetFilters: parentOnSetFilters,
-    clearAllFilters: parentClearAllFilters,
-  } = useDataViewFilters<RoleAssignmentsFilters>({
-    initialFilters: { name: '', inheritedFrom: '' },
-    searchParams: parentSearchParams,
-    setSearchParams: setParentSearchParams,
-  });
-
-  const {
-    page: parentPage,
-    perPage: parentPerPage,
-    onSetPage: parentOnSetPage,
-    onPerPageSelect: parentOnPerPageSelect,
-  } = useDataViewPagination({
-    perPage: 20,
-    searchParams: parentSearchParams,
-    setSearchParams: setParentSearchParams,
-  });
-
-  // Role bindings queries
   const shouldFetchRoleBindings = activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-workspace';
   const { data: roleBindingsData, isLoading: roleBindingsIsLoading } = useRoleAssignmentsQuery(workspaceId || '', {
     enabled: shouldFetchRoleBindings && !!workspaceId,
-    limit: perPage,
+    limit: ROLE_BINDINGS_LIMIT,
   });
 
   // Parent role bindings query
@@ -161,17 +102,16 @@ export const WorkspaceDetail = () => {
     !!selectedWorkspace?.parent_id;
   const { data: parentBindingsData, isLoading: parentGroupsIsLoading } = useRoleAssignmentsQuery(selectedWorkspace?.parent_id || '', {
     enabled: shouldFetchParentBindings,
-    limit: parentPerPage,
+    limit: ROLE_BINDINGS_LIMIT,
     parentRoleBindings: true,
   });
 
   // Transform role bindings to Group structure for the table
   // Note: These are role binding representations, not actual RBAC groups,
-  // but we use Group type for compatibility with RoleAssignmentsTable
+  // but we use Group type for compatibility with the table components
   const roleBindings: Group[] = useMemo(() => {
     if (!roleBindingsData?.data) return [];
     return roleBindingsData.data.map((binding: RoleBinding) => {
-      // Cast subject to extended type that includes group/user details
       const subject = binding.subject as RoleBindingSubject | undefined;
       return {
         uuid: subject?.id || '',
@@ -188,8 +128,6 @@ export const WorkspaceDetail = () => {
     });
   }, [roleBindingsData]);
 
-  const roleBindingsTotalCount = roleBindingsData?.data?.length ?? 0;
-
   // Transform parent bindings with inheritance info
   const parentGroups: GroupWithInheritance[] = useMemo(() => {
     if (!parentBindingsData?.data || !selectedWorkspace?.parent_id) return [];
@@ -198,7 +136,6 @@ export const WorkspaceDetail = () => {
     const parentWorkspaceName = parentWorkspace?.name || 'Parent Workspace';
 
     return parentBindingsData.data.map((binding: RoleBinding) => {
-      // Cast subject to extended type that includes group/user details
       const subject = binding.subject as RoleBindingSubject | undefined;
       return {
         uuid: subject?.id || '',
@@ -212,24 +149,20 @@ export const WorkspaceDetail = () => {
         system: false,
         admin_default: false,
         inheritedFrom: {
-          workspaceId: selectedWorkspace.parent_id!, // Already checked parent_id exists in condition above
+          workspaceId: selectedWorkspace.parent_id!,
           workspaceName: parentWorkspaceName,
         },
       } as GroupWithInheritance;
     });
   }, [parentBindingsData, selectedWorkspace, workspaces]);
 
-  const parentGroupsTotalCount = parentBindingsData?.data?.length ?? 0;
-
   // Workspace hierarchy state
   const [workspaceHierarchy, setWorkspaceHierarchy] = useState<WorkspaceData[]>([]);
 
   useEffect(() => {
     if (!searchParams.has('activeTab')) {
-      // Default to 'roles' tab if role bindings are enabled (M3+), otherwise 'assets'
       setSearchParams({ activeTab: enableRoles ? 'roles' : 'assets' });
     } else if (!enableRoles && activeTabString !== 'assets') {
-      // If roles are disabled but user is on roles tab, redirect to assets
       setSearchParams({ activeTab: 'assets' });
     }
   }, [searchParams, setSearchParams, enableRoles, activeTabString]);
@@ -253,7 +186,7 @@ export const WorkspaceDetail = () => {
   };
 
   const hasAssets = useMemo(() => {
-    return workspaces.filter((ws) => ws.parent_id === workspaceId).length > 0 ? true : false;
+    return workspaces.filter((ws) => ws.parent_id === workspaceId).length > 0;
   }, [selectedWorkspace, workspaces, workspaceId]);
 
   const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
@@ -330,41 +263,19 @@ export const WorkspaceDetail = () => {
                 />
               </Tabs>
               {activeRoleAssignmentTabString === 'roles-assigned-in-workspace' ? (
-                <RoleAssignmentsTable
+                <BaseGroupAssignmentsTable
                   key="current-workspace-roles"
                   groups={roleBindings}
-                  totalCount={roleBindingsTotalCount}
                   isLoading={roleBindingsIsLoading}
-                  page={page}
-                  perPage={perPage}
-                  onSetPage={onSetPage}
-                  onPerPageSelect={onPerPageSelect}
-                  sortBy={sortBy}
-                  direction={direction}
-                  onSort={onSort}
-                  filters={filters}
-                  onSetFilters={onSetFilters}
-                  clearAllFilters={clearAllFilters}
                   workspaceName={selectedWorkspace?.name || ''}
                   currentWorkspace={currentWorkspace}
                   ouiaId="current-role-assignments-table"
                 />
               ) : (
-                <RoleAssignmentsTable
+                <InheritedGroupAssignmentsTable
                   key="parent-workspace-roles"
                   groups={parentGroups}
-                  totalCount={parentGroupsTotalCount}
                   isLoading={parentGroupsIsLoading}
-                  page={parentPage}
-                  perPage={parentPerPage}
-                  onSetPage={parentOnSetPage}
-                  onPerPageSelect={parentOnPerPageSelect}
-                  sortBy={parentSortBy}
-                  direction={parentDirection}
-                  onSort={parentOnSort}
-                  filters={parentFilters}
-                  onSetFilters={parentOnSetFilters}
-                  clearAllFilters={parentClearAllFilters}
                   workspaceName={selectedWorkspace?.name || ''}
                   currentWorkspace={currentWorkspace}
                   ouiaId="parent-role-assignments-table"

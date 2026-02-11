@@ -32,6 +32,16 @@ import { DefaultEmptyStateError, DefaultEmptyStateNoData, DefaultEmptyStateNoRes
 /**
  * TableView - Unified table component for RBAC UI
  *
+ * **IMPORTANT**: When using TableView with server-side data (pagination, sorting, filtering),
+ * always pair it with the `useTableState` hook from `./hooks/useTableState`.
+ * Do NOT hand-roll pagination, sort, filter, or selection state with `useState` or
+ * `@patternfly/react-data-view` hooks — this leads to duplicated logic and subtle bugs
+ * (e.g., broken multi-select, ignored sort direction).
+ *
+ * Exceptions: display-only tables rendering small, fully-local datasets (e.g., from props)
+ * where no server-side state management is needed. Suppress the ESLint warning with:
+ * `// eslint-disable-next-line rbac-local/require-use-table-state -- <reason>`
+ *
  * @template TColumns - Const tuple of column IDs
  * @template TRow - Row data type
  * @template TSortable - Union of sortable column IDs
@@ -68,6 +78,8 @@ export function TableView<
     perPageOptions = [10, 20, 50, 100],
     onPageChange,
     onPerPageChange,
+    hasNextPage,
+    hasPreviousPage,
 
     // Selection
     selectable = false,
@@ -130,8 +142,8 @@ export function TableView<
 
   // -------------------------------------------------------------------------
   // Page Clamping - auto-correct out-of-range page numbers
-  // When totalCount is known and current page exceeds max, clamp to last page
-  // When totalCount is 0 (no results), normalize to page 1
+  // Only applies when totalCount is known (offset pagination mode).
+  // When totalCount is undefined (cursor mode), skip clamping entirely.
   // -------------------------------------------------------------------------
   useEffect(() => {
     if (!isLoading && totalCount !== undefined && page !== undefined && perPage !== undefined && onPageChange) {
@@ -233,6 +245,8 @@ export function TableView<
         perPageOptions={perPageOptions}
         onPageChange={onPageChange}
         onPerPageChange={onPerPageChange}
+        hasNextPage={hasNextPage}
+        hasPreviousPage={hasPreviousPage}
         filters={filtersElement}
         clearAllFilters={clearAllFilters}
         selectableCount={selectableCount}
@@ -351,6 +365,8 @@ export function TableView<
           perPageOptions={perPageOptions}
           onPageChange={onPageChange}
           onPerPageChange={onPerPageChange}
+          hasNextPage={hasNextPage}
+          hasPreviousPage={hasPreviousPage}
         />
       )}
     </div>
