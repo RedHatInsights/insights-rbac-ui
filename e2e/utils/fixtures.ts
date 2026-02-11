@@ -88,23 +88,44 @@ export async function blockAnalytics(page: Page): Promise<void> {
  * Call this in test.beforeEach or at the start of each test.
  */
 export async function enableConsoleLogging(page: Page): Promise<void> {
+  // Log browser console errors and warnings
   page.on('console', (msg) => {
     const type = msg.type();
     // Only log errors and warnings
     if (type === 'error' || type === 'warning') {
       const location = msg.location();
       const prefix = `[Browser ${type.toUpperCase()}]`;
-      console.log(`${prefix} ${msg.text()}`);
+      // Use process.stderr to ensure it appears in Playwright output
+      process.stderr.write(`${prefix} ${msg.text()}\n`);
       if (location.url) {
-        console.log(`  at ${location.url}:${location.lineNumber}:${location.columnNumber}`);
+        process.stderr.write(`  at ${location.url}:${location.lineNumber}:${location.columnNumber}\n`);
       }
     }
   });
 
-  // Also log page errors (uncaught exceptions)
+  // Log page errors (uncaught exceptions)
   page.on('pageerror', (error) => {
-    console.log('[Browser EXCEPTION]', error.message);
-    console.log(error.stack);
+    process.stderr.write(`[Browser EXCEPTION] ${error.message}\n`);
+    if (error.stack) {
+      process.stderr.write(`${error.stack}\n`);
+    }
+  });
+
+  // Log failed network requests (might indicate missing resources)
+  page.on('requestfailed', (request) => {
+    const failure = request.failure();
+    process.stderr.write(`[Network FAILED] ${request.method()} ${request.url()}\n`);
+    if (failure) {
+      process.stderr.write(`  Error: ${failure.errorText}\n`);
+    }
+  });
+
+  // Log HTTP errors (4xx, 5xx)
+  page.on('response', (response) => {
+    const status = response.status();
+    if (status >= 400) {
+      process.stderr.write(`[HTTP ${status}] ${response.request().method()} ${response.url()}\n`);
+    }
   });
 }
 
