@@ -199,7 +199,7 @@ Tests the complete "Edit user group" workflow:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for page to load
+    // Wait for page to load and table to be fully interactive
     await waitForPageToLoad(canvas, 'Golden girls');
 
     // ==========================================================================
@@ -211,7 +211,11 @@ Tests the complete "Edit user group" workflow:
     // ==========================================================================
     // ACTION: Open edit form from kebab menu
     // ==========================================================================
+    // Wait for kebab buttons to be present and interactive
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    expect(kebabButtons.length).toBeGreaterThan(0);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
     // Click the last kebab (Golden girls)
     await user.click(kebabButtons[kebabButtons.length - 1]);
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
@@ -327,11 +331,15 @@ Tests editing the group name.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for page to load
+    // Wait for page to load and table to be fully interactive
     await waitForPageToLoad(canvas, 'Golden girls');
 
-    // Open edit for a group
+    // Wait for kebab buttons to be present and interactive
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    expect(kebabButtons.length).toBeGreaterThan(0);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Open edit for a group (last kebab button)
     await user.click(kebabButtons[kebabButtons.length - 1]);
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
@@ -391,11 +399,17 @@ Tests that changing to an existing group name shows validation error.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for page to load
+    // Wait for page to load and table to be fully interactive
     await waitForPageToLoad(canvas, 'Golden girls');
 
-    // Open edit for Golden girls
+    // Wait for kebab buttons to be present and interactive
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    expect(kebabButtons.length).toBeGreaterThan(0);
+
+    // Additional settle time to ensure table is fully interactive
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Open edit for Golden girls (last kebab button)
     await user.click(kebabButtons[kebabButtons.length - 1]);
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
@@ -403,8 +417,11 @@ Tests that changing to an existing group name shows validation error.
     await user.click(editOption);
     await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD); // Wait for form to load
 
-    // Change name to existing group name
+    // Wait for form to be fully ready by checking for the name input with current value
     const nameInput = await canvas.findByRole('textbox', { name: /name/i });
+    expect(nameInput).toHaveValue('Golden girls'); // Verify form loaded correctly
+
+    // Change name to existing group name
     await user.tripleClick(nameInput);
     await user.keyboard('Admin group'); // Already exists
 
@@ -453,11 +470,15 @@ Tests canceling the edit form.
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for page to load
+    // Wait for page to load and table to be fully interactive
     await waitForPageToLoad(canvas, 'Golden girls');
 
-    // Open edit
+    // Wait for kebab buttons to be present and interactive
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    expect(kebabButtons.length).toBeGreaterThan(0);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Open edit (last kebab button)
     await user.click(kebabButtons[kebabButtons.length - 1]);
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
