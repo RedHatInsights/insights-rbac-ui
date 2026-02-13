@@ -38,14 +38,35 @@ export interface MockUserIdentity {
   entitlements?: MockEntitlements;
 }
 
+/**
+ * Kessel workspace permissions shape.
+ * Each key is a workspace relation; the value is an array of workspace IDs
+ * for which the mocked user has that permission.
+ */
+export interface WorkspacePermissionsMap {
+  view: string[];
+  edit: string[];
+  delete: string[];
+  create: string[];
+  move: string[];
+  rename: string[];
+}
+
+/** Default empty workspace permissions (all denied) */
+export const EMPTY_WORKSPACE_PERMISSIONS: WorkspacePermissionsMap = {
+  view: [],
+  edit: [],
+  delete: [],
+  create: [],
+  move: [],
+  rename: [],
+};
+
 export interface MockState {
   environment: Environment;
   isOrgAdmin: boolean;
   permissions: string[];
-  workspacePermissions: {
-    edit: string[]; // workspace IDs user can edit
-    create: string[]; // workspace IDs user can create in
-  };
+  workspacePermissions: WorkspacePermissionsMap;
   /** Optional custom user identity for auth.getUser() */
   userIdentity?: MockUserIdentity;
 }
@@ -63,11 +84,23 @@ export interface StoryParameters {
   orgAdmin?: boolean;
   /** Environment: 'staging' or 'production' */
   environment?: 'staging' | 'production';
-  /** Workspace permissions for Kessel stories */
-  workspacePermissions?: {
-    edit: string[];
-    create: string[];
-  };
+  /**
+   * Workspace permissions for Kessel stories.
+   * Maps workspace relations to arrays of workspace IDs the user has that permission on.
+   *
+   * @example
+   * ```ts
+   * workspacePermissions: {
+   *   view: ['root-1', 'ws-1', 'ws-2'],
+   *   edit: ['root-1', 'ws-1'],
+   *   delete: ['ws-1'],
+   *   create: ['root-1', 'ws-1'],
+   *   move: ['ws-1'],
+   *   rename: ['ws-1'],
+   * }
+   * ```
+   */
+  workspacePermissions?: Partial<WorkspacePermissionsMap>;
   /** User identity for auth.getUser() */
   userIdentity?: MockUserIdentity;
   /** Feature flags */
@@ -82,7 +115,7 @@ const defaultState: MockState = {
   environment: 'staging',
   isOrgAdmin: false,
   permissions: [],
-  workspacePermissions: { edit: [], create: [] },
+  workspacePermissions: EMPTY_WORKSPACE_PERMISSIONS,
 };
 
 export const StorybookMockContext = createContext<MockState>(defaultState);
@@ -96,10 +129,12 @@ export const StorybookMockProvider: React.FC<ProviderProps> = ({
   environment = 'staging',
   isOrgAdmin = false,
   permissions = [],
-  workspacePermissions = { edit: [], create: [] },
+  workspacePermissions = EMPTY_WORKSPACE_PERMISSIONS,
   userIdentity,
 }) => {
-  const value: MockState = { environment, isOrgAdmin, permissions, workspacePermissions, userIdentity };
+  // Merge partial workspacePermissions with defaults so all 6 keys are always present
+  const mergedWorkspacePermissions: WorkspacePermissionsMap = { ...EMPTY_WORKSPACE_PERMISSIONS, ...workspacePermissions };
+  const value: MockState = { environment, isOrgAdmin, permissions, workspacePermissions: mergedWorkspacePermissions, userIdentity };
   return <StorybookMockContext.Provider value={value}>{children}</StorybookMockContext.Provider>;
 };
 

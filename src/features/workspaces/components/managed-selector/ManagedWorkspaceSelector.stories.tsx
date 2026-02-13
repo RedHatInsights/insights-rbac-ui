@@ -1,10 +1,64 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { fn } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { ManagedWorkspaceSelector } from './ManagedWorkspaceSelector';
 import { WorkspacesWorkspaceTypes } from '@redhat-cloud-services/rbac-client/v2/types';
 import { emptyWorkspacesHandler, errorWorkspacesHandler, slowWorkspaceHandlers, workspaceHandlers } from '../../../../test/msw-handlers';
 import { HttpResponse, delay, http } from 'msw';
+
+// Mock workspace IDs used by workspaceHandlers
+const ALL_WORKSPACE_IDS = ['workspace-1', 'workspace-2', 'workspace-3', 'workspace-4'];
+
+// ============================================================================
+// Shared test helpers
+// ============================================================================
+
+const SELECTOR_LABEL = 'Select workspaces';
+const getBody = () => within(document.body);
+
+/** Wait for selector to render, then open the dropdown. Returns the canvas query helper. */
+async function openSelector(canvasElement: HTMLElement) {
+  const canvas = within(canvasElement);
+  await expect(canvas.findByText(SELECTOR_LABEL, {}, { timeout: 5000 })).resolves.toBeInTheDocument();
+  const toggle = await canvas.findByText(SELECTOR_LABEL);
+  await userEvent.click(toggle);
+  return canvas;
+}
+
+/** Expand the root tree node (clicks the first toggle button in the portal). */
+async function expandRootNode() {
+  const expandButton = document.body.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLButtonElement | null;
+  if (expandButton) {
+    await userEvent.click(expandButton);
+  }
+}
+
+/** Find a workspace node by name in the dropdown portal. */
+function findWorkspace(name: string) {
+  return getBody().findByText(name);
+}
+
+/** Assert a workspace node is visually disabled (wrapped in a styled span). */
+async function expectDisabled(name: string) {
+  const node = await findWorkspace(name);
+  const span = node.closest('span[style]');
+  await expect(span).not.toBeNull();
+}
+
+/** Click a workspace and assert onSelect is NOT called. */
+async function clickAndExpectNoSelect(name: string, onSelect: ReturnType<typeof fn>) {
+  const node = await findWorkspace(name);
+  await userEvent.click(node);
+  await expect(onSelect).not.toHaveBeenCalled();
+}
+
+/** Click a workspace and assert onSelect IS called with matching id/name. */
+async function clickAndExpectSelect(name: string, onSelect: ReturnType<typeof fn>, expectedId: string, expectedName: string) {
+  const node = await findWorkspace(name);
+  await userEvent.click(node);
+  await waitFor(async () => {
+    await expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: expectedId, name: expectedName }));
+  });
+}
 
 // Mock data for duplicate workspaces scenario
 const duplicateWorkspacesResponse = {
@@ -55,24 +109,79 @@ const meta: Meta<typeof ManagedWorkspaceSelector> = {
     docs: {
       description: {
         component: `
-Smart component that manages workspace selection with API integration, state management, and search filtering.
+Smart component that manages workspace selection with API integration, Kessel permission resolution, and search filtering.
+
+## Features
+
+- **Hierarchical tree view** – Workspaces are displayed in a collapsible tree reflecting their parent/child relationships.
+- **Kessel permission integration** – Each workspace is enriched with 6 permission checks (view, edit, delete, create, move, rename) via \`useWorkspacesWithPermissions\`.
+- **Permission-based filtering** – Set the \`requiredPermission\` prop to disable workspaces where the user lacks that permission. Non-permitted workspaces are visually dimmed and non-selectable, preserving hierarchy.
+- **Self-contained federated module** – When used via \`WorkspaceSelector\` federated module, all providers (IntlProvider, AccessCheck.Provider, ServiceProvider, QueryClientProvider) are included automatically.
+
+## Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| \`onSelect\` | \`(workspace) => void\` | Callback when a workspace is selected |
+| \`initialSelectedWorkspace\` | \`TreeViewWorkspaceItem\` | Pre-selected workspace on mount |
+| \`sourceWorkspace\` | \`TreeViewWorkspaceItem\` | Workspace to exclude from the tree (e.g., for move operations) |
+| \`requiredPermission\` | \`WorkspaceRelation\` | When set, only workspaces with this permission are selectable |
 
 ## Test Coverage
-This component includes comprehensive testing for:
 - Tree expansion and collapse interactions
-- Search/filter functionality 
+- Search/filter functionality
 - Error handling for various HTTP status codes
 - Empty state handling
 - Duplicate workspace name scenarios
 - Selection callbacks and state management
+- **Permission-based disabling** – workspaces without the required permission are shown but disabled
+- **All selectable** – default behavior with no permission requirement
 
-## Converted from Cypress Tests
-These stories replace the previous Cypress component tests for more integrated development workflow.
+## Kessel Workspace Relations
+
+The following relations are resolved per workspace:
+
+| Relation | Description |
+|----------|-------------|
+| \`view\` | Can view workspace details |
+| \`edit\` | Can edit workspace metadata |
+| \`delete\` | Can delete the workspace |
+| \`create\` | Can create child workspaces |
+| \`move\` | Can move workspace to another parent |
+| \`rename\` | Can rename the workspace |
+
+## Usage Examples
+
+\`\`\`tsx
+// Basic usage – all workspaces selectable
+<ManagedWorkspaceSelector onSelect={handleSelect} />
+
+// Only show selectable workspaces the user can create in
+<ManagedWorkspaceSelector
+  onSelect={handleSelect}
+  requiredPermission="create"
+/>
+
+// Only allow editing targets
+<ManagedWorkspaceSelector
+  onSelect={handleSelect}
+  requiredPermission="edit"
+/>
+\`\`\`
         `,
       },
     },
     msw: {
       handlers: workspaceHandlers,
+    },
+    // Default: full permissions on all workspaces
+    workspacePermissions: {
+      view: ALL_WORKSPACE_IDS,
+      edit: ALL_WORKSPACE_IDS,
+      delete: ALL_WORKSPACE_IDS,
+      create: ALL_WORKSPACE_IDS,
+      move: ALL_WORKSPACE_IDS,
+      rename: ALL_WORKSPACE_IDS,
     },
   },
   argTypes: {
@@ -83,6 +192,11 @@ These stories replace the previous Cypress component tests for more integrated d
     initialSelectedWorkspace: {
       description: 'Initial workspace to be selected',
       control: { type: 'object' },
+    },
+    requiredPermission: {
+      description: 'When set, only workspaces with this permission are selectable',
+      control: { type: 'select' },
+      options: [undefined, 'view', 'edit', 'delete', 'create', 'move', 'rename'],
     },
   },
 };
@@ -95,6 +209,10 @@ const defaultArgs = {
   onSelect: fn(),
   initialSelectedWorkspace: undefined,
 };
+
+// ============================================================================
+// Core Behavior Stories
+// ============================================================================
 
 export const LoadingAndLoaded: Story = {
   args: defaultArgs,
@@ -378,6 +496,14 @@ export const DuplicateWorkspaceNames: Story = {
     msw: {
       handlers: [duplicateWorkspacesHandler],
     },
+    workspacePermissions: {
+      view: ['F', 'G', 'H'],
+      edit: ['F', 'G', 'H'],
+      delete: ['F', 'G', 'H'],
+      create: ['F', 'G', 'H'],
+      move: ['F', 'G', 'H'],
+      rename: ['F', 'G', 'H'],
+    },
     docs: {
       description: {
         story: 'Tests handling of workspaces with identical names and descriptions.',
@@ -413,7 +539,162 @@ export const DuplicateWorkspaceNames: Story = {
   },
 };
 
-// Explicit error scenario stories (replacing dynamic generation)
+// ============================================================================
+// Permission-Based Behavior Stories
+// ============================================================================
+
+export const RequiredPermissionCreate: Story = {
+  args: {
+    ...defaultArgs,
+    requiredPermission: 'create',
+  },
+  parameters: {
+    // Only workspace-1 (root) has create permission; children do not
+    workspacePermissions: {
+      view: ALL_WORKSPACE_IDS,
+      edit: ALL_WORKSPACE_IDS,
+      delete: [],
+      create: ['workspace-1'],
+      move: [],
+      rename: [],
+    },
+    docs: {
+      description: {
+        story: `Tests the \`requiredPermission="create"\` prop.
+
+Only **Production Environment** (workspace-1) has the \`create\` permission.
+The child workspaces (Web Services, API Services, Development Environment) are still visible in the tree to preserve hierarchy, but they appear **dimmed** and are **not selectable**.
+
+This is the common use case for "choose where to create a new workspace" flows.`,
+      },
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    await delay(300);
+    await openSelector(canvasElement);
+    await expandRootNode();
+
+    // Children should be visible but disabled
+    await expectDisabled('Web Services');
+
+    // Click disabled child – should NOT trigger onSelect
+    await clickAndExpectNoSelect('Web Services', args.onSelect as ReturnType<typeof fn>);
+
+    // Click root (has create permission) – SHOULD trigger onSelect
+    await clickAndExpectSelect('Production Environment', args.onSelect as ReturnType<typeof fn>, 'workspace-1', 'Production Environment');
+  },
+};
+
+export const RequiredPermissionEdit: Story = {
+  args: {
+    ...defaultArgs,
+    requiredPermission: 'edit',
+  },
+  parameters: {
+    // Only workspace-1 and workspace-2 have edit permission
+    workspacePermissions: {
+      view: ALL_WORKSPACE_IDS,
+      edit: ['workspace-1', 'workspace-2'],
+      delete: [],
+      create: [],
+      move: [],
+      rename: [],
+    },
+    docs: {
+      description: {
+        story: `Tests the \`requiredPermission="edit"\` prop.
+
+**Production Environment** and **Web Services** have edit permissions.
+**API Services** and **Development Environment** are disabled (dimmed, not selectable).
+
+This scenario is useful for "choose a workspace to edit" flows.`,
+      },
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    await delay(300);
+    await openSelector(canvasElement);
+    await expandRootNode();
+
+    // Web Services (has edit) – should be selectable
+    await clickAndExpectSelect('Web Services', args.onSelect as ReturnType<typeof fn>, 'workspace-2', 'Web Services');
+    (args.onSelect as ReturnType<typeof fn>).mockClear();
+
+    // API Services (no edit) – should NOT be selectable
+    await clickAndExpectNoSelect('API Services', args.onSelect as ReturnType<typeof fn>);
+  },
+};
+
+export const AllPermissionsDenied: Story = {
+  args: {
+    ...defaultArgs,
+    requiredPermission: 'edit',
+  },
+  parameters: {
+    // No workspaces have edit permission – all should be disabled
+    workspacePermissions: {
+      view: ALL_WORKSPACE_IDS,
+      edit: [],
+      delete: [],
+      create: [],
+      move: [],
+      rename: [],
+    },
+    docs: {
+      description: {
+        story: `Tests the scenario where **no workspaces** have the required permission.
+
+All workspaces are displayed in the tree (preserving hierarchy) but every one is disabled.
+Clicking any workspace does **not** trigger \`onSelect\`.
+
+This can happen for users with read-only access trying to select a workspace for an edit operation.`,
+      },
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    await delay(300);
+    await openSelector(canvasElement);
+
+    // Root should be visible but disabled
+    await expectDisabled('Production Environment');
+    await clickAndExpectNoSelect('Production Environment', args.onSelect as ReturnType<typeof fn>);
+
+    // Expand and verify children are also disabled
+    await expandRootNode();
+    await clickAndExpectNoSelect('Web Services', args.onSelect as ReturnType<typeof fn>);
+  },
+};
+
+export const NoRequiredPermission: Story = {
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: `Tests default behavior when **no** \`requiredPermission\` is set.
+
+All workspaces are selectable regardless of their individual permission levels.
+This is the standard mode for read-only selection (e.g., "view workspace details").`,
+      },
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    await delay(300);
+    await openSelector(canvasElement);
+
+    // Root should be selectable
+    await clickAndExpectSelect('Production Environment', args.onSelect as ReturnType<typeof fn>, 'workspace-1', 'Production Environment');
+    (args.onSelect as ReturnType<typeof fn>).mockClear();
+
+    // Expand and verify children are also selectable
+    await expandRootNode();
+    await clickAndExpectSelect('Web Services', args.onSelect as ReturnType<typeof fn>, 'workspace-2', 'Web Services');
+  },
+};
+
+// ============================================================================
+// Error Handling Stories
+// ============================================================================
+
 export const ApiError: Story = {
   args: defaultArgs,
   parameters: {
