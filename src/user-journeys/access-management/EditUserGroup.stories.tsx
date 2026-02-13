@@ -327,6 +327,7 @@ Tests editing the group name.
   play: async (context) => {
     await resetStoryState();
     updateGroupSpy.mockClear();
+    resetMutableState(); // Reset mutable state for test isolation
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
@@ -466,6 +467,7 @@ Tests canceling the edit form.
   play: async (context) => {
     await resetStoryState();
     updateGroupSpy.mockClear();
+    resetMutableState(); // Reset mutable state for test isolation
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
