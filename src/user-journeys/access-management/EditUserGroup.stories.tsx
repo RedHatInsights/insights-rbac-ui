@@ -40,6 +40,9 @@ const meta = {
   tags: ['access-management', 'user-groups', 'form'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
+      // Reset mutable state before each story renders to ensure test isolation
+      resetMutableState();
+
       const dynamicEnv = createDynamicEnvironment(context.args);
       context.parameters = { ...context.parameters, ...dynamicEnv };
       const argsKey = JSON.stringify(context.args);
@@ -192,9 +195,9 @@ Tests the complete "Edit user group" workflow:
     },
   },
   play: async (context) => {
+    resetMutableState();
     await resetStoryState();
     updateGroupSpy.mockClear();
-    resetMutableState(); // Reset mutable state for test isolation
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
@@ -325,9 +328,9 @@ Tests editing the group name.
     },
   },
   play: async (context) => {
+    resetMutableState();
     await resetStoryState();
     updateGroupSpy.mockClear();
-    resetMutableState(); // Reset mutable state for test isolation
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
@@ -393,9 +396,9 @@ Tests that changing to an existing group name shows validation error.
     },
   },
   play: async (context) => {
+    resetMutableState();
     await resetStoryState();
     updateGroupSpy.mockClear();
-    resetMutableState();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
@@ -465,9 +468,9 @@ Tests canceling the edit form.
     },
   },
   play: async (context) => {
+    resetMutableState();
     await resetStoryState();
     updateGroupSpy.mockClear();
-    resetMutableState(); // Reset mutable state for test isolation
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
