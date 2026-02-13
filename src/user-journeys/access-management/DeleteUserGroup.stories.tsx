@@ -15,7 +15,7 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers, findGroupRow, getUserGroupsTable } from './_shared';
 import { mockGroups } from './_shared/mockData';
 
@@ -251,9 +251,8 @@ Tests the complete "Delete user group" workflow:
     // ==========================================================================
     // PRE-CONDITION: Verify group exists
     // ==========================================================================
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    const table = await getUserGroupsTable(canvas);
-    await expect(within(table).findByText(targetGroup)).resolves.toBeInTheDocument();
+    // Wait for page to load with the target group
+    await waitForPageToLoad(canvas, targetGroup);
 
     // ==========================================================================
     // ACTION: Open delete modal and confirm deletion
@@ -357,8 +356,8 @@ Tests canceling the delete confirmation modal.
     // ==========================================================================
     // PRE-CONDITION: Verify group exists
     // ==========================================================================
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await expect(canvas.findByText(targetGroup)).resolves.toBeInTheDocument();
+    // Wait for page to load with the target group
+    await waitForPageToLoad(canvas, targetGroup);
 
     // ==========================================================================
     // ACTION: Open modal and cancel
@@ -418,7 +417,8 @@ Tests that the delete button requires checkbox acknowledgment.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
     const targetGroup = 'Golden girls';
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    // Wait for page to load with the target group
+    await waitForPageToLoad(canvas, targetGroup);
 
     // ==========================================================================
     // ACTION: Open delete modal
@@ -481,7 +481,8 @@ Tests closing the delete modal with the X button.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
     const targetGroup = 'Golden girls';
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    // Wait for page to load with the target group
+    await waitForPageToLoad(canvas, targetGroup);
 
     // ==========================================================================
     // ACTION: Open modal and close with X

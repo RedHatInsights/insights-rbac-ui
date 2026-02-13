@@ -9,8 +9,9 @@ import { InheritedGroupAssignmentsTable } from './components/InheritedGroupAssig
 import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
-import { type WorkspacesWorkspace, useRoleBindingsQuery, useWorkspaceQuery, useWorkspacesQuery } from '../../../data/queries/workspaces';
+import { type WorkspacesWorkspace, useWorkspaceQuery, useWorkspacesQuery } from '../../../data/queries/workspaces';
 import type { Group } from '../../../data/queries/groups';
+import { useRoleAssignmentsQuery } from '../../../data/queries/rolesV2';
 
 // Extended subject type for role bindings (API returns more than the type definition)
 interface RoleBindingSubject {
@@ -23,6 +24,25 @@ interface RoleBindingSubject {
   };
   user?: {
     username?: string;
+  };
+}
+
+// Role binding structure from API
+interface RoleBinding {
+  last_modified?: string;
+  subject?: RoleBindingSubject;
+  roles?: Array<{
+    id?: string;
+    name?: string;
+  }>;
+  resource?: {
+    id?: string;
+    name?: string;
+    type?: string;
+  };
+  inherited_from?: {
+    name?: string;
+    type?: string;
   };
 }
 
@@ -69,15 +89,10 @@ export const WorkspaceDetail = () => {
   const ROLE_BINDINGS_LIMIT = 1000;
 
   const shouldFetchRoleBindings = activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-workspace';
-  const { data: roleBindingsData, isLoading: roleBindingsIsLoading } = useRoleBindingsQuery(
-    {
-      limit: ROLE_BINDINGS_LIMIT,
-      subjectType: 'group',
-      resourceType: 'workspace',
-      resourceId: workspaceId || '',
-    },
-    { enabled: shouldFetchRoleBindings && !!workspaceId },
-  );
+  const { data: roleBindingsData, isLoading: roleBindingsIsLoading } = useRoleAssignmentsQuery(workspaceId || '', {
+    enabled: shouldFetchRoleBindings && !!workspaceId,
+    limit: ROLE_BINDINGS_LIMIT,
+  });
 
   // Parent role bindings query
   const shouldFetchParentBindings =
@@ -85,22 +100,18 @@ export const WorkspaceDetail = () => {
     enableRoles &&
     activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces' &&
     !!selectedWorkspace?.parent_id;
-  const { data: parentBindingsData, isLoading: parentGroupsIsLoading } = useRoleBindingsQuery(
-    {
-      limit: ROLE_BINDINGS_LIMIT,
-      subjectType: 'group',
-      resourceType: 'workspace',
-      resourceId: selectedWorkspace?.parent_id || '',
-    },
-    { enabled: shouldFetchParentBindings },
-  );
+  const { data: parentBindingsData, isLoading: parentGroupsIsLoading } = useRoleAssignmentsQuery(selectedWorkspace?.parent_id || '', {
+    enabled: shouldFetchParentBindings,
+    limit: ROLE_BINDINGS_LIMIT,
+    parentRoleBindings: true,
+  });
 
   // Transform role bindings to Group structure for the table
   // Note: These are role binding representations, not actual RBAC groups,
   // but we use Group type for compatibility with the table components
   const roleBindings: Group[] = useMemo(() => {
     if (!roleBindingsData?.data) return [];
-    return roleBindingsData.data.map((binding) => {
+    return roleBindingsData.data.map((binding: RoleBinding) => {
       const subject = binding.subject as RoleBindingSubject | undefined;
       return {
         uuid: subject?.id || '',
@@ -124,7 +135,7 @@ export const WorkspaceDetail = () => {
     const parentWorkspace = workspaces.find((w) => w.id === selectedWorkspace.parent_id);
     const parentWorkspaceName = parentWorkspace?.name || 'Parent Workspace';
 
-    return parentBindingsData.data.map((binding) => {
+    return parentBindingsData.data.map((binding: RoleBinding) => {
       const subject = binding.subject as RoleBindingSubject | undefined;
       return {
         uuid: subject?.id || '',

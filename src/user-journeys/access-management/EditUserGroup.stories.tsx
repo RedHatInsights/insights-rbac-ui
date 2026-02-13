@@ -15,7 +15,7 @@ import React from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers, mockGroups } from './_shared';
 
 // Spy for tracking API calls
@@ -40,6 +40,9 @@ const meta = {
   tags: ['access-management', 'user-groups', 'form'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
+      // Reset mutable state before each story renders to ensure test isolation
+      resetMutableState();
+
       const dynamicEnv = createDynamicEnvironment(context.args);
       context.parameters = { ...context.parameters, ...dynamicEnv };
       const argsKey = JSON.stringify(context.args);
@@ -192,15 +195,15 @@ Tests the complete "Edit user group" workflow:
     },
   },
   play: async (context) => {
+    resetMutableState();
     await resetStoryState();
     updateGroupSpy.mockClear();
-    resetMutableState(); // Reset mutable state for test isolation
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    // Wait for page to load and table to be fully interactive
+    await waitForPageToLoad(canvas, 'Golden girls');
 
     // ==========================================================================
     // PRE-CONDITION: Verify original state in table
@@ -211,7 +214,11 @@ Tests the complete "Edit user group" workflow:
     // ==========================================================================
     // ACTION: Open edit form from kebab menu
     // ==========================================================================
+    // Wait for kebab buttons to be present and interactive
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    expect(kebabButtons.length).toBeGreaterThan(0);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
     // Click the last kebab (Golden girls)
     await user.click(kebabButtons[kebabButtons.length - 1]);
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
@@ -321,17 +328,22 @@ Tests editing the group name.
     },
   },
   play: async (context) => {
+    resetMutableState();
     await resetStoryState();
     updateGroupSpy.mockClear();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
+    // Wait for page to load and table to be fully interactive
+    await waitForPageToLoad(canvas, 'Golden girls');
+
+    // Wait for kebab buttons to be present and interactive
+    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    expect(kebabButtons.length).toBeGreaterThan(0);
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Open edit for a group
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    // Open edit for a group (last kebab button)
     await user.click(kebabButtons[kebabButtons.length - 1]);
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
@@ -384,18 +396,24 @@ Tests that changing to an existing group name shows validation error.
     },
   },
   play: async (context) => {
+    resetMutableState();
     await resetStoryState();
     updateGroupSpy.mockClear();
-    resetMutableState();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
+    // Wait for page to load and table to be fully interactive
+    await waitForPageToLoad(canvas, 'Golden girls');
+
+    // Wait for kebab buttons to be present and interactive
+    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    expect(kebabButtons.length).toBeGreaterThan(0);
+
+    // Additional settle time to ensure table is fully interactive
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Open edit for Golden girls
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    // Open edit for Golden girls (last kebab button)
     await user.click(kebabButtons[kebabButtons.length - 1]);
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 
@@ -403,8 +421,11 @@ Tests that changing to an existing group name shows validation error.
     await user.click(editOption);
     await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD); // Wait for form to load
 
-    // Change name to existing group name
+    // Wait for form to be fully ready by checking for the name input with current value
     const nameInput = await canvas.findByRole('textbox', { name: /name/i });
+    expect(nameInput).toHaveValue('Golden girls'); // Verify form loaded correctly
+
+    // Change name to existing group name
     await user.tripleClick(nameInput);
     await user.keyboard('Admin group'); // Already exists
 
@@ -447,17 +468,22 @@ Tests canceling the edit form.
     },
   },
   play: async (context) => {
+    resetMutableState();
     await resetStoryState();
     updateGroupSpy.mockClear();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
+    // Wait for page to load and table to be fully interactive
+    await waitForPageToLoad(canvas, 'Golden girls');
+
+    // Wait for kebab buttons to be present and interactive
+    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    expect(kebabButtons.length).toBeGreaterThan(0);
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Open edit
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+    // Open edit (last kebab button)
     await user.click(kebabButtons[kebabButtons.length - 1]);
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
 

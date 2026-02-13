@@ -8,6 +8,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+import { apiClient } from '../api/client';
 import { rolesV2Api } from '../api/rolesV2';
 import type {
   CursorPaginationLinks,
@@ -74,6 +75,48 @@ export function useRoleV2Query(id: string, options?: { enabled?: boolean }) {
       return response.data;
     },
     enabled: (options?.enabled ?? true) && !!id,
+  });
+}
+
+/**
+ * Fetch role bindings for a workspace (roles assigned in this workspace).
+ * Lists all subjects (groups) that have roles assigned in the specified workspace.
+ *
+ * @param workspaceId - The workspace resource ID
+ * @param options - Query options
+ * @tag api-v2-temporary - Uses role bindings by-subject API
+ */
+export function useRoleAssignmentsQuery(
+  workspaceId: string,
+  options?: {
+    enabled?: boolean;
+    limit?: number;
+    cursor?: string;
+    parentRoleBindings?: boolean;
+  },
+) {
+  return useQuery({
+    queryKey: [...rolesV2Keys.all, 'workspace-role-bindings', workspaceId, options?.limit, options?.cursor, options?.parentRoleBindings],
+    queryFn: async () => {
+      // Include inherited_from field when fetching parent role bindings
+      const fields = options?.parentRoleBindings
+        ? 'last_modified,subject(id,group.name,group.description,group.user_count),role(id,name),resource(id,name,type),inherited_from(name,type)'
+        : 'last_modified,subject(id,group.name,group.description,group.user_count),role(id,name),resource(id,name,type)';
+
+      const response = await apiClient.get('/api/rbac/v2/role-bindings/by-subject/', {
+        params: {
+          resource_id: workspaceId,
+          resource_type: 'workspace',
+          subject_type: 'group',
+          limit: options?.limit ?? 10,
+          cursor: options?.cursor,
+          parent_role_bindings: options?.parentRoleBindings ?? false,
+          fields,
+        },
+      });
+      return response.data;
+    },
+    enabled: (options?.enabled ?? true) && !!workspaceId,
   });
 }
 
