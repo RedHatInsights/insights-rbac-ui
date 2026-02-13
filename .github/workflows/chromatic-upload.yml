@@ -1,0 +1,40 @@
+name: Chromatic Upload
+
+on:
+  workflow_run:
+    workflows: ["Storybook"]
+    types: [completed]
+
+jobs:
+  upload:
+    runs-on: ubuntu-24.04
+    if: >
+      github.event.workflow_run.conclusion != 'cancelled' &&
+      (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'push')
+    steps:
+      # Checkout base repo with full history — Chromatic needs git log to find
+      # the baseline commit. We always check out the default branch (not the PR
+      # branch) so that no untrusted code from forks is ever executed.
+      - name: Checkout Base Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: storybook-static
+          path: storybook-static
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Chromatic
+        id: chromatic
+        uses: chromaui/action@v1
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          storybookBuildDir: storybook-static
+          # Auto-accept changes on master (push) to establish the visual baseline.
+          # PR builds are left for review.
+          autoAcceptChanges: ${{ github.event.workflow_run.event == 'push' }}
