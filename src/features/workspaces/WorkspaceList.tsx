@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { WorkspaceListTable } from './components/WorkspaceListTable';
-import { type WorkspacesWorkspace, useDeleteWorkspaceMutation, useMoveWorkspaceMutation, useWorkspacesQuery } from '../../data/queries/workspaces';
-import { useWorkspacePermissions } from './hooks/useWorkspacePermissions';
+import { type WorkspacesWorkspace, useDeleteWorkspaceMutation, useMoveWorkspaceMutation } from '../../data/queries/workspaces';
+import { useWorkspacesWithPermissions } from './hooks/useWorkspacesWithPermissions';
 import { MoveWorkspaceDialog } from './components/MoveWorkspaceDialog';
 import { TreeViewWorkspaceItem } from './components/managed-selector/TreeViewWorkspaceItem';
 import { WorkspacesWorkspaceTypes } from '@redhat-cloud-services/rbac-client/v2/types';
@@ -27,17 +27,13 @@ export const WorkspaceList = () => {
   const intl = useIntl();
   const addNotification = useAddNotification();
 
-  // React Query for workspaces
-  const { data: workspacesData, isLoading, isError } = useWorkspacesQuery();
-  const workspaces = workspacesData?.data ?? [];
+  // Composite hook: workspaces + Kessel permissions (view, edit, delete, create, move, rename)
+  const { workspaces, canEdit, canCreateIn, canEditAny, canCreateAny, isLoading, isError } = useWorkspacesWithPermissions();
   const error: string | null = isError ? 'Failed to fetch workspaces' : null;
 
   // Mutations
   const deleteWorkspaceMutation = useDeleteWorkspaceMutation();
   const moveWorkspaceMutation = useMoveWorkspaceMutation();
-
-  // Check all permissions (edit, create) for workspaces via Kessel
-  const { canEdit, canCreateIn, canEditAny, canCreateAny } = useWorkspacePermissions(workspaces);
 
   // Move modal state
   const [currentMoveWorkspace, setCurrentMoveWorkspace] = useState<WorkspacesWorkspace | null>(null);

@@ -95,7 +95,16 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
   // Default workspace IDs from the fixtures - used by useSelfAccessCheck mock
   // Stories using different fixtures should override workspacePermissions
   const DEFAULT_WORKSPACE_IDS = ['root-1', 'ws-1', 'ws-2', 'ws-3'];
-  const workspacePermissions = hasWritePermissions ? { edit: DEFAULT_WORKSPACE_IDS, create: DEFAULT_WORKSPACE_IDS } : { edit: [], create: [] };
+  const allGranted = {
+    view: DEFAULT_WORKSPACE_IDS,
+    edit: DEFAULT_WORKSPACE_IDS,
+    delete: DEFAULT_WORKSPACE_IDS,
+    create: DEFAULT_WORKSPACE_IDS,
+    move: DEFAULT_WORKSPACE_IDS,
+    rename: DEFAULT_WORKSPACE_IDS,
+  };
+  const allDenied = { view: [], edit: [], delete: [], create: [], move: [], rename: [] };
+  const workspacePermissions = hasWritePermissions ? allGranted : allDenied;
 
   // orgAdmin is explicit - controls user identity, not permissions
   const isOrgAdmin = args.orgAdmin === true;

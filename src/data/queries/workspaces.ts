@@ -323,6 +323,34 @@ export function isWorkspace(data: unknown): data is WorkspacesWorkspace {
 }
 
 // ============================================================================
+// Workspace Permission Types
+// ============================================================================
+
+/** All Kessel workspace relations we check */
+export const WORKSPACE_RELATIONS = ['view', 'edit', 'delete', 'create', 'move', 'rename'] as const;
+
+/** A single Kessel workspace relation */
+export type WorkspaceRelation = (typeof WORKSPACE_RELATIONS)[number];
+
+/** Resolved permissions for a single workspace (all relations) */
+export type WorkspacePermissions = Record<WorkspaceRelation, boolean>;
+
+/** Default empty permissions object (all denied) */
+export const EMPTY_PERMISSIONS: WorkspacePermissions = {
+  view: false,
+  edit: false,
+  delete: false,
+  create: false,
+  move: false,
+  rename: false,
+};
+
+/** Workspace enriched with per-resource Kessel permissions */
+export interface WorkspaceWithPermissions extends WorkspacesWorkspace {
+  permissions: WorkspacePermissions;
+}
+
+// ============================================================================
 // Re-export API types for convenience
 // ============================================================================
 

@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
+import { type WorkspacePermissions, type WorkspaceRelation } from '../../../data/queries/workspaces';
 
 type WorkspaceResource = {
   id: string;
@@ -31,6 +32,20 @@ interface Workspace {
  * Result of the useWorkspacePermissions hook
  */
 export interface UseWorkspacePermissionsResult {
+  /**
+   * Generic permission check for any relation on a specific workspace.
+   * @param workspaceId - The workspace ID to check
+   * @param relation - The Kessel relation to check (view, edit, delete, create, move, rename)
+   */
+  hasPermission: (workspaceId: string, relation: WorkspaceRelation) => boolean;
+
+  /**
+   * Get all resolved permissions for a specific workspace.
+   * Returns a WorkspacePermissions record with all 6 relations.
+   * @param workspaceId - The workspace ID
+   */
+  permissionsFor: (workspaceId: string) => WorkspacePermissions;
+
   /**
    * Check if user can edit a specific workspace.
    * @param workspaceId - The workspace ID to check
@@ -67,24 +82,39 @@ export interface UseWorkspacePermissionsResult {
 }
 
 /**
+ * Build a Set of workspace IDs that are allowed for a given relation's check results.
+ */
+function buildAllowedSet(checks: unknown, hasRealResources: boolean): Set<string> {
+  if (!hasRealResources || !Array.isArray(checks)) return new Set<string>();
+  return new Set(
+    checks
+      .filter((c: { allowed: boolean; resource: { id: string } }) => c.allowed && c.resource.id)
+      .map((c: { resource: { id: string } }) => c.resource.id),
+  );
+}
+
+/**
  * Hook to check workspace permissions using Kessel access checks.
  *
- * Checks both 'edit' and 'create' permissions for all workspaces in a single hook.
- * Internally finds the root workspace to determine top-level create permission.
+ * Checks all 6 core workspace relations (view, edit, delete, create, move, rename)
+ * for all workspaces in a single hook. Internally finds the root workspace to
+ * determine top-level create permission.
  *
  * @param workspaces - Array of workspace objects (needs id and type)
  * @returns Permission check functions and flags
  *
  * @example
  * ```tsx
- * const { canEdit, canCreateIn, canEditAny, canCreateAny, isLoading } = useWorkspacePermissions(workspaces);
+ * const { canEdit, canCreateIn, hasPermission, permissionsFor, isLoading } = useWorkspacePermissions(workspaces);
  *
- * // Main toolbar "Create workspace" button - enabled if user can create in ANY workspace:
- * <Button disabled={!canCreateAny}>Create Workspace</Button>
+ * // Generic permission check:
+ * hasPermission(workspace.id, 'delete')
  *
- * // Row-level actions:
+ * // All permissions for one workspace:
+ * const perms = permissionsFor(workspace.id); // { view: true, edit: true, ... }
+ *
+ * // Legacy convenience:
  * <Button disabled={!canEdit(workspace.id)}>Edit</Button>
- * <Button disabled={!canCreateIn(workspace.id)}>Create Subworkspace</Button>
  * ```
  */
 export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePermissionsResult {
@@ -107,32 +137,55 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
     return [toResource(first), ...rest.map(toResource)];
   }, [workspaceIds, hasRealResources]);
 
-  // Always call useSelfAccessCheck unconditionally (Rules of Hooks compliance)
+  // Always call useSelfAccessCheck unconditionally for all 6 relations (Rules of Hooks compliance)
   // Results are ignored when hasRealResources is false
+  const { data: viewChecks, loading: viewLoading } = useSelfAccessCheck({ relation: 'view', resources });
   const { data: editChecks, loading: editLoading } = useSelfAccessCheck({ relation: 'edit', resources });
+  const { data: deleteChecks, loading: deleteLoading } = useSelfAccessCheck({ relation: 'delete', resources });
   const { data: createChecks, loading: createLoading } = useSelfAccessCheck({ relation: 'create', resources });
+  const { data: moveChecks, loading: moveLoading } = useSelfAccessCheck({ relation: 'move', resources });
+  const { data: renameChecks, loading: renameLoading } = useSelfAccessCheck({ relation: 'rename', resources });
 
-  // Build Sets of allowed IDs for O(1) lookups
-  // No need to filter NOOP_RESOURCE - we guard with hasRealResources
-  const editAllowedIds = useMemo(() => {
-    if (!hasRealResources || !Array.isArray(editChecks)) return new Set<string>();
-    return new Set(editChecks.filter((c) => c.allowed && c.resource.id).map((c) => c.resource.id));
-  }, [editChecks, hasRealResources]);
+  // Build Sets of allowed IDs for O(1) lookups per relation
+  const allowedIds = useMemo<Record<WorkspaceRelation, Set<string>>>(
+    () => ({
+      view: buildAllowedSet(viewChecks, hasRealResources),
+      edit: buildAllowedSet(editChecks, hasRealResources),
+      delete: buildAllowedSet(deleteChecks, hasRealResources),
+      create: buildAllowedSet(createChecks, hasRealResources),
+      move: buildAllowedSet(moveChecks, hasRealResources),
+      rename: buildAllowedSet(renameChecks, hasRealResources),
+    }),
+    [viewChecks, editChecks, deleteChecks, createChecks, moveChecks, renameChecks, hasRealResources],
+  );
 
-  const createAllowedIds = useMemo(() => {
-    if (!hasRealResources || !Array.isArray(createChecks)) return new Set<string>();
-    return new Set(createChecks.filter((c) => c.allowed && c.resource.id).map((c) => c.resource.id));
-  }, [createChecks, hasRealResources]);
+  // Generic permission check
+  const hasPermission = useCallback(
+    (workspaceId: string, relation: WorkspaceRelation): boolean => allowedIds[relation].has(workspaceId),
+    [allowedIds],
+  );
 
-  // Stable function references
-  const canEdit = useCallback((workspaceId: string): boolean => editAllowedIds.has(workspaceId), [editAllowedIds]);
+  // Get all permissions for a single workspace
+  const permissionsFor = useCallback(
+    (workspaceId: string): WorkspacePermissions => ({
+      view: allowedIds.view.has(workspaceId),
+      edit: allowedIds.edit.has(workspaceId),
+      delete: allowedIds.delete.has(workspaceId),
+      create: allowedIds.create.has(workspaceId),
+      move: allowedIds.move.has(workspaceId),
+      rename: allowedIds.rename.has(workspaceId),
+    }),
+    [allowedIds],
+  );
 
-  const canCreateIn = useCallback((workspaceId: string): boolean => createAllowedIds.has(workspaceId), [createAllowedIds]);
+  // Legacy convenience aliases
+  const canEdit = useCallback((workspaceId: string): boolean => allowedIds.edit.has(workspaceId), [allowedIds]);
+  const canCreateIn = useCallback((workspaceId: string): boolean => allowedIds.create.has(workspaceId), [allowedIds]);
 
-  const canEditAny = editAllowedIds.size > 0;
-  const canCreateAny = createAllowedIds.size > 0;
-  const canCreateTopLevel = rootId !== '' && createAllowedIds.has(rootId);
-  const isLoading = hasRealResources && (editLoading || createLoading);
+  const canEditAny = allowedIds.edit.size > 0;
+  const canCreateAny = allowedIds.create.size > 0;
+  const canCreateTopLevel = rootId !== '' && allowedIds.create.has(rootId);
+  const isLoading = hasRealResources && (viewLoading || editLoading || deleteLoading || createLoading || moveLoading || renameLoading);
 
-  return { canEdit, canCreateIn, canEditAny, canCreateAny, canCreateTopLevel, isLoading };
+  return { hasPermission, permissionsFor, canEdit, canCreateIn, canEditAny, canCreateAny, canCreateTopLevel, isLoading };
 }
