@@ -1,3 +1,17 @@
+# [2.10.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.9.0...v2.10.0) (2026-02-13)
+
+
+### Bug Fixes
+
+* **EditUserGroup:** make test less flakey ([97f126d](https://github.com/RedHatInsights/insights-rbac-ui/commit/97f126ddb957798433277896c3734be91c68d721))
+* **RoleBinding:** fixed typescript errors and flakey tests ([2620719](https://github.com/RedHatInsights/insights-rbac-ui/commit/26207196206a6a3fab95afb8b65b6f62b59c11ce))
+* **RoleBinding:** lint ([63570f9](https://github.com/RedHatInsights/insights-rbac-ui/commit/63570f955bab4abf84c5a96e5d2e6d91241fb87f))
+
+
+### Features
+
+* **rolebinding:** connect Workspace tables to rolebinding api ([f9c7e04](https://github.com/RedHatInsights/insights-rbac-ui/commit/f9c7e04e16cbe13acafca94704653b28b05de924))
+
 # [2.9.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.8.0...v2.9.0) (2026-02-11)
 
 
