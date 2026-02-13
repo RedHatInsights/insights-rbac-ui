@@ -273,124 +273,19 @@ spec:
           volumeMounts:
             - name: app-caddyfile
               mountPath: /etc/caddy
-        # Override frontend-dev-proxy startup script to use envsubst instead of sed
-        - name: frontend-dev-proxy
-          command: ["/bin/sh", "-c"]
-          volumeMounts:
-            - name: proxy-config
-              mountPath: /config
-          args:
-          - |
-            #!/bin/sh
-            echo "Waiting for /config/routes to be available..."
-            timeout=60
-            max_wait=120
-            elapsed=0
-            while [ ! -f /config/routes ] && [ $elapsed -lt $timeout ]; do
-              echo "Config file not found, waiting... ($elapsed/$timeout seconds)"
-              sleep 2
-              elapsed=$((elapsed + 2))
-            done
-
-            if [ ! -f /config/routes ]; then
-              echo "ERROR: /config/routes not found after ${timeout} seconds"
-              exit 1
-            fi
-
-            echo "Config file found!"
-            echo "Routes content:"
-            cat /config/routes
-
-            # Use envsubst to replace environment variables in routes
-            export LOCAL_ROUTES="$(envsubst < /config/routes)"
-            echo "LOCAL_ROUTES environment variable set with envsubst"
-
-            # Validate HCC_ENV_URL is set
-            if [ -z "${HCC_ENV_URL}" ]; then
-              echo "ERROR: HCC_ENV_URL environment variable is not set!"
-              exit 1
-            fi
-
-            echo "HCC_ENV_URL is set to: ${HCC_ENV_URL}"
-
-            # Create Caddyfile with injected routes
-            echo "Creating Caddyfile..."
-            cat << CADDY_DEF > /etc/caddy/Caddyfile
-          {
-            order rewrite before reverse_proxy
-            order rh_identity_transform before respond
-            cache
-            admin :2019
-            # debug
-          }
-
-          stage.foo.redhat.com:1337 {
-            tls internal
-
-            log default {
-              output stdout
-              format transform "{common_log}"
-            }
-
-            @html_fallback {
-              header Accept *text/html*
-              not path_regexp .*\/(silent-check-sso\.html)$
-            }
-
-            # --- BEGIN CUSTOM APP ROUTES
-            ${LOCAL_ROUTES}
-            # --- END CUSTOM APP ROUTES
-
-            handle {
-              cache
-              reverse_proxy ${HCC_ENV_URL} {
-                header_up Host {http.reverse_proxy.upstream.hostport}
-                header_up Accept-Encoding "gzip;q=0,deflate,sdch"
-                header_up -Origin
-              }
-            }
-          } # End stage.foo.redhat.com
-          CADDY_DEF
-
-            echo "Formatting Caddyfile"
-            caddy fmt --overwrite /etc/caddy/Caddyfile
-
-            echo "Updated /etc/caddy/Caddyfile follows:"
-            cat /etc/caddy/Caddyfile
-
-            # Wait for run-application to be ready
-            echo "Waiting for run-application to be ready on port 8000..."
-            elapsed=0
-            while [ $elapsed -lt $max_wait ]; do
-              if wget -q -O /dev/null --timeout=2 http://127.0.0.1:8000 2>/dev/null; then
-                echo "run-application is ready!"
-                break
-              fi
-              echo "Waiting for run-application... ($elapsed/$max_wait seconds)"
-              sleep 2
-              elapsed=$((elapsed + 2))
-            done
-
-            if [ $elapsed -ge $max_wait ]; then
-              echo "WARNING: run-application did not become ready after ${max_wait} seconds"
-              exit 1
-            fi
-
-            echo "Starting frontend-development-proxy..."
-            caddy run --config /etc/caddy/Caddyfile
   workspaces:
-  - name: workspace
-    volumeClaimTemplate:
-      metadata:
-        creationTimestamp: null
-      spec:
-        accessModes:
-        - ReadWriteOnce
-        resources:
-          requests:
-            storage: 3Gi  # Increased for E2E tests
-      status: {}
-  - name: git-auth
-    secret:
-      secretName: '{{ git_auth_secret }}'
+    - name: workspace
+      volumeClaimTemplate:
+        metadata:
+          creationTimestamp: null
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 3Gi  # Increased for E2E tests
+        status: {}
+    - name: git-auth
+      secret:
+        secretName: '{{ git_auth_secret }}'
 status: {}
