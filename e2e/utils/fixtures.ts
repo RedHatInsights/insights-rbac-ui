@@ -130,13 +130,39 @@ export async function enableConsoleLogging(page: Page): Promise<void> {
 }
 
 /**
- * Combined setup: enables asset cache and blocks analytics.
+ * Disable preview/beta navigation mode.
+ * Injects script to disable 2024 navigation preview before page loads.
+ * Call this in setupPage to ensure stable navigation in tests.
+ */
+export async function disablePreviewMode(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    // Set localStorage to disable preview navigation before app initializes
+    try {
+      const existingPrefs = JSON.parse(localStorage.getItem('chrome:user:preferences') || '{}');
+      const updatedPrefs = {
+        ...existingPrefs,
+        ui: {
+          ...(existingPrefs.ui || {}),
+          '2024-navigation': false,
+        },
+      };
+      localStorage.setItem('chrome:user:preferences', JSON.stringify(updatedPrefs));
+    } catch {
+      // Fallback if parsing fails
+      localStorage.setItem('chrome:user:preferences', JSON.stringify({ ui: { '2024-navigation': false } }));
+    }
+  });
+}
+
+/**
+ * Combined setup: enables asset cache, blocks analytics, and disables preview mode.
  * Convenience function for test.beforeEach hooks.
  */
 export async function setupPage(page: Page): Promise<void> {
   await enableAssetCache(page);
   await blockAnalytics(page);
   await enableConsoleLogging(page);
+  await disablePreviewMode(page);
 }
 
 // Re-export base test and expect
