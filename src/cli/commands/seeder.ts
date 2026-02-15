@@ -240,7 +240,10 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
       typeof error.response.data === 'object' &&
       'errors' in error.response.data &&
       Array.isArray(error.response.data.errors) &&
-      error.response.data.errors.some((err: { detail?: string }) => err.detail && err.detail.toLowerCase().includes('already exists'));
+      error.response.data.errors.some((err: { detail?: string }) => {
+        const detail = err.detail?.toLowerCase() || '';
+        return detail.includes('already exists') || detail.includes('exists for this tenant');
+      });
 
     if (isAlreadyExistsError) {
       // Role already exists - fetch its UUID instead
@@ -314,7 +317,10 @@ async function createGroup(
       typeof error.response.data === 'object' &&
       'errors' in error.response.data &&
       Array.isArray(error.response.data.errors) &&
-      error.response.data.errors.some((err: { detail?: string }) => err.detail && err.detail.toLowerCase().includes('already exists'));
+      error.response.data.errors.some((err: { detail?: string }) => {
+        const detail = err.detail?.toLowerCase() || '';
+        return detail.includes('already exists') || detail.includes('exists for this tenant');
+      });
 
     if (isAlreadyExistsError) {
       // Group already exists - fetch its UUID instead
@@ -430,7 +436,10 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
       typeof error.response.data === 'object' &&
       'errors' in error.response.data &&
       Array.isArray(error.response.data.errors) &&
-      error.response.data.errors.some((err: { detail?: string }) => err.detail && err.detail.toLowerCase().includes('already exists'));
+      error.response.data.errors.some((err: { detail?: string }) => {
+        const detail = err.detail?.toLowerCase() || '';
+        return detail.includes('already exists') || detail.includes('exists for this tenant');
+      });
 
     if (isAlreadyExistsError) {
       // Workspace already exists - fetch its ID instead
