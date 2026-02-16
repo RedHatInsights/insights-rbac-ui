@@ -68,6 +68,41 @@ export const Default: Story = {
   },
 };
 
+export const ExpandedByDefault: Story = {
+  args: defaultProps,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Verifies that the workspace tree is expanded by default on load. All child workspaces under the root should be visible immediately without requiring user interaction. This improves discoverability and reduces clicks needed to view the workspace hierarchy.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for skeleton loading to complete
+    await waitForSkeletonToDisappear(canvasElement);
+
+    // Verify root workspace is visible
+    await expect(canvas.findByText('Root Workspace')).resolves.toBeInTheDocument();
+
+    // Verify child workspaces are immediately visible (expanded by default)
+    // without needing to click any expand buttons
+    await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Development Environment')).resolves.toBeInTheDocument();
+
+    // Verify the tree view toggle buttons exist and are in expanded state
+    const expandButtons = canvasElement.querySelectorAll('.pf-v6-c-tree-view__node-toggle');
+
+    // If expand buttons exist, verify they show expanded state (aria-expanded="true")
+    if (expandButtons.length > 0) {
+      const rootExpandButton = expandButtons[0] as HTMLElement;
+      expect(rootExpandButton.getAttribute('aria-expanded')).toBe('true');
+    }
+  },
+};
+
 export const LoadingState: Story = {
   args: {
     ...defaultProps,
