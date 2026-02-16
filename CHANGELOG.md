@@ -1,3 +1,10 @@
+## [2.10.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.10.0...v2.10.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* **WorkspaceList:** expand Workspace tree by default ([fcda8cd](https://github.com/RedHatInsights/insights-rbac-ui/commit/fcda8cd0d51d2d8ece7c3c7650fbf7257ff70547))
+
 # [2.10.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.9.0...v2.10.0) (2026-02-13)
 
 
