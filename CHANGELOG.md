@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.10.1...v2.11.0) (2026-02-16)
+
+
+### Features
+
+* enrich workspaces with Kessel permissions and add permission-based selector filtering ([a80eb86](https://github.com/RedHatInsights/insights-rbac-ui/commit/a80eb86f02ddc711757f02b5a861a7aaa27f5c82))
+
 ## [2.10.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.10.0...v2.10.1) (2026-02-16)
 
 
