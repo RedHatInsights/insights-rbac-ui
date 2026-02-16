@@ -71,7 +71,7 @@ spec:
   - name: e2e-tests-script
     value: |
       #!/bin/bash
-      set -ex
+      set -e
 
       echo "════════════════════════════════════════════════════════════════"
       echo "RBAC UI E2E Pre-flight Validation"
