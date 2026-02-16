@@ -389,6 +389,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
           />
           <DataViewTable
             isTreeTable
+            expandAll
             aria-label="Workspaces list table"
             ouiaId="workspaces-list"
             columns={columns}
