@@ -86,8 +86,14 @@ export async function blockAnalytics(page: Page): Promise<void> {
  * Enable filtered browser console logging.
  * Only logs errors and warnings, filtering out verbose info/debug messages.
  * Call this in test.beforeEach or at the start of each test.
+ * Enabled only when DEBUG or PW_TEST_DEBUG environment variable is set.
  */
 export async function enableConsoleLogging(page: Page): Promise<void> {
+  // Only enable if DEBUG or PW_TEST_DEBUG is set
+  if (!process.env.DEBUG && !process.env.PW_TEST_DEBUG) {
+    return;
+  }
+
   // Log browser console errors and warnings
   page.on('console', (msg) => {
     const type = msg.type();
