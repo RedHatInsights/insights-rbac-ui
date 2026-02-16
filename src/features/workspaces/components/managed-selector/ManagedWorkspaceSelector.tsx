@@ -1,11 +1,13 @@
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import * as React from 'react';
+import { useIntl } from 'react-intl';
 import { TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import { WorkspaceTreeView } from './components/WorkspaceTreeView';
 import buildWorkspaceTree from './WorkspaceTreeBuilder';
 import { WorkspaceMenuToggle } from './components/WorkspaceMenuToggle';
 import { WorkspaceSelector } from './components/WorkspaceSelector';
-import { type WorkspacesWorkspace, useWorkspacesQuery } from '../../../../data/queries/workspaces';
+import { type WorkspaceRelation, type WorkspaceWithPermissions } from '../../../../data/queries/workspaces';
+import { useWorkspacesWithPermissions } from '../../hooks/useWorkspacesWithPermissions';
 
 /**
  * Recursively filters workspace tree items based on search input.
@@ -47,34 +49,69 @@ export interface ManagedWorkspaceSelectorProps {
   initialSelectedWorkspace?: TreeViewWorkspaceItem;
   /** Workspace to exclude from the tree (useful for move operations) */
   sourceWorkspace?: TreeViewWorkspaceItem;
+  /**
+   * When set, only workspaces where the user has this permission are selectable.
+   * Non-permitted workspaces are still shown in the tree (to preserve hierarchy)
+   * but are visually disabled and cannot be selected.
+   */
+  requiredPermission?: WorkspaceRelation;
 }
 
 /**
  * ManagedWorkspaceSelector - A workspace selection component with hierarchical tree view.
  *
- * Fetches workspaces from the RBAC API and displays them in a searchable tree.
- * Uses react-query for data fetching with automatic caching and error handling.
+ * Fetches workspaces from the RBAC API, resolves Kessel permissions per workspace,
+ * and displays them in a searchable tree.
+ *
+ * Uses useWorkspacesWithPermissions for data fetching + permission resolution.
  *
  * @example
  * ```tsx
  * <ManagedWorkspaceSelector
  *   onSelect={(workspace) => console.log('Selected:', workspace)}
  *   sourceWorkspace={workspaceToExclude}
+ *   requiredPermission="create"
  * />
  * ```
  */
-export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> = ({ onSelect, initialSelectedWorkspace, sourceWorkspace }) => {
-  // Fetch workspaces using react-query
-  // Use isFetching (not isLoading) to show spinner on every fetch, matching original behavior
-  const { data: workspacesData, isFetching, isError, refetch } = useWorkspacesQuery({ limit: 10000 });
-  const workspaces = workspacesData?.data ?? [];
+export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> = ({
+  onSelect,
+  initialSelectedWorkspace,
+  sourceWorkspace,
+  requiredPermission,
+}) => {
+  const intl = useIntl();
+
+  // Fetch workspaces with permissions using the composite hook
+  const { workspaces, isFetching, isLoading, isError, refetch } = useWorkspacesWithPermissions({ limit: 10000 });
+
+  // Build a set of workspace IDs that lack the required permission (for disabling).
+  // Skip while permissions are still loading to avoid a transient "everything disabled"
+  // flash (permissionsFor returns all-false until Kessel checks resolve).
+  const disabledIds = React.useMemo<Set<string>>(() => {
+    if (!requiredPermission || isLoading) return new Set();
+    return new Set(workspaces.filter((ws: WorkspaceWithPermissions) => !ws.permissions[requiredPermission]).map((ws) => ws.id));
+  }, [workspaces, requiredPermission, isLoading]);
+
+  // Tooltip message shown on hover over disabled workspace tree items
+  const disabledTooltip = React.useMemo(() => {
+    if (!requiredPermission) return undefined;
+    return intl.formatMessage(
+      {
+        id: 'workspaceSelectorDisabledTooltip',
+        description: 'Tooltip shown on disabled workspace tree items when the user lacks the required permission',
+        defaultMessage: 'You do not have {permission} permission on this workspace',
+      },
+      { permission: requiredPermission },
+    );
+  }, [requiredPermission, intl]);
 
   // Build workspace tree from flat list, excluding source workspace if provided
   const workspaceTree = React.useMemo(() => {
     if (workspaces.length === 0) return undefined;
 
-    // Convert WorkspacesWorkspace to the local Workspace type expected by buildWorkspaceTree
-    const convertedWorkspaces = workspaces.map((ws: WorkspacesWorkspace) => ({
+    // Convert WorkspaceWithPermissions to the local Workspace type expected by buildWorkspaceTree
+    const convertedWorkspaces = workspaces.map((ws: WorkspaceWithPermissions) => ({
       id: ws.id,
       parent_id: ws.parent_id ?? undefined,
       type: ws.type,
@@ -123,16 +160,22 @@ export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> =
     setSearchInputValue(searchInput);
   }, []);
 
-  // Selection handler
+  // Selection handler - respects requiredPermission by rejecting disabled items
   const onSelectTreeViewWorkspaceItem = React.useCallback(
     (_: React.MouseEvent, selectedItem: TreeViewDataItem) => {
       if (!instanceOfTreeViewWorkspaceItem(selectedItem)) {
         return;
       }
+
+      // Reject selection of disabled items
+      if (selectedItem.id && disabledIds.has(selectedItem.id)) {
+        return;
+      }
+
       setSelectedWorkspace(selectedItem);
       onSelect?.(selectedItem);
     },
-    [onSelect],
+    [onSelect, disabledIds],
   );
 
   // Fetch data handler (for manual refresh)
@@ -174,6 +217,8 @@ export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> =
           onSelect={props.onSelect}
           isLoading={props.isLoading}
           isError={props.isError}
+          disabledIds={disabledIds}
+          disabledTooltip={disabledTooltip}
         />
       )}
       searchPlaceholder="Find a workspace by name"

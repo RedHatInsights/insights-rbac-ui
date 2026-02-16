@@ -30,8 +30,15 @@ const meta: Meta<typeof WorkspaceList> = {
     // Workspace routes require inventory:groups:* permissions
     permissions: ['inventory:groups:read', 'inventory:groups:write'],
     orgAdmin: true,
-    // Workspace IDs from mockWorkspaces that user can edit/create in
-    workspacePermissions: { edit: ['root-1', '1', '2'], create: ['root-1', '1', '2'] },
+    // Workspace IDs from mockWorkspaces that user can edit/create/delete/move/rename in
+    workspacePermissions: {
+      view: ['root-1', '1', '2'],
+      edit: ['root-1', '1', '2'],
+      delete: ['1', '2'],
+      create: ['root-1', '1', '2'],
+      move: ['1', '2'],
+      rename: ['1', '2'],
+    },
     chrome: {
       environment: 'prod',
     },
@@ -212,7 +219,7 @@ export const PermissionIntegration: Story = {
       },
     },
     // Mock Kessel permissions - read-only user (cannot edit or create workspaces)
-    workspacePermissions: { edit: [], create: [] },
+    workspacePermissions: { view: ['root-1', '1', '2'], edit: [], delete: [], create: [], move: [], rename: [] },
     chrome: {
       environment: 'prod',
     },
@@ -491,7 +498,7 @@ export const M1_ReadOnly: Story = {
       'platform.rbac.workspaces': false,
     },
     // Mock Kessel permissions - read-only user (empty workspace IDs)
-    workspacePermissions: { edit: [], create: [] },
+    workspacePermissions: { view: [], edit: [], delete: [], create: [], move: [], rename: [] },
     chrome: {
       environment: 'prod',
     },
@@ -620,7 +627,7 @@ export const M2_ReadOnly: Story = {
       'platform.rbac.workspaces': false,
     },
     // Mock Kessel permissions - read-only user (empty workspace IDs)
-    workspacePermissions: { edit: [], create: [] },
+    workspacePermissions: { view: [], edit: [], delete: [], create: [], move: [], rename: [] },
     chrome: {
       environment: 'prod',
     },
@@ -732,7 +739,7 @@ export const M3_ReadOnly: Story = {
       'platform.rbac.workspaces': false,
     },
     // Mock Kessel permissions - read-only user (empty workspace IDs)
-    workspacePermissions: { edit: [], create: [] },
+    workspacePermissions: { view: [], edit: [], delete: [], create: [], move: [], rename: [] },
     chrome: {
       environment: 'prod',
     },
@@ -833,7 +840,7 @@ export const M5_ReadOnly: Story = {
       'platform.rbac.workspaces': true,
     },
     // Mock Kessel permissions - read-only user (empty workspace IDs)
-    workspacePermissions: { edit: [], create: [] },
+    workspacePermissions: { view: [], edit: [], delete: [], create: [], move: [], rename: [] },
     chrome: {
       environment: 'prod',
     },

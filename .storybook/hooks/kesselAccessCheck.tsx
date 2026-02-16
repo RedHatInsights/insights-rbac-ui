@@ -13,7 +13,7 @@ interface AccessCheckResult {
 }
 
 interface UseSelfAccessCheckOptions {
-  relation: 'edit' | 'create';
+  relation: string;
   resources: Resource[];
 }
 
@@ -23,7 +23,8 @@ export const useSelfAccessCheck = ({ relation, resources }: UseSelfAccessCheckOp
   const mockRef = useRef(mock);
   mockRef.current = mock;
 
-  const allowedIds = relation === 'edit' ? mockRef.current.workspacePermissions.edit : mockRef.current.workspacePermissions.create;
+  // Generic lookup: supports all 6 workspace relations (view, edit, delete, create, move, rename)
+  const allowedIds = mockRef.current.workspacePermissions[relation as keyof typeof mockRef.current.workspacePermissions] ?? [];
 
   const data: AccessCheckResult[] = resources.map((resource) => ({
     resource,

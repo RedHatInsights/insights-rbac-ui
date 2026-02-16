@@ -70,8 +70,8 @@ const preview: Preview = {
     featureFlags: {
       'platform.rbac.itless': false,
     },
-    // NOTE: Kessel access checks use workspacePermissions (workspace ID arrays)
-    // e.g., workspacePermissions: { edit: ['ws-1', 'ws-2'], create: ['ws-1'] }
+    // NOTE: Kessel access checks use workspacePermissions (all 6 relations → workspace ID arrays)
+    // e.g., workspacePermissions: { view: ['ws-1'], edit: ['ws-1'], delete: [], create: ['ws-1'], move: [], rename: [] }
   },
   decorators: [
     (Story, { parameters, args }) => {
@@ -110,8 +110,8 @@ const preview: Preview = {
             ? 'production'
             : 'staging';
 
-      // Workspace permissions for Kessel stories
-      const workspacePermissions = parameters.workspacePermissions ?? { edit: [], create: [] };
+      // Workspace permissions for Kessel stories (all 6 relations)
+      const workspacePermissions = parameters.workspacePermissions ?? { view: [], edit: [], delete: [], create: [], move: [], rename: [] };
 
       // User identity for auth.getUser() - use userIdentity parameter
       const userIdentity = parameters.userIdentity;
