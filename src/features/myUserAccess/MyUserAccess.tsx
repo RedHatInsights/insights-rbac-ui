@@ -70,9 +70,12 @@ export const MyUserAccess: React.FC = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   // Use replace to avoid history push; prevents shell from treating each bundle switch as full navigation (HEAD /iam storm)
-  const onBundleSelect = useCallback((b: string) => {
-    setSearchParams({ bundle: b }, { replace: true });
-  }, [setSearchParams]);
+  const onBundleSelect = useCallback(
+    (b: string) => {
+      setSearchParams({ bundle: b }, { replace: true });
+    },
+    [setSearchParams],
+  );
 
   // Bundle and filter logic moved from BundleView
   const apps = useBundleApps(bundle || undefined);

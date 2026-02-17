@@ -112,42 +112,42 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
                     to={{ pathname: location.pathname, search: `bundle=${key}` }}
                     style={{ textDecoration: 'none', color: 'inherit' }}
                   >
-                  <Card
-                    ouiaId={`${data.title}-card`}
-                    key={data.title}
-                    isSelectable={!isDisabled}
-                    isSelected={!isDisabled && key === currentBundle}
-                    className={classNames({
-                      'pf-v6-u-background-color-disabled-color-300': isDisabled,
-                    })}
-                  >
-                    <CardHeader
-                      selectableActions={{
-                        selectableActionId: `bundle-card-${key}`,
-                        selectableActionAriaLabelledby: `bundle-card-title-${key}`,
-                        name: data.title,
-                        variant: 'single',
-                        onChange: (event: React.FormEvent<HTMLInputElement>) => onChange(event as React.ChangeEvent<HTMLInputElement>),
-                      }}
+                    <Card
+                      ouiaId={`${data.title}-card`}
+                      key={data.title}
+                      isSelectable={!isDisabled}
+                      isSelected={!isDisabled && key === currentBundle}
+                      className={classNames({
+                        'pf-v6-u-background-color-disabled-color-300': isDisabled,
+                      })}
                     >
-                      <CardTitle
-                        id={`bundle-card-title-${key}`}
-                        className="pf-v6-u-font-weight-light"
-                        data-ouia-component-id={`${data.title}-card-title`}
+                      <CardHeader
+                        selectableActions={{
+                          selectableActionId: `bundle-card-${key}`,
+                          selectableActionAriaLabelledby: `bundle-card-title-${key}`,
+                          name: data.title,
+                          variant: 'single',
+                          onChange: (event: React.FormEvent<HTMLInputElement>) => onChange(event as React.ChangeEvent<HTMLInputElement>),
+                        }}
                       >
-                        {data.title}
-                      </CardTitle>
-                    </CardHeader>
+                        <CardTitle
+                          id={`bundle-card-title-${key}`}
+                          className="pf-v6-u-font-weight-light"
+                          data-ouia-component-id={`${data.title}-card-title`}
+                        >
+                          {data.title}
+                        </CardTitle>
+                      </CardHeader>
 
-                    <CardBody data-ouia-component-id={`${data.title}-card-body`}>
-                      <List className="pf-v6-u-color-400 pf-v6-u-font-size-sm rbac-c-mua-bundles__card--applist" isPlain>
-                        {Object.entries(data.apps || {}).map(([appName]) => (
-                          <ListItem key={appName}> {getAppDisplayName(appName)} </ListItem>
-                        ))}
-                      </List>
-                    </CardBody>
-                  </Card>
-                </NavLink>
+                      <CardBody data-ouia-component-id={`${data.title}-card-body`}>
+                        <List className="pf-v6-u-color-400 pf-v6-u-font-size-sm rbac-c-mua-bundles__card--applist" isPlain>
+                          {Object.entries(data.apps || {}).map(([appName]) => (
+                            <ListItem key={appName}> {getAppDisplayName(appName)} </ListItem>
+                          ))}
+                        </List>
+                      </CardBody>
+                    </Card>
+                  </NavLink>
                 )}
               </StackItem>
             ) : null;

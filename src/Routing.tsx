@@ -547,7 +547,11 @@ const CatchAllFallback: React.FC<{ toAppLink: (to: string) => ReturnType<ReturnT
     const path = pathnames['my-user-access'].path;
     const permissions = getPermissions(path.replace(/\/\*$/, ''));
     return (
-      <PermissionGuard permissions={permissions.permissions ?? []} checkAll={permissions.checkAll ?? true} requireOrgAdmin={permissions.requireOrgAdmin ?? false}>
+      <PermissionGuard
+        permissions={permissions.permissions ?? []}
+        checkAll={permissions.checkAll ?? true}
+        requireOrgAdmin={permissions.requireOrgAdmin ?? false}
+      >
         <ElementWrapper path={path}>
           <MyUserAccessPage />
         </ElementWrapper>
