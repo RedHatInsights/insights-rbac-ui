@@ -359,53 +359,11 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
 
   logCurl('POST', '/api/rbac/v2/workspaces/', payload, `Create workspace: ${workspace.name}`);
 
-  try {
-    const response = await client.post('/api/rbac/v2/workspaces/', payload);
-    const id = response.data?.id;
-    if (id) {
-      mapping[workspace.name] = id;
-      console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
-    }
-  } catch (createError: unknown) {
-    // If creation fails due to "same name within same parent", fetch existing workspace
-    const isSameNameError =
-      createError &&
-      typeof createError === 'object' &&
-      'response' in createError &&
-      createError.response &&
-      typeof createError.response === 'object' &&
-      'status' in createError.response &&
-      createError.response.status === 400 &&
-      'data' in createError.response &&
-      createError.response.data &&
-      typeof createError.response.data === 'object' &&
-      'errors' in createError.response.data &&
-      Array.isArray(createError.response.data.errors) &&
-      createError.response.data.errors.some((err: { detail?: string; message?: string }) => {
-        const detail = (err.detail || err.message || '').toLowerCase();
-        return detail.includes('same name within same parent');
-      });
-
-    if (isSameNameError) {
-      // Workspace exists but deletion failed - fetch and use existing
-      console.error(`    ⚠️  Workspace exists but couldn't be deleted - using existing workspace`);
-      try {
-        const listResponse = await client.get('/api/rbac/v2/workspaces/', {
-          params: { name: workspace.name },
-        });
-        const existingWorkspace = listResponse.data?.data?.[0];
-        if (existingWorkspace?.id) {
-          mapping[workspace.name] = existingWorkspace.id;
-          console.error(`  ✓ Using existing workspace "${workspace.name}" → ${existingWorkspace.id}`);
-          return;
-        }
-      } catch {
-        // Failed to fetch existing workspace
-      }
-    }
-
-    // Re-throw if we couldn't handle it
-    throw createError;
+  const response = await client.post('/api/rbac/v2/workspaces/', payload);
+  const id = response.data?.id;
+  if (id) {
+    mapping[workspace.name] = id;
+    console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
   }
 }
 
