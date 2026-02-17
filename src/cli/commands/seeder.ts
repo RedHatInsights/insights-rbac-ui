@@ -330,24 +330,52 @@ async function createGroup(
  */
 async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput, mapping: ResourceMapping, rootWorkspaceId?: string): Promise<void> {
   // Step 1: Delete existing workspace if it exists (idempotent)
-  try {
-    const listResponse = await client.get('/api/rbac/v2/workspaces/', {
-      params: { name: workspace.name },
-    });
-    const existingWorkspace = listResponse.data?.data?.[0];
-    if (existingWorkspace?.id) {
-      console.error(`  🗑️  Deleting existing workspace "${workspace.name}" (${existingWorkspace.id})...`);
+  // Try multiple times with delays to handle eventual consistency
+  const MAX_DELETE_ATTEMPTS = 3;
+  let deleteSucceeded = false;
+
+  for (let attempt = 1; attempt <= MAX_DELETE_ATTEMPTS; attempt++) {
+    try {
+      const listResponse = await client.get('/api/rbac/v2/workspaces/', {
+        params: { name: workspace.name },
+      });
+      const existingWorkspace = listResponse.data?.data?.[0];
+
+      if (!existingWorkspace?.id) {
+        // No workspace found, we're good
+        deleteSucceeded = true;
+        break;
+      }
+
+      console.error(`  🗑️  Deleting existing workspace "${workspace.name}" (${existingWorkspace.id})... [attempt ${attempt}/${MAX_DELETE_ATTEMPTS}]`);
+
       try {
         await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}`);
-        // Wait briefly to ensure deletion completes
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      } catch {
-        // Log deletion failure but continue - we'll try to create anyway
-        console.error(`    ⚠️  Deletion failed (will retry creation anyway)`);
+        console.error(`    ✓ Deletion succeeded`);
+        deleteSucceeded = true;
+        // Wait to ensure deletion propagates
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        break;
+      } catch (deleteError: unknown) {
+        const errorMsg = deleteError instanceof Error ? deleteError.message : 'Unknown error';
+        console.error(`    ⚠️  Deletion failed: ${errorMsg}`);
+
+        if (attempt < MAX_DELETE_ATTEMPTS) {
+          // Wait before retrying
+          console.error(`    ⏳ Waiting 2s before retry...`);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
       }
+    } catch {
+      // List failed, assume workspace doesn't exist
+      deleteSucceeded = true;
+      break;
     }
-  } catch {
-    // Ignore list errors - workspace might not exist
+  }
+
+  if (!deleteSucceeded) {
+    console.error(`    ❌ Failed to delete workspace after ${MAX_DELETE_ATTEMPTS} attempts`);
+    console.error(`    ⚠️  Proceeding with creation anyway - this will likely fail`);
   }
 
   // Step 2: Create the workspace fresh
