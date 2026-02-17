@@ -92,7 +92,7 @@ async function fetchSystemRoles(client: AxiosInstance): Promise<SystemRole[]> {
     }
 
     return allRoles;
-  } catch (error) {
+  } catch {
     console.error('  ⚠ Could not fetch system roles:', error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
@@ -122,7 +122,7 @@ async function fetchSystemGroups(client: AxiosInstance): Promise<SystemGroup[]> 
     }
 
     return allGroups;
-  } catch (error) {
+  } catch {
     console.error('  ⚠ Could not fetch system groups:', error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
@@ -140,7 +140,7 @@ async function readPayload(filePath: string): Promise<SeedPayload> {
 
   try {
     content = await fs.readFile(filePath, 'utf-8');
-  } catch (error) {
+  } catch {
     const message = error instanceof Error ? error.message : 'Unknown error';
     throw new Error(`Failed to read payload file "${filePath}": ${message}`);
   }
@@ -202,12 +202,24 @@ function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
  * Transforms the simpler `permissions: string[]` format to the V1 API's
  * `access: [{ permission: string, resourceDefinitions: [] }]` format.
  *
- * If the role already exists (400 error), fetches the existing UUID instead of failing.
+ * Implements idempotent seeding: deletes existing role first, then creates fresh.
  *
  * @throws Error if creation fails (caller should handle)
  */
 async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: ResourceMapping): Promise<void> {
-  // Transform permissions array to V1 API access format
+  // Step 1: Delete existing role if it exists (idempotent)
+  try {
+    const listResponse = await rolesApi.listRoles({ name: role.name });
+    const existingRole = listResponse.data?.data?.[0];
+    if (existingRole?.uuid) {
+      console.error(`  🗑️  Deleting existing role "${role.name}" (${existingRole.uuid})...`);
+      await rolesApi.deleteRole({ uuid: existingRole.uuid });
+    }
+  } catch {
+    // Ignore deletion errors - role might not exist
+  }
+
+  // Step 2: Create the role fresh
   const roleIn: RoleIn = {
     name: role.name,
     display_name: role.display_name,
@@ -215,62 +227,13 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
     access: (role.permissions ?? []).map((p) => ({ permission: p, resourceDefinitions: [] })),
   };
 
-  // Always log curl for debugging
   logCurl('POST', '/api/rbac/v1/roles/', roleIn, `Create role: ${role.name}`);
 
-  try {
-    const response = await rolesApi.createRole({ roleIn });
-    const uuid = response.data?.uuid;
-    if (uuid) {
-      mapping[role.name] = uuid;
-      console.error(`  ✓ Created role "${role.name}" → ${uuid}`);
-    }
-  } catch (error: unknown) {
-    // Handle "already exists" error gracefully
-    const isAlreadyExistsError =
-      error &&
-      typeof error === 'object' &&
-      'response' in error &&
-      error.response &&
-      typeof error.response === 'object' &&
-      'status' in error.response &&
-      error.response.status === 400 &&
-      'data' in error.response &&
-      error.response.data &&
-      typeof error.response.data === 'object' &&
-      'errors' in error.response.data &&
-      Array.isArray(error.response.data.errors) &&
-      error.response.data.errors.some((err: { detail?: string; field?: unknown }) => {
-        const detail = err.detail?.toLowerCase() || '';
-        // Also check nested field.message for workspace-specific errors
-        const fieldMessage =
-          err.field && typeof err.field === 'object' && 'message' in err.field && typeof err.field.message === 'string'
-            ? err.field.message.toLowerCase()
-            : '';
-        const combined = detail + ' ' + fieldMessage;
-        return (
-          combined.includes('already exists') || combined.includes('exists for this tenant') || combined.includes('same name within same parent')
-        );
-      });
-
-    if (isAlreadyExistsError) {
-      // Role already exists - fetch its UUID instead
-      console.error(`  ⚠ Role "${role.name}" already exists, fetching existing UUID...`);
-      try {
-        const listResponse = await rolesApi.listRoles({ name: role.name });
-        const existingRole = listResponse.data?.data?.[0];
-        if (existingRole?.uuid) {
-          mapping[role.name] = existingRole.uuid;
-          console.error(`  ✓ Using existing role "${role.name}" → ${existingRole.uuid}`);
-          return;
-        }
-      } catch (fetchError) {
-        console.error(`  ⚠ Could not fetch existing role: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
-      }
-    }
-
-    // Re-throw if not handled
-    throw error;
+  const response = await rolesApi.createRole({ roleIn });
+  const uuid = response.data?.uuid;
+  if (uuid) {
+    mapping[role.name] = uuid;
+    console.error(`  ✓ Created role "${role.name}" → ${uuid}`);
   }
 }
 
@@ -292,79 +255,33 @@ async function createGroup(
   roleMapping: ResourceMapping,
   personas?: Record<string, { username: string }>,
 ): Promise<void> {
+  // Step 1: Delete existing group if it exists (idempotent)
+  try {
+    const listResponse = await groupsApi.listGroups({ name: group.name });
+    const existingGroup = listResponse.data?.data?.[0];
+    if (existingGroup?.uuid) {
+      console.error(`  🗑️  Deleting existing group "${group.name}" (${existingGroup.uuid})...`);
+      await groupsApi.deleteGroup({ uuid: existingGroup.uuid });
+    }
+  } catch {
+    // Ignore deletion errors - group might not exist
+  }
+
+  // Step 2: Create the group fresh
   const groupData = {
     name: group.name,
     description: group.description,
   };
 
-  // Always log curl for debugging
   logCurl('POST', '/api/rbac/v1/groups/', groupData, `Create group: ${group.name}`);
 
-  let uuid: string | undefined;
-  let isExisting = false;
-
-  try {
-    const response = await groupsApi.createGroup({ group: groupData });
-    uuid = response.data?.uuid;
-    if (uuid) {
-      mapping[group.name] = uuid;
-      console.error(`  ✓ Created group "${group.name}" → ${uuid}`);
-    }
-  } catch (error: unknown) {
-    // Handle "already exists" error gracefully
-    const isAlreadyExistsError =
-      error &&
-      typeof error === 'object' &&
-      'response' in error &&
-      error.response &&
-      typeof error.response === 'object' &&
-      'status' in error.response &&
-      error.response.status === 400 &&
-      'data' in error.response &&
-      error.response.data &&
-      typeof error.response.data === 'object' &&
-      'errors' in error.response.data &&
-      Array.isArray(error.response.data.errors) &&
-      error.response.data.errors.some((err: { detail?: string; field?: unknown }) => {
-        const detail = err.detail?.toLowerCase() || '';
-        // Also check nested field.message for workspace-specific errors
-        const fieldMessage =
-          err.field && typeof err.field === 'object' && 'message' in err.field && typeof err.field.message === 'string'
-            ? err.field.message.toLowerCase()
-            : '';
-        const combined = detail + ' ' + fieldMessage;
-        return (
-          combined.includes('already exists') || combined.includes('exists for this tenant') || combined.includes('same name within same parent')
-        );
-      });
-
-    if (isAlreadyExistsError) {
-      // Group already exists - fetch its UUID instead
-      console.error(`  ⚠ Group "${group.name}" already exists, fetching existing UUID...`);
-      try {
-        const listResponse = await groupsApi.listGroups({ name: group.name });
-        const existingGroup = listResponse.data?.data?.[0];
-        if (existingGroup?.uuid) {
-          uuid = existingGroup.uuid;
-          isExisting = true;
-          mapping[group.name] = uuid;
-          console.error(`  ✓ Using existing group "${group.name}" → ${uuid}`);
-        }
-      } catch (fetchError) {
-        console.error(`  ⚠ Could not fetch existing group: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
-      }
-
-      if (!uuid) {
-        // Re-throw if we couldn't fetch the existing group
-        throw error;
-      }
-    } else {
-      // Re-throw if not an "already exists" error
-      throw error;
-    }
-  }
-
+  const response = await groupsApi.createGroup({ group: groupData });
+  const uuid = response.data?.uuid;
   if (uuid) {
+    mapping[group.name] = uuid;
+    console.error(`  ✓ Created group "${group.name}" → ${uuid}`);
+
+    // Step 3: Attach roles and personas to the newly created group
     // Attach roles if specified
     if (group.roles_list && group.roles_list.length > 0) {
       const roleUuids: string[] = [];
@@ -380,17 +297,8 @@ async function createGroup(
 
       if (roleUuids.length > 0) {
         logCurl('POST', `/api/rbac/v1/groups/${uuid}/roles/`, { roles: roleUuids }, `Attach ${roleUuids.length} role(s) to group`);
-        try {
-          await groupsApi.addRoleToGroup({ uuid, groupRoleIn: { roles: roleUuids } });
-          console.error(`    ✓ Attached ${roleUuids.length} role(s) to group`);
-        } catch (error) {
-          // Don't fail if roles are already attached
-          if (isExisting) {
-            console.error(`    ⚠ Could not attach roles (may already be attached): ${error instanceof Error ? error.message : 'Unknown error'}`);
-          } else {
-            throw error;
-          }
-        }
+        await groupsApi.addRoleToGroup({ uuid, groupRoleIn: { roles: roleUuids } });
+        console.error(`    ✓ Attached ${roleUuids.length} role(s) to group`);
       }
     }
 
@@ -405,7 +313,7 @@ async function createGroup(
           groupPrincipalIn: principalData as Parameters<typeof groupsApi.addPrincipalToGroup>[0]['groupPrincipalIn'],
         });
         console.error(`    ✓ Added ${usernames.length} persona(s) to group: ${usernames.join(', ')}`);
-      } catch (error) {
+      } catch {
         // Don't fail if users are already in group or other non-critical error
         console.error(`    ⚠ Could not add personas to group: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
@@ -416,75 +324,39 @@ async function createGroup(
 /**
  * Create a workspace via API.
  *
- * If the workspace already exists (400 error), fetches the existing ID instead of failing.
+ * Implements idempotent seeding: deletes existing workspace first, then creates fresh.
  *
  * @throws Error if creation fails (caller should handle)
  */
 async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput, mapping: ResourceMapping, rootWorkspaceId?: string): Promise<void> {
+  // Step 1: Delete existing workspace if it exists (idempotent)
+  try {
+    const listResponse = await client.get('/api/rbac/v2/workspaces/', {
+      params: { name: workspace.name },
+    });
+    const existingWorkspace = listResponse.data?.data?.[0];
+    if (existingWorkspace?.id) {
+      console.error(`  🗑️  Deleting existing workspace "${workspace.name}" (${existingWorkspace.id})...`);
+      await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}`);
+    }
+  } catch {
+    // Ignore deletion errors - workspace might not exist
+  }
+
+  // Step 2: Create the workspace fresh
   const payload = {
     name: workspace.name,
     description: workspace.description,
     parent_id: workspace.parent_id || rootWorkspaceId,
   };
 
-  // Always log curl for debugging
   logCurl('POST', '/api/rbac/v2/workspaces/', payload, `Create workspace: ${workspace.name}`);
 
-  try {
-    const response = await client.post('/api/rbac/v2/workspaces/', payload);
-    const id = response.data?.id;
-    if (id) {
-      mapping[workspace.name] = id;
-      console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
-    }
-  } catch (error: unknown) {
-    // Handle "already exists" error gracefully
-    const isAlreadyExistsError =
-      error &&
-      typeof error === 'object' &&
-      'response' in error &&
-      error.response &&
-      typeof error.response === 'object' &&
-      'status' in error.response &&
-      error.response.status === 400 &&
-      'data' in error.response &&
-      error.response.data &&
-      typeof error.response.data === 'object' &&
-      'errors' in error.response.data &&
-      Array.isArray(error.response.data.errors) &&
-      error.response.data.errors.some((err: { detail?: string; field?: unknown }) => {
-        const detail = err.detail?.toLowerCase() || '';
-        // Also check nested field.message for workspace-specific errors
-        const fieldMessage =
-          err.field && typeof err.field === 'object' && 'message' in err.field && typeof err.field.message === 'string'
-            ? err.field.message.toLowerCase()
-            : '';
-        const combined = detail + ' ' + fieldMessage;
-        return (
-          combined.includes('already exists') || combined.includes('exists for this tenant') || combined.includes('same name within same parent')
-        );
-      });
-
-    if (isAlreadyExistsError) {
-      // Workspace already exists - fetch its ID instead
-      console.error(`  ⚠ Workspace "${workspace.name}" already exists, fetching existing ID...`);
-      try {
-        const listResponse = await client.get('/api/rbac/v2/workspaces/', {
-          params: { name: workspace.name },
-        });
-        const existingWorkspace = listResponse.data?.data?.[0];
-        if (existingWorkspace?.id) {
-          mapping[workspace.name] = existingWorkspace.id;
-          console.error(`  ✓ Using existing workspace "${workspace.name}" → ${existingWorkspace.id}`);
-          return;
-        }
-      } catch (fetchError) {
-        console.error(`  ⚠ Could not fetch existing workspace: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
-      }
-    }
-
-    // Re-throw if not handled
-    throw error;
+  const response = await client.post('/api/rbac/v2/workspaces/', payload);
+  const id = response.data?.id;
+  if (id) {
+    mapping[workspace.name] = id;
+    console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
   }
 }
 
