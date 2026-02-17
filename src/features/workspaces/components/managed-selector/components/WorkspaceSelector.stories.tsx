@@ -188,11 +188,11 @@ export const CustomMenuWidth: Story = {
   play: async () => {
     const body = within(document.body);
 
-    // Wait for component to render
+    // Wait for component to render and menu to appear
     await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
 
-    // Find the panel element (the dropdown menu container)
-    const panel = body.getByRole('complementary');
+    // Find the panel element (the dropdown menu container) - wait for it to appear
+    const panel = await body.findByRole('complementary');
     await expect(panel).toBeInTheDocument();
 
     // Verify the panel has the custom width applied
@@ -241,11 +241,11 @@ export const LongWorkspaceNames: Story = {
   play: async () => {
     const body = within(document.body);
 
-    // Wait for component to render
+    // Wait for component to render and menu to appear
     await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
 
-    // Find the panel element (the dropdown menu container)
-    const panel = body.getByRole('complementary');
+    // Find the panel element (the dropdown menu container) - wait for it to appear
+    const panel = await body.findByRole('complementary');
     await expect(panel).toBeInTheDocument();
 
     // Verify long workspace name is visible but constrained
