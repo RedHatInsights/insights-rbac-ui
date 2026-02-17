@@ -209,9 +209,9 @@ spec:
       # Export test environment configuration
       # E2E_* credentials are mapped automatically by scripts/run-with-env.sh
       export CI=true
-      export TEST_PREFIX=insights-rbac-ui-{{revision}}
-      export TEST_PREFIX_V1=insights-rbac-ui-{{revision}}-v1
-      export TEST_PREFIX_V2=insights-rbac-ui-{{revision}}-v2
+      export TEST_PREFIX=rbac-ui-{{pull_request_number}}
+      export TEST_PREFIX_V1="$TEST_PREFIX-v1"
+      export TEST_PREFIX_V2="$TEST_PREFIX-v2"
       export RBAC_ENV=stage
       export E2E_BASE_URL=https://stage.foo.redhat.com:1337
 
