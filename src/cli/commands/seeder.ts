@@ -240,9 +240,17 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
       typeof error.response.data === 'object' &&
       'errors' in error.response.data &&
       Array.isArray(error.response.data.errors) &&
-      error.response.data.errors.some((err: { detail?: string }) => {
+      error.response.data.errors.some((err: { detail?: string; field?: unknown }) => {
         const detail = err.detail?.toLowerCase() || '';
-        return detail.includes('already exists') || detail.includes('exists for this tenant');
+        // Also check nested field.message for workspace-specific errors
+        const fieldMessage =
+          err.field && typeof err.field === 'object' && 'message' in err.field && typeof err.field.message === 'string'
+            ? err.field.message.toLowerCase()
+            : '';
+        const combined = detail + ' ' + fieldMessage;
+        return (
+          combined.includes('already exists') || combined.includes('exists for this tenant') || combined.includes('same name within same parent')
+        );
       });
 
     if (isAlreadyExistsError) {
@@ -317,9 +325,17 @@ async function createGroup(
       typeof error.response.data === 'object' &&
       'errors' in error.response.data &&
       Array.isArray(error.response.data.errors) &&
-      error.response.data.errors.some((err: { detail?: string }) => {
+      error.response.data.errors.some((err: { detail?: string; field?: unknown }) => {
         const detail = err.detail?.toLowerCase() || '';
-        return detail.includes('already exists') || detail.includes('exists for this tenant');
+        // Also check nested field.message for workspace-specific errors
+        const fieldMessage =
+          err.field && typeof err.field === 'object' && 'message' in err.field && typeof err.field.message === 'string'
+            ? err.field.message.toLowerCase()
+            : '';
+        const combined = detail + ' ' + fieldMessage;
+        return (
+          combined.includes('already exists') || combined.includes('exists for this tenant') || combined.includes('same name within same parent')
+        );
       });
 
     if (isAlreadyExistsError) {
@@ -436,9 +452,17 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
       typeof error.response.data === 'object' &&
       'errors' in error.response.data &&
       Array.isArray(error.response.data.errors) &&
-      error.response.data.errors.some((err: { detail?: string }) => {
+      error.response.data.errors.some((err: { detail?: string; field?: unknown }) => {
         const detail = err.detail?.toLowerCase() || '';
-        return detail.includes('already exists') || detail.includes('exists for this tenant');
+        // Also check nested field.message for workspace-specific errors
+        const fieldMessage =
+          err.field && typeof err.field === 'object' && 'message' in err.field && typeof err.field.message === 'string'
+            ? err.field.message.toLowerCase()
+            : '';
+        const combined = detail + ' ' + fieldMessage;
+        return (
+          combined.includes('already exists') || combined.includes('exists for this tenant') || combined.includes('same name within same parent')
+        );
       });
 
     if (isAlreadyExistsError) {
