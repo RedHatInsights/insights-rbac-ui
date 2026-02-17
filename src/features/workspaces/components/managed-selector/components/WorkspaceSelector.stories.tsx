@@ -171,3 +171,91 @@ export const DropdownFiltered: Story = {
     await expect(args.onSearchFilter).toHaveBeenCalledWith('dev');
   },
 };
+
+export const CustomMenuWidth: Story = {
+  args: {
+    ...baseArgs,
+    menuWidth: '600px',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Demonstrates custom menu width using the `menuWidth` prop. The dropdown menu is set to 600px width instead of automatically matching the toggle button width. This is useful when you need a specific width regardless of the toggle size.',
+      },
+    },
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    // Wait for component to render
+    await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
+
+    // Find the panel element (the dropdown menu container)
+    const panel = body.getByRole('complementary');
+    await expect(panel).toBeInTheDocument();
+
+    // Verify the panel has the custom width applied
+    const panelStyle = window.getComputedStyle(panel);
+    expect(panelStyle.width).toBe('600px');
+    expect(panelStyle.maxWidth).toBe('600px');
+  },
+};
+
+export const LongWorkspaceNames: Story = {
+  args: {
+    ...baseArgs,
+    treeElements: [
+      {
+        id: 'extremely-long-workspace-id',
+        name: 'This is an extremely long workspace name that would normally cause the dropdown to become very wide and overflow its container',
+        children: [
+          {
+            id: 'child-1',
+            name: 'Another workspace with an unnecessarily verbose and lengthy name that goes on and on',
+          },
+        ],
+      },
+    ],
+    filteredTreeElements: [
+      {
+        id: 'extremely-long-workspace-id',
+        name: 'This is an extremely long workspace name that would normally cause the dropdown to become very wide and overflow its container',
+        children: [
+          {
+            id: 'child-1',
+            name: 'Another workspace with an unnecessarily verbose and lengthy name that goes on and on',
+          },
+        ],
+      },
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tests that extremely long workspace names are properly constrained within the dropdown menu. Without the menuWidth prop, the menu automatically matches the toggle button width and prevents long names from expanding the dropdown beyond acceptable limits. Long names will wrap or truncate within the constrained width.',
+      },
+    },
+  },
+  play: async () => {
+    const body = within(document.body);
+
+    // Wait for component to render
+    await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
+
+    // Find the panel element (the dropdown menu container)
+    const panel = body.getByRole('complementary');
+    await expect(panel).toBeInTheDocument();
+
+    // Verify long workspace name is visible but constrained
+    const longNameElement = await body.findByText(/This is an extremely long workspace name/);
+    await expect(longNameElement).toBeInTheDocument();
+
+    // The panel width should match the toggle width (not expand to fit the long name)
+    // We can't test exact pixel values since they depend on container, but we can verify
+    // the width and maxWidth are the same (constrained)
+    const panelStyle = window.getComputedStyle(panel);
+    expect(panelStyle.width).toBe(panelStyle.maxWidth);
+  },
+};
