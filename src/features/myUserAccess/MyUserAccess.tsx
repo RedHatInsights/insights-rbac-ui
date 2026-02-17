@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { NavLink, useLocation, useSearchParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Dropdown,
   DropdownItem,
@@ -15,7 +15,6 @@ import {
 
 import { usePlatformAuth } from '../../hooks/usePlatformAuth';
 import StatusLabel from './components/StatusLabel';
-import PermissionsContext from '../../utilities/permissionsContext';
 import { bundleData } from './bundleData';
 import { UserAccessLayout } from './components/UserAccessLayout';
 import type { Entitlements } from './components/BundleCard';
@@ -41,26 +40,26 @@ interface User {
 export const MyUserAccess: React.FC = () => {
   const intl = useIntl();
   const { getUser } = usePlatformAuth();
-  const location = useLocation();
   const [user, setUser] = useState<User>({});
   const [searchParams, setSearchParams] = useSearchParams();
-  const bundle = searchParams.get('bundle');
-  const { userAccessAdministrator } = useContext(PermissionsContext);
+  const bundleFromUrl = searchParams.get('bundle');
+  const bundle = bundleFromUrl || DEFAULT_MUA_BUNDLE;
+  // Avoid any permission/context hook here: triggers re-render cascade and freeze when navigating from Users.
+  const userAccessAdministrator = false;
 
+  // Defer so we don't call chrome identity in the same tick as route transition (avoids freeze when navigating from user-access/* back to my-user-access)
   useEffect(() => {
-    getUser().then((chromeUser) => {
-      const { identity, entitlements } = chromeUser || {};
-      setUser({
-        entitlements,
-        isOrgAdmin: identity?.user?.is_org_admin,
+    const id = window.requestAnimationFrame(() => {
+      getUser().then((chromeUser) => {
+        const { identity, entitlements } = chromeUser || {};
+        setUser({
+          entitlements,
+          isOrgAdmin: identity?.user?.is_org_admin,
+        });
       });
     });
-
-    // Only set default bundle if bundle is falsy and we haven't already set it
-    if (!bundle) {
-      setSearchParams({ bundle: DEFAULT_MUA_BUNDLE });
-    }
-  }, [bundle, setSearchParams, getUser]);
+    return () => window.cancelAnimationFrame(id);
+  }, [getUser]);
 
   const enhancedEntitlements: UserEntitlements = {
     ...user.entitlements,
@@ -69,6 +68,11 @@ export const MyUserAccess: React.FC = () => {
   const entitledBundles: Entitlements = Object.entries(enhancedEntitlements).filter(([, { is_entitled }]) => is_entitled);
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+
+  // Use replace to avoid history push; prevents shell from treating each bundle switch as full navigation (HEAD /iam storm)
+  const onBundleSelect = useCallback((b: string) => {
+    setSearchParams({ bundle: b }, { replace: true });
+  }, [setSearchParams]);
 
   // Bundle and filter logic moved from BundleView
   const apps = useBundleApps(bundle || undefined);
@@ -124,8 +128,14 @@ export const MyUserAccess: React.FC = () => {
           >
             <DropdownList>
               {bundleData.map((data) => (
-                <DropdownItem key={data.entitlement} onClick={() => setDropdownOpen(false)}>
-                  <NavLink to={{ pathname: location.pathname, search: `bundle=${data.entitlement}` }}>{data.title}</NavLink>
+                <DropdownItem
+                  key={data.entitlement}
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    setSearchParams({ bundle: data.entitlement }, { replace: true });
+                  }}
+                >
+                  {data.title}
                 </DropdownItem>
               ))}
             </DropdownList>
@@ -139,6 +149,7 @@ export const MyUserAccess: React.FC = () => {
             name: bundleData.find(({ entitlement }) => entitlement === (bundle || DEFAULT_MUA_BUNDLE))?.title,
           })}
           currentBundle={bundle || DEFAULT_MUA_BUNDLE}
+          onBundleSelect={onBundleSelect}
         >
           <OrgAdminContext.Provider value={hasAdminAccess}>
             {hasAdminAccess ? (
