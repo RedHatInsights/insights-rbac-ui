@@ -41,6 +41,8 @@ export interface WorkspaceSelectorProps<T extends TreeViewDataItem> {
   searchPlaceholder?: string;
   buttonText?: string;
   onButtonClick?: () => void;
+  /** Custom width for the dropdown menu. If not provided, menu width will automatically match the toggle button width. */
+  menuWidth?: string;
 }
 
 export const WorkspaceSelector = <T extends TreeViewDataItem>({
@@ -60,6 +62,7 @@ export const WorkspaceSelector = <T extends TreeViewDataItem>({
   searchPlaceholder = 'Find a workspace by name',
   buttonText = 'View list',
   onButtonClick,
+  menuWidth: customMenuWidth,
 }: WorkspaceSelectorProps<T>) => {
   // References for the menu and the menu toggle.
   const menuRef = React.useRef<MenuToggleElement>(null);
@@ -105,8 +108,22 @@ export const WorkspaceSelector = <T extends TreeViewDataItem>({
     });
   }, [renderTreeView, filteredTreeElements, areElementsFiltered, selectedItem, onSelectItem, isLoading]);
 
+  // Calculate menu width: use custom width if provided, otherwise match toggle width
+  const menuWidth = React.useMemo(() => {
+    if (customMenuWidth) {
+      return customMenuWidth;
+    }
+
+    if (toggleRef.current) {
+      const width = toggleRef.current.offsetWidth;
+      return width > 0 ? `${width}px` : '400px';
+    }
+
+    return '400px';
+  }, [customMenuWidth, isMenuExpanded]);
+
   const menu = (
-    <Panel isScrollable ref={menuRef} variant="raised" className="rbac-c-workspace-selector-menu">
+    <Panel isScrollable ref={menuRef} variant="raised" className="rbac-c-workspace-selector-menu" style={{ width: menuWidth, maxWidth: menuWidth }}>
       <PanelHeader className="pf-v6-u-pb-0">
         <SearchInput
           placeholder={searchPlaceholder}
