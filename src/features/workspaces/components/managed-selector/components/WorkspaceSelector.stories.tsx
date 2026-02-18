@@ -188,15 +188,15 @@ export const CustomMenuWidth: Story = {
   play: async () => {
     const body = within(document.body);
 
-    // Wait for component to render and menu to appear
+    // Wait for menu content to render in portal
     await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
 
-    // Find the panel element (the dropdown menu container) - wait for it to appear
-    const panel = await body.findByRole('complementary');
-    await expect(panel).toBeInTheDocument();
+    // Find the panel by its className since it's rendered in a portal
+    const panel = document.querySelector('.rbac-c-workspace-selector-menu');
+    expect(panel).toBeInTheDocument();
 
     // Verify the panel has the custom width applied
-    const panelStyle = window.getComputedStyle(panel);
+    const panelStyle = window.getComputedStyle(panel as HTMLElement);
     expect(panelStyle.width).toBe('600px');
     expect(panelStyle.maxWidth).toBe('600px');
   },
@@ -241,21 +241,21 @@ export const LongWorkspaceNames: Story = {
   play: async () => {
     const body = within(document.body);
 
-    // Wait for component to render and menu to appear
+    // Wait for menu content to render in portal
     await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
-
-    // Find the panel element (the dropdown menu container) - wait for it to appear
-    const panel = await body.findByRole('complementary');
-    await expect(panel).toBeInTheDocument();
 
     // Verify long workspace name is visible but constrained
     const longNameElement = await body.findByText(/This is an extremely long workspace name/);
     await expect(longNameElement).toBeInTheDocument();
 
+    // Find the panel by its className since it's rendered in a portal
+    const panel = document.querySelector('.rbac-c-workspace-selector-menu');
+    expect(panel).toBeInTheDocument();
+
     // The panel width should match the toggle width (not expand to fit the long name)
     // We can't test exact pixel values since they depend on container, but we can verify
     // the width and maxWidth are the same (constrained)
-    const panelStyle = window.getComputedStyle(panel);
+    const panelStyle = window.getComputedStyle(panel as HTMLElement);
     expect(panelStyle.width).toBe(panelStyle.maxWidth);
   },
 };
