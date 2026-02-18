@@ -1,3 +1,10 @@
+## [2.11.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.11.0...v2.11.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* **WorkspaceSelector:** keep dropdown width from expanding ([8ea46d7](https://github.com/RedHatInsights/insights-rbac-ui/commit/8ea46d75d84ef11b300fb838f318cd8dbb696c5b))
+
 # [2.11.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.10.1...v2.11.0) (2026-02-16)
 
 
