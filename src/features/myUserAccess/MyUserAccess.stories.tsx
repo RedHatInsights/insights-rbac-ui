@@ -1044,8 +1044,7 @@ remains usable across all device sizes while maintaining full functionality.
     // Find and click OpenShift option in dropdown (rendered in portal).
     // Dropdown uses DropdownItem with onClick (setSearchParams), not a link - use menuitem, option, or text.
     const body = within(document.body);
-    let openshiftOption =
-      body.queryByRole('menuitem', { name: /openshift/i }) ?? body.queryByRole('option', { name: /openshift/i });
+    let openshiftOption = body.queryByRole('menuitem', { name: /openshift/i }) ?? body.queryByRole('option', { name: /openshift/i });
     if (!openshiftOption) {
       openshiftOption = await body.findByText('OpenShift');
     }
