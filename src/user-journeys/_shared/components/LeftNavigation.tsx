@@ -31,6 +31,9 @@ export const LeftNavigation: React.FC = () => {
           <NavItem isActive={isActive('/iam/user-access/groups')}>
             <Link to="/iam/user-access/groups">Groups</Link>
           </NavItem>
+          <NavItem isActive={isActive('/iam/user-access/audit-log')}>
+            <Link to="/iam/user-access/audit-log">Audit Log</Link>
+          </NavItem>
         </NavExpandable>
       </NavList>
     </Nav>

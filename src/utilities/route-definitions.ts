@@ -118,6 +118,14 @@ export const routeDefinitions: RouteDefinition[] = [
   },
 
   // ===========================================
+  // User Access (V1) - Audit Log
+  // ===========================================
+  {
+    path: '/user-access/audit-log',
+    permissions: ['rbac:*:read'],
+  },
+
+  // ===========================================
   // User Access (V1) - Workspaces
   // ===========================================
   {

@@ -256,6 +256,14 @@ objects:
                       args:
                         - - 'inventory:groups:read'
                   product: Identity & Access Management
+                - id: audit-log
+                  title: Audit Log
+                  href: /iam/user-access/audit-log
+                  permissions:
+                    - method: loosePermissions
+                      args:
+                        - - rbac:*:read
+                  product: Identity & Access Management
                 - segmentRef:
                     frontendName: access-requests
                     segmentId: iam-access-requests
