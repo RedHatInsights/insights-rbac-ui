@@ -459,17 +459,22 @@ const TestHelpers = {
   },
 
   /**
-   * Click a bundle card to navigate
+   * Click a bundle card to switch bundle.
+   * In the app, cards use a button wrapper (onBundleSelect); in Storybook without it they may use NavLink.
+   * Support both: click the element with aria-label="card-link" (button or link).
    */
   async clickBundleCard(canvas: ReturnType<typeof within>, bundleName: string) {
     const { entitleSectionContent } = await this.waitForLayout(canvas);
     const cardTitle = await entitleSectionContent.findByText(bundleName);
-    const bundleCardLink = cardTitle.closest('[aria-label="card-link"]');
+    const bundleCardControl = cardTitle.closest('[aria-label="card-link"]');
 
-    expect(bundleCardLink).toBeInTheDocument();
-    expect(bundleCardLink).toHaveAttribute('href', expect.stringContaining('bundle='));
+    expect(bundleCardControl).toBeInTheDocument();
+    // When using onBundleSelect, the wrapper is a button (no href); when using NavLink it has href
+    if (bundleCardControl?.getAttribute('href')) {
+      expect(bundleCardControl).toHaveAttribute('href', expect.stringContaining('bundle='));
+    }
 
-    bundleCardLink && (await userEvent.click(bundleCardLink));
+    bundleCardControl && (await userEvent.click(bundleCardControl as HTMLElement));
     await TestHelpers.delay(300); // Allow navigation to complete
 
     console.log(`SB: ✅ Clicked ${bundleName} bundle card`);
@@ -1036,12 +1041,16 @@ remains usable across all device sizes while maintaining full functionality.
     // TEST NAVIGATION: Click dropdown to open it
     await userEvent.click(dropdownButton as HTMLElement);
 
-    // Find and click OpenShift option in dropdown (rendered in portal)
-    // The dropdown uses NavLink inside DropdownItem - click the link directly
+    // Find and click OpenShift option in dropdown (rendered in portal).
+    // Dropdown uses DropdownItem with onClick (setSearchParams), not a link - use menuitem, option, or text.
     const body = within(document.body);
-    const openshiftLink = await body.findByRole('link', { name: /openshift/i });
-    expect(openshiftLink).toBeInTheDocument();
-    await userEvent.click(openshiftLink);
+    let openshiftOption =
+      body.queryByRole('menuitem', { name: /openshift/i }) ?? body.queryByRole('option', { name: /openshift/i });
+    if (!openshiftOption) {
+      openshiftOption = await body.findByText('OpenShift');
+    }
+    expect(openshiftOption).toBeInTheDocument();
+    await userEvent.click(openshiftOption as HTMLElement);
 
     // Wait for navigation to complete - dropdown should now show OpenShift
     await waitFor(

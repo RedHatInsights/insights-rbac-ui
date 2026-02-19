@@ -538,11 +538,11 @@ const renderRoutes = (routes: Route[], parentPermissions: string[] = [], parentR
       },
     );
 
-/** Renders MUA when path already looks like my-user-access (avoids redirect loop when pathname has /iam prefix); otherwise redirects to MUA */
+/** Renders MUA when path is exactly or under my-user-access (avoids redirect loop when pathname has /iam prefix); otherwise redirects to MUA */
 const CatchAllFallback: React.FC<{ toAppLink: (to: string) => ReturnType<ReturnType<typeof useAppLink>> }> = ({ toAppLink }) => {
   const location = useLocation();
   const pathname = location.pathname ?? '';
-  const isAlreadyMua = pathname.includes('my-user-access');
+  const isAlreadyMua = pathname.endsWith('/my-user-access') || pathname.includes('/my-user-access/');
   if (isAlreadyMua) {
     const path = pathnames['my-user-access'].path;
     const permissions = getPermissions(path.replace(/\/\*$/, ''));

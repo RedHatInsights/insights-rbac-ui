@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Dropdown,
@@ -21,6 +21,7 @@ import type { Entitlements } from './components/BundleCard';
 import { AccessTable } from './AccessTable';
 import { RolesTable } from './RolesTable';
 import OrgAdminContext from '../../utilities/orgAdminContext';
+import PermissionsContext from '../../utilities/permissionsContext';
 import { useBundleApps } from './useBundleApps';
 import { DEFAULT_MUA_BUNDLE } from '../../utilities/constants';
 import { useIntl } from 'react-intl';
@@ -44,8 +45,15 @@ export const MyUserAccess: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const bundleFromUrl = searchParams.get('bundle');
   const bundle = bundleFromUrl || DEFAULT_MUA_BUNDLE;
-  // Avoid any permission/context hook here: triggers re-render cascade and freeze when navigating from Users.
-  const userAccessAdministrator = false;
+  const { userAccessAdministrator: contextUserAccessAdministrator } = useContext(PermissionsContext);
+  // Defer *using* the permission by one macrotask so we don't trigger a re-render cascade on the same tick as route transition (avoids freeze when navigating from user-access/* back to my-user-access). Real admin status is preserved; we only delay when we read it. setTimeout(0) runs in the next macrotask.
+  const [useDeferredPermissions, setUseDeferredPermissions] = useState(false);
+  const userAccessAdministrator = useDeferredPermissions ? contextUserAccessAdministrator : false;
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setUseDeferredPermissions(true), 0);
+    return () => window.clearTimeout(id);
+  }, []);
 
   // Defer so we don't call chrome identity in the same tick as route transition (avoids freeze when navigating from user-access/* back to my-user-access)
   useEffect(() => {
