@@ -5,14 +5,7 @@ import { ErrorState, PageHeader, SkeletonTableBody, SkeletonTableHead } from '@p
 import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
-import {
-  DataView,
-  DataViewState,
-  DataViewTable,
-  DataViewTh,
-  DataViewToolbar,
-  useDataViewPagination,
-} from '@patternfly/react-data-view';
+import { DataView, DataViewState, DataViewTable, DataViewTh, DataViewToolbar, useDataViewPagination } from '@patternfly/react-data-view';
 import type { DataViewTr } from '@patternfly/react-data-view';
 import { Pagination } from '@patternfly/react-core';
 import messages from '../../Messages';
@@ -46,10 +39,7 @@ const EmptyAuditLogTable: React.FC<{ titleText: string; description?: string }> 
   </tbody>
 );
 
-const ErrorStateTable: React.FC<{ errorTitle: string; errorDescription?: string | null }> = ({
-  errorTitle,
-  errorDescription,
-}) => (
+const ErrorStateTable: React.FC<{ errorTitle: string; errorDescription?: string | null }> = ({ errorTitle, errorDescription }) => (
   <tbody>
     <tr>
       <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
@@ -74,12 +64,7 @@ export interface AuditLogProps {
   error?: string | null;
 }
 
-const AuditLog: React.FC<AuditLogProps> = ({
-  entries = [],
-  totalCount = 0,
-  isLoading = false,
-  error = null,
-}) => {
+const AuditLog: React.FC<AuditLogProps> = ({ entries = [], totalCount = 0, isLoading = false, error = null }) => {
   const intl = useIntl();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -98,7 +83,7 @@ const AuditLog: React.FC<AuditLogProps> = ({
       { cell: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }) },
       { cell: intl.formatMessage({ id: 'auditLogColumnDescription', defaultMessage: 'Description' }) },
     ],
-    [intl]
+    [intl],
   );
 
   const rows: DataViewTr[] = useMemo(
@@ -107,7 +92,7 @@ const AuditLog: React.FC<AuditLogProps> = ({
         id: entry.id,
         row: [entry.date, entry.requester, entry.action, entry.resource, entry.description],
       })),
-    [entries]
+    [entries],
   );
 
   const activeState: DataViewState | undefined = isLoading
@@ -126,10 +111,7 @@ const AuditLog: React.FC<AuditLogProps> = ({
 
   return (
     <>
-      <PageHeader
-        title={intl.formatMessage(messages.auditLog)}
-        subtitle={intl.formatMessage(messages.auditLogSubtitle)}
-      />
+      <PageHeader title={intl.formatMessage(messages.auditLog)} subtitle={intl.formatMessage(messages.auditLogSubtitle)} />
       <PageSection hasBodyWrapper={false}>
         <DataView activeState={activeState}>
           <DataViewToolbar
