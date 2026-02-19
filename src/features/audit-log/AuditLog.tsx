@@ -5,17 +5,13 @@ import { ErrorState, PageHeader, SkeletonTableBody, SkeletonTableHead } from '@p
 import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
-import type { ThProps } from '@patternfly/react-table';
 import {
   DataView,
   DataViewState,
   DataViewTable,
-  DataViewTextFilter,
   DataViewTh,
   DataViewToolbar,
-  useDataViewFilters,
   useDataViewPagination,
-  useDataViewSort,
 } from '@patternfly/react-data-view';
 import type { DataViewTr } from '@patternfly/react-data-view';
 import { Pagination } from '@patternfly/react-core';
@@ -33,12 +29,6 @@ export interface AuditLogEntry {
   resource: string;
   action: string;
 }
-
-export interface AuditLogFilters {
-  search: string;
-}
-
-const AUDIT_LOG_COLUMN_KEYS = ['date', 'requester', 'action', 'resource', 'description'] as const;
 
 // ----------------------------------------------------------------------------
 // Empty / Error table body components
@@ -93,19 +83,6 @@ const AuditLog: React.FC<AuditLogProps> = ({
   const intl = useIntl();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<AuditLogFilters>({
-    initialFilters: { search: '' },
-    searchParams,
-    setSearchParams,
-  });
-
-  const { sortBy, direction, onSort } = useDataViewSort({
-    searchParams,
-    setSearchParams,
-    initialSort: { sortBy: 'date', direction: 'desc' },
-    defaultDirection: 'desc',
-  });
-
   const pagination = useDataViewPagination({
     perPage: 20,
     searchParams,
@@ -113,58 +90,31 @@ const AuditLog: React.FC<AuditLogProps> = ({
   });
   const { page, perPage, onPerPageSelect, onSetPage } = pagination;
 
-  // Client-side filter for search (basic structure; can be moved to API later)
-  const filteredEntries = useMemo(() => {
-    const term = (filters.search ?? '').trim().toLowerCase();
-    if (!term) return entries;
-    return entries.filter(
-      (e: AuditLogEntry) =>
-        e.requester?.toLowerCase().includes(term) ||
-        e.description?.toLowerCase().includes(term) ||
-        e.resource?.toLowerCase().includes(term) ||
-        e.action?.toLowerCase().includes(term)
-    );
-  }, [entries, filters.search]);
-
-  const sortByIndex = useMemo(
-    () => AUDIT_LOG_COLUMN_KEYS.indexOf((sortBy as (typeof AUDIT_LOG_COLUMN_KEYS)[number]) ?? 'date'),
-    [sortBy]
-  );
-  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
-    sortBy: {
-      index: sortByIndex >= 0 ? sortByIndex : 0,
-      direction,
-      defaultDirection: 'desc',
-    },
-    onSort: (_event, index, dir) => onSort(undefined, AUDIT_LOG_COLUMN_KEYS[index], dir),
-    columnIndex,
-  });
-
   const columns: DataViewTh[] = useMemo(
     () => [
-      { cell: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date' }), props: { sort: getSortParams(0) } },
-      { cell: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }), props: { sort: getSortParams(1) } },
-      { cell: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }), props: { sort: getSortParams(2) } },
-      { cell: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }), props: { sort: getSortParams(3) } },
-      { cell: intl.formatMessage({ id: 'auditLogColumnDescription', defaultMessage: 'Description' }), props: { sort: getSortParams(4) } },
+      { cell: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date' }) },
+      { cell: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }) },
+      { cell: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }) },
+      { cell: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }) },
+      { cell: intl.formatMessage({ id: 'auditLogColumnDescription', defaultMessage: 'Description' }) },
     ],
-    [intl, sortByIndex, direction]
+    [intl]
   );
 
   const rows: DataViewTr[] = useMemo(
     () =>
-      filteredEntries.map((entry) => ({
+      entries.map((entry) => ({
         id: entry.id,
         row: [entry.date, entry.requester, entry.action, entry.resource, entry.description],
       })),
-    [filteredEntries]
+    [entries]
   );
 
   const activeState: DataViewState | undefined = isLoading
     ? DataViewState.loading
     : error
       ? DataViewState.error
-      : filteredEntries.length === 0
+      : entries.length === 0
         ? DataViewState.empty
         : undefined;
 
@@ -183,20 +133,6 @@ const AuditLog: React.FC<AuditLogProps> = ({
       <PageSection hasBodyWrapper={false}>
         <DataView activeState={activeState}>
           <DataViewToolbar
-            clearAllFilters={clearAllFilters}
-            filters={
-              <DataViewTextFilter
-                filterId="search"
-                title={intl.formatMessage({ id: 'auditLogFilterSearch', defaultMessage: 'Search' })}
-                placeholder={intl.formatMessage({
-                  id: 'auditLogFilterSearchPlaceholder',
-                  defaultMessage: 'Filter by requester, action, resource, or description',
-                })}
-                ouiaId="audit-log-search-filter"
-                onChange={(_e, value) => onSetFilters({ search: value })}
-                value={filters.search}
-              />
-            }
             pagination={
               <Pagination
                 perPageOptions={perPageOptions.map((o) => ({ title: o.title, value: o.value }))}
