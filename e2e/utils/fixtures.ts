@@ -83,12 +83,92 @@ export async function blockAnalytics(page: Page): Promise<void> {
 }
 
 /**
- * Combined setup: enables asset cache and blocks analytics.
+ * Enable filtered browser console logging.
+ * Only logs errors and warnings, filtering out verbose info/debug messages.
+ * Call this in test.beforeEach or at the start of each test.
+ * Enabled only when DEBUG or PW_TEST_DEBUG environment variable is set.
+ */
+export async function enableConsoleLogging(page: Page): Promise<void> {
+  // Only enable if DEBUG or PW_TEST_DEBUG is set
+  if (!process.env.DEBUG && !process.env.PW_TEST_DEBUG) {
+    return;
+  }
+
+  // Log browser console errors and warnings
+  page.on('console', (msg) => {
+    const type = msg.type();
+    // Only log errors and warnings
+    if (type === 'error' || type === 'warning') {
+      const location = msg.location();
+      const prefix = `[Browser ${type.toUpperCase()}]`;
+      // Use process.stderr to ensure it appears in Playwright output
+      process.stderr.write(`${prefix} ${msg.text()}\n`);
+      if (location.url) {
+        process.stderr.write(`  at ${location.url}:${location.lineNumber}:${location.columnNumber}\n`);
+      }
+    }
+  });
+
+  // Log page errors (uncaught exceptions)
+  page.on('pageerror', (error) => {
+    process.stderr.write(`[Browser EXCEPTION] ${error.message}\n`);
+    if (error.stack) {
+      process.stderr.write(`${error.stack}\n`);
+    }
+  });
+
+  // Log failed network requests (might indicate missing resources)
+  page.on('requestfailed', (request) => {
+    const failure = request.failure();
+    process.stderr.write(`[Network FAILED] ${request.method()} ${request.url()}\n`);
+    if (failure) {
+      process.stderr.write(`  Error: ${failure.errorText}\n`);
+    }
+  });
+
+  // Log HTTP errors (4xx, 5xx)
+  page.on('response', (response) => {
+    const status = response.status();
+    if (status >= 400) {
+      process.stderr.write(`[HTTP ${status}] ${response.request().method()} ${response.url()}\n`);
+    }
+  });
+}
+
+/**
+ * Disable preview/beta navigation mode.
+ * Injects script to disable 2024 navigation preview before page loads.
+ * Call this in setupPage to ensure stable navigation in tests.
+ */
+export async function disablePreviewMode(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    // Set localStorage to disable preview navigation before app initializes
+    try {
+      const existingPrefs = JSON.parse(localStorage.getItem('chrome:user:preferences') || '{}');
+      const updatedPrefs = {
+        ...existingPrefs,
+        ui: {
+          ...(existingPrefs.ui || {}),
+          '2024-navigation': false,
+        },
+      };
+      localStorage.setItem('chrome:user:preferences', JSON.stringify(updatedPrefs));
+    } catch {
+      // Fallback if parsing fails
+      localStorage.setItem('chrome:user:preferences', JSON.stringify({ ui: { '2024-navigation': false } }));
+    }
+  });
+}
+
+/**
+ * Combined setup: enables asset cache, blocks analytics, and disables preview mode.
  * Convenience function for test.beforeEach hooks.
  */
 export async function setupPage(page: Page): Promise<void> {
   await enableAssetCache(page);
   await blockAnalytics(page);
+  await enableConsoleLogging(page);
+  await disablePreviewMode(page);
 }
 
 // Re-export base test and expect

@@ -92,7 +92,7 @@ async function fetchSystemRoles(client: AxiosInstance): Promise<SystemRole[]> {
     }
 
     return allRoles;
-  } catch (error) {
+  } catch {
     console.error('  ⚠ Could not fetch system roles:', error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
@@ -122,7 +122,7 @@ async function fetchSystemGroups(client: AxiosInstance): Promise<SystemGroup[]> 
     }
 
     return allGroups;
-  } catch (error) {
+  } catch {
     console.error('  ⚠ Could not fetch system groups:', error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
@@ -140,7 +140,7 @@ async function readPayload(filePath: string): Promise<SeedPayload> {
 
   try {
     content = await fs.readFile(filePath, 'utf-8');
-  } catch (error) {
+  } catch {
     const message = error instanceof Error ? error.message : 'Unknown error';
     throw new Error(`Failed to read payload file "${filePath}": ${message}`);
   }
@@ -202,10 +202,24 @@ function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
  * Transforms the simpler `permissions: string[]` format to the V1 API's
  * `access: [{ permission: string, resourceDefinitions: [] }]` format.
  *
+ * Implements idempotent seeding: deletes existing role first, then creates fresh.
+ *
  * @throws Error if creation fails (caller should handle)
  */
 async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: ResourceMapping): Promise<void> {
-  // Transform permissions array to V1 API access format
+  // Step 1: Delete existing role if it exists (idempotent)
+  try {
+    const listResponse = await rolesApi.listRoles({ name: role.name });
+    const existingRole = listResponse.data?.data?.[0];
+    if (existingRole?.uuid) {
+      console.error(`  🗑️  Deleting existing role "${role.name}" (${existingRole.uuid})...`);
+      await rolesApi.deleteRole({ uuid: existingRole.uuid });
+    }
+  } catch {
+    // Ignore deletion errors - role might not exist
+  }
+
+  // Step 2: Create the role fresh
   const roleIn: RoleIn = {
     name: role.name,
     display_name: role.display_name,
@@ -213,7 +227,6 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
     access: (role.permissions ?? []).map((p) => ({ permission: p, resourceDefinitions: [] })),
   };
 
-  // Always log curl for debugging
   logCurl('POST', '/api/rbac/v1/roles/', roleIn, `Create role: ${role.name}`);
 
   const response = await rolesApi.createRole({ roleIn });
@@ -231,6 +244,8 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
  * If roles_list is provided, resolves role names to UUIDs and attaches them.
  * If personas are provided, adds all persona usernames as members.
  *
+ * If the group already exists (400 error), fetches the existing UUID instead of failing.
+ *
  * @throws Error if creation fails (caller should handle)
  */
 async function createGroup(
@@ -240,12 +255,24 @@ async function createGroup(
   roleMapping: ResourceMapping,
   personas?: Record<string, { username: string }>,
 ): Promise<void> {
+  // Step 1: Delete existing group if it exists (idempotent)
+  try {
+    const listResponse = await groupsApi.listGroups({ name: group.name });
+    const existingGroup = listResponse.data?.data?.[0];
+    if (existingGroup?.uuid) {
+      console.error(`  🗑️  Deleting existing group "${group.name}" (${existingGroup.uuid})...`);
+      await groupsApi.deleteGroup({ uuid: existingGroup.uuid });
+    }
+  } catch {
+    // Ignore deletion errors - group might not exist
+  }
+
+  // Step 2: Create the group fresh
   const groupData = {
     name: group.name,
     description: group.description,
   };
 
-  // Always log curl for debugging
   logCurl('POST', '/api/rbac/v1/groups/', groupData, `Create group: ${group.name}`);
 
   const response = await groupsApi.createGroup({ group: groupData });
@@ -254,6 +281,7 @@ async function createGroup(
     mapping[group.name] = uuid;
     console.error(`  ✓ Created group "${group.name}" → ${uuid}`);
 
+    // Step 3: Attach roles and personas to the newly created group
     // Attach roles if specified
     if (group.roles_list && group.roles_list.length > 0) {
       const roleUuids: string[] = [];
@@ -285,7 +313,7 @@ async function createGroup(
           groupPrincipalIn: principalData as Parameters<typeof groupsApi.addPrincipalToGroup>[0]['groupPrincipalIn'],
         });
         console.error(`    ✓ Added ${usernames.length} persona(s) to group: ${usernames.join(', ')}`);
-      } catch (error) {
+      } catch {
         // Don't fail if users are already in group or other non-critical error
         console.error(`    ⚠ Could not add personas to group: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
@@ -296,23 +324,78 @@ async function createGroup(
 /**
  * Create a workspace via API.
  *
+ * Implements idempotent seeding: deletes existing workspace first, then creates fresh.
+ *
  * @throws Error if creation fails (caller should handle)
  */
 async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput, mapping: ResourceMapping, rootWorkspaceId?: string): Promise<void> {
+  // Step 1: Delete existing workspace if it exists (idempotent)
+  // Try multiple times with delays to handle eventual consistency
+  const MAX_DELETE_ATTEMPTS = 3;
+  let deleteSucceeded = false;
+
+  for (let attempt = 1; attempt <= MAX_DELETE_ATTEMPTS; attempt++) {
+    try {
+      const listResponse = await client.get('/api/rbac/v2/workspaces/', {
+        params: { name: workspace.name },
+      });
+      const existingWorkspace = listResponse.data?.data?.[0];
+
+      if (!existingWorkspace?.id) {
+        // No workspace found, we're good
+        deleteSucceeded = true;
+        break;
+      }
+
+      console.error(`  🗑️  Deleting existing workspace "${workspace.name}" (${existingWorkspace.id})... [attempt ${attempt}/${MAX_DELETE_ATTEMPTS}]`);
+
+      try {
+        await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}`);
+        console.error(`    ✓ Deletion succeeded`);
+        deleteSucceeded = true;
+        // Wait to ensure deletion propagates
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        break;
+      } catch (deleteError: unknown) {
+        logHttpError(deleteError, 'Deletion failed', 'info');
+
+        if (attempt < MAX_DELETE_ATTEMPTS) {
+          // Wait before retrying
+          console.error(`    ⏳ Waiting 2s before retry...`);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+      }
+    } catch {
+      // List failed, assume workspace doesn't exist
+      deleteSucceeded = true;
+      break;
+    }
+  }
+
+  if (!deleteSucceeded) {
+    console.error(`    ❌ Failed to delete workspace after ${MAX_DELETE_ATTEMPTS} attempts`);
+    console.error(`    ⚠️  Proceeding with creation anyway - this will likely fail`);
+  }
+
+  // Step 2: Create the workspace fresh
   const payload = {
     name: workspace.name,
     description: workspace.description,
     parent_id: workspace.parent_id || rootWorkspaceId,
   };
 
-  // Always log curl for debugging
   logCurl('POST', '/api/rbac/v2/workspaces/', payload, `Create workspace: ${workspace.name}`);
 
-  const response = await client.post('/api/rbac/v2/workspaces/', payload);
-  const id = response.data?.id;
-  if (id) {
-    mapping[workspace.name] = id;
-    console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
+  try {
+    const response = await client.post('/api/rbac/v2/workspaces/', payload);
+    const id = response.data?.id;
+    if (id) {
+      mapping[workspace.name] = id;
+      console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
+    }
+  } catch (createError: unknown) {
+    logHttpError(createError, 'Workspace creation failed', 'error');
+    throw createError;
   }
 }
 
@@ -350,6 +433,37 @@ async function fetchDefaultWorkspaceId(client: AxiosInstance): Promise<string | 
 // ============================================================================
 // Logging Helpers
 // ============================================================================
+
+/**
+ * Log HTTP error with status code and message.
+ * Extracts useful information from axios errors and writes to stdout.
+ */
+function logHttpError(error: unknown, context: string, level: 'info' | 'error'): void {
+  let statusCode = 'unknown';
+  let errorMessage = 'Unknown error';
+
+  if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object') {
+    if ('status' in error.response) {
+      statusCode = String(error.response.status);
+    }
+    if ('data' in error.response && error.response.data) {
+      const data = error.response.data;
+      if (typeof data === 'object' && 'errors' in data && Array.isArray(data.errors) && data.errors.length > 0) {
+        const firstError = data.errors[0];
+        errorMessage = firstError.detail || firstError.message || JSON.stringify(data);
+      } else if (typeof data === 'string') {
+        errorMessage = data;
+      } else {
+        errorMessage = JSON.stringify(data);
+      }
+    }
+  } else if (error instanceof Error) {
+    errorMessage = error.message;
+  }
+
+  const icon = level === 'info' ? 'ℹ️' : '❌';
+  process.stdout.write(`    ${icon} ${context}: HTTP ${statusCode} - ${errorMessage}\n`);
+}
 
 /**
  * Log curl command for debugging.
