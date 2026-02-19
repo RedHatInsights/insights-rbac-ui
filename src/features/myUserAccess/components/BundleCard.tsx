@@ -21,9 +21,11 @@ interface BundleCardProps {
   entitlements?: Entitlements;
   isDisabled?: boolean;
   currentBundle: string;
+  /** When set, bundle switch uses this callback instead of NavLink (avoids navigation-triggered freeze) */
+  onBundleSelect?: (bundle: string) => void;
 }
 
-export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [], isDisabled = false, currentBundle }) => {
+export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [], isDisabled = false, currentBundle, onBundleSelect }) => {
   const [, setIsChecked] = useState('');
   const location = useLocation();
 
@@ -56,50 +58,78 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
             const entitlementEntry = entitlements.find(([key]) => data.entitlement === key);
             const isEntitled = entitlementEntry && entitlementEntry[1]?.is_entitled;
             const key = data.entitlement;
+
+            const card = (
+              <Card
+                ouiaId={`${data.title}-card`}
+                key={data.title}
+                isSelectable={!isDisabled}
+                isSelected={!isDisabled && key === currentBundle}
+                className={classNames({
+                  'pf-v6-u-background-color-disabled-color-300': isDisabled,
+                })}
+              >
+                <CardHeader
+                  selectableActions={{
+                    selectableActionId: `bundle-card-${key}`,
+                    selectableActionAriaLabelledby: `bundle-card-title-${key}`,
+                    name: data.title,
+                    variant: 'single',
+                    onChange: (event: React.FormEvent<HTMLInputElement>) => onChange(event as React.ChangeEvent<HTMLInputElement>),
+                  }}
+                >
+                  <CardTitle
+                    id={`bundle-card-title-${key}`}
+                    className="pf-v6-u-font-weight-light"
+                    data-ouia-component-id={`${data.title}-card-title`}
+                  >
+                    {data.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardBody data-ouia-component-id={`${data.title}-card-body`}>
+                  <List className="pf-v6-u-color-400 pf-v6-u-font-size-sm rbac-c-mua-bundles__card--applist" isPlain>
+                    {Object.entries(data.apps || {}).map(([appName]) => (
+                      <ListItem key={appName}> {getAppDisplayName(appName)} </ListItem>
+                    ))}
+                  </List>
+                </CardBody>
+              </Card>
+            );
+
             return isEntitled ? (
               <StackItem key={key} className="rbac-c-mua-cardWrapper">
-                <NavLink
-                  aria-label="card-link"
-                  className={classNames({ 'pf-v6-u-background-color-disabled-color-300': isDisabled })}
-                  to={{ pathname: location.pathname, search: `bundle=${key}` }}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  <Card
-                    ouiaId={`${data.title}-card`}
-                    key={data.title}
-                    isSelectable={!isDisabled}
-                    isSelected={!isDisabled && key === currentBundle}
-                    className={classNames({
-                      'pf-v6-u-background-color-disabled-color-300': isDisabled,
-                    })}
+                {onBundleSelect ? (
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label="card-link"
+                    aria-disabled={isDisabled}
+                    className={classNames({ 'pf-v6-u-background-color-disabled-color-300': isDisabled })}
+                    style={{
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      cursor: isDisabled ? 'default' : 'pointer',
+                    }}
+                    onClick={() => !isDisabled && onBundleSelect(key)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        if (!isDisabled) onBundleSelect(key);
+                      }
+                    }}
                   >
-                    <CardHeader
-                      selectableActions={{
-                        selectableActionId: `bundle-card-${key}`,
-                        selectableActionAriaLabelledby: `bundle-card-title-${key}`,
-                        name: data.title,
-                        variant: 'single',
-                        onChange: (event: React.FormEvent<HTMLInputElement>) => onChange(event as React.ChangeEvent<HTMLInputElement>),
-                      }}
-                    >
-                      <CardTitle
-                        id={`bundle-card-title-${key}`}
-                        className="pf-v6-u-font-weight-light"
-                        data-ouia-component-id={`${data.title}-card-title`}
-                      >
-                        {data.title}
-                      </CardTitle>
-                    </CardHeader>
-
-                    <CardBody data-ouia-component-id={`${data.title}-card-body`}>
-                      <List className="pf-v6-u-color-400 pf-v6-u-font-size-sm rbac-c-mua-bundles__card--applist" isPlain>
-                        {Object.entries(data.apps || {}).map(([appName]) => (
-                          <ListItem key={appName}> {getAppDisplayName(appName)} </ListItem>
-                        ))}
-                      </List>
-                    </CardBody>
-                  </Card>
-                </NavLink>
+                    {card}
+                  </div>
+                ) : (
+                  <NavLink
+                    aria-label="card-link"
+                    className={classNames({ 'pf-v6-u-background-color-disabled-color-300': isDisabled })}
+                    to={{ pathname: location.pathname, search: `bundle=${key}` }}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {card}
+                  </NavLink>
+                )}
               </StackItem>
             ) : null;
           })}

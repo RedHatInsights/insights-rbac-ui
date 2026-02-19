@@ -470,6 +470,12 @@ const getRoutes = ({
     element: MyUserAccessPage,
     ...p(pathnames['my-user-access'].link()),
   },
+  // When shell sends pathname with /iam prefix (e.g. /iam/my-user-access), match it so we never hit catch-all and avoid freeze
+  {
+    path: '/iam/my-user-access/*',
+    element: MyUserAccessPage,
+    ...p(pathnames['my-user-access'].link()),
+  },
 ];
 
 // ===========================================
@@ -532,6 +538,29 @@ const renderRoutes = (routes: Route[], parentPermissions: string[] = [], parentR
       },
     );
 
+/** Renders MUA when path is exactly or under my-user-access (avoids redirect loop when pathname has /iam prefix); otherwise redirects to MUA */
+const CatchAllFallback: React.FC<{ toAppLink: (to: string) => ReturnType<ReturnType<typeof useAppLink>> }> = ({ toAppLink }) => {
+  const location = useLocation();
+  const pathname = location.pathname ?? '';
+  const isAlreadyMua = pathname.endsWith('/my-user-access') || pathname.includes('/my-user-access/');
+  if (isAlreadyMua) {
+    const path = pathnames['my-user-access'].path;
+    const permissions = getPermissions(path.replace(/\/\*$/, ''));
+    return (
+      <PermissionGuard
+        permissions={permissions.permissions ?? []}
+        checkAll={permissions.checkAll ?? true}
+        requireOrgAdmin={permissions.requireOrgAdmin ?? false}
+      >
+        <ElementWrapper path={path}>
+          <MyUserAccessPage />
+        </ElementWrapper>
+      </PermissionGuard>
+    );
+  }
+  return <Navigate to={toAppLink(pathnames['my-user-access'].link())} replace />;
+};
+
 const Routing = () => {
   const location = useLocation();
   const { setDocumentTitle } = usePlatformTracking();
@@ -579,8 +608,8 @@ const Routing = () => {
       <QuickstartsTestButtons />
       <RouterRoutes>
         {renderedRoutes}
-        {/* Catch all unmatched routes - redirect to My User Access */}
-        <RouterRoute path="*" element={<Navigate to={toAppLink(pathnames['my-user-access'].link())} />} />
+        {/* Catch all: if path already looks like my-user-access (e.g. /iam/my-user-access when basename differs), render MUA to avoid redirect loop and HEAD /iam storm */}
+        <RouterRoute path="*" element={<CatchAllFallback toAppLink={toAppLink} />} />
       </RouterRoutes>
     </Suspense>
   );
