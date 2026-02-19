@@ -341,6 +341,7 @@
     "orgAdminHint": "You can manage other users' permissions with 'User access'",
     "orgAdminInheritedRoles": "This group contains the roles that all org admin users inherit by default. The roles within this group are managed and maintained by Red Hat and cannot be edited.",
     "orgAdministrator": "Org. Administrator",
+    "auditLog": "Audit Log",
     "overview": "User Access",
     "overviewHeroListItem1": "Control user access by organizing roles instead of assigning permissions individually to users",
     "overviewHeroListItem2": "Create groups that include roles and their corresponding permissions",

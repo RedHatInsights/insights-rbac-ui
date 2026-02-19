@@ -280,6 +280,12 @@ const quickstartsTest: PathnameConfig = {
   title: 'Quickstarts',
 };
 
+const auditLog: PathnameConfig = {
+  link: () => '/user-access/audit-log',
+  path: '/user-access/audit-log',
+  title: 'Audit Log',
+};
+
 // ===========================================
 // My User Access
 // ===========================================
@@ -413,6 +419,7 @@ const pathnames = {
   'edit-workspace': editWorkspace,
   'workspace-detail': workspaceDetail,
   'quickstarts-test': quickstartsTest,
+  'audit-log': auditLog,
   'my-user-access': myUserAccess,
   'organization-management': organizationManagement,
   'users-and-user-groups': usersAndUserGroups,
