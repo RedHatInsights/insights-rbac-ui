@@ -357,8 +357,7 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
         await new Promise((resolve) => setTimeout(resolve, 1000));
         break;
       } catch (deleteError: unknown) {
-        const errorMsg = deleteError instanceof Error ? deleteError.message : 'Unknown error';
-        console.error(`    ⚠️  Deletion failed: ${errorMsg}`);
+        logHttpError(deleteError, 'Deletion failed', 'info');
 
         if (attempt < MAX_DELETE_ATTEMPTS) {
           // Wait before retrying
@@ -387,11 +386,16 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
 
   logCurl('POST', '/api/rbac/v2/workspaces/', payload, `Create workspace: ${workspace.name}`);
 
-  const response = await client.post('/api/rbac/v2/workspaces/', payload);
-  const id = response.data?.id;
-  if (id) {
-    mapping[workspace.name] = id;
-    console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
+  try {
+    const response = await client.post('/api/rbac/v2/workspaces/', payload);
+    const id = response.data?.id;
+    if (id) {
+      mapping[workspace.name] = id;
+      console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
+    }
+  } catch (createError: unknown) {
+    logHttpError(createError, 'Workspace creation failed', 'error');
+    throw createError;
   }
 }
 
@@ -429,6 +433,37 @@ async function fetchDefaultWorkspaceId(client: AxiosInstance): Promise<string | 
 // ============================================================================
 // Logging Helpers
 // ============================================================================
+
+/**
+ * Log HTTP error with status code and message.
+ * Extracts useful information from axios errors and writes to stdout.
+ */
+function logHttpError(error: unknown, context: string, level: 'info' | 'error'): void {
+  let statusCode = 'unknown';
+  let errorMessage = 'Unknown error';
+
+  if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object') {
+    if ('status' in error.response) {
+      statusCode = String(error.response.status);
+    }
+    if ('data' in error.response && error.response.data) {
+      const data = error.response.data;
+      if (typeof data === 'object' && 'errors' in data && Array.isArray(data.errors) && data.errors.length > 0) {
+        const firstError = data.errors[0];
+        errorMessage = firstError.detail || firstError.message || JSON.stringify(data);
+      } else if (typeof data === 'string') {
+        errorMessage = data;
+      } else {
+        errorMessage = JSON.stringify(data);
+      }
+    }
+  } else if (error instanceof Error) {
+    errorMessage = error.message;
+  }
+
+  const icon = level === 'info' ? 'ℹ️' : '❌';
+  process.stdout.write(`    ${icon} ${context}: HTTP ${statusCode} - ${errorMessage}\n`);
+}
 
 /**
  * Log curl command for debugging.
