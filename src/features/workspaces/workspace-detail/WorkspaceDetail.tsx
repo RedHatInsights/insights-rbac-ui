@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Outlet, useParams, useSearchParams } from 'react-router-dom';
 import messages from '../../../Messages';
 import AssetsCards from './components/AssetsCards';
 import { BaseGroupAssignmentsTable } from './components/BaseGroupAssignmentsTable';
@@ -285,6 +285,7 @@ export const WorkspaceDetail = () => {
           )
         )}
       </PageSection>
+      <Outlet />
     </>
   );
 };

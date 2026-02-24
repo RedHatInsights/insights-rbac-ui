@@ -305,6 +305,58 @@ export function useMoveWorkspaceMutation(options?: MutationOptions) {
 }
 
 // ============================================================================
+// Role Bindings Mutation Hooks
+// ============================================================================
+
+interface UpdateRoleBindingsParams {
+  resourceId: string;
+  resourceType: string;
+  subjectId: string;
+  subjectType: string;
+  roleIds: string[];
+}
+
+/**
+ * Replace all role bindings for a subject on a resource.
+ * Uses injected services from ServiceContext - works in both browser and CLI.
+ */
+export function useUpdateRoleBindingsMutation(options?: MutationOptions) {
+  const { axios, notify } = useAppServices();
+  const workspacesApi = createWorkspacesApi(axios);
+  const qc = useMutationQueryClient(options?.queryClient);
+  const intl = useIntl();
+
+  return useMutation(
+    {
+      mutationFn: async ({ resourceId, resourceType, subjectId, subjectType, roleIds }: UpdateRoleBindingsParams) => {
+        const response = await workspacesApi.roleBindingsUpdate({
+          resourceId,
+          resourceType,
+          subjectId,
+          subjectType,
+          roleBindingsUpdateRoleBindingsRequest: {
+            roles: roleIds.map((id) => ({ id })),
+          },
+        });
+        return response.data;
+      },
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: roleBindingsKeys.all });
+        notify('success', intl.formatMessage(messages.updateRoleBindingsSuccessTitle));
+      },
+      onError: (error: Error) => {
+        notify(
+          'danger',
+          intl.formatMessage(messages.updateRoleBindingsErrorTitle),
+          error.message || intl.formatMessage(messages.updateRoleBindingsErrorDescription),
+        );
+      },
+    },
+    options?.queryClient,
+  );
+}
+
+// ============================================================================
 // Type Guards
 // ============================================================================
 

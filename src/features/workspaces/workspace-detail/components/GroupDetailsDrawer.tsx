@@ -24,6 +24,10 @@ import { type Group, type GroupRole, useGroupMembersQuery, useGroupRolesQuery } 
 import { extractErrorMessage } from '../../../../utilities/errorUtils';
 import messages from '../../../../Messages';
 import { AppLink } from '../../../../components/navigation/AppLink';
+// eslint-disable-next-line rbac-local/require-use-table-state -- display-only drawer, fetches all data with high limit
+import { TableView } from '../../../../components/table-view/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '../../../../components/table-view/types';
+import useAppNavigate from '../../../../hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
 
 // Group with inheritance info (for workspace context)
@@ -33,9 +37,6 @@ export interface GroupWithInheritance extends Group {
     workspaceName: string;
   };
 }
-// eslint-disable-next-line rbac-local/require-use-table-state -- display-only drawer, fetches all data with high limit
-import { TableView } from '../../../../components/table-view/TableView';
-import type { CellRendererMap, ColumnConfigMap } from '../../../../components/table-view/types';
 
 // Extended Role interface to include inheritedFrom data
 export interface RoleWithInheritance {
@@ -84,6 +85,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   currentWorkspace,
 }) => {
   const intl = useIntl();
+  const navigate = useAppNavigate();
   const [activeTab, setActiveTab] = useState<string | number>(0);
 
   // React Query hooks for group data
@@ -259,7 +261,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (membersError) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load users" variant="sm">
+          <EmptyState variant="sm" headingLevel="h4" icon={ExclamationCircleIcon} titleText={intl.formatMessage(messages.unableToLoadUsers)}>
             <EmptyStateBody>{extractErrorMessage(membersError)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -270,7 +272,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (members.length === 0) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState headingLevel="h4" icon={UsersIcon} titleText={intl.formatMessage(messages.usersEmptyStateTitle)} variant="sm">
+          <EmptyState variant="sm" headingLevel="h4" icon={UsersIcon} titleText={intl.formatMessage(messages.usersEmptyStateTitle)}>
             <EmptyStateBody>{intl.formatMessage(messages.groupNoUsersAssigned)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -342,7 +344,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (rolesError) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load roles" variant="sm">
+          <EmptyState variant="sm" headingLevel="h4" icon={ExclamationCircleIcon} titleText={intl.formatMessage(messages.unableToLoadRoles)}>
             <EmptyStateBody>{extractErrorMessage(rolesError)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -353,7 +355,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (roles.length === 0) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState headingLevel="h4" icon={KeyIcon} titleText={intl.formatMessage(messages.rolesEmptyStateTitle)} variant="sm">
+          <EmptyState variant="sm" headingLevel="h4" icon={KeyIcon} titleText={intl.formatMessage(messages.rolesEmptyStateTitle)}>
             <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -421,7 +423,11 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                   {group.name}
                 </Title>
                 <DrawerActions>
-                  <Button variant="secondary" isDisabled>
+                  <Button
+                    variant="secondary"
+                    onClick={() => currentWorkspace && group && navigate(pathnames['workspace-role-access'].link(currentWorkspace.id, group.uuid))}
+                    isDisabled={!currentWorkspace}
+                  >
                     {intl.formatMessage(messages.editAccessForThisWorkspace)}
                   </Button>
                   <DrawerCloseButton onClick={onClose} />

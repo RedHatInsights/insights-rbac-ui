@@ -1731,7 +1731,7 @@
     "description": "Review workspace description"
   },
   "role": {
-    "defaultMessage": "role",
+    "defaultMessage": "Role",
     "description": "Role singular"
   },
   "roleAssignments": {

@@ -1,11 +1,18 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, expandWorkspaceRow, navigateToPage, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
-import { defaultKesselRoles } from '../../../.storybook/fixtures/kessel-groups-roles';
-import { HttpResponse, http } from 'msw';
+import {
+  defaultKesselGroupMembers,
+  defaultKesselGroupRoles,
+  defaultKesselGroups,
+  defaultKesselRoles,
+} from '../../../.storybook/fixtures/kessel-groups-roles';
+import { workspaceRoleBindings } from '../../../.storybook/fixtures/workspace-role-bindings';
+import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-handlers';
+import { delay } from 'msw';
 
 interface StoryArgs {
   typingDelay?: number;
@@ -130,161 +137,40 @@ const meta = {
       'platform.rbac.common.userstable': false,
     }),
     msw: {
-      handlers: [
-        http.get('/api/rbac/v2/workspaces/', () => {
-          return HttpResponse.json({
-            data: defaultWorkspaces,
-            meta: { count: defaultWorkspaces.length, limit: 10000, offset: 0 },
-          });
-        }),
-        http.get('/api/rbac/v2/workspaces/:workspaceId', ({ params }) => {
-          const workspace = defaultWorkspaces.find((w) => w.id === params.workspaceId);
-          return HttpResponse.json(workspace || {});
-        }),
-        http.get('/api/rbac/v1/groups/', () => {
-          return HttpResponse.json({
-            data: [],
-            meta: { count: 0, limit: 10, offset: 0 },
-          });
-        }),
-        http.get('/api/rbac/v1/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-          const application = url.searchParams.get('application');
-
-          let filtered = [...defaultKesselRoles];
-
-          // Handle application filtering
-          if (application) {
-            const apps = application.split(',').map((a) => a.trim());
-            filtered = filtered.filter((r) => {
-              if (!r.applications || r.applications.length === 0) {
-                return true;
-              }
-              return r.applications.some((roleApp) => apps.includes(roleApp));
-            });
-          }
-
-          const paginated = filtered.slice(offset, offset + limit);
-
-          return HttpResponse.json({
-            data: paginated,
-            meta: { count: filtered.length, limit, offset },
-          });
-        }),
-        http.get('/api/rbac/v1/principals/', () => {
-          return HttpResponse.json({
-            data: [],
-            meta: { count: 0, limit: 10, offset: 0 },
-          });
-        }),
-        http.get('/api/rbac/v1/access/', ({ request }) => {
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-
-          const accessData = [
-            {
-              permission: 'rbac:*:*',
-              application: 'rbac',
-              resourceType: 'rbac',
-              verb: '*',
-            },
-            {
-              permission: 'inventory:hosts:read',
-              application: 'inventory',
-              resourceType: 'hosts',
-              verb: 'read',
-            },
-            {
-              permission: 'inventory:groups:write',
-              application: 'inventory',
-              resourceType: 'groups',
-              verb: 'write',
-            },
-          ];
-
-          return HttpResponse.json({
-            data: accessData.slice(offset, offset + limit),
-            meta: {
-              count: accessData.length,
-              limit,
-              offset,
-            },
-          });
-        }),
-        http.post('/api/test/reset-state', () => {
-          return HttpResponse.json({ success: true });
-        }),
-      ],
+      handlers: createStatefulHandlers({
+        workspaces: defaultWorkspaces,
+        groups: defaultKesselGroups,
+        roles: defaultKesselRoles,
+        groupMembers: defaultKesselGroupMembers,
+        groupRoles: defaultKesselGroupRoles,
+        workspaceRoleBindings,
+      }),
     },
     docs: {
       description: {
         component: `
-# Kessel M4: Admin Environment (PLACEHOLDER)
+# Kessel M4: Admin Environment — Role Bindings Write
 
-**Feature Flag**: \`platform.rbac.workspaces-role-bindings-write\` (hypothetical)
-
-**Expected Delivery**: January 2026
-
-## ⚠️ Status: Not Yet Implemented
-
-These stories are **placeholders** documenting the expected M4 features. The actual UI and APIs have not been built yet.
+**Feature Flag**: \`platform.rbac.workspaces-role-bindings-write\`
 
 ## Milestone Overview
 
 Kessel M4 adds **Access Management v2 Write** capabilities, allowing administrators to modify role bindings directly from workspace detail pages. This builds upon M3's read-only role bindings view.
 
-## Key Features (Planned)
+## Key Features
 
-- ✅ **All M3 Features**: Workspace list, hierarchy, detail pages with read-only role bindings
-- 🚧 **Add Role Binding**: Assign roles to workspace
-- 🚧 **Remove Role Binding**: Remove roles from workspace
-- 🚧 **Assign Principals**: Add users/groups to workspace roles
-- 🚧 **Remove Principals**: Remove users/groups from workspace roles
-- 🚧 **Role Binding Management**: Full CRUD for workspace-level role assignments
+- ✅ **All M3 Features**: Workspace list, hierarchy, detail pages with role bindings
+- ✅ **Edit Role Access**: Open the RoleAccessModal from the group drawer to grant or remove roles for a group in a workspace
 
-## Admin Capabilities (When Implemented)
+## Admin Capabilities
 
-In M4, admins will be able to:
+In M4, admins can:
 - Navigate to workspace detail page (from M3)
-- Switch to "Roles" tab
-- Click "Add role" to assign a role to the workspace
-- Select principals (users/groups) to bind to that role
-- Remove role bindings from the workspace
-- Manage who has access to workspace resources
-
-## Architecture Notes
-
-M4 introduces the concept of **workspace-scoped role bindings**, which differ from organization-level role assignments:
-- **Organization Roles** (existing): Apply globally across all resources
-- **Workspace Role Bindings** (M4): Apply only within specific workspace context
-- This enables fine-grained access control per workspace
-
-## API Endpoints (Expected)
-
-\`\`\`
-POST   /api/rbac/v2/workspaces/{id}/role-bindings
-GET    /api/rbac/v2/workspaces/{id}/role-bindings
-DELETE /api/rbac/v2/workspaces/{id}/role-bindings/{binding-id}
-PATCH  /api/rbac/v2/workspaces/{id}/role-bindings/{binding-id}
-\`\`\`
-
-## Testing Strategy
-
-Once M4 is implemented:
-1. Create role bindings from workspace detail page
-2. Verify role bindings appear in Roles tab
-3. Test principal assignment (users/groups)
-4. Test role binding removal
-5. Verify access inheritance in workspace hierarchy (from M2)
-
-## Dependencies
-
-- M3 must be complete (workspace detail pages with Roles tab)
-- RBACv2 role model must be finalized
-- v2 role binding PR must be merged
+- View role assignments in the Roles tab
+- Click a group to open the drawer
+- Click "Edit access for this workspace" to open the RoleAccessModal
+- Select/deselect roles to grant or revoke access
+- Submit changes and return to the workspace detail page
         `,
       },
     },
@@ -320,79 +206,47 @@ export const ManualTesting: Story = {
     docs: {
       description: {
         story: `
-## Kessel M4 Manual Testing - With Write Permission (PLACEHOLDER)
+## Kessel M4 Manual Testing - With Write Permission
 
 **Feature Flag**: \`platform.rbac.workspaces-role-bindings-write\`  
 **Required Permission**: \`inventory:groups:write\` or \`inventory:groups:*\`
-
-### ⚠️ Status: Not Yet Implemented
-
-These stories are **placeholders** documenting the expected M4 features. The actual UI and APIs have not been built yet. **Expected Delivery**: January 2026
 
 ### Milestone Context
 
 Kessel M4 adds **workspace role bindings write access**, allowing administrators to modify role assignments directly from workspace detail pages. This builds upon M3's read-only role bindings view.
 
-**What's Planned for M4:**
+**What's Available in M4:**
 - ✅ All M1 features (workspace list view)
 - ✅ All M2 features (workspace hierarchy management)
-- ✅ All M3 features (workspace detail pages with read-only role bindings)
-- 🚧 Add role binding to workspace
-- 🚧 Remove role binding from workspace
-- 🚧 Assign principals (users/groups) to workspace roles
-- 🚧 Remove principals from workspace roles
-- 🚧 Full CRUD for workspace-level role assignments
+- ✅ All M3 features (workspace detail pages with role bindings)
+- ✅ Edit role access for a group in a workspace via RoleAccessModal
 
 ### Manual Testing Entry Point
 
-This story provides a **placeholder** entry point for manual testing the RBAC UI in the M4 milestone environment once implemented.
+This story provides an entry point for manual testing the RBAC UI in the M4 milestone environment.
 
-**Environment Configuration (When Implemented):**
+**Environment Configuration:**
 - Feature flags: M1 + M2 + M3 + M4 (\`workspaces-role-bindings-write\`)
 - Chrome API mock with \`inventory:groups:write\` permission
-- MSW handlers for API mocking
-- Mock data for workspaces, groups, roles, and role bindings
+- MSW handlers with stateful data for workspaces, groups, roles, and role bindings
 
-**What to Test (When Implemented):**
+**What to Test:**
 
-**My User Access Page:**
-- Navigate to "My User Access" using the left navigation
-- Switch between different bundle cards (RHEL, Ansible, OpenShift)
-- Verify roles are displayed for each bundle
-- Check that data is accurate and loads correctly
-
-**Workspaces Management (M4 Features - Planned):**
+**Workspaces Management (M4 Features):**
 - Navigate to "Workspaces" using the left navigation
-- All M2 CRUD operations still available (Create, Edit, Move, Delete)
 - Click workspace name to open detail page
-- **Roles Tab (Write Access)**: Modify role bindings
-  - Click "Add role" button
-  - Select role to assign to workspace
-  - Select principals (users/groups) to bind to that role
-  - Submit and verify role binding appears
-  - Click "Remove" on existing role binding
-  - Confirm removal
-- Switch between "Roles assigned in this workspace" and "Roles assigned in parent workspaces"
-- Verify inherited role bindings cannot be modified (read-only)
+- View role assignments in the Roles tab
+- Click a group name to open the group drawer
+- Click "Edit access for this workspace" to open the RoleAccessModal
+- Select/deselect roles and click Update
 
 **Interactive Features:**
 - Use the **Controls panel** at the bottom to toggle feature flags and permissions
-- Try enabling \`platform.rbac.workspaces\` to see M5 (master flag) behavior
 - The story will automatically remount with new settings when controls change
 
-### Architecture Notes
+### Additional Test Stories
 
-M4 introduces the concept of **workspace-scoped role bindings**, which differ from organization-level role assignments:
-- **Organization Roles** (existing): Apply globally across all resources
-- **Workspace Role Bindings** (M4): Apply only within specific workspace context
-- This enables fine-grained access control per workspace
-
-### Tips
-
-- Open browser DevTools to see network requests and MSW handler logs
-- Use the Controls panel to experiment with different permissions
-- Check console for any errors or warnings
-- This is a **placeholder** - actual implementation is pending
+- **[EditRoleAccess](?path=/story/user-journeys-management-fabric-workspaces-kessel-kessel-m4-role-bindings-write-with-write-permission--edit-role-access)**: Full journey — navigate to workspace, open group drawer, edit role access via modal
 
 ### Automated Checks
 
@@ -404,6 +258,176 @@ This story includes automated verification:
         `,
       },
     },
+  },
+};
+
+/**
+ * Workspace Role Bindings / Edit role access for a group
+ *
+ * Journey:
+ * 1. Navigate to Workspaces page
+ * 2. Expand hierarchy to Production workspace
+ * 3. Click Production to open detail page
+ * 4. See role assignments table (Production Admins, Viewers)
+ * 5. Click "Production Admins" to open group drawer
+ * 6. Click "Edit access for this workspace" in the drawer
+ * 7. RoleAccessModal opens with roles (Workspace Administrator + Viewer pre-selected)
+ * 8. Deselect a role to make a change
+ * 9. Click "Update"
+ * 10. Verify navigation back to workspace detail
+ */
+export const EditRoleAccess: Story = {
+  name: 'Workspace Role Bindings / Edit role access',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Edit Role Access Journey
+
+Complete user flow for editing role access for a group in a workspace via the RoleAccessModal.
+
+### Journey Flow
+1. Navigate to **Workspaces** page
+2. Expand hierarchy to reach the **Production** workspace
+3. Click **Production** to open the workspace detail page
+4. Roles tab shows role assignments (**Production Admins**, **Viewers**)
+5. Click **Production Admins** to open the group details drawer
+6. Click **Edit access for this workspace** button in the drawer
+7. **RoleAccessModal** opens with all roles listed; Workspace Administrator and Workspace Viewer are pre-selected
+8. Deselect **Workspace Viewer** to change the role assignment
+9. Click **Update**
+10. Navigates back to workspace detail page
+
+### Verification
+- ✅ Workspace detail page loads with role assignments
+- ✅ Group drawer opens with roles and users tabs
+- ✅ "Edit access for this workspace" button is present and clickable
+- ✅ RoleAccessModal opens with correct pre-selected roles
+- ✅ Role selection can be changed
+- ✅ Update button becomes enabled after changes
+- ✅ After clicking Update, user returns to workspace detail
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // 1. Navigate to Workspaces
+    await navigateToPage(user, canvas, 'Workspaces');
+    await waitForPageToLoad(canvas, 'Root Workspace');
+
+    // 2. Expand hierarchy: Root Workspace → Default Workspace → see Production
+    await expandWorkspaceRow(user, canvas, 'Root Workspace');
+    await expandWorkspaceRow(user, canvas, 'Default Workspace');
+
+    // 3. Click Production to open detail page
+    const productionLink = await canvas.findByRole('link', { name: /^production$/i });
+    await user.click(productionLink);
+
+    // 4. Verify workspace detail page loads with Roles tab
+    await waitFor(() => {
+      const addressBar = canvas.getByTestId('fake-address-bar');
+      expect(addressBar).toHaveTextContent(/activeTab=roles/i);
+    });
+
+    // Wait for role assignments table to load
+    await canvas.findByLabelText('Role Assignments Table', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+
+    await waitFor(
+      async () => {
+        const hasData = canvas.queryByText('Production Admins') || canvas.queryByText('Viewers');
+        await expect(hasData).toBeTruthy();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
+
+    await canvas.findByText('Production Admins');
+    await canvas.findByText('Viewers');
+
+    // 5. Click "Production Admins" to open group drawer
+    const productionAdminsText = await canvas.findByText('Production Admins');
+    await user.click(productionAdminsText);
+    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
+
+    // Verify the drawer opens
+    const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
+    await expect(drawerPanel).toBeInTheDocument();
+    const drawer = within(drawerPanel);
+
+    await drawer.findByRole('heading', { name: 'Production Admins' });
+
+    // 6. Click "Edit access for this workspace" button in the drawer
+    const editAccessButton = await drawer.findByRole('button', { name: /edit access for this workspace/i });
+    await expect(editAccessButton).toBeInTheDocument();
+    await user.click(editAccessButton);
+    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+
+    // 7. RoleAccessModal opens (route mode — renders a Modal in document.body)
+    const body = within(document.body);
+    const dialog = await body.findByRole('dialog', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    await expect(dialog).toBeInTheDocument();
+
+    // Verify modal header
+    await expect(body.findByText(/edit access/i)).resolves.toBeInTheDocument();
+
+    // Wait for roles to load in the modal table
+    await waitFor(
+      async () => {
+        await expect(body.findByText('Workspace Administrator')).resolves.toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
+
+    // 8. Verify pre-selected roles — find the table inside the modal
+    const modalScope = within(dialog);
+    const table = await modalScope.findByRole('grid', { name: /roles selection table/i });
+    const tableScope = within(table);
+
+    // Workspace Administrator (role-1) should be checked
+    const adminRow = (await tableScope.findByText('Workspace Administrator')).closest('tr') as HTMLElement;
+    const adminCheckbox = adminRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    await expect(adminCheckbox).toBeInTheDocument();
+    await expect(adminCheckbox.checked).toBe(true);
+
+    // Workspace Viewer (role-2) should be checked
+    const viewerRow = (await tableScope.findByText('Workspace Viewer')).closest('tr') as HTMLElement;
+    const viewerCheckbox = viewerRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    await expect(viewerCheckbox).toBeInTheDocument();
+    await expect(viewerCheckbox.checked).toBe(true);
+
+    // 9. Deselect Workspace Viewer to create a change
+    await user.click(viewerCheckbox);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Verify checkbox is now unchecked
+    await expect(viewerCheckbox.checked).toBe(false);
+
+    // Verify Update button is now enabled (changes detected)
+    const updateButton = await modalScope.findByRole('button', { name: /update/i });
+    await expect(updateButton).not.toBeDisabled();
+
+    // 10. Click Update
+    await user.click(updateButton);
+
+    // Verify the modal closes and we're back on the workspace detail page
+    await waitFor(
+      () => {
+        expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+    );
+
+    // Verify we navigated back to the workspace detail page
+    await waitFor(() => {
+      const addressBar = canvas.getByTestId('fake-address-bar');
+      expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
+    });
   },
 };
 

@@ -146,6 +146,11 @@ export const routeDefinitions: RouteDefinition[] = [
         path: 'edit',
         permissions: ['inventory:groups:write'],
       },
+      {
+        path: 'role-access/:groupId',
+        permissions: ['rbac:group:write'],
+        inheritPermissions: false,
+      },
     ],
   },
 

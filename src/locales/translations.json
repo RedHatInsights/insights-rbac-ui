@@ -435,7 +435,7 @@
   "reviewNewWorkspace": "Review new workspace",
   "reviewRoleDetails": "Review and confirm the details for your role, or click Back to revise.",
   "reviewWorkspaceDescription": "Review the information below to make sure everything is correct before creating a new workspace.",
-  "role": "role",
+  "role": "Role",
   "roleAssignments": "Role assignments",
   "roleAssignmentsEmptyStateSubtitle": "This filter criteria matches no role assignments.{br}Try changing your filter input.",
   "roleCreatedSuccessfully": "You have successfully created a new role",

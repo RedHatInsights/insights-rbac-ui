@@ -26,12 +26,12 @@ export interface TableViewFiltersProps {
  */
 export const TableViewFilters: React.FC<TableViewFiltersProps> = ({ filterConfig, filters, onFiltersChange }) => {
   // Normalize filter config - reduce 4 types to 2 (text vs checkbox)
-  // Note: 'search' type intentionally doesn't have a label field - we provide 'Search' as default
+  // For 'search' type: derive label from placeholder so DataViewTextFilter gets a proper title/aria-label
   const normalizedFilterConfig = useMemo(
     () =>
       filterConfig.map((config) => {
         if (config.type === 'search') {
-          return { ...config, type: 'text' as const, label: 'Search' };
+          return { ...config, type: 'text' as const, label: config.placeholder ?? 'Search' };
         }
         if (config.type === 'select') {
           return { ...config, type: 'checkbox' as const };
