@@ -19,6 +19,9 @@ const WorkspacesOverview = lazy(() => import('./features/workspaces/overview/Wor
 const WorkspaceList = lazy(() => import('./features/workspaces/WorkspaceList'));
 const CreateWorkspaceWizard = lazy(() => import('./features/workspaces/create-workspace/CreateWorkspaceWizard'));
 const WorkspaceDetail = lazy(() => import('./features/workspaces/workspace-detail/WorkspaceDetail'));
+const RoleAccessModal = lazy(() =>
+  import('./features/workspaces/workspace-detail/components/RoleAccessModal').then((m) => ({ default: m.RoleAccessModal })),
+);
 const Users = lazy(() => import('./features/users/users'));
 const UserDetail = lazy(() => import('./features/users/User'));
 const AddUserToGroup = lazy(() => import('./features/users/add-user-to-group/AddUserToGroup'));
@@ -154,7 +157,6 @@ const getRoutes = ({
       },
     ],
   },
-
   // ===========================================
   // Organization Management
   // Requires orgAdmin platform flag (not the same as rbac:*:* permission)
@@ -180,6 +182,11 @@ const getRoutes = ({
               path: pathnames['edit-workspace'].path,
               element: EditWorkspaceModal,
               ...p(pathnames['edit-workspace'].link(':workspaceId')),
+            },
+            {
+              path: pathnames['workspace-role-access'].path,
+              element: RoleAccessModal,
+              ...p(pathnames['workspace-role-access'].link(':workspaceId', ':groupId')),
             },
           ],
         },

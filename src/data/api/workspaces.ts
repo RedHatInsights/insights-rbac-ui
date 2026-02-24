@@ -7,6 +7,7 @@ import updateWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesPat
 import deleteWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesDelete';
 import moveWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
 import roleBindingsListBySubject from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
+import roleBindingsUpdate from '@redhat-cloud-services/rbac-client/v2/RoleBindingsUpdate';
 import { RBAC_API_BASE_2, apiClient } from './client';
 
 // Bundle workspace endpoints
@@ -18,6 +19,7 @@ const workspaceEndpoints = {
   deleteWorkspace,
   moveWorkspace,
   roleBindingsListBySubject,
+  roleBindingsUpdate,
 };
 
 /**
@@ -50,6 +52,7 @@ export type { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/v
 export type { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesDelete';
 export type { WorkspacesMoveParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
 export type { RoleBindingsListBySubjectParams } from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
+export type { RoleBindingsUpdateParams } from '@redhat-cloud-services/rbac-client/v2/RoleBindingsUpdate';
 export type {
   WorkspacesWorkspace,
   WorkspacesWorkspaceListResponse,

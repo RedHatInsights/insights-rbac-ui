@@ -274,6 +274,12 @@ const workspaceDetail: PathnameConfig<(workspaceId: string) => string> = {
   title: 'Workspace detail',
 };
 
+const workspaceRoleAccess: PathnameConfig<(workspaceId: string, groupId: string) => string> = {
+  link: (workspaceId, groupId) => `/user-access/workspaces/detail/${workspaceId}/role-access/${groupId}`,
+  path: 'role-access/:groupId',
+  title: 'Edit access',
+};
+
 const quickstartsTest: PathnameConfig = {
   link: () => '/user-access/quickstarts-test',
   path: '/user-access/quickstarts-test',
@@ -424,6 +430,7 @@ const pathnames = {
   'create-workspace': createWorkspace,
   'edit-workspace': editWorkspace,
   'workspace-detail': workspaceDetail,
+  'workspace-role-access': workspaceRoleAccess,
   'quickstarts-test': quickstartsTest,
   'audit-log': auditLog,
   'my-user-access': myUserAccess,
@@ -487,6 +494,7 @@ export {
   createWorkspace,
   editWorkspace,
   workspaceDetail,
+  workspaceRoleAccess,
   quickstartsTest,
   myUserAccess,
   organizationManagement,

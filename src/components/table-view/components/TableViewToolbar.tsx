@@ -12,6 +12,7 @@
 
 import React, { Fragment, ReactNode } from 'react';
 import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
+import { ToolbarGroup } from '@patternfly/react-core';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { ToolbarPosition } from '../types';
@@ -118,7 +119,7 @@ export const TableViewToolbar: React.FC<TableViewToolbarProps> = ({
           />
         ) : undefined
       }
-      filters={hasFilters ? filters : undefined}
+      filters={hasFilters ? <ToolbarGroup variant="filter-group">{filters}</ToolbarGroup> : undefined}
       clearAllFilters={clearAllFilters}
       actions={hasActions ? actions : undefined}
       pagination={

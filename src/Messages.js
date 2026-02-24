@@ -940,7 +940,7 @@ export default defineMessages({
   role: {
     id: 'role',
     description: 'Role singular',
-    defaultMessage: 'role',
+    defaultMessage: 'Role',
   },
   roles: {
     id: 'roles',
@@ -3110,6 +3110,32 @@ export default defineMessages({
     description: 'Message when no groups are available for selection',
     defaultMessage: 'No groups available',
   },
+  editAccess: {
+    id: 'editAccess',
+    description: 'Edit access action text',
+    defaultMessage: 'Edit access',
+  },
+  grantOrRemoveAccess: {
+    id: 'grantOrRemoveAccess',
+    description: 'Edit access modal instruction text',
+    defaultMessage:
+      'Grant or remove access to the <b>{groupName}</b> group within the <b>{workspaceName}</b> workspace by selecting or deselecting roles below.',
+  },
+  all: {
+    id: 'all',
+    description: 'All tab label',
+    defaultMessage: 'All',
+  },
+  selected: {
+    id: 'selected',
+    description: 'Selected tab label',
+    defaultMessage: 'Selected',
+  },
+  update: {
+    id: 'update',
+    description: 'Update button label',
+    defaultMessage: 'Update',
+  },
   // Error handling messages for race conditions and permission errors
   itemAlreadyRemovedTitle: {
     id: 'itemAlreadyRemovedTitle',
@@ -3165,5 +3191,25 @@ export default defineMessages({
     id: 'unauthorizedAccessBodyText',
     description: 'Body text displayed on unauthorized access pages',
     defaultMessage: "You don't have permission to view this page.",
+  },
+  selectAtLeastOneRowToFilter: {
+    id: 'selectAtLeastOneRowToFilter',
+    description: 'Tooltip shown when selected toggle is disabled because no rows are selected',
+    defaultMessage: 'Select at least one row to enable this filter',
+  },
+  updateRoleBindingsSuccessTitle: {
+    id: 'updateRoleBindingsSuccessTitle',
+    description: 'Success notification title when role bindings are updated',
+    defaultMessage: 'Access updated successfully',
+  },
+  updateRoleBindingsErrorTitle: {
+    id: 'updateRoleBindingsErrorTitle',
+    description: 'Error notification title when role bindings update fails',
+    defaultMessage: 'Failed to update access',
+  },
+  updateRoleBindingsErrorDescription: {
+    id: 'updateRoleBindingsErrorDescription',
+    description: 'Error notification description when role bindings update fails',
+    defaultMessage: 'There was a problem saving the role changes. Please try again.',
   },
 });
