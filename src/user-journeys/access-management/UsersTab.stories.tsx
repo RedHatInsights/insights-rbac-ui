@@ -12,11 +12,11 @@
 
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
-import { delay } from 'msw';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { HttpResponse, delay, http } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState, verifySuccessNotification, waitForPageToLoad } from '../_shared/helpers';
 import { defaultHandlers } from './_shared';
 
 const meta = {
@@ -468,5 +468,152 @@ Tests switching between Users and User Groups tabs.
     // Verify users are shown again
     expect(usersTab).toHaveAttribute('aria-selected', 'true');
     await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
+  },
+};
+
+// API spy for invite users - tracks API calls made by the invite modal
+const inviteUsersSpy = fn();
+
+// Expected URL pattern for invite users API (stage environment in tests)
+// Format: https://api.access.stage.redhat.com/account/v1/accounts/{accountId}/users/invite
+const EXPECTED_INVITE_URL_PATTERN = /^https:\/\/api\.access\.(stage\.)?redhat\.com\/account\/v1\/accounts\/\d+\/users\/invite$/;
+
+/**
+ * Invite Users Journey
+ *
+ * Tests the user invitation flow from the Access Management Users tab.
+ * CRITICAL: Also verifies the correct API URL is called (regression test for /management bug).
+ *
+ * Journey:
+ * 1. Start on Access Management Users tab
+ * 2. Open the Actions overflow menu
+ * 3. Click "Invite users"
+ * 4. Fill in email addresses
+ * 5. Optionally add a message and check org admin checkbox
+ * 6. Submit the invitation
+ * 7. Verify success notification
+ * 8. Verify API was called with exact expected URL format
+ */
+export const InviteUsersJourney: Story = {
+  name: 'Invite Users',
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests inviting new users to the organization from the Access Management Users tab.
+
+**What this tests:**
+- Opening the Actions overflow menu
+- Clicking "Invite users" menu item to navigate to the invite route
+- Invite modal renders as a child route (via \`<Outlet>\`)
+- Email input validation (required field)
+- Optional message field
+- Optional org admin checkbox
+- Form submission
+- Success notification
+- **API URL verification** — ensures the exact URL format is correct (regression test)
+
+**Expected API URL format:**
+\`https://api.access.stage.redhat.com/account/v1/accounts/{accountId}/users/invite\`
+
+**NOT:**
+\`https://api.access.stage.redhat.com/management/account/v1/accounts/{accountId}/users/invite\`
+        `,
+      },
+    },
+    msw: {
+      handlers: [
+        http.post(/https:\/\/api\.access\.(stage\.)?redhat\.com\/(management\/)?account\/v1\/accounts\/.*\/users\/invite/, async ({ request }) => {
+          const body = (await request.json()) as { emails: string[]; roles?: string[]; message?: string };
+          inviteUsersSpy({
+            url: request.url,
+            emails: body.emails,
+            roles: body.roles,
+          });
+          return HttpResponse.json({ success: true }, { status: 200 });
+        }),
+        ...defaultHandlers,
+      ],
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    inviteUsersSpy.mockClear();
+    const canvas = within(context.canvasElement);
+    const body = within(document.body);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // Wait for Users tab and table to load
+    await waitForPageToLoad(canvas, 'adumble');
+
+    // Verify Users tab is active
+    const usersTab = await canvas.findByRole('tab', { name: /users/i });
+    expect(usersTab).toHaveAttribute('aria-selected', 'true');
+
+    // Open the Actions overflow menu
+    const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
+    await user.click(actionsMenu);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+
+    // Click "Invite users" from the menu (navigates to child route)
+    const inviteMenuItem = await body.findByRole('menuitem', { name: /invite users/i });
+    await user.click(inviteMenuItem);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Modal should open (rendered via <Outlet> child route)
+    const modal = await waitFor(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      expect(dialog).toBeInTheDocument();
+      return dialog as HTMLElement;
+    });
+
+    const modalContent = within(modal);
+
+    // Wait for modal title
+    await modalContent.findByRole('heading', { name: /invite new users/i });
+
+    // Fill in email addresses (required field)
+    const emailInput = modalContent.getByRole('textbox', { name: /enter the e-mail addresses/i });
+    await user.type(emailInput, 'newuser1@example.com, newuser2@example.com');
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Optionally add a message
+    const messageInput = modalContent.getByRole('textbox', { name: /send a message with the invite/i });
+    await user.type(messageInput, 'Welcome to our organization!');
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Check the org admin checkbox
+    const orgAdminCheckbox = modalContent.getByRole('checkbox', { name: /organization administrators/i });
+    await user.click(orgAdminCheckbox);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Submit the form
+    const submitButton = modalContent.getByRole('button', { name: /invite new users/i });
+    await waitFor(() => expect(submitButton).toBeEnabled());
+    await user.click(submitButton);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Verify success notification
+    await verifySuccessNotification();
+
+    // CRITICAL: Verify API was called
+    await waitFor(
+      () => {
+        expect(inviteUsersSpy).toHaveBeenCalled();
+      },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+    );
+
+    // Verify the API call used the correct URL (no /management/ prefix)
+    const spyCall = inviteUsersSpy.mock.calls[0][0];
+    expect(spyCall).toBeDefined();
+    expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN);
+
+    // Verify correct emails were sent
+    expect(spyCall.emails).toContain('newuser1@example.com');
+    expect(spyCall.emails).toContain('newuser2@example.com');
+
+    // Verify org admin role was included (checkbox was checked)
+    expect(spyCall.roles).toContain('organization_administrator');
   },
 };

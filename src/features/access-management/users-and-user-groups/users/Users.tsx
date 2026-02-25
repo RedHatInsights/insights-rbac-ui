@@ -1,4 +1,5 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useContext, useEffect, useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { useFlag } from '@unleash/proxy-client-react';
 import { usePlatformEnvironment } from '../../../../hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../../../hooks/usePlatformAuth';
@@ -306,6 +307,15 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
           </TabContent>
         </UserDetailsDrawer>
       </DataViewEventsProvider>
+      <Suspense>
+        <Outlet
+          context={{
+            fetchData: () => {
+              appNavigate(paths['users-new'].link());
+            },
+          }}
+        />
+      </Suspense>
     </>
   );
 };

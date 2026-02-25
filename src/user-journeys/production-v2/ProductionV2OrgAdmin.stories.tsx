@@ -478,6 +478,7 @@ Tests inviting new users to the organization from the V2 interface.
     await resetStoryState();
     inviteUsersSpyV2.mockClear();
     const canvas = within(context.canvasElement);
+    const body = within(document.body);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for the V2 Users tab to load
@@ -490,9 +491,13 @@ Tests inviting new users to the organization from the V2 interface.
     // Wait for users to load
     await waitForPageToLoad(canvas, 'john.doe');
 
-    // Click "Invite users" button
-    const inviteButton = await canvas.findByRole('button', { name: /invite users/i });
-    await user.click(inviteButton);
+    // Open the Actions overflow menu, then click "Invite users"
+    const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
+    await user.click(actionsMenu);
+    await delay(300);
+
+    const inviteMenuItem = await body.findByRole('menuitem', { name: /invite users/i });
+    await user.click(inviteMenuItem);
     await delay(500);
 
     // Modal should open
