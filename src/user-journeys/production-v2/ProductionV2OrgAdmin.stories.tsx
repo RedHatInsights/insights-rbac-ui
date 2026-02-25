@@ -33,7 +33,7 @@ interface StoryArgs {
 const meta = {
   component: KesselAppEntryWithRouter,
   title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin',
-  tags: ['prod-v2-org-admin', 'test-skip'],
+  tags: ['prod-v2-org-admin'],
   decorators: [
     ((Story, context: StoryContext<StoryArgs>) => {
       const dynamicEnv = createDynamicEnvironment(context.args);
