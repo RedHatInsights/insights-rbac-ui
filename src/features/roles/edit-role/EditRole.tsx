@@ -130,9 +130,6 @@ export const EditRole: FunctionComponent = () => {
               disableSubmit: ['pristine', 'invalid'],
               submitLabel: intl.formatMessage(Messages.saveChanges),
             }}
-            debug={(values) => {
-              console.log('values:', values);
-            }}
           />
         )}
       </PageSection>
