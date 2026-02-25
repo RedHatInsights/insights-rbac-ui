@@ -103,7 +103,7 @@ export const mapperExtension = {
   'type-selector': TypeSelector,
 };
 
-const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination, filters, cancelRoute }) => {
+const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination = {}, filters = {}, cancelRoute }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');

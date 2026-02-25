@@ -593,9 +593,6 @@ export const CreateRoleJourney: Story = {
         workspaces: defaultWorkspaces,
       }),
     },
-    test: {
-      dangerouslyIgnoreUnhandledErrors: true,
-    },
     docs: {
       description: {
         story: `
@@ -678,9 +675,6 @@ export const CopyRoleJourney: Story = {
         roles: defaultRoles,
         workspaces: defaultWorkspaces,
       }),
-    },
-    test: {
-      dangerouslyIgnoreUnhandledErrors: true,
     },
     docs: {
       description: {

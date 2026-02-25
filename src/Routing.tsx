@@ -286,6 +286,7 @@ const getRoutes = ({
             {
               path: pathnames['access-management-add-role'].path,
               element: AddRoleWizard,
+              elementProps: { cancelRoute: pathnames['access-management-roles'].link() },
               ...p(pathnames['access-management-add-role'].link()),
             },
           ],
