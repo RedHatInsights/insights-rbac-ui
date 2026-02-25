@@ -248,13 +248,21 @@ export const SidebarValidation: Story = {
         story: `
 Validates that V2 Org Admin sees all sidebar items.
 
+V2 navigation (when \`platform.rbac.workspaces-organization-management\` is enabled):
+- **My Access** — top-level link
+- **Access Management** — expandable section containing:
+  - Users and Groups
+  - Roles
+  - Workspaces
+- **Organization Management** — expandable section (org admin only)
+
 **Checks:**
 - ✅ "My Access" link IS present (V2 label)
 - ✅ "Access Management" expandable section IS present
-- ✅ "Overview" link IS present
-- ✅ "Users and User Groups" link IS present
-- ✅ "Workspaces" link IS present
-- ✅ "Roles" link IS present
+- ✅ "Users and Groups" link IS present (inside Access Management)
+- ✅ "Roles" link IS present (inside Access Management)
+- ✅ "Workspaces" link IS present (inside Access Management)
+- ✅ "Organization Management" expandable IS present (org admin only)
         `,
       },
     },
@@ -273,18 +281,19 @@ Validates that V2 Org Admin sees all sidebar items.
     const accessMgmtSection = await canvas.findByRole('button', { name: /access management/i });
     expect(accessMgmtSection).toBeInTheDocument();
 
-    // ✅ All V2 admin links should be visible
-    const overviewLink = await canvas.findByRole('link', { name: /overview/i });
-    expect(overviewLink).toBeInTheDocument();
-
+    // ✅ Links inside Access Management expandable
     const usersLink = await canvas.findByRole('link', { name: /users and groups/i });
     expect(usersLink).toBeInTheDocument();
 
-    const workspacesLink = await canvas.findByRole('link', { name: /workspaces/i });
+    const rolesLink = await canvas.findByRole('link', { name: /^roles$/i });
+    expect(rolesLink).toBeInTheDocument();
+
+    const workspacesLink = await canvas.findByRole('link', { name: /^workspaces$/i });
     expect(workspacesLink).toBeInTheDocument();
 
-    const rolesLink = await canvas.findByRole('link', { name: /roles/i });
-    expect(rolesLink).toBeInTheDocument();
+    // ✅ Organization Management expandable should be visible for org admins
+    const orgMgmtSection = await canvas.findByRole('button', { name: /organization management/i });
+    expect(orgMgmtSection).toBeInTheDocument();
   },
 };
 
@@ -294,13 +303,18 @@ Validates that V2 Org Admin sees all sidebar items.
 export const NavigateV2Sidebar: Story = {
   name: 'Navigate V2 Sidebar',
   args: {
-    initialRoute: '/iam/access-management/overview',
+    initialRoute: '/iam/my-user-access',
   },
   parameters: {
     docs: {
       description: {
         story: `
 Tests navigation through all V2 Access Management sidebar items.
+
+V2 nav has no standalone "Overview" link. The Access Management section contains:
+- Users and Groups → /iam/access-management/users-and-user-groups
+- Roles → /iam/access-management/roles
+- Workspaces → /iam/access-management/workspaces
         `,
       },
     },
@@ -317,14 +331,15 @@ Tests navigation through all V2 Access Management sidebar items.
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await expect(canvas.findByRole('heading', { name: /users and (user )?groups/i })).resolves.toBeInTheDocument();
 
+    // Navigate to Roles
+    await navigateToPage(user, canvas, 'Roles');
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await expect(canvas.findByRole('heading', { name: /^roles$/i })).resolves.toBeInTheDocument();
+
     // Navigate to Workspaces
     await navigateToPage(user, canvas, 'Workspaces');
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
     await expect(canvas.findByText('Root Workspace')).resolves.toBeInTheDocument();
-
-    // Navigate back to Overview
-    await navigateToPage(user, canvas, 'Overview');
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
   },
 };
 
