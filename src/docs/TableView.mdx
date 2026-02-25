@@ -1,0 +1,224 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/TableView" />
+
+# TableView + useTableState
+
+The canonical table solution for RBAC UI. **All tables that fetch server-side data must use `TableView` paired with `useTableState`.**
+
+Do not hand-roll pagination, sort, filter, or selection state with `useState`. The ESLint rule `rbac-local/require-use-table-state` enforces this on every `TableView` import.
+
+## ESLint Rule
+
+```
+rbac-local/require-use-table-state
+```
+
+Fires when you import `TableView` without importing `useTableState` in the same file.
+
+**Exception — display-only tables** (small, fully local dataset, no server state):
+
+```typescript
+// eslint-disable-next-line rbac-local/require-use-table-state -- display-only drawer, fetches all data with high limit
+import { TableView } from '../../../../components/table-view/TableView';
+```
+
+Always include the `-- reason` suffix so the intent is clear.
+
+---
+
+## Minimal Working Example
+
+```typescript
+import { TableView } from 'src/components/table-view/TableView';
+import { useTableState } from 'src/components/table-view/hooks/useTableState';
+
+const columns = ['name', 'status', 'created'] as const;
+type SortableColumn = 'name' | 'created';
+
+export const MyFeatureTable: React.FC = () => {
+  const table = useTableState({
+    columns,
+    getRowId: (row: MyRow) => row.id,
+    sortableColumns: ['name', 'created'] as const,
+    initialSort: { column: 'name', direction: 'asc' },
+    initialPerPage: 20,
+    syncWithUrl: true,
+    filterConfig: [
+      { type: 'text', id: 'name', label: 'Name', placeholder: 'Filter by name' },
+    ],
+  });
+
+  const { data, totalCount, isLoading } = useMyQuery(table.apiParams);
+
+  return (
+    <TableView<typeof columns, MyRow, SortableColumn>
+      columns={columns}
+      columnConfig={{
+        name:    { label: 'Name', sortable: true },
+        status:  { label: 'Status' },
+        created: { label: 'Created', sortable: true },
+      }}
+      data={data ?? []}
+      totalCount={totalCount ?? 0}
+      getRowId={(row) => row.id}
+      isLoading={isLoading}
+      // --- state from useTableState ---
+      sort={table.sort}
+      onSortChange={table.onSortChange}
+      page={table.page}
+      perPage={table.perPage}
+      onPageChange={table.onPageChange}
+      onPerPageChange={table.onPerPageChange}
+      filters={table.filters}
+      onFiltersChange={table.onFiltersChange}
+      clearAllFilters={table.clearAllFilters}
+      selectedRows={table.selectedRows}
+      onSelectRow={table.onSelectRow}
+      onSelectAll={table.onSelectAll}
+      filterConfig={[
+        { type: 'text', id: 'name', label: 'Name', placeholder: 'Filter by name' },
+      ]}
+      cellRenderers={{
+        name:    (row) => <strong>{row.name}</strong>,
+        status:  (row) => <StatusBadge status={row.status} />,
+        created: (row) => formatDate(row.created),
+      }}
+    />
+  );
+};
+```
+
+---
+
+## `useTableState` API
+
+The authoritative type definitions live in the source — read them directly rather than relying on this doc for the full signature (docs drift, types don't):
+
+- **`UseTableStateOptions`** (all options + defaults): `src/components/table-view/types.ts`
+- **`UseTableStateReturn`** (all return properties): `src/components/table-view/types.ts`
+- **`FilterConfig`** union + `FilterState`: `src/components/table-view/types.ts`
+- **`ColumnConfig`** / `ColumnConfigMap`: `src/components/table-view/types.ts`
+
+Both files are fully JSDoc'd. The sections below cover behavior and non-obvious patterns that are not derivable from the types alone.
+
+---
+
+## `apiParams` — Connecting to React Query
+
+Pass `table.apiParams` directly to your query hook. It is a stable memoized object that changes only when state changes.
+
+```typescript
+// query hook signature (example)
+export function useRolesQuery(params: {
+  offset: number;
+  limit: number;
+  orderBy?: string;
+  filters: FilterState;
+}) { ... }
+
+// Usage in component
+const { data, isLoading } = useRolesQuery(table.apiParams);
+```
+
+`apiParams` shape:
+```typescript
+{
+  offset: number;        // (page - 1) * perPage in offset mode; 0 in cursor mode
+  limit: number;         // current perPage
+  orderBy?: string;      // e.g. 'name' or '-name' (desc prefix)
+  filters: FilterState;  // e.g. { name: 'alice', status: ['active'] }
+  cursor?: string;       // only in cursor mode
+}
+```
+
+---
+
+## FilterConfig Behavior
+
+The `FilterConfig` union type is defined in `src/components/table-view/types.ts` — read that for the exact shape. The behavioral notes below are what matters for usage:
+
+- `search` — single global search input, no label, no dropdown wrapper
+- `text` — labelled text filter, wrapped in `DataViewFilters` dropdown when there are multiple filters
+- `select` — single-select dropdown
+- `checkbox` — multi-select checkbox group
+
+When `filterConfig` has exactly **one** `text` filter, `TableViewFilters` renders a bare `SearchInput` instead of a `DataViewFilters` dropdown. This simplification is intentional for single-filter tables.
+
+Use `clearAllFilters` (from `useTableState`) to reset — never manually reset individual filter keys.
+
+---
+
+## Generics — Pass Type Parameters to TableView
+
+Never cast types in callbacks. Pass generics to the component:
+
+```typescript
+// ✅ Correct — generics flow through, callbacks are type-safe
+<TableView<typeof columns, User, 'name' | 'email'>
+  columns={columns}
+  data={users}
+  getRowId={(user) => user.id}   // 'user' is typed as User
+  cellRenderers={{ name: (user) => user.name, ... }}
+/>
+
+// ❌ Wrong — manual cast hides type errors
+<TableView
+  getRowId={(user: User) => user.id}
+/>
+```
+
+---
+
+## URL Sync
+
+Set `syncWithUrl: true` to persist page, sort, and filters in the URL search params. Useful for pages where users share links or use the browser back button.
+
+Requires the component to be rendered inside a React Router context. The hook gracefully falls back to local state when no router is available (e.g., in Storybook without `MemoryRouter`).
+
+Cursor-mode pagination does not support URL sync (cursors are opaque tokens).
+
+---
+
+## Cursor Pagination
+
+For APIs that return `CursorPaginationLinks` instead of a total count:
+
+```typescript
+const table = useTableState({
+  // ...
+  paginationMode: 'cursor',
+});
+
+// After data loads, supply cursor links from the API response:
+useEffect(() => {
+  if (data?.links) {
+    table.cursorMeta?.setCursorLinks(data.links);
+  }
+}, [data]);
+```
+
+---
+
+## Storybook Testing
+
+When writing stories for a `TableView`-based component:
+
+1. Wrap in `MemoryRouter` if `syncWithUrl: true` is used.
+2. DOM references go **stale** across state changes (loading → loaded → filtered). Always re-query after `waitFor`:
+
+```typescript
+// ❌ Stale reference after state change
+const table = await canvas.findByRole('grid');
+await waitFor(() => expect(canvas.getByText('Auditor')).toBeInTheDocument());
+within(table).getAllByRole('checkbox'); // FAILS — 'table' is stale
+
+// ✅ Query fresh after data loads
+await waitFor(() => expect(canvas.getByText('Auditor')).toBeInTheDocument());
+const freshTable = canvas.getByRole('grid');
+within(freshTable).getAllByRole('checkbox'); // works
+```
+
+3. PatternFly tables render with `role="grid"`, not `role="table"`.
+
+For full story patterns, see [StorybookMandatoryRules](?path=/docs/documentation-storybookmandatoryrules--docs) and [StorybookPatterns](?path=/docs/documentation-storybookpatterns--docs).

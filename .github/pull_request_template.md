@@ -1,36 +1,24 @@
-### Description
-<!-- Must include 2-3 sentence summary of proposed changes -->
-<!-- Must include links to impacted UI(s) or information regarding the impacted UI -->
-<!-- Must include any relevant steps to reproduce (if not clear in tracked issue or story) -->
-<!-- Must include RHCLOUDXXXX link (if proposed change involves tracked issue or story) -->
-description text...
+### What and why
+<!-- What problem does this solve? Link the issue/story. -->
+<!-- If this is a visual change, explain the before/after behaviour, not just "updated the button". -->
 
-[RHCLOUDXXXX](https://issues.redhat.com/browse/RHCLOUDXXXX)
+[RHCLOUD-XXXXX](https://issues.redhat.com/browse/RHCLOUD-XXXXX)
 
 ---
 
 ### Screenshots
-<!-- Before and after proposed changes is ideal -->
-<!-- Any key UI permutations should be captured -->
-<!-- Draw attention to the area of UI that has changed -->
-#### Before:
-
-
-#### After:
-
+<!-- Required for any visible UI change. Before and after. -->
+<!-- A link to the relevant Storybook story works as well, and is often better — it lets reviewers interact with the component. -->
+<!-- Skip this section only for pure logic / non-visual changes. -->
 
 ---
 
-### Checklist ☑️
-- [ ] PR only fixes one issue or story <!-- open new PR for others -->
-- [ ] Change reviewed for extraneous code <!-- console statements, comments, files, incorrect file renaming (not using `git mv`), whitespace, etc. -->
-- [ ] UI best practices adhered to <!-- TODO: add a link; responsiveness, input sanitization, prioritizing PatternFly and FEC, feature gating, etc. -->
-- [ ] Commits squashed and meaningfully named <!-- (2-3 commits per PR maximum, 1 is ideal) -->
-- [ ] All PR checks pass locally (build, lint, test, E2E)
+### Anything non-obvious reviewers should know?
+<!-- Intentional trade-offs, known limitations, things that look wrong but are right. -->
+<!-- If you had to think about something twice, write it here. -->
 
-##
-- [ ] _(Optional) QE: Needs QE attention (OUIA changed, perceived impact to tests, no test coverage)_
-- [ ] _(Optional) QE: Has been mentioned_
-- [ ] _(Optional) UX: Needs UX attention (end user UX modified, missing designs)_
-- [ ] _(Optional) UX: Has been mentioned_
-##
+---
+
+### Attention needed
+- [ ] _(Optional) QE: notable impact on test coverage or OUIA IDs changed_
+- [ ] _(Optional) UX: end-user UX modified, designs may need sign-off_

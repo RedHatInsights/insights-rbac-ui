@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+#
+# CodeRabbit review configuration.
+#
+# AGENTS.md (auto-detected) covers rules for agents WRITING code.
+# This file covers rules for CodeRabbit REVIEWING code.
+# They are complementary: AGENTS.md = coding standards, this file = PR hygiene checks.
+
+reviews:
+  # General hygiene checks applied to every PR
+  instructions: |
+    ## PR hygiene checks
+
+    ### Routes
+    If the PR adds or modifies a route (check `src/utilities/pathnames.ts`, routing config,
+    or any component that introduces a new URL-tied modal/page):
+    - There must be a Storybook user-journey story covering the happy path (create/edit/delete).
+    - If it is a page or modal tied to a real URL, there must also be a Playwright E2E spec
+      in `e2e/journeys/` or a concrete plan to add one.
+    - Flag the absence of either as a blocking issue.
+
+    ### Components
+    If the PR adds a new component in `src/features/` or `src/components/`:
+    - There must be a `.stories.tsx` file alongside it.
+    - The story must have at least one `play` function testing an interaction.
+    - Flag missing stories as a blocking issue. Flag stories with no `play` function as a warning.
+
+    ### TableView usage
+    If the PR introduces a `TableView` import without a corresponding `useTableState` import
+    in the same file, flag it as a blocking issue. The ESLint rule `rbac-local/require-use-table-state`
+    enforces this, but CodeRabbit should flag it explicitly in the review comment too.
+
+    ### API calls
+    If the PR adds direct calls to `@redhat-cloud-services/rbac-client` methods WITHOUT
+    the `(api.method as any)` cast pattern, flag it. The client types are broken and direct
+    usage causes silent runtime failures. See `src/docs/APIClientPatterns.mdx`.
+
+    ### Feature island READMEs
+    If the PR modifies files inside `src/features/<island>/` and introduces a new sub-feature,
+    changes the data layer, alters the permission model, or adds a notable constraint —
+    the island's `README.md` should be updated. Flag missing README updates as a warning.
+
+  path_instructions:
+    - path: "src/features/**/*.tsx"
+      instructions: |
+        Export rule: components must use named exports only. Features (route/page containers, i.e. files
+        directly under `src/features/<island>/`) may additionally export a default, but must always have
+        a named export too. Flag `export default function` or `export default` as the only export on a
+        component file as a blocking issue.
+
+    - path: "src/components/**/*.tsx"
+      instructions: |
+        Export rule: shared components must use named exports only. No default exports.
+        Flag any `export default` in `src/components/` as a blocking issue.
+
+    - path: "src/components/table-view/**"
+      instructions: |
+        Changes here are shared infrastructure with wide blast radius.
+        Before approving: identify all consumers of the changed file, verify no consumer's
+        Storybook user-journey stories are broken, and check that `src/docs/TableView.mdx`
+        still points to source correctly (it must not duplicate type definitions).
+
+    - path: "src/docs/**"
+      instructions: |
+        Docs must not duplicate TypeScript type definitions from source — they reference source file paths instead.
+        Flag code blocks that contain `interface Foo { ... }` or `type Foo = ...` declarations — these are
+        definitions that will drift from source.
+        Do NOT flag: inline shape descriptions with comments (e.g. `{ offset: number; limit: number }`),
+        usage snippets showing how to call a function, or option tables describing behaviour. Those are
+        illustrative, not definitions.
+
+    - path: ".github/CODEOWNERS"
+      instructions: |
+        Each owner entry must be on its own line for independent approval enforcement.
+        A single line with multiple teams means only one approval is required total — flag this.

@@ -1,0 +1,367 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Storybook Patterns" />
+
+# Storybook Patterns
+
+How-to patterns for common story scenarios. See [StorybookMandatoryRules](?path=/docs/documentation-storybookmandatoryrules--docs) for the non-negotiable rules that apply to every story.
+
+---
+
+## Presentational Component Stories
+
+```typescript
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { StatusBadge } from './StatusBadge';
+
+const meta: Meta<typeof StatusBadge> = {
+  component: StatusBadge,
+  tags: ['autodocs'],           // All presentational stories get autodocs
+  parameters: {
+    docs: {
+      description: {
+        component: 'Displays an access status badge with color and icon.',
+      },
+    },
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Active: Story = { args: { status: 'active' } };
+export const Inactive: Story = { args: { status: 'inactive' } };
+```
+
+Rules:
+- `tags: ['autodocs']` on the meta
+- No custom `title` — let Storybook auto-generate from file path
+- Test all interactive states with play functions
+
+---
+
+## Container Component Stories
+
+Feature-level components that orchestrate data fetching via MSW handlers.
+
+```typescript
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { http, HttpResponse } from 'msw';
+import { fn } from 'storybook/test';
+import { GroupsContainer } from './GroupsContainer';
+import { mockGroups } from './__mocks__/groups';
+
+const groupsApiSpy = fn();
+
+const meta: Meta<typeof GroupsContainer> = {
+  component: GroupsContainer,
+  tags: ['groups-container'],   // NOT 'autodocs' on meta
+  parameters: {
+    layout: 'fullscreen',
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          groupsApiSpy({ name: url.searchParams.get('name') ?? '' });
+          return HttpResponse.json({ data: mockGroups, meta: { count: mockGroups.length } });
+        }),
+      ],
+    },
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+// Only Default story gets autodocs — prevents MSW handler conflicts
+export const Default: Story = {
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Groups Container** — manages the groups list with filtering and pagination.
+
+## Additional Test Stories
+- **[LoadingState](?path=/story/groups-container--loading-state)**: API loading behavior
+- **[EmptyState](?path=/story/groups-container--empty-state)**: No groups
+- **[AdminView](?path=/story/groups-container--admin-view)**: With org admin permissions
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    expect(await canvas.findByText(mockGroups[0].name)).toBeInTheDocument();
+  },
+};
+
+export const LoadingState: Story = {
+  parameters: {
+    msw: {
+      handlers: [http.get('/api/rbac/v1/groups/', () => new Promise(() => {}))],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await waitFor(async () => {
+      const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
+      await expect(skeletons.length).toBeGreaterThan(0);
+    }, { timeout: 10000 });
+  },
+};
+
+export const EmptyState: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', () =>
+          HttpResponse.json({ data: [], meta: { count: 0 } }),
+        ),
+      ],
+    },
+  },
+};
+```
+
+---
+
+## Modal Testing Pattern
+
+Modals are rendered to `document.body` via React portals. Use `screen`, not `canvas`, to find them.
+
+```typescript
+import { screen, within, userEvent, expect } from 'storybook/test';
+
+export const ModalOpen: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Trigger that opens the modal is inside canvas
+    await userEvent.click(await canvas.findByRole('button', { name: /delete group/i }));
+
+    // Modal is in document.body
+    const modal = screen.getByRole('dialog');
+    expect(modal).toBeInTheDocument();
+
+    // Scope queries to modal content
+    expect(within(modal).getByText('Delete group?')).toBeInTheDocument();
+
+    const cancelButton = within(modal).getByRole('button', { name: /cancel/i });
+    await userEvent.click(cancelButton);
+
+    // Modal is gone after cancel
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  },
+};
+```
+
+---
+
+## Feature Flag Testing
+
+When a component has feature flag branching logic, create a render component that exposes the flags as story args. Do not rely on `parameters.featureFlags` alone — it is unreliable in the test runner.
+
+```typescript
+interface Args {
+  isWorkspacesEnabled: boolean;
+}
+
+const ComponentWithFlags: React.FC<Args> = ({ isWorkspacesEnabled }) => {
+  return isWorkspacesEnabled ? <WorkspacesView /> : <LegacyView />;
+};
+
+const meta: Meta<Args> = {
+  component: ComponentWithFlags,
+  tags: ['autodocs', 'ff:platform.rbac.workspaces'],
+  argTypes: {
+    isWorkspacesEnabled: {
+      control: 'boolean',
+      description: 'platform.rbac.workspaces feature flag',
+      table: { defaultValue: { summary: 'false' } },
+    },
+  },
+  render: (args) => <ComponentWithFlags {...args} />,
+};
+
+export const WithWorkspaces: Story = {
+  tags: ['ff:platform.rbac.workspaces'],
+  args: { isWorkspacesEnabled: true },
+  play: async ({ canvasElement }) => {
+    expect(await within(canvasElement).findByText('Workspaces')).toBeInTheDocument();
+  },
+};
+
+export const WithoutWorkspaces: Story = {
+  args: { isWorkspacesEnabled: false },
+  play: async ({ canvasElement }) => {
+    expect(await within(canvasElement).findByText('Legacy view')).toBeInTheDocument();
+  },
+};
+```
+
+---
+
+## Empty State Patterns
+
+Every table story set needs three empty-state variations:
+
+### No Data (no active filters)
+```typescript
+export const EmptyNoData: Story = {
+  parameters: {
+    msw: { handlers: [http.get('/api/rbac/v1/groups/', () =>
+      HttpResponse.json({ data: [], meta: { count: 0 } }),
+    )] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(await canvas.findByText(/configure groups/i)).toBeInTheDocument();
+    // Domain icon (UsersIcon/CubesIcon), NOT SearchIcon
+  },
+};
+```
+
+### No Results (active filter returned nothing)
+```typescript
+export const EmptyNoResults: Story = {
+  parameters: {
+    msw: { handlers: [
+      http.get('/api/rbac/v1/groups/', ({ request }) => {
+        const hasFilter = new URL(request.url).searchParams.get('name');
+        if (hasFilter) return HttpResponse.json({ data: [], meta: { count: 0 } });
+        return HttpResponse.json({ data: mockGroups, meta: { count: mockGroups.length } });
+      }),
+    ] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByText(mockGroups[0].name);
+
+    const search = await canvas.findByPlaceholderText(/filter/i);
+    await userEvent.type(search, 'nonexistent');
+    await delay(600);  // debounce
+
+    expect(await canvas.findByText(/no groups match/i)).toBeInTheDocument();
+    // SearchIcon used for this state
+  },
+};
+```
+
+### Loading (skeleton, not empty state)
+```typescript
+export const Loading: Story = {
+  parameters: {
+    msw: { handlers: [http.get('/api/rbac/v1/groups/', () => new Promise(() => {}))] },
+  },
+  play: async ({ canvasElement }) => {
+    await waitFor(async () => {
+      const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
+      await expect(skeletons.length).toBeGreaterThan(0);
+    }, { timeout: 10000 });
+
+    // Verify empty state is NOT shown during loading
+    expect(within(canvasElement).queryByText(/configure groups/i)).not.toBeInTheDocument();
+  },
+};
+```
+
+---
+
+## React Query in Stories
+
+Stories automatically receive a `QueryClient` from `.storybook/preview.tsx`. No setup needed. Use MSW to mock the API responses that React Query fetches.
+
+```typescript
+export const WithData: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', () =>
+          HttpResponse.json({ data: mockGroups, meta: { count: mockGroups.length } }),
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    // React Query will fetch via MSW and populate the component
+    expect(await within(canvasElement).findByText(mockGroups[0].name)).toBeInTheDocument();
+  },
+};
+```
+
+---
+
+## Debounced Operations
+
+Search inputs and filters typically debounce API calls. Wrap spy assertions in `waitFor`:
+
+```typescript
+const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
+await userEvent.type(filterInput, 'Platform');
+
+// ✅ Wrap in waitFor for debounced calls
+await waitFor(() => {
+  expect(apiSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'Platform' }));
+});
+```
+
+For immediate operations (clicks, selections), `waitFor` is not needed.
+
+---
+
+## Scoping Queries to Containers
+
+When the same text appears in multiple places (table rows, filter chips, dropdown menus):
+
+```typescript
+// ❌ May find multiple elements → test fails
+expect(await canvas.findByText('advisor')).toBeInTheDocument();
+
+// ✅ Scope to the table
+const table = await canvas.findByRole('grid');
+expect(await within(table).findByText('advisor')).toBeInTheDocument();
+
+// ✅ Or scope to a modal
+const modal = screen.getByRole('dialog');
+expect(within(modal).getByText('advisor')).toBeInTheDocument();
+```
+
+---
+
+## Loading State Testing
+
+Standard pattern for all loading state stories:
+
+```typescript
+play: async ({ canvasElement }) => {
+  await waitFor(
+    async () => {
+      const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
+      await expect(skeletons.length).toBeGreaterThan(0);
+    },
+    { timeout: 10000 },
+  );
+},
+```
+
+Never test for the absence of data to verify loading — always test for the presence of skeleton elements.
+
+---
+
+## Args Parameter in Play Functions
+
+Only keep the `args` parameter if the play function actually uses it:
+
+```typescript
+// ✅ Need args — testing a callback prop
+play: async ({ canvasElement, args }) => {
+  await userEvent.click(await canvas.findByRole('button'));
+  expect(args.onSave).toHaveBeenCalled();
+}
+
+// ✅ No args needed — remove it
+play: async ({ canvasElement }) => {
+  expect(await canvas.findByText('Groups')).toBeInTheDocument();
+}
+```

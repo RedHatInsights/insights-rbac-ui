@@ -1,0 +1,252 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Storybook Mandatory Rules" />
+
+# Storybook Mandatory Rules
+
+These rules apply to **every** `.stories.tsx` file. Violations cause silent test failures or broken Interactions panel output.
+
+---
+
+## 1. Import Rule
+
+```typescript
+// ✅ Always import from 'storybook/test' (no @ prefix)
+import { userEvent, within, expect, fn, waitFor } from 'storybook/test';
+
+// ❌ Never
+import { expect } from '@storybook/test';
+import { userEvent } from '@storybook/testing-library';
+```
+
+---
+
+## 2. Query Rule — `findBy*` not `getBy*`
+
+In play functions, always use async `findBy*` queries. `getBy*` throws immediately if the element is not in the DOM yet.
+
+```typescript
+// ✅ Correct — waits for async content
+const button = await canvas.findByRole('button', { name: /save/i });
+const rows = await canvas.findAllByRole('row');
+
+// ❌ Wrong — fails if element isn't immediately present
+const button = canvas.getByRole('button', { name: /save/i });
+```
+
+**Exceptions where `getBy*` is acceptable:**
+- Inside `within(alreadyFoundElement)` when the parent was already awaited
+- `queryBy*` for asserting absence: `expect(canvas.queryByText('error')).not.toBeInTheDocument()`
+
+---
+
+## 3. `await expect(...)` Rule
+
+Always `await` your `expect` calls in play functions so failures appear in Storybook's **Interactions** panel:
+
+```typescript
+// ✅ Awaited — shows in Interactions panel
+await expect(canvas.findByText('Success')).resolves.toBeInTheDocument();
+await expect(spy).toHaveBeenCalled();
+
+// ❌ Not awaited — Interactions panel may not report failures
+expect(canvas.findByText('Success')).resolves.toBeInTheDocument();
+```
+
+---
+
+## 4. Modal Rule
+
+Modals render to `document.body` via React portals, not inside the canvas:
+
+```typescript
+import { screen, within } from 'storybook/test';
+
+// ✅ Modals are in document.body
+const modal = screen.getByRole('dialog');
+expect(within(modal).getByText('Confirm deletion')).toBeInTheDocument();
+
+// ❌ Modal is not in canvas
+const modal = canvas.getByRole('dialog');
+```
+
+---
+
+## 5. PatternFly Table Role
+
+PatternFly tables render as `role="grid"`, not `role="table"`:
+
+```typescript
+// ✅ Correct
+const table = await canvas.findByRole('grid');
+
+// ❌ Wrong
+const table = await canvas.findByRole('table');
+```
+
+---
+
+## 6. Container Story Pattern
+
+Container stories (feature-level, use MSW) must use the **single autodocs** pattern to prevent MSW handler conflicts when multiple stories render simultaneously in autodocs:
+
+```typescript
+// ✅ Container story meta — NO autodocs on meta
+const meta: Meta<typeof MyFeature> = {
+  component: MyFeature,
+  tags: ['my-feature'],  // NOT 'autodocs'
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          groupsApiSpy({ name: new URL(request.url).searchParams.get('name') ?? '' });
+          return HttpResponse.json({ data: mockGroups, meta: { count: 1 } });
+        }),
+      ],
+    },
+  },
+};
+
+// ✅ Only the Default story gets autodocs
+export const Default: Story = {
+  tags: ['autodocs'],
+  parameters: {
+    docs: { description: { story: '...' } },
+  },
+};
+
+// ✅ Other stories — no autodocs, just MSW + play
+export const LoadingState: Story = {
+  parameters: { msw: { handlers: [http.get('/api/rbac/v1/groups/', () => new Promise(() => {}))] } },
+};
+```
+
+**Never** use `storeState` to pre-populate Redux. Always mock via MSW handlers.
+
+---
+
+## 7. API Spy Pattern (Container Stories)
+
+Test that API calls are made with correct parameters using `fn()` spies in MSW handlers:
+
+```typescript
+// Step 1: Create spies at file scope
+const groupsApiSpy = fn();
+const createGroupSpy = fn();
+
+// Step 2: Call spy inside MSW handler
+http.get('/api/rbac/v1/groups/', ({ request }) => {
+  const url = new URL(request.url);
+  groupsApiSpy({
+    name: url.searchParams.get('name') ?? '',
+    limit: url.searchParams.get('limit') ?? '20',
+    offset: url.searchParams.get('offset') ?? '0',
+  });
+  return HttpResponse.json({ data: mockGroups, meta: { count: mockGroups.length } });
+}),
+
+// Step 3: Assert in play function
+play: async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  await canvas.findByText('my-group');           // wait for load
+
+  expect(groupsApiSpy).toHaveBeenCalledWith({
+    name: '',
+    limit: '20',
+    offset: '0',
+  });
+
+  // Type in search, then assert filtered call
+  const search = await canvas.findByPlaceholderText(/search/i);
+  await userEvent.type(search, 'admin');
+  await waitFor(() => {
+    expect(groupsApiSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'admin' }));
+  });
+},
+```
+
+Key rules:
+- Name spies with `Spy` suffix: `groupsApiSpy`, `createGroupSpy`
+- Wrap debounced spy assertions in `waitFor()`
+- Test `toHaveBeenCalledTimes(n)` for multi-call sequences
+
+---
+
+## 8. Story Tags
+
+Every story must include appropriate tags so stories are filterable in Storybook:
+
+| Condition | Tag |
+|-----------|-----|
+| Component uses a feature flag | `ff:platform.rbac.flag-name` |
+| Chrome environment set | `env:prod` / `env:stage` |
+| `orgAdmin: true` | `perm:org-admin` |
+| `userAccessAdministrator: true` | `perm:user-access-admin` |
+| Component imports a `.scss` file | `custom-css` |
+
+```typescript
+export const AdminProductionStory: Story = {
+  tags: ['env:prod', 'perm:org-admin', 'ff:platform.rbac.workspaces'],
+  parameters: {
+    chrome: { environment: 'prod' },
+    permissions: { orgAdmin: true },
+    featureFlags: { 'platform.rbac.workspaces': true },
+  },
+};
+```
+
+Use full flag names in tags (`ff:platform.rbac.itless`, not `ff:itless`).
+
+---
+
+## 9. No Custom Redux Providers
+
+All stories automatically receive the global Redux provider from `.storybook/preview.tsx`. Never add custom providers:
+
+```typescript
+// ❌ Forbidden
+decorators: [
+  (Story) => (
+    <Provider store={createStore(reducer)}>
+      <Story />
+    </Provider>
+  ),
+],
+
+// ✅ Correct — use MSW handlers instead
+parameters: {
+  msw: { handlers: [...] },
+},
+```
+
+---
+
+## Pre-flight Checklist
+
+Before writing or submitting any `.stories.tsx` file:
+
+- [ ] Imports from `storybook/test` (no `@`)
+- [ ] All play function queries use `await canvas.findBy*()`
+- [ ] All `expect()` calls are `await`ed
+- [ ] Modals use `screen.getByRole('dialog')`
+- [ ] PatternFly tables use `role="grid"`
+- [ ] Container stories: meta has no `autodocs`, only Default story has it
+- [ ] Container stories: MSW handlers, not `storeState`
+- [ ] API spies defined with `fn()` and asserted in play functions
+- [ ] Required tags applied (`ff:*`, `env:*`, `perm:*`, `custom-css`)
+- [ ] No custom Redux provider decorators
+- [ ] `args` parameter kept in play function signature if story tests callbacks
+
+---
+
+## Quick Reference
+
+| What | Pattern |
+|------|---------|
+| Testing imports | `import { userEvent, within, expect, fn, waitFor } from 'storybook/test'` |
+| Wait for element | `await canvas.findByRole('button')` |
+| Assert existence | `await expect(canvas.findByText('x')).resolves.toBeInTheDocument()` |
+| Modal content | `within(screen.getByRole('dialog')).getByText('...')` |
+| PF table | `await canvas.findByRole('grid')` |
+| API spy | `const spy = fn(); ... spy({ params }); ... expect(spy).toHaveBeenCalledWith(...)` |
+| Clear all filters | `table.clearAllFilters()` — never manually reset filter keys |

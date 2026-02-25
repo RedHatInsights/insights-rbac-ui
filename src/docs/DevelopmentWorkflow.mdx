@@ -1,0 +1,191 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Development Workflow" />
+
+# Development Workflow
+
+Practical rules for day-to-day development: file naming, TypeScript conversions, validation, and test output analysis.
+
+---
+
+## File Naming
+
+| Type | Convention | Example |
+|------|-----------|---------|
+| Components | `CamelCase.tsx` | `UserTable.tsx` |
+| Stories | `CamelCase.stories.tsx` | `UserTable.stories.tsx` |
+| Tests | `CamelCase.test.js` | `UserTable.test.js` |
+| Styles | `CamelCase.scss` | `UserTable.scss` |
+| Hooks/utils/helpers | `lowerCamelCase.ts` | `useTableState.ts` |
+
+---
+
+## File Case Changes
+
+When renaming a file with a case change (e.g., `toolbar.js` → `Toolbar.tsx`), you **must** stage both the old deletion and the new file. Otherwise the IDE loses track of the file:
+
+```bash
+# ✅ Correct — stage both changes together
+git add Toolbar.tsx && git rm toolbar.js
+```
+
+---
+
+## JavaScript → TypeScript Conversion
+
+Use **side-by-side development** — never modify the working component in-place during conversion.
+
+### The Process
+
+1. Rename existing JS file to `-legacy.js`:
+   ```
+   userTable.js → userTable-legacy.js
+   ```
+
+2. Create a Storybook file for the legacy component to document current behavior:
+   ```
+   UserTable-legacy.stories.tsx
+   ```
+
+3. Create the new TypeScript implementation with correct casing:
+   ```
+   UserTable.tsx
+   ```
+
+4. Copy and adapt stories to the new implementation:
+   ```
+   UserTable.stories.tsx  (migrated from UserTable-legacy.stories.tsx)
+   ```
+
+5. Verify functional equivalence by running stories:
+   ```bash
+   npm run test-storybook:ci -- --includeTags="user-table"
+   ```
+
+6. Switch imports to the new component once all stories pass.
+
+7. Delete the `-legacy` files.
+
+### Why Side-by-Side
+
+- Zero risk during development — original keeps working
+- Easy rollback if issues appear
+- Stories prove functional equivalence before switch
+- No regressions
+
+### TypeScript Conversion Rules
+
+```typescript
+// Before (JavaScript)
+const StatusLabel = ({ isOrgAdmin, isUserAccessAdmin }) => { /* ... */ };
+StatusLabel.propTypes = { /* PropTypes */ };
+export default StatusLabel;
+
+// After (TypeScript)
+interface StatusLabelProps {
+  isOrgAdmin?: boolean;
+  isUserAccessAdmin?: boolean;
+}
+
+export const StatusLabel: React.FC<StatusLabelProps> = ({ isOrgAdmin, isUserAccessAdmin }) => {
+  // Keep EXACT same behavior — don't improve logic during conversion
+};
+```
+
+Rules:
+- Remove PropTypes — replace with TypeScript interface
+- Use `React.FC<Props>` for function components
+- Named exports only (no `export default`)
+- Preserve exact behavior — don't refactor logic during conversion
+- Keep original file structure and imports (except PropTypes)
+
+---
+
+## Mandatory Validation Checklist
+
+**Never claim a task is complete without running all of these:**
+
+```bash
+# 1. TypeScript compilation
+npm run build
+
+# 2. Linting (must be zero errors; warnings OK)
+npm run lint:js
+
+# 3. Unit tests
+npm test
+
+# 4. Storybook interaction tests
+npm run test-storybook:ci
+```
+
+All four must pass with exit code 0. Any failure means the work is not done.
+
+---
+
+## Test Output Analysis
+
+Run the test suite once and pipe output to a file. Analyze the file — don't re-run for each grep:
+
+```bash
+# ✅ Run once, save, analyze many times
+npm run test-storybook:fast 2>&1 | tee /tmp/test-output.txt | tail -20
+grep -i "error" /tmp/test-output.txt
+grep -i "fail"  /tmp/test-output.txt
+grep -i "skip"  /tmp/test-output.txt
+
+# ❌ Running the suite multiple times wastes 2+ minutes per run
+npm run test-storybook:fast 2>&1 | grep -i "error"
+npm run test-storybook:fast 2>&1 | grep -i "fail"   # don't do this
+```
+
+---
+
+## Console Warnings
+
+Browser console warnings must be addressed, not ignored. Common issues:
+
+| Warning | Fix |
+|---------|-----|
+| Missing ARIA label on table header | Add `aria-label` or `screenReaderText` prop |
+| Redux selector returning different result | Memoize with `useMemo` or return stable references |
+| React key prop missing | Add `key` to JSX elements in arrays |
+| Rate limiting `history.pushState()` | Fix `useEffect` dependencies — exclude metadata (`count`, `redirected`) that don't affect URL |
+
+**Exception**: React Router deprecation warnings are known and acceptable until the planned upgrade.
+
+### URL update rate limiting
+
+```javascript
+// ❌ count/redirected trigger unnecessary URL updates
+useEffect(() => {
+  applyPaginationToUrl(location, navigate, limit, offset);
+}, [limit, offset, count, redirected]);
+
+// ✅ Only include params that affect the URL
+useEffect(() => {
+  applyPaginationToUrl(location, navigate, limit, offset);
+}, [limit, offset]);
+```
+
+---
+
+## Never Run Git Operations
+
+Do not run git commands unless explicitly requested. Focus on code changes only.
+
+---
+
+## Investigation Process
+
+Before making changes:
+
+1. Check `package.json` for current dependency versions
+2. Understand the component's role and data flow
+3. Look for existing patterns in similar components
+4. Check `locales/translation-template.json` for existing i18n messages
+5. Verify changes with build/lint commands
+
+---
+
+See [Architecture](?path=/docs/documentation-architecture--docs) for the project structure and design decisions.

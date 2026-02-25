@@ -2,561 +2,85 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 <Meta title="Documentation/Architecture" />
 
-# Architecture & Project Structure
+# Architecture
 
-This document outlines the architecture, design decisions, and project organization of the RBAC UI application.
-
-## 📁 Project Structure
-
-```
-insights-rbac-ui/
-├── src/
-│   ├── components/                 # Truly shared components across features
-│   │   ├── forms/                  # FormRenderer, ModalFormTemplate
-│   │   ├── layout/                 # PageLayout
-│   │   ├── tables/                 # TableView, Toolbar
-│   │   ├── navigation/             # AppLink, AppTabs, Breadcrumbs
-│   │   ├── ui-states/              # EmptyState, LoaderPlaceholders
-│   │   ├── data-display/           # CustomDataListItem
-│   │   └── user-management/        # ActiveUsers
-│   ├── features/                   # Feature islands - organized by domain
-│   │   ├── groups/                 # Group management feature
-│   │   │   ├── add-group/          # Add group workflow
-│   │   │   ├── member/             # Group member management
-│   │   │   ├── role/               # Group role management
-│   │   │   ├── service-account/    # Group service account management
-│   │   │   ├── components/         # Group-specific presentational components
-│   │   │   ├── groups.js           # Main groups container
-│   │   │   ├── group.js            # Single group container
-│   │   │   └── *.js                # Other group containers
-│   │   ├── roles/                  # Role management feature
-│   │   │   ├── add-role/           # Add role workflow
-│   │   │   ├── add-role-permissions/ # Permission management
-│   │   │   ├── edit-role/          # Role editing
-│   │   │   ├── components/         # Role-specific presentational components
-│   │   │   └── *.js                # Role containers
-│   │   ├── users/                  # User management feature
-│   │   │   ├── add-user-to-group/  # User group assignment
-│   │   │   ├── invite-users/       # User invitation workflow
-│   │   │   ├── components/         # User-specific presentational components
-│   │   │   └── *.js/*.tsx          # User containers
-│   │   ├── workspaces/             # Workspace management feature
-│   │   │   ├── create-workspace/   # Workspace creation workflow
-│   │   │   ├── managed-selector/   # Workspace selector feature
-│   │   │   │   ├── components/     # Selector-specific components
-│   │   │   │   │   ├── WorkspaceSelector.tsx
-│   │   │   │   │   ├── WorkspaceTreeView.tsx
-│   │   │   │   │   └── WorkspaceMenuToggle.tsx
-│   │   │   │   └── *.ts            # Selector logic and stores
-│   │   │   ├── workspace-detail/   # Workspace detail feature
-│   │   │   │   ├── components/     # Detail-specific components
-│   │   │   │   │   └── AssetsCards.tsx
-│   │   │   │   └── *.tsx           # Detail containers
-│   │   │   ├── overview/           # Workspace overview feature
-│   │   │   │   ├── components/     # Overview-specific components
-│   │   │   │   │   └── EnableWorkspacesAlert.tsx
-│   │   │   │   └── WorkspacesOverview.tsx
-│   │   │   └── *.tsx               # Workspace containers
-│   │   ├── myUserAccess/           # My User Access feature
-│   │   │   ├── bundles/            # Bundle-specific logic
-│   │   │   ├── components/         # MUA-specific presentational components
-│   │   │   └── *.js                # MUA containers
-│   │   ├── access-management/      # Access management feature
-│   │   │   └── users-and-user-groups/ # User/group access management
-│   │   ├── overview/               # Overview feature
-│   │   └── quickstarts/            # Quickstarts feature
-│   ├── entries/                    # Entry points for different builds
-│   ├── helpers/                    # Business logic helpers (organized by domain)
-│   │   ├── access/                 # Access management logic
-│   │   ├── group/                  # Group management logic
-│   │   ├── role/                   # Role management logic
-│   │   ├── user/                   # User management logic
-│   │   ├── workspaces/             # Workspace management logic
-│   │   ├── service-account/        # Service account logic
-│   │   └── shared/                 # Shared helper utilities
-│   ├── hooks/                      # Custom React hooks
-│   ├── data/                       # Data layer (React Query)
-│   │   ├── api/                    # API client functions
-│   │   └── queries/                # React Query hooks
-│   ├── utilities/                  # Helper utilities and constants
-│   └── test/                       # Test utilities and mocks
-├── .storybook/                     # Storybook configuration
-├── e2e/                            # Playwright E2E tests
-└── config/                         # Build and test configuration
-```
-
-## 🏗️ Architectural Patterns
-
-### Feature Islands Architecture
-
-We follow a **Feature Islands** pattern instead of rigid smart/presentational separation:
-
-#### Feature Organization Principles
-- **Domain-driven structure** - Code organized by business domain (groups, roles, users, workspaces)
-- **Co-location** - Related components, hooks, and logic live together
-- **Practical separation** - Only extract presentational components when there's genuine reuse
-- **Nested features** - Complex features like workspaces can have sub-features with their own components
-
-```jsx
-// Feature structure example: workspaces/managed-selector/
-workspaces/
-├── managed-selector/
-│   ├── components/              # Components specific to selector feature
-│   │   ├── WorkspaceSelector.tsx
-│   │   ├── WorkspaceTreeView.tsx
-│   │   └── WorkspaceMenuToggle.tsx
-│   ├── ManagedSelector.tsx      # Main container (smart component)
-│   ├── WorkspacesStore.tsx      # Feature-specific state
-│   └── WorkspaceTreeBuilder.ts  # Feature-specific logic
-```
-
-#### When to Extract to Shared Components
-Only move components to `src/components/` when they are:
-- **Truly reusable** across multiple features
-- **Domain-agnostic** (not tied to specific business logic)
-- **Stable** (unlikely to change frequently)
-
-```jsx
-// Shared component example - genuinely reusable
-const TableView = ({ 
-  columns, 
-  filters, 
-  pagination, 
-  onFilterChange,
-  children 
-}) => {
-  // Generic table view logic
-  return (
-    <Toolbar>
-      <ToolbarContent>
-        {filters && <FilterControls />}
-        {pagination && <PaginationControls />}
-        {children}
-      </ToolbarContent>
-    </Toolbar>
-  );
-};
-```
-
-#### Container Components (Feature Entry Points)
-Each feature has container components that:
-- Manage feature-specific state
-- Handle API interactions via React Query
-- Coordinate between presentational components
-- Use React Query hooks for data fetching and mutations
-
-```jsx
-// Example: Feature container with React Query
-const Groups = () => {
-  const { data: groups, isLoading } = useGroupsQuery();
-  const createGroupMutation = useCreateGroupMutation();
-
-  const handleCreateGroup = async (groupData) => {
-    await createGroupMutation.mutateAsync(groupData);
-    // Cache is automatically invalidated
-  };
-
-  return (
-    <PageLayout title="Groups">
-      <GroupHeader onCreateGroup={handleCreateGroup} />
-      <GroupsTable 
-        groups={groups?.data ?? []} 
-        loading={isLoading}
-        onEditGroup={handleEditGroup}
-      />
-    </PageLayout>
-  );
-};
-```
-
-### Component Development Patterns
-
-#### 1. Feature-Specific Components
-Components that only make sense within their feature:
-
-```jsx
-// src/features/groups/components/GroupHeader.tsx
-export const GroupHeader = ({ onCreateGroup, groupCount }) => (
-  <PageHeader>
-    <Title headingLevel="h1">Groups ({groupCount})</Title>
-    <Button onClick={onCreateGroup}>Create Group</Button>
-  </PageHeader>
-);
-```
-
-#### 2. Cross-Feature Components
-Components shared between related features:
-
-```jsx
-// src/features/users/components/UsersRow.tsx
-// Used by both users feature and access-management feature
-export const UsersRow = ({ user, onEdit, onDelete }) => (
-  <Tr>
-    <Td>{user.username}</Td>
-    <Td>{user.email}</Td>
-    <Td>
-      <ActionsColumn items={[
-        { title: 'Edit', onClick: () => onEdit(user) },
-        { title: 'Delete', onClick: () => onDelete(user) }
-      ]} />
-    </Td>
-  </Tr>
-);
-```
-
-#### 3. Truly Shared Components
-Generic, reusable components in `src/components/`:
-
-```jsx
-// src/components/ui-states/EmptyState.tsx
-export const EmptyState = ({ 
-  icon, 
-  title, 
-  description, 
-  primaryAction,
-  secondaryActions 
-}) => (
-  <EmptyStatePanel>
-    <EmptyStateIcon icon={icon} />
-    <Title>{title}</Title>
-    <EmptyStateBody>{description}</EmptyStateBody>
-    <EmptyStateActions>
-      {primaryAction}
-      {secondaryActions}
-    </EmptyStateActions>
-  </EmptyStatePanel>
-);
-```
-
-### State Management
-
-We use **React Query** with feature-based organization:
-
-```javascript
-// State shape organized by domain
-{
-  groups: {
-    byId: { 1: { id: 1, name: "Admins" } },
-    allIds: [1, 2, 3],
-    loading: false,
-    error: null
-  },
-  users: {
-    byId: { 1: { id: 1, username: "john.doe" } },
-    allIds: [1, 2, 3],
-    loading: false,
-    error: null
-  },
-  workspaces: {
-    byId: { 1: { id: 1, name: "Production" } },
-    tree: { /* hierarchical structure */ },
-    loading: false,
-    error: null
-  }
-}
-```
-
-### Helper Organization
-
-Business logic helpers are organized by domain matching the feature structure:
-
-```javascript
-// Example: Group helper
-// src/helpers/group/group-helper.js
-export const fetchGroups = (params) => {
-  return instance.get('/groups', { params });
-};
-
-export const transformGroupData = (groups) => {
-  return groups.map(group => ({
-    ...group,
-    memberCount: group.principalCount || 0,
-    roleCount: group.roleCount || 0
-  }));
-};
-
-export const validateGroupName = (name) => {
-  return name && name.length >= 3 && name.length <= 50;
-};
-```
-
-## 🔌 Integration Architecture
-
-### Module Federation
-
-Components are exposed for consumption by other applications:
-
-```javascript
-// fec.config.js - Module federation setup
-module.exports = {
-  moduleFederation: {
-    exposes: {
-      './CreateWorkspaceWizard': './src/federated-modules/CreateWorkspaceWizard.tsx',
-      './WorkspaceSelector': './src/federated-modules/WorkspaceSelector.tsx',
-    }
-  }
-};
-```
-
-### Red Hat Console Integration
-
-Our application integrates with the Red Hat Console platform:
-
-```javascript
-// Chrome integration
-const chrome = useChrome();
-const environment = chrome.getEnvironment();
-const isProd = chrome.isProd();
-const user = chrome.getUser();
-```
-
-### API Architecture
-
-We interact with multiple backend services through domain-specific helpers:
-
-```javascript
-// API helper pattern organized by domain
-export const rbacAPI = {
-  getRoles: (params) => instance.get('/roles', { params }),
-  createRole: (data) => instance.post('/roles', data),
-  updateRole: (id, data) => instance.put(`/roles/${id}`, data),
-  deleteRole: (id) => instance.delete(`/roles/${id}`)
-};
-
-export const workspacesAPI = {
-  getWorkspaces: (params) => instance.get('/workspaces', { params }),
-  createWorkspace: (data) => instance.post('/workspaces', data),
-  moveWorkspace: (id, parentId) => 
-    instance.patch(`/workspaces/${id}`, { parent_id: parentId })
-};
-```
-
-## 🎯 Design Patterns & Best Practices
-
-### Component Patterns
-
-#### 1. Feature Hooks
-Encapsulate feature-specific logic using React Query:
-
-```jsx
-// src/data/queries/groups.ts
-// Query hook - handles fetching and caching automatically
-export function useGroupsQuery(params?: ListGroupsParams) {
-  return useQuery({
-    queryKey: groupsKeys.list(params),
-    queryFn: async () => {
-      const response = await groupsApi.listGroups(params);
-      return response.data;
-    },
-  });
-}
-
-// Mutation hook - handles create with cache invalidation
-export function useCreateGroupMutation() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (groupData) => {
-      const response = await groupsApi.createGroup({ group: groupData });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: groupsKeys.all });
-    },
-  });
-}
-```
-
-#### 2. Compound Components
-For complex UI patterns within features:
-
-```jsx
-// src/features/workspaces/components/WorkspaceSelector.tsx
-const WorkspaceSelector = ({ children, ...props }) => (
-  <Dropdown {...props}>
-    {children}
-  </Dropdown>
-);
-
-WorkspaceSelector.Toggle = WorkspaceMenuToggle;
-WorkspaceSelector.Tree = WorkspaceTreeView;
-
-// Usage
-<WorkspaceSelector onSelect={handleSelect}>
-  <WorkspaceSelector.Toggle />
-  <WorkspaceSelector.Tree workspaces={workspaces} />
-</WorkspaceSelector>
-```
-
-#### 3. Higher-Order Components (HOCs)
-Used for cross-cutting concerns:
-
-```jsx
-const withPermissions = (permissions) => (Component) => {
-  return (props) => {
-    const userPermissions = usePermissions();
-    const hasPermission = permissions.every(p => 
-      userPermissions.includes(p)
-    );
-    
-    return hasPermission ? <Component {...props} /> : <AccessDenied />;
-  };
-};
-
-// Applied to feature containers
-export default withPermissions(['rbac:groups:read'])(Groups);
-```
-
-### Error Handling
-
-Comprehensive error handling at multiple levels:
-
-```javascript
-// Feature-level error handling
-const GroupManagement = () => {
-  const [error, setError] = useState(null);
-  
-  const handleError = useCallback((error, context) => {
-    console.error(`Groups Error (${context}):`, error);
-    setError({
-      message: error.message || 'An unexpected error occurred',
-      context,
-      timestamp: new Date()
-    });
-  }, []);
-
-  const handleCreateGroup = async (groupData) => {
-    try {
-      await groupHelper.createGroup(groupData);
-    } catch (error) {
-      handleError(error, 'create-group');
-    }
-  };
-
-  if (error) {
-    return <InlineError error={error} onRetry={() => setError(null)} />;
-  }
-
-  return <GroupsList onCreateGroup={handleCreateGroup} />;
-};
-```
-
-## 🧪 Testing Architecture
-
-### Testing Strategy
-
-1. **Unit Tests** - Individual components and functions
-2. **Integration Tests** - Feature interactions
-3. **E2E Tests** - Full user workflows
-4. **Visual Tests** - Storybook story testing
-
-### Storybook Testing with MSW
-
-We use Mock Service Worker (MSW) for realistic API mocking in stories:
-
-```javascript
-// src/test/msw-handlers.ts
-export const handlers = [
-  rest.get('/api/workspaces', (req, res, ctx) => {
-    return res(
-      ctx.json({
-        data: [
-          { id: 1, name: 'Production', parent_id: null },
-          { id: 2, name: 'Development', parent_id: 1 }
-        ]
-      })
-    );
-  })
-];
-
-// .storybook/preview.tsx
-import { initialize, mswDecorator } from 'msw-storybook-addon';
-import { handlers } from '../src/test/msw-handlers';
-
-initialize({ handlers });
-
-export const decorators = [mswDecorator];
-```
-
-### Interactive Story Testing
-
-Stories include play functions for automated interaction testing:
-
-```javascript
-// src/features/workspaces/components/managed-selector/ManagedSelector.stories.tsx
-export const SelectionCallback = {
-  args: {
-    onSelectionChange: fn(),
-    initialSelectedWorkspace: mockWorkspaces[0]
-  },
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    
-    // Test initial selection
-    expect(args.onSelectionChange).toHaveBeenCalledWith(mockWorkspaces[0]);
-    
-    // Test workspace selection
-    const toggle = await canvas.findByRole('button', { name: /workspace selector/i });
-    await userEvent.click(toggle);
-    
-    const workspaceOption = await canvas.findByText('Development Environment');
-    await userEvent.click(workspaceOption);
-    
-    // Verify callback was called with correct data
-    expect(args.onSelectionChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 2,
-        name: 'Development Environment'
-      })
-    );
-  }
-};
-```
-
-## 🚀 Performance Considerations
-
-### Code Splitting
-
-Route-based and feature-based splitting:
-
-```javascript
-// Route-based splitting
-const Groups = lazy(() => import('./features/groups/Groups'));
-const Roles = lazy(() => import('./features/roles/roles'));
-const Workspaces = lazy(() => import('./features/workspaces/WorkspaceList'));
-
-// Feature-based splitting for large features
-const WorkspaceCreation = lazy(() => 
-  import('./features/workspaces/create-workspace/CreateWorkspaceWizard')
-);
-```
-
-### Bundle Optimization
-
-- **Tree shaking** for unused code elimination
-- **Dynamic imports** for feature-based splitting
-- **Asset optimization** for images and styles
-- **Module federation** for cross-application sharing
-
-## 🔧 Development Workflow
-
-### Local Development
-
-1. **Start development server**: `npm start`
-2. **Run tests**: `npm test`
-3. **Start Storybook**: `npm run storybook`
-4. **Run E2E tests**: `npm run test:e2e`
-5. **Run story tests**: `npm run test-storybook:ci`
-
-### Code Quality Tools
-
-- **ESLint** - JavaScript/TypeScript linting
-- **Prettier** - Code formatting  
-- **TypeScript** - Type safety
-- **Vitest** - Unit testing
-- **Playwright** - E2E testing
-- **Storybook Test Runner** - Visual regression testing
+Architectural decisions and design principles for the RBAC UI. This doc covers the *why* behind structural choices, not the file tree (which lives as `README.md` files co-located with each feature).
 
 ---
 
-This feature islands architecture provides better code organization, improved developer experience, and more maintainable structure while following modern React patterns and practices. 
+## What This App Is
+
+A React application embedded in the Red Hat Console platform (`@redhat-cloud-services/insights-chrome`). It manages Role-Based Access Control across two generations of the RBAC API:
+
+- **v1** — the original RBAC platform (groups, roles, users, policies, permissions). Accessed via `@redhat-cloud-services/rbac-client`. Types are broken — see [API Client Patterns](?path=/docs/documentation-patterns-api-client-patterns--docs).
+- **v2** — the workspaces-based access management model. Accessed via `@redhat-cloud-services/rbac-client/v2`. Types work correctly.
+
+Both APIs will coexist for the foreseeable future. The E2E test suite runs separate V1 and V2 test tracks. See [E2E Testing Strategy](?path=/docs/documentation-e2e-testing-strategy--docs) for details on how the two tracks work.
+
+---
+
+## Feature Islands
+
+Features are self-contained islands under `src/features/`, organized by business domain. Each island owns its components, hooks, and local state. Shared infrastructure lives in `src/components/` and `src/data/`.
+
+**The rule:** only move something to `src/components/` when it is genuinely reusable across multiple unrelated features, domain-agnostic, and stable. Premature extraction creates accidental coupling.
+
+Each feature directory should have a `README.md` explaining what that island is responsible for, what APIs it calls, and any non-obvious constraints.
+
+---
+
+## Data Layer
+
+Three layers, strict separation:
+
+```
+src/data/api/       ← thin API wrappers, no React, no state
+src/data/queries/   ← TanStack Query hooks (useXxxQuery, useXxxMutation)
+src/features/       ← components consume hooks, no direct API calls
+```
+
+Components never call the API directly. They import from `src/data/queries/`. See [Redux to TanStack Query](?path=/docs/documentation-architecture-redux-to-tanstack-query--docs) for the full data layer reference and the Query Keys Factory pattern.
+
+---
+
+## Module Federation
+
+The app exposes federated modules for consumption by other Red Hat Console applications (e.g. the workspace selector used by other services). Exposed entry points live in `src/federated-modules/`. Each one needs a Storybook story for isolated development and testing.
+
+The federation config is in `fec.config.js`.
+
+---
+
+## Permissions and Environment
+
+The permissions model differs between the two API generations.
+
+**v1 (User Access — groups, roles, users):** coarse-grained. `orgAdmin` (boolean) gates all mutations. `isProd()` from `useChrome()` disables destructive actions in production. Both are injected via the Chrome API and mocked in Storybook via webpack aliases — see [Permissions & Context Testing](?path=/docs/documentation-permissions-context-testing--docs).
+
+**v2 (Access Management — workspaces):** per-resource Kessel access checks via `@project-kessel/react-kessel-access-check`. Six relations per workspace: `view`, `edit`, `delete`, `create`, `move`, `rename`. The abstraction lives in `src/features/workspaces/hooks/useWorkspacePermissions.ts` and its composite `useWorkspacesWithPermissions`. Currently wired in `ManagedWorkspaceSelector` — that component is the reference implementation. `orgAdmin` does not apply here.
+
+When writing permission checks, identify which API generation the feature belongs to before reaching for `orgAdmin`.
+
+---
+
+## Testing Philosophy
+
+Two tracks, different purposes:
+
+- **Storybook + MSW** — fast, deterministic, developer-focused. Every component state, every edge case. Required for all new components and features.
+- **Playwright + CLI** — real API, real staging database, production confidence. Required for critical user journeys once they're stable in Storybook.
+
+The workflow is: build in Storybook → add play functions → graduate to Playwright. See [E2E Testing Strategy](?path=/docs/documentation-e2e-testing-strategy--docs).
+
+---
+
+## Related Docs
+
+| Topic | Doc |
+|-------|-----|
+| Table component and state management | [TableView](?path=/docs/documentation-tableview--docs) |
+| Data fetching patterns and React Query | [Redux to TanStack Query](?path=/docs/documentation-architecture-redux-to-tanstack-query--docs) |
+| API client quirks (broken types) | [API Client Patterns](?path=/docs/documentation-patterns-api-client-patterns--docs) |
+| E2E testing and V1/V2 test tracks | [E2E Testing Strategy](?path=/docs/documentation-e2e-testing-strategy--docs) |
+| Storybook rules (non-negotiable) | [Storybook Mandatory Rules](?path=/docs/documentation-storybookmandatoryrules--docs) |
+| PatternFly imports, icons, i18n | [PatternFly Patterns](?path=/docs/documentation-patternfly-patterns--docs) |

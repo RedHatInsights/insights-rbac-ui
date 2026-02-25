@@ -1,0 +1,296 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/User Journeys" />
+
+# User Journey Storybook Tests
+
+User journey stories test complete user workflows from start to finish. They live in `src/user-journeys/` and must verify:
+
+- API calls are made with correct data (using `fn()` spies in MSW handlers)
+- Success/error notifications are displayed
+- UI state reflects the changes after each action
+- Tests are isolated between runs
+
+Route-level features (modals tied to routes, new pages) require user-journey stories. This is **mandatory**, not optional.
+
+---
+
+## Implementation Checklist
+
+### 1. Test Setup
+
+```typescript
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+
+// Define API spies for all mutations (file scope, outside meta)
+const createGroupSpy = fn();
+const addMembersSpy = fn();
+const addServiceAccountsSpy = fn();
+
+// Set up mutable state for test isolation
+// CRITICAL: Use mutable objects, not reassignable variables (closure issue)
+const createdGroups: CreatedGroup[] = [];
+const groupMembers: Record<string, string[]> = {};
+
+const resetState = () => {
+  createdGroups.length = 0;  // ✅ mutate — closure captures the object reference
+  for (const key of Object.keys(groupMembers)) {
+    delete groupMembers[key];
+  }
+  // ❌ Don't do this: groupMembers = {}  — handlers won't see the new object
+};
+```
+
+### 2. MSW Handler Setup
+
+```typescript
+// Spy handlers must be BEFORE default handlers in the array
+msw: {
+  handlers: [
+    // POST — spy captures request body
+    http.post('/api/rbac/v1/groups/', async ({ request }) => {
+      const body = (await request.json()) as { name: string; description: string };
+      createGroupSpy(body);
+
+      const newGroup = { uuid: `group-${Date.now()}`, ...body };
+      createdGroups.push(newGroup);
+
+      return HttpResponse.json(newGroup, { status: 201 });
+    }),
+
+    // GET — spy captures query params; uses mutable state for realistic responses
+    http.get('/api/rbac/v1/groups/', ({ request }) => {
+      const url = new URL(request.url);
+      const name = url.searchParams.get('name') ?? '';
+
+      const filtered = [...existingGroups, ...createdGroups].filter(
+        (g) => !name || g.name.toLowerCase().includes(name.toLowerCase()),
+      );
+      return HttpResponse.json({ data: filtered, meta: { count: filtered.length } });
+    }),
+
+    // Handle query params for member lists (e.g. principal_type)
+    http.get('/api/rbac/v1/groups/:uuid/principals/', ({ request, params }) => {
+      const principalType = new URL(request.url).searchParams.get('principal_type');
+      if (principalType === 'service-account') {
+        return HttpResponse.json({ data: groupMembers[params.uuid as string]?.serviceAccounts ?? [] });
+      }
+      return HttpResponse.json({ data: groupMembers[params.uuid as string]?.users ?? [] });
+    }),
+
+    ...defaultHandlers,  // default handlers after spy handlers
+  ],
+},
+```
+
+### 3. Play Function Structure
+
+```typescript
+play: async (context) => {
+  // SETUP — always first
+  await resetStoryState();
+  resetState();
+  createGroupSpy.mockClear();
+  addMembersSpy.mockClear();
+  addServiceAccountsSpy.mockClear();
+
+  const canvas = within(context.canvasElement);
+  const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  const testGroupName = `Test Group ${Date.now()}`;  // unique per run
+
+  // PERFORM ACTIONS
+  await clickCreateButton(canvas, user);
+  await fillGroupForm(canvas, user, testGroupName);
+  await selectUsers(canvas, user, ['adumble', 'bbunny']);
+  await selectServiceAccounts(canvas, user, ['pipeline-client-001']);
+  await submitForm(canvas, user);
+
+  // VERIFY API CALLS
+  expect(createGroupSpy).toHaveBeenCalledWith(
+    expect.objectContaining({ name: testGroupName }),
+  );
+  expect(addMembersSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      principals: expect.arrayContaining([
+        expect.objectContaining({ username: 'adumble' }),
+        expect.objectContaining({ username: 'bbunny' }),
+      ]),
+    }),
+  );
+
+  // VERIFY NOTIFICATIONS
+  const body = within(document.body);
+  await waitFor(
+    async () => {
+      const notification = body.getByText(/success adding members to group/i);
+      await expect(notification).toBeInTheDocument();
+    },
+    { timeout: 5000 },
+  );
+
+  // VERIFY UI STATE
+  await openGroupDrawer(canvas, user, testGroupName);
+  const drawerScope = getDrawerScope(context.canvasElement);
+
+  const usersTab = await drawerScope.findByRole('tab', { name: /^users$/i });
+  await user.click(usersTab);
+  await delay(500);
+  await expect(drawerScope.findByText('adumble')).resolves.toBeInTheDocument();
+
+  const saTab = await drawerScope.findByRole('tab', { name: /service accounts/i });
+  await user.click(saTab);
+  await delay(500);
+  await expect(drawerScope.findByText('pipeline-client-001')).resolves.toBeInTheDocument();
+},
+```
+
+---
+
+## API Call Verification Patterns
+
+### Verify call was made
+```typescript
+expect(createGroupSpy).toHaveBeenCalled();
+```
+
+### Verify call parameters (partial match)
+```typescript
+expect(addMembersSpy).toHaveBeenCalledWith(
+  expect.objectContaining({
+    groupId: expect.any(String),
+    principals: expect.arrayContaining([
+      expect.objectContaining({ username: 'adumble' }),
+    ]),
+  }),
+);
+```
+
+### Verify multiple calls in sequence
+```typescript
+expect(groupsApiSpy).toHaveBeenCalledTimes(2);
+expect(groupsApiSpy).toHaveBeenNthCalledWith(1, expect.objectContaining({ name: '' }));
+expect(groupsApiSpy).toHaveBeenNthCalledWith(2, expect.objectContaining({ name: 'admin' }));
+```
+
+---
+
+## Notification Verification
+
+Notifications render to `document.body`, not the canvas:
+
+```typescript
+const body = within(document.body);
+
+await waitFor(
+  async () => {
+    const notification = body.getByText(/group created successfully/i);
+    await expect(notification).toBeInTheDocument();
+  },
+  { timeout: 5000 },
+);
+```
+
+Use distinct notification assertions for each action in multi-step journeys:
+- Group created notification
+- Members added notification
+- Service accounts added notification
+
+---
+
+## UI State Verification
+
+```typescript
+// Data appears in table
+await expect(drawerScope.findByText('adumble')).resolves.toBeInTheDocument();
+
+// Navigate between tabs
+const usersTab = await drawerScope.findByRole('tab', { name: /^users$/i });
+await user.click(usersTab);
+await delay(500);
+
+// Open a drawer for detail
+await openGroupDrawer(canvas, user, testGroupName);
+const drawerScope = getDrawerScope(context.canvasElement);
+```
+
+---
+
+## Test Isolation
+
+### Use unique identifiers
+
+```typescript
+const testGroupName = `Test Group ${Date.now()}`;
+```
+
+### Mutable state pattern (critical)
+
+MSW handlers capture closure references at the time they are defined. If you reassign a variable inside `resetState`, handlers will still point to the old object.
+
+```typescript
+// ✅ Mutate in-place — handlers see changes
+const resetState = () => {
+  createdGroups.length = 0;
+  for (const key of Object.keys(groupMembers)) {
+    delete groupMembers[key];
+  }
+};
+
+// ❌ Reassign — handlers keep pointing to old empty object
+const resetState = () => {
+  createdGroups = [];      // handlers still see old array
+  groupMembers = {};       // handlers still see old object
+};
+```
+
+---
+
+## Shared Helpers
+
+Import from `_shared` files to avoid duplicating selector logic:
+
+```typescript
+import {
+  getUserGroupsTable,
+  findGroupRow,
+  openGroupDrawer,
+  getDrawerScope,
+  verifyUserGroupsTabSelected,
+} from './_shared';
+```
+
+If a selector pattern is used in more than one story, add it to `tableHelpers.ts` rather than duplicating it.
+
+---
+
+## Localization
+
+Use distinct message keys for pluralization:
+
+```typescript
+// Members
+messages.addGroupMembersSuccessTitle   // "Members added to group"
+messages.addGroupMemberSuccessTitle    // "Member added to group" (singular)
+
+// Service accounts
+messages.addGroupServiceAccountsSuccessTitle
+messages.addGroupServiceAccountSuccessTitle
+```
+
+When adding new messages, add to all three files:
+- `src/Messages.js`
+- `src/locales/translations.json`
+- `src/locales/data.json`
+
+---
+
+## Quick Reference
+
+| What to verify | How |
+|----------------|-----|
+| API called | `expect(spy).toHaveBeenCalled()` |
+| API params | `expect(spy).toHaveBeenCalledWith(expect.objectContaining({...}))` |
+| Notification shown | `within(document.body).getByText(/message/i)` |
+| Data in table | `await expect(scope.findByText('value')).resolves.toBeInTheDocument()` |
+| Tab navigation | `await user.click(await scope.findByRole('tab', { name: /tab name/i }))` |
+| Test isolation | `unique name = \`Name ${Date.now()}\`` + clear spies + reset mutable state |

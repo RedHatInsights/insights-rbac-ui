@@ -4,15 +4,31 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Patterns Index
 
-This section contains reusable patterns established during the Redux to TanStack Query migration.
+Reusable patterns and canonical implementations for RBAC UI development.
 
-## Available Patterns
+## Component Patterns
 
-### Data Fetching
-- [Query Keys Factory](?path=/docs/documentation-patterns-query-keys-factory--docs) - Centralized, type-safe query key definitions
+- [TableView + useTableState](?path=/docs/documentation-tableview--docs) — the canonical table with pagination, sort, filter, and selection
+- [PatternFly Patterns](?path=/docs/documentation-patternfly-patterns--docs) — import rules, icons, empty states, i18n
 
-### Forms & Validation
-- [Type-Safe Form Submission](?path=/docs/documentation-patterns-type-safe-form-submission--docs) - Runtime validation with compile-time type safety
+## Data Fetching
+
+- [Query Keys Factory](?path=/docs/documentation-patterns-query-keys-factory--docs) — centralized, type-safe query key definitions
+- [Redux to TanStack Query Migration](?path=/docs/documentation-architecture-redux-to-tanstack-query--docs) — migration reference
+
+## Forms & Validation
+
+- [Type-Safe Form Submission](?path=/docs/documentation-patterns-type-safe-form-submission--docs) — runtime validation with compile-time type safety
+
+## API Integration
+
+- [API Client Patterns](?path=/docs/documentation-patterns-api-client-patterns--docs) — rbac-client broken types workaround
+
+## Testing
+
+- [User Journey Stories](?path=/docs/documentation-user-journeys--docs) — end-to-end workflow stories with API spies
+- [Storybook Mandatory Rules](?path=/docs/documentation-storybookmandatoryrules--docs) — rules every story must follow
+- [Storybook Patterns](?path=/docs/documentation-storybookpatterns--docs) — how-to patterns for containers, modals, feature flags
 
 ## Usage
 
@@ -21,14 +37,13 @@ Each pattern document includes:
 - Solution overview
 - Step-by-step implementation
 - Common mistakes
-- Testing examples
-- Real-world references
+- Real-world references from the codebase
 
 ## Contributing
 
 When establishing a new pattern:
-1. Document it in this directory
-2. Link it from the main architecture doc
-3. Include a real-world example from the codebase
-4. Add common mistakes section
-5. Link related patterns
+1. Create a focused MDX file in `src/docs/` (200–400 lines, one topic)
+2. Link it from this index
+3. Add it to [AGENTS.md](../../AGENTS.md) docs index
+4. Include a real-world example from the codebase
+5. Add a common mistakes section

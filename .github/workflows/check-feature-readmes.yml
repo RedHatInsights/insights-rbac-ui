@@ -1,0 +1,128 @@
+name: Check feature island READMEs
+
+on:
+  pull_request:
+    paths:
+      - 'src/features/**'
+      - '!src/features/**/*.stories.tsx'
+      - '!src/features/**/*.test.*'
+      - '!src/features/**/*.spec.*'
+
+jobs:
+  check-readmes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find islands with changes but no README update
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BASE=${{ github.event.pull_request.base.sha }}
+          HEAD=${{ github.event.pull_request.head.sha }}
+
+          changed=$(git diff --name-only "$BASE" "$HEAD" -- 'src/features/**' | grep -v '^$' || true)
+
+          stale_islands=""
+          declare -A seen
+
+          while IFS= read -r file; do
+            # Extract top-level island: src/features/<island>/...
+            island=$(echo "$file" | sed 's|src/features/\([^/]*\)/.*|\1|')
+            [[ -z "$island" || -n "${seen[$island]}" ]] && continue
+            seen[$island]=1
+
+            # Check if README.md was also touched in this PR
+            readme_changed=$(git diff --name-only "$BASE" "$HEAD" -- "src/features/$island/README.md" | wc -l)
+            if [[ "$readme_changed" -eq 0 ]]; then
+              stale_islands="$stale_islands\n- \`src/features/$island/README.md\`"
+            fi
+          done <<< "$changed"
+
+          if [[ -n "$stale_islands" ]]; then
+            echo "stale_islands<<EOF" >> "$GITHUB_OUTPUT"
+            echo -e "$stale_islands" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "has_stale=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_stale=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post warning comment
+        if: steps.check.outputs.has_stale == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const islands = `${{ steps.check.outputs.stale_islands }}`;
+            const body = [
+              '## ⚠️ Feature island READMEs may need updating',
+              '',
+              'This PR modifies files in the following feature islands, but their `README.md` was not touched:',
+              '',
+              islands,
+              '',
+              '**Action required if your changes:**',
+              '- Add or remove a sub-feature, page, or route',
+              '- Change which API (v1/v2) or data layer hooks are used',
+              '- Alter the permission model or introduce new constraints',
+              '',
+              '_No action needed for bug fixes, style changes, or test additions that don\'t change the island\'s structure._',
+              '',
+              'See [AGENTS.md](../blob/${{ github.head_ref }}/AGENTS.md) for the full rule.',
+            ].join('\n');
+
+            // Find and update existing bot comment, or create a new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('Feature island READMEs may need updating')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: Resolve previous warning if READMEs are now updated
+        if: steps.check.outputs.has_stale == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('Feature island READMEs may need updating')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: '## ✅ Feature island READMEs — resolved\n\nAll modified islands have an updated `README.md`. Thank you!',
+              });
+            }
