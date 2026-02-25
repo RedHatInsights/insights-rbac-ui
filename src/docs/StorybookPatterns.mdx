@@ -92,8 +92,8 @@ export const Default: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(await canvas.findByRole('grid')).toBeInTheDocument();
-    expect(await canvas.findByText(mockGroups[0].name)).toBeInTheDocument();
+    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(mockGroups[0].name)).resolves.toBeInTheDocument();
   },
 };
 
@@ -142,16 +142,16 @@ export const ModalOpen: Story = {
 
     // Modal is in document.body
     const modal = screen.getByRole('dialog');
-    expect(modal).toBeInTheDocument();
+    await expect(modal).toBeInTheDocument();
 
     // Scope queries to modal content
-    expect(within(modal).getByText('Delete group?')).toBeInTheDocument();
+    await expect(within(modal).getByText('Delete group?')).toBeInTheDocument();
 
     const cancelButton = within(modal).getByRole('button', { name: /cancel/i });
     await userEvent.click(cancelButton);
 
     // Modal is gone after cancel
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   },
 };
 ```
@@ -188,14 +188,14 @@ export const WithWorkspaces: Story = {
   tags: ['ff:platform.rbac.workspaces'],
   args: { isWorkspacesEnabled: true },
   play: async ({ canvasElement }) => {
-    expect(await within(canvasElement).findByText('Workspaces')).toBeInTheDocument();
+    await expect(within(canvasElement).findByText('Workspaces')).resolves.toBeInTheDocument();
   },
 };
 
 export const WithoutWorkspaces: Story = {
   args: { isWorkspacesEnabled: false },
   play: async ({ canvasElement }) => {
-    expect(await within(canvasElement).findByText('Legacy view')).toBeInTheDocument();
+    await expect(within(canvasElement).findByText('Legacy view')).resolves.toBeInTheDocument();
   },
 };
 ```

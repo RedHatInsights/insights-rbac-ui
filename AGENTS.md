@@ -35,7 +35,7 @@ All detailed documentation is in `src/docs/`. Read the relevant doc before writi
 
 All docs are in `src/docs/`. Read the relevant file before writing or reviewing code.
 
-```
+```text
 root: src/docs/
 
 writing-a-story:           StorybookMandatoryRules.mdx
@@ -63,7 +63,7 @@ contributing:              .github/pull_request_template.md
 
 ## Key file locations
 
-```
+```text
 src/
 ├── features/                         # Feature islands (new code goes here)
 │   ├── workspaces/

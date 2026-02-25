@@ -22,12 +22,7 @@ Practical rules for day-to-day development: file naming, TypeScript conversions,
 
 ## File Case Changes
 
-When renaming a file with a case change (e.g., `toolbar.js` → `Toolbar.tsx`), you **must** stage both the old deletion and the new file. Otherwise the IDE loses track of the file:
-
-```bash
-# ✅ Correct — stage both changes together
-git add Toolbar.tsx && git rm toolbar.js
-```
+When renaming a file with a case change (e.g., `toolbar.js` → `Toolbar.tsx`), both the old deletion and the new file must be staged together. Otherwise the IDE loses track of the file. Use your editor's rename/move functionality, or ask the user to run the git commands — do not run git commands yourself unless explicitly requested.
 
 ---
 

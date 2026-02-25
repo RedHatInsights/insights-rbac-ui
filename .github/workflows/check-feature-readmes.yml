@@ -32,6 +32,12 @@ jobs:
           declare -A seen
 
           while IFS= read -r file; do
+            # Only process files that are inside a sub-directory of src/features/
+            # (skip top-level files like src/features/index.ts)
+            if [[ ! "$file" =~ ^src/features/[^/]+/ ]]; then
+              continue
+            fi
+
             # Extract top-level island: src/features/<island>/...
             island=$(echo "$file" | sed 's|src/features/\([^/]*\)/.*|\1|')
             [[ -z "$island" || -n "${seen[$island]}" ]] && continue
@@ -55,10 +61,15 @@ jobs:
 
       - name: Post warning comment
         if: steps.check.outputs.has_stale == 'true'
+        env:
+          # Pass via env to avoid script injection from untrusted ref names
+          HEAD_REF: ${{ github.head_ref }}
+          STALE_ISLANDS: ${{ steps.check.outputs.stale_islands }}
         uses: actions/github-script@v7
         with:
           script: |
-            const islands = `${{ steps.check.outputs.stale_islands }}`;
+            const islands = process.env.STALE_ISLANDS;
+            const headRef = process.env.HEAD_REF;
             const body = [
               '## ⚠️ Feature island READMEs may need updating',
               '',
@@ -73,10 +84,9 @@ jobs:
               '',
               '_No action needed for bug fixes, style changes, or test additions that don\'t change the island\'s structure._',
               '',
-              'See [AGENTS.md](../blob/${{ github.head_ref }}/AGENTS.md) for the full rule.',
+              `See [AGENTS.md](../blob/${headRef}/AGENTS.md) for the full rule.`,
             ].join('\n');
 
-            // Find and update existing bot comment, or create a new one
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
