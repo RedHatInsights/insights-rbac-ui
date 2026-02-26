@@ -383,7 +383,7 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
       console.error(`[INFO] Deleting existing workspace "${workspace.name}" (${existingWorkspace.id}) [attempt ${attempt}/${MAX_DELETE_ATTEMPTS}]`);
 
       try {
-        await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}`);
+        await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}/`);
         console.error(`[INFO] Deletion succeeded`);
         deleteSucceeded = true;
         // Wait to ensure deletion propagates
@@ -530,7 +530,7 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
 
           if (existingWorkspace?.id) {
             console.error(`[INFO] Found workspace to delete: ${existingWorkspace.id}`);
-            await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}`);
+            await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}/`);
             console.error(`[INFO] Deleted workspace successfully`);
             // Wait for deletion to propagate
             const waitTime = 2000;
