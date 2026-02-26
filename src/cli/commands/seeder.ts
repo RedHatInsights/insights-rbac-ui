@@ -504,12 +504,51 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
           ? createError.response.status
           : null;
 
-      // If it's the "same name" error and we have attempts left, retry with backoff
+      // If it's the "same name" error, workspace exists but LIST didn't find it
+      // Do an aggressive LIST + DELETE before retrying CREATE
       if (isSameNameError && status === 400 && attempt < MAX_CREATE_ATTEMPTS) {
-        const waitTime = attempt * 2000; // 2s, 4s, 6s, 8s
-        console.error(`[WARN] Workspace name conflict (eventual consistency) [attempt ${attempt}/${MAX_CREATE_ATTEMPTS}]`);
-        console.error(`[INFO] Waiting ${waitTime / 1000}s for deletion to propagate...`);
-        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        console.error(`[WARN] Workspace name conflict - LIST didn't find it but it exists [attempt ${attempt}/${MAX_CREATE_ATTEMPTS}]`);
+        console.error(`[INFO] Attempting aggressive deletion...`);
+
+        try {
+          // Re-query with just the name (broadest search)
+          const listResponse = await client.get('/api/rbac/v2/workspaces/', {
+            params: { name: workspace.name },
+          });
+          const workspaces = listResponse.data?.data ?? [];
+          const targetParentId = workspace.parent_id || rootWorkspaceId;
+
+          if (process.env.DEBUG_CLI) {
+            console.error(`[DEBUG] Aggressive search found ${workspaces.length} workspace(s)`);
+            workspaces.forEach((w: { id?: string; parent_id?: string }) => {
+              console.error(`[DEBUG]   - ID: ${w.id}, Parent: ${w.parent_id}`);
+            });
+          }
+
+          // Find workspace with matching parent
+          const existingWorkspace = workspaces.find((w: { parent_id?: string }) => w.parent_id === targetParentId);
+
+          if (existingWorkspace?.id) {
+            console.error(`[INFO] Found workspace to delete: ${existingWorkspace.id}`);
+            await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}`);
+            console.error(`[INFO] Deleted workspace successfully`);
+            // Wait for deletion to propagate
+            const waitTime = 2000;
+            console.error(`[INFO] Waiting ${waitTime / 1000}s for deletion to propagate...`);
+            await new Promise((resolve) => setTimeout(resolve, waitTime));
+          } else {
+            console.error(`[WARN] Could not find workspace to delete (may be in different parent)`);
+            // Still wait in case it's eventual consistency
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          }
+        } catch (deleteError) {
+          console.error(`[WARN] Aggressive deletion failed, will retry anyway`);
+          if (process.env.DEBUG_CLI) {
+            console.error(`[DEBUG]`, deleteError);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+
         continue;
       }
 
