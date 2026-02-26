@@ -27,7 +27,7 @@ export const WorkspaceList = () => {
   const intl = useIntl();
   const addNotification = useAddNotification();
 
-  // Composite hook: workspaces + Kessel permissions (view, edit, delete, create, move, rename)
+  // Composite hook: workspaces + Kessel permissions (view, edit, delete, create, move)
   const { workspaces, hasPermission, canCreateIn: _canCreateIn, canEditAny, canCreateAny, isLoading, isError } = useWorkspacesWithPermissions();
   const error: string | null = isError ? 'Failed to fetch workspaces' : null;
 

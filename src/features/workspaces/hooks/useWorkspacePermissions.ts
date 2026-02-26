@@ -35,13 +35,13 @@ export interface UseWorkspacePermissionsResult {
   /**
    * Generic permission check for any relation on a specific workspace.
    * @param workspaceId - The workspace ID to check
-   * @param relation - The Kessel relation to check (view, edit, delete, create, move, rename)
+   * @param relation - The Kessel relation to check (view, edit, delete, create, move)
    */
   hasPermission: (workspaceId: string, relation: WorkspaceRelation) => boolean;
 
   /**
    * Get all resolved permissions for a specific workspace.
-   * Returns a WorkspacePermissions record with all 6 relations.
+   * Returns a WorkspacePermissions record with all 5 relations.
    * @param workspaceId - The workspace ID
    */
   permissionsFor: (workspaceId: string) => WorkspacePermissions;
@@ -96,7 +96,7 @@ function buildAllowedSet(checks: unknown, hasRealResources: boolean): Set<string
 /**
  * Hook to check workspace permissions using Kessel access checks.
  *
- * Checks all 6 core workspace relations (view, edit, delete, create, move, rename)
+ * Checks all 5 core workspace relations (view, edit, delete, create, move)
  * for all workspaces in a single hook. Internally finds the root workspace to
  * determine top-level create permission.
  *
@@ -137,14 +137,13 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
     return [toResource(first), ...rest.map(toResource)];
   }, [workspaceIds, hasRealResources]);
 
-  // Always call useSelfAccessCheck unconditionally for all 6 relations (Rules of Hooks compliance)
+  // Always call useSelfAccessCheck unconditionally for all 5 relations (Rules of Hooks compliance)
   // Results are ignored when hasRealResources is false
   const { data: viewChecks, loading: viewLoading } = useSelfAccessCheck({ relation: 'view', resources });
   const { data: editChecks, loading: editLoading } = useSelfAccessCheck({ relation: 'edit', resources });
   const { data: deleteChecks, loading: deleteLoading } = useSelfAccessCheck({ relation: 'delete', resources });
   const { data: createChecks, loading: createLoading } = useSelfAccessCheck({ relation: 'create', resources });
   const { data: moveChecks, loading: moveLoading } = useSelfAccessCheck({ relation: 'move', resources });
-  const { data: renameChecks, loading: renameLoading } = useSelfAccessCheck({ relation: 'rename', resources });
 
   // Build Sets of allowed IDs for O(1) lookups per relation
   const allowedIds = useMemo<Record<WorkspaceRelation, Set<string>>>(
@@ -154,9 +153,8 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
       delete: buildAllowedSet(deleteChecks, hasRealResources),
       create: buildAllowedSet(createChecks, hasRealResources),
       move: buildAllowedSet(moveChecks, hasRealResources),
-      rename: buildAllowedSet(renameChecks, hasRealResources),
     }),
-    [viewChecks, editChecks, deleteChecks, createChecks, moveChecks, renameChecks, hasRealResources],
+    [viewChecks, editChecks, deleteChecks, createChecks, moveChecks, hasRealResources],
   );
 
   // Fingerprint of actual permission data — changes only when real permissions change,
@@ -182,7 +180,6 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
       delete: allowedIds.delete.has(workspaceId),
       create: allowedIds.create.has(workspaceId),
       move: allowedIds.move.has(workspaceId),
-      rename: allowedIds.rename.has(workspaceId),
     }),
     [allowedIdsFingerprint],
   );
@@ -195,7 +192,7 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
   const canEditAny = allowedIds.edit.size > 0;
   const canCreateAny = allowedIds.create.size > 0;
   const canCreateTopLevel = rootId !== '' && allowedIds.create.has(rootId);
-  const isLoading = hasRealResources && (viewLoading || editLoading || deleteLoading || createLoading || moveLoading || renameLoading);
+  const isLoading = hasRealResources && (viewLoading || editLoading || deleteLoading || createLoading || moveLoading);
 
   return { hasPermission, permissionsFor, canEdit, canCreateIn, canEditAny, canCreateAny, canCreateTopLevel, isLoading };
 }

@@ -5,14 +5,14 @@ import { useWorkspacePermissions } from './useWorkspacePermissions';
 
 /**
  * Composite hook that fetches workspaces and resolves all Kessel permissions
- * (view, edit, delete, create, move, rename) per workspace.
+ * (view, edit, delete, create, move) per workspace.
  *
  * Returns `WorkspaceWithPermissions[]` where each workspace has a `permissions`
  * record indicating what the current user can do with it.
  *
  * Combines:
  * - `useWorkspacesQuery` (React Query data fetch)
- * - `useWorkspacePermissions` (Kessel access checks for 6 relations)
+ * - `useWorkspacePermissions` (Kessel access checks for 5 relations)
  *
  * @param params - Workspace list query parameters
  * @param options - Query options (enabled, queryClient)

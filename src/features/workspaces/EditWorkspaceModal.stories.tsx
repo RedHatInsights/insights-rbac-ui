@@ -84,7 +84,6 @@ const meta: Meta<typeof EditWorkspaceModal> = {
       delete: ['workspace-1', 'workspace-2', 'workspace-3'],
       create: ['workspace-1', 'workspace-2', 'workspace-3'],
       move: ['workspace-1', 'workspace-2', 'workspace-3'],
-      rename: ['workspace-1', 'workspace-2', 'workspace-3'],
     },
     docs: {
       description: {

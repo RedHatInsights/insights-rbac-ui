@@ -49,7 +49,6 @@ export interface WorkspacePermissionsMap {
   delete: string[];
   create: string[];
   move: string[];
-  rename: string[];
 }
 
 /** Default empty workspace permissions (all denied) */
@@ -59,7 +58,6 @@ export const EMPTY_WORKSPACE_PERMISSIONS: WorkspacePermissionsMap = {
   delete: [],
   create: [],
   move: [],
-  rename: [],
 };
 
 export interface MockState {
@@ -96,7 +94,6 @@ export interface StoryParameters {
    *   delete: ['ws-1'],
    *   create: ['root-1', 'ws-1'],
    *   move: ['ws-1'],
-   *   rename: ['ws-1'],
    * }
    * ```
    */

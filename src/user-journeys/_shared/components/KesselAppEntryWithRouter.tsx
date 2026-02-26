@@ -31,7 +31,6 @@ export interface WorkspacePermissionsOverride {
   delete: string[];
   create: string[];
   move: string[];
-  rename: string[];
 }
 
 interface KesselAppEntryWithRouterProps {
@@ -117,9 +116,8 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
     delete: DEFAULT_WORKSPACE_IDS,
     create: DEFAULT_WORKSPACE_IDS,
     move: DEFAULT_WORKSPACE_IDS,
-    rename: DEFAULT_WORKSPACE_IDS,
   };
-  const allDenied = { view: [], edit: [], delete: [], create: [], move: [], rename: [] };
+  const allDenied = { view: [], edit: [], delete: [], create: [], move: [] };
   // Use explicit override if provided; otherwise derive from write permissions.
   const workspacePermissions = args.workspacePermissions ?? (hasWritePermissions ? allGranted : allDenied);
 

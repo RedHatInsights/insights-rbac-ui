@@ -106,7 +106,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
     >
       <MenuContent menuHeight={`${menuHeights[activeMenu]}px`}>
         <MenuList>
-          <MenuItem onClick={() => dispatchAction(ActionType.EDIT_WORKSPACE)} itemId="edit_workspace" isDisabled={!perms.rename}>
+          <MenuItem onClick={() => dispatchAction(ActionType.EDIT_WORKSPACE)} itemId="edit_workspace" isDisabled={!perms.edit}>
             {intl.formatMessage(messages.workspacesActionEditWorkspace)}
           </MenuItem>
           {/* TODO: replace `create` with `role_binding_create` when role_binding_* relations ship */}

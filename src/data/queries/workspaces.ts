@@ -327,7 +327,7 @@ export function isWorkspace(data: unknown): data is WorkspacesWorkspace {
 // ============================================================================
 
 /** All Kessel workspace relations we check */
-export const WORKSPACE_RELATIONS = ['view', 'edit', 'delete', 'create', 'move', 'rename'] as const;
+export const WORKSPACE_RELATIONS = ['view', 'edit', 'delete', 'create', 'move'] as const;
 
 /** A single Kessel workspace relation */
 export type WorkspaceRelation = (typeof WORKSPACE_RELATIONS)[number];
@@ -342,7 +342,6 @@ export const EMPTY_PERMISSIONS: WorkspacePermissions = {
   delete: false,
   create: false,
   move: false,
-  rename: false,
 };
 
 /** Workspace enriched with per-resource Kessel permissions */

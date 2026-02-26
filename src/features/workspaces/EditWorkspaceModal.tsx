@@ -126,14 +126,14 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     return workspace ? { ...workspace } : {};
   }, [workspace]);
 
-  // Kessel rename-permission guard — must be called unconditionally (Rules of Hooks)
+  // Kessel edit-permission guard — must be called unconditionally (Rules of Hooks)
   const { hasPermission } = useWorkspacePermissions(workspace ? [workspace] : []);
   const toAppLink = useAppLink();
 
-  const lacksRenamePermission = !!workspace && !hasPermission(workspace.id ?? '', 'rename');
+  const lacksEditPermission = !!workspace && !hasPermission(workspace.id ?? '', 'edit');
 
   useEffect(() => {
-    if (lacksRenamePermission) {
+    if (lacksEditPermission) {
       addNotification({
         variant: 'danger',
         title: intl.formatMessage(messages.editingWorkspaceTitle),
@@ -141,15 +141,15 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
       });
       navigate(toAppLink(paths.workspaces.link()));
     }
-  }, [lacksRenamePermission, addNotification, intl, navigate, toAppLink]);
+  }, [lacksEditPermission, addNotification, intl, navigate, toAppLink]);
 
   // Show loading state while fetching workspace
   if (isWorkspaceLoading) {
     return null;
   }
 
-  // Redirect if user lacks rename permission on this workspace
-  if (lacksRenamePermission) {
+  // Redirect if user lacks edit permission on this workspace
+  if (lacksEditPermission) {
     return null;
   }
 

@@ -337,7 +337,7 @@ export const MenuNavigation: Story = {
 /**
  * Tests that menu items respect per-relation permissions.
  *
- * Edit disabled (!rename), Grant Access disabled (!create), Delete disabled (!delete).
+ * Edit disabled (!edit), Grant Access disabled (!create), Delete disabled (!delete).
  */
 export const ItemsDisabledByPermissions: Story = {
   args: {
@@ -350,7 +350,6 @@ export const ItemsDisabledByPermissions: Story = {
       delete: false,
       create: false,
       move: false,
-      rename: false,
     },
   },
   parameters: {
@@ -366,7 +365,7 @@ export const ItemsDisabledByPermissions: Story = {
     const actionsButton = await canvas.findByRole('button', { name: /actions/i });
     await userEvent.click(actionsButton);
 
-    // Edit workspace should be disabled (!rename)
+    // Edit workspace should be disabled (!edit)
     const editItem = await within(document.body).findByText('Edit workspace');
     await expect(editItem.closest('button')).toHaveAttribute('disabled');
 
