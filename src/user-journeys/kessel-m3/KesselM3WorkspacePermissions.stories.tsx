@@ -9,6 +9,7 @@ import {
 } from '../_shared/components/KesselAppEntryWithRouter';
 import {
   TEST_TIMEOUTS,
+  expandWorkspaceInTree,
   expandWorkspaceRow,
   navigateToPage,
   openWorkspaceKebabMenu,
@@ -265,6 +266,10 @@ export const CanCreateInSingleWorkspace: Story = {
     const disabledSpan = rootItem.closest('span[style*="opacity"]');
     await expect(disabledSpan).toBeInTheDocument();
 
+    // Expand tree to reveal child workspaces (Root → Default → children)
+    await expandWorkspaceInTree(user, treePanel, 'Root Workspace');
+    await expandWorkspaceInTree(user, treePanel, 'Default Workspace');
+
     // Production (ws-1) should be selectable (has create permission)
     const productionItem = await treePanel.findByText('Production');
     await expect(productionItem.closest('span[style*="opacity"]')).toBeNull();
@@ -320,6 +325,10 @@ export const CanCreateInMultipleWorkspaces: Story = {
     // Current workaround: disabled names are wrapped in a <span> with opacity: 0.5.
     const disabledSpan = rootItem.closest('span[style*="opacity"]');
     await expect(disabledSpan).toBeInTheDocument();
+
+    // Expand tree to reveal child workspaces (Root → Default → children)
+    await expandWorkspaceInTree(user, treePanel, 'Root Workspace');
+    await expandWorkspaceInTree(user, treePanel, 'Default Workspace');
 
     // Production (ws-1) and Development (ws-2) should be selectable
     const productionItem = await treePanel.findByText('Production');
