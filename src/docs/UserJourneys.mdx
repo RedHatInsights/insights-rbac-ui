@@ -20,7 +20,7 @@ Route-level features (modals tied to routes, new pages) require user-journey sto
 ### 1. Test Setup
 
 ```typescript
-import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 
 // Define API spies for all mutations (file scope, outside meta)
 const createGroupSpy = fn();
@@ -221,9 +221,11 @@ const resetState = () => {
 };
 
 // ❌ Reassign — handlers keep pointing to old empty object
-const resetState = () => {
-  createdGroups = [];      // handlers still see old array
-  groupMembers = {};       // handlers still see old object
+let createdGroupsBad: CreatedGroup[] = [];
+let groupMembersBad: Record<string, { users: Principal[]; serviceAccounts: ServiceAccount[] }> = {};
+const resetStateBad = () => {
+  createdGroupsBad = [];      // handlers still see old array
+  groupMembersBad = {};       // handlers still see old object
 };
 ```
 
@@ -274,7 +276,7 @@ When adding new messages, add to all three files:
 |----------------|-----|
 | API called | `expect(spy).toHaveBeenCalled()` |
 | API params | `expect(spy).toHaveBeenCalledWith(expect.objectContaining({...}))` |
-| Notification shown | `within(document.body).getByText(/message/i)` |
+| Notification shown | `await expect(within(document.body).findByText(/message/i)).resolves.toBeInTheDocument()` |
 | Data in table | `await expect(scope.findByText('value')).resolves.toBeInTheDocument()` |
 | Tab navigation | `await user.click(await scope.findByRole('tab', { name: /tab name/i }))` |
 | Test isolation | `unique name = \`Name ${Date.now()}\`` + clear spies + reset mutable state |
