@@ -452,7 +452,7 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
   logCurl('POST', '/api/rbac/v2/workspaces/', payload, `Create workspace: ${workspace.name}`);
 
   // Retry creation with backoff to handle eventual consistency
-  const MAX_CREATE_ATTEMPTS = 5;
+  const MAX_CREATE_ATTEMPTS = 3;
   let createSucceeded = false;
 
   for (let attempt = 1; attempt <= MAX_CREATE_ATTEMPTS; attempt++) {
