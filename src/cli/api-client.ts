@@ -115,7 +115,7 @@ export function initializeApiClient(token: string): AxiosInstance {
 
         switch (status) {
           case 400:
-            console.error(`\n[CLI] ❌ API Error (${status}): ${message}`);
+            console.error(`\n[CLI]  API Error (${status}): ${message}`);
             // Show validation errors if present
             if (data?.errors && Array.isArray(data.errors)) {
               console.error('      Validation errors:');
@@ -128,25 +128,25 @@ export function initializeApiClient(token: string): AxiosInstance {
             }
             break;
           case 401:
-            console.error('\n[CLI] ❌ Authentication failed.');
+            console.error('\n[CLI]  Authentication failed.');
             console.error('      Your token may have expired. Run: npm run cli -- login');
             break;
           case 403:
-            console.error('\n[CLI] ❌ Permission denied.');
+            console.error('\n[CLI]  Permission denied.');
             console.error(`      Message: ${message}`);
             console.error('      Your account may lack required permissions.');
             break;
           case 404:
-            console.error('\n[CLI] ❌ Resource not found.');
+            console.error('\n[CLI]  Resource not found.');
             break;
           case 500:
-            console.error('\n[CLI] ❌ Server error. The API may be temporarily unavailable.');
+            console.error('\n[CLI]  Server error. The API may be temporarily unavailable.');
             break;
           default:
-            console.error(`\n[CLI] ❌ API Error (${status}): ${message}`);
+            console.error(`\n[CLI]  API Error (${status}): ${message}`);
         }
       } else if (error.request) {
-        console.error('\n[CLI] ❌ Network error. Check your connection and API URL.');
+        console.error('\n[CLI]  Network error. Check your connection and API URL.');
         console.error(`      API URL: ${getApiBaseUrl()}`);
         if (process.env.DEBUG_CLI) {
           console.error(`[DEBUG] Request error:`, error.message);
@@ -199,13 +199,13 @@ const cliNotify: NotifyFn = (variant, title, description) => {
   // All output goes to stderr to avoid interfering with Ink's stdout rendering
   switch (variant) {
     case 'success':
-      console.error(chalk.green(`${prefix} ✓ ${title}`));
+      console.error(chalk.green(`${prefix}  ${title}`));
       break;
     case 'danger':
       console.error(chalk.red(`${prefix} ✗ ${title}`));
       break;
     case 'warning':
-      console.error(chalk.yellow(`${prefix} ⚠ ${title}`));
+      console.error(chalk.yellow(`${prefix}  ${title}`));
       break;
     case 'info':
     default:
