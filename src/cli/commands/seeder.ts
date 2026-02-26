@@ -451,22 +451,67 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
 
   logCurl('POST', '/api/rbac/v2/workspaces/', payload, `Create workspace: ${workspace.name}`);
 
-  try {
-    const response = await client.post('/api/rbac/v2/workspaces/', payload);
-    const id = response.data?.id;
-    if (id) {
-      mapping[workspace.name] = id;
-      console.error(`[INFO] Created workspace "${workspace.name}" -> ${id}`);
+  // Retry creation with backoff to handle eventual consistency
+  const MAX_CREATE_ATTEMPTS = 5;
+  let createSucceeded = false;
+
+  for (let attempt = 1; attempt <= MAX_CREATE_ATTEMPTS; attempt++) {
+    try {
+      const response = await client.post('/api/rbac/v2/workspaces/', payload);
+      const id = response.data?.id;
+      if (id) {
+        mapping[workspace.name] = id;
+        console.error(`[INFO] Created workspace "${workspace.name}" -> ${id}`);
+        createSucceeded = true;
+        break;
+      }
+    } catch (createError: unknown) {
+      // Check if this is the "same name" eventual consistency error
+      const errorMessage =
+        createError &&
+        typeof createError === 'object' &&
+        'response' in createError &&
+        createError.response &&
+        typeof createError.response === 'object' &&
+        'data' in createError.response &&
+        createError.response.data
+          ? JSON.stringify(createError.response.data)
+          : '';
+
+      const isSameNameError = errorMessage.includes("Can't create workspace with same name");
+      const status =
+        createError &&
+        typeof createError === 'object' &&
+        'response' in createError &&
+        createError.response &&
+        typeof createError.response === 'object' &&
+        'status' in createError.response
+          ? createError.response.status
+          : null;
+
+      // If it's the "same name" error and we have attempts left, retry with backoff
+      if (isSameNameError && status === 400 && attempt < MAX_CREATE_ATTEMPTS) {
+        const waitTime = attempt * 2000; // 2s, 4s, 6s, 8s
+        console.error(`[WARN] Workspace name conflict (eventual consistency) [attempt ${attempt}/${MAX_CREATE_ATTEMPTS}]`);
+        console.error(`[INFO] Waiting ${waitTime / 1000}s for deletion to propagate...`);
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        continue;
+      }
+
+      // Not a retryable error, or max attempts reached - fail with details
+      console.error(`[ERROR] Failed to create workspace:`);
+      console.error(`[ERROR]   Name: ${workspace.name}`);
+      if (workspace.description) {
+        console.error(`[ERROR]   Description: ${workspace.description}`);
+      }
+      console.error(`[ERROR]   Parent ID: ${workspace.parent_id || rootWorkspaceId || 'none'}`);
+      logHttpError(createError, 'API error', 'error');
+      throw createError;
     }
-  } catch (createError: unknown) {
-    console.error(`[ERROR] Failed to create workspace:`);
-    console.error(`[ERROR]   Name: ${workspace.name}`);
-    if (workspace.description) {
-      console.error(`[ERROR]   Description: ${workspace.description}`);
-    }
-    console.error(`[ERROR]   Parent ID: ${workspace.parent_id || rootWorkspaceId || 'none'}`);
-    logHttpError(createError, 'API error', 'error');
-    throw createError;
+  }
+
+  if (!createSucceeded) {
+    throw new Error(`Failed to create workspace "${workspace.name}" after ${MAX_CREATE_ATTEMPTS} attempts`);
   }
 }
 
