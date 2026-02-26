@@ -333,3 +333,49 @@ export const MenuNavigation: Story = {
     });
   },
 };
+
+/**
+ * Tests that menu items respect per-relation permissions.
+ *
+ * Edit disabled (!rename), Grant Access disabled (!create), Delete disabled (!delete).
+ */
+export const ItemsDisabledByPermissions: Story = {
+  args: {
+    currentWorkspace: mockSubWorkspace,
+    hasAssets: false,
+    isDisabled: false,
+    permissions: {
+      view: true,
+      edit: false,
+      delete: false,
+      create: false,
+      move: false,
+      rename: false,
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Tests that menu items are disabled when the user lacks the corresponding Kessel relation.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+    await userEvent.click(actionsButton);
+
+    // Edit workspace should be disabled (!rename)
+    const editItem = await within(document.body).findByText('Edit workspace');
+    await expect(editItem.closest('button')).toHaveAttribute('disabled');
+
+    // Grant access should be disabled (!create)
+    const grantItem = await within(document.body).findByText('Grant access to workspace');
+    await expect(grantItem.closest('button')).toHaveAttribute('disabled');
+
+    // Delete workspace should be disabled (!delete)
+    const deleteItem = await within(document.body).findByText('Delete workspace');
+    await expect(deleteItem.closest('button')).toHaveAttribute('disabled');
+  },
+};

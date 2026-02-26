@@ -104,4 +104,68 @@ test.describe('Workspace List', () => {
       await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ROOT WORKSPACE ACCESS GUARDS
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Root Workspace is a system workspace that no user owns.
+  // The Kessel access SDK reports no permissions for root-1.
+  // These tests validate that the UI respects those constraints.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe('Root Workspace access guards [Admin]', () => {
+    test.use({ storageState: AUTH_V2_ADMIN });
+
+    test('Root Workspace name is not a clickable link [Admin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      // Root Workspace should NOT be a link — the access SDK denies `view` on root
+      const rootRow = page.locator('[data-ouia-component-id="workspaces-list"]').getByRole('row', { name: /Root Workspace/i });
+      const rootLink = rootRow.getByRole('link', { name: /Root Workspace/i });
+
+      // Root Workspace name is plain text, not a link (view permission denied)
+      await expect(rootLink).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    });
+
+    test('Root Workspace row actions are all disabled [Admin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      const rootRow = page.locator('[data-ouia-component-id="workspaces-list"]').getByRole('row', { name: /Root Workspace/i });
+      const kebab = rootRow.getByLabel('Kebab toggle');
+      await kebab.click();
+
+      // All modification actions should be disabled for the root workspace
+      const editItem = page.getByRole('menuitem', { name: /edit workspace/i });
+      const deleteItem = page.getByRole('menuitem', { name: /delete workspace/i });
+      const moveItem = page.getByRole('menuitem', { name: /move workspace/i });
+
+      // All actions disabled via Kessel permission checks
+      await expect(editItem).toBeDisabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+      await expect(deleteItem).toBeDisabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+      await expect(moveItem).toBeDisabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+    });
+
+    test('Root Workspace is not selectable in Create Workspace parent selector [Admin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.createButton.click();
+      await expect(page.getByRole('heading', { name: /create new workspace/i })).toBeVisible({
+        timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
+      });
+
+      // Open the parent workspace selector
+      await page.getByRole('button', { name: /select workspaces/i }).click();
+      const tree = page.getByRole('tree');
+      await expect(tree.getByRole('treeitem').first()).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      // Root Workspace treeitem should be disabled (no create permission)
+      const rootItem = tree.getByRole('treeitem').filter({ hasText: 'Root Workspace' }).first();
+
+      // Root lacks create permission — should be disabled in the tree
+      await expect(rootItem).toHaveAttribute('aria-disabled', 'true', { timeout: E2E_TIMEOUTS.TABLE_DATA });
+    });
+  });
 });

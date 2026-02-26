@@ -1189,6 +1189,11 @@ export default defineMessages({
     description: 'Edit workspace canceled notification description',
     defaultMessage: 'Edit workspace was canceled by the user.',
   },
+  editingWorkspaceNoPermissionDescription: {
+    id: 'editingWorkspaceNoPermissionDescription',
+    description: 'Edit workspace denied notification description',
+    defaultMessage: 'You do not have permission to edit this workspace.',
+  },
   deleteWorkspaceSuccessTitle: {
     id: 'deleteWorkspaceSuccessTitle',
     description: 'Delete workspace success notification title',

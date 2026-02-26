@@ -232,6 +232,14 @@ const meta: Meta<typeof WorkspaceDetail> = {
     msw: {
       handlers: workspaceDetailHandlers,
     },
+    workspacePermissions: {
+      view: ['workspace-1', 'workspace-2', 'workspace-3', 'workspace-4'],
+      edit: ['workspace-1', 'workspace-2', 'workspace-3', 'workspace-4'],
+      delete: ['workspace-2', 'workspace-3', 'workspace-4'],
+      create: ['workspace-1', 'workspace-2', 'workspace-3', 'workspace-4'],
+      move: ['workspace-2', 'workspace-3', 'workspace-4'],
+      rename: ['workspace-2', 'workspace-3', 'workspace-4'],
+    },
     docs: {
       description: {
         component: `
@@ -579,5 +587,49 @@ export const ParentRoleBindingsWithInheritance: Story = {
     // Now check that Production Environment appears multiple times (breadcrumb and table)
     const productionEnvElements = canvas.getAllByText('Production Environment');
     expect(productionEnvElements.length).toBeGreaterThan(1); // Should appear at least in breadcrumb and table
+  },
+};
+
+/**
+ * When the user has no `view` permission for a workspace, the detail page should
+ * render an "Access denied" / "Unauthorized" state instead of the workspace content.
+ *
+ * PASSES: WorkspaceDetail.tsx renders UnauthorizedAccess when permissions.view is false.
+ */
+export const AccessDeniedWhenNoViewPermission: Story = {
+  parameters: {
+    route: '/iam/access-management/workspaces/detail/workspace-2',
+    workspacePermissions: {
+      view: [],
+      edit: [],
+      delete: [],
+      create: [],
+      move: [],
+      rename: [],
+    },
+    msw: {
+      handlers: workspaceDetailHandlers,
+    },
+    docs: {
+      description: {
+        story:
+          'Tests that a user without `view` permission for a workspace sees an access-denied state. The view-permission guard in WorkspaceDetail renders UnauthorizedAccess when permissions.view is false.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300);
+    const canvas = within(canvasElement);
+    await waitForSkeletonToDisappear(canvasElement);
+
+    // UnauthorizedAccess renders when view permission is denied
+    await waitFor(async () => {
+      const deniedHeading = canvas.queryByText(/do not have access/i);
+      await expect(deniedHeading).toBeInTheDocument();
+    });
+
+    // The workspace header should NOT be visible
+    const wsName = canvas.queryByText('Web Services');
+    await expect(wsName).not.toBeInTheDocument();
   },
 };

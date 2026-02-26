@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -9,7 +9,9 @@ import { InheritedGroupAssignmentsTable } from './components/InheritedGroupAssig
 import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
-import { type WorkspacesWorkspace, useWorkspaceQuery, useWorkspacesQuery } from '../../../data/queries/workspaces';
+import { EMPTY_PERMISSIONS, type WorkspaceWithPermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import { useWorkspacesWithPermissions } from '../hooks/useWorkspacesWithPermissions';
+import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import type { Group } from '../../../data/queries/groups';
 import { useRoleAssignmentsQuery } from '../../../data/queries/rolesV2';
 
@@ -66,21 +68,27 @@ export const WorkspaceDetail = () => {
   const { workspaceId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const enableRoles = useWorkspacesFlag('m3');
-  const activeTabString = searchParams.get('activeTab') || (enableRoles ? 'roles' : 'assets');
+  const activeTabString = (() => {
+    const raw = searchParams.get('activeTab');
+    if (!raw) return enableRoles ? 'roles' : 'assets';
+    if (!enableRoles && raw !== 'assets') return 'assets';
+    return raw;
+  })();
   const activeRoleAssignmentTabString = searchParams.get('roleAssignmentTab') || 'roles-assigned-in-workspace';
 
   const rolesRef = React.createRef<HTMLElement>();
   const assetsRef = React.createRef<HTMLElement>();
 
-  // React Query hooks
-  const { data: workspacesData, isLoading: isWorkspacesLoading } = useWorkspacesQuery();
-  const workspaces = (workspacesData?.data ?? []) as WorkspacesWorkspace[];
+  // Single composite hook: workspaces enriched with per-workspace Kessel permissions
+  const { workspaces, isLoading: isWorkspacesLoading } = useWorkspacesWithPermissions();
 
-  const { data: selectedWorkspace, isLoading: isWorkspaceLoading } = useWorkspaceQuery(workspaceId || '', {
-    enabled: !!workspaceId,
-  });
+  // Find the current workspace from the enriched list
+  const selectedWorkspace = useMemo<WorkspaceWithPermissions | undefined>(
+    () => workspaces.find((ws) => ws.id === workspaceId),
+    [workspaces, workspaceId],
+  );
 
-  const isLoading = isWorkspacesLoading || isWorkspaceLoading;
+  const isLoading = isWorkspacesLoading;
 
   // Role bindings queries — fetch all bindings up front, paginate/sort/filter client-side.
   // The role bindings API uses cursor-based pagination (no offset), so true server-side
@@ -156,23 +164,6 @@ export const WorkspaceDetail = () => {
     });
   }, [parentBindingsData, selectedWorkspace, workspaces]);
 
-  // Workspace hierarchy state
-  const [workspaceHierarchy, setWorkspaceHierarchy] = useState<WorkspaceData[]>([]);
-
-  useEffect(() => {
-    if (!searchParams.has('activeTab')) {
-      setSearchParams({ activeTab: enableRoles ? 'roles' : 'assets' });
-    } else if (!enableRoles && activeTabString !== 'assets') {
-      setSearchParams({ activeTab: 'assets' });
-    }
-  }, [searchParams, setSearchParams, enableRoles, activeTabString]);
-
-  useEffect(() => {
-    if (workspaces.length > 0 && workspaceId) {
-      setWorkspaceHierarchy(buildWorkspacesHierarchy(workspaces, workspaceId));
-    }
-  }, [workspaces, workspaceId]);
-
   const buildWorkspacesHierarchy = (allWorkspaces: WorkspacesWorkspace[], targetWorkspaceId: string): WorkspaceData[] => {
     let currentWorkspace = allWorkspaces.find((ws) => ws.id === targetWorkspaceId);
 
@@ -185,9 +176,14 @@ export const WorkspaceDetail = () => {
     return hierarchy;
   };
 
+  const workspaceHierarchy = useMemo(
+    () => (workspaces.length > 0 && workspaceId ? buildWorkspacesHierarchy(workspaces, workspaceId) : []),
+    [workspaces, workspaceId],
+  );
+
   const hasAssets = useMemo(() => {
     return workspaces.filter((ws) => ws.parent_id === workspaceId).length > 0;
-  }, [selectedWorkspace, workspaces, workspaceId]);
+  }, [workspaces, workspaceId]);
 
   const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
     const selectedTabKey = Object.keys(WORKSPACE_TABS).find(
@@ -211,9 +207,21 @@ export const WorkspaceDetail = () => {
 
   const currentWorkspace = selectedWorkspace ? { id: selectedWorkspace.id ?? '', name: selectedWorkspace.name ?? '' } : undefined;
 
+  // Kessel view-permission guard — deny if workspace loaded but user lacks view
+  const currentPermissions = selectedWorkspace?.permissions ?? EMPTY_PERMISSIONS;
+  if (!isLoading && selectedWorkspace && !currentPermissions.view) {
+    return <UnauthorizedAccess />;
+  }
+
   return (
     <>
-      <WorkspaceHeader workspace={selectedWorkspace ?? null} isLoading={isLoading} workspaceHierarchy={workspaceHierarchy} hasAssets={hasAssets} />
+      <WorkspaceHeader
+        workspace={selectedWorkspace ?? null}
+        isLoading={isLoading}
+        workspaceHierarchy={workspaceHierarchy}
+        hasAssets={hasAssets}
+        permissions={currentPermissions}
+      />
       <Divider />
       <Tabs
         className="pf-v6-u-background-color-100"

@@ -7,7 +7,7 @@ import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Bread
 import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import { WorkspaceActions } from './WorkspaceActions';
-import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import { type WorkspacePermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import messages from '../../../Messages';
 import { AppLink } from '../../../components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
@@ -26,6 +26,8 @@ export interface WorkspaceHeaderProps {
   workspaceHierarchy: WorkspaceData[];
   /** Whether the workspace has child assets/workspaces */
   hasAssets: boolean;
+  /** Per-workspace Kessel permissions forwarded to WorkspaceActions */
+  permissions?: WorkspacePermissions;
 }
 
 /**
@@ -34,7 +36,7 @@ export interface WorkspaceHeaderProps {
  * Displays workspace title, description, breadcrumb hierarchy, and action menu.
  * Handles loading states with skeleton components.
  */
-export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isLoading, workspaceHierarchy, hasAssets }) => {
+export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isLoading, workspaceHierarchy, hasAssets, permissions }) => {
   const intl = useIntl();
   const [searchParams] = useSearchParams();
 
@@ -49,7 +51,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
         data-codemods
         title={isLoading ? <Skeleton width="170px" /> : workspace?.name}
         subtitle={isLoading ? <Skeleton width="250px" /> : workspace?.description}
-        actionMenu={workspace ? <WorkspaceActions currentWorkspace={workspace} hasAssets={hasAssets} /> : undefined}
+        actionMenu={workspace ? <WorkspaceActions currentWorkspace={workspace} hasAssets={hasAssets} permissions={permissions} /> : undefined}
       >
         <div className="pf-v6-u-mt-md">
           <span className="pf-v6-u-font-weight-bold pf-v6-u-mr-sm">{intl.formatMessage(messages.workspacesDetailBreadcrumbTitle)}</span>

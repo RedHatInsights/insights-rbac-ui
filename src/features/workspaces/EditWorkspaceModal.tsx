@@ -1,10 +1,12 @@
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import useAppNavigate from '../../hooks/useAppNavigate';
+import { useAppLink } from '../../hooks/useAppLink';
+import { useWorkspacePermissions } from './hooks/useWorkspacePermissions';
 import messages from '../../Messages';
 import {
   type WorkspacesWorkspace,
@@ -79,7 +81,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
         },
       ],
     }),
-    [initialFormData, workspaceId, intl, allWorkspaces],
+    [initialFormData, intl, allWorkspaces],
   );
 
   const handleCancel = () => {
@@ -124,8 +126,30 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     return workspace ? { ...workspace } : {};
   }, [workspace]);
 
+  // Kessel rename-permission guard — must be called unconditionally (Rules of Hooks)
+  const { hasPermission } = useWorkspacePermissions(workspace ? [workspace] : []);
+  const toAppLink = useAppLink();
+
+  const lacksRenamePermission = !!workspace && !hasPermission(workspace.id ?? '', 'rename');
+
+  useEffect(() => {
+    if (lacksRenamePermission) {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.editingWorkspaceTitle),
+        description: intl.formatMessage(messages.editingWorkspaceNoPermissionDescription),
+      });
+      navigate(toAppLink(paths.workspaces.link()));
+    }
+  }, [lacksRenamePermission, addNotification, intl, navigate, toAppLink]);
+
   // Show loading state while fetching workspace
   if (isWorkspaceLoading) {
+    return null;
+  }
+
+  // Redirect if user lacks rename permission on this workspace
+  if (lacksRenamePermission) {
     return null;
   }
 
