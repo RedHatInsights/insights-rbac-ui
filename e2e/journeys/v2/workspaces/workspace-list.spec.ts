@@ -122,10 +122,11 @@ test.describe('Workspace List', () => {
 
       // Root Workspace should NOT be a link — the access SDK denies `view` on root
       const rootRow = page.locator('[data-ouia-component-id="workspaces-list"]').getByRole('row', { name: /Root Workspace/i });
-      const rootLink = rootRow.getByRole('link', { name: /Root Workspace/i });
+      await expect(rootRow).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
       // Root Workspace name is plain text, not a link (view permission denied)
-      await expect(rootLink).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      const rootLink = rootRow.getByRole('link', { name: /Root Workspace/i });
+      await expect(rootLink).not.toBeVisible();
     });
 
     test('Root Workspace row actions are all disabled [Admin]', async ({ page }) => {

@@ -127,10 +127,11 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
   }, [workspace]);
 
   // Kessel edit-permission guard — must be called unconditionally (Rules of Hooks)
-  const { hasPermission } = useWorkspacePermissions(workspace ? [workspace] : []);
+  const { hasPermission, isLoading: isPermissionsLoading } = useWorkspacePermissions(workspace ? [workspace] : []);
   const toAppLink = useAppLink();
 
-  const lacksEditPermission = !!workspace && !hasPermission(workspace.id ?? '', 'edit');
+  // Only evaluate once both workspace data AND permission checks have settled
+  const lacksEditPermission = !!workspace && !isPermissionsLoading && !hasPermission(workspace.id ?? '', 'edit');
 
   useEffect(() => {
     if (lacksEditPermission) {
@@ -143,8 +144,8 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     }
   }, [lacksEditPermission, addNotification, intl, navigate, toAppLink]);
 
-  // Show loading state while fetching workspace
-  if (isWorkspaceLoading) {
+  // Show loading state while fetching workspace or resolving permissions
+  if (isWorkspaceLoading || isPermissionsLoading) {
     return null;
   }
 
