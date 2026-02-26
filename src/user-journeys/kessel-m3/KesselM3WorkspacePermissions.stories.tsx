@@ -25,6 +25,7 @@ import { delay } from 'msw';
 interface StoryArgs {
   typingDelay?: number;
   orgAdmin?: boolean;
+  permissions?: readonly string[];
   workspacePermissions?: WorkspacePermissionsOverride;
   'platform.rbac.workspaces-list'?: boolean;
   'platform.rbac.workspace-hierarchy'?: boolean;
@@ -216,6 +217,14 @@ export const RootWorkspaceNotSelectableAsParent: Story = {
     // Current workaround: disabled names are wrapped in a <span> with opacity: 0.5.
     const disabledSpan = rootItem.closest('span[style*="opacity"]');
     await expect(disabledSpan).toBeInTheDocument();
+
+    // Behavioral assertion: clicking the disabled item must not change selection
+    const toggleBefore = wizard.getByRole('button', { name: /select workspaces/i });
+    await expect(toggleBefore).toBeInTheDocument();
+    await user.click(rootItem);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    const toggleAfter = wizard.getByRole('button', { name: /select workspaces/i });
+    await expect(toggleAfter).toBeInTheDocument();
   },
 };
 

@@ -36,21 +36,27 @@ export const SetDetails = () => {
 
   const isWorkspaceSelectorEnabled = enableWorkspaceHierarchy || enableWorkspaces;
 
+  const defaultWorkspace = findDefaultParentWorkspace(workspaces);
+
+  // Prefill parent workspace only when the permission-aware selector is NOT active.
+  // When ManagedWorkspaceSelector is shown, it handles permission gating on selection;
+  // prefilling here would bypass the create-permission check.
   useEffect(() => {
-    !values[WORKSPACE_PARENT] &&
+    if (isWorkspaceSelectorEnabled) return;
+    if (!values[WORKSPACE_PARENT]) {
       formOptions.change(
         WORKSPACE_PARENT,
         workspaces.find((workspace) => workspace.parent_id === null),
       );
-  }, [workspaces.length]);
-
-  const defaultWorkspace = findDefaultParentWorkspace(workspaces);
+    }
+  }, [workspaces.length, isWorkspaceSelectorEnabled]);
 
   useEffect(() => {
+    if (isWorkspaceSelectorEnabled) return;
     if (defaultWorkspace && !values[WORKSPACE_PARENT]) {
       formOptions.change(WORKSPACE_PARENT, defaultWorkspace);
     }
-  }, [defaultWorkspace, formOptions.change, values[WORKSPACE_PARENT]]);
+  }, [defaultWorkspace, formOptions.change, values[WORKSPACE_PARENT], isWorkspaceSelectorEnabled]);
 
   const handleWorkspaceSelection = (selectedWorkspace: TreeViewDataItem) => {
     if (instanceOfTreeViewWorkspaceItem(selectedWorkspace)) {
