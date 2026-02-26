@@ -97,7 +97,7 @@ Each story configures a specific \`workspacePermissions\` override so that only
 certain workspaces are allowed for certain relations. The tests assert that the
 UI respects these constraints.
 
-**These tests are expected to FAIL until the permission guards are implemented.**
+These tests validate that permission guards remain enforced across workspace surfaces.
         `,
       },
     },
@@ -264,6 +264,16 @@ export const CanCreateInSingleWorkspace: Story = {
     // Current workaround: disabled names are wrapped in a <span> with opacity: 0.5.
     const disabledSpan = rootItem.closest('span[style*="opacity"]');
     await expect(disabledSpan).toBeInTheDocument();
+
+    // Production (ws-1) should be selectable (has create permission)
+    const productionItem = await treePanel.findByText('Production');
+    await expect(productionItem.closest('span[style*="opacity"]')).toBeNull();
+
+    // Development (ws-2) and Staging (ws-3) should be disabled (no create permission)
+    const developmentItem = await treePanel.findByText('Development');
+    await expect(developmentItem.closest('span[style*="opacity"]')).toBeInTheDocument();
+    const stagingItem = await treePanel.findByText('Staging');
+    await expect(stagingItem.closest('span[style*="opacity"]')).toBeInTheDocument();
   },
 };
 
@@ -310,5 +320,15 @@ export const CanCreateInMultipleWorkspaces: Story = {
     // Current workaround: disabled names are wrapped in a <span> with opacity: 0.5.
     const disabledSpan = rootItem.closest('span[style*="opacity"]');
     await expect(disabledSpan).toBeInTheDocument();
+
+    // Production (ws-1) and Development (ws-2) should be selectable
+    const productionItem = await treePanel.findByText('Production');
+    await expect(productionItem.closest('span[style*="opacity"]')).toBeNull();
+    const developmentItem = await treePanel.findByText('Development');
+    await expect(developmentItem.closest('span[style*="opacity"]')).toBeNull();
+
+    // Staging (ws-3) should be disabled (no create permission)
+    const stagingItem = await treePanel.findByText('Staging');
+    await expect(stagingItem.closest('span[style*="opacity"]')).toBeInTheDocument();
   },
 };
