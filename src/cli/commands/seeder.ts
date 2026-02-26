@@ -354,17 +354,28 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
 
   for (let attempt = 1; attempt <= MAX_DELETE_ATTEMPTS; attempt++) {
     try {
-      // Query for workspace by name AND parent to ensure we find the right one
+      // Query for workspace by name, then filter by parent_id client-side
+      // (API may not support parent_id filter)
       const listResponse = await client.get('/api/rbac/v2/workspaces/', {
-        params: {
-          name: workspace.name,
-          parent_id: workspace.parent_id || rootWorkspaceId,
-        },
+        params: { name: workspace.name },
       });
-      const existingWorkspace = listResponse.data?.data?.[0];
+      const workspaces = listResponse.data?.data ?? [];
+      const targetParentId = workspace.parent_id || rootWorkspaceId;
+
+      // Filter client-side for exact parent match
+      const existingWorkspace = workspaces.find((w: { parent_id?: string }) => w.parent_id === targetParentId);
+
+      if (process.env.DEBUG_CLI) {
+        console.error(`[DEBUG] Found ${workspaces.length} workspace(s) named "${workspace.name}"`);
+        workspaces.forEach((w: { id?: string; parent_id?: string }) => {
+          console.error(`[DEBUG]   - ID: ${w.id}, Parent: ${w.parent_id}`);
+        });
+        console.error(`[DEBUG] Looking for parent: ${targetParentId}`);
+        console.error(`[DEBUG] Match found: ${existingWorkspace ? 'yes' : 'no'}`);
+      }
 
       if (!existingWorkspace?.id) {
-        // No workspace found, we're good
+        // No workspace found in this parent, we're good
         deleteSucceeded = true;
         break;
       }
