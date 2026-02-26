@@ -120,13 +120,7 @@ play: async (context) => {
 
   // VERIFY NOTIFICATIONS
   const body = within(document.body);
-  await waitFor(
-    async () => {
-      const notification = body.getByText(/success adding members to group/i);
-      await expect(notification).toBeInTheDocument();
-    },
-    { timeout: 5000 },
-  );
+  await expect(body.findByText(/success adding members to group/i)).resolves.toBeInTheDocument();
 
   // VERIFY UI STATE
   await openGroupDrawer(canvas, user, testGroupName);
@@ -134,12 +128,10 @@ play: async (context) => {
 
   const usersTab = await drawerScope.findByRole('tab', { name: /^users$/i });
   await user.click(usersTab);
-  await delay(500);
   await expect(drawerScope.findByText('adumble')).resolves.toBeInTheDocument();
 
   const saTab = await drawerScope.findByRole('tab', { name: /service accounts/i });
   await user.click(saTab);
-  await delay(500);
   await expect(drawerScope.findByText('pipeline-client-001')).resolves.toBeInTheDocument();
 },
 ```
@@ -180,14 +172,7 @@ Notifications render to `document.body`, not the canvas:
 
 ```typescript
 const body = within(document.body);
-
-await waitFor(
-  async () => {
-    const notification = body.getByText(/group created successfully/i);
-    await expect(notification).toBeInTheDocument();
-  },
-  { timeout: 5000 },
-);
+await expect(body.findByText(/group created successfully/i)).resolves.toBeInTheDocument();
 ```
 
 Use distinct notification assertions for each action in multi-step journeys:
@@ -203,10 +188,9 @@ Use distinct notification assertions for each action in multi-step journeys:
 // Data appears in table
 await expect(drawerScope.findByText('adumble')).resolves.toBeInTheDocument();
 
-// Navigate between tabs
+// Navigate between tabs — findBy* waits for the content, no delay needed
 const usersTab = await drawerScope.findByRole('tab', { name: /^users$/i });
 await user.click(usersTab);
-await delay(500);
 
 // Open a drawer for detail
 await openGroupDrawer(canvas, user, testGroupName);
