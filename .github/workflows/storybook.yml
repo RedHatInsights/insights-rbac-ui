@@ -31,7 +31,7 @@ jobs:
         with:
           name: storybook-static
           path: storybook-static
-          retention-days: 1
+          retention-days: 3
 
   test:
     name: test
