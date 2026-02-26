@@ -354,8 +354,12 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
 
   for (let attempt = 1; attempt <= MAX_DELETE_ATTEMPTS; attempt++) {
     try {
+      // Query for workspace by name AND parent to ensure we find the right one
       const listResponse = await client.get('/api/rbac/v2/workspaces/', {
-        params: { name: workspace.name },
+        params: {
+          name: workspace.name,
+          parent_id: workspace.parent_id || rootWorkspaceId,
+        },
       });
       const existingWorkspace = listResponse.data?.data?.[0];
 
