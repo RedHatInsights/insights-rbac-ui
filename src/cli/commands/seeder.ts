@@ -459,7 +459,13 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
       console.error(`[INFO] Created workspace "${workspace.name}" -> ${id}`);
     }
   } catch (createError: unknown) {
-    logHttpError(createError, 'Workspace creation failed', 'error');
+    console.error(`[ERROR] Failed to create workspace:`);
+    console.error(`[ERROR]   Name: ${workspace.name}`);
+    if (workspace.description) {
+      console.error(`[ERROR]   Description: ${workspace.description}`);
+    }
+    console.error(`[ERROR]   Parent ID: ${workspace.parent_id || rootWorkspaceId || 'none'}`);
+    logHttpError(createError, 'API error', 'error');
     throw createError;
   }
 }
