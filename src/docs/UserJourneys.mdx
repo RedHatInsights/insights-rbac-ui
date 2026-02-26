@@ -30,7 +30,7 @@ const addServiceAccountsSpy = fn();
 // Set up mutable state for test isolation
 // CRITICAL: Use mutable objects, not reassignable variables (closure issue)
 const createdGroups: CreatedGroup[] = [];
-const groupMembers: Record<string, string[]> = {};
+const groupMembers: Record<string, { users: Principal[]; serviceAccounts: ServiceAccount[] }> = {};
 
 const resetState = () => {
   createdGroups.length = 0;  // ✅ mutate — closure captures the object reference
