@@ -371,10 +371,9 @@ Tests that admins can view workspace detail pages with Roles tab in Kessel M3.
     const productionLink = await canvas.findByRole('link', { name: /^production$/i });
     await user.click(productionLink);
 
-    // Verify we're on the detail page with Roles tab (waitFor handles navigation timing)
-    await waitFor(() => {
-      const addressBar = canvas.getByTestId('fake-address-bar');
-      expect(addressBar).toHaveTextContent(/activeTab=roles/i);
+    // Verify we're on the detail page — wait for workspace content to load
+    await waitFor(async () => {
+      await expect(canvas.findByText(/roles assigned in this workspace/i)).resolves.toBeInTheDocument();
     });
 
     // Verify both tabs exist

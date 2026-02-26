@@ -30,28 +30,21 @@ import messages from '../../../Messages';
 import { AppLink } from '../../../components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
 import type { WorkspaceFilters, WorkspaceWithChildren, WorkspacesWorkspace } from '../types';
+import type { WorkspaceRelation, WorkspaceWithPermissions } from '../../../data/queries/workspaces';
 
 interface WorkspaceListTableProps {
-  // Data props
-  workspaces: WorkspacesWorkspace[];
+  workspaces: WorkspaceWithPermissions[];
   isLoading: boolean;
   error: string | null;
 
-  // Action callbacks
   onDeleteWorkspaces: (workspaces: WorkspacesWorkspace[]) => Promise<void>;
   onMoveWorkspace: (workspace: WorkspacesWorkspace, targetParentId: string) => Promise<void>;
 
   /**
-   * Function to check if user can edit a specific workspace.
-   * Used for edit, move, delete actions.
+   * Generic Kessel permission check: (workspaceId, relation) → boolean.
+   * Used by canModify to map each action to its correct Kessel relation.
    */
-  canEdit: (workspaceId: string) => boolean;
-
-  /**
-   * Function to check if user can create workspaces within a parent.
-   * Used for "Create workspace" and "Create subworkspace" row actions.
-   */
-  canCreateIn: (workspaceId: string) => boolean;
+  hasPermission: (workspaceId: string, relation: WorkspaceRelation) => boolean;
 
   /**
    * Whether the user can edit at least one workspace.
@@ -62,11 +55,9 @@ interface WorkspaceListTableProps {
   /**
    * Whether the user can create workspaces in at least one workspace.
    * Used for the main "Create workspace" toolbar button.
-   * The button is enabled if ANY workspace allows creation.
    */
   canCreateAny: boolean;
 
-  // Optional children (e.g., modals)
   children?: React.ReactNode;
 }
 
@@ -153,8 +144,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   error,
   onDeleteWorkspaces,
   onMoveWorkspace,
-  canEdit,
-  canCreateIn,
+  hasPermission,
   canEditAny,
   canCreateAny,
   children,
@@ -178,29 +168,20 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
 
   /**
    * Check if user can perform an action on a workspace.
-   * Combines Kessel permission check with workspace type constraints.
+   * Maps each UI action to its correct Kessel relation, then applies workspace type constraints.
    */
   const canModify = (workspace: WorkspacesWorkspace, action: 'edit' | 'move' | 'delete' | 'create') => {
     const workspaceId = workspace.id ?? '';
 
-    // For 'create' action (creating children), check 'create' permission on this workspace
-    if (action === 'create') {
-      return canCreateIn(workspaceId);
-    }
-
-    // For edit/move/delete, check 'edit' permission first
-    if (!canEdit(workspaceId)) {
-      return false;
-    }
-
-    // Then check workspace type constraints (e.g., can't delete root workspace)
     switch (action) {
+      case 'create':
+        return hasPermission(workspaceId, 'create') && isValidEditType(workspace);
       case 'edit':
-        return isValidEditType(workspace);
+        return hasPermission(workspaceId, 'rename') && isValidEditType(workspace);
       case 'move':
-        return isValidMoveType(workspace);
+        return hasPermission(workspaceId, 'move') && isValidMoveType(workspace);
       case 'delete':
-        return isValidDeleteType(workspace);
+        return hasPermission(workspaceId, 'delete') && isValidDeleteType(workspace);
       default:
         return false;
     }
@@ -211,10 +192,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
       id: workspace.id ?? '',
       row: Object.values({
         name:
-          // Determine where workspace names should link based on milestone:
-          // M3+ (or master flag): Link to RBAC detail page
-          // M1-M2: Link to Inventory (or plain text in M1)
-          hasRbacDetailPages ? (
+          hasRbacDetailPages && hasPermission(workspace.id ?? '', 'view') ? (
             <AppLink
               to={pathnames['workspace-detail'].path.replace(':workspaceId', workspace.id ?? '')}
               key={`${workspace.id}-detail`}
@@ -222,8 +200,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             >
               {workspace.name}
             </AppLink>
-          ) : // M1-M2: Link to Inventory for standard/ungrouped-hosts types
-          ['standard', 'ungrouped-hosts'].includes(workspace?.type ?? '') ? (
+          ) : !hasRbacDetailPages && ['standard', 'ungrouped-hosts'].includes(workspace?.type ?? '') ? (
             <ExternalLink
               replace
               to={`/insights/inventory/workspaces/${workspace.id}`}

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
-import { type WorkspacePermissions, type WorkspaceRelation } from '../../../data/queries/workspaces';
+import { WORKSPACE_RELATIONS, type WorkspacePermissions, type WorkspaceRelation } from '../../../data/queries/workspaces';
 
 type WorkspaceResource = {
   id: string;
@@ -159,13 +159,22 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
     [viewChecks, editChecks, deleteChecks, createChecks, moveChecks, renameChecks, hasRealResources],
   );
 
-  // Generic permission check
-  const hasPermission = useCallback(
-    (workspaceId: string, relation: WorkspaceRelation): boolean => allowedIds[relation].has(workspaceId),
+  // Fingerprint of actual permission data — changes only when real permissions change,
+  // not when useSelfAccessCheck returns new object references with identical content.
+  // This stabilizes all downstream callbacks and prevents infinite re-render loops
+  // in consumers that depend on the enriched workspaces array.
+  const allowedIdsFingerprint = useMemo(
+    () => WORKSPACE_RELATIONS.map((rel) => `${rel}:${[...allowedIds[rel]].sort().join(',')}`).join('|'),
     [allowedIds],
   );
 
-  // Get all permissions for a single workspace
+  // Intentional: deps use allowedIdsFingerprint (not allowedIds) for reference stability
+  const hasPermission = useCallback(
+    (workspaceId: string, relation: WorkspaceRelation): boolean => allowedIds[relation].has(workspaceId),
+    [allowedIdsFingerprint],
+  );
+
+  // Intentional: deps use allowedIdsFingerprint (not allowedIds) for reference stability
   const permissionsFor = useCallback(
     (workspaceId: string): WorkspacePermissions => ({
       view: allowedIds.view.has(workspaceId),
@@ -175,12 +184,13 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
       move: allowedIds.move.has(workspaceId),
       rename: allowedIds.rename.has(workspaceId),
     }),
-    [allowedIds],
+    [allowedIdsFingerprint],
   );
 
-  // Legacy convenience aliases
-  const canEdit = useCallback((workspaceId: string): boolean => allowedIds.edit.has(workspaceId), [allowedIds]);
-  const canCreateIn = useCallback((workspaceId: string): boolean => allowedIds.create.has(workspaceId), [allowedIds]);
+  // Intentional: deps use allowedIdsFingerprint (not allowedIds) for reference stability
+  const canEdit = useCallback((workspaceId: string): boolean => allowedIds.edit.has(workspaceId), [allowedIdsFingerprint]);
+  // Intentional: deps use allowedIdsFingerprint (not allowedIds) for reference stability
+  const canCreateIn = useCallback((workspaceId: string): boolean => allowedIds.create.has(workspaceId), [allowedIdsFingerprint]);
 
   const canEditAny = allowedIds.edit.size > 0;
   const canCreateAny = allowedIds.create.size > 0;

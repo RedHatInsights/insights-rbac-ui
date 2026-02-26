@@ -24,6 +24,16 @@ export const KESSEL_PERMISSIONS = {
   NONE: [],
 } as const;
 
+/** Per-relation workspace permission override for stories. */
+export interface WorkspacePermissionsOverride {
+  view: string[];
+  edit: string[];
+  delete: string[];
+  create: string[];
+  move: string[];
+  rename: string[];
+}
+
 interface KesselAppEntryWithRouterProps {
   initialRoute?: string;
   typingDelay?: number;
@@ -33,6 +43,12 @@ interface KesselAppEntryWithRouterProps {
   orgAdmin?: boolean;
   /** Environment: 'staging' (default) or 'production' */
   environment?: 'staging' | 'production';
+  /**
+   * Optional explicit workspace permission override for stories.
+   * When provided, replaces the computed all-granted / all-denied value.
+   * Use this to test partial-permission scenarios (e.g. root excluded).
+   */
+  workspacePermissions?: WorkspacePermissionsOverride;
   'platform.rbac.workspaces'?: boolean;
   'platform.rbac.workspaces-list'?: boolean;
   'platform.rbac.workspace-hierarchy'?: boolean;
@@ -92,9 +108,9 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
   // Derive write capability from permissions (has any :write or :* permission)
   const hasWritePermissions = permissions.some((p) => p.includes(':write') || p.includes(':*') || p === 'rbac:*:*');
 
-  // Default workspace IDs from the fixtures - used by useSelfAccessCheck mock
-  // Stories using different fixtures should override workspacePermissions
-  const DEFAULT_WORKSPACE_IDS = ['root-1', 'ws-1', 'ws-2', 'ws-3'];
+  // Default workspace IDs from the fixtures - used by useSelfAccessCheck mock.
+  // Includes all IDs in defaultWorkspaces: root-1, default-1, ws-1, ws-2, ws-3.
+  const DEFAULT_WORKSPACE_IDS = ['root-1', 'default-1', 'ws-1', 'ws-2', 'ws-3'];
   const allGranted = {
     view: DEFAULT_WORKSPACE_IDS,
     edit: DEFAULT_WORKSPACE_IDS,
@@ -104,7 +120,8 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
     rename: DEFAULT_WORKSPACE_IDS,
   };
   const allDenied = { view: [], edit: [], delete: [], create: [], move: [], rename: [] };
-  const workspacePermissions = hasWritePermissions ? allGranted : allDenied;
+  // Use explicit override if provided; otherwise derive from write permissions.
+  const workspacePermissions = args.workspacePermissions ?? (hasWritePermissions ? allGranted : allDenied);
 
   // orgAdmin is explicit - controls user identity, not permissions
   const isOrgAdmin = args.orgAdmin === true;

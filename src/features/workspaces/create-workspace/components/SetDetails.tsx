@@ -70,7 +70,7 @@ export const SetDetails = () => {
 
   const renderWorkspaceSelector = () => {
     if (isWorkspaceSelectorEnabled) {
-      return <ManagedWorkspaceSelector onSelect={handleWorkspaceSelection} />;
+      return <ManagedWorkspaceSelector onSelect={handleWorkspaceSelection} requiredPermission="create" />;
     }
 
     if (isLoading) {

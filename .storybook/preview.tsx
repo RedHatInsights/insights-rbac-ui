@@ -111,7 +111,9 @@ const preview: Preview = {
             : 'staging';
 
       // Workspace permissions for Kessel stories (all 6 relations)
-      const workspacePermissions = parameters.workspacePermissions ?? { view: [], edit: [], delete: [], create: [], move: [], rename: [] };
+      // Check args first (for stories with decorators that override permissions via args), then parameters
+      const workspacePermissions = args.workspacePermissions ??
+        parameters.workspacePermissions ?? { view: [], edit: [], delete: [], create: [], move: [], rename: [] };
 
       // User identity for auth.getUser() - use userIdentity parameter
       const userIdentity = parameters.userIdentity;

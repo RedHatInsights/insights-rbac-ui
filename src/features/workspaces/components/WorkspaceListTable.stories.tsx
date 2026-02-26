@@ -4,6 +4,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import { WorkspaceListTable } from './WorkspaceListTable';
 import { BrowserRouter } from 'react-router-dom';
 // Import shared test functions and mock data from helper file
+import { type WorkspaceRelation } from '../../../data/queries/workspaces';
 import {
   mockWorkspaces,
   testDefaultWorkspaceDisplay,
@@ -16,12 +17,11 @@ import {
 const defaultProps = {
   workspaces: mockWorkspaces,
   isLoading: false,
-  error: '',
+  error: null as string | null,
   onDeleteWorkspaces: fn(),
   onMoveWorkspace: fn(),
-  // Default: user can edit and create workspaces
-  canEdit: () => true,
-  canCreateIn: () => true,
+  // Default: user has all permissions
+  hasPermission: () => true,
   canEditAny: true,
   canCreateAny: true,
 };
@@ -165,8 +165,7 @@ export const ErrorState: Story = {
 export const NoPermissions: Story = {
   args: {
     ...defaultProps,
-    canEdit: () => false, // User cannot edit any workspace
-    canCreateIn: () => false,
+    hasPermission: () => false, // User cannot edit any workspace
     canEditAny: false,
     canCreateAny: false,
   },
@@ -211,7 +210,7 @@ export const NoPermissions: Story = {
 export const RestrictedPermissions: Story = {
   args: {
     ...defaultProps,
-    canEdit: (workspaceId: string) => workspaceId === '1', // User can only edit workspace '1'
+    hasPermission: (workspaceId: string) => workspaceId === '1', // User can only edit workspace '1'
   },
   parameters: {
     docs: {
@@ -264,7 +263,7 @@ export const RestrictedPermissions: Story = {
 export const RootWorkspaceRestrictions: Story = {
   args: {
     ...defaultProps,
-    canEdit: () => true, // User has full permissions
+    hasPermission: () => true, // User has full permissions
   },
   parameters: {
     docs: {
@@ -296,10 +295,68 @@ export const RootWorkspaceRestrictions: Story = {
   },
 };
 
+export const RootWorkspaceNameIsNotALink: Story = {
+  args: defaultProps,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tests that workspace names are only rendered as links when the user has view permission. Root workspace (type "root") renders as plain text because the access SDK reports no view permission for root.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await waitForSkeletonToDisappear(canvasElement);
+    const canvas = within(canvasElement);
+
+    // Root Workspace name should NOT be a link (no view permission)
+    const rootText = await canvas.findByText('Root Workspace');
+    await expect(rootText.closest('a')).toBeNull();
+
+    // Standard workspaces SHOULD still be links
+    const productionLink = await canvas.findByRole('link', { name: 'Production Environment' });
+    await expect(productionLink).toBeInTheDocument();
+  },
+};
+
+export const CorrectRelationsForRowActions: Story = {
+  args: {
+    ...defaultProps,
+    // User has rename permission but NOT delete — proves canModify uses correct Kessel relation per action
+    hasPermission: (_id: string, relation: WorkspaceRelation) => relation !== 'delete',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tests that row actions check the correct Kessel relation per action. Delete checks the "delete" relation, move checks "move". Each action maps to its specific Kessel relation via hasPermission().',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await waitForSkeletonToDisappear(canvasElement);
+
+    // Open kebab for Production Environment (standard workspace)
+    const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
+    const productionRowScope = within(productionRow);
+    const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
+
+    await userEvent.click(productionKebab);
+
+    // Edit should be enabled (user has edit permission)
+    const editButton = await within(document.body).findByText('Edit workspace');
+    await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
+
+    // Delete should be DISABLED (user has no delete permission)
+    const deleteButton = await within(document.body).findByText('Delete workspace');
+    await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
+  },
+};
+
 export const FullPermissions: Story = {
   args: {
     ...defaultProps,
-    canEdit: () => true, // User has full permissions
+    hasPermission: () => true, // User has full permissions
   },
   parameters: {
     docs: {

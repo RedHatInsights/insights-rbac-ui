@@ -14,12 +14,13 @@ import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import { WarningModal } from '@patternfly/react-component-groups';
-import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import { EMPTY_PERMISSIONS, type WorkspacePermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { Outlet } from 'react-router-dom';
 import pathnames from '../../../utilities/pathnames';
 import paths from '../../../utilities/pathnames';
 import { useAppLink } from '../../../hooks/useAppLink';
 import useAppNavigate from '../../../hooks/useAppNavigate';
+import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
 
 enum ActionType {
   EDIT_WORKSPACE = 'EDIT_WORKSPACE',
@@ -35,9 +36,13 @@ interface WorkspaceActionsProps {
   isDisabled?: boolean;
   currentWorkspace: WorkspacesWorkspace;
   hasAssets: boolean;
+  /** Per-workspace Kessel permissions. When absent, all actions are disabled (deny-by-default). */
+  permissions?: WorkspacePermissions;
 }
 
-export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false, currentWorkspace, hasAssets }) => {
+export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false, currentWorkspace, hasAssets, permissions }) => {
+  const perms = permissions ?? EMPTY_PERMISSIONS;
+  const hasM4Flag = useWorkspacesFlag('m4');
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const toggleRef = React.useRef<HTMLButtonElement>(null);
@@ -78,7 +83,6 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
   };
 
   const dispatchAction = (action: ActionType) => {
-    console.log('Dispatched action: ', action);
     setIsOpen(!isOpen);
     if (action === ActionType.DELETE_WORKSPACE) {
       setIsDeleteModalOpen(true);
@@ -102,13 +106,14 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
     >
       <MenuContent menuHeight={`${menuHeights[activeMenu]}px`}>
         <MenuList>
-          <MenuItem onClick={() => dispatchAction(ActionType.EDIT_WORKSPACE)} itemId="edit_workspace">
+          <MenuItem onClick={() => dispatchAction(ActionType.EDIT_WORKSPACE)} itemId="edit_workspace" isDisabled={!perms.rename}>
             {intl.formatMessage(messages.workspacesActionEditWorkspace)}
           </MenuItem>
-          <MenuItem onClick={() => dispatchAction(ActionType.GRANT_ACCESS)} itemId="grant_access">
+          {/* TODO: replace `create` with `role_binding_create` when role_binding_* relations ship */}
+          <MenuItem onClick={() => dispatchAction(ActionType.GRANT_ACCESS)} itemId="grant_access" isDisabled={!perms.create || !hasM4Flag}>
             {intl.formatMessage(messages.workspacesActionGrantAccessToWorkspace)}
           </MenuItem>
-          <MenuItem onClick={() => dispatchAction(ActionType.CREATE_SUBWORKSPACE)} itemId="create_subworkspace">
+          <MenuItem onClick={() => dispatchAction(ActionType.CREATE_SUBWORKSPACE)} itemId="create_subworkspace" isDisabled={!perms.create}>
             {intl.formatMessage(messages.workspacesActionCreateSubWorkspace)}
           </MenuItem>
           <MenuItem onClick={() => dispatchAction(ActionType.VIEW_TENANT)} itemId="view_tenant">
@@ -173,7 +178,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
           >
             {intl.formatMessage(messages.workspacesActionManageNotifications)}
           </MenuItem>
-          <MenuItem onClick={() => dispatchAction(ActionType.DELETE_WORKSPACE)} itemId="delete_workspace">
+          <MenuItem onClick={() => dispatchAction(ActionType.DELETE_WORKSPACE)} itemId="delete_workspace" isDisabled={!perms.delete}>
             {intl.formatMessage(messages.workspacesActionDeleteWorkspace)}
           </MenuItem>
         </MenuList>
@@ -194,7 +199,6 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
           checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={() => {
-            !hasAssets ? console.log('deleting workspaces') : null;
             setIsDeleteModalOpen(false);
           }}
           cancelButtonLabel={!hasAssets ? 'Cancel' : ''}

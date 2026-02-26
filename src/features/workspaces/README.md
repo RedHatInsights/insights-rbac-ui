@@ -41,7 +41,19 @@ permissionsFor(ws.id)           // → WorkspacePermissions record
 hasPermission(ws.id, 'delete')  // → boolean
 ```
 
-**Current state:** wired in `ManagedWorkspaceSelector` (via `requiredPermission` prop — pass a `WorkspaceRelation` to disable non-permitted workspaces in the tree). Not yet broadly applied across the workspace detail and list UIs — that propagation is the next step. When in doubt, follow the selector as the reference implementation.
+**Propagation (PR1 — Kessel Permission Guards):** Permissions are now checked across all workspace surfaces:
+- **List table:** name link gated on `view`, row actions use correct per-action relations (`rename` for edit, `move` for move, `delete` for delete, `create` for sub-workspace)
+- **Create workspace:** parent selector passes `requiredPermission="create"` to `ManagedWorkspaceSelector`
+- **Detail page:** renders `<UnauthorizedAccess>` when `view` is denied; `WorkspaceActions` menu items disabled per relation
+- **Edit modal:** redirects if `rename` permission is denied (direct URL guard)
+
+**Role binding permission mapping (MVP):**
+
+| Operation | MVP Kessel relation | Post-MVP relation |
+|-----------|-------------------|-------------------|
+| View role bindings | `view` | `role_binding_view` |
+| Create role binding | `create` | `role_binding_create` |
+| Revoke role binding | `delete` | `role_binding_revoke` |
 
 ## Federated modules
 
