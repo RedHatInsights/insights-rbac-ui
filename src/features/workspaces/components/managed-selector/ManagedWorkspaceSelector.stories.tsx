@@ -114,7 +114,7 @@ Smart component that manages workspace selection with API integration, Kessel pe
 ## Features
 
 - **Hierarchical tree view** – Workspaces are displayed in a collapsible tree reflecting their parent/child relationships.
-- **Kessel permission integration** – Each workspace is enriched with 6 permission checks (view, edit, delete, create, move, rename) via \`useWorkspacesWithPermissions\`.
+- **Kessel permission integration** – Each workspace is enriched with 5 permission checks (view, edit, delete, create, move) via \`useWorkspacesWithPermissions\`.
 - **Permission-based filtering** – Set the \`requiredPermission\` prop to disable workspaces where the user lacks that permission. Non-permitted workspaces are visually dimmed and non-selectable, preserving hierarchy.
 - **Self-contained federated module** – When used via \`WorkspaceSelector\` federated module, all providers (IntlProvider, AccessCheck.Provider, ServiceProvider, QueryClientProvider) are included automatically.
 
@@ -148,7 +148,6 @@ The following relations are resolved per workspace:
 | \`delete\` | Can delete the workspace |
 | \`create\` | Can create child workspaces |
 | \`move\` | Can move workspace to another parent |
-| \`rename\` | Can rename the workspace |
 
 ## Usage Examples
 
@@ -181,7 +180,6 @@ The following relations are resolved per workspace:
       delete: ALL_WORKSPACE_IDS,
       create: ALL_WORKSPACE_IDS,
       move: ALL_WORKSPACE_IDS,
-      rename: ALL_WORKSPACE_IDS,
     },
   },
   argTypes: {
@@ -196,7 +194,7 @@ The following relations are resolved per workspace:
     requiredPermission: {
       description: 'When set, only workspaces with this permission are selectable',
       control: { type: 'select' },
-      options: [undefined, 'view', 'edit', 'delete', 'create', 'move', 'rename'],
+      options: [undefined, 'view', 'edit', 'delete', 'create', 'move'],
     },
   },
 };
@@ -502,7 +500,6 @@ export const DuplicateWorkspaceNames: Story = {
       delete: ['F', 'G', 'H'],
       create: ['F', 'G', 'H'],
       move: ['F', 'G', 'H'],
-      rename: ['F', 'G', 'H'],
     },
     docs: {
       description: {
@@ -556,7 +553,6 @@ export const RequiredPermissionCreate: Story = {
       delete: [],
       create: ['workspace-1'],
       move: [],
-      rename: [],
     },
     docs: {
       description: {
@@ -598,7 +594,6 @@ export const RequiredPermissionEdit: Story = {
       delete: [],
       create: [],
       move: [],
-      rename: [],
     },
     docs: {
       description: {
@@ -638,7 +633,6 @@ export const AllPermissionsDenied: Story = {
       delete: [],
       create: [],
       move: [],
-      rename: [],
     },
     docs: {
       description: {

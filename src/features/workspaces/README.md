@@ -26,14 +26,14 @@ All fetching uses hooks from `src/data/queries/workspaces.ts`. See `workspacesKe
 
 v2 uses **Kessel access checks** via `@project-kessel/react-kessel-access-check`, not `orgAdmin`. Permissions are resolved per workspace, per relation.
 
-**Six relations:** `view` | `edit` | `delete` | `create` | `move` | `rename`
+**Five relations:** `view` | `edit` | `delete` | `create` | `move`
 
 **The hooks (use these, don't call `useSelfAccessCheck` directly):**
 
 ```ts
 // All workspaces + all their permissions in one shot:
 const { workspaces, canEditAny, canCreateAny, isLoading } = useWorkspacesWithPermissions();
-// Each workspace has ws.permissions.{ view, edit, delete, create, move, rename }
+// Each workspace has ws.permissions.{ view, edit, delete, create, move }
 
 // Just the permission layer, if you already have workspaces:
 const { permissionsFor, hasPermission, canEdit, canCreateIn } = useWorkspacePermissions(workspaces);
@@ -42,10 +42,10 @@ hasPermission(ws.id, 'delete')  // → boolean
 ```
 
 **Propagation (PR1 — Kessel Permission Guards):** Permissions are now checked across all workspace surfaces:
-- **List table:** name link gated on `view`, row actions use correct per-action relations (`rename` for edit, `move` for move, `delete` for delete, `create` for sub-workspace)
+- **List table:** name link gated on `view`, row actions use correct per-action relations (`edit` for edit, `move` for move, `delete` for delete, `create` for sub-workspace)
 - **Create workspace:** parent selector passes `requiredPermission="create"` to `ManagedWorkspaceSelector`
 - **Detail page:** renders `<UnauthorizedAccess>` when `view` is denied; `WorkspaceActions` menu items disabled per relation
-- **Edit modal:** redirects if `rename` permission is denied (direct URL guard)
+- **Edit modal:** redirects if `edit` permission is denied (direct URL guard)
 
 **Role binding permission mapping (MVP):**
 

@@ -57,7 +57,7 @@ The permissions model differs between the two API generations.
 
 **v1 (User Access — groups, roles, users):** coarse-grained. `orgAdmin` (boolean) gates all mutations. `isProd()` from `useChrome()` disables destructive actions in production. Both are injected via the Chrome API and mocked in Storybook via webpack aliases — see [Permissions & Context Testing](?path=/docs/documentation-permissions-context-testing--docs).
 
-**v2 (Access Management — workspaces):** per-resource Kessel access checks via `@project-kessel/react-kessel-access-check`. Six relations per workspace: `view`, `edit`, `delete`, `create`, `move`, `rename`. The abstraction lives in `src/features/workspaces/hooks/useWorkspacePermissions.ts` and its composite `useWorkspacesWithPermissions`. Currently wired in `ManagedWorkspaceSelector` — that component is the reference implementation. `orgAdmin` does not apply here.
+**v2 (Access Management — workspaces):** per-resource Kessel access checks via `@project-kessel/react-kessel-access-check`. Five relations per workspace: `view`, `edit`, `delete`, `create`, `move`. The abstraction lives in `src/features/workspaces/hooks/useWorkspacePermissions.ts` and its composite `useWorkspacesWithPermissions`. Currently wired in `ManagedWorkspaceSelector` — that component is the reference implementation. `orgAdmin` does not apply here.
 
 When writing permission checks, identify which API generation the feature belongs to before reaching for `orgAdmin`.
 

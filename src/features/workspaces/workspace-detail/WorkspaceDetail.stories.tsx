@@ -238,7 +238,6 @@ const meta: Meta<typeof WorkspaceDetail> = {
       delete: ['workspace-2', 'workspace-3', 'workspace-4'],
       create: ['workspace-1', 'workspace-2', 'workspace-3', 'workspace-4'],
       move: ['workspace-2', 'workspace-3', 'workspace-4'],
-      rename: ['workspace-2', 'workspace-3', 'workspace-4'],
     },
     docs: {
       description: {
@@ -605,7 +604,6 @@ export const AccessDeniedWhenNoViewPermission: Story = {
       delete: [],
       create: [],
       move: [],
-      rename: [],
     },
     msw: {
       handlers: workspaceDetailHandlers,

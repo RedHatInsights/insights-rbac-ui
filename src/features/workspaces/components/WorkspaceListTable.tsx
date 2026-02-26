@@ -177,7 +177,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
       case 'create':
         return hasPermission(workspaceId, 'create') && isValidEditType(workspace);
       case 'edit':
-        return hasPermission(workspaceId, 'rename') && isValidEditType(workspace);
+        return hasPermission(workspaceId, 'edit') && isValidEditType(workspace);
       case 'move':
         return hasPermission(workspaceId, 'move') && isValidMoveType(workspace);
       case 'delete':

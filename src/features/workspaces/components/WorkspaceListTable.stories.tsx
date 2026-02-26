@@ -322,7 +322,7 @@ export const RootWorkspaceNameIsNotALink: Story = {
 export const CorrectRelationsForRowActions: Story = {
   args: {
     ...defaultProps,
-    // User has rename permission but NOT delete — proves canModify uses correct Kessel relation per action
+    // User has edit permission but NOT delete — proves canModify uses correct Kessel relation per action
     hasPermission: (_id: string, relation: WorkspaceRelation) => relation !== 'delete',
   },
   parameters: {

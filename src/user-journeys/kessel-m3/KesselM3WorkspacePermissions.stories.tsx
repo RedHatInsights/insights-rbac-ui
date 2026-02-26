@@ -42,7 +42,6 @@ const allRelations = (ids: string[]): WorkspacePermissionsOverride => ({
   delete: ids,
   create: ids,
   move: ids,
-  rename: ids,
 });
 
 const M3_FLAGS = {
@@ -235,7 +234,6 @@ export const CanCreateInSingleWorkspace: Story = {
       delete: NON_ROOT_IDS,
       create: ['ws-1'],
       move: NON_ROOT_IDS,
-      rename: NON_ROOT_IDS,
     },
     initialRoute: '/iam/my-user-access',
   },
@@ -285,7 +283,6 @@ export const CanCreateInMultipleWorkspaces: Story = {
       delete: NON_ROOT_IDS,
       create: ['ws-1', 'ws-2'],
       move: NON_ROOT_IDS,
-      rename: NON_ROOT_IDS,
     },
     initialRoute: '/iam/my-user-access',
   },

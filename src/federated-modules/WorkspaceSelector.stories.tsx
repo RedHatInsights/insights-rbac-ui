@@ -85,7 +85,6 @@ const meta: Meta<WorkspaceSelectorProps> = {
       delete: ALL_WORKSPACE_IDS,
       create: ALL_WORKSPACE_IDS,
       move: ALL_WORKSPACE_IDS,
-      rename: ALL_WORKSPACE_IDS,
     },
     docs: {
       description: {
@@ -149,7 +148,6 @@ through the enriched \`WorkspaceWithPermissions\` type:
 | \`delete\` | Can delete the workspace |
 | \`create\` | Can create child workspaces |
 | \`move\` | Can move workspace to another parent |
-| \`rename\` | Can rename the workspace |
 
 When \`requiredPermission\` is set, workspaces lacking that permission appear **dimmed**
 and are **not selectable**, preserving the full hierarchy for context.
@@ -169,7 +167,7 @@ For low-level component tests, see **Features/Workspaces/Components/Managed Sele
     requiredPermission: {
       description: 'Only workspaces with this Kessel relation are selectable. Others are shown dimmed.',
       control: { type: 'select' },
-      options: [undefined, 'view', 'edit', 'delete', 'create', 'move', 'rename'],
+      options: [undefined, 'view', 'edit', 'delete', 'create', 'move'],
       table: {
         type: { summary: 'WorkspaceRelation' },
         defaultValue: { summary: 'undefined' },
@@ -234,7 +232,6 @@ export const FilterByCreatePermission: Story = {
       delete: [],
       create: ['workspace-1'],
       move: [],
-      rename: [],
     },
     docs: {
       description: {
@@ -284,7 +281,6 @@ export const FilterByEditPermission: Story = {
       delete: [],
       create: [],
       move: [],
-      rename: [],
     },
     docs: {
       description: {
@@ -331,7 +327,6 @@ export const FilterByMovePermission: Story = {
       delete: [],
       create: [],
       move: ['workspace-2', 'workspace-3'],
-      rename: [],
     },
     docs: {
       description: {
@@ -381,7 +376,6 @@ export const AllPermissionsDenied: Story = {
       delete: [],
       create: [],
       move: [],
-      rename: [],
     },
     docs: {
       description: {
@@ -420,7 +414,6 @@ export const SearchWithPermissions: Story = {
       delete: [],
       create: [],
       move: [],
-      rename: [],
     },
     docs: {
       description: {

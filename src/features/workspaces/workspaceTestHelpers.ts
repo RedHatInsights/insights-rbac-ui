@@ -2,7 +2,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import type { WorkspaceWithPermissions } from '../../data/queries/workspaces';
 
 // Default permissions for mock workspaces (all granted for most stories)
-const ALL_GRANTED = { view: true, edit: true, delete: true, create: true, move: true, rename: true };
+const ALL_GRANTED = { view: true, edit: true, delete: true, create: true, move: true };
 
 // Shared mock data for workspace tests
 export const mockWorkspaces: WorkspaceWithPermissions[] = [
@@ -14,7 +14,7 @@ export const mockWorkspaces: WorkspaceWithPermissions[] = [
     type: 'root',
     created: '2024-01-01T00:00:00Z',
     modified: '2024-01-01T00:00:00Z',
-    permissions: { view: false, edit: false, delete: false, create: false, move: false, rename: false },
+    permissions: { view: false, edit: false, delete: false, create: false, move: false },
   },
   {
     id: '1',

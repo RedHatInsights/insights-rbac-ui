@@ -23,7 +23,7 @@ export const useSelfAccessCheck = ({ relation, resources }: UseSelfAccessCheckOp
   const mockRef = useRef(mock);
   mockRef.current = mock;
 
-  // Generic lookup: supports all 6 workspace relations (view, edit, delete, create, move, rename)
+  // Generic lookup: supports all 5 workspace relations (view, edit, delete, create, move)
   const allowedIds = mockRef.current.workspacePermissions[relation as keyof typeof mockRef.current.workspacePermissions] ?? [];
 
   const data: AccessCheckResult[] = resources.map((resource) => ({
