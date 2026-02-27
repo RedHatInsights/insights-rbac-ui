@@ -126,7 +126,7 @@ test.describe('Workspace List', () => {
 
       // Root Workspace name is plain text, not a link (view permission denied)
       const rootLink = rootRow.getByRole('link', { name: /Root Workspace/i });
-      await expect(rootLink).not.toBeVisible();
+      await expect(rootLink).toHaveCount(0);
     });
 
     test('Root Workspace row actions are all disabled [Admin]', async ({ page }) => {

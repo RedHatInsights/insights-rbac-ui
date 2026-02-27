@@ -4,6 +4,16 @@ import { type QueryOptions } from '../../../data/queries/types';
 import { useWorkspacePermissions } from './useWorkspacePermissions';
 
 /**
+ * Three-phase loading status for workspace data + Kessel permissions.
+ *
+ * - `'loading'`  — workspace list query is still in-flight (no rows to render)
+ * - `'settling'` — workspaces loaded, Kessel permissions still resolving
+ *                   (table can render; actions default to deny)
+ * - `'ready'`    — everything resolved, actions reflect real grants
+ */
+export type WorkspacesStatus = 'loading' | 'settling' | 'ready';
+
+/**
  * Composite hook that fetches workspaces and resolves all Kessel permissions
  * (view, edit, delete, create, move) per workspace.
  *
@@ -12,16 +22,17 @@ import { useWorkspacePermissions } from './useWorkspacePermissions';
  *
  * Combines:
  * - `useWorkspacesQuery` (React Query data fetch)
- * - `useWorkspacePermissions` (Kessel access checks for 5 relations)
+ * - `useWorkspacePermissions` (single bulk Kessel access check for 5 relations)
  *
  * @param params - Workspace list query parameters
  * @param options - Query options (enabled, queryClient)
  *
  * @example
  * ```tsx
- * const { workspaces, canEditAny, canCreateAny, isLoading } = useWorkspacesWithPermissions();
+ * const { workspaces, canEditAny, canCreateAny, status } = useWorkspacesWithPermissions();
  *
- * // Each workspace has permissions baked in:
+ * if (status === 'loading') return <Skeleton />;
+ * // status is 'settling' or 'ready' — rows are available
  * workspaces.forEach(ws => {
  *   console.log(ws.name, ws.permissions.edit, ws.permissions.create);
  * });
@@ -50,6 +61,8 @@ export function useWorkspacesWithPermissions(params: WorkspacesListParams = {}, 
     [workspaces, permissionsFor],
   );
 
+  const status: WorkspacesStatus = workspacesQuery.isLoading ? 'loading' : permissionsLoading ? 'settling' : 'ready';
+
   return {
     ...workspacesQuery,
     /** Workspaces enriched with per-resource Kessel permissions */
@@ -62,7 +75,7 @@ export function useWorkspacesWithPermissions(params: WorkspacesListParams = {}, 
     /** Aggregate flags */
     canEditAny,
     canCreateAny,
-    /** Combined loading state (data + permissions) */
-    isLoading: workspacesQuery.isLoading || permissionsLoading,
+    /** Three-phase loading status: 'loading' → 'settling' → 'ready' */
+    status,
   };
 }

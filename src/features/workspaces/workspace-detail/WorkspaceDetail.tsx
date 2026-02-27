@@ -80,7 +80,7 @@ export const WorkspaceDetail = () => {
   const assetsRef = React.createRef<HTMLElement>();
 
   // Single composite hook: workspaces enriched with per-workspace Kessel permissions
-  const { workspaces, isLoading: isWorkspacesLoading } = useWorkspacesWithPermissions();
+  const { workspaces, status } = useWorkspacesWithPermissions();
 
   // Find the current workspace from the enriched list
   const selectedWorkspace = useMemo<WorkspaceWithPermissions | undefined>(
@@ -88,7 +88,7 @@ export const WorkspaceDetail = () => {
     [workspaces, workspaceId],
   );
 
-  const isLoading = isWorkspacesLoading;
+  const isLoading = status === 'loading';
 
   // Role bindings queries — fetch all bindings up front, paginate/sort/filter client-side.
   // The role bindings API uses cursor-based pagination (no offset), so true server-side
@@ -207,9 +207,11 @@ export const WorkspaceDetail = () => {
 
   const currentWorkspace = selectedWorkspace ? { id: selectedWorkspace.id ?? '', name: selectedWorkspace.name ?? '' } : undefined;
 
-  // Kessel view-permission guard — deny if workspace loaded but user lacks view
+  // Kessel view-permission guard — deny only once permissions are fully resolved.
+  // During 'settling', permissions default to all-false; redirecting then would be
+  // a false positive for users who actually have view access.
   const currentPermissions = selectedWorkspace?.permissions ?? EMPTY_PERMISSIONS;
-  if (!isLoading && selectedWorkspace && !currentPermissions.view) {
+  if (status === 'ready' && selectedWorkspace && !currentPermissions.view) {
     return <UnauthorizedAccess />;
   }
 

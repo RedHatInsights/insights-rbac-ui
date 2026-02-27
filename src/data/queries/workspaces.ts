@@ -49,7 +49,7 @@ export function useWorkspacesQuery(params: WorkspacesListParams = {}, options?: 
       queryKey: workspacesKeys.list(params),
       queryFn: async () => {
         const response = await workspacesApi.listWorkspaces({
-          limit: params.limit ?? 1000,
+          limit: Math.min(params.limit ?? 1000, 1000),
           offset: params.offset ?? 0,
           type: params.type ?? 'all',
           name: params.name,
