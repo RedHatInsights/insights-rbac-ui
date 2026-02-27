@@ -83,15 +83,15 @@ export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> =
   const intl = useIntl();
 
   // Fetch workspaces with permissions using the composite hook
-  const { workspaces, isFetching, isLoading, isError, refetch } = useWorkspacesWithPermissions({ limit: 10000 });
+  const { workspaces, isFetching, status, isError, refetch } = useWorkspacesWithPermissions({ limit: 10000 });
 
   // Build a set of workspace IDs that lack the required permission (for disabling).
-  // Skip while permissions are still loading to avoid a transient "everything disabled"
-  // flash (permissionsFor returns all-false until Kessel checks resolve).
+  // Skip until status is 'ready' to avoid a transient "everything disabled" flash
+  // (permissions default to all-false during 'settling').
   const disabledIds = React.useMemo<Set<string>>(() => {
-    if (!requiredPermission || isLoading) return new Set();
+    if (!requiredPermission || status !== 'ready') return new Set();
     return new Set(workspaces.filter((ws: WorkspaceWithPermissions) => !ws.permissions[requiredPermission]).map((ws) => ws.id));
-  }, [workspaces, requiredPermission, isLoading]);
+  }, [workspaces, requiredPermission, status]);
 
   // Tooltip message shown on hover over disabled workspace tree items
   const disabledTooltip = React.useMemo(() => {

@@ -28,7 +28,7 @@ export const WorkspaceList = () => {
   const addNotification = useAddNotification();
 
   // Composite hook: workspaces + Kessel permissions (view, edit, delete, create, move)
-  const { workspaces, hasPermission, canCreateIn: _canCreateIn, canEditAny, canCreateAny, isLoading, isError } = useWorkspacesWithPermissions();
+  const { workspaces, hasPermission, canCreateIn: _canCreateIn, canEditAny, canCreateAny, status, isError } = useWorkspacesWithPermissions();
   const error: string | null = isError ? 'Failed to fetch workspaces' : null;
 
   // Mutations
@@ -113,7 +113,7 @@ export const WorkspaceList = () => {
   return (
     <WorkspaceListTable
       workspaces={workspaces}
-      isLoading={isLoading}
+      isLoading={status === 'loading'}
       error={error}
       onDeleteWorkspaces={handleDeleteWorkspaces}
       onMoveWorkspace={handleMoveWorkspace}

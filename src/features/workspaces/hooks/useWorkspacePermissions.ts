@@ -9,16 +9,11 @@ type WorkspaceResource = {
 };
 type NonEmptyResources = [WorkspaceResource, ...WorkspaceResource[]];
 
-/**
- * Reporter configuration for Kessel access checks.
- * The reporter identifies the source system for the resource.
- */
 const REPORTER = { type: 'rbac' } as const;
 
 /**
- * Dummy resource used when there are no workspaces to check.
- * This allows us to always call useSelfAccessCheck unconditionally,
- * maintaining consistent hook order (Rules of Hooks compliance).
+ * Dummy resource for the no-workspaces case. Keeps hook calls unconditional
+ * (Rules of Hooks compliance); results are ignored when hasRealResources is false.
  */
 const NOOP_RESOURCE: WorkspaceResource = { id: '__noop__', type: 'workspace', reporter: REPORTER };
 const NOOP_RESOURCES: NonEmptyResources = [NOOP_RESOURCE];
@@ -97,8 +92,9 @@ function buildAllowedSet(checks: unknown, hasRealResources: boolean): Set<string
  * Hook to check workspace permissions using Kessel access checks.
  *
  * Checks all 5 core workspace relations (view, edit, delete, create, move)
- * for all workspaces in a single hook. Internally finds the root workspace to
- * determine top-level create permission.
+ * via 5 parallel bulk SDK calls (one per relation, Overload 2). Each call
+ * stays within the /checkselfbulk 1000-item limit. Internally finds the
+ * root workspace to determine top-level create permission.
  *
  * @param workspaces - Array of workspace objects (needs id and type)
  * @returns Permission check functions and flags
@@ -125,11 +121,10 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
     return { workspaceIds: ids, rootId: root };
   }, [workspaces]);
 
-  // Derive hasRealResources directly from workspaceIds
   const hasRealResources = workspaceIds.length > 0;
 
-  // Build resources for bulk checks - explicit tuple construction for type safety
-  // Uses NOOP_RESOURCES when empty to maintain consistent hook call order (Rules of Hooks)
+  // Build resources for bulk checks — explicit tuple for type safety.
+  // Uses NOOP_RESOURCES when empty to maintain consistent hook call order.
   const resources = useMemo<NonEmptyResources>(() => {
     if (!hasRealResources) return NOOP_RESOURCES;
     const [first, ...rest] = workspaceIds;
@@ -137,8 +132,9 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
     return [toResource(first), ...rest.map(toResource)];
   }, [workspaceIds, hasRealResources]);
 
-  // Always call useSelfAccessCheck unconditionally for all 5 relations (Rules of Hooks compliance)
-  // Results are ignored when hasRealResources is false
+  // 5 parallel calls (Overload 2: one relation per call, all workspaces).
+  // The /checkselfbulk endpoint caps at 1000 items, so consolidating into a
+  // single Overload 3 call (N x 5 relations) is not viable at scale.
   const { data: viewChecks, loading: viewLoading } = useSelfAccessCheck({ relation: 'view', resources });
   const { data: editChecks, loading: editLoading } = useSelfAccessCheck({ relation: 'edit', resources });
   const { data: deleteChecks, loading: deleteLoading } = useSelfAccessCheck({ relation: 'delete', resources });
