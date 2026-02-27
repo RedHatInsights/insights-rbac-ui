@@ -1,3 +1,19 @@
+## [2.12.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.12.1...v2.12.2) (2026-02-27)
+
+
+### Bug Fixes
+
+* address CodeRabbit review feedback ([6c81602](https://github.com/RedHatInsights/insights-rbac-ui/commit/6c81602a47129f6975ba3fa7090eba9359129c3b))
+* address remaining CodeRabbit review findings ([ad74c06](https://github.com/RedHatInsights/insights-rbac-ui/commit/ad74c06477f99b136e5dea44be502cbbc13d7469))
+* enforce Kessel permission guards across workspace surfaces ([38694bf](https://github.com/RedHatInsights/insights-rbac-ui/commit/38694bf5711bdace04c8cda68ed5fe0b84c907fe))
+* remove non-existent `rename` Kessel relation, use `edit` ([8d83cb7](https://github.com/RedHatInsights/insights-rbac-ui/commit/8d83cb70aef0d78f119039f8a642c5be4ece8ba5))
+* **stories:** expand tree before asserting child workspace states ([9de84b0](https://github.com/RedHatInsights/insights-rbac-ui/commit/9de84b0293df03dbda2ca30e951d899f879b9803))
+
+
+### Performance Improvements
+
+* decouple permission loading from workspace data rendering ([71564a3](https://github.com/RedHatInsights/insights-rbac-ui/commit/71564a38e33a7855e0b6717a5c2b2a39d57954df))
+
 ## [2.12.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.12.0...v2.12.1) (2026-02-26)
 
 
