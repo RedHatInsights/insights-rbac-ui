@@ -3,6 +3,7 @@
  */
 
 export { MyUserAccessPage } from './MyUserAccessPage';
+export { NavigationSidebar } from './NavigationSidebar';
 export { RolesPage } from './RolesPage';
 export { UserGroupsPage } from './UserGroupsPage';
 export { UsersPage } from './UsersPage';
