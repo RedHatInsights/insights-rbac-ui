@@ -461,6 +461,41 @@ For testing specific scenarios, see these additional stories:
   },
 };
 
+/** User Access Administrator (not org admin) with rbac:group:write sees the Create user group button and can manage groups. */
+export const UserAccessAdministratorCanCreateGroup: StoryObj<typeof meta> = {
+  tags: ['perm:user-access-admin'],
+  parameters: {
+    orgAdmin: false,
+    userAccessAdministrator: true,
+    permissions: ['rbac:group:read', 'rbac:group:write'],
+    userIdentity: standardUser,
+    featureFlags: { 'platform.rbac.groups': true },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', () =>
+          HttpResponse.json({
+            data: mockGroups,
+            meta: { count: mockGroups.length, limit: 20, offset: 0 },
+          }),
+        ),
+      ],
+    },
+    docs: {
+      description: {
+        story:
+          'Verifies that a User Access Administrator (without org admin) with rbac:group:write sees the Create user group button and can manage groups.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+    const createButton = await canvas.findByRole('button', { name: /create user group/i });
+    await expect(createButton).toBeInTheDocument();
+    await expect(createButton).toHaveAttribute('data-ouia-component-id', 'add-usergroup-button');
+  },
+};
+
 // Loading state from MSW
 export const LoadingState: StoryObj<typeof meta> = {
   parameters: {

@@ -44,14 +44,14 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
 
   // Note: focusedGroup is now properly typed as Group | undefined from the hook
 
-  // Permission context
-  const { orgAdmin: contextOrgAdmin } = useContext(PermissionsContext);
+  // Permission context — org admin or user access administrator can manage groups with rbac:group:write
+  const { orgAdmin: contextOrgAdmin, userAccessAdministrator: contextUserAccessAdministrator } = useContext(PermissionsContext);
 
   // Check write permission for group actions
   const { hasAccess: canWriteGroups } = useAccessPermissions(['rbac:group:write']);
 
-  // Combined permission check - user must be org admin AND have granular write permission
-  const orgAdmin = (contextOrgAdmin ?? false) && (canWriteGroups ?? false);
+  // Combined permission check — either role with granular write can create/edit/delete groups
+  const canManageGroups = ((contextOrgAdmin ?? false) || (contextUserAccessAdministrator ?? false)) && (canWriteGroups ?? false);
 
   // Extract perPage for outlet context
   const { perPage } = tableState;
@@ -170,8 +170,8 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
               isLoading={isLoading}
               focusedGroup={focusedGroup}
               defaultPerPage={defaultPerPage}
-              enableActions={orgAdmin}
-              orgAdmin={orgAdmin}
+              enableActions={canManageGroups}
+              orgAdmin={canManageGroups}
               ouiaId={ouiaId}
               // Table state from useTableState - managed by container
               tableState={tableState}
