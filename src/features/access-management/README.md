@@ -35,5 +35,5 @@ Top-level container (`UsersAndUserGroups.tsx`) — owns the Users / User Groups 
 
 - **Do not merge with `src/features/users/` or `src/features/groups/`** — both API generations must coexist until v1 is retired.
 - Permission model follows v2 granular access, not `orgAdmin`.
-- Both Organization Administrator and User Access Administrator (with `rbac:group:write`) can create and manage user groups on the Groups tab.
+- Create/edit/delete user groups on the Groups tab is gated by explicit permission `rbac:group:write` only (no orgAdmin/userAccessAdministrator flags).
 - Navigation between tabs uses `replace: true` to avoid polluting the browser history stack.

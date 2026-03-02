@@ -1,9 +1,8 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useEffect, useState } from 'react';
 import { Outlet, useSearchParams } from 'react-router-dom';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { useAccessPermissions } from '../../../../hooks/useAccessPermissions';
-import PermissionsContext from '../../../../utilities/permissionsContext';
 
 import { useDeleteGroupMutation } from '../../../../data/queries/groups';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
@@ -44,14 +43,9 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
 
   // Note: focusedGroup is now properly typed as Group | undefined from the hook
 
-  // Permission context — org admin or user access administrator can manage groups with rbac:group:write
-  const { orgAdmin: contextOrgAdmin, userAccessAdministrator: contextUserAccessAdministrator } = useContext(PermissionsContext);
-
-  // Check write permission for group actions
+  // Explicit permission check: only rbac:group:write gates create/edit/delete (no orgAdmin/userAccessAdministrator flags)
   const { hasAccess: canWriteGroups } = useAccessPermissions(['rbac:group:write']);
-
-  // Combined permission check — either role with granular write can create/edit/delete groups
-  const canManageGroups = ((contextOrgAdmin ?? false) || (contextUserAccessAdministrator ?? false)) && (canWriteGroups ?? false);
+  const canManageGroups = canWriteGroups ?? false;
 
   // Extract perPage for outlet context
   const { perPage } = tableState;
