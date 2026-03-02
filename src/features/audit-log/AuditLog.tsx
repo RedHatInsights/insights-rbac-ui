@@ -1,20 +1,19 @@
 import React, { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
-import { ErrorState, PageHeader, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { PageHeader } from '@patternfly/react-component-groups';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
-import { DataView, DataViewState, DataViewTable, DataViewTh, DataViewToolbar, useDataViewPagination } from '@patternfly/react-data-view';
-import type { DataViewTr } from '@patternfly/react-data-view';
-import { Pagination } from '@patternfly/react-core';
+import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
+import { TableView, useTableState } from '../../components/table-view';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../components/table-view/components/TableViewEmptyState';
+import type { CellRendererMap, ColumnConfigMap } from '../../components/table-view/types';
+import { type GetAuditlogsParams, useAuditLogsQuery } from '../../data/queries/audit';
+import type { AuditLog as ApiAuditLog } from '../../data/queries/audit';
+import { getDateFormat } from '../../helpers/stringUtilities';
 import messages from '../../Messages';
 
-// ----------------------------------------------------------------------------
-// Types (data shape provided by client)
-// ----------------------------------------------------------------------------
+export type { AuditLogEntry } from './AuditLogTable';
 
-export interface AuditLogEntry {
+interface AuditLogRow {
   id: string;
   date: string;
   requester: string;
@@ -23,145 +22,91 @@ export interface AuditLogEntry {
   action: string;
 }
 
-// ----------------------------------------------------------------------------
-// Empty / Error table body components
-// ----------------------------------------------------------------------------
+const columns = ['date', 'requester', 'action', 'resource', 'description'] as const;
 
-const EmptyAuditLogTable: React.FC<{ titleText: string; description?: string }> = ({ titleText, description }) => (
-  <tbody>
-    <tr>
-      <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
-        <EmptyState headingLevel="h4" icon={SearchIcon} titleText={titleText}>
-          {description && <EmptyStateBody>{description}</EmptyStateBody>}
-        </EmptyState>
-      </td>
-    </tr>
-  </tbody>
-);
-
-const ErrorStateTable: React.FC<{ errorTitle: string; errorDescription?: string | null }> = ({ errorTitle, errorDescription }) => (
-  <tbody>
-    <tr>
-      <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
-        <ErrorState titleText={errorTitle} bodyText={errorDescription ?? undefined} />
-      </td>
-    </tr>
-  </tbody>
-);
-
-// ----------------------------------------------------------------------------
-// Main component
-// ----------------------------------------------------------------------------
-
-export interface AuditLogProps {
-  /** Audit log entries (e.g. current page from client) */
-  entries?: AuditLogEntry[];
-  /** Total count for pagination (from client) */
-  totalCount?: number;
-  /** Loading state from client */
-  isLoading?: boolean;
-  /** Error from client; when set, error state is shown */
-  error?: string | null;
+function mapApiEntry(entry: ApiAuditLog, index: number): AuditLogRow {
+  return {
+    id: String(index),
+    date: entry.created ?? '',
+    requester: entry.principal_username ?? '',
+    description: entry.description ?? '',
+    resource: entry.resource_type ?? '',
+    action: entry.action ?? '',
+  };
 }
 
-const AuditLog: React.FC<AuditLogProps> = ({ entries = [], totalCount = 0, isLoading = false, error = null }) => {
+const AuditLog: React.FC = () => {
   const intl = useIntl();
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  const pagination = useDataViewPagination({
-    perPage: 20,
-    searchParams,
-    setSearchParams,
+  const tableState = useTableState<typeof columns, AuditLogRow>({
+    columns,
+    getRowId: (row) => row.id,
+    initialPerPage: 20,
+    perPageOptions: [10, 20, 50],
+    syncWithUrl: true,
   });
-  const { page, perPage, onPerPageSelect, onSetPage } = pagination;
 
-  const columns: DataViewTh[] = useMemo(
-    () => [
-      { cell: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date' }) },
-      { cell: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }) },
-      { cell: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }) },
-      { cell: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }) },
-      { cell: intl.formatMessage({ id: 'auditLogColumnDescription', defaultMessage: 'Description' }) },
-    ],
+  const queryParams: GetAuditlogsParams = useMemo(
+    () => ({
+      limit: tableState.perPage,
+      offset: (tableState.page - 1) * tableState.perPage,
+      orderBy: 'id' as const,
+    }),
+    [tableState.perPage, tableState.page],
+  );
+
+  const { data: auditData, isLoading, isError, error } = useAuditLogsQuery(queryParams);
+
+  const entries = useMemo(() => (auditData?.data ?? []).map(mapApiEntry), [auditData]);
+  const totalCount = auditData?.meta?.count ?? 0;
+  const errorMessage = isError ? (error instanceof Error ? error.message : 'Failed to load audit log') : null;
+
+  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+    () => ({
+      date: { label: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date' }) },
+      requester: { label: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }) },
+      action: { label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }) },
+      resource: { label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }) },
+      description: { label: intl.formatMessage({ id: 'auditLogColumnDescription', defaultMessage: 'Description' }) },
+    }),
     [intl],
   );
 
-  const rows: DataViewTr[] = useMemo(
-    () =>
-      entries.map((entry) => ({
-        id: entry.id,
-        row: [entry.date, entry.requester, entry.action, entry.resource, entry.description],
-      })),
-    [entries],
+  const cellRenderers: CellRendererMap<typeof columns, AuditLogRow> = useMemo(
+    () => ({
+      date: (row) => (row.date ? <DateFormat date={row.date} type={getDateFormat(row.date)} /> : '—'),
+      requester: (row) => row.requester || '—',
+      action: (row) => row.action || '—',
+      resource: (row) => row.resource || '—',
+      description: (row) => row.description || '—',
+    }),
+    [],
   );
 
-  const activeState: DataViewState | undefined = isLoading
-    ? DataViewState.loading
-    : error
-      ? DataViewState.error
-      : entries.length === 0
-        ? DataViewState.empty
-        : undefined;
-
-  const perPageOptions = [
-    { title: '10', value: 10 },
-    { title: '20', value: 20 },
-    { title: '50', value: 50 },
-  ];
+  const emptyStateNoData = useMemo(() => <DefaultEmptyStateNoData title={intl.formatMessage(messages.auditLogNoResults)} />, [intl]);
+  const emptyStateNoResults = useMemo(
+    () => <DefaultEmptyStateNoResults title={intl.formatMessage(messages.auditLogNoResults)} onClearFilters={tableState.clearAllFilters} />,
+    [intl, tableState.clearAllFilters],
+  );
 
   return (
     <>
       <PageHeader title={intl.formatMessage(messages.auditLog)} subtitle={intl.formatMessage(messages.auditLogSubtitle)} />
       <PageSection hasBodyWrapper={false}>
-        <DataView activeState={activeState}>
-          <DataViewToolbar
-            pagination={
-              <Pagination
-                perPageOptions={perPageOptions.map((o) => ({ title: o.title, value: o.value }))}
-                itemCount={totalCount}
-                page={page}
-                perPage={perPage}
-                onPerPageSelect={(_e, newPerPage) => onPerPageSelect(undefined, newPerPage)}
-                onSetPage={(_e, newPage) => onSetPage(undefined, newPage)}
-              />
-            }
-          />
-          <DataViewTable
-            aria-label={intl.formatMessage({ id: 'auditLogTableAriaLabel', defaultMessage: 'Audit log entries' })}
-            ouiaId="audit-log-table"
-            columns={columns}
-            rows={error ? [] : rows}
-            headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
-            bodyStates={{
-              loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-              empty: (
-                <EmptyAuditLogTable
-                  titleText={intl.formatMessage(messages.auditLogNoResults)}
-                  description={intl.formatMessage(messages.auditLogNoResultsDescription)}
-                />
-              ),
-              error: (
-                <ErrorStateTable
-                  errorTitle={intl.formatMessage({ id: 'auditLogErrorTitle', defaultMessage: 'Failed to load audit log' })}
-                  errorDescription={error}
-                />
-              ),
-            }}
-          />
-          <DataViewToolbar
-            pagination={
-              <Pagination
-                isCompact
-                perPageOptions={perPageOptions.map((o) => ({ title: o.title, value: o.value }))}
-                itemCount={totalCount}
-                page={page}
-                perPage={perPage}
-                onPerPageSelect={(_e, newPerPage) => onPerPageSelect(undefined, newPerPage)}
-                onSetPage={(_e, newPage) => onSetPage(undefined, newPage)}
-              />
-            }
-          />
-        </DataView>
+        <TableView<typeof columns, AuditLogRow>
+          columns={columns}
+          columnConfig={columnConfig}
+          data={isLoading ? undefined : errorMessage ? [] : entries}
+          totalCount={totalCount}
+          getRowId={(row) => row.id}
+          cellRenderers={cellRenderers}
+          error={errorMessage ? new Error(errorMessage) : null}
+          emptyStateNoData={emptyStateNoData}
+          emptyStateNoResults={emptyStateNoResults}
+          ariaLabel={intl.formatMessage({ id: 'auditLogTableAriaLabel', defaultMessage: 'Audit log entries' })}
+          ouiaId="audit-log-table"
+          {...tableState}
+        />
       </PageSection>
     </>
   );

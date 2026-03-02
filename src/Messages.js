@@ -1113,17 +1113,12 @@ export default defineMessages({
     id: 'auditLogSubtitle',
     description: 'Audit Log page subtitle',
     defaultMessage:
-      'The user access audit log tracks admin actions, such as adding/removing users from groups, adding/removing roles from groups, create/editing/deleting roles, or creating/editing/deleting groups. Logs can be filtered by date range, requester, resource or action.',
+      'The user access audit log tracks admin actions, such as adding/removing users from groups, adding/removing roles from groups, create/editing/deleting roles, or creating/editing/deleting groups. Logs can be filtered by requester, resource or action.',
   },
   auditLogNoResults: {
     id: 'auditLogNoResults',
     description: 'Audit log empty state when filters match no results',
     defaultMessage: 'No audit log entries found',
-  },
-  auditLogNoResultsDescription: {
-    id: 'auditLogNoResultsDescription',
-    description: 'Audit log empty state description',
-    defaultMessage: 'No entries match the filter criteria. Remove or clear filters to show results.',
   },
   overviewHeroTitle: {
     id: 'overviewHeroTitle',
