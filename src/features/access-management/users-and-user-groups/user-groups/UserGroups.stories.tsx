@@ -80,13 +80,11 @@ const withRouter = () => {
 
 const meta: Meta<typeof UserGroups> = {
   component: UserGroups,
-  tags: ['ff:platform.rbac.groups', 'env:prod', 'perm:org-admin'],
+  tags: ['ff:platform.rbac.groups', 'env:prod', 'perm:group-write'],
   decorators: [withRouter],
   parameters: {
-    // Groups routes require rbac:group:* permissions
+    // Create/edit/delete gated by rbac:group:write only
     permissions: ['rbac:group:read', 'rbac:group:write'],
-    // User is org admin with write permissions
-    orgAdmin: true,
     userIdentity: standardUser,
     featureFlags: { 'platform.rbac.groups': true },
     docs: {
@@ -461,12 +459,10 @@ For testing specific scenarios, see these additional stories:
   },
 };
 
-/** User Access Administrator (not org admin) with rbac:group:write sees the Create user group button and can manage groups. */
-export const UserAccessAdministratorCanCreateGroup: StoryObj<typeof meta> = {
-  tags: ['perm:user-access-admin'],
+/** User with explicit rbac:group:write sees the Create user group button (no orgAdmin/userAccessAdministrator flags). */
+export const WithGroupWritePermissionSeesCreateButton: StoryObj<typeof meta> = {
+  tags: ['perm:group-write'],
   parameters: {
-    orgAdmin: false,
-    userAccessAdministrator: true,
     permissions: ['rbac:group:read', 'rbac:group:write'],
     userIdentity: standardUser,
     featureFlags: { 'platform.rbac.groups': true },
@@ -483,7 +479,7 @@ export const UserAccessAdministratorCanCreateGroup: StoryObj<typeof meta> = {
     docs: {
       description: {
         story:
-          'Verifies that a User Access Administrator (without org admin) with rbac:group:write sees the Create user group button and can manage groups.',
+          'Verifies that a user with explicit rbac:group:write sees the Create user group button. Create/edit/delete are gated by this permission only.',
       },
     },
   },
@@ -645,9 +641,7 @@ export const GroupFocusInteraction: StoryObj<typeof meta> = {
 // Edit group navigation
 export const EditGroupNavigation: StoryObj<typeof meta> = {
   parameters: {
-    // Explicit permissions to ensure kebab actions are enabled
     permissions: ['rbac:group:read', 'rbac:group:write'],
-    orgAdmin: true,
     msw: {
       handlers: [
         http.get('/api/rbac/v1/groups/', () => {
@@ -777,11 +771,9 @@ export const EditGroupNavigation: StoryObj<typeof meta> = {
 
 // Delete modal integration
 export const DeleteModalIntegration: StoryObj<typeof meta> = {
-  tags: ['env:stage', 'perm:org-admin'],
+  tags: ['env:stage', 'perm:group-write'],
   parameters: {
-    // Explicit permissions and settings to ensure actions are enabled
     permissions: ['rbac:group:read', 'rbac:group:write'],
-    orgAdmin: true,
     msw: {
       handlers: [
         // Mock get groups API with spy
