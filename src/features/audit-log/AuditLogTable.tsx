@@ -22,7 +22,7 @@ export interface AuditLogEntry {
 // Column definition
 // ----------------------------------------------------------------------------
 
-const columns = ['date', 'requester', 'action', 'resource', 'description'] as const;
+const columns = ['date', 'requester', 'description', 'resource', 'action'] as const;
 
 // ----------------------------------------------------------------------------
 // Component props

@@ -834,6 +834,64 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       return HttpResponse.json(state.workspaces[workspaceIndex]);
     }),
 
+    // Audit log endpoint
+    http.get('*/api/rbac/v1/auditlogs/', ({ request }) => {
+      const url = new URL(request.url);
+      const limit = parseInt(url.searchParams.get('limit') || '20');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
+
+      const mockAuditLogs = [
+        {
+          created: '2024-02-20T14:32:00Z',
+          principal_username: 'admin@example.com',
+          description: 'Added user jdoe to group Platform Users',
+          resource_type: 'group',
+          action: 'add',
+        },
+        {
+          created: '2024-02-20T13:15:00Z',
+          principal_username: 'org.admin@example.com',
+          description: 'Removed role Cost Management Viewer from group Finance',
+          resource_type: 'role',
+          action: 'remove',
+        },
+        {
+          created: '2024-02-20T11:00:00Z',
+          principal_username: 'admin@example.com',
+          description: 'Created role Custom Auditor',
+          resource_type: 'role',
+          action: 'create',
+        },
+        {
+          created: '2024-02-19T16:45:00Z',
+          principal_username: 'admin@example.com',
+          description: 'Deleted group Legacy Access',
+          resource_type: 'group',
+          action: 'delete',
+        },
+        {
+          created: '2024-02-19T10:20:00Z',
+          principal_username: 'org.admin@example.com',
+          description: 'Edited role Platform Administrator permissions',
+          resource_type: 'role',
+          action: 'edit',
+        },
+      ];
+
+      const paginated = mockAuditLogs.slice(offset, offset + limit);
+
+      return HttpResponse.json({
+        data: paginated,
+        meta: { count: mockAuditLogs.length, limit, offset },
+        links: {
+          first: `/api/rbac/v1/auditlogs/?limit=${limit}&offset=0`,
+          next: null,
+          previous: null,
+          last: `/api/rbac/v1/auditlogs/?limit=${limit}&offset=0`,
+        },
+      });
+    }),
+
     // Workspace role bindings (M3+ feature)
     // This endpoint returns role bindings for a specific workspace
     http.get('*/api/rbac/v2/role-bindings/by-subject', ({ request }) => {

@@ -95,7 +95,7 @@ const meta: Meta<typeof AuditLogTable> = {
 **AuditLogTable** is a paginated table of audit log entries for user access actions.
 
 ## Features
-- Columns: Date, Requester, Action, Resource, Description
+- Columns: Date, Requester, Description, Resource, Action
 - Pagination with configurable page size (10, 20, 50)
 - URL-synced table state (page, perPage)
 - Loading skeleton, empty state, and error state
@@ -186,9 +186,9 @@ export const Pagination: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for first page: one of the first-page-only entries (id 6 = "Audit action 6")
+    // Wait for first page: one of the first-page-only entries (id 6 = "Audit action 6: …")
     await waitFor(() => {
-      expect(canvas.getByText('Audit action 6')).toBeInTheDocument();
+      expect(canvas.getByText(/Audit action 6:/)).toBeInTheDocument();
     });
 
     // Pagination should show total (e.g. "1 - 20 of 25" or "25" in total-items)
@@ -201,11 +201,11 @@ export const Pagination: Story = {
     expect(nextButtons.length).toBeGreaterThan(0);
     await userEvent.click(nextButtons[0]);
 
-    // Page 2 should show entries 21–25 (first on page 2 is "Audit action 21")
+    // Page 2 should show entries 21–25 (first on page 2 is "Audit action 21: …")
     await waitFor(() => {
-      expect(canvas.getByText('Audit action 21')).toBeInTheDocument();
+      expect(canvas.getByText(/Audit action 21:/)).toBeInTheDocument();
     });
     // First-page-only entry should not be visible
-    expect(canvas.queryByText('Audit action 6')).not.toBeInTheDocument();
+    expect(canvas.queryByText(/Audit action 6:/)).not.toBeInTheDocument();
   },
 };

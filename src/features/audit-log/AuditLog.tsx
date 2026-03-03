@@ -22,7 +22,9 @@ interface AuditLogRow {
   action: string;
 }
 
-const columns = ['date', 'requester', 'action', 'resource', 'description'] as const;
+const columns = ['date', 'requester', 'description', 'resource', 'action'] as const;
+
+const capitalize = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 function mapApiEntry(entry: ApiAuditLog, index: number): AuditLogRow {
   return {
@@ -30,8 +32,8 @@ function mapApiEntry(entry: ApiAuditLog, index: number): AuditLogRow {
     date: entry.created ?? '',
     requester: entry.principal_username ?? '',
     description: entry.description ?? '',
-    resource: entry.resource_type ?? '',
-    action: entry.action ?? '',
+    resource: capitalize(entry.resource_type ?? ''),
+    action: capitalize(entry.action ?? ''),
   };
 }
 

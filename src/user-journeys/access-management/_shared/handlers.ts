@@ -397,6 +397,65 @@ export const v1Handlers = [
       meta: { count: 0 },
     });
   }),
+
+  // GET /api/rbac/v1/auditlogs/ - List audit log entries
+  http.get('/api/rbac/v1/auditlogs/', async ({ request }) => {
+    await delay(NETWORK_DELAY);
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+    const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+
+    const mockAuditLogs = [
+      {
+        created: '2024-02-20T14:32:00Z',
+        principal_username: 'adumble',
+        description: 'Added user ginger-spice to group Platform Users',
+        resource_type: 'group',
+        action: 'add',
+      },
+      {
+        created: '2024-02-20T13:15:00Z',
+        principal_username: 'bbunny',
+        description: 'Removed role Cost Management Viewer from group Finance',
+        resource_type: 'role',
+        action: 'remove',
+      },
+      {
+        created: '2024-02-20T11:00:00Z',
+        principal_username: 'adumble',
+        description: 'Created role Custom Auditor',
+        resource_type: 'role',
+        action: 'create',
+      },
+      {
+        created: '2024-02-19T16:45:00Z',
+        principal_username: 'adumble',
+        description: 'Deleted group Legacy Access',
+        resource_type: 'group',
+        action: 'delete',
+      },
+      {
+        created: '2024-02-19T10:20:00Z',
+        principal_username: 'bbunny',
+        description: 'Edited role Platform Administrator permissions',
+        resource_type: 'role',
+        action: 'edit',
+      },
+    ];
+
+    const paginated = mockAuditLogs.slice(offset, offset + limit);
+
+    return HttpResponse.json({
+      data: paginated,
+      meta: { count: mockAuditLogs.length, limit, offset },
+      links: {
+        first: `/api/rbac/v1/auditlogs/?limit=${limit}&offset=0`,
+        next: null,
+        previous: null,
+        last: `/api/rbac/v1/auditlogs/?limit=${limit}&offset=0`,
+      },
+    });
+  }),
 ];
 
 // =============================================================================
