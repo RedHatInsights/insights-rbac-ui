@@ -26,6 +26,22 @@ Quick reference for where to add tests. Search this file before creating new tes
 | `<entity>-detail.spec.ts` | Detail page reads | View content, tabs, navigation to related entities |
 | `<entity>-management.spec.ts` | CRUD mutations | Create, edit, delete with serial lifecycle |
 | `<entity>-<capability>.spec.ts` | Specific features | e.g., membership, invite, system-protected |
+| `navigation-structure.spec.ts` | V2 nav structure | Nav order, limited nav for non-admin, cross-page nav |
+| `organization-management-access.spec.ts` | Org Management access | Org admin access, non-org admin blocked (nav + direct URL) |
+
+---
+
+## V2 Navigation & Organization Management
+
+| Scenario | File | Describe Block | Setup Notes |
+|----------|------|----------------|-------------|
+| Admin sees V2 nav structure and order | `navigation/navigation-structure.spec.ts` | `Admin` | Use NavigationSidebar, gotoOverview |
+| Admin cross-page nav works (Overview → Users and Groups → Roles → Workspaces) | `navigation/navigation-structure.spec.ts` | `Admin` | Use NavigationSidebar |
+| UserViewer does not see Organization Management in nav | `navigation/navigation-structure.spec.ts` | `UserViewer` | gotoMyAccess |
+| ReadOnlyUser does not see Organization Management in nav | `navigation/navigation-structure.spec.ts` | `ReadOnlyUser` | gotoMyAccess |
+| Org admin can access Organization Management page | `navigation/organization-management-access.spec.ts` | `Admin` | Goto /iam/organization-management/organization-wide-access |
+| UserViewer blocked from direct URL to Organization Management | `navigation/organization-management-access.spec.ts` | `UserViewer` | Goto URL, expect unauthorized |
+| ReadOnlyUser blocked from direct URL to Organization Management | `navigation/organization-management-access.spec.ts` | `ReadOnlyUser` | Goto URL, expect unauthorized |
 
 ---
 

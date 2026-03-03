@@ -178,6 +178,18 @@ From `src/utilities/route-definitions.ts`:
 | `/access-management/workspaces` | `inventory:groups:read` |
 | `/access-management/roles` | `rbac:role:read` |
 | `/my-user-access` | (public) |
+| `/organization-management/organization-wide-access` | **requireOrgAdmin** (platform `is_org_admin`, not RBAC) |
+
+---
+
+## Organization Management (org admin)
+
+Organization Management is gated by **org admin** (platform `is_org_admin`), not RBAC permissions. The Chrome nav shows "Organization Management" only when the user is an org admin.
+
+- **V2 Admin** on stage is typically an org admin → use `AUTH_V2_ADMIN` to test access to Organization Management.
+- **UserViewer** and **ReadOnlyUser** are not org admins → they must not see Organization Management in the nav and must see "You do not have access" when opening the URL directly.
+
+E2E tests: `e2e/journeys/v2/navigation/navigation-structure.spec.ts` (nav visibility), `e2e/journeys/v2/navigation/organization-management-access.spec.ts` (page access and direct URL block).
 
 ---
 
