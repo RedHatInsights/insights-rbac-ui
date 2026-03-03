@@ -444,15 +444,18 @@ export const v1Handlers = [
     ];
 
     const paginated = mockAuditLogs.slice(offset, offset + limit);
+    const total = mockAuditLogs.length;
+    const baseUrl = '/api/rbac/v1/auditlogs/';
+    const lastOffset = Math.floor(Math.max(total - 1, 0) / limit) * limit;
 
     return HttpResponse.json({
       data: paginated,
-      meta: { count: mockAuditLogs.length, limit, offset },
+      meta: { count: total, limit, offset },
       links: {
-        first: `/api/rbac/v1/auditlogs/?limit=${limit}&offset=0`,
-        next: null,
-        previous: null,
-        last: `/api/rbac/v1/auditlogs/?limit=${limit}&offset=0`,
+        first: `${baseUrl}?limit=${limit}&offset=0`,
+        next: offset + limit < total ? `${baseUrl}?limit=${limit}&offset=${offset + limit}` : null,
+        previous: offset > 0 ? `${baseUrl}?limit=${limit}&offset=${Math.max(offset - limit, 0)}` : null,
+        last: `${baseUrl}?limit=${limit}&offset=${lastOffset}`,
       },
     });
   }),
