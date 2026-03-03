@@ -1,3 +1,10 @@
+# [2.13.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.12.2...v2.13.0) (2026-03-03)
+
+
+### Features
+
+* **navigation:** e2e navigation structure ([#2171](https://github.com/RedHatInsights/insights-rbac-ui/issues/2171)) ([3b87253](https://github.com/RedHatInsights/insights-rbac-ui/commit/3b872534c1fcc4def51e0b895a71e2fe8c317383))
+
 ## [2.12.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.12.1...v2.12.2) (2026-02-27)
 
 
