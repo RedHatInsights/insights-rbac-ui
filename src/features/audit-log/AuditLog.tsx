@@ -26,9 +26,9 @@ const columns = ['date', 'requester', 'description', 'resource', 'action'] as co
 
 const capitalize = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
-function mapApiEntry(entry: ApiAuditLog, index: number): AuditLogRow {
+function mapApiEntry(entry: ApiAuditLog, index: number, offset: number): AuditLogRow {
   return {
-    id: String(index),
+    id: String(offset + index),
     date: entry.created ?? '',
     requester: entry.principal_username ?? '',
     description: entry.description ?? '',
@@ -59,7 +59,8 @@ const AuditLog: React.FC = () => {
 
   const { data: auditData, isLoading, isError, error } = useAuditLogsQuery(queryParams);
 
-  const entries = useMemo(() => (auditData?.data ?? []).map(mapApiEntry), [auditData]);
+  const offset = queryParams.offset ?? 0;
+  const entries = useMemo(() => (auditData?.data ?? []).map((entry, i) => mapApiEntry(entry, i, offset)), [auditData, offset]);
   const totalCount = auditData?.meta?.count ?? 0;
   const errorMessage = isError ? (error instanceof Error ? error.message : 'Failed to load audit log') : null;
 
