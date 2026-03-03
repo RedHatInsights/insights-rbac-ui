@@ -372,6 +372,12 @@ const accessManagementWorkspaces: PathnameConfig = {
   title: 'Workspaces',
 };
 
+const accessManagementAuditLog: PathnameConfig = {
+  link: () => '/access-management/audit-log',
+  path: '/access-management/audit-log',
+  title: 'Audit Log',
+};
+
 // ===========================================
 // Export with both old key-based access and new direct access
 // ===========================================
@@ -433,6 +439,7 @@ const pathnames = {
   'access-management-add-role': accessManagementAddRole,
   'access-management-edit-role': accessManagementEditRole,
   'access-management-workspaces': accessManagementWorkspaces,
+  'access-management-audit-log': accessManagementAuditLog,
 } as const;
 
 export default pathnames;

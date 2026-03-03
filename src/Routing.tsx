@@ -305,6 +305,12 @@ const getRoutes = ({
           element: newEditRole,
           ...p(pathnames['access-management-edit-role'].link(':roleId')),
         },
+        // Access Management (V2) - Audit Log
+        {
+          path: pathnames['access-management-audit-log'].path,
+          element: AuditLog,
+          ...p(pathnames['access-management-audit-log'].link()),
+        },
       ]
     : [
         // User Access (V1) - Roles
