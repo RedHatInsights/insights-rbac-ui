@@ -227,14 +227,14 @@ spec:
         --project=v1-admin --project=v1-userviewer --project=v1-readonly \
         --project=v2-admin --project=v2-userviewer --project=v2-readonly \
         --workers=1 \
-        --reporter=json \
-        --max-failures=20 > /tmp/playwright-results.json
+        --max-failures=20
       E2E_EXIT=$?
 
       # Parse test results to get failure count
-      if [ -f /tmp/playwright-results.json ]; then
-        FAILED_COUNT=$(cat /tmp/playwright-results.json | grep -o '"status":"failed"' | wc -l || echo 0)
-        TOTAL_COUNT=$(cat /tmp/playwright-results.json | grep -o '"status":"' | wc -l || echo 0)
+      RESULTS_FILE="e2e/test-results/results.json"
+      if [ -f "$RESULTS_FILE" ]; then
+        FAILED_COUNT=$(grep -o '"status":"failed"' "$RESULTS_FILE" | wc -l | tr -d ' ' || echo 0)
+        TOTAL_COUNT=$(grep -o '"status":"' "$RESULTS_FILE" | wc -l | tr -d ' ' || echo 0)
         echo ""
         echo "════════════════════════════════════════════════════════════════"
         echo "E2E Test Results: $FAILED_COUNT failed out of $TOTAL_COUNT tests"
