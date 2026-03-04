@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { usePlatformAuth } from './usePlatformAuth';
+import useUserData from './useUserData';
 
 export interface OrganizationData {
   accountNumber: string;
@@ -7,10 +6,8 @@ export interface OrganizationData {
   organizationName: string;
 }
 
-interface UseOrganizationDataResult {
-  data: OrganizationData | null;
+interface UseOrganizationDataResult extends OrganizationData {
   isLoading: boolean;
-  error: string | null;
 }
 
 /**
@@ -20,48 +17,20 @@ interface UseOrganizationDataResult {
  *
  * @example
  * ```tsx
- * const { data, isLoading, error } = useOrganizationData();
+ * const { organizationName, isLoading } = useOrganizationData();
  *
  * if (isLoading) return <Spinner />;
- * if (error) return <Error message={error} />;
  *
- * return <div>Organization: {data.organizationName}</div>;
+ * return <div>Organization: {organizationName}</div>;
  * ```
  */
 export function useOrganizationData(): UseOrganizationDataResult {
-  const { getUser } = usePlatformAuth();
-  const [data, setData] = useState<OrganizationData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const user = useUserData();
 
-  useEffect(() => {
-    setIsLoading(true);
-    getUser()
-      .then((user) => {
-        const { identity } = user;
-        if (!identity) {
-          console.warn('useOrganizationData: User identity not available');
-          setError('User identity not available');
-          setData(null);
-          return;
-        }
-
-        setData({
-          accountNumber: identity.account_number || '',
-          organizationId: identity.org_id || '',
-          organizationName: identity.organization?.name || '',
-        });
-        setError(null);
-      })
-      .catch((err) => {
-        console.error('useOrganizationData: Failed to fetch user data:', err);
-        setError('Failed to load organization data');
-        setData(null);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [getUser]);
-
-  return { data, isLoading, error };
+  const data: OrganizationData = {
+    accountNumber: user.identity?.account_number || '',
+    organizationId: user.identity?.org_id || '',
+    organizationName: user.identity?.organization?.name || '',
+  };
+  return { ...data, isLoading: user.ready === false };
 }

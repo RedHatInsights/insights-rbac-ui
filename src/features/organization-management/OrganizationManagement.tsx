@@ -6,13 +6,13 @@ import { FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { useOrganizationData } from '../../hooks/useOrganizationData';
 import messages from '../../Messages';
 import { useIntl } from 'react-intl';
-import { BaseGroupAssignmentsTable } from '../workspaces/workspace-detail/components/BaseGroupAssignmentsTable';
 import { useRoleBindingsQuery } from '../../data/queries/workspaces';
 import { mapRoleBindingsToGroups } from '../../helpers/dataUtilities';
+import { BaseGroupAssignmentsTable } from '../workspaces/workspace-detail/components';
 
 export const OrganizationManagement = () => {
   const intl = useIntl();
-  const { data: orgData, error } = useOrganizationData();
+  const { accountNumber, organizationId, organizationName, isLoading } = useOrganizationData();
 
   // Role bindings query — fetch all bindings up front, paginate/sort/filter client-side.
   // The role bindings API uses cursor-based pagination (no offset), so true server-side
@@ -21,13 +21,12 @@ export const OrganizationManagement = () => {
 
   const roleBindingsQuery = useRoleBindingsQuery(
     {
-      resourceId: orgData?.organizationId || '',
-      resourceType: 'organization',
-      subjectType: 'group',
+      resourceId: `redhat/${organizationId}`,
+      resourceType: 'tenant',
+      fields: 'subject(group.name,group.user_count,group.description),role(id,name)',
       limit: ROLE_BINDINGS_LIMIT,
-      parentRoleBindings: false,
     },
-    { enabled: !!orgData?.organizationId },
+    { enabled: !isLoading },
   );
 
   const roleBindings = roleBindingsQuery.data?.data ? mapRoleBindingsToGroups(roleBindingsQuery.data.data, intl) : [];
@@ -40,45 +39,35 @@ export const OrganizationManagement = () => {
         subtitle={intl.formatMessage(messages.organizationWideAccessSubtitle)}
       >
         <Flex spaceItems={{ default: 'spaceItemsLg' }} className="pf-v5-u-mt-md">
-          {error && (
-            <FlexItem>
-              <p style={{ color: 'var(--pf-global--danger-color--100)' }}>
-                <strong>Error: </strong>
-                {error}
-              </p>
-            </FlexItem>
-          )}
-          {!error && orgData?.organizationName && (
+          {organizationName && (
             <FlexItem>
               <p>
                 <strong>{intl.formatMessage(messages.organizationNameLabel)} </strong>
-                {orgData.organizationName}
+                {organizationName}
               </p>
             </FlexItem>
           )}
-          {!error && orgData?.accountNumber && (
+          {accountNumber && (
             <FlexItem>
               <p>
                 <strong>{intl.formatMessage(messages.accountNumberLabel)} </strong>
-                {orgData.accountNumber}
+                {accountNumber}
               </p>
             </FlexItem>
           )}
-          {!error && orgData?.organizationId && (
+          {organizationId && (
             <FlexItem>
               <p>
                 <strong>{intl.formatMessage(messages.organizationIdLabel)} </strong>
-                {orgData.organizationId}
+                {organizationId}
               </p>
             </FlexItem>
           )}
         </Flex>
       </PageHeader>
-      {!error && (
-        <PageSection>
-          <BaseGroupAssignmentsTable groups={roleBindings} isLoading={roleBindingsIsLoading} ouiaId="organization-role-assignments-table" />
-        </PageSection>
-      )}
+      <PageSection>
+        <BaseGroupAssignmentsTable groups={roleBindings} isLoading={roleBindingsIsLoading} ouiaId="organization-role-assignments-table" />
+      </PageSection>
     </>
   );
 };

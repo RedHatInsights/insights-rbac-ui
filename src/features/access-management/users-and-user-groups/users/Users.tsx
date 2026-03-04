@@ -1,8 +1,9 @@
-import React, { Suspense, useCallback, useContext, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useContext, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useFlag } from '@unleash/proxy-client-react';
 import { usePlatformEnvironment } from '../../../../hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../../../hooks/usePlatformAuth';
+import useUserData from '../../../../hooks/useUserData';
 import { useAccessPermissions } from '../../../../hooks/useAccessPermissions';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
@@ -58,11 +59,12 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   const [localFocusedUser, setLocalFocusedUser] = useState<User | undefined>();
 
   // Auth and permissions
-  const [accountId, setAccountId] = useState<number | undefined>();
   const { orgAdmin: contextOrgAdmin } = useContext(PermissionsContext);
   const { environment } = usePlatformEnvironment();
-  const { getToken, getUser } = usePlatformAuth();
-  const [token, setToken] = useState<string | null>(null);
+  const { getToken } = usePlatformAuth();
+  const user = useUserData();
+
+  const accountId = user.identity?.org_id;
 
   // Check write permission for user actions
   const { hasAccess: canWriteUsers } = useAccessPermissions(['rbac:principal:write']);
@@ -70,18 +72,11 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   // Use the context orgAdmin for actual permissions (combines with granular check)
   const orgAdmin = (contextOrgAdmin ?? false) && (canWriteUsers ?? false);
 
-  useEffect(() => {
-    const fetchAuth = async () => {
-      setToken((await getToken()) as string);
-      setAccountId((await getUser())?.identity?.org_id as unknown as number);
-    };
-    fetchAuth();
-  }, [getToken, getUser]);
-
   // User status toggle handler - now using React Query
   const handleToggleUserStatus = useCallback(
     async (user: User, isActive: boolean) => {
       try {
+        const token = await getToken();
         await changeUserStatusMutation.mutateAsync({
           users: [
             {
@@ -109,7 +104,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
         });
       }
     },
-    [changeUserStatusMutation, environment, token, accountId, intl, isITLess, addNotification],
+    [changeUserStatusMutation, environment, getToken, accountId, intl, isITLess, addNotification],
   );
 
   // Org admin toggle handler
@@ -128,6 +123,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   const handleBulkActivate = useCallback(
     async (usersToActivate: User[]) => {
       try {
+        const token = await getToken();
         await changeUserStatusMutation.mutateAsync({
           users: usersToActivate.map((user) => ({
             ...user,
@@ -153,7 +149,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
         });
       }
     },
-    [changeUserStatusMutation, environment, token, accountId, intl, isITLess, addNotification],
+    [changeUserStatusMutation, environment, getToken, accountId, intl, isITLess, addNotification],
   );
 
   // Bulk deactivate handler (opens confirmation modal)
@@ -214,6 +210,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
 
   const handleConfirmBulkDeactivate = useCallback(async () => {
     try {
+      const token = await getToken();
       await changeUserStatusMutation.mutateAsync({
         users: selectedUsers.map((user) => ({
           ...user,
@@ -240,7 +237,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     }
     setIsStatusModalOpen(false);
     setSelectedUsers([]);
-  }, [selectedUsers, changeUserStatusMutation, environment, token, accountId, intl, isITLess, addNotification]);
+  }, [selectedUsers, changeUserStatusMutation, environment, getToken, accountId, intl, isITLess, addNotification]);
 
   // Render modals
   const deleteModal = (

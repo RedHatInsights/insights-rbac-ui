@@ -12,6 +12,7 @@ import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/com
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { usePlatformEnvironment } from '../../../hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../../hooks/usePlatformAuth';
+import useUserData from '../../../hooks/useUserData';
 import { useFlag } from '@unleash/proxy-client-react';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
@@ -31,7 +32,8 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
   const toAppLink = useAppLink();
   const addNotification = useAddNotification();
   const { environment } = usePlatformEnvironment();
-  const { getToken, getUser } = usePlatformAuth();
+  const { getToken } = usePlatformAuth();
+  const user = useUserData();
   const isITLess = useFlag('platform.rbac.itless');
 
   const [isCheckboxLabelExpanded, setIsCheckboxLabelExpanded] = useState(false);
@@ -39,24 +41,15 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
   const [rawEmails, setRawEmails] = useState('');
   const [userEmailList, setUserEmailList] = useState<string[]>([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-  const [accountId, setAccountId] = useState<string | null>(null);
 
-  // Get token and account ID on mount
-  useEffect(() => {
-    const fetchAuth = async () => {
-      const user = await getUser();
-      setAccountId(user?.identity?.org_id ?? null);
-      setToken((await getToken()) ?? null);
-    };
-    fetchAuth();
-  }, [getToken, getUser]);
+  const accountId = user.identity?.org_id ?? null;
 
   // React Query mutation for inviting users
   const inviteUsersMutation = useInviteUsersMutation();
 
   const onSubmit = async () => {
     try {
+      const token = await getToken();
       await inviteUsersMutation.mutateAsync({
         emails: userEmailList,
         isAdmin: areNewUsersAdmins,

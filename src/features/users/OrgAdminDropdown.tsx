@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { IntlShape } from 'react-intl';
+import React from 'react';
+import type { IntlShape } from 'react-intl';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { usePlatformEnvironment } from '../../hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../hooks/usePlatformAuth';
+import useUserData from '../../hooks/useUserData';
 import { OrgAdminDropdown as PresentationalOrgAdminDropdown } from './components/OrgAdminDropdown';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useUpdateUserOrgAdminMutation } from '../../data/queries/users';
@@ -17,33 +18,18 @@ const OrgAdminDropdown: React.FC<{
   fetchData?: () => void;
 }> = ({ isOrgAdmin, username, userId, fetchData }) => {
   const { environment } = usePlatformEnvironment();
-  const { getToken, getUser } = usePlatformAuth();
+  const { getToken } = usePlatformAuth();
+  const user = useUserData();
   const intl = useIntl();
   const addNotification = useAddNotification();
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-  const [accountId, setAccountId] = useState<string | null>(null);
-  const [accountUsername, setAccountUsername] = useState<string | null>(null);
   const isITLess = useFlag('platform.rbac.itless');
+
+  const accountId = user.identity?.org_id ?? null;
+  const accountUsername = user.identity?.user?.username ?? null;
+  const isDisabled = accountUsername === username;
 
   // React Query mutation for updating org admin status
   const updateOrgAdminMutation = useUpdateUserOrgAdminMutation();
-
-  useEffect(() => {
-    const fetchAuth = async () => {
-      const user = await getUser();
-      setAccountId(user?.identity?.org_id ?? null);
-      setAccountUsername(user?.identity?.user?.username ?? null);
-      setToken((await getToken()) ?? null);
-    };
-    fetchAuth();
-  }, [getToken, getUser]);
-
-  useEffect(() => {
-    if (accountUsername === username) {
-      setIsDisabled(true);
-    }
-  }, [username, accountUsername]);
 
   const handleUpdateOrgAdminStatus = async (newStatus: boolean) => {
     if (updateOrgAdminMutation.isPending) return;
@@ -51,6 +37,7 @@ const OrgAdminDropdown: React.FC<{
     if (userId === undefined) return; // Can't update without a valid user ID
 
     try {
+      const token = await getToken();
       await updateOrgAdminMutation.mutateAsync({
         userId: String(userId),
         isOrgAdmin: newStatus,

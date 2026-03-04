@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { usePlatformAuth } from '../../../hooks/usePlatformAuth';
+import useUserData from '../../../hooks/useUserData';
 import { useAccessPermissions } from '../../../hooks/useAccessPermissions';
 import { useIntl } from 'react-intl';
 import { TableView } from '../../../components/table-view/TableView';
@@ -42,9 +42,8 @@ interface AddPermissionsTableProps {
 const COLUMNS = ['application', 'resourceType', 'operation'] as const;
 
 const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
-  const [isOrgAdmin, setIsOrgAdmin] = useState<boolean | null>(null);
   const [basePermissionsLoaded, setBasePermissionsLoaded] = useState(false);
-  const { getUser } = usePlatformAuth();
+  const { orgAdmin } = useUserData();
   const intl = useIntl();
   const { hasAccess: hasCostAccess } = useAccessPermissions(['cost-management:*:*']);
   const { hasAccess: hasRbacAccess } = useAccessPermissions(['rbac:*:*']);
@@ -65,23 +64,12 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
 
   const filters = tableState.filters as { applications: string[]; resources: string[]; operations: string[] };
 
-  // Check org admin status
-  useEffect(() => {
-    const setOrgAdminStatus = async () => {
-      const userData = await getUser();
-      if (userData?.identity?.user?.is_org_admin !== undefined) {
-        setIsOrgAdmin(userData.identity.user.is_org_admin);
-      }
-    };
-    setOrgAdminStatus();
-  }, [getUser]);
-
   // Initialize form state
   useEffect(() => {
     formOptions.change('has-cost-resources', false);
   }, []);
 
-  const inventoryAccess = useMemo(() => isOrgAdmin || (hasRbacAccess ?? false), [hasRbacAccess, isOrgAdmin]);
+  const inventoryAccess = useMemo(() => orgAdmin || (hasRbacAccess ?? false), [hasRbacAccess, orgAdmin]);
 
   // ============================================================================
   // TanStack Query Hooks

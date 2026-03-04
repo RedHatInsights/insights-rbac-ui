@@ -1,6 +1,7 @@
 import type { StoryObj } from '@storybook/react-webpack5';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import type { KesselAppEntryWithRouter } from '../components/KesselAppEntryWithRouter';
+import { TEST_TIMEOUTS, resetStoryState } from '../helpers';
 
 /**
  * Shared Manual Testing Stories
@@ -77,31 +78,37 @@ This story includes automated verification for admin users:
     },
   },
   play: async (context) => {
+    await resetStoryState();
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Verify we're on My User Access page - V1 uses "My User Access", V2 uses "My Access"
-    // Try V2 first (newer), then fall back to V1
-    const myAccessLink = canvas.queryByRole('link', { name: /my access$/i });
-    const myUserAccessLink = canvas.queryByRole('link', { name: /my user access$/i });
-    const targetLink = myAccessLink || myUserAccessLink;
-
-    if (targetLink) {
-      await user.click(targetLink);
+    // Wait for nav to render, then navigate to My User Access
+    await waitFor(
+      async () => {
+        const link = canvas.queryByRole('link', { name: /my access$/i }) || canvas.queryByRole('link', { name: /my user access$/i });
+        expect(link).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
+    const navLink = canvas.queryByRole('link', { name: /my access$/i }) || canvas.queryByRole('link', { name: /my user access$/i });
+    if (navLink) {
+      await user.click(navLink);
     }
 
-    // Wait for the page heading to appear (proves page has loaded)
-    // Supports both V1 "My user access" and V2 "My access" headings
-    const title = await canvas.findByRole('heading', { name: /My (user )?access/i });
-    expect(title).toBeInTheDocument();
+    // Wait for the page heading to appear (proves useUserData resolved and page rendered)
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('heading', { name: /My (user )?access/i })).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
 
-    // Verify the table component renders (even if in loading state)
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
-
-    // For now, just verify basic structure is present
-    // Data loading verification is skipped due to timing issues in test environment
-    // The browser-based testing shows data loads correctly
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
   },
 };
 
@@ -130,31 +137,37 @@ This story includes automated verification for read-only users:
     },
   },
   play: async (context) => {
+    await resetStoryState();
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Verify we're on My User Access page - V1 uses "My User Access", V2 uses "My Access"
-    // Try V2 first (newer), then fall back to V1
-    const myAccessLink = canvas.queryByRole('link', { name: /my access$/i });
-    const myUserAccessLink = canvas.queryByRole('link', { name: /my user access$/i });
-    const targetLink = myAccessLink || myUserAccessLink;
-
-    if (targetLink) {
-      await user.click(targetLink);
+    // Wait for nav to render, then navigate to My User Access
+    await waitFor(
+      async () => {
+        const link = canvas.queryByRole('link', { name: /my access$/i }) || canvas.queryByRole('link', { name: /my user access$/i });
+        expect(link).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
+    const navLink = canvas.queryByRole('link', { name: /my access$/i }) || canvas.queryByRole('link', { name: /my user access$/i });
+    if (navLink) {
+      await user.click(navLink);
     }
 
-    // Wait for the page heading to appear (proves page has loaded)
-    // Supports both V1 "My user access" and V2 "My access" headings
-    const title = await canvas.findByRole('heading', { name: /My (user )?access/i });
-    expect(title).toBeInTheDocument();
+    // Wait for the page heading to appear (proves useUserData resolved and page rendered)
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('heading', { name: /My (user )?access/i })).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
 
-    // Verify the table component renders (even if in loading state)
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
-
-    // For now, just verify basic structure is present
-    // Data loading verification is skipped due to timing issues in test environment
-    // The browser-based testing shows data loads correctly
+    await waitFor(
+      () => {
+        expect(canvas.getByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
   },
 };
 
