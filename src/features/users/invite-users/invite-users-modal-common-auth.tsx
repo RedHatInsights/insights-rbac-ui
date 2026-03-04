@@ -12,6 +12,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import { useOutletContext } from 'react-router-dom';
 import { usePlatformEnvironment } from '../../../hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../../hooks/usePlatformAuth';
+import useUserData from '../../../hooks/useUserData';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 // Portal subscription permission levels (moved from React Query helper)
@@ -41,12 +42,13 @@ const InviteUsers = () => {
   const { fetchData } = useOutletContext<{ fetchData: (isSubmit: boolean) => void }>();
   const advancedPermissions = useFlag('platform.rbac.common-auth-model_advanced-permissions');
   const isITLess = useFlag('platform.rbac.itless');
-  const [token, setToken] = React.useState<string | null>(null);
-  const [accountId, setAccountId] = React.useState<string | null>(null);
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
   const { environment } = usePlatformEnvironment();
-  const { getToken, getUser } = usePlatformAuth();
+  const { getToken } = usePlatformAuth();
+  const userData = useUserData();
   const addNotification = useAddNotification();
+
+  const accountId = userData.identity?.org_id ?? null;
 
   // React Query mutation for inviting users
   const inviteUsersMutation = useInviteUsersMutation();
@@ -55,18 +57,10 @@ const InviteUsers = () => {
     fetchData(false);
   };
 
-  React.useEffect(() => {
-    const fetchAuth = async () => {
-      const user = await getUser();
-      setAccountId(user?.identity?.org_id ?? null);
-      setToken((await getToken()) ?? null);
-    };
-    fetchAuth();
-  }, [getToken, getUser]);
-
   const onSubmit = async (values: Record<string, unknown>) => {
     const typedValues = values as SubmitValues;
     try {
+      const token = await getToken();
       const response = await inviteUsersMutation.mutateAsync({
         emails: typedValues['email-addresses']?.split(/[\s,]+/),
         message: typedValues['invite-message'],

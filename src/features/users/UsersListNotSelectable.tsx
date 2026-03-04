@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useMemo, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView } from '../../components/table-view';
 import { useTableState } from '../../components/table-view/hooks/useTableState';
@@ -11,6 +11,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { usePlatformEnvironment } from '../../hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../hooks/usePlatformAuth';
+import useUserData from '../../hooks/useUserData';
 import { WarningModal } from '@patternfly/react-component-groups';
 import { AppLink } from '../../components/navigation/AppLink';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -58,26 +59,16 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   const { orgAdmin } = useContext(PermissionsContext) as PermissionsContextType;
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
   const { environment } = usePlatformEnvironment();
-  const { getToken, getUser } = usePlatformAuth();
+  const { getToken } = usePlatformAuth();
+  const userData = useUserData();
   const appNavigate = useAppNavigate();
   const isITLess = useFlag('platform.rbac.itless');
 
-  const [token, setToken] = useState<string | null>(null);
-  const [accountId, setAccountId] = useState<string | null>(null);
+  const accountId = userData.identity?.internal?.account_id ?? null;
+  const currAccountId = userData.identity?.internal?.account_id;
+
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
-  const [currAccountId, setCurrAccountId] = useState<string | undefined>();
-
-  // Get token and account ID on mount
-  useEffect(() => {
-    const fetchAuth = async () => {
-      const user = await getUser();
-      setAccountId(user?.identity?.internal?.account_id ?? null);
-      setToken((await getToken()) ?? null);
-      setCurrAccountId(user?.identity?.internal?.account_id ?? undefined);
-    };
-    fetchAuth();
-  }, [getUser, getToken]);
 
   // Get user ID for row identification
   const getUserId = useCallback((user: User) => user.username, []);
@@ -146,6 +137,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       if (changeUserStatusMutation.isPending) return;
 
       try {
+        const token = await getToken();
         await changeUserStatusMutation.mutateAsync({
           users: [{ ...updatedUser, id: updatedUser.external_source_id, is_active: isActive }],
           config: { environment, token, accountId },
@@ -165,7 +157,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         });
       }
     },
-    [changeUserStatusMutation, environment, token, accountId, isITLess, addNotification, intl],
+    [changeUserStatusMutation, environment, getToken, accountId, isITLess, addNotification, intl],
   );
 
   // Column configuration
@@ -280,6 +272,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       }));
 
       try {
+        const token = await getToken();
         await changeUserStatusMutation.mutateAsync({
           users: usersList,
           config: { environment, token, accountId },
@@ -305,7 +298,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
 
       userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
     },
-    [changeUserStatusMutation, tableState, environment, token, accountId, isITLess, addNotification, intl],
+    [changeUserStatusMutation, tableState, environment, getToken, accountId, isITLess, addNotification, intl],
   );
 
   // Toolbar buttons

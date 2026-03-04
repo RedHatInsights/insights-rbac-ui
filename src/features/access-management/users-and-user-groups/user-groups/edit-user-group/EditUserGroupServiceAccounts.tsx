@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { useIntl } from 'react-intl';
-import { usePlatformAuth } from '../../../../../hooks/usePlatformAuth';
-import { usePlatformEnvironment } from '../../../../../hooks/usePlatformEnvironment';
 import Messages from '../../../../../Messages';
 import { TableView } from '../../../../../components/table-view/TableView';
 import { useTableState } from '../../../../../components/table-view/hooks/useTableState';
@@ -24,19 +22,6 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   initialServiceAccountIds,
 }) => {
   const intl = useIntl();
-  const { getToken } = usePlatformAuth();
-  const { ssoUrl } = usePlatformEnvironment();
-
-  // Auth state
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const initAuth = async () => {
-      const authToken = (await getToken()) as string;
-      setToken(authToken);
-    };
-    initAuth();
-  }, [getToken]);
 
   // Helper to get consistent service account ID
   const getServiceAccountId = useCallback((sa: ServiceAccount) => sa.clientId || sa.id, []);
@@ -92,15 +77,10 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
     data: serviceAccountsData,
     isLoading: isServiceAccountsLoading,
     error: serviceAccountsError,
-  } = useServiceAccountsQuery(
-    {
-      token,
-      ssoUrl,
-      page: Math.floor(tableState.apiParams.offset / tableState.apiParams.limit) + 1,
-      perPage: tableState.apiParams.limit,
-    },
-    { enabled: !!token && !!ssoUrl },
-  );
+  } = useServiceAccountsQuery({
+    page: Math.floor(tableState.apiParams.offset / tableState.apiParams.limit) + 1,
+    perPage: tableState.apiParams.limit,
+  });
 
   // Extract service accounts
   const serviceAccounts: ServiceAccount[] = serviceAccountsData || [];

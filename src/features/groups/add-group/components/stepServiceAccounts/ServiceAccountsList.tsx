@@ -1,7 +1,5 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { usePlatformAuth } from '../../../../../hooks/usePlatformAuth';
-import { usePlatformEnvironment } from '../../../../../hooks/usePlatformEnvironment';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import { TableView, useTableState } from '../../../../../components/table-view';
@@ -28,16 +26,7 @@ interface ServiceAccountsListProps {
 const columns = ['name', 'description', 'clientId', 'owner', 'timeCreated'] as const;
 
 export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ initialSelectedServiceAccounts, onSelect }) => {
-  const { getToken } = usePlatformAuth();
-  const { ssoUrl } = usePlatformEnvironment();
   const intl = useIntl();
-
-  // Get auth token
-  const [token, setToken] = useState<string | undefined>();
-
-  useEffect(() => {
-    getToken().then(setToken);
-  }, [getToken]);
 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
@@ -66,15 +55,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
   const perPage = tableState.apiParams.limit;
 
   // Fetch service accounts via React Query
-  const { data: serviceAccountsData, isLoading } = useServiceAccountsQuery(
-    {
-      token: token ?? '',
-      ssoUrl: ssoUrl ?? '',
-      page,
-      perPage,
-    },
-    { enabled: !!token && !!ssoUrl },
-  );
+  const { data: serviceAccountsData, isLoading } = useServiceAccountsQuery({ page, perPage });
 
   // Map API response to add uuid field for row identification
   const serviceAccounts: ServiceAccount[] = useMemo(() => {
