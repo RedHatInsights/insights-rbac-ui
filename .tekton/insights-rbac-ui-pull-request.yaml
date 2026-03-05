@@ -59,7 +59,7 @@ spec:
       - name: revision
         value: main
       - name: pathInRepo
-        value: pipelines/platform-ui/docker-build.yaml
+        value: pipelines/platform-ui/docker-build-run-unit-tests.yaml
   taskRunTemplate:
     serviceAccountName: build-pipeline-insights-rbac-ui
   workspaces:
