@@ -36,7 +36,7 @@ spec:
       #!/bin/bash
       set -ex
 
-      npm install
+      npm ci
 
   # Unit tests configuration
   - name: unit-tests-script
@@ -45,7 +45,7 @@ spec:
       set -ex
 
       npm run lint
-      NODE_OPTIONS="--max-old-space-size=1536" npm test -- --runInBand --no-cache --logHeapUsage --coverage=false
+      NODE_OPTIONS="--max-old-space-size=1536" npm test
   - name: unit-tests-memory-request
     value: "8Gi"
   - name: unit-tests-memory-limit
