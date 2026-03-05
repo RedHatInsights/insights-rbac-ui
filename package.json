@@ -117,7 +117,7 @@
     "remark-gfm": "^4.0.1",
     "resolve-url-loader": "^5.0.0",
     "semantic-release": "^24.2.9",
-    "storybook": "^10.2.8",
+    "storybook": "^10.2.15",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.3.0",
