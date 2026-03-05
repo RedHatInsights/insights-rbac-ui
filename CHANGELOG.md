@@ -1,3 +1,12 @@
+## [2.13.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.13.0...v2.13.1) (2026-03-05)
+
+
+### Bug Fixes
+
+* create user group button appears for any user with rbac:group:write ([6305bad](https://github.com/RedHatInsights/insights-rbac-ui/commit/6305bad885c46aa6f82eb1df7693cd6aef37d9cb))
+* eliminate page freeze from unstable getUser/getToken in useEffect deps ([ac35d0c](https://github.com/RedHatInsights/insights-rbac-ui/commit/ac35d0c9f46392f990f1d3ca1aec1aa92546a33b))
+* user with user access admin role allowed to write to groups page ([f5953c5](https://github.com/RedHatInsights/insights-rbac-ui/commit/f5953c5e9d33b471da3936500dca63ce13ce8030))
+
 # [2.13.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.12.2...v2.13.0) (2026-03-03)
 
 
