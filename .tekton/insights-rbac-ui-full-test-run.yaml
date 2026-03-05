@@ -5,9 +5,10 @@ metadata:
     build.appstudio.openshift.io/repo: https://github.com/RedHatInsights/insights-rbac-ui?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
-    build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-label: "full-test-run"    
+    pipelinesascode.tekton.dev/on-label: "full-test-run" 
+    pipelinesascode.tekton.dev/on-target-branch: '{{target_branch}}'
+    pipelinesascode.tekton.dev/on-event: "pull_request"
     # CHANGED: Updated to use E2E pipeline
     pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-all-tests.yaml
   creationTimestamp: null
