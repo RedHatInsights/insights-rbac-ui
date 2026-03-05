@@ -280,6 +280,12 @@ const quickstartsTest: PathnameConfig = {
   title: 'Quickstarts',
 };
 
+const auditLog: PathnameConfig = {
+  link: () => '/user-access/audit-log',
+  path: '/user-access/audit-log',
+  title: 'Audit Log',
+};
+
 // ===========================================
 // My User Access
 // ===========================================
@@ -366,6 +372,12 @@ const accessManagementWorkspaces: PathnameConfig = {
   title: 'Workspaces',
 };
 
+const accessManagementAuditLog: PathnameConfig = {
+  link: () => '/access-management/audit-log',
+  path: '/access-management/audit-log',
+  title: 'Audit Log',
+};
+
 // ===========================================
 // Export with both old key-based access and new direct access
 // ===========================================
@@ -413,6 +425,7 @@ const pathnames = {
   'edit-workspace': editWorkspace,
   'workspace-detail': workspaceDetail,
   'quickstarts-test': quickstartsTest,
+  'audit-log': auditLog,
   'my-user-access': myUserAccess,
   'organization-management': organizationManagement,
   'users-and-user-groups': usersAndUserGroups,
@@ -426,6 +439,7 @@ const pathnames = {
   'access-management-add-role': accessManagementAddRole,
   'access-management-edit-role': accessManagementEditRole,
   'access-management-workspaces': accessManagementWorkspaces,
+  'access-management-audit-log': accessManagementAuditLog,
 } as const;
 
 export default pathnames;

@@ -1104,6 +1104,22 @@ export default defineMessages({
     description: 'learn more link',
     defaultMessage: 'Learn more',
   },
+  auditLog: {
+    id: 'auditLog',
+    description: 'Audit Log page title',
+    defaultMessage: 'Audit Log',
+  },
+  auditLogSubtitle: {
+    id: 'auditLogSubtitle',
+    description: 'Audit Log page subtitle',
+    defaultMessage:
+      'The user access audit log tracks admin actions, such as adding/removing users from groups, adding/removing roles from groups, create/editing/deleting roles, or creating/editing/deleting groups. Logs can be filtered by requester, resource or action.',
+  },
+  auditLogNoResults: {
+    id: 'auditLogNoResults',
+    description: 'Audit log empty state when filters match no results',
+    defaultMessage: 'No audit log entries found',
+  },
   overviewHeroTitle: {
     id: 'overviewHeroTitle',
     description: 'Overview Hero section title',
@@ -2477,6 +2493,21 @@ export default defineMessages({
     id: 'resource',
     description: 'Resource label',
     defaultMessage: 'Resource',
+  },
+  date: {
+    id: 'date',
+    description: 'Date label',
+    defaultMessage: 'Date',
+  },
+  requester: {
+    id: 'requester',
+    description: 'Requester label',
+    defaultMessage: 'Requester',
+  },
+  action: {
+    id: 'action',
+    description: 'Action label',
+    defaultMessage: 'Action',
   },
   resources: {
     id: 'resources',

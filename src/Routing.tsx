@@ -13,6 +13,7 @@ import QuickstartsTestButtons from './utilities/quickstartsTestButtons';
 import { type PermissionConfig, getPermissions } from './utilities/route-definitions';
 
 const Overview = lazy(() => import('./features/overview/overview'));
+const AuditLog = lazy(() => import('./features/audit-log/AuditLog'));
 
 const WorkspacesOverview = lazy(() => import('./features/workspaces/overview/WorkspacesOverview'));
 const WorkspaceList = lazy(() => import('./features/workspaces/WorkspaceList'));
@@ -122,6 +123,15 @@ const getRoutes = ({
     path: pathnames.overview.path,
     element: hasWorkspacesList ? WorkspacesOverview : Overview,
     ...p(pathnames.overview.link()),
+  },
+
+  // ===========================================
+  // User Access (V1) - Audit Log
+  // ===========================================
+  {
+    path: pathnames['audit-log'].path,
+    element: AuditLog,
+    ...p(pathnames['audit-log'].link()),
   },
 
   // ===========================================
@@ -295,6 +305,12 @@ const getRoutes = ({
           path: `${pathnames['access-management-roles'].link()}/${pathnames['access-management-edit-role'].path}`,
           element: newEditRole,
           ...p(pathnames['access-management-edit-role'].link(':roleId')),
+        },
+        // Access Management (V2) - Audit Log
+        {
+          path: pathnames['access-management-audit-log'].path,
+          element: AuditLog,
+          ...p(pathnames['access-management-audit-log'].link()),
         },
       ]
     : [

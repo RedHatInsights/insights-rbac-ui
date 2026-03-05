@@ -39,6 +39,10 @@ export {
 } from './inventory';
 export type { GetInventoryGroupsParams, InventoryGroup, InventoryGroupsResponse, InventoryGroupDetailsResponse } from './inventory';
 
+// Audit Logs API
+export { auditApi, createAuditApi } from './audit';
+export type { GetAuditlogsParams, GetAuditlogsOrderByEnum, AuditLog, AuditLogPagination } from './audit';
+
 // Workspaces API (V2)
 export { workspacesApi } from './workspaces';
 export type {
