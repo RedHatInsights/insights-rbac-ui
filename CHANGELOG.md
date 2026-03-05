@@ -1,3 +1,10 @@
+# [2.15.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.14.0...v2.15.0) (2026-03-05)
+
+
+### Features
+
+* create role access modal ([d89a6c4](https://github.com/RedHatInsights/insights-rbac-ui/commit/d89a6c4c1447ff032edf1821eaa37f177576e562))
+
 # [2.14.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.13.1...v2.14.0) (2026-03-05)
 
 
