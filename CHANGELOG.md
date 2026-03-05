@@ -1,3 +1,10 @@
+# [2.14.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.13.1...v2.14.0) (2026-03-05)
+
+
+### Features
+
+* create Audit Log page ([#2150](https://github.com/RedHatInsights/insights-rbac-ui/issues/2150)) ([d4eaf18](https://github.com/RedHatInsights/insights-rbac-ui/commit/d4eaf189bc27f0deaee8c2e743c4a47f77c169dd))
+
 ## [2.13.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v2.13.0...v2.13.1) (2026-03-05)
 
 
