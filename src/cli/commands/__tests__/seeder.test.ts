@@ -31,6 +31,7 @@ vi.mock('../../api-client.js', () => ({
   getApiClient: vi.fn(() => ({
     post: vi.fn(),
     get: vi.fn(),
+    delete: vi.fn(),
     // APIFactory uses axios.request() internally
     request: vi.fn(),
   })),
@@ -224,7 +225,8 @@ describe('seeder command', () => {
     test('prepends prefix to workspace names', async () => {
       const mockClient = {
         post: vi.fn().mockResolvedValue({ data: { id: 'new-id' } }),
-        get: vi.fn().mockResolvedValue({ data: { data: [{ id: 'root-id' }] } }),
+        get: vi.fn().mockResolvedValue({ data: { data: [] } }), // No existing workspaces
+        delete: vi.fn().mockResolvedValue({}),
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 

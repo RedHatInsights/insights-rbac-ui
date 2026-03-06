@@ -351,12 +351,28 @@ export async function performHeadlessLogin(options: HeadlessLoginOptions): Promi
     if (!options.stdout) {
       console.error('[AuthBridge] Waiting for dashboard...');
     }
-    await session.page.waitForFunction((indicator) => document.body?.innerText?.includes(indicator), LOGGED_IN_INDICATOR, {
-      timeout: HEADLESS_TIMEOUT_MS,
-    });
 
-    if (!options.stdout) {
-      console.error('[AuthBridge] Login successful!');
+    try {
+      await session.page.waitForFunction((indicator) => document.body?.innerText?.includes(indicator), LOGGED_IN_INDICATOR, {
+        timeout: HEADLESS_TIMEOUT_MS,
+      });
+
+      if (!options.stdout) {
+        console.error('[AuthBridge] Login successful!');
+      }
+    } catch {
+      // Timeout or error waiting for dashboard - capture debug info
+      const url = session.page.url();
+      const title = await session.page.title();
+      const bodyText = await session.page.evaluate(() => document.body?.innerText?.substring(0, 500) || '');
+
+      process.stdout.write('[AuthBridge] ❌ Failed to detect dashboard\n');
+      process.stdout.write(`[AuthBridge] Current URL: ${url}\n`);
+      process.stdout.write(`[AuthBridge] Page title: ${title}\n`);
+      process.stdout.write(`[AuthBridge] Body text (first 500 chars): ${bodyText}\n`);
+      process.stdout.write(`[AuthBridge] Expected to find: "${LOGGED_IN_INDICATOR}"\n`);
+
+      throw new Error(`Failed to reach dashboard after login. Current URL: ${url}`);
     }
 
     // Extract token
