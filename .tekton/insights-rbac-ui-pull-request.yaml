@@ -30,20 +30,13 @@ spec:
   - name: dockerfile
     value: ./build-tools/Dockerfile
 
-  # Workspace setup - runs once before all tests
-  - name: workspace-setup-script
-    value: |
-      #!/bin/bash
-      set -ex
-
-      npm ci
-
   # Unit tests configuration
   - name: unit-tests-script
     value: |
       #!/bin/bash
       set -ex
 
+      npm ci
       npm run lint
       NODE_OPTIONS="--max-old-space-size=1536" npm test
   - name: unit-tests-memory-request
