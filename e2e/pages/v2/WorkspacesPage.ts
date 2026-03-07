@@ -1,29 +1,22 @@
 /**
- * Page Object for the Workspaces Page
+ * Page Object for the V2 Workspaces Page
  *
- * Shared between V1 and V2 — the only difference is the base URL:
- *   V1: /iam/user-access/workspaces
- *   V2: /iam/access-management/workspaces
+ * URL: /iam/access-management/workspaces
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { setupPage, waitForTableUpdate } from '../../utils';
+import { iamUrl, setupPage, v2, waitForTableUpdate } from '../../utils';
 import { ManagedWorkspaceSelectorComponent } from '../components/ManagedWorkspaceSelectorComponent';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
-const WORKSPACES_URLS = {
-  v1: '/iam/user-access/workspaces',
-  v2: '/iam/access-management/workspaces',
-} as const;
+const WORKSPACES_URL = iamUrl(v2.accessManagementWorkspaces.link());
 
 export class WorkspacesPage {
   readonly page: Page;
   readonly workspaceSelector: ManagedWorkspaceSelectorComponent;
-  private readonly url: string;
 
-  constructor(page: Page, version: 'v1' | 'v2' = 'v2') {
+  constructor(page: Page) {
     this.page = page;
-    this.url = WORKSPACES_URLS[version];
     this.workspaceSelector = new ManagedWorkspaceSelectorComponent(page);
   }
 
@@ -33,10 +26,11 @@ export class WorkspacesPage {
 
   async goto(): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(this.url);
-    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
-    // Wait for table data to actually load — "Root Workspace" is always present
-    await expect(this.page.getByText('Root Workspace', { exact: true })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await expect(async () => {
+      await this.page.goto(WORKSPACES_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
+    await expect(this.page.getByText('Root Workspace', { exact: true })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -44,7 +38,7 @@ export class WorkspacesPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   get heading(): Locator {
-    return this.page.getByRole('heading', { name: /workspaces/i });
+    return this.page.getByRole('heading', { name: /workspaces/i, level: 1 });
   }
 
   get table(): Locator {
@@ -70,7 +64,7 @@ export class WorkspacesPage {
 
   async searchFor(name: string): Promise<void> {
     await this.searchInput.fill(name);
-    await waitForTableUpdate(this.page);
+    await waitForTableUpdate(this.page, { timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
   getWorkspaceLink(name: string): Locator {
@@ -85,16 +79,16 @@ export class WorkspacesPage {
   async expandTreeNodes(): Promise<void> {
     for (const rowName of ['Root Workspace', 'Default Workspace']) {
       const expandBtn = this.table.getByRole('row', { name: new RegExp(rowName, 'i') }).getByRole('button', { name: /expand row/i });
-      if (await expandBtn.isVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION }).catch(() => false)) {
+      if (await expandBtn.isVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION }).catch(() => false)) {
         await expandBtn.click();
-        await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
+        await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
       }
     }
   }
 
   async verifyWorkspaceInTable(name: string): Promise<void> {
     await this.expandTreeNodes();
-    await expect(this.table.getByText(name)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await expect(this.table.getByText(name)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
   async verifyWorkspaceNotInTable(name: string): Promise<void> {
@@ -102,10 +96,11 @@ export class WorkspacesPage {
   }
 
   async navigateToDetail(name: string): Promise<void> {
-    // Workspace link may be inside a collapsed tree node — expand first
     await this.expandTreeNodes();
-    await this.getWorkspaceLink(name).click();
-    await expect(this.page.getByRole('heading', { name })).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    const link = this.getWorkspaceLink(name);
+    await expect(link).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    await link.click();
+    await expect(this.page.getByRole('heading', { name })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -128,18 +123,14 @@ export class WorkspacesPage {
     if (parentWorkspace) {
       await this.page.getByRole('button', { name: /select workspaces/i }).click();
 
-      // Wait for the tree to load — Root Workspace is always the top-level node
       const tree = this.page.getByRole('tree');
-      await expect(tree.getByRole('treeitem').first()).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      await expect(tree.getByRole('treeitem').first()).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
-      // If the target isn't Root Workspace, we need to expand the tree to reveal it.
-      // The workspace tree starts collapsed — expand Root Workspace to see its children.
       const targetItem = tree.getByRole('treeitem').filter({ hasText: parentWorkspace }).first();
       if (!(await targetItem.isVisible().catch(() => false))) {
-        // Expand Root Workspace — the first expand button in the tree
         const rootExpandBtn = tree.getByRole('treeitem').first().getByRole('button').first();
         await rootExpandBtn.click();
-        await expect(targetItem).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+        await expect(targetItem).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
       }
 
       // Click the workspace name to select it
@@ -205,5 +196,163 @@ export class WorkspacesPage {
 
     await modal.getByRole('button', { name: /delete|remove/i }).click();
     await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Detail Page Locators
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  get detailActionsMenu(): Locator {
+    return this.page.getByRole('button', { name: /actions/i }).first();
+  }
+
+  get grantAccessButton(): Locator {
+    return this.page.locator('[data-ouia-component-id$="grant-access-button"]');
+  }
+
+  get grantAccessWizard(): Locator {
+    return this.page.locator('[data-ouia-component-id="grant-access-wizard"]');
+  }
+
+  get roleAssignmentsTab(): Locator {
+    return this.page.getByRole('tab', { name: /role assignments/i });
+  }
+
+  get assetsTab(): Locator {
+    return this.page.getByRole('tab', { name: /assets/i });
+  }
+
+  get currentRoleAssignmentsSubTab(): Locator {
+    return this.page.getByRole('tab', { name: /roles assigned in this workspace/i });
+  }
+
+  get inheritedRoleAssignmentsSubTab(): Locator {
+    return this.page.getByRole('tab', { name: /roles assigned in parent/i });
+  }
+
+  get currentRoleAssignmentsTable(): Locator {
+    return this.page.locator('[data-ouia-component-id="current-role-assignments-table"]');
+  }
+
+  get parentRoleAssignmentsTable(): Locator {
+    return this.page.locator('[data-ouia-component-id="parent-role-assignments-table"]');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Detail Page Actions
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async openGrantAccessWizard(): Promise<void> {
+    await this.grantAccessButton.click();
+    await expect(this.grantAccessWizard).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+  }
+
+  async openGrantAccessFromActions(): Promise<void> {
+    await this.detailActionsMenu.click();
+    await this.page.getByRole('menuitem', { name: /grant access/i }).click();
+    await expect(this.grantAccessWizard).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+  }
+
+  async fillGrantAccessWizard(options: { groups: string[]; roles: string[] }): Promise<void> {
+    // Step 1: Select user groups
+    for (const groupName of options.groups) {
+      const row = this.grantAccessWizard.getByRole('row').filter({ hasText: groupName });
+      await row.getByRole('checkbox').check();
+    }
+    await this.page.getByRole('button', { name: /^next$/i }).click();
+
+    // Step 2: Select roles
+    for (const roleName of options.roles) {
+      const row = this.grantAccessWizard.getByRole('row').filter({ hasText: roleName });
+      await row.getByRole('checkbox').check();
+    }
+    await this.page.getByRole('button', { name: /^next$/i }).click();
+
+    // Step 3: Review and submit
+    await this.page.getByRole('button', { name: /^submit$/i }).click();
+    await expect(this.grantAccessWizard).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
+  }
+
+  async cancelGrantAccessWizard(): Promise<void> {
+    await this.page.getByRole('button', { name: /^cancel$/i }).click();
+    await expect(this.grantAccessWizard).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Group Details Drawer
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async openGroupDrawer(groupName: string): Promise<void> {
+    const table = this.currentRoleAssignmentsTable.or(this.parentRoleAssignmentsTable);
+    await table.getByRole('row').filter({ hasText: groupName }).click();
+    await expect(this.page.getByRole('tab', { name: /members/i })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+  }
+
+  async closeGroupDrawer(): Promise<void> {
+    await this.page.getByRole('button', { name: /close drawer panel/i }).click();
+    await expect(this.page.getByRole('tab', { name: /members/i })).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+  }
+
+  async openRoleBindingActions(groupName: string): Promise<void> {
+    const row = this.currentRoleAssignmentsTable.getByRole('row').filter({ hasText: groupName });
+    await row.getByRole('button', { name: /actions|kebab/i }).click();
+    await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
+  }
+
+  async confirmRemoveGroup(): Promise<void> {
+    const modal = this.page.locator('[data-ouia-component-id="remove-group-from-workspace-modal"]');
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await modal.getByRole('button', { name: /remove/i }).click();
+    await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Row Actions
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Open the row actions (kebab) menu for a workspace.
+   * Expands tree first so the workspace row is visible.
+   */
+  async openRowKebab(workspaceName: string): Promise<void> {
+    await this.expandTreeNodes();
+    const row = this.table
+      .getByRole('row')
+      .filter({ has: this.table.getByText(workspaceName) })
+      .first();
+    await expect(row).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    const kebab = row.getByRole('button', { name: /actions|kebab toggle/i });
+    await kebab.click();
+    await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
+  }
+
+  /**
+   * Fill the move workspace modal: select new parent and submit.
+   */
+  async fillMoveModal(newParentName: string): Promise<void> {
+    const modal = this.page.locator('[role="dialog"]');
+    await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+
+    // Open parent selector — toggle shows current parent name when selected
+    const selectorToggle = modal.getByTestId('workspace-selector-toggle').or(modal.getByRole('button', { name: /select workspaces/i }));
+    await selectorToggle.click();
+
+    const tree = this.page.getByRole('tree');
+    await expect(tree.getByRole('treeitem').first()).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+
+    const targetItem = tree.getByRole('treeitem').filter({ hasText: newParentName }).first();
+    if (!(await targetItem.isVisible().catch(() => false))) {
+      const rootExpandBtn = tree.getByRole('treeitem').first().getByRole('button').first();
+      await rootExpandBtn.click();
+      await expect(targetItem).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    }
+
+    await targetItem.getByRole('button', { name: newParentName }).last().click();
+
+    const confirmBtn = this.page.getByTestId('workspace-selector-confirm').or(this.page.getByRole('button', { name: /select workspace/i }));
+    await confirmBtn.click();
+
+    await modal.getByRole('button', { name: /^submit$/i }).click();
+    await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
   }
 }

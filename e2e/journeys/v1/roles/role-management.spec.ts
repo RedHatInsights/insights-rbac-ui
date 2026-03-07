@@ -28,7 +28,7 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V1_ADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY from utils
+ *   - AUTH: Uses AUTH_V1_ORGADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY from utils
  *   - DATA: Relies on SEEDED_ROLE_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use RolesPage.createButton.click() for UI tests
  *            Use getSeededRoleName() for existing data - NEVER create via UI in viewer tests
@@ -36,7 +36,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, AUTH_V1_READONLY, AUTH_V1_USERVIEWER, setupPage } from '../../../utils';
+import { AUTH_V1_ORGADMIN, AUTH_V1_READONLY, AUTH_V1_USERVIEWER, iamUrl, requireTestPrefix, setupPage, v1 } from '../../../utils';
 import { getSeededRoleName, getSeededWorkspaceName } from '../../../utils/seed-map';
 import { RolesPage } from '../../../pages/v1/RolesPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
@@ -45,17 +45,8 @@ import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX_V1;
-const ROLES_URL = '/iam/user-access/roles';
-
-if (!TEST_PREFIX) {
-  throw new Error(
-    '\n\n' +
-      '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX_V1 environment variable is REQUIRED       ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n',
-  );
-}
+const TEST_PREFIX = requireTestPrefix('v1');
+const ROLES_URL = iamUrl(v1.roles.link());
 
 // Golden rule: always interact with seeded data from the seed map
 const SEEDED_ROLE_NAME = getSeededRoleName('v1');
@@ -91,29 +82,25 @@ test.describe('Role Management', () => {
   // ATOMIC TESTS: Add standalone checks (button visibility) in the regular block
 
   test.describe.serial('Admin Lifecycle', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test('Create role via wizard [Admin]', async ({ page }) => {
+    test('Create role via wizard [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.createButton.click();
       await rolesPage.fillCreateWizard(uniqueRoleName, roleDescription, SEEDED_WORKSPACE_NAME);
-
-      console.log(`[Create] ✓ Role created: ${uniqueRoleName}`);
     });
 
-    test('Verify role appears in table [Admin]', async ({ page }) => {
+    test('Verify role appears in table [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.searchFor(uniqueRoleName);
       await rolesPage.verifyRoleInTable(uniqueRoleName);
-
-      console.log(`[Verify] ✓ Role found in table`);
     });
 
-    test('View role detail page [Admin]', async ({ page }) => {
+    test('View role detail page [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -122,11 +109,9 @@ test.describe('Role Management', () => {
 
       await expect(rolesPage.getDetailHeading(uniqueRoleName)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       await expect(page.getByText(roleDescription)).toBeVisible();
-
-      console.log(`[View] ✓ Detail page verified`);
     });
 
-    test('Edit role from list [Admin]', async ({ page }) => {
+    test('Edit role from list [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -135,11 +120,9 @@ test.describe('Role Management', () => {
       await rolesPage.clickRowAction('Edit');
       await rolesPage.fillEditModal(editedRoleName, editedDescription);
       await rolesPage.verifySuccess();
-
-      console.log(`[Edit] ✓ Role renamed to: ${editedRoleName}`);
     });
 
-    test('Verify edit was applied [Admin]', async ({ page }) => {
+    test('Verify edit was applied [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -148,11 +131,9 @@ test.describe('Role Management', () => {
 
       await rolesPage.navigateToDetail(editedRoleName);
       await expect(page.getByText(editedDescription)).toBeVisible();
-
-      console.log(`[Verify Edit] ✓ Changes confirmed`);
     });
 
-    test('Delete role [Admin]', async ({ page }) => {
+    test('Delete role [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -160,45 +141,37 @@ test.describe('Role Management', () => {
       await rolesPage.openRowActions(editedRoleName);
       await rolesPage.clickRowAction('Delete');
       await rolesPage.confirmDelete();
-
-      console.log(`[Delete] ✓ Deletion confirmed`);
     });
 
-    test('Verify role is deleted [Admin]', async ({ page }) => {
+    test('Verify role is deleted [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.searchFor(editedRoleName);
       await rolesPage.verifyRoleNotInTable(editedRoleName);
-
-      console.log(`[Verify Delete] ✓ Role no longer exists`);
     });
   });
 
   test.describe.serial('Admin Copy Lifecycle', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test('Create role by copying seeded role [Admin]', async ({ page }) => {
+    test('Create role by copying seeded role [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.createButton.click();
       await rolesPage.fillCreateWizardAsCopy(copiedRoleName, SEEDED_ROLE_NAME, SEEDED_WORKSPACE_NAME, copiedRoleDescription);
-
-      console.log(`[Copy] ✓ Role copied from: ${SEEDED_ROLE_NAME} to: ${copiedRoleName}`);
     });
 
-    test('Verify copied role appears in table [Admin]', async ({ page }) => {
+    test('Verify copied role appears in table [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.searchFor(copiedRoleName);
       await rolesPage.verifyRoleInTable(copiedRoleName);
-
-      console.log(`[Verify Copy] ✓ Copied role found in table`);
     });
 
-    test('Verify copied role has inherited permissions [Admin]', async ({ page }) => {
+    test('Verify copied role has inherited permissions [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -217,12 +190,10 @@ test.describe('Role Management', () => {
         const rows = table.getByRole('row');
         const rowCount = await rows.count();
         expect(rowCount).toBeGreaterThan(1); // More than just header row
-
-        console.log(`[Verify Permissions] ✓ Copied role has ${rowCount - 1} permissions`);
       }
     });
 
-    test('Delete copied role (cleanup) [Admin]', async ({ page }) => {
+    test('Delete copied role (cleanup) [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -230,22 +201,20 @@ test.describe('Role Management', () => {
       await rolesPage.openRowActions(copiedRoleName);
       await rolesPage.clickRowAction('Delete');
       await rolesPage.confirmDelete();
-
-      console.log(`[Cleanup] ✓ Copied role deleted`);
     });
   });
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test(`Create Role button is visible [Admin]`, async ({ page }) => {
+    test(`Create Role button is visible [OrgAdmin]`, async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await expect(rolesPage.createButton).toBeVisible();
     });
 
-    test(`Edit and Delete actions are available on detail page [Admin]`, async ({ page }) => {
+    test(`Edit and Delete actions are available on detail page [OrgAdmin]`, async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 

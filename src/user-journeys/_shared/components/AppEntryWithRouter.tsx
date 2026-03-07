@@ -16,7 +16,6 @@ interface AppEntryWithRouterProps {
   'platform.rbac.group-service-accounts'?: boolean;
   'platform.rbac.group-service-accounts.stable'?: boolean;
   'platform.rbac.common-auth-model'?: boolean;
-  'platform.rbac.common.userstable'?: boolean;
 }
 
 /**

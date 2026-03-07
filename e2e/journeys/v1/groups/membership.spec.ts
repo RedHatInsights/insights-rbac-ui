@@ -29,7 +29,7 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V1_ADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY from utils
+ *   - AUTH: Uses AUTH_V1_ORGADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY from utils
  *   - DATA: Relies on SEEDED_GROUP_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use GroupsPage for navigation and modal interactions
  *   - PREFIX: Requires TEST_PREFIX_V1 env var for safe test isolation
@@ -42,7 +42,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, AUTH_V1_READONLY, AUTH_V1_USERVIEWER, setupPage } from '../../../utils';
+import { AUTH_V1_ORGADMIN, AUTH_V1_READONLY, AUTH_V1_USERVIEWER, iamUrl, requireTestPrefix, setupPage, v1 } from '../../../utils';
 import { getSeededGroupName } from '../../../utils/seed-map';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
@@ -51,17 +51,8 @@ import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 // CONFIGURATION - V1
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX_V1;
-const GROUPS_URL = '/iam/user-access/groups';
-
-if (!TEST_PREFIX) {
-  throw new Error(
-    '\n\n' +
-      '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX_V1 environment variable is REQUIRED       ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n',
-  );
-}
+const _TEST_PREFIX = requireTestPrefix('v1');
+const GROUPS_URL = iamUrl(v1.groups.link());
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TEST DATA
@@ -77,10 +68,10 @@ if (!SEEDED_GROUP_NAME) {
 // Tests - Admin Only (Member Management)
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('Admin - Group Member Management', () => {
-  test.use({ storageState: AUTH_V1_ADMIN });
+test.describe('OrgAdmin - Group Member Management', () => {
+  test.use({ storageState: AUTH_V1_ORGADMIN });
 
-  test('Can navigate to group detail Members tab [Admin]', async ({ page }) => {
+  test('Can navigate to group detail Members tab [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -94,11 +85,9 @@ test.describe('Admin - Group Member Management', () => {
 
     // Should show Add member button (indicates we're on the right tab)
     await expect(groupsPage.addMemberButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-
-    console.log('[Members] ✓ Members tab navigation works');
   });
 
-  test('Add member button opens modal [Admin]', async ({ page }) => {
+  test('Add member button opens modal [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -121,11 +110,9 @@ test.describe('Admin - Group Member Management', () => {
 
     // Close modal
     await page.keyboard.press('Escape');
-
-    console.log('[Members] ✓ Add member modal opens');
   });
 
-  test.describe.serial('Member Add/Remove Lifecycle [Admin]', () => {
+  test.describe.serial('Member Add/Remove Lifecycle [OrgAdmin]', () => {
     test('Add members to group', async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
@@ -144,8 +131,6 @@ test.describe('Admin - Group Member Management', () => {
 
       // Verify success notification
       await groupsPage.verifySuccess();
-
-      console.log('[Members] ✓ Member added to group');
     });
 
     test('Remove member from group', async ({ page }) => {
@@ -165,8 +150,6 @@ test.describe('Admin - Group Member Management', () => {
 
       // Verify success notification
       await groupsPage.verifySuccess();
-
-      console.log('[Members] ✓ Member removed from group');
     });
   });
 });
@@ -175,10 +158,10 @@ test.describe('Admin - Group Member Management', () => {
 // Tests - Admin Only (Role Management)
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('Admin - Group Role Management', () => {
-  test.use({ storageState: AUTH_V1_ADMIN });
+test.describe('OrgAdmin - Group Role Management', () => {
+  test.use({ storageState: AUTH_V1_ORGADMIN });
 
-  test('Can navigate to group detail Roles tab [Admin]', async ({ page }) => {
+  test('Can navigate to group detail Roles tab [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -192,11 +175,9 @@ test.describe('Admin - Group Role Management', () => {
 
     // Should show Add role button (indicates we're on the right tab)
     await expect(groupsPage.addRoleButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-
-    console.log('[Roles] ✓ Roles tab navigation works');
   });
 
-  test('Add role button opens modal [Admin]', async ({ page }) => {
+  test('Add role button opens modal [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -219,11 +200,9 @@ test.describe('Admin - Group Role Management', () => {
 
     // Close modal
     await page.keyboard.press('Escape');
-
-    console.log('[Roles] ✓ Add role modal opens');
   });
 
-  test.describe.serial('Role Add/Remove Lifecycle [Admin]', () => {
+  test.describe.serial('Role Add/Remove Lifecycle [OrgAdmin]', () => {
     test('Add roles to group', async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
@@ -242,8 +221,6 @@ test.describe('Admin - Group Role Management', () => {
 
       // Verify success notification
       await groupsPage.verifySuccess();
-
-      console.log('[Roles] ✓ Role added to group');
     });
 
     test('Remove role from group', async ({ page }) => {
@@ -266,8 +243,6 @@ test.describe('Admin - Group Role Management', () => {
 
       // Verify success notification
       await groupsPage.verifySuccess();
-
-      console.log('[Roles] ✓ Role removed from group');
     });
   });
 });

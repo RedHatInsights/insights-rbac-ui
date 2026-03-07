@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { trimAll } from '../../../helpers/stringUtilities';
+import { trimAll } from '../../../shared/helpers/stringUtilities';
 
 describe('stringUtilities.trimAll', () => {
   it('preserves non-whitespace characters like dashes and letters', () => {

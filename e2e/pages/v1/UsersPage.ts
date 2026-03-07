@@ -9,10 +9,10 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { setupPage, waitForTableUpdate } from '../../utils';
+import { iamUrl, setupPage, v1, waitForTableUpdate } from '../../utils';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
-const USERS_URL = '/iam/user-access/users';
+const USERS_URL = iamUrl(v1.users.link());
 
 export class UsersPage {
   readonly page: Page;
@@ -27,8 +27,10 @@ export class UsersPage {
 
   async goto(): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(USERS_URL);
-    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
+    await expect(async () => {
+      await this.page.goto(USERS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -36,7 +38,7 @@ export class UsersPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   get heading(): Locator {
-    return this.page.getByRole('heading', { name: /users/i });
+    return this.page.getByRole('heading', { name: /users/i, level: 1 });
   }
 
   get table(): Locator {

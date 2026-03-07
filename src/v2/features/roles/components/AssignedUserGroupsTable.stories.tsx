@@ -1,0 +1,60 @@
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { expect, waitFor, within } from 'storybook/test';
+import { AssignedUserGroupsTable, type GroupRow } from './AssignedUserGroupsTable';
+
+const sampleGroups: GroupRow[] = [
+  { uuid: 'g-1', name: 'Administrators', workspaceAssignment: 'Default workspace' },
+  { uuid: 'g-2', name: 'Developers', workspaceAssignment: 'Production workspace' },
+];
+
+const meta: Meta = {
+  component: AssignedUserGroupsTable,
+};
+
+export default meta;
+type Story = StoryObj;
+
+export const WithGroups: Story = {
+  render: () => <AssignedUserGroupsTable groups={sampleGroups} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const table = await canvas.findByRole('grid');
+    await expect(table).toBeInTheDocument();
+
+    // Column headers (match intl defaultMessage)
+    await expect(canvas.findByText('User group')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Workspace assignment (TBD)')).resolves.toBeInTheDocument();
+
+    // Verify cell data
+    await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Default workspace')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Developers')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Production workspace')).resolves.toBeInTheDocument();
+
+    // 2 data rows + 1 header row = 3
+    const rows = within(table).getAllByRole('row');
+    await expect(rows.length).toBe(3);
+  },
+};
+
+export const Empty: Story = {
+  render: () => <AssignedUserGroupsTable groups={[]} />,
+  play: async ({ canvasElement }) => {
+    await waitFor(() => {
+      const dataRows = canvasElement.querySelectorAll('tbody tr');
+      expect(dataRows.length).toBe(0);
+    });
+  },
+};
+
+export const Loading: Story = {
+  render: () => <AssignedUserGroupsTable groups={undefined} />,
+  play: async ({ canvasElement }) => {
+    await waitFor(() => {
+      const skeletons = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
+      expect(skeletons.length).toBeGreaterThan(0);
+    });
+  },
+};

@@ -223,7 +223,7 @@ objects:
             # V2 navigation (platform.rbac.workspaces-organization-management = true)
             - id: overview
               title: Overview
-              href: /iam/user-access/overview
+              href: /iam/overview
               permissions:
                 - method: featureFlag
                   args:
@@ -294,9 +294,7 @@ objects:
                   title: Audit Log
                   href: /iam/access-management/audit-log
                   permissions:
-                    - method: loosePermissions
-                      args:
-                        - - rbac:*:read
+                    - method: isOrgAdmin
                   product: Identity & Access Management
                 - segmentRef:
                     frontendName: service-accounts
@@ -414,9 +412,7 @@ objects:
                   title: Audit Log
                   href: /iam/user-access/audit-log
                   permissions:
-                    - method: loosePermissions
-                      args:
-                        - - rbac:*:read
+                    - method: isOrgAdmin
                   product: Identity & Access Management
                 - segmentRef:
                     frontendName: access-requests

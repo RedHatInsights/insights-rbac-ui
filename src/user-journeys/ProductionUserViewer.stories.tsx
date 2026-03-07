@@ -2,7 +2,7 @@ import type { StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
 import { delay } from 'msw';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
-import { ENVIRONMENTS } from './_shared/environments';
+import { ENVIRONMENTS, v1Db } from './_shared/environments';
 import { TEST_TIMEOUTS, resetStoryState } from './_shared/helpers';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
@@ -31,36 +31,7 @@ const meta = {
     ...ENVIRONMENTS.PROD_USER_VIEWER,
     docs: {
       description: {
-        component: `
-# Production V1: User Viewer Persona
-
-This environment simulates a user with **minimal read permission** - only \`rbac:principal:read\`.
-
-## Permission Configuration
-
-- **Permissions**: \`['rbac:principal:read']\`
-- **Org Admin**: false
-- **Feature Flags**: V1 navigation
-
-## Expected Sidebar
-
-- ✅ My User Access (visible)
-- ✅ User Access section (visible - has rbac:principal:read)
-  - ✅ Users (visible - has rbac:principal:read)
-  - ❌ Groups (NOT visible - no rbac:group:read)
-  - ❌ Roles (NOT visible - no rbac:role:read)
-
-## User Journeys
-
-### What User Viewer Can Do
-- View "My User Access" page
-- View Users list (read-only)
-
-### What User Viewer CANNOT Do
-- Access Groups page (no permission)
-- Access Roles page (no permission)
-- Create/Edit/Delete anything
-        `,
+        component: 'Minimal viewer with rbac:principal:read only. See the Documentation page for full details.',
       },
     },
   },
@@ -72,7 +43,6 @@ export default meta;
  * Manual Testing Entry Point
  */
 export const ManualTesting: Story = {
-  tags: ['autodocs'],
   args: {
     initialRoute: '/iam/my-user-access',
   },
@@ -90,7 +60,7 @@ Entry point for manual testing of the User Viewer persona.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     // Wait for the permissions section to render - this is the most reliable indicator the page is ready
@@ -123,7 +93,7 @@ Validates that User Viewer sees the correct sidebar items.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -173,7 +143,7 @@ Tests that User Viewer can access the Users page.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -208,7 +178,7 @@ Tests that:
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -243,7 +213,7 @@ Tests that:
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);

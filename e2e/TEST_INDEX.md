@@ -12,7 +12,7 @@
 > - [ ] Used `E2E_TIMEOUTS` constants (no magic numbers)?
 >
 > **Required persona blocks** (see [TEST_PERSONAS.md](./TEST_PERSONAS.md) for details):
-> - `Admin` — Full CRUD tests, serial lifecycle
+> - `OrgAdmin` — Full CRUD tests, serial lifecycle
 > - `UserViewer` — Verify buttons disabled/hidden, no write access
 > - `ReadOnlyUser` — Verify unauthorized message or blocked access
 
@@ -35,11 +35,11 @@ Quick reference for where to add tests. Search this file before creating new tes
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin sees V2 nav structure and order | `navigation/navigation-structure.spec.ts` | `Admin` | Use NavigationSidebar, gotoOverview |
-| Admin cross-page nav works (Overview → Users and Groups → Roles → Workspaces) | `navigation/navigation-structure.spec.ts` | `Admin` | Use NavigationSidebar |
+| OrgAdmin sees V2 nav structure and order | `navigation/navigation-structure.spec.ts` | `OrgAdmin` | Use NavigationSidebar, gotoOverview |
+| OrgAdmin cross-page nav works (Overview → Users and Groups → Roles → Workspaces) | `navigation/navigation-structure.spec.ts` | `OrgAdmin` | Use NavigationSidebar |
 | UserViewer does not see Organization Management in nav | `navigation/navigation-structure.spec.ts` | `UserViewer` | gotoMyAccess |
 | ReadOnlyUser does not see Organization Management in nav | `navigation/navigation-structure.spec.ts` | `ReadOnlyUser` | gotoMyAccess |
-| Org admin can access Organization Management page | `navigation/organization-management-access.spec.ts` | `Admin` | Goto /iam/organization-management/organization-wide-access |
+| Org admin can access Organization Management page | `navigation/organization-management-access.spec.ts` | `OrgAdmin` | Goto /iam/organization-management/organization-wide-access |
 | UserViewer blocked from direct URL to Organization Management | `navigation/organization-management-access.spec.ts` | `UserViewer` | Goto URL, expect unauthorized |
 | ReadOnlyUser blocked from direct URL to Organization Management | `navigation/organization-management-access.spec.ts` | `ReadOnlyUser` | Goto URL, expect unauthorized |
 
@@ -49,46 +49,46 @@ Quick reference for where to add tests. Search this file before creating new tes
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin creates a group | `group-management.spec.ts` | `Admin Lifecycle` (serial) | Use unique name with TEST_PREFIX |
-| Admin edits a group | `group-management.spec.ts` | `Admin Lifecycle` (serial) | Follows create test |
-| Admin deletes a group | `group-management.spec.ts` | `Admin Lifecycle` (serial) | Follows edit test |
-| Admin sees Create button | `group-management.spec.ts` | `Admin` | Atomic, no setup needed |
-| Admin sees Edit/Delete actions | `group-management.spec.ts` | `Admin` | Use SEEDED_GROUP_NAME |
+| OrgAdmin creates a group | `group-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Use unique name with TEST_PREFIX |
+| OrgAdmin edits a group | `group-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Follows create test |
+| OrgAdmin deletes a group | `group-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Follows edit test |
+| OrgAdmin sees Create button | `group-management.spec.ts` | `OrgAdmin` | Atomic, no setup needed |
+| OrgAdmin sees Edit/Delete actions | `group-management.spec.ts` | `OrgAdmin` | Use SEEDED_GROUP_NAME |
 | UserViewer gets unauthorized | `group-management.spec.ts` | `UserViewer` | Navigate to URL directly |
 | ReadOnlyUser gets unauthorized | `group-management.spec.ts` | `ReadOnlyUser` | Navigate to URL directly |
-| Admin views groups list | `group-list.spec.ts` | `Admin` | No setup needed |
-| Admin searches for group | `group-list.spec.ts` | `Admin` | Use SEEDED_GROUP_NAME |
-| Admin views group detail | `group-detail.spec.ts` | `Admin` | Use SEEDED_GROUP_NAME |
-| Admin navigates to role from group | `group-detail.spec.ts` | `Admin` | Requires seeded role attached |
-| Admin adds member to group | `group-membership.spec.ts` | `Admin Lifecycle` | Use SEEDED_GROUP_NAME |
+| OrgAdmin views groups list | `group-list.spec.ts` | `OrgAdmin` | No setup needed |
+| OrgAdmin searches for group | `group-list.spec.ts` | `OrgAdmin` | Use SEEDED_GROUP_NAME |
+| OrgAdmin views group detail | `group-detail.spec.ts` | `OrgAdmin` | Use SEEDED_GROUP_NAME |
+| OrgAdmin navigates to role from group | `group-detail.spec.ts` | `OrgAdmin` | Requires seeded role attached |
+| OrgAdmin adds member to group | `group-membership.spec.ts` | `OrgAdmin Lifecycle` | Use SEEDED_GROUP_NAME |
 
 ## V1 Roles
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin creates a role | `role-management.spec.ts` | `Admin Lifecycle` (serial) | Use unique name with TEST_PREFIX |
-| Admin edits a role | `role-management.spec.ts` | `Admin Lifecycle` (serial) | Follows create test |
-| Admin deletes a role | `role-management.spec.ts` | `Admin Lifecycle` (serial) | Follows edit test |
-| Admin copies a role | `role-management.spec.ts` | `Admin Copy Lifecycle` (serial) | Use SEEDED_ROLE_NAME as source |
-| Admin sees Create button | `role-management.spec.ts` | `Admin` | Atomic, no setup needed |
-| Admin sees Edit/Delete on detail | `role-management.spec.ts` | `Admin` | Use SEEDED_ROLE_NAME |
+| OrgAdmin creates a role | `role-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Use unique name with TEST_PREFIX |
+| OrgAdmin edits a role | `role-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Follows create test |
+| OrgAdmin deletes a role | `role-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Follows edit test |
+| OrgAdmin copies a role | `role-management.spec.ts` | `OrgAdmin Copy Lifecycle` (serial) | Use SEEDED_ROLE_NAME as source |
+| OrgAdmin sees Create button | `role-management.spec.ts` | `OrgAdmin` | Atomic, no setup needed |
+| OrgAdmin sees Edit/Delete on detail | `role-management.spec.ts` | `OrgAdmin` | Use SEEDED_ROLE_NAME |
 | UserViewer gets unauthorized | `role-management.spec.ts` | `UserViewer` | Navigate to URL directly |
 | ReadOnlyUser gets unauthorized | `role-management.spec.ts` | `ReadOnlyUser` | Navigate to URL directly |
-| Admin views roles list | `role-list.spec.ts` | `Admin` | No setup needed |
-| Admin searches for role | `role-list.spec.ts` | `Admin` | Use SEEDED_ROLE_NAME |
-| Admin views role detail | `role-detail.spec.ts` | `Admin` | Use SEEDED_ROLE_NAME |
+| OrgAdmin views roles list | `role-list.spec.ts` | `OrgAdmin` | No setup needed |
+| OrgAdmin searches for role | `role-list.spec.ts` | `OrgAdmin` | Use SEEDED_ROLE_NAME |
+| OrgAdmin views role detail | `role-detail.spec.ts` | `OrgAdmin` | Use SEEDED_ROLE_NAME |
 
 ## V1 Users
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin views users list | `user-list.spec.ts` | `Admin` | No setup needed |
-| Admin searches for user | `user-list.spec.ts` | `Admin` | Use getSeededUsername() |
-| Admin views user detail | `user-list.spec.ts` | `Admin` | Use getSeededUsername() |
-| Admin sees invite button | `user-management.spec.ts` | `Admin Status Management` | No setup needed |
-| Admin opens invite modal | `user-management.spec.ts` | `Admin Status Management` | No setup needed |
-| Admin sees bulk actions | `user-management.spec.ts` | `Admin Status Management` | Select users first |
-| Admin invites users | `user-management.spec.ts` | `Admin Invitation` | Mock API response |
+| OrgAdmin views users list | `user-list.spec.ts` | `OrgAdmin` | No setup needed |
+| OrgAdmin searches for user | `user-list.spec.ts` | `OrgAdmin` | Use getSeededUsername() |
+| OrgAdmin views user detail | `user-list.spec.ts` | `OrgAdmin` | Use getSeededUsername() |
+| OrgAdmin sees invite button | `user-management.spec.ts` | `OrgAdmin Status Management` | No setup needed |
+| OrgAdmin opens invite modal | `user-management.spec.ts` | `OrgAdmin Status Management` | No setup needed |
+| OrgAdmin sees bulk actions | `user-management.spec.ts` | `OrgAdmin Status Management` | Select users first |
+| OrgAdmin invites users | `user-management.spec.ts` | `OrgAdmin Invitation` | Mock API response |
 | ReadOnlyUser gets unauthorized | `user-management.spec.ts` | `ReadOnlyUser` | Navigate to URL directly |
 
 ## V2 User Groups
@@ -97,23 +97,23 @@ Quick reference for where to add tests. Search this file before creating new tes
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin views user groups list | `user-group-list.spec.ts` | `Admin` | No setup needed |
-| Admin searches for user group | `user-group-list.spec.ts` | `Admin` | Use SEEDED_GROUP_NAME |
-| Admin views group in drawer | `user-group-detail.spec.ts` | `Admin` | Use SEEDED_GROUP_NAME |
-| Admin sees drawer tabs (Users, SA, Roles) | `user-group-detail.spec.ts` | `Admin` | Use SEEDED_GROUP_NAME |
-| Admin navigates drawer tabs | `user-group-detail.spec.ts` | `Admin` | Use SEEDED_GROUP_NAME |
-| Admin clicks drawer Edit → edit page | `user-group-detail.spec.ts` | `Admin` | Use SEEDED_GROUP_NAME |
-| Admin closes drawer via X button | `user-group-detail.spec.ts` | `Admin` | Use SEEDED_GROUP_NAME |
+| OrgAdmin views user groups list | `user-group-list.spec.ts` | `OrgAdmin` | No setup needed |
+| OrgAdmin searches for user group | `user-group-list.spec.ts` | `OrgAdmin` | Use SEEDED_GROUP_NAME |
+| OrgAdmin views group in drawer | `user-group-detail.spec.ts` | `OrgAdmin` | Use SEEDED_GROUP_NAME |
+| OrgAdmin sees drawer tabs (Users, SA, Roles) | `user-group-detail.spec.ts` | `OrgAdmin` | Use SEEDED_GROUP_NAME |
+| OrgAdmin navigates drawer tabs | `user-group-detail.spec.ts` | `OrgAdmin` | Use SEEDED_GROUP_NAME |
+| OrgAdmin clicks drawer Edit → edit page | `user-group-detail.spec.ts` | `OrgAdmin` | Use SEEDED_GROUP_NAME |
+| OrgAdmin closes drawer via X button | `user-group-detail.spec.ts` | `OrgAdmin` | Use SEEDED_GROUP_NAME |
 
 ### Management (CRUD)
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin creates a user group | `user-group-management.spec.ts` | `Admin Lifecycle` (serial) | Use unique name with TEST_PREFIX |
-| Admin edits a user group (name/desc) | `user-group-management.spec.ts` | `Admin Lifecycle` (serial) | Verifies edit page URL, pre-populated form, tabs |
-| Admin deletes a user group | `user-group-management.spec.ts` | `Admin Lifecycle` (serial) | Follows edit test |
-| Admin sees Create button | `user-group-management.spec.ts` | `Admin` | Atomic, no setup needed |
-| Admin Create button navigates to form | `user-group-management.spec.ts` | `Admin` | Verify empty form, cancel returns |
+| OrgAdmin creates a user group | `user-group-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Use unique name with TEST_PREFIX |
+| OrgAdmin edits a user group (name/desc) | `user-group-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Verifies edit page URL, pre-populated form, tabs |
+| OrgAdmin deletes a user group | `user-group-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Follows edit test |
+| OrgAdmin sees Create button | `user-group-management.spec.ts` | `OrgAdmin` | Atomic, no setup needed |
+| OrgAdmin Create button navigates to form | `user-group-management.spec.ts` | `OrgAdmin` | Verify empty form, cancel returns |
 | UserViewer gets unauthorized | `user-group-management.spec.ts` | `UserViewer` | Navigate to URL directly |
 | ReadOnlyUser gets unauthorized | `user-group-management.spec.ts` | `ReadOnlyUser` | Navigate to URL directly |
 
@@ -124,17 +124,17 @@ Quick reference for where to add tests. Search this file before creating new tes
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Edit page shows selectable users table | `user-group-membership.spec.ts` | `Admin - Member Lifecycle` (serial) | Use SEEDED_GROUP_UUID |
-| Admin adds member via edit page | `user-group-membership.spec.ts` | `Admin - Member Lifecycle` (serial) | Select readonly persona in users table |
-| Admin verifies member in drawer | `user-group-membership.spec.ts` | `Admin - Member Lifecycle` (serial) | Follows add, check drawer Users tab |
-| Admin removes member via edit page | `user-group-membership.spec.ts` | `Admin - Member Lifecycle` (serial) | Deselect user, submit |
-| Admin verifies member removed in drawer | `user-group-membership.spec.ts` | `Admin - Member Lifecycle` (serial) | Self-cleaning: member removed at end |
-| Edit page shows SA table | `user-group-membership.spec.ts` | `Admin - Service Accounts` | Switch to SA tab on edit page |
-| Drawer Edit button → edit page | `user-group-membership.spec.ts` | `Admin - Navigation` | Open drawer, click Edit |
-| Row action Edit → edit page | `user-group-membership.spec.ts` | `Admin - Navigation` | Kebab menu Edit action |
-| Edit page Cancel → list page | `user-group-membership.spec.ts` | `Admin - Navigation` | Click Cancel, verify URL |
-| Submit disabled when name empty | `user-group-membership.spec.ts` | `Admin - Form Validation` | Clear name, check button state |
-| Duplicate name prevents submission | `user-group-membership.spec.ts` | `Admin - Form Validation` | Enter "Default access" |
+| Edit page shows selectable users table | `user-group-membership.spec.ts` | `OrgAdmin - Member Lifecycle` (serial) | Use SEEDED_GROUP_UUID |
+| OrgAdmin adds member via edit page | `user-group-membership.spec.ts` | `OrgAdmin - Member Lifecycle` (serial) | Select readonly persona in users table |
+| OrgAdmin verifies member in drawer | `user-group-membership.spec.ts` | `OrgAdmin - Member Lifecycle` (serial) | Follows add, check drawer Users tab |
+| OrgAdmin removes member via edit page | `user-group-membership.spec.ts` | `OrgAdmin - Member Lifecycle` (serial) | Deselect user, submit |
+| OrgAdmin verifies member removed in drawer | `user-group-membership.spec.ts` | `OrgAdmin - Member Lifecycle` (serial) | Self-cleaning: member removed at end |
+| Edit page shows SA table | `user-group-membership.spec.ts` | `OrgAdmin - Service Accounts` | Switch to SA tab on edit page |
+| Drawer Edit button → edit page | `user-group-membership.spec.ts` | `OrgAdmin - Navigation` | Open drawer, click Edit |
+| Row action Edit → edit page | `user-group-membership.spec.ts` | `OrgAdmin - Navigation` | Kebab menu Edit action |
+| Edit page Cancel → list page | `user-group-membership.spec.ts` | `OrgAdmin - Navigation` | Click Cancel, verify URL |
+| Submit disabled when name empty | `user-group-membership.spec.ts` | `OrgAdmin - Form Validation` | Clear name, check button state |
+| Duplicate name prevents submission | `user-group-membership.spec.ts` | `OrgAdmin - Form Validation` | Enter "Default access" |
 | UserViewer cannot access edit page | `user-group-membership.spec.ts` | `UserViewer` | Navigate to edit URL directly |
 | ReadOnlyUser cannot access edit page | `user-group-membership.spec.ts` | `ReadOnlyUser` | Navigate to edit URL directly |
 
@@ -142,34 +142,34 @@ Quick reference for where to add tests. Search this file before creating new tes
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin creates a role | `role-management.spec.ts` | `Admin Lifecycle` (serial) | Use unique name with TEST_PREFIX |
-| Admin edits a role | `role-management.spec.ts` | `Admin Lifecycle` (serial) | Follows create test |
-| Admin deletes a role | `role-management.spec.ts` | `Admin Lifecycle` (serial) | Follows edit test |
-| Admin sees Create button | `role-management.spec.ts` | `Admin` | Atomic, no setup needed |
+| OrgAdmin creates a role | `role-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Use unique name with TEST_PREFIX |
+| OrgAdmin edits a role | `role-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Follows create test |
+| OrgAdmin deletes a role | `role-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Follows edit test |
+| OrgAdmin sees Create button | `role-management.spec.ts` | `OrgAdmin` | Atomic, no setup needed |
 | UserViewer gets unauthorized | `role-management.spec.ts` | `UserViewer` | Navigate to URL directly |
 | ReadOnlyUser gets unauthorized | `role-management.spec.ts` | `ReadOnlyUser` | Navigate to URL directly |
-| Admin views roles list | `role-list.spec.ts` | `Admin` | No setup needed |
-| Admin searches for role | `role-list.spec.ts` | `Admin` | Use SEEDED_ROLE_NAME |
-| Admin views role in drawer | `role-detail.spec.ts` | `Admin` | Use SEEDED_ROLE_NAME |
+| OrgAdmin views roles list | `role-list.spec.ts` | `OrgAdmin` | No setup needed |
+| OrgAdmin searches for role | `role-list.spec.ts` | `OrgAdmin` | Use SEEDED_ROLE_NAME |
+| OrgAdmin views role in drawer | `role-detail.spec.ts` | `OrgAdmin` | Use SEEDED_ROLE_NAME |
 
 ## V2 Users
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin views users list | `user-list.spec.ts` | `Admin` | No setup needed |
-| Admin filters by username | `user-list.spec.ts` | `Admin` | Use getSeededUsername() |
-| Admin views user in drawer | `user-list.spec.ts` | `Admin` | Use getSeededUsername() |
+| OrgAdmin views users list | `user-list.spec.ts` | `OrgAdmin` | No setup needed |
+| OrgAdmin filters by username | `user-list.spec.ts` | `OrgAdmin` | Use getSeededUsername() |
+| OrgAdmin views user in drawer | `user-list.spec.ts` | `OrgAdmin` | Use getSeededUsername() |
 | UserViewer views users list | `user-list.spec.ts` | `UserViewer` | No setup needed |
 | UserViewer views user in drawer | `user-list.spec.ts` | `UserViewer` | Use getSeededUsername() |
 | ReadOnlyUser gets unauthorized | `user-list.spec.ts` | `ReadOnlyUser` | Navigate to URL directly |
-| Admin invites users | `user-invite.spec.ts` | `Admin` | Mock API response |
+| OrgAdmin invites users | `user-invite.spec.ts` | `OrgAdmin` | Mock API response |
 | UserViewer cannot invite | `user-invite.spec.ts` | `UserViewer` | Check button disabled |
 
 ## V1 Workspaces
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin views workspaces list | `workspace-list.spec.ts` | `Admin` | No setup needed |
+| OrgAdmin views workspaces list | `workspace-list.spec.ts` | `OrgAdmin` | No setup needed |
 | UserViewer views workspaces list | `workspace-list.spec.ts` | `UserViewer` | Read-only access |
 | ReadOnlyUser views workspaces list | `workspace-list.spec.ts` | `ReadOnlyUser` | Read-only access |
 
@@ -177,17 +177,17 @@ Quick reference for where to add tests. Search this file before creating new tes
 
 | Scenario | File | Describe Block | Setup Notes |
 |----------|------|----------------|-------------|
-| Admin creates a workspace | `workspace-management.spec.ts` | `Admin Lifecycle` (serial) | Use TEST_PREFIX, select parent workspace |
-| Admin edits a workspace | `workspace-management.spec.ts` | `Admin Lifecycle` (serial) | Follows create test |
-| Admin deletes a workspace | `workspace-management.spec.ts` | `Admin Lifecycle` (serial) | Follows edit test |
-| Admin sees Create button | `workspace-management.spec.ts` | `Admin` | Atomic, no setup needed |
+| OrgAdmin creates a workspace | `workspace-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Use TEST_PREFIX, select parent workspace |
+| OrgAdmin edits a workspace | `workspace-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Follows create test |
+| OrgAdmin deletes a workspace | `workspace-management.spec.ts` | `OrgAdmin Lifecycle` (serial) | Follows edit test |
+| OrgAdmin sees Create button | `workspace-management.spec.ts` | `OrgAdmin` | Atomic, no setup needed |
 | UserViewer Create button disabled | `workspace-management.spec.ts` | `UserViewer` | Lacks `inventory:groups:write` |
 | ReadOnlyUser Create button disabled | `workspace-management.spec.ts` | `ReadOnlyUser` | Lacks `inventory:groups:write` |
-| Admin views workspaces list | `workspace-list.spec.ts` | `Admin` | No setup needed |
-| Admin searches for workspace | `workspace-list.spec.ts` | `Admin` | Use SEEDED_WORKSPACE_NAME |
+| OrgAdmin views workspaces list | `workspace-list.spec.ts` | `OrgAdmin` | No setup needed |
+| OrgAdmin searches for workspace | `workspace-list.spec.ts` | `OrgAdmin` | Use SEEDED_WORKSPACE_NAME |
 | UserViewer views workspaces list | `workspace-list.spec.ts` | `UserViewer` | Read-only access |
 | ReadOnlyUser views workspaces list | `workspace-list.spec.ts` | `ReadOnlyUser` | Read-only access |
-| Admin views workspace detail | `workspace-detail.spec.ts` | `Admin` | Use SEEDED_WORKSPACE_NAME |
+| OrgAdmin views workspace detail | `workspace-detail.spec.ts` | `OrgAdmin` | Use SEEDED_WORKSPACE_NAME |
 | UserViewer views workspace detail | `workspace-detail.spec.ts` | `UserViewer` | Read-only access |
 | ReadOnlyUser views workspace detail | `workspace-detail.spec.ts` | `ReadOnlyUser` | Read-only access |
 
@@ -204,7 +204,7 @@ Quick reference for where to add tests. Search this file before creating new tes
 | Seeded Workspace (V2) | `getSeededWorkspaceName('v2')` | Read-only tests, viewer tests |
 | Seeded User | `getSeededUsername()` | User search/filter tests, membership tests |
 | New Entity | Create in serial lifecycle | CRUD lifecycle tests only |
-| Auth State | `AUTH_V1_ADMIN`, `AUTH_V2_ADMIN`, etc. | All tests via `test.use()` |
+| Auth State | `AUTH_V1_ORGADMIN`, `AUTH_V2_ORGADMIN`, etc. | All tests via `test.use()` |
 | Test Prefix (V1) | `process.env.TEST_PREFIX_V1` | Creating new V1 entities |
 | Test Prefix (V2) | `process.env.TEST_PREFIX_V2` | Creating new V2 entities |
 
@@ -214,6 +214,6 @@ Quick reference for where to add tests. Search this file before creating new tes
 
 | Persona | V1 Fixture | V2 Fixture |
 |---------|------------|------------|
-| Admin | `AUTH_V1_ADMIN` | `AUTH_V2_ADMIN` |
+| OrgAdmin | `AUTH_V1_ORGADMIN` | `AUTH_V2_ORGADMIN` |
 | UserViewer | `AUTH_V1_USERVIEWER` | `AUTH_V2_USERVIEWER` |
 | ReadOnlyUser | `AUTH_V1_READONLY` | `AUTH_V2_READONLY` |

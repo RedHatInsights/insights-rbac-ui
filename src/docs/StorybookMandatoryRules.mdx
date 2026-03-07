@@ -35,6 +35,7 @@ const button = canvas.getByRole('button', { name: /save/i });
 ```
 
 **Exceptions where `getBy*` is acceptable:**
+
 - Inside `within(alreadyFoundElement)` when the parent was already awaited
 - `queryBy*` for asserting absence: `expect(canvas.queryByText('error')).not.toBeInTheDocument()`
 
@@ -94,7 +95,7 @@ Container stories (feature-level, use MSW) must use the **single autodocs** patt
 // ✅ Container story meta — NO autodocs on meta
 const meta: Meta<typeof MyFeature> = {
   component: MyFeature,
-  tags: ['my-feature'],  // NOT 'autodocs'
+  tags: ['my-feature'], // NOT 'autodocs'
   parameters: {
     msw: {
       handlers: [
@@ -166,6 +167,7 @@ play: async ({ canvasElement }) => {
 ```
 
 Key rules:
+
 - Name spies with `Spy` suffix: `groupsApiSpy`, `createGroupSpy`
 - Wrap debounced spy assertions in `waitFor()`
 - Test `toHaveBeenCalledTimes(n)` for multi-call sequences
@@ -176,13 +178,13 @@ Key rules:
 
 Every story must include appropriate tags so stories are filterable in Storybook:
 
-| Condition | Tag |
-|-----------|-----|
-| Component uses a feature flag | `ff:platform.rbac.flag-name` |
-| Chrome environment set | `env:prod` / `env:stage` |
-| `orgAdmin: true` | `perm:org-admin` |
-| `userAccessAdministrator: true` | `perm:user-access-admin` |
-| Component imports a `.scss` file | `custom-css` |
+| Condition                        | Tag                          |
+| -------------------------------- | ---------------------------- |
+| Component uses a feature flag    | `ff:platform.rbac.flag-name` |
+| Chrome environment set           | `env:prod` / `env:stage`     |
+| `orgAdmin: true`                 | `perm:org-admin`             |
+| `userAccessAdministrator: true`  | `perm:user-access-admin`     |
+| Component imports a `.scss` file | `custom-css`                 |
 
 ```typescript
 export const AdminProductionStory: Story = {
@@ -221,6 +223,62 @@ parameters: {
 
 ---
 
+## 10. MSW Handler Settle Delay
+
+Play functions in stories that use MSW handlers **must** start with `await delay(300)` before any queries. This gives MSW time to register and settle the handlers after the story mounts.
+
+```typescript
+import { delay } from 'msw';
+
+play: async ({ canvasElement }) => {
+  await delay(300); // let MSW handlers register and settle
+  const canvas = within(canvasElement);
+  // ...queries and assertions
+},
+```
+
+Stories that do **not** use MSW handlers (pure component stories with only `args`) do not need the delay.
+
+**Do not use custom `{ timeout }` overrides** on `findBy*` or `waitFor`. The default timeout (1 000 ms) is more than sufficient for a mocked network layer with ~200 ms mock delay. If you need a higher timeout, the real problem is elsewhere.
+
+---
+
+## 11. No Hardcoded Mock Data Strings
+
+Play functions must **never** use hardcoded string literals for entity names, usernames, workspace names, or other values that come from seed/fixture data. Instead, import the seed constants and reference them by property.
+
+This prevents silent breakage when seed data changes and makes the data dependency explicit.
+
+Each seed file exports named aliases — import them directly instead of indexing arrays:
+
+```typescript
+// ✅ Import named aliases from seed files
+import { USER_JOHN, GROUP_SUPPORT_TEAM } from '../../shared/data/mocks/seed';
+import { V2_ROLE_TENANT_ADMIN, WS_ROOT } from '../../v2/data/mocks/seed';
+import { V1_ROLE_ADMIN } from '../../v1/data/mocks/seed';
+
+await waitForPageToLoad(canvas, V2_ROLE_TENANT_ADMIN.name!);
+await canvas.findByText(USER_JOHN.username);
+await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+await openRowActionsMenu(user, canvas, GROUP_SUPPORT_TEAM.name);
+
+// ❌ Hardcoded strings that silently break when seed data changes
+await waitForPageToLoad(canvas, 'Tenant admin');
+await canvas.findByText('john.doe');
+await expandWorkspaceRow(user, canvas, 'Root Workspace');
+```
+
+Available aliases:
+
+| Seed file                                     | Aliases                                                                                                                                                                                                                                 |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shared/data/mocks/seed.ts`                   | `USER_JOHN`, `USER_JANE`, `USER_BOB`, `GROUP_ADMIN_DEFAULT`, `GROUP_SYSTEM_DEFAULT`, `GROUP_PLATFORM_ADMINS`, `GROUP_SUPPORT_TEAM`, `GROUP_ENGINEERING`                                                                                 |
+| `v1/data/mocks/seed.ts`                       | `V1_ROLE_ADMIN`, `V1_ROLE_VIEWER`, `V1_ROLE_CUSTOM`, `V1_ROLE_INSIGHTS_ANALYST`, `V1_ROLE_COMPLIANCE_AUDITOR`                                                                                                                           |
+| `v2/data/mocks/seed.ts`                       | `V2_ROLE_TENANT_ADMIN`, `V2_ROLE_WORKSPACE_ADMIN`, `V2_ROLE_RHEL_DEVOPS`, `V2_ROLE_INVENTORY_VIEWER`, `WS_ROOT`, `WS_DEFAULT`, `WS_PRODUCTION`, `WS_DEVELOPMENT`, `WS_STAGING`                                                          |
+| `v2/data/mocks/kesselGroupsRoles.fixtures.ts` | `KESSEL_GROUP_PROD_ADMINS`, `KESSEL_GROUP_DEV_TEAM`, `KESSEL_GROUP_VIEWERS`, `KESSEL_GROUP_MARKETING`, `KESSEL_ROLE_WS_ADMIN`, `KESSEL_ROLE_WS_VIEWER`, `KESSEL_ROLE_WS_EDITOR`, `KESSEL_PROD_ADMINS_MEMBERS`, `KESSEL_VIEWERS_MEMBERS` |
+
+---
+
 ## Pre-flight Checklist
 
 Before writing or submitting any `.stories.tsx` file:
@@ -236,17 +294,22 @@ Before writing or submitting any `.stories.tsx` file:
 - [ ] Required tags applied (`ff:*`, `env:*`, `perm:*`, `custom-css`)
 - [ ] No custom Redux provider decorators
 - [ ] `args` parameter kept in play function signature if story tests callbacks
+- [ ] MSW stories: play function starts with `await delay(300)`
+- [ ] No custom `{ timeout }` overrides on `findBy*` / `waitFor`
+- [ ] No hardcoded mock data strings — reference seed constants instead
 
 ---
 
 ## Quick Reference
 
-| What | Pattern |
-|------|---------|
-| Testing imports | `import { userEvent, within, expect, fn, waitFor } from 'storybook/test'` |
-| Wait for element | `await canvas.findByRole('button')` |
-| Assert existence | `await expect(canvas.findByText('x')).resolves.toBeInTheDocument()` |
-| Modal content | `within(screen.getByRole('dialog')).getByText('...')` |
-| PF table | `await canvas.findByRole('grid')` |
-| API spy | `const spy = fn(); ... spy({ params }); ... expect(spy).toHaveBeenCalledWith(...)` |
-| Clear all filters | `table.clearAllFilters()` — never manually reset filter keys |
+| What              | Pattern                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| Testing imports   | `import { userEvent, within, expect, fn, waitFor } from 'storybook/test'`          |
+| MSW settle        | `await delay(300)` as first line of play function                                  |
+| Wait for element  | `await canvas.findByRole('button')`                                                |
+| Assert existence  | `await expect(canvas.findByText('x')).resolves.toBeInTheDocument()`                |
+| Modal content     | `within(screen.getByRole('dialog')).getByText('...')`                              |
+| PF table          | `await canvas.findByRole('grid')`                                                  |
+| API spy           | `const spy = fn(); ... spy({ params }); ... expect(spy).toHaveBeenCalledWith(...)` |
+| Clear all filters | `table.clearAllFilters()` — never manually reset filter keys                       |
+| Mock data refs    | `DEFAULT_USERS[0].username` — never `'john.doe'`                                   |

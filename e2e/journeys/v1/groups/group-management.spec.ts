@@ -28,7 +28,7 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V1_ADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY from utils
+ *   - AUTH: Uses AUTH_V1_ORGADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY from utils
  *   - DATA: Relies on SEEDED_GROUP_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use GroupsPage.createButton.click() for UI tests
  *            Use getSeededGroupName() for existing data - NEVER create via UI in viewer tests
@@ -36,7 +36,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, AUTH_V1_READONLY, AUTH_V1_USERVIEWER, setupPage } from '../../../utils';
+import { AUTH_V1_ORGADMIN, AUTH_V1_READONLY, AUTH_V1_USERVIEWER, iamUrl, requireTestPrefix, setupPage, v1 } from '../../../utils';
 import { getSeededGroupName } from '../../../utils/seed-map';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
@@ -45,17 +45,8 @@ import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX_V1;
-const GROUPS_URL = '/iam/user-access/groups';
-
-if (!TEST_PREFIX) {
-  throw new Error(
-    '\n\n' +
-      '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX_V1 environment variable is REQUIRED       ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n',
-  );
-}
+const TEST_PREFIX = requireTestPrefix('v1');
+const GROUPS_URL = iamUrl(v1.groups.link());
 
 // Golden rule: always interact with seeded data from the seed map
 const SEEDED_GROUP_NAME = getSeededGroupName('v1');
@@ -82,29 +73,25 @@ test.describe('Group Management', () => {
   // ATOMIC TESTS: Add standalone checks (button visibility) in the regular block
 
   test.describe.serial('Admin Lifecycle', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test('Create group via wizard [Admin]', async ({ page }) => {
+    test('Create group via wizard [OrgAdmin]', async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
       await groupsPage.createButton.click();
       await groupsPage.fillCreateWizard(uniqueGroupName, groupDescription);
-
-      console.log(`[Create] ✓ Group created: ${uniqueGroupName}`);
     });
 
-    test('Verify group appears in table [Admin]', async ({ page }) => {
+    test('Verify group appears in table [OrgAdmin]', async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
       await groupsPage.searchFor(uniqueGroupName);
       await groupsPage.verifyGroupInTable(uniqueGroupName);
-
-      console.log(`[Verify] ✓ Group found in table`);
     });
 
-    test('View group detail page [Admin]', async ({ page }) => {
+    test('View group detail page [OrgAdmin]', async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
@@ -114,11 +101,9 @@ test.describe('Group Management', () => {
       await expect(groupsPage.getDetailHeading(uniqueGroupName)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       // Description should appear as subtitle once group data loads
       await expect(page.getByText(groupDescription)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
-
-      console.log(`[View] ✓ Detail page verified`);
     });
 
-    test('Edit group from list [Admin]', async ({ page }) => {
+    test('Edit group from list [OrgAdmin]', async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
@@ -127,11 +112,9 @@ test.describe('Group Management', () => {
       await groupsPage.clickRowAction('Edit');
       await groupsPage.fillEditModal(editedGroupName, editedDescription);
       await groupsPage.verifySuccess();
-
-      console.log(`[Edit] ✓ Group renamed to: ${editedGroupName}`);
     });
 
-    test('Verify edit was applied [Admin]', async ({ page }) => {
+    test('Verify edit was applied [OrgAdmin]', async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
@@ -141,11 +124,9 @@ test.describe('Group Management', () => {
       await groupsPage.navigateToDetail(editedGroupName);
       // Description should appear as subtitle once group data loads
       await expect(page.getByText(editedDescription)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
-
-      console.log(`[Verify Edit] ✓ Changes confirmed`);
     });
 
-    test('Delete group [Admin]', async ({ page }) => {
+    test('Delete group [OrgAdmin]', async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
@@ -153,32 +134,28 @@ test.describe('Group Management', () => {
       await groupsPage.openRowActions(editedGroupName);
       await groupsPage.clickRowAction('Delete');
       await groupsPage.confirmDelete(editedGroupName);
-
-      console.log(`[Delete] ✓ Deletion confirmed`);
     });
 
-    test('Verify group is deleted [Admin]', async ({ page }) => {
+    test('Verify group is deleted [OrgAdmin]', async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
       await groupsPage.searchFor(editedGroupName);
       await groupsPage.verifyGroupNotInTable(editedGroupName);
-
-      console.log(`[Verify Delete] ✓ Group no longer exists`);
     });
   });
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test(`Create Group button is visible [Admin]`, async ({ page }) => {
+    test(`Create Group button is visible [OrgAdmin]`, async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
       await expect(groupsPage.createButton).toBeVisible();
     });
 
-    test(`Edit and Delete actions are available [Admin]`, async ({ page }) => {
+    test(`Edit and Delete actions are available [OrgAdmin]`, async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 

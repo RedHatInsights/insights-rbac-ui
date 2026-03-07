@@ -2,7 +2,7 @@ import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import useSearchParams from '../../hooks/useSearchParams';
+import useSearchParams from '../../shared/hooks/useSearchParams';
 
 describe('useSearchParams', () => {
   it('should retrieve foo and bar params', () => {

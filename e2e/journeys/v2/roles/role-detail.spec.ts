@@ -25,21 +25,17 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V2_ADMIN from utils
+ *   - AUTH: Uses AUTH_V2_ORGADMIN from utils
  *   - DATA: Relies on SEEDED_ROLE_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use RolesPage for drawer interactions
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN } from '../../../utils';
+import { AUTH_V2_ORGADMIN } from '../../../utils';
 import { RolesPage } from '../../../pages/v2/RolesPage';
 import { getSeededRoleName } from '../../../utils/seed-map';
 
 const SEEDED_ROLE_NAME = getSeededRoleName('v2');
-
-if (!SEEDED_ROLE_NAME) {
-  throw new Error('No seeded role found in seed map. Run: npm run e2e:seed:v2');
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests
@@ -50,20 +46,21 @@ test.describe('Role Detail', () => {
   // ADMIN - Full detail access
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test(`Can view role details in drawer [Admin]`, async ({ page }) => {
+    test(`Can view role details in drawer [OrgAdmin]`, async ({ page }) => {
+      test.skip(!SEEDED_ROLE_NAME, 'No seed data — run npm run e2e:seed:v2');
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
-      await rolesPage.searchFor(SEEDED_ROLE_NAME);
-      await rolesPage.openDrawer(SEEDED_ROLE_NAME);
+      await rolesPage.searchFor(SEEDED_ROLE_NAME!);
+      await rolesPage.openDrawer(SEEDED_ROLE_NAME!);
 
       // Verify drawer content
-      await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME, level: 2 })).toBeVisible();
+      await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME!, level: 2 })).toBeVisible();
 
-      await rolesPage.closeDrawer(SEEDED_ROLE_NAME);
+      await rolesPage.closeDrawer(SEEDED_ROLE_NAME!);
     });
   });
 });

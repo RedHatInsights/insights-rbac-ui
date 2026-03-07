@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect } from 'react';
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import useIsMounted from '../../hooks/useIsMounted';
+import useIsMounted from '../../shared/hooks/useIsMounted';
 
 describe('useIsMounted', () => {
   const DummyComponent = ({ mountSpy }: { mountSpy: (value: boolean) => void }) => {

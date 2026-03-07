@@ -27,7 +27,7 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, AUTH_V2_READONLY from utils
+ *   - AUTH: Uses AUTH_V2_ORGADMIN, AUTH_V2_USERVIEWER, AUTH_V2_READONLY from utils
  *   - DATA: Relies on SEEDED_GROUP_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use UserGroupsPage.createButton.click() for UI tests
  *            Use getSeededGroupName() for existing data - NEVER create via UI in viewer tests
@@ -35,7 +35,16 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, setupPage } from '../../../utils';
+import {
+  AUTH_V2_ORGADMIN,
+  AUTH_V2_READONLY,
+  AUTH_V2_USERVIEWER,
+  AUTH_V2_WORKSPACEUSER,
+  iamUrl,
+  requireTestPrefix,
+  setupPage,
+  v2,
+} from '../../../utils';
 import { UserGroupsPage } from '../../../pages/v2/UserGroupsPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -43,17 +52,8 @@ import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX_V2;
-const GROUPS_URL = '/iam/access-management/users-and-user-groups/user-groups';
-
-if (!TEST_PREFIX) {
-  throw new Error(
-    '\n\n' +
-      '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX_V2 environment variable is REQUIRED       ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n',
-  );
-}
+const TEST_PREFIX = requireTestPrefix('v2');
+const GROUPS_URL = iamUrl(v2.userGroups.link());
 
 // Generate unique name for this test run
 const timestamp = Date.now();
@@ -73,30 +73,26 @@ test.describe('User Group Management', () => {
   // STATEFUL TESTS: Add create→edit→delete chains in the serial block
   // ATOMIC TESTS: Add standalone checks (button visibility) in the regular block
 
-  test.describe.serial('Admin Lifecycle', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe.serial('OrgAdmin Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test('Create user group [Admin]', async ({ page }) => {
+    test('Create user group [OrgAdmin]', async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
       await groupsPage.createButton.click();
       await groupsPage.fillGroupForm(uniqueGroupName, groupDescription);
-
-      console.log(`[Create] ✓ User group created: ${uniqueGroupName}`);
     });
 
-    test('Verify group appears in table [Admin]', async ({ page }) => {
+    test('Verify group appears in table [OrgAdmin]', async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
       await groupsPage.searchFor(uniqueGroupName);
       await groupsPage.verifyGroupInTable(uniqueGroupName);
-
-      console.log(`[Verify] ✓ Group found in table`);
     });
 
-    test('View group in drawer [Admin]', async ({ page }) => {
+    test('View group in drawer [OrgAdmin]', async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
@@ -104,11 +100,9 @@ test.describe('User Group Management', () => {
       await groupsPage.openDrawer(uniqueGroupName);
 
       await expect(groupsPage.drawer.getByRole('heading', { name: uniqueGroupName })).toBeVisible();
-
-      console.log(`[View] ✓ Drawer verified`);
     });
 
-    test('Edit group navigates to edit page with pre-populated form [Admin]', async ({ page }) => {
+    test('Edit group navigates to edit page with pre-populated form [OrgAdmin]', async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
@@ -130,21 +124,17 @@ test.describe('User Group Management', () => {
 
       // Now edit name/description and submit
       await groupsPage.fillGroupForm(editedGroupName, editedDescription);
-
-      console.log(`[Edit] ✓ Group renamed to: ${editedGroupName}`);
     });
 
-    test('Verify edit was applied [Admin]', async ({ page }) => {
+    test('Verify edit was applied [OrgAdmin]', async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
       await groupsPage.searchFor(editedGroupName);
       await groupsPage.verifyGroupInTable(editedGroupName);
-
-      console.log(`[Verify Edit] ✓ Changes confirmed`);
     });
 
-    test('Delete group [Admin]', async ({ page }) => {
+    test('Delete group [OrgAdmin]', async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
@@ -152,32 +142,28 @@ test.describe('User Group Management', () => {
       await groupsPage.openRowActions(editedGroupName);
       await groupsPage.clickRowAction('Delete');
       await groupsPage.confirmDelete();
-
-      console.log(`[Delete] ✓ Deletion confirmed`);
     });
 
-    test('Verify group is deleted [Admin]', async ({ page }) => {
+    test('Verify group is deleted [OrgAdmin]', async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
       await groupsPage.searchFor(editedGroupName);
       await groupsPage.verifyGroupNotInTable(editedGroupName);
-
-      console.log(`[Verify Delete] ✓ Group no longer exists`);
     });
   });
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test(`Create User Group button is visible [Admin]`, async ({ page }) => {
+    test(`Create User Group button is visible [OrgAdmin]`, async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
       await expect(groupsPage.createButton).toBeVisible();
     });
 
-    test(`Create User Group button navigates to create form [Admin]`, async ({ page }) => {
+    test(`Create User Group button navigates to create form [OrgAdmin]`, async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
@@ -222,6 +208,17 @@ test.describe('User Group Management', () => {
     test.use({ storageState: AUTH_V2_READONLY });
 
     test(`User Groups page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
+      await setupPage(page);
+      await page.goto(GROUPS_URL);
+
+      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    });
+  });
+
+  test.describe('WorkspaceUser', () => {
+    test.use({ storageState: AUTH_V2_WORKSPACEUSER });
+
+    test('User Groups page shows unauthorized access [WorkspaceUser]', async ({ page }) => {
       await setupPage(page);
       await page.goto(GROUPS_URL);
 

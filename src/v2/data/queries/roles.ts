@@ -1,0 +1,300 @@
+/**
+ * V2 Roles React Query Hooks
+ *
+ * Uses native V2 roles API with cursor-based pagination.
+ * Name filtering uses glob patterns (backend-pending):
+ * `name=*term*` for contains-search.
+ */
+
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useIntl } from 'react-intl';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+import { rolesV2Api } from '../api/roles';
+import type {
+  CursorPaginationLinks,
+  Role,
+  RoleBindingsListBySubject200Response,
+  RoleBindingsRoleBinding,
+  RolesBatchDeleteRolesRequest,
+  RolesCreateOrUpdateRoleRequest,
+  RolesList200Response,
+  RolesListParams,
+} from '../api/roles';
+
+/**
+ * V2 Role with `org_id` field.
+ * The upstream `Role` type from `@redhat-cloud-services/rbac-client` doesn't
+ * include `org_id` yet. Once the client ships it, this extension can be removed.
+ *
+ * - `org_id: null | undefined` → system/canned role (immutable)
+ * - `org_id: string` → user-created role (editable/deletable with write permission)
+ */
+export type RoleV2 = Role & { org_id?: string | null };
+import messages from '../../../Messages';
+import { useMutationQueryClient } from '../../../shared/data/utils';
+import type { MutationOptions } from '../../../shared/data/types';
+
+// =============================================================================
+// Query Keys Factory
+// =============================================================================
+
+export const rolesV2Keys = {
+  all: ['roles-v2'] as const,
+  lists: () => [...rolesV2Keys.all, 'list'] as const,
+  list: (params: RolesListParams) => [...rolesV2Keys.lists(), params] as const,
+  details: () => [...rolesV2Keys.all, 'detail'] as const,
+  detail: (id: string) => [...rolesV2Keys.details(), id] as const,
+};
+
+// =============================================================================
+// Query Hooks
+// =============================================================================
+
+/**
+ * Extended query params — adds `username` which the rbac-client doesn't
+ * expose yet.  Passed as an extra axios query param until the client ships
+ * official support, at which point we remove the wrapper and it works
+ * transparently.
+ */
+export interface RolesV2QueryParams extends RolesListParams {
+  /** Filter roles by assigned username (extra param, not in rbac-client yet) */
+  username?: string;
+}
+
+/**
+ * Fetch V2 roles list with cursor-based pagination.
+ *
+ * Name filtering uses glob patterns (backend-pending):
+ * - `name=foo` → exact match (works today)
+ * - `name=foo*` → starts with "foo" (when backend ships glob support)
+ * - `name=*foo*` → contains "foo" (when backend ships glob support)
+ *
+ * Until the backend implements glob support, non-exact patterns will
+ * return no results. This is acceptable since V2 is behind a feature flag.
+ */
+export function useRolesV2Query(params: RolesV2QueryParams = {}, options?: { enabled?: boolean }) {
+  const { username, ...apiParams } = params;
+
+  return useQuery({
+    queryKey: rolesV2Keys.list(params as RolesListParams),
+    queryFn: async (): Promise<RolesList200Response> => {
+      const response = await rolesV2Api.rolesList({
+        ...apiParams,
+        ...(username ? { options: { params: { username } } } : {}),
+      });
+      return response.data;
+    },
+    enabled: options?.enabled ?? true,
+  });
+}
+
+/**
+ * Fetch all V2 roles (cursor-paginated fetch-all).
+ * Useful for role pickers and wizards that need the full list.
+ * Uses limit=-1 which the API supports to return all objects.
+ */
+export function useAllRolesV2Query(options?: { enabled?: boolean; name?: string }) {
+  const params: RolesListParams = {
+    limit: -1,
+    ...(options?.name && { name: options.name }),
+  };
+
+  return useQuery({
+    queryKey: [...rolesV2Keys.lists(), 'all', options?.name] as const,
+    queryFn: async (): Promise<RoleV2[]> => {
+      const response = await rolesV2Api.rolesList(params);
+      return response.data.data;
+    },
+    enabled: options?.enabled ?? true,
+  });
+}
+
+/**
+ * Helper to extract cursor pagination links from V2 roles response.
+ */
+export function extractRolesV2Links(data: RolesList200Response | undefined): CursorPaginationLinks | null {
+  return data?.links ?? null;
+}
+
+/**
+ * Fetch single V2 role by ID.
+ */
+export function useRoleV2Query(id: string, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: rolesV2Keys.detail(id),
+    queryFn: async (): Promise<RoleV2> => {
+      const response = await rolesV2Api.rolesRead({ id });
+      return response.data;
+    },
+    enabled: (options?.enabled ?? true) && !!id,
+  });
+}
+
+/**
+ * Fetch role bindings for a workspace (roles assigned in this workspace).
+ * Lists all subjects (groups) that have roles assigned in the specified workspace.
+ *
+ * @param workspaceId - The workspace resource ID
+ * @param options - Query options
+ */
+export function useRoleAssignmentsQuery(
+  workspaceId: string,
+  options?: {
+    enabled?: boolean;
+    limit?: number;
+    cursor?: string;
+    parentRoleBindings?: boolean;
+  },
+) {
+  return useQuery({
+    queryKey: [...rolesV2Keys.all, 'workspace-role-bindings', workspaceId, options?.limit, options?.cursor, options?.parentRoleBindings],
+    queryFn: async (): Promise<RoleBindingsListBySubject200Response> => {
+      const fields = 'last_modified,subject(id,group.name,group.description,group.user_count),roles(id,name),resource(id,name,type)';
+
+      const response = await rolesV2Api.roleBindingsListBySubject({
+        resourceId: workspaceId,
+        resourceType: 'workspace',
+        subjectType: 'group',
+        limit: options?.limit ?? 10,
+        cursor: options?.cursor,
+        parentRoleBindings: options?.parentRoleBindings ?? false,
+        fields,
+      });
+      return response.data;
+    },
+    enabled: (options?.enabled ?? true) && !!workspaceId,
+  });
+}
+
+/**
+ * Fetch role bindings for a specific role.
+ * Returns which groups have this role assigned and in which workspaces.
+ */
+export function useRoleBindingsForRoleQuery(roleId: string, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: [...rolesV2Keys.all, 'role-bindings', roleId],
+    queryFn: async (): Promise<RoleBindingsRoleBinding[]> => {
+      const response = await rolesV2Api.roleBindingsList({
+        roleId,
+        limit: 1000,
+        fields: 'subject(id,group.name),resource(id,name,type)',
+      });
+      return response.data?.data ?? [];
+    },
+    enabled: (options?.enabled ?? true) && !!roleId,
+  });
+}
+
+// =============================================================================
+// Mutation Hooks
+// =============================================================================
+
+/**
+ * Create a new V2 role.
+ */
+export function useCreateRoleV2Mutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
+  const addNotification = useAddNotification();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async (data: RolesCreateOrUpdateRoleRequest): Promise<RoleV2> => {
+      const response = await rolesV2Api.rolesCreate({
+        rolesCreateOrUpdateRoleRequest: data,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
+      addNotification({
+        variant: 'success',
+        title: 'Role created successfully',
+        dismissable: true,
+      });
+    },
+    onError: () => {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.createRoleErrorTitle),
+        dismissable: true,
+      });
+    },
+  });
+}
+
+/**
+ * Update a V2 role.
+ */
+export function useUpdateRoleV2Mutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
+  const addNotification = useAddNotification();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async ({ id, ...data }: RolesCreateOrUpdateRoleRequest & { id: string }): Promise<RoleV2> => {
+      const response = await rolesV2Api.rolesUpdate({
+        id,
+        rolesCreateOrUpdateRoleRequest: data,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.editRoleSuccessTitle),
+        dismissable: true,
+      });
+    },
+    onError: () => {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.editRoleErrorTitle),
+        dismissable: true,
+      });
+    },
+  });
+}
+
+/**
+ * Batch delete V2 roles.
+ */
+export function useBatchDeleteRolesV2Mutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
+  const addNotification = useAddNotification();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async (data: RolesBatchDeleteRolesRequest): Promise<void> => {
+      await rolesV2Api.rolesBatchDelete({
+        rolesBatchDeleteRolesRequest: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.removeRoleSuccessTitle),
+        dismissable: true,
+      });
+    },
+    onError: () => {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.removeRoleErrorTitle),
+        dismissable: true,
+      });
+    },
+  });
+}
+
+// Re-export types for consumer convenience
+export type {
+  RolesListParams,
+  RolesList200Response,
+  Permission,
+  RolesCreateOrUpdateRoleRequest,
+  RolesBatchDeleteRolesRequest,
+  CursorPaginationMeta,
+  CursorPaginationLinks,
+} from '../api/roles';

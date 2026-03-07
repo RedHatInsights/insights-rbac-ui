@@ -7,7 +7,9 @@ export * from './actions';
 export * from './modals';
 export * from './notifications';
 export * from './paths';
+export { ensurePreviewMode, setPreviewModeInSetup } from './preview';
 export * from './seed-map';
+export * from './urls';
 export * from './waiters';
 export { test, expect, blockAnalytics, enableAssetCache, setupPage, type Page, type BrowserContext } from './fixtures';
 

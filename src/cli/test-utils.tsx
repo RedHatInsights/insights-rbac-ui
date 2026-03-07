@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { IntlProvider } from 'react-intl';
 import { MemoryRouter } from 'react-router-dom';
 import axios, { type AxiosInstance } from 'axios';
-import { type AppServices, type NotifyFn, ServiceProvider } from '../contexts/ServiceContext';
+import { type AppServices, type NotifyFn, ServiceProvider } from '../shared/contexts/ServiceContext';
 
 // ============================================================================
 // Test Axios Instance (Auth Bypass)

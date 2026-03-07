@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import ApiErrorBoundary from '../../src/shared/components/ui-states/ApiErrorBoundary';
 
 // Router location spy (used by pagination URL sync stories)
 export const RouterLocationSpy: React.FC = () => {
@@ -37,7 +38,14 @@ export const withRouter = (Story: React.ComponentType, context: { parameters?: R
 
   const storyEl = routerPath ? (
     <Routes>
-      <Route path={routerPath} element={<Story />} />
+      <Route
+        path={routerPath}
+        element={
+          <ApiErrorBoundary>
+            <Story />
+          </ApiErrorBoundary>
+        }
+      />
     </Routes>
   ) : (
     <Story />

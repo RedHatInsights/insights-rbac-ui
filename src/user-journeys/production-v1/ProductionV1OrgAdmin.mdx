@@ -1,0 +1,92 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Production/V1 (Current)/Org Admin" />
+
+# Production V1: Org Admin — Full Feature Set
+
+Production RBAC instance with **Org Admin** privileges and V1 (User Access) navigation.
+
+## Environment Configuration
+
+- **User Role**: Organization Administrator
+- **Permissions**: Full RBAC + inventory access (`rbac:*:*`, `inventory:groups:read`, `inventory:groups:write`)
+- **Feature Flags**:
+  - `platform.rbac.workspaces-list`: true (Workspaces page inside User Access)
+  - `platform.rbac.group-service-accounts.stable`: true (current SA flag)
+  - `platform.rbac.common-auth-model`: true (selectable users table)
+  - `platform.rbac.workspaces-organization-management`: false (V1 navigation)
+
+## Story Catalog
+
+### Navigation
+
+| Story | What it tests |
+|-------|--------------|
+| V1 Org Admin Manual Testing | Interactive exploration entry point |
+| Sidebar / All admin items visible | My User Access, User Access section, Users, Groups, Roles, Workspaces |
+
+### Groups — CRUD
+
+| Story | What it tests |
+|-------|--------------|
+| Groups / Create new group | Full wizard: name, roles, users, service accounts |
+| Groups / Edit from list | Kebab menu edit from groups list |
+| Groups / Edit from detail page | Actions dropdown edit from group detail |
+| Groups / Delete from list | Kebab menu delete + confirmation modal |
+| Groups / Delete from detail page | Actions dropdown delete + redirect to list |
+| Groups / Add members | Detail page → add member modal → verify list |
+| Groups / Remove members | Detail page → bulk select → remove → verify |
+| Groups / Add roles | Detail page → add role modal → verify list |
+| Groups / Remove roles | Detail page → select → remove selected → verify |
+
+### Groups — Default Access
+
+| Story | What it tests |
+|-------|--------------|
+| Groups / Copy default group (add roles) | First edit triggers copy confirmation modal |
+| Groups / Modify already-copied default group | No confirmation modal for already-modified group |
+| Groups / Remove roles from already-copied default group | Removal skips DefaultGroupChangeModal |
+| Groups / Restore default group | "Restore to default" reverts to system-managed state |
+| Groups / Default Admin Access Members Tab | Special card message (no table) |
+| Groups / Default Access Members Tab | "All users" card message (no table) |
+| Groups / Default Admin Access Service Accounts Tab | Security message about SA exclusion |
+| Groups / Default Access Service Accounts Tab | Security message about SA exclusion |
+
+### Roles
+
+| Story | What it tests |
+|-------|--------------|
+| Roles / Create new role | Create-from-scratch wizard with permissions |
+| Roles / Copy existing role | Copy wizard — regression test for disabled Next button |
+| Roles / Edit role | Kebab menu edit from roles list |
+| Roles / Edit from detail page | Actions dropdown edit from role detail |
+| Roles / Delete role | Kebab menu delete + confirmation |
+| Roles / Delete from detail page | Actions dropdown delete + redirect |
+| Roles / Add to group link visibility | Expanded groups view — link hidden for admin default group |
+
+### Users
+
+| Story | What it tests |
+|-------|--------------|
+| Users / View user detail page | Navigate to user detail, verify tabs |
+| Users / Add user to group from detail page | "Add user to a group" modal + group selection |
+| Users / Deactivate user | Bulk select → kebab → deactivate modal |
+| Users / Activate user | Filter inactive → select → activate modal |
+| Users / Invite users | Invite modal with email, message, org admin checkbox + API URL verification |
+
+### Workspaces
+
+| Story | What it tests |
+|-------|--------------|
+| Workspaces / View workspaces list | Workspaces page loads with data, create button visible |
+
+## Other V1 Personas
+
+| Persona | What it covers |
+|---------|---------------|
+| **User Viewer** | `rbac:principal:read` only — Users page accessible, Groups/Roles hidden |
+| **Org User** | No RBAC permissions — only My User Access visible |
+
+## Usage
+
+All interactions use realistic timing (30ms typing delay). Use the **Controls** panel to toggle permissions and feature flags.

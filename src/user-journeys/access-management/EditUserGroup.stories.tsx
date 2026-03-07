@@ -13,30 +13,33 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { HttpResponse, delay, http } from 'msw';
+import { delay } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
-import { defaultHandlers, mockGroups } from './_shared';
+import { createGroupsHandlers, mockGroups, v2DefaultHandlers } from './_shared';
+import type { Group } from '../../shared/data/mocks/db';
+import { createResettableCollection } from '../../shared/data/mocks/db';
 
 // Spy for tracking API calls
 const updateGroupSpy = fn();
 
 // =============================================================================
-// MUTABLE STATE FOR TEST ISOLATION
+// STATEFUL COLLECTION FOR TEST ISOLATION
 // =============================================================================
 
-// Deep copy of mock groups to allow mutations
-const mutableGroups = JSON.parse(JSON.stringify(mockGroups)) as typeof mockGroups;
+const groupsCollection = createResettableCollection<Group>(mockGroups);
+const editGroupHandlers = createGroupsHandlers(groupsCollection, {
+  networkDelay: TEST_TIMEOUTS.QUICK_SETTLE,
+  onUpdate: (uuid, body) => updateGroupSpy(uuid, body),
+});
 
-// Reset function for test isolation
 const resetMutableState = () => {
-  mutableGroups.length = 0;
-  mutableGroups.push(...JSON.parse(JSON.stringify(mockGroups)));
+  groupsCollection.reset();
 };
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Management Fabric/Access Management/Edit user group',
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Users and Groups/Edit User Group',
   tags: ['access-management', 'user-groups', 'form'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
@@ -55,7 +58,6 @@ const meta = {
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
-    'platform.rbac.common.userstable': true,
     'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
@@ -63,64 +65,15 @@ const meta = {
       permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
-      'platform.rbac.common.userstable': true,
       'platform.rbac.workspaces-organization-management': true,
     }),
     msw: {
       handlers: [
-        // Custom list handler that returns mutable state
-        http.get('/api/rbac/v1/groups/', async ({ request }) => {
-          await delay(TEST_TIMEOUTS.QUICK_SETTLE);
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
-          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
-          const nameFilter = url.searchParams.get('name') || '';
-
-          let filteredGroups = mutableGroups;
-          if (nameFilter) {
-            filteredGroups = mutableGroups.filter((g) => g.name.toLowerCase().includes(nameFilter.toLowerCase()));
-          }
-
-          const paginatedGroups = filteredGroups.slice(offset, offset + limit);
-          return HttpResponse.json({
-            data: paginatedGroups,
-            meta: { count: filteredGroups.length, limit, offset },
-          });
-        }),
-        // Custom detail handler that returns mutable state
-        http.get('/api/rbac/v1/groups/:uuid/', async ({ params }) => {
-          await delay(TEST_TIMEOUTS.QUICK_SETTLE);
-          const group = mutableGroups.find((g) => g.uuid === params.uuid);
-          if (!group) {
-            return new HttpResponse(null, { status: 404 });
-          }
-          return HttpResponse.json(group);
-        }),
-        // Spy handler that updates mutable state
-        http.put('/api/rbac/v1/groups/:uuid/', async ({ params, request }) => {
-          const body = (await request.json()) as { name?: string; description?: string };
-          updateGroupSpy(params.uuid, body);
-
-          // Update the mutable state
-          const groupIndex = mutableGroups.findIndex((g) => g.uuid === params.uuid);
-          if (groupIndex !== -1) {
-            mutableGroups[groupIndex] = {
-              ...mutableGroups[groupIndex],
-              ...body,
-              modified: new Date().toISOString(),
-            };
-          }
-
-          return HttpResponse.json(mutableGroups[groupIndex]);
-        }),
-        // Keep group members/principals and service accounts handlers from defaults
-        ...defaultHandlers.filter((h) => {
+        ...editGroupHandlers,
+        ...v2DefaultHandlers.filter((h) => {
           const path = h.info?.path?.toString() || '';
-          // Keep non-group handlers
-          if (!path.includes('/user-access/groups/')) return true;
-          // Keep members/principals and service-accounts sub-routes
+          if (!path.includes('/api/rbac/v1/groups') && !path.includes('/api/rbac/v2/groups')) return true;
           if (path.includes('/principals/') || path.includes('/service-accounts/')) return true;
-          // Filter out top-level group handlers (we provide our own)
           return false;
         }),
       ],
@@ -203,12 +156,9 @@ Tests the complete "Edit user group" workflow:
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for page to load and table to be fully interactive
-    await waitForPageToLoad(canvas, 'Golden girls');
+    await waitForPageToLoad(canvas, mockGroups[4].name);
 
-    // ==========================================================================
-    // PRE-CONDITION: Verify original state in table
-    // ==========================================================================
-    const originalDescription = await canvas.findByText(/Classic show members/i);
+    const originalDescription = await canvas.findByText(new RegExp(mockGroups[4].description, 'i'));
     expect(originalDescription).toBeInTheDocument();
 
     // ==========================================================================
@@ -233,12 +183,12 @@ Tests the complete "Edit user group" workflow:
     // ==========================================================================
     // ACTION: Edit description
     // ==========================================================================
-    const nameInput = await canvas.findByRole('textbox', { name: /name/i });
-    expect(nameInput).toHaveValue('Golden girls');
+    const nameInput = await canvas.findByRole('textbox', { name: /^name$/i });
+    expect(nameInput).toHaveValue(mockGroups[4].name);
 
     const descriptionInput = await canvas.findByRole('textbox', { name: /description/i });
     await user.tripleClick(descriptionInput);
-    await user.keyboard('Updated description for Golden girls');
+    await user.keyboard(`Updated description for ${mockGroups[4].name}`);
     await delay(TEST_TIMEOUTS.AFTER_CLICK);
     await user.tab();
     await delay(TEST_TIMEOUTS.AFTER_CLICK);
@@ -255,9 +205,9 @@ Tests the complete "Edit user group" workflow:
     // API VERIFICATION
     // ==========================================================================
     expect(updateGroupSpy).toHaveBeenCalledWith(
-      'group-golden-girls',
+      mockGroups[4].uuid,
       expect.objectContaining({
-        description: 'Updated description for Golden girls',
+        description: `Updated description for ${mockGroups[4].name}`,
       }),
     );
 
@@ -276,7 +226,7 @@ Tests the complete "Edit user group" workflow:
     // VISUAL VERIFICATION: Open drawer and verify changes
     // ==========================================================================
     // Click on the Golden girls row to open the drawer
-    const goldenGirlsRow = await canvas.findByText('Golden girls');
+    const goldenGirlsRow = await canvas.findByText(mockGroups[4].name);
     await user.click(goldenGirlsRow);
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
@@ -286,7 +236,7 @@ Tests the complete "Edit user group" workflow:
     const drawerScope = within(drawerPanel!);
 
     // Verify group name in drawer header
-    await expect(drawerScope.findByText('Golden girls')).resolves.toBeInTheDocument();
+    await expect(drawerScope.findByText(mockGroups[4].name)).resolves.toBeInTheDocument();
 
     // Note: The drawer doesn't display the description, only the group name and tabs
 
@@ -336,9 +286,8 @@ Tests editing the group name.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for page to load and table to be fully interactive
-    await waitForPageToLoad(canvas, 'Golden girls');
+    await waitForPageToLoad(canvas, mockGroups[4].name);
 
-    // Wait for kebab buttons to be present and interactive
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
     expect(kebabButtons.length).toBeGreaterThan(0);
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -352,7 +301,7 @@ Tests editing the group name.
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Change name
-    const nameInput = await canvas.findByLabelText(/name/i);
+    const nameInput = await canvas.findByRole('textbox', { name: /^name$/i });
     await user.clear(nameInput);
     await user.type(nameInput, 'Renamed Group');
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
@@ -404,13 +353,11 @@ Tests that changing to an existing group name shows validation error.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for page to load and table to be fully interactive
-    await waitForPageToLoad(canvas, 'Golden girls');
+    await waitForPageToLoad(canvas, mockGroups[4].name);
 
-    // Wait for kebab buttons to be present and interactive
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
     expect(kebabButtons.length).toBeGreaterThan(0);
 
-    // Additional settle time to ensure table is fully interactive
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Open edit for Golden girls (last kebab button)
@@ -421,13 +368,11 @@ Tests that changing to an existing group name shows validation error.
     await user.click(editOption);
     await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD); // Wait for form to load
 
-    // Wait for form to be fully ready by checking for the name input with current value
-    const nameInput = await canvas.findByRole('textbox', { name: /name/i });
-    expect(nameInput).toHaveValue('Golden girls'); // Verify form loaded correctly
+    const nameInput = await canvas.findByRole('textbox', { name: /^name$/i });
+    expect(nameInput).toHaveValue(mockGroups[4].name);
 
-    // Change name to existing group name
     await user.tripleClick(nameInput);
-    await user.keyboard('Admin group'); // Already exists
+    await user.keyboard(mockGroups[1].name);
 
     // Blur the name field to trigger validation (tab to description)
     await user.tab();
@@ -476,9 +421,8 @@ Tests canceling the edit form.
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
     // Wait for page to load and table to be fully interactive
-    await waitForPageToLoad(canvas, 'Golden girls');
+    await waitForPageToLoad(canvas, mockGroups[4].name);
 
-    // Wait for kebab buttons to be present and interactive
     const kebabButtons = await canvas.findAllByLabelText(/actions/i);
     expect(kebabButtons.length).toBeGreaterThan(0);
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -492,7 +436,7 @@ Tests canceling the edit form.
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Make changes
-    const nameInput = await canvas.findByLabelText(/name/i);
+    const nameInput = await canvas.findByRole('textbox', { name: /^name$/i });
     await user.clear(nameInput);
     await user.type(nameInput, 'Changed Name');
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
@@ -502,10 +446,131 @@ Tests canceling the edit form.
     await user.click(cancelButton);
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Verify back on groups table
-    await expect(canvas.findByText('Golden girls')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(mockGroups[4].name)).resolves.toBeInTheDocument();
 
     // Verify no API call
     expect(updateGroupSpy).not.toHaveBeenCalled();
+  },
+};
+
+/**
+ * Users All/Selected Toggle
+ *
+ * Tests the All/Selected toggle in the Users tab of the edit user group form.
+ */
+export const UsersAllSelectedToggle: Story = {
+  name: 'Users All/Selected Toggle',
+  args: {
+    initialRoute: `/iam/access-management/users-and-user-groups/edit-group/${mockGroups[4].uuid}`,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests the All/Selected toggle in the Users tab of the edit user group form.
+
+**Expected behavior:**
+1. Edit form loads with Users tab content
+2. Click "Selected" toggle - table shows only selected users (or empty if none)
+3. Click "All" toggle - all users shown again
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    resetMutableState();
+    await resetStoryState();
+
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // Wait for edit form to load
+    await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
+    await waitForPageToLoad(canvas, 'bwhite');
+
+    // Find the Users tab content - Users tab is first (index 0)
+    const usersTab = await canvas.findByRole('tab', { name: /users/i });
+    await user.click(usersTab);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Find the ToggleGroup - "All" and "Selected" buttons
+    const allButton = await canvas.findByRole('button', { name: /^all$/i });
+    const selectedButton = await canvas.findByRole('button', { name: /^selected/i });
+
+    // Click "Selected" toggle
+    await user.click(selectedButton);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Verify Selected is now selected (table may show selected users or empty)
+    expect(selectedButton).toHaveAttribute('aria-pressed', 'true');
+
+    // Click "All" toggle back
+    await user.click(allButton);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Verify All is selected and users are shown again
+    expect(allButton).toHaveAttribute('aria-pressed', 'true');
+    await expect(canvas.findByText('bwhite')).resolves.toBeInTheDocument();
+  },
+};
+
+/**
+ * Service Accounts All/Selected Toggle
+ *
+ * Tests the All/Selected toggle in the Service Accounts tab of the edit user group form.
+ */
+export const ServiceAccountsAllSelectedToggle: Story = {
+  name: 'Service Accounts All/Selected Toggle',
+  args: {
+    initialRoute: `/iam/access-management/users-and-user-groups/edit-group/${mockGroups[4].uuid}`,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests the All/Selected toggle in the Service Accounts tab of the edit user group form.
+
+**Expected behavior:**
+1. Edit form loads
+2. Click Service Accounts tab
+3. Click "Selected" toggle
+4. Click "All" toggle back
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    resetMutableState();
+    await resetStoryState();
+
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // Wait for edit form to load
+    await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
+    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+
+    // Find and click the Service Accounts tab
+    const serviceAccountsTab = await canvas.findByRole('tab', { name: /service accounts/i });
+    await user.click(serviceAccountsTab);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Find the ToggleGroup - "All" and "Selected" buttons
+    const allButton = await canvas.findByRole('button', { name: /^all$/i });
+    const selectedButton = await canvas.findByRole('button', { name: /^selected/i });
+
+    // Click "Selected" toggle
+    await user.click(selectedButton);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Verify Selected is selected
+    expect(selectedButton).toHaveAttribute('aria-pressed', 'true');
+
+    // Click "All" toggle back
+    await user.click(allButton);
+    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+
+    // Verify All is selected
+    expect(allButton).toHaveAttribute('aria-pressed', 'true');
   },
 };

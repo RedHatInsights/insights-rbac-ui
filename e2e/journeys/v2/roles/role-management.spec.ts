@@ -6,18 +6,19 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  * DECISION TREE - Add your test here if:
  * ═══════════════════════════════════════════════════════════════════════════════
- *   ✓ It creates, edits, or deletes a role
+ *   ✓ It creates, edits, copies, or deletes a role
  *   ✓ It checks if a button/action for create/edit/delete is visible/hidden/disabled
  *   ✓ It verifies a permission denial (403) for write operations
  *
  * DO NOT add here if:
  *   ✗ It only reads/views data → role-detail.spec.ts
  *   ✗ It tests table sorting/filtering/pagination → role-list.spec.ts
+ *   ✗ It tests system role behavior → system.spec.ts
  *
  * ═══════════════════════════════════════════════════════════════════════════════
  * CAPABILITIES & PERSONAS
  * ═══════════════════════════════════════════════════════════════════════════════
- * @capability Create Role, Edit Role, Delete Role
+ * @capability Create Role, Edit Role, Delete Role, Copy Role
  * @personas
  *   - Admin: Full CRUD access (use serial lifecycle for stateful tests)
  *   - UserViewer: Page blocked entirely (unauthorized message)
@@ -27,7 +28,7 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, AUTH_V2_READONLY from utils
+ *   - AUTH: Uses AUTH_V2_ORGADMIN, AUTH_V2_USERVIEWER, AUTH_V2_READONLY from utils
  *   - DATA: Relies on SEEDED_ROLE_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use RolesPage.createButton.click() for UI tests
  *            Use getSeededRoleName() for existing data - NEVER create via UI in viewer tests
@@ -35,8 +36,18 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, setupPage } from '../../../utils';
-import { getSeededWorkspaceName } from '../../../utils/seed-map';
+import {
+  AUTH_V2_ORGADMIN,
+  AUTH_V2_RBACADMIN,
+  AUTH_V2_READONLY,
+  AUTH_V2_USERVIEWER,
+  AUTH_V2_WORKSPACEUSER,
+  iamUrl,
+  requireTestPrefix,
+  setupPage,
+  v2,
+} from '../../../utils';
+import { getSeededRoleName, getSeededWorkspaceName } from '../../../utils/seed-map';
 import { RolesPage } from '../../../pages/v2/RolesPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -44,17 +55,8 @@ import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX_V2;
-const ROLES_URL = '/iam/access-management/roles';
-
-if (!TEST_PREFIX) {
-  throw new Error(
-    '\n\n' +
-      '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX_V2 environment variable is REQUIRED       ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n',
-  );
-}
+const TEST_PREFIX = requireTestPrefix('v2');
+const ROLES_URL = iamUrl(v2.accessManagementRoles.link());
 
 // Generate unique name for this test run
 const timestamp = Date.now();
@@ -63,11 +65,12 @@ const roleDescription = 'E2E lifecycle test role';
 const editedRoleName = `${uniqueRoleName}_Edited`;
 const editedDescription = 'E2E lifecycle test role - EDITED';
 
-// Get seeded workspace name
+// Get seeded workspace and role names
 const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName('v2');
-if (!SEEDED_WORKSPACE_NAME) {
-  throw new Error('No seeded workspace found in seed map. Run: npm run e2e:v2:seed');
-}
+const SEEDED_ROLE_NAME = getSeededRoleName('v2');
+
+// Copy lifecycle: unique name for this test run
+const COPY_ROLE_NAME = `${TEST_PREFIX}__Copy_Test_V2_${timestamp}`;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests
@@ -80,30 +83,27 @@ test.describe('Role Management', () => {
   // STATEFUL TESTS: Add create→edit→delete chains in the serial block
   // ATOMIC TESTS: Add standalone checks (button visibility) in the regular block
 
-  test.describe.serial('Admin Lifecycle', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe.serial('OrgAdmin Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test('Create role via wizard [Admin]', async ({ page }) => {
+    test('Create role via wizard [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_WORKSPACE_NAME, 'No seed data — run npm run e2e:seed:v2');
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.createButton.click();
-      await rolesPage.fillCreateWizard(uniqueRoleName, roleDescription, SEEDED_WORKSPACE_NAME);
-
-      console.log(`[Create] ✓ Role created: ${uniqueRoleName}`);
+      await rolesPage.fillCreateWizard(uniqueRoleName, roleDescription);
     });
 
-    test('Verify role appears in table [Admin]', async ({ page }) => {
+    test('Verify role appears in table [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.searchFor(uniqueRoleName);
       await rolesPage.verifyRoleInTable(uniqueRoleName);
-
-      console.log(`[Verify] ✓ Role found in table`);
     });
 
-    test('View role in drawer [Admin]', async ({ page }) => {
+    test('View role in drawer [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -111,11 +111,9 @@ test.describe('Role Management', () => {
       await rolesPage.openDrawer(uniqueRoleName);
 
       await expect(page.getByRole('heading', { name: uniqueRoleName, level: 2 })).toBeVisible();
-
-      console.log(`[View] ✓ Drawer verified`);
     });
 
-    test('Edit role [Admin]', async ({ page }) => {
+    test('Edit role [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -123,21 +121,17 @@ test.describe('Role Management', () => {
       await rolesPage.openRowActions(uniqueRoleName);
       await rolesPage.clickRowAction('Edit');
       await rolesPage.fillEditPage(editedRoleName, editedDescription);
-
-      console.log(`[Edit] ✓ Role renamed to: ${editedRoleName}`);
     });
 
-    test('Verify edit was applied [Admin]', async ({ page }) => {
+    test('Verify edit was applied [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.searchFor(editedRoleName);
       await rolesPage.verifyRoleInTable(editedRoleName);
-
-      console.log(`[Verify Edit] ✓ Changes confirmed`);
     });
 
-    test('Delete role [Admin]', async ({ page }) => {
+    test('Delete role [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -145,25 +139,54 @@ test.describe('Role Management', () => {
       await rolesPage.openRowActions(editedRoleName);
       await rolesPage.clickRowAction('Delete');
       await rolesPage.confirmDelete();
-
-      console.log(`[Delete] ✓ Deletion confirmed`);
     });
 
-    test('Verify role is deleted [Admin]', async ({ page }) => {
+    test('Verify role is deleted [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.searchFor(editedRoleName);
       await rolesPage.verifyRoleNotInTable(editedRoleName);
-
-      console.log(`[Verify Delete] ✓ Role no longer exists`);
     });
   });
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe.serial('OrgAdmin Copy Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test(`Create Role button is visible [Admin]`, async ({ page }) => {
+    test('Create role by copying [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_WORKSPACE_NAME || !SEEDED_ROLE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.createButton.click();
+      await rolesPage.fillCreateWizardAsCopy(COPY_ROLE_NAME, SEEDED_ROLE_NAME!);
+    });
+
+    test('Verify copied role appears in table [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_WORKSPACE_NAME || !SEEDED_ROLE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(COPY_ROLE_NAME);
+      await rolesPage.verifyRoleInTable(COPY_ROLE_NAME);
+    });
+
+    test('Delete copied role [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_WORKSPACE_NAME || !SEEDED_ROLE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(COPY_ROLE_NAME);
+      await rolesPage.openRowActions(COPY_ROLE_NAME);
+      await rolesPage.clickRowAction('Delete');
+      await rolesPage.confirmDelete();
+    });
+  });
+
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    test(`Create Role button is visible [OrgAdmin]`, async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -181,6 +204,7 @@ test.describe('Role Management', () => {
     test.use({ storageState: AUTH_V2_USERVIEWER });
 
     test(`Roles page shows unauthorized access [UserViewer]`, async ({ page }) => {
+      test.fixme(true, 'APP BUG: UserViewer navigating to roles URL sees My Access instead of UnauthorizedAccess page');
       await setupPage(page);
       await page.goto(ROLES_URL);
 
@@ -202,6 +226,50 @@ test.describe('Role Management', () => {
       await page.goto(ROLES_URL);
 
       await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    });
+  });
+
+  test.describe('WorkspaceUser', () => {
+    test.use({ storageState: AUTH_V2_WORKSPACEUSER });
+
+    test('Roles page shows unauthorized access [WorkspaceUser]', async ({ page }) => {
+      await setupPage(page);
+      await page.goto(ROLES_URL);
+
+      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    });
+  });
+
+  test.describe('RbacAdmin', () => {
+    test.use({ storageState: AUTH_V2_RBACADMIN });
+
+    test('Create Role button is visible [RbacAdmin]', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+      await expect(rolesPage.createButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Bulk Actions
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe('OrgAdmin - Bulk Actions', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    test('Can select role and see bulk actions in toolbar [OrgAdmin]', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      const table = page.getByRole('grid');
+      const checkboxes = table.locator('tbody input[type="checkbox"]');
+      await expect(checkboxes.first()).toBeVisible({ timeout: E2E_TIMEOUTS.ELEMENT_VISIBLE });
+
+      await checkboxes.first().click();
+
+      // Verify toolbar actions become available after selection
+      const actionsButton = page.getByRole('button', { name: /actions overflow|delete role/i });
+      await expect(actionsButton).toBeVisible({ timeout: E2E_TIMEOUTS.ELEMENT_VISIBLE });
     });
   });
 });

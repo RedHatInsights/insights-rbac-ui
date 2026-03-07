@@ -4,9 +4,12 @@
  * Global test configuration for all tests.
  */
 
+// TextEncoder/TextDecoder must be set before MSW loads (used by @mswjs/interceptors)
+import { TextDecoder, TextEncoder } from 'util';
+Object.assign(globalThis, { TextDecoder, TextEncoder });
+
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
-import { TextDecoder, TextEncoder } from 'util';
 
 // ============================================================================
 // Environment Variables
@@ -67,9 +70,6 @@ Element.prototype.scrollTo = () => {};
       removeListener: function () {},
     };
   };
-
-// TextEncoder/TextDecoder polyfill
-Object.assign(globalThis, { TextDecoder, TextEncoder });
 
 // ============================================================================
 // Module Mocks

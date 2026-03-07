@@ -6,11 +6,20 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { clickMenuItem, openDetailPageActionsMenu, openRoleActionsMenu, setupPage, verifySuccessNotification, waitForTableUpdate } from '../../utils';
+import {
+  clickMenuItem,
+  iamUrl,
+  openDetailPageActionsMenu,
+  openRoleActionsMenu,
+  setupPage,
+  v1,
+  verifySuccessNotification,
+  waitForTableUpdate,
+} from '../../utils';
 import { fillCreateRoleWizard, fillCreateRoleWizardAsCopy, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
-const ROLES_URL = '/iam/user-access/roles';
+const ROLES_URL = iamUrl(v1.roles.link());
 
 export class RolesPage {
   readonly page: Page;
@@ -25,9 +34,10 @@ export class RolesPage {
 
   async goto(): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(ROLES_URL);
-    // Use longer timeout for initial page data load (was using default 30s)
-    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
+    await expect(async () => {
+      await this.page.goto(ROLES_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

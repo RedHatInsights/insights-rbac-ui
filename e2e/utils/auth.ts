@@ -7,12 +7,20 @@
 import { execFileSync } from 'child_process';
 import path from 'path';
 
-export type Persona = 'v1-admin' | 'v1-readonly' | 'v1-userviewer' | 'v2-admin' | 'v2-readonly' | 'v2-userviewer';
+export type Persona =
+  | 'v1-orgadmin'
+  | 'v1-readonly'
+  | 'v1-userviewer'
+  | 'v2-orgadmin'
+  | 'v2-readonly'
+  | 'v2-userviewer'
+  | 'v2-rbacadmin'
+  | 'v2-workspaceuser';
 
 /**
  * Authenticate a persona using the CLI login command.
  *
- * @param persona - The persona to authenticate (e.g., 'v1-admin')
+ * @param persona - The persona to authenticate (e.g., 'v1-orgadmin')
  * @returns The path to the saved auth state file
  */
 export function authenticatePersona(persona: Persona): string {

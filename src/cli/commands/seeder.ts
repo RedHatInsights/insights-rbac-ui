@@ -4,6 +4,11 @@
  * Bulk create RBAC resources (roles, groups, workspaces) from JSON payload.
  * Supports prefix for test isolation and outputs name-to-UUID mapping.
  *
+ * RULE: All API reads and mutations MUST go through typed API clients
+ * (RolesApiClient, GroupsApiClient, WorkspacesApiClient) from the data layer.
+ * Direct axios calls (client.get, client.post, etc.) are forbidden — they
+ * bypass type safety and drift silently when the API contract changes.
+ *
  * AUTOMATIC BEHAVIOR:
  * - System roles (system=true) are automatically fetched and included in seed-map
  * - System groups (platform_default=true) are automatically fetched and included
@@ -20,12 +25,24 @@
 
 import * as fs from 'fs/promises';
 import type { AxiosInstance } from 'axios';
-import { type GroupInput, type RoleInput, type SeedPayload, SeedPayloadSchema, type WorkspaceInput } from '../types.js';
+import { type GroupInput, type RoleBindingInput, type RoleInput, type SeedPayload, SeedPayloadSchema, type WorkspaceInput } from '../types.js';
 import { getApiClient, initializeApiClient } from '../api-client.js';
 import { getToken } from '../auth.js';
 import { getEnvConfig } from '../auth-bridge.js';
 import { assertNotProduction, assertValidPrefix } from './safety.js';
-import { type GroupsApiClient, type RoleIn, type RolesApiClient, createGroupsApi, createRolesApi } from '../queries.js';
+import {
+  type GroupPrincipalIn,
+  type GroupsApiClient,
+  type RoleIn,
+  type RolesApiClient,
+  type RolesV2ApiClient,
+  type V2Permission,
+  type WorkspacesApiClient,
+  createGroupsApi,
+  createRolesApi,
+  createRolesV2Api,
+  createWorkspacesApi,
+} from '../queries.js';
 
 // ============================================================================
 // Types
@@ -36,7 +53,8 @@ export interface SeederOptions {
   prefix?: string;
   json?: boolean;
   dryRun?: boolean;
-  output?: string; // Output file path for JSON mapping
+  output?: string;
+  apiVersion?: 'v1' | 'v2';
 }
 
 interface ResourceMapping {
@@ -47,6 +65,7 @@ interface SeederResult {
   roles: ResourceMapping;
   groups: ResourceMapping;
   workspaces: ResourceMapping;
+  role_bindings: number;
 }
 
 // ============================================================================
@@ -72,19 +91,15 @@ interface SystemGroup {
  * Fetch all system roles from the API.
  * System roles have `system: true` and cannot be modified/deleted.
  */
-async function fetchSystemRoles(client: AxiosInstance): Promise<SystemRole[]> {
+async function fetchSystemRoles(rolesApi: RolesApiClient): Promise<SystemRole[]> {
   const allRoles: SystemRole[] = [];
   let offset = 0;
   const limit = 100;
 
   try {
-    // Paginate through all system roles
     while (true) {
-      const response = await client.get('/api/rbac/v1/roles/', {
-        params: { system: true, limit, offset },
-      });
-
-      const roles = response.data?.data ?? [];
+      const response = await rolesApi.listRoles({ system: true, limit, offset });
+      const roles = (response.data?.data ?? []) as SystemRole[];
       allRoles.push(...roles);
 
       if (roles.length < limit) break;
@@ -102,19 +117,15 @@ async function fetchSystemRoles(client: AxiosInstance): Promise<SystemRole[]> {
  * Fetch all system/default groups from the API.
  * These include platform_default and admin_default groups.
  */
-async function fetchSystemGroups(client: AxiosInstance): Promise<SystemGroup[]> {
+async function fetchSystemGroups(groupsApi: GroupsApiClient): Promise<SystemGroup[]> {
   const allGroups: SystemGroup[] = [];
   let offset = 0;
   const limit = 100;
 
   try {
-    // Paginate through all groups and filter for system/default ones
     while (true) {
-      const response = await client.get('/api/rbac/v1/groups/', {
-        params: { system: true, limit, offset },
-      });
-
-      const groups = response.data?.data ?? [];
+      const response = await groupsApi.listGroups({ system: true, limit, offset });
+      const groups = (response.data?.data ?? []) as SystemGroup[];
       allGroups.push(...groups);
 
       if (groups.length < limit) break;
@@ -187,6 +198,13 @@ function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
     workspaces: payload.workspaces?.map((workspace) => ({
       ...workspace,
       name: `${prefix}${separator}${workspace.name}`,
+      parent_id: workspace.parent_id ? `${prefix}${separator}${workspace.parent_id}` : undefined,
+    })),
+    role_bindings: payload.role_bindings?.map((rb) => ({
+      ...rb,
+      group: `${prefix}${separator}${rb.group}`,
+      role: `${prefix}${separator}${rb.role}`,
+      workspace: `${prefix}${separator}${rb.workspace}`,
     })),
   };
 }
@@ -198,7 +216,7 @@ function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
 /**
  * Create a role via the Roles API.
  *
- * Uses the typed RolesApiClient from src/data/api/roles.ts.
+ * Uses the typed RolesApiClient from src/v1/data/api/roles.ts.
  * Transforms the simpler `permissions: string[]` format to the V1 API's
  * `access: [{ permission: string, resourceDefinitions: [] }]` format.
  *
@@ -225,9 +243,43 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
 }
 
 /**
+ * Parse a V1 permission string ("app:resource:op") into a V2 Permission object.
+ */
+function parsePermission(perm: string): V2Permission {
+  const [application, resource_type, operation] = perm.split(':');
+  return { application, resource_type, operation };
+}
+
+/**
+ * Create a role via the V2 Roles API.
+ *
+ * Transforms the simpler `permissions: string[]` format to the V2 API's
+ * `permissions: [{ application, resource_type, operation }]` format.
+ *
+ * @throws Error if creation fails (caller should handle)
+ */
+async function createRoleV2(rolesV2Api: RolesV2ApiClient, role: RoleInput, mapping: ResourceMapping): Promise<void> {
+  const permissions = (role.permissions ?? []).map(parsePermission);
+  const request = {
+    name: role.name,
+    description: role.description ?? '',
+    permissions,
+  };
+
+  logCurl('POST', '/api/rbac/v2/roles/', request, `Create role: ${role.name}`);
+
+  const response = await rolesV2Api.rolesCreate({ rolesCreateOrUpdateRoleRequest: request });
+  const id = response.data?.id;
+  if (id) {
+    mapping[role.name] = id;
+    console.error(`  ✓ Created role "${role.name}" → ${id}`);
+  }
+}
+
+/**
  * Create a group via the Groups API and optionally attach roles and members.
  *
- * Uses the typed GroupsApiClient from src/data/api/groups.ts.
+ * Uses the typed GroupsApiClient from src/shared/data/api/groups.ts.
  * If roles_list is provided, resolves role names to UUIDs and attaches them.
  * If personas are provided, adds all persona usernames as members.
  *
@@ -239,7 +291,9 @@ async function createGroup(
   mapping: ResourceMapping,
   roleMapping: ResourceMapping,
   personas?: Record<string, { username: string }>,
+  options?: { attachRoles?: boolean },
 ): Promise<void> {
+  const attachRoles = options?.attachRoles ?? true;
   const groupData = {
     name: group.name,
     description: group.description,
@@ -254,8 +308,8 @@ async function createGroup(
     mapping[group.name] = uuid;
     console.error(`  ✓ Created group "${group.name}" → ${uuid}`);
 
-    // Attach roles if specified
-    if (group.roles_list && group.roles_list.length > 0) {
+    // Attach roles if specified (V1 only — V2 uses role bindings instead)
+    if (attachRoles && group.roles_list && group.roles_list.length > 0) {
       const roleUuids: string[] = [];
       for (const roleName of group.roles_list) {
         // Try to find the role UUID - check both prefixed and unprefixed names
@@ -282,7 +336,7 @@ async function createGroup(
       try {
         await groupsApi.addPrincipalToGroup({
           uuid,
-          groupPrincipalIn: principalData as Parameters<typeof groupsApi.addPrincipalToGroup>[0]['groupPrincipalIn'],
+          groupPrincipalIn: principalData as GroupPrincipalIn,
         });
         console.error(`    ✓ Added ${usernames.length} persona(s) to group: ${usernames.join(', ')}`);
       } catch (error) {
@@ -294,21 +348,25 @@ async function createGroup(
 }
 
 /**
- * Create a workspace via API.
+ * Create a workspace via the typed V2 API client.
  *
  * @throws Error if creation fails (caller should handle)
  */
-async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput, mapping: ResourceMapping, rootWorkspaceId?: string): Promise<void> {
-  const payload = {
+async function createWorkspace(
+  workspacesApi: WorkspacesApiClient,
+  workspace: WorkspaceInput,
+  mapping: ResourceMapping,
+  rootWorkspaceId?: string,
+): Promise<void> {
+  const request = {
     name: workspace.name,
     description: workspace.description,
-    parent_id: workspace.parent_id || rootWorkspaceId,
+    parent_id: mapping[workspace.parent_id!] ?? workspace.parent_id ?? rootWorkspaceId,
   };
 
-  // Always log curl for debugging
-  logCurl('POST', '/api/rbac/v2/workspaces/', payload, `Create workspace: ${workspace.name}`);
+  logCurl('POST', '/api/rbac/v2/workspaces/', request, `Create workspace: ${workspace.name}`);
 
-  const response = await client.post('/api/rbac/v2/workspaces/', payload);
+  const response = await workspacesApi.createWorkspace({ workspacesCreateWorkspaceRequest: request });
   const id = response.data?.id;
   if (id) {
     mapping[workspace.name] = id;
@@ -317,13 +375,82 @@ async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput,
 }
 
 /**
+ * Create role bindings via the typed V2 API client (PUT /role-bindings/by-subject/).
+ *
+ * Resolves group, role, and workspace names to UUIDs from the seeder mappings,
+ * then sets role bindings for each group+workspace pair. Groups bindings by
+ * (group, workspace) to send one PUT per pair with all applicable roles.
+ */
+async function createRoleBindings(
+  workspacesApi: WorkspacesApiClient,
+  bindings: RoleBindingInput[],
+  mappings: { roles: ResourceMapping; groups: ResourceMapping; workspaces: ResourceMapping },
+): Promise<number> {
+  // Group bindings by (group, workspace) so we send one PUT per pair
+  const bySubject = new Map<string, { groupId: string; workspaceId: string; roleIds: string[]; label: string }>();
+
+  for (const binding of bindings) {
+    const groupId = mappings.groups[binding.group];
+    const roleId = mappings.roles[binding.role];
+    const workspaceId = mappings.workspaces[binding.workspace];
+
+    if (!groupId) {
+      console.error(`    ⚠ Group "${binding.group}" not found in mapping, skipping binding`);
+      continue;
+    }
+    if (!roleId) {
+      console.error(`    ⚠ Role "${binding.role}" not found in mapping, skipping binding`);
+      continue;
+    }
+    if (!workspaceId) {
+      console.error(`    ⚠ Workspace "${binding.workspace}" not found in mapping, skipping binding`);
+      continue;
+    }
+
+    const key = `${groupId}:${workspaceId}`;
+    const existing = bySubject.get(key);
+    if (existing) {
+      existing.roleIds.push(roleId);
+    } else {
+      bySubject.set(key, { groupId, workspaceId, roleIds: [roleId], label: `${binding.group} → ${binding.workspace}` });
+    }
+  }
+
+  if (bySubject.size === 0) {
+    console.error(`    ⚠ No valid role bindings to create`);
+    return 0;
+  }
+
+  let count = 0;
+  for (const { groupId, workspaceId, roleIds, label } of bySubject.values()) {
+    const roles = roleIds.map((id) => ({ id }));
+    logCurl(
+      'PUT',
+      `/api/rbac/v2/role-bindings/by-subject/?resource_id=${workspaceId}&resource_type=workspace&subject_id=${groupId}&subject_type=group`,
+      { roles },
+      `Bind ${label}`,
+    );
+
+    await workspacesApi.roleBindingsUpdate({
+      resourceId: workspaceId,
+      resourceType: 'workspace',
+      subjectId: groupId,
+      subjectType: 'group',
+      roleBindingsUpdateRoleBindingsRequest: { roles },
+    });
+    count += roleIds.length;
+    console.error(`  ✓ Bound ${roleIds.length} role(s) for ${label}`);
+  }
+
+  return count;
+}
+
+/**
  * Fetch root workspace ID for creating child workspaces.
  */
-async function fetchRootWorkspaceId(client: AxiosInstance): Promise<string | undefined> {
+async function fetchRootWorkspaceId(workspacesApi: WorkspacesApiClient): Promise<string | undefined> {
   try {
-    const response = await client.get('/api/rbac/v2/workspaces/', {
-      params: { type: 'root' },
-    });
+    const response = await workspacesApi.listWorkspaces({ type: 'root' });
     return response.data?.data?.[0]?.id;
   } catch {
     console.error('  ⚠ Could not fetch root workspace');
@@ -335,11 +462,9 @@ async function fetchRootWorkspaceId(client: AxiosInstance): Promise<string | und
  * Fetch Default workspace ID for creating child workspaces.
  * The Default workspace is a better place for test workspaces than root.
  */
-async function fetchDefaultWorkspaceId(client: AxiosInstance): Promise<string | undefined> {
+async function fetchDefaultWorkspaceId(workspacesApi: WorkspacesApiClient): Promise<string | undefined> {
   try {
-    const response = await client.get('/api/rbac/v2/workspaces/', {
-      params: { type: 'default' },
-    });
+    const response = await workspacesApi.listWorkspaces({ type: 'default' });
     return response.data?.data?.[0]?.id;
   } catch {
     console.error('  ⚠ Could not fetch default workspace');
@@ -355,7 +480,7 @@ async function fetchDefaultWorkspaceId(client: AxiosInstance): Promise<string | 
  * Log curl command for debugging.
  * Always outputs to stderr (keeps stdout clean for JSON output).
  */
-function logCurl(method: 'GET' | 'POST' | 'DELETE', endpoint: string, data?: unknown, description?: string): void {
+function logCurl(method: 'GET' | 'POST' | 'PUT' | 'DELETE', endpoint: string, data?: unknown, description?: string): void {
   const baseUrl = getEnvConfig().apiUrl;
   const url = `${baseUrl}${endpoint}`;
 
@@ -382,6 +507,7 @@ function logCurl(method: 'GET' | 'POST' | 'DELETE', endpoint: string, data?: unk
 
 interface ExecuteSeedOptions {
   dryRun?: boolean;
+  apiVersion: 'v1' | 'v2';
 }
 
 /**
@@ -389,17 +515,26 @@ interface ExecuteSeedOptions {
  *
  * Phase 1: Discover - Fetch all system roles/groups from the API (ALWAYS runs)
  * Phase 2: Create - Create custom resources from the payload (skipped in dry-run)
+ * Phase 3: Bind - Create role bindings between groups, roles, and workspaces
  *
  * System resources are automatically included in the seed-map for reference.
  * In dry-run mode, discovery still happens but mutations are skipped and curl commands are output.
  */
-async function executeSeed(payload: SeedPayload, client: AxiosInstance, options: ExecuteSeedOptions = {}): Promise<SeederResult> {
-  const { dryRun = false } = options;
+async function executeSeed(payload: SeedPayload, client: AxiosInstance, options: ExecuteSeedOptions): Promise<SeederResult> {
+  const { dryRun = false, apiVersion } = options;
+  const isV2 = apiVersion === 'v2';
+
+  // Create typed API clients — all reads and mutations go through these
+  const rolesApi = createRolesApi(client);
+  const rolesV2Api = isV2 ? createRolesV2Api(client) : undefined;
+  const groupsApi = createGroupsApi(client);
+  const workspacesApi = createWorkspacesApi(client);
 
   const result: SeederResult = {
     roles: {},
     groups: {},
     workspaces: {},
+    role_bindings: 0,
   };
 
   // ============================================================================
@@ -409,17 +544,21 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
   console.error(`🔍 PHASE 1: Discovering system resources`);
   console.error(`${'━'.repeat(50)}`);
 
-  // Fetch all system roles
-  console.error(`\n🔍 Fetching system roles...`);
-  const systemRoles = await fetchSystemRoles(client);
-  for (const role of systemRoles) {
-    result.roles[role.name] = role.uuid;
+  // Fetch all system roles (V1 only — V2 has no system role concept)
+  if (!isV2) {
+    console.error(`\n🔍 Fetching system roles...`);
+    const systemRoles = await fetchSystemRoles(rolesApi);
+    for (const role of systemRoles) {
+      result.roles[role.name] = role.uuid;
+    }
+    console.error(`  ✓ Found ${systemRoles.length} system role(s)`);
+  } else {
+    console.error(`\n📋 Skipping system roles discovery (V2 API)`);
   }
-  console.error(`  ✓ Found ${systemRoles.length} system role(s)`);
 
   // Fetch all system/default groups
   console.error(`\n🔍 Fetching system groups...`);
-  const systemGroups = await fetchSystemGroups(client);
+  const systemGroups = await fetchSystemGroups(groupsApi);
   for (const group of systemGroups) {
     result.groups[group.name] = group.uuid;
   }
@@ -431,7 +570,8 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
   const customRoles = payload.roles ?? [];
   const customGroups = payload.groups ?? [];
   const workspaces = payload.workspaces ?? [];
-  const customResourceCount = customRoles.length + customGroups.length + workspaces.length;
+  const roleBindings = payload.role_bindings ?? [];
+  const customResourceCount = customRoles.length + customGroups.length + workspaces.length + roleBindings.length;
 
   if (customResourceCount === 0) {
     console.error(`\n📋 No custom resources to create.`);
@@ -448,16 +588,21 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
 
     // Output role curl commands
     if (customRoles.length > 0) {
-      console.error(`📦 Would create ${customRoles.length} role(s)...`);
+      console.error(`📦 Would create ${customRoles.length} role(s) via ${isV2 ? 'V2' : 'V1'} API...`);
       for (const role of customRoles) {
         result.roles[role.name] = '<dry-run>';
-        const payload = {
-          name: role.name,
-          display_name: role.display_name,
-          description: role.description,
-          access: (role.permissions ?? []).map((p) => ({ permission: p, resourceDefinitions: [] })),
-        };
-        logCurl('POST', '/api/rbac/v1/roles/', payload, `Create role: ${role.name}`);
+        if (isV2) {
+          const payload = { name: role.name, description: role.description ?? '', permissions: (role.permissions ?? []).map(parsePermission) };
+          logCurl('POST', '/api/rbac/v2/roles/', payload, `Create role: ${role.name}`);
+        } else {
+          const payload = {
+            name: role.name,
+            display_name: role.display_name,
+            description: role.description,
+            access: (role.permissions ?? []).map((p) => ({ permission: p, resourceDefinitions: [] })),
+          };
+          logCurl('POST', '/api/rbac/v1/roles/', payload, `Create role: ${role.name}`);
+        }
       }
     }
 
@@ -484,19 +629,30 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
       }
     }
 
+    // Output role binding curl commands
+    if (roleBindings.length > 0) {
+      console.error(`📦 Would create ${roleBindings.length} role binding(s)...`);
+      result.role_bindings = roleBindings.length;
+      for (const rb of roleBindings) {
+        const params = `resource_id=<${rb.workspace}>&resource_type=workspace&subject_id=<${rb.group}>&subject_type=group`;
+        logCurl('PUT', `/api/rbac/v2/role-bindings/by-subject/?${params}`, { roles: [{ id: `<${rb.role}>` }] }, `Bind ${rb.group} → ${rb.workspace}`);
+      }
+    }
+
     return result;
   }
 
   // LIVE MODE: Actually create resources using typed API clients
-  // Create API clients from the axios instance
-  const rolesApi = createRolesApi(client);
-  const groupsApi = createGroupsApi(client);
 
   // Create custom roles (sequentially, bail on first error)
   if (customRoles.length > 0) {
-    console.error(`\n📦 Creating ${customRoles.length} role(s)...`);
+    console.error(`\n📦 Creating ${customRoles.length} role(s) via ${isV2 ? 'V2' : 'V1'} API...`);
     for (const role of customRoles) {
-      await createRole(rolesApi, role, result.roles);
+      if (isV2 && rolesV2Api) {
+        await createRoleV2(rolesV2Api, role, result.roles);
+      } else {
+        await createRole(rolesApi, role, result.roles);
+      }
     }
   }
 
@@ -506,26 +662,38 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
   if (customGroups.length > 0) {
     console.error(`\n📦 Creating ${customGroups.length} group(s)...`);
     for (const group of customGroups) {
-      await createGroup(groupsApi, group, result.groups, result.roles, payload.personas);
+      await createGroup(groupsApi, group, result.groups, result.roles, payload.personas, { attachRoles: !isV2 });
     }
   }
 
   // Create workspaces (sequentially, bail on first error)
-  // Note: Workspaces use V2 API, no typed client available yet
   // Create under Default workspace (not root) for better organization
   if (workspaces.length > 0) {
     console.error(`\n📦 Creating ${workspaces.length} workspace(s)...`);
-    // Try Default workspace first, fall back to root
-    let parentWorkspaceId = await fetchDefaultWorkspaceId(client);
+    let parentWorkspaceId = await fetchDefaultWorkspaceId(workspacesApi);
     if (!parentWorkspaceId) {
       console.error('  ⚠ Default workspace not found, falling back to root');
-      parentWorkspaceId = await fetchRootWorkspaceId(client);
+      parentWorkspaceId = await fetchRootWorkspaceId(workspacesApi);
     } else {
       console.error(`  → Using Default workspace as parent: ${parentWorkspaceId}`);
     }
     for (const workspace of workspaces) {
-      await createWorkspace(client, workspace, result.workspaces, parentWorkspaceId);
+      await createWorkspace(workspacesApi, workspace, result.workspaces, parentWorkspaceId);
     }
+  }
+
+  // ============================================================================
+  // PHASE 3: BIND - Create role bindings (needs UUIDs from phases above)
+  // ============================================================================
+  if (roleBindings.length > 0) {
+    console.error(`\n${'━'.repeat(50)}`);
+    console.error(`🔗 PHASE 3: Creating ${roleBindings.length} role binding(s)`);
+    console.error(`${'━'.repeat(50)}`);
+    result.role_bindings = await createRoleBindings(workspacesApi, roleBindings, {
+      roles: result.roles,
+      groups: result.groups,
+      workspaces: result.workspaces,
+    });
   }
 
   return result;
@@ -552,13 +720,20 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
     const envConfig = getEnvConfig();
     const separator = '__';
 
+    const apiVersion = options.apiVersion ?? 'v1';
+
     console.error(`\n🌱 RBAC Seeder${options.dryRun ? ' [DRY-RUN MODE]' : ''}`);
     console.error(`━`.repeat(50));
     console.error(`Environment: ${envConfig.name}`);
     console.error(`API URL: ${envConfig.apiUrl}`);
+    console.error(`API Version: ${apiVersion}`);
     console.error(`Payload: ${options.file}`);
     console.error(`Prefix: "${prefix}" (separator: "${separator}")`);
-    console.error(`\n📋 System roles/groups will be auto-discovered and included in seed-map.`);
+    if (apiVersion === 'v1') {
+      console.error(`\n📋 System roles/groups will be auto-discovered and included in seed-map.`);
+    } else {
+      console.error(`\n📋 System groups will be auto-discovered. Roles use V2 API.`);
+    }
     if (options.dryRun) {
       console.error(`📋 Dry-run mode: discovery will run, but no mutations will be performed.`);
     }
@@ -579,7 +754,7 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
     console.error(`✓ Authenticated`);
 
     // Execute seeding (discovery always runs, mutations skipped in dry-run)
-    const result = await executeSeed(payload, client, { dryRun: options.dryRun });
+    const result = await executeSeed(payload, client, { dryRun: options.dryRun, apiVersion });
 
     // Output summary
     console.error(`\n${'━'.repeat(50)}`);
@@ -587,6 +762,9 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
     console.error(`  Roles: ${Object.keys(result.roles).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
     console.error(`  Groups: ${Object.keys(result.groups).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
     console.error(`  Workspaces: ${Object.keys(result.workspaces).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
+    if (result.role_bindings > 0) {
+      console.error(`  Role bindings: ${result.role_bindings} ${options.dryRun ? 'would-create' : 'created'}`);
+    }
 
     // Output JSON mapping if requested
     if (options.json) {

@@ -18,6 +18,14 @@
         "inventory:hosts:read",
         "inventory:groups:read"
       ]
+    },
+    {
+      "name": "Child Role",
+      "display_name": "Child Role",
+      "description": "Role for child workspace testing",
+      "permissions": [
+        "cost-management:cost_model:read"
+      ]
     }
   ],
   "groups": [
@@ -25,12 +33,34 @@
       "name": "Seeded Group",
       "description": "Controlled test group for search and view tests",
       "roles_list": ["Seeded Role"]
+    },
+    {
+      "name": "Child Group",
+      "description": "Group for child workspace testing",
+      "roles_list": ["Child Role"]
     }
   ],
   "workspaces": [
     {
       "name": "Seeded Workspace",
       "description": "Controlled test workspace for V2 tests"
+    },
+    {
+      "name": "Seeded Child Workspace",
+      "description": "Nested workspace for inheritance testing",
+      "parent_id": "Seeded Workspace"
+    }
+  ],
+  "role_bindings": [
+    {
+      "group": "Seeded Group",
+      "role": "Seeded Role",
+      "workspace": "Seeded Workspace"
+    },
+    {
+      "group": "Child Group",
+      "role": "Child Role",
+      "workspace": "Seeded Child Workspace"
     }
   ]
 }

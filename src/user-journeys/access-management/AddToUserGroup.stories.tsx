@@ -16,9 +16,9 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
 import { userGroupsMembership as baseUserGroupsMembership, mockGroups, mockUsers } from './_shared/mockData';
-import { v1Handlers } from './_shared/handlers';
+import { v2DefaultHandlers } from './_shared';
 
 // =============================================================================
 // SPIES FOR API VERIFICATION
@@ -52,12 +52,6 @@ const resetMembershipState = () => {
 // =============================================================================
 
 const createTestHandlers = () => [
-  // Reset state handler for test isolation
-  http.post('/api/test/reset-state', () => {
-    resetMembershipState();
-    return HttpResponse.json({ success: true });
-  }),
-
   // Override principals endpoint to include dynamic group count
   http.get('/api/rbac/v1/principals/', async ({ request }) => {
     await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
@@ -126,8 +120,8 @@ const createTestHandlers = () => [
     });
   }),
 
-  // Include remaining V1 handlers
-  ...v1Handlers.filter(
+  // Include remaining handlers (excluding overridden ones)
+  ...v2DefaultHandlers.filter(
     (h) =>
       !h.info?.path?.toString().includes('/principals/') &&
       !h.info?.path?.toString().includes('/user-access/groups/') &&
@@ -209,10 +203,11 @@ async function verifyUserGroupMembership(
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Management Fabric/Access Management/Add to user group',
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Users and Groups/Add to User Group',
   tags: ['access-management', 'user-groups', 'modal'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
+      resetMembershipState();
       const dynamicEnv = createDynamicEnvironment(context.args);
       context.parameters = { ...context.parameters, ...dynamicEnv };
       const argsKey = JSON.stringify(context.args);
@@ -225,7 +220,6 @@ const meta = {
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
-    'platform.rbac.common.userstable': true,
     'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
@@ -234,7 +228,6 @@ const meta = {
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
       'platform.rbac.workspaces-organization-management': true,
-      'platform.rbac.common.userstable': true,
     }),
     msw: {
       handlers: createTestHandlers(),
@@ -328,8 +321,8 @@ This test performs full end-to-end verification:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    // Wait for data to load
-    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
+    // Wait for users table to load
+    await waitForPageToLoad(canvas, 'adumble');
 
     // =========================================================================
     // PRE-CONDITION: Verify "adumble" is NOT in "Powerpuff girls" group
@@ -453,7 +446,7 @@ export const MultipleUsers: Story = {
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
+    await waitForPageToLoad(canvas, 'adumble');
 
     // =========================================================================
     // PRE-CONDITION: Verify both users are NOT in "Powerpuff girls"
@@ -537,7 +530,7 @@ Verifies that canceling the modal:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
+    await waitForPageToLoad(canvas, 'adumble');
 
     // Verify pre-condition
     await verifyUserGroupMembership(user, canvas, 'adumble', [{ name: 'Powerpuff girls', shouldBePresent: false }]);
@@ -602,7 +595,7 @@ Verifies:
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
+    await waitForPageToLoad(canvas, 'adumble');
 
     // Pre-condition: adumble is not in Powerpuff or Spice girls
     await verifyUserGroupMembership(user, canvas, 'adumble', [
@@ -642,15 +635,20 @@ Verifies:
     // =========================================================================
     // API VERIFICATION: Should be called for each group
     // =========================================================================
-    expect(addMembersToGroupSpy).toHaveBeenCalledTimes(2);
-    expect(addMembersToGroupSpy).toHaveBeenCalledWith({
-      groupId: 'group-powerpuff-girls',
-      principals: [{ username: 'adumble' }],
-    });
-    expect(addMembersToGroupSpy).toHaveBeenCalledWith({
-      groupId: 'group-golden-girls',
-      principals: [{ username: 'adumble' }],
-    });
+    await waitFor(
+      () => {
+        expect(addMembersToGroupSpy).toHaveBeenCalledTimes(2);
+        expect(addMembersToGroupSpy).toHaveBeenCalledWith({
+          groupId: 'group-powerpuff-girls',
+          principals: [{ username: 'adumble' }],
+        });
+        expect(addMembersToGroupSpy).toHaveBeenCalledWith({
+          groupId: 'group-golden-girls',
+          principals: [{ username: 'adumble' }],
+        });
+      },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+    );
 
     // =========================================================================
     // POST-CONDITION: User in both groups (drawer is already open from pre-condition check)

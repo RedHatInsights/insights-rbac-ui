@@ -11,6 +11,7 @@ const tseslint = require('@typescript-eslint/eslint-plugin');
 const testingLibrary = require('eslint-plugin-testing-library');
 const requireUseTableState = require('./eslint-rules/require-use-table-state');
 const noDirectGetUser = require('./eslint-rules/no-direct-get-user');
+const noCrossVersionImports = require('./eslint-rules/no-cross-version-imports');
 
 module.exports = defineConfig(
   fecPlugin,
@@ -41,10 +42,10 @@ module.exports = defineConfig(
   },
   {
     files: ['src/**/*.ts', 'src/**/*.tsx'],
-    ignores: ['src/test/**', 'src/**/*.stories.tsx', 'src/user-journeys/**', 'src/features/myUserAccess/useBundleApps.ts', 'src/cli/**'],
+    ignores: ['src/test/**', 'src/**/*.stories.tsx', 'src/user-journeys/**', 'src/cli/**'],
     plugins: {
       '@typescript-eslint': tseslint,
-      'rbac-local': { rules: { 'require-use-table-state': requireUseTableState, 'no-direct-get-user': noDirectGetUser } },
+      'rbac-local': { rules: { 'require-use-table-state': requireUseTableState, 'no-direct-get-user': noDirectGetUser, 'no-cross-version-imports': noCrossVersionImports } },
     },
     languageOptions: {
       parser: tsParser,
@@ -57,6 +58,7 @@ module.exports = defineConfig(
       // Ban TableView used without useTableState to prevent hand-rolled state bugs
       'rbac-local/require-use-table-state': 'error',
       'rbac-local/no-direct-get-user': 'error',
+      'rbac-local/no-cross-version-imports': 'error',
       // Ban direct use of Link from react-router-dom - use AppLink or ExternalLink instead
       // Ban direct use of platform hooks - use semantic wrappers instead
       'no-restricted-imports': [
@@ -65,8 +67,9 @@ module.exports = defineConfig(
           paths: [
             {
               name: 'react-router-dom',
-              importNames: ['Link'],
-              message: 'Import AppLink from src/components/navigation/AppLink or ExternalLink from src/components/navigation/ExternalLink instead.',
+              importNames: ['Link', 'useNavigate'],
+              message:
+                'Import AppLink from src/components/navigation/AppLink for links. Use useAppNavigate from src/shared/hooks/useAppNavigate for programmatic navigation.',
             },
             {
               name: '@redhat-cloud-services/frontend-components/useChrome',
@@ -75,6 +78,12 @@ module.exports = defineConfig(
             {
               name: '@redhat-cloud-services/frontend-components-utilities/RBACHook',
               message: 'Use useAccessPermissions from src/hooks/ instead.',
+            },
+          ],
+          patterns: [
+            {
+              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
+              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
             },
           ],
         },
@@ -131,35 +140,103 @@ module.exports = defineConfig(
       ],
     },
   },
+  // V1: ban imports from V2
   {
-    // Allow direct platform imports in wrapper components and semantic hooks
-    files: [
-      'src/components/navigation/AppLink.tsx',
-      'src/components/navigation/ExternalLink.tsx',
-      'src/hooks/usePlatformEnvironment.ts',
-      'src/hooks/usePlatformAuth.ts',
-      'src/hooks/usePlatformTracking.ts',
-      'src/hooks/useAccessPermissions.ts',
-      // QuickStarts files need direct chrome access
-      'src/utilities/quickstartsTestButtons.tsx',
-      'src/features/quickstarts/QuickstartsTest.tsx',
-    ],
+    files: ['src/v1/**/*.ts', 'src/v1/**/*.tsx'],
     rules: {
-      'no-restricted-imports': 'off',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-router-dom',
+              importNames: ['Link', 'useNavigate'],
+              message:
+                'Import AppLink from src/components/navigation/AppLink for links. Use useAppNavigate from src/shared/hooks/useAppNavigate for programmatic navigation.',
+            },
+            {
+              name: '@redhat-cloud-services/frontend-components/useChrome',
+              message: 'Use usePlatformEnvironment, usePlatformAuth, or usePlatformTracking from src/hooks/ instead.',
+            },
+            {
+              name: '@redhat-cloud-services/frontend-components-utilities/RBACHook',
+              message: 'Use useAccessPermissions from src/hooks/ instead.',
+            },
+          ],
+          patterns: [
+            {
+              group: ['**/v2/**'],
+              message: 'V1 code cannot import from V2. Move shared code to src/shared/.',
+            },
+            {
+              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
+              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // V2: ban imports from V1 (except V2 data wrappers in src/v2/data/queries/)
+  {
+    files: ['src/v2/**/*.ts', 'src/v2/**/*.tsx'],
+    ignores: ['src/v2/data/queries/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-router-dom',
+              importNames: ['Link', 'useNavigate'],
+              message:
+                'Import AppLink from src/components/navigation/AppLink for links. Use useAppNavigate from src/shared/hooks/useAppNavigate for programmatic navigation.',
+            },
+            {
+              name: '@redhat-cloud-services/frontend-components/useChrome',
+              message: 'Use usePlatformEnvironment, usePlatformAuth, or usePlatformTracking from src/hooks/ instead.',
+            },
+            {
+              name: '@redhat-cloud-services/frontend-components-utilities/RBACHook',
+              message: 'Use useAccessPermissions from src/hooks/ instead.',
+            },
+          ],
+          patterns: [
+            {
+              group: ['**/v1/**'],
+              message: 'V2 code cannot import from V1. Use V2 data wrappers in src/v2/data/queries/ instead.',
+            },
+            {
+              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
+              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+            },
+          ],
+        },
+      ],
     },
   },
   {
-    // Routing.tsx: Forbid hardcoded permissions - must use p() helper from route-definitions.ts
-    files: ['src/Routing.tsx'],
+    // Allow direct platform imports in wrapper components and semantic hooks
+    files: [
+      'src/shared/components/navigation/AppLink.tsx',
+      'src/shared/components/navigation/AppTabs.tsx',
+      'src/shared/components/navigation/ExternalLink.tsx',
+      'src/shared/hooks/useAppNavigate.ts',
+      'src/shared/hooks/useExternalLink.ts',
+      'src/shared/hooks/usePlatformEnvironment.ts',
+      'src/shared/hooks/usePlatformAuth.ts',
+      'src/shared/hooks/usePlatformTracking.ts',
+      'src/v1/hooks/useAccessPermissions.ts',
+      // Hooks that read identity directly from Chrome
+      'src/v2/hooks/useOrganizationData.ts',
+      // QuickStarts files need direct chrome access
+      'src/shared/utilities/quickstartsTestButtons.tsx',
+      'src/v1/features/quickstarts/QuickstartsTest.tsx',
+      // Data layer API files are the ONLY place that may import from @redhat-cloud-services client packages
+      'src/**/data/api/**',
+    ],
     rules: {
-      'no-restricted-syntax': [
-        'error',
-        {
-          selector: 'Property[key.name="permissions"][value.type="ArrayExpression"]',
-          message:
-            'Do not hardcode permissions in Routing.tsx. Use ...p(path) spread from route-definitions.ts to get permissions from the single source of truth.',
-        },
-      ],
+      'no-restricted-imports': 'off',
     },
   },
   {
@@ -177,6 +254,17 @@ module.exports = defineConfig(
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 1,
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
+              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+            },
+          ],
+        },
+      ],
     },
   },
   {
@@ -193,6 +281,17 @@ module.exports = defineConfig(
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 1,
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
+              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+            },
+          ],
+        },
+      ],
       // Ban magic numbers in timeouts - use TEST_TIMEOUTS constants instead
       'no-restricted-syntax': [
         'error',

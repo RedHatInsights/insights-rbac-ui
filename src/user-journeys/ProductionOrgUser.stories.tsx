@@ -2,7 +2,7 @@ import type { StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
 import { delay } from 'msw';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
-import { ENVIRONMENTS } from './_shared/environments';
+import { ENVIRONMENTS, v1Db } from './_shared/environments';
 import { TEST_TIMEOUTS, resetStoryState } from './_shared/helpers';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
@@ -31,30 +31,7 @@ const meta = {
     ...ENVIRONMENTS.PROD_ORG_USER,
     docs: {
       description: {
-        component: `
-# Production V1: Org User Persona
-
-This environment simulates a **regular user** with **NO RBAC permissions**.
-
-## Permission Configuration
-
-- **Permissions**: \`[]\` (empty - no RBAC permissions)
-- **Org Admin**: false
-- **Feature Flags**: V1 navigation (workspaces-organization-management: false)
-
-## Expected Sidebar
-
-- ✅ My User Access (visible)
-- ❌ User Access section (NOT visible - requires rbac permissions)
-
-## User Journeys
-
-### What Regular Users Can Do
-- View their own access via "My User Access" page
-
-### What Regular Users CANNOT Do
-- Access Users, Groups, or Roles pages (no sidebar link, unauthorized if direct URL)
-        `,
+        component: 'Regular user with no RBAC permissions. See the Documentation page for full details.',
       },
     },
   },
@@ -66,7 +43,6 @@ export default meta;
  * Manual Testing Entry Point
  */
 export const ManualTesting: Story = {
-  tags: ['autodocs'],
   args: {
     initialRoute: '/iam/my-user-access',
   },
@@ -82,7 +58,7 @@ Entry point for manual testing of the Org User persona.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     // Wait for the permissions section to render - this is the most reliable indicator the page is ready
@@ -115,7 +91,7 @@ Validates that Org User (no permissions) only sees "My User Access" in the sideb
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -162,7 +138,7 @@ Tests that Org User can view their own access page.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -196,7 +172,7 @@ Tests that direct navigation to Users page shows unauthorized.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -229,7 +205,7 @@ Tests that direct navigation to Groups page shows unauthorized.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -262,7 +238,7 @@ Tests that direct navigation to Roles page shows unauthorized.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);

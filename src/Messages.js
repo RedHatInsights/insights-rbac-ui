@@ -1245,6 +1245,41 @@ export default defineMessages({
     description: 'Tab title for roles assigned in parent workspaces',
     defaultMessage: 'Roles assigned in parent workspaces',
   },
+  parentWorkspacesPopoverHeader: {
+    id: 'parentWorkspacesPopoverHeader',
+    description: 'Popover header for the parent workspaces tab info icon',
+    defaultMessage: 'Manage roles in their assigned workspace',
+  },
+  parentWorkspacesPopoverBody: {
+    id: 'parentWorkspacesPopoverBody',
+    description: 'Popover body for the parent workspaces tab info icon',
+    defaultMessage: 'A child workspace inherits all roles assigned in the parent workspace.',
+  },
+  parentWorkspacesInstructionalText: {
+    id: 'parentWorkspacesInstructionalText',
+    description: 'Instructional text shown above the inherited group assignments table',
+    defaultMessage: 'To edit roles for these user groups, click the workspace name in the <b>Inherited from</b> column.',
+  },
+  inheritedFromPopoverHeader: {
+    id: 'inheritedFromPopoverHeader',
+    description: 'Popover header for the Inherited from column info icon',
+    defaultMessage: 'What does Inherited from show?',
+  },
+  inheritedFromPopoverBody: {
+    id: 'inheritedFromPopoverBody',
+    description: 'Popover body for the Inherited from column info icon',
+    defaultMessage: 'This column shows the parent workspace where the role was originally assigned.',
+  },
+  inheritedDrawerSubtitle: {
+    id: 'inheritedDrawerSubtitle',
+    description: 'Subtitle in the drawer when showing inherited group roles',
+    defaultMessage: 'The roles listed here were granted in a parent workspace.',
+  },
+  inheritedDrawerAlert: {
+    id: 'inheritedDrawerAlert',
+    description: 'Warning alert in the drawer when showing inherited group roles',
+    defaultMessage: 'Editing access to a parent workspace must be done within that workspace.',
+  },
   assets: {
     id: 'assets',
     description: 'Assets label',
@@ -1401,7 +1436,7 @@ export default defineMessages({
   workspaceEmptyStateSubtitle: {
     id: 'workspaceEmptyStateSubtitle',
     description: 'Empty State Subtitle Workspaces',
-    defaultMessage: 'This filter criteria matches no workspaces.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no workspaces. Try changing your filter input.',
   },
   setEarmark: {
     id: 'setEarmark',
@@ -2006,6 +2041,36 @@ export default defineMessages({
     description: 'My User Access label',
     defaultMessage: 'My User Access',
   },
+  myAccess: {
+    id: 'myAccess',
+    description: 'My Access page title',
+    defaultMessage: 'My Access',
+  },
+  myAccessDescription: {
+    id: 'myAccessDescription',
+    description: 'My Access page subtitle',
+    defaultMessage: 'View your permissions across all groups and workspaces within the Hybrid Cloud Console.',
+  },
+  myGroups: {
+    id: 'myGroups',
+    description: 'My groups tab label',
+    defaultMessage: 'My groups',
+  },
+  myWorkspaces: {
+    id: 'myWorkspaces',
+    description: 'My workspaces tab label',
+    defaultMessage: 'My workspaces',
+  },
+  adminRole: {
+    id: 'adminRole',
+    description: 'Admin role label',
+    defaultMessage: 'Admin',
+  },
+  viewerRole: {
+    id: 'viewerRole',
+    description: 'Viewer role label',
+    defaultMessage: 'Viewer',
+  },
   selectAppsToViewPermissions: {
     id: 'selectAppsToViewPermissions',
     description: 'Select applications to view your personal permissions message',
@@ -2152,6 +2217,11 @@ export default defineMessages({
     id: 'seeMore',
     description: 'See more label',
     defaultMessage: 'See more',
+  },
+  typeToRefineResults: {
+    id: 'typeToRefineResults',
+    description: 'Hint shown when dropdown results are capped',
+    defaultMessage: 'Showing {shown} of {total} — type to refine',
   },
   roleCreatedSuccessfully: {
     id: 'roleCreatedSuccessfully',
@@ -2427,6 +2497,11 @@ export default defineMessages({
     id: 'deleteRoleQuestion',
     description: 'Delete role question message',
     defaultMessage: 'Delete role?',
+  },
+  editRole: {
+    id: 'editRole',
+    description: 'Edit role toolbar action',
+    defaultMessage: 'Edit role',
   },
   deleteRole: {
     id: 'deleteRole',
@@ -2738,12 +2813,12 @@ export default defineMessages({
   usersEmptyStateSubtitle: {
     id: 'usersEmptyStateSubtitle',
     description: 'Empty state subtitle Users',
-    defaultMessage: 'This filter criteria matches no users.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no users. Try changing your filter input.',
   },
   roleAssignmentsEmptyStateSubtitle: {
     id: 'roleAssignmentsEmptyStateSubtitle',
     description: 'Empty state subtitle role bindings',
-    defaultMessage: 'This filter criteria matches no role assignments.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no role assignments. Try changing your filter input.',
   },
   rolesEmptyStateTitle: {
     id: 'rolesEmptyStateTitle',
@@ -2753,7 +2828,7 @@ export default defineMessages({
   rolesEmptyStateSubtitle: {
     id: 'rolesEmptyStateSubtitle',
     description: 'Empty state subtitle Roles',
-    defaultMessage: 'This filter criteria matches no roles.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no roles. Try changing your filter input.',
   },
   userGroupsEmptyStateTitle: {
     id: 'userGroupsEmptyStateTitle',
@@ -2763,7 +2838,7 @@ export default defineMessages({
   userGroupsEmptyStateSubtitle: {
     id: 'userGroupsEmptyStateSubtitle',
     description: 'Empty state subtitle User groups',
-    defaultMessage: 'This filter criteria matches no user groups.{br}Try changing your filter input.',
+    defaultMessage: 'This filter criteria matches no user groups. Try changing your filter input.',
   },
   assignedRoles: {
     id: 'assignedRoles',
@@ -3211,5 +3286,50 @@ export default defineMessages({
     id: 'updateRoleBindingsErrorDescription',
     description: 'Error notification description when role bindings update fails',
     defaultMessage: 'There was a problem saving the role changes. Please try again.',
+  },
+  grantAccessSuccessTitle: {
+    id: 'grantAccessSuccessTitle',
+    description: 'Success notification title when access is granted',
+    defaultMessage: 'Access granted successfully',
+  },
+  grantAccessSuccessDescription: {
+    id: 'grantAccessSuccessDescription',
+    description: 'Success notification description when access is granted',
+    defaultMessage: 'Role bindings were created for the selected groups.',
+  },
+  grantAccessErrorTitle: {
+    id: 'grantAccessErrorTitle',
+    description: 'Error notification title when granting access fails',
+    defaultMessage: 'Failed to grant access',
+  },
+  grantAccessErrorDescription: {
+    id: 'grantAccessErrorDescription',
+    description: 'Error notification description when granting access fails',
+    defaultMessage: 'There was a problem granting access. Please try again.',
+  },
+  removeGroupFromWorkspace: {
+    id: 'removeGroupFromWorkspace',
+    description: 'Remove group from workspace action label',
+    defaultMessage: 'Remove from workspace',
+  },
+  removeGroupFromWorkspaceConfirmTitle: {
+    id: 'removeGroupFromWorkspaceConfirmTitle',
+    description: 'Confirmation modal title when removing a group from a workspace',
+    defaultMessage: 'Remove {groupName} from workspace?',
+  },
+  removeGroupFromWorkspaceConfirmBody: {
+    id: 'removeGroupFromWorkspaceConfirmBody',
+    description: 'Confirmation modal body when removing a group from a workspace',
+    defaultMessage: 'All role assignments for this group in {workspaceName} will be removed. This action cannot be undone.',
+  },
+  removeGroupFromWorkspaceSuccessTitle: {
+    id: 'removeGroupFromWorkspaceSuccessTitle',
+    description: 'Success notification when group is removed from workspace',
+    defaultMessage: 'Group removed from workspace',
+  },
+  removeGroupFromWorkspaceErrorTitle: {
+    id: 'removeGroupFromWorkspaceErrorTitle',
+    description: 'Error notification when removing group from workspace fails',
+    defaultMessage: 'Failed to remove group from workspace',
   },
 });

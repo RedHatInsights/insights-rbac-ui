@@ -351,7 +351,7 @@ const config: TestRunnerConfig = {
 
   // Configure tags to skip certain stories if needed
   tags: {
-    skip: ['skip-test'],
+    skip: ['skip-test', 'test-skip'],
   },
 };
 

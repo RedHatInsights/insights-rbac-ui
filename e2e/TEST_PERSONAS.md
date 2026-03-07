@@ -30,19 +30,21 @@ For workspace access, users need explicit `inventory:groups:*` permissions.
 
 | Persona      | Permissions             | V1 Fixture           | V2 Fixture           |
 | ------------ | ----------------------- | -------------------- | -------------------- |
-| Admin        | `rbac:*:*`              | `AUTH_V1_ADMIN`      | `AUTH_V2_ADMIN`      |
+| OrgAdmin     | `rbac:*:*`              | `AUTH_V1_ORGADMIN`      | `AUTH_V2_ORGADMIN`      |
 | UserViewer   | `rbac:principal:read`   | `AUTH_V1_USERVIEWER` | `AUTH_V2_USERVIEWER` |
 | ReadOnlyUser | (none)                  | `AUTH_V1_READONLY`   | `AUTH_V2_READONLY`   |
+| RbacAdmin    | `rbac:*:*` (not org admin)  | —                    | `AUTH_V2_RBACADMIN`  |
+| WorkspaceUser| explicit workspace access   | —                    | `AUTH_V2_WORKSPACEUSER` |
 
 ---
 
 ## Persona Details
 
-### Admin
+### OrgAdmin
 
 **Permissions**: `rbac:*:*` (wildcard — full RBAC access)
 
-> Note: `rbac:*:*` does NOT include `inventory:*:*`. Admin users on stage typically
+> Note: `rbac:*:*` does NOT include `inventory:*:*`. OrgAdmin users on stage typically
 > also have `inventory:groups:*` for workspace access, but this is separate.
 
 **Page Access**:
@@ -60,12 +62,12 @@ For workspace access, users need explicit `inventory:groups:*` permissions.
 - Happy-path workflows
 
 ```typescript
-import { AUTH_V1_ADMIN } from '../../../utils'; // or AUTH_V2_ADMIN
+import { AUTH_V1_ORGADMIN } from '../../../utils'; // or AUTH_V2_ORGADMIN
 
-test.describe('Admin', () => {
-  test.use({ storageState: AUTH_V1_ADMIN });
+test.describe('OrgAdmin', () => {
+  test.use({ storageState: AUTH_V1_ORGADMIN });
 
-  test.describe.serial('Admin Lifecycle', () => {
+  test.describe.serial('OrgAdmin Lifecycle', () => {
     test('Create entity', async ({ page }) => { /* ... */ });
     test('Edit entity', async ({ page }) => { /* ... */ });
     test('Delete entity', async ({ page }) => { /* ... */ });
@@ -160,6 +162,67 @@ test.describe('ReadOnlyUser', () => {
 
 ---
 
+### RbacAdmin
+
+**Permissions**: `rbac:*:*` (wildcard — full RBAC access, but NOT an org admin)
+
+> This persona has the same RBAC permissions as OrgAdmin but lacks the platform `is_org_admin` flag.
+> Use it to test features gated by org admin (e.g., Audit Log, Organization Management).
+
+**V2 only** — no V1 equivalent.
+
+**Page Access**:
+| Page | Read | Write | Permission Required |
+|------|------|-------|---------------------|
+| Users | ✅ | ✅ Invite | `rbac:principal:*` |
+| User Groups | ✅ | ✅ Create, Edit, Delete | `rbac:group:*` |
+| Roles | ✅ | ✅ Create, Edit, Delete, Copy | `rbac:role:*` |
+| Overview | ✅ | — | `rbac:*:read` |
+| Workspaces | ✅ (if flag + permission) | ✅ | `inventory:groups:*` |
+| Audit Log | ❌ Blocked | — | Requires org admin |
+| Organization Management | ❌ Blocked | — | Requires org admin |
+
+**Test Patterns**:
+- Verify org-admin-only pages show unauthorized
+- Verify RBAC features work identically to OrgAdmin
+
+```typescript
+import { AUTH_V2_RBACADMIN } from '../../../utils';
+
+test.describe('RbacAdmin', () => {
+  test.use({ storageState: AUTH_V2_RBACADMIN });
+
+  test('Audit log shows unauthorized [RbacAdmin]', async ({ page }) => {
+    // Org-admin-only page should be blocked
+  });
+});
+```
+
+---
+
+### WorkspaceUser
+
+**Permissions**: Explicit workspace access granted via role bindings (non-admin)
+
+> This persona has no wildcard RBAC permissions but has been granted access to specific workspaces
+> via Kessel role bindings. Use it to test workspace-scoped access patterns.
+
+**V2 only** — no V1 equivalent.
+
+```typescript
+import { AUTH_V2_WORKSPACEUSER } from '../../../utils';
+
+test.describe('WorkspaceUser', () => {
+  test.use({ storageState: AUTH_V2_WORKSPACEUSER });
+
+  test('Can view assigned workspace [WorkspaceUser]', async ({ page }) => {
+    // Should only see workspaces they have access to
+  });
+});
+```
+
+---
+
 ## Route Permission Reference
 
 From `src/utilities/route-definitions.ts`:
@@ -186,7 +249,7 @@ From `src/utilities/route-definitions.ts`:
 
 Organization Management is gated by **org admin** (platform `is_org_admin`), not RBAC permissions. The Chrome nav shows "Organization Management" only when the user is an org admin.
 
-- **V2 Admin** on stage is typically an org admin → use `AUTH_V2_ADMIN` to test access to Organization Management.
+- **V2 OrgAdmin** on stage is typically an org admin → use `AUTH_V2_ORGADMIN` to test access to Organization Management.
 - **UserViewer** and **ReadOnlyUser** are not org admins → they must not see Organization Management in the nav and must see "You do not have access" when opening the URL directly.
 
 E2E tests: `e2e/journeys/v2/navigation/navigation-structure.spec.ts` (nav visibility), `e2e/journeys/v2/navigation/organization-management-access.spec.ts` (page access and direct URL block).
@@ -201,7 +264,7 @@ The workspace list is controlled by the `platform.rbac.workspaces-list` flag, wh
 On stage, all users appear to have `inventory:groups:read` permission, so they can all view workspaces.
 
 For E2E tests on stage, assume:
-- Admin has full workspace access (read + write)
+- OrgAdmin has full workspace access (read + write)
 - UserViewer and ReadOnlyUser can view workspaces but cannot create/edit/delete (Create button disabled)
 
 ---
@@ -212,17 +275,19 @@ All auth fixtures are stored in `e2e/.auth/` and exported from `e2e/utils/paths.
 
 ```typescript
 // V1 (User Access routes)
-export const AUTH_V1_ADMIN = path.join(AUTH_DIR, 'v1-admin.json');
+export const AUTH_V1_ORGADMIN = path.join(AUTH_DIR, 'v1-orgadmin.json');
 export const AUTH_V1_USERVIEWER = path.join(AUTH_DIR, 'v1-userviewer.json');
 export const AUTH_V1_READONLY = path.join(AUTH_DIR, 'v1-readonly.json');
 
 // V2 (Access Management routes)
-export const AUTH_V2_ADMIN = path.join(AUTH_DIR, 'v2-admin.json');
+export const AUTH_V2_ORGADMIN = path.join(AUTH_DIR, 'v2-orgadmin.json');
 export const AUTH_V2_USERVIEWER = path.join(AUTH_DIR, 'v2-userviewer.json');
 export const AUTH_V2_READONLY = path.join(AUTH_DIR, 'v2-readonly.json');
+export const AUTH_V2_RBACADMIN = path.join(AUTH_DIR, 'v2-rbacadmin.json');
+export const AUTH_V2_WORKSPACEUSER = path.join(AUTH_DIR, 'v2-workspaceuser.json');
 ```
 
 Import via the utils barrel export:
 ```typescript
-import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY } from '../../../utils';
+import { AUTH_V1_ORGADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY } from '../../../utils';
 ```

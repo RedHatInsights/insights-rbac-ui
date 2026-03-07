@@ -26,20 +26,17 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V2_ADMIN from utils
+ *   - AUTH: Uses AUTH_V2_ORGADMIN from utils
  *   - DATA: Relies on SEEDED_GROUP_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use UserGroupsPage for table interactions
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN, getSeededGroupName } from '../../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_RBACADMIN, getSeededGroupName } from '../../../utils';
 import { UserGroupsPage } from '../../../pages/v2/UserGroupsPage';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 const SEEDED_GROUP_NAME = getSeededGroupName('v2');
-
-if (!SEEDED_GROUP_NAME) {
-  throw new Error('No seeded group found in seed map. Run: npm run e2e:seed:v2');
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests
@@ -50,22 +47,33 @@ test.describe('User Group List', () => {
   // ADMIN - Full list access
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test(`Can view user groups list [Admin]`, async ({ page }) => {
+    test(`Can view user groups list [OrgAdmin]`, async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
       await expect(groupsPage.table).toBeVisible();
     });
 
-    test(`Can search for seeded group [Admin]`, async ({ page }) => {
+    test(`Can search for seeded group [OrgAdmin]`, async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
-      await groupsPage.searchFor(SEEDED_GROUP_NAME);
-      await groupsPage.verifyGroupInTable(SEEDED_GROUP_NAME);
+      await groupsPage.searchFor(SEEDED_GROUP_NAME!);
+      await groupsPage.verifyGroupInTable(SEEDED_GROUP_NAME!);
+    });
+  });
+
+  test.describe('RbacAdmin', () => {
+    test.use({ storageState: AUTH_V2_RBACADMIN });
+
+    test('Can view user groups list [RbacAdmin]', async ({ page }) => {
+      const userGroupsPage = new UserGroupsPage(page);
+      await userGroupsPage.goto();
+      await expect(userGroupsPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     });
   });
 });

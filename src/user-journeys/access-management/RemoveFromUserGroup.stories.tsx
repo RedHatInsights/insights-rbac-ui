@@ -16,7 +16,7 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
-import { defaultHandlers } from './_shared';
+import { v2DefaultHandlers } from './_shared';
 import { mockGroups, mockUsers, userGroupsMembership } from './_shared/mockData';
 
 // =============================================================================
@@ -138,7 +138,7 @@ const listGroupsHandler = http.get('/api/rbac/v1/groups/', async ({ request }) =
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Management Fabric/Access Management/Remove from user group',
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Users and Groups/Remove from User Group',
   tags: ['access-management', 'user-groups', 'modal'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
@@ -157,7 +157,6 @@ const meta = {
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
-    'platform.rbac.common.userstable': true,
     'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
@@ -166,16 +165,15 @@ const meta = {
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
       'platform.rbac.workspaces-organization-management': true,
-      'platform.rbac.common.userstable': true,
     }),
     msw: {
       handlers: [
-        // Spy handlers FIRST to intercept before defaultHandlers
+        // Spy handlers FIRST to intercept before v2DefaultHandlers
         removeMembersHandler,
         listUsersHandler,
         listGroupsHandler,
         // Filter out handlers we're overriding
-        ...defaultHandlers.filter((h) => {
+        ...v2DefaultHandlers.filter((h) => {
           const path = h.info?.path?.toString() || '';
           if (path.includes('/principals/') && h.info?.method === 'GET') return false;
           if (path.includes('/user-access/groups/') && h.info?.method === 'GET') return false;

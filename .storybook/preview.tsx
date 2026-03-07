@@ -4,18 +4,18 @@ import '@patternfly/patternfly/patternfly-addons.css';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { IntlProvider } from 'react-intl';
-import { QueryClientSetup } from '../src/components/QueryClientSetup';
+import { QueryClientSetup } from '../src/shared/components/QueryClientSetup';
+import { deriveTenantPermissions } from './helpers/derive-tenant-permissions';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
-import PermissionsContext from '../src/utilities/permissionsContext';
 import { type FeatureFlagsConfig, FeatureFlagsProvider } from './context-providers';
 import { type Environment, StorybookMockProvider } from './contexts/StorybookMockContext';
 import { initialize, mswLoader } from 'msw-storybook-addon';
-import { ServiceProvider, createBrowserServices } from '../src/services';
-import { ApiErrorProvider } from '../src/contexts/ApiErrorContext';
+import { ServiceProvider, createBrowserServices } from '../src/shared/services';
+import { ApiErrorProvider } from '../src/shared/contexts/ApiErrorContext';
 
 // Wrapper that provides all providers for component stories (non-journey)
 // This must be inside NotificationsProvider to access useAddNotification
@@ -82,12 +82,6 @@ const preview: Preview = {
       const userAccessAdministrator =
         args.userAccessAdministrator ?? legacyPermissions.userAccessAdministrator ?? parameters.userAccessAdministrator ?? false;
 
-      // Permissions for PermissionsContext (legacy - orgAdmin/userAccessAdministrator flags)
-      const permissionsContextValue = {
-        userAccessAdministrator,
-        orgAdmin: isOrgAdmin,
-      };
-
       // Permissions: prefer explicit array from args or parameters, fallback to deriving from legacy flags
       // Supports any app permissions (rbac:*, inventory:*, etc.)
       // Check args first (for stories with decorators that modify parameters), then parameters
@@ -114,6 +108,11 @@ const preview: Preview = {
       // Check args first (for stories with decorators that override permissions via args), then parameters
       const workspacePermissions = args.workspacePermissions ??
         parameters.workspacePermissions ?? { view: [], edit: [], delete: [], create: [], move: [] };
+
+      // Tenant permissions for V2 domain hooks (Kessel tenant-scoped checks)
+      // Auto-derive from Chrome permissions when not explicitly provided
+      const explicitTenantPermissions = args.tenantPermissions ?? parameters.tenantPermissions;
+      const tenantPermissions = explicitTenantPermissions ?? deriveTenantPermissions(permissions);
 
       // User identity for auth.getUser() - use userIdentity parameter
       const userIdentity = parameters.userIdentity;
@@ -144,7 +143,6 @@ const preview: Preview = {
           'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'],
         }),
         ...(args['platform.rbac.common-auth-model'] !== undefined && { 'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] }),
-        ...(args['platform.rbac.common.userstable'] !== undefined && { 'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] }),
         ...(args['platform.rbac.workspaces-eligible'] !== undefined && {
           'platform.rbac.workspaces-eligible': args['platform.rbac.workspaces-eligible'],
         }),
@@ -159,6 +157,7 @@ const preview: Preview = {
             isOrgAdmin={isOrgAdmin}
             permissions={permissions}
             workspacePermissions={workspacePermissions}
+            tenantPermissions={tenantPermissions}
             userIdentity={userIdentity}
           >
             <FeatureFlagsProvider value={featureFlags}>
@@ -175,18 +174,17 @@ const preview: Preview = {
           isOrgAdmin={isOrgAdmin}
           permissions={permissions}
           workspacePermissions={workspacePermissions}
+          tenantPermissions={tenantPermissions}
           userIdentity={userIdentity}
         >
           <FeatureFlagsProvider value={featureFlags}>
-            <PermissionsContext.Provider value={permissionsContextValue}>
-              <IntlProvider locale={locale} messages={messages[locale]}>
-                <NotificationsProvider>
-                  <ComponentProviders>
-                    <Story />
-                  </ComponentProviders>
-                </NotificationsProvider>
-              </IntlProvider>
-            </PermissionsContext.Provider>
+            <IntlProvider locale={locale} messages={messages[locale]}>
+              <NotificationsProvider>
+                <ComponentProviders>
+                  <Story />
+                </ComponentProviders>
+              </NotificationsProvider>
+            </IntlProvider>
           </FeatureFlagsProvider>
         </StorybookMockProvider>
       );

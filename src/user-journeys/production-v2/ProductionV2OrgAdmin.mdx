@@ -1,0 +1,129 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Production/V2 (Management Fabric)/Org Admin" />
+
+# Production V2: Org Admin — Full Feature Set
+
+Production RBAC instance with **Org Admin** privileges and **all Management Fabric features enabled** (M1–M5).
+
+## Environment Configuration
+
+- **User Role**: Organization Administrator
+- **Permissions**: Full RBAC access (`rbac:*:*`)
+- **V2 Features Enabled**:
+  - ✅ Workspace list view (M1)
+  - ✅ Workspace hierarchy management — create, edit, move, delete (M2)
+  - ✅ Workspace detail pages with Roles tab (M3)
+  - ✅ Role bindings write — grant access wizard, remove from workspace (M4)
+  - ✅ Master flag enabled (M5)
+  - ✅ Access Management Navigation
+  - ✅ Users and User Groups (tabbed page)
+  - ✅ Common Auth Model
+
+## Story Catalog
+
+### Navigation
+
+| Story | What it tests |
+|-------|--------------|
+| V2 Org Admin Manual Testing | Interactive exploration entry point |
+| Sidebar / All V2 admin items visible | My Access, Access Management, Organization Management present |
+| Navigate V2 Sidebar | Click through all sidebar links and verify page loads |
+
+### My Access
+
+| Story | What it tests |
+|-------|--------------|
+| My Access / Groups tab with drawer | Groups list, click row → drawer with roles + users |
+| My Access / Workspaces tab with drawer | Workspaces list, click row → drawer |
+| My Access / Tab navigation | Switch between Groups and Workspaces tabs |
+
+### Overview
+
+| Story | What it tests |
+|-------|--------------|
+| Overview / Link navigation | Overview page → "View roles" button navigates to Roles |
+
+### Users and Groups
+
+| Story | What it tests |
+|-------|--------------|
+| Users and User Groups Flow | Tab switching between Users / User Groups |
+| Users / Invite users | Full invite modal with API spy verification |
+
+### Roles
+
+| Story | What it tests |
+|-------|--------------|
+| Roles / Create new role | Create role wizard from scratch |
+| Roles / Copy existing role | Copy role wizard (regression test) |
+| Roles / Bulk delete roles | Select multiple → bulk delete with `batchDeleteRoles` spy |
+| Roles / Edit role from toolbar | Edit role from toolbar action |
+| Roles / Role drawer — Assigned user groups tab | Drawer with user groups tab data |
+
+### Workspaces — CRUD (M1/M2)
+
+| Story | What it tests |
+|-------|--------------|
+| Workspaces / Create workspace (basic) | M1 wizard — parent fixed to root |
+| Workspaces / Create workspace with parent selection | M2 wizard — tree parent selector |
+| Workspaces / Create subworkspace from kebab menu | M2 kebab → wizard with pre-selected parent |
+| Workspaces / Move workspace | M2 kebab → move modal with tree selector |
+| Workspaces / Edit workspace | M2 kebab → edit modal |
+| Workspaces / Delete workspace | M2 kebab → confirmation modal |
+
+### Workspaces — Detail & Role Bindings (M3/M4)
+
+| Story | What it tests |
+|-------|--------------|
+| Workspaces / View workspace detail with Roles tab | M3 detail page, drawer, inherited bindings |
+| Workspace Role Bindings / Grant access wizard | M4 3-step wizard with `batchCreateRoleBindings` spy |
+| Workspace Role Bindings / Remove group from workspace | M4 kebab remove with `updateRoleBindings` spy |
+| Workspace Role Bindings / Grant access (single group + role) | M4 lighter wizard variant |
+| Workspace Role Bindings / Edit role access | M4 RoleAccessModal (test-skip — PatternFly bug) |
+| Workspace Role Bindings / Edit access to deselect a role | M4 deselect variant (test-skip) |
+| Workspaces / Workspace detail — Assets tab | Assets tab content and layout |
+
+### Workspaces — Permission Boundaries
+
+| Story | What it tests |
+|-------|--------------|
+| No permissions anywhere | User with zero workspace permissions sees empty state |
+| Root workspace has no permissions | Non-root workspaces only |
+| Root workspace not selectable as parent | Root disabled in parent tree |
+| Can create in single workspace | Only one workspace available as parent |
+| Can create in multiple workspaces | Multiple parents available |
+| Cannot create workspace without permissions | Create button hidden/disabled |
+
+### Organization Management
+
+| Story | What it tests |
+|-------|--------------|
+| Organization Management / Content & drawer | Org-wide access page, group drawer, no workspace-specific actions |
+
+## Other Personas
+
+| Persona | What it covers |
+|---------|---------------|
+| **User Access Admin** | Manage roles + groups, cannot invite users or toggle org admin |
+| **User Viewer** | `rbac:principal:read` only — Users tab authorized, Groups/Roles/Workspaces denied |
+| **Org User** | No RBAC permissions — only My Access visible, all admin pages unauthorized |
+
+## Design References
+
+<img src="/mocks/workspaces/Workspace list.png" alt="Workspace list page" width="400" />
+<img src="/mocks/workspaces/Workspace details.png" alt="Workspace detail page" width="400" />
+<img src="/mocks/workspaces/Create workspace.png" alt="Create workspace wizard" width="400" />
+<img src="/mocks/workspaces/Edit workspace.png" alt="Edit workspace modal" width="400" />
+<img src="/mocks/workspaces/Delete workspace.png" alt="Delete workspace" width="400" />
+<img src="/mocks/workspaces/Grant access.png" alt="Grant access wizard" width="400" />
+<img src="/mocks/workspaces/Edit access from role binding.png" alt="Edit role access modal" width="400" />
+<img src="/mocks/workspaces/Move assets to current workspace.png" alt="Move workspace" width="400" />
+<img src="/mocks/workspaces/Creating a role.png" alt="Creating a role" width="400" />
+<img src="/mocks/workspaces/Editing a role.png" alt="Editing a role" width="400" />
+<img src="/mocks/workspaces/Deleting a role.png" alt="Deleting a role" width="400" />
+<img src="/mocks/workspaces/General auditing - roles in V2.png" alt="Roles list" width="400" />
+
+## Usage
+
+Use the **Controls** panel on individual stories to toggle V2 flags and test partial rollouts.

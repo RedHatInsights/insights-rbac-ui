@@ -18,7 +18,7 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V2_ADMIN from utils
+ *   - AUTH: Uses AUTH_V2_ORGADMIN from utils
  *   - UTILS: Use WorkspacesPage for UI interactions
  *   - PREFIX: Requires TEST_PREFIX_V2 env var for safe test isolation
  *
@@ -26,7 +26,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN, waitForTableUpdate } from '../../../utils';
+import { AUTH_V2_ORGADMIN, requireTestPrefix, waitForTableUpdate } from '../../../utils';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
@@ -34,16 +34,7 @@ import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX_V2;
-
-if (!TEST_PREFIX) {
-  throw new Error(
-    '\n\n' +
-      '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX_V2 environment variable is REQUIRED       ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n',
-  );
-}
+const TEST_PREFIX = requireTestPrefix('v2');
 
 // Generate unique name for this test run
 const timestamp = Date.now();
@@ -60,10 +51,10 @@ test.describe('Workspace Management', () => {
   // ADMIN - Full CRUD access
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe.serial('Admin Lifecycle', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe.serial('OrgAdmin Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test('Create workspace [Admin]', async ({ page }) => {
+    test('Create workspace [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -71,13 +62,11 @@ test.describe('Workspace Management', () => {
       // Workspaces cannot be created at root level (yet)
       // Must select a child workspace as parent - use Default Workspace
       await workspacesPage.fillCreateModal(workspaceName, workspaceDescription, 'Default Workspace');
-
-      console.log(`[Create] ✓ Workspace created: ${workspaceName} (under Default Workspace)`);
     });
 
     // Server-side caching can delay the workspace appearing in list results.
     // Poll with page reloads to tolerate eventual consistency.
-    test('Verify workspace appears in table [Admin]', async ({ page }) => {
+    test('Verify workspace appears in table [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
 
       await expect(async () => {
@@ -85,11 +74,9 @@ test.describe('Workspace Management', () => {
         await workspacesPage.searchFor(workspaceName);
         await expect(workspacesPage.table.getByText(workspaceName)).toBeVisible();
       }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [5_000] });
-
-      console.log(`[Verify] ✓ Workspace found in table`);
     });
 
-    test('View workspace detail page [Admin]', async ({ page }) => {
+    test('View workspace detail page [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -97,11 +84,9 @@ test.describe('Workspace Management', () => {
       await workspacesPage.navigateToDetail(workspaceName);
 
       await expect(page.getByRole('heading', { name: workspaceName })).toBeVisible();
-
-      console.log(`[View] ✓ Detail page verified`);
     });
 
-    test('Edit workspace description [Admin]', async ({ page }) => {
+    test('Edit workspace description [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -113,11 +98,9 @@ test.describe('Workspace Management', () => {
       await page.getByRole('menuitem', { name: /edit/i }).click();
 
       await workspacesPage.fillEditForm(editedDescription);
-
-      console.log(`[Edit] ✓ Workspace description updated`);
     });
 
-    test('Verify edit was applied [Admin]', async ({ page }) => {
+    test('Verify edit was applied [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -125,11 +108,9 @@ test.describe('Workspace Management', () => {
       await workspacesPage.navigateToDetail(workspaceName);
 
       await expect(page.getByText(editedDescription)).toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
-
-      console.log(`[Verify Edit] ✓ Changes confirmed`);
     });
 
-    test('Delete workspace [Admin]', async ({ page }) => {
+    test('Delete workspace [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -141,30 +122,161 @@ test.describe('Workspace Management', () => {
       await page.getByRole('menuitem', { name: /delete/i }).click();
 
       await workspacesPage.confirmDelete();
-
-      console.log(`[Delete] ✓ Deletion confirmed`);
     });
 
-    test('Verify workspace is deleted [Admin]', async ({ page }) => {
+    test('Verify workspace is deleted [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
       await workspacesPage.searchFor(workspaceName);
       await waitForTableUpdate(page);
       await workspacesPage.verifyWorkspaceNotInTable(workspaceName);
-
-      console.log(`[Verify Delete] ✓ Workspace no longer exists`);
     });
   });
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test(`Create Workspace button is visible [Admin]`, async ({ page }) => {
+    test(`Create Workspace button is visible [OrgAdmin]`, async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
       await expect(workspacesPage.createButton).toBeVisible();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Admin - Create with Parent Selection
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe.serial('OrgAdmin - Create with Parent', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    const parentCreateTimestamp = Date.now();
+    const parentCreateName = `${TEST_PREFIX}__Parent_Create_${parentCreateTimestamp}`;
+    const parentCreateDescription = 'E2E create with parent test';
+
+    test('Create workspace with specific parent [OrgAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.createButton.click();
+      await workspacesPage.fillCreateModal(parentCreateName, parentCreateDescription, 'Default Workspace');
+    });
+
+    test('Verify workspace appears under correct parent [OrgAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+
+      await expect(async () => {
+        await workspacesPage.goto();
+        await workspacesPage.expandTreeNodes();
+        await workspacesPage.searchFor(parentCreateName);
+        await expect(workspacesPage.table.getByText(parentCreateName)).toBeVisible();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [5_000] });
+    });
+
+    test('Delete workspace created with parent [OrgAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(parentCreateName);
+      await workspacesPage.navigateToDetail(parentCreateName);
+
+      await page.getByRole('button', { name: /actions/i }).click();
+      await page.getByRole('menuitem', { name: /delete/i }).click();
+      await workspacesPage.confirmDelete();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Admin - Create Subworkspace from Kebab
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe.serial('OrgAdmin - Create Subworkspace', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    const subworkspaceTimestamp = Date.now();
+    const subworkspaceName = `${TEST_PREFIX}__Subworkspace_${subworkspaceTimestamp}`;
+    const subworkspaceDescription = 'E2E subworkspace from kebab';
+
+    test('Create subworkspace via kebab [OrgAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.openRowKebab('Default Workspace');
+      await page.getByRole('menuitem', { name: /create subworkspace/i }).click();
+
+      await workspacesPage.fillCreateModal(subworkspaceName, subworkspaceDescription, 'Default Workspace');
+    });
+
+    test('Delete subworkspace created via kebab [OrgAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await expect(async () => {
+        await workspacesPage.goto();
+        await workspacesPage.searchFor(subworkspaceName);
+        await expect(workspacesPage.table.getByText(subworkspaceName)).toBeVisible();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [5_000] });
+
+      await workspacesPage.searchFor(subworkspaceName);
+      await workspacesPage.navigateToDetail(subworkspaceName);
+
+      await page.getByRole('button', { name: /actions/i }).click();
+      await page.getByRole('menuitem', { name: /delete/i }).click();
+      await workspacesPage.confirmDelete();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Admin - Move Workspace
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe.serial('OrgAdmin - Move Workspace', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    const moveTimestamp = Date.now();
+    const moveWorkspaceName = `${TEST_PREFIX}__Move_Workspace_${moveTimestamp}`;
+    const moveWorkspaceDescription = 'E2E move workspace test';
+
+    test('Move workspace to different parent [OrgAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      // Create workspace under Default Workspace first
+      await workspacesPage.createButton.click();
+      await workspacesPage.fillCreateModal(moveWorkspaceName, moveWorkspaceDescription, 'Default Workspace');
+
+      await expect(async () => {
+        await workspacesPage.goto();
+        await workspacesPage.searchFor(moveWorkspaceName);
+        await expect(workspacesPage.table.getByText(moveWorkspaceName)).toBeVisible();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [5_000] });
+
+      await workspacesPage.searchFor(moveWorkspaceName);
+      await workspacesPage.openRowKebab(moveWorkspaceName);
+      await page.getByRole('menuitem', { name: /move workspace/i }).click();
+
+      await workspacesPage.fillMoveModal('Root Workspace');
+
+      await expect(async () => {
+        await workspacesPage.goto();
+        await workspacesPage.expandTreeNodes();
+        await workspacesPage.searchFor(moveWorkspaceName);
+        await expect(workspacesPage.table.getByText(moveWorkspaceName)).toBeVisible();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [5_000] });
+    });
+
+    test('Delete workspace after move [OrgAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(moveWorkspaceName);
+      await workspacesPage.navigateToDetail(moveWorkspaceName);
+
+      await page.getByRole('button', { name: /actions/i }).click();
+      await page.getByRole('menuitem', { name: /delete/i }).click();
+      await workspacesPage.confirmDelete();
     });
   });
 });

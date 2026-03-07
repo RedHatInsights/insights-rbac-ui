@@ -12,11 +12,12 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { HttpResponse, delay, http } from 'msw';
+import { delay } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
 import { TEST_TIMEOUTS, openRoleActionsMenu, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
-import { handlersWithV2Gaps, mockRolesV2 } from './_shared';
+import { createV2RolesHandlers, mockRolesV2, v2DefaultHandlers } from './_shared';
+import { createResettableCollection } from '../../shared/data/mocks/db';
 import {
   clickModalCancelButton,
   clickModalCheckbox,
@@ -28,6 +29,7 @@ import {
   verifyRoleNotExists,
   waitForModal,
 } from './_shared/tableHelpers';
+import type { RoleV2 } from '../../v2/data/queries/roles';
 
 // =============================================================================
 // API SPIES
@@ -36,77 +38,45 @@ import {
 const deleteRoleSpy = fn();
 
 // =============================================================================
-// MUTABLE STATE FOR TEST ISOLATION
+// STATEFUL COLLECTION FOR TEST ISOLATION
 // =============================================================================
 
-// Track deleted roles for test isolation
-const deletedRoleIds = new Set<string>();
+/**
+ * Convert journey mock roles (uuid-based) to V2 Role type (id-based)
+ * so we can use createV2RolesHandlers with cursor pagination.
+ */
+const journeyRolesToV2 = (): RoleV2[] =>
+  mockRolesV2.map((r) => ({
+    id: r.uuid,
+    name: r.name,
+    description: r.description,
+    org_id: r.org_id,
+    permissions_count: typeof r.permissions === 'number' ? r.permissions : 0,
+    last_modified: r.modified,
+  }));
 
-// Reset function for test isolation
-const resetDeletedRoles = () => {
-  deletedRoleIds.clear();
-};
+const rolesCollection = createResettableCollection(journeyRolesToV2());
+
+const resetCollection = () => rolesCollection.reset();
+
+// Target role for deletion (user-created, has org_id in mock data)
+const TARGET_ROLE = mockRolesV2.find((r) => r.uuid === 'role-rhel-devops')!;
+const TARGET_ROLE_ID = TARGET_ROLE.uuid;
+
+// System/canned role (org_id: null — not editable/deletable)
+const SYSTEM_ROLE = mockRolesV2.find((r) => r.uuid === 'role-tenant-admin')!;
 
 // =============================================================================
 // MSW HANDLERS
 // =============================================================================
 
-// Custom delete handler that tracks deletions
-// Note: RolesWithWorkspaces uses V1 API for deletion
-const deleteRoleHandler = http.delete('/api/rbac/v1/roles/:uuid/', async ({ params }) => {
-  await delay(TEST_TIMEOUTS.QUICK_SETTLE);
-  const roleId = params.uuid as string;
-  const role = mockRolesV2.find((r) => r.uuid === roleId);
-
-  if (!role) {
-    return new HttpResponse(null, { status: 404 });
-  }
-
-  if (role.system) {
-    return HttpResponse.json({ error: 'Cannot delete system role' }, { status: 400 });
-  }
-
-  // Track the deletion
-  deleteRoleSpy(roleId);
-  deletedRoleIds.add(roleId);
-
-  return new HttpResponse(null, { status: 204 });
-});
-
-// Custom list handler that filters out deleted roles
-// Returns V1 format (with display_name) for compatibility with RolesWithWorkspaces component
-const listRolesHandler = http.get('/api/rbac/v1/roles/', async ({ request }) => {
-  await delay(TEST_TIMEOUTS.QUICK_SETTLE);
-  const url = new URL(request.url);
-  const limit = parseInt(url.searchParams.get('limit') || '20', 10);
-  const offset = parseInt(url.searchParams.get('offset') || '0', 10);
-  const nameFilter = url.searchParams.get('name') || url.searchParams.get('display_name') || '';
-
-  // Filter out deleted roles
-  let filteredRoles = mockRolesV2.filter((r) => !deletedRoleIds.has(r.uuid));
-
-  // Apply name filter
-  if (nameFilter) {
-    filteredRoles = filteredRoles.filter((r) => r.name.toLowerCase().includes(nameFilter.toLowerCase()));
-  }
-
-  const paginatedRoles = filteredRoles.slice(offset, offset + limit);
-
-  // Transform to V1 format (add display_name)
-  const v1FormattedRoles = paginatedRoles.map((r) => ({
-    ...r,
-    display_name: r.name, // V1 API uses display_name
-    accessCount: r.permissions || 0,
-  }));
-
-  return HttpResponse.json({
-    data: v1FormattedRoles,
-    meta: {
-      count: filteredRoles.length,
-      limit,
-      offset,
-    },
-  });
+const rolesHandlers = createV2RolesHandlers(rolesCollection, {
+  networkDelay: TEST_TIMEOUTS.QUICK_SETTLE,
+  onBatchDelete: (...args: unknown[]) => {
+    const ids = args[0] as string[];
+    ids.forEach((id) => deleteRoleSpy(id));
+  },
+  onDelete: (...args: unknown[]) => deleteRoleSpy(args[0]),
 });
 
 // =============================================================================
@@ -115,12 +85,11 @@ const listRolesHandler = http.get('/api/rbac/v1/roles/', async ({ request }) => 
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Management Fabric/Access Management/Deleting a role',
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Roles/Deleting a Role',
   tags: ['access-management', 'roles', 'modal', 'destructive'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
-      // Reset deleted roles BEFORE story renders to ensure clean state
-      resetDeletedRoles();
+      resetCollection();
 
       const dynamicEnv = createDynamicEnvironment(context.args);
       context.parameters = { ...context.parameters, ...dynamicEnv };
@@ -146,13 +115,7 @@ const meta = {
       'platform.rbac.workspaces': true,
     }),
     msw: {
-      handlers: [
-        // Custom handlers FIRST - MSW matches the first handler that matches
-        listRolesHandler,
-        deleteRoleHandler,
-        // Include all default handlers (our custom ones will be matched first)
-        ...handlersWithV2Gaps,
-      ],
+      handlers: [...rolesHandlers, ...v2DefaultHandlers],
     },
     docs: {
       description: {
@@ -194,9 +157,6 @@ Tests the workflow for deleting a role.
 export default meta;
 
 type Story = StoryObj<typeof meta>;
-
-// Target role for deletion (non-system role)
-const TARGET_ROLE = mockRolesV2.find((r) => !r.system)!;
 
 // =============================================================================
 // STORIES
@@ -247,7 +207,7 @@ Tests the complete delete role workflow:
   play: async (context) => {
     await resetStoryState();
     deleteRoleSpy.mockClear();
-    resetDeletedRoles();
+    resetCollection();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
@@ -269,9 +229,7 @@ Tests the complete delete role workflow:
 
     // Step 4: Verify modal appears with delete confirmation
     const modalScope = await waitForModal();
-    // Modal heading is "Delete role?" and the role name is in the description
     await expect(modalScope.findByRole('heading', { name: /delete role/i })).resolves.toBeInTheDocument();
-    // Verify the description mentions the target role
     await expect(modalScope.findByText(new RegExp(TARGET_ROLE.name, 'i'))).resolves.toBeInTheDocument();
 
     // Step 5: Check acknowledgment checkbox (if present)
@@ -286,7 +244,7 @@ Tests the complete delete role workflow:
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Step 7: API Spy - Verify delete API called with correct role ID
-    verifyDeleteRoleApiCall(deleteRoleSpy, TARGET_ROLE.uuid);
+    verifyDeleteRoleApiCall(deleteRoleSpy, TARGET_ROLE_ID);
 
     // Step 8: Post-condition - Verify role is removed from table
     await verifyRoleNotExists(canvas, TARGET_ROLE.name);
@@ -322,7 +280,7 @@ Tests canceling the delete confirmation modal.
   play: async (context) => {
     await resetStoryState();
     deleteRoleSpy.mockClear();
-    resetDeletedRoles();
+    resetCollection();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
@@ -357,7 +315,8 @@ Tests canceling the delete confirmation modal.
 /**
  * Cannot delete system roles
  *
- * Tests that system/canned roles cannot be deleted
+ * Tests that system/canned roles cannot be deleted (no kebab menu shown
+ * because `org_id` is null — the role is immutable).
  */
 export const CannotDeleteSystemRoles: Story = {
   tags: [],
@@ -365,16 +324,11 @@ export const CannotDeleteSystemRoles: Story = {
     docs: {
       description: {
         story: `
-⚠️ **GAP: V2 API Required**
-
 Tests that system/canned roles cannot be deleted.
 
 **Expected behavior:**
-- System roles should NOT have kebab menu
-- OR kebab menu should not include "Delete role" option
-- If delete is attempted, API returns error
-
-V2 API needed for proper role type identification.
+- System roles should NOT have a kebab menu (\`org_id\` is null)
+- User-created roles that are writable should still show the kebab menu
         `,
       },
     },
@@ -386,15 +340,20 @@ V2 API needed for proper role type identification.
     // Wait for page to load
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
-    // Verify system roles are displayed
-    const systemRole = mockRolesV2.find((r) => r.system);
-    if (systemRole) {
-      await waitForPageToLoad(canvas, systemRole.name);
+    // Verify the system role is displayed
+    await waitForPageToLoad(canvas, SYSTEM_ROLE.name);
 
-      // Note: System roles should not have delete option
-      // The actual behavior depends on the component implementation
-      // V2 API needed for proper implementation
-    }
+    // System role should NOT have a kebab menu (org_id is null)
+    const kebab = canvas.queryByRole('button', {
+      name: new RegExp(`Actions for role ${SYSTEM_ROLE.name}`, 'i'),
+    });
+    expect(kebab).not.toBeInTheDocument();
+
+    // User-created role should still have a kebab menu
+    const writableKebab = await canvas.findByRole('button', {
+      name: new RegExp(`Actions for role ${TARGET_ROLE.name}`, 'i'),
+    });
+    expect(writableKebab).toBeInTheDocument();
   },
 };
 
@@ -486,7 +445,7 @@ Tests closing the delete modal with the X button.
   play: async (context) => {
     await resetStoryState();
     deleteRoleSpy.mockClear();
-    resetDeletedRoles();
+    resetCollection();
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });

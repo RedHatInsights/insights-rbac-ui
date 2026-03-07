@@ -11,10 +11,10 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { setupPage, waitForTableUpdate } from '../../utils';
+import { iamUrl, setupPage, v2, waitForTableUpdate } from '../../utils';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
-const USERS_URL = '/iam/access-management/users-and-user-groups/users';
+const USERS_URL = iamUrl(v2.usersNew.link());
 
 export class UsersPage {
   readonly page: Page;
@@ -32,8 +32,10 @@ export class UsersPage {
    */
   async goto(): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(USERS_URL);
-    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
+    await expect(async () => {
+      await this.page.goto(USERS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [2_000, 5_000] });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -41,7 +43,7 @@ export class UsersPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   get heading(): Locator {
-    return this.page.getByRole('heading', { name: /users/i });
+    return this.page.getByRole('heading', { name: /users/i, level: 1 });
   }
 
   get table(): Locator {
@@ -133,8 +135,7 @@ export class UsersPage {
   async openUserDrawer(username: string): Promise<void> {
     const userRow = this.getUserRow(username);
     await userRow.click();
-    // The drawer is open when the user can see its content — "Assigned roles" tab is unique to the panel
-    await expect(this.page.getByRole('tab', { name: /assigned roles/i })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await expect(this.page.getByRole('tab', { name: /assigned roles/i })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
   /**

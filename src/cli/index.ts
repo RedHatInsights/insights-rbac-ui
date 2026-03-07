@@ -13,4 +13,4 @@ export { RoleInputSchema, GroupInputSchema, WorkspaceInputSchema, SeedPayloadSch
 export { getToken, clearToken, hasValidToken, getTokenInfo, getApiBaseUrl } from './auth';
 
 // API client
-export { initializeApiClient, getApiClient, isApiClientInitialized, getMaskedToken } from './api-client';
+export { initializeApiClient, getApiClient, isApiClientInitialized, getCurrentToken } from './api-client';

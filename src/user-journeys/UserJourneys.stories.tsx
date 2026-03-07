@@ -1,12 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, waitFor, within } from 'storybook/test';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
-import { ENVIRONMENTS } from './_shared/environments';
+import { ENVIRONMENTS, v1Db } from './_shared/environments';
 import { resetStoryState } from './_shared/helpers';
-import { createStatefulHandlers } from '../../.storybook/helpers/stateful-handlers';
-import { defaultGroups } from '../../.storybook/fixtures/groups';
-import { defaultRoles } from '../../.storybook/fixtures/roles';
-import { defaultUsers } from '../../.storybook/fixtures/users';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
 
@@ -21,11 +17,7 @@ const meta: Meta<typeof AppEntryWithRouter> = {
   parameters: {
     ...ENVIRONMENTS.PROD_ORG_ADMIN,
     msw: {
-      handlers: createStatefulHandlers({
-        groups: defaultGroups,
-        roles: defaultRoles,
-        users: defaultUsers,
-      }),
+      handlers: ENVIRONMENTS.PROD_ORG_ADMIN.msw.handlers,
     },
     docs: {
       description: {
@@ -128,7 +120,7 @@ For automated test journeys, see the environment-specific story folders.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(v1Db);
     const canvas = within(context.canvasElement);
 
     // Simple verification that the page loads

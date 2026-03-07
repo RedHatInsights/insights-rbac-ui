@@ -1,0 +1,218 @@
+import React from 'react';
+import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
+import { ModalFormTemplate } from '../../../../shared/components/forms/ModalFormTemplate';
+import { useIntl } from 'react-intl';
+import messages from '../../../../Messages';
+import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import AccordionCheckbox from '../../../../shared/components/expandable-checkbox';
+import InlineError from '../../../../shared/components/ui-states/InlineError';
+import { useInviteUsersMutation } from '../../../../shared/data/queries/users';
+import { useFlag } from '@unleash/proxy-client-react';
+import { useOutletContext } from 'react-router-dom';
+import { usePlatformEnvironment } from '../../../../shared/hooks/usePlatformEnvironment';
+import { usePlatformAuth } from '../../../../shared/hooks/usePlatformAuth';
+import useUserData from '../../../../shared/hooks/useUserData';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+
+// Portal subscription permission levels (moved from React Query helper)
+const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view_edit_user';
+const MANAGE_SUBSCRIPTIONS_VIEW_ALL = 'view_all';
+const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL = 'view_edit_all';
+
+const ExpandableCheckboxComponent = 'expandable-checkbox';
+const InlineErrorComponent = 'inline-error';
+const EMAIL_REGEXP = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type SubmitValues = {
+  'email-addresses': string;
+  'invite-message'?: string;
+  'customer-portal-permissions'?: {
+    'is-org-admin'?: boolean;
+    'manage-support-cases'?: boolean;
+    'download-software-updates'?: boolean;
+    'manage-subscriptions'?:
+      | typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER
+      | typeof MANAGE_SUBSCRIPTIONS_VIEW_ALL
+      | typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL;
+  };
+};
+
+const InviteUsers = () => {
+  const { fetchData } = useOutletContext<{ fetchData: (isSubmit: boolean) => void }>();
+  const advancedPermissions = useFlag('platform.rbac.common-auth-model_advanced-permissions');
+  const isITLess = useFlag('platform.rbac.itless');
+  const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
+  const { environment } = usePlatformEnvironment();
+  const { getToken } = usePlatformAuth();
+  const userData = useUserData();
+  const addNotification = useAddNotification();
+
+  const accountId = userData.identity?.org_id ?? null;
+
+  // React Query mutation for inviting users
+  const inviteUsersMutation = useInviteUsersMutation();
+
+  const onCancel = () => {
+    fetchData(false);
+  };
+
+  const onSubmit = async (values: Record<string, unknown>) => {
+    const typedValues = values as SubmitValues;
+    try {
+      const token = await getToken();
+      const response = await inviteUsersMutation.mutateAsync({
+        emails: typedValues['email-addresses']?.split(/[\s,]+/),
+        message: typedValues['invite-message'],
+        isAdmin: typedValues['customer-portal-permissions']?.['is-org-admin'],
+        portal_manage_cases: typedValues['customer-portal-permissions']?.['manage-support-cases'],
+        portal_download: typedValues['customer-portal-permissions']?.['download-software-updates'],
+        portal_manage_subscriptions: typedValues['customer-portal-permissions']?.['manage-subscriptions'],
+        config: { environment, token, accountId },
+        itless: isITLess,
+      });
+
+      if (response.status === 200 || response.status === 204) {
+        addNotification({
+          variant: 'success',
+          title: 'Invitation sent successfully',
+          dismissable: true,
+        });
+        fetchData(true);
+      } else {
+        const data = await response.json();
+        setResponseError({
+          title: data.title,
+          description: data.detail,
+          url: data.type,
+        });
+        addNotification({
+          variant: 'danger',
+          title: data.title || 'Failed to send invitation',
+          dismissable: true,
+          description: data.detail || 'Unknown error',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to invite users:', error);
+      addNotification({
+        variant: 'danger',
+        title: 'Failed to send invitation',
+        dismissable: true,
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  };
+  const intl = useIntl();
+  const schema = React.useMemo(
+    () => ({
+      description: intl.formatMessage(messages.inviteUsersDescription),
+      fields: [
+        ...(responseError
+          ? [
+              {
+                component: InlineErrorComponent,
+                title: responseError.title,
+                description: responseError.description,
+                name: 'response-error',
+              },
+            ]
+          : []),
+        {
+          component: componentTypes.TEXTAREA,
+          label: intl.formatMessage(messages.inviteUsersFormEmailsFieldTitle),
+          name: 'email-addresses',
+          placeholder: intl.formatMessage(messages.inviteUsersFormEmailsFieldDescription),
+          rows: 5,
+          isRequired: true,
+          validate: [
+            {
+              type: validatorTypes.REQUIRED,
+            },
+            (value: string) =>
+              value.split(/[\s,]+/).every((email: string) => EMAIL_REGEXP.test(email))
+                ? undefined
+                : intl.formatMessage(messages.inviteUsersFormEmailsFieldError),
+          ],
+        },
+        {
+          component: componentTypes.TEXTAREA,
+          label: intl.formatMessage(messages.inviteUsersMessageTitle),
+          name: 'invite-message',
+          rows: 3,
+        },
+        {
+          component: ExpandableCheckboxComponent,
+          items: [
+            {
+              name: 'is-org-admin',
+              title: intl.formatMessage(messages.inviteUsersFormIsAdminFieldTitle),
+              description: intl.formatMessage(messages.inviteUsersFormIsAdminFieldDescription),
+            },
+            ...(advancedPermissions
+              ? [
+                  {
+                    name: 'manage-support-cases',
+                    title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldTitle),
+                    description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldDescription),
+                  },
+                  {
+                    name: 'download-software-updates',
+                    title: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldTitle),
+                    description: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldDescription),
+                  },
+                  {
+                    name: 'manage-subscriptions',
+                    title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldTitle),
+                    description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldDescription),
+                    options: [
+                      {
+                        name: MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER,
+                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle),
+                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription),
+                      },
+                      {
+                        name: MANAGE_SUBSCRIPTIONS_VIEW_ALL,
+                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewAllTitle),
+                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewAllDescription),
+                      },
+                      {
+                        name: MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL,
+                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditAllTitle),
+                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditAllDescription),
+                      },
+                    ],
+                  },
+                ]
+              : []),
+          ],
+          name: 'customer-portal-permissions',
+        },
+      ],
+    }),
+    [responseError],
+  );
+  return (
+    <FormRenderer
+      schema={schema}
+      componentMapper={{
+        ...componentMapper,
+        [InlineErrorComponent]: InlineError,
+        [ExpandableCheckboxComponent]: AccordionCheckbox,
+      }}
+      onCancel={onCancel}
+      onSubmit={onSubmit}
+      FormTemplate={(props) => (
+        <ModalFormTemplate
+          saveLabel={intl.formatMessage(messages.inviteUsersTitle)}
+          cancelLabel={intl.formatMessage(messages.cancel)}
+          alert={undefined}
+          {...props}
+          ModalProps={{ onClose: onCancel, isOpen: true, variant: 'medium', title: intl.formatMessage(messages.inviteUsersTitle) }}
+        />
+      )}
+    />
+  );
+};
+
+export default InviteUsers;

@@ -4,11 +4,9 @@ import { expect, within } from 'storybook/test';
 import { delay } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
-import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-handlers';
-import { defaultGroups } from '../../../.storybook/fixtures/groups';
-import { defaultUsers } from '../../../.storybook/fixtures/users';
-import { defaultRoles } from '../../../.storybook/fixtures/roles';
-import { defaultWorkspaces } from '../../../.storybook/fixtures/workspaces';
+import { createV2MockDb } from '../../v2/data/mocks/db';
+import { createV2Handlers } from '../../v2/data/mocks/handlers';
+import { defaultV2Seed } from '../../v2/data/mocks/seed';
 
 type Story = StoryObj<typeof KesselAppEntryWithRouter>;
 
@@ -18,15 +16,19 @@ interface StoryArgs {
   initialRoute?: string;
 }
 
+const db = createV2MockDb(defaultV2Seed());
+const mswHandlers = createV2Handlers(db);
+
 const meta = {
   component: KesselAppEntryWithRouter,
   title: 'User Journeys/Production/V2 (Management Fabric)/Org User',
   tags: ['prod-v2-org-user'],
   decorators: [
     ((Story, context: StoryContext<StoryArgs>) => {
+      db.reset();
       const dynamicEnv = createDynamicEnvironment({
         ...context.args,
-        permissions: KESSEL_PERMISSIONS.NONE, // No RBAC permissions
+        permissions: KESSEL_PERMISSIONS.NONE,
         'platform.rbac.workspaces-organization-management': true,
       });
       context.parameters = { ...context.parameters, ...dynamicEnv };
@@ -57,39 +59,11 @@ const meta = {
       'platform.rbac.workspaces-organization-management': true, // V2 Navigation
     }),
     msw: {
-      handlers: createStatefulHandlers({
-        groups: defaultGroups,
-        users: defaultUsers,
-        roles: defaultRoles,
-        workspaces: defaultWorkspaces,
-      }),
+      handlers: mswHandlers,
     },
     docs: {
       description: {
-        component: `
-# Production V2: Org User Persona
-
-This environment simulates a **regular user** with **NO RBAC permissions** in V2 navigation.
-
-## Permission Configuration
-
-- **Permissions**: \`[]\` (empty - no RBAC permissions)
-- **Org Admin**: false
-- **Feature Flags**: V2 navigation (workspaces-organization-management: true)
-
-## Expected Sidebar
-
-- ✅ My Access (visible, V2 label)
-- ❌ Access Management section (NOT visible - requires rbac permissions)
-
-## User Journeys
-
-### What Regular Users Can Do
-- View their own access via "My Access" page
-
-### What Regular Users CANNOT Do
-- Access Users, Groups, Workspaces, or Roles pages (no sidebar link, unauthorized if direct URL)
-        `,
+        component: 'Regular user with no RBAC permissions. See the Documentation page for full details.',
       },
     },
   },
@@ -101,9 +75,8 @@ export default meta;
  * Manual Testing Entry Point
  */
 export const ManualTesting: Story = {
-  tags: ['autodocs'],
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/access-management/users-and-user-groups',
   },
   parameters: {
     docs: {
@@ -117,11 +90,13 @@ Entry point for manual testing of the V2 Org User persona.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(db);
     const canvas = within(context.canvasElement);
 
-    // Wait for the permissions section to render - this is the most reliable indicator the page is ready
-    await expect(canvas.findByText(/your red hat enterprise linux/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).resolves.toBeInTheDocument();
+    // User has no permissions - navigates to users-and-user-groups but sees unauthorized
+    await expect(
+      canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT }),
+    ).resolves.toBeInTheDocument();
   },
 };
 
@@ -129,9 +104,9 @@ Entry point for manual testing of the V2 Org User persona.
  * Sidebar validation - verify Access Management is NOT visible
  */
 export const SidebarValidation: Story = {
-  name: 'Sidebar / Only My Access visible',
+  name: 'Only My Access visible',
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/access-management/users-and-user-groups',
   },
   parameters: {
     docs: {
@@ -150,7 +125,7 @@ Validates that V2 Org User (no permissions) only sees "My Access" in the sidebar
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -179,7 +154,7 @@ Validates that V2 Org User (no permissions) only sees "My Access" in the sidebar
  * Direct navigation to Users and Groups - should show unauthorized
  */
 export const UsersAndUserGroupsUnauthorized: Story = {
-  name: 'Users and Groups / Direct URL - Unauthorized',
+  name: 'Direct URL - Unauthorized (Users and Groups)',
   args: {
     initialRoute: '/iam/access-management/users-and-user-groups',
   },
@@ -193,7 +168,7 @@ Tests that direct navigation to Users and Groups shows unauthorized.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -208,7 +183,7 @@ Tests that direct navigation to Users and Groups shows unauthorized.
  * Direct navigation to Workspaces - should show unauthorized
  */
 export const WorkspacesUnauthorized: Story = {
-  name: 'Workspaces / Direct URL - Unauthorized',
+  name: 'Direct URL - Unauthorized (Workspaces)',
   args: {
     initialRoute: '/iam/access-management/workspaces',
   },
@@ -222,7 +197,7 @@ Tests that direct navigation to Workspaces shows unauthorized.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -237,7 +212,7 @@ Tests that direct navigation to Workspaces shows unauthorized.
  * Direct navigation to Roles - should show unauthorized
  */
 export const RolesUnauthorized: Story = {
-  name: 'Roles / Direct URL - Unauthorized',
+  name: 'Direct URL - Unauthorized (Roles)',
   args: {
     initialRoute: '/iam/access-management/roles',
   },
@@ -251,7 +226,7 @@ Tests that direct navigation to Roles shows unauthorized.
     },
   },
   play: async (context) => {
-    await resetStoryState();
+    await resetStoryState(db);
     const canvas = within(context.canvasElement);
 
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);

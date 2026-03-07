@@ -1,0 +1,44 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Production/V2 (Management Fabric)/User Viewer" />
+
+# V2: User Viewer
+
+Minimal viewer persona with only `rbac:principal:read` permission.
+
+## Permission Configuration
+
+| Permission | Has Access? |
+|------------|-------------|
+| `rbac:principal:read` | Yes |
+| `rbac:group:read` | **No** |
+| `rbac:role:read` | **No** |
+| `inventory:groups:read` | **No** |
+| Org Admin | **No** |
+
+## V2 Navigation Context
+
+With `platform.rbac.workspaces-organization-management` enabled, the navigation shows:
+- **Access Management** → Users and User Groups (visible), Roles, Workspaces (hidden)
+- **Organization Management** — hidden (not org admin)
+
+## What This Persona Can Do
+
+- Access Users tab in "Users and User Groups" page
+
+## What This Persona Cannot Do
+
+- Access User Groups tab (requires `rbac:group:read`)
+- Access Roles page (requires `rbac:role:read`)
+- Access Workspaces page (requires `inventory:groups:read`)
+- See Organization Management (requires org admin)
+
+## Story Catalog
+
+| Story | What it tests |
+|-------|--------------|
+| Sidebar / Correct items visible | My Access + Access Management visible; Workspaces/Roles hidden |
+| Users Tab / Authorized access | Users tab loads with user data |
+| User Groups Tab / Access denied | No group data shown (no `rbac:group:read`) |
+| Roles / Direct URL - Unauthorized | Direct navigation to /roles shows access denied |
+| Workspaces / Direct URL - Unauthorized | Direct navigation to /workspaces shows access denied |

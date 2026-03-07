@@ -13,11 +13,12 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { HttpResponse, delay, http } from 'msw';
+import { delay } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
-import { defaultHandlers, findGroupRow, getUserGroupsTable } from './_shared';
-import { mockGroups } from './_shared/mockData';
+import { createGroupsHandlers, findGroupRow, getUserGroupsTable, mockGroups, v2DefaultHandlers } from './_shared';
+import type { Group } from '../../shared/data/mocks/db';
+import { createResettableCollection } from '../../shared/data/mocks/db';
 
 // =============================================================================
 // API SPIES
@@ -27,61 +28,23 @@ const deleteGroupSpy = fn();
 const listGroupsSpy = fn();
 
 // =============================================================================
-// MUTABLE STATE FOR TEST ISOLATION
+// STATEFUL COLLECTION + HANDLERS
 // =============================================================================
 
-// Track deleted groups to update the list
-const deletedGroupIds: Set<string> = new Set();
+const groupsCollection = createResettableCollection<Group>(mockGroups);
+const deleteGroupHandlers = createGroupsHandlers(groupsCollection, {
+  networkDelay: TEST_TIMEOUTS.AFTER_MENU_OPEN,
+  onList: () => listGroupsSpy(),
+  onDelete: (uuid) => deleteGroupSpy(uuid),
+});
 
 const resetDeletedGroups = () => {
-  deletedGroupIds.clear();
+  groupsCollection.reset();
 };
-
-// =============================================================================
-// MSW HANDLERS
-// =============================================================================
-
-// Spy handler for deleting a group
-const deleteGroupHandler = http.delete('/api/rbac/v1/groups/:uuid/', async ({ params }) => {
-  const uuid = params.uuid as string;
-  deleteGroupSpy(uuid);
-  deletedGroupIds.add(uuid);
-  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-  return new HttpResponse(null, { status: 204 });
-});
-
-// Override list groups to exclude deleted groups
-const listGroupsHandler = http.get('/api/rbac/v1/groups/', async ({ request }) => {
-  listGroupsSpy();
-  await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-  const url = new URL(request.url);
-  const limit = parseInt(url.searchParams.get('limit') || '20', 10);
-  const offset = parseInt(url.searchParams.get('offset') || '0', 10);
-  const nameFilter = url.searchParams.get('name');
-
-  // Filter out deleted groups
-  let filteredGroups = mockGroups.filter((g) => !deletedGroupIds.has(g.uuid));
-
-  // Apply name filter
-  if (nameFilter) {
-    filteredGroups = filteredGroups.filter((g) => g.name.toLowerCase().includes(nameFilter.toLowerCase()));
-  }
-
-  const paginatedGroups = filteredGroups.slice(offset, offset + limit);
-
-  return HttpResponse.json({
-    data: paginatedGroups,
-    meta: {
-      count: filteredGroups.length,
-      limit,
-      offset,
-    },
-  });
-});
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Management Fabric/Access Management/Delete user group',
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Users and Groups/Delete User Group',
   tags: ['access-management', 'user-groups', 'modal', 'destructive'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
@@ -100,7 +63,6 @@ const meta = {
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
-    'platform.rbac.common.userstable': true,
     'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
@@ -109,15 +71,16 @@ const meta = {
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
       'platform.rbac.workspaces-organization-management': true,
-      'platform.rbac.common.userstable': true,
     }),
     msw: {
       handlers: [
-        // Spy handlers FIRST to intercept before defaultHandlers
-        deleteGroupHandler,
-        listGroupsHandler,
-        // Default handlers (excluding the ones we're overriding)
-        ...defaultHandlers.filter((h) => !h.info?.path?.toString().includes('/user-access/groups/')),
+        ...deleteGroupHandlers,
+        ...v2DefaultHandlers.filter((h) => {
+          const path = h.info?.path?.toString() || '';
+          if (!path.includes('/api/rbac/v1/groups') && !path.includes('/api/rbac/v2/groups')) return true;
+          if (path.includes('/principals/') || path.includes('/service-accounts/')) return true;
+          return false;
+        }),
       ],
     },
     docs: {
@@ -245,8 +208,8 @@ Tests the complete "Delete user group" workflow:
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
-    const targetGroup = 'Golden girls';
-    const targetGroupId = 'group-golden-girls';
+    const targetGroup = mockGroups[4].name;
+    const targetGroupId = mockGroups[4].uuid;
 
     // ==========================================================================
     // PRE-CONDITION: Verify group exists
@@ -351,12 +314,8 @@ Tests canceling the delete confirmation modal.
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
-    const targetGroup = 'Golden girls';
+    const targetGroup = mockGroups[4].name;
 
-    // ==========================================================================
-    // PRE-CONDITION: Verify group exists
-    // ==========================================================================
-    // Wait for page to load with the target group
     await waitForPageToLoad(canvas, targetGroup);
 
     // ==========================================================================
@@ -415,14 +374,10 @@ Tests that the delete button requires checkbox acknowledgment.
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
-    const targetGroup = 'Golden girls';
+    const targetGroup = mockGroups[4].name;
 
-    // Wait for page to load with the target group
     await waitForPageToLoad(canvas, targetGroup);
 
-    // ==========================================================================
-    // ACTION: Open delete modal
-    // ==========================================================================
     await openDeleteModalForGroup(canvas, user, targetGroup);
 
     const modalScope = await verifyDeleteModal(targetGroup);
@@ -479,9 +434,8 @@ Tests closing the delete modal with the X button.
 
     const canvas = within(context.canvasElement);
     const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
-    const targetGroup = 'Golden girls';
+    const targetGroup = mockGroups[4].name;
 
-    // Wait for page to load with the target group
     await waitForPageToLoad(canvas, targetGroup);
 
     // ==========================================================================

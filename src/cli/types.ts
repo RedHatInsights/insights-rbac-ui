@@ -54,6 +54,19 @@ export const PersonaInputSchema = z.object({
 });
 
 /**
+ * Role binding input schema for CLI operations.
+ *
+ * Binds a group+role pair to a workspace via the V2 role-bindings API.
+ * Names are resolved to UUIDs from the seeder's resource mapping after
+ * roles, groups, and workspaces have been created.
+ */
+export const RoleBindingInputSchema = z.object({
+  group: z.string().min(1, 'Group name is required'),
+  role: z.string().min(1, 'Role name is required'),
+  workspace: z.string().min(1, 'Workspace name is required'),
+});
+
+/**
  * Seed payload schema - wrapper for batch operations
  */
 export const SeedPayloadSchema = z.object({
@@ -61,6 +74,7 @@ export const SeedPayloadSchema = z.object({
   roles: z.array(RoleInputSchema).optional(),
   groups: z.array(GroupInputSchema).optional(),
   workspaces: z.array(WorkspaceInputSchema).optional(),
+  role_bindings: z.array(RoleBindingInputSchema).optional(),
 });
 
 // ============================================================================
@@ -70,6 +84,7 @@ export const SeedPayloadSchema = z.object({
 export type RoleInput = z.infer<typeof RoleInputSchema>;
 export type GroupInput = z.infer<typeof GroupInputSchema>;
 export type WorkspaceInput = z.infer<typeof WorkspaceInputSchema>;
+export type RoleBindingInput = z.infer<typeof RoleBindingInputSchema>;
 export type SeedPayload = z.infer<typeof SeedPayloadSchema>;
 
 /**

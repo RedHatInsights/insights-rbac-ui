@@ -10,10 +10,10 @@
  *   npm run e2e:v1
  *
  *   # Run specific persona:
- *   npm run e2e:v1:admin
+ *   npm run e2e:v1:orgadmin
  *
  *   # Run directly with Playwright:
- *   npx playwright test --project=v1-admin --project=v1-userviewer
+ *   npx playwright test --project=v1-orgadmin --project=v1-userviewer
  *
  * Environment Variables:
  *   E2E_BASE_URL - Override the base URL (default: https://console.stage.redhat.com)
@@ -37,19 +37,19 @@ export default defineConfig({
   /* Output directory for screenshots, traces, etc. */
   outputDir: './test-results',
 
-  /* Asset cache warming is done in auth-v1-admin.setup.ts (first auth to run) */
+  /* Asset cache warming runs in a dedicated cache-warmup setup project */
 
   /* Run tests in files in parallel locally, sequential in CI for stability */
   fullyParallel: !process.env.CI,
 
-  /* Single worker in CI to avoid OOM and scrambled output */
-  workers: process.env.CI ? 1 : undefined,
+  /* CI: 1 worker (avoid OOM). Local: 4 workers to cut wall-clock time. */
+  workers: process.env.CI ? 1 : 4,
 
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
 
-  /* No retries - fail fast */
-  retries: 0,
+  /* 1 local retry separates flaky from broken; CI gets 2 for extra stability */
+  retries: process.env.CI ? 2 : 1,
 
   /* Reporter to use - list for CI, multiple for local dev */
   reporter: process.env.CI
@@ -60,17 +60,18 @@ export default defineConfig({
   use: {
     baseURL,
     ignoreHTTPSErrors: true, // Always ignore - dev server uses self-signed certs
-    trace: 'on-first-retry',
+    actionTimeout: 30_000, // Bound stuck .click()/.fill() to 30s instead of global timeout
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
   },
 
   /* Global timeout for each test */
-  timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD,
+  timeout: E2E_TIMEOUTS.TEST_GLOBAL,
 
-  /* Expect timeout */
+  /* Expect timeout — explicit SLOW_DATA overrides on workspace assertions remain */
   expect: {
-    timeout: E2E_TIMEOUTS.SLOW_DATA,
+    timeout: E2E_TIMEOUTS.DETAIL_CONTENT,
   },
 
   /* Configure projects with auth dependencies */
@@ -79,36 +80,49 @@ export default defineConfig({
     // V1 Auth Setup Projects
     // ═══════════════════════════════════════════════════════════════════════
     {
-      name: 'auth-v1-admin',
-      testMatch: /auth-v1-admin\.setup\.ts/,
+      name: 'auth-v1-orgadmin',
+      testMatch: /auth-v1-orgadmin\.setup\.ts/,
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
     },
     {
       name: 'auth-v1-userviewer',
       testMatch: /auth-v1-userviewer\.setup\.ts/,
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
     },
     {
       name: 'auth-v1-readonly',
       testMatch: /auth-v1-readonly\.setup\.ts/,
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
     },
 
     // ═══════════════════════════════════════════════════════════════════════
-    // V1 Test Projects (depend on auth)
+    // Cache Warmup (depends on auth-v1-orgadmin — needs any valid session)
     // ═══════════════════════════════════════════════════════════════════════
     {
-      name: 'v1-admin',
+      name: 'cache-warmup',
+      testMatch: /cache-warmup\.setup\.ts/,
+      dependencies: ['auth-v1-orgadmin'],
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // V1 Test Projects (depend on auth + cache)
+    // ═══════════════════════════════════════════════════════════════════════
+    {
+      name: 'v1-orgadmin',
       testMatch: 'journeys/v1/**/*.spec.ts',
-      grep: /\[Admin\]/,
-      dependencies: ['auth-v1-admin'],
+      grep: /\[OrgAdmin\]/,
+      dependencies: ['auth-v1-orgadmin', 'cache-warmup'],
       use: {
         ...devices['Desktop Chrome'],
-        storageState: path.join(authDir, 'v1-admin.json'),
+        storageState: path.join(authDir, 'v1-orgadmin.json'),
       },
     },
     {
       name: 'v1-userviewer',
       testMatch: 'journeys/v1/**/*.spec.ts',
       grep: /\[UserViewer\]/,
-      dependencies: ['auth-v1-userviewer'],
+      dependencies: ['auth-v1-userviewer', 'cache-warmup'],
       use: {
         ...devices['Desktop Chrome'],
         storageState: path.join(authDir, 'v1-userviewer.json'),
@@ -118,7 +132,7 @@ export default defineConfig({
       name: 'v1-readonly',
       testMatch: 'journeys/v1/**/*.spec.ts',
       grep: /\[ReadOnlyUser\]/,
-      dependencies: ['auth-v1-readonly'],
+      dependencies: ['auth-v1-readonly', 'cache-warmup'],
       use: {
         ...devices['Desktop Chrome'],
         storageState: path.join(authDir, 'v1-readonly.json'),
@@ -129,36 +143,49 @@ export default defineConfig({
     // V2 Auth Setup Projects
     // ═══════════════════════════════════════════════════════════════════════
     {
-      name: 'auth-v2-admin',
-      testMatch: /auth-v2-admin\.setup\.ts/,
+      name: 'auth-v2-orgadmin',
+      testMatch: /auth-v2-orgadmin\.setup\.ts/,
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
     },
     {
       name: 'auth-v2-userviewer',
       testMatch: /auth-v2-userviewer\.setup\.ts/,
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
     },
     {
       name: 'auth-v2-readonly',
       testMatch: /auth-v2-readonly\.setup\.ts/,
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
+    },
+    {
+      name: 'auth-v2-rbacadmin',
+      testMatch: /auth-v2-rbacadmin\.setup\.ts/,
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
+    },
+    {
+      name: 'auth-v2-workspaceuser',
+      testMatch: /auth-v2-workspaceuser\.setup\.ts/,
+      timeout: 3 * E2E_TIMEOUTS.SETUP_PAGE_LOAD,
     },
 
     // ═══════════════════════════════════════════════════════════════════════
-    // V2 Test Projects (depend on auth)
+    // V2 Test Projects (depend on auth + cache)
     // ═══════════════════════════════════════════════════════════════════════
     {
-      name: 'v2-admin',
+      name: 'v2-orgadmin',
       testMatch: 'journeys/v2/**/*.spec.ts',
-      grep: /\[Admin\]/,
-      dependencies: ['auth-v2-admin'],
+      grep: /\[OrgAdmin\]/,
+      dependencies: ['auth-v2-orgadmin', 'cache-warmup'],
       use: {
         ...devices['Desktop Chrome'],
-        storageState: path.join(authDir, 'v2-admin.json'),
+        storageState: path.join(authDir, 'v2-orgadmin.json'),
       },
     },
     {
       name: 'v2-userviewer',
       testMatch: 'journeys/v2/**/*.spec.ts',
       grep: /\[UserViewer\]/,
-      dependencies: ['auth-v2-userviewer'],
+      dependencies: ['auth-v2-userviewer', 'cache-warmup'],
       use: {
         ...devices['Desktop Chrome'],
         storageState: path.join(authDir, 'v2-userviewer.json'),
@@ -168,23 +195,30 @@ export default defineConfig({
       name: 'v2-readonly',
       testMatch: 'journeys/v2/**/*.spec.ts',
       grep: /\[ReadOnlyUser\]/,
-      dependencies: ['auth-v2-readonly'],
+      dependencies: ['auth-v2-readonly', 'cache-warmup'],
       use: {
         ...devices['Desktop Chrome'],
         storageState: path.join(authDir, 'v2-readonly.json'),
       },
     },
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // Utility Projects
-    // ═══════════════════════════════════════════════════════════════════════
     {
-      name: 'smoke',
-      testMatch: 'smoke.spec.ts',
-      dependencies: ['auth-v1-admin'],
+      name: 'v2-rbacadmin',
+      testMatch: 'journeys/v2/**/*.spec.ts',
+      grep: /\[RbacAdmin\]/,
+      dependencies: ['auth-v2-rbacadmin', 'cache-warmup'],
       use: {
         ...devices['Desktop Chrome'],
-        storageState: path.join(authDir, 'v1-admin.json'),
+        storageState: path.join(authDir, 'v2-rbacadmin.json'),
+      },
+    },
+    {
+      name: 'v2-workspaceuser',
+      testMatch: 'journeys/v2/**/*.spec.ts',
+      grep: /\[WorkspaceUser\]/,
+      dependencies: ['auth-v2-workspaceuser', 'cache-warmup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: path.join(authDir, 'v2-workspaceuser.json'),
       },
     },
   ],

@@ -13,29 +13,25 @@ const HAR_PATH = path.join(__dirname, '..', 'cache', 'session-assets.har');
 const STATIC_ASSET_PATTERN = '**/*.{js,css,woff,woff2,ttf,eot,png,jpg,jpeg,gif,svg,ico,webp}';
 
 /**
- * Patterns to block during E2E tests.
- * These can cause flaky tests or slow down page loads.
+ * Glob patterns to block during E2E tests.
+ * Using targeted globs instead of a catch-all route avoids running a JS
+ * callback on every request — Playwright matches globs in native code.
+ *
+ * Patterns use `**keyword**` so they match regardless of URL structure
+ * (direct domain, proxied path, with or without trailing path segments).
  */
 const BLOCKED_PATTERNS = [
   // TrustArc consent overlay
-  'trustarc.com',
-  'trustarc.stage',
-  'teconsent',
-  '/trustarc/',
-  'consent.trustarc',
-  'consent-pref',
-  // Amplitude analytics
-  'amplitude.com',
-  'api.amplitude',
-  // Pendo analytics
-  'pendo.io',
-  'app.pendo',
-  'cdn.pendo',
-  // Segment analytics
-  'segment.com',
-  'segment.io',
-  'cdn.segment',
-  'api.segment',
+  '**trustarc**',
+  '**teconsent**',
+  '**consent-pref**',
+  // Segment CDN — loads all analytics integrations (amplitude, pendo, etc.)
+  '**/connections/cdn/**',
+  // Direct-domain fallbacks (if SDK bypasses the proxy)
+  '**amplitude.com**',
+  '**pendo.io**',
+  '**segment.com**',
+  '**segment.io**',
 ];
 
 /**
@@ -66,20 +62,12 @@ export async function enableAssetCache(page: Page): Promise<void> {
 
 /**
  * Set up request blocking on a page.
- * Call this in test.beforeEach or at the start of each test.
+ * Each pattern gets its own native-matched route — no JS callback per request.
  */
 export async function blockAnalytics(page: Page): Promise<void> {
-  await page.route('**/*', async (route, request) => {
-    const url = request.url();
-    const shouldBlock = BLOCKED_PATTERNS.some((pattern) => url.includes(pattern));
-
-    if (shouldBlock) {
-      await route.abort();
-      return;
-    }
-
-    await route.continue();
-  });
+  for (const pattern of BLOCKED_PATTERNS) {
+    await page.route(pattern, (route) => route.abort());
+  }
 }
 
 /**
