@@ -1,0 +1,32 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Production/V1 (Current)/Org User" />
+
+# V1: Organization User (No Permissions)
+
+Regular user with **no RBAC permissions** in V1 navigation. Can only use My User Access.
+
+## Permission Configuration
+
+| Permission | Has Access? |
+|------------|-------------|
+| `rbac:principal:read` | **No** |
+| `rbac:group:read` | **No** |
+| `rbac:role:read` | **No** |
+| `inventory:groups:read` | **No** |
+| Org Admin | **No** |
+
+## V1 Navigation Context
+
+- **My User Access** — visible (always available)
+- **User Access** section — hidden (no RBAC permissions)
+
+## Story Catalog
+
+| Story | What it tests |
+|-------|--------------|
+| Sidebar Validation | Only My User Access visible; no User Access section |
+| View My User Access | My User Access page loads |
+| Users / Direct URL - Unauthorized | Direct URL shows unauthorized |
+| Groups / Direct URL - Unauthorized | Direct URL shows unauthorized |
+| Roles / Direct URL - Unauthorized | Direct URL shows unauthorized |

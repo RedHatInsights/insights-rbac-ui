@@ -223,8 +223,12 @@ describe('seeder command', () => {
 
     test('prepends prefix to workspace names', async () => {
       const mockClient = {
-        post: vi.fn().mockResolvedValue({ data: { id: 'new-id' } }),
-        get: vi.fn().mockResolvedValue({ data: { data: [{ id: 'root-id' }] } }),
+        request: vi.fn().mockImplementation((config: { url?: string; data?: string }) => {
+          if (config.url?.includes('/workspaces/') && config.data) {
+            return { data: { id: 'new-ws-id' } };
+          }
+          return { data: { data: [] } };
+        }),
       };
       mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
 
@@ -236,7 +240,68 @@ describe('seeder command', () => {
 
       await runSeeder({ file: 'payload.json', prefix: 'e2e-' });
 
-      expect(mockClient.post).toHaveBeenCalledWith('/api/rbac/v2/workspaces/', expect.objectContaining({ name: 'e2e-__my-workspace' }));
+      expect(mockClient.request).toHaveBeenCalledWith(
+        expect.objectContaining({ url: '/api/rbac/v2/workspaces/', data: expect.stringContaining('e2e-__my-workspace') }),
+      );
+    });
+
+    test('prepends prefix to workspace parent_id when it references another workspace name', async () => {
+      const mockClient = {
+        request: vi.fn().mockImplementation((config: { url?: string; data?: string }) => {
+          if (config.url?.includes('/workspaces/') && config.data) {
+            const parsed = JSON.parse(config.data);
+            return { data: { id: parsed.name === 'e2e-__parent' ? 'parent-uuid' : 'child-uuid' } };
+          }
+          return { data: { data: [] } };
+        }),
+      };
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          workspaces: [{ name: 'parent' }, { name: 'child', parent_id: 'parent' }],
+        }),
+      );
+
+      await runSeeder({ file: 'payload.json', prefix: 'e2e-' });
+
+      const workspaceCalls = mockClient.request.mock.calls.filter(
+        ([config]: [{ url?: string; data?: string }]) => config.url?.includes('/workspaces/') && config.data,
+      );
+      expect(workspaceCalls).toHaveLength(2);
+
+      const childCall = workspaceCalls[1];
+      const childData = JSON.parse(childCall[0].data);
+      expect(childData.parent_id).toBe('parent-uuid');
+    });
+
+    test('resolves workspace parent_id through name-to-ID mapping', async () => {
+      const mockClient = {
+        request: vi.fn().mockImplementation((config: { url?: string; data?: string }) => {
+          if (config.url?.includes('/workspaces/') && config.data) {
+            const parsed = JSON.parse(config.data);
+            if (parsed.name === 'test-__ws-parent') return { data: { id: 'resolved-parent-id' } };
+            return { data: { id: 'child-id' } };
+          }
+          return { data: { data: [] } };
+        }),
+      };
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          workspaces: [{ name: 'ws-parent' }, { name: 'ws-child', parent_id: 'ws-parent' }],
+        }),
+      );
+
+      await runSeeder({ file: 'payload.json', prefix: 'test-' });
+
+      const workspaceCalls = mockClient.request.mock.calls.filter(
+        ([config]: [{ url?: string; data?: string }]) => config.url?.includes('/workspaces/') && config.data,
+      );
+
+      const childCallData = JSON.parse(workspaceCalls[1][0].data);
+      expect(childCallData.parent_id).toBe('resolved-parent-id');
     });
 
     test('fails when prefix is not provided', async () => {
@@ -297,6 +362,128 @@ describe('seeder command', () => {
       const exitCode = await runSeeder({ file: 'empty-arrays.json', prefix: 'test-' });
 
       expect(exitCode).toBe(0);
+    });
+  });
+
+  // ==========================================================================
+  // V2 API Version Tests
+  // ==========================================================================
+
+  describe('V2 API Version', () => {
+    test('creates roles via V2 endpoint when apiVersion is v2', async () => {
+      const mockClient = {
+        request: vi.fn().mockImplementation((config: { url?: string; data?: string }) => {
+          if (config.url?.includes('/v2/roles/') && config.data) {
+            return { data: { id: 'v2-role-id' } };
+          }
+          return { data: { data: [] } };
+        }),
+      };
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          roles: [{ name: 'v2-role', permissions: ['rbac:group:read'] }],
+        }),
+      );
+
+      await runSeeder({ file: 'payload.json', prefix: 'test-', apiVersion: 'v2' });
+
+      const roleCalls = mockClient.request.mock.calls.filter(
+        ([config]: [{ url?: string; data?: string }]) => config.url?.includes('/v2/roles/') && config.data,
+      );
+      expect(roleCalls).toHaveLength(1);
+      const [roleConfig] = roleCalls[0];
+      expect(roleConfig.url).toBe('/api/rbac/v2/roles/');
+      const body = JSON.parse(roleConfig.data as string);
+      expect(body).toEqual(
+        expect.objectContaining({
+          name: expect.stringContaining('test-__v2-role'),
+          permissions: [{ application: 'rbac', resource_type: 'group', operation: 'read' }],
+        }),
+      );
+    });
+
+    test('does NOT create roles via V1 endpoint when apiVersion is v2', async () => {
+      const mockClient = {
+        request: vi.fn().mockImplementation((config: { url?: string; data?: string }) => {
+          if (config.data && config.url?.includes('/v2/roles/')) {
+            return { data: { id: 'v2-role-id' } };
+          }
+          return { data: { data: [] } };
+        }),
+      };
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          roles: [{ name: 'v2-role' }],
+        }),
+      );
+
+      await runSeeder({ file: 'payload.json', prefix: 'test-', apiVersion: 'v2' });
+
+      const v1RoleCalls = mockClient.request.mock.calls.filter(
+        ([config]: [{ url?: string; data?: string }]) => config.url?.includes('/v1/roles/') && config.data,
+      );
+      expect(v1RoleCalls).toHaveLength(0);
+    });
+
+    test('skips system roles discovery when apiVersion is v2', async () => {
+      const mockClient = {
+        request: vi.fn().mockResolvedValue({ data: { data: [] } }),
+      };
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+
+      mockReadFile.mockResolvedValue(JSON.stringify({}));
+
+      await runSeeder({ file: 'payload.json', prefix: 'test-', apiVersion: 'v2' });
+
+      const systemRoleCalls = mockClient.request.mock.calls.filter(([config]: [{ url?: string; params?: { system?: boolean } }]) =>
+        config.url?.includes('/v1/roles/'),
+      );
+      expect(systemRoleCalls).toHaveLength(0);
+    });
+
+    test('still fetches system groups when apiVersion is v2', async () => {
+      const mockClient = {
+        request: vi.fn().mockResolvedValue({ data: { data: [] } }),
+      };
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+
+      mockReadFile.mockResolvedValue(JSON.stringify({}));
+
+      await runSeeder({ file: 'payload.json', prefix: 'test-', apiVersion: 'v2' });
+
+      const groupCalls = mockClient.request.mock.calls.filter(([config]: [{ url?: string }]) => config.url?.includes('/v1/groups/'));
+      expect(groupCalls.length).toBeGreaterThanOrEqual(1);
+    });
+
+    test('does not attach roles to groups when apiVersion is v2', async () => {
+      const mockClient = {
+        request: vi.fn().mockImplementation((config: { url?: string; data?: string }) => {
+          if (config.data && config.url?.includes('/v2/roles/')) {
+            return { data: { id: 'v2-role-id' } };
+          }
+          if (config.data && config.url?.includes('/v1/groups/')) {
+            return { data: { uuid: 'new-group-uuid' } };
+          }
+          return { data: { data: [] } };
+        }),
+      };
+      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+
+      mockReadFile.mockResolvedValue(
+        JSON.stringify({
+          roles: [{ name: 'v2-role' }],
+          groups: [{ name: 'v2-group', roles_list: ['v2-role'] }],
+        }),
+      );
+
+      await runSeeder({ file: 'payload.json', prefix: 'test-', apiVersion: 'v2' });
+
+      const addRoleCalls = mockClient.request.mock.calls.filter(([config]: [{ url?: string }]) => config.url?.match(/\/groups\/.*\/roles\//));
+      expect(addRoleCalls).toHaveLength(0);
     });
   });
 

@@ -46,6 +46,8 @@ if (fs.existsSync(envFile)) {
     'v2-admin': ['E2E_V2_ADMIN_USERNAME', 'E2E_V2_ADMIN_PASSWORD'],
     'v2-readonly': ['E2E_V2_READONLY_USERNAME', 'E2E_V2_READONLY_PASSWORD'],
     'v2-userviewer': ['E2E_V2_USERVIEWER_USERNAME', 'E2E_V2_USERVIEWER_PASSWORD'],
+    'v2-rbacadmin': ['E2E_V2_RBACADMIN_USERNAME', 'E2E_V2_RBACADMIN_PASSWORD'],
+    'v2-workspaceuser': ['E2E_V2_WORKSPACEUSER_USERNAME', 'E2E_V2_WORKSPACEUSER_PASSWORD'],
   };
 
   const match = Object.keys(mappings).find((key) => envFile.includes(key));

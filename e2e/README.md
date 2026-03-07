@@ -12,10 +12,10 @@ Copy the template env files and fill in your credentials:
 
 ```bash
 # Copy templates for all personas
-cp e2e/auth/.env.v1-admin.template e2e/auth/.env.v1-admin
+cp e2e/auth/.env.v1-orgadmin.template e2e/auth/.env.v1-orgadmin
 cp e2e/auth/.env.v1-userviewer.template e2e/auth/.env.v1-userviewer
 cp e2e/auth/.env.v1-readonly.template e2e/auth/.env.v1-readonly
-cp e2e/auth/.env.v2-admin.template e2e/auth/.env.v2-admin
+cp e2e/auth/.env.v2-orgadmin.template e2e/auth/.env.v2-orgadmin
 cp e2e/auth/.env.v2-userviewer.template e2e/auth/.env.v2-userviewer
 cp e2e/auth/.env.v2-readonly.template e2e/auth/.env.v2-readonly
 
@@ -140,7 +140,7 @@ npm run e2e:v1:seed
 npm run e2e:v1:test:admin
 
 # Or run specific file
-TEST_PREFIX_V1=jdoe npx playwright test e2e/journeys/v1/roles/view.spec.ts --project=v1-admin --headed
+TEST_PREFIX_V1=jdoe npx playwright test e2e/journeys/v1/roles/view.spec.ts --project=v1-orgadmin --headed
 
 # 4. Cleanup when done
 npm run e2e:v1:cleanup
@@ -186,10 +186,10 @@ Tests use `getSeededUsername()` from `seed-map.ts` to access these values. Seede
 ```
 e2e/
 ├── auth/                    # Auth storage state files (gitignored)
-│   ├── .env.v1-admin        # Admin credentials
+│   ├── .env.v1-orgadmin     # OrgAdmin credentials
 │   ├── .env.v1-userviewer   # UserViewer credentials
 │   ├── .env.v1-readonly     # ReadOnlyUser credentials
-│   ├── v1-admin.json        # Playwright session state
+│   ├── v1-orgadmin.json     # Playwright session state
 │   └── ...
 ├── fixtures/
 │   ├── seed-v1.json         # V1 seed: personas, roles, groups

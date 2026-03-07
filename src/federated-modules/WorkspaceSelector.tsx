@@ -24,11 +24,14 @@ import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { IntlProvider } from 'react-intl';
 import { AccessCheck } from '@project-kessel/react-kessel-access-check';
-import { createStandaloneQueryClient } from '../components/QueryClientSetup';
-import { ServiceProvider } from '../contexts/ServiceContext';
-import { browserApiClient } from '../entry/browser';
+import { createStandaloneQueryClient } from '../shared/components/QueryClientSetup';
+import { ServiceProvider } from '../shared/contexts/ServiceContext';
+import { browserApiClient } from '../shared/entry/browser';
 import messages from '../locales/data.json';
-import { ManagedWorkspaceSelector, ManagedWorkspaceSelectorProps } from '../features/workspaces/components/managed-selector/ManagedWorkspaceSelector';
+import {
+  ManagedWorkspaceSelector,
+  ManagedWorkspaceSelectorProps,
+} from '../v2/features/workspaces/components/managed-selector/ManagedWorkspaceSelector';
 
 export const locale = 'en';
 

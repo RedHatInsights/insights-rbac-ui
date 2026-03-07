@@ -8,7 +8,7 @@
  */
 
 import { test } from '@playwright/test';
-import { AUTH_V1_ADMIN, AUTH_V1_READONLY, AUTH_V1_USERVIEWER } from '../../utils';
+import { AUTH_V1_ORGADMIN, AUTH_V1_READONLY, AUTH_V1_USERVIEWER } from '../../utils';
 import { MyUserAccessPage } from '../../pages/v1/MyUserAccessPage';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -16,7 +16,7 @@ import { MyUserAccessPage } from '../../pages/v1/MyUserAccessPage';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const allPersonas = [
-  { name: 'Admin', auth: AUTH_V1_ADMIN },
+  { name: 'Admin', auth: AUTH_V1_ORGADMIN },
   { name: 'UserViewer', auth: AUTH_V1_USERVIEWER },
   { name: 'ReadOnlyUser', auth: AUTH_V1_READONLY },
 ];

@@ -12,10 +12,49 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { delay } from 'msw';
 import WorkspaceSelector, { type WorkspaceSelectorProps } from './WorkspaceSelector';
-import { workspaceHandlers } from '../test/msw-handlers';
+import { workspacesHandlers } from '../v2/data/mocks/workspaces.handlers';
 
-// Mock workspace IDs from the default MSW fixtures
-const ALL_WORKSPACE_IDS = ['workspace-1', 'workspace-2', 'workspace-3', 'workspace-4'];
+// Workspace data these stories expect — different from the shared DEFAULT_WORKSPACES
+const selectorWorkspaces = [
+  {
+    id: 'workspace-1',
+    name: 'Production Environment',
+    description: 'Main production workspace',
+    parent_id: undefined,
+    type: 'root' as const,
+    created: '2024-01-01T00:00:00Z',
+    modified: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'workspace-2',
+    name: 'Web Services',
+    description: 'Web services workspace',
+    parent_id: 'workspace-1',
+    type: 'standard' as const,
+    created: '2024-01-02T00:00:00Z',
+    modified: '2024-01-02T00:00:00Z',
+  },
+  {
+    id: 'workspace-3',
+    name: 'API Services',
+    description: 'API services workspace',
+    parent_id: 'workspace-1',
+    type: 'standard' as const,
+    created: '2024-01-03T00:00:00Z',
+    modified: '2024-01-03T00:00:00Z',
+  },
+  {
+    id: 'workspace-4',
+    name: 'Development Environment',
+    description: 'Dev workspace',
+    parent_id: 'workspace-1',
+    type: 'standard' as const,
+    created: '2024-01-04T00:00:00Z',
+    modified: '2024-01-04T00:00:00Z',
+  },
+];
+
+const ALL_WORKSPACE_IDS = selectorWorkspaces.map((w) => w.id);
 
 // ============================================================================
 // Shared test helpers
@@ -43,7 +82,7 @@ async function expandRootNode() {
 
 /** Find a workspace node by name in the dropdown portal. */
 function findWorkspace(name: string) {
-  return getBody().findByText(name);
+  return getBody().findByText(name, {}, { timeout: 5000 });
 }
 
 /** Assert a workspace node is visually disabled (wrapped in a styled span). */
@@ -64,9 +103,12 @@ async function clickAndExpectNoSelect(name: string, onSelect: ReturnType<typeof 
 async function clickAndExpectSelect(name: string, onSelect: ReturnType<typeof fn>, expectedId: string, expectedName: string) {
   const node = await findWorkspace(name);
   await userEvent.click(node);
-  await waitFor(async () => {
-    await expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: expectedId, name: expectedName }));
-  });
+  await waitFor(
+    async () => {
+      await expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: expectedId, name: expectedName }));
+    },
+    { timeout: 5000 },
+  );
 }
 
 const meta: Meta<WorkspaceSelectorProps> = {
@@ -76,7 +118,7 @@ const meta: Meta<WorkspaceSelectorProps> = {
   parameters: {
     noWrapping: true,
     msw: {
-      handlers: workspaceHandlers,
+      handlers: workspacesHandlers(selectorWorkspaces),
     },
     // Full permissions for the default story set
     workspacePermissions: {

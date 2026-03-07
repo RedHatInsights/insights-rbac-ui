@@ -35,14 +35,22 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, AUTH_V2_READONLY
+ *   - AUTH: AUTH_V2_ORGADMIN, AUTH_V2_USERVIEWER, AUTH_V2_READONLY
  *   - DATA: SEEDED_GROUP_NAME + SEEDED_GROUP_UUID from seed-map
  *   - DATA: getSeededUsername() — seeded user to add/remove (self-cleaning)
  *   - UTILS: UserGroupsPage for edit page and drawer interactions
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, getGroupUuid, getSeededGroupName, getSeededUsername, setupPage } from '../../../utils';
+import {
+  AUTH_V2_ORGADMIN,
+  AUTH_V2_READONLY,
+  AUTH_V2_USERVIEWER,
+  getGroupUuid,
+  getSeededGroupName,
+  getSeededUsername,
+  setupPage,
+} from '../../../utils';
 import { UserGroupsPage } from '../../../pages/v2/UserGroupsPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -58,14 +66,6 @@ const EDIT_GROUP_URL = '/iam/access-management/users-and-user-groups/edit-group'
 // This avoids side effects on persona-dependent tests.
 const TEST_MEMBER_USERNAME = getSeededUsername(0, 'v2');
 
-if (!SEEDED_GROUP_NAME || !SEEDED_GROUP_UUID) {
-  throw new Error('No seeded group found in seed map. Run: npm run e2e:seed:v2');
-}
-
-if (!TEST_MEMBER_USERNAME) {
-  throw new Error('No seeded user found in seed fixture. Add a seededUsers entry to seed-v2.json');
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests
 // ═══════════════════════════════════════════════════════════════════════════
@@ -79,10 +79,11 @@ test.describe('User Group Membership', () => {
   // Serial: Add member → verify in drawer → remove member → verify removed
   // Self-cleaning: ends with the member removed
   // ─────────────────────────────────────────────────────────────────────────
-  test.describe.serial('Admin - Member Lifecycle', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe.serial('OrgAdmin - Member Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test('Edit page shows selectable users table [Admin]', async ({ page }) => {
+    test('Edit page shows selectable users table [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
 
@@ -93,11 +94,10 @@ test.describe('User Group Membership', () => {
       // Verify the table has checkboxes (selectable rows)
       const firstCheckbox = groupsPage.editPageUsersTable.getByRole('checkbox').first();
       await expect(firstCheckbox).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-
-      console.log(`[Setup] ✓ Edit page users table is selectable`);
     });
 
-    test('Add member to group via edit page [Admin]', async ({ page }) => {
+    test('Add member to group via edit page [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME || !TEST_MEMBER_USERNAME, 'No seed data — run npm run e2e:seed:v2 or add seededUsers to seed-v2.json');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
 
@@ -120,11 +120,10 @@ test.describe('User Group Membership', () => {
 
       // Submit the form
       await groupsPage.submitEditForm();
-
-      console.log(`[Add Member] ✓ Added ${TEST_MEMBER_USERNAME} to group`);
     });
 
-    test('Verify member appears in drawer Users tab [Admin]', async ({ page }) => {
+    test('Verify member appears in drawer Users tab [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME || !TEST_MEMBER_USERNAME, 'No seed data — run npm run e2e:seed:v2 or add seededUsers to seed-v2.json');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
@@ -139,11 +138,10 @@ test.describe('User Group Membership', () => {
       await expect(drawerContent.getByText(TEST_MEMBER_USERNAME!)).toBeVisible({
         timeout: E2E_TIMEOUTS.TABLE_DATA,
       });
-
-      console.log(`[Verify Add] ✓ ${TEST_MEMBER_USERNAME} visible in drawer`);
     });
 
-    test('Remove member from group via edit page [Admin]', async ({ page }) => {
+    test('Remove member from group via edit page [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME || !TEST_MEMBER_USERNAME, 'No seed data — run npm run e2e:seed:v2 or add seededUsers to seed-v2.json');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
 
@@ -166,11 +164,10 @@ test.describe('User Group Membership', () => {
 
       // Submit the form
       await groupsPage.submitEditForm();
-
-      console.log(`[Remove Member] ✓ Removed ${TEST_MEMBER_USERNAME} from group`);
     });
 
-    test('Verify member no longer appears in drawer Users tab [Admin]', async ({ page }) => {
+    test('Verify member no longer appears in drawer Users tab [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME || !TEST_MEMBER_USERNAME, 'No seed data — run npm run e2e:seed:v2 or add seededUsers to seed-v2.json');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
@@ -185,18 +182,17 @@ test.describe('User Group Membership', () => {
       await expect(drawerContent.getByText(TEST_MEMBER_USERNAME!)).not.toBeVisible({
         timeout: E2E_TIMEOUTS.TABLE_DATA,
       });
-
-      console.log(`[Verify Remove] ✓ ${TEST_MEMBER_USERNAME} no longer in drawer`);
     });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
   // Service Accounts tab verification
   // ─────────────────────────────────────────────────────────────────────────
-  test.describe('Admin - Service Accounts', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe('OrgAdmin - Service Accounts', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test('Edit page shows selectable service accounts table [Admin]', async ({ page }) => {
+    test('Edit page shows selectable service accounts table [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
 
@@ -207,18 +203,32 @@ test.describe('User Group Membership', () => {
       await expect(groupsPage.editPageServiceAccountsTable).toBeVisible({
         timeout: E2E_TIMEOUTS.TABLE_DATA,
       });
+    });
 
-      console.log(`[SA Tab] ✓ Service accounts table is visible and selectable`);
+    test('Edit page shows service accounts table [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const userGroupsPage = new UserGroupsPage(page);
+      await userGroupsPage.goto();
+      await userGroupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
+
+      // Click the Service Accounts tab
+      await userGroupsPage.clickEditPageTab('Service accounts');
+
+      // Verify the service accounts table is visible
+      await expect(userGroupsPage.editPageServiceAccountsTable).toBeVisible({
+        timeout: E2E_TIMEOUTS.TABLE_DATA,
+      });
     });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
   // Navigation paths to edit page
   // ─────────────────────────────────────────────────────────────────────────
-  test.describe('Admin - Navigation', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe('OrgAdmin - Navigation', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test('Drawer Edit button navigates to edit page [Admin]', async ({ page }) => {
+    test('Drawer Edit button navigates to edit page [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
@@ -231,11 +241,10 @@ test.describe('User Group Membership', () => {
         timeout: E2E_TIMEOUTS.URL_CHANGE,
       });
       await expect(groupsPage.editPageForm).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
-
-      console.log(`[Nav: Drawer] ✓ Edit button navigated to edit page`);
     });
 
-    test('Row action Edit navigates to edit page [Admin]', async ({ page }) => {
+    test('Row action Edit navigates to edit page [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
@@ -248,11 +257,10 @@ test.describe('User Group Membership', () => {
         timeout: E2E_TIMEOUTS.URL_CHANGE,
       });
       await expect(groupsPage.editPageForm).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
-
-      console.log(`[Nav: Row Action] ✓ Edit action navigated to edit page`);
     });
 
-    test('Edit page Cancel returns to list page [Admin]', async ({ page }) => {
+    test('Edit page Cancel returns to list page [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
 
@@ -260,18 +268,17 @@ test.describe('User Group Membership', () => {
 
       // Verify we're back on the list page
       await expect(page).toHaveURL(/\/user-groups/, { timeout: E2E_TIMEOUTS.URL_CHANGE });
-
-      console.log(`[Nav: Cancel] ✓ Cancel returned to list page`);
     });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
   // Form validation
   // ─────────────────────────────────────────────────────────────────────────
-  test.describe('Admin - Form Validation', () => {
-    test.use({ storageState: AUTH_V2_ADMIN });
+  test.describe('OrgAdmin - Form Validation', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
 
-    test('Submit is disabled when name is empty [Admin]', async ({ page }) => {
+    test('Submit is disabled when name is empty [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
 
@@ -283,11 +290,10 @@ test.describe('User Group Membership', () => {
 
       // Submit button should be disabled (FormTemplate disableSubmit: ['pristine', 'invalid'])
       await expect(groupsPage.editPageSubmitButton).toBeDisabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
-
-      console.log(`[Validation] ✓ Submit disabled when name is empty`);
     });
 
-    test('Duplicate group name shows validation error [Admin]', async ({ page }) => {
+    test('Duplicate group name shows validation error [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
 
@@ -302,8 +308,6 @@ test.describe('User Group Membership', () => {
 
       // Submit should be disabled due to duplicate name validation
       await expect(groupsPage.editPageSubmitButton).toBeDisabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
-
-      console.log(`[Validation] ✓ Duplicate name prevents submission`);
     });
   });
 
@@ -315,6 +319,7 @@ test.describe('User Group Membership', () => {
     test.use({ storageState: AUTH_V2_USERVIEWER });
 
     test(`Edit group page shows unauthorized access [UserViewer]`, async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       await setupPage(page);
       await page.goto(`${EDIT_GROUP_URL}/${SEEDED_GROUP_UUID}`);
 
@@ -332,6 +337,7 @@ test.describe('User Group Membership', () => {
     test.use({ storageState: AUTH_V2_READONLY });
 
     test(`Edit group page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       await setupPage(page);
       await page.goto(`${EDIT_GROUP_URL}/${SEEDED_GROUP_UUID}`);
 

@@ -8,7 +8,7 @@
  * The HAR file is regenerated fresh on each test run and never committed.
  *
  * IMPORTANT: Requires auth state to exist. Run auth step first:
- *   npm run e2e:auth:v1:admin
+ *   npm run e2e:auth:v1:orgadmin
  */
 import { type FullConfig, chromium } from '@playwright/test';
 import * as path from 'path';
@@ -27,10 +27,10 @@ const STATIC_ASSET_PATTERN = '**/*.{js,css,woff,woff2,ttf,eot,png,jpg,jpeg,gif,s
 
 /**
  * Find any available auth state file.
- * Priority: v1-admin > v2-admin > v1-user > v2-user
+ * Priority: v1-orgadmin > v2-orgadmin > v1-user > v2-user
  */
 function findAuthState(): string | undefined {
-  const candidates = ['v1-admin.json', 'v2-admin.json', 'v1-user.json', 'v2-user.json'];
+  const candidates = ['v1-orgadmin.json', 'v2-orgadmin.json', 'v1-user.json', 'v2-user.json'];
   for (const file of candidates) {
     const filePath = path.join(AUTH_DIR, file);
     if (fs.existsSync(filePath)) {
@@ -49,7 +49,7 @@ async function globalSetup(config: FullConfig) {
   const authState = findAuthState();
   if (!authState) {
     console.warn('[Cache Warmer] ⚠️  No auth state found, skipping cache warm-up');
-    console.warn('[Cache Warmer] Run auth first: npm run e2e:auth:v1:admin');
+    console.warn('[Cache Warmer] Run auth first: npm run e2e:auth:v1:orgadmin');
     console.log('='.repeat(60) + '\n');
     return;
   }

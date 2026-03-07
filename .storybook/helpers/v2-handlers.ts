@@ -9,13 +9,22 @@
  */
 
 import { HttpResponse, http } from 'msw';
-import type { RoleV2 } from '../../src/data/api/rolesV2';
+
+interface MockRoleV2 {
+  uuid: string;
+  name: string;
+  description?: string;
+  permissions: number | null;
+  modified: string;
+  system: boolean;
+  access?: Array<{ application: string; resourceType: string; operation: string }>;
+}
 
 // =============================================================================
 // Mock Data
 // =============================================================================
 
-const mockRolesV2: RoleV2[] = [
+const mockRolesV2: MockRoleV2[] = [
   {
     uuid: 'role-tenant-admin',
     name: 'Tenant admin',
@@ -74,6 +83,29 @@ const mockRoleAssignments: Record<string, Array<{ userGroup: string; workspace: 
 };
 
 // =============================================================================
+// Helpers
+// =============================================================================
+
+function isRecord(data: unknown): data is Record<string, unknown> {
+  return typeof data === 'object' && data !== null;
+}
+
+interface CreateOrUpdateRoleBody {
+  name: string;
+  description?: string;
+  permissions: string[];
+}
+
+function parseRoleBody(data: unknown): CreateOrUpdateRoleBody {
+  if (!isRecord(data)) throw new Error('Invalid request body');
+  return {
+    name: String(data.name ?? ''),
+    description: data.description != null ? String(data.description) : undefined,
+    permissions: Array.isArray(data.permissions) ? data.permissions.map(String) : [],
+  };
+}
+
+// =============================================================================
 // V2 Roles Handlers
 // =============================================================================
 
@@ -81,42 +113,61 @@ export const rolesV2Handlers = [
   // List roles V2
   http.get('/api/rbac/v2/roles/', ({ request }) => {
     const url = new URL(request.url);
-    const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+    const limitParam = url.searchParams.get('limit');
+    const limit = limitParam === '-1' ? 9999 : parseInt(limitParam || '20', 10);
     const offset = parseInt(url.searchParams.get('offset') || '0', 10);
     const name = url.searchParams.get('name');
-    const orderBy = url.searchParams.get('orderBy') || 'name';
+    const orderBy = url.searchParams.get('order_by') || url.searchParams.get('orderBy') || 'name';
 
     let filtered = [...mockRolesV2];
 
-    // Filter by name
+    // Filter by name (supports glob patterns like *term*)
     if (name) {
-      filtered = filtered.filter((r) => r.name.toLowerCase().includes(name.toLowerCase()));
+      const term = name.replace(/\*/g, '').toLowerCase();
+      if (term) {
+        filtered = filtered.filter((r) => r.name.toLowerCase().includes(term));
+      }
     }
 
     // Sort
     filtered.sort((a, b) => {
       const desc = orderBy.startsWith('-');
       const field = desc ? orderBy.slice(1) : orderBy;
-      const aVal = a[field as keyof RoleV2];
-      const bVal = b[field as keyof RoleV2];
 
-      if (aVal === null || aVal === undefined) return 1;
-      if (bVal === null || bVal === undefined) return -1;
+      const fieldAccessors: Record<string, (role: MockRoleV2) => string | number | null | undefined> = {
+        name: (r) => r.name,
+        description: (r) => r.description,
+        permissions: (r) => r.permissions,
+        modified: (r) => r.modified,
+        last_modified: (r) => r.modified,
+        uuid: (r) => r.uuid,
+      };
+
+      const accessor = fieldAccessors[field];
+      if (!accessor) return 0;
+
+      const aVal = accessor(a);
+      const bVal = accessor(b);
+
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
 
       const comparison = String(aVal).localeCompare(String(bVal));
       return desc ? -comparison : comparison;
     });
 
-    // Paginate
-    const paginated = filtered.slice(offset, offset + limit);
+    // Paginate (when limit is -1, return all; 9999 used as effective limit for slice)
+    const effectiveLimit = limitParam === '-1' ? filtered.length : limit;
+    const paginated = filtered.slice(offset, offset + effectiveLimit);
 
     return HttpResponse.json({
-      data: paginated,
+      data: paginated.map((r) => ({ ...r, id: r.uuid })),
       meta: {
         count: filtered.length,
-        limit,
+        limit: limitParam === '-1' ? filtered.length : limit,
         offset,
       },
+      links: { next: null, previous: null },
     });
   }),
 
@@ -131,8 +182,8 @@ export const rolesV2Handlers = [
 
   // Create role V2 - returns created role per Riccardo's request
   http.post('/api/rbac/v2/roles/', async ({ request }) => {
-    const body = (await request.json()) as { name: string; description?: string; permissions: string[] };
-    const newRole: RoleV2 = {
+    const body = parseRoleBody(await request.json());
+    const newRole: MockRoleV2 = {
       uuid: `role-${Date.now()}`,
       name: body.name,
       description: body.description,
@@ -150,13 +201,13 @@ export const rolesV2Handlers = [
 
   // Update role V2 - returns updated role per Riccardo's request
   http.put('/api/rbac/v2/roles/:uuid/', async ({ params, request }) => {
-    const body = (await request.json()) as { name: string; description?: string; permissions: string[] };
+    const body = parseRoleBody(await request.json());
     const index = mockRolesV2.findIndex((r) => r.uuid === params.uuid);
     if (index === -1) {
       return new HttpResponse(null, { status: 404 });
     }
 
-    const updatedRole: RoleV2 = {
+    const updatedRole: MockRoleV2 = {
       ...mockRolesV2[index],
       name: body.name,
       description: body.description,

@@ -7,7 +7,7 @@
  * - Minimum pattern length safety rail (CRITICAL)
  * - Prefix and glob pattern matching
  * - System/default resource protection
- * - Delete operation execution
+ * - Delete operation execution via typed API clients
  */
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -18,10 +18,7 @@ vi.mock('../../auth.js', () => ({
 }));
 vi.mock('../../api-client.js', () => ({
   initializeApiClient: vi.fn(),
-  getApiClient: vi.fn(() => ({
-    get: vi.fn(),
-    delete: vi.fn(),
-  })),
+  getApiClient: vi.fn(() => ({})),
 }));
 vi.mock('../../auth-bridge.js', () => ({
   getCurrentEnv: vi.fn(() => 'stage'),
@@ -31,21 +28,58 @@ vi.mock('../../auth-bridge.js', () => ({
   })),
 }));
 
+// Mock typed API client factories
+const mockRolesApi = {
+  listRoles: vi.fn(),
+  deleteRole: vi.fn(),
+};
+const mockRolesV2Api = {
+  rolesList: vi.fn(),
+  rolesBatchDelete: vi.fn(),
+};
+const mockGroupsApi = {
+  listGroups: vi.fn(),
+  deleteGroup: vi.fn(),
+};
+const mockWorkspacesApi = {
+  listWorkspaces: vi.fn(),
+  deleteWorkspace: vi.fn(),
+};
+
+vi.mock('../../queries.js', () => ({
+  createRolesApi: vi.fn(() => mockRolesApi),
+  createRolesV2Api: vi.fn(() => mockRolesV2Api),
+  createGroupsApi: vi.fn(() => mockGroupsApi),
+  createWorkspacesApi: vi.fn(() => mockWorkspacesApi),
+}));
+
 import { runCleanup } from '../cleanup.js';
 import { getCurrentEnv } from '../../auth-bridge.js';
 import { getApiClient } from '../../api-client.js';
-
-type MockApiClient = ReturnType<typeof getApiClient>;
 
 describe('cleanup command', () => {
   const originalEnv = { ...process.env };
   const mockGetCurrentEnv = vi.mocked(getCurrentEnv);
   const mockGetApiClient = vi.mocked(getApiClient);
 
+  /** Set all API list calls to return empty data by default. */
+  function setEmptyApiDefaults() {
+    mockRolesApi.listRoles.mockResolvedValue({ data: { data: [] } });
+    mockRolesV2Api.rolesList.mockResolvedValue({ data: { data: [] } });
+    mockGroupsApi.listGroups.mockResolvedValue({ data: { data: [] } });
+    mockWorkspacesApi.listWorkspaces.mockResolvedValue({ data: { data: [] } });
+    mockRolesApi.deleteRole.mockResolvedValue({});
+    mockRolesV2Api.rolesBatchDelete.mockResolvedValue({});
+    mockGroupsApi.deleteGroup.mockResolvedValue({});
+    mockWorkspacesApi.deleteWorkspace.mockResolvedValue({});
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
     process.env = { ...originalEnv };
     mockGetCurrentEnv.mockReturnValue('stage');
+    mockGetApiClient.mockReturnValue({} as ReturnType<typeof getApiClient>);
+    setEmptyApiDefaults();
   });
 
   afterEach(() => {
@@ -63,7 +97,6 @@ describe('cleanup command', () => {
       const exitCode = await runCleanup({ prefix: 'test-prefix-' });
 
       expect(exitCode).toBe(1);
-      // Should not attempt any API calls
       expect(mockGetApiClient).not.toHaveBeenCalled();
     });
 
@@ -78,30 +111,17 @@ describe('cleanup command', () => {
     test('ALLOWS execution when RBAC_ENV is "stage"', async () => {
       mockGetCurrentEnv.mockReturnValue('stage');
 
-      const mockClient = {
-        get: vi.fn().mockResolvedValue({ data: { data: [] } }),
-        delete: vi.fn(),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
-
       await runCleanup({ prefix: 'test-prefix-' });
 
-      // Should proceed with API calls
-      expect(mockClient.get).toHaveBeenCalled();
+      expect(mockRolesApi.listRoles).toHaveBeenCalled();
     });
 
     test('ALLOWS execution when RBAC_ENV is "local"', async () => {
       mockGetCurrentEnv.mockReturnValue('local');
 
-      const mockClient = {
-        get: vi.fn().mockResolvedValue({ data: { data: [] } }),
-        delete: vi.fn(),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
-
       await runCleanup({ prefix: 'test-prefix-' });
 
-      expect(mockClient.get).toHaveBeenCalled();
+      expect(mockRolesApi.listRoles).toHaveBeenCalled();
     });
   });
 
@@ -110,79 +130,53 @@ describe('cleanup command', () => {
   // ==========================================================================
 
   describe('Minimum Pattern Length Safety Rail (CRITICAL)', () => {
-    beforeEach(() => {
-      const mockClient = {
-        get: vi.fn().mockResolvedValue({ data: { data: [] } }),
-        delete: vi.fn(),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
-    });
-
     test('BLOCKS execution when prefix is empty', async () => {
       const exitCode = await runCleanup({ prefix: '' });
-
       expect(exitCode).toBe(1);
     });
 
     test('BLOCKS execution when prefix is less than 4 characters', async () => {
       const exitCode = await runCleanup({ prefix: 'abc' });
-
       expect(exitCode).toBe(1);
     });
 
     test('BLOCKS execution when prefix is exactly 3 characters', async () => {
       const exitCode = await runCleanup({ prefix: 'foo' });
-
       expect(exitCode).toBe(1);
     });
 
     test('ALLOWS execution when prefix is exactly 4 characters', async () => {
-      // Use 'abcd' - exactly 4 characters and not in the broad patterns blocklist
       const exitCode = await runCleanup({ prefix: 'abcd' });
-
-      // Should succeed (even if no matches found)
       expect(exitCode).toBe(0);
     });
 
     test('ALLOWS execution when prefix is more than 4 characters', async () => {
       const exitCode = await runCleanup({ prefix: 'test-prefix-12345' });
-
       expect(exitCode).toBe(0);
     });
 
     test('BLOCKS broad patterns like "*"', async () => {
       const exitCode = await runCleanup({ nameMatch: '*' });
-
       expect(exitCode).toBe(1);
     });
 
     test('BLOCKS broad patterns like "test"', async () => {
       const exitCode = await runCleanup({ prefix: 'test' });
-
-      // 'test' is exactly 4 chars so it should be allowed
-      // But the safety rail should block overly broad patterns
-      // Let me check the implementation...
-      // Actually 'test' is in the broadPatterns list, so it should be blocked
       expect(exitCode).toBe(1);
     });
 
     test('BLOCKS broad patterns like "dev"', async () => {
       const exitCode = await runCleanup({ prefix: 'dev' });
-
-      // 'dev' is 3 chars AND in broad patterns list
       expect(exitCode).toBe(1);
     });
 
     test('counts only non-wildcard characters for length check', async () => {
-      // Pattern "a*b" has only 2 actual characters
       const exitCode = await runCleanup({ nameMatch: 'a*b' });
-
       expect(exitCode).toBe(1);
     });
 
     test('ALLOWS patterns with wildcards if base is 4+ chars', async () => {
       const exitCode = await runCleanup({ nameMatch: 'test-*-run' });
-
       expect(exitCode).toBe(0);
     });
   });
@@ -192,87 +186,88 @@ describe('cleanup command', () => {
   // ==========================================================================
 
   describe('Pattern Matching', () => {
-    test('matches resources by prefix', async () => {
-      const mockClient = {
-        get: vi
-          .fn()
-          // roles endpoint
-          .mockResolvedValueOnce({
-            data: {
-              data: [
-                { uuid: 'match-1', name: 'ci-123-role-1' },
-                { uuid: 'no-match', name: 'other-role' },
-                { uuid: 'match-2', name: 'ci-123-role-2' },
-              ],
-            },
-          })
-          // groups endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } })
-          // workspaces endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } }),
-        delete: vi.fn().mockResolvedValue({}),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+    test('matches V1 resources by prefix', async () => {
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: {
+          data: [
+            { uuid: 'match-1', name: 'ci-123-role-1' },
+            { uuid: 'no-match', name: 'other-role' },
+            { uuid: 'match-2', name: 'ci-123-role-2' },
+          ],
+        },
+      });
 
       await runCleanup({ prefix: 'ci-123-' });
 
-      // Should delete only matching roles (2 matches out of 3)
-      expect(mockClient.delete).toHaveBeenCalledTimes(2);
-      expect(mockClient.delete).toHaveBeenCalledWith('/api/rbac/v1/roles/match-1/');
-      expect(mockClient.delete).toHaveBeenCalledWith('/api/rbac/v1/roles/match-2/');
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledTimes(2);
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledWith({ uuid: 'match-1' });
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledWith({ uuid: 'match-2' });
+    });
+
+    test('matches V2 roles by prefix and deletes individually', async () => {
+      mockRolesV2Api.rolesList.mockResolvedValue({
+        data: {
+          data: [
+            { id: 'v2-match', name: 'ci-123-v2-role' },
+            { id: 'v2-no-match', name: 'other-v2-role' },
+          ],
+        },
+      });
+
+      await runCleanup({ prefix: 'ci-123-' });
+
+      expect(mockRolesApi.deleteRole).not.toHaveBeenCalled();
+      expect(mockRolesV2Api.rolesBatchDelete).toHaveBeenCalledTimes(1);
+      expect(mockRolesV2Api.rolesBatchDelete).toHaveBeenCalledWith({
+        rolesBatchDeleteRolesRequest: { ids: ['v2-match'] },
+      });
+    });
+
+    test('deduplicates roles visible in both V1 and V2 APIs', async () => {
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: { data: [{ uuid: 'shared-uuid', name: 'ci-123-shared-role' }] },
+      });
+      mockRolesV2Api.rolesList.mockResolvedValue({
+        data: { data: [{ id: 'v2-id', name: 'ci-123-shared-role' }] },
+      });
+
+      await runCleanup({ prefix: 'ci-123-' });
+
+      // V1 wins dedup — V1 individual delete is used
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledTimes(1);
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledWith({ uuid: 'shared-uuid' });
+      expect(mockRolesV2Api.rolesBatchDelete).not.toHaveBeenCalled();
     });
 
     test('matches resources by glob pattern with *', async () => {
-      const mockClient = {
-        get: vi
-          .fn()
-          // roles endpoint
-          .mockResolvedValueOnce({
-            data: {
-              data: [
-                { uuid: 'match-1', name: 'test-abc-run' },
-                { uuid: 'no-match', name: 'test-abc' },
-                { uuid: 'match-2', name: 'test-xyz-run' },
-              ],
-            },
-          })
-          // groups endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } })
-          // workspaces endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } }),
-        delete: vi.fn().mockResolvedValue({}),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: {
+          data: [
+            { uuid: 'match-1', name: 'test-abc-run' },
+            { uuid: 'no-match', name: 'test-abc' },
+            { uuid: 'match-2', name: 'test-xyz-run' },
+          ],
+        },
+      });
 
       await runCleanup({ nameMatch: 'test-*-run' });
 
-      expect(mockClient.delete).toHaveBeenCalledTimes(2);
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledTimes(2);
     });
 
     test('glob matching is case-insensitive', async () => {
-      const mockClient = {
-        get: vi
-          .fn()
-          // roles endpoint - only lowercase matches prefix
-          .mockResolvedValueOnce({
-            data: {
-              data: [
-                { uuid: 'match-1', name: 'test-prefix-role' },
-                { uuid: 'match-2', name: 'test-prefix-other' },
-              ],
-            },
-          })
-          // groups endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } })
-          // workspaces endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } }),
-        delete: vi.fn().mockResolvedValue({}),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: {
+          data: [
+            { uuid: 'match-1', name: 'test-prefix-role' },
+            { uuid: 'match-2', name: 'test-prefix-other' },
+          ],
+        },
+      });
 
       await runCleanup({ prefix: 'test-prefix-' });
 
-      expect(mockClient.delete).toHaveBeenCalledTimes(2);
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -282,79 +277,51 @@ describe('cleanup command', () => {
 
   describe('System Resource Protection', () => {
     test('does NOT delete system roles', async () => {
-      const mockClient = {
-        get: vi
-          .fn()
-          // roles endpoint
-          .mockResolvedValueOnce({
-            data: {
-              data: [
-                { uuid: 'sys-role', name: 'test-system-role', system: true },
-                { uuid: 'custom-role', name: 'test-custom-role', system: false },
-              ],
-            },
-          })
-          // groups endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } })
-          // workspaces endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } }),
-        delete: vi.fn().mockResolvedValue({}),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: {
+          data: [
+            { uuid: 'sys-role', name: 'test-system-role', system: true },
+            { uuid: 'custom-role', name: 'test-custom-role', system: false },
+          ],
+        },
+      });
 
       await runCleanup({ prefix: 'test-' });
 
-      // Should only delete the non-system role
-      expect(mockClient.delete).toHaveBeenCalledTimes(1);
-      expect(mockClient.delete).toHaveBeenCalledWith('/api/rbac/v1/roles/custom-role/');
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledTimes(1);
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledWith({ uuid: 'custom-role' });
     });
 
     test('does NOT delete platform_default groups', async () => {
-      const mockClient = {
-        get: vi
-          .fn()
-          .mockResolvedValueOnce({ data: { data: [] } }) // roles
-          .mockResolvedValueOnce({
-            data: {
-              data: [
-                { uuid: 'default-grp', name: 'test-default-group', platform_default: true },
-                { uuid: 'custom-grp', name: 'test-custom-group', platform_default: false },
-              ],
-            },
-          }) // groups
-          .mockResolvedValueOnce({ data: { data: [] } }), // workspaces
-        delete: vi.fn().mockResolvedValue({}),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+      mockGroupsApi.listGroups.mockResolvedValue({
+        data: {
+          data: [
+            { uuid: 'default-grp', name: 'test-default-group', platform_default: true },
+            { uuid: 'custom-grp', name: 'test-custom-group', platform_default: false },
+          ],
+        },
+      });
 
       await runCleanup({ prefix: 'test-' });
 
-      expect(mockClient.delete).toHaveBeenCalledWith('/api/rbac/v1/groups/custom-grp/');
-      expect(mockClient.delete).not.toHaveBeenCalledWith('/api/rbac/v1/groups/default-grp/');
+      expect(mockGroupsApi.deleteGroup).toHaveBeenCalledWith({ uuid: 'custom-grp' });
+      expect(mockGroupsApi.deleteGroup).not.toHaveBeenCalledWith(expect.objectContaining({ uuid: 'default-grp' }));
     });
 
     test('does NOT delete root workspaces', async () => {
-      const mockClient = {
-        get: vi
-          .fn()
-          .mockResolvedValueOnce({ data: { data: [] } }) // roles
-          .mockResolvedValueOnce({ data: { data: [] } }) // groups
-          .mockResolvedValueOnce({
-            data: {
-              data: [
-                { id: 'root-ws', name: 'test-root-ws', type: 'root' },
-                { id: 'child-ws', name: 'test-child-ws', type: 'standard' },
-              ],
-            },
-          }), // workspaces
-        delete: vi.fn().mockResolvedValue({}),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+      mockWorkspacesApi.listWorkspaces.mockResolvedValue({
+        data: {
+          data: [
+            { id: 'root-ws', name: 'test-root-ws', type: 'root' },
+            { id: 'child-ws', name: 'test-child-ws', type: 'standard' },
+          ],
+        },
+      });
 
       await runCleanup({ prefix: 'test-' });
 
-      expect(mockClient.delete).toHaveBeenCalledWith('/api/rbac/v2/workspaces/child-ws/');
-      expect(mockClient.delete).not.toHaveBeenCalledWith('/api/rbac/v2/workspaces/root-ws/');
+      expect(mockWorkspacesApi.deleteWorkspace).toHaveBeenCalledWith({ id: 'child-ws' });
+      expect(mockWorkspacesApi.deleteWorkspace).not.toHaveBeenCalledWith(expect.objectContaining({ id: 'root-ws' }));
     });
   });
 
@@ -364,15 +331,9 @@ describe('cleanup command', () => {
 
   describe('Operation Results', () => {
     test('returns exit code 0 when all deletions succeed', async () => {
-      const mockClient = {
-        get: vi.fn().mockResolvedValue({
-          data: {
-            data: [{ uuid: 'role-1', name: 'test-role-1' }],
-          },
-        }),
-        delete: vi.fn().mockResolvedValue({}),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: { data: [{ uuid: 'role-1', name: 'test-role-1' }] },
+      });
 
       const exitCode = await runCleanup({ prefix: 'test-' });
 
@@ -380,18 +341,15 @@ describe('cleanup command', () => {
     });
 
     test('returns exit code 1 when some deletions fail', async () => {
-      const mockClient = {
-        get: vi.fn().mockResolvedValue({
-          data: {
-            data: [
-              { uuid: 'role-1', name: 'test-role-1' },
-              { uuid: 'role-2', name: 'test-role-2' },
-            ],
-          },
-        }),
-        delete: vi.fn().mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('Delete failed')),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: {
+          data: [
+            { uuid: 'role-1', name: 'test-role-1' },
+            { uuid: 'role-2', name: 'test-role-2' },
+          ],
+        },
+      });
+      mockRolesApi.deleteRole.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('Delete failed'));
 
       const exitCode = await runCleanup({ prefix: 'test-' });
 
@@ -399,16 +357,13 @@ describe('cleanup command', () => {
     });
 
     test('returns exit code 0 when no resources match (nothing to delete)', async () => {
-      const mockClient = {
-        get: vi.fn().mockResolvedValue({ data: { data: [] } }),
-        delete: vi.fn(),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
-
       const exitCode = await runCleanup({ prefix: 'nonexistent-prefix-' });
 
       expect(exitCode).toBe(0);
-      expect(mockClient.delete).not.toHaveBeenCalled();
+      expect(mockRolesApi.deleteRole).not.toHaveBeenCalled();
+      expect(mockRolesV2Api.rolesBatchDelete).not.toHaveBeenCalled();
+      expect(mockGroupsApi.deleteGroup).not.toHaveBeenCalled();
+      expect(mockWorkspacesApi.deleteWorkspace).not.toHaveBeenCalled();
     });
   });
 
@@ -419,36 +374,23 @@ describe('cleanup command', () => {
   describe('Input Validation', () => {
     test('fails when neither prefix nor nameMatch is provided', async () => {
       const exitCode = await runCleanup({});
-
       expect(exitCode).toBe(1);
     });
 
     test('uses prefix when both prefix and nameMatch are provided', async () => {
-      const mockClient = {
-        get: vi
-          .fn()
-          // roles endpoint
-          .mockResolvedValueOnce({
-            data: {
-              data: [
-                { uuid: 'role-1', name: 'prefix-role' },
-                { uuid: 'role-2', name: 'match-role' },
-              ],
-            },
-          })
-          // groups endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } })
-          // workspaces endpoint - empty
-          .mockResolvedValueOnce({ data: { data: [] } }),
-        delete: vi.fn().mockResolvedValue({}),
-      };
-      mockGetApiClient.mockReturnValue(mockClient as MockApiClient);
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: {
+          data: [
+            { uuid: 'role-1', name: 'prefix-role' },
+            { uuid: 'role-2', name: 'match-role' },
+          ],
+        },
+      });
 
       await runCleanup({ prefix: 'prefix-', nameMatch: 'match-*' });
 
-      // Should use prefix matching
-      expect(mockClient.delete).toHaveBeenCalledTimes(1);
-      expect(mockClient.delete).toHaveBeenCalledWith('/api/rbac/v1/roles/role-1/');
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledTimes(1);
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledWith({ uuid: 'role-1' });
     });
   });
 });

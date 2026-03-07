@@ -11,23 +11,8 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import * as React from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { HttpResponse, delay, http } from 'msw';
 import CreateWorkspaceWizard, { type CreateWorkspaceWizardProps } from './CreateWorkspaceWizard';
-import { workspaceHandlers } from '../test/msw-handlers';
-
-// Handler for workspace creation
-const createWorkspaceHandler = http.post('/api/rbac/v2/workspaces/', async () => {
-  await delay(300);
-  return HttpResponse.json({
-    id: 'new-workspace-123',
-    name: 'New Workspace',
-    description: 'Created via wizard',
-    parent_id: 'workspace-1',
-    type: 'standard',
-    created: new Date().toISOString(),
-    updated: new Date().toISOString(),
-  });
-});
+import { workspacesHandlers } from '../v2/data/mocks/workspaces.handlers';
 
 const meta: Meta<CreateWorkspaceWizardProps> = {
   title: 'Federated Modules/CreateWorkspaceWizard',
@@ -43,7 +28,7 @@ const meta: Meta<CreateWorkspaceWizardProps> = {
   parameters: {
     noWrapping: true,
     msw: {
-      handlers: [...workspaceHandlers, createWorkspaceHandler],
+      handlers: workspacesHandlers(undefined, { networkDelay: 300 }),
     },
     docs: {
       description: {

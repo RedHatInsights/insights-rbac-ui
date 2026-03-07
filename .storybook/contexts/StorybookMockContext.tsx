@@ -60,11 +60,44 @@ export const EMPTY_WORKSPACE_PERMISSIONS: WorkspacePermissionsMap = {
   move: [],
 };
 
+/**
+ * Kessel tenant permissions shape (V2 domain hooks).
+ * Maps tenant-scoped relations to boolean (allowed/denied).
+ * Used by useRolesAccess, useGroupsAccess, usePrincipalsAccess, useWorkspaceTenantAccess.
+ */
+export interface TenantPermissionsMap {
+  rbac_roles_read: boolean;
+  rbac_roles_write: boolean;
+  rbac_groups_read: boolean;
+  rbac_groups_write: boolean;
+  rbac_principal_read: boolean;
+  rbac_workspace_view: boolean;
+  rbac_workspace_edit: boolean;
+  rbac_workspace_create: boolean;
+  rbac_workspace_delete: boolean;
+  rbac_workspace_move: boolean;
+}
+
+/** Default tenant permissions (all denied) */
+export const EMPTY_TENANT_PERMISSIONS: TenantPermissionsMap = {
+  rbac_roles_read: false,
+  rbac_roles_write: false,
+  rbac_groups_read: false,
+  rbac_groups_write: false,
+  rbac_principal_read: false,
+  rbac_workspace_view: false,
+  rbac_workspace_edit: false,
+  rbac_workspace_create: false,
+  rbac_workspace_delete: false,
+  rbac_workspace_move: false,
+};
+
 export interface MockState {
   environment: Environment;
   isOrgAdmin: boolean;
   permissions: string[];
   workspacePermissions: WorkspacePermissionsMap;
+  tenantPermissions: TenantPermissionsMap;
   /** Optional custom user identity for auth.getUser() */
   userIdentity?: MockUserIdentity;
 }
@@ -98,6 +131,21 @@ export interface StoryParameters {
    * ```
    */
   workspacePermissions?: Partial<WorkspacePermissionsMap>;
+  /**
+   * Tenant permissions for V2 domain hooks (Kessel tenant-scoped checks).
+   * Maps tenant relations to booleans.
+   *
+   * @example
+   * ```ts
+   * tenantPermissions: {
+   *   rbac_roles_read: true,
+   *   rbac_roles_write: true,
+   *   rbac_groups_read: true,
+   *   rbac_groups_write: false,
+   * }
+   * ```
+   */
+  tenantPermissions?: Partial<TenantPermissionsMap>;
   /** User identity for auth.getUser() */
   userIdentity?: MockUserIdentity;
   /** Feature flags */
@@ -113,6 +161,7 @@ const defaultState: MockState = {
   isOrgAdmin: false,
   permissions: [],
   workspacePermissions: EMPTY_WORKSPACE_PERMISSIONS,
+  tenantPermissions: EMPTY_TENANT_PERMISSIONS,
 };
 
 export const StorybookMockContext = createContext<MockState>(defaultState);
@@ -127,11 +176,19 @@ export const StorybookMockProvider: React.FC<ProviderProps> = ({
   isOrgAdmin = false,
   permissions = [],
   workspacePermissions = EMPTY_WORKSPACE_PERMISSIONS,
+  tenantPermissions = EMPTY_TENANT_PERMISSIONS,
   userIdentity,
 }) => {
-  // Merge partial workspacePermissions with defaults so all 6 keys are always present
   const mergedWorkspacePermissions: WorkspacePermissionsMap = { ...EMPTY_WORKSPACE_PERMISSIONS, ...workspacePermissions };
-  const value: MockState = { environment, isOrgAdmin, permissions, workspacePermissions: mergedWorkspacePermissions, userIdentity };
+  const mergedTenantPermissions: TenantPermissionsMap = { ...EMPTY_TENANT_PERMISSIONS, ...tenantPermissions };
+  const value: MockState = {
+    environment,
+    isOrgAdmin,
+    permissions,
+    workspacePermissions: mergedWorkspacePermissions,
+    tenantPermissions: mergedTenantPermissions,
+    userIdentity,
+  };
   return <StorybookMockContext.Provider value={value}>{children}</StorybookMockContext.Provider>;
 };
 

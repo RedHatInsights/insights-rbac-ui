@@ -131,7 +131,7 @@ export const clickCancelButton = async (canvas: Canvas, user: UserEvent): Promis
  * Fills in the group name field
  */
 export const fillGroupName = async (canvas: Canvas, user: UserEvent, name: string): Promise<void> => {
-  const input = await canvas.findByLabelText(/name/i);
+  const input = await canvas.findByRole('textbox', { name: /^name$/i });
   await user.type(input, name);
 };
 

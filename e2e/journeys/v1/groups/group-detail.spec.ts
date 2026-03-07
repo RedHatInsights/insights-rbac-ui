@@ -26,13 +26,13 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V1_ADMIN from utils
+ *   - AUTH: Uses AUTH_V1_ORGADMIN from utils
  *   - DATA: Relies on SEEDED_GROUP_NAME, SEEDED_ROLE_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use GroupsPage for navigation and assertions
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN } from '../../../utils';
+import { AUTH_V1_ORGADMIN } from '../../../utils';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
 import { getSeededGroupData, getSeededGroupName, getSeededRoleName } from '../../../utils/seed-map';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
@@ -54,10 +54,10 @@ test.describe('Group Detail', () => {
   // ADMIN - Full detail access
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test(`Can view group detail page [Admin]`, async ({ page }) => {
+    test(`Can view group detail page [OrgAdmin]`, async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
@@ -77,7 +77,7 @@ test.describe('Group Detail', () => {
       await expect(groupsPage.rolesTab).toBeVisible();
     });
 
-    test(`Can navigate to attached role from group detail [Admin]`, async ({ page }) => {
+    test(`Can navigate to attached role from group detail [OrgAdmin]`, async ({ page }) => {
       test.skip(!SEEDED_ROLE_NAME, 'No seeded role available');
 
       const groupsPage = new GroupsPage(page);

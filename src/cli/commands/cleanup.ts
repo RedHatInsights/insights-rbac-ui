@@ -4,6 +4,12 @@
  * Delete RBAC resources (roles, groups, workspaces) by prefix or glob pattern.
  * Designed for cleaning up test data after CI/CD runs.
  *
+ * RULE: All API reads and mutations MUST go through typed API clients
+ * (RolesApiClient, RolesV2ApiClient, GroupsApiClient, WorkspacesApiClient)
+ * from the data layer. Direct axios calls (client.get, client.post, etc.)
+ * are forbidden — they bypass type safety and drift silently when the API
+ * contract changes.
+ *
  * SAFETY RAILS:
  * 1. BLOCKED in production environments (unless dry-run)
  * 2. Prefix/pattern must be at least 4 characters (prevents mass deletion)
@@ -14,11 +20,20 @@
  *   rbac-cli cleanup --prefix "test__" --dry-run
  */
 
-import type { AxiosInstance } from 'axios';
 import { getApiClient, initializeApiClient } from '../api-client.js';
 import { getToken } from '../auth.js';
 import { getEnvConfig } from '../auth-bridge.js';
 import { type PatternType, assertNotProduction, assertValidPattern } from './safety.js';
+import {
+  type GroupsApiClient,
+  type RolesApiClient,
+  type RolesV2ApiClient,
+  type WorkspacesApiClient,
+  createGroupsApi,
+  createRolesApi,
+  createRolesV2Api,
+  createWorkspacesApi,
+} from '../queries.js';
 
 // ============================================================================
 // Types
@@ -46,6 +61,7 @@ interface Resource {
   system?: boolean;
   platform_default?: boolean;
   type?: string;
+  _apiVersion?: 'v1' | 'v2';
 }
 
 // ============================================================================
@@ -57,11 +73,10 @@ interface Resource {
  * Supports * (any characters) and ? (single character).
  */
 function matchesGlob(name: string, pattern: string): boolean {
-  // Convert glob to regex
   const regexPattern = pattern
-    .replace(/[.+^${}()|[\]\\]/g, '\\$&') // Escape regex special chars
-    .replace(/\*/g, '.*') // * -> .*
-    .replace(/\?/g, '.'); // ? -> .
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*')
+    .replace(/\?/g, '.');
 
   const regex = new RegExp(`^${regexPattern}$`, 'i');
   return regex.test(name);
@@ -92,47 +107,84 @@ function isProtected(resource: Resource): boolean {
 }
 
 // ============================================================================
-// API Operations
+// API Operations — All reads/mutations go through typed API clients
 // ============================================================================
 
 /**
- * Fetch all roles from API.
+ * Fetch all V1 roles via the typed RolesApiClient.
  */
-async function fetchRoles(client: AxiosInstance): Promise<Resource[]> {
+async function fetchRolesV1(rolesApi: RolesApiClient): Promise<Resource[]> {
   const roles: Resource[] = [];
   let offset = 0;
   const limit = 100;
 
   while (true) {
-    const response = await client.get('/api/rbac/v1/roles/', {
-      params: { limit, offset },
-    });
-
-    const data = response.data?.data ?? [];
+    const response = await rolesApi.listRoles({ limit, offset });
+    const data = (response.data?.data ?? []) as Resource[];
     roles.push(...data);
 
     if (data.length < limit) break;
     offset += limit;
   }
 
-  console.error(`  Fetched ${roles.length} total roles`);
   return roles;
 }
 
 /**
- * Fetch all groups from API.
+ * Fetch all V2 roles via the typed RolesV2ApiClient (cursor-paginated).
  */
-async function fetchGroups(client: AxiosInstance): Promise<Resource[]> {
+async function fetchRolesV2(rolesV2Api: RolesV2ApiClient): Promise<Resource[]> {
+  const roles: Resource[] = [];
+  let cursor: string | undefined;
+
+  while (true) {
+    const params: Record<string, unknown> = { limit: 100 };
+    if (cursor) params.cursor = cursor;
+
+    const response = await rolesV2Api.rolesList(params);
+    const data = response.data?.data ?? [];
+
+    for (const role of data) {
+      roles.push({ ...role, id: role.id, name: role.name ?? '', _apiVersion: 'v2' });
+    }
+
+    const next = response.data?.links?.next;
+    if (!next) break;
+
+    const url = new URL(next, 'https://placeholder');
+    cursor = url.searchParams.get('cursor') ?? undefined;
+    if (!cursor) break;
+  }
+
+  return roles;
+}
+
+/**
+ * Fetch all roles from both V1 and V2 APIs, deduplicating overlaps.
+ * Roles that exist in V1 are deleted via V1 (individual DELETE).
+ * Only V2-exclusive roles (not in V1) use V2 batch delete.
+ */
+async function fetchRoles(rolesApi: RolesApiClient, rolesV2Api: RolesV2ApiClient): Promise<Resource[]> {
+  const [v1Roles, v2Roles] = await Promise.all([fetchRolesV1(rolesApi), fetchRolesV2(rolesV2Api)]);
+
+  const v1Names = new Set(v1Roles.map((r) => r.display_name || r.name));
+  const v2Only = v2Roles.filter((r) => !v1Names.has(r.name));
+
+  console.error(`  Fetched ${v1Roles.length} V1 role(s), ${v2Roles.length} V2 role(s) (${v2Only.length} V2-only)`);
+  return [...v1Roles, ...v2Only];
+}
+
+/**
+ * Fetch all groups via the typed GroupsApiClient.
+ */
+async function fetchGroups(groupsApi: GroupsApiClient): Promise<Resource[]> {
   const groups: Resource[] = [];
   let offset = 0;
   const limit = 100;
 
   while (true) {
-    const response = await client.get('/api/rbac/v1/groups/', {
-      params: { limit, offset },
-    });
-
-    const data = response.data?.data ?? [];
+    const response = await groupsApi.listGroups({ limit, offset });
+    const data = (response.data?.data ?? []) as Resource[];
     groups.push(...data);
 
     if (data.length < limit) break;
@@ -144,51 +196,69 @@ async function fetchGroups(client: AxiosInstance): Promise<Resource[]> {
 }
 
 /**
- * Fetch all workspaces from API.
+ * Fetch all workspaces via the typed WorkspacesApiClient.
  * Uses limit=-1 to fetch all in a single call.
  */
-async function fetchWorkspaces(client: AxiosInstance): Promise<Resource[]> {
-  const response = await client.get('/api/rbac/v2/workspaces/', {
-    params: { limit: -1 },
-  });
-
-  const workspaces = response.data?.data ?? [];
+async function fetchWorkspaces(workspacesApi: WorkspacesApiClient): Promise<Resource[]> {
+  const response = await workspacesApi.listWorkspaces({ limit: -1 });
+  const workspaces = (response.data?.data ?? []) as Resource[];
   console.error(`  Fetched ${workspaces.length} total workspaces`);
   return workspaces;
 }
 
 /**
- * Delete a role by UUID.
+ * Delete a V1 role by UUID via the typed RolesApiClient.
  */
-async function deleteRole(client: AxiosInstance, uuid: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
+async function deleteRoleV1(rolesApi: RolesApiClient, uuid: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
   if (dryRun) {
-    console.error(`  🔍 Would delete role "${name}" (${uuid})`);
+    console.error(`  🔍 Would delete V1 role "${name}" (${uuid})`);
     return true;
   }
 
   try {
-    await client.delete(`/api/rbac/v1/roles/${uuid}/`);
-    console.error(`  ✓ Deleted role "${name}"`);
+    await rolesApi.deleteRole({ uuid });
+    console.error(`  ✓ Deleted V1 role "${name}"`);
     return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     errors.push(`Role "${name}": ${message}`);
-    console.error(`  ✗ Failed to delete role "${name}": ${message}`);
+    console.error(`  ✗ Failed to delete V1 role "${name}": ${message}`);
     return false;
   }
 }
 
 /**
- * Delete a group by UUID.
+ * Delete a V2 role by ID via the typed RolesV2ApiClient (singular delete).
  */
-async function deleteGroup(client: AxiosInstance, uuid: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
+async function deleteRoleV2(rolesV2Api: RolesV2ApiClient, id: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
+  if (dryRun) {
+    console.error(`  🔍 Would delete V2 role "${name}" (${id})`);
+    return true;
+  }
+
+  try {
+    await rolesV2Api.rolesBatchDelete({ rolesBatchDeleteRolesRequest: { ids: [id] } });
+    console.error(`  ✓ Deleted V2 role "${name}"`);
+    return true;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    errors.push(`V2 Role "${name}": ${message}`);
+    console.error(`  ✗ Failed to delete V2 role "${name}": ${message}`);
+    return false;
+  }
+}
+
+/**
+ * Delete a group by UUID via the typed GroupsApiClient.
+ */
+async function deleteGroupById(groupsApi: GroupsApiClient, uuid: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
   if (dryRun) {
     console.error(`  🔍 Would delete group "${name}" (${uuid})`);
     return true;
   }
 
   try {
-    await client.delete(`/api/rbac/v1/groups/${uuid}/`);
+    await groupsApi.deleteGroup({ uuid });
     console.error(`  ✓ Deleted group "${name}"`);
     return true;
   } catch (error) {
@@ -200,16 +270,22 @@ async function deleteGroup(client: AxiosInstance, uuid: string, name: string, er
 }
 
 /**
- * Delete a workspace by ID.
+ * Delete a workspace by ID via the typed WorkspacesApiClient.
  */
-async function deleteWorkspace(client: AxiosInstance, id: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
+async function deleteWorkspaceById(
+  workspacesApi: WorkspacesApiClient,
+  id: string,
+  name: string,
+  errors: string[],
+  dryRun: boolean,
+): Promise<boolean> {
   if (dryRun) {
     console.error(`  🔍 Would delete workspace "${name}" (${id})`);
     return true;
   }
 
   try {
-    await client.delete(`/api/rbac/v2/workspaces/${id}/`);
+    await workspacesApi.deleteWorkspace({ id });
     console.error(`  ✓ Deleted workspace "${name}"`);
     return true;
   } catch (error) {
@@ -224,10 +300,18 @@ async function deleteWorkspace(client: AxiosInstance, id: string, name: string, 
 // Main Cleanup Logic
 // ============================================================================
 
+interface ApiClients {
+  rolesApi: RolesApiClient;
+  rolesV2Api: RolesV2ApiClient;
+  groupsApi: GroupsApiClient;
+  workspacesApi: WorkspacesApiClient;
+}
+
 /**
  * Execute cleanup operations.
  */
-async function executeCleanup(client: AxiosInstance, prefix?: string, nameMatch?: string, dryRun: boolean = false): Promise<CleanupResult> {
+async function executeCleanup(clients: ApiClients, prefix?: string, nameMatch?: string, dryRun: boolean = false): Promise<CleanupResult> {
+  const { rolesApi, rolesV2Api, groupsApi, workspacesApi } = clients;
   const result: CleanupResult = {
     success: true,
     roles: { deleted: 0, failed: 0 },
@@ -238,34 +322,35 @@ async function executeCleanup(client: AxiosInstance, prefix?: string, nameMatch?
 
   const actionWord = dryRun ? 'Would delete' : 'Deleting';
 
-  // Cleanup roles
+  // Cleanup roles (V1 via individual delete, V2-only via singular batch delete)
   console.error(`\n🔍 Scanning roles...`);
-  const roles = await fetchRoles(client);
+  const roles = await fetchRoles(rolesApi, rolesV2Api);
   const matchingRoles = roles.filter((r) => matchesFilter(r, prefix, nameMatch) && !isProtected(r));
   console.error(`  Found ${matchingRoles.length} matching role(s)`);
 
   if (matchingRoles.length > 0) {
-    console.error(`\n🗑️  ${actionWord} roles...`);
+    console.error(`\n🗑️  ${actionWord} ${matchingRoles.length} role(s)...`);
     for (const role of matchingRoles) {
-      const success = await deleteRole(client, role.uuid!, role.display_name || role.name, result.errors, dryRun);
-      if (success) {
-        result.roles.deleted++;
-      } else {
-        result.roles.failed++;
-      }
+      const isV2 = role._apiVersion === 'v2';
+      const name = role.display_name || role.name;
+      const success = isV2
+        ? await deleteRoleV2(rolesV2Api, role.id!, name, result.errors, dryRun)
+        : await deleteRoleV1(rolesApi, role.uuid!, name, result.errors, dryRun);
+      if (success) result.roles.deleted++;
+      else result.roles.failed++;
     }
   }
 
   // Cleanup groups
   console.error(`\n🔍 Scanning groups...`);
-  const groups = await fetchGroups(client);
+  const groups = await fetchGroups(groupsApi);
   const matchingGroups = groups.filter((g) => matchesFilter(g, prefix, nameMatch) && !isProtected(g));
   console.error(`  Found ${matchingGroups.length} matching group(s)`);
 
   if (matchingGroups.length > 0) {
     console.error(`\n🗑️  ${actionWord} groups...`);
     for (const group of matchingGroups) {
-      const success = await deleteGroup(client, group.uuid!, group.name, result.errors, dryRun);
+      const success = await deleteGroupById(groupsApi, group.uuid!, group.name, result.errors, dryRun);
       if (success) {
         result.groups.deleted++;
       } else {
@@ -276,15 +361,14 @@ async function executeCleanup(client: AxiosInstance, prefix?: string, nameMatch?
 
   // Cleanup workspaces (delete in reverse order to handle children first)
   console.error(`\n🔍 Scanning workspaces...`);
-  const workspaces = await fetchWorkspaces(client);
+  const workspaces = await fetchWorkspaces(workspacesApi);
   const matchingWorkspaces = workspaces.filter((w) => matchesFilter(w, prefix, nameMatch) && !isProtected(w));
   console.error(`  Found ${matchingWorkspaces.length} matching workspace(s)`);
 
   if (matchingWorkspaces.length > 0) {
     console.error(`\n🗑️  ${actionWord} workspaces...`);
-    // Reverse to delete children before parents
     for (const workspace of matchingWorkspaces.reverse()) {
-      const success = await deleteWorkspace(client, workspace.id!, workspace.name, result.errors, dryRun);
+      const success = await deleteWorkspaceById(workspacesApi, workspace.id!, workspace.name, result.errors, dryRun);
       if (success) {
         result.workspaces.deleted++;
       } else {
@@ -344,8 +428,16 @@ export async function runCleanup(options: CleanupOptions): Promise<number> {
 
     console.error(`✓ Authenticated`);
 
+    // Create typed API clients
+    const clients: ApiClients = {
+      rolesApi: createRolesApi(client),
+      rolesV2Api: createRolesV2Api(client),
+      groupsApi: createGroupsApi(client),
+      workspacesApi: createWorkspacesApi(client),
+    };
+
     // Execute cleanup
-    const result = await executeCleanup(client, options.prefix, options.nameMatch, options.dryRun);
+    const result = await executeCleanup(clients, options.prefix, options.nameMatch, options.dryRun);
 
     // Output summary
     const totalDeleted = result.roles.deleted + result.groups.deleted + result.workspaces.deleted;

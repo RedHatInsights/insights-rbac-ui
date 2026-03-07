@@ -27,15 +27,15 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- * - AUTH: AUTH_V1_ADMIN, AUTH_V1_USERVIEWER (or V2 equivalents)
+ * - AUTH: AUTH_V1_ORGADMIN, AUTH_V1_USERVIEWER (or V2 equivalents)
  * - DATA: getSeededGroupName('v1'), getSeededRoleName('v1'), etc.
  * - UTILS: Use page objects from e2e/pages/, not raw selectors
  */
 
 import { expect, test } from '@playwright/test';
 // Import auth fixtures - uncomment the version you need:
-// import { AUTH_V1_ADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY } from '../../utils';
-// import { AUTH_V2_ADMIN, AUTH_V2_USERVIEWER, AUTH_V2_READONLY } from '../../utils';
+// import { AUTH_V1_ORGADMIN, AUTH_V1_USERVIEWER, AUTH_V1_READONLY } from '../../utils';
+// import { AUTH_V2_ORGADMIN, AUTH_V2_USERVIEWER, AUTH_V2_READONLY } from '../../utils';
 
 // Import seed data helpers - uncomment what you need:
 // import { getSeededGroupName, getSeededRoleName, getSeededUsername } from '../../utils/seed-map';
@@ -66,14 +66,14 @@ test.describe('[Feature Name]', () => {
   // ADMIN - Full Access
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe('Admin', () => {
-    // test.use({ storageState: AUTH_V1_ADMIN }); // or AUTH_V2_ADMIN
+  test.describe('OrgAdmin', () => {
+    // test.use({ storageState: AUTH_V1_ORGADMIN }); // or AUTH_V2_ORGADMIN
 
     // ─────────────────────────────────────────────────────────────────────────
     // Serial Lifecycle Tests (Create → Edit → Delete)
     // Use when tests depend on each other's state
     // ─────────────────────────────────────────────────────────────────────────
-    test.describe.serial('Admin Lifecycle', () => {
+    test.describe.serial('OrgAdmin Lifecycle', () => {
       // const uniqueName = `${TEST_PREFIX}-entity-${Date.now()}`;
 
       test('Create [entity]', async ({ page }) => {

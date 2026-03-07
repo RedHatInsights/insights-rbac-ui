@@ -33,7 +33,7 @@ const createdGroups: CreatedGroup[] = [];
 const groupMembers: Record<string, { users: Principal[]; serviceAccounts: ServiceAccount[] }> = {};
 
 const resetState = () => {
-  createdGroups.length = 0;  // ✅ mutate — closure captures the object reference
+  createdGroups.length = 0; // ✅ mutate — closure captures the object reference
   for (const key of Object.keys(groupMembers)) {
     delete groupMembers[key];
   }
@@ -141,23 +141,24 @@ play: async (context) => {
 ## API Call Verification Patterns
 
 ### Verify call was made
+
 ```typescript
 expect(createGroupSpy).toHaveBeenCalled();
 ```
 
 ### Verify call parameters (partial match)
+
 ```typescript
 expect(addMembersSpy).toHaveBeenCalledWith(
   expect.objectContaining({
     groupId: expect.any(String),
-    principals: expect.arrayContaining([
-      expect.objectContaining({ username: 'adumble' }),
-    ]),
+    principals: expect.arrayContaining([expect.objectContaining({ username: 'adumble' })]),
   }),
 );
 ```
 
 ### Verify multiple calls in sequence
+
 ```typescript
 expect(groupsApiSpy).toHaveBeenCalledTimes(2);
 expect(groupsApiSpy).toHaveBeenNthCalledWith(1, expect.objectContaining({ name: '' }));
@@ -176,6 +177,7 @@ await expect(body.findByText(/group created successfully/i)).resolves.toBeInTheD
 ```
 
 Use distinct notification assertions for each action in multi-step journeys:
+
 - Group created notification
 - Members added notification
 - Service accounts added notification
@@ -224,8 +226,8 @@ const resetState = () => {
 let createdGroupsBad: CreatedGroup[] = [];
 let groupMembersBad: Record<string, { users: Principal[]; serviceAccounts: ServiceAccount[] }> = {};
 const resetStateBad = () => {
-  createdGroupsBad = [];      // handlers still see old array
-  groupMembersBad = {};       // handlers still see old object
+  createdGroupsBad = []; // handlers still see old array
+  groupMembersBad = {}; // handlers still see old object
 };
 ```
 
@@ -236,13 +238,7 @@ const resetStateBad = () => {
 Import from `_shared` files to avoid duplicating selector logic:
 
 ```typescript
-import {
-  getUserGroupsTable,
-  findGroupRow,
-  openGroupDrawer,
-  getDrawerScope,
-  verifyUserGroupsTabSelected,
-} from './_shared';
+import { getUserGroupsTable, findGroupRow, openGroupDrawer, getDrawerScope, verifyUserGroupsTabSelected } from './_shared';
 ```
 
 If a selector pattern is used in more than one story, add it to `tableHelpers.ts` rather than duplicating it.
@@ -255,28 +251,54 @@ Use distinct message keys for pluralization:
 
 ```typescript
 // Members
-messages.addGroupMembersSuccessTitle   // "Members added to group"
-messages.addGroupMemberSuccessTitle    // "Member added to group" (singular)
+messages.addGroupMembersSuccessTitle; // "Members added to group"
+messages.addGroupMemberSuccessTitle; // "Member added to group" (singular)
 
 // Service accounts
-messages.addGroupServiceAccountsSuccessTitle
-messages.addGroupServiceAccountSuccessTitle
+messages.addGroupServiceAccountsSuccessTitle;
+messages.addGroupServiceAccountSuccessTitle;
 ```
 
 When adding new messages, add to all three files:
+
 - `src/Messages.js`
 - `src/locales/translations.json`
 - `src/locales/data.json`
 
 ---
 
+## No Hardcoded Mock Data Strings
+
+Play functions must reference seed constants — never hardcode entity names, usernames, or workspace names as string literals. When seed data changes, hardcoded strings silently break tests instead of producing a compile error.
+
+Each seed file exports named aliases — import them directly:
+
+```typescript
+// ✅ Import named aliases from seed files
+import { USER_JOHN, GROUP_SUPPORT_TEAM } from '../../shared/data/mocks/seed';
+import { WS_ROOT } from '../../v2/data/mocks/seed';
+
+await waitForPageToLoad(canvas, USER_JOHN.username);
+await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+await openRowActionsMenu(user, canvas, GROUP_SUPPORT_TEAM.name);
+
+// ❌ Hardcoded strings — break when seed order or names change
+await waitForPageToLoad(canvas, 'john.doe');
+await expandWorkspaceRow(user, canvas, 'Root Workspace');
+await openRowActionsMenu(user, canvas, 'Support Team');
+```
+
+See `StorybookMandatoryRules.mdx` §11 for the full alias table.
+
+---
+
 ## Quick Reference
 
-| What to verify | How |
-|----------------|-----|
-| API called | `expect(spy).toHaveBeenCalled()` |
-| API params | `expect(spy).toHaveBeenCalledWith(expect.objectContaining({...}))` |
+| What to verify     | How                                                                                       |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| API called         | `expect(spy).toHaveBeenCalled()`                                                          |
+| API params         | `expect(spy).toHaveBeenCalledWith(expect.objectContaining({...}))`                        |
 | Notification shown | `await expect(within(document.body).findByText(/message/i)).resolves.toBeInTheDocument()` |
-| Data in table | `await expect(scope.findByText('value')).resolves.toBeInTheDocument()` |
-| Tab navigation | `await user.click(await scope.findByRole('tab', { name: /tab name/i }))` |
-| Test isolation | `unique name = \`Name ${Date.now()}\`` + clear spies + reset mutable state |
+| Data in table      | `await expect(scope.findByText('value')).resolves.toBeInTheDocument()`                    |
+| Tab navigation     | `await user.click(await scope.findByRole('tab', { name: /tab name/i }))`                  |
+| Test isolation     | `unique name = \`Name ${Date.now()}\`` + clear spies + reset mutable state                |

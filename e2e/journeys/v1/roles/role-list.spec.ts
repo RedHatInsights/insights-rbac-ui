@@ -27,13 +27,13 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V1_ADMIN from utils
+ *   - AUTH: Uses AUTH_V1_ORGADMIN from utils
  *   - DATA: Relies on SEEDED_ROLE_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use RolesPage for table interactions
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN } from '../../../utils';
+import { AUTH_V1_ORGADMIN } from '../../../utils';
 import { RolesPage } from '../../../pages/v1/RolesPage';
 import { getSeededRoleName } from '../../../utils/seed-map';
 
@@ -52,17 +52,17 @@ test.describe('Role List', () => {
   // ADMIN - Full list access
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test(`Can view roles list [Admin]`, async ({ page }) => {
+    test(`Can view roles list [OrgAdmin]`, async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await expect(rolesPage.table).toBeVisible();
     });
 
-    test(`Can search for seeded role [Admin]`, async ({ page }) => {
+    test(`Can search for seeded role [OrgAdmin]`, async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 

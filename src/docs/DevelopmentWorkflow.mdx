@@ -10,13 +10,13 @@ Practical rules for day-to-day development: file naming, TypeScript conversions,
 
 ## File Naming
 
-| Type | Convention | Example |
-|------|-----------|---------|
-| Components | `CamelCase.tsx` | `UserTable.tsx` |
-| Stories | `CamelCase.stories.tsx` | `UserTable.stories.tsx` |
-| Tests | `CamelCase.test.js` | `UserTable.test.js` |
-| Styles | `CamelCase.scss` | `UserTable.scss` |
-| Hooks/utils/helpers | `lowerCamelCase.ts` | `useTableState.ts` |
+| Type                | Convention              | Example                 |
+| ------------------- | ----------------------- | ----------------------- |
+| Components          | `CamelCase.tsx`         | `UserTable.tsx`         |
+| Stories             | `CamelCase.stories.tsx` | `UserTable.stories.tsx` |
+| Tests               | `CamelCase.test.js`     | `UserTable.test.js`     |
+| Styles              | `CamelCase.scss`        | `UserTable.scss`        |
+| Hooks/utils/helpers | `lowerCamelCase.ts`     | `useTableState.ts`      |
 
 ---
 
@@ -33,26 +33,31 @@ Use **side-by-side development** — never modify the working component in-place
 ### The Process
 
 1. Rename existing JS file to `-legacy.js`:
+
    ```
    userTable.js → userTable-legacy.js
    ```
 
 2. Create a Storybook file for the legacy component to document current behavior:
+
    ```
    UserTable-legacy.stories.tsx
    ```
 
 3. Create the new TypeScript implementation with correct casing:
+
    ```
    UserTable.tsx
    ```
 
 4. Copy and adapt stories to the new implementation:
+
    ```
    UserTable.stories.tsx  (migrated from UserTable-legacy.stories.tsx)
    ```
 
 5. Verify functional equivalence by running stories:
+
    ```bash
    npm run test-storybook:ci -- --includeTags="user-table"
    ```
@@ -72,8 +77,12 @@ Use **side-by-side development** — never modify the working component in-place
 
 ```typescript
 // Before (JavaScript)
-const StatusLabel = ({ isOrgAdmin, isUserAccessAdmin }) => { /* ... */ };
-StatusLabel.propTypes = { /* PropTypes */ };
+const StatusLabel = ({ isOrgAdmin, isUserAccessAdmin }) => {
+  /* ... */
+};
+StatusLabel.propTypes = {
+  /* PropTypes */
+};
 export default StatusLabel;
 
 // After (TypeScript)
@@ -88,6 +97,7 @@ export const StatusLabel: React.FC<StatusLabelProps> = ({ isOrgAdmin, isUserAcce
 ```
 
 Rules:
+
 - Remove PropTypes — replace with TypeScript interface
 - Use `React.FC<Props>` for function components
 - Named exports only (no `export default`)
@@ -118,6 +128,26 @@ All four must pass with exit code 0. Any failure means the work is not done.
 
 ---
 
+## Targeted test-storybook Runs
+
+When debugging or verifying specific stories, **always use `--includeTags`** to avoid running the full 900+ test suite. Full suite runs take 2+ minutes; tagged runs finish in seconds.
+
+```bash
+# ✅ Run only stories tagged for a specific feature
+npm run test-storybook -- --includeTags prod-v1-org-admin
+npm run test-storybook -- --includeTags prod-v2-org-admin
+
+# ✅ Combine with CI mode for non-interactive output
+npm run test-storybook:ci -- --includeTags prod-v2-org-admin
+
+# ❌ Running the full suite when you only changed one story
+npm run test-storybook:fast   # 2+ min, tests 900+ stories
+```
+
+Only run the full suite (`test-storybook:ci` without `--includeTags`) as a final check before pushing.
+
+---
+
 ## Test Output Analysis
 
 Run the test suite once and pipe output to a file. Analyze the file — don't re-run for each grep:
@@ -140,12 +170,12 @@ npm run test-storybook:fast 2>&1 | grep -i "fail"   # don't do this
 
 Browser console warnings must be addressed, not ignored. Common issues:
 
-| Warning | Fix |
-|---------|-----|
-| Missing ARIA label on table header | Add `aria-label` or `screenReaderText` prop |
-| Redux selector returning different result | Memoize with `useMemo` or return stable references |
-| React key prop missing | Add `key` to JSX elements in arrays |
-| Rate limiting `history.pushState()` | Fix `useEffect` dependencies — exclude metadata (`count`, `redirected`) that don't affect URL |
+| Warning                                   | Fix                                                                                           |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Missing ARIA label on table header        | Add `aria-label` or `screenReaderText` prop                                                   |
+| Redux selector returning different result | Memoize with `useMemo` or return stable references                                            |
+| React key prop missing                    | Add `key` to JSX elements in arrays                                                           |
+| Rate limiting `history.pushState()`       | Fix `useEffect` dependencies — exclude metadata (`count`, `redirected`) that don't affect URL |
 
 **Exception**: React Router deprecation warnings are known and acceptable until the planned upgrade.
 

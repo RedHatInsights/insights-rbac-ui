@@ -31,3 +31,22 @@ export const TEST_TIMEOUTS = {
   /** Delay for very long operations (multiple API calls, complex renders) */
   LONG_OPERATION: 2000,
 } as const;
+
+/**
+ * Non-instrumented polling loop that never throws during retries. Unlike
+ * Storybook's `waitFor`, this does NOT log intermediate failures to the
+ * browser console, so the test-runner's postVisit hook won't flag retries
+ * as critical errors.
+ */
+export async function pollUntilTrue(fn: () => boolean, timeout = 5000, interval = 200): Promise<boolean> {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    try {
+      if (fn()) return true;
+    } catch {
+      // swallow — element might not exist yet
+    }
+    await new Promise((r) => setTimeout(r, interval));
+  }
+  return false;
+}

@@ -18,10 +18,10 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { setupPage, waitForTableUpdate } from '../../utils';
+import { iamUrl, setupPage, v2, waitForTableUpdate } from '../../utils';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
-const GROUPS_URL = '/iam/access-management/users-and-user-groups/user-groups';
+const GROUPS_URL = iamUrl(v2.userGroups.link());
 const EDIT_GROUP_URL_PATTERN = /\/edit-group\/[\w-]+/;
 
 export class UserGroupsPage {
@@ -37,14 +37,19 @@ export class UserGroupsPage {
 
   async goto(): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(GROUPS_URL);
-    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
+    await expect(async () => {
+      await this.page.goto(GROUPS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
   }
 
   async gotoEditPage(groupId: string): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(`/iam/access-management/users-and-user-groups/edit-group/${groupId}`);
-    await expect(this.editPageForm).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    const editUrl = iamUrl(v2.usersAndUserGroupsEditGroup.link(groupId));
+    await expect(async () => {
+      await this.page.goto(editUrl, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.editPageForm).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -52,7 +57,7 @@ export class UserGroupsPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   get heading(): Locator {
-    return this.page.getByRole('heading', { name: /user groups/i });
+    return this.page.getByRole('heading', { name: /user groups/i, level: 1 });
   }
 
   get table(): Locator {
@@ -111,8 +116,8 @@ export class UserGroupsPage {
 
   async openDrawer(name: string): Promise<void> {
     await this.table.getByText(name).click();
-    await expect(this.drawer).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-    await expect(this.drawer.getByRole('heading', { name })).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(this.drawer).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    await expect(this.drawer.getByRole('heading', { name })).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
   }
 
   async closeDrawer(name: string): Promise<void> {
@@ -169,11 +174,11 @@ export class UserGroupsPage {
   }
 
   get editPageNameInput(): Locator {
-    return this.page.getByLabel(/^name/i);
+    return this.editPageForm.getByRole('textbox', { name: 'Name', exact: true });
   }
 
   get editPageDescriptionInput(): Locator {
-    return this.page.getByLabel(/description/i);
+    return this.editPageForm.getByLabel(/description/i);
   }
 
   get editPageSubmitButton(): Locator {

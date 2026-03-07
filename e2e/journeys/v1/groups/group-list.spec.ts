@@ -27,13 +27,13 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V1_ADMIN from utils
+ *   - AUTH: Uses AUTH_V1_ORGADMIN from utils
  *   - DATA: Relies on SEEDED_GROUP_NAME from seed-map (created in e2e:seed)
  *   - UTILS: Use GroupsPage for table interactions
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN } from '../../../utils';
+import { AUTH_V1_ORGADMIN } from '../../../utils';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
 import { getSeededGroupName } from '../../../utils/seed-map';
 
@@ -52,17 +52,17 @@ test.describe('Group List', () => {
   // ADMIN - Full list access
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test(`Can view groups list [Admin]`, async ({ page }) => {
+    test(`Can view groups list [OrgAdmin]`, async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 
       await expect(groupsPage.table).toBeVisible();
     });
 
-    test(`Can search for seeded group [Admin]`, async ({ page }) => {
+    test(`Can search for seeded group [OrgAdmin]`, async ({ page }) => {
       const groupsPage = new GroupsPage(page);
       await groupsPage.goto();
 

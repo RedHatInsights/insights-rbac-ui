@@ -153,12 +153,14 @@ async function runHeadlessCommand(command: { type: 'login-headless' | 'seed' | '
 
     case 'seed': {
       const { runSeeder } = await import('./commands/seeder.js');
+      const apiVersionArg = parsedArgs['api-version'];
       exitCode = await runSeeder({
         file: typeof parsedArgs['file'] === 'string' ? parsedArgs['file'] : '',
         prefix: typeof parsedArgs['prefix'] === 'string' ? parsedArgs['prefix'] : undefined,
         dryRun: parsedArgs['dry-run'] === true,
         json: parsedArgs['json'] === true,
         output: typeof parsedArgs['output'] === 'string' ? parsedArgs['output'] : undefined,
+        apiVersion: apiVersionArg === 'v2' ? 'v2' : 'v1',
       });
       break;
     }
@@ -191,14 +193,14 @@ import { IntlProvider } from 'react-intl';
 import { ErrorBoundary, HeadlessSeeder, InteractiveDashboard } from './components/index.js';
 import { type SeedPayload, SeedPayloadSchema } from './types.js';
 import { clearToken, getApiBaseUrl, getToken, getTokenInfo } from './auth.js';
-import { createCliServices, getApiClient, getMaskedToken, initializeApiClient } from './api-client.js';
+import { createCliServices, getApiClient, getCurrentToken, initializeApiClient } from './api-client.js';
 // Use file URL for ESM compatibility with tsx on Node 22
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const { ServiceProvider } = await import(resolve(__dirname, '../contexts/ServiceContext.js'));
-import type { AppServices } from '../contexts/ServiceContext.js';
+const { ServiceProvider } = await import(resolve(__dirname, '../shared/contexts/ServiceContext.js'));
+import type { AppServices } from '../shared/contexts/ServiceContext.js';
 import { useGroupsQuery, useRolesQuery, useWorkspacesQuery } from './queries.js';
 
 // ============================================================================
@@ -434,7 +436,7 @@ async function runInteractiveCli(): Promise<void> {
     await ensureAuthenticated();
 
     console.log('✅ Login successful!');
-    console.log(`   Token: ${getMaskedToken()}`);
+    console.log(`   Token: ${getCurrentToken()}`);
     console.log(`   API: ${getApiBaseUrl()}\n`);
     process.exit(0);
   }
@@ -547,7 +549,8 @@ async function runInteractiveCli(): Promise<void> {
     .option('--prefix <string>', 'Prefix to prepend to all resource names')
     .option('--output <path>', 'Write JSON seed map to file instead of stdout')
     .option('--dry-run', 'Preview what would be created without making changes')
-    .action(async (options: { json?: string; file?: string; prefix?: string; output?: string; dryRun?: boolean }) => {
+    .option('--api-version <v1|v2>', 'API version for role creation (default: v1)', 'v1')
+    .action(async (options: { json?: string; file?: string; prefix?: string; output?: string; dryRun?: boolean; apiVersion?: string }) => {
       // If --file, this should have been caught above for headless mode
       // But handle it here as fallback
       if (options.file) {
@@ -558,6 +561,7 @@ async function runInteractiveCli(): Promise<void> {
           dryRun: options.dryRun,
           json: true,
           output: options.output,
+          apiVersion: options.apiVersion === 'v2' ? 'v2' : 'v1',
         });
         process.exit(exitCode);
       }

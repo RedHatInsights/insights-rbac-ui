@@ -1,0 +1,41 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Production/V2 (Management Fabric)/User Access Admin" />
+
+# V2: User Access Administrator
+
+User with RBAC write permissions but **not** an Organization Administrator.
+
+## Permission Configuration
+
+| Permission | Has Access? |
+|------------|-------------|
+| `rbac:group:read` | Yes |
+| `rbac:group:write` | Yes |
+| `rbac:role:read` | Yes |
+| `rbac:role:write` | Yes |
+| `rbac:principal:read` | Yes |
+| `inventory:groups:read` | Yes |
+| `inventory:groups:write` | Yes |
+| Org Admin | **No** |
+
+## What This Persona Can Do
+
+- View and manage roles (create, edit, delete)
+- View and manage user groups (create, edit, delete)
+- View users list
+
+## What This Persona Cannot Do
+
+- Invite users (requires org admin)
+- Toggle org admin status (requires org admin)
+- Access Organization Management section
+
+## Story Catalog
+
+| Story | What it tests |
+|-------|--------------|
+| Can Manage Roles | Roles table loads, create button visible |
+| Can Manage Groups | Groups table loads, create user group button visible |
+| Cannot Invite Users | Invite users action not available or disabled |
+| Cannot Toggle Org Admin | Org admin switches are disabled |

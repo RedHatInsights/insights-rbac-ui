@@ -10,11 +10,11 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { setupPage, waitForTableUpdate } from '../../utils';
-import { fillCreateRoleWizard, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
+import { iamUrl, setupPage, v2, waitForTableUpdate } from '../../utils';
+import { fillCreateRoleWizard, fillCreateRoleWizardAsCopy, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
-const ROLES_URL = '/iam/access-management/roles';
+const ROLES_URL = iamUrl(v2.accessManagementRoles.link());
 
 export class RolesPage {
   readonly page: Page;
@@ -29,8 +29,10 @@ export class RolesPage {
 
   async goto(): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(ROLES_URL);
-    await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
+    await expect(async () => {
+      await this.page.goto(ROLES_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.heading).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -38,7 +40,7 @@ export class RolesPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   get heading(): Locator {
-    return this.page.getByRole('heading', { name: /roles/i });
+    return this.page.getByRole('heading', { name: /roles/i, level: 1 });
   }
 
   get table(): Locator {
@@ -78,6 +80,10 @@ export class RolesPage {
     await verifyRoleNotInTable(this.page, name);
   }
 
+  getRoleRow(name: string): Locator {
+    return this.table.getByRole('row', { name: new RegExp(name, 'i') });
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Drawer (V2 detail view)
   // ═══════════════════════════════════════════════════════════════════════════
@@ -110,8 +116,12 @@ export class RolesPage {
   // CRUD Operations
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async fillCreateWizard(name: string, description: string, workspaceName: string): Promise<void> {
-    await fillCreateRoleWizard(this.page, name, description, workspaceName);
+  async fillCreateWizard(name: string, description: string): Promise<void> {
+    await fillCreateRoleWizard(this.page, name, description);
+  }
+
+  async fillCreateWizardAsCopy(newRoleName: string, sourceRoleName: string, description?: string): Promise<void> {
+    await fillCreateRoleWizardAsCopy(this.page, newRoleName, sourceRoleName, description);
   }
 
   async fillEditPage(newName: string, newDescription: string): Promise<void> {

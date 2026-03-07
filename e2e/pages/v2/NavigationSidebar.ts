@@ -6,18 +6,18 @@
  * Selectors use role + name so they work with Chrome's DOM.
  */
 
-import { type Locator, type Page } from '@playwright/test';
-import { setupPage } from '../../utils';
+import { type Locator, type Page, expect } from '@playwright/test';
+import { iamUrl, setupPage, v2 } from '../../utils';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 /** V2 entry path that shows the full nav (Overview requires rbac:*:read) */
-const OVERVIEW_URL = '/iam/access-management/overview';
+const OVERVIEW_URL = iamUrl(v2.overview.link());
 
 /** Fallback: Users and Groups list - most personas can see at least one nav item */
-const USERS_AND_GROUPS_URL = '/iam/access-management/users-and-user-groups';
+const USERS_AND_GROUPS_URL = iamUrl(v2.usersAndUserGroups.link());
 
 /** My Access - all personas can open this (no RBAC required for nav) */
-const MY_ACCESS_URL = '/iam/my-user-access';
+const MY_ACCESS_URL = iamUrl(v2.myAccess.link());
 
 export class NavigationSidebar {
   readonly page: Page;
@@ -36,9 +36,10 @@ export class NavigationSidebar {
    */
   async gotoOverview(): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(OVERVIEW_URL);
-    await this.page.waitForLoadState('networkidle').catch(() => {});
-    await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
+    await expect(async () => {
+      await this.page.goto(OVERVIEW_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.navRegion).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
   }
 
   /**
@@ -46,9 +47,10 @@ export class NavigationSidebar {
    */
   async gotoUsersAndGroups(): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(USERS_AND_GROUPS_URL);
-    await this.page.waitForLoadState('networkidle').catch(() => {});
-    await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
+    await expect(async () => {
+      await this.page.goto(USERS_AND_GROUPS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.navRegion).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
   }
 
   /**
@@ -56,9 +58,10 @@ export class NavigationSidebar {
    */
   async gotoMyAccess(): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(MY_ACCESS_URL);
-    await this.page.waitForLoadState('networkidle').catch(() => {});
-    await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
+    await expect(async () => {
+      await this.page.goto(MY_ACCESS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.navRegion).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
   }
 
   /**
@@ -66,8 +69,10 @@ export class NavigationSidebar {
    */
   async gotoPath(path: string): Promise<void> {
     await setupPage(this.page);
-    await this.page.goto(path);
-    await this.page.waitForLoadState('domcontentloaded');
+    await expect(async () => {
+      await this.page.goto(path, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(this.navRegion).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -81,20 +86,20 @@ export class NavigationSidebar {
 
   getNavLink(name: string | RegExp): Locator {
     const matcher = typeof name === 'string' ? new RegExp(name, 'i') : name;
-    return this.page.getByRole('link', { name: matcher });
+    return this.navRegion.getByRole('link', { name: matcher });
   }
 
   /** Expandable section: Chrome may use button or link */
   getNavExpandable(title: string | RegExp): Locator {
     const matcher = typeof title === 'string' ? new RegExp(title, 'i') : title;
-    return this.page.getByRole('button', { name: matcher }).or(this.page.getByRole('link', { name: matcher }));
+    return this.navRegion.getByRole('button', { name: matcher }).or(this.navRegion.getByRole('link', { name: matcher }));
   }
 
   /** Check if a nav link (or expandable) is visible */
   async isNavItemVisible(name: string | RegExp): Promise<boolean> {
     const matcher = typeof name === 'string' ? new RegExp(name, 'i') : name;
-    const link = this.page.getByRole('link', { name: matcher });
-    const button = this.page.getByRole('button', { name: matcher });
+    const link = this.navRegion.getByRole('link', { name: matcher });
+    const button = this.navRegion.getByRole('button', { name: matcher });
     return (await link.isVisible().catch(() => false)) || (await button.isVisible().catch(() => false));
   }
 
@@ -128,6 +133,7 @@ export class NavigationSidebar {
   static readonly NAV_USERS_AND_GROUPS = /Users and Groups/i;
   static readonly NAV_ROLES = /^Roles$/i;
   static readonly NAV_WORKSPACES = /Workspaces/i;
+  static readonly NAV_AUDIT_LOG = /Audit Log/i;
   static readonly NAV_ORGANIZATION_MANAGEMENT = /Organization Management/i;
   static readonly NAV_ORGANIZATION_WIDE_ACCESS = /Organization-Wide Access/i;
 }

@@ -33,7 +33,6 @@ async function selectSourceRole(wizard: Locator, sourceRoleName: string): Promis
   const copyRadio = wizard.getByRole('radio', { name: /copy an existing role/i });
   await expect(copyRadio).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   await copyRadio.click();
-  console.log(`[Wizard] ✓ Selected "Copy an existing role"`);
 
   // Wait for roles table
   await expect(wizard.getByRole('grid', { name: /roles/i })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
@@ -43,12 +42,10 @@ async function selectSourceRole(wizard: Locator, sourceRoleName: string): Promis
   if (await searchInput.isVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION }).catch(() => false)) {
     await searchInput.fill(sourceRoleName);
     await searchInput.press('Enter');
-    console.log(`[Wizard] ✓ Searched for role: ${sourceRoleName}`);
   }
 
   // Click the radio button for the source role
   await wizard.getByRole('radio', { name: new RegExp(sourceRoleName, 'i') }).click();
-  console.log(`[Wizard] ✓ Selected source role: ${sourceRoleName}`);
 
   // Click Next
   const nextButton = getWizardNextButton(wizard);
@@ -73,7 +70,6 @@ async function fillNameAndDescription(wizard: Locator, roleName: string, descrip
   const descriptionInput = wizard.getByLabel('Role description');
   await expect(descriptionInput).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   await descriptionInput.fill(description);
-  console.log(`[Wizard] ✓ Name and description entered`);
 
   // Wait for async validation (name uniqueness check)
   const nextButton = getWizardNextButton(wizard);
@@ -97,15 +93,11 @@ async function handlePermissions(wizard: Locator, selectPermissions: boolean): P
     if (permCount > 1) {
       await permissionCheckboxes.nth(1).click();
       await expect(permissionCheckboxes.nth(1)).toBeChecked({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
-      console.log(`[Wizard] ✓ Selected permission 1`);
     }
     if (permCount > 2) {
       await permissionCheckboxes.nth(2).click();
       await expect(permissionCheckboxes.nth(2)).toBeChecked({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
-      console.log(`[Wizard] ✓ Selected permission 2`);
     }
-  } else {
-    console.log(`[Wizard] ✓ Permissions inherited from source`);
   }
 
   // Click Next to proceed to review
@@ -129,7 +121,6 @@ async function reviewAndSubmit(wizard: Locator, roleName: string): Promise<void>
 
   // Verify our role name appears in review
   await expect(wizard.getByText(roleName)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-  console.log(`[Wizard] ✓ Review step verified`);
 
   // Submit
   const submitButton = wizard.getByRole('button', { name: /submit/i });
@@ -140,7 +131,6 @@ async function reviewAndSubmit(wizard: Locator, roleName: string): Promise<void>
   await expect(wizard.getByText(/successfully created/i)).toBeVisible({
     timeout: E2E_TIMEOUTS.MUTATION_COMPLETE,
   });
-  console.log(`[Wizard] ✓ Success screen displayed`);
 
   // Exit wizard
   const exitButton = wizard.getByRole('button', { name: /exit/i });
@@ -164,28 +154,22 @@ async function defineWorkspacesAccess(wizard: Locator, seededWorkspaceName: stri
   const isOnWorkspacesStep = await workspacesHeading.isVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION }).catch(() => false);
 
   if (!isOnWorkspacesStep) {
-    console.log(`[Wizard] ✓ Define Workspaces access step skipped (no inventory permissions)`);
     return;
   }
 
-  console.log(`[Wizard] ✓ Define Workspaces access step detected`);
+  // Type the seeded name into the first dropdown's filter to find it, select it, then "Copy to all"
+  const firstFilter = wizard.getByRole('combobox', { name: /type to filter/i }).first();
+  await firstFilter.click();
+  await firstFilter.fill(seededWorkspaceName);
 
-  // Find all "Select workspaces" dropdowns and select the seeded workspace
-  // There will be one dropdown for each inventory permission (hosts:read, hosts:write, groups:read, groups:write)
-  const workspaceSelects = wizard.getByRole('button', { name: /select workspaces/i });
-  const selectCount = await workspaceSelects.count();
+  const workspaceOption = wizard.page().getByRole('menuitem', { name: new RegExp(seededWorkspaceName, 'i') });
+  await expect(workspaceOption).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+  await workspaceOption.click();
 
-  for (let i = 0; i < selectCount; i++) {
-    await workspaceSelects.nth(i).click();
-
-    // Wait for dropdown menu to open
-    await wizard.page().waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
-
-    // Select the seeded workspace from the menu
-    const workspaceOption = wizard.page().getByRole('option', { name: new RegExp(seededWorkspaceName, 'i') });
-    await workspaceOption.click();
-
-    console.log(`[Wizard] ✓ Selected workspace "${seededWorkspaceName}" for inventory permission ${i + 1}`);
+  // Copy the selection to all other permission rows
+  const copyToAll = wizard.getByRole('button', { name: /copy to all/i });
+  if (await copyToAll.isVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION }).catch(() => false)) {
+    await copyToAll.click();
   }
 
   // Click Next to proceed to review
@@ -212,13 +196,15 @@ async function defineWorkspacesAccess(wizard: Locator, seededWorkspaceName: stri
  *
  * Note: "Create from scratch" radio is selected by default, so we skip step 1.
  */
-export async function fillCreateRoleWizard(page: Page, roleName: string, description: string, seededWorkspaceName: string): Promise<void> {
+export async function fillCreateRoleWizard(page: Page, roleName: string, description: string, seededWorkspaceName?: string): Promise<void> {
   const wizard = page.getByRole('dialog').first();
   await expect(wizard).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
   await fillNameAndDescription(wizard, roleName, description);
   await handlePermissions(wizard, true); // true = select permissions
-  await defineWorkspacesAccess(wizard, seededWorkspaceName);
+  if (seededWorkspaceName) {
+    await defineWorkspacesAccess(wizard, seededWorkspaceName);
+  }
   await reviewAndSubmit(wizard, roleName);
 }
 
@@ -236,7 +222,7 @@ export async function fillCreateRoleWizardAsCopy(
   page: Page,
   newRoleName: string,
   sourceRoleName: string,
-  seededWorkspaceName: string,
+  seededWorkspaceName?: string,
   description?: string,
 ): Promise<void> {
   await page.waitForURL(/add-role/, { timeout: E2E_TIMEOUTS.TABLE_DATA });
@@ -247,7 +233,9 @@ export async function fillCreateRoleWizardAsCopy(
   await selectSourceRole(wizard, sourceRoleName);
   await fillNameAndDescription(wizard, newRoleName, description || '');
   await handlePermissions(wizard, false); // false = don't select, inherited
-  await defineWorkspacesAccess(wizard, seededWorkspaceName);
+  if (seededWorkspaceName) {
+    await defineWorkspacesAccess(wizard, seededWorkspaceName);
+  }
   await reviewAndSubmit(wizard, newRoleName);
 }
 

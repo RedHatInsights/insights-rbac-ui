@@ -11,7 +11,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN } from '../../../utils';
+import { AUTH_V1_ORGADMIN } from '../../../utils';
 import { RolesPage } from '../../../pages/v1/RolesPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -27,10 +27,10 @@ const SYSTEM_ROLES = ['Advisor administrator', 'Compliance administrator', 'Cost
 // Tests - Admin Cannot Modify System Roles
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('Admin - System Role Protection', () => {
-  test.use({ storageState: AUTH_V1_ADMIN });
+test.describe('OrgAdmin - System Role Protection', () => {
+  test.use({ storageState: AUTH_V1_ORGADMIN });
 
-  test('System roles do NOT have Edit action in row menu [Admin]', async ({ page }) => {
+  test('System roles do NOT have Edit action in row menu [OrgAdmin]', async ({ page }) => {
     const rolesPage = new RolesPage(page);
     await rolesPage.goto();
 
@@ -44,7 +44,6 @@ test.describe('Admin - System Role Protection', () => {
 
       if (isVisible) {
         // Found a system role, verify it has no Edit action
-        console.log(`[System Role] Testing protection for: ${systemRoleName}`);
 
         // Find the kebab menu for this specific row
         const kebab = roleRow.getByRole('button', { name: /actions/i });
@@ -61,7 +60,6 @@ test.describe('Admin - System Role Protection', () => {
         }
         // If no kebab menu at all, that's also acceptable - system roles may have no actions
 
-        console.log(`[System Role] ✓ ${systemRoleName} is protected from editing`);
         return; // Test passed with this system role
       }
     }
@@ -70,7 +68,7 @@ test.describe('Admin - System Role Protection', () => {
     test.skip(true, 'No system roles found in environment');
   });
 
-  test('System roles do NOT have Delete action in row menu [Admin]', async ({ page }) => {
+  test('System roles do NOT have Delete action in row menu [OrgAdmin]', async ({ page }) => {
     const rolesPage = new RolesPage(page);
     await rolesPage.goto();
 
@@ -84,7 +82,6 @@ test.describe('Admin - System Role Protection', () => {
 
       if (isVisible) {
         // Found a system role, verify it has no Delete action
-        console.log(`[System Role] Testing protection for: ${systemRoleName}`);
 
         // Find the kebab menu for this specific row
         const kebab = roleRow.getByRole('button', { name: /actions/i });
@@ -101,7 +98,6 @@ test.describe('Admin - System Role Protection', () => {
         }
         // If no kebab menu at all, that's also acceptable - system roles may have no actions
 
-        console.log(`[System Role] ✓ ${systemRoleName} is protected from deletion`);
         return; // Test passed with this system role
       }
     }
@@ -110,7 +106,7 @@ test.describe('Admin - System Role Protection', () => {
     test.skip(true, 'No system roles found in environment');
   });
 
-  test('System roles do NOT have Edit/Delete in detail page Actions menu [Admin]', async ({ page }) => {
+  test('System roles do NOT have Edit/Delete in detail page Actions menu [OrgAdmin]', async ({ page }) => {
     const rolesPage = new RolesPage(page);
     await rolesPage.goto();
 
@@ -123,8 +119,6 @@ test.describe('Admin - System Role Protection', () => {
       const isVisible = await roleRow.isVisible().catch(() => false);
 
       if (isVisible) {
-        console.log(`[System Role] Testing detail page protection for: ${systemRoleName}`);
-
         // Navigate to detail page
         await rolesPage.navigateToDetail(systemRoleName);
         await expect(rolesPage.getDetailHeading(systemRoleName)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
@@ -144,7 +138,6 @@ test.describe('Admin - System Role Protection', () => {
         }
         // If no Actions button at all, that's acceptable - system roles have no actions
 
-        console.log(`[System Role] ✓ ${systemRoleName} detail page is protected`);
         return; // Test passed with this system role
       }
     }

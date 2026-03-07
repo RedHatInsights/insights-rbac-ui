@@ -22,7 +22,6 @@ import {
   clickCancelButton,
   clickCreateUserGroupButton,
   clickSubmitButton,
-  defaultHandlers,
   fillGroupDescription,
   fillGroupName,
   getDrawerScope,
@@ -30,6 +29,7 @@ import {
   mockServiceAccounts,
   mockUsers,
   openGroupDrawer,
+  v2DefaultHandlers,
   verifyNoApiCalls,
   verifyUserGroupsTabSelected,
 } from './_shared';
@@ -320,7 +320,7 @@ const serviceAccountsListHandlerStage = http.get('https://sso.stage.redhat.com/r
 // =============================================================================
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Management Fabric/Access Management/Create user group',
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Users and Groups/Create User Group',
   tags: ['access-management', 'user-groups', 'form'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
@@ -336,7 +336,6 @@ const meta = {
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
-    'platform.rbac.common.userstable': true,
     'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
@@ -345,11 +344,10 @@ const meta = {
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
       'platform.rbac.workspaces-organization-management': true,
-      'platform.rbac.common.userstable': true,
     }),
     msw: {
       handlers: [
-        // Spy handlers FIRST to intercept before defaultHandlers
+        // Spy handlers FIRST to intercept before v2DefaultHandlers
         createGroupSpyHandler,
         addMembersHandler,
         addServiceAccountsHandler,
@@ -360,7 +358,7 @@ const meta = {
         serviceAccountsListHandler,
         serviceAccountsListHandlerStage,
         // Filter out handlers we're replacing
-        ...defaultHandlers.filter((h) => {
+        ...v2DefaultHandlers.filter((h) => {
           const info = h.info as { path?: string };
           const path = info?.path?.toString() || '';
           return (

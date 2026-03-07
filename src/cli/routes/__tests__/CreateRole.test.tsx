@@ -181,7 +181,7 @@ describe('CreateRole - Extended Tests', () => {
         () => {
           const queries = queryClient.getQueryCache().getAll();
           const rolesQuery = queries.find((q) => String(q.queryKey[0]).includes('role'));
-          return rolesQuery?.state.status === 'success';
+          expect(rolesQuery?.state.status).toBe('success');
         },
         { timeout: 5000 },
       );

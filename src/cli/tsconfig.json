@@ -13,18 +13,22 @@
     "rootDir": "..",
     "baseUrl": "..",
     "paths": {
-      "@contexts/*": ["contexts/*"],
-      "@services/*": ["services/*"],
-      "@data/*": ["data/*"]
+      "@contexts/*": ["shared/contexts/*"],
+      "@services/*": ["shared/services/*"],
+      "@data/*": ["v1/data/*", "v2/data/*", "shared/data/*"]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "../contexts/**/*.ts",
-    "../contexts/**/*.tsx",
-    "../services/**/*.ts",
-    "../data/**/*.ts",
-    "../data/**/*.tsx"
+    "../shared/contexts/**/*.ts",
+    "../shared/contexts/**/*.tsx",
+    "../shared/services/**/*.ts",
+    "../v1/data/**/*.ts",
+    "../v1/data/**/*.tsx",
+    "../v2/data/**/*.ts",
+    "../v2/data/**/*.tsx",
+    "../shared/data/**/*.ts",
+    "../shared/data/**/*.tsx"
   ]
 }

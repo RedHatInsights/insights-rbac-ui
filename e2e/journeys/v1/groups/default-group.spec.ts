@@ -19,7 +19,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN } from '../../../utils';
+import { AUTH_V1_ORGADMIN } from '../../../utils';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -34,10 +34,10 @@ const CUSTOM_DEFAULT_GROUP = 'Custom default access';
 // Tests - Default Group Copy Flow
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('Admin - Default Group Copy Flow', () => {
-  test.use({ storageState: AUTH_V1_ADMIN });
+test.describe('OrgAdmin - Default Group Copy Flow', () => {
+  test.use({ storageState: AUTH_V1_ORGADMIN });
 
-  test('Default access group exists and is accessible [Admin]', async ({ page }) => {
+  test('Default access group exists and is accessible [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -56,7 +56,6 @@ test.describe('Admin - Default Group Copy Flow', () => {
         .catch(() => false);
 
       if (customExists) {
-        console.log('[Default Group] ⚠️ Default access group has already been modified (Custom default access exists)');
         test.skip();
         return;
       }
@@ -68,11 +67,9 @@ test.describe('Admin - Default Group Copy Flow', () => {
     // Navigate to detail page
     await groupsPage.navigateToDetail(DEFAULT_ACCESS_GROUP);
     await expect(groupsPage.getDetailHeading(DEFAULT_ACCESS_GROUP)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
-
-    console.log('[Default Group] ✓ Default access group exists and is accessible');
   });
 
-  test('Roles tab is available on Default access group [Admin]', async ({ page }) => {
+  test('Roles tab is available on Default access group [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -91,14 +88,12 @@ test.describe('Admin - Default Group Copy Flow', () => {
 
     // Should show Add role button
     await expect(groupsPage.addRoleButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-
-    console.log('[Default Group] ✓ Roles tab is accessible');
   });
 
   // Note: The actual copy flow tests are destructive and modify the default group.
   // They are marked as skipped by default to prevent accidental modifications.
 
-  test.skip('Modifying Default access triggers confirmation modal [Admin]', async ({ page }) => {
+  test.skip('Modifying Default access triggers confirmation modal [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -146,11 +141,9 @@ test.describe('Admin - Default Group Copy Flow', () => {
 
     // Verify alert appears
     await expect(page.getByText(/default access group has changed/i)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-
-    console.log('[Default Group] ✓ Modification triggered copy flow');
   });
 
-  test.skip('Restore to default button is visible after modification [Admin]', async ({ page }) => {
+  test.skip('Restore to default button is visible after modification [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -159,7 +152,6 @@ test.describe('Admin - Default Group Copy Flow', () => {
 
     const customGroupLink = groupsPage.getGroupLink(CUSTOM_DEFAULT_GROUP);
     if (!(await customGroupLink.isVisible().catch(() => false))) {
-      console.log('[Default Group] ⚠️ Custom default access not found - group may be pristine');
       test.skip(true, 'Custom default access group not found');
       return;
     }
@@ -170,11 +162,9 @@ test.describe('Admin - Default Group Copy Flow', () => {
     // Verify "Restore to default" button is visible
     const restoreButton = page.getByRole('button', { name: /restore to default/i });
     await expect(restoreButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-
-    console.log('[Default Group] ✓ Restore to default button is visible');
   });
 
-  test.skip('Can restore Custom default access back to Default access [Admin]', async ({ page }) => {
+  test.skip('Can restore Custom default access back to Default access [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -209,8 +199,6 @@ test.describe('Admin - Default Group Copy Flow', () => {
 
     // Verify "Restore to default" button is no longer visible
     await expect(page.getByRole('button', { name: /restore to default/i })).not.toBeVisible();
-
-    console.log('[Default Group] ✓ Default access group restored');
   });
 });
 
@@ -218,10 +206,10 @@ test.describe('Admin - Default Group Copy Flow', () => {
 // Tests - Already Modified Default Group
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('Admin - Already Modified Default Group', () => {
-  test.use({ storageState: AUTH_V1_ADMIN });
+test.describe('OrgAdmin - Already Modified Default Group', () => {
+  test.use({ storageState: AUTH_V1_ORGADMIN });
 
-  test.skip('Modifying Custom default access does NOT show confirmation modal [Admin]', async ({ page }) => {
+  test.skip('Modifying Custom default access does NOT show confirmation modal [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -259,7 +247,5 @@ test.describe('Admin - Already Modified Default Group', () => {
     const warningModal = page.locator('[data-ouia-component-id="WarningModal"]');
     const modalVisible = await warningModal.isVisible().catch(() => false);
     expect(modalVisible).toBe(false);
-
-    console.log('[Default Group] ✓ No confirmation modal for already-modified group');
   });
 });

@@ -14,7 +14,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN } from '../../../utils';
+import { AUTH_V1_ORGADMIN } from '../../../utils';
 import { GroupsPage } from '../../../pages/v1/GroupsPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -30,14 +30,14 @@ const DEFAULT_ADMIN_ACCESS_GROUP = 'Default admin access';
 // Tests - Admin Cannot Modify Default Groups
 // ═══════════════════════════════════════════════════════════════════════════
 
-test.describe('Admin - Default Group Protection', () => {
-  test.use({ storageState: AUTH_V1_ADMIN });
+test.describe('OrgAdmin - Default Group Protection', () => {
+  test.use({ storageState: AUTH_V1_ORGADMIN });
 
   // ─────────────────────────────────────────────────────────────────────────
   // Default Access Group (platform_default: true)
   // ─────────────────────────────────────────────────────────────────────────
 
-  test('"Default access" group does NOT have Edit action [Admin]', async ({ page }) => {
+  test('"Default access" group does NOT have Edit action [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -66,11 +66,9 @@ test.describe('Admin - Default Group Protection', () => {
       await page.keyboard.press('Escape');
     }
     // If no kebab menu at all, that's acceptable - default groups may have no actions
-
-    console.log('[Default Group] ✓ Default access is protected from editing');
   });
 
-  test('"Default access" group does NOT have Delete action [Admin]', async ({ page }) => {
+  test('"Default access" group does NOT have Delete action [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -99,11 +97,9 @@ test.describe('Admin - Default Group Protection', () => {
       await page.keyboard.press('Escape');
     }
     // If no kebab menu at all, that's acceptable
-
-    console.log('[Default Group] ✓ Default access is protected from deletion');
   });
 
-  test('"Default access" Members tab shows special message [Admin]', async ({ page }) => {
+  test('"Default access" Members tab shows special message [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -134,15 +130,13 @@ test.describe('Admin - Default Group Protection', () => {
     // Should NOT show a data table (no individual member rows)
     const table = page.getByRole('grid');
     await expect(table).not.toBeVisible();
-
-    console.log('[Default Group] ✓ Default access shows all-users message on Members tab');
   });
 
   // ─────────────────────────────────────────────────────────────────────────
   // Default Admin Access Group (admin_default: true)
   // ─────────────────────────────────────────────────────────────────────────
 
-  test('"Default admin access" group does NOT have Edit action [Admin]', async ({ page }) => {
+  test('"Default admin access" group does NOT have Edit action [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -170,11 +164,9 @@ test.describe('Admin - Default Group Protection', () => {
 
       await page.keyboard.press('Escape');
     }
-
-    console.log('[Default Group] ✓ Default admin access is protected from editing');
   });
 
-  test('"Default admin access" group does NOT have Delete action [Admin]', async ({ page }) => {
+  test('"Default admin access" group does NOT have Delete action [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -202,11 +194,9 @@ test.describe('Admin - Default Group Protection', () => {
 
       await page.keyboard.press('Escape');
     }
-
-    console.log('[Default Group] ✓ Default admin access is protected from deletion');
   });
 
-  test('"Default admin access" Members tab shows org admins message [Admin]', async ({ page }) => {
+  test('"Default admin access" Members tab shows org admins message [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -236,15 +226,13 @@ test.describe('Admin - Default Group Protection', () => {
     // Should NOT show a data table (no individual member rows)
     const table = page.getByRole('grid');
     await expect(table).not.toBeVisible();
-
-    console.log('[Default Group] ✓ Default admin access shows org-admins message on Members tab');
   });
 
   // ─────────────────────────────────────────────────────────────────────────
   // Service Accounts Tab Special Behavior
   // ─────────────────────────────────────────────────────────────────────────
 
-  test('"Default access" Service Accounts tab shows security message [Admin]', async ({ page }) => {
+  test('"Default access" Service Accounts tab shows security message [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -270,11 +258,9 @@ test.describe('Admin - Default Group Protection', () => {
     await expect(
       page.getByText(/in adherence to security guidelines, service accounts are not automatically included in the default access group/i),
     ).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-
-    console.log('[Default Group] ✓ Default access shows security message on Service Accounts tab');
   });
 
-  test('"Default admin access" Service Accounts tab shows security message [Admin]', async ({ page }) => {
+  test('"Default admin access" Service Accounts tab shows security message [OrgAdmin]', async ({ page }) => {
     const groupsPage = new GroupsPage(page);
     await groupsPage.goto();
 
@@ -300,7 +286,5 @@ test.describe('Admin - Default Group Protection', () => {
     await expect(
       page.getByText(/in adherence to security guidelines, service accounts are not automatically included in the default admin access group/i),
     ).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-
-    console.log('[Default Group] ✓ Default admin access shows security message on Service Accounts tab');
   });
 });

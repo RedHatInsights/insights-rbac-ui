@@ -12,7 +12,7 @@
  * Also provides access to the seed fixture data (descriptions, permissions, etc.)
  *
  * Usage in tests:
- *   import { getSeedMap, getSeedFixture } from '../utils/seed-map';
+ *   import { getSeedMap, getSeedFixture } from './seed-map';
  *   const seedMap = getSeedMap('v1');  // or 'v2'
  *   const fixture = getSeedFixture('v1');
  */
@@ -66,7 +66,7 @@ export interface SeedPersonaInput {
   username: string;
 }
 
-export type PersonaType = 'admin' | 'userviewer' | 'readonly';
+export type PersonaType = 'admin' | 'userviewer' | 'readonly' | 'rbacadmin' | 'workspaceuser';
 
 export interface SeedRoleInput {
   name: string;

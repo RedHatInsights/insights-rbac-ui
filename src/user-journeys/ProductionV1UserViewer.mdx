@@ -1,0 +1,31 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Production/V1 (Current)/User Viewer" />
+
+# V1: User Viewer
+
+Minimal viewer persona with only `rbac:principal:read` permission in V1 navigation.
+
+## Permission Configuration
+
+| Permission | Has Access? |
+|------------|-------------|
+| `rbac:principal:read` | Yes |
+| `rbac:group:read` | **No** |
+| `rbac:role:read` | **No** |
+| `inventory:groups:read` | **No** |
+| Org Admin | **No** |
+
+## V1 Navigation Context
+
+- **My User Access** — visible
+- **User Access** → Users only (Groups and Roles hidden)
+
+## Story Catalog
+
+| Story | What it tests |
+|-------|--------------|
+| Sidebar Validation | My User Access + User Access → Users visible; Groups/Roles hidden |
+| View Users List | Users page loads with data, no add/create button |
+| Groups / Direct URL - Unauthorized | Groups link hidden; direct URL shows unauthorized |
+| Roles / Direct URL - Unauthorized | Roles link hidden; direct URL shows unauthorized |

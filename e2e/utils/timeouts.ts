@@ -26,6 +26,9 @@ export const E2E_TIMEOUTS = {
   /** Menu/dropdown open */
   MENU_ANIMATION: 500,
 
+  /** Element becomes visible after interaction (e.g. toolbar after selection) */
+  ELEMENT_VISIBLE: 5_000,
+
   /** Button state change (enabled/disabled) after local validation */
   BUTTON_STATE: 1_000,
 
@@ -34,6 +37,9 @@ export const E2E_TIMEOUTS = {
 
   /** Very quick UI settle (React re-render buffer) */
   QUICK_SETTLE: 100,
+
+  /** Platform chrome shell elements (preview toggle, nav chrome) */
+  PLATFORM_CHROME: 10_000,
 
   // ─────────────────────────────────────────────────────────────────────
   // Data Loading (network, can be slow)
@@ -57,6 +63,9 @@ export const E2E_TIMEOUTS = {
 
   /** Initial page load during setup/cache warming */
   SETUP_PAGE_LOAD: 60_000,
+
+  /** Global per-test timeout (90s is generous — actionTimeout caps stuck actions at 30s) */
+  TEST_GLOBAL: 90_000,
 } as const;
 
 export type TimeoutKey = keyof typeof E2E_TIMEOUTS;

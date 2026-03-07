@@ -26,13 +26,13 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V1_ADMIN from utils
+ *   - AUTH: Uses AUTH_V1_ORGADMIN from utils
  *   - DATA: Uses getSeededUsername() from seed fixture
  *   - UTILS: Use UsersPage for table interactions
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, getSeededUsername } from '../../../utils';
+import { AUTH_V1_ORGADMIN, getSeededUsername } from '../../../utils';
 import { UsersPage } from '../../../pages/v1/UsersPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -48,10 +48,10 @@ test.describe('User List', () => {
   // ADMIN - Full list access
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe('Admin', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test(`Can view users list [Admin]`, async ({ page }) => {
+    test(`Can view users list [OrgAdmin]`, async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
@@ -60,7 +60,7 @@ test.describe('User List', () => {
       await expect(usersPage.statusColumn).toBeVisible();
     });
 
-    test(`Can search for users [Admin]`, async ({ page }) => {
+    test(`Can search for users [OrgAdmin]`, async ({ page }) => {
       test.skip(!ADMIN_USERNAME, 'Seeded username not configured in seed fixture');
 
       const usersPage = new UsersPage(page);
@@ -73,7 +73,7 @@ test.describe('User List', () => {
       await expect(usersPage.table).toBeVisible();
     });
 
-    test(`Can view user detail page [Admin]`, async ({ page }) => {
+    test(`Can view user detail page [OrgAdmin]`, async ({ page }) => {
       test.skip(!ADMIN_USERNAME, 'Seeded username not configured in seed fixture');
 
       const usersPage = new UsersPage(page);

@@ -16,7 +16,7 @@ import { StatusBadge } from './StatusBadge';
 
 const meta: Meta<typeof StatusBadge> = {
   component: StatusBadge,
-  tags: ['autodocs'],           // All presentational stories get autodocs
+  tags: ['autodocs'], // All presentational stories get autodocs
   parameters: {
     docs: {
       description: {
@@ -34,6 +34,7 @@ export const Inactive: Story = { args: { status: 'inactive' } };
 ```
 
 Rules:
+
 - `tags: ['autodocs']` on the meta
 - No custom `title` — let Storybook auto-generate from file path
 - Test all interactive states with play functions
@@ -55,7 +56,7 @@ const groupsApiSpy = fn();
 
 const meta: Meta<typeof GroupsContainer> = {
   component: GroupsContainer,
-  tags: ['groups-container'],   // NOT 'autodocs' on meta
+  tags: ['groups-container'], // NOT 'autodocs' on meta
   parameters: {
     layout: 'fullscreen',
     msw: {
@@ -104,21 +105,20 @@ export const LoadingState: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await waitFor(async () => {
-      const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
-      await expect(skeletons.length).toBeGreaterThan(0);
-    }, { timeout: 10000 });
+    await waitFor(
+      async () => {
+        const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
+        await expect(skeletons.length).toBeGreaterThan(0);
+      },
+      { timeout: 10000 },
+    );
   },
 };
 
 export const EmptyState: Story = {
   parameters: {
     msw: {
-      handlers: [
-        http.get('/api/rbac/v1/groups/', () =>
-          HttpResponse.json({ data: [], meta: { count: 0 } }),
-        ),
-      ],
+      handlers: [http.get('/api/rbac/v1/groups/', () => HttpResponse.json({ data: [], meta: { count: 0 } }))],
     },
   },
 };
@@ -207,12 +207,11 @@ export const WithoutWorkspaces: Story = {
 Every table story set needs three empty-state variations:
 
 ### No Data (no active filters)
+
 ```typescript
 export const EmptyNoData: Story = {
   parameters: {
-    msw: { handlers: [http.get('/api/rbac/v1/groups/', () =>
-      HttpResponse.json({ data: [], meta: { count: 0 } }),
-    )] },
+    msw: { handlers: [http.get('/api/rbac/v1/groups/', () => HttpResponse.json({ data: [], meta: { count: 0 } }))] },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -223,16 +222,19 @@ export const EmptyNoData: Story = {
 ```
 
 ### No Results (active filter returned nothing)
+
 ```typescript
 export const EmptyNoResults: Story = {
   parameters: {
-    msw: { handlers: [
-      http.get('/api/rbac/v1/groups/', ({ request }) => {
-        const hasFilter = new URL(request.url).searchParams.get('name');
-        if (hasFilter) return HttpResponse.json({ data: [], meta: { count: 0 } });
-        return HttpResponse.json({ data: mockGroups, meta: { count: mockGroups.length } });
-      }),
-    ] },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const hasFilter = new URL(request.url).searchParams.get('name');
+          if (hasFilter) return HttpResponse.json({ data: [], meta: { count: 0 } });
+          return HttpResponse.json({ data: mockGroups, meta: { count: mockGroups.length } });
+        }),
+      ],
+    },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -240,7 +242,7 @@ export const EmptyNoResults: Story = {
 
     const search = await canvas.findByPlaceholderText(/filter/i);
     await userEvent.type(search, 'nonexistent');
-    await delay(600);  // debounce
+    await delay(600); // debounce
 
     expect(await canvas.findByText(/no groups match/i)).toBeInTheDocument();
     // SearchIcon used for this state
@@ -249,16 +251,20 @@ export const EmptyNoResults: Story = {
 ```
 
 ### Loading (skeleton, not empty state)
+
 ```typescript
 export const Loading: Story = {
   parameters: {
     msw: { handlers: [http.get('/api/rbac/v1/groups/', () => new Promise(() => {}))] },
   },
   play: async ({ canvasElement }) => {
-    await waitFor(async () => {
-      const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
-      await expect(skeletons.length).toBeGreaterThan(0);
-    }, { timeout: 10000 });
+    await waitFor(
+      async () => {
+        const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
+        await expect(skeletons.length).toBeGreaterThan(0);
+      },
+      { timeout: 10000 },
+    );
 
     // Verify empty state is NOT shown during loading
     expect(within(canvasElement).queryByText(/configure groups/i)).not.toBeInTheDocument();
@@ -276,11 +282,7 @@ Stories automatically receive a `QueryClient` from `.storybook/preview.tsx`. No 
 export const WithData: Story = {
   parameters: {
     msw: {
-      handlers: [
-        http.get('/api/rbac/v1/groups/', () =>
-          HttpResponse.json({ data: mockGroups, meta: { count: mockGroups.length } }),
-        ),
-      ],
+      handlers: [http.get('/api/rbac/v1/groups/', () => HttpResponse.json({ data: mockGroups, meta: { count: mockGroups.length } }))],
     },
   },
   play: async ({ canvasElement }) => {
@@ -358,10 +360,127 @@ Only keep the `args` parameter if the play function actually uses it:
 play: async ({ canvasElement, args }) => {
   await userEvent.click(await canvas.findByRole('button'));
   expect(args.onSave).toHaveBeenCalled();
-}
+};
 
 // ✅ No args needed — remove it
 play: async ({ canvasElement }) => {
   expect(await canvas.findByText('Groups')).toBeInTheDocument();
+};
+```
+
+---
+
+## MSW Handler Factories (`@msw/data`)
+
+Handler factories use `@msw/data` `Collection` instances for type-safe mock data.
+Types are centralized in `src/shared/data/mocks/db.ts`. Handler factories accept
+`MockCollection<T>` — an alias for `Collection<ZodType<T>>`.
+
+### Quick reference
+
+```typescript
+import type { MockCollection } from '../../shared/data/mocks/db';
+import { createSeededCollection, createResettableCollection, paginate } from '../../shared/data/mocks/db';
+
+// Read-only convenience wrappers (create internal collection)
+handlers: [...groupsHandlers()]; // default data
+handlers: [...groupsHandlers(customGroups)]; // custom data
+
+// Stateful stories (need CRUD + test isolation)
+const col = createResettableCollection(myItems);
+const handlers = createGroupsHandlers(col, { onDelete: spy });
+
+// In decorator: col.reset();
+// In play: col.all(), col.findFirst(q => q.where({ uuid: 'x' })), col.count()
+```
+
+### Writing a new handler factory
+
+```typescript
+import { HttpResponse, delay, http } from 'msw';
+import type { MockCollection, MyType } from './db';
+import { paginate, createSeededCollection } from './db';
+
+export function createMyHandlers(collection: MockCollection<MyType>, options = {}) {
+  return [
+    http.get('*/api/v1/things/', async () => {
+      const items = collection.all(); // typed as MyType[]
+      return HttpResponse.json(paginate(items, 0, 20));
+    }),
+    http.get('*/api/v1/things/:id/', async ({ params }) => {
+      const item = collection.findFirst((q) => q.where({ id: params.id as string }));
+      if (!item) return new HttpResponse(null, { status: 404 });
+      return HttpResponse.json(item);
+    }),
+    http.post('*/api/v1/things/', async ({ request }) => {
+      const body = await request.json();
+      await collection.create(body); // async — validates via Zod schema
+      return HttpResponse.json(body, { status: 201 });
+    }),
+  ];
+}
+
+// Convenience wrapper
+export function myHandlers(data?: MyType[]) {
+  return createMyHandlers(createSeededCollection(data ?? getDefaults()));
 }
 ```
+
+### Key API differences from old `StatefulCollection`
+
+| Old (`StatefulCollection`)     | New (`MockCollection<T>`)                                          |
+| ------------------------------ | ------------------------------------------------------------------ |
+| `collection.list()`            | `collection.all()`                                                 |
+| `collection.get(id)`           | `collection.findFirst(q => q.where({ id }))`                       |
+| `collection.create(item)`      | `await collection.create(item)`                                    |
+| `collection.update(id, patch)` | `await collection.update(q => q.where({id}), { data(r) { ... } })` |
+| `collection.delete(id)`        | `collection.delete(q => q.where({ id }))`                          |
+| `collection.reset()`           | Use `createResettableCollection` wrapper                           |
+
+### MockDb pattern (journey stories)
+
+Journey stories that need full CRUD with cross-entity mutations use `V1MockDb` or `V2MockDb`.
+These bundle all collections + relational maps with a single `reset()`.
+
+```typescript
+import { createV1MockDb } from '../../v1/data/mocks/db';
+import { defaultV1Seed } from '../../v1/data/mocks/seed';
+import { createV1Handlers } from '../../v1/data/mocks/handlers';
+
+// Module-level — shared by all stories in the file
+const db = createV1MockDb(defaultV1Seed());
+const handlers = createV1Handlers(db, { roles: { onDelete: deleteSpy } });
+
+// Decorator: db.reset() for test isolation
+// Play: await resetStoryState(db) — resets db + cleans DOM + verifies MSW
+// Assertions: db.groups.all(), db.groupMembers.get('group-1')
+```
+
+The V2 equivalent uses `createV2MockDb` + `createV2Handlers`. Both composition
+files wire all shared + version-specific handler factories to the db, including
+cross-entity sync (e.g. adding members updates `group.principalCount`).
+
+### No custom/inline types in handlers
+
+Handler factories must use types from `src/*/data/api/` (re-exported from
+`@redhat-cloud-services/rbac-client`). Never define inline type shapes inside
+handler functions.
+
+```typescript
+// ❌ Inline anonymous type — drifts from API silently
+const allBindings: Array<{
+  role: { id: string; name: string };
+  subject: { id?: string; type: string; group?: { name: string } };
+}> = [];
+
+// ✅ Use the real API type + casts where the API sparse-field response adds fields
+import type { RoleBindingsRoleBinding, RoleBindingsGroupSubject } from '../api/workspaces';
+
+const allBindings: RoleBindingsRoleBinding[] = [];
+// When the API returns extended fields via ?fields=subject(id,group.name):
+subject: { ...base, group: { name } } as RoleBindingsGroupSubject,
+```
+
+**Why**: Handler factories are typed against the same API types the real code uses.
+When `rbac-client` updates, TypeScript catches mock drift at build time — but only
+if handlers use the real types instead of hand-rolled lookalikes.

@@ -1,0 +1,43 @@
+/**
+ * Overview Page Tests
+ *
+ * Tests for the V2 Overview page content.
+ *
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * DECISION TREE - Add your test here if:
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * ✓ Testing overview page heading and content visibility
+ * ✓ Testing Get Started card or other overview sections
+ *
+ * DO NOT add here if:
+ * ✗ Testing navigation structure → navigation-structure.spec.ts
+ *
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * DATA PREREQUISITES
+ * ═══════════════════════════════════════════════════════════════════════════════
+ * @dependencies AUTH: AUTH_V2_ORGADMIN
+ * @dependencies UTILS: setupPage
+ */
+
+import { expect, test } from '@playwright/test';
+import { AUTH_V2_ORGADMIN, iamUrl, setupPage, v2 } from '../../../utils';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
+
+test.describe('Overview', () => {
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    test('Can view overview page content [OrgAdmin]', async ({ page }) => {
+      await setupPage(page);
+      const overviewUrl = iamUrl(v2.overview.link());
+      await expect(async () => {
+        await page.goto(overviewUrl, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByRole('heading', { name: /user access/i, level: 1 }).first()).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
+
+      await expect(page.getByLabel('Get started card')).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      await expect(page.getByRole('button', { name: /view groups/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: /view roles/i })).toBeVisible();
+    });
+  });
+});

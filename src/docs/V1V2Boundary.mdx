@@ -1,0 +1,92 @@
+# V1/V2 Application Boundary
+
+The RBAC UI is split into two applications within a single repository:
+
+- **V1 (User Access)** — `src/v1/` — the legacy permission model using Chrome's `usePermissions` RBACHook.
+- **V2 (Access Management)** — `src/v2/` — the new Kessel-based permission model using `useSelfAccessCheck`.
+- **Shared** — `src/shared/` — genuinely shared code (platform hooks, UI components, utilities).
+
+The version toggle is the `platform.rbac.workspaces-organization-management` feature flag, evaluated in `src/Iam.tsx`.
+
+## Import Boundary Rules
+
+Enforced by ESLint rule `rbac-local/no-cross-version-imports`:
+
+| From         | To `v1/`   | To `v2/`   | To `shared/` |
+|-------------|-----------|-----------|-------------|
+| `v1/`       | ✅         | ❌         | ✅           |
+| `v2/`       | ❌*        | ✅         | ✅           |
+| `shared/`   | ❌         | ❌         | ✅           |
+
+No exceptions. V2 owns its own data layer for roles and groups. Shared APIs (users, permissions, etc.) live in `src/shared/data/`.
+
+## Permission Models
+
+### V1 (src/v1/)
+
+```tsx
+import { useAccessPermissions } from '../../shared/hooks/useAccessPermissions';
+import useUserData from '../../shared/hooks/useUserData';
+
+const { hasAccess } = useAccessPermissions(['rbac:role:write']);
+const { orgAdmin, userAccessAdministrator } = useUserData();
+```
+
+V1 uses Chrome-based `app:resource:action` permission strings (e.g. `rbac:role:write`) checked via `useAccessPermissions` (shared). The `orgAdmin` and `userAccessAdministrator` flags come from `useUserData`.
+
+### V2 (src/v2/)
+
+```tsx
+import { useRolesAccess, useGroupsAccess } from '../hooks/useRbacAccess';
+
+const { canCreate, canDelete, isLoading } = useRolesAccess();
+```
+
+V2 uses Kessel SDK domain hooks that abstract `useSelfAccessCheck` calls. Each hook returns UI-action booleans (`canCreate`, `canView`, `canList`, `canUpdate`, `canDelete`). Tenant-scoped hooks fetch the organization ID internally — callers never pass it. Components never call `useSelfAccessCheck` directly.
+
+Available domain hooks (all in `src/v2/hooks/useRbacAccess.ts`):
+- `useRolesAccess()` — tenant-scoped roles permissions
+- `useGroupsAccess()` — tenant-scoped groups permissions
+- `usePrincipalsAccess()` — tenant-scoped + orgAdmin for invite/delete
+- `useWorkspaceTenantAccess()` — tenant-scoped workspace management
+- `useRoleBindingsAccess(workspaceId)` — workspace-scoped role binding permissions (workspaceId is dynamic)
+
+### Shared (src/shared/)
+
+`useUserData()` in `src/shared/hooks/useUserData.ts` — fetches identity from Chrome, exposes `orgAdmin` and `userAccessAdministrator` flags. Used by V1 directly and by V2 Kessel hooks internally.
+
+## Data Layer
+
+- **V1 data**: `src/v1/data/queries/` and `src/v1/data/api/` — V1-only roles
+- **V2 data**: `src/v2/data/queries/` and `src/v2/data/api/` — V2 roles, V2 groups (currently V1 API, will switch when V2 ships), workspaces
+- **Shared data**: `src/shared/data/queries/` and `src/shared/data/api/` — users, permissions, inventory, cost, service accounts (V1 APIs used by both versions)
+- Shared code should not import data hooks from `v1/` or `v2/`
+
+## Routing
+
+Both V1 and V2 use **declarative JSX** in their respective `Routing.tsx` files. There are no route-definition objects or `renderRoutes` — permissions are colocated on each route via `guard()` layout routes.
+
+- **`src/v1/Routing.tsx`** — V1-only routes. Uses `guard(['rbac:role:read'])` (and similar) from `src/shared/components/PermissionGuard.tsx` to wrap layout routes. Permissions are inline on each route.
+- **`src/v2/Routing.tsx`** — V2-only routes. Same pattern: `guard()` and `guardOrgAdmin()` layout routes with inline permissions.
+- **`src/shared/components/PermissionGuard.tsx`** — Shared between V1 and V2. Exports `PermissionGuard`, `guard()`, and `guardOrgAdmin()` helpers. Uses `useAccessPermissions` (Chrome-based) for route-level checks.
+- **Pathnames** — Split by version: `src/v1/utilities/pathnames.ts` (V1 paths), `src/v2/utilities/pathnames.ts` (V2 paths). Shared `src/shared/utilities/pathnames.ts` exports only the `PathnameConfig` type.
+- **`route-definitions.ts`** — Deleted. Permissions are colocated on routes, not in a separate definitions file.
+- **`ApiErrorBoundary`** — Links to `/iam` (app root) for error recovery, not a version-specific path.
+- Unmatched routes redirect to the version's default page.
+
+## Storybook
+
+Stories for V2 components use `tenantPermissions` parameter to control Kessel mock responses:
+
+```tsx
+export const WithWriteAccess: Story = {
+  parameters: {
+    tenantPermissions: {
+      rbac_roles_read: true,
+      rbac_roles_write: true,
+    },
+  },
+};
+```
+
+Workspace-scoped permissions use the existing `workspacePermissions` parameter.

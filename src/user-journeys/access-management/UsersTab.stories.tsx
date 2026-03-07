@@ -13,15 +13,15 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { HttpResponse, delay, http } from 'msw';
+import { delay } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
 import { TEST_TIMEOUTS, resetStoryState, verifySuccessNotification, waitForPageToLoad } from '../_shared/helpers';
-import { defaultHandlers } from './_shared';
+import { accountManagementHandlers, createStatefulUserStatusHandlers, v2DefaultHandlers } from './_shared';
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Management Fabric/Access Management/Users tab',
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Users and Groups/Users Tab',
   tags: ['access-management', 'users'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
@@ -37,7 +37,6 @@ const meta = {
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
-    'platform.rbac.common.userstable': true,
     'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
@@ -45,11 +44,10 @@ const meta = {
       permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
-      'platform.rbac.common.userstable': true,
       'platform.rbac.workspaces-organization-management': true,
     }),
     msw: {
-      handlers: defaultHandlers,
+      handlers: v2DefaultHandlers,
     },
     docs: {
       description: {
@@ -523,16 +521,17 @@ Tests inviting new users to the organization from the Access Management Users ta
     },
     msw: {
       handlers: [
-        http.post(/https:\/\/api\.access\.(stage\.)?redhat\.com\/(management\/)?account\/v1\/accounts\/.*\/users\/invite/, async ({ request }) => {
-          const body = (await request.json()) as { emails: string[]; roles?: string[]; message?: string };
-          inviteUsersSpy({
-            url: request.url,
-            emails: body.emails,
-            roles: body.roles,
-          });
-          return HttpResponse.json({ success: true }, { status: 200 });
+        ...accountManagementHandlers({
+          onInvite: (request, body) => {
+            const b = body as { emails?: string[]; roles?: string[] };
+            inviteUsersSpy({
+              url: request.url,
+              emails: b.emails,
+              roles: b.roles,
+            });
+          },
         }),
-        ...defaultHandlers,
+        ...v2DefaultHandlers,
       ],
     },
   },
@@ -561,11 +560,7 @@ Tests inviting new users to the organization from the Access Management Users ta
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
     // Modal should open (rendered via <Outlet> child route)
-    const modal = await waitFor(() => {
-      const dialog = document.querySelector('[role="dialog"]');
-      expect(dialog).toBeInTheDocument();
-      return dialog as HTMLElement;
-    });
+    const modal = await within(document.body).findByRole('dialog', undefined, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
 
     const modalContent = within(modal);
 
@@ -573,22 +568,22 @@ Tests inviting new users to the organization from the Access Management Users ta
     await modalContent.findByRole('heading', { name: /invite new users/i });
 
     // Fill in email addresses (required field)
-    const emailInput = modalContent.getByRole('textbox', { name: /enter the e-mail addresses/i });
+    const emailInput = await modalContent.findByRole('textbox', { name: /enter the e-mail addresses/i });
     await user.type(emailInput, 'newuser1@example.com, newuser2@example.com');
     await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Optionally add a message
-    const messageInput = modalContent.getByRole('textbox', { name: /send a message with the invite/i });
+    const messageInput = await modalContent.findByRole('textbox', { name: /send a message with the invite/i });
     await user.type(messageInput, 'Welcome to our organization!');
     await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Check the org admin checkbox
-    const orgAdminCheckbox = modalContent.getByRole('checkbox', { name: /organization administrators/i });
+    const orgAdminCheckbox = await modalContent.findByRole('checkbox', { name: /organization administrators/i });
     await user.click(orgAdminCheckbox);
     await delay(TEST_TIMEOUTS.AFTER_CLICK);
 
     // Submit the form
-    const submitButton = modalContent.getByRole('button', { name: /invite new users/i });
+    const submitButton = await modalContent.findByRole('button', { name: /invite new users/i });
     await waitFor(() => expect(submitButton).toBeEnabled());
     await user.click(submitButton);
     await delay(TEST_TIMEOUTS.AFTER_EXPAND);
@@ -615,5 +610,152 @@ Tests inviting new users to the organization from the Access Management Users ta
 
     // Verify org admin role was included (checkbox was checked)
     expect(spyCall.roles).toContain('organization_administrator');
+  },
+};
+
+const changeStatusSpy = fn();
+const toggleStatusHandlers = createStatefulUserStatusHandlers({ onToggleStatus: changeStatusSpy });
+
+/**
+ * Toggle User Status
+ *
+ * Tests toggling a user's active status via the switch in the users table.
+ * The mutation calls the external IT API (POST .../users/{userId}/status).
+ * Uses stateful handlers so the switch visually flips after the mutation.
+ */
+export const ToggleUserStatus: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests toggling a user's active status via the switch in the users table.
+
+**Expected behavior:**
+1. Find a user row's status toggle switch
+2. Record initial state (checked = active)
+3. Click the toggle
+4. Verify the IT API was called with correct status
+5. Verify the switch visually flipped
+        `,
+      },
+    },
+    msw: {
+      handlers: [...toggleStatusHandlers, ...v2DefaultHandlers],
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    changeStatusSpy.mockClear();
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await waitForPageToLoad(canvas, 'adumble');
+
+    // adumble starts is_active: true → switch is checked
+    const statusSwitch = await canvas.findByRole('switch', { name: /toggle status for adumble/i });
+    await user.click(statusSwitch);
+
+    // Toggling active → inactive calls IT API with status: 'disabled'
+    await waitFor(
+      () => {
+        expect(changeStatusSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.objectContaining({ status: 'disabled' }));
+      },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+    );
+
+    // After refetch the switch should reflect the new inactive state
+    await waitFor(
+      () => {
+        const updatedSwitch = canvas.getByRole('switch', { name: /toggle status for adumble/i });
+        expect(updatedSwitch).not.toBeChecked();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
+  },
+};
+
+const bulkDeactivateSpy = fn();
+const bulkDeactivateHandlers = createStatefulUserStatusHandlers({ onToggleStatus: bulkDeactivateSpy });
+
+/**
+ * Bulk Deactivate Users
+ *
+ * Tests selecting users and deactivating them via the toolbar overflow menu.
+ * The mutation calls the IT API once per user (POST .../users/{userId}/status).
+ * Uses stateful handlers so the table reflects deactivated status after mutation.
+ */
+export const BulkDeactivateUsers: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests the bulk deactivate flow from the Users tab with API spy verification.
+
+**Expected behavior:**
+1. Select 2 users by clicking their row checkboxes
+2. Open the toolbar overflow/kebab menu
+3. Click "Deactivate" menu item
+4. BulkDeactivateUsersModal appears
+5. Click confirmation checkbox and Deactivate button
+6. Verify IT API called once per user with status: 'disabled'
+        `,
+      },
+    },
+    msw: {
+      handlers: [...bulkDeactivateHandlers, ...v2DefaultHandlers],
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    bulkDeactivateSpy.mockClear();
+    const canvas = within(context.canvasElement);
+    const body = within(document.body);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await waitForPageToLoad(canvas, 'adumble');
+
+    // Select 2 users by clicking their row checkboxes
+    const checkboxes = await canvas.findAllByRole('checkbox');
+    expect(checkboxes.length).toBeGreaterThan(2);
+    await user.click(checkboxes[1]);
+    await user.click(checkboxes[2]);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+
+    // Open the toolbar overflow menu
+    const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
+    await user.click(actionsMenu);
+    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+
+    // Click "Deactivate" menu item
+    const deactivateMenuItem = await body.findByRole('menuitem', { name: /deactivate users/i });
+    await user.click(deactivateMenuItem);
+    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+
+    // Verify BulkDeactivateUsersModal appears
+    const modal = await body.findByRole('dialog', undefined, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    await expect(within(modal).findByRole('heading', { name: /deactivate users/i })).resolves.toBeInTheDocument();
+
+    const confirmCheckbox = within(modal).queryByRole('checkbox');
+    if (confirmCheckbox) {
+      await user.click(confirmCheckbox);
+      await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    }
+
+    const deactivateButton = await within(modal).findByRole('button', { name: /deactivate/i });
+    await expect(deactivateButton).toBeEnabled();
+    await user.click(deactivateButton);
+
+    // The IT API is called once per user — 2 users selected means 2 calls
+    await waitFor(
+      () => {
+        expect(bulkDeactivateSpy).toHaveBeenCalledTimes(2);
+      },
+      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+    );
+
+    // Each call should have status: 'disabled'
+    for (const call of bulkDeactivateSpy.mock.calls) {
+      expect(call[2]).toEqual(expect.objectContaining({ status: 'disabled' }));
+    }
   },
 };

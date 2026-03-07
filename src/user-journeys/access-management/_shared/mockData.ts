@@ -265,56 +265,58 @@ export const mockServiceAccounts = [
 // NOTE: These use V2 API structure which is not yet available
 // =============================================================================
 
+const JOURNEY_ORG_ID = '12510751';
+
 export const mockRolesV2 = [
   {
     uuid: 'role-tenant-admin',
     name: 'Tenant admin',
     description: 'Full administrative access',
+    org_id: null as string | null,
     permissions: 5,
     workspaces: 1,
     userGroups: 1,
     modified: '2024-01-01T00:00:00Z',
-    system: true, // Canned role - no kebab/checkbox
   },
   {
     uuid: 'role-workspace-admin',
     name: 'Workspace admin',
     description: 'Workspace administrative access',
+    org_id: null as string | null,
     permissions: 4,
     workspaces: 1,
     userGroups: 1,
     modified: '2024-01-01T00:00:00Z',
-    system: true,
   },
   {
     uuid: 'role-rhel-devops',
     name: 'RHEL DevOps',
     description: 'RHEL development operations',
+    org_id: JOURNEY_ORG_ID,
     permissions: 3,
     workspaces: 2,
     userGroups: 2,
     modified: '2024-01-01T00:00:00Z',
-    system: false,
   },
   {
     uuid: 'role-cost-mgmt',
     name: 'Cost mgmt role',
     description: 'Cost management access',
+    org_id: null as string | null,
     permissions: null, // "Not available" in UI
     workspaces: null,
     userGroups: null,
     modified: '2024-01-01T00:00:00Z',
-    system: true,
   },
   {
     uuid: 'role-rhel-inventory',
     name: 'RHEL Inventory viewer',
     description: 'View RHEL inventory',
+    org_id: JOURNEY_ORG_ID,
     permissions: 1,
     workspaces: 1,
     userGroups: 1,
     modified: '2025-01-13T00:00:00Z',
-    system: false,
   },
 ];
 

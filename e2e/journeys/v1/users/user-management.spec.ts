@@ -27,7 +27,7 @@
  * DATA PREREQUISITES
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
- *   - AUTH: Uses AUTH_V1_ADMIN, AUTH_V1_READONLY from utils
+ *   - AUTH: Uses AUTH_V1_ORGADMIN, AUTH_V1_READONLY from utils
  *   - DATA: No seeded data required (uses existing users in org)
  *   - UTILS: Use UsersPage for management interactions
  *   - PREFIX: Requires TEST_PREFIX_V1 env var for safe test isolation
@@ -37,7 +37,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V1_ADMIN, AUTH_V1_READONLY, setupPage } from '../../../utils';
+import { AUTH_V1_ORGADMIN, AUTH_V1_READONLY, iamUrl, requireTestPrefix, setupPage, v1 } from '../../../utils';
 import { UsersPage } from '../../../pages/v1/UsersPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -45,17 +45,8 @@ import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 // Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
-const TEST_PREFIX = process.env.TEST_PREFIX_V1;
-const USERS_URL = '/iam/user-access/users';
-
-if (!TEST_PREFIX) {
-  throw new Error(
-    '\n\n' +
-      '╔══════════════════════════════════════════════════════════════════════╗\n' +
-      '║  SAFETY RAIL: TEST_PREFIX_V1 environment variable is REQUIRED       ║\n' +
-      '╚══════════════════════════════════════════════════════════════════════╝\n',
-  );
-}
+const _TEST_PREFIX = requireTestPrefix('v1');
+const USERS_URL = iamUrl(v1.users.link());
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests
@@ -66,19 +57,17 @@ test.describe('User Management', () => {
   // ADMIN - Full management access (User Status)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe('Admin Status Management', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+  test.describe('OrgAdmin Status Management', () => {
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    test('Invite users button is visible [Admin]', async ({ page }) => {
+    test('Invite users button is visible [OrgAdmin]', async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
       await expect(usersPage.inviteButton).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-
-      console.log('[Users] ✓ Invite button is visible');
     });
 
-    test('Invite users modal opens and has required fields [Admin]', async ({ page }) => {
+    test('Invite users modal opens and has required fields [OrgAdmin]', async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
@@ -94,11 +83,9 @@ test.describe('User Management', () => {
 
       // Close modal
       await page.keyboard.press('Escape');
-
-      console.log('[Users] ✓ Invite modal has required fields');
     });
 
-    test('Bulk actions menu is available when users selected [Admin]', async ({ page }) => {
+    test('Bulk actions menu is available when users selected [OrgAdmin]', async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
@@ -126,15 +113,13 @@ test.describe('User Management', () => {
       expect(hasActivate || hasDeactivate).toBe(true);
 
       await page.keyboard.press('Escape');
-
-      console.log('[Users] ✓ Bulk actions menu is available');
     });
 
     // Note: Actual user activation/deactivation tests are skipped by default
     // because they modify real user accounts in the shared environment.
     // These tests document the UI flow but require careful execution.
 
-    test.skip('Can deactivate a user (CAUTION: modifies real user) [Admin]', async ({ page }) => {
+    test.skip('Can deactivate a user (CAUTION: modifies real user) [OrgAdmin]', async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
@@ -150,11 +135,9 @@ test.describe('User Management', () => {
 
       // Verify success
       await usersPage.verifySuccess();
-
-      console.log('[Users] ✓ User deactivated');
     });
 
-    test.skip('Can activate a user (CAUTION: modifies real user) [Admin]', async ({ page }) => {
+    test.skip('Can activate a user (CAUTION: modifies real user) [OrgAdmin]', async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
@@ -170,8 +153,6 @@ test.describe('User Management', () => {
 
       // Verify success
       await usersPage.verifySuccess();
-
-      console.log('[Users] ✓ User activated');
     });
   });
 
@@ -179,13 +160,13 @@ test.describe('User Management', () => {
   // ADMIN - Full management access (User Invitation)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  test.describe('Admin Invitation', () => {
-    test.use({ storageState: AUTH_V1_ADMIN });
+  test.describe('OrgAdmin Invitation', () => {
+    test.use({ storageState: AUTH_V1_ORGADMIN });
 
     // Note: This test uses a fake email that won't actually send invites
     // It verifies the API call is made correctly
 
-    test('Can submit invite form with valid email [Admin]', async ({ page }) => {
+    test('Can submit invite form with valid email [OrgAdmin]', async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
@@ -219,11 +200,9 @@ test.describe('User Management', () => {
       // Regression test for bug where wrong URL was used
       expect(inviteUrl).not.toContain('/management/');
       expect(inviteUrl).toContain('/users/invite');
-
-      console.log('[Users] ✓ Invite API called with correct URL');
     });
 
-    test('Invite form validates required email field [Admin]', async ({ page }) => {
+    test('Invite form validates required email field [OrgAdmin]', async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
@@ -240,8 +219,6 @@ test.describe('User Management', () => {
 
       // Close modal
       await page.keyboard.press('Escape');
-
-      console.log('[Users] ✓ Invite form validates email field');
     });
   });
 

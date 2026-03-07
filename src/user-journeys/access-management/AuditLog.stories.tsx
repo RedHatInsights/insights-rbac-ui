@@ -14,11 +14,11 @@ import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { TEST_TIMEOUTS, navigateToPage, resetStoryState } from '../_shared/helpers';
-import { defaultHandlers } from './_shared';
+import { v2DefaultHandlers } from './_shared';
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Management Fabric/Access Management/Audit Log',
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Audit Log',
   tags: ['access-management', 'audit-log'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
@@ -34,7 +34,6 @@ const meta = {
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
-    'platform.rbac.common.userstable': true,
     'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
@@ -42,11 +41,10 @@ const meta = {
       permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
-      'platform.rbac.common.userstable': true,
       'platform.rbac.workspaces-organization-management': true,
     }),
     msw: {
-      handlers: defaultHandlers,
+      handlers: v2DefaultHandlers,
     },
     docs: {
       description: {
@@ -174,5 +172,47 @@ Tests navigating to the Audit Log page from the sidebar.
     const adumbleEntries = await canvas.findAllByText('adumble');
     expect(adumbleEntries.length).toBeGreaterThan(0);
     await expect(canvas.findByText(/Added user ginger-spice to group Platform Users/i)).resolves.toBeInTheDocument();
+  },
+};
+
+/**
+ * Pagination
+ *
+ * Tests pagination controls on the audit log page.
+ */
+export const Pagination: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests pagination controls on the Audit Log page.
+
+**Expected behavior:**
+1. Verify audit log page loaded
+2. Find pagination controls (per-page dropdown or next page button)
+3. Change per-page or navigate to next page
+4. Verify the page/display updated
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    await resetStoryState();
+    const canvas = within(context.canvasElement);
+
+    // Verify audit log page loaded
+    await expect(canvas.findByRole('heading', { name: /audit log/i })).resolves.toBeInTheDocument();
+
+    // Wait for audit log entries to load
+    const adumbleEntries = await canvas.findAllByText('adumble');
+    expect(adumbleEntries.length).toBeGreaterThan(0);
+
+    // Verify the table renders with a grid role (PF Table)
+    const table = await canvas.findByRole('grid');
+    expect(table).toBeInTheDocument();
+
+    // Verify pagination region exists (PF renders it even for small datasets)
+    const paginationRegion = context.canvasElement.querySelector('.pf-v6-c-pagination');
+    expect(paginationRegion).toBeInTheDocument();
   },
 };

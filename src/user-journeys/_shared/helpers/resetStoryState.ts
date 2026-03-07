@@ -30,16 +30,22 @@ async function verifyMswReady(maxAttempts = 5): Promise<void> {
  * Helper function to reset story state and clean up notifications.
  * Call this at the start of every play function for test isolation.
  *
- * This function:
- * 1. Resets MSW stateful handlers to initial state
- * 2. Verifies MSW is responsive (prevents race conditions)
- * 3. Cleans up lingering DOM elements (notifications, modals)
- * 4. Allows React to process updates
+ * When a MockDb is provided, it is reset before the MSW readiness
+ * check so that the next request sees clean seed data.
+ *
+ * Access-management stories that don't use a centralized MockDb
+ * can call this without arguments — the decorator already resets
+ * the individual ResettableCollections.
  */
-export async function resetStoryState(): Promise<void> {
-  // 1. Reset MSW state for test isolation
-  const response = await fetch('/api/test/reset-state', { method: 'POST' });
-  await response.json(); // Ensure the request completes fully
+export async function resetStoryState(db?: { reset(): void; ready?: Promise<void> }): Promise<void> {
+  // 1. Reset MockDb collections + maps (when using centralized db)
+  db?.reset();
+
+  // 1b. Await collection repopulation — @msw/data Collection.create() is async; handlers
+  //     must see populated data before the first request
+  if (db?.ready) {
+    await db.ready;
+  }
 
   // 2. Verify MSW handlers are ready - this is the key to preventing flakiness
   // Without this, components might fire requests before handlers are registered

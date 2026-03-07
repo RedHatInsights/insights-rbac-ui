@@ -19,7 +19,7 @@ import { PacProxyAgent } from 'pac-proxy-agent';
 import type { Agent } from 'https';
 import chalk from 'chalk';
 import { getApiBaseUrl } from './auth';
-import type { AppServices, NotifyFn } from '../services/types';
+import type { AppServices, NotifyFn } from '../shared/services/types';
 
 // Global axios instance for CLI
 let cliApiClient: AxiosInstance | null = null;
@@ -180,9 +180,9 @@ export function isApiClientInitialized(): boolean {
 /**
  * Get current token (masked for display)
  */
-export function getMaskedToken(): string {
+export function getCurrentToken(): string {
   if (!currentToken) return '(not set)';
-  return currentToken.slice(0, 20) + '...' + currentToken.slice(-10);
+  return currentToken;
 }
 
 // ============================================================================

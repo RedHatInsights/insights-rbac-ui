@@ -1,7 +1,7 @@
-import { createStatefulHandlers } from '../../../.storybook/helpers/stateful-handlers';
-import { defaultGroups } from '../../../.storybook/fixtures/groups';
-import { defaultUsers } from '../../../.storybook/fixtures/users';
-import { defaultRoles } from '../../../.storybook/fixtures/roles';
+import { createV1MockDb } from '../../v1/data/mocks/db';
+import { defaultV1Seed } from '../../v1/data/mocks/seed';
+import { createV1Handlers } from '../../v1/data/mocks/handlers';
+import { createInventoryHandlers } from '../../v1/data/mocks/inventory.handlers';
 import type { StoryParameters } from '../../../.storybook/contexts/StorybookMockContext';
 
 /**
@@ -9,6 +9,11 @@ import type { StoryParameters } from '../../../.storybook/contexts/StorybookMock
  * Extends StoryParameters but makes required fields non-optional.
  */
 type EnvironmentConfig = Required<Pick<StoryParameters, 'noWrapping' | 'permissions' | 'orgAdmin' | 'userIdentity' | 'featureFlags' | 'msw'>>;
+
+/** Shared V1 mock database — reset in play functions via resetStoryState(v1Db) */
+export const v1Db = createV1MockDb(defaultV1Seed());
+
+const v1Handlers = [...createV1Handlers(v1Db), ...createInventoryHandlers()];
 
 /**
  * Environment configurations for user journey tests.
@@ -55,11 +60,7 @@ export const ENVIRONMENTS: Record<string, EnvironmentConfig> = {
       'platform.rbac.common-auth-model': true, // Enables selectable users table for org admins
     },
     msw: {
-      handlers: createStatefulHandlers({
-        groups: defaultGroups,
-        users: defaultUsers,
-        roles: defaultRoles,
-      }),
+      handlers: v1Handlers,
     },
   },
 
@@ -101,11 +102,7 @@ export const ENVIRONMENTS: Record<string, EnvironmentConfig> = {
       'platform.rbac.workspaces-organization-management': false, // V1 navigation
     },
     msw: {
-      handlers: createStatefulHandlers({
-        groups: defaultGroups,
-        users: defaultUsers,
-        roles: defaultRoles,
-      }),
+      handlers: v1Handlers,
     },
   },
 
@@ -149,11 +146,7 @@ export const ENVIRONMENTS: Record<string, EnvironmentConfig> = {
       'platform.rbac.workspaces-organization-management': false, // V1 navigation
     },
     msw: {
-      handlers: createStatefulHandlers({
-        groups: defaultGroups,
-        users: defaultUsers,
-        roles: defaultRoles,
-      }),
+      handlers: v1Handlers,
     },
   },
 
@@ -195,12 +188,7 @@ export const ENVIRONMENTS: Record<string, EnvironmentConfig> = {
       'platform.rbac.workspaces-organization-management': false, // V1 with workspaces
     },
     msw: {
-      handlers: createStatefulHandlers({
-        groups: defaultGroups,
-        users: defaultUsers,
-        roles: defaultRoles,
-        // TODO: Add workspaces fixtures when implementing workspace journeys
-      }),
+      handlers: v1Handlers,
     },
   },
 } as const;

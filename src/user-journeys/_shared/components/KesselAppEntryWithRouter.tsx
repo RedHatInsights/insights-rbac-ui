@@ -1,5 +1,6 @@
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { deriveTenantPermissions } from '../../../../.storybook/helpers/derive-tenant-permissions';
 import { Iam } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
 import { FrontendYamlNavigation } from './FrontendYamlNavigation';
@@ -54,10 +55,10 @@ interface KesselAppEntryWithRouterProps {
   'platform.rbac.workspaces-role-bindings'?: boolean;
   'platform.rbac.workspaces-role-bindings-write'?: boolean;
   'platform.rbac.workspaces-organization-management'?: boolean;
+  'platform.rbac.overview'?: boolean;
   'platform.rbac.group-service-accounts'?: boolean;
   'platform.rbac.group-service-accounts.stable'?: boolean;
   'platform.rbac.common-auth-model'?: boolean;
-  'platform.rbac.common.userstable'?: boolean;
 }
 
 /**
@@ -65,7 +66,7 @@ interface KesselAppEntryWithRouterProps {
  * Uses the production Iam component directly for maximum fidelity.
  * testMode enables test-friendly QueryClient settings (no cache, no retries)
  * while keeping full error handling wired up (403/500 → ApiErrorBoundary).
- * Uses KesselNavigation instead of LeftNavigation to include Workspaces link.
+ * Uses FrontendYamlNavigation which reads deploy/frontend.yaml for the sidebar.
  */
 export const KesselAppEntryWithRouter: React.FC<KesselAppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
@@ -121,6 +122,9 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
   // Use explicit override if provided; otherwise derive from write permissions.
   const workspacePermissions = args.workspacePermissions ?? (hasWritePermissions ? allGranted : allDenied);
 
+  // Tenant permissions for V2 domain hooks - derive from Chrome permissions
+  const tenantPermissions = deriveTenantPermissions(permissions as string[]);
+
   // orgAdmin is explicit - controls user identity, not permissions
   const isOrgAdmin = args.orgAdmin === true;
 
@@ -142,6 +146,8 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
     environment: args.environment ?? 'staging',
     // Workspace permissions for useSelfAccessCheck mock (workspace IDs user can edit/create in)
     workspacePermissions,
+    // Tenant permissions for V2 domain hooks (useRolesAccess, useGroupsAccess, etc.)
+    tenantPermissions,
     // User identity for auth.getUser() - used by StorybookMockContext
     userIdentity: {
       org_id: '12510751',
@@ -179,10 +185,10 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
       'platform.rbac.workspaces-role-bindings': args['platform.rbac.workspaces-role-bindings'] ?? false,
       'platform.rbac.workspaces-role-bindings-write': args['platform.rbac.workspaces-role-bindings-write'] ?? false,
       'platform.rbac.workspaces-organization-management': args['platform.rbac.workspaces-organization-management'] ?? false,
+      'platform.rbac.overview': args['platform.rbac.overview'] ?? true,
       'platform.rbac.group-service-accounts': args['platform.rbac.group-service-accounts'] ?? false,
       'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'] ?? false,
       'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] ?? false,
-      'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] ?? false,
       'platform.rbac.itless': false,
     },
   };

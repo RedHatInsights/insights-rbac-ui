@@ -12,16 +12,16 @@
 
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
+import { delay } from 'msw';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { HttpResponse, delay, http } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
 import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
-import { defaultHandlers } from './_shared';
+import { groupsHandlers, v2DefaultHandlers } from './_shared';
 
 const meta = {
   component: KesselAppEntryWithRouter,
-  title: 'User Journeys/Management Fabric/Access Management/User groups table plus details',
+  title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Access Management/Users and Groups/User Groups Table',
   tags: ['access-management', 'user-groups'],
   decorators: [
     (Story: React.ComponentType, context: { args: Record<string, unknown>; parameters: Record<string, unknown> }) => {
@@ -37,7 +37,6 @@ const meta = {
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
-    'platform.rbac.common.userstable': true,
     'platform.rbac.workspaces-organization-management': true,
   },
   parameters: {
@@ -45,11 +44,10 @@ const meta = {
       permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
-      'platform.rbac.common.userstable': true,
       'platform.rbac.workspaces-organization-management': true,
     }),
     msw: {
-      handlers: defaultHandlers,
+      handlers: v2DefaultHandlers,
     },
     docs: {
       description: {
@@ -422,15 +420,13 @@ Tests the empty state matching \`static/mocks/User groups table plus details/Bas
     },
     msw: {
       handlers: [
-        // Override groups endpoint to return empty (this runs first, taking precedence)
-        http.get('/api/rbac/v1/groups/', () => {
-          return HttpResponse.json({
-            data: [],
-            meta: { count: 0 },
-          });
+        ...groupsHandlers([]),
+        ...v2DefaultHandlers.filter((h) => {
+          const path = h.info?.path?.toString() || '';
+          if (!path.includes('/api/rbac/v1/groups') && !path.includes('/api/rbac/v2/groups')) return true;
+          if (path.includes('/principals/') || path.includes('/service-accounts/')) return true;
+          return false;
         }),
-        // Include other handlers for users, roles, etc.
-        ...defaultHandlers,
       ],
     },
   },
