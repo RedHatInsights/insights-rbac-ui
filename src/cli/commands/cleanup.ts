@@ -162,13 +162,13 @@ async function fetchWorkspaces(client: AxiosInstance): Promise<Resource[]> {
  */
 async function deleteRole(client: AxiosInstance, uuid: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
   if (dryRun) {
-    console.error(`   Would delete role "${name}" (${uuid})`);
+    console.error(`  🔍 Would delete role "${name}" (${uuid})`);
     return true;
   }
 
   try {
     await client.delete(`/api/rbac/v1/roles/${uuid}/`);
-    console.error(`   Deleted role "${name}"`);
+    console.error(`  ✓ Deleted role "${name}"`);
     return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
@@ -183,13 +183,13 @@ async function deleteRole(client: AxiosInstance, uuid: string, name: string, err
  */
 async function deleteGroup(client: AxiosInstance, uuid: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
   if (dryRun) {
-    console.error(`   Would delete group "${name}" (${uuid})`);
+    console.error(`  🔍 Would delete group "${name}" (${uuid})`);
     return true;
   }
 
   try {
     await client.delete(`/api/rbac/v1/groups/${uuid}/`);
-    console.error(`   Deleted group "${name}"`);
+    console.error(`  ✓ Deleted group "${name}"`);
     return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
@@ -204,13 +204,13 @@ async function deleteGroup(client: AxiosInstance, uuid: string, name: string, er
  */
 async function deleteWorkspace(client: AxiosInstance, id: string, name: string, errors: string[], dryRun: boolean): Promise<boolean> {
   if (dryRun) {
-    console.error(`   Would delete workspace "${name}" (${id})`);
+    console.error(`  🔍 Would delete workspace "${name}" (${id})`);
     return true;
   }
 
   try {
     await client.delete(`/api/rbac/v2/workspaces/${id}/`);
-    console.error(`   Deleted workspace "${name}"`);
+    console.error(`  ✓ Deleted workspace "${name}"`);
     return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
@@ -239,13 +239,13 @@ async function executeCleanup(client: AxiosInstance, prefix?: string, nameMatch?
   const actionWord = dryRun ? 'Would delete' : 'Deleting';
 
   // Cleanup roles
-  console.error(`\n Scanning roles...`);
+  console.error(`\n🔍 Scanning roles...`);
   const roles = await fetchRoles(client);
   const matchingRoles = roles.filter((r) => matchesFilter(r, prefix, nameMatch) && !isProtected(r));
   console.error(`  Found ${matchingRoles.length} matching role(s)`);
 
   if (matchingRoles.length > 0) {
-    console.error(`\n  ${actionWord} roles...`);
+    console.error(`\n🗑️  ${actionWord} roles...`);
     for (const role of matchingRoles) {
       const success = await deleteRole(client, role.uuid!, role.display_name || role.name, result.errors, dryRun);
       if (success) {
@@ -257,13 +257,13 @@ async function executeCleanup(client: AxiosInstance, prefix?: string, nameMatch?
   }
 
   // Cleanup groups
-  console.error(`\n Scanning groups...`);
+  console.error(`\n🔍 Scanning groups...`);
   const groups = await fetchGroups(client);
   const matchingGroups = groups.filter((g) => matchesFilter(g, prefix, nameMatch) && !isProtected(g));
   console.error(`  Found ${matchingGroups.length} matching group(s)`);
 
   if (matchingGroups.length > 0) {
-    console.error(`\n  ${actionWord} groups...`);
+    console.error(`\n🗑️  ${actionWord} groups...`);
     for (const group of matchingGroups) {
       const success = await deleteGroup(client, group.uuid!, group.name, result.errors, dryRun);
       if (success) {
@@ -275,13 +275,13 @@ async function executeCleanup(client: AxiosInstance, prefix?: string, nameMatch?
   }
 
   // Cleanup workspaces (delete in reverse order to handle children first)
-  console.error(`\n Scanning workspaces...`);
+  console.error(`\n🔍 Scanning workspaces...`);
   const workspaces = await fetchWorkspaces(client);
   const matchingWorkspaces = workspaces.filter((w) => matchesFilter(w, prefix, nameMatch) && !isProtected(w));
   console.error(`  Found ${matchingWorkspaces.length} matching workspace(s)`);
 
   if (matchingWorkspaces.length > 0) {
-    console.error(`\n  ${actionWord} workspaces...`);
+    console.error(`\n🗑️  ${actionWord} workspaces...`);
     // Reverse to delete children before parents
     for (const workspace of matchingWorkspaces.reverse()) {
       const success = await deleteWorkspace(client, workspace.id!, workspace.name, result.errors, dryRun);
@@ -335,14 +335,14 @@ export async function runCleanup(options: CleanupOptions): Promise<number> {
     }
     console.error(`━`.repeat(50));
 
-    console.error(`\n Authenticating...`);
+    console.error(`\n🔐 Authenticating...`);
 
     // Always authenticate fresh - cleanup uses admin credentials from env, not cached token
     const token = await getToken({ skipCache: true });
     initializeApiClient(token);
     const client = getApiClient();
 
-    console.error(` Authenticated`);
+    console.error(`✓ Authenticated`);
 
     // Execute cleanup
     const result = await executeCleanup(client, options.prefix, options.nameMatch, options.dryRun);
@@ -353,27 +353,27 @@ export async function runCleanup(options: CleanupOptions): Promise<number> {
     const actionWord = options.dryRun ? 'would be' : '';
 
     console.error(`\n${'━'.repeat(50)}`);
-    console.error(` Summary:`);
+    console.error(`📊 Summary:`);
     console.error(`  Roles: ${result.roles.deleted} ${actionWord} deleted, ${result.roles.failed} failed`);
     console.error(`  Groups: ${result.groups.deleted} ${actionWord} deleted, ${result.groups.failed} failed`);
     console.error(`  Workspaces: ${result.workspaces.deleted} ${actionWord} deleted, ${result.workspaces.failed} failed`);
     console.error(`  Total: ${totalDeleted} ${actionWord} deleted, ${totalFailed} failed`);
 
     if (options.dryRun) {
-      console.error(`\n Dry-run completed. No changes were made.`);
+      console.error(`\n✅ Dry-run completed. No changes were made.`);
       return 0;
     }
 
     if (result.success) {
-      console.error(`\n Cleanup completed successfully!`);
+      console.error(`\n✅ Cleanup completed successfully!`);
       return 0;
     } else {
-      console.error(`\n Cleanup completed with ${result.errors.length} error(s)`);
+      console.error(`\n⚠ Cleanup completed with ${result.errors.length} error(s)`);
       return 1;
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`\n Cleanup failed: ${message}`);
+    console.error(`\n❌ Cleanup failed: ${message}`);
 
     if (process.env.DEBUG_CLI) {
       console.error(error);

@@ -92,8 +92,8 @@ async function fetchSystemRoles(client: AxiosInstance): Promise<SystemRole[]> {
     }
 
     return allRoles;
-  } catch {
-    console.error('[WARN] Could not fetch system roles:', error instanceof Error ? error.message : 'Unknown error');
+  } catch (error) {
+    console.error('  ⚠ Could not fetch system roles:', error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
 }
@@ -122,8 +122,8 @@ async function fetchSystemGroups(client: AxiosInstance): Promise<SystemGroup[]> 
     }
 
     return allGroups;
-  } catch {
-    console.error('[WARN] Could not fetch system groups:', error instanceof Error ? error.message : 'Unknown error');
+  } catch (error) {
+    console.error('  ⚠ Could not fetch system groups:', error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
 }
@@ -140,7 +140,7 @@ async function readPayload(filePath: string): Promise<SeedPayload> {
 
   try {
     content = await fs.readFile(filePath, 'utf-8');
-  } catch {
+  } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     throw new Error(`Failed to read payload file "${filePath}": ${message}`);
   }
@@ -202,33 +202,10 @@ function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
  * Transforms the simpler `permissions: string[]` format to the V1 API's
  * `access: [{ permission: string, resourceDefinitions: [] }]` format.
  *
- * Implements idempotent seeding: deletes existing role first, then creates fresh.
- *
  * @throws Error if creation fails (caller should handle)
  */
 async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: ResourceMapping): Promise<void> {
-  // Step 1: Delete existing role if it exists (idempotent)
-  try {
-    const listResponse = await rolesApi.listRoles({ name: role.name });
-    const existingRole = listResponse.data?.data?.[0];
-    if (existingRole?.uuid) {
-      console.error(`[INFO] Deleting existing role "${role.name}" (${existingRole.uuid})`);
-      await rolesApi.deleteRole({ uuid: existingRole.uuid });
-    }
-  } catch (error: unknown) {
-    // Only accept 404 (not found) or 2xx (success) - any other status is unexpected
-    const status =
-      error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response
-        ? error.response.status
-        : null;
-
-    if (status !== null && status !== 404 && (status < 200 || status >= 300)) {
-      console.error(`[ERROR] Unexpected status ${status} while deleting role "${role.name}"`);
-      throw error;
-    }
-  }
-
-  // Step 2: Create the role fresh
+  // Transform permissions array to V1 API access format
   const roleIn: RoleIn = {
     name: role.name,
     display_name: role.display_name,
@@ -236,13 +213,14 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
     access: (role.permissions ?? []).map((p) => ({ permission: p, resourceDefinitions: [] })),
   };
 
+  // Always log curl for debugging
   logCurl('POST', '/api/rbac/v1/roles/', roleIn, `Create role: ${role.name}`);
 
   const response = await rolesApi.createRole({ roleIn });
   const uuid = response.data?.uuid;
   if (uuid) {
     mapping[role.name] = uuid;
-    console.error(`[INFO] Created role "${role.name}" -> ${uuid}`);
+    console.error(`  ✓ Created role "${role.name}" → ${uuid}`);
   }
 }
 
@@ -253,8 +231,6 @@ async function createRole(rolesApi: RolesApiClient, role: RoleInput, mapping: Re
  * If roles_list is provided, resolves role names to UUIDs and attaches them.
  * If personas are provided, adds all persona usernames as members.
  *
- * If the group already exists (400 error), fetches the existing UUID instead of failing.
- *
  * @throws Error if creation fails (caller should handle)
  */
 async function createGroup(
@@ -264,42 +240,20 @@ async function createGroup(
   roleMapping: ResourceMapping,
   personas?: Record<string, { username: string }>,
 ): Promise<void> {
-  // Step 1: Delete existing group if it exists (idempotent)
-  try {
-    const listResponse = await groupsApi.listGroups({ name: group.name });
-    const existingGroup = listResponse.data?.data?.[0];
-    if (existingGroup?.uuid) {
-      console.error(`[INFO] Deleting existing group "${group.name}" (${existingGroup.uuid})`);
-      await groupsApi.deleteGroup({ uuid: existingGroup.uuid });
-    }
-  } catch (error: unknown) {
-    // Only accept 404 (not found) or 2xx (success) - any other status is unexpected
-    const status =
-      error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response
-        ? error.response.status
-        : null;
-
-    if (status !== null && status !== 404 && (status < 200 || status >= 300)) {
-      console.error(`[ERROR] Unexpected status ${status} while deleting group "${group.name}"`);
-      throw error;
-    }
-  }
-
-  // Step 2: Create the group fresh
   const groupData = {
     name: group.name,
     description: group.description,
   };
 
+  // Always log curl for debugging
   logCurl('POST', '/api/rbac/v1/groups/', groupData, `Create group: ${group.name}`);
 
   const response = await groupsApi.createGroup({ group: groupData });
   const uuid = response.data?.uuid;
   if (uuid) {
     mapping[group.name] = uuid;
-    console.error(`[INFO] Created group "${group.name}" -> ${uuid}`);
+    console.error(`  ✓ Created group "${group.name}" → ${uuid}`);
 
-    // Step 3: Attach roles and personas to the newly created group
     // Attach roles if specified
     if (group.roles_list && group.roles_list.length > 0) {
       const roleUuids: string[] = [];
@@ -309,14 +263,14 @@ async function createGroup(
         if (roleUuid) {
           roleUuids.push(roleUuid);
         } else {
-          console.error(`[WARN] Role "${roleName}" not found in role mapping, skipping`);
+          console.error(`    ⚠ Role "${roleName}" not found in role mapping, skipping`);
         }
       }
 
       if (roleUuids.length > 0) {
         logCurl('POST', `/api/rbac/v1/groups/${uuid}/roles/`, { roles: roleUuids }, `Attach ${roleUuids.length} role(s) to group`);
         await groupsApi.addRoleToGroup({ uuid, groupRoleIn: { roles: roleUuids } });
-        console.error(`[INFO] Attached ${roleUuids.length} role(s) to group`);
+        console.error(`    ✓ Attached ${roleUuids.length} role(s) to group`);
       }
     }
 
@@ -330,10 +284,10 @@ async function createGroup(
           uuid,
           groupPrincipalIn: principalData as Parameters<typeof groupsApi.addPrincipalToGroup>[0]['groupPrincipalIn'],
         });
-        console.error(`[INFO] Added ${usernames.length} persona(s) to group: ${usernames.join(', ')}`);
-      } catch {
+        console.error(`    ✓ Added ${usernames.length} persona(s) to group: ${usernames.join(', ')}`);
+      } catch (error) {
         // Don't fail if users are already in group or other non-critical error
-        console.error(`[WARN] Could not add personas to group: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(`    ⚠ Could not add personas to group: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
   }
@@ -342,230 +296,23 @@ async function createGroup(
 /**
  * Create a workspace via API.
  *
- * Implements idempotent seeding: deletes existing workspace first, then creates fresh.
- *
  * @throws Error if creation fails (caller should handle)
  */
 async function createWorkspace(client: AxiosInstance, workspace: WorkspaceInput, mapping: ResourceMapping, rootWorkspaceId?: string): Promise<void> {
-  // Step 1: Delete existing workspace if it exists (idempotent)
-  // Try multiple times with delays to handle eventual consistency
-  const MAX_DELETE_ATTEMPTS = 3;
-  let deleteSucceeded = false;
-
-  for (let attempt = 1; attempt <= MAX_DELETE_ATTEMPTS; attempt++) {
-    try {
-      // Query for workspace by name, then filter by parent_id client-side
-      // (API may not support parent_id filter)
-      const listResponse = await client.get('/api/rbac/v2/workspaces/', {
-        params: { name: workspace.name },
-      });
-      const workspaces = listResponse.data?.data ?? [];
-      const targetParentId = workspace.parent_id || rootWorkspaceId;
-
-      // Filter client-side for exact parent match
-      const existingWorkspace = workspaces.find((w: { parent_id?: string }) => w.parent_id === targetParentId);
-
-      if (process.env.DEBUG_CLI) {
-        console.error(`[DEBUG] Found ${workspaces.length} workspace(s) named "${workspace.name}"`);
-        workspaces.forEach((w: { id?: string; parent_id?: string }) => {
-          console.error(`[DEBUG]   - ID: ${w.id}, Parent: ${w.parent_id}`);
-        });
-        console.error(`[DEBUG] Looking for parent: ${targetParentId}`);
-        console.error(`[DEBUG] Match found: ${existingWorkspace ? 'yes' : 'no'}`);
-      }
-
-      if (!existingWorkspace?.id) {
-        // No workspace found in this parent, we're good
-        deleteSucceeded = true;
-        break;
-      }
-
-      console.error(`[INFO] Deleting existing workspace "${workspace.name}" (${existingWorkspace.id}) [attempt ${attempt}/${MAX_DELETE_ATTEMPTS}]`);
-
-      try {
-        await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}/`);
-        console.error(`[INFO] Deletion succeeded`);
-        deleteSucceeded = true;
-        // Wait to ensure deletion propagates
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        break;
-      } catch (deleteError: unknown) {
-        // Check if this is an acceptable error (404 or 2xx)
-        const status =
-          deleteError &&
-          typeof deleteError === 'object' &&
-          'response' in deleteError &&
-          deleteError.response &&
-          typeof deleteError.response === 'object' &&
-          'status' in deleteError.response
-            ? deleteError.response.status
-            : null;
-
-        // 404 means already deleted, treat as success
-        if (status === 404) {
-          console.error(`[INFO] Workspace already deleted (404)`);
-          deleteSucceeded = true;
-          break;
-        }
-
-        // 2xx means success
-        if (status !== null && status >= 200 && status < 300) {
-          console.error(`[INFO] Deletion succeeded with status ${status}`);
-          deleteSucceeded = true;
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          break;
-        }
-
-        // Any other status is unexpected - log and potentially retry
-        logHttpError(deleteError, 'Deletion failed', 'error');
-
-        if (attempt < MAX_DELETE_ATTEMPTS) {
-          // Wait before retrying
-          console.error(`[INFO] Waiting 2s before retry...`);
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        } else {
-          // Max attempts reached with unexpected status - fail the operation
-          throw new Error(`Failed to delete workspace "${workspace.name}" after ${MAX_DELETE_ATTEMPTS} attempts with unexpected status ${status}`);
-        }
-      }
-    } catch (listError: unknown) {
-      // Only accept 404 for list operation - workspace doesn't exist
-      const status =
-        listError &&
-        typeof listError === 'object' &&
-        'response' in listError &&
-        listError.response &&
-        typeof listError.response === 'object' &&
-        'status' in listError.response
-          ? listError.response.status
-          : null;
-
-      if (status === 404) {
-        // Workspace doesn't exist, we're good
-        deleteSucceeded = true;
-        break;
-      }
-
-      // Any other error is unexpected
-      console.error(`[ERROR] Unexpected error listing workspace: status ${status}`);
-      throw listError;
-    }
-  }
-
-  if (!deleteSucceeded) {
-    console.error(`[ERROR] Failed to delete workspace after ${MAX_DELETE_ATTEMPTS} attempts`);
-    console.error(`[WARN] Proceeding with creation anyway - this will likely fail`);
-  }
-
-  // Step 2: Create the workspace fresh
   const payload = {
     name: workspace.name,
     description: workspace.description,
     parent_id: workspace.parent_id || rootWorkspaceId,
   };
 
+  // Always log curl for debugging
   logCurl('POST', '/api/rbac/v2/workspaces/', payload, `Create workspace: ${workspace.name}`);
 
-  // Retry creation with backoff to handle eventual consistency
-  const MAX_CREATE_ATTEMPTS = 3;
-  let createSucceeded = false;
-
-  for (let attempt = 1; attempt <= MAX_CREATE_ATTEMPTS; attempt++) {
-    try {
-      const response = await client.post('/api/rbac/v2/workspaces/', payload);
-      const id = response.data?.id;
-      if (id) {
-        mapping[workspace.name] = id;
-        console.error(`[INFO] Created workspace "${workspace.name}" -> ${id}`);
-        createSucceeded = true;
-        break;
-      }
-    } catch (createError: unknown) {
-      // Check if this is the "same name" eventual consistency error
-      const errorMessage =
-        createError &&
-        typeof createError === 'object' &&
-        'response' in createError &&
-        createError.response &&
-        typeof createError.response === 'object' &&
-        'data' in createError.response &&
-        createError.response.data
-          ? JSON.stringify(createError.response.data)
-          : '';
-
-      const isSameNameError = errorMessage.includes("Can't create workspace with same name");
-      const status =
-        createError &&
-        typeof createError === 'object' &&
-        'response' in createError &&
-        createError.response &&
-        typeof createError.response === 'object' &&
-        'status' in createError.response
-          ? createError.response.status
-          : null;
-
-      // If it's the "same name" error, workspace exists but LIST didn't find it
-      // Do an aggressive LIST + DELETE before retrying CREATE
-      if (isSameNameError && status === 400 && attempt < MAX_CREATE_ATTEMPTS) {
-        console.error(`[WARN] Workspace name conflict - LIST didn't find it but it exists [attempt ${attempt}/${MAX_CREATE_ATTEMPTS}]`);
-        console.error(`[INFO] Attempting aggressive deletion...`);
-
-        try {
-          // Re-query with just the name (broadest search)
-          const listResponse = await client.get('/api/rbac/v2/workspaces/', {
-            params: { name: workspace.name },
-          });
-          const workspaces = listResponse.data?.data ?? [];
-          const targetParentId = workspace.parent_id || rootWorkspaceId;
-
-          if (process.env.DEBUG_CLI) {
-            console.error(`[DEBUG] Aggressive search found ${workspaces.length} workspace(s)`);
-            workspaces.forEach((w: { id?: string; parent_id?: string }) => {
-              console.error(`[DEBUG]   - ID: ${w.id}, Parent: ${w.parent_id}`);
-            });
-          }
-
-          // Find workspace with matching parent
-          const existingWorkspace = workspaces.find((w: { parent_id?: string }) => w.parent_id === targetParentId);
-
-          if (existingWorkspace?.id) {
-            console.error(`[INFO] Found workspace to delete: ${existingWorkspace.id}`);
-            await client.delete(`/api/rbac/v2/workspaces/${existingWorkspace.id}/`);
-            console.error(`[INFO] Deleted workspace successfully`);
-            // Wait for deletion to propagate
-            const waitTime = 2000;
-            console.error(`[INFO] Waiting ${waitTime / 1000}s for deletion to propagate...`);
-            await new Promise((resolve) => setTimeout(resolve, waitTime));
-          } else {
-            console.error(`[WARN] Could not find workspace to delete (may be in different parent)`);
-            // Still wait in case it's eventual consistency
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-          }
-        } catch (deleteError) {
-          console.error(`[WARN] Aggressive deletion failed, will retry anyway`);
-          if (process.env.DEBUG_CLI) {
-            console.error(`[DEBUG]`, deleteError);
-          }
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        }
-
-        continue;
-      }
-
-      // Not a retryable error, or max attempts reached - fail with details
-      console.error(`[ERROR] Failed to create workspace:`);
-      console.error(`[ERROR]   Name: ${workspace.name}`);
-      if (workspace.description) {
-        console.error(`[ERROR]   Description: ${workspace.description}`);
-      }
-      console.error(`[ERROR]   Parent ID: ${workspace.parent_id || rootWorkspaceId || 'none'}`);
-      logHttpError(createError, 'API error', 'error');
-      throw createError;
-    }
-  }
-
-  if (!createSucceeded) {
-    throw new Error(`Failed to create workspace "${workspace.name}" after ${MAX_CREATE_ATTEMPTS} attempts`);
+  const response = await client.post('/api/rbac/v2/workspaces/', payload);
+  const id = response.data?.id;
+  if (id) {
+    mapping[workspace.name] = id;
+    console.error(`  ✓ Created workspace "${workspace.name}" → ${id}`);
   }
 }
 
@@ -579,7 +326,7 @@ async function fetchRootWorkspaceId(client: AxiosInstance): Promise<string | und
     });
     return response.data?.data?.[0]?.id;
   } catch {
-    console.error('[WARN] Could not fetch root workspace');
+    console.error('  ⚠ Could not fetch root workspace');
     return undefined;
   }
 }
@@ -595,7 +342,7 @@ async function fetchDefaultWorkspaceId(client: AxiosInstance): Promise<string | 
     });
     return response.data?.data?.[0]?.id;
   } catch {
-    console.error('[WARN] Could not fetch default workspace');
+    console.error('  ⚠ Could not fetch default workspace');
     return undefined;
   }
 }
@@ -605,64 +352,28 @@ async function fetchDefaultWorkspaceId(client: AxiosInstance): Promise<string | 
 // ============================================================================
 
 /**
- * Log HTTP error with status code and message.
- * Extracts useful information from axios errors and writes to stdout.
- */
-function logHttpError(error: unknown, context: string, level: 'info' | 'error'): void {
-  let statusCode = 'unknown';
-  let errorMessage = 'Unknown error';
-
-  if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object') {
-    if ('status' in error.response) {
-      statusCode = String(error.response.status);
-    }
-    if ('data' in error.response && error.response.data) {
-      const data = error.response.data;
-      if (typeof data === 'object' && 'errors' in data && Array.isArray(data.errors) && data.errors.length > 0) {
-        const firstError = data.errors[0];
-        errorMessage = firstError.detail || firstError.message || JSON.stringify(data);
-      } else if (typeof data === 'string') {
-        errorMessage = data;
-      } else {
-        errorMessage = JSON.stringify(data);
-      }
-    }
-  } else if (error instanceof Error) {
-    errorMessage = error.message;
-  }
-
-  const levelTag = level === 'info' ? 'INFO' : 'ERROR';
-  process.stdout.write(`[${levelTag}] ${context}: HTTP ${statusCode} - ${errorMessage}\n`);
-}
-
-/**
  * Log curl command for debugging.
- * Only outputs when DEBUG_CLI environment variable is set.
  * Always outputs to stderr (keeps stdout clean for JSON output).
  */
 function logCurl(method: 'GET' | 'POST' | 'DELETE', endpoint: string, data?: unknown, description?: string): void {
-  // Only log curl commands in debug mode
-  if (!process.env.DEBUG_CLI) {
-    return;
-  }
-
   const baseUrl = getEnvConfig().apiUrl;
   const url = `${baseUrl}${endpoint}`;
 
   if (description) {
-    console.error(`[DEBUG] ${description}`);
+    console.error(`  → ${description}`);
   }
 
-  let curlCmd = `  curl -X ${method} '${url}'`;
-  curlCmd += ` \\\n    -H 'Authorization: Bearer $TOKEN'`;
-  curlCmd += ` \\\n    -H 'Accept: application/json'`;
+  let curlCmd = `    curl -X ${method} '${url}'`;
+  curlCmd += ` \\\n      -H 'Authorization: Bearer $TOKEN'`;
+  curlCmd += ` \\\n      -H 'Accept: application/json'`;
 
   if (data) {
-    curlCmd += ` \\\n    -H 'Content-Type: application/json'`;
-    curlCmd += ` \\\n    -d '${JSON.stringify(data)}'`;
+    curlCmd += ` \\\n      -H 'Content-Type: application/json'`;
+    curlCmd += ` \\\n      -d '${JSON.stringify(data)}'`;
   }
 
   console.error(curlCmd);
+  console.error('');
 }
 
 // ============================================================================
@@ -694,23 +405,25 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
   // ============================================================================
   // PHASE 1: DISCOVER - Fetch all system roles and groups (ALWAYS runs)
   // ============================================================================
-  console.error(`\n[INFO] PHASE 1: Discovering system resources`);
+  console.error(`\n${'━'.repeat(50)}`);
+  console.error(`🔍 PHASE 1: Discovering system resources`);
+  console.error(`${'━'.repeat(50)}`);
 
   // Fetch all system roles
-  console.error(`[INFO] Fetching system roles...`);
+  console.error(`\n🔍 Fetching system roles...`);
   const systemRoles = await fetchSystemRoles(client);
   for (const role of systemRoles) {
     result.roles[role.name] = role.uuid;
   }
-  console.error(`[INFO] Found ${systemRoles.length} system role(s)`);
+  console.error(`  ✓ Found ${systemRoles.length} system role(s)`);
 
   // Fetch all system/default groups
-  console.error(`[INFO] Fetching system groups...`);
+  console.error(`\n🔍 Fetching system groups...`);
   const systemGroups = await fetchSystemGroups(client);
   for (const group of systemGroups) {
     result.groups[group.name] = group.uuid;
   }
-  console.error(`[INFO] Found ${systemGroups.length} system group(s)`);
+  console.error(`  ✓ Found ${systemGroups.length} system group(s)`);
 
   // ============================================================================
   // PHASE 2: CREATE - Create custom resources from payload
@@ -721,19 +434,21 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
   const customResourceCount = customRoles.length + customGroups.length + workspaces.length;
 
   if (customResourceCount === 0) {
-    console.error(`[INFO] No custom resources to create`);
+    console.error(`\n📋 No custom resources to create.`);
     return result;
   }
 
-  console.error(`\n[INFO] PHASE 2: ${dryRun ? 'Would create' : 'Creating'} ${customResourceCount} custom resource(s)`);
+  console.error(`\n${'━'.repeat(50)}`);
+  console.error(`📦 PHASE 2: ${dryRun ? 'Would create' : 'Creating'} ${customResourceCount} custom resource(s)`);
+  console.error(`${'━'.repeat(50)}`);
 
   // DRY-RUN: Output curl commands instead of making API calls
   if (dryRun) {
-    console.error(`[INFO] Dry-run mode: no mutations will be performed`);
+    console.error(`\n📋 Dry-run mode: no mutations will be performed\n`);
 
     // Output role curl commands
     if (customRoles.length > 0) {
-      console.error(`[INFO] Would create ${customRoles.length} role(s)`);
+      console.error(`📦 Would create ${customRoles.length} role(s)...`);
       for (const role of customRoles) {
         result.roles[role.name] = '<dry-run>';
         const payload = {
@@ -748,7 +463,7 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
 
     // Output group curl commands
     if (customGroups.length > 0) {
-      console.error(`[INFO] Would create ${customGroups.length} group(s)`);
+      console.error(`📦 Would create ${customGroups.length} group(s)...`);
       for (const group of customGroups) {
         result.groups[group.name] = '<dry-run>';
         logCurl('POST', '/api/rbac/v1/groups/', { name: group.name, description: group.description }, `Create group: ${group.name}`);
@@ -757,7 +472,7 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
 
     // Output workspace curl commands
     if (workspaces.length > 0) {
-      console.error(`[INFO] Would create ${workspaces.length} workspace(s)`);
+      console.error(`📦 Would create ${workspaces.length} workspace(s)...`);
       for (const workspace of workspaces) {
         result.workspaces[workspace.name] = '<dry-run>';
         logCurl(
@@ -779,7 +494,7 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
 
   // Create custom roles (sequentially, bail on first error)
   if (customRoles.length > 0) {
-    console.error(`[INFO] Creating ${customRoles.length} role(s)`);
+    console.error(`\n📦 Creating ${customRoles.length} role(s)...`);
     for (const role of customRoles) {
       await createRole(rolesApi, role, result.roles);
     }
@@ -789,7 +504,7 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
   // Pass roleMapping so groups can reference roles by name
   // Pass personas so all test users get added to each group
   if (customGroups.length > 0) {
-    console.error(`[INFO] Creating ${customGroups.length} group(s)`);
+    console.error(`\n📦 Creating ${customGroups.length} group(s)...`);
     for (const group of customGroups) {
       await createGroup(groupsApi, group, result.groups, result.roles, payload.personas);
     }
@@ -799,14 +514,14 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
   // Note: Workspaces use V2 API, no typed client available yet
   // Create under Default workspace (not root) for better organization
   if (workspaces.length > 0) {
-    console.error(`[INFO] Creating ${workspaces.length} workspace(s)`);
+    console.error(`\n📦 Creating ${workspaces.length} workspace(s)...`);
     // Try Default workspace first, fall back to root
     let parentWorkspaceId = await fetchDefaultWorkspaceId(client);
     if (!parentWorkspaceId) {
-      console.error('[WARN] Default workspace not found, falling back to root');
+      console.error('  ⚠ Default workspace not found, falling back to root');
       parentWorkspaceId = await fetchRootWorkspaceId(client);
     } else {
-      console.error(`[INFO] Using Default workspace as parent: ${parentWorkspaceId}`);
+      console.error(`  → Using Default workspace as parent: ${parentWorkspaceId}`);
     }
     for (const workspace of workspaces) {
       await createWorkspace(client, workspace, result.workspaces, parentWorkspaceId);
@@ -837,15 +552,17 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
     const envConfig = getEnvConfig();
     const separator = '__';
 
-    console.error(`\n[INFO] RBAC Seeder${options.dryRun ? ' [DRY-RUN MODE]' : ''}`);
-    console.error(`[INFO] Environment: ${envConfig.name}`);
-    console.error(`[INFO] API URL: ${envConfig.apiUrl}`);
-    console.error(`[INFO] Payload: ${options.file}`);
-    console.error(`[INFO] Prefix: "${prefix}" (separator: "${separator}")`);
-    console.error(`[INFO] System roles/groups will be auto-discovered and included in seed-map`);
+    console.error(`\n🌱 RBAC Seeder${options.dryRun ? ' [DRY-RUN MODE]' : ''}`);
+    console.error(`━`.repeat(50));
+    console.error(`Environment: ${envConfig.name}`);
+    console.error(`API URL: ${envConfig.apiUrl}`);
+    console.error(`Payload: ${options.file}`);
+    console.error(`Prefix: "${prefix}" (separator: "${separator}")`);
+    console.error(`\n📋 System roles/groups will be auto-discovered and included in seed-map.`);
     if (options.dryRun) {
-      console.error(`[INFO] Dry-run mode: discovery will run, but no mutations will be performed`);
+      console.error(`📋 Dry-run mode: discovery will run, but no mutations will be performed.`);
     }
+    console.error(`━`.repeat(50));
 
     // Read and validate payload
     let payload = await readPayload(options.file);
@@ -854,21 +571,22 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
     payload = applyPrefix(payload, prefix);
 
     // Authenticate (needed for both dry-run and live mode)
-    console.error(`[INFO] Authenticating...`);
+    console.error(`\n🔐 Authenticating...`);
     // Always authenticate fresh - seeder uses admin credentials from env, not cached token
     const token = await getToken({ skipCache: true });
     initializeApiClient(token);
     const client = getApiClient();
-    console.error(`[INFO] Authenticated`);
+    console.error(`✓ Authenticated`);
 
     // Execute seeding (discovery always runs, mutations skipped in dry-run)
     const result = await executeSeed(payload, client, { dryRun: options.dryRun });
 
     // Output summary
-    console.error(`\n[INFO] Summary${options.dryRun ? ' (dry-run)' : ''}:`);
-    console.error(`[INFO] Roles: ${Object.keys(result.roles).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
-    console.error(`[INFO] Groups: ${Object.keys(result.groups).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
-    console.error(`[INFO] Workspaces: ${Object.keys(result.workspaces).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
+    console.error(`\n${'━'.repeat(50)}`);
+    console.error(`📊 Summary${options.dryRun ? ' (dry-run)' : ''}:`);
+    console.error(`  Roles: ${Object.keys(result.roles).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
+    console.error(`  Groups: ${Object.keys(result.groups).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
+    console.error(`  Workspaces: ${Object.keys(result.workspaces).length} ${options.dryRun ? 'discovered/would-create' : 'processed'}`);
 
     // Output JSON mapping if requested
     if (options.json) {
@@ -882,7 +600,7 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
       if (options.output) {
         // Write to file
         await fs.writeFile(options.output, jsonOutput, 'utf-8');
-        console.error(`[INFO] Seed map written to: ${options.output}`);
+        console.error(`\n📄 Seed map written to: ${options.output}`);
       } else {
         // Write to stdout
         console.log(jsonOutput);
@@ -890,14 +608,14 @@ export async function runSeeder(options: SeederOptions): Promise<number> {
     }
 
     if (options.dryRun) {
-      console.error(`[INFO] Dry-run completed. No mutations were performed`);
+      console.error(`\n✅ Dry-run completed. No mutations were performed.`);
     } else {
-      console.error(`[INFO] Seeding completed successfully`);
+      console.error(`\n✅ Seeding completed successfully!`);
     }
     return 0;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`[ERROR] Seeder failed: ${message}`);
+    console.error(`\n❌ Seeder failed: ${message}`);
 
     if (process.env.DEBUG_CLI) {
       console.error(error);

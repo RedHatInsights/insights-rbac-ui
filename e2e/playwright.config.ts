@@ -53,7 +53,7 @@ export default defineConfig({
 
   /* Reporter to use - list for CI, multiple for local dev */
   reporter: process.env.CI
-    ? [['list'], ['json', { outputFile: './test-results/results.json' }]]
+    ? 'list'
     : [['list'], ['html', { open: 'never', outputFolder: './playwright-report' }], ['json', { outputFile: './test-results/results.json' }]],
 
   /* Shared settings for all projects */

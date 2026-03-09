@@ -166,7 +166,7 @@ async function performBrowserLogin(): Promise<string> {
 
   const envConfig = getEnvConfig();
 
-  console.error('\n Authentication Required');
+  console.error('\n🔐 Authentication Required');
   console.error('━'.repeat(50));
   console.error(`Environment: ${envConfig.name}`);
   console.error(`Login URL: ${envConfig.loginUrl}`);
@@ -180,7 +180,7 @@ async function performBrowserLogin(): Promise<string> {
     console.error('📡 Navigating to Red Hat Console...');
     await session.page.goto(envConfig.loginUrl, { waitUntil: 'domcontentloaded' });
 
-    console.error(' Waiting for you to complete login...');
+    console.error('⏳ Waiting for you to complete login...');
     console.error('   (The browser will close automatically once logged in)\n');
 
     // Wait for the user to complete login - detect by welcome message
@@ -191,11 +191,11 @@ async function performBrowserLogin(): Promise<string> {
       { timeout: 5 * 60 * 1000 }, // 5 minute timeout for manual login
     );
 
-    console.error(' Login detected! Extracting authentication token...');
+    console.error('✓ Login detected! Extracting authentication token...');
 
     const token = await extractToken(session.page);
 
-    console.error(' Token extracted successfully!\n');
+    console.error('✓ Token extracted successfully!\n');
     return token;
   } finally {
     await closeBrowser(session);
@@ -240,7 +240,7 @@ export async function getToken(options?: { skipCache?: boolean }): Promise<strin
     }
 
     if (cached) {
-      console.error('  Cached token has expired, re-authenticating...');
+      console.error('⚠️  Cached token has expired, re-authenticating...');
     }
   }
 
@@ -279,7 +279,7 @@ export async function getToken(options?: { skipCache?: boolean }): Promise<strin
 export async function clearToken(): Promise<void> {
   try {
     await fs.unlink(TOKEN_CACHE_FILE);
-    console.error(' Cached token cleared');
+    console.error('✓ Cached token cleared');
   } catch {
     // File might not exist, that's fine
   }
