@@ -23,12 +23,14 @@ interface Permission {
 }
 
 interface NavItem {
-  id: string;
+  id?: string;
   title?: string;
   href?: string;
   permissions?: Permission[];
   routes?: NavItem[];
   expandable?: boolean;
+  /** Reference to another frontend's segment (e.g. service-accounts); skipped for permission sync */
+  segmentRef?: { frontendName: string; segmentId: string };
 }
 
 interface FrontendYaml {
@@ -134,6 +136,7 @@ function collectNavItems(
   result: Map<string, { rbacPermissions: string[]; requireOrgAdmin: boolean; checkAll: boolean }>
 ): void {
   for (const item of items) {
+    if (item.segmentRef) continue; // External segment; permissions live in that frontend's config
     if (item.href && item.permissions) {
       const normalizedPath = normalizePath(item.href);
       const { rbacPermissions, requireOrgAdmin, hasFeatureFlagOnly, checkAll } = extractPermissions(item.permissions);
