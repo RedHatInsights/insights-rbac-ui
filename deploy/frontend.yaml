@@ -35,6 +35,9 @@ objects:
           description: Manage your organization's administrator users (Identity & Access Management).
           alt_title: [org administrator, IAM, user access]
           permissions:
+            - &featureFlagV1
+              method: featureFlag
+              args: [platform.rbac.workspaces-organization-management, false]
             - &loosePrincipalRead
               method: loosePermissions
               args: [[rbac:principal:read]]
@@ -54,6 +57,7 @@ objects:
           description: View and manage custom roles for your organization (Identity & Access Management).
           alt_title: [role, roles, RBAC, IAM, user access]
           permissions:
+            - *featureFlagV1
             - &looseRoleRead
               method: loosePermissions
               args: [[rbac:role:read]]
@@ -71,6 +75,7 @@ objects:
           description: Organize systems with workspaces for granular user access (Identity & Access Management).
           alt_title: [workspace, workspaces, IAM, user access, RBAC]
           permissions:
+            - *featureFlagV1
             - &featureFlagWorkspacesList
               method: featureFlag
               args: [platform.rbac.workspaces-list, true]
@@ -92,6 +97,7 @@ objects:
           description: Manage users and their role-based access (Identity & Access Management).
           alt_title: [user, users, IAM, user access, RBAC]
           permissions:
+            - *featureFlagV1
             - *loosePrincipalRead
         - id: rbac-users-v2
           title: Users
@@ -107,6 +113,7 @@ objects:
           description: Manage groups and their role assignments (Identity & Access Management).
           alt_title: [group, groups, IAM, user access, RBAC]
           permissions:
+            - *featureFlagV1
             - &looseGroupRead
               method: loosePermissions
               args: [[rbac:group:read]]
@@ -139,7 +146,6 @@ objects:
               args:
                 - - rbac:principal:read
                 - - rbac:group:read
-                - - rbac:role:read
       # Service tiles: user-access (V1) tiles have no featureFlag so User Access always loads.
       # V2 tiles add access-management links when platform.rbac.workspaces-organization-management is true.
       serviceTiles:

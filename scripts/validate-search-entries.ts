@@ -28,7 +28,23 @@ const EXPECTED_IAM_IDS = [
   'rbac-my-access',
   'rbac-access-management',
 ];
+
+/** Pairs of (V1 id, V2 id) that must be mutually exclusive via feature flag */
+const V1_V2_PAIRS: [string, string][] = [
+  ['rbac-org-admin', 'rbac-org-admin-v2'],
+  ['rbac-roles', 'rbac-roles-v2'],
+  ['rbac-workspaces', 'rbac-workspaces-v2'],
+  ['rbac-users', 'rbac-users-v2'],
+  ['rbac-groups', 'rbac-groups-v2'],
+];
+
+const FEO_FLAG_V2 = 'platform.rbac.workspaces-organization-management';
 const IAM_ALT_TITLE_TERMS = ['IAM', 'RBAC', 'user access', 'roles', 'workspaces'];
+
+interface PermissionItem {
+  method?: string;
+  args?: unknown[];
+}
 
 interface SearchEntry {
   id?: string;
@@ -36,7 +52,17 @@ interface SearchEntry {
   description?: string;
   href?: string;
   alt_title?: string[];
-  permissions?: unknown[];
+  permissions?: PermissionItem[];
+}
+
+function getFeatureFlagValue(entry: SearchEntry, flagName: string): boolean | undefined {
+  const perms = entry.permissions ?? [];
+  for (const p of perms) {
+    if (p?.method === 'featureFlag' && Array.isArray(p.args) && p.args[0] === flagName) {
+      return p.args[1] as boolean;
+    }
+  }
+  return undefined;
 }
 
 function main(): void {
@@ -67,9 +93,32 @@ function main(): void {
   }
 
   const ids = new Set(entries.map((e) => e.id).filter(Boolean));
+  const byId = new Map<string, SearchEntry>();
+  for (const e of entries) {
+    if (e.id) byId.set(e.id, e);
+  }
   for (const expectedId of EXPECTED_IAM_IDS) {
     if (!ids.has(expectedId)) {
       console.error(`❌ Missing expected search entry id: ${expectedId}`);
+      failed = true;
+    }
+  }
+
+  for (const [v1Id, v2Id] of V1_V2_PAIRS) {
+    const v1 = byId.get(v1Id);
+    const v2 = byId.get(v2Id);
+    const v1Flag = v1 ? getFeatureFlagValue(v1, FEO_FLAG_V2) : undefined;
+    const v2Flag = v2 ? getFeatureFlagValue(v2, FEO_FLAG_V2) : undefined;
+    if (v1Flag !== false) {
+      console.error(
+        `❌ V1 search entry id="${v1Id}" must require ${FEO_FLAG_V2}=false (found: ${v1Flag ?? 'missing'})`
+      );
+      failed = true;
+    }
+    if (v2Flag !== true) {
+      console.error(
+        `❌ V2 search entry id="${v2Id}" must require ${FEO_FLAG_V2}=true (found: ${v2Flag ?? 'missing'})`
+      );
       failed = true;
     }
   }
