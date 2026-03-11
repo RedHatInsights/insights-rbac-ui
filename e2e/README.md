@@ -181,58 +181,6 @@ Tests use `getSeededUsername()` from `seed-map.ts` to access these values. Seede
 
 ---
 
-## Testing the console search fix (IAM search entries)
-
-The console **global search** (header search bar) shows results from `searchEntries` in `deploy/frontend.yaml`. That config is consumed by the Frontend Operator and the platform’s search index. To confirm the IAM search fix:
-
-### 1. Validate config locally (before deploy)
-
-Ensures `frontend.yaml` has required fields and expected IAM coverage. Does **not** hit the live search.
-
-```bash
-npm run validate:search-entries
-```
-
-Runs `scripts/validate-search-entries.ts`: checks that every search entry has `id`, `title`, `description`, `href`, that expected IAM entry ids exist, and that at least one entry has IAM-related `alt_title` terms for discoverability.
-
-### 2. Manual test in stage (or ephemeral)
-
-After your branch is deployed and the Frontend Operator has reconciled:
-
-1. Open the target environment (e.g. `https://console.stage.redhat.com`).
-2. Log in as a user with RBAC access (e.g. org admin or user with principal/role/group read).
-3. Use the **global search** in the header (magnifying glass).
-4. Try queries: **roles**, **workspaces**, **users**, **groups**, **IAM**, **user access**, **My Access**.
-5. Confirm that IAM/RBAC results appear (e.g. “Roles”, “Workspaces”, “Users”) and that links go to `/iam/...` (user-access or access-management depending on your feature flag).
-
-**Note:** The search index may be built or cached by the platform; if results don’t appear immediately after deploy, wait for the next index run or ask the platform/Chrome team about cache or delay.
-
----
-
-## Testing that the nav shows correctly
-
-The **left navigation** (Chrome sidebar) is driven by `bundleSegments` in `deploy/frontend.yaml`. Visibility of items (e.g. Organization Management) depends on permissions and feature flags. You can verify nav in three ways:
-
-### 1. Config validation (local)
-
-Ensures nav permissions in `frontend.yaml` stay in sync with `src/utilities/route-definitions.ts`. Does **not** check that the UI renders the nav.
-
-```bash
-npm run lint:permissions
-```
-
-### 2. Storybook (local, visual)
-
-User-journey stories use `FrontendYamlNavigation`, which reads **`deploy/frontend.yaml`** and renders the same structure as the platform Chrome. Use it to confirm labels and structure without deploying.
-
-- Open **User Journeys** or **Production V2** (e.g. **Production V2 Org Admin**, **Production V2 UserViewer**) in Storybook.
-- The sidebar is the YAML-driven nav; expand “Access Management” to see Users and Groups, Roles, Workspaces. Org Admin stories can show “Organization Management” when the story context has `orgAdmin: true`.
-
-Default Storybook feature flags include `platform.rbac.workspaces-organization-management: true`, so you see the V2 nav (Overview, My Access, Access Management, Organization Management).
-
-
----
-
 ## Test Structure
 
 ```
