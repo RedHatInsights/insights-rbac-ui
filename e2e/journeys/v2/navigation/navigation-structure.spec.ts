@@ -11,6 +11,9 @@
  * ✓ Testing that non-admin users do not see Organization Management in nav
  * ✓ Testing that clicking nav items loads pages without errors
  *
+ * Note: Service Accounts (segmentRef from service-accounts frontend) is not asserted here;
+ * it appears under Access Management when that app's segment is deployed and the feature flag is on.
+ *
  * DO NOT add here if:
  * ✗ Testing Organization Management page access (direct URL) → organization-management-access.spec.ts
  * ✗ Testing CRUD on an entity → use *-management.spec.ts
