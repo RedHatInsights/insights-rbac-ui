@@ -70,16 +70,15 @@ export const SortByName: Story = {
 
     // Initially sorted ascending by name (default)
     // Workspaces in seed data: "Root Workspace", "Default Workspace", "Development", "Production", "Staging"
-    await waitFor(async () => {
-      const rows = await canvas.findAllByRole('row');
-      // Skip header row (index 0), check data rows
-      expect(rows.length).toBeGreaterThan(1);
-    });
+    const initialRows = await canvas.findAllByRole('row');
+    // Skip header row (index 0), check data rows
+    expect(initialRows.length).toBeGreaterThan(1);
 
     // Click to sort descending
     await user.click(workspaceHeader);
-    await waitFor(async () => {
-      const rows = await canvas.findAllByRole('row');
+    // Wait for re-render by checking text content changes
+    await waitFor(() => {
+      const rows = canvas.getAllByRole('row');
       const firstDataRow = rows[1]; // Skip header
       // After descending sort, "Staging" should be first (alphabetically last)
       expect(firstDataRow).toHaveTextContent(/staging|root/i);
@@ -87,8 +86,9 @@ export const SortByName: Story = {
 
     // Click again to sort ascending
     await user.click(workspaceHeader);
-    await waitFor(async () => {
-      const rows = await canvas.findAllByRole('row');
+    // Wait for re-render by checking text content changes
+    await waitFor(() => {
+      const rows = canvas.getAllByRole('row');
       const firstDataRow = rows[1]; // Skip header
       // After ascending sort, "Default Workspace" or "Development" should be first (alphabetically)
       expect(firstDataRow).toHaveTextContent(/default|development/i);
