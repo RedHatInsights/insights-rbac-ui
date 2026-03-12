@@ -107,7 +107,7 @@ export function useRoleBindingsQuery(params: RoleBindingsListBySubjectParams, op
         cursor: params.cursor,
         subjectType: params.subjectType,
         subjectId: params.subjectId,
-        parentRoleBindings: params.parentRoleBindings,
+        excludeSources: params.excludeSources,
         fields: params.fields,
         orderBy: params.orderBy,
       });
@@ -305,22 +305,22 @@ export function useMoveWorkspaceMutation(options?: MutationOptions) {
 }
 
 // ============================================================================
-// Role Bindings Mutation Hooks
+// Group Access Mutation Hooks
 // ============================================================================
 
-interface UpdateRoleBindingsParams {
+interface UpdateGroupRolesParams {
   resourceId: string;
-  resourceType: string;
+  resourceType: 'workspace' | 'tenant';
   subjectId: string;
   subjectType: string;
   roleIds: string[];
 }
 
 /**
- * Replace all role bindings for a subject on a resource.
+ * Replace all roles for a group in a workspace (or other resource).
  * Uses injected services from ServiceContext - works in both browser and CLI.
  */
-export function useUpdateRoleBindingsMutation(options?: MutationOptions) {
+export function useUpdateGroupRolesMutation(options?: MutationOptions) {
   const { axios, notify } = useAppServices();
   const workspacesApi = createWorkspacesApi(axios);
   const qc = useMutationQueryClient(options?.queryClient);
@@ -328,7 +328,7 @@ export function useUpdateRoleBindingsMutation(options?: MutationOptions) {
 
   return useMutation(
     {
-      mutationFn: async ({ resourceId, resourceType, subjectId, subjectType, roleIds }: UpdateRoleBindingsParams) => {
+      mutationFn: async ({ resourceId, resourceType, subjectId, subjectType, roleIds }: UpdateGroupRolesParams) => {
         const response = await workspacesApi.roleBindingsUpdate({
           resourceId,
           resourceType,
@@ -357,10 +357,10 @@ export function useUpdateRoleBindingsMutation(options?: MutationOptions) {
 }
 
 /**
- * Batch-create role bindings for multiple group×role pairs on a workspace.
+ * Grant access to a workspace by assigning roles to groups.
  * Used by the Grant Access wizard.
  */
-export function useBatchCreateRoleBindingsMutation(options?: MutationOptions) {
+export function useGrantAccessMutation(options?: MutationOptions) {
   const { axios, notify } = useAppServices();
   const workspacesApi = createWorkspacesApi(axios);
   const qc = useMutationQueryClient(options?.queryClient);

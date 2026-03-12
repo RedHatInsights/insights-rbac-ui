@@ -26,7 +26,7 @@ import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 
 import { type GroupRole, useGroupMembersQuery } from '../../../../../v2/data/queries/groups';
-import type { GroupAssignmentRow, InheritedGroupAssignmentRow } from '../../../../data/queries/groupAssignments';
+import type { InheritedWorkspaceGroupRow, WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import { extractErrorMessage } from '../../../../../shared/utilities/errorUtils';
 import messages from '../../../../../Messages';
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
@@ -50,14 +50,14 @@ export interface RoleWithInheritance {
 
 interface GroupDetailsDrawerProps {
   isOpen: boolean;
-  group?: GroupAssignmentRow | InheritedGroupAssignmentRow;
+  group?: WorkspaceGroupRow | InheritedWorkspaceGroupRow;
   onClose: () => void;
   ouiaId?: string;
   children: React.ReactNode;
   showInheritance?: boolean;
   currentWorkspace?: { id: string; name: string };
   /** Callback to trigger the remove-from-workspace modal for the focused group */
-  onRemoveFromWorkspace?: (group: GroupAssignmentRow) => void;
+  onRemoveFromWorkspace?: (group: WorkspaceGroupRow) => void;
 }
 
 // Column definitions for users tables
@@ -154,7 +154,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
       firstName: (row) => row.first_name,
       lastName: (row) => row.last_name,
       organization: () => {
-        const inherited = group as InheritedGroupAssignmentRow;
+        const inherited = group as InheritedWorkspaceGroupRow;
         if (inherited?.inheritedFrom && currentWorkspace) {
           return (
             <Tooltip
@@ -212,7 +212,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         </AppLink>
       ),
       inheritedFrom: () => {
-        const inherited = group as InheritedGroupAssignmentRow;
+        const inherited = group as InheritedWorkspaceGroupRow;
         if (inherited?.inheritedFrom) {
           return (
             <Tooltip
@@ -330,7 +330,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     userCellRenderersWithoutInheritance,
   ]);
 
-  // Render roles tab content — roles come from the binding response (already on GroupAssignmentRow),
+  // Render roles tab content — roles come from the binding response (already on WorkspaceGroupRow),
   // no separate fetch needed.
   const renderRolesTab = useCallback(() => {
     if (roles.length === 0) {

@@ -15,7 +15,7 @@ import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../..
 import type { Role } from '../../../../data/api/roles';
 import { useAllRolesV2Query } from '../../../../data/queries/roles';
 import { useGroupQuery } from '../../../../data/queries/groups';
-import { useRoleBindingsQuery, useUpdateRoleBindingsMutation, useWorkspaceQuery } from '../../../../data/queries/workspaces';
+import { useRoleBindingsQuery, useUpdateGroupRolesMutation, useWorkspaceQuery } from '../../../../data/queries/workspaces';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
@@ -76,7 +76,7 @@ export const RoleAccessModal: React.FC = () => {
   );
 
   // --- Mutation ---
-  const updateMutation = useUpdateRoleBindingsMutation();
+  const updateMutation = useUpdateGroupRolesMutation();
 
   const handleUpdate = useCallback(
     (selectedRoleIds: string[]) => {

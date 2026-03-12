@@ -8,6 +8,14 @@ import type {
 } from '../api/workspaces';
 
 const MOCK_DELAY = 200;
+const VALID_EXCLUDE_SOURCES = new Set(['direct', 'indirect']);
+
+function parseExcludeSources(url: URL): { value?: string; error?: ReturnType<typeof HttpResponse.json> } {
+  const raw = url.searchParams.get('exclude_sources');
+  if (!raw) return {};
+  if (VALID_EXCLUDE_SOURCES.has(raw)) return { value: raw };
+  return { error: HttpResponse.json({ error: `Invalid exclude_sources: '${raw}'. Expected 'direct' | 'indirect'.` }, { status: 400 }) };
+}
 
 /** Returns custom response for by-subject endpoint. Use for OrganizationManagement etc. */
 export function roleBindingsBySubjectResponseHandlers(response: RoleBindingsListBySubject200Response) {
@@ -17,15 +25,16 @@ export function roleBindingsBySubjectResponseHandlers(response: RoleBindingsList
   ];
 }
 
-/** Returns dynamic response based on request params (e.g. parent_role_bindings). */
+/** Returns dynamic response based on request params (e.g. exclude_sources). */
 export function roleBindingsBySubjectDynamicHandlers(
-  getResponse: (params: { resourceId?: string; parentRoleBindings?: boolean }) => RoleBindingsListBySubject200Response,
+  getResponse: (params: { resourceId?: string; excludeSources?: string }) => RoleBindingsListBySubject200Response,
 ) {
   const handler = ({ request }: { request: Request }) => {
     const url = new URL(request.url);
+    const { value: excludeSources, error } = parseExcludeSources(url);
+    if (error) return error;
     const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId') || undefined;
-    const parentRoleBindings = url.searchParams.get('parent_role_bindings') === 'true';
-    return HttpResponse.json(getResponse({ resourceId, parentRoleBindings }));
+    return HttpResponse.json(getResponse({ resourceId, excludeSources }));
   };
   return [http.get('*/api/rbac/v2/role-bindings/by-subject/', handler), http.get('*/api/rbac/v2/role-bindings/by-subject', handler)];
 }
@@ -43,16 +52,19 @@ export function createRoleBindingsHandlers(bindings: MockRoleBinding[], options:
     http.get('*/api/rbac/v2/role-bindings/by-subject', async ({ request }) => {
       await delay(networkDelay);
       const url = new URL(request.url);
+      const { value: excludeSources, error } = parseExcludeSources(url);
+      if (error) return error;
       const resourceId = url.searchParams.get('resource_id');
-      const parentRoleBindings = url.searchParams.get('parent_role_bindings');
 
       let filtered = bindings;
 
       if (resourceId) {
         filtered = filtered.filter((b) => b.resource_id === resourceId);
       }
-      if (parentRoleBindings === 'true') {
-        // Return all bindings for parent resources
+      if (excludeSources === 'direct') {
+        // Simple handler has no parent-workspace context — cannot model inheritance.
+        // Use createStatefulRoleBindingsHandlers for inheritance-aware flows.
+        filtered = [];
       }
 
       options.onList?.(url.searchParams);
@@ -76,7 +88,7 @@ export function roleBindingsHandlers(data?: MockRoleBinding[], options?: RoleBin
 
 /**
  * Handler for PUT /api/rbac/v2/role-bindings/by-subject/ (update endpoint).
- * Used by useUpdateRoleBindingsMutation to replace all role bindings for a subject on a resource.
+ * Used by useUpdateGroupRolesMutation to replace all roles for a group on a resource.
  */
 export function roleBindingsUpdateHandlers(options: Pick<RoleBindingsHandlerOptions, 'networkDelay' | 'onUpdate'> = {}) {
   const networkDelay = options.networkDelay ?? MOCK_DELAY;
@@ -99,7 +111,7 @@ export function roleBindingsUpdateHandlers(options: Pick<RoleBindingsHandlerOpti
 
 /**
  * Handler for GET /api/rbac/v2/role-bindings/ (base list endpoint).
- * Used by useRoleBindingsForRoleQuery to fetch bindings for a specific role.
+ * Used by useRoleUsageQuery to fetch where a role is used.
  */
 export function createRoleBindingsListHandlers(bindings: MockRoleBinding[], options: RoleBindingsHandlerOptions = {}) {
   const networkDelay = options.networkDelay ?? MOCK_DELAY;
@@ -136,7 +148,7 @@ export function createRoleBindingsListHandlers(bindings: MockRoleBinding[], opti
 // ---------------------------------------------------------------------------
 
 import type { RoleBindingsRoleBindingBySubject } from '../api/workspaces';
-import type { GroupRoleBinding } from '../queries/groupAssignments';
+import type { WorkspaceGroupBinding } from '../queries/groupAssignments';
 import type { Group, MockCollection } from '../../../shared/data/mocks/db';
 
 export interface StatefulRoleBindingsOptions {
@@ -146,8 +158,8 @@ export interface StatefulRoleBindingsOptions {
   onBatchCreate?: (body: unknown) => void;
   /** Used by batchCreate to enrich subject with group name/description */
   groups?: MockCollection<Group>;
-  /** Workspace list for resolving parent_role_bindings ancestor traversal */
-  workspaces?: Array<{ id: string; parent_id?: string | null }>;
+  /** Workspace list for resolving inherited bindings via ancestor traversal */
+  workspaces?: Array<{ id: string; name?: string; parent_id?: string | null }>;
 }
 
 /**
@@ -216,8 +228,9 @@ export function createStatefulRoleBindingsHandlers(
       http.get(pattern, async ({ request }) => {
         await delay(networkDelay);
         const url = new URL(request.url);
+        const { value: excludeSources, error } = parseExcludeSources(url);
+        if (error) return error;
         const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
-        const parentRoleBindings = url.searchParams.get('parent_role_bindings') === 'true';
         const limit = parseInt(url.searchParams.get('limit') || '10000', 10);
         const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
@@ -225,16 +238,29 @@ export function createStatefulRoleBindingsHandlers(
           return HttpResponse.json({ data: [], meta: { count: 0, limit, offset } });
         }
 
-        let bindings: RoleBindingsRoleBindingBySubject[];
-        if (parentRoleBindings && options.workspaces) {
+        const directBindings = bindingsMap.get(resourceId) || [];
+        let inheritedBindings: RoleBindingsRoleBindingBySubject[] = [];
+        if (options.workspaces) {
           const getParentChain = (wsId: string): string[] => {
             const ws = options.workspaces!.find((w) => w.id === wsId);
             if (!ws?.parent_id) return [];
             return [ws.parent_id, ...getParentChain(ws.parent_id)];
           };
-          bindings = getParentChain(resourceId).flatMap((parentId) => bindingsMap.get(parentId) || []);
+          inheritedBindings = getParentChain(resourceId).flatMap((parentId) =>
+            (bindingsMap.get(parentId) || []).map((b) => ({
+              ...b,
+              sources: [{ id: parentId, name: options.workspaces!.find((w) => w.id === parentId)?.name ?? parentId, type: 'workspace' }],
+            })),
+          );
+        }
+
+        let bindings: RoleBindingsRoleBindingBySubject[];
+        if (excludeSources === 'direct') {
+          bindings = inheritedBindings;
+        } else if (excludeSources === 'indirect') {
+          bindings = directBindings;
         } else {
-          bindings = bindingsMap.get(resourceId) || [];
+          bindings = [...directBindings, ...inheritedBindings];
         }
 
         const paginated = bindings.slice(offset, offset + limit);
@@ -306,7 +332,7 @@ export function createStatefulRoleBindingsHandlers(
             }
           } else {
             const groupData = options.groups?.findFirst((q) => q.where({ uuid: subjectId }));
-            const newBinding: GroupRoleBinding = {
+            const newBinding: WorkspaceGroupBinding = {
               last_modified: new Date().toISOString(),
               subject: {
                 id: subjectId,

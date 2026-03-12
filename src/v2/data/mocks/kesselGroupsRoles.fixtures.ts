@@ -2,7 +2,7 @@ import type { Group } from '../../../shared/data/queries/groups';
 import type { Principal } from '../../../shared/data/api/users';
 import type { RoleOut } from '../../../shared/data/mocks/db';
 import type { Permission } from '../api/roles';
-import type { RoleV2 } from '../queries/roles';
+import type { Role } from '../queries/roles';
 import { MOCK_ORG_ID } from './seed';
 
 /**
@@ -89,7 +89,7 @@ export const KESSEL_ROLE_PERMISSIONS: Record<string, Permission[]> = {
  * V2-shaped roles for workspace role assignments (M3+ features).
  * Includes roles for multiple bundles: RHEL, Ansible, OpenShift.
  */
-export const defaultKesselRoles: RoleV2[] = [
+export const defaultKesselRoles: Role[] = [
   {
     id: 'kessel-role-1',
     name: 'Workspace Administrator',

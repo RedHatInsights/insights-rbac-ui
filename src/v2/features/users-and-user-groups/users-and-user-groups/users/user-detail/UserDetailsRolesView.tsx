@@ -4,7 +4,7 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
-import { type RoleV2, useRolesV2Query } from '../../../../../../v2/data/queries/roles';
+import { type Role, useRolesV2Query } from '../../../../../../v2/data/queries/roles';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '../../../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
@@ -61,7 +61,7 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     username: userId,
   });
 
-  const roles: RoleV2[] = data?.data ?? [];
+  const roles: Role[] = data?.data ?? [];
 
   // Show error state
   if (error) {

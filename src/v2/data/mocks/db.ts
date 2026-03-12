@@ -1,7 +1,6 @@
-import type { RoleV2 } from '../queries/roles';
 import type { RoleBindingsRoleBindingBySubject } from '../api/workspaces';
 import type { WorkspacesWorkspace } from '../api/workspaces';
-import type { Permission as V2Permission } from '../api/roles';
+import type { Role, Permission as V2Permission } from '../api/roles';
 import type {
   Group,
   MockServiceAccount,
@@ -16,7 +15,6 @@ import { createResettableCollection, createResettableMap } from '../../../shared
 
 export type { WorkspacesWorkspace } from '../api/workspaces';
 export type { Permission, Role } from '../api/roles';
-export type { RoleV2 } from '../queries/roles';
 export type { RoleBindingsRoleBindingBySubject } from '../api/workspaces';
 export type { MockCollection, ResettableMockCollection, MockServiceAccount, ResettableMap } from '../../../shared/data/mocks/db';
 export { createSeededCollection, createResettableCollection, createResettableMap, paginate } from '../../../shared/data/mocks/db';
@@ -28,7 +26,7 @@ export { createSeededCollection, createResettableCollection, createResettableMap
 export interface V2MockDb {
   groups: ResettableMockCollection<Group>;
   users: ResettableMockCollection<Principal>;
-  roles: ResettableMockCollection<RoleV2>;
+  roles: ResettableMockCollection<Role>;
   workspaces: ResettableMockCollection<WorkspacesWorkspace>;
   permissions: ResettableMockCollection<Permission>;
   serviceAccounts: ResettableMockCollection<MockServiceAccount>;
@@ -45,7 +43,7 @@ export interface V2MockDb {
 export interface V2Seed {
   groups?: Group[];
   users?: Principal[];
-  roles?: RoleV2[];
+  roles?: Role[];
   workspaces?: WorkspacesWorkspace[];
   permissions?: Permission[];
   serviceAccounts?: MockServiceAccount[];
@@ -59,7 +57,7 @@ export interface V2Seed {
 export function createV2MockDb(seed: V2Seed = {}): V2MockDb {
   const groups = createResettableCollection<Group>(seed.groups ?? []);
   const users = createResettableCollection<Principal>(seed.users ?? []);
-  const roles = createResettableCollection<RoleV2>(seed.roles ?? []);
+  const roles = createResettableCollection<Role>(seed.roles ?? []);
   const workspaces = createResettableCollection<WorkspacesWorkspace>(seed.workspaces ?? []);
   const permissions = createResettableCollection<Permission>(seed.permissions ?? []);
   const serviceAccounts = createResettableCollection<MockServiceAccount>(seed.serviceAccounts ?? []);

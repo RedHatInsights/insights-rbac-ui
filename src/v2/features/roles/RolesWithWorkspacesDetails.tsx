@@ -17,7 +17,7 @@ import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/ou
 import Messages from '../../../Messages';
 import { RolePermissionsTable } from './components/RolePermissionsTable';
 import { AssignedUserGroupsTable } from './components/AssignedUserGroupsTable';
-import { useRoleBindingsForRoleQuery, useRoleV2Query } from '../../data/queries/roles';
+import { useRoleQuery, useRoleUsageQuery } from '../../data/queries/roles';
 import type { RoleBindingsGroupSubject } from '../../data/api/roles';
 
 interface RolesDetailProps {
@@ -33,8 +33,8 @@ const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole,
   const intl = useIntl();
 
   const roleId = selectedRole?.id ?? '';
-  const { data: roleDetail, isLoading: isLoadingDetail } = useRoleV2Query(roleId, { enabled: !!roleId });
-  const { data: roleBindings, isLoading: isLoadingBindings } = useRoleBindingsForRoleQuery(roleId, { enabled: !!roleId });
+  const { data: roleDetail, isLoading: isLoadingDetail } = useRoleQuery(roleId, { enabled: !!roleId });
+  const { data: roleBindings, isLoading: isLoadingBindings } = useRoleUsageQuery(roleId, { enabled: !!roleId });
 
   const handleTabClick = (_event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: string | number) => {
     setActiveTabKey(tabIndex);

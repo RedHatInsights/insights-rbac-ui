@@ -11,7 +11,7 @@ Workspace management for the new Access Management model. Workspaces are hierarc
 - `workspace-detail/` — detail view for a single workspace showing its role bindings and group assignments
   - `components/GroupDetailsDrawer` — slide-in drawer with group member and role details
   - `components/BaseGroupAssignmentsTable` — shared table for group→role binding display (also used by `organization-management`)
-  - `components/RoleAccessModal` — route-driven modal (`role-access/:groupId`, child of workspace-detail) for editing which roles a group has in a workspace. Split into route wrapper (`RoleAccessModal` — fetches group, workspace, roles, bindings) and pure UI (`RoleAccessModalContent` — `useTableState` over the in-memory roles list). Calls `useUpdateRoleBindingsMutation` on save.
+  - `components/RoleAccessModal` — route-driven modal (`role-access/:groupId`, child of workspace-detail) for editing which roles a group has in a workspace. Split into route wrapper (`RoleAccessModal` — fetches group, workspace, roles, bindings) and pure UI (`RoleAccessModalContent` — `useTableState` over the in-memory roles list). Calls `useUpdateGroupRolesMutation` on save.
 - `create-workspace/` — wizard for creating a new workspace under a parent
 - `grant-access/` — modal for granting a group access to a workspace by selecting a role
 - `components/managed-selector/` — the **federated workspace selector** component, exposed via module federation for use in other console apps. Has its own Zustand store for selection state.

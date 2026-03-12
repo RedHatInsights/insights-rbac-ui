@@ -70,7 +70,7 @@ test.describe('Workspace Detail', () => {
       });
     });
 
-    test('Can view inherited role bindings [OrgAdmin]', async ({ page }) => {
+    test('Parent workspace shows empty inherited tab [OrgAdmin]', async ({ page }) => {
       test.skip(!SEEDED_WORKSPACE_NAME, 'No seed data — run npm run e2e:seed:v2');
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
@@ -78,15 +78,9 @@ test.describe('Workspace Detail', () => {
       await workspacesPage.searchFor(SEEDED_WORKSPACE_NAME!);
       await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME!);
 
-      const rolesTab = page.getByRole('tab', { name: /role assignments/i });
-      await expect(rolesTab).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
-      await rolesTab.click();
+      await workspacesPage.switchToInheritedTab();
 
-      const parentTab = page.getByRole('tab', { name: /roles assigned in parent workspaces/i });
-      await expect(parentTab).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
-      await parentTab.click();
-      await expect(parentTab).toHaveAttribute('aria-selected', 'true', { timeout: E2E_TIMEOUTS.SLOW_DATA });
-      await expect(page.locator('[data-ouia-component-id="parent-role-assignments-table"]').or(page.getByRole('grid'))).toBeVisible({
+      await expect(page.getByText(/no user group found/i)).toBeVisible({
         timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
     });

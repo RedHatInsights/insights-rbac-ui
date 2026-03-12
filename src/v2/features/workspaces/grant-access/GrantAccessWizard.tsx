@@ -6,7 +6,7 @@ import React from 'react';
 
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
-import { useBatchCreateRoleBindingsMutation } from '../../../data/queries/workspaces';
+import { useGrantAccessMutation } from '../../../data/queries/workspaces';
 import { schemaBuilder } from './schema';
 import UserGroupsSelectionField from './components/UserGroupsSelectionField';
 import RolesSelectionField from './components/RolesSelectionField';
@@ -30,7 +30,7 @@ const customComponentMapper = {
 
 export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> = ({ workspaceName, workspaceId, afterSubmit, onCancel }) => {
   const navigate = useAppNavigate();
-  const batchCreateMutation = useBatchCreateRoleBindingsMutation();
+  const batchCreateMutation = useGrantAccessMutation();
 
   const defaultAfterSubmit = () => {
     navigate(pathnames.workspaces.link());

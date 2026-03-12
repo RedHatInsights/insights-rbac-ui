@@ -1,5 +1,5 @@
 import type { Permission } from '../api/roles';
-import type { RoleV2 } from '../queries/roles';
+import type { Role } from '../queries/roles';
 import type { WorkspacesWorkspace } from '../api/workspaces';
 import type { V2Seed } from './db';
 import {
@@ -37,12 +37,12 @@ export const DEFAULT_V2_ROLE_PERMISSIONS: Record<string, Permission[]> = {
 /** Org ID used for user-created mock roles. Matches the identity in KesselAppEntryWithRouter. */
 export const MOCK_ORG_ID = '12510751';
 
-export const DEFAULT_V2_ROLES: RoleV2[] = [
+export const DEFAULT_V2_ROLES: Role[] = [
   {
     id: 'role-tenant-admin',
     name: 'Tenant admin',
     description: 'Manage all tenant-level resources',
-    org_id: null,
+    org_id: undefined,
     permissions: DEFAULT_V2_ROLE_PERMISSIONS['role-tenant-admin'],
     permissions_count: 5,
     last_modified: '2024-06-01T00:00:00Z',
@@ -51,7 +51,7 @@ export const DEFAULT_V2_ROLES: RoleV2[] = [
     id: 'role-workspace-admin',
     name: 'Workspace admin',
     description: 'Manage workspace resources',
-    org_id: null,
+    org_id: undefined,
     permissions: DEFAULT_V2_ROLE_PERMISSIONS['role-workspace-admin'],
     permissions_count: 4,
     last_modified: '2024-06-01T00:00:00Z',

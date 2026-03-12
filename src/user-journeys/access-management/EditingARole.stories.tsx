@@ -431,7 +431,7 @@ Tests editing the role name.
  * Cannot edit system roles
  *
  * Tests that system/canned roles cannot be edited (no kebab menu shown
- * because `org_id` is null — the role is immutable).
+ * because `org_id` is undefined — the role is immutable).
  */
 export const CannotEditSystemRoles: Story = {
   tags: ['autodocs'],
@@ -442,7 +442,7 @@ export const CannotEditSystemRoles: Story = {
 Tests that system/canned roles cannot be edited.
 
 1. **Pre-condition:** Verify a system role exists (e.g., "Tenant admin").
-2. Verify the system role does NOT have a kebab menu (\`org_id\` is null).
+2. Verify the system role does NOT have a kebab menu (\`org_id\` is undefined).
 3. **API spy:** Verify no edit API call was made.
 4. Verify a user-created role still has a kebab menu with Edit.
         `,
@@ -463,7 +463,7 @@ Tests that system/canned roles cannot be edited.
     // 1. Pre-condition: Verify system role exists
     await waitForPageToLoad(canvas, systemRoleName);
 
-    // 2. System role should NOT have a kebab menu (org_id is null)
+    // 2. System role should NOT have a kebab menu (org_id is undefined)
     const kebab = canvas.queryByRole('button', {
       name: new RegExp(`Actions for role ${systemRoleName}`, 'i'),
     });

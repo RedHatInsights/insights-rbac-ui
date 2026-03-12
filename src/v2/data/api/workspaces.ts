@@ -77,4 +77,9 @@ export type {
   RoleBindingsUserDetails,
   Role,
 } from '@redhat-cloud-services/rbac-client/v2/types';
-export { WorkspacesWorkspaceTypes, WorkspacesWorkspaceTypesQueryParam } from '@redhat-cloud-services/rbac-client/v2/types';
+export {
+  WorkspacesWorkspaceTypes,
+  WorkspacesWorkspaceTypesQueryParam,
+  ExcludeSources,
+  ResourceType,
+} from '@redhat-cloud-services/rbac-client/v2/types';

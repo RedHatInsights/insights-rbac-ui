@@ -1,6 +1,6 @@
 import { HttpResponse, delay, http } from 'msw';
 import type { RolesBatchDeleteRolesRequest, RolesCreateOrUpdateRoleRequest, RolesList200Response } from '../api/roles';
-import type { MockCollection, RoleV2 } from './db';
+import type { MockCollection, Role } from './db';
 import { createSeededCollection } from './db';
 import { DEFAULT_V2_ROLES } from './seed';
 
@@ -12,7 +12,7 @@ export interface V2RolesHandlerOptions {
   /** Spy function called on list requests */
   onList?: (...args: unknown[]) => void;
   /** When provided, overrides roles returned for username-filtered requests */
-  rolesForUsername?: (username: string) => RoleV2[] | null;
+  rolesForUsername?: (username: string) => Role[] | null;
   /** Spy function called on read requests */
   onRead?: (...args: unknown[]) => void;
   /** Spy function called on create requests */
@@ -31,7 +31,7 @@ export interface V2RolesHandlerOptions {
  * Response types match @redhat-cloud-services/rbac-client V2 types exactly.
  * When rbac-client updates, TypeScript catches shape drift at build time.
  */
-export function createV2RolesHandlers(collection: MockCollection<RoleV2>, options: V2RolesHandlerOptions = {}) {
+export function createV2RolesHandlers(collection: MockCollection<Role>, options: V2RolesHandlerOptions = {}) {
   const networkDelay = options.networkDelay ?? MOCK_DELAY;
 
   return [
@@ -50,7 +50,7 @@ export function createV2RolesHandlers(collection: MockCollection<RoleV2>, option
       if (usernameFilter && options.rolesForUsername) {
         const customRoles = options.rolesForUsername(usernameFilter);
         if (customRoles !== null) {
-          const listRoles: RoleV2[] = customRoles.map(({ permissions: _perms, ...role }) => ({
+          const listRoles: Role[] = customRoles.map(({ permissions: _perms, ...role }) => ({
             ...role,
             permissions_count: role.permissions_count ?? _perms?.length ?? 0,
           }));
@@ -79,7 +79,7 @@ export function createV2RolesHandlers(collection: MockCollection<RoleV2>, option
 
       if (orderBy) {
         const desc = orderBy.startsWith('-');
-        const field = orderBy.replace(/^-/, '') as keyof RoleV2;
+        const field = orderBy.replace(/^-/, '') as keyof Role;
         roles = [...roles].sort((a, b) => {
           const aVal = String(a[field] ?? '');
           const bVal = String(b[field] ?? '');
@@ -92,7 +92,7 @@ export function createV2RolesHandlers(collection: MockCollection<RoleV2>, option
       const nextIndex = startIndex + limit;
       const hasNext = nextIndex < roles.length;
 
-      const listRoles: RoleV2[] = paginatedRoles.map(({ permissions: _perms, ...role }) => ({
+      const listRoles: Role[] = paginatedRoles.map(({ permissions: _perms, ...role }) => ({
         ...role,
         permissions_count: role.permissions_count ?? _perms?.length ?? 0,
       }));
@@ -124,7 +124,7 @@ export function createV2RolesHandlers(collection: MockCollection<RoleV2>, option
     http.post('*/api/rbac/v2/roles/', async ({ request }) => {
       await delay(networkDelay);
       const body = (await request.json()) as RolesCreateOrUpdateRoleRequest;
-      const newRole: RoleV2 = {
+      const newRole: Role = {
         id: `role-${Date.now()}`,
         name: body.name,
         description: body.description,
@@ -186,7 +186,7 @@ export function createV2RolesHandlers(collection: MockCollection<RoleV2>, option
 }
 
 /** Convenience wrapper — creates a Collection internally */
-export function v2RolesHandlers(data?: RoleV2[], options?: V2RolesHandlerOptions) {
+export function v2RolesHandlers(data?: Role[], options?: V2RolesHandlerOptions) {
   return createV2RolesHandlers(createSeededCollection(data ?? DEFAULT_V2_ROLES), options);
 }
 

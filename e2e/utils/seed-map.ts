@@ -304,6 +304,37 @@ export function getSeededWorkspaceData(version?: ApiVersion): SeedWorkspaceInput
   return fixture.workspaces?.[0];
 }
 
+/**
+ * Get the seeded child workspace's metadata — the first workspace with a `parent_id`.
+ */
+export function getSeededChildWorkspaceData(version?: ApiVersion): SeedWorkspaceInput | undefined {
+  const fixture = getSeedFixture(version);
+  return fixture.workspaces?.find((w) => w.parent_id);
+}
+
+/**
+ * Get the seeded child workspace name (full prefixed name).
+ * Finds the workspace with a `parent_id` in the seed fixture.
+ */
+export function getSeededChildWorkspaceName(version?: ApiVersion): string | undefined {
+  const v = version ?? getTestVersion();
+  const prefix = getTestPrefixForVersion(v);
+  const child = getSeededChildWorkspaceData(v);
+  return prefix && child ? `${prefix}__${child.name}` : undefined;
+}
+
+/**
+ * Get the seeded child group name (full prefixed name).
+ * In V2 seed data this is the group bound to the child workspace (second group in fixture).
+ */
+export function getSeededChildGroupName(version?: ApiVersion): string | undefined {
+  const v = version ?? getTestVersion();
+  const prefix = getTestPrefixForVersion(v);
+  const fixture = getSeedFixture(v);
+  const childGroup = fixture.groups?.[1];
+  return prefix && childGroup ? `${prefix}__${childGroup.name}` : undefined;
+}
+
 // ============================================================================
 // Seeded Users Helpers
 // ============================================================================

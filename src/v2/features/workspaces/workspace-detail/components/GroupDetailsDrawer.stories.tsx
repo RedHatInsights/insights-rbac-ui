@@ -9,7 +9,7 @@ import {
   groupMembersLoadingHandlers,
 } from '../../../../../shared/data/mocks/groupMembers.handlers';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
-import type { GroupAssignmentRow, InheritedGroupAssignmentRow } from '../../../../data/queries/groupAssignments';
+import type { InheritedWorkspaceGroupRow, WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import { type Member } from '../../../../../v2/data/queries/groups';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Card } from '@patternfly/react-core/dist/dynamic/components/Card';
@@ -35,7 +35,7 @@ const mockUsers: Member[] = [
   },
 ];
 
-const mockGroup: GroupAssignmentRow = {
+const mockGroup: WorkspaceGroupRow = {
   id: 'group-1',
   name: 'Platform Administrators',
   description: 'Full access to all platform resources and administrative functions',
@@ -139,7 +139,7 @@ type Story = StoryObj<typeof meta>;
 // Interactive example with drawer functionality
 const mockWorkspace = { id: 'ws-test', name: 'Test Workspace' };
 
-const mockInheritedGroup: InheritedGroupAssignmentRow = {
+const mockInheritedGroup: InheritedWorkspaceGroupRow = {
   id: 'group-inherited-1',
   name: 'Powerpuff Girls',
   description: 'Inherited group from parent workspace',
@@ -166,12 +166,12 @@ const DrawerExample = ({
   onRemoveFromWorkspace,
 }: {
   isOpen?: boolean;
-  group?: GroupAssignmentRow | InheritedGroupAssignmentRow;
+  group?: WorkspaceGroupRow | InheritedWorkspaceGroupRow;
   onClose?: () => void;
   ouiaId?: string;
   currentWorkspace?: { id: string; name: string };
   showInheritance?: boolean;
-  onRemoveFromWorkspace?: (group: GroupAssignmentRow) => void;
+  onRemoveFromWorkspace?: (group: WorkspaceGroupRow) => void;
 }) => {
   const [isOpen, setIsOpen] = React.useState(initialIsOpen);
 
@@ -329,7 +329,7 @@ export const LoadingState: Story = {
 };
 
 // Empty state
-const emptyGroup: GroupAssignmentRow = { ...mockGroup, roleCount: 0, roles: [] };
+const emptyGroup: WorkspaceGroupRow = { ...mockGroup, roleCount: 0, roles: [] };
 
 export const EmptyState: Story = {
   render: (args) => <DrawerExample {...args} />,

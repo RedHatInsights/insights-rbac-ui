@@ -140,12 +140,11 @@ const withRouter = (Story: React.ComponentType, context: { parameters?: { route?
 const workspaceDetailHandlers = [
   ...workspacesHandlers(mockWorkspaces),
   ...groupsHandlers(mockGroups),
-  ...roleBindingsBySubjectDynamicHandlers(({ resourceId, parentRoleBindings }) => {
+  ...roleBindingsBySubjectDynamicHandlers(({ resourceId, excludeSources }) => {
     const baseData = mockRoleBindingsResponse.data.map((item) => ({
       ...item,
-      resource: parentRoleBindings
-        ? { id: 'workspace-1', name: 'Production Environment', type: 'workspace' }
-        : { ...item.resource, id: resourceId || 'workspace-2' },
+      resource: { ...item.resource, id: resourceId || 'workspace-2' },
+      ...(excludeSources === 'direct' ? { sources: [{ id: 'workspace-1', name: 'Production Environment', type: 'workspace' }] } : {}),
     }));
     return { data: baseData, meta: { limit: 20 }, links: { next: null, previous: null } };
   }),

@@ -1,7 +1,7 @@
 /**
- * Group Assignment Hooks
+ * Workspace & Org Group Hooks
  *
- * UI-model types and hooks for workspace/org role-assignment tables.
+ * UI-model types and hooks for workspace/org group tables.
  * Wraps raw role-binding queries and returns data already transformed
  * into the shape the components need — no V1 `Group` type involved.
  */
@@ -16,7 +16,7 @@ import { useRoleBindingsQuery } from './workspaces';
 // =============================================================================
 
 /** Role binding whose subject carries group details (from `fields=subject(group.*)`) */
-export type GroupRoleBinding = Omit<RoleBindingsRoleBindingBySubject, 'subject'> & {
+export type WorkspaceGroupBinding = Omit<RoleBindingsRoleBindingBySubject, 'subject'> & {
   subject?: RoleBindingsGroupSubject;
 };
 
@@ -24,22 +24,22 @@ export type GroupRoleBinding = Omit<RoleBindingsRoleBindingBySubject, 'subject'>
 // UI Model Types (what components see)
 // =============================================================================
 
-export interface GroupAssignmentRole {
+export interface WorkspaceGroupRole {
   id: string;
   name: string;
 }
 
-export interface GroupAssignmentRow {
+export interface WorkspaceGroupRow {
   id: string;
   name: string;
   description: string;
   userCount: number;
   roleCount: number;
-  roles: GroupAssignmentRole[];
+  roles: WorkspaceGroupRole[];
   lastModified: string;
 }
 
-export interface InheritedGroupAssignmentRow extends GroupAssignmentRow {
+export interface InheritedWorkspaceGroupRow extends WorkspaceGroupRow {
   inheritedFrom?: {
     workspaceId: string;
     workspaceName: string;
@@ -50,9 +50,9 @@ export interface InheritedGroupAssignmentRow extends GroupAssignmentRow {
 // Private transformer (rbac-client type IN → UI model OUT)
 // =============================================================================
 
-function toGroupAssignmentRow(binding: GroupRoleBinding): GroupAssignmentRow {
+function toWorkspaceGroupRow(binding: WorkspaceGroupBinding): WorkspaceGroupRow {
   const { subject } = binding;
-  const roles: GroupAssignmentRole[] = (binding.roles ?? []).map((r) => ({ id: r.id ?? '', name: r.name ?? '' }));
+  const roles: WorkspaceGroupRole[] = (binding.roles ?? []).map((r) => ({ id: r.id ?? '', name: r.name ?? '' }));
   return {
     id: subject?.id ?? subject?.group?.name ?? '',
     name: subject?.group?.name ?? '',
@@ -64,8 +64,8 @@ function toGroupAssignmentRow(binding: GroupRoleBinding): GroupAssignmentRow {
   };
 }
 
-function transformBindings(data: GroupRoleBinding[]): GroupAssignmentRow[] {
-  return data.map(toGroupAssignmentRow).filter((row) => row.roleCount > 0);
+function transformBindings(data: WorkspaceGroupBinding[]): WorkspaceGroupRow[] {
+  return data.map(toWorkspaceGroupRow).filter((row) => row.roleCount > 0);
 }
 
 // =============================================================================
@@ -75,44 +75,44 @@ function transformBindings(data: GroupRoleBinding[]): GroupAssignmentRow[] {
 const ROLE_BINDINGS_LIMIT = 1000;
 
 /**
- * Returns group assignment rows for a workspace, already transformed and filtered.
+ * Groups with roles directly assigned in a workspace.
  * Groups with zero roles are excluded.
  */
-export function useGroupAssignments(workspaceId: string, options?: { enabled?: boolean }) {
+export function useWorkspaceGroups(workspaceId: string, options?: { enabled?: boolean }) {
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
     limit: ROLE_BINDINGS_LIMIT,
+    excludeSources: 'indirect',
   });
 
-  const data = useMemo(() => (query.data?.data ? transformBindings(query.data.data as GroupRoleBinding[]) : []), [query.data]);
+  const data = useMemo(() => (query.data?.data ? transformBindings(query.data.data as WorkspaceGroupBinding[]) : []), [query.data]);
 
   return { data, isLoading: query.isLoading };
 }
 
 /**
- * Returns inherited group assignment rows for a workspace.
- * Queries the current workspace with `parent_role_bindings=true` so the API
- * traverses the full ancestor chain. Each row's `inheritedFrom` is derived
- * from the `resource` field on the binding (the ancestor workspace it came from).
+ * Groups with roles inherited from parent workspaces.
+ * Uses `excludeSources: 'direct'` so the API returns only inherited bindings.
+ * Each row's `inheritedFrom` is derived from the `sources` array on the binding.
  */
-export function useInheritedGroupAssignments(workspaceId: string, options?: { enabled?: boolean }) {
+export function useWorkspaceInheritedGroups(workspaceId: string, options?: { enabled?: boolean }) {
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
     limit: ROLE_BINDINGS_LIMIT,
-    parentRoleBindings: true,
+    excludeSources: 'direct',
   });
 
-  const data: InheritedGroupAssignmentRow[] = useMemo(() => {
+  const data: InheritedWorkspaceGroupRow[] = useMemo(() => {
     if (!query.data?.data) return [];
-    const bindings = query.data.data as GroupRoleBinding[];
+    const bindings = query.data.data as WorkspaceGroupBinding[];
     const seen = new Set<string>();
     return bindings
-      .map((binding): InheritedGroupAssignmentRow => {
-        const row = toGroupAssignmentRow(binding);
-        const resource = binding.resource;
+      .map((binding): InheritedWorkspaceGroupRow => {
+        const row = toWorkspaceGroupRow(binding);
+        const source = binding.sources?.[0];
         return {
           ...row,
-          inheritedFrom: resource?.id ? { workspaceId: resource.id, workspaceName: resource.name ?? '' } : undefined,
+          inheritedFrom: source?.id ? { workspaceId: source.id, workspaceName: source.name ?? '' } : undefined,
         };
       })
       .filter((row) => {
@@ -127,10 +127,10 @@ export function useInheritedGroupAssignments(workspaceId: string, options?: { en
 }
 
 /**
- * Returns group assignment rows for an organization (tenant-scoped).
+ * Groups with roles at the organization (tenant) level.
  * Used by OrganizationManagement.
  */
-export function useOrgGroupAssignments(organizationId: string, options?: { enabled?: boolean }) {
+export function useOrgGroups(organizationId: string, options?: { enabled?: boolean }) {
   const query = useRoleBindingsQuery(
     {
       resourceId: `redhat/${organizationId}`,
@@ -141,7 +141,7 @@ export function useOrgGroupAssignments(organizationId: string, options?: { enabl
     { enabled: options?.enabled ?? true },
   );
 
-  const data = useMemo(() => (query.data?.data ? transformBindings(query.data.data as GroupRoleBinding[]) : []), [query.data]);
+  const data = useMemo(() => (query.data?.data ? transformBindings(query.data.data as WorkspaceGroupBinding[]) : []), [query.data]);
 
   return { data, isLoading: query.isLoading };
 }
