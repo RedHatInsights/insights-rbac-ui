@@ -7,9 +7,9 @@ import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../..
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../../../../shared/components/table-view/types';
 import messages from '../../../../../Messages';
 
-import type { RoleV2 } from '../../../../data/queries/roles';
+import type { Role } from '../../../../data/queries/roles';
 
-type RoleRow = RoleV2;
+type RoleRow = Role;
 
 // List of permissions for expanded view with each permission on its own line
 const PermissionsList: React.FC<{ role: RoleRow }> = ({ role }) => {

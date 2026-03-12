@@ -6,14 +6,14 @@ import { FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { useOrganizationData } from '../../hooks/useOrganizationData';
 import messages from '../../../Messages';
 import { useIntl } from 'react-intl';
-import { useOrgGroupAssignments } from '../../data/queries/groupAssignments';
+import { useOrgGroups } from '../../data/queries/groupAssignments';
 import { BaseGroupAssignmentsTable } from '../workspaces/workspace-detail/components';
 
 export const OrganizationManagement = () => {
   const intl = useIntl();
   const { accountNumber, organizationId, organizationName, isLoading } = useOrganizationData();
 
-  const { data: roleBindings, isLoading: roleBindingsIsLoading } = useOrgGroupAssignments(organizationId!, {
+  const { data: roleBindings, isLoading: roleBindingsIsLoading } = useOrgGroups(organizationId!, {
     enabled: !isLoading && !!organizationId,
   });
 

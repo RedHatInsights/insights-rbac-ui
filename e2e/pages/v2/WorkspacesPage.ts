@@ -307,6 +307,60 @@ export class WorkspacesPage {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Inherited Role Bindings Helpers
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Navigate to a child workspace by expanding its parent in the tree first.
+   * Searches for the child, expands parent + default, then clicks through.
+   */
+  async navigateToChildWorkspace(parentName: string, childName: string): Promise<void> {
+    await this.searchFor(childName);
+    await this.expandTreeNodes();
+
+    const parentRow = this.table.getByRole('row', { name: new RegExp(parentName, 'i') });
+    const parentExpandBtn = parentRow.getByRole('button', { name: /expand row/i });
+    if (await parentExpandBtn.isVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION }).catch(() => false)) {
+      await parentExpandBtn.click();
+      await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
+    }
+
+    const link = this.getWorkspaceLink(childName);
+    await expect(link).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    await link.click();
+    await expect(this.page.getByRole('heading', { name: childName })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+  }
+
+  /**
+   * Switch to the inherited role assignments sub-tab and wait for the table.
+   */
+  async switchToInheritedTab(): Promise<void> {
+    await this.roleAssignmentsTab.click();
+    await this.inheritedRoleAssignmentsSubTab.click();
+    await expect(this.inheritedRoleAssignmentsSubTab).toHaveAttribute('aria-selected', 'true', {
+      timeout: E2E_TIMEOUTS.SLOW_DATA,
+    });
+    await waitForTableUpdate(this.page, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+  }
+
+  getInheritedGroupRow(groupName: string): Locator {
+    return this.parentRoleAssignmentsTable.getByRole('row').filter({ hasText: groupName });
+  }
+
+  async expectInheritedGroupRow(groupName: string): Promise<void> {
+    await expect(this.getInheritedGroupRow(groupName)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+  }
+
+  async expectInheritedFromColumn(groupName: string, parentWorkspaceName: string): Promise<void> {
+    const row = this.getInheritedGroupRow(groupName);
+    await expect(row.getByRole('link', { name: parentWorkspaceName })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+  }
+
+  async expectGroupNotInInheritedTab(groupName: string): Promise<void> {
+    await expect(this.getInheritedGroupRow(groupName)).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Row Actions
   // ═══════════════════════════════════════════════════════════════════════════
 

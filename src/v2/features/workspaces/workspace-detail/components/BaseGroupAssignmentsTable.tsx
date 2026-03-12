@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 
-import type { GroupAssignmentRow } from '../../../../data/queries/groupAssignments';
+import type { WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import messages from '../../../../../Messages';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { RemoveGroupFromWorkspaceModal } from './RemoveGroupFromWorkspaceModal';
@@ -23,7 +23,7 @@ type SortableColumn = 'name' | 'userCount' | 'roleCount' | 'lastModified';
 const sortableColumns = ['name', 'userCount', 'roleCount', 'lastModified'] as const;
 
 export interface BaseGroupAssignmentsTableProps {
-  groups: GroupAssignmentRow[];
+  groups: WorkspaceGroupRow[];
   /** Total count of items. When omitted, PF Pagination renders in indeterminate mode. */
   totalCount?: number;
   isLoading: boolean;
@@ -50,13 +50,13 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
   const navigate = useAppNavigate();
   const grantAccessEnabled = useWorkspacesFlag('m4');
 
-  const [focusedGroup, setFocusedGroup] = useState<GroupAssignmentRow | undefined>();
+  const [focusedGroup, setFocusedGroup] = useState<WorkspaceGroupRow | undefined>();
   const [internalWizardOpen, setInternalWizardOpen] = useState(false);
   const isGrantAccessWizardOpen = externalWizardOpen ?? internalWizardOpen;
   const setIsGrantAccessWizardOpen = onGrantAccessWizardToggle ?? setInternalWizardOpen;
-  const [groupToRemove, setGroupToRemove] = useState<GroupAssignmentRow | undefined>();
+  const [groupToRemove, setGroupToRemove] = useState<WorkspaceGroupRow | undefined>();
 
-  const tableState = useTableState<typeof columns, GroupAssignmentRow, SortableColumn>({
+  const tableState = useTableState<typeof columns, WorkspaceGroupRow, SortableColumn>({
     columns,
     sortableColumns,
     getRowId: (row) => row.id,
@@ -77,7 +77,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
     [intl],
   );
 
-  const cellRenderers: CellRendererMap<typeof columns, GroupAssignmentRow> = useMemo(
+  const cellRenderers: CellRendererMap<typeof columns, WorkspaceGroupRow> = useMemo(
     () => ({
       name: (row) => row.name,
       description: (row) =>
@@ -107,7 +107,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
   );
 
   const renderActions = useCallback(
-    (group: GroupAssignmentRow) => {
+    (group: WorkspaceGroupRow) => {
       const items: ActionDropdownItem[] = [
         {
           key: 'edit-access',
@@ -133,7 +133,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
   );
 
   const handleRowClick = useCallback(
-    (group: GroupAssignmentRow) => {
+    (group: WorkspaceGroupRow) => {
       setFocusedGroup(focusedGroup?.id === group.id ? undefined : group);
     },
     [focusedGroup],
@@ -167,7 +167,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
       currentWorkspace={currentWorkspace}
       onRemoveFromWorkspace={currentWorkspace ? (group) => setGroupToRemove(group) : undefined}
     >
-      <TableView<typeof columns, GroupAssignmentRow, SortableColumn>
+      <TableView<typeof columns, WorkspaceGroupRow, SortableColumn>
         columns={columns}
         columnConfig={columnConfig}
         sortableColumns={sortableColumns}

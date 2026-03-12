@@ -76,4 +76,6 @@ export type {
   RoleBindingsRoleBindingBySubject,
   CursorPaginationMeta,
   CursorPaginationLinks,
+  ExcludeSources,
+  ResourceType,
 } from '@redhat-cloud-services/rbac-client/v2/types';

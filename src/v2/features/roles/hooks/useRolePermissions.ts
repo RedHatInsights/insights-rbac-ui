@@ -8,7 +8,7 @@ export interface RolePermissions {
 
 interface Role {
   id?: string;
-  org_id?: string | null;
+  org_id?: string;
 }
 
 /**
@@ -18,15 +18,15 @@ interface Role {
  * 1. **Tenant-scoped Kessel check** (`rbac_roles_write` on the org) — does
  *    the user have write permission for roles at all?
  * 2. **`org_id` guard** — is this a user-created role? System/canned roles
- *    have `org_id === null` and are never editable/deletable regardless of
+ *    have `org_id === undefined` and are never editable/deletable regardless of
  *    tenant permission.
  *
- * `canEdit(roleId) = tenantCanWrite && role.org_id != null`
+ * `canEdit(roleId) = tenantCanWrite && role.org_id !== undefined`
  */
 export function useRolePermissions(roles: Role[]) {
   const { canUpdate, canDelete: canDeleteTenant, isLoading } = useRolesAccess();
 
-  const userCreatedIds = useMemo(() => new Set(roles.filter((r) => r.id && r.org_id != null).map((r) => r.id!)), [roles]);
+  const userCreatedIds = useMemo(() => new Set(roles.filter((r) => r.id && r.org_id !== undefined).map((r) => r.id!)), [roles]);
 
   const permissionsFor = useCallback(
     (roleId: string): RolePermissions => ({

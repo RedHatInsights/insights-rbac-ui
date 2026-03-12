@@ -29,7 +29,7 @@ import {
   verifyRoleNotExists,
   waitForModal,
 } from './_shared/tableHelpers';
-import type { RoleV2 } from '../../v2/data/queries/roles';
+import type { Role } from '../../v2/data/queries/roles';
 
 // =============================================================================
 // API SPIES
@@ -45,7 +45,7 @@ const deleteRoleSpy = fn();
  * Convert journey mock roles (uuid-based) to V2 Role type (id-based)
  * so we can use createV2RolesHandlers with cursor pagination.
  */
-const journeyRolesToV2 = (): RoleV2[] =>
+const journeyRolesToV2 = (): Role[] =>
   mockRolesV2.map((r) => ({
     id: r.uuid,
     name: r.name,
@@ -63,7 +63,7 @@ const resetCollection = () => rolesCollection.reset();
 const TARGET_ROLE = mockRolesV2.find((r) => r.uuid === 'role-rhel-devops')!;
 const TARGET_ROLE_ID = TARGET_ROLE.uuid;
 
-// System/canned role (org_id: null — not editable/deletable)
+// System/canned role (org_id: undefined — not editable/deletable)
 const SYSTEM_ROLE = mockRolesV2.find((r) => r.uuid === 'role-tenant-admin')!;
 
 // =============================================================================
@@ -316,7 +316,7 @@ Tests canceling the delete confirmation modal.
  * Cannot delete system roles
  *
  * Tests that system/canned roles cannot be deleted (no kebab menu shown
- * because `org_id` is null — the role is immutable).
+ * because `org_id` is undefined — the role is immutable).
  */
 export const CannotDeleteSystemRoles: Story = {
   tags: [],
@@ -327,7 +327,7 @@ export const CannotDeleteSystemRoles: Story = {
 Tests that system/canned roles cannot be deleted.
 
 **Expected behavior:**
-- System roles should NOT have a kebab menu (\`org_id\` is null)
+- System roles should NOT have a kebab menu (\`org_id\` is undefined)
 - User-created roles that are writable should still show the kebab menu
         `,
       },
@@ -343,7 +343,7 @@ Tests that system/canned roles cannot be deleted.
     // Verify the system role is displayed
     await waitForPageToLoad(canvas, SYSTEM_ROLE.name);
 
-    // System role should NOT have a kebab menu (org_id is null)
+    // System role should NOT have a kebab menu (org_id is undefined)
     const kebab = canvas.queryByRole('button', {
       name: new RegExp(`Actions for role ${SYSTEM_ROLE.name}`, 'i'),
     });

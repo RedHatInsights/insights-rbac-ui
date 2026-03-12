@@ -8,7 +8,7 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import { Wizard } from '@patternfly/react-core/deprecated';
 import { createQueryParams } from '../../../../shared/helpers/navigation';
 import { schemaBuilder } from './schema';
-import { useCreateRoleV2Mutation } from '../../../data/queries/roles';
+import { useCreateRoleMutation } from '../../../data/queries/roles';
 import type { Permission, RolesCreateOrUpdateRoleRequest } from '../../../data/queries/roles';
 import { useFlag } from '@unleash/proxy-client-react';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
@@ -84,7 +84,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const navigate = useAppNavigate();
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
   const addNotification = useAddNotification();
-  const createRoleV2Mutation = useCreateRoleV2Mutation();
+  const createRoleMutation = useCreateRoleMutation();
 
   const [wizardContextValue, setWizardContextValue] = useState<{
     success: boolean;
@@ -176,7 +176,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
 
     setWizardContextValue((prev) => ({ ...prev, submitting: true }));
 
-    return createRoleV2Mutation
+    return createRoleMutation
       .mutateAsync(roleData)
       .then(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));

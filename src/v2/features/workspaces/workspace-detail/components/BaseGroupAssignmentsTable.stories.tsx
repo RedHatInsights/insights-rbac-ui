@@ -3,12 +3,12 @@ import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { BaseGroupAssignmentsTable } from './BaseGroupAssignmentsTable';
-import type { GroupAssignmentRow } from '../../../../data/queries/groupAssignments';
+import type { WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import { createGroupMembersHandlers, groupMembersHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
 import { groupsHandlers } from '../../../../../shared/data/mocks/groups.handlers';
 import { v2RolesHandlers } from '../../../../data/mocks/roles.handlers';
 
-const mockGroups: GroupAssignmentRow[] = [
+const mockGroups: WorkspaceGroupRow[] = [
   {
     id: 'group-1',
     name: 'Platform Administrators',

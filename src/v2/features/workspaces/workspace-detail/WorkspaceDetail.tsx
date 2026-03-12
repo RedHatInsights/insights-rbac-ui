@@ -15,7 +15,7 @@ import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
 import { EMPTY_PERMISSIONS, type WorkspaceWithPermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { useWorkspacesWithPermissions } from '../hooks/useWorkspacesWithPermissions';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
-import { useGroupAssignments, useInheritedGroupAssignments } from '../../../data/queries/groupAssignments';
+import { useWorkspaceGroups, useWorkspaceInheritedGroups } from '../../../data/queries/groupAssignments';
 
 interface WorkspaceData {
   name: string;
@@ -61,7 +61,7 @@ export const WorkspaceDetail = () => {
   const isLoading = status === 'loading';
 
   const shouldFetchRoleBindings = activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-workspace';
-  const { data: roleBindings, isLoading: roleBindingsIsLoading } = useGroupAssignments(workspaceId!, {
+  const { data: roleBindings, isLoading: roleBindingsIsLoading } = useWorkspaceGroups(workspaceId!, {
     enabled: shouldFetchRoleBindings && !!workspaceId,
   });
 
@@ -70,7 +70,7 @@ export const WorkspaceDetail = () => {
     enableRoles &&
     activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces' &&
     !!selectedWorkspace?.parent_id;
-  const { data: parentGroups, isLoading: parentGroupsIsLoading } = useInheritedGroupAssignments(workspaceId ?? '', {
+  const { data: parentGroups, isLoading: parentGroupsIsLoading } = useWorkspaceInheritedGroups(workspaceId ?? '', {
     enabled: shouldFetchParentBindings && !!workspaceId,
   });
 

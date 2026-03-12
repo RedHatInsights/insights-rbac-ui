@@ -12,8 +12,8 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import { EditRolePermissions } from './EditRolePermissions';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import { useRoleV2Query, useUpdateRoleV2Mutation } from '../../../data/queries/roles';
-import type { Permission, RoleV2 } from '../../../data/queries/roles';
+import { useRoleQuery, useUpdateRoleMutation } from '../../../data/queries/roles';
+import type { Permission, Role } from '../../../data/queries/roles';
 
 function permissionToString(p: Permission): string {
   return `${p.application}:${p.resource_type}:${p.operation}`;
@@ -35,10 +35,10 @@ export const EditRole: FunctionComponent = () => {
   const { roleId } = useParams();
   const navigate = useAppNavigate();
   const pageTitle = intl.formatMessage(Messages.edit);
-  const [initialFormData, setInitialFormData] = useState<RoleV2 | null>(null);
+  const [initialFormData, setInitialFormData] = useState<Role | null>(null);
 
-  const { data: selectedRole, isLoading: isRoleLoading } = useRoleV2Query(roleId ?? '');
-  const updateRoleMutation = useUpdateRoleV2Mutation();
+  const { data: selectedRole, isLoading: isRoleLoading } = useRoleQuery(roleId ?? '');
+  const updateRoleMutation = useUpdateRoleMutation();
 
   const navigateToRoles = () => {
     navigate(pathnames['access-management-roles'].link(), { replace: true });

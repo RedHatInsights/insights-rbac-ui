@@ -52,7 +52,7 @@ const AuditLog: React.FC = () => {
     () => ({
       limit: tableState.perPage,
       offset: (tableState.page - 1) * tableState.perPage,
-      orderBy: 'id' as const,
+      orderBy: '-created' as const,
     }),
     [tableState.perPage, tableState.page],
   );

@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useTableState } from '../../../shared/components/table-view/hooks/useTableState';
 import type { UseTableStateReturn } from '../../../shared/components/table-view/types';
-import { type RoleV2, type RolesListParams, extractRolesV2Links, useRolesV2Query } from '../../data/queries/roles';
+import { type Role, type RolesListParams, extractRolesV2Links, useRolesV2Query } from '../../data/queries/roles';
 import { PER_PAGE_OPTIONS } from '../../../shared/helpers/pagination';
 
-export type { RoleV2 as Role } from '../../data/queries/roles';
+export type { Role } from '../../data/queries/roles';
 
 const columns = ['name', 'description', 'permissions', 'last_modified'] as const;
 type SortableColumn = 'name' | 'last_modified';
@@ -16,7 +16,7 @@ export interface UseRolesOptions {
 }
 
 export interface UseRolesReturn {
-  roles: RoleV2[];
+  roles: Role[];
   isLoading: boolean;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
@@ -24,13 +24,13 @@ export interface UseRolesReturn {
   orgAdmin: boolean;
   userAccessAdministrator: boolean;
 
-  tableState: UseTableStateReturn<typeof columns, RoleV2, SortableColumn, never>;
+  tableState: UseTableStateReturn<typeof columns, Role, SortableColumn, never>;
 
-  focusedRole: RoleV2 | null;
-  setFocusedRole: (role: RoleV2 | null) => void;
+  focusedRole: Role | null;
+  setFocusedRole: (role: Role | null) => void;
 
   refetch: () => void;
-  handleRowClick: (role: RoleV2) => void;
+  handleRowClick: (role: Role) => void;
 }
 
 /**
@@ -45,12 +45,12 @@ export interface UseRolesReturn {
 export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
   const { enableAdminFeatures = true } = options;
 
-  const [focusedRole, setFocusedRole] = useState<RoleV2 | null>(null);
+  const [focusedRole, setFocusedRole] = useState<Role | null>(null);
 
-  const tableState = useTableState<typeof columns, RoleV2, SortableColumn>({
+  const tableState = useTableState<typeof columns, Role, SortableColumn>({
     columns,
     sortableColumns,
-    getRowId: (row: RoleV2) => row.id!,
+    getRowId: (row: Role) => row.id!,
     initialSort: { column: 'name', direction: 'asc' },
     initialPerPage: 20,
     perPageOptions: PER_PAGE_OPTIONS.map((opt) => opt.value),
@@ -92,7 +92,7 @@ export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
   const userAccessAdministrator = enableAdminFeatures;
 
   const handleRowClick = useCallback(
-    (role: RoleV2) => {
+    (role: Role) => {
       setFocusedRole(role);
     },
     [setFocusedRole],

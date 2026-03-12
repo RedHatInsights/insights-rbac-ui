@@ -10,7 +10,7 @@ import { useTableState } from '../../../../shared/components/table-view/hooks/us
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../shared/components/table-view/components/TableViewEmptyState';
 import { useExpandSplatsQuery, usePermissionOptionsQuery, usePermissionsQuery } from '../../../../shared/data/queries/permissions';
 import { useResourceTypesQuery } from '../../../../shared/data/queries/cost';
-import { useRoleV2Query } from '../../../data/queries/roles';
+import { useRoleQuery } from '../../../data/queries/roles';
 import messages from '../../../../Messages';
 import type { ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
 
@@ -123,7 +123,7 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
   const { data: resourceTypesData } = useResourceTypesQuery({ enabled: hasCostAccess ?? false });
 
   // Base role query (for copy mode) - V2 uses id not uuid
-  const { data: baseRole, isLoading: isLoadingBaseRole } = useRoleV2Query(copyBaseRole?.id ?? '', {
+  const { data: baseRole, isLoading: isLoadingBaseRole } = useRoleQuery(copyBaseRole?.id ?? '', {
     enabled: roleType === 'copy' && !!copyBaseRole?.id,
   });
 

@@ -8,7 +8,7 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import { useAllRolesV2Query } from '../../../data/queries/roles';
-import type { RoleV2 } from '../../../data/queries/roles';
+import type { Role } from '../../../data/queries/roles';
 import messages from '../../../../Messages';
 import type { ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
 
@@ -28,10 +28,10 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
   const formOptions = useFormApi();
 
   // Table state
-  const tableState = useTableState<typeof COLUMNS, RoleV2, SortableColumnId>({
+  const tableState = useTableState<typeof COLUMNS, Role, SortableColumnId>({
     columns: COLUMNS,
     sortableColumns: SORTABLE_COLUMNS,
-    getRowId: (row: RoleV2) => row.id!,
+    getRowId: (row: Role) => row.id!,
     initialPerPage: 50,
     initialSort: { column: 'name', direction: 'asc' },
     initialFilters: { name: '' },
@@ -74,14 +74,14 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
 
   // Cell renderers
   const cellRenderers = {
-    radio: (role: RoleV2) => (
+    radio: (role: Role) => (
       <Radio
         id={`${role.id ?? ''}-radio`}
         name={`${role.name ?? ''}-radio`}
         aria-label={`${role.name ?? ''}-radio`}
         ouiaId={`${role.name ?? ''}-radio`}
         value={role.id ?? ''}
-        isChecked={(input.value as RoleV2)?.id === role.id}
+        isChecked={(input.value as Role)?.id === role.id}
         onChange={() => {
           formOptions.batch(() => {
             input.onChange(role);
@@ -94,8 +94,8 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
         }}
       />
     ),
-    name: (role: RoleV2) => role.name ?? '',
-    description: (role: RoleV2) => role.description ?? '',
+    name: (role: Role) => role.name ?? '',
+    description: (role: Role) => role.description ?? '',
   };
 
   // Filter config

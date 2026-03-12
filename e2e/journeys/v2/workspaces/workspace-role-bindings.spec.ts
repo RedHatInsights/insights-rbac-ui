@@ -27,23 +27,30 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  * @dependencies
  *   - AUTH: Uses AUTH_V2_ORGADMIN
- *   - DATA: Relies on SEEDED_WORKSPACE_NAME from seed-map
+ *   - DATA: Relies on SEEDED_WORKSPACE_NAME + SEEDED_CHILD_WORKSPACE_NAME from seed-map
+ *   - SEED: "Seeded Group" bound to parent workspace; "Child Group" bound to child workspace.
+ *           Child workspace inherits "Seeded Group" from parent.
  *   - UTILS: Use WorkspacesPage for navigation and detail interactions
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, getSeededWorkspaceName } from '../../../utils';
+import { AUTH_V2_ORGADMIN, getSeededChildGroupName, getSeededChildWorkspaceName, getSeededGroupName, getSeededWorkspaceName } from '../../../utils';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
 const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName('v2');
+const SEEDED_CHILD_WORKSPACE_NAME = getSeededChildWorkspaceName('v2');
+const SEEDED_GROUP_NAME = getSeededGroupName('v2');
+const CHILD_GROUP_NAME = getSeededChildGroupName('v2');
+
+const HAS_CHILD_DATA = !!(SEEDED_WORKSPACE_NAME && SEEDED_CHILD_WORKSPACE_NAME && SEEDED_GROUP_NAME && CHILD_GROUP_NAME);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
 test.describe('Workspace Role Bindings', () => {
-  test.describe('OrgAdmin', () => {
+  test.describe('OrgAdmin — Direct role bindings', () => {
     test.use({ storageState: AUTH_V2_ORGADMIN });
 
     test('Can view group details drawer from role assignments [OrgAdmin]', async ({ page }) => {
@@ -59,14 +66,12 @@ test.describe('Workspace Role Bindings', () => {
         timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
 
-      // Click the first group row to open the drawer
       const firstGroupRow = workspacesPage.currentRoleAssignmentsTable.getByRole('row').nth(1);
       const groupName = await firstGroupRow.getByRole('gridcell').first().textContent();
 
       if (groupName) {
         await workspacesPage.openGroupDrawer(groupName.trim());
 
-        // Drawer should have Members and Roles tabs
         await expect(page.getByRole('tab', { name: /members/i })).toBeVisible();
         await expect(page.getByRole('tab', { name: /roles/i })).toBeVisible();
       }
@@ -92,28 +97,78 @@ test.describe('Workspace Role Bindings', () => {
         await workspacesPage.openGroupDrawer(groupName.trim());
         await workspacesPage.closeGroupDrawer();
 
-        // Drawer tabs should no longer be visible
         await expect(page.getByRole('tab', { name: /members/i })).not.toBeVisible();
       }
     });
+  });
 
-    test('Inherited role bindings show parent workspace links [OrgAdmin]', async ({ page }) => {
-      test.skip(!SEEDED_WORKSPACE_NAME, 'No seed data — run npm run e2e:seed:v2');
+  test.describe('OrgAdmin — Inherited role bindings', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    test('Child workspace shows inherited groups from parent [OrgAdmin]', async ({ page }) => {
+      test.skip(!HAS_CHILD_DATA, 'No child workspace seed data — run npm run e2e:seed:v2');
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
-      await workspacesPage.searchFor(SEEDED_WORKSPACE_NAME!);
-      await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME!);
+      await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME!, SEEDED_CHILD_WORKSPACE_NAME!);
+      await workspacesPage.switchToInheritedTab();
 
-      await workspacesPage.roleAssignmentsTab.click();
-      await workspacesPage.inheritedRoleAssignmentsSubTab.click();
-      await expect(workspacesPage.inheritedRoleAssignmentsSubTab).toHaveAttribute('aria-selected', 'true', {
+      await workspacesPage.expectInheritedGroupRow(SEEDED_GROUP_NAME!);
+    });
+
+    test('"Inherited from" column shows parent workspace link [OrgAdmin]', async ({ page }) => {
+      test.skip(!HAS_CHILD_DATA, 'No child workspace seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME!, SEEDED_CHILD_WORKSPACE_NAME!);
+      await workspacesPage.switchToInheritedTab();
+
+      await workspacesPage.expectInheritedFromColumn(SEEDED_GROUP_NAME!, SEEDED_WORKSPACE_NAME!);
+    });
+
+    test('Inherited group row opens details drawer [OrgAdmin]', async ({ page }) => {
+      test.skip(!HAS_CHILD_DATA, 'No child workspace seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME!, SEEDED_CHILD_WORKSPACE_NAME!);
+      await workspacesPage.switchToInheritedTab();
+
+      await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME!);
+
+      await expect(page.getByRole('tab', { name: /members/i })).toBeVisible();
+      await expect(page.getByRole('tab', { name: /roles/i })).toBeVisible();
+    });
+
+    test('Drawer roles tab shows "Inherited from" column [OrgAdmin]', async ({ page }) => {
+      test.skip(!HAS_CHILD_DATA, 'No child workspace seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME!, SEEDED_CHILD_WORKSPACE_NAME!);
+      await workspacesPage.switchToInheritedTab();
+
+      await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME!);
+
+      const rolesTab = page.getByRole('tab', { name: /roles/i });
+      await rolesTab.click();
+      await expect(rolesTab).toHaveAttribute('aria-selected', 'true', { timeout: E2E_TIMEOUTS.SLOW_DATA });
+
+      await expect(page.getByRole('columnheader', { name: /inherited from/i })).toBeVisible({
         timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
+    });
 
-      await expect(workspacesPage.parentRoleAssignmentsTable.or(page.getByRole('grid'))).toBeVisible({
-        timeout: E2E_TIMEOUTS.SLOW_DATA,
-      });
+    test('Direct-only groups do NOT appear in inherited tab [OrgAdmin]', async ({ page }) => {
+      test.skip(!HAS_CHILD_DATA, 'No child workspace seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME!, SEEDED_CHILD_WORKSPACE_NAME!);
+      await workspacesPage.switchToInheritedTab();
+
+      await workspacesPage.expectGroupNotInInheritedTab(CHILD_GROUP_NAME!);
     });
   });
 });

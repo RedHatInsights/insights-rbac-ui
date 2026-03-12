@@ -4,7 +4,7 @@ import { ButtonVariant } from '@patternfly/react-core';
 import { WarningModal } from '@patternfly/react-component-groups';
 
 import messages from '../../../../../Messages';
-import { useUpdateRoleBindingsMutation } from '../../../../data/queries/workspaces';
+import { useUpdateGroupRolesMutation } from '../../../../data/queries/workspaces';
 
 export interface RemoveGroupFromWorkspaceModalProps {
   isOpen: boolean;
@@ -26,7 +26,7 @@ export const RemoveGroupFromWorkspaceModal: React.FC<RemoveGroupFromWorkspaceMod
   onSuccess,
 }) => {
   const intl = useIntl();
-  const updateBindings = useUpdateRoleBindingsMutation();
+  const updateBindings = useUpdateGroupRolesMutation();
 
   const handleConfirm = () => {
     updateBindings.mutate(

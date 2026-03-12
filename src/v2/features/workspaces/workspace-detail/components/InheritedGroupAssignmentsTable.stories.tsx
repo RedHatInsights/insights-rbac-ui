@@ -3,9 +3,9 @@ import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { InheritedGroupAssignmentsTable } from './InheritedGroupAssignmentsTable';
-import type { InheritedGroupAssignmentRow } from '../../../../data/queries/groupAssignments';
+import type { InheritedWorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import { createGroupMembersHandlers, groupMembersHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
-const mockInheritedGroups: InheritedGroupAssignmentRow[] = [
+const mockInheritedGroups: InheritedWorkspaceGroupRow[] = [
   {
     id: 'group-inherited-1',
     name: 'Platform Administrators',

@@ -12,6 +12,7 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 import { rolesV2Api } from '../api/roles';
 import type {
   CursorPaginationLinks,
+  ExcludeSources,
   Role,
   RoleBindingsListBySubject200Response,
   RoleBindingsRoleBinding,
@@ -21,15 +22,6 @@ import type {
   RolesListParams,
 } from '../api/roles';
 
-/**
- * V2 Role with `org_id` field.
- * The upstream `Role` type from `@redhat-cloud-services/rbac-client` doesn't
- * include `org_id` yet. Once the client ships it, this extension can be removed.
- *
- * - `org_id: null | undefined` → system/canned role (immutable)
- * - `org_id: string` → user-created role (editable/deletable with write permission)
- */
-export type RoleV2 = Role & { org_id?: string | null };
 import messages from '../../../Messages';
 import { useMutationQueryClient } from '../../../shared/data/utils';
 import type { MutationOptions } from '../../../shared/data/types';
@@ -101,7 +93,7 @@ export function useAllRolesV2Query(options?: { enabled?: boolean; name?: string 
 
   return useQuery({
     queryKey: [...rolesV2Keys.lists(), 'all', options?.name] as const,
-    queryFn: async (): Promise<RoleV2[]> => {
+    queryFn: async (): Promise<Role[]> => {
       const response = await rolesV2Api.rolesList(params);
       return response.data.data;
     },
@@ -119,10 +111,10 @@ export function extractRolesV2Links(data: RolesList200Response | undefined): Cur
 /**
  * Fetch single V2 role by ID.
  */
-export function useRoleV2Query(id: string, options?: { enabled?: boolean }) {
+export function useRoleQuery(id: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: rolesV2Keys.detail(id),
-    queryFn: async (): Promise<RoleV2> => {
+    queryFn: async (): Promise<Role> => {
       const response = await rolesV2Api.rolesRead({ id });
       return response.data;
     },
@@ -143,11 +135,11 @@ export function useRoleAssignmentsQuery(
     enabled?: boolean;
     limit?: number;
     cursor?: string;
-    parentRoleBindings?: boolean;
+    excludeSources?: ExcludeSources;
   },
 ) {
   return useQuery({
-    queryKey: [...rolesV2Keys.all, 'workspace-role-bindings', workspaceId, options?.limit, options?.cursor, options?.parentRoleBindings],
+    queryKey: [...rolesV2Keys.all, 'workspace-role-bindings', workspaceId, options?.limit, options?.cursor, options?.excludeSources],
     queryFn: async (): Promise<RoleBindingsListBySubject200Response> => {
       const fields = 'last_modified,subject(id,group.name,group.description,group.user_count),roles(id,name),resource(id,name,type)';
 
@@ -157,7 +149,7 @@ export function useRoleAssignmentsQuery(
         subjectType: 'group',
         limit: options?.limit ?? 10,
         cursor: options?.cursor,
-        parentRoleBindings: options?.parentRoleBindings ?? false,
+        excludeSources: options?.excludeSources,
         fields,
       });
       return response.data;
@@ -167,10 +159,9 @@ export function useRoleAssignmentsQuery(
 }
 
 /**
- * Fetch role bindings for a specific role.
- * Returns which groups have this role assigned and in which workspaces.
+ * Fetch where a specific role is used: which groups have it and in which workspaces.
  */
-export function useRoleBindingsForRoleQuery(roleId: string, options?: { enabled?: boolean }) {
+export function useRoleUsageQuery(roleId: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: [...rolesV2Keys.all, 'role-bindings', roleId],
     queryFn: async (): Promise<RoleBindingsRoleBinding[]> => {
@@ -192,13 +183,13 @@ export function useRoleBindingsForRoleQuery(roleId: string, options?: { enabled?
 /**
  * Create a new V2 role.
  */
-export function useCreateRoleV2Mutation(options?: MutationOptions) {
+export function useCreateRoleMutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
   const addNotification = useAddNotification();
   const intl = useIntl();
 
   return useMutation({
-    mutationFn: async (data: RolesCreateOrUpdateRoleRequest): Promise<RoleV2> => {
+    mutationFn: async (data: RolesCreateOrUpdateRoleRequest): Promise<Role> => {
       const response = await rolesV2Api.rolesCreate({
         rolesCreateOrUpdateRoleRequest: data,
       });
@@ -225,13 +216,13 @@ export function useCreateRoleV2Mutation(options?: MutationOptions) {
 /**
  * Update a V2 role.
  */
-export function useUpdateRoleV2Mutation(options?: MutationOptions) {
+export function useUpdateRoleMutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
   const addNotification = useAddNotification();
   const intl = useIntl();
 
   return useMutation({
-    mutationFn: async ({ id, ...data }: RolesCreateOrUpdateRoleRequest & { id: string }): Promise<RoleV2> => {
+    mutationFn: async ({ id, ...data }: RolesCreateOrUpdateRoleRequest & { id: string }): Promise<Role> => {
       const response = await rolesV2Api.rolesUpdate({
         id,
         rolesCreateOrUpdateRoleRequest: data,
@@ -290,6 +281,7 @@ export function useBatchDeleteRolesV2Mutation(options?: MutationOptions) {
 
 // Re-export types for consumer convenience
 export type {
+  Role,
   RolesListParams,
   RolesList200Response,
   Permission,

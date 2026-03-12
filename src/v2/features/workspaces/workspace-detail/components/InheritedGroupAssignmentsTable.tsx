@@ -6,7 +6,7 @@ import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover'
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 
-import type { GroupAssignmentRow, InheritedGroupAssignmentRow } from '../../../../data/queries/groupAssignments';
+import type { InheritedWorkspaceGroupRow, WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import messages from '../../../../../Messages';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
@@ -21,7 +21,7 @@ type SortableColumn = 'name' | 'userCount' | 'roleCount' | 'inheritedFrom' | 'la
 const sortableColumns = ['name', 'userCount', 'roleCount', 'inheritedFrom', 'lastModified'] as const;
 
 export interface InheritedGroupAssignmentsTableProps {
-  groups: InheritedGroupAssignmentRow[];
+  groups: InheritedWorkspaceGroupRow[];
   /** Total count of items. When omitted, PF Pagination renders in indeterminate mode. */
   totalCount?: number;
   isLoading: boolean;
@@ -38,9 +38,9 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
 }) => {
   const intl = useIntl();
 
-  const [focusedGroup, setFocusedGroup] = useState<GroupAssignmentRow | undefined>();
+  const [focusedGroup, setFocusedGroup] = useState<WorkspaceGroupRow | undefined>();
 
-  const tableState = useTableState<typeof columns, InheritedGroupAssignmentRow, SortableColumn>({
+  const tableState = useTableState<typeof columns, InheritedWorkspaceGroupRow, SortableColumn>({
     columns,
     sortableColumns,
     getRowId: (row) => row.id,
@@ -78,7 +78,7 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
     [intl],
   );
 
-  const cellRenderers: CellRendererMap<typeof columns, InheritedGroupAssignmentRow> = useMemo(
+  const cellRenderers: CellRendererMap<typeof columns, InheritedWorkspaceGroupRow> = useMemo(
     () => ({
       name: (row) => row.name,
       description: (row) =>
@@ -124,7 +124,7 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
   );
 
   const handleRowClick = useCallback(
-    (group: InheritedGroupAssignmentRow) => {
+    (group: InheritedWorkspaceGroupRow) => {
       setFocusedGroup(focusedGroup?.id === group.id ? undefined : group);
     },
     [focusedGroup],
@@ -143,7 +143,7 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
       showInheritance={true}
       currentWorkspace={currentWorkspace}
     >
-      <TableView<typeof columns, InheritedGroupAssignmentRow, SortableColumn>
+      <TableView<typeof columns, InheritedWorkspaceGroupRow, SortableColumn>
         columns={columns}
         columnConfig={columnConfig}
         sortableColumns={sortableColumns}
