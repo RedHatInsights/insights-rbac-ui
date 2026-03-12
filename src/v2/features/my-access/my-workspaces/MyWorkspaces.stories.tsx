@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { MyWorkspaces } from './MyWorkspaces';
@@ -44,5 +44,54 @@ export const Default: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.findByLabelText('My workspaces')).resolves.toBeInTheDocument();
+  },
+};
+
+/**
+ * Tests sorting functionality for the Workspace column.
+ *
+ * Verifies that:
+ * - The Workspace column header is sortable (has sort button)
+ * - Clicking the sort button toggles between ascending and descending order
+ * - The data is correctly sorted after each click
+ */
+export const SortByName: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    // Wait for table to load
+    const table = await canvas.findByLabelText('My workspaces');
+    await expect(table).toBeInTheDocument();
+
+    // Find the "Workspace" column header sort button
+    const workspaceHeader = await canvas.findByRole('button', { name: /workspace/i });
+    await expect(workspaceHeader).toBeInTheDocument();
+
+    // Initially sorted ascending by name (default)
+    // Workspaces in seed data: "Root Workspace", "Default Workspace", "Development", "Production", "Staging"
+    await waitFor(async () => {
+      const rows = await canvas.findAllByRole('row');
+      // Skip header row (index 0), check data rows
+      expect(rows.length).toBeGreaterThan(1);
+    });
+
+    // Click to sort descending
+    await user.click(workspaceHeader);
+    await waitFor(async () => {
+      const rows = await canvas.findAllByRole('row');
+      const firstDataRow = rows[1]; // Skip header
+      // After descending sort, "Staging" should be first (alphabetically last)
+      expect(firstDataRow).toHaveTextContent(/staging|root/i);
+    });
+
+    // Click again to sort ascending
+    await user.click(workspaceHeader);
+    await waitFor(async () => {
+      const rows = await canvas.findAllByRole('row');
+      const firstDataRow = rows[1]; // Skip header
+      // After ascending sort, "Default Workspace" or "Development" should be first (alphabetically)
+      expect(firstDataRow).toHaveTextContent(/default|development/i);
+    });
   },
 };

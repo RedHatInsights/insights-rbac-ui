@@ -27,6 +27,7 @@ export function createWorkspacesHandlers(collection: MockCollection<WorkspacesWo
       const nameFilter = url.searchParams.get('name');
       const typeFilter = url.searchParams.get('type');
       const parentId = url.searchParams.get('parent_id');
+      const orderBy = url.searchParams.get('order_by');
 
       let workspaces = collection.all();
 
@@ -38,6 +39,19 @@ export function createWorkspacesHandlers(collection: MockCollection<WorkspacesWo
       }
       if (parentId) {
         workspaces = workspaces.filter((w) => w.parent_id === parentId);
+      }
+
+      // Apply sorting if order_by is specified
+      if (orderBy) {
+        const isDescending = orderBy.startsWith('-');
+        const field = isDescending ? orderBy.slice(1) : orderBy;
+
+        workspaces = workspaces.sort((a, b) => {
+          const aVal = a[field as keyof WorkspacesWorkspace] ?? '';
+          const bVal = b[field as keyof WorkspacesWorkspace] ?? '';
+          const comparison = String(aVal).localeCompare(String(bVal));
+          return isDescending ? -comparison : comparison;
+        });
       }
 
       options.onList?.(url.searchParams);

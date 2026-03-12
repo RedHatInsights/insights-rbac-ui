@@ -34,6 +34,7 @@ export function createGroupsHandlers(groups: MockCollection<Group>, options: Gro
     const systemFilter = url.searchParams.get('system');
     const adminDefault = url.searchParams.get('admin_default');
     const platformDefault = url.searchParams.get('platform_default');
+    const orderBy = url.searchParams.get('order_by');
 
     if (adminDefault === 'true') {
       options.onAdminDefaultRequest?.();
@@ -73,6 +74,19 @@ export function createGroupsHandlers(groups: MockCollection<Group>, options: Gro
       filtered = filtered.filter((g) => g.system ?? false);
     } else if (systemFilter === 'false') {
       filtered = filtered.filter((g) => !(g.system ?? false));
+    }
+
+    // Apply sorting if order_by is specified
+    if (orderBy) {
+      const isDescending = orderBy.startsWith('-');
+      const field = isDescending ? orderBy.slice(1) : orderBy;
+
+      filtered = filtered.sort((a, b) => {
+        const aVal = a[field as keyof Group] ?? '';
+        const bVal = b[field as keyof Group] ?? '';
+        const comparison = String(aVal).localeCompare(String(bVal));
+        return isDescending ? -comparison : comparison;
+      });
     }
 
     options.onList?.(url.searchParams);

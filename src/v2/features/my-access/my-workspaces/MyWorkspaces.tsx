@@ -62,22 +62,20 @@ const MyWorkspaces: React.FunctionComponent = () => {
     syncWithUrl: false,
   });
 
-  const { workspaces: allWorkspaces, status } = useWorkspacesWithPermissions();
+  // Fetch workspaces with API-level sorting via orderBy parameter
+  const { workspaces: allWorkspaces, status } = useWorkspacesWithPermissions({
+    orderBy: tableState.apiParams.orderBy,
+  });
 
   const nameFilter = (tableState.filters.name as string) || '';
 
-  // Client-side pipeline: filter → sort → paginate
+  // Client-side pipeline: filter → paginate (sorting is server-side via apiParams.orderBy)
   const { pageData, totalCount, editableWorkspaces } = useMemo(() => {
     let filtered = allWorkspaces.filter((ws) => ws.permissions.edit);
 
     if (nameFilter) {
       const term = nameFilter.toLowerCase();
       filtered = filtered.filter((ws) => ws.name.toLowerCase().includes(term));
-    }
-
-    if (tableState.sort) {
-      const dir = tableState.sort.direction === 'desc' ? -1 : 1;
-      filtered = [...filtered].sort((a, b) => dir * a.name.localeCompare(b.name));
     }
 
     const total = filtered.length;
@@ -87,7 +85,7 @@ const MyWorkspaces: React.FunctionComponent = () => {
       totalCount: total,
       editableWorkspaces: filtered,
     };
-  }, [allWorkspaces, nameFilter, tableState.sort, tableState.page, tableState.perPage]);
+  }, [allWorkspaces, nameFilter, tableState.page, tableState.perPage]);
 
   const selectedWorkspace = useMemo(() => editableWorkspaces.find((ws) => ws.id === selectedWorkspaceId), [editableWorkspaces, selectedWorkspaceId]);
 
@@ -113,6 +111,7 @@ const MyWorkspaces: React.FunctionComponent = () => {
         {...tableState}
         columns={columns}
         columnConfig={columnConfig}
+        sortableColumns={['name'] as const}
         data={status === 'loading' ? undefined : pageData}
         totalCount={totalCount}
         getRowId={(ws) => ws.id}

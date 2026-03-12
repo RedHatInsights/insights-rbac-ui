@@ -53,6 +53,7 @@ export function useWorkspacesQuery(params: WorkspacesListParams = {}, options?: 
           offset: params.offset ?? 0,
           type: params.type ?? 'all',
           name: params.name,
+          orderBy: params.orderBy,
         });
         return response.data;
       },
