@@ -357,7 +357,7 @@ objects:
                     - platform.rbac.workspaces-organization-management
                     - false
               routes:
-                - id: overview
+                - id: user-access-overview
                   title: Overview
                   href: /iam/user-access/overview
                   permissions:
