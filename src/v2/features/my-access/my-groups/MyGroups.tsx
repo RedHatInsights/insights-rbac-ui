@@ -92,6 +92,7 @@ const MyGroups: React.FunctionComponent = () => {
         {...tableState}
         columns={columns}
         columnConfig={columnConfig}
+        sortableColumns={['name'] as const}
         data={isLoading ? undefined : groups}
         totalCount={totalCount}
         getRowId={(group) => group.uuid}
