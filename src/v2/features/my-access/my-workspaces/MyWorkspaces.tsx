@@ -97,7 +97,8 @@ const MyWorkspaces: React.FunctionComponent = () => {
     setSelectedWorkspaceId(undefined);
   }, []);
 
-  const showLoading = status === 'loading' || status === 'settling' || (status === 'ready' && allWorkspaces.length > 0 && editableWorkspaces.length === 0);
+  const showLoading =
+    status === 'loading' || status === 'settling' || (status === 'ready' && allWorkspaces.length > 0 && editableWorkspaces.length === 0);
 
   return (
     <MyWorkspaceDrawer
