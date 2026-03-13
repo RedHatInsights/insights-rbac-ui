@@ -179,7 +179,7 @@ Tests workspace detail pages with the Roles tab, including group drawer and pare
 export const GrantAccessWizard: Story = {
   name: 'Grant access wizard',
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/my-access',
   },
   parameters: {
     docs: {
@@ -314,7 +314,7 @@ End-to-end flow for granting access to a workspace via the 3-step wizard.
 export const RemoveGroupFromWorkspace: Story = {
   name: 'Remove group from workspace',
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/my-access',
   },
   parameters: {
     docs: {
@@ -407,7 +407,7 @@ End-to-end flow for removing a group's access via the kebab menu.
 export const GrantAccessSingleGroupRole: Story = {
   name: 'Grant access (single group + role)',
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/my-access',
   },
   parameters: {
     docs: {
@@ -527,7 +527,7 @@ export const EditRoleAccess: Story = {
   tags: ['skip-test'],
   name: 'Edit role access',
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/my-access',
   },
   parameters: {
     docs: {
@@ -632,7 +632,7 @@ export const RemovePrincipalsFromRole: Story = {
   tags: ['skip-test'],
   name: 'Edit access to deselect a role',
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/my-access',
   },
   parameters: {
     docs: {
@@ -726,7 +726,7 @@ Same flow as EditRoleAccess but for the Viewers group.
 export const WorkspaceAssetsTab: Story = {
   name: 'Workspace detail — Assets tab',
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/my-access',
   },
   parameters: {
     docs: {

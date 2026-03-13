@@ -18,7 +18,7 @@ export default { ...meta, title: 'User Journeys/Production/V2 (Management Fabric
 export const MyAccessGroupsTab: Story = {
   name: 'Groups tab with drawer',
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/my-access',
   },
   parameters: {
     docs: {
@@ -78,7 +78,7 @@ Tests the My Access Groups tab: table content, row click to open the group drawe
 export const MyAccessWorkspacesTab: Story = {
   name: 'Workspaces tab with drawer',
   args: {
-    initialRoute: '/iam/my-user-access/workspaces',
+    initialRoute: '/iam/my-access/workspaces',
   },
   parameters: {
     docs: {
@@ -138,7 +138,7 @@ Tests the My Access Workspaces tab: table content, role badges, row click to ope
 export const MyAccessTabNavigation: Story = {
   name: 'Tab navigation',
   args: {
-    initialRoute: '/iam/my-user-access',
+    initialRoute: '/iam/my-access',
   },
   parameters: {
     docs: {

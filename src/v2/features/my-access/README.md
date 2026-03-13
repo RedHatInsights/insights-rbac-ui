@@ -2,7 +2,7 @@
 
 **API generation:** V1 Groups API + V2 Workspaces API + Kessel permissions
 
-Self-service page where users view their own group memberships and workspace assignments. Route: `/my-user-access`.
+Self-service page where users view their own group memberships and workspace assignments. Route: `/my-access`.
 
 ## Behavior
 
@@ -33,9 +33,9 @@ Two route-based tabs (following the `UsersAndUserGroups` pattern):
 
 | Path | Component |
 |------|-----------|
-| `/my-user-access` | `MyAccess` (redirects to groups) |
-| `/my-user-access/groups` | `MyGroups` |
-| `/my-user-access/workspaces` | `MyWorkspaces` |
+| `/my-access` | `MyAccess` (redirects to groups) |
+| `/my-access/groups` | `MyGroups` |
+| `/my-access/workspaces` | `MyWorkspaces` |
 
 ## APIs called
 
