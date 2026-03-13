@@ -112,7 +112,7 @@ const MyWorkspaces: React.FunctionComponent = () => {
         columns={columns}
         columnConfig={columnConfig}
         sortableColumns={['name'] as const}
-        data={status === 'loading' ? undefined : pageData}
+        data={status === 'loading' || status === 'settling' ? undefined : pageData}
         totalCount={totalCount}
         getRowId={(ws) => ws.id}
         cellRenderers={cellRenderers}
