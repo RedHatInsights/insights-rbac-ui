@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
+import { delay } from 'msw';
+import { clearAndType } from '../../../../test-utils/interactionHelpers';
 import { CreateWorkspaceWizard } from './CreateWorkspaceWizard';
 import { MemoryRouter } from 'react-router-dom';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -278,7 +280,8 @@ export const FormValidation: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests form validation behavior. Demonstrates required field validation and wizard step progression rules.',
+        story:
+          'Tests form validation behavior. Verifies the wizard blocks advancement when no parent workspace is selected, even if the workspace name is filled.',
       },
     },
     featureFlags: {
@@ -291,24 +294,24 @@ export const FormValidation: Story = {
     },
   },
   play: async ({ canvasElement, step }) => {
+    await delay(300);
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    await step('Open wizard and verify validation', async () => {
+    await step('Open wizard and fill only workspace name', async () => {
       const openButton = await canvas.findByTestId('open-wizard-button');
       await user.click(openButton);
 
       const body = within(document.body);
       await expect(body.findByText('Create new workspace')).resolves.toBeInTheDocument();
 
-      const nameField = await body.findByRole('textbox', { name: /workspace name/i });
-      await expect(nameField).toBeInTheDocument();
-      await expect(nameField).toHaveAttribute('required');
+      await clearAndType(user, () => body.getByRole('textbox', { name: /workspace name/i }), 'My New Workspace');
+    });
 
-      const nextButton = body.queryByRole('button', { name: /next/i });
-      if (nextButton) {
-        await expect(nextButton).toBeInTheDocument();
-      }
+    await step('Verify Next is disabled without parent workspace', async () => {
+      const body = within(document.body);
+      const nextButton = await body.findByRole('button', { name: /next/i });
+      await expect(nextButton).toBeDisabled();
     });
   },
 };
