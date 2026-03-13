@@ -35,9 +35,9 @@ Follows the same route-based tab pattern as Users & User Groups.
   },
   decorators: [
     (Story) => (
-      <MemoryRouter initialEntries={['/my-user-access/groups']}>
+      <MemoryRouter initialEntries={['/my-access/groups']}>
         <Routes>
-          <Route path="/my-user-access/*" element={<Story />}>
+          <Route path="/my-access/*" element={<Story />}>
             <Route path="groups/*" element={<MyGroups />} />
             <Route path="workspaces/*" element={<MyWorkspaces />} />
           </Route>

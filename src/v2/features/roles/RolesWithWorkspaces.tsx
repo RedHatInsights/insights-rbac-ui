@@ -174,7 +174,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
   return (
     <React.Fragment>
       <PageHeader title="Roles" subtitle="" />
-      <PageSection hasBodyWrapper isWidthLimited>
+      <PageSection hasBodyWrapper={false}>
         {isDeleteModalOpen && (
           <WarningModal
             ouiaId={`${ouiaId}-remove-role-modal`}

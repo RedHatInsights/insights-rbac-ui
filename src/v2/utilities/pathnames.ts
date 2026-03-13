@@ -23,19 +23,19 @@ const overview: PathnameConfig = {
 // ===========================================
 
 const myAccess: PathnameConfig = {
-  link: () => '/my-user-access',
-  path: '/my-user-access/*',
+  link: () => '/my-access',
+  path: '/my-access/*',
   title: 'My Access',
 };
 
 const myAccessGroups: PathnameConfig = {
-  link: () => '/my-user-access/groups',
+  link: () => '/my-access/groups',
   path: 'groups/*',
   title: 'My Access',
 };
 
 const myAccessWorkspaces: PathnameConfig = {
-  link: () => '/my-user-access/workspaces',
+  link: () => '/my-access/workspaces',
   path: 'workspaces/*',
   title: 'My Access',
 };

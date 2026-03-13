@@ -96,7 +96,7 @@ objects:
               product: Identity & Access Management
             - id: my-access
               title: My Access
-              href: /iam/my-user-access
+              href: /iam/my-access
               permissions:
                 - method: featureFlag
                   args:

@@ -136,7 +136,7 @@ export const V2Routing = () => {
           <Route path={pathnames['organization-management'].path} element={<OrganizationManagement />} />
         </Route>
 
-        <Route path="*" element={<Navigate to={toAppLink(pathnames['users-and-user-groups'].link())} />} />
+        <Route path="*" element={<Navigate to={toAppLink(pathnames['my-access'].link())} />} />
       </Routes>
     </Suspense>
   );
