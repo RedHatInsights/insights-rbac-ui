@@ -122,20 +122,20 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                 ],
               },
               {
+                name: WORKSPACE_PARENT,
+                component: componentTypes.TEXT_FIELD,
+                isRequired: true,
+                hideField: true,
+                validate: [
+                  {
+                    type: validatorTypes.REQUIRED,
+                  },
+                ],
+              },
+              {
                 name: 'workspace-details',
                 component: 'SetDetails',
                 fields: [
-                  {
-                    name: WORKSPACE_PARENT,
-                    component: componentTypes.TEXT_FIELD,
-                    isRequired: true,
-                    hideField: true,
-                    validate: [
-                      {
-                        type: validatorTypes.REQUIRED,
-                      },
-                    ],
-                  },
                   {
                     name: WORKSPACE_ACCOUNT,
                     component: componentTypes.TEXT_FIELD,
