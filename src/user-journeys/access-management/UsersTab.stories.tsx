@@ -13,10 +13,12 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { TEST_TIMEOUTS, resetStoryState, verifySuccessNotification, waitForPageToLoad } from '../_shared/helpers';
+import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import { clearAndType, clickTab, waitForContentReady, waitForDrawer, waitForModal } from '../../test-utils/interactionHelpers';
+import { verifySuccessNotification, waitForPageToLoad } from '../../test-utils/tableHelpers';
 import { accountManagementHandlers, createStatefulUserStatusHandlers, v2DefaultHandlers } from './_shared';
 
 const meta = {
@@ -114,29 +116,35 @@ Tests the default Users table view matching \`static/mocks/Users tab/Frame 99.pn
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'adumble');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Verify Users tab is active
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    expect(usersTab).toHaveAttribute('aria-selected', 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Verify users are displayed
-    await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('ginger-spice')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('bwhite')).resolves.toBeInTheDocument();
+    await step('Wait for page and verify Users tab', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      expect(usersTab).toHaveAttribute('aria-selected', 'true');
+    });
 
-    // Verify user info displays correctly
-    await expect(canvas.findByText('Albus')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Dumbledore')).resolves.toBeInTheDocument();
+    await step('Verify users and user info displayed', async () => {
+      await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('ginger-spice')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('bwhite')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Albus')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Dumbledore')).resolves.toBeInTheDocument();
+    });
 
-    // Verify status column shows (rendered as Switch components)
-    const statusSwitches = await canvas.findAllByRole('switch', { name: /toggle status/i });
-    expect(statusSwitches.length).toBeGreaterThan(0);
+    await step('Verify status switches present', async () => {
+      const statusSwitches = await canvas.findAllByRole('switch', { name: /toggle status/i });
+      expect(statusSwitches.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -167,38 +175,33 @@ Tests the user details drawer matching \`static/mocks/Users tab/Frame 108.png\`.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'bwhite');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Click on Betty White's row
-    const bwhiteRow = await canvas.findByText('bwhite');
-    await user.click(bwhiteRow);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Verify drawer opens with user info
-    const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
-    expect(drawer).toBeInTheDocument();
+    await step('Wait for page and open user details drawer', async () => {
+      await waitForPageToLoad(canvas, 'bwhite');
+      const bwhiteRow = await canvas.findByText('bwhite');
+      await user.click(bwhiteRow);
+    });
 
-    const drawerScope = within(drawer as HTMLElement);
-
-    // Check header shows full name
-    await expect(drawerScope.findByText(/Betty White/i)).resolves.toBeInTheDocument();
-    await expect(drawerScope.findByText(/bwhite@redhat.com/i)).resolves.toBeInTheDocument();
-
-    // Verify tabs are present (use role selector to avoid matching text elsewhere)
-    await expect(drawerScope.findByRole('tab', { name: /User groups/i })).resolves.toBeInTheDocument();
-    await expect(drawerScope.findByRole('tab', { name: /Assigned roles/i })).resolves.toBeInTheDocument();
-
-    // Verify User groups tab content (Betty is in Default group and Golden girls)
-    // Golden girls appears in both user groups tab and may appear in roles tab (userGroup column)
-    // so we use getAllByText and verify at least one
-    const goldenGirlsCells = await drawerScope.findAllByText(/Golden girls/i);
-    expect(goldenGirlsCells.length).toBeGreaterThanOrEqual(1);
+    await step('Verify drawer content and tabs', async () => {
+      const drawerScope = await waitForDrawer();
+      await expect(drawerScope.findByText(/Betty White/i)).resolves.toBeInTheDocument();
+      await expect(drawerScope.findByText(/bwhite@redhat.com/i)).resolves.toBeInTheDocument();
+      await expect(drawerScope.findByRole('tab', { name: /User groups/i })).resolves.toBeInTheDocument();
+      await expect(drawerScope.findByRole('tab', { name: /Assigned roles/i })).resolves.toBeInTheDocument();
+      const goldenGirlsCells = await drawerScope.findAllByText(/Golden girls/i);
+      expect(goldenGirlsCells.length).toBeGreaterThanOrEqual(1);
+    });
   },
 };
 
@@ -208,8 +211,8 @@ Tests the user details drawer matching \`static/mocks/Users tab/Frame 108.png\`.
  * Tests the Assigned roles tab in the user details drawer
  */
 export const UserDetailsAssignedRoles: Story = {
-  name: '⚠️ [V2 GAP] User Details - Assigned Roles Tab',
-  tags: ['gap:guessed-v2-api'],
+  name: 'User Details - Assigned Roles Tab',
+  tags: [],
   decorators: [
     withFeatureGap({
       title: 'User Assigned Roles - Guessed V2 API',
@@ -284,32 +287,29 @@ Shows roles assigned to the user with:
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'adumble');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Click on a user row
-    const adumbleRow = await canvas.findByText('adumble');
-    await user.click(adumbleRow);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Get drawer
-    const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
-    expect(drawer).toBeInTheDocument();
-    const drawerScope = within(drawer as HTMLElement);
+    await step('Wait for page and open user drawer', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const adumbleRow = await canvas.findByText('adumble');
+      await user.click(adumbleRow);
+    });
 
-    // Click on Assigned roles tab (use role selector to avoid multiple matches)
-    const rolesTab = await drawerScope.findByRole('tab', { name: /Assigned roles/i });
-    await user.click(rolesTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Verify roles are displayed
-    // adumble is in group-admin which has Tenant Administrator and Workspace Administrator roles
-    await expect(drawerScope.findByText('Tenant Administrator')).resolves.toBeInTheDocument();
+    await step('Switch to Assigned roles tab and verify', async () => {
+      const drawerScope = await waitForDrawer();
+      await clickTab(user, drawerScope, /Assigned roles/i);
+      await expect(drawerScope.findByText('Tenant Administrator')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -334,32 +334,31 @@ Tests filtering users by username.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'adumble');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Find the filter input
-    const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
-    expect(filterInput).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Type a filter value
-    await user.type(filterInput, 'spice');
-    await user.keyboard('{Enter}');
+    await step('Wait for page and apply filter', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      await clearAndType(user, () => canvas.getByPlaceholderText(/filter by username/i) as HTMLInputElement, 'spice');
+      await user.keyboard('{Enter}');
+    });
 
-    // Wait for filtered results
-    await waitForPageToLoad(canvas, 'ginger-spice');
-
-    // Verify filtered results
-    await expect(canvas.findByText('ginger-spice')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('posh-spice')).resolves.toBeInTheDocument();
-
-    // Non-spice users should not be visible
-    expect(canvas.queryByText('adumble')).not.toBeInTheDocument();
-    expect(canvas.queryByText('bwhite')).not.toBeInTheDocument();
+    await step('Verify filtered results', async () => {
+      await waitForPageToLoad(canvas, 'ginger-spice');
+      await expect(canvas.findByText('ginger-spice')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('posh-spice')).resolves.toBeInTheDocument();
+      expect(canvas.queryByText('adumble')).not.toBeInTheDocument();
+      expect(canvas.queryByText('bwhite')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -384,28 +383,30 @@ Tests selecting users to enable bulk actions matching \`static/mocks/Users tab/F
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'adumble');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Find and click checkboxes for multiple users
-    const checkboxes = await canvas.findAllByRole('checkbox');
-    expect(checkboxes.length).toBeGreaterThan(2);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Select first two data rows (skip header if present)
-    await user.click(checkboxes[1]);
-    await user.click(checkboxes[2]);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Wait for page and select users', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const checkboxes = await canvas.findAllByRole('checkbox');
+      expect(checkboxes.length).toBeGreaterThan(2);
+      await user.click(checkboxes[1]);
+      await user.click(checkboxes[2]);
+    });
 
-    // Verify Add to user group button is now enabled
-    const addButton = await canvas.findByText(/Add to user group/i);
-    expect(addButton).toBeInTheDocument();
-
-    // Note: The actual click to open modal is tested in AddToUserGroup.stories.tsx
+    await step('Verify Add to user group button enabled', async () => {
+      const addButton = await canvas.findByText(/Add to user group/i);
+      expect(addButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -429,43 +430,40 @@ Tests switching between Users and User Groups tabs.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'adumble');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Verify Users tab is active
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    expect(usersTab).toHaveAttribute('aria-selected', 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Verify users are shown
-    await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
+    await step('Wait for Users tab and verify', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      expect(usersTab).toHaveAttribute('aria-selected', 'true');
+      await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
+    });
 
-    // Click User Groups tab
-    const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
-    await user.click(groupsTab);
+    await step('Switch to User Groups tab', async () => {
+      const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
+      await user.click(groupsTab);
+      await waitForPageToLoad(canvas, 'Default group');
+      await waitFor(() => expect(groupsTab).toHaveAttribute('aria-selected', 'true'));
+      await expect(canvas.findByText('Default group')).resolves.toBeInTheDocument();
+    });
 
-    // Wait for groups to load
-    await waitForPageToLoad(canvas, 'Default group');
-
-    // Verify groups tab is now active
-    expect(groupsTab).toHaveAttribute('aria-selected', 'true');
-
-    // Verify groups are shown
-    await expect(canvas.findByText('Default group')).resolves.toBeInTheDocument();
-
-    // Click back to Users tab
-    await user.click(usersTab);
-
-    // Wait for users to load
-    await waitForPageToLoad(canvas, 'adumble');
-
-    // Verify users are shown again
-    expect(usersTab).toHaveAttribute('aria-selected', 'true');
-    await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
+    await step('Switch back to Users tab', async () => {
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      await user.click(usersTab);
+      await waitForPageToLoad(canvas, 'adumble');
+      await waitFor(() => expect(usersTab).toHaveAttribute('aria-selected', 'true'));
+      await expect(canvas.findByText('adumble')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -535,81 +533,88 @@ Tests inviting new users to the organization from the Access Management Users ta
       ],
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    inviteUsersSpy.mockClear();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
     const body = within(document.body);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for Users tab and table to load
-    await waitForPageToLoad(canvas, 'adumble');
+    await step('Reset state', async () => {
+      await resetStoryState();
+      inviteUsersSpy.mockClear();
+    });
 
-    // Verify Users tab is active
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    expect(usersTab).toHaveAttribute('aria-selected', 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Open the Actions overflow menu
-    const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
-    await user.click(actionsMenu);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Wait for page and open invite modal', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      expect(usersTab).toHaveAttribute('aria-selected', 'true');
+      const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
+      await user.click(actionsMenu);
+      const inviteMenuItem = await body.findByRole('menuitem', { name: /invite users/i });
+      await user.click(inviteMenuItem);
+    });
 
-    // Click "Invite users" from the menu (navigates to child route)
-    const inviteMenuItem = await body.findByRole('menuitem', { name: /invite users/i });
-    await user.click(inviteMenuItem);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Wait for invite modal', async () => {
+      await waitForModal({
+        timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH,
+        waitUntil: (dlg) => {
+          expect(dlg.queryByRole('textbox', { name: /enter the e-mail addresses/i })).toBeInTheDocument();
+          expect(dlg.queryByRole('textbox', { name: /send a message with the invite/i })).toBeInTheDocument();
+        },
+      });
+    });
 
-    // Modal should open (rendered via <Outlet> child route)
-    const modal = await within(document.body).findByRole('dialog', undefined, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    await step('Fill email addresses', async () => {
+      const modal = await waitForModal();
+      await clearAndType(
+        user,
+        () => modal.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement,
+        'newuser1@example.com, newuser2@example.com',
+      );
+    });
 
-    const modalContent = within(modal);
+    await step('Fill message', async () => {
+      const modal = await waitForModal();
+      await clearAndType(
+        user,
+        () => modal.getByRole('textbox', { name: /send a message with the invite/i }) as HTMLTextAreaElement,
+        'Welcome to our organization!',
+      );
+    });
 
-    // Wait for modal title
-    await modalContent.findByRole('heading', { name: /invite new users/i });
+    await step('Check org admin and submit', async () => {
+      const modal = await waitForModal();
+      await waitFor(() => {
+        expect(modal.queryByRole('checkbox', { name: /organization administrators/i })).toBeInTheDocument();
+      });
+      const orgAdminCheckbox = modal.getByRole('checkbox', { name: /organization administrators/i });
+      await user.click(orgAdminCheckbox);
+      const submitButton = await modal.findByRole('button', { name: /invite new users/i });
+      await waitFor(() => expect(submitButton).toBeEnabled());
+      await user.click(submitButton);
+    });
 
-    // Fill in email addresses (required field)
-    const emailInput = await modalContent.findByRole('textbox', { name: /enter the e-mail addresses/i });
-    await user.type(emailInput, 'newuser1@example.com, newuser2@example.com');
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
 
-    // Optionally add a message
-    const messageInput = await modalContent.findByRole('textbox', { name: /send a message with the invite/i });
-    await user.type(messageInput, 'Welcome to our organization!');
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Check the org admin checkbox
-    const orgAdminCheckbox = await modalContent.findByRole('checkbox', { name: /organization administrators/i });
-    await user.click(orgAdminCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Submit the form
-    const submitButton = await modalContent.findByRole('button', { name: /invite new users/i });
-    await waitFor(() => expect(submitButton).toBeEnabled());
-    await user.click(submitButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // Verify success notification
-    await verifySuccessNotification();
-
-    // CRITICAL: Verify API was called
-    await waitFor(
-      () => {
-        expect(inviteUsersSpy).toHaveBeenCalled();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    // Verify the API call used the correct URL (no /management/ prefix)
-    const spyCall = inviteUsersSpy.mock.calls[0][0];
-    expect(spyCall).toBeDefined();
-    expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN);
-
-    // Verify correct emails were sent
-    expect(spyCall.emails).toContain('newuser1@example.com');
-    expect(spyCall.emails).toContain('newuser2@example.com');
-
-    // Verify org admin role was included (checkbox was checked)
-    expect(spyCall.roles).toContain('organization_administrator');
+    await step('Verify API call and payload', async () => {
+      await waitFor(
+        () => {
+          expect(inviteUsersSpy).toHaveBeenCalled();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+      const spyCall = inviteUsersSpy.mock.calls[0][0];
+      expect(spyCall).toBeDefined();
+      expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN);
+      expect(spyCall.emails).toContain('newuser1@example.com');
+      expect(spyCall.emails).toContain('newuser2@example.com');
+      expect(spyCall.roles).toContain('organization_administrator');
+    });
   },
 };
 
@@ -643,34 +648,43 @@ Tests toggling a user's active status via the switch in the users table.
       handlers: [...toggleStatusHandlers, ...v2DefaultHandlers],
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    changeStatusSpy.mockClear();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await waitForPageToLoad(canvas, 'adumble');
+    await step('Reset state', async () => {
+      await resetStoryState();
+      changeStatusSpy.mockClear();
+    });
 
-    // adumble starts is_active: true → switch is checked
-    const statusSwitch = await canvas.findByRole('switch', { name: /toggle status for adumble/i });
-    await user.click(statusSwitch);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Toggling active → inactive calls IT API with status: 'disabled'
-    await waitFor(
-      () => {
-        expect(changeStatusSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.objectContaining({ status: 'disabled' }));
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+    await step('Wait for page and toggle status switch', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const statusSwitch = await canvas.findByRole('switch', { name: /toggle status for adumble/i });
+      await user.click(statusSwitch);
+    });
 
-    // After refetch the switch should reflect the new inactive state
-    await waitFor(
-      () => {
-        const updatedSwitch = canvas.getByRole('switch', { name: /toggle status for adumble/i });
-        expect(updatedSwitch).not.toBeChecked();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+    await step('Verify API call', async () => {
+      await waitFor(
+        () => {
+          expect(changeStatusSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.objectContaining({ status: 'disabled' }));
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
+
+    await step('Verify switch reflects inactive state', async () => {
+      await waitFor(
+        () => {
+          const updatedSwitch = canvas.getByRole('switch', { name: /toggle status for adumble/i });
+          expect(updatedSwitch).not.toBeChecked();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
   },
 };
 
@@ -705,57 +719,57 @@ Tests the bulk deactivate flow from the Users tab with API spy verification.
       handlers: [...bulkDeactivateHandlers, ...v2DefaultHandlers],
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    bulkDeactivateSpy.mockClear();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
     const body = within(document.body);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await waitForPageToLoad(canvas, 'adumble');
+    await step('Reset state', async () => {
+      await resetStoryState();
+      bulkDeactivateSpy.mockClear();
+    });
 
-    // Select 2 users by clicking their row checkboxes
-    const checkboxes = await canvas.findAllByRole('checkbox');
-    expect(checkboxes.length).toBeGreaterThan(2);
-    await user.click(checkboxes[1]);
-    await user.click(checkboxes[2]);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Open the toolbar overflow menu
-    const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
-    await user.click(actionsMenu);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Wait for page and select users', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+      const checkboxes = await canvas.findAllByRole('checkbox');
+      expect(checkboxes.length).toBeGreaterThan(2);
+      await user.click(checkboxes[1]);
+      await user.click(checkboxes[2]);
+    });
 
-    // Click "Deactivate" menu item
-    const deactivateMenuItem = await body.findByRole('menuitem', { name: /deactivate users/i });
-    await user.click(deactivateMenuItem);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Open overflow menu and click deactivate', async () => {
+      const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
+      await user.click(actionsMenu);
+      const deactivateMenuItem = await body.findByRole('menuitem', { name: /deactivate users/i });
+      await user.click(deactivateMenuItem);
+    });
 
-    // Verify BulkDeactivateUsersModal appears
-    const modal = await body.findByRole('dialog', undefined, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await expect(within(modal).findByRole('heading', { name: /deactivate users/i })).resolves.toBeInTheDocument();
+    await step('Confirm deactivation in modal', async () => {
+      const modal = await waitForModal();
+      await expect(modal.findByRole('heading', { name: /deactivate users/i })).resolves.toBeInTheDocument();
+      const confirmCheckbox = modal.queryByRole('checkbox');
+      if (confirmCheckbox) {
+        await user.click(confirmCheckbox);
+      }
+      const deactivateButton = await modal.findByRole('button', { name: /deactivate/i });
+      await expect(deactivateButton).toBeEnabled();
+      await user.click(deactivateButton);
+    });
 
-    const confirmCheckbox = within(modal).queryByRole('checkbox');
-    if (confirmCheckbox) {
-      await user.click(confirmCheckbox);
-      await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    }
-
-    const deactivateButton = await within(modal).findByRole('button', { name: /deactivate/i });
-    await expect(deactivateButton).toBeEnabled();
-    await user.click(deactivateButton);
-
-    // The IT API is called once per user — 2 users selected means 2 calls
-    await waitFor(
-      () => {
-        expect(bulkDeactivateSpy).toHaveBeenCalledTimes(2);
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    // Each call should have status: 'disabled'
-    for (const call of bulkDeactivateSpy.mock.calls) {
-      expect(call[2]).toEqual(expect.objectContaining({ status: 'disabled' }));
-    }
+    await step('Verify API calls', async () => {
+      await waitFor(
+        () => {
+          expect(bulkDeactivateSpy).toHaveBeenCalledTimes(2);
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+      for (const call of bulkDeactivateSpy.mock.calls) {
+        expect(call[2]).toEqual(expect.objectContaining({ status: 'disabled' }));
+      }
+    });
   },
 };

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { findSortButton } from '../../../test-utils/tableHelpers';
 import { AccessTable } from './AccessTable';
 import { accessHandlers, accessLoadingHandlers } from '../../data/mocks/access.handlers';
 
@@ -77,23 +77,20 @@ For testing specific scenarios, see these additional stories:
   args: {
     showResourceDefinitions: false, // Test default 3-column mode
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Test real API orchestration - container triggers mutations and React Query updates
-    // TableView may render "Application" in header and filter - check that at least header exists
-    expect(await canvas.findByRole('columnheader', { name: /application/i })).toBeInTheDocument();
+    await step('Verify table headers and permission data', async () => {
+      expect(await canvas.findByRole('columnheader', { name: /application/i })).toBeInTheDocument();
 
-    // Verify table headers (3-column mode without Resource Definitions)
-    expect(await canvas.findByText('Resource type')).toBeInTheDocument();
-    expect(await canvas.findByText('Operation')).toBeInTheDocument();
-    expect(canvas.queryByText('Resource definitions')).not.toBeInTheDocument();
+      expect(await canvas.findByText('Resource type')).toBeInTheDocument();
+      expect(await canvas.findByText('Operation')).toBeInTheDocument();
+      expect(canvas.queryByText('Resource definitions')).not.toBeInTheDocument();
 
-    // Verify permission data loaded through React Query
-    expect(await canvas.findByText('advisor')).toBeInTheDocument();
-    expect(await canvas.findByText('compliance')).toBeInTheDocument();
-    expect(await canvas.findByText('vulnerability')).toBeInTheDocument();
+      expect(await canvas.findByText('advisor')).toBeInTheDocument();
+      expect(await canvas.findByText('compliance')).toBeInTheDocument();
+      expect(await canvas.findByText('vulnerability')).toBeInTheDocument();
+    });
   },
 };
 
@@ -107,17 +104,16 @@ export const LoadingState: Story = {
   args: {
     showResourceDefinitions: true,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show table structure while API call is pending
-    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    await step('Verify loading state', async () => {
+      expect(await canvas.findByRole('grid')).toBeInTheDocument();
 
-    // Since API never resolves (infinite delay), should not show final data
-    expect(canvas.queryByText('advisor')).not.toBeInTheDocument();
-    expect(canvas.queryByText('compliance')).not.toBeInTheDocument();
-    expect(canvas.queryByText('vulnerability')).not.toBeInTheDocument();
+      expect(canvas.queryByText('advisor')).not.toBeInTheDocument();
+      expect(canvas.queryByText('compliance')).not.toBeInTheDocument();
+      expect(canvas.queryByText('vulnerability')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -130,13 +126,13 @@ export const EmptyPermissions: Story = {
   args: {
     showResourceDefinitions: true,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show empty state after API returns no data (TableView uses DefaultEmptyStateNoData)
-    expect(await canvas.findByText('Configure permissions')).toBeInTheDocument();
-    expect(await canvas.findByText('To configure user access, create at least one permission.')).toBeInTheDocument();
+    await step('Verify empty state', async () => {
+      expect(await canvas.findByText('Configure permissions')).toBeInTheDocument();
+      expect(await canvas.findByText('To configure user access, create at least one permission.')).toBeInTheDocument();
+    });
   },
 };
 
@@ -161,132 +157,107 @@ export const FilteringInteraction: Story = {
     apps: ['advisor', 'compliance', 'vulnerability'],
     showResourceDefinitions: false,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    // Initial load should call API with all applications
-    await waitFor(() => {
-      expect(accessApiCallSpy).toHaveBeenCalled();
-      const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
-      expect(lastCall.application).toBe('advisor,compliance,vulnerability');
-      expect(lastCall.limit).toBe('20');
-      expect(lastCall.offset).toBe('0');
-    });
-
-    // Test single application filtering workflow
-    // Find all Application buttons: [0] = category selector, [1] = filter values dropdown
-    const applicationButtons = await canvas.findAllByRole('button', { name: /Application/i });
-    // Click the filter values dropdown (second button)
-    await userEvent.click(applicationButtons[1]);
-
-    // Wait for dropdown menu to appear
-    await delay(300);
-
-    // Find the advisor checkbox in the dropdown (rendered in portal)
     const body = within(document.body);
-    const advisorCheckbox = await body.findByRole('checkbox', { name: /advisor/i });
 
-    // Reset spy before click
-    accessApiCallSpy.mockClear();
-
-    await userEvent.click(advisorCheckbox);
-    await delay(200);
-
-    // Verify single application filter API call (debounced)
-    await waitFor(
-      () => {
-        expect(accessApiCallSpy).toHaveBeenCalled();
-        const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.application).toBe('advisor');
-        expect(lastCall.limit).toBe('20');
-        expect(lastCall.offset).toBe('0');
-      },
-      { timeout: 1000 }, // Account for 500ms debounce
-    );
-
-    // Verify advisor filter is now active by checking the button text or dropdown state
-    await waitFor(async () => {
-      // The button should show some indication that a filter is selected
-      expect(applicationButtons[1]).toBeInTheDocument();
-    });
-
-    // Test adding second application (multi-select) - dropdown should still be open
-    const complianceCheckbox = await body.findByRole('checkbox', { name: /compliance/i });
-
-    // Reset spy
-    accessApiCallSpy.mockClear();
-
-    await userEvent.click(complianceCheckbox);
-
-    // Wait for debounced API call
-    await delay(600);
-
-    // Verify multiple application filter API call
-    await waitFor(
-      () => {
-        expect(accessApiCallSpy).toHaveBeenCalled();
-        const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
-        // Check if we got an API call with compliance
-        expect(lastCall.application).toMatch(/compliance/);
-        // The exact order may vary - could be 'compliance,advisor' or 'advisor,compliance'
-        expect(lastCall.application).toMatch(/advisor/);
-      },
-      { timeout: 1000 },
-    );
-
-    // Test removing one application filter - click advisor again to uncheck it
-    const advisorCheckboxToRemove = await body.findByRole('checkbox', { name: /advisor/i });
-
-    // Reset spy
-    accessApiCallSpy.mockClear();
-
-    await userEvent.click(advisorCheckboxToRemove);
-    await delay(100);
-
-    // Wait for debounced API call
-    await delay(600);
-
-    // Verify single application remains
-    await waitFor(
-      () => {
-        expect(accessApiCallSpy).toHaveBeenCalled();
-        const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.application).toBe('compliance');
-      },
-      { timeout: 1000 },
-    );
-
-    // Test clear all filters functionality
-    const clearAllFiltersButtons = await canvas.findAllByText('Clear filters');
-    const clearAllFilters = clearAllFiltersButtons[0];
-
-    // Reset spy
-    accessApiCallSpy.mockClear();
-
-    await userEvent.click(clearAllFilters);
-
-    // Verify clear filters API call restores all applications
-    await waitFor(
-      () => {
+    await step('Verify initial API call', async () => {
+      await waitFor(() => {
         expect(accessApiCallSpy).toHaveBeenCalled();
         const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
         expect(lastCall.application).toBe('advisor,compliance,vulnerability');
         expect(lastCall.limit).toBe('20');
         expect(lastCall.offset).toBe('0');
-      },
-      { timeout: 1000 },
-    );
+      });
+    });
 
-    // Verify UI state is also cleared - reopen filter dropdown
-    const applicationButtonsAfterClear = await canvas.findAllByRole('button', { name: /Application/i });
-    await userEvent.click(applicationButtonsAfterClear[1]);
-    await delay(300);
+    await step('Apply single application filter', async () => {
+      const applicationButtons = await canvas.findAllByRole('button', { name: /Application/i });
+      await userEvent.click(applicationButtons[1]);
 
-    // All checkboxes should be unchecked after clear - find in portal (reuse body)
-    const allOptions = await body.findAllByRole('checkbox');
-    allOptions.forEach((checkbox) => {
-      expect(checkbox).not.toBeChecked();
+      const advisorCheckbox = await body.findByRole('checkbox', { name: /advisor/i });
+
+      accessApiCallSpy.mockClear();
+
+      await userEvent.click(advisorCheckbox);
+
+      await waitFor(
+        () => {
+          expect(accessApiCallSpy).toHaveBeenCalled();
+          const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.application).toBe('advisor');
+          expect(lastCall.limit).toBe('20');
+          expect(lastCall.offset).toBe('0');
+        },
+        { timeout: 1000 },
+      );
+
+      await waitFor(async () => {
+        expect(applicationButtons[1]).toBeInTheDocument();
+      });
+    });
+
+    await step('Add second application filter', async () => {
+      const complianceCheckbox = await body.findByRole('checkbox', { name: /compliance/i });
+
+      accessApiCallSpy.mockClear();
+
+      await userEvent.click(complianceCheckbox);
+
+      await waitFor(
+        () => {
+          expect(accessApiCallSpy).toHaveBeenCalled();
+          const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.application).toMatch(/compliance/);
+          expect(lastCall.application).toMatch(/advisor/);
+        },
+        { timeout: 1000 },
+      );
+    });
+
+    await step('Remove one application filter', async () => {
+      const advisorCheckboxToRemove = await body.findByRole('checkbox', { name: /advisor/i });
+
+      accessApiCallSpy.mockClear();
+
+      await userEvent.click(advisorCheckboxToRemove);
+
+      await waitFor(
+        () => {
+          expect(accessApiCallSpy).toHaveBeenCalled();
+          const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.application).toBe('compliance');
+        },
+        { timeout: 1000 },
+      );
+    });
+
+    await step('Clear all filters and verify UI state', async () => {
+      const clearAllFiltersButtons = await canvas.findAllByText('Clear filters');
+      const clearAllFilters = clearAllFiltersButtons[0];
+
+      accessApiCallSpy.mockClear();
+
+      await userEvent.click(clearAllFilters);
+
+      await waitFor(
+        () => {
+          expect(accessApiCallSpy).toHaveBeenCalled();
+          const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.application).toBe('advisor,compliance,vulnerability');
+          expect(lastCall.limit).toBe('20');
+          expect(lastCall.offset).toBe('0');
+        },
+        { timeout: 1000 },
+      );
+
+      const applicationButtonsAfterClear = await canvas.findAllByRole('button', { name: /Application/i });
+      await userEvent.click(applicationButtonsAfterClear[1]);
+
+      const allOptions = await body.findAllByRole('checkbox');
+      allOptions.forEach((checkbox) => {
+        expect(checkbox).not.toBeChecked();
+      });
     });
   },
 };
@@ -300,35 +271,31 @@ export const WithResourceDefinitions: Story = {
   args: {
     showResourceDefinitions: true,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Test real API orchestration with Resource Definitions column
-    // TableView may render "Application" in header and filter - check that at least header exists
-    expect(await canvas.findByRole('columnheader', { name: /application/i })).toBeInTheDocument();
+    await step('Verify table with resource definitions column', async () => {
+      expect(await canvas.findByRole('columnheader', { name: /application/i })).toBeInTheDocument();
 
-    // Verify all 4 table headers (including Resource Definitions)
-    expect(await canvas.findByText('Resource type')).toBeInTheDocument();
-    expect(await canvas.findByText('Operation')).toBeInTheDocument();
-    expect(await canvas.findByText('Resource definitions')).toBeInTheDocument();
+      expect(await canvas.findByText('Resource type')).toBeInTheDocument();
+      expect(await canvas.findByText('Operation')).toBeInTheDocument();
+      expect(await canvas.findByText('Resource definitions')).toBeInTheDocument();
 
-    // Verify permission data loaded through React Query
-    expect(await canvas.findByText('advisor')).toBeInTheDocument();
-    expect(await canvas.findByText('compliance')).toBeInTheDocument();
-    expect(await canvas.findByText('vulnerability')).toBeInTheDocument();
+      expect(await canvas.findByText('advisor')).toBeInTheDocument();
+      expect(await canvas.findByText('compliance')).toBeInTheDocument();
+      expect(await canvas.findByText('vulnerability')).toBeInTheDocument();
+    });
 
-    // Test modal functionality - click on the "2" in resource definitions column
-    const resourceDefLink = await canvas.findByText('2');
-    await userEvent.click(resourceDefLink);
+    await step('Open resource definitions modal', async () => {
+      const resourceDefLink = await canvas.findByText('2');
+      await userEvent.click(resourceDefLink);
 
-    // Modal should open (renders to document.body via portal)
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Verify modal content shows resource definition details
-    const modalContent = within(modal);
-    expect(await modalContent.findByText('Resource definitions')).toBeInTheDocument();
+      const modalContent = within(modal);
+      expect(await modalContent.findByText('Resource definitions')).toBeInTheDocument();
+    });
   },
 };
 
@@ -350,92 +317,81 @@ export const SortingInteraction: Story = {
     apps: ['advisor', 'compliance', 'vulnerability'],
     showResourceDefinitions: false,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Initial load should call API with default sorting (application, asc)
-    await waitFor(() => {
-      expect(accessApiCallSpy).toHaveBeenCalled();
-      const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
-      expect(lastCall.order_by).toBe('application');
+    await step('Wait for data load and verify initial sort', async () => {
+      await canvas.findByText('policies', {}, { timeout: 10000 });
+
+      await waitFor(() => {
+        expect(accessApiCallSpy).toHaveBeenCalled();
+        const lastCall = accessApiCallSpy.mock.calls[accessApiCallSpy.mock.calls.length - 1][0];
+        expect(lastCall.order_by).toBe('application');
+      });
     });
 
-    // Wait for actual data to load (not skeleton) - "policies" is from "compliance:policies:read"
-    // findByText has built-in retry, no need for inflated timeout
-    await canvas.findByText('policies');
+    await step('Sort by Application descending', async () => {
+      const applicationButton = await findSortButton(canvas, /application/i);
 
-    // Now that data is loaded, query fresh for the sort button
-    const applicationHeader = canvas.getByRole('columnheader', { name: /application/i });
-    const applicationButton = within(applicationHeader).getByRole('button');
+      await userEvent.click(applicationButton);
 
-    await userEvent.click(applicationButton);
-
-    // Verify descending sort API call
-    await waitFor(() => {
-      const calls = accessApiCallSpy.mock.calls;
-      const lastCall = calls[calls.length - 1][0];
-      expect(lastCall.order_by).toBe('-application');
+      await waitFor(() => {
+        const calls = accessApiCallSpy.mock.calls;
+        const lastCall = calls[calls.length - 1][0];
+        expect(lastCall.order_by).toBe('-application');
+      });
     });
 
-    // Test clicking Resource Type column header
-    const resourceTypeHeader = await canvas.findByRole('columnheader', { name: /resource type/i });
-    const resourceTypeButton = await within(resourceTypeHeader).findByRole('button');
+    await step('Sort by Resource Type', async () => {
+      const resourceTypeButton = await findSortButton(canvas, /resource type/i);
 
-    await userEvent.click(resourceTypeButton);
+      await userEvent.click(resourceTypeButton);
 
-    // Wait for immediate API call and verify resource type sort
-    await waitFor(
-      () => {
-        expect(accessApiCallSpy).toHaveBeenCalled();
-        const calls = accessApiCallSpy.mock.calls;
-        const lastCall = calls[calls.length - 1][0];
-        expect(lastCall.order_by).toBe('resource_type');
-      },
-      { timeout: 1000 },
-    );
+      await waitFor(
+        () => {
+          expect(accessApiCallSpy).toHaveBeenCalled();
+          const calls = accessApiCallSpy.mock.calls;
+          const lastCall = calls[calls.length - 1][0];
+          expect(lastCall.order_by).toBe('resource_type');
+        },
+        { timeout: 1000 },
+      );
+    });
 
-    // Test clicking Operation column header
-    const operationHeader = await canvas.findByRole('columnheader', { name: /operation/i });
-    const operationButton = await within(operationHeader).findByRole('button');
+    await step('Sort by Operation', async () => {
+      const operationButton = await findSortButton(canvas, /operation/i);
 
-    await userEvent.click(operationButton);
+      await userEvent.click(operationButton);
 
-    // Wait for immediate API call and verify operation sort
-    await waitFor(
-      () => {
-        expect(accessApiCallSpy).toHaveBeenCalled();
-        const calls = accessApiCallSpy.mock.calls;
-        const lastCall = calls[calls.length - 1][0];
-        expect(lastCall.order_by).toBe('verb');
-      },
-      { timeout: 1000 },
-    );
+      await waitFor(
+        () => {
+          expect(accessApiCallSpy).toHaveBeenCalled();
+          const calls = accessApiCallSpy.mock.calls;
+          const lastCall = calls[calls.length - 1][0];
+          expect(lastCall.order_by).toBe('verb');
+        },
+        { timeout: 1000 },
+      );
+    });
 
-    // Test sorting + filtering combination
-    // Add an application filter first
-    // TableView uses DataViewCheckboxFilter which renders a MenuToggle button
-    // Use the OUIA component type to find the filter dropdown (not the sort button in column header)
-    // Add application filter
-    const applicationButtonsForSort = await canvas.findAllByRole('button', { name: /Application/i });
-    await userEvent.click(applicationButtonsForSort[1]); // [1] = filter values dropdown
-    await delay(300);
+    await step('Add application filter and verify sort preserved', async () => {
+      const applicationButtonsForSort = await canvas.findAllByRole('button', { name: /Application/i });
+      await userEvent.click(applicationButtonsForSort[1]);
 
-    // Find checkbox in dropdown (rendered in portal)
-    const bodyForSort = within(document.body);
-    const advisorCheckboxForSort = await bodyForSort.findByRole('checkbox', { name: /advisor/i });
-    await userEvent.click(advisorCheckboxForSort);
+      const bodyForSort = within(document.body);
+      const advisorCheckboxForSort = await bodyForSort.findByRole('checkbox', { name: /advisor/i });
+      await userEvent.click(advisorCheckboxForSort);
 
-    // Verify filtering + sorting works together
-    await waitFor(
-      () => {
-        expect(accessApiCallSpy).toHaveBeenCalled();
-        const calls = accessApiCallSpy.mock.calls;
-        const lastCall = calls[calls.length - 1][0];
-        expect(lastCall.application).toBe('advisor');
-        expect(lastCall.order_by).toBe('verb'); // Should maintain previous sort
-      },
-      { timeout: 2000 },
-    );
+      await waitFor(
+        () => {
+          expect(accessApiCallSpy).toHaveBeenCalled();
+          const calls = accessApiCallSpy.mock.calls;
+          const lastCall = calls[calls.length - 1][0];
+          expect(lastCall.application).toBe('advisor');
+          expect(lastCall.order_by).toBe('verb');
+        },
+        { timeout: 2000 },
+      );
+    });
   },
 };

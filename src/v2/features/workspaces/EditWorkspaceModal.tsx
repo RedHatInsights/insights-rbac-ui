@@ -1,5 +1,6 @@
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
+import type FormTemplateRenderProps from '@data-driven-forms/react-form-renderer/common-types/form-template-render-props';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import React, { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
@@ -161,19 +162,15 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
       initialValues={formInitialValues}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
-      FormTemplate={(props: Record<string, unknown>) => (
-        <ModalFormTemplate
-          {...props}
-          ModalProps={{
-            onClose: onCancel,
-            isOpen: true,
-            variant: 'medium',
-            title: 'Edit workspace information',
-          }}
-        />
-      )}
+      FormTemplate={ModalFormTemplate as unknown as React.ComponentType<FormTemplateRenderProps>}
       FormTemplateProps={{
         disableSubmit: ['pristine', 'invalid'],
+        ModalProps: {
+          onClose: onCancel,
+          isOpen: true,
+          variant: 'medium',
+          title: 'Edit workspace information',
+        },
       }}
     />
   );

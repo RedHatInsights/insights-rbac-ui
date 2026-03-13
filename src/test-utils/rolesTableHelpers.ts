@@ -20,9 +20,12 @@ export const getRoleRow = (roleLink: HTMLElement): HTMLTableRowElement => {
  * The button shows the count of groups and expands to show the groups list.
  */
 export const getGroupsToggleButton = (row: HTMLTableRowElement): HTMLElement => {
-  const cell = row.querySelector('td[data-label="Groups"]') as HTMLElement | null;
+  const cell =
+    row.querySelector('td[data-label="Groups"]') ?? Array.from(row.querySelectorAll('td')).find((td) => td.getAttribute('data-label') === 'Groups');
   expect(cell).not.toBeNull();
-  return within(cell!).getByRole('button');
+  const button = (cell as HTMLElement).querySelector('button');
+  expect(button).not.toBeNull();
+  return button as HTMLElement;
 };
 
 /**

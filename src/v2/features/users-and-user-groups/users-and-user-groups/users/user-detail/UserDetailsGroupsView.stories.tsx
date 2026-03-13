@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
-import { delay } from 'msw';
 
 import { UserDetailsGroupsView } from './UserDetailsGroupsView';
 import { groupsErrorHandlers, groupsHandlers, groupsLoadingHandlers } from '../../../../../../shared/data/mocks/groups.handlers';
@@ -115,24 +114,21 @@ Each story demonstrates different aspects of container state management and erro
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Check that groups are displayed
-    await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
+    await step('Verify groups displayed', async () => {
+      await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
 
-    // Additional groups shown
-    await expect(canvas.findByText('Development Team')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Quality Assurance')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Development Team')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Quality Assurance')).resolves.toBeInTheDocument();
 
-    // Check user counts are shown
-    await expect(canvas.findByText('15')).resolves.toBeInTheDocument(); // Principal count for Platform Administrators
-    await expect(canvas.findByText('8')).resolves.toBeInTheDocument(); // Principal count for Development Team
+      await expect(canvas.findByText('15')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('8')).resolves.toBeInTheDocument();
 
-    // Check table structure (grid role in PatternFly tables)
-    const grid = await canvas.findByRole('grid');
-    await expect(grid).toBeInTheDocument();
+      const grid = await canvas.findByRole('grid');
+      await expect(grid).toBeInTheDocument();
+    });
   },
 };
 
@@ -153,13 +149,13 @@ export const Loading: Story = {
       handlers: [...groupsLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show skeleton loading state while API call is in progress (TableView uses SkeletonTable)
-    await expect(canvas.findByLabelText('UserGroupsView', {}, { timeout: 10000 })).resolves.toBeInTheDocument();
-    await expect(canvas.queryByText('Platform Administrators')).not.toBeInTheDocument();
+    await step('Verify loading state', async () => {
+      await expect(canvas.findByLabelText('UserGroupsView', {}, { timeout: 10000 })).resolves.toBeInTheDocument();
+      await expect(canvas.queryByText('Platform Administrators')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -180,15 +176,14 @@ export const EmptyUserGroups: Story = {
       handlers: [...groupsHandlers([])],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for empty state to render
-    await expect(canvas.findByText('No groups found')).resolves.toBeInTheDocument();
+    await step('Verify empty state', async () => {
+      await expect(canvas.findByText('No groups found')).resolves.toBeInTheDocument();
 
-    // Should show appropriate empty state message
-    await expect(canvas.findByText('This user is not a member of any groups.')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('This user is not a member of any groups.')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -212,13 +207,12 @@ export const APIError: Story = {
       dangerouslyIgnoreUnhandledErrors: true,
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show error state with proper message
-    // Note: React Query may need more time to process the error
-    await expect(canvas.findByText('Unable to load groups', {}, { timeout: 3000 })).resolves.toBeInTheDocument();
+    await step('Verify API error state', async () => {
+      await expect(canvas.findByText('Unable to load groups', {}, { timeout: 3000 })).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -242,12 +236,11 @@ export const NetworkFailure: Story = {
       dangerouslyIgnoreUnhandledErrors: true,
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show generic error message for network failures
-    // Note: React Query may need more time to process the error
-    await expect(canvas.findByText('Unable to load groups', {}, { timeout: 3000 })).resolves.toBeInTheDocument();
+    await step('Verify network failure state', async () => {
+      await expect(canvas.findByText('Unable to load groups', {}, { timeout: 3000 })).resolves.toBeInTheDocument();
+    });
   },
 };

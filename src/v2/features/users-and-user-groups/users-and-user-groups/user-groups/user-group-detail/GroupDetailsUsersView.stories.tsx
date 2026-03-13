@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
-import { delay } from 'msw';
 
 import { GroupDetailsUsersView } from './GroupDetailsUsersView';
 import {
@@ -116,7 +115,6 @@ Each story demonstrates different aspects of container state management and erro
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     // Check that users are displayed
@@ -150,7 +148,6 @@ export const Loading: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     // Should show skeleton loading state while API call is in progress (TableView uses SkeletonTable)
@@ -176,7 +173,6 @@ export const EmptyGroup: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     // Should show empty state inside TableView
@@ -206,15 +202,14 @@ export const APIError: Story = {
       handlers: [...groupMembersErrorHandlers(404)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should render generic failure message instead of table
-    await expect(canvas.findByText('Unable to load users')).resolves.toBeInTheDocument();
+    await step('Verify API error state', async () => {
+      await expect(canvas.findByText('Unable to load users')).resolves.toBeInTheDocument();
 
-    // Generic helper text for API/network failures
-    await expect(canvas.findByText('Something went wrong. Please try again.')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Something went wrong. Please try again.')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -235,13 +230,13 @@ export const NetworkFailure: Story = {
       handlers: [...groupMembersErrorHandlers(500)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should render generic failure message
-    await expect(canvas.findByText('Unable to load users')).resolves.toBeInTheDocument();
+    await step('Verify network failure state', async () => {
+      await expect(canvas.findByText('Unable to load users')).resolves.toBeInTheDocument();
 
-    await expect(canvas.findByText('Something went wrong. Please try again.')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Something went wrong. Please try again.')).resolves.toBeInTheDocument();
+    });
   },
 };

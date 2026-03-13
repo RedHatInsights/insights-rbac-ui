@@ -60,7 +60,7 @@ const GroupDetailsDrawer: React.FunctionComponent<GroupDetailsDrawerProps> = ({
     <Drawer isExpanded={isOpen} onExpand={() => drawerRef.current?.focus()} data-ouia-component-id={ouiaId}>
       <DrawerContent
         panelContent={
-          <DrawerPanelContent>
+          <DrawerPanelContent data-testid="detail-drawer-panel">
             <DrawerHead>
               <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }}>
                 <FlexItem>

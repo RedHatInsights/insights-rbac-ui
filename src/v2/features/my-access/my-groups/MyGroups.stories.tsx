@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { waitForContentReady } from '../../../../test-utils/interactionHelpers';
+import { TEST_TIMEOUTS } from '../../../../test-utils/testUtils';
+import { findSortButton } from '../../../../test-utils/tableHelpers';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { MyGroups } from './MyGroups';
 import { groupsHandlers } from '../../../../shared/data/mocks/groups.handlers';
 import { groupRolesHandlers } from '../../../../shared/data/mocks/groupRoles.handlers';
+import { GROUP_SUPPORT_TEAM, GROUP_SYSTEM_DEFAULT } from '../../../../shared/data/mocks/seed';
 
 const meta: Meta<typeof MyGroups> = {
   component: MyGroups,
@@ -40,10 +44,11 @@ export default meta;
 type Story = StoryObj<typeof MyGroups>;
 
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    await expect(canvas.findByLabelText('My groups')).resolves.toBeInTheDocument();
+    await step('Verify default my groups', async () => {
+      await expect(canvas.findByLabelText('My groups')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -56,40 +61,36 @@ export const Default: Story = {
  * - The data is correctly sorted after each click
  */
 export const SortByName: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    // Wait for table to load
-    const table = await canvas.findByLabelText('My groups');
-    await expect(table).toBeInTheDocument();
-
-    // Find the "Group Name" column header sort button
-    const nameHeader = await canvas.findByRole('button', { name: /group name/i });
-    await expect(nameHeader).toBeInTheDocument();
-
-    // Initially sorted ascending by name (default)
-    // Groups in seed data: "Default admin access", "Default access", "Engineering", "Platform Admins", "Support Team"
-    let rows = await canvas.findAllByRole('row');
-    // Skip header row (index 0), check data rows
-    expect(rows.length).toBeGreaterThan(1);
-
-    // Click to sort descending
-    await user.click(nameHeader);
-    await waitFor(async () => {
-      rows = await canvas.findAllByRole('row');
-      const firstDataRow = rows[1]; // Skip header
-      // After descending sort, "Support Team" should be first
-      expect(firstDataRow).toHaveTextContent(/support team/i);
+    await step('Wait for data to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    // Click again to sort ascending
-    await user.click(nameHeader);
-    await waitFor(async () => {
-      rows = await canvas.findAllByRole('row');
-      const firstDataRow = rows[1]; // Skip header
-      // After ascending sort, "Default access" or "Default admin access" should be first (alphabetically)
-      expect(firstDataRow).toHaveTextContent(/default/i);
+    await step('Sort descending', async () => {
+      const sortButton = await findSortButton(canvas, /group name/i);
+      await user.click(sortButton);
+      await waitFor(
+        () => {
+          const rows = canvas.getAllByRole('row');
+          expect(rows[1]).toHaveTextContent(new RegExp(GROUP_SUPPORT_TEAM.name, 'i'));
+        },
+        { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
+    });
+
+    await step('Sort ascending', async () => {
+      const sortButton = await findSortButton(canvas, /group name/i);
+      await user.click(sortButton);
+      await waitFor(
+        () => {
+          const rows = canvas.getAllByRole('row');
+          expect(rows[1]).toHaveTextContent(new RegExp(GROUP_SYSTEM_DEFAULT.name, 'i'));
+        },
+        { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
     });
   },
 };

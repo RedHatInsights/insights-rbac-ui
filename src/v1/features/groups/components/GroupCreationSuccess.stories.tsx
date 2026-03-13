@@ -29,18 +29,20 @@ export const Default: Story = {
     onClose: fn(),
     onCreateAnother: fn(),
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Test primary close button
-    const exitButton = await canvas.findByRole('button', { name: 'Exit' });
-    await userEvent.click(exitButton);
-    await expect(args.onClose).toHaveBeenCalled();
+    await step('Verify exit and create another buttons', async () => {
+      // Test primary close button
+      const exitButton = await canvas.findByRole('button', { name: 'Exit' });
+      await userEvent.click(exitButton);
+      await expect(args.onClose).toHaveBeenCalled();
 
-    // Test secondary create another button
-    const createAnotherButton = await canvas.findByRole('button', { name: 'Create another group' });
-    await userEvent.click(createAnotherButton);
-    await expect(args.onCreateAnother).toHaveBeenCalled();
+      // Test secondary create another button
+      const createAnotherButton = await canvas.findByRole('button', { name: 'Create another group' });
+      await userEvent.click(createAnotherButton);
+      await expect(args.onCreateAnother).toHaveBeenCalled();
+    });
   },
 };
 
@@ -49,16 +51,18 @@ export const WithoutCreateAnother: Story = {
     onClose: fn(),
     onCreateAnother: undefined, // Explicitly set to undefined to override Storybook's automatic actions
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Test that the close button works
-    const closeButton = await canvas.findByRole('button', { name: 'Exit' });
-    await userEvent.click(closeButton);
-    await expect(args.onClose).toHaveBeenCalled();
+    await step('Verify exit button and no create another', async () => {
+      // Test that the close button works
+      const closeButton = await canvas.findByRole('button', { name: 'Exit' });
+      await userEvent.click(closeButton);
+      await expect(args.onClose).toHaveBeenCalled();
 
-    // Verify create another button is not present (since onCreateAnother is undefined)
-    const linkButtons = canvas.queryAllByRole('button').filter((button) => button.classList.contains('pf-m-link'));
-    await expect(linkButtons).toHaveLength(0);
+      // Verify create another button is not present (since onCreateAnother is undefined)
+      const linkButtons = canvas.queryAllByRole('button').filter((button) => button.classList.contains('pf-m-link'));
+      await expect(linkButtons).toHaveLength(0);
+    });
   },
 };

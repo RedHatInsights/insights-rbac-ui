@@ -1,12 +1,11 @@
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { fillCreateRoleWizard } from '../../v1/features/roles/CreateRole.helpers';
 import { fillCopyRoleWizard } from '../../v1/features/roles/CopyRole.helpers';
 import { fillEditRoleModal } from '../../v1/features/roles/EditRole.helpers';
 import { confirmDeleteRoleModal } from '../../v1/features/roles/DeleteRole.helpers';
 import { rolesAddToGroupVisibilityFixtures } from '../../v1/data/mocks/rolesVisibility.fixtures';
-import { expandRoleGroups, expectAddRoleLinkHidden, expectAddRoleLinkVisible, getGroupRow } from '../_shared/helpers/rolesTableHelpers';
-import { pollUntilTrue } from '../_shared/helpers';
+import { expandRoleGroups, expectAddRoleLinkHidden, expectAddRoleLinkVisible, getGroupRow } from '../../test-utils/rolesTableHelpers';
+import { clickWizardNext, waitForContentReady, waitForModal } from '../../test-utils/interactionHelpers';
 import { createV1MockDb } from '../../v1/data/mocks/db';
 import { createV1Handlers } from '../../v1/data/mocks/handlers';
 import { createInventoryHandlers } from '../../v1/data/mocks/inventory.handlers';
@@ -64,28 +63,36 @@ export const CreateRoleJourney: Story = {
       dangerouslyIgnoreUnhandledErrors: true,
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V1_ROLE_VIEWER.name);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    const createButton = await canvas.findByRole('button', { name: /create role/i });
-    await user.click(createButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await fillCreateRoleWizard(user, 'Automation Test Role', 'A test custom role for automation', ['insights:*:*']);
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V1_ROLE_VIEWER.name);
+    });
 
-    await waitForPageToLoad(canvas, V1_ROLE_VIEWER.name);
+    await step('Open create role wizard', async () => {
+      const createButton = await canvas.findByRole('button', { name: /create role/i });
+      await user.click(createButton);
+    });
 
-    await waitFor(
-      () => {
-        expect(canvas.getByText('Automation Test Role')).toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+    await step('Fill wizard and submit', async () => {
+      await fillCreateRoleWizard(user, 'Automation Test Role', 'A test custom role for automation', ['insights:*:*'], step);
+    });
+
+    await step('Verify new role in list', async () => {
+      await waitForPageToLoad(canvas, V1_ROLE_VIEWER.name);
+      await canvas.findByText('Automation Test Role', {}, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
+    });
   },
 };
 
@@ -109,28 +116,36 @@ Tests the full flow of creating a role by copying an existing one.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    const createButton = await canvas.findByRole('button', { name: /create role/i });
-    await user.click(createButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await fillCopyRoleWizard(user, V1_ROLE_CUSTOM.name);
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
+    });
 
-    await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
+    await step('Open create role wizard', async () => {
+      const createButton = await canvas.findByRole('button', { name: /create role/i });
+      await user.click(createButton);
+    });
 
-    await waitFor(
-      () => {
-        expect(canvas.getByText('Copy of Custom Role')).toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+    await step('Fill copy wizard and submit', async () => {
+      await fillCopyRoleWizard(user, V1_ROLE_CUSTOM.name, step);
+    });
+
+    await step('Verify copied role in list', async () => {
+      await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
+      await canvas.findByText('Copy of Custom Role', {}, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
+    });
   },
 };
 
@@ -139,24 +154,35 @@ export const EditRoleJourney: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V1_ROLE_ADMIN.name);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    await openRoleActionsMenu(user, canvas, V1_ROLE_CUSTOM.name);
-    await clickMenuItem(user, 'Edit');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await fillEditRoleModal(user, 'Updated Custom Role', 'Updated description for custom role');
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V1_ROLE_ADMIN.name);
+    });
 
-    await verifySuccessNotification();
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Open edit modal from row actions', async () => {
+      await openRoleActionsMenu(user, canvas, V1_ROLE_CUSTOM.name);
+      await clickMenuItem(user, 'Edit');
+    });
 
-    await waitFor(async () => {
-      await expect(canvas.getByText('Updated Custom Role')).toBeInTheDocument();
+    await step('Fill form and submit', async () => {
+      await fillEditRoleModal(user, 'Updated Custom Role', 'Updated description for custom role', step);
+    });
+
+    await step('Verify success notification and updated name', async () => {
+      await verifySuccessNotification();
+      await canvas.findByText('Updated Custom Role', {}, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
     });
   },
 };
@@ -166,33 +192,44 @@ export const EditRoleFromDetailPage: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
-
-    const roleLink = canvas.getByRole('link', { name: V1_ROLE_CUSTOM.name });
-    await user.click(roleLink);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: V1_ROLE_CUSTOM.name })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
     });
 
-    await openDetailPageActionsMenu(user, canvas);
-    await clickMenuItem(user, 'Edit');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await fillEditRoleModal(user, 'Updated Custom Role', 'Updated from detail page');
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
+    });
 
-    await Promise.all([
-      verifySuccessNotification(),
-      waitFor(async () => {
-        await expect(canvas.getByRole('heading', { name: 'Updated Custom Role' })).toBeInTheDocument();
-      }),
-    ]);
+    await step('Open role detail page', async () => {
+      const roleLink = await canvas.findByRole('link', { name: V1_ROLE_CUSTOM.name });
+      await user.click(roleLink);
+      await canvas.findByRole('heading', { name: V1_ROLE_CUSTOM.name });
+    });
+
+    await step('Open edit modal from detail page actions', async () => {
+      await openDetailPageActionsMenu(user, canvas);
+      await clickMenuItem(user, 'Edit');
+    });
+
+    await step('Fill form and submit', async () => {
+      await fillEditRoleModal(user, 'Updated Custom Role', 'Updated from detail page', step);
+    });
+
+    await step('Verify success notification and updated heading', async () => {
+      await Promise.all([
+        verifySuccessNotification(),
+        canvas.findByRole('heading', { name: 'Updated Custom Role' }, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT }),
+      ]);
+    });
   },
 };
 
@@ -201,24 +238,41 @@ export const DeleteRoleFromList: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V1_ROLE_ADMIN.name);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    await openRoleActionsMenu(user, canvas, V1_ROLE_CUSTOM.name);
-    await clickMenuItem(user, 'Delete');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await confirmDeleteRoleModal(user);
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V1_ROLE_ADMIN.name);
+    });
 
-    await verifySuccessNotification();
+    await step('Open delete modal from row actions', async () => {
+      await openRoleActionsMenu(user, canvas, V1_ROLE_CUSTOM.name);
+      await clickMenuItem(user, 'Delete');
+    });
 
-    await waitFor(() => {
-      expect(canvas.queryByText(V1_ROLE_CUSTOM.name)).not.toBeInTheDocument();
-      expect(canvas.getByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
+    await step('Confirm delete', async () => {
+      await confirmDeleteRoleModal(user);
+    });
+
+    await step('Verify success notification and role removed', async () => {
+      await verifySuccessNotification();
+      await waitFor(
+        () => {
+          expect(canvas.queryByText(V1_ROLE_CUSTOM.name)).not.toBeInTheDocument();
+          expect(canvas.queryByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
     });
   },
 };
@@ -228,34 +282,45 @@ export const DeleteRoleFromDetailPage: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
-
-    const roleLink = canvas.getByRole('link', { name: V1_ROLE_CUSTOM.name });
-    await user.click(roleLink);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: V1_ROLE_CUSTOM.name })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
     });
 
-    await openDetailPageActionsMenu(user, canvas);
-    await clickMenuItem(user, 'Delete');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await confirmDeleteRoleModal(user);
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
+    });
 
-    await verifySuccessNotification();
+    await step('Open role detail page', async () => {
+      const roleLink = await canvas.findByRole('link', { name: V1_ROLE_CUSTOM.name });
+      await user.click(roleLink);
+      await canvas.findByRole('heading', { name: V1_ROLE_CUSTOM.name });
+    });
 
-    await waitForPageToLoad(canvas, V1_ROLE_ADMIN.name);
+    await step('Delete role from detail page', async () => {
+      await openDetailPageActionsMenu(user, canvas);
+      await clickMenuItem(user, 'Delete');
+      await confirmDeleteRoleModal(user);
+    });
 
-    await waitFor(() => {
-      expect(canvas.queryByText(V1_ROLE_CUSTOM.name)).not.toBeInTheDocument();
-      expect(canvas.getByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
+    await step('Verify success notification and redirect', async () => {
+      await verifySuccessNotification();
+      await waitForPageToLoad(canvas, V1_ROLE_ADMIN.name);
+      await waitFor(
+        () => {
+          expect(canvas.queryByText(V1_ROLE_CUSTOM.name)).not.toBeInTheDocument();
+          expect(canvas.queryByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
     });
   },
 };
@@ -281,39 +346,52 @@ Tests the visibility logic for the "Add role to this group" link in the expanded
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(rolesAddToGroupLinkDb);
+    await step('Reset state', async () => {
+      await resetStoryState(rolesAddToGroupLinkDb);
+    });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, 'Test Role With Groups');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const mainElement = document.querySelector('main') || context.canvasElement;
-    const mainContent = within(mainElement as HTMLElement);
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, 'Test Role With Groups');
+    });
 
-    const testRoleLink = await mainContent.findByRole('link', { name: 'Test Role With Groups' });
-    const { groupsToggle, expandedContent } = await expandRoleGroups(user, testRoleLink);
+    await step('Expand first role and verify add to group link visibility', async () => {
+      const main = within(canvasElement).queryByRole('main');
+      const mainContent = main ? within(main) : within(canvasElement);
+      const testRoleLink = await mainContent.findByRole('link', { name: 'Test Role With Groups' });
+      const { groupsToggle, expandedContent } = await expandRoleGroups(user, testRoleLink);
 
-    const platformAdminsLink = await expandedContent.findByRole('link', { name: GROUP_PLATFORM_ADMINS.name });
-    const adminAccessLink = await expandedContent.findByRole('link', { name: GROUP_ADMIN_DEFAULT.name });
-    const supportTeamLink = await expandedContent.findByRole('link', { name: GROUP_SUPPORT_TEAM.name });
+      const platformAdminsLink = await expandedContent.findByRole('link', { name: GROUP_PLATFORM_ADMINS.name });
+      const adminAccessLink = await expandedContent.findByRole('link', { name: GROUP_ADMIN_DEFAULT.name });
+      const supportTeamLink = await expandedContent.findByRole('link', { name: GROUP_SUPPORT_TEAM.name });
 
-    const addRoleLinks = expandedContent.queryAllByRole('link', { name: /add role to this group/i });
-    expect(addRoleLinks).toHaveLength(2);
+      const addRoleLinks = expandedContent.queryAllByRole('link', { name: /add role to this group/i });
+      expect(addRoleLinks).toHaveLength(2);
 
-    expectAddRoleLinkHidden(getGroupRow(adminAccessLink));
-    expectAddRoleLinkVisible(getGroupRow(platformAdminsLink));
-    expectAddRoleLinkVisible(getGroupRow(supportTeamLink));
+      expectAddRoleLinkHidden(getGroupRow(adminAccessLink));
+      expectAddRoleLinkVisible(getGroupRow(platformAdminsLink));
+      expectAddRoleLinkVisible(getGroupRow(supportTeamLink));
 
-    await user.click(groupsToggle);
+      await user.click(groupsToggle);
+    });
 
-    const anotherTestRoleLink = await mainContent.findByRole('link', { name: 'Another Test Role' });
-    const { expandedContent: otherExpandedContent } = await expandRoleGroups(user, anotherTestRoleLink);
+    await step('Expand second role and verify add to group link visibility', async () => {
+      const main = within(canvasElement).queryByRole('main');
+      const mainContent = main ? within(main) : within(canvasElement);
+      const anotherTestRoleLink = await mainContent.findByRole('link', { name: 'Another Test Role' });
+      const { expandedContent: otherExpandedContent } = await expandRoleGroups(user, anotherTestRoleLink);
 
-    const engineeringLink = await otherExpandedContent.findByRole('link', { name: GROUP_ENGINEERING.name });
-    expectAddRoleLinkVisible(getGroupRow(engineeringLink));
+      const engineeringLink = await otherExpandedContent.findByRole('link', { name: GROUP_ENGINEERING.name });
+      expectAddRoleLinkVisible(getGroupRow(engineeringLink));
+    });
   },
 };
 
@@ -333,162 +411,136 @@ export const CopyRoleWithUngroupedSystems: Story = {
     msw: { handlers: inventoryGroupsHandlers },
     test: { dangerouslyIgnoreUnhandledErrors: true },
   },
-  play: async (context) => {
-    await resetStoryState(inventoryGroupsDb);
-    createRoleWithInventorySpy.mockClear();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState(inventoryGroupsDb);
+      createRoleWithInventorySpy.mockClear();
+    });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const createButton = await canvas.findByRole('button', { name: /create role/i });
-    await user.click(createButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V1_ROLE_CUSTOM.name);
+    });
 
-    // --- Copy wizard: select "Copy an existing role" and pick Custom Role ---
-    await pollUntilTrue(() => {
-      const d = document.querySelector('[role="dialog"]');
-      return !!d && !!within(d as HTMLElement).queryByRole('radio', { name: /copy an existing role/i });
-    }, 5000);
-    const modal = document.querySelector('[role="dialog"]') as HTMLElement;
-    await delay(300);
+    await step('Open create role wizard', async () => {
+      const createButton = await canvas.findByRole('button', { name: /create role/i });
+      await user.click(createButton);
+    });
 
-    const copyRadio = within(modal).getByRole('radio', { name: /copy an existing role/i });
-    await user.click(copyRadio);
-    await delay(500);
+    await step('Select copy existing role and pick Custom Role', async () => {
+      const modalScope = await waitForModal({ timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const copyRadio = await modalScope.findByRole('radio', { name: /copy an existing role/i });
+      await user.click(copyRadio);
+      // Wizard step content loads asynchronously
+      await modalScope.findByRole('grid', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const sourceRoleRadio = await modalScope.findByRole('radio', { name: new RegExp(V1_ROLE_CUSTOM.name, 'i') });
+      await user.click(sourceRoleRadio);
+      await clickWizardNext(user, modalScope, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
 
-    await pollUntilTrue(() => !!within(modal).queryByRole('grid'), 5000);
-    await delay(300);
+    await step('Fill name and description step', async () => {
+      const modalScope = await waitForModal({ timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      // Data-driven-forms content loads asynchronously
+      await modalScope.findByLabelText(/role name/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await clickWizardNext(user, modalScope, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
 
-    const sourceRoleRadio = within(modal).getByRole('radio', { name: new RegExp(V1_ROLE_CUSTOM.name, 'i') });
-    await user.click(sourceRoleRadio);
-    await delay(300);
+    await step('Wait for permissions and advance', async () => {
+      const modalScope = await waitForModal({ timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await waitFor(
+        () => {
+          expect(modalScope.queryByRole('heading', { name: /add permissions/i })).not.toBeNull();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+      await waitFor(
+        () => {
+          expect(modalScope.queryAllByText('inventory').length).toBeGreaterThan(0);
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+      await clickWizardNext(user, modalScope, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
 
-    const primaryNext = () => {
-      const allNext = within(modal).queryAllByRole('button', { name: /^next$/i });
-      return allNext.find((btn) => btn.classList.contains('pf-m-primary'));
-    };
+    await step('Define inventory group access with Ungrouped systems', async () => {
+      const modalScope = await waitForModal({ timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const bodyScope = within(document.body);
+      await waitFor(
+        () => {
+          expect(modalScope.queryByRole('heading', { name: /inventory group access|workspaces access/i })).not.toBeNull();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
 
-    // Step 1 → Name & description
-    await pollUntilTrue(() => {
-      const btn = primaryNext();
-      return !!btn && !btn.hasAttribute('disabled');
-    }, 5000);
-    primaryNext()!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-    await delay(500);
+      // Wizard step content (combobox) loads asynchronously
+      const combobox = await modalScope.findByRole('combobox', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await user.click(combobox);
 
-    // Step 2 → auto-generated name is fine, click Next
-    await pollUntilTrue(() => !!within(modal).queryByLabelText(/role name/i), 5000);
-    await delay(1000);
-    await pollUntilTrue(() => {
-      const btn = primaryNext();
-      return !!btn && !btn.hasAttribute('disabled');
-    }, 10000);
-    primaryNext()!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-    await delay(500);
+      const ungroupedOption = await bodyScope.findByText(/ungrouped systems/i, {}, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
+      await user.click(ungroupedOption);
 
-    // Step 3 → Permissions (inherited), click Next
-    if (within(modal).queryByRole('heading', { name: /add permissions/i })) {
-      await pollUntilTrue(() => {
-        const btn = primaryNext();
-        return !!btn && !btn.hasAttribute('disabled');
-      }, 5000);
-      primaryNext()!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-      await delay(500);
-    }
+      const groupOption = await bodyScope.findByText(FIXTURE_GROUP_1.name);
+      await user.click(groupOption);
 
-    // Step 4 → "Define Inventory group access"
-    await pollUntilTrue(() => !!within(modal).queryByRole('heading', { name: /inventory group access|workspaces access/i }), 5000);
+      const toggleBtn = combobox.closest('.rbac-c-resource-type-select')?.querySelector('button[aria-expanded="true"]');
+      if (toggleBtn) {
+        await user.click(toggleBtn as HTMLElement);
+      }
 
-    // Wait for the dropdown combobox to appear (data loaded)
-    await pollUntilTrue(() => !!modal.querySelector('[role="combobox"]'), 5000);
-    await delay(300);
+      const copyToAll = modalScope.queryByText(/copy to all/i);
+      if (copyToAll) {
+        await user.click(copyToAll);
+      }
 
-    // Open the first dropdown
-    const combobox = modal.querySelector('[role="combobox"]') as HTMLElement;
-    await user.click(combobox);
-    await delay(300);
+      await clickWizardNext(user, modalScope, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
 
-    // Wait for menu options
-    await pollUntilTrue(() => {
-      const menu = document.querySelector('[role="menu"]');
-      return !!menu && !!menu.querySelector('[role="option"]');
-    }, 3000);
+    await step('Submit wizard', async () => {
+      const modalScope = await waitForModal({ timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      // Wizard review step content loads asynchronously
+      await modalScope.findByRole('heading', { name: /review details/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const submitBtn = await modalScope.findByRole('button', { name: /submit/i });
+      await waitFor(() => expect(submitBtn).toBeEnabled(), { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await user.click(submitBtn);
+    });
 
-    // Select "Ungrouped systems"
-    const bodyScope = within(document.body);
-    const ungroupedOption = await bodyScope.findByText(/ungrouped systems/i);
-    await user.click(ungroupedOption);
-    await delay(200);
+    await step('Verify success and API payload', async () => {
+      const bodyScope = within(document.body);
+      // Success message appears after API mutation (role creation)
+      await bodyScope.findByText(/you have successfully created a new role/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
 
-    // Select the first fixture group
-    const groupOption = await bodyScope.findByText(FIXTURE_GROUP_1.name);
-    await user.click(groupOption);
-    await delay(200);
+      await waitFor(
+        () => {
+          const calls = createRoleWithInventorySpy.mock.calls;
+          expect(calls.length).toBeGreaterThan(0);
+          const payload = calls[0]?.[0];
+          const accessItem = payload?.access?.find((a: { permission?: string }) => a.permission === 'inventory:hosts:read');
+          const rd = accessItem?.resourceDefinitions?.[0]?.attributeFilter?.value;
+          expect(Array.isArray(rd)).toBe(true);
+          expect(rd).toContain(null);
+          expect(rd).toContain(FIXTURE_GROUP_1.id);
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
 
-    // Close dropdown
-    const toggleBtn = combobox.closest('.rbac-c-resource-type-select')?.querySelector('button[aria-expanded="true"]');
-    if (toggleBtn) {
-      (toggleBtn as HTMLElement).click();
-      await delay(200);
-    }
-
-    // "Copy to all" so all inventory permission rows are satisfied
-    const copyToAll = within(modal).queryByText(/copy to all/i);
-    if (copyToAll) {
-      await user.click(copyToAll);
-      await delay(300);
-    }
-
-    // Next → Review
-    await pollUntilTrue(() => {
-      const btn = primaryNext();
-      return !!btn && !btn.hasAttribute('disabled');
-    }, 5000);
-    primaryNext()!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-    await delay(500);
-
-    // Step 5 → Review and submit
-    await pollUntilTrue(() => !!within(modal).queryByRole('heading', { name: /review details/i }), 5000);
-    await delay(300);
-
-    const submitBtn = within(modal).getByRole('button', { name: /submit/i });
-    await pollUntilTrue(() => !submitBtn.hasAttribute('disabled'), 5000);
-    submitBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-
-    // Wait for success
-    await pollUntilTrue(() => {
-      const d = document.querySelector('[role="dialog"]');
-      return !!d && !!within(d as HTMLElement).queryByText(/you have successfully created a new role/i);
-    }, 5000);
-
-    // --- Verify the API payload includes null (Ungrouped systems) in resourceDefinitions ---
-    await expect(createRoleWithInventorySpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        access: expect.arrayContaining([
-          expect.objectContaining({
-            permission: 'inventory:hosts:read',
-            resourceDefinitions: [
-              expect.objectContaining({
-                attributeFilter: expect.objectContaining({
-                  key: 'group.id',
-                  operation: 'in',
-                  value: expect.arrayContaining([null, FIXTURE_GROUP_1.id]),
-                }),
-              }),
-            ],
-          }),
-        ]),
-      }),
-    );
-
-    // Exit wizard
-    await delay(300);
-    const successDialog = document.querySelector('[role="dialog"]') as HTMLElement;
-    const exitButton = within(successDialog).getByRole('button', { name: /exit/i });
-    await user.click(exitButton);
-    await pollUntilTrue(() => !document.querySelector('[role="dialog"]'), 5000);
+    await step('Close success modal', async () => {
+      const successModal = await waitForModal();
+      const exitButton = successModal.getByRole('button', { name: /exit/i });
+      await user.click(exitButton);
+      await waitFor(
+        () => {
+          expect(within(document.body).queryByRole('dialog')).toBeNull();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
   },
 };

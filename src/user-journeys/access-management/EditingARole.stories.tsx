@@ -11,10 +11,12 @@
 
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { delay } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, openRoleActionsMenu, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import { waitForContentReady, waitForDrawer } from '../../test-utils/interactionHelpers';
+import { openRoleActionsMenu, waitForPageToLoad } from '../../test-utils/tableHelpers';
 import { permissionsHandlers, v2DefaultHandlers } from './_shared';
 import { getRolesTable, verifyNoApiCalls } from './_shared/tableHelpers';
 import { createV2RolesHandlers } from '../../v2/data/mocks/roles.handlers';
@@ -162,141 +164,140 @@ Tests the complete edit role workflow including permission changes:
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    updateRoleSpyV2.mockClear();
-    rolesCollection.reset();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      updateRoleSpyV2.mockClear();
+      rolesCollection.reset();
+    });
 
-    // 1. Pre-condition: Verify the target role exists
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // 2. Click kebab menu on the target role
-    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Verify target role exists', async () => {
+      await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    });
 
-    // 3. Select "Edit"
-    const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
-    await user.click(editOption);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD); // Wait for navigation and form to load
+    await step('Open kebab menu and select Edit', async () => {
+      await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
+      const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
+      await user.click(editOption);
+    });
 
-    // 4. Visual check: Edit form appears with role data pre-filled
-    await expect(canvas.findByRole('heading', { name: /edit/i })).resolves.toBeInTheDocument();
-    const nameInput = await canvas.findByRole('textbox', { name: /name/i });
-    expect(nameInput).toHaveValue(TARGET_ROLE.name);
+    await step('Verify edit form with pre-filled data', async () => {
+      await expect(canvas.findByRole('heading', { name: /edit/i })).resolves.toBeInTheDocument();
+      const nameInput = await canvas.findByRole('textbox', { name: /name/i });
+      expect(nameInput).toHaveValue(TARGET_ROLE.name);
+      const selectedText = await canvas.findByText(/3 selected/i);
+      expect(selectedText).toBeInTheDocument();
+    });
 
-    // 5. Visual check: Verify pre-selected permissions count
-    // RHEL DevOps should have 3 permissions: inventory:hosts:read, inventory:hosts:write, inventory:groups:read
-    const selectedText = await canvas.findByText(/3 selected/i);
-    expect(selectedText).toBeInTheDocument();
+    await step('Modify description', async () => {
+      const descriptionInput = await canvas.findByRole('textbox', { name: /description/i });
+      await user.tripleClick(descriptionInput);
+      await user.keyboard('Updated role description with new permissions');
+    });
 
-    // 6. Modify the description
-    const descriptionInput = await canvas.findByRole('textbox', { name: /description/i });
-    await user.tripleClick(descriptionInput);
-    await user.keyboard('Updated role description with new permissions');
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // 7. Add a new permission - find and click inventory:groups:write checkbox
-    // The permissions table should show the permission as unchecked
-    const permissionsTable = await canvas.findByRole('grid', { name: /permissions table/i });
-    const permissionsScope = within(permissionsTable);
-
-    // Find the row for groups:write - first find the cell with "groups" resource and "write" operation
-    const writeRows = await permissionsScope.findAllByText('write');
-    // Find the groups:write row (inventory:groups:write)
-    let groupsWriteCheckbox: HTMLInputElement | null = null;
-    for (const writeCell of writeRows) {
-      const row = writeCell.closest('tr');
-      if (row) {
-        const rowScope = within(row);
-        // Check if this row has 'groups' in the resource column
-        const groupsText = rowScope.queryByText('groups');
-        if (groupsText) {
-          // This is the groups:write row - find its checkbox
-          const checkbox = rowScope.getByRole('checkbox');
-          if (checkbox && !(checkbox as HTMLInputElement).checked) {
-            groupsWriteCheckbox = checkbox as HTMLInputElement;
-            break;
+    await step('Add inventory:groups:write permission', async () => {
+      const writeRows = await waitFor(
+        () => {
+          const grid = canvas.queryByRole('grid', { name: /permissions table/i });
+          expect(grid).not.toBeNull();
+          const cells = within(grid!).queryAllByText('write');
+          expect(cells.length).toBeGreaterThan(0);
+          return cells;
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+      let groupsWriteCheckbox: HTMLInputElement | null = null;
+      for (const writeCell of writeRows) {
+        const row = writeCell.closest('tr');
+        if (row) {
+          const rowScope = within(row);
+          const groupsText = rowScope.queryByText('groups');
+          if (groupsText) {
+            const checkbox = rowScope.queryByRole('checkbox');
+            if (checkbox && !(checkbox as HTMLInputElement).checked) {
+              groupsWriteCheckbox = checkbox as HTMLInputElement;
+              break;
+            }
           }
         }
       }
-    }
-
-    if (groupsWriteCheckbox) {
-      await user.click(groupsWriteCheckbox);
-      await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-      // Now should show 4 selected
-      const newSelectedText = await canvas.findByText(/4 selected/i);
-      expect(newSelectedText).toBeInTheDocument();
-    } else {
-      // Permission might already be selected or not found - skip this step
-      console.log('SB: Could not find unchecked inventory:groups:write permission');
-    }
-
-    // 8. Click Save changes
-    const saveButton = await canvas.findByRole('button', { name: /save|submit/i });
-    expect(saveButton).not.toBeDisabled();
-    await user.click(saveButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // 9. API spy: Verify V2 PUT API call was made with correct data (V2 enabled via platform.rbac.workspaces)
-    expect(updateRoleSpyV2).toHaveBeenCalledWith(
-      TARGET_ROLE.id,
-      expect.objectContaining({
-        description: 'Updated role description with new permissions',
-      }),
-    );
-    // Verify permissions were included in the API call (V2 format: {application, resource_type, operation})
-    const spyCall = updateRoleSpyV2.mock.calls[0][1];
-    if (spyCall.permissions) {
-      expect(spyCall.permissions.length).toBeGreaterThanOrEqual(3);
-      if (spyCall.permissions.length >= 4) {
-        expect(
-          spyCall.permissions.some((p: { resource_type: string; operation: string }) => p.resource_type === 'groups' && p.operation === 'write'),
-        ).toBe(true);
+      if (groupsWriteCheckbox) {
+        await user.click(groupsWriteCheckbox);
+        const newSelectedText = await canvas.findByText(/4 selected/i);
+        expect(newSelectedText).toBeInTheDocument();
       }
-    }
+    });
 
-    // 10. Post-condition: Verify we're back on the roles table
-    // Wait for navigation and table to load
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-    const rolesTable = await getRolesTable(canvas);
-    expect(rolesTable).toBeInTheDocument();
+    await step('Save changes', async () => {
+      const saveButton = await canvas.findByRole('button', { name: /save|submit/i });
+      expect(saveButton).not.toBeDisabled();
+      await user.click(saveButton);
+    });
 
-    // Wait for table data to populate
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await step('Verify API call with correct data', async () => {
+      await waitFor(
+        () => {
+          expect(updateRoleSpyV2).toHaveBeenCalledWith(
+            TARGET_ROLE.id,
+            expect.objectContaining({
+              description: 'Updated role description with new permissions',
+            }),
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+      const spyCall = updateRoleSpyV2.mock.calls[0][1];
+      if (spyCall.permissions) {
+        expect(spyCall.permissions.length).toBeGreaterThanOrEqual(3);
+        if (spyCall.permissions.length >= 4) {
+          expect(
+            spyCall.permissions.some((p: { resource_type: string; operation: string }) => p.resource_type === 'groups' && p.operation === 'write'),
+          ).toBe(true);
+        }
+      }
+    });
 
-    // 11. Click on the role row to open the drawer
-    // Find the role name text in the table and click it
-    const tableScope = within(rolesTable);
-    const roleNameCell = await tableScope.findByText(TARGET_ROLE.name);
-    await user.click(roleNameCell);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Verify roles table after save and open drawer', async () => {
+      // Grid element is replaced when data loads — find grid + content atomically
+      await waitFor(
+        () => {
+          const table = canvas.queryByRole('grid', { name: /roles/i });
+          expect(table).not.toBeNull();
+          expect(within(table!).queryByText(TARGET_ROLE.name)).not.toBeNull();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+      const rolesTable = await getRolesTable(canvas);
+      const roleNameCell = within(rolesTable).getByText(TARGET_ROLE.name);
+      await user.click(roleNameCell);
+    });
 
-    // 12. Visual verification (drawer): Verify the drawer opened and shows the role
-    const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel-main, .pf-v6-c-drawer__panel:not([hidden])');
-    expect(drawerPanel).toBeInTheDocument();
-    const drawerScope = within(drawerPanel as HTMLElement);
-
-    // Verify role name in drawer
-    await expect(drawerScope.findByRole('heading', { name: TARGET_ROLE.name })).resolves.toBeInTheDocument();
-
-    // Verify Permissions tab is visible
-    const permissionsTab = await drawerScope.findByRole('tab', { name: /permissions/i });
-    expect(permissionsTab).toBeInTheDocument();
-
-    // Verify permissions content: V2 drawer may show a grid (when role has permissions) or empty state
-    // (when list API doesn't return permissions - the list only returns permissions_count)
-    const drawerPermissionsTable = drawerScope.queryByRole('grid', { name: /permissions/i });
-    if (drawerPermissionsTable) {
-      const drawerTableScope = within(drawerPermissionsTable);
-      const groupsWriteOps = await drawerTableScope.findAllByText('write');
-      expect(groupsWriteOps.length).toBeGreaterThanOrEqual(1);
-    }
-    // If no grid (empty permissions from list API), drawer still opened correctly with role name
+    await step('Verify drawer shows role and permissions', async () => {
+      const drawerScope = await waitForDrawer();
+      await expect(drawerScope.findByRole('heading', { name: TARGET_ROLE.name })).resolves.toBeInTheDocument();
+      const permissionsTab = await drawerScope.findByRole('tab', { name: /permissions/i });
+      expect(permissionsTab).toBeInTheDocument();
+      // Drawer permissions grid loads async — use waitFor + queryBy to avoid console.error from findBy
+      const drawerPermissionsTable = drawerScope.queryByRole('grid', { name: /permissions/i });
+      if (drawerPermissionsTable) {
+        await waitFor(
+          () => {
+            const grid = drawerScope.queryByRole('grid', { name: /permissions/i });
+            expect(grid).not.toBeNull();
+            const cells = within(grid!).queryAllByText('write');
+            expect(cells.length).toBeGreaterThanOrEqual(1);
+          },
+          { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+        );
+      }
+    });
   },
 };
 
@@ -325,32 +326,36 @@ Tests opening the edit role page from the kebab menu.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    rolesCollection.reset();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      rolesCollection.reset();
+    });
 
-    // 1. Pre-condition: Verify the target role exists
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // 2. Click kebab menu on the target role
-    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Verify target role exists', async () => {
+      await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    });
 
-    // 3. Visual check: Verify "Edit" option is present
-    const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
-    expect(editOption).toBeInTheDocument();
+    await step('Open kebab menu and verify Edit option', async () => {
+      await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
+      const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
+      expect(editOption).toBeInTheDocument();
+    });
 
-    // 4. Click "Edit"
-    await user.click(editOption);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    // 5. Visual check: Verify edit form appears with role data
-    await expect(canvas.findByRole('heading', { name: /edit/i })).resolves.toBeInTheDocument();
-    const nameInput = await canvas.findByRole('textbox', { name: /name/i });
-    expect(nameInput).toHaveValue(TARGET_ROLE.name);
+    await step('Click Edit and verify form', async () => {
+      const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
+      await user.click(editOption);
+      await expect(canvas.findByRole('heading', { name: /edit/i })).resolves.toBeInTheDocument();
+      const nameInput = await canvas.findByRole('textbox', { name: /name/i });
+      expect(nameInput).toHaveValue(TARGET_ROLE.name);
+    });
   },
 };
 
@@ -377,53 +382,57 @@ Tests editing the role name.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    updateRoleSpyV2.mockClear();
-    rolesCollection.reset();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      updateRoleSpyV2.mockClear();
+      rolesCollection.reset();
+    });
 
-    // Navigate to edit form
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
-    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
-    await user.click(editOption);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Navigate to edit form', async () => {
+      await waitForPageToLoad(canvas, TARGET_ROLE.name);
+      await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
+      const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
+      await user.click(editOption);
+    });
 
-    // 2. Visual check: Verify current name is pre-filled
-    const nameInput = await canvas.findByRole('textbox', { name: /name/i });
-    expect(nameInput).toHaveValue(TARGET_ROLE.name);
+    await step('Verify name pre-filled and change it', async () => {
+      const nameInput = await canvas.findByRole('textbox', { name: /name/i });
+      expect(nameInput).toHaveValue(TARGET_ROLE.name);
+      await user.tripleClick(nameInput);
+      await user.keyboard('Renamed RHEL DevOps Role');
+    });
 
-    // 3. Change the name
-    await user.tripleClick(nameInput);
-    await user.keyboard('Renamed RHEL DevOps Role');
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Save changes', async () => {
+      const saveButton = await canvas.findByRole('button', { name: /save|submit/i });
+      await user.click(saveButton);
+    });
 
-    // 4. Save changes
-    const saveButton = await canvas.findByRole('button', { name: /save|submit/i });
-    await user.click(saveButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Verify API call with new name', async () => {
+      await waitFor(
+        () => {
+          expect(updateRoleSpyV2).toHaveBeenCalledWith(
+            TARGET_ROLE.id,
+            expect.objectContaining({
+              name: 'Renamed RHEL DevOps Role',
+            }),
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
 
-    // 5. API spy: Verify V2 PUT call includes new name (V2 uses 'name' not 'display_name')
-    await waitFor(
-      () => {
-        expect(updateRoleSpyV2).toHaveBeenCalledWith(
-          TARGET_ROLE.id,
-          expect.objectContaining({
-            name: 'Renamed RHEL DevOps Role',
-          }),
-        );
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    // 6. Post-condition: Verify back on roles table
-    const rolesTable = await getRolesTable(canvas);
-    expect(rolesTable).toBeInTheDocument();
+    await step('Verify back on roles table', async () => {
+      const rolesTable = await getRolesTable(canvas);
+      expect(rolesTable).toBeInTheDocument();
+    });
   },
 };
 
@@ -449,34 +458,44 @@ Tests that system/canned roles cannot be edited.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    updateRoleSpyV2.mockClear();
-    rolesCollection.reset();
-
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
     const systemRoleName = 'Tenant admin';
     const systemRole = DEFAULT_V2_ROLES.find((r) => r.name === systemRoleName);
     expect(systemRole).not.toBeUndefined();
 
-    // 1. Pre-condition: Verify system role exists
-    await waitForPageToLoad(canvas, systemRoleName);
-
-    // 2. System role should NOT have a kebab menu (org_id is undefined)
-    const kebab = canvas.queryByRole('button', {
-      name: new RegExp(`Actions for role ${systemRoleName}`, 'i'),
+    await step('Reset state', async () => {
+      await resetStoryState();
+      updateRoleSpyV2.mockClear();
+      rolesCollection.reset();
     });
-    expect(kebab).not.toBeInTheDocument();
 
-    // 3. API spy: Verify no edit API call was made
-    verifyNoApiCalls(updateRoleSpyV2);
-
-    // 4. User-created role should still have a kebab menu
-    const writableKebab = await canvas.findByRole('button', {
-      name: new RegExp(`Actions for role ${TARGET_ROLE.name}`, 'i'),
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
-    expect(writableKebab).toBeInTheDocument();
+
+    await step('Verify system role exists', async () => {
+      await waitForPageToLoad(canvas, systemRoleName);
+    });
+
+    await step('Verify system role has no kebab menu', async () => {
+      const kebab = canvas.queryByRole('button', {
+        name: new RegExp(`Actions for role ${systemRoleName}`, 'i'),
+      });
+      expect(kebab).not.toBeInTheDocument();
+    });
+
+    await step('Verify no edit API call', async () => {
+      verifyNoApiCalls(updateRoleSpyV2);
+    });
+
+    await step('Verify user-created role has kebab menu', async () => {
+      const writableKebab = await canvas.findByRole('button', {
+        name: new RegExp(`Actions for role ${TARGET_ROLE.name}`, 'i'),
+      });
+      expect(writableKebab).toBeInTheDocument();
+    });
   },
 };
 
@@ -503,42 +522,46 @@ Tests canceling the edit role form.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    updateRoleSpyV2.mockClear();
-    rolesCollection.reset();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      updateRoleSpyV2.mockClear();
+      rolesCollection.reset();
+    });
 
-    // Navigate to edit form
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
-    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
-    await user.click(editOption);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Navigate to edit form', async () => {
+      await waitForPageToLoad(canvas, TARGET_ROLE.name);
+      await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
+      const editOption = await within(document.body).findByRole('menuitem', { name: /^edit$/i });
+      await user.click(editOption);
+    });
 
-    // 2. Make changes to the name
-    const nameInput = await canvas.findByRole('textbox', { name: /name/i });
-    await user.tripleClick(nameInput);
-    await user.keyboard('This should not be saved');
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Make changes and click Cancel', async () => {
+      const nameInput = await canvas.findByRole('textbox', { name: /name/i });
+      await user.tripleClick(nameInput);
+      await user.keyboard('This should not be saved');
+      const cancelButton = await canvas.findByRole('button', { name: /cancel/i });
+      await user.click(cancelButton);
+    });
 
-    // 3. Click Cancel
-    const cancelButton = await canvas.findByRole('button', { name: /cancel/i });
-    await user.click(cancelButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Verify back on roles table', async () => {
+      const rolesTable = await getRolesTable(canvas);
+      expect(rolesTable).toBeInTheDocument();
+    });
 
-    // 4. Visual check: Verify we're back on the roles table
-    const rolesTable = await getRolesTable(canvas);
-    expect(rolesTable).toBeInTheDocument();
+    await step('Verify no PUT API call', async () => {
+      verifyNoApiCalls(updateRoleSpyV2);
+    });
 
-    // 5. API spy: Verify no PUT API call was made (V2 enabled)
-    verifyNoApiCalls(updateRoleSpyV2);
-
-    // 6. Post-condition: Verify the original role data is unchanged
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await step('Verify original role data unchanged', async () => {
+      await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    });
   },
 };

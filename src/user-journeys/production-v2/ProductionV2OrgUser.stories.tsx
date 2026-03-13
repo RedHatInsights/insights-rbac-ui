@@ -1,9 +1,9 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, within } from 'storybook/test';
-import { delay } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
+import { resetStoryState } from '../_shared/helpers';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
 import { createV2MockDb } from '../../v2/data/mocks/db';
 import { createV2Handlers } from '../../v2/data/mocks/handlers';
 import { defaultV2Seed } from '../../v2/data/mocks/seed';
@@ -89,14 +89,20 @@ Entry point for manual testing of the V2 Org User persona.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // User has no permissions - navigates to users-and-user-groups but sees unauthorized
-    await expect(
-      canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT }),
-    ).resolves.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify unauthorized message shown', async () => {
+      await expect(canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -124,29 +130,33 @@ Validates that V2 Org User (no permissions) only sees "My Access" in the sidebar
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // ✅ My Access should be visible (V2 uses "My Access" label)
-    const myAccess = await canvas.findByRole('link', { name: /my access/i });
-    expect(myAccess).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // ❌ Access Management expandable should NOT be visible (no permissions)
-    const accessMgmtSection = canvas.queryByRole('button', { name: /access management/i });
-    expect(accessMgmtSection).not.toBeInTheDocument();
+    await step('Verify only My Access visible in sidebar', async () => {
+      const myAccess = await canvas.findByRole('link', { name: /my access/i });
+      expect(myAccess).toBeInTheDocument();
 
-    // ❌ V2 navigation items should NOT be visible
-    const usersLink = canvas.queryByRole('link', { name: /users and groups/i });
-    expect(usersLink).not.toBeInTheDocument();
+      const accessMgmtSection = canvas.queryByRole('button', { name: /access management/i });
+      expect(accessMgmtSection).not.toBeInTheDocument();
 
-    const workspacesLink = canvas.queryByRole('link', { name: /workspaces/i });
-    expect(workspacesLink).not.toBeInTheDocument();
+      const usersLink = canvas.queryByRole('link', { name: /users and groups/i });
+      expect(usersLink).not.toBeInTheDocument();
 
-    const rolesLink = canvas.queryByRole('link', { name: /roles/i });
-    expect(rolesLink).not.toBeInTheDocument();
+      const workspacesLink = canvas.queryByRole('link', { name: /workspaces/i });
+      expect(workspacesLink).not.toBeInTheDocument();
+
+      const rolesLink = canvas.queryByRole('link', { name: /roles/i });
+      expect(rolesLink).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -167,15 +177,21 @@ Tests that direct navigation to Users and Groups shows unauthorized.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Should show unauthorized
-    const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
-    expect(unauthorized).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify unauthorized message shown', async () => {
+      const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
+      expect(unauthorized).toBeInTheDocument();
+    });
   },
 };
 
@@ -196,15 +212,21 @@ Tests that direct navigation to Workspaces shows unauthorized.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Should show unauthorized
-    const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
-    expect(unauthorized).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify unauthorized message shown', async () => {
+      const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
+      expect(unauthorized).toBeInTheDocument();
+    });
   },
 };
 
@@ -225,14 +247,20 @@ Tests that direct navigation to Roles shows unauthorized.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Should show unauthorized
-    const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
-    expect(unauthorized).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify unauthorized message shown', async () => {
+      const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
+      expect(unauthorized).toBeInTheDocument();
+    });
   },
 };

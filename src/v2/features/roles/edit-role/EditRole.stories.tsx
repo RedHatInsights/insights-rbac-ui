@@ -72,77 +72,79 @@ type Story = StoryObj<typeof EditRole>;
 
 export const StandardView: Story = {
   tags: ['autodocs'],
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     readRoleSpy.mockClear();
     listPermissionsSpy.mockClear();
     const canvas = within(canvasElement);
+    await step('Verify standard view', async () => {
+      // Wait for role data to load — page header includes role name
+      await expect(canvas.findByText(/edit rhel devops/i)).resolves.toBeInTheDocument();
 
-    // Wait for role data to load — page header includes role name
-    await expect(canvas.findByText(/edit rhel devops/i)).resolves.toBeInTheDocument();
+      // API spy: role detail fetched for role-rhel-devops
+      await waitFor(() => {
+        expect(readRoleSpy).toHaveBeenCalledWith('role-rhel-devops');
+      });
 
-    // API spy: role detail fetched for role-rhel-devops
-    await waitFor(() => {
-      expect(readRoleSpy).toHaveBeenCalledWith('role-rhel-devops');
+      // Name field pre-populated with role name
+      const nameInput = await canvas.findByRole('textbox', { name: /name/i });
+      await expect(nameInput).toHaveValue('RHEL DevOps');
+
+      // Description field pre-populated
+      const descriptionInput = await canvas.findByRole('textbox', { name: /description/i });
+      await expect(descriptionInput).toHaveValue('DevOps for RHEL systems');
+
+      // Permissions table renders with existing permissions
+      const grid = await canvas.findByRole('grid');
+      await expect(grid).toBeInTheDocument();
+
+      // API spy: permissions list endpoint called (for the available permissions picker)
+      await waitFor(() => {
+        expect(listPermissionsSpy).toHaveBeenCalled();
+      });
+
+      // Save button starts disabled (pristine state)
+      const saveButton = await canvas.findByRole('button', { name: /save/i });
+      await expect(saveButton).toBeDisabled();
+
+      // Cancel button is present
+      await expect(canvas.findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
     });
-
-    // Name field pre-populated with role name
-    const nameInput = await canvas.findByRole('textbox', { name: /name/i });
-    await expect(nameInput).toHaveValue('RHEL DevOps');
-
-    // Description field pre-populated
-    const descriptionInput = await canvas.findByRole('textbox', { name: /description/i });
-    await expect(descriptionInput).toHaveValue('DevOps for RHEL systems');
-
-    // Permissions table renders with existing permissions
-    const grid = await canvas.findByRole('grid');
-    await expect(grid).toBeInTheDocument();
-
-    // API spy: permissions list endpoint called (for the available permissions picker)
-    await waitFor(() => {
-      expect(listPermissionsSpy).toHaveBeenCalled();
-    });
-
-    // Save button starts disabled (pristine state)
-    const saveButton = await canvas.findByRole('button', { name: /save/i });
-    await expect(saveButton).toBeDisabled();
-
-    // Cancel button is present
-    await expect(canvas.findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
   },
 };
 
 export const SubmitChanges: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     updateRoleSpy.mockClear();
     const canvas = within(canvasElement);
+    await step('Submit changes', async () => {
+      // Wait for form to load
+      const nameInput = await canvas.findByRole('textbox', { name: /name/i });
+      await expect(nameInput).toHaveValue('RHEL DevOps');
 
-    // Wait for form to load
-    const nameInput = await canvas.findByRole('textbox', { name: /name/i });
-    await expect(nameInput).toHaveValue('RHEL DevOps');
+      // Save should be disabled initially (pristine)
+      const saveButton = await canvas.findByRole('button', { name: /save/i });
+      await expect(saveButton).toBeDisabled();
 
-    // Save should be disabled initially (pristine)
-    const saveButton = await canvas.findByRole('button', { name: /save/i });
-    await expect(saveButton).toBeDisabled();
+      // Modify the name field
+      await userEvent.clear(nameInput);
+      await userEvent.type(nameInput, 'Updated RHEL DevOps');
 
-    // Modify the name field
-    await userEvent.clear(nameInput);
-    await userEvent.type(nameInput, 'Updated RHEL DevOps');
+      // Save becomes enabled after modification
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
 
-    // Save becomes enabled after modification
-    await waitFor(() => {
-      expect(saveButton).toBeEnabled();
+      // Submit the form
+      await userEvent.click(saveButton);
+
+      // API spy: update called with the role ID and updated body
+      await waitFor(
+        () => {
+          expect(updateRoleSpy).toHaveBeenCalledWith('role-rhel-devops', expect.objectContaining({ name: 'Updated RHEL DevOps' }));
+        },
+        { timeout: 5000 },
+      );
     });
-
-    // Submit the form
-    await userEvent.click(saveButton);
-
-    // API spy: update called with the role ID and updated body
-    await waitFor(
-      () => {
-        expect(updateRoleSpy).toHaveBeenCalledWith('role-rhel-devops', expect.objectContaining({ name: 'Updated RHEL DevOps' }));
-      },
-      { timeout: 5000 },
-    );
   },
 };
 
@@ -152,9 +154,11 @@ export const LoadingState: Story = {
       handlers: [...v2RolesLoadingHandlers(), ...permissionsHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    const spinner = await canvas.findByRole('progressbar');
-    await expect(spinner).toBeInTheDocument();
+    await step('Verify loading state', async () => {
+      const spinner = await canvas.findByRole('progressbar');
+      await expect(spinner).toBeInTheDocument();
+    });
   },
 };

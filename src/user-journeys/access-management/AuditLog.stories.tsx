@@ -11,9 +11,11 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, within } from 'storybook/test';
-import { delay } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, navigateToPage, resetStoryState } from '../_shared/helpers';
+import { navigateToPage, resetStoryState } from '../_shared/helpers';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
+import { waitForPageToLoad } from '../../test-utils/tableHelpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
 import { v2DefaultHandlers } from './_shared';
 
 const meta = {
@@ -97,31 +99,42 @@ Tests the default Audit Log table view.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // Verify page header (use heading role to avoid matching sidebar nav link)
-    const heading = await canvas.findByRole('heading', { name: /audit log/i });
-    await expect(heading).toBeInTheDocument();
-    await expect(canvas.findByText(/audit log tracks admin actions/i)).resolves.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Verify audit log entries are displayed (requester names appear in multiple rows)
-    const adumbleEntries = await canvas.findAllByText('adumble');
-    expect(adumbleEntries.length).toBeGreaterThan(0);
-    const bbunnyEntries = await canvas.findAllByText('bbunny');
-    expect(bbunnyEntries.length).toBeGreaterThan(0);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Verify descriptions render (each description is unique)
-    await expect(canvas.findByText(/Added user ginger-spice to group Platform Users/i)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/Created role Custom Auditor/i)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/Deleted group Legacy Access/i)).resolves.toBeInTheDocument();
+    await step('Verify page header', async () => {
+      const heading = await canvas.findByRole('heading', { name: /audit log/i });
+      await expect(heading).toBeInTheDocument();
+      await expect(canvas.findByText(/audit log tracks admin actions/i)).resolves.toBeInTheDocument();
+    });
 
-    // Verify resource types render (capitalized by the component; multiple rows share the same type)
-    const groupCells = await canvas.findAllByText('Group');
-    expect(groupCells.length).toBeGreaterThan(0);
-    const roleCells = await canvas.findAllByText('Role');
-    expect(roleCells.length).toBeGreaterThan(0);
+    await step('Verify audit log entries displayed', async () => {
+      const adumbleEntries = await canvas.findAllByText('adumble');
+      expect(adumbleEntries.length).toBeGreaterThan(0);
+      const bbunnyEntries = await canvas.findAllByText('bbunny');
+      expect(bbunnyEntries.length).toBeGreaterThan(0);
+    });
+
+    await step('Verify descriptions render', async () => {
+      await expect(canvas.findByText(/Added user ginger-spice to group Platform Users/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/Created role Custom Auditor/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/Deleted group Legacy Access/i)).resolves.toBeInTheDocument();
+    });
+
+    await step('Verify resource types render', async () => {
+      const groupCells = await canvas.findAllByText('Group');
+      expect(groupCells.length).toBeGreaterThan(0);
+      const roleCells = await canvas.findAllByText('Role');
+      expect(roleCells.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -152,26 +165,33 @@ Tests navigating to the Audit Log page from the sidebar.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for Users and Groups page to load
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Navigate to Audit Log via sidebar
-    await navigateToPage(user, canvas, 'Audit Log');
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Verify audit log page loaded
-    const heading = await canvas.findByRole('heading', { name: /audit log/i });
-    await expect(heading).toBeInTheDocument();
+    await step('Wait for Users and Groups page', async () => {
+      await waitForPageToLoad(canvas, 'adumble');
+    });
 
-    // Verify entries load (requester name appears in multiple rows)
-    const adumbleEntries = await canvas.findAllByText('adumble');
-    expect(adumbleEntries.length).toBeGreaterThan(0);
-    await expect(canvas.findByText(/Added user ginger-spice to group Platform Users/i)).resolves.toBeInTheDocument();
+    await step('Navigate to Audit Log via sidebar', async () => {
+      await navigateToPage(user, canvas, 'Audit Log');
+    });
+
+    await step('Verify audit log page loaded', async () => {
+      const heading = await canvas.findByRole('heading', { name: /audit log/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await expect(heading).toBeInTheDocument();
+      const adumbleEntries = await canvas.findAllByText('adumble', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      expect(adumbleEntries.length).toBeGreaterThan(0);
+      await expect(canvas.findByText(/Added user ginger-spice to group Platform Users/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -196,23 +216,29 @@ Tests pagination controls on the Audit Log page.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // Verify audit log page loaded
-    await expect(canvas.findByRole('heading', { name: /audit log/i })).resolves.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Wait for audit log entries to load
-    const adumbleEntries = await canvas.findAllByText('adumble');
-    expect(adumbleEntries.length).toBeGreaterThan(0);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Verify the table renders with a grid role (PF Table)
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
+    await step('Verify audit log page loaded', async () => {
+      await expect(canvas.findByRole('heading', { name: /audit log/i })).resolves.toBeInTheDocument();
+      const adumbleEntries = await canvas.findAllByText('adumble');
+      expect(adumbleEntries.length).toBeGreaterThan(0);
+    });
 
-    // Verify pagination region exists (PF renders it even for small datasets)
-    const paginationRegion = context.canvasElement.querySelector('.pf-v6-c-pagination');
-    expect(paginationRegion).toBeInTheDocument();
+    await step('Verify table and pagination', async () => {
+      const table = await canvas.findByRole('grid');
+      expect(table).toBeInTheDocument();
+      const paginationRegions = await canvas.findAllByRole('navigation', { name: /pagination/i });
+      expect(paginationRegions.length).toBeGreaterThan(0);
+      expect(paginationRegions[0]).toBeInTheDocument();
+    });
   },
 };

@@ -63,8 +63,10 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await testDefaultWorkspaceDisplay(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify default workspace display', async () => {
+      await testDefaultWorkspaceDisplay(canvasElement);
+    });
   },
 };
 
@@ -78,28 +80,23 @@ export const ExpandedByDefault: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify expanded by default', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Wait for skeleton loading to complete
-    await waitForSkeletonToDisappear(canvasElement);
+      await expect(canvas.findByText('Root Workspace')).resolves.toBeInTheDocument();
 
-    // Verify root workspace is visible
-    await expect(canvas.findByText('Root Workspace')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Development Environment')).resolves.toBeInTheDocument();
 
-    // Verify child workspaces are immediately visible (expanded by default)
-    // without needing to click any expand buttons
-    await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Development Environment')).resolves.toBeInTheDocument();
+      const expandButtons = canvasElement.querySelectorAll('.pf-v6-c-tree-view__node-toggle');
 
-    // Verify the tree view toggle buttons exist and are in expanded state
-    const expandButtons = canvasElement.querySelectorAll('.pf-v6-c-tree-view__node-toggle');
-
-    // If expand buttons exist, verify they show expanded state (aria-expanded="true")
-    if (expandButtons.length > 0) {
-      const rootExpandButton = expandButtons[0] as HTMLElement;
-      expect(rootExpandButton.getAttribute('aria-expanded')).toBe('true');
-    }
+      if (expandButtons.length > 0) {
+        const rootExpandButton = expandButtons[0] as HTMLElement;
+        expect(rootExpandButton.getAttribute('aria-expanded')).toBe('true');
+      }
+    });
   },
 };
 
@@ -117,8 +114,10 @@ export const LoadingState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await testLoadingState(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify loading state', async () => {
+      await testLoadingState(canvasElement);
+    });
   },
 };
 
@@ -135,8 +134,10 @@ export const EmptyState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await testEmptyState(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify empty state', async () => {
+      await testEmptyState(canvasElement);
+    });
   },
 };
 
@@ -157,8 +158,10 @@ export const ErrorState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await testErrorState(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify error state', async () => {
+      await testErrorState(canvasElement);
+    });
   },
 };
 
@@ -177,33 +180,29 @@ export const NoPermissions: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify no-permissions disabled actions', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Wait for skeleton loading to complete first
-    await waitForSkeletonToDisappear(canvasElement);
+      await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
 
-    // Verify workspaces are rendered first
-    await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
+      const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
+      await expect(productionRow).toBeInTheDocument();
 
-    // Target specific workspace row using data-ouia-component-id
-    const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
-    await expect(productionRow).toBeInTheDocument();
+      const productionRowScope = within(productionRow);
+      const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
 
-    const productionRowScope = within(productionRow);
-    const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
+      await userEvent.click(productionKebab);
 
-    await userEvent.click(productionKebab);
+      const editButton = await within(document.body).findByText('Edit workspace');
+      const deleteButton = await within(document.body).findByText('Delete workspace');
+      const moveButton = await within(document.body).findByText('Move workspace');
 
-    // Wait for menu to open and then check for disabled state
-    const editButton = await within(document.body).findByText('Edit workspace');
-    const deleteButton = await within(document.body).findByText('Delete workspace');
-    const moveButton = await within(document.body).findByText('Move workspace');
-
-    // All actions should be disabled due to insufficient permissions
-    await expect(editButton.closest('button')).toHaveAttribute('disabled');
-    await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
-    await expect(moveButton.closest('button')).toHaveAttribute('disabled');
+      await expect(editButton.closest('button')).toHaveAttribute('disabled');
+      await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
+      await expect(moveButton.closest('button')).toHaveAttribute('disabled');
+    });
   },
 };
 
@@ -220,43 +219,41 @@ export const RestrictedPermissions: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    // Wait for skeleton loading to complete first
-    await waitForSkeletonToDisappear(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify Production Environment has enabled actions', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Test workspace '1' (Production Environment) - should have enabled actions
-    const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
-    const productionRowScope = within(productionRow);
-    const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
+      const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
+      const productionRowScope = within(productionRow);
+      const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
 
-    await userEvent.click(productionKebab);
+      await userEvent.click(productionKebab);
 
-    const editButton = await within(document.body).findByText('Edit workspace');
-    const deleteButton = await within(document.body).findByText('Delete workspace');
-    const moveButton = await within(document.body).findByText('Move workspace');
+      const editButton = await within(document.body).findByText('Edit workspace');
+      const deleteButton = await within(document.body).findByText('Delete workspace');
+      const moveButton = await within(document.body).findByText('Move workspace');
 
-    // Should be enabled for workspace '1' (standard type + has permission)
-    await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
-    await expect(deleteButton.closest('button')).not.toHaveAttribute('disabled');
-    await expect(moveButton.closest('button')).not.toHaveAttribute('disabled');
+      await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
+      await expect(deleteButton.closest('button')).not.toHaveAttribute('disabled');
+      await expect(moveButton.closest('button')).not.toHaveAttribute('disabled');
 
-    // Close this menu and test workspace '2' (Development Environment)
-    await userEvent.click(productionKebab); // Close menu
+      await userEvent.click(productionKebab);
+    });
+    await step('Verify Development Environment has disabled actions', async () => {
+      const developmentRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-2"]') as HTMLElement;
+      const developmentRowScope = within(developmentRow);
+      const developmentKebab = developmentRowScope.getByLabelText('Kebab toggle');
 
-    const developmentRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-2"]') as HTMLElement;
-    const developmentRowScope = within(developmentRow);
-    const developmentKebab = developmentRowScope.getByLabelText('Kebab toggle');
+      await userEvent.click(developmentKebab);
 
-    await userEvent.click(developmentKebab);
+      const editButton2 = await within(document.body).findByText('Edit workspace');
+      const deleteButton2 = await within(document.body).findByText('Delete workspace');
+      const moveButton2 = await within(document.body).findByText('Move workspace');
 
-    const editButton2 = await within(document.body).findByText('Edit workspace');
-    const deleteButton2 = await within(document.body).findByText('Delete workspace');
-    const moveButton2 = await within(document.body).findByText('Move workspace');
-
-    // Should be disabled for workspace '2' (no permission for this workspace)
-    await expect(editButton2.closest('button')).toHaveAttribute('disabled');
-    await expect(deleteButton2.closest('button')).toHaveAttribute('disabled');
-    await expect(moveButton2.closest('button')).toHaveAttribute('disabled');
+      await expect(editButton2.closest('button')).toHaveAttribute('disabled');
+      await expect(deleteButton2.closest('button')).toHaveAttribute('disabled');
+      await expect(moveButton2.closest('button')).toHaveAttribute('disabled');
+    });
   },
 };
 
@@ -273,25 +270,24 @@ export const RootWorkspaceRestrictions: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    // Wait for skeleton loading to complete first
-    await waitForSkeletonToDisappear(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify root workspace actions disabled', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Test root workspace - should have limited actions regardless of permissions
-    const rootRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-0"]') as HTMLElement;
-    const rootRowScope = within(rootRow);
-    const rootKebab = rootRowScope.getByLabelText('Kebab toggle');
+      const rootRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-0"]') as HTMLElement;
+      const rootRowScope = within(rootRow);
+      const rootKebab = rootRowScope.getByLabelText('Kebab toggle');
 
-    await userEvent.click(rootKebab);
+      await userEvent.click(rootKebab);
 
-    const editButton = await within(document.body).findByText('Edit workspace');
-    const deleteButton = await within(document.body).findByText('Delete workspace');
-    const moveButton = await within(document.body).findByText('Move workspace');
+      const editButton = await within(document.body).findByText('Edit workspace');
+      const deleteButton = await within(document.body).findByText('Delete workspace');
+      const moveButton = await within(document.body).findByText('Move workspace');
 
-    // All actions should be disabled for root workspace (type 'root' not in allowed types)
-    await expect(editButton.closest('button')).toHaveAttribute('disabled');
-    await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
-    await expect(moveButton.closest('button')).toHaveAttribute('disabled');
+      await expect(editButton.closest('button')).toHaveAttribute('disabled');
+      await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
+      await expect(moveButton.closest('button')).toHaveAttribute('disabled');
+    });
   },
 };
 
@@ -305,17 +301,17 @@ export const RootWorkspaceNameIsNotALink: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await waitForSkeletonToDisappear(canvasElement);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify root name not a link, standard workspaces are links', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
+      const canvas = within(canvasElement);
 
-    // Root Workspace name should NOT be a link (no view permission)
-    const rootText = await canvas.findByText('Root Workspace');
-    await expect(rootText.closest('a')).toBeNull();
+      const rootText = await canvas.findByText('Root Workspace');
+      await expect(rootText.closest('a')).toBeNull();
 
-    // Standard workspaces SHOULD still be links
-    const productionLink = await canvas.findByRole('link', { name: 'Production Environment' });
-    await expect(productionLink).toBeInTheDocument();
+      const productionLink = await canvas.findByRole('link', { name: 'Production Environment' });
+      await expect(productionLink).toBeInTheDocument();
+    });
   },
 };
 
@@ -333,23 +329,22 @@ export const CorrectRelationsForRowActions: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await waitForSkeletonToDisappear(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify correct relations per action', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Open kebab for Production Environment (standard workspace)
-    const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
-    const productionRowScope = within(productionRow);
-    const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
+      const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
+      const productionRowScope = within(productionRow);
+      const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
 
-    await userEvent.click(productionKebab);
+      await userEvent.click(productionKebab);
 
-    // Edit should be enabled (user has edit permission)
-    const editButton = await within(document.body).findByText('Edit workspace');
-    await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
+      const editButton = await within(document.body).findByText('Edit workspace');
+      await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
 
-    // Delete should be DISABLED (user has no delete permission)
-    const deleteButton = await within(document.body).findByText('Delete workspace');
-    await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
+      const deleteButton = await within(document.body).findByText('Delete workspace');
+      await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
+    });
   },
 };
 
@@ -366,27 +361,23 @@ export const FullPermissions: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    // Wait for skeleton loading to complete first
-    await waitForSkeletonToDisappear(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify full permissions actions enabled', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Test standard workspace with full permissions
-    const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
-    const productionRowScope = within(productionRow);
-    const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
+      const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
+      const productionRowScope = within(productionRow);
+      const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
 
-    await userEvent.click(productionKebab);
+      await userEvent.click(productionKebab);
 
-    const editButton = await within(document.body).findByText('Edit workspace');
-    const deleteButton = await within(document.body).findByText('Delete workspace');
-    const moveButton = await within(document.body).findByText('Move workspace');
+      const editButton = await within(document.body).findByText('Edit workspace');
+      const deleteButton = await within(document.body).findByText('Delete workspace');
+      const moveButton = await within(document.body).findByText('Move workspace');
 
-    // All actions should be enabled for standard workspace with full permissions
-    await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
-    await expect(deleteButton.closest('button')).not.toHaveAttribute('disabled');
-    await expect(moveButton.closest('button')).not.toHaveAttribute('disabled');
-
-    // Actions are enabled - the business logic test is complete
-    // (Full workflow testing can be done in integration tests)
+      await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
+      await expect(deleteButton.closest('button')).not.toHaveAttribute('disabled');
+      await expect(moveButton.closest('button')).not.toHaveAttribute('disabled');
+    });
   },
 };

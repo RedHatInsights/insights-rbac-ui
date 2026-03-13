@@ -94,29 +94,30 @@ const baseArgs = {
 
 export const DropdownWithWorkspaces: Story = {
   args: baseArgs,
-  play: async ({ args }) => {
+  play: async ({ args, step }) => {
     const body = within(document.body);
+    await step('Verify dropdown with workspaces', async () => {
+      // Wait for component to fully render - search input is in portal
+      await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
+      const searchInput = await body.findByPlaceholderText('Find a workspace by name');
+      await expect(searchInput).toBeInTheDocument();
 
-    // Wait for component to fully render - search input is in portal
-    await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
-    const searchInput = await body.findByPlaceholderText('Find a workspace by name');
-    await expect(searchInput).toBeInTheDocument();
+      // Wait for tree view workspaces to appear (rendered in portal)
+      await expect(body.findByText('Production')).resolves.toBeInTheDocument();
+      await expect(body.findByText('Development')).resolves.toBeInTheDocument();
 
-    // Wait for tree view workspaces to appear (rendered in portal)
-    await expect(body.findByText('Production')).resolves.toBeInTheDocument();
-    await expect(body.findByText('Development')).resolves.toBeInTheDocument();
+      // Wait for action button to appear (in portal)
+      const actionButton = await body.findByText('View list');
+      await expect(actionButton).toBeInTheDocument();
 
-    // Wait for action button to appear (in portal)
-    const actionButton = await body.findByText('View list');
-    await expect(actionButton).toBeInTheDocument();
+      // Test tree view selection
+      await userEvent.click(await body.findByText('Production'));
+      await expect(args.onSelectItem).toHaveBeenCalled();
 
-    // Test tree view selection
-    await userEvent.click(await body.findByText('Production'));
-    await expect(args.onSelectItem).toHaveBeenCalled();
-
-    // Test action button click
-    await userEvent.click(actionButton);
-    await expect(args.onButtonClick).toHaveBeenCalled();
+      // Test action button click
+      await userEvent.click(actionButton);
+      await expect(args.onButtonClick).toHaveBeenCalled();
+    });
   },
 };
 
@@ -149,26 +150,27 @@ export const DropdownFiltered: Story = {
     areElementsFiltered: true,
     filteredTreeElements: [mockWorkspaces[0]], // Only Production workspace
   },
-  play: async ({ args }) => {
+  play: async ({ args, step }) => {
     const body = within(document.body);
+    await step('Verify filtered dropdown', async () => {
+      // Wait for component to fully render with search value (in portal)
+      await expect(body.findByDisplayValue('prod')).resolves.toBeInTheDocument();
 
-    // Wait for component to fully render with search value (in portal)
-    await expect(body.findByDisplayValue('prod')).resolves.toBeInTheDocument();
+      // Wait for search input with value to appear
+      const searchInput = await body.findByDisplayValue('prod');
+      await expect(searchInput).toBeInTheDocument();
 
-    // Wait for search input with value to appear
-    const searchInput = await body.findByDisplayValue('prod');
-    await expect(searchInput).toBeInTheDocument();
+      // Wait for filtered workspace to appear (in portal)
+      await expect(body.findByText('Production')).resolves.toBeInTheDocument();
 
-    // Wait for filtered workspace to appear (in portal)
-    await expect(body.findByText('Production')).resolves.toBeInTheDocument();
+      // Verify Development is not shown (filtered out)
+      await expect(body.queryByText('Development')).not.toBeInTheDocument();
 
-    // Verify Development is not shown (filtered out)
-    await expect(body.queryByText('Development')).not.toBeInTheDocument();
-
-    // Test search input interaction
-    await userEvent.clear(searchInput);
-    await userEvent.type(searchInput, 'dev');
-    await expect(args.onSearchFilter).toHaveBeenCalledWith('dev');
+      // Test search input interaction
+      await userEvent.clear(searchInput);
+      await userEvent.type(searchInput, 'dev');
+      await expect(args.onSearchFilter).toHaveBeenCalledWith('dev');
+    });
   },
 };
 
@@ -185,20 +187,22 @@ export const CustomMenuWidth: Story = {
       },
     },
   },
-  play: async () => {
+  play: async ({ step }) => {
     const body = within(document.body);
+    await step('Verify custom menu width', async () => {
+      // Wait for menu content to render in portal
+      await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
 
-    // Wait for menu content to render in portal
-    await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
+      // Find the panel via the tree (rendered in portal)
+      const tree = await body.findByRole('tree');
+      const panel = tree.closest('.rbac-c-workspace-selector-menu');
+      expect(panel).toBeInTheDocument();
 
-    // Find the panel by its className since it's rendered in a portal
-    const panel = document.querySelector('.rbac-c-workspace-selector-menu');
-    expect(panel).toBeInTheDocument();
-
-    // Verify the panel has the custom width applied
-    const panelStyle = window.getComputedStyle(panel as HTMLElement);
-    expect(panelStyle.width).toBe('600px');
-    expect(panelStyle.maxWidth).toBe('600px');
+      // Verify the panel has the custom width applied
+      const panelStyle = window.getComputedStyle(panel as HTMLElement);
+      expect(panelStyle.width).toBe('600px');
+      expect(panelStyle.maxWidth).toBe('600px');
+    });
   },
 };
 
@@ -238,24 +242,26 @@ export const LongWorkspaceNames: Story = {
       },
     },
   },
-  play: async () => {
+  play: async ({ step }) => {
     const body = within(document.body);
+    await step('Verify long workspace names', async () => {
+      // Wait for menu content to render in portal
+      await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
 
-    // Wait for menu content to render in portal
-    await expect(body.findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
+      // Verify long workspace name is visible but constrained
+      const longNameElement = await body.findByText(/This is an extremely long workspace name/);
+      await expect(longNameElement).toBeInTheDocument();
 
-    // Verify long workspace name is visible but constrained
-    const longNameElement = await body.findByText(/This is an extremely long workspace name/);
-    await expect(longNameElement).toBeInTheDocument();
+      // Find the panel via the tree (rendered in portal)
+      const tree = await body.findByRole('tree');
+      const panel = tree.closest('.rbac-c-workspace-selector-menu');
+      expect(panel).toBeInTheDocument();
 
-    // Find the panel by its className since it's rendered in a portal
-    const panel = document.querySelector('.rbac-c-workspace-selector-menu');
-    expect(panel).toBeInTheDocument();
-
-    // The panel width should match the toggle width (not expand to fit the long name)
-    // We can't test exact pixel values since they depend on container, but we can verify
-    // the width and maxWidth are the same (constrained)
-    const panelStyle = window.getComputedStyle(panel as HTMLElement);
-    expect(panelStyle.width).toBe(panelStyle.maxWidth);
+      // The panel width should match the toggle width (not expand to fit the long name)
+      // We can't test exact pixel values since they depend on container, but we can verify
+      // the width and maxWidth are the same (constrained)
+      const panelStyle = window.getComputedStyle(panel as HTMLElement);
+      expect(panelStyle.width).toBe(panelStyle.maxWidth);
+    });
   },
 };

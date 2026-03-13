@@ -60,30 +60,35 @@ export const Default: Story = {
     onCreateAnother: fn(),
     onAddToGroup: fn(),
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Click trigger button to show success state
-    const triggerButton = await canvas.findByRole('button', { name: /show role creation success/i });
-    await userEvent.click(triggerButton);
+    await step('Test exit button', async () => {
+      // Click trigger button to show success state
+      const triggerButton = await canvas.findByRole('button', { name: /show role creation success/i });
+      await userEvent.click(triggerButton);
 
-    // Test all three action buttons (using localized text)
-    const exitButton = await canvas.findByRole('button', { name: /exit/i });
-    await userEvent.click(exitButton);
-    await expect(args.onClose).toHaveBeenCalled();
+      const exitButton = await canvas.findByRole('button', { name: /exit/i });
+      await userEvent.click(exitButton);
+      await expect(args.onClose).toHaveBeenCalled();
+    });
 
-    // Re-trigger to test other buttons
-    await userEvent.click(triggerButton);
+    await step('Test create another role button', async () => {
+      const triggerButton = await canvas.findByRole('button', { name: /show role creation success/i });
+      await userEvent.click(triggerButton);
 
-    const createAnotherButton = await canvas.findByRole('button', { name: /create another role/i });
-    await userEvent.click(createAnotherButton);
-    await expect(args.onCreateAnother).toHaveBeenCalled();
+      const createAnotherButton = await canvas.findByRole('button', { name: /create another role/i });
+      await userEvent.click(createAnotherButton);
+      await expect(args.onCreateAnother).toHaveBeenCalled();
+    });
 
-    // Re-trigger to test third button
-    await userEvent.click(triggerButton);
+    await step('Test add role to group button', async () => {
+      const triggerButton = await canvas.findByRole('button', { name: /show role creation success/i });
+      await userEvent.click(triggerButton);
 
-    const addToGroupButton = await canvas.findByRole('button', { name: /add role to group/i });
-    await userEvent.click(addToGroupButton);
-    await expect(args.onAddToGroup).toHaveBeenCalled();
+      const addToGroupButton = await canvas.findByRole('button', { name: /add role to group/i });
+      await userEvent.click(addToGroupButton);
+      await expect(args.onAddToGroup).toHaveBeenCalled();
+    });
   },
 };

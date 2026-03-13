@@ -29,13 +29,15 @@ export const PlatformDefault: Story = {
   args: {
     isAdminDefault: false,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify the alert is displayed for platform default (PF6 inline alerts use pf-v6-c-alert class)
-    const alert = canvasElement.querySelector('.pf-v6-c-alert');
-    await expect(alert).toBeInTheDocument();
-    await expect(canvas.findByText('All users in this organization are members of this group.')).resolves.toBeInTheDocument();
+    await step('Verify platform default card', async () => {
+      // Verify the alert is displayed for platform default (PF6 inline alerts use pf-v6-c-alert class)
+      const alert = canvasElement.querySelector('.pf-v6-c-alert');
+      await expect(alert).toBeInTheDocument();
+      await expect(canvas.findByText('All users in this organization are members of this group.')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -43,12 +45,14 @@ export const AdminDefault: Story = {
   args: {
     isAdminDefault: true,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify the alert is displayed for admin default (PF6 inline alerts use pf-v6-c-alert class)
-    const alert = canvasElement.querySelector('.pf-v6-c-alert');
-    await expect(alert).toBeInTheDocument();
-    await expect(canvas.findByText('All organization administrators in this organization are members of this group.')).resolves.toBeInTheDocument();
+    await step('Verify admin default card', async () => {
+      // Verify the alert is displayed for admin default (PF6 inline alerts use pf-v6-c-alert class)
+      const alert = canvasElement.querySelector('.pf-v6-c-alert');
+      await expect(alert).toBeInTheDocument();
+      await expect(canvas.findByText('All organization administrators in this organization are members of this group.')).resolves.toBeInTheDocument();
+    });
   },
 };

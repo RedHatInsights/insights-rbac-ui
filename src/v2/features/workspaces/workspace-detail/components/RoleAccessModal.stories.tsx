@@ -159,10 +159,12 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await expect(openButton).toBeInTheDocument();
+    await step('Verify default modal closed', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await expect(openButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -179,10 +181,12 @@ export const ModalOpen: Story = {
   parameters: {
     docs: { description: { story: 'Modal in open state, showing the role selection interface.' } },
   },
-  play: async () => {
-    const body = within(document.body);
-    await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
-    await expect(body.findByText(/Grant or remove access/)).resolves.toBeInTheDocument();
+  play: async ({ step }) => {
+    await step('Verify modal open', async () => {
+      const body = within(document.body);
+      await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
+      await expect(body.findByText(/Grant or remove access/)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -199,10 +203,12 @@ export const EmptyState: Story = {
   parameters: {
     docs: { description: { story: 'Modal showing empty state when no roles are available.' } },
   },
-  play: async () => {
-    const body = within(document.body);
-    await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
-    await expect(body.findByText(/no roles found/i)).resolves.toBeInTheDocument();
+  play: async ({ step }) => {
+    await step('Verify empty state', async () => {
+      const body = within(document.body);
+      await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
+      await expect(body.findByText(/no roles found/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -219,51 +225,53 @@ export const Pagination: Story = {
   parameters: {
     docs: { description: { story: 'Modal with 25 roles to test pagination controls.' } },
   },
-  play: async () => {
-    const body = within(document.body);
-    await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
+  play: async ({ step }) => {
+    await step('Verify pagination', async () => {
+      const body = within(document.body);
+      await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
-    await waitFor(() => {
-      const paginationTexts = body.getAllByText(/1 - 10/i);
-      expect(paginationTexts.length).toBeGreaterThan(0);
+      await waitFor(() => {
+        const paginationTexts = body.getAllByText(/1 - 10/i);
+        expect(paginationTexts.length).toBeGreaterThan(0);
+      });
+
+      const nextButtons = body.getAllByRole('button', { name: /next/i });
+      const enabledNextButtons = nextButtons.filter((btn) => !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true');
+      expect(enabledNextButtons.length).toBeGreaterThan(0);
+
+      if (enabledNextButtons.length > 0) {
+        await userEvent.click(enabledNextButtons[0]);
+        await waitFor(
+          () => {
+            const page2Texts = body.getAllByText(/11 - 20/i);
+            expect(page2Texts.length).toBeGreaterThan(0);
+          },
+          { timeout: 5000 },
+        );
+      }
+
+      const perPageButtons = body.queryAllByRole('button', { name: /items per page/i });
+      if (perPageButtons.length > 0) {
+        const perPageButton = perPageButtons[perPageButtons.length - 1];
+        await userEvent.click(perPageButton);
+        await waitFor(
+          () => {
+            const perPage20 = body.getByRole('option', { name: /20 per page/i });
+            expect(perPage20).toBeInTheDocument();
+          },
+          { timeout: 5000 },
+        );
+        const perPage20 = body.getByRole('option', { name: /20 per page/i });
+        await userEvent.click(perPage20);
+        await waitFor(
+          () => {
+            const updatedPaginationTexts = body.getAllByText(/1 - 20/i);
+            expect(updatedPaginationTexts.length).toBeGreaterThan(0);
+          },
+          { timeout: 5000 },
+        );
+      }
     });
-
-    const nextButtons = body.getAllByRole('button', { name: /next/i });
-    const enabledNextButtons = nextButtons.filter((btn) => !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true');
-    expect(enabledNextButtons.length).toBeGreaterThan(0);
-
-    if (enabledNextButtons.length > 0) {
-      await userEvent.click(enabledNextButtons[0]);
-      await waitFor(
-        () => {
-          const page2Texts = body.getAllByText(/11 - 20/i);
-          expect(page2Texts.length).toBeGreaterThan(0);
-        },
-        { timeout: 5000 },
-      );
-    }
-
-    const perPageButtons = body.queryAllByRole('button', { name: /items per page/i });
-    if (perPageButtons.length > 0) {
-      const perPageButton = perPageButtons[perPageButtons.length - 1];
-      await userEvent.click(perPageButton);
-      await waitFor(
-        () => {
-          const perPage20 = body.getByRole('option', { name: /20 per page/i });
-          expect(perPage20).toBeInTheDocument();
-        },
-        { timeout: 5000 },
-      );
-      const perPage20 = body.getByRole('option', { name: /20 per page/i });
-      await userEvent.click(perPage20);
-      await waitFor(
-        () => {
-          const updatedPaginationTexts = body.getAllByText(/1 - 20/i);
-          expect(updatedPaginationTexts.length).toBeGreaterThan(0);
-        },
-        { timeout: 5000 },
-      );
-    }
   },
 };
 
@@ -284,45 +292,47 @@ export const TabSwitchWithPagination: Story = {
       },
     },
   },
-  play: async () => {
-    const body = within(document.body);
-    await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
+  play: async ({ step }) => {
+    await step('Verify tab switch with pagination', async () => {
+      const body = within(document.body);
+      await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(body.getByText('Cost Administrator')).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(body.getByText('Cost Administrator')).toBeInTheDocument();
+      });
 
-    // Navigate to page 2
-    const nextButtons = body.getAllByRole('button', { name: /next/i });
-    const enabledNextButtons = nextButtons.filter((btn) => !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true');
-    if (enabledNextButtons.length > 0) {
-      await userEvent.click(enabledNextButtons[0]);
+      // Navigate to page 2
+      const nextButtons = body.getAllByRole('button', { name: /next/i });
+      const enabledNextButtons = nextButtons.filter((btn) => !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true');
+      if (enabledNextButtons.length > 0) {
+        await userEvent.click(enabledNextButtons[0]);
+        await waitFor(
+          () => {
+            const page2Texts = body.getAllByText(/11 - 20/i);
+            expect(page2Texts.length).toBeGreaterThan(0);
+          },
+          { timeout: 5000 },
+        );
+      }
+
+      // Switch to Selected toggle
+      const selectedTab = body.getByRole('button', { name: /selected/i });
+      await userEvent.click(selectedTab);
+
       await waitFor(
         () => {
-          const page2Texts = body.getAllByText(/11 - 20/i);
-          expect(page2Texts.length).toBeGreaterThan(0);
+          const page1Texts = body.getAllByText(/1 - 2/i);
+          expect(page1Texts.length).toBeGreaterThan(0);
+          expect(body.getByText('Workspace Administrator')).toBeInTheDocument();
+          expect(body.getByText('Workspace Editor')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
-    }
 
-    // Switch to Selected toggle
-    const selectedTab = body.getByRole('button', { name: /selected/i });
-    await userEvent.click(selectedTab);
-
-    await waitFor(
-      () => {
-        const page1Texts = body.getAllByText(/1 - 2/i);
-        expect(page1Texts.length).toBeGreaterThan(0);
-        expect(body.getByText('Workspace Administrator')).toBeInTheDocument();
-        expect(body.getByText('Workspace Editor')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
-
-    // Page 2 text should be gone
-    const page2Texts = body.queryAllByText(/11 - 20/i);
-    expect(page2Texts.length).toBe(0);
+      // Page 2 text should be gone
+      const page2Texts = body.queryAllByText(/11 - 20/i);
+      expect(page2Texts.length).toBe(0);
+    });
   },
 };
 
@@ -363,47 +373,49 @@ export const EditAccessJourney: Story = {
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const onUpdateSpy = args.onUpdate as ReturnType<typeof fn>;
     onUpdateSpy.mockClear();
 
-    const canvas = within(canvasElement);
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+    await step('Edit access journey', async () => {
+      const canvas = within(canvasElement);
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    const body = within(document.body);
-    const dialog = await body.findByRole('dialog', {}, { timeout: 5000 });
-    await expect(dialog).toBeInTheDocument();
-    await expect(body.findByText(/Grant or remove access/)).resolves.toBeInTheDocument();
+      const body = within(document.body);
+      const dialog = await body.findByRole('dialog', {}, { timeout: 5000 });
+      await expect(dialog).toBeInTheDocument();
+      await expect(body.findByText(/Grant or remove access/)).resolves.toBeInTheDocument();
 
-    await waitFor(
-      async () => {
-        await expect(body.findByText('Workspace Administrator')).resolves.toBeInTheDocument();
-        await expect(body.findByText('Workspace Editor')).resolves.toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+      await waitFor(
+        async () => {
+          await expect(body.findByText('Workspace Administrator')).resolves.toBeInTheDocument();
+          await expect(body.findByText('Workspace Editor')).resolves.toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    const modalScope = within(dialog);
-    const table = await modalScope.findByRole('grid', { name: /roles selection table/i });
-    const tableScope = within(table);
+      const modalScope = within(dialog);
+      const table = await modalScope.findByRole('grid', { name: /roles selection table/i });
+      const tableScope = within(table);
 
-    const editorRow = (await tableScope.findByText('Workspace Editor')).closest('tr') as HTMLElement;
-    expect(editorRow).toBeInTheDocument();
-    const editorCheckbox = editorRow?.querySelector('input[type="checkbox"]');
-    expect(editorCheckbox).toBeInTheDocument();
-    await userEvent.click(editorCheckbox!);
+      const editorRow = (await tableScope.findByText('Workspace Editor')).closest('tr') as HTMLElement;
+      expect(editorRow).toBeInTheDocument();
+      const editorCheckbox = editorRow?.querySelector('input[type="checkbox"]');
+      expect(editorCheckbox).toBeInTheDocument();
+      await userEvent.click(editorCheckbox!);
 
-    const updateButton = await modalScope.findByRole('button', { name: /update/i });
-    expect(updateButton).not.toBeDisabled();
-    await userEvent.click(updateButton);
+      const updateButton = await modalScope.findByRole('button', { name: /update/i });
+      expect(updateButton).not.toBeDisabled();
+      await userEvent.click(updateButton);
 
-    await waitFor(
-      () => {
-        expect(onUpdateSpy).toHaveBeenCalledTimes(1);
-        expect(onUpdateSpy).toHaveBeenCalledWith(['role-1']);
-      },
-      { timeout: 5000 },
-    );
+      await waitFor(
+        () => {
+          expect(onUpdateSpy).toHaveBeenCalledTimes(1);
+          expect(onUpdateSpy).toHaveBeenCalledWith(['role-1']);
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };

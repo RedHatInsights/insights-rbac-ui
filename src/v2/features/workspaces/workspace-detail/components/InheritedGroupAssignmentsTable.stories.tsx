@@ -103,37 +103,38 @@ export const Default: Story = {
     isLoading: false,
     ouiaId: 'inherited-role-assignments-table',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify default inherited table', async () => {
+      const table = await canvas.findByRole('grid');
+      await expect(table).toBeInTheDocument();
 
-    const table = await canvas.findByRole('grid');
-    await expect(table).toBeInTheDocument();
+      // Verify standard columns are present
+      await waitFor(async () => {
+        await expect(canvas.getByText('Description')).toBeInTheDocument();
+        await expect(canvas.getByText('Users')).toBeInTheDocument();
+        await expect(canvas.getByText('Roles')).toBeInTheDocument();
+        await expect(canvas.getByText('Last modified')).toBeInTheDocument();
+      });
 
-    // Verify standard columns are present
-    await waitFor(async () => {
-      await expect(canvas.getByText('Description')).toBeInTheDocument();
-      await expect(canvas.getByText('Users')).toBeInTheDocument();
-      await expect(canvas.getByText('Roles')).toBeInTheDocument();
-      await expect(canvas.getByText('Last modified')).toBeInTheDocument();
-    });
+      // Verify "Inherited from" column header text (part of the popover label)
+      await expect(canvas.getByText('Inherited from')).toBeInTheDocument();
 
-    // Verify "Inherited from" column header text (part of the popover label)
-    await expect(canvas.getByText('Inherited from')).toBeInTheDocument();
+      // Verify table is read-only: no checkboxes, no Grant Access button
+      await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+      await expect(canvas.queryByText('Grant access')).not.toBeInTheDocument();
 
-    // Verify table is read-only: no checkboxes, no Grant Access button
-    await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
-    await expect(canvas.queryByText('Grant access')).not.toBeInTheDocument();
+      // Verify group names
+      await expect(canvas.findByText(mockInheritedGroups[0].name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(mockInheritedGroups[1].name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(mockInheritedGroups[2].name)).resolves.toBeInTheDocument();
 
-    // Verify group names
-    await expect(canvas.findByText(mockInheritedGroups[0].name)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(mockInheritedGroups[1].name)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(mockInheritedGroups[2].name)).resolves.toBeInTheDocument();
-
-    // Verify inheritance links are rendered
-    await waitFor(async () => {
-      const rootWorkspaceLinks = canvas.getAllByText(mockInheritedGroups[0].inheritedFrom!.workspaceName);
-      expect(rootWorkspaceLinks.length).toBe(2); // Two groups inherited from Root Workspace
-      await expect(canvas.getByText(mockInheritedGroups[1].inheritedFrom!.workspaceName)).toBeInTheDocument();
+      // Verify inheritance links are rendered
+      await waitFor(async () => {
+        const rootWorkspaceLinks = canvas.getAllByText(mockInheritedGroups[0].inheritedFrom!.workspaceName);
+        expect(rootWorkspaceLinks.length).toBe(2); // Two groups inherited from Root Workspace
+        await expect(canvas.getByText(mockInheritedGroups[1].inheritedFrom!.workspaceName)).toBeInTheDocument();
+      });
     });
   },
 };
@@ -145,18 +146,19 @@ export const LoadingState: Story = {
     isLoading: true,
     ouiaId: 'inherited-role-assignments-table-loading',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        expect(skeletonElements.length).toBeGreaterThan(0);
-        const loadingElements = canvas.queryAllByText('Platform Administrators');
-        expect(loadingElements.length).toBe(0);
-      },
-      { timeout: 2000 },
-    );
+    await step('Verify loading state', async () => {
+      await waitFor(
+        async () => {
+          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+          expect(skeletonElements.length).toBeGreaterThan(0);
+          const loadingElements = canvas.queryAllByText('Platform Administrators');
+          expect(loadingElements.length).toBe(0);
+        },
+        { timeout: 2000 },
+      );
+    });
   },
 };
 
@@ -167,9 +169,11 @@ export const EmptyState: Story = {
     isLoading: false,
     ouiaId: 'inherited-role-assignments-table-empty',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.findByText('No user group found')).resolves.toBeInTheDocument();
+    await step('Verify empty state', async () => {
+      await expect(canvas.findByText('No user group found')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -180,20 +184,19 @@ export const InheritanceFilter: Story = {
     isLoading: false,
     ouiaId: 'inherited-role-assignments-filter-test',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify inheritance filter', async () => {
+      const table = await canvas.findByRole('grid');
+      await expect(table).toBeInTheDocument();
 
-    const table = await canvas.findByRole('grid');
-    await expect(table).toBeInTheDocument();
+      await expect(canvas.getByText('Inherited from')).toBeInTheDocument();
 
-    // Verify "Inherited from" column exists
-    await expect(canvas.getByText('Inherited from')).toBeInTheDocument();
-
-    // Verify workspace inheritance links
-    await waitFor(async () => {
-      const rootLinks = canvas.getAllByText(mockInheritedGroups[0].inheritedFrom!.workspaceName);
-      expect(rootLinks.length).toBe(2);
-      await expect(canvas.getByText(mockInheritedGroups[1].inheritedFrom!.workspaceName)).toBeInTheDocument();
+      await waitFor(async () => {
+        const rootLinks = canvas.getAllByText(mockInheritedGroups[0].inheritedFrom!.workspaceName);
+        expect(rootLinks.length).toBe(2);
+        await expect(canvas.getByText(mockInheritedGroups[1].inheritedFrom!.workspaceName)).toBeInTheDocument();
+      });
     });
   },
 };
@@ -237,20 +240,21 @@ export const DrawerWithInheritance: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify drawer with inheritance', async () => {
+      await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
 
-    await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
+      const firstGroupRow = await canvas.findByText('Platform Administrators');
+      await userEvent.click(firstGroupRow);
 
-    const firstGroupRow = await canvas.findByText('Platform Administrators');
-    await userEvent.click(firstGroupRow);
-
-    await waitFor(
-      async () => {
-        const tabs = canvas.getAllByRole('tab');
-        expect(tabs.length).toBeGreaterThanOrEqual(2);
-      },
-      { timeout: 5000 },
-    );
+      await waitFor(
+        async () => {
+          const tabs = canvas.getAllByRole('tab');
+          expect(tabs.length).toBeGreaterThanOrEqual(2);
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };

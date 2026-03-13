@@ -51,16 +51,17 @@ const defaultArgs = {
 
 export const Default: Story = {
   args: defaultArgs,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify default state', async () => {
+      // Should show "Select workspaces" placeholder text
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
 
-    // Should show "Select workspaces" placeholder text
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
-
-    // Should be enabled and clickable
-    const toggle = await canvas.findByRole('button');
-    await expect(toggle).toBeEnabled();
-    await expect(toggle).not.toHaveAttribute('aria-expanded', 'true');
+      // Should be enabled and clickable
+      const toggle = await canvas.findByRole('button');
+      await expect(toggle).toBeEnabled();
+      await expect(toggle).not.toHaveAttribute('aria-expanded', 'true');
+    });
   },
 };
 
@@ -69,14 +70,15 @@ export const WithSelectedWorkspace: Story = {
     ...defaultArgs,
     selectedWorkspaceName: 'Production Environment',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify selected workspace', async () => {
+      // Should show selected workspace name
+      await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
 
-    // Should show selected workspace name
-    await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
-
-    // Should not show placeholder text
-    await expect(canvas.queryByText('Select workspaces')).not.toBeInTheDocument();
+      // Should not show placeholder text
+      await expect(canvas.queryByText('Select workspaces')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -85,11 +87,12 @@ export const WithLongWorkspaceName: Story = {
     ...defaultArgs,
     selectedWorkspaceName: 'Development and Testing Environment with Very Long Name',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    // Should show long workspace name
-    await expect(canvas.findByText('Development and Testing Environment with Very Long Name')).resolves.toBeInTheDocument();
+    await step('Verify long workspace name', async () => {
+      // Should show long workspace name
+      await expect(canvas.findByText('Development and Testing Environment with Very Long Name')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -98,15 +101,16 @@ export const Loading: Story = {
     ...defaultArgs,
     isDisabled: true,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify loading state', async () => {
+      // Should show workspace-specific loading text
+      await expect(canvas.findByText('Loading workspaces...')).resolves.toBeInTheDocument();
 
-    // Should show workspace-specific loading text
-    await expect(canvas.findByText('Loading workspaces...')).resolves.toBeInTheDocument();
-
-    // Should be disabled
-    const toggle = await canvas.findByRole('button');
-    await expect(toggle).toBeDisabled();
+      // Should be disabled
+      const toggle = await canvas.findByRole('button');
+      await expect(toggle).toBeDisabled();
+    });
   },
 };
 
@@ -116,14 +120,15 @@ export const LoadingWithWorkspace: Story = {
     isDisabled: true,
     selectedWorkspaceName: 'Production Environment',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify loading with workspace', async () => {
+      // Should show loading text even when workspace name is provided
+      await expect(canvas.findByText('Loading workspaces...')).resolves.toBeInTheDocument();
 
-    // Should show loading text even when workspace name is provided
-    await expect(canvas.findByText('Loading workspaces...')).resolves.toBeInTheDocument();
-
-    // Should not show workspace name when disabled
-    await expect(canvas.queryByText('Production Environment')).not.toBeInTheDocument();
+      // Should not show workspace name when disabled
+      await expect(canvas.queryByText('Production Environment')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -133,15 +138,16 @@ export const Expanded: Story = {
     isMenuToggleExpanded: true,
     selectedWorkspaceName: 'Production Environment',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify expanded state', async () => {
+      // Should show workspace name
+      await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
 
-    // Should show workspace name
-    await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
-
-    // Should be marked as expanded
-    const toggle = await canvas.findByRole('button');
-    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      // Should be marked as expanded
+      const toggle = await canvas.findByRole('button');
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    });
   },
 };
 
@@ -150,18 +156,19 @@ export const InteractiveClick: Story = {
     ...defaultArgs,
     selectedWorkspaceName: 'Production Environment',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify interactive click', async () => {
+      // Click the toggle
+      const toggle = await canvas.findByRole('button');
+      await userEvent.click(toggle);
 
-    // Click the toggle
-    const toggle = await canvas.findByRole('button');
-    await userEvent.click(toggle);
-
-    // Should call the callback
-    await expect(defaultArgs.onMenuToggleClick).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'click',
-      }),
-    );
+      // Should call the callback
+      await expect(defaultArgs.onMenuToggleClick).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'click',
+        }),
+      );
+    });
   },
 };

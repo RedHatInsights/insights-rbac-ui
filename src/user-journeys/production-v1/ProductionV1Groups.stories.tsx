@@ -1,5 +1,4 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { fillEditGroupModal } from '../../v1/features/groups/EditGroupModal.helpers';
 import { fillAddGroupWizardForm } from '../../v1/features/groups/add-group/AddGroupWizard.helpers';
 import { fillAddGroupMembersModal } from '../../v1/features/groups/AddGroupMembers.helpers';
@@ -8,6 +7,7 @@ import { removeSelectedRolesFromGroup } from '../../v1/features/groups/RemoveGro
 import { mockRoles, mockServiceAccountsForHandlers, mockUsers } from '../../v1/features/groups/add-group/AddGroupWizard.mocks';
 import { createV1MockDb } from '../../v1/data/mocks/db';
 import { createV1Handlers } from '../../v1/data/mocks/handlers';
+import { clickTab, confirmDestructiveModal, waitForContentReady, waitForModal, waitForNotification } from '../../test-utils/interactionHelpers';
 import {
   DEFAULT_GROUPS,
   DEFAULT_USERS,
@@ -21,7 +21,6 @@ import {
   V1_ROLE_ADMIN,
   V1_ROLE_VIEWER,
   clickMenuItem,
-  confirmDeleteModal,
   meta,
   navigateToPage,
   openDetailPageActionsMenu,
@@ -96,41 +95,56 @@ export const CreateGroupJourney: Story = {
       handlers: createGroupHandlers,
     },
   },
-  play: async (context) => {
-    await resetStoryState(createGroupDb);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_PLATFORM_ADMINS.name);
-
-    const createButton = await canvas.findByRole('button', { name: /create group/i });
-    await user.click(createButton);
-
-    await waitFor(async () => {
-      const nameInput = document.getElementById('group-name');
-      await expect(nameInput).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(createGroupDb);
     });
 
-    await fillAddGroupWizardForm(
-      {
-        name: 'DevOps Team',
-        description: 'DevOps team with service accounts',
-        selectRoles: true,
-        selectUsers: true,
-        selectServiceAccounts: true,
-      },
-      undefined,
-      false,
-      user,
-    );
-
-    await waitFor(() => {
-      expect(document.querySelector('[role="dialog"]')).toBeNull();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    await verifySuccessNotification();
-    expect(await canvas.findByText('DevOps Team')).toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_PLATFORM_ADMINS.name);
+    });
+
+    await step('Open create group modal', async () => {
+      const createButton = await canvas.findByRole('button', { name: /create group/i });
+      await user.click(createButton);
+      const modal = await waitForModal();
+      await modal.findByRole('textbox', { name: /name/i });
+    });
+
+    await step('Fill form and submit', async () => {
+      await fillAddGroupWizardForm(
+        {
+          name: 'DevOps Team',
+          description: 'DevOps team with service accounts',
+          selectRoles: true,
+          selectUsers: true,
+          selectServiceAccounts: true,
+        },
+        undefined,
+        false,
+        user,
+        step,
+      );
+    });
+
+    await step('Wait for modal to close', async () => {
+      await waitFor(() => {
+        expect(within(document.body).queryByRole('dialog')).toBeNull();
+      });
+    });
+
+    await step('Verify success notification and new group', async () => {
+      await verifySuccessNotification();
+      expect(await canvas.findByText('DevOps Team')).toBeInTheDocument();
+    });
   },
 };
 
@@ -139,34 +153,51 @@ export const EditGroupFromList: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Groups');
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    await waitFor(async () => {
-      await expect(canvas.getByText(GROUP_SUPPORT_TEAM.name)).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+    });
+
+    await step('Verify initial state', async () => {
+      // First element after navigation — no waitForPageToLoad preceded it
+      await canvas.findByText(GROUP_SUPPORT_TEAM.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
       expect(canvas.queryByText('Customer Support Team')).not.toBeInTheDocument();
     });
 
-    await openRowActionsMenu(user, canvas, GROUP_SUPPORT_TEAM.name);
-    await clickMenuItem(user, 'Edit');
+    await step('Open edit modal from row actions', async () => {
+      await openRowActionsMenu(user, canvas, GROUP_SUPPORT_TEAM.name);
+      await clickMenuItem(user, 'Edit');
+    });
 
-    await fillEditGroupModal(
-      {
-        name: 'Customer Support Team',
-        description: 'Updated customer support access team',
-      },
-      true,
-      user,
-    );
+    await step('Fill form and submit', async () => {
+      await fillEditGroupModal(
+        {
+          name: 'Customer Support Team',
+          description: 'Updated customer support access team',
+        },
+        true,
+        user,
+        step,
+      );
+    });
 
-    await verifySuccessNotification();
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await canvas.findByText('Customer Support Team', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    expect(canvas.queryByText(GROUP_SUPPORT_TEAM.name)).not.toBeInTheDocument();
+    await step('Verify success notification and updated name', async () => {
+      await verifySuccessNotification();
+      // Content appears after API mutation (edit)
+      expect(await canvas.findByText('Customer Support Team', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).toBeInTheDocument();
+      expect(canvas.queryByText(GROUP_SUPPORT_TEAM.name)).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -175,48 +206,67 @@ export const EditGroupFromDetailPage: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    const groupLink = canvas.getByRole('link', { name: GROUP_SUPPORT_TEAM.name });
-    await user.click(groupLink);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('heading', { name: GROUP_SUPPORT_TEAM.name })).toBeInTheDocument();
-        expect(canvas.queryByRole('heading', { name: 'Customer Support Team' })).not.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
+    });
 
-    await expect(canvas.getByRole('button', { name: 'Actions' })).toBeInTheDocument();
-    await expect(canvas.getByRole('tab', { name: /members/i })).toBeInTheDocument();
+    await step('Open group detail page', async () => {
+      const groupLink = canvas.getByRole('link', { name: GROUP_SUPPORT_TEAM.name });
+      await user.click(groupLink);
+      await waitFor(
+        async () => {
+          await expect(canvas.getByRole('heading', { name: GROUP_SUPPORT_TEAM.name })).toBeInTheDocument();
+          expect(canvas.queryByRole('heading', { name: 'Customer Support Team' })).not.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
 
-    await openDetailPageActionsMenu(user, canvas);
-    await clickMenuItem(user, 'Edit');
+    await step('Wait for detail page elements', async () => {
+      await canvas.findByRole('button', { name: 'Actions' });
+      await canvas.findByRole('tab', { name: /members/i });
+    });
 
-    await fillEditGroupModal(
-      {
-        name: 'Customer Support Team',
-        description: 'Updated customer support access team',
-      },
-      true,
-      user,
-    );
+    await step('Open edit modal from detail page actions', async () => {
+      await openDetailPageActionsMenu(user, canvas);
+      await clickMenuItem(user, 'Edit');
+    });
 
-    await Promise.all([
-      verifySuccessNotification(),
-      waitFor(() => {
-        const updatedHeading = canvas.queryByRole('heading', { name: 'Customer Support Team' });
-        expect(updatedHeading).toBeInTheDocument();
-        expect(canvas.queryByRole('heading', { name: GROUP_SUPPORT_TEAM.name })).not.toBeInTheDocument();
-      }),
-    ]);
+    await step('Fill form and submit', async () => {
+      await fillEditGroupModal(
+        {
+          name: 'Customer Support Team',
+          description: 'Updated customer support access team',
+        },
+        true,
+        user,
+        step,
+      );
+    });
+
+    await step('Verify success notification and updated heading', async () => {
+      await Promise.all([
+        verifySuccessNotification(),
+        waitFor(() => {
+          const updatedHeading = canvas.queryByRole('heading', { name: 'Customer Support Team' });
+          expect(updatedHeading).toBeInTheDocument();
+          expect(canvas.queryByRole('heading', { name: GROUP_SUPPORT_TEAM.name })).not.toBeInTheDocument();
+        }),
+      ]);
+    });
   },
 };
 
@@ -230,24 +280,42 @@ export const DeleteGroupFromList: Story = {
       handlers: deleteGroupHandlers,
     },
   },
-  play: async (context) => {
-    await resetStoryState(deleteGroupDb);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
+    await step('Reset state', async () => {
+      await resetStoryState(deleteGroupDb);
+    });
 
-    await openRowActionsMenu(user, canvas, GROUP_SUPPORT_TEAM.name);
-    await clickMenuItem(user, 'Delete');
-    await confirmDeleteModal(user, 'Remove group "Support Team"');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await verifySuccessNotification();
-    await waitFor(() => {
-      const supportTeamElement = canvas.queryByText(GROUP_SUPPORT_TEAM.name);
-      if (supportTeamElement) {
-        throw new Error('Support Team group should have been deleted but was still found');
-      }
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
+    });
+
+    await step('Open delete modal from row actions', async () => {
+      await openRowActionsMenu(user, canvas, GROUP_SUPPORT_TEAM.name);
+      await clickMenuItem(user, 'Delete');
+      const modal = await waitForModal();
+      await modal.findByText(GROUP_SUPPORT_TEAM.name);
+    });
+
+    await step('Confirm delete', async () => {
+      await confirmDestructiveModal(user, { buttonText: /remove/i });
+    });
+
+    await step('Verify success notification and group removed', async () => {
+      await verifySuccessNotification();
+      await waitFor(
+        () => {
+          expect(canvas.queryByText(GROUP_SUPPORT_TEAM.name)).toBeNull();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
     });
   },
 };
@@ -262,51 +330,44 @@ export const DeleteGroupFromDetailPage: Story = {
       handlers: deleteGroupHandlers,
     },
   },
-  play: async (context) => {
-    await resetStoryState(deleteGroupDb);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
-
-    const groupLink = canvas.getByRole('link', { name: GROUP_SUPPORT_TEAM.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: GROUP_SUPPORT_TEAM.name })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(deleteGroupDb);
     });
 
-    await expect(canvas.getByRole('tab', { name: /members/i })).toBeInTheDocument();
-    const membersTab = canvas.getByRole('tab', { name: /members/i });
-    await user.click(membersTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await waitFor(async () => {
-      const actionsButton = canvas.queryByRole('button', { name: 'Actions' });
-      const kebabMenu =
-        document.getElementById('group-actions-dropdown') ||
-        document.querySelector('button[id*="actions-dropdown"]') ||
-        document.querySelector('[data-ouia-component-id="group-title-actions-dropdown"] button');
-
-      if (actionsButton || kebabMenu) {
-        expect(true).toBe(true);
-      } else {
-        const pageTitle = canvas.queryByRole('heading', { name: GROUP_SUPPORT_TEAM.name });
-        expect(pageTitle).toBeInTheDocument();
-      }
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    await openDetailPageActionsMenu(user, canvas);
-    await clickMenuItem(user, 'Delete');
-    await confirmDeleteModal(user, 'Remove group "Support Team"');
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
+    });
 
-    await verifySuccessNotification();
-    await waitFor(async () => {
-      await expect(canvas.getByText(GROUP_PLATFORM_ADMINS.name)).toBeInTheDocument();
-      await expect(canvas.getByText(GROUP_ENGINEERING.name)).toBeInTheDocument();
-      expect(canvas.queryByText(GROUP_SUPPORT_TEAM.name)).not.toBeInTheDocument();
+    await step('Open group detail page', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_SUPPORT_TEAM.name });
+      await user.click(groupLink);
+      // First element after route navigation to group detail
+      await canvas.findByRole('heading', { name: GROUP_SUPPORT_TEAM.name }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await clickTab(user, canvas, /members/i);
+    });
+
+    await step('Delete group from detail page', async () => {
+      await openDetailPageActionsMenu(user, canvas);
+      await clickMenuItem(user, 'Delete');
+      await confirmDestructiveModal(user);
+    });
+
+    await step('Verify success notification and redirect', async () => {
+      await verifySuccessNotification();
+      await waitFor(() => {
+        expect(canvas.getByText(GROUP_PLATFORM_ADMINS.name)).toBeInTheDocument();
+        expect(canvas.getByText(GROUP_ENGINEERING.name)).toBeInTheDocument();
+        expect(canvas.queryByText(GROUP_SUPPORT_TEAM.name)).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -336,43 +397,42 @@ Tests the full flow of adding members to an existing group.
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(addMembersDb);
+    await step('Reset state', async () => {
+      await resetStoryState(addMembersDb);
+    });
 
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const groupLink = canvas.getByRole('link', { name: GROUP_SUPPORT_TEAM.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
+    });
 
-    await canvas.findByRole('heading', { name: GROUP_SUPPORT_TEAM.name }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    await step('Open group detail page and Members tab', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_SUPPORT_TEAM.name });
+      await user.click(groupLink);
+      // First element after route navigation to group detail
+      await canvas.findByRole('heading', { name: GROUP_SUPPORT_TEAM.name }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await clickTab(user, canvas, /members/i);
+    });
 
-    const membersTab = canvas.getByRole('tab', { name: /members/i });
-    await user.click(membersTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Open add member modal and add users', async () => {
+      const addMemberBtn = await canvas.findByRole('button', { name: /add member/i });
+      await user.click(addMemberBtn);
+      await fillAddGroupMembersModal(user, [USER_JOHN.username, USER_JANE.username], step);
+    });
 
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    const addMemberBtn = canvas.getByRole('button', { name: /add member/i });
-    await user.click(addMemberBtn);
-
-    await fillAddGroupMembersModal(user, [USER_JOHN.username, USER_JANE.username]);
-
-    const body = within(document.body);
-    await waitFor(
-      async () => {
-        const notification = body.getByText(/success adding members to group/i);
-        await expect(notification).toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
-
-    await waitFor(async () => {
-      await expect(canvas.getByText(USER_JOHN.username)).toBeInTheDocument();
-      await expect(canvas.getByText(USER_JANE.username)).toBeInTheDocument();
+    await step('Verify success notification and members in list', async () => {
+      await waitForNotification(/success adding members to group/i);
+      // Content appears after API mutation (add members)
+      await canvas.findByText(USER_JOHN.username, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await canvas.findByText(USER_JANE.username, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
     });
   },
 };
@@ -401,53 +461,52 @@ Tests the full flow of removing members from a group.
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(removeMembersDb);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_PLATFORM_ADMINS.name);
-
-    const groupLink = canvas.getByRole('link', { name: GROUP_PLATFORM_ADMINS.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: GROUP_PLATFORM_ADMINS.name })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(removeMembersDb);
     });
 
-    const membersTab = canvas.getByRole('tab', { name: /members/i });
-    await user.click(membersTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    const memberCheckboxes = canvas.getAllByRole('checkbox');
-    await user.click(memberCheckboxes[1]);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    const bulkActionsBtn = canvas.getByRole('button', { name: 'Member bulk actions' });
-    await user.click(bulkActionsBtn);
-
-    const removeMenuItem = within(document.body).getByRole('menuitem', { name: 'Remove' });
-    await user.click(removeMenuItem);
-
-    const body = within(document.body);
-    const modal = await body.findByRole('dialog', {}, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
-    expect(modal).toBeInTheDocument();
-
-    const confirmRemoveBtn = within(modal).getByRole('button', { name: /remove/i });
-    await user.click(confirmRemoveBtn);
-    await waitFor(async () => {
-      const notification = body.getByText(/success removing members from group/i);
-      await expect(notification).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    await waitFor(async () => {
-      await expect(canvas.getByText(USER_JANE.username)).toBeInTheDocument();
-      expect(canvas.queryByText(USER_JOHN.username)).not.toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_PLATFORM_ADMINS.name);
+    });
+
+    await step('Open group detail page and Members tab', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_PLATFORM_ADMINS.name });
+      await user.click(groupLink);
+      // First element after route navigation to group detail
+      await canvas.findByRole('heading', { name: GROUP_PLATFORM_ADMINS.name }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await clickTab(user, canvas, /members/i);
+    });
+
+    await step('Select member and remove', async () => {
+      const memberCheckboxes = await canvas.findAllByRole('checkbox');
+      await user.click(memberCheckboxes[1]);
+      const bulkActionsBtn = await canvas.findByRole('button', { name: 'Member bulk actions' });
+      await user.click(bulkActionsBtn);
+      const removeMenuItem = await within(document.body).findByRole('menuitem', { name: 'Remove' });
+      await user.click(removeMenuItem);
+      const modal = await waitForModal();
+      const confirmRemoveBtn = await modal.findByRole('button', { name: /remove/i });
+      await user.click(confirmRemoveBtn);
+    });
+
+    await step('Verify success notification and member removed', async () => {
+      await waitForNotification(/success removing members from group/i);
+      await canvas.findByText(USER_JANE.username);
+      await waitFor(
+        () => {
+          expect(canvas.queryByText(USER_JOHN.username)).toBeNull();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
     });
   },
 };
@@ -477,50 +536,43 @@ Tests the full flow of adding roles to an existing group.
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(addRolesDb);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
-
-    const groupLink = canvas.getByRole('link', { name: GROUP_SUPPORT_TEAM.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: GROUP_SUPPORT_TEAM.name })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(addRolesDb);
     });
 
-    const rolesTab = canvas.getByRole('tab', { name: /roles/i });
-    await user.click(rolesTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await waitFor(async () => {
-      const addRoleBtn = canvas.queryByRole('button', { name: /add role/i });
-      expect(addRoleBtn).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    await delay(TEST_TIMEOUTS.LONG_OPERATION);
-
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    const addRoleBtnToClick = canvas.getByRole('button', { name: /add role/i });
-    await expect(addRoleBtnToClick).toBeEnabled();
-    await user.click(addRoleBtnToClick);
-
-    await fillAddGroupRolesModal(user, GROUP_SUPPORT_TEAM.name, 2);
-
-    const body = within(document.body);
-    await waitFor(async () => {
-      const notification = body.getByText(/success adding roles to group/i);
-      await expect(notification).toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_SUPPORT_TEAM.name);
     });
 
-    await waitFor(async () => {
-      await expect(canvas.getByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
-      await expect(canvas.getByText(V1_ROLE_VIEWER.name)).toBeInTheDocument();
+    await step('Open group detail page and Roles tab', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_SUPPORT_TEAM.name });
+      await user.click(groupLink);
+      // First element after route navigation to group detail
+      await canvas.findByRole('heading', { name: GROUP_SUPPORT_TEAM.name }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await clickTab(user, canvas, /roles/i);
+    });
+
+    await step('Open add role modal and add roles', async () => {
+      const addRoleBtnToClick = await canvas.findByRole('button', { name: /add role/i });
+      await waitFor(() => expect(addRoleBtnToClick).toBeEnabled());
+      await user.click(addRoleBtnToClick);
+      await fillAddGroupRolesModal(user, GROUP_SUPPORT_TEAM.name, 2, step);
+    });
+
+    await step('Verify success notification and roles in list', async () => {
+      await waitForNotification(/success adding roles to group/i);
+      // Content appears after API mutation (add roles)
+      await canvas.findByText(V1_ROLE_ADMIN.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await canvas.findByText(V1_ROLE_VIEWER.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
     });
   },
 };
@@ -549,49 +601,45 @@ Tests the full flow of removing roles from a group.
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(removeRolesDb);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_PLATFORM_ADMINS.name);
-
-    const groupLink = canvas.getByRole('link', { name: GROUP_PLATFORM_ADMINS.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: GROUP_PLATFORM_ADMINS.name })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(removeRolesDb);
     });
 
-    const rolesTab = canvas.getByRole('tab', { name: /roles/i });
-    await user.click(rolesTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await waitFor(async () => {
-      await expect(canvas.getByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
-      await expect(canvas.getByText(V1_ROLE_VIEWER.name)).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    const roleCheckbox = canvas.getByRole('checkbox', { name: /select row 0/i });
-    await user.click(roleCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await removeSelectedRolesFromGroup(user, canvas);
-
-    const body = within(document.body);
-    await waitFor(async () => {
-      const notification = body.getByText(/success removing roles from group/i);
-      await expect(notification).toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_PLATFORM_ADMINS.name);
     });
 
-    await waitFor(() => {
-      expect(canvas.queryByText(V1_ROLE_ADMIN.name)).not.toBeInTheDocument();
-      expect(canvas.queryByText(V1_ROLE_VIEWER.name)).toBeInTheDocument();
+    await step('Open group detail page and Roles tab', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_PLATFORM_ADMINS.name });
+      await user.click(groupLink);
+      // First element after route navigation to group detail
+      await canvas.findByRole('heading', { name: GROUP_PLATFORM_ADMINS.name }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await clickTab(user, canvas, /roles/i);
+    });
+
+    await step('Select role and remove', async () => {
+      await canvas.findByText(V1_ROLE_ADMIN.name);
+      await canvas.findByText(V1_ROLE_VIEWER.name);
+      const roleCheckbox = await canvas.findByRole('checkbox', { name: /select row 0/i });
+      await user.click(roleCheckbox);
+      await removeSelectedRolesFromGroup(user, canvas);
+    });
+
+    await step('Verify success notification and role removed', async () => {
+      await waitForNotification(/success removing roles from group/i);
+      await waitFor(() => {
+        expect(canvas.queryByText(V1_ROLE_ADMIN.name)).not.toBeInTheDocument();
+        expect(canvas.queryByText(V1_ROLE_VIEWER.name)).toBeInTheDocument();
+      });
     });
   },
 };

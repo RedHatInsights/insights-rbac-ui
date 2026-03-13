@@ -1,5 +1,5 @@
 import { expect, userEvent, within } from 'storybook/test';
-import { delay } from 'msw';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
 import { Story, TEST_TIMEOUTS, WS_ROOT, db, meta, navigateToPage, resetStoryState } from './_v2OrgAdminSetup';
 
 export default { ...meta, title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Navigation', tags: ['prod-v2-org-admin'] };
@@ -34,33 +34,36 @@ V2 navigation (when \`platform.rbac.workspaces-organization-management\` is enab
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // ✅ My Access should be visible (V2 uses "My Access" label)
-    const myAccess = await canvas.findByRole('link', { name: /my access/i });
-    expect(myAccess).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // ✅ Access Management expandable should be visible (V2 navigation)
-    const accessMgmtSection = await canvas.findByRole('button', { name: /access management/i });
-    expect(accessMgmtSection).toBeInTheDocument();
+    await step('Verify sidebar items visible', async () => {
+      const myAccess = await canvas.findByRole('link', { name: /my access/i });
+      expect(myAccess).toBeInTheDocument();
 
-    // ✅ Links inside Access Management expandable
-    const usersLink = await canvas.findByRole('link', { name: /users and groups/i });
-    expect(usersLink).toBeInTheDocument();
+      const accessMgmtSection = await canvas.findByRole('button', { name: /access management/i });
+      expect(accessMgmtSection).toBeInTheDocument();
 
-    const rolesLink = await canvas.findByRole('link', { name: /^roles$/i });
-    expect(rolesLink).toBeInTheDocument();
+      const usersLink = await canvas.findByRole('link', { name: /users and groups/i });
+      expect(usersLink).toBeInTheDocument();
 
-    const workspacesLink = await canvas.findByRole('link', { name: /^workspaces$/i });
-    expect(workspacesLink).toBeInTheDocument();
+      const rolesLink = await canvas.findByRole('link', { name: /^roles$/i });
+      expect(rolesLink).toBeInTheDocument();
 
-    // ✅ Organization Management expandable should be visible for org admins
-    const orgMgmtSection = await canvas.findByRole('button', { name: /organization management/i });
-    expect(orgMgmtSection).toBeInTheDocument();
+      const workspacesLink = await canvas.findByRole('link', { name: /^workspaces$/i });
+      expect(workspacesLink).toBeInTheDocument();
+
+      const orgMgmtSection = await canvas.findByRole('button', { name: /organization management/i });
+      expect(orgMgmtSection).toBeInTheDocument();
+    });
   },
 };
 
@@ -90,36 +93,41 @@ Tests navigation through all V2 sidebar items visible to an Org Admin.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Access Management — Users and Groups
-    await navigateToPage(user, canvas, 'Users and Groups');
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await canvas.findByRole('heading', { name: /users and (user )?groups/i });
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Access Management — Roles
-    await navigateToPage(user, canvas, 'Roles');
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await canvas.findByRole('heading', { name: /^roles$/i });
+    await step('Navigate to Users and Groups', async () => {
+      await navigateToPage(user, canvas, 'Users and Groups');
+      await canvas.findByRole('heading', { name: /users and (user )?groups/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
 
-    // Access Management — Workspaces
-    await navigateToPage(user, canvas, 'Workspaces');
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await canvas.findByText(WS_ROOT.name);
+    await step('Navigate to Roles', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await canvas.findByRole('heading', { name: /^roles$/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
 
-    // Access Management — Audit Log
-    await navigateToPage(user, canvas, 'Audit Log');
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await canvas.findByRole('heading', { name: /audit log/i });
+    await step('Navigate to Workspaces', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await canvas.findByText(WS_ROOT.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
 
-    // Organization Management — Organization-Wide Access
-    await navigateToPage(user, canvas, 'Organization-Wide Access');
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    await canvas.findByRole('heading', { name: /organization-wide access/i });
+    await step('Navigate to Audit Log', async () => {
+      await navigateToPage(user, canvas, 'Audit Log');
+      await canvas.findByRole('heading', { name: /audit log/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
+
+    await step('Navigate to Organization-Wide Access', async () => {
+      await navigateToPage(user, canvas, 'Organization-Wide Access');
+      await canvas.findByRole('heading', { name: /organization-wide access/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
   },
 };

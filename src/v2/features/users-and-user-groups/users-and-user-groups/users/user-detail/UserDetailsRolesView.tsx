@@ -27,7 +27,7 @@ const columns = ['name', 'userGroup', 'workspace'] as const;
  * UserDetailsRolesView - Shows assigned roles for a user
  *
  * Displays roles with their user group and workspace assignments.
- * This data comes from V2-style role bindings API (gap:guessed-v2-api).
+ * This data comes from V2-style role bindings API.
  */
 const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ userId, ouiaId }) => {
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(

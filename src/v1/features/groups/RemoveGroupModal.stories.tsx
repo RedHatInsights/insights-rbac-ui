@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { delay } from 'msw';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import { RemoveGroupModal } from './RemoveGroupModal';
 import { groupsHandlers } from '../../data/mocks/groups.handlers';
@@ -164,48 +163,48 @@ For testing specific scenarios, see these additional stories:
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click button to open modal
-    const openButton = canvas.getByRole('button', { name: 'Remove Group' });
-    await userEvent.click(openButton);
+    await step('Open modal, remove group, and verify close', async () => {
+      // Click button to open modal
+      const openButton = canvas.getByRole('button', { name: 'Remove Group' });
+      await userEvent.click(openButton);
 
-    // ✅ Modal renders to document.body via portal - use screen, not canvas
-    await waitFor(
-      async () => {
-        const modal = screen.getByRole('dialog');
-        expect(modal).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // ✅ Modal renders to document.body via portal - use screen, not canvas
+      await waitFor(
+        async () => {
+          const modal = screen.getByRole('dialog');
+          expect(modal).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    // ✅ Test modal content using within(modal) - wait for group data to load
-    const modal = screen.getByRole('dialog');
+      // ✅ Test modal content using within(modal) - wait for group data to load
+      const modal = screen.getByRole('dialog');
 
-    // Wait for group data to load and title to update
-    await waitFor(
-      () => {
-        expect(within(modal).getByText('Remove group "Test Group"?')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Wait for group data to load and title to update
+      await waitFor(
+        () => {
+          expect(within(modal).getByText('Remove group "Test Group"?')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    expect(within(modal).getByText('Test Group')).toBeInTheDocument();
+      expect(within(modal).getByText('Test Group')).toBeInTheDocument();
 
-    // ✅ Test Remove button functionality
-    const removeButton = within(modal).getByRole('button', { name: /remove/i });
-    await userEvent.click(removeButton);
+      // ✅ Test Remove button functionality
+      const removeButton = within(modal).getByRole('button', { name: /remove/i });
+      await userEvent.click(removeButton);
 
-    // ✅ Verify modal closes after successful deletion (navigation occurs)
-    await waitFor(
-      () => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      // ✅ Verify modal closes after successful deletion (navigation occurs)
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -213,48 +212,48 @@ export const SystemGroup: Story = {
   args: {
     initialRoute: '/user-access/groups/remove-group/system-group-id',
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click button to open modal
-    const openButton = canvas.getByRole('button', { name: 'Remove Group' });
-    await userEvent.click(openButton);
+    await step('Open modal, remove system group, and verify close', async () => {
+      // Click button to open modal
+      const openButton = canvas.getByRole('button', { name: 'Remove Group' });
+      await userEvent.click(openButton);
 
-    // ✅ Modal renders to document.body via portal - use screen, not canvas
-    await waitFor(
-      async () => {
-        const modal = screen.getByRole('dialog');
-        expect(modal).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // ✅ Modal renders to document.body via portal - use screen, not canvas
+      await waitFor(
+        async () => {
+          const modal = screen.getByRole('dialog');
+          expect(modal).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    // ✅ Test modal content using within(modal) - wait for group data to load
-    const modal = screen.getByRole('dialog');
+      // ✅ Test modal content using within(modal) - wait for group data to load
+      const modal = screen.getByRole('dialog');
 
-    // Wait for system group data to load and title to update
-    await waitFor(
-      () => {
-        expect(within(modal).getByText('Remove group "Default access"?')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Wait for system group data to load and title to update
+      await waitFor(
+        () => {
+          expect(within(modal).getByText('Remove group "Default access"?')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    expect(within(modal).getByText('Default access')).toBeInTheDocument();
+      expect(within(modal).getByText('Default access')).toBeInTheDocument();
 
-    // ✅ Test Remove button functionality for system group
-    const removeButton = within(modal).getByRole('button', { name: /remove/i });
-    await userEvent.click(removeButton);
+      // ✅ Test Remove button functionality for system group
+      const removeButton = within(modal).getByRole('button', { name: /remove/i });
+      await userEvent.click(removeButton);
 
-    // ✅ Verify modal closes after successful deletion (navigation occurs)
-    await waitFor(
-      () => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      // ✅ Verify modal closes after successful deletion (navigation occurs)
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -262,47 +261,47 @@ export const MultipleGroups: Story = {
   args: {
     initialRoute: '/user-access/groups/remove-group/group-1,group-2,group-3',
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click button to open modal
-    const openButton = canvas.getByRole('button', { name: 'Remove Group' });
-    await userEvent.click(openButton);
+    await step('Open modal, remove multiple groups, and verify close', async () => {
+      // Click button to open modal
+      const openButton = canvas.getByRole('button', { name: 'Remove Group' });
+      await userEvent.click(openButton);
 
-    // ✅ Modal renders to document.body via portal - use screen, not canvas
-    await waitFor(
-      async () => {
-        const modal = screen.getByRole('dialog');
-        expect(modal).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // ✅ Modal renders to document.body via portal - use screen, not canvas
+      await waitFor(
+        async () => {
+          const modal = screen.getByRole('dialog');
+          expect(modal).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    const modal = screen.getByRole('dialog');
+      const modal = screen.getByRole('dialog');
 
-    // ✅ Multiple groups should show count-based messages, not individual group names
-    expect(within(modal).getByText('Remove 3 groups?')).toBeInTheDocument();
+      // ✅ Multiple groups should show count-based messages, not individual group names
+      expect(within(modal).getByText('Remove 3 groups?')).toBeInTheDocument();
 
-    // Should show multiple groups deletion message
-    expect(
-      within(modal).getByText((content) => {
-        return content.toLowerCase().includes('permanently delete') && content.includes('3 groups');
-      }),
-    ).toBeInTheDocument();
+      // Should show multiple groups deletion message
+      expect(
+        within(modal).getByText((content) => {
+          return content.toLowerCase().includes('permanently delete') && content.includes('3 groups');
+        }),
+      ).toBeInTheDocument();
 
-    // ✅ Test Remove button functionality for multiple groups
-    const removeButton = within(modal).getByRole('button', { name: /remove/i });
-    await userEvent.click(removeButton);
+      // ✅ Test Remove button functionality for multiple groups
+      const removeButton = within(modal).getByRole('button', { name: /remove/i });
+      await userEvent.click(removeButton);
 
-    // ✅ Verify modal closes after successful deletion (navigation occurs)
-    // MultipleGroups does 3 sequential DELETE requests (~600ms+); needs longer timeout than default
-    await waitFor(
-      () => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      // ✅ Verify modal closes after successful deletion (navigation occurs)
+      // MultipleGroups does 3 sequential DELETE requests (~600ms+); needs longer timeout than default
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };

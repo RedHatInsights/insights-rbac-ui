@@ -51,11 +51,12 @@ export default meta;
 type Story = StoryObj<typeof MyAccess>;
 
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    await expect(canvas.findByRole('heading', { name: 'My Access' })).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('My groups')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('My workspaces')).resolves.toBeInTheDocument();
+    await step('Verify default my access', async () => {
+      await expect(canvas.findByRole('heading', { name: 'My Access' })).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('My groups')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('My workspaces')).resolves.toBeInTheDocument();
+    });
   },
 };

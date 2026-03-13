@@ -1,5 +1,5 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { clearAndType, waitForContentReady } from '../../test-utils/interactionHelpers';
 import {
   Story,
   TEST_TIMEOUTS,
@@ -7,7 +7,7 @@ import {
   WS_PRODUCTION,
   WS_ROOT,
   WS_STAGING,
-  clickWizardButton,
+  clickWizardNext,
   db,
   expandWorkspaceInTree,
   expandWorkspaceRow,
@@ -19,6 +19,7 @@ import {
   resetStoryState,
   selectParentWorkspace,
   selectWorkspaceFromTree,
+  waitForModal,
   waitForPageToLoad,
 } from './_v2OrgAdminSetup';
 
@@ -57,34 +58,43 @@ Tests basic workspace creation where the parent is fixed to "Root Workspace".
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const wizard = await openWorkspaceWizard(user, canvas);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await fillWorkspaceForm(user, wizard, 'QA Environment', 'Quality Assurance testing workspace');
+    await step('Navigate to Workspaces page', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+    });
 
-    const parentLabel = await wizard.findByText(/parent workspace/i);
-    expect(parentLabel).toBeInTheDocument();
+    await step('Create workspace via wizard', async () => {
+      const wizard = await openWorkspaceWizard(user, canvas);
+      await fillWorkspaceForm(user, wizard, 'QA Environment', 'Quality Assurance testing workspace');
+      const parentLabel = await wizard.findByText(/parent workspace/i);
+      expect(parentLabel).toBeInTheDocument();
+      await selectParentWorkspace(user, wizard, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
+      await clickWizardNext(user, wizard);
+      await clickWizardNext(user, wizard, { buttonText: /submit/i });
+    });
 
-    await selectParentWorkspace(user, wizard, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
+    await step('Verify QA Environment in workspace list', async () => {
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    await clickWizardButton(user, wizard, 'Next');
-    await clickWizardButton(user, wizard, 'Submit');
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+      await expandWorkspaceRow(user, canvas, WS_PRODUCTION.name);
 
-    await waitForPageToLoad(canvas, WS_ROOT.name);
-
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
-    await expandWorkspaceRow(user, canvas, WS_PRODUCTION.name);
-
-    const qaEnvironment = await canvas.findByText('QA Environment');
-    expect(qaEnvironment).toBeInTheDocument();
+      const qaEnvironment = await canvas.findByText('QA Environment');
+      expect(qaEnvironment).toBeInTheDocument();
+    });
   },
 };
 
@@ -117,36 +127,46 @@ Tests that admins can create a workspace and choose a parent via the tree select
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const wizard = await openWorkspaceWizard(user, canvas);
-    await fillWorkspaceForm(user, wizard, 'Test Workspace M2', 'A test workspace with parent selection');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const parentLabel = await wizard.findByText(/parent workspace/i);
-    expect(parentLabel).toBeInTheDocument();
+    await step('Navigate to Workspaces page', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+    });
 
-    await selectParentWorkspace(user, wizard, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
+    await step('Create workspace with parent selection', async () => {
+      const wizard = await openWorkspaceWizard(user, canvas);
+      await fillWorkspaceForm(user, wizard, 'Test Workspace M2', 'A test workspace with parent selection');
+      const parentLabel = await wizard.findByText(/parent workspace/i);
+      expect(parentLabel).toBeInTheDocument();
+      await selectParentWorkspace(user, wizard, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
+      await clickWizardNext(user, wizard);
+      await clickWizardNext(user, wizard, { buttonText: /submit/i });
+    });
 
-    await clickWizardButton(user, wizard, 'Next');
-    await clickWizardButton(user, wizard, 'Submit');
+    await step('Verify Test Workspace M2 under Production', async () => {
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+      await expandWorkspaceRow(user, canvas, WS_PRODUCTION.name);
 
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
-    await expandWorkspaceRow(user, canvas, WS_PRODUCTION.name);
+      const newWorkspace = await canvas.findByText('Test Workspace M2');
+      expect(newWorkspace).toBeInTheDocument();
 
-    const newWorkspace = await canvas.findByText('Test Workspace M2');
-    expect(newWorkspace).toBeInTheDocument();
-
-    const newWorkspaceRow = newWorkspace.closest('tr') as HTMLElement;
-    expect(newWorkspaceRow.getAttribute('aria-level')).toBe('4');
+      const newWorkspaceRow = newWorkspace.closest('tr') as HTMLElement;
+      expect(newWorkspaceRow.getAttribute('aria-level')).toBe('4');
+    });
   },
 };
 
@@ -179,48 +199,57 @@ Tests creating a child workspace from a parent's action menu.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const body = await openWorkspaceKebabMenu(user, canvas, WS_PRODUCTION.name);
-    const createSubworkspaceButton = await body.findByText(/create subworkspace/i);
-    expect(createSubworkspaceButton).toBeInTheDocument();
-    await user.click(createSubworkspaceButton);
+    await step('Open Create subworkspace from Production kebab', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    await body.findByText(/create new workspace/i);
-    const wizardEl = document.querySelector('.pf-v6-c-wizard, .pf-c-wizard');
-    expect(wizardEl).toBeInTheDocument();
-    const wizardScope = within(wizardEl as HTMLElement);
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
 
-    await fillWorkspaceForm(user, wizardScope, 'Test Subworkspace');
+      const body = await openWorkspaceKebabMenu(user, canvas, WS_PRODUCTION.name);
+      const createSubworkspaceButton = await body.findByText(/create subworkspace/i);
+      expect(createSubworkspaceButton).toBeInTheDocument();
+      await user.click(createSubworkspaceButton);
 
-    const parentLabel = await wizardScope.findByText(/parent workspace/i);
-    expect(parentLabel).toBeInTheDocument();
+      await body.findByText(/create new workspace/i);
+      const wizardScope = await waitForModal();
 
-    await selectParentWorkspace(user, wizardScope, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
+      await fillWorkspaceForm(user, wizardScope, 'Test Subworkspace');
 
-    await clickWizardButton(user, wizardScope, 'Next');
-    await clickWizardButton(user, wizardScope, 'Submit');
+      const parentLabel = await wizardScope.findByText(/parent workspace/i);
+      expect(parentLabel).toBeInTheDocument();
 
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+      await selectParentWorkspace(user, wizardScope, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
 
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
-    await expandWorkspaceRow(user, canvas, WS_PRODUCTION.name);
+      await clickWizardNext(user, wizardScope);
+      await clickWizardNext(user, wizardScope, { buttonText: /submit/i });
+    });
 
-    const newSubworkspace = await canvas.findByText('Test Subworkspace');
-    expect(newSubworkspace).toBeInTheDocument();
+    await step('Verify Test Subworkspace under Production', async () => {
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    const newSubworkspaceRow = newSubworkspace.closest('tr') as HTMLElement;
-    expect(newSubworkspaceRow.getAttribute('aria-level')).toBe('4');
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+      await expandWorkspaceRow(user, canvas, WS_PRODUCTION.name);
+
+      const newSubworkspace = await canvas.findByText('Test Subworkspace');
+      expect(newSubworkspace).toBeInTheDocument();
+
+      const newSubworkspaceRow = newSubworkspace.closest('tr') as HTMLElement;
+      expect(newSubworkspaceRow.getAttribute('aria-level')).toBe('4');
+    });
   },
 };
 
@@ -252,56 +281,66 @@ Tests moving a workspace to a new parent in the hierarchy.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const body = await openWorkspaceKebabMenu(user, canvas, WS_STAGING.name);
-    const moveWorkspaceButton = await body.findByText(/^move workspace$/i);
-    expect(moveWorkspaceButton).toBeInTheDocument();
-    expect(moveWorkspaceButton).not.toHaveAttribute('disabled');
-    await user.click(moveWorkspaceButton);
+    await step('Open Move workspace modal and select new parent', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    const modalHeading = await body.findByRole('heading', { name: /move.*staging/i });
-    expect(modalHeading).toBeInTheDocument();
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
 
-    const parentSelector = await body.findByRole('button', { name: /default workspace/i });
-    expect(parentSelector).toBeInTheDocument();
+      const body = await openWorkspaceKebabMenu(user, canvas, WS_STAGING.name);
+      const moveWorkspaceButton = await body.findByText(/^move workspace$/i);
+      expect(moveWorkspaceButton).toBeInTheDocument();
+      expect(moveWorkspaceButton).not.toHaveAttribute('disabled');
+      await user.click(moveWorkspaceButton);
 
-    await user.click(parentSelector);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+      const modalHeading = await body.findByRole('heading', { name: /move.*staging/i });
+      expect(modalHeading).toBeInTheDocument();
 
-    const treePanel = document.querySelector('.rbac-c-workspace-selector-menu');
-    expect(treePanel).toBeInTheDocument();
-    const treePanelScope = within(treePanel as HTMLElement);
+      const parentSelector = await body.findByRole('button', { name: /default workspace/i });
+      expect(parentSelector).toBeInTheDocument();
 
-    await expandWorkspaceInTree(user, treePanelScope, WS_ROOT.name);
-    await expandWorkspaceInTree(user, treePanelScope, WS_DEFAULT.name);
-    await selectWorkspaceFromTree(user, treePanelScope, WS_PRODUCTION.name);
+      await user.click(parentSelector);
 
-    const submitButton = await body.findByRole('button', { name: /^submit$/i });
-    expect(submitButton).toBeInTheDocument();
-    expect(submitButton).toBeEnabled();
-    await user.click(submitButton);
+      // Async popover content
+      const treePanel = await within(document.body).findByTestId('workspace-selector-menu', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const treePanelScope = within(treePanel);
 
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+      await expandWorkspaceInTree(user, treePanelScope, WS_ROOT.name);
+      await expandWorkspaceInTree(user, treePanelScope, WS_DEFAULT.name);
+      await selectWorkspaceFromTree(user, treePanelScope, WS_PRODUCTION.name);
 
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
-    await expandWorkspaceRow(user, canvas, WS_PRODUCTION.name);
+      const submitButton = await body.findByRole('button', { name: /^submit$/i });
+      expect(submitButton).toBeInTheDocument();
+      expect(submitButton).toBeEnabled();
+      await user.click(submitButton);
+    });
 
-    const stagingWorkspace = await canvas.findByText(WS_STAGING.name);
-    expect(stagingWorkspace).toBeInTheDocument();
+    await step('Verify Staging moved under Production', async () => {
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    const stagingRowAfterMove = stagingWorkspace.closest('tr') as HTMLElement;
-    expect(stagingRowAfterMove.getAttribute('aria-level')).toBe('4');
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+      await expandWorkspaceRow(user, canvas, WS_PRODUCTION.name);
+
+      const stagingWorkspace = await canvas.findByText(WS_STAGING.name);
+      expect(stagingWorkspace).toBeInTheDocument();
+
+      const stagingRowAfterMove = stagingWorkspace.closest('tr') as HTMLElement;
+      expect(stagingRowAfterMove.getAttribute('aria-level')).toBe('4');
+    });
   },
 };
 
@@ -333,48 +372,53 @@ Tests editing a workspace's name and description via the kebab menu.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const body = await openWorkspaceKebabMenu(user, canvas, WS_PRODUCTION.name);
-    const editButton = await body.findByText(/^edit workspace$/i);
-    expect(editButton).toBeInTheDocument();
-    await user.click(editButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Open Edit workspace modal and save changes', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    const modal = await body.findByRole('dialog', { name: /edit workspace information/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    const modalScope = within(modal);
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
 
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+      const body = await openWorkspaceKebabMenu(user, canvas, WS_PRODUCTION.name);
+      const editButton = await body.findByText(/^edit workspace$/i);
+      expect(editButton).toBeInTheDocument();
+      await user.click(editButton);
 
-    const nameInput = await modalScope.findByDisplayValue(WS_PRODUCTION.name);
-    const descriptionInput = await modalScope.findByDisplayValue(WS_PRODUCTION.description!);
+      const modalScope = await waitForModal();
+      await modalScope.findByText(/edit workspace information/i);
 
-    await user.clear(nameInput);
-    await user.type(nameInput, 'Production Updated');
+      await clearAndType(user, () => modalScope.getByDisplayValue(WS_PRODUCTION.name) as HTMLInputElement, 'Production Updated');
+      await clearAndType(
+        user,
+        () => modalScope.getByDisplayValue(WS_PRODUCTION.description!) as HTMLTextAreaElement,
+        'Updated production environment',
+      );
 
-    await user.clear(descriptionInput);
-    await user.type(descriptionInput, 'Updated production environment');
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+      const saveButton = await modalScope.findByRole('button', { name: /^save$/i });
+      expect(saveButton).toBeEnabled();
+      await user.click(saveButton);
+    });
 
-    const saveButton = modalScope.getByRole('button', { name: /^save$/i });
-    expect(saveButton).toBeEnabled();
-    await user.click(saveButton);
+    await step('Verify Production Updated in list', async () => {
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
 
-    await waitForPageToLoad(canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
-
-    const updatedWorkspace = await canvas.findByText('Production Updated');
-    expect(updatedWorkspace).toBeInTheDocument();
+      const updatedWorkspace = await canvas.findByText('Production Updated');
+      expect(updatedWorkspace).toBeInTheDocument();
+    });
   },
 };
 
@@ -405,45 +449,55 @@ Tests deleting a leaf workspace via the kebab menu with confirmation.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
-
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
-
-    const body = await openWorkspaceKebabMenu(user, canvas, WS_STAGING.name);
-    const deleteButton = await body.findByText(/^delete workspace$/i);
-    expect(deleteButton).toBeInTheDocument();
-    await user.click(deleteButton);
-
-    const modalHeading = await body.findByRole('heading', { name: /delete.*workspace/i });
-    expect(modalHeading).toBeInTheDocument();
-
-    const checkbox = await body.findByRole('checkbox', { name: /understand.*cannot be undone/i });
-    expect(checkbox).toBeInTheDocument();
-    expect(checkbox).not.toBeChecked();
-
-    await user.click(checkbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    const confirmButton = await body.findByRole('button', { name: /^delete$/i });
-    expect(confirmButton).toBeInTheDocument();
-    expect(confirmButton).toBeEnabled();
-
-    await user.click(confirmButton);
-
-    await waitForPageToLoad(canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
-
-    await waitFor(() => {
-      expect(canvas.queryByText(WS_STAGING.name)).not.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(db);
     });
-    expect(await canvas.findByText(WS_PRODUCTION.name)).toBeInTheDocument();
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Open Delete workspace modal and confirm', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+
+      const body = await openWorkspaceKebabMenu(user, canvas, WS_STAGING.name);
+      const deleteButton = await body.findByText(/^delete workspace$/i);
+      expect(deleteButton).toBeInTheDocument();
+      await user.click(deleteButton);
+
+      const modalHeading = await body.findByRole('heading', { name: /delete.*workspace/i });
+      expect(modalHeading).toBeInTheDocument();
+
+      const checkbox = await body.findByRole('checkbox', { name: /understand.*cannot be undone/i });
+      expect(checkbox).toBeInTheDocument();
+      expect(checkbox).not.toBeChecked();
+
+      await user.click(checkbox);
+
+      const confirmButton = await body.findByRole('button', { name: /^delete$/i });
+      expect(confirmButton).toBeInTheDocument();
+      expect(confirmButton).toBeEnabled();
+
+      await user.click(confirmButton);
+    });
+
+    await step('Verify Staging removed and Production still present', async () => {
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+
+      await waitFor(() => {
+        expect(canvas.queryByText(WS_STAGING.name)).not.toBeInTheDocument();
+      });
+      expect(await canvas.findByText(WS_PRODUCTION.name)).toBeInTheDocument();
+    });
   },
 };

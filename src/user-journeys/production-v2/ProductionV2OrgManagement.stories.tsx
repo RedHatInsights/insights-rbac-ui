@@ -1,5 +1,5 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
 import {
   KESSEL_GROUP_PROD_ADMINS,
   KESSEL_GROUP_VIEWERS,
@@ -40,57 +40,60 @@ Tests the Organization-Wide Access page content and group details drawer.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-    await expect(
-      canvas.findByRole('heading', { name: /organization-wide access/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT }),
-    ).resolves.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Verify org details are rendered (org_id: 12510751, account_number: 123456)
-    await expect(canvas.findByText('12510751')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('123456')).resolves.toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Wait for the role assignments table to load with real data (skeleton table is a different DOM element)
-    const prodAdminsCell = await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await canvas.findByText(KESSEL_GROUP_VIEWERS.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    await step('Wait for page and verify org details', async () => {
+      await expect(canvas.findByRole('heading', { name: /organization-wide access/i })).resolves.toBeInTheDocument();
 
-    // No "Grant access" button should appear (no workspace context)
-    expect(canvas.queryByRole('button', { name: /grant access/i })).not.toBeInTheDocument();
+      await expect(canvas.findByText('12510751')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('123456')).resolves.toBeInTheDocument();
+    });
 
-    // Click "Production Admins" row to open the drawer
-    const productionAdminsRow = prodAdminsCell.closest('tr')!;
-    await user.click(productionAdminsRow);
+    await step('Verify role assignments table and open drawer', async () => {
+      const prodAdminsCell = await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await canvas.findByText(KESSEL_GROUP_VIEWERS.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
 
-    // Drawer should open with group name heading
-    await canvas.findByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      expect(canvas.queryByRole('button', { name: /grant access/i })).not.toBeInTheDocument();
 
-    // Verify NO workspace-specific action buttons in drawer
-    expect(canvas.queryByRole('button', { name: /edit access for this workspace/i })).not.toBeInTheDocument();
-    expect(canvas.queryByRole('button', { name: /remove.*from workspace/i })).not.toBeInTheDocument();
+      const productionAdminsRow = prodAdminsCell.closest('tr')!;
+      await user.click(productionAdminsRow);
+    });
 
-    // Roles tab is active by default — verify role data loads
-    await canvas.findByText(KESSEL_ROLE_WS_ADMIN.name!, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await canvas.findByText(KESSEL_ROLE_WS_VIEWER.name!, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    await step('Verify drawer content and roles tab', async () => {
+      await canvas.findByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name });
 
-    // Switch to Users tab
-    const usersTab = canvas.getByRole('tab', { name: /users/i });
-    await user.click(usersTab);
+      expect(canvas.queryByRole('button', { name: /edit access for this workspace/i })).not.toBeInTheDocument();
+      expect(canvas.queryByRole('button', { name: /remove.*from workspace/i })).not.toBeInTheDocument();
 
-    // Verify member data loads
-    await canvas.findByText(USER_JOHN.username, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await canvas.findByText(USER_JANE.username, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await canvas.findByText(KESSEL_ROLE_WS_ADMIN.name!);
+      await canvas.findByText(KESSEL_ROLE_WS_VIEWER.name!);
+    });
 
-    // Close the drawer
-    const closeButton = canvas.getByRole('button', { name: /close drawer/i });
-    await user.click(closeButton);
+    await step('Switch to Users tab and verify member data', async () => {
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      await user.click(usersTab);
 
-    // Drawer heading should be gone
-    await waitFor(() => {
-      expect(canvas.queryByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name })).not.toBeInTheDocument();
+      await canvas.findByText(USER_JOHN.username);
+      await canvas.findByText(USER_JANE.username);
+    });
+
+    await step('Close drawer and verify it closes', async () => {
+      const closeButton = await canvas.findByRole('button', { name: /close drawer/i });
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(canvas.queryByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name })).not.toBeInTheDocument();
+      });
     });
   },
 };

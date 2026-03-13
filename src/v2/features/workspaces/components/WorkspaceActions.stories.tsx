@@ -108,20 +108,18 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify actions menu', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await expect(actionsButton).toBeInTheDocument();
+      await expect(actionsButton).not.toBeDisabled();
 
-    // Should show the Actions button
-    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-    await expect(actionsButton).toBeInTheDocument();
-    await expect(actionsButton).not.toBeDisabled();
+      await userEvent.click(actionsButton);
 
-    // Click to open the menu
-    await userEvent.click(actionsButton);
-
-    // Verify some core menu items are present (not testing all to avoid flakiness)
-    await expect(within(document.body).findByText('Edit workspace')).resolves.toBeInTheDocument();
-    await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('Edit workspace')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -138,13 +136,13 @@ export const DisabledState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    // Should show the Actions button but disabled
-    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-    await expect(actionsButton).toBeInTheDocument();
-    await expect(actionsButton).toBeDisabled();
+    await step('Verify disabled state', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await expect(actionsButton).toBeInTheDocument();
+      await expect(actionsButton).toBeDisabled();
+    });
   },
 };
 
@@ -162,15 +160,14 @@ export const WithAssets: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify with assets menu', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await userEvent.click(actionsButton);
 
-    // Open the menu
-    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-    await userEvent.click(actionsButton);
-
-    // Verify the delete action is present - the actual modal behavior requires full app context
-    await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -187,15 +184,14 @@ export const DeleteConfirmation: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify delete confirmation menu', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await userEvent.click(actionsButton);
 
-    // Open the menu
-    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-    await userEvent.click(actionsButton);
-
-    // Verify the delete action is present - the modal behavior requires full app context
-    await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -212,26 +208,24 @@ export const DrilldownMenuInteraction: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify drilldown menu', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await userEvent.click(actionsButton);
 
-    // Open the main menu
-    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-    await userEvent.click(actionsButton);
+      const menuItems = within(document.body).getAllByText('Manage integrations');
+      const manageIntegrationsMenuItem =
+        menuItems.find(
+          (el) => el.closest('[role="menuitem"]') && !el.closest('[role="menuitem"]')?.getAttribute('aria-label')?.includes('breadcrumb'),
+        ) || menuItems[0];
 
-    // Find the main menu item for "Manage integrations" (avoid breadcrumb)
-    const menuItems = within(document.body).getAllByText('Manage integrations');
-    const manageIntegrationsMenuItem =
-      menuItems.find(
-        (el) => el.closest('[role="menuitem"]') && !el.closest('[role="menuitem"]')?.getAttribute('aria-label')?.includes('breadcrumb'),
-      ) || menuItems[0];
+      await userEvent.click(manageIntegrationsMenuItem);
 
-    await userEvent.click(manageIntegrationsMenuItem);
-
-    // Should show the drill-down menu items (rendered in portal)
-    const body = within(document.body);
-    await expect(body.findByText('Menu Item 1')).resolves.toBeInTheDocument();
-    await expect(body.findByText('Menu Item 2')).resolves.toBeInTheDocument();
+      const body = within(document.body);
+      await expect(body.findByText('Menu Item 1')).resolves.toBeInTheDocument();
+      await expect(body.findByText('Menu Item 2')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -248,19 +242,17 @@ export const SubWorkspace: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify sub-workspace actions', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await expect(actionsButton).toBeInTheDocument();
 
-    // Should show the Actions button
-    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-    await expect(actionsButton).toBeInTheDocument();
+      await userEvent.click(actionsButton);
 
-    // Open menu to verify actions are available
-    await userEvent.click(actionsButton);
-
-    // All actions should still be available for sub-workspaces
-    await expect(within(document.body).findByText('Edit workspace')).resolves.toBeInTheDocument();
-    await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('Edit workspace')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -308,28 +300,24 @@ export const MenuNavigation: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify menu navigation', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
 
-    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await expect(actionsButton).toHaveAttribute('aria-expanded', 'false');
 
-    // Initially closed
-    await expect(actionsButton).toHaveAttribute('aria-expanded', 'false');
+      await userEvent.click(actionsButton);
+      await expect(actionsButton).toHaveAttribute('aria-expanded', 'true');
 
-    // Open menu
-    await userEvent.click(actionsButton);
-    await expect(actionsButton).toHaveAttribute('aria-expanded', 'true');
+      await expect(within(document.body).findByText('Edit workspace')).resolves.toBeInTheDocument();
 
-    // Verify menu content is visible
-    await expect(within(document.body).findByText('Edit workspace')).resolves.toBeInTheDocument();
+      await userEvent.click(actionsButton);
+      await expect(actionsButton).toHaveAttribute('aria-expanded', 'false');
 
-    // Close by clicking button again
-    await userEvent.click(actionsButton);
-    await expect(actionsButton).toHaveAttribute('aria-expanded', 'false');
-
-    // Menu content should no longer be visible
-    await waitFor(async () => {
-      await expect(canvas.queryByText('Edit workspace')).not.toBeInTheDocument();
+      await waitFor(async () => {
+        await expect(canvas.queryByText('Edit workspace')).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -359,22 +347,20 @@ export const ItemsDisabledByPermissions: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify items disabled by permissions', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await userEvent.click(actionsButton);
 
-    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-    await userEvent.click(actionsButton);
+      const editItem = await within(document.body).findByText('Edit workspace');
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
 
-    // Edit workspace should be disabled (!edit)
-    const editItem = await within(document.body).findByText('Edit workspace');
-    await expect(editItem.closest('button')).toHaveAttribute('disabled');
+      const grantItem = await within(document.body).findByText('Grant access to workspace');
+      await expect(grantItem.closest('button')).toHaveAttribute('disabled');
 
-    // Grant access should be disabled (!create)
-    const grantItem = await within(document.body).findByText('Grant access to workspace');
-    await expect(grantItem.closest('button')).toHaveAttribute('disabled');
-
-    // Delete workspace should be disabled (!delete)
-    const deleteItem = await within(document.body).findByText('Delete workspace');
-    await expect(deleteItem.closest('button')).toHaveAttribute('disabled');
+      const deleteItem = await within(document.body).findByText('Delete workspace');
+      await expect(deleteItem.closest('button')).toHaveAttribute('disabled');
+    });
   },
 };

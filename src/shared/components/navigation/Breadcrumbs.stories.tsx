@@ -219,18 +219,18 @@ export const LinkGenerationTest: Story = {
   parameters: {
     docs: { disable: true }, // Hide from docs as this is a test story
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Find the breadcrumb links
-    const groupsLink = await canvas.findByRole('link', { name: 'Groups' });
-    const testGroupLink = await canvas.findByRole('link', { name: 'Test Group' });
+      // Find the breadcrumb links
+      const groupsLink = await canvas.findByRole('link', { name: 'Groups' });
+      const testGroupLink = await canvas.findByRole('link', { name: 'Test Group' });
 
-    // Verify that links have proper basename prefixes
-    // The useAppLink hook should convert "/user-access/groups" to "/iam/user-access/groups"
-    expect(groupsLink.getAttribute('href')).toBe('/iam/user-access/groups');
-    expect(testGroupLink.getAttribute('href')).toBe('/iam/user-access/groups/detail/test-id/roles');
-
-    console.log('SB: ✅ Breadcrumb links properly generated with basename');
+      // Verify that links have proper basename prefixes
+      // The useAppLink hook should convert "/user-access/groups" to "/iam/user-access/groups"
+      expect(groupsLink.getAttribute('href')).toBe('/iam/user-access/groups');
+      expect(testGroupLink.getAttribute('href')).toBe('/iam/user-access/groups/detail/test-id/roles');
+    });
   },
 };

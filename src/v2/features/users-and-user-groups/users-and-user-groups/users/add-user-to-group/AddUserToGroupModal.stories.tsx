@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
@@ -152,27 +151,25 @@ The modal displays:
       },
     },
   },
-  play: async () => {
-    // Mock clearing to track calls
-    addMembersToGroupSpy.mockClear();
+  play: async ({ step }) => {
+    await step('Open modal and verify initial state', async () => {
+      addMembersToGroupSpy.mockClear();
 
-    // Open the modal
-    const button = await screen.findByRole('button', { name: /open add to group modal/i });
-    await userEvent.click(button);
+      const button = await screen.findByRole('button', { name: /open add to group modal/i });
+      await userEvent.click(button);
 
-    // Wait for modal and groups to load
-    await waitFor(
-      async () => {
-        const body = within(document.body);
-        await expect(body.getByText('Add to user group')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      await waitFor(
+        async () => {
+          const body = within(document.body);
+          await expect(body.getByText('Add to user group')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    // Add user interaction logic here if needed
-    const body = within(document.body);
-    const addButton = body.getByRole('button', { name: /^add$/i });
-    await expect(addButton).toBeDisabled(); // Should be disabled initially
+      const body = within(document.body);
+      const addButton = body.getByRole('button', { name: /^add$/i });
+      await expect(addButton).toBeDisabled();
+    });
   },
 };
 
@@ -199,27 +196,25 @@ This story demonstrates:
       },
     },
   },
-  play: async () => {
-    // Mock clearing to track calls
-    addMembersToGroupSpy.mockClear();
+  play: async ({ step }) => {
+    await step('Open modal and verify initial state', async () => {
+      addMembersToGroupSpy.mockClear();
 
-    // Open the modal
-    const button = await screen.findByRole('button', { name: /open add to group modal/i });
-    await userEvent.click(button);
+      const button = await screen.findByRole('button', { name: /open add to group modal/i });
+      await userEvent.click(button);
 
-    // Wait for modal and groups to load
-    await waitFor(
-      async () => {
-        const body = within(document.body);
-        await expect(body.getByText('Add to user group')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      await waitFor(
+        async () => {
+          const body = within(document.body);
+          await expect(body.getByText('Add to user group')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    // Add user interaction logic here if needed
-    const body = within(document.body);
-    const addButton = body.getByRole('button', { name: /^add$/i });
-    await expect(addButton).toBeDisabled(); // Should be disabled initially
+      const body = within(document.body);
+      const addButton = body.getByRole('button', { name: /^add$/i });
+      await expect(addButton).toBeDisabled();
+    });
   },
 };
 
@@ -252,48 +247,43 @@ This story tests:
       },
     },
   },
-  play: async () => {
-    await delay(300);
-    addMembersToGroupSpy.mockClear();
+  play: async ({ step }) => {
+    await step('Open modal and wait for groups to load', async () => {
+      addMembersToGroupSpy.mockClear();
 
-    // Open the modal using screen instead of canvas (modal renders in document.body)
-    const button = await screen.findByRole('button', { name: /open add to group modal/i });
-    await userEvent.click(button);
+      const button = await screen.findByRole('button', { name: /open add to group modal/i });
+      await userEvent.click(button);
 
-    // Wait for modal and groups to load
-    await waitFor(
-      async () => {
-        const body = within(document.body);
-        await expect(body.getByText('Add to user group')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
-
-    const body = within(document.body);
-
-    // Wait for groups to load in the modal
-    const groupRow = await body.findByText('Administrators');
-    await expect(groupRow).toBeInTheDocument();
-
-    // Select a group (Administrators) by clicking its checkbox
-    const adminGroup = body.getByText('Administrators');
-    const adminRow = adminGroup.closest('tr');
-    await expect(adminRow).toBeInTheDocument();
-    const adminCheckbox = within(adminRow as HTMLElement).getByRole('checkbox');
-    await userEvent.click(adminCheckbox);
-
-    // Verify the Add button is now enabled
-    const addButton = body.getByRole('button', { name: /^add$/i });
-    await expect(addButton).not.toBeDisabled();
-
-    // Click Add button
-    await userEvent.click(addButton);
-
-    await waitFor(async () => {
-      await expect(addMembersToGroupSpy).toHaveBeenCalledWith(
-        expect.any(Request),
-        expect.objectContaining({ groupId: '1' }), // First group (Administrators)
+      await waitFor(
+        async () => {
+          const body = within(document.body);
+          await expect(body.getByText('Add to user group')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
       );
+
+      const body = within(document.body);
+      const groupRow = await body.findByText('Administrators');
+      await expect(groupRow).toBeInTheDocument();
+    });
+
+    await step('Select group and add', async () => {
+      const body = within(document.body);
+
+      const adminGroup = body.getByText('Administrators');
+      const adminRow = adminGroup.closest('tr');
+      await expect(adminRow).toBeInTheDocument();
+      const adminCheckbox = within(adminRow as HTMLElement).getByRole('checkbox');
+      await userEvent.click(adminCheckbox);
+
+      const addButton = body.getByRole('button', { name: /^add$/i });
+      await expect(addButton).not.toBeDisabled();
+
+      await userEvent.click(addButton);
+
+      await waitFor(async () => {
+        await expect(addMembersToGroupSpy).toHaveBeenCalledWith(expect.any(Request), expect.objectContaining({ groupId: '1' }));
+      });
     });
   },
 };
@@ -315,11 +305,10 @@ Used for testing that the modal doesn't render when closed.
       },
     },
   },
-  play: async () => {
-    await delay(300);
-    const canvas = within(document.body);
-
-    // Verify modal is not visible
-    await expect(canvas.queryByText(/add to user group/i)).not.toBeInTheDocument();
+  play: async ({ step }) => {
+    await step('Verify modal is not visible', async () => {
+      const canvas = within(document.body);
+      await expect(canvas.queryByText(/add to user group/i)).not.toBeInTheDocument();
+    });
   },
 };

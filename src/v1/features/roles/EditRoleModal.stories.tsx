@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { EditRoleModal } from './EditRoleModal';
 import { v1RolesHandlers } from '../../data/mocks/roles.handlers';
@@ -82,27 +81,28 @@ export const Default: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Modal should be visible
-    const modal = await body.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+    await step('Verify modal with role data loaded', async () => {
+      // Modal should be visible
+      const modal = await body.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Title should be visible
-    expect(body.getByText(/edit role information/i)).toBeInTheDocument();
+      // Title should be visible
+      expect(body.getByText(/edit role information/i)).toBeInTheDocument();
 
-    // Name input should have current value
-    const nameInput = body.getByRole('textbox', { name: /name/i });
-    expect(nameInput).toBeInTheDocument();
-    await waitFor(() => {
-      expect(nameInput).toHaveValue('Platform Administrator');
+      // Name input should have current value
+      const nameInput = body.getByRole('textbox', { name: /name/i });
+      expect(nameInput).toBeInTheDocument();
+      await waitFor(() => {
+        expect(nameInput).toHaveValue('Platform Administrator');
+      });
+
+      // Description textarea should have current value
+      const descInput = body.getByRole('textbox', { name: /description/i });
+      expect(descInput).toHaveValue('Full platform access for administrators');
     });
-
-    // Description textarea should have current value
-    const descInput = body.getByRole('textbox', { name: /description/i });
-    expect(descInput).toHaveValue('Full platform access for administrators');
   },
 };
 
@@ -115,23 +115,24 @@ export const EditRoleName: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for modal
-    await body.findByRole('dialog');
+    await step('Edit role name', async () => {
+      // Wait for modal
+      await body.findByRole('dialog');
 
-    // Find name input
-    const nameInput = body.getByRole('textbox', { name: /name/i });
-    await waitFor(() => {
-      expect(nameInput).toHaveValue('Platform Administrator');
+      // Find name input
+      const nameInput = body.getByRole('textbox', { name: /name/i });
+      await waitFor(() => {
+        expect(nameInput).toHaveValue('Platform Administrator');
+      });
+
+      // Clear and type new name
+      await userEvent.clear(nameInput);
+      await userEvent.type(nameInput, 'Updated Role Name');
+      expect(nameInput).toHaveValue('Updated Role Name');
     });
-
-    // Clear and type new name
-    await userEvent.clear(nameInput);
-    await userEvent.type(nameInput, 'Updated Role Name');
-    expect(nameInput).toHaveValue('Updated Role Name');
   },
 };
 
@@ -144,23 +145,24 @@ export const EditRoleDescription: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for modal
-    await body.findByRole('dialog');
+    await step('Edit role description', async () => {
+      // Wait for modal
+      await body.findByRole('dialog');
 
-    // Find description textarea
-    const descInput = body.getByRole('textbox', { name: /description/i });
-    await waitFor(() => {
-      expect(descInput).toHaveValue('Full platform access for administrators');
+      // Find description textarea
+      const descInput = body.getByRole('textbox', { name: /description/i });
+      await waitFor(() => {
+        expect(descInput).toHaveValue('Full platform access for administrators');
+      });
+
+      // Clear and type new description
+      await userEvent.clear(descInput);
+      await userEvent.type(descInput, 'New description for this role');
+      expect(descInput).toHaveValue('New description for this role');
     });
-
-    // Clear and type new description
-    await userEvent.clear(descInput);
-    await userEvent.type(descInput, 'New description for this role');
-    expect(descInput).toHaveValue('New description for this role');
   },
 };
 
@@ -173,17 +175,18 @@ export const CancelButtonVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for modal
-    await body.findByRole('dialog');
+    await step('Verify cancel button', async () => {
+      // Wait for modal
+      await body.findByRole('dialog');
 
-    // Cancel button should be present and enabled
-    const cancelButton = body.getByRole('button', { name: /cancel/i });
-    expect(cancelButton).toBeInTheDocument();
-    expect(cancelButton).toBeEnabled();
+      // Cancel button should be present and enabled
+      const cancelButton = body.getByRole('button', { name: /cancel/i });
+      expect(cancelButton).toBeInTheDocument();
+      expect(cancelButton).toBeEnabled();
+    });
   },
 };
 
@@ -196,16 +199,17 @@ export const SaveButtonVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for modal
-    await body.findByRole('dialog');
+    await step('Verify save button', async () => {
+      // Wait for modal
+      await body.findByRole('dialog');
 
-    // Save/Submit button should be present
-    const saveButton = body.getByRole('button', { name: /save|submit/i });
-    expect(saveButton).toBeInTheDocument();
+      // Save/Submit button should be present
+      const saveButton = body.getByRole('button', { name: /save|submit/i });
+      expect(saveButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -219,7 +223,6 @@ export const CloseButtonVisible: Story = {
     },
   },
   play: async () => {
-    await delay(500);
     const body = within(document.body);
 
     // Wait for modal
@@ -240,35 +243,34 @@ export const NameRequired: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for modal
-    await body.findByRole('dialog');
+    await step('Verify name required validation', async () => {
+      // Wait for modal
+      await body.findByRole('dialog');
 
-    // Find name input
-    const nameInput = body.getByRole('textbox', { name: /name/i });
-    await waitFor(() => {
-      expect(nameInput).toHaveValue('Platform Administrator');
+      // Find name input
+      const nameInput = body.getByRole('textbox', { name: /name/i });
+      await waitFor(() => {
+        expect(nameInput).toHaveValue('Platform Administrator');
+      });
+
+      // Clear the name input
+      await userEvent.clear(nameInput);
+
+      // Focus out to trigger validation
+      await userEvent.tab();
+
+      // Wait for validation message (required indicator or aria-invalid)
+      await waitFor(
+        () => {
+          const requiredIndicator = body.queryByText(/required/i);
+          const hasInvalidInput = nameInput.getAttribute('aria-invalid') === 'true';
+          expect(requiredIndicator || hasInvalidInput).toBeTruthy();
+        },
+        { timeout: 3000 },
+      );
     });
-
-    // Clear the name input
-    await userEvent.clear(nameInput);
-
-    // Focus out to trigger validation
-    await userEvent.tab();
-
-    // Wait for validation message
-    await delay(500);
-
-    // Required field indicator should be present
-    const requiredIndicator = body.queryByText(/required/i);
-    if (requiredIndicator) {
-      expect(requiredIndicator).toBeInTheDocument();
-    } else {
-      // Check if input is marked as invalid
-      expect(nameInput).toHaveAttribute('aria-invalid', 'true');
-    }
   },
 };

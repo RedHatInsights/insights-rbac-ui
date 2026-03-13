@@ -36,12 +36,14 @@ export const Default: Story = {
       </div>
     ),
   },
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Test that layout renders correctly
-    expect(await canvas.findByTestId('entitle-section')).toBeInTheDocument();
-    expect(await canvas.findByText('Your permissions in Red Hat Enterprise Linux')).toBeInTheDocument();
-    expect(await canvas.findByText('Table content would go here (AccessTable or RolesTable)')).toBeInTheDocument();
+    await step('Verify layout render', async () => {
+      // Test that layout renders correctly
+      expect(await canvas.findByTestId('entitle-section')).toBeInTheDocument();
+      expect(await canvas.findByText('Your permissions in Red Hat Enterprise Linux')).toBeInTheDocument();
+      expect(await canvas.findByText('Table content would go here (AccessTable or RolesTable)')).toBeInTheDocument();
+    });
   },
 };

@@ -69,20 +69,22 @@ The catalog layout is responsive and follows PatternFly design patterns for opti
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    // Test that the component renders without errors
-    await expect(canvasElement).toBeInTheDocument();
+  play: async ({ canvasElement, step }) => {
+    await step('Verify quickstarts catalog render', async () => {
+      // Test that the component renders without errors
+      await expect(canvasElement).toBeInTheDocument();
 
-    // Verify component renders the quickstarts catalog
-    await expect(canvasElement.children.length).toBeGreaterThan(0);
+      // Verify component renders the quickstarts catalog
+      await expect(canvasElement.children.length).toBeGreaterThan(0);
 
-    // Check for the main heading
-    const heading = canvasElement.querySelector('h2');
-    await expect(heading).toBeTruthy();
-    await expect(heading?.textContent).toContain('Quick starts');
+      // Check for the main heading
+      const heading = canvasElement.querySelector('h2');
+      await expect(heading).toBeTruthy();
+      await expect(heading?.textContent).toContain('Quick starts');
 
-    // Verify tutorial cards are present
-    const tutorialCards = canvasElement.querySelectorAll('[style*="border: 1px solid"]');
-    await expect(tutorialCards.length).toBeGreaterThan(0);
+      // Verify tutorial cards are present
+      const tutorialCards = canvasElement.querySelectorAll('[style*="border: 1px solid"]');
+      await expect(tutorialCards.length).toBeGreaterThan(0);
+    });
   },
 };

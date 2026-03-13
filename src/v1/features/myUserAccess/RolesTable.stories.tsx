@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { findSortButton } from '../../../test-utils/tableHelpers';
 import { RolesTable } from './RolesTable';
 import { v1RolesHandlers, v1RolesLoadingHandlers } from '../../data/mocks/roles.handlers';
 
@@ -114,17 +114,16 @@ For testing specific scenarios, see these additional stories:
     apps: ['advisor', 'compliance', 'vulnerability'],
     showResourceDefinitions: true,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Test real API orchestration - container triggers mutations and React Query updates
-    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    await step('Verify table and role data loaded', async () => {
+      expect(await canvas.findByRole('grid')).toBeInTheDocument();
 
-    // Verify role data loaded through React Query
-    expect(await canvas.findByText('Advisor Administrator')).toBeInTheDocument();
-    expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Vulnerability Manager')).toBeInTheDocument();
+      expect(await canvas.findByText('Advisor Administrator')).toBeInTheDocument();
+      expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
+      expect(await canvas.findByText('Vulnerability Manager')).toBeInTheDocument();
+    });
   },
 };
 
@@ -142,17 +141,16 @@ export const LoadingState: Story = {
     apps: ['advisor', 'compliance', 'vulnerability'],
     showResourceDefinitions: true,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show table structure while API call is pending
-    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    await step('Verify loading state', async () => {
+      expect(await canvas.findByRole('grid')).toBeInTheDocument();
 
-    // Since API never resolves (infinite delay), should not show final data
-    expect(canvas.queryByText('Advisor Administrator')).not.toBeInTheDocument();
-    expect(canvas.queryByText('Compliance Viewer')).not.toBeInTheDocument();
-    expect(canvas.queryByText('Vulnerability Manager')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Advisor Administrator')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Compliance Viewer')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Vulnerability Manager')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -166,12 +164,12 @@ export const EmptyRoles: Story = {
     apps: ['advisor', 'compliance', 'vulnerability'],
     showResourceDefinitions: true,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show empty state after API returns no data
-    expect(await canvas.findByText('Configure roles')).toBeInTheDocument();
+    await step('Verify empty state', async () => {
+      expect(await canvas.findByText('Configure roles')).toBeInTheDocument();
+    });
   },
 };
 
@@ -195,90 +193,81 @@ export const FilteringInteraction: Story = {
     apps: ['advisor', 'compliance', 'vulnerability'],
     showResourceDefinitions: true,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Initial load should call API with basic parameters
-    await waitFor(() => {
-      expect(apiCallSpy).toHaveBeenCalled();
-      const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
-      expect(lastCall.scope).toBe('principal');
-      expect(lastCall.application).toBe('advisor,compliance,vulnerability');
-    });
-
-    // Test role name filtering
-    const roleFilter = await canvas.findByPlaceholderText('Filter by role name...');
-
-    // Reset spy
-    apiCallSpy.mockClear();
-
-    // Type in role filter
-    await userEvent.type(roleFilter, 'admin');
-
-    // Wait for debounced API call and verify parameters
-    await waitFor(
-      () => {
+    await step('Verify initial API call', async () => {
+      await waitFor(() => {
         expect(apiCallSpy).toHaveBeenCalled();
         const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.name).toBe('admin');
         expect(lastCall.scope).toBe('principal');
         expect(lastCall.application).toBe('advisor,compliance,vulnerability');
-      },
-      { timeout: 1000 },
-    ); // Account for 500ms debounce
+      });
+    });
 
-    // Test application filtering - need to switch filter type first
-    // Find and click the filter type dropdown button (contains "Role name" text)
-    const filterDropdownButton = await canvas.findByRole('button', { name: /Role name/i });
-    await userEvent.click(filterDropdownButton);
+    await step('Apply role name filter', async () => {
+      const roleFilter = await canvas.findByPlaceholderText('Filter by role name...');
 
-    // Wait for dropdown menu to appear and select "Application" option
-    const applicationOption = await within(document.body).findByRole('menuitem', { name: /Application/i });
-    await userEvent.click(applicationOption);
+      apiCallSpy.mockClear();
 
-    // Wait for the filter input to change and find the application filter dropdown
-    const applicationFilter = await canvas.findByRole('button', { name: /Filter by application/i });
+      await userEvent.type(roleFilter, 'admin');
 
-    // Reset spy
-    apiCallSpy.mockClear();
+      await waitFor(
+        () => {
+          expect(apiCallSpy).toHaveBeenCalled();
+          const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.name).toBe('admin');
+          expect(lastCall.scope).toBe('principal');
+          expect(lastCall.application).toBe('advisor,compliance,vulnerability');
+        },
+        { timeout: 1000 },
+      );
+    });
 
-    // Click the application filter dropdown
-    await userEvent.click(applicationFilter);
+    await step('Apply application filter', async () => {
+      const filterDropdownButton = await canvas.findByRole('button', { name: /Role name/i });
+      await userEvent.click(filterDropdownButton);
 
-    // Find and select the "advisor" option from the dropdown menu (renders via portal)
-    const advisorMenuItem = await within(document.body).findByText('advisor');
-    await userEvent.click(advisorMenuItem);
+      const applicationOption = await within(document.body).findByRole('menuitem', { name: /Application/i });
+      await userEvent.click(applicationOption);
 
-    // Verify application filter API call (should preserve role filter)
-    await waitFor(
-      () => {
-        expect(apiCallSpy).toHaveBeenCalled();
-        const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.application).toBe('advisor');
-        expect(lastCall.name).toBe('admin'); // Role filter should be preserved
-      },
-      { timeout: 1000 },
-    );
+      const applicationFilter = await canvas.findByRole('button', { name: /Filter by application/i });
 
-    // Test clear all filters - use role selector to avoid matching empty state "Clear filters" link
-    const clearAllFilters = await canvas.findByRole('button', { name: /clear filters/i });
+      apiCallSpy.mockClear();
 
-    // Reset spy
-    apiCallSpy.mockClear();
+      await userEvent.click(applicationFilter);
 
-    await userEvent.click(clearAllFilters);
+      const advisorMenuItem = await within(document.body).findByText('advisor');
+      await userEvent.click(advisorMenuItem);
 
-    // Verify clear filters API call
-    await waitFor(
-      () => {
-        expect(apiCallSpy).toHaveBeenCalled();
-        const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.name).toBeNull();
-        expect(lastCall.application).toBe('advisor,compliance,vulnerability'); // Should reset to all apps
-      },
-      { timeout: 1000 },
-    );
+      await waitFor(
+        () => {
+          expect(apiCallSpy).toHaveBeenCalled();
+          const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.application).toBe('advisor');
+          expect(lastCall.name).toBe('admin');
+        },
+        { timeout: 1000 },
+      );
+    });
+
+    await step('Clear all filters', async () => {
+      const clearAllFilters = await canvas.findByRole('button', { name: /clear filters/i });
+
+      apiCallSpy.mockClear();
+
+      await userEvent.click(clearAllFilters);
+
+      await waitFor(
+        () => {
+          expect(apiCallSpy).toHaveBeenCalled();
+          const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.name).toBeNull();
+          expect(lastCall.application).toBe('advisor,compliance,vulnerability');
+        },
+        { timeout: 1000 },
+      );
+    });
   },
 };
 
@@ -287,27 +276,26 @@ export const PermissionExpansion: Story = {
     apps: ['advisor', 'compliance', 'vulnerability'],
     showResourceDefinitions: true,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Check roles loaded from API through React Query
-    expect(await canvas.findByText('Advisor Administrator')).toBeInTheDocument();
-    expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
+    await step('Verify roles loaded', async () => {
+      expect(await canvas.findByText('Advisor Administrator')).toBeInTheDocument();
+      expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
+    });
 
-    // Find and click the permissions count to expand the row
-    const permissionsCount = await canvas.findByText('5');
-    await userEvent.click(permissionsCount);
+    await step('Expand role and verify permissions', async () => {
+      const permissionsCount = await canvas.findByText('5');
+      await userEvent.click(permissionsCount);
 
-    await waitFor(() => {
-      const tbody = permissionsCount.closest('tbody');
-      const table = tbody?.querySelector('table');
-      if (!table) throw new Error('Could not find expanded table');
-      const expandedRow = within(table);
-
-      // Should show expanded permissions
-      expect(expandedRow.getByText('advisor')).toBeInTheDocument();
-      expect(expandedRow.getByText('compliance')).toBeInTheDocument();
+      await waitFor(() => {
+        const tbody = permissionsCount.closest('tbody');
+        const table = tbody?.querySelector('table');
+        if (!table) throw new Error('Could not find expanded table');
+        const expandedRow = within(table);
+        expect(expandedRow.getByText('advisor')).toBeInTheDocument();
+        expect(expandedRow.getByText('compliance')).toBeInTheDocument();
+      });
     });
   },
 };
@@ -317,16 +305,15 @@ export const WithoutResourceDefinitions: Story = {
     apps: ['advisor', 'compliance', 'vulnerability'],
     showResourceDefinitions: false,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Test that resource definitions column is hidden
-    expect(await canvas.findByRole('grid')).toBeInTheDocument();
-    expect(await canvas.findByText('Advisor Administrator')).toBeInTheDocument();
+    await step('Verify table without resource definitions column', async () => {
+      expect(await canvas.findByRole('grid')).toBeInTheDocument();
+      expect(await canvas.findByText('Advisor Administrator')).toBeInTheDocument();
 
-    // Resource definitions column should not be present
-    expect(canvas.queryByText('Resource Definitions')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Resource Definitions')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -350,94 +337,76 @@ export const SortingInteraction: Story = {
     apps: ['advisor', 'compliance', 'vulnerability'],
     showResourceDefinitions: false,
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Initial load should call API with default sorting (display_name, asc)
-    await waitFor(
-      () => {
-        expect(apiCallSpy).toHaveBeenCalled();
-        const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.orderBy).toBe('display_name');
-      },
-      { timeout: 1000 },
-    );
+    await step('Verify initial sort', async () => {
+      await waitFor(
+        () => {
+          expect(apiCallSpy).toHaveBeenCalled();
+          const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.orderBy).toBe('display_name');
+        },
+        { timeout: 1000 },
+      );
+    });
 
-    // Test clicking Roles column header for descending sort
-    let rolesHeader = await canvas.findByRole('columnheader', { name: /roles/i });
-    let rolesButton = await within(rolesHeader).findByRole('button');
+    await step('Toggle to descending sort', async () => {
+      const rolesButton = await findSortButton(canvas, /roles/i);
 
-    // Reset spy
-    apiCallSpy.mockClear();
+      apiCallSpy.mockClear();
 
-    await userEvent.click(rolesButton);
+      await userEvent.click(rolesButton);
 
-    // Wait for debounced API call
-    await delay(600);
+      await waitFor(
+        () => {
+          expect(apiCallSpy).toHaveBeenCalled();
+          const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.orderBy).toBe('-display_name');
+        },
+        { timeout: 1000 },
+      );
+    });
 
-    // Verify descending sort API call
-    await waitFor(
-      () => {
-        expect(apiCallSpy).toHaveBeenCalled();
-        const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.orderBy).toBe('-display_name');
-      },
-      { timeout: 1000 },
-    );
+    await step('Toggle to ascending sort', async () => {
+      const rolesButton = await findSortButton(canvas, /roles/i);
 
-    // Test clicking Roles column header again for ascending sort
-    // Re-find the button after table re-render
-    rolesHeader = await canvas.findByRole('columnheader', { name: /roles/i });
-    rolesButton = await within(rolesHeader).findByRole('button');
+      apiCallSpy.mockClear();
 
-    // Reset spy
-    apiCallSpy.mockClear();
+      await userEvent.click(rolesButton);
 
-    await userEvent.click(rolesButton);
+      await waitFor(
+        () => {
+          expect(apiCallSpy).toHaveBeenCalled();
+          const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.orderBy).toBe('display_name');
+        },
+        { timeout: 1000 },
+      );
+    });
 
-    // Wait for debounced API call
-    await delay(600);
+    await step('Add role filter and verify sort preserved', async () => {
+      const roleFilter = await canvas.findByRole('button', { name: /Role name/i });
+      await userEvent.click(roleFilter);
 
-    // Verify ascending sort API call
-    await waitFor(
-      () => {
-        expect(apiCallSpy).toHaveBeenCalled();
-        const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.orderBy).toBe('display_name');
-      },
-      { timeout: 1000 },
-    );
+      const roleNameMenuItem = await within(document.body).findByRole('menuitem', { name: /Role name/i });
+      await userEvent.click(roleNameMenuItem);
 
-    // Test sorting + filtering combination
-    // Add a role name filter first
-    const roleFilter = await canvas.findByRole('button', { name: /Role name/i });
-    await userEvent.click(roleFilter);
+      const roleNameInput = await canvas.findByPlaceholderText(/Filter by role name/i);
 
-    // Find the role name menu item and select it
-    const roleNameMenuItem = await within(document.body).findByRole('menuitem', { name: /Role name/i });
-    await userEvent.click(roleNameMenuItem);
+      apiCallSpy.mockClear();
 
-    // Find the text input and type a filter
-    const roleNameInput = await canvas.findByPlaceholderText(/Filter by role name/i);
+      await userEvent.type(roleNameInput, 'admin');
 
-    // Reset spy
-    apiCallSpy.mockClear();
-
-    await userEvent.type(roleNameInput, 'admin');
-
-    // Wait for debounced API call
-    await delay(600);
-
-    // Verify filtering + sorting works together
-    await waitFor(
-      () => {
-        expect(apiCallSpy).toHaveBeenCalled();
-        const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.name).toBe('admin');
-        expect(lastCall.orderBy).toBe('display_name'); // Should maintain previous sort
-      },
-      { timeout: 1000 },
-    );
+      await waitFor(
+        () => {
+          expect(apiCallSpy).toHaveBeenCalled();
+          const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
+          expect(lastCall.name).toBe('admin');
+          expect(lastCall.orderBy).toBe('display_name');
+        },
+        { timeout: 1000 },
+      );
+    });
   },
 };

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 
 import { EditGroupServiceAccountsTable } from './EditUserGroupServiceAccounts';
 import {
@@ -133,25 +132,26 @@ export const Default: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for service accounts to load
-    await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
+      // Wait for service accounts to load
+      await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
 
-    // Verify table structure
-    await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('backup-service')).resolves.toBeInTheDocument();
+      // Verify table structure
+      await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('backup-service')).resolves.toBeInTheDocument();
 
-    // Check descriptions are shown
-    await expect(canvas.findByText('Service account for web application')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Service account for API gateway operations')).resolves.toBeInTheDocument();
+      // Check descriptions are shown
+      await expect(canvas.findByText('Service account for web application')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Service account for API gateway operations')).resolves.toBeInTheDocument();
 
-    // Check pagination is present (find first matching element)
-    const paginations = await canvas.findAllByLabelText(/pagination/i);
-    await expect(paginations.length).toBeGreaterThan(0);
+      // Check pagination is present (find first matching element)
+      const paginations = await canvas.findAllByLabelText(/pagination/i);
+      await expect(paginations.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -167,15 +167,15 @@ export const Loading: Story = {
       handlers: [...serviceAccountsLoadingHandlers(), ...createGroupMembersHandlers({}, {})],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Check for loading skeleton
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        await expect(skeletonElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 },
-    );
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      await waitFor(
+        () => {
+          expect(canvasElement.querySelectorAll('[class*="skeleton"]').length).toBeGreaterThan(0);
+        },
+        { timeout: 10000 },
+      );
+    });
   },
 };
 
@@ -191,12 +191,13 @@ export const EmptyState: Story = {
       handlers: [...serviceAccountsHandlers([]), ...createGroupMembersHandlers({}, {})],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for empty state to appear
-    await expect(canvas.findByText(/no service accounts found/i)).resolves.toBeInTheDocument();
+      // Wait for empty state to appear
+      await expect(canvas.findByText(/no service accounts found/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -215,46 +216,47 @@ export const ServiceAccountSelection: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for service accounts to load
-    await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
+      // Wait for service accounts to load
+      await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
 
-    // Find API Gateway service row and checkbox
-    const apiGatewayText = await canvas.findByText('api-gateway-service');
-    const apiGatewayRow = apiGatewayText.closest('tr');
-    await expect(apiGatewayRow).toBeInTheDocument();
+      // Find API Gateway service row and checkbox
+      const apiGatewayText = await canvas.findByText('api-gateway-service');
+      const apiGatewayRow = apiGatewayText.closest('tr');
+      await expect(apiGatewayRow).toBeInTheDocument();
 
-    const apiGatewayCheckbox = await within(apiGatewayRow as HTMLElement).findByRole('checkbox');
-    await expect(apiGatewayCheckbox).not.toBeChecked();
+      const apiGatewayCheckbox = await within(apiGatewayRow as HTMLElement).findByRole('checkbox');
+      await expect(apiGatewayCheckbox).not.toBeChecked();
 
-    // Select API Gateway service by clicking its checkbox
-    await userEvent.click(apiGatewayCheckbox);
+      // Select API Gateway service by clicking its checkbox
+      await userEvent.click(apiGatewayCheckbox);
 
-    // Verify API Gateway service is now selected
-    await expect(apiGatewayCheckbox).toBeChecked();
+      // Verify API Gateway service is now selected
+      await expect(apiGatewayCheckbox).toBeChecked();
 
-    // Test bulk selection
-    const bulkSelectButton = await canvas.findByRole('button', { name: /bulk select/i });
-    if (bulkSelectButton) {
-      await userEvent.click(bulkSelectButton);
+      // Test bulk selection
+      const bulkSelectButton = await canvas.findByRole('button', { name: /bulk select/i });
+      if (bulkSelectButton) {
+        await userEvent.click(bulkSelectButton);
 
-      // Look for "Select page" option
-      const selectPageOption = canvas.queryByText(/select page/i);
-      if (selectPageOption) {
-        await userEvent.click(selectPageOption);
+        // Look for "Select page" option
+        const selectPageOption = canvas.queryByText(/select page/i);
+        if (selectPageOption) {
+          await userEvent.click(selectPageOption);
 
-        // All visible checkboxes should now be checked
-        const allCheckboxes = await canvas.findAllByRole('checkbox');
-        allCheckboxes.forEach(async (checkbox) => {
-          if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
-            await expect(checkbox).toBeChecked();
-          }
-        });
+          // All visible checkboxes should now be checked
+          const allCheckboxes = await canvas.findAllByRole('checkbox');
+          allCheckboxes.forEach(async (checkbox) => {
+            if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
+              await expect(checkbox).toBeChecked();
+            }
+          });
+        }
       }
-    }
+    });
   },
 };
 
@@ -273,33 +275,34 @@ export const PreSelectedServiceAccounts: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for service accounts to load
-    await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
+      // Wait for service accounts to load
+      await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
 
-    // Verify webapp-service and api-gateway-service are pre-selected
-    const webappText = await canvas.findByText('webapp-service');
-    const webappRow = webappText.closest('tr');
-    await expect(webappRow).toBeInTheDocument();
-    const webappCheckbox = await within(webappRow as HTMLElement).findByRole('checkbox');
-    await expect(webappCheckbox).toBeChecked();
+      // Verify webapp-service and api-gateway-service are pre-selected
+      const webappText = await canvas.findByText('webapp-service');
+      const webappRow = webappText.closest('tr');
+      await expect(webappRow).toBeInTheDocument();
+      const webappCheckbox = await within(webappRow as HTMLElement).findByRole('checkbox');
+      await expect(webappCheckbox).toBeChecked();
 
-    const apiGatewayText = await canvas.findByText('api-gateway-service');
-    const apiGatewayRow = apiGatewayText.closest('tr');
-    await expect(apiGatewayRow).toBeInTheDocument();
-    const apiGatewayCheckbox = await within(apiGatewayRow as HTMLElement).findByRole('checkbox');
-    await expect(apiGatewayCheckbox).toBeChecked();
+      const apiGatewayText = await canvas.findByText('api-gateway-service');
+      const apiGatewayRow = apiGatewayText.closest('tr');
+      await expect(apiGatewayRow).toBeInTheDocument();
+      const apiGatewayCheckbox = await within(apiGatewayRow as HTMLElement).findByRole('checkbox');
+      await expect(apiGatewayCheckbox).toBeChecked();
 
-    // backup-service should not be selected
-    const backupText = await canvas.findByText('backup-service');
-    const backupRow = backupText.closest('tr');
-    await expect(backupRow).toBeInTheDocument();
-    const backupCheckbox = await within(backupRow as HTMLElement).findByRole('checkbox');
-    await expect(backupCheckbox).not.toBeChecked();
+      // backup-service should not be selected
+      const backupText = await canvas.findByText('backup-service');
+      const backupRow = backupText.closest('tr');
+      await expect(backupRow).toBeInTheDocument();
+      const backupCheckbox = await within(backupRow as HTMLElement).findByRole('checkbox');
+      await expect(backupCheckbox).not.toBeChecked();
+    });
   },
 };
 
@@ -318,18 +321,19 @@ export const APIError: Story = {
       handlers: [...serviceAccountsErrorHandlers(500), ...createGroupMembersHandlers({}, {}, {})],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for error state to appear
-    // Look for the specific error message we implemented
-    const errorMessage = await canvas.findByText(/failed to load service accounts/i);
-    await expect(errorMessage).toBeInTheDocument();
+      // Wait for error state to appear
+      // Look for the specific error message we implemented
+      const errorMessage = await canvas.findByText(/failed to load service accounts/i);
+      await expect(errorMessage).toBeInTheDocument();
 
-    // Verify error message details
-    await expect(canvas.findByText(/failed to load service accounts/i)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/please try refreshing the page/i)).resolves.toBeInTheDocument();
+      // Verify error message details
+      await expect(canvas.findByText(/failed to load service accounts/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/please try refreshing the page/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -345,26 +349,27 @@ export const NewGroup: Story = {
       handlers: [...serviceAccountsHandlers(mockServiceAccountsForList)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for service accounts to load
-    await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('backup-service')).resolves.toBeInTheDocument();
+      // Wait for service accounts to load
+      await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('backup-service')).resolves.toBeInTheDocument();
 
-    // Verify no service accounts are pre-selected
-    const checkboxes = await canvas.findAllByRole('checkbox');
+      // Verify no service accounts are pre-selected
+      const checkboxes = await canvas.findAllByRole('checkbox');
 
-    checkboxes.forEach(async (checkbox) => {
-      if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
-        await expect(checkbox).not.toBeChecked();
-      }
+      checkboxes.forEach(async (checkbox) => {
+        if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
+          await expect(checkbox).not.toBeChecked();
+        }
+      });
+
+      // Verify all service accounts are available for selection
+      await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Service account for web application')).resolves.toBeInTheDocument();
     });
-
-    // Verify all service accounts are available for selection
-    await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Service account for web application')).resolves.toBeInTheDocument();
   },
 };

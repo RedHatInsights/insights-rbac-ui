@@ -146,7 +146,7 @@ const MyWorkspaceDrawer: React.FunctionComponent<MyWorkspaceDrawerProps> = ({
     <Drawer isExpanded={isOpen} onExpand={() => drawerRef.current?.focus()} data-ouia-component-id="my-workspace-drawer">
       <DrawerContent
         panelContent={
-          <DrawerPanelContent>
+          <DrawerPanelContent data-testid="detail-drawer-panel">
             <DrawerHead>
               <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapSm' }}>
                 <FlexItem>

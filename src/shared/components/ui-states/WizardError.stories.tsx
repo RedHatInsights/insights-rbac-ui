@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import WizardContext from '@data-driven-forms/react-form-renderer/wizard-context';
 import { WizardError } from './WizardError';
@@ -17,7 +17,6 @@ const WizardErrorWrapper: React.FC<{
   const mockContext = {
     setWizardError: () => {
       setErrorCleared(true);
-      console.log('SB: Wizard error cleared');
     },
   };
 
@@ -25,7 +24,6 @@ const WizardErrorWrapper: React.FC<{
   const mockWizardContextValue = {
     jumpToStep: (step: number) => {
       setJumpedToStep(step);
-      console.log(`SB: Jumped to step: ${step}`);
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     formOptions: {} as any,
@@ -114,20 +112,22 @@ export const InteractiveDemo: Story = {
   render: () => (
     <WizardErrorWrapper title="Network Error" text="Connection to the server was lost. Please check your network connection and try again." />
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for component to render
-    await expect(canvas.getByText('Network Error')).toBeInTheDocument();
+      // Wait for component to render
+      await expect(canvas.getByText('Network Error')).toBeInTheDocument();
 
-    // Find and click the retry button
-    const retryButton = canvas.getByRole('button', { name: /return to step 1/i });
-    await userEvent.click(retryButton);
+      // Find and click the retry button
+      const retryButton = canvas.getByRole('button', { name: /return to step 1/i });
+      await userEvent.click(retryButton);
 
-    // Verify error was cleared and step was jumped
-    await expect(canvas.getByTestId('error-cleared-message')).toBeInTheDocument();
-    await expect(canvas.getByTestId('step-jumped-message')).toBeInTheDocument();
-    await expect(canvas.getByTestId('step-jumped-message')).toHaveTextContent('Jumped to step: 0');
+      // Verify error was cleared and step was jumped
+      await expect(canvas.getByTestId('error-cleared-message')).toBeInTheDocument();
+      await expect(canvas.getByTestId('step-jumped-message')).toBeInTheDocument();
+      await expect(canvas.getByTestId('step-jumped-message')).toHaveTextContent('Jumped to step: 0');
+    });
   },
 };
 
@@ -138,13 +138,13 @@ export const CustomFooter: Story = {
   render: () => {
     const customFooter = (
       <div style={{ display: 'flex', gap: '12px' }}>
-        <Button variant="primary" onClick={() => console.log('SB: Custom retry')}>
+        <Button variant="primary" onClick={fn()}>
           Try Again
         </Button>
-        <Button variant="secondary" onClick={() => console.log('SB: Contact support')}>
+        <Button variant="secondary" onClick={fn()}>
           Contact Support
         </Button>
-        <Button variant="link" onClick={() => console.log('SB: Cancel')}>
+        <Button variant="link" onClick={fn()}>
           Cancel
         </Button>
       </div>

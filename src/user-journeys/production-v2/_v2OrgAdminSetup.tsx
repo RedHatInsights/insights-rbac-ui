@@ -1,9 +1,13 @@
 import type { Decorator, StoryContext } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fn, waitFor } from 'storybook/test';
+import type { UserEvent } from '../../test-utils/testUtils';
 import type { StoryObj } from '@storybook/react-webpack5';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, expandWorkspaceRow, navigateToPage, waitForPageToLoad } from '../_shared/helpers';
+import { navigateToPage } from '../_shared/helpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import type { ScopedQueries } from '../../test-utils/interactionHelpers';
+import { expandWorkspaceRow, waitForPageToLoad } from '../../test-utils/tableHelpers';
 import { createV2MockDb } from '../../v2/data/mocks/db';
 import { createV2Handlers } from '../../v2/data/mocks/handlers';
 import { DEFAULT_GROUPS, DEFAULT_PERMISSIONS, DEFAULT_USERS } from '../../shared/data/mocks/seed';
@@ -180,10 +184,7 @@ export const meta = {
  * Navigate to the Production workspace detail page's role assignments table.
  * Shared setup used by multiple role-binding write stories.
  */
-export async function navigateToProductionWorkspaceDetail(
-  user: ReturnType<typeof userEvent.setup>,
-  canvas: ReturnType<typeof within>,
-): Promise<void> {
+export async function navigateToProductionWorkspaceDetail(user: UserEvent, canvas: ScopedQueries): Promise<void> {
   await navigateToPage(user, canvas, 'Workspaces');
   await waitForPageToLoad(canvas, WS_ROOT.name);
 
@@ -210,22 +211,18 @@ export async function navigateToProductionWorkspaceDetail(
 }
 
 // Re-exports for story files
+export { navigateToPage, resetStoryState } from '../_shared/helpers';
+export { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+export { clickTab, clickWizardNext, selectTableRow, waitForDrawer, waitForModal } from '../../test-utils/interactionHelpers';
+export { expandWorkspaceRow, verifySuccessNotification, waitForPageToLoad } from '../../test-utils/tableHelpers';
 export {
-  TEST_TIMEOUTS,
-  clickWizardButton,
   expandWorkspaceInTree,
-  expandWorkspaceRow,
   fillWorkspaceForm,
-  navigateToPage,
   openWorkspaceKebabMenu,
   openWorkspaceWizard,
-  pollUntilTrue,
-  resetStoryState,
   selectParentWorkspace,
   selectWorkspaceFromTree,
-  verifySuccessNotification,
-  waitForPageToLoad,
-} from '../_shared/helpers';
+} from '../../test-utils/workspaceHelpers';
 export { USER_JANE, USER_JOHN } from '../../shared/data/mocks/seed';
 export {
   DEFAULT_V2_ROLES,

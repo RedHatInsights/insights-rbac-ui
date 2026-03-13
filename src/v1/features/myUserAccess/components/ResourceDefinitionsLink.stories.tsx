@@ -108,10 +108,12 @@ export const WithResourceDefinitions: Story = {
       ],
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole('button', { name: '5' }));
-    await expect(args.onClick).toHaveBeenCalled();
+    await step('Click resource definitions link', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: '5' }));
+      await expect(args.onClick).toHaveBeenCalled();
+    });
   },
 };
 
@@ -126,13 +128,13 @@ export const NoResourceDefinitions: Story = {
       resourceDefinitions: [],
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
-    // Verify "N/A" is displayed as non-clickable span
-    const naText = await canvas.findByText('N/A');
-    await expect(naText.tagName).toBe('SPAN');
-    // onClick should not be called since there's no clickable element
-    await expect(args.onClick).not.toHaveBeenCalled();
+    await step('Verify N/A display and no onClick', async () => {
+      const naText = await canvas.findByText('N/A');
+      await expect(naText.tagName).toBe('SPAN');
+      await expect(args.onClick).not.toHaveBeenCalled();
+    });
   },
 };
 
@@ -147,10 +149,12 @@ export const SingleResourceDefinition: Story = {
       resourceDefinitions: [{ attributeFilter: { value: 'specific-account' } }],
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole('button', { name: '1' }));
-    await expect(args.onClick).toHaveBeenCalled();
+    await step('Click single resource definition', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: '1' }));
+      await expect(args.onClick).toHaveBeenCalled();
+    });
   },
 };
 
@@ -165,9 +169,11 @@ export const ManyResourceDefinitions: Story = {
       resourceDefinitions: Array(42).fill({ attributeFilter: { value: 'account' } }),
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole('button', { name: '42' }));
-    await expect(args.onClick).toHaveBeenCalled();
+    await step('Click many resource definitions', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: '42' }));
+      await expect(args.onClick).toHaveBeenCalled();
+    });
   },
 };

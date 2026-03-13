@@ -4,8 +4,8 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EditWorkspaceModal } from './EditWorkspaceModal';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { delay } from 'msw';
-import { TEST_TIMEOUTS } from '../../../user-journeys/_shared/helpers';
+import { TEST_TIMEOUTS } from '../../../test-utils/testUtils';
+import { clearAndType, waitForModal } from '../../../test-utils/interactionHelpers';
 import { workspacesHandlers } from '../../data/mocks/workspaces.handlers';
 
 // Mock workspace data for factory (WorkspacesWorkspace format: created, modified, parent_id undefined for root)
@@ -151,70 +151,40 @@ export const InteractiveEdit: Story = {
       handlers: [...workspacesHandlers(mockWorkspaces)],
     },
   },
-  play: async ({ canvasElement, args }) => {
-    await delay(300);
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    // Click button to open modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await user.click(openButton);
+    await step('Open modal and wait for form', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await user.click(openButton);
+    });
 
-    // Add a small delay to let the modal animation complete
-    await delay(500);
+    await step('Edit name and submit', async () => {
+      // FormRenderer uses an inline FormTemplate; wait for fully populated state
+      const dialog = await waitForModal({
+        timeout: TEST_TIMEOUTS.ELEMENT_WAIT,
+        waitUntil: (dlg) => {
+          expect(dlg.queryByDisplayValue('Production Environment')).toBeInTheDocument();
+          expect(dlg.queryByDisplayValue('Main production workspace for critical services')).toBeInTheDocument();
+          expect(dlg.queryByRole('button', { name: 'Save' })).toBeDisabled();
+        },
+      });
 
-    // Wait for modal header to appear
-    const body = within(document.body);
+      await clearAndType(user, () => dialog.getByDisplayValue('Production Environment') as HTMLInputElement, 'Updated Production Environment');
 
-    // eslint-disable-next-line testing-library/prefer-find-by -- need assertion on length inside waitFor
-    const dialogs = await waitFor(
-      async () => {
-        const found = await body.findAllByRole('dialog');
-        expect(found.length).toBeGreaterThan(0);
-        return found;
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
-    const dialog = within(dialogs[0]);
+      const saveButton = await dialog.findByRole('button', { name: 'Save' });
+      await user.click(saveButton);
+    });
 
-    // Wait for modal content to load - look for form elements
-    await waitFor(
-      async () => {
-        // Look for form inputs which are more reliable than text
-        const inputs = dialog.queryAllByRole('textbox');
-        expect(inputs.length).toBeGreaterThan(0);
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    // Wait until the form fields are populated with workspace data
-    await waitFor(
-      async () => {
-        await dialog.findByDisplayValue('Production Environment');
-        await dialog.findByDisplayValue('Main production workspace for critical services');
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    const nameField = await dialog.findByDisplayValue('Production Environment');
-    await delay(300); // Wait for DDF to finish binding event handlers
-
-    // Focus and edit the field
-    await user.click(nameField);
-    await user.clear(nameField);
-    await user.type(nameField, 'Updated Production Environment');
-
-    // Submit form
-    const saveButton = await dialog.findByRole('button', { name: 'Save' });
-    await user.click(saveButton);
-
-    // Verify callback was called (wait for async operation to complete)
-    await waitFor(
-      () => {
-        expect(args.afterSubmit).toHaveBeenCalled();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+    await step('Verify callback', async () => {
+      await waitFor(
+        () => {
+          expect(args.afterSubmit).toHaveBeenCalled();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
   },
 };
 
@@ -234,39 +204,33 @@ export const CancelOperation: Story = {
       handlers: [...workspacesHandlers(mockWorkspaces)],
     },
   },
-  play: async ({ canvasElement, args }) => {
-    await delay(300);
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    // Click button to open modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await user.click(openButton);
-
-    // Add a small delay to let the modal animation complete
-    await delay(500);
-
-    // Wait for modal in document.body
-    const body = within(document.body);
-
-    const dialogs = await body.findAllByRole('dialog');
-    expect(dialogs.length).toBeGreaterThan(0);
-    const dialog = within(dialogs[0]);
-
-    // Wait for form to be fully loaded with workspace data before interacting
-    await waitFor(async () => {
-      await dialog.findByDisplayValue('Production Environment');
+    await step('Open modal', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await user.click(openButton);
     });
 
-    // Cancel the operation
-    const cancelButton = await dialog.findByRole('button', { name: /cancel/i });
-    await user.click(cancelButton);
+    await step('Wait for form and click cancel', async () => {
+      const dialog = await waitForModal({
+        timeout: TEST_TIMEOUTS.ELEMENT_WAIT,
+        waitUntil: (dlg) => {
+          expect(dlg.queryByDisplayValue('Production Environment')).toBeInTheDocument();
+          expect(dlg.queryByRole('button', { name: 'Save' })).toBeDisabled();
+          expect(dlg.queryByRole('button', { name: /cancel/i })).toBeVisible();
+        },
+      });
 
-    // Verify cancel was called, submit was not
-    await waitFor(() => {
-      expect(args.onCancel).toHaveBeenCalled();
+      const cancelButton = dialog.getByRole('button', { name: /cancel/i });
+      await user.click(cancelButton);
     });
-    expect(args.afterSubmit).not.toHaveBeenCalled();
+
+    await step('Verify callbacks', async () => {
+      await waitFor(() => expect(args.onCancel).toHaveBeenCalled(), { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
+      expect(args.afterSubmit).not.toHaveBeenCalled();
+    });
   },
 };
 
@@ -290,72 +254,31 @@ export const CancelNotification: Story = {
       handlers: [...workspacesHandlers(mockWorkspaces)],
     },
   },
-  play: async ({ canvasElement, args }) => {
-    await delay(300);
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    // Click button to open modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await user.click(openButton);
-
-    // Add a delay to let the modal animation complete
-    await delay(1000);
-
-    // Wait for modal in document.body (longer timeout for modal timing)
-    const body = within(document.body);
-
-    // eslint-disable-next-line testing-library/prefer-find-by -- need assertion on length inside waitFor
-    const dialogs = await waitFor(
-      async () => {
-        const dialogs = await body.findAllByRole('dialog');
-        expect(dialogs.length).toBeGreaterThan(0);
-        return dialogs;
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-    const dialog = within(dialogs[0]);
-
-    // Wait for form to be fully loaded with workspace data before interacting
-    await waitFor(
-      async () => {
-        await dialog.findByDisplayValue('Production Environment');
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    // Cancel the operation
-    const cancelButton = await dialog.findByRole('button', { name: /cancel/i });
-    await user.click(cancelButton);
-
-    // Verify cancel was called
-    await waitFor(() => {
-      expect(args.onCancel).toHaveBeenCalled();
+    await step('Open modal', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await user.click(openButton);
     });
 
-    // ✅ TEST NOTIFICATION: Try to verify warning notification appears in DOM
-    try {
-      await waitFor(
-        () => {
-          const notificationPortal = document.querySelector('.notifications-portal');
-          if (notificationPortal) {
-            const warningAlert = notificationPortal.querySelector('.pf-v6-c-alert.pf-m-warning');
-            if (warningAlert) {
-              const alertTitle = warningAlert.querySelector('.pf-v6-c-alert__title');
-              const alertDescription = warningAlert.querySelector('.pf-v6-c-alert__description');
-              expect(warningAlert).toBeInTheDocument();
-              if (alertTitle) expect(alertTitle).toHaveTextContent(/edit.*workspace/i);
-              if (alertDescription) expect(alertDescription).toHaveTextContent(/cancel/i);
-            }
-          }
-          return true; // Always pass to avoid timeout
+    await step('Wait for form and click cancel', async () => {
+      const dialog = await waitForModal({
+        timeout: TEST_TIMEOUTS.ELEMENT_WAIT,
+        waitUntil: (dlg) => {
+          expect(dlg.queryByDisplayValue('Production Environment')).toBeInTheDocument();
+          expect(dlg.queryByRole('button', { name: 'Save' })).toBeDisabled();
+          expect(dlg.queryByRole('button', { name: /cancel/i })).toBeVisible();
         },
-        { timeout: 2000 }, // Shorter timeout
-      );
-    } catch (error) {
-      // If notification test fails, that's okay - we verified the callback was called
-      // which means the notification dispatch code was executed
-      console.log('SB: Notification test skipped - callback was verified:', error);
-    }
+      });
+
+      const cancelButton = dialog.getByRole('button', { name: /cancel/i });
+      await user.click(cancelButton);
+    });
+
+    await step('Verify cancel callback', async () => {
+      await waitFor(() => expect(args.onCancel).toHaveBeenCalled(), { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
+    });
   },
 };

@@ -85,22 +85,24 @@ export const Default: Story = {
     ],
     ouiaId: 'row-actions',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Find and click the toggle
-    const toggle = canvas.getByRole('button', { name: /actions for row/i });
-    expect(toggle).toBeInTheDocument();
+      // Find and click the toggle
+      const toggle = canvas.getByRole('button', { name: /actions for row/i });
+      expect(toggle).toBeInTheDocument();
 
-    await userEvent.click(toggle);
+      await userEvent.click(toggle);
 
-    // Verify dropdown items are visible
-    expect(within(document.body).getByRole('menuitem', { name: /edit/i })).toBeInTheDocument();
-    expect(within(document.body).getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
+      // Verify dropdown items are visible
+      expect(within(document.body).getByRole('menuitem', { name: /edit/i })).toBeInTheDocument();
+      expect(within(document.body).getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
 
-    // Click edit and verify callback
-    await userEvent.click(within(document.body).getByRole('menuitem', { name: /edit/i }));
-    expect(onEditSpy).toHaveBeenCalledTimes(1);
+      // Click edit and verify callback
+      await userEvent.click(within(document.body).getByRole('menuitem', { name: /edit/i }));
+      expect(onEditSpy).toHaveBeenCalledTimes(1);
+    });
   },
 };
 
@@ -113,13 +115,15 @@ export const SingleAction: Story = {
     items: [{ key: 'remove', label: 'Remove', onClick: onRemoveSpy }],
     ouiaId: 'member-actions',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole('button', { name: /actions for member/i }));
-    await userEvent.click(within(document.body).getByRole('menuitem', { name: /remove/i }));
+      await userEvent.click(canvas.getByRole('button', { name: /actions for member/i }));
+      await userEvent.click(within(document.body).getByRole('menuitem', { name: /remove/i }));
 
-    expect(onRemoveSpy).toHaveBeenCalledTimes(1);
+      expect(onRemoveSpy).toHaveBeenCalledTimes(1);
+    });
   },
 };
 
@@ -135,18 +139,20 @@ export const WithDisabledActions: Story = {
     ],
     ouiaId: 'disabled-actions',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole('button', { name: /actions for row/i }));
+      await userEvent.click(canvas.getByRole('button', { name: /actions for row/i }));
 
-    // Verify edit item is disabled
-    const editItem = within(document.body).getByRole('menuitem', { name: /edit/i });
-    expect(editItem).toBeDisabled();
+      // Verify edit item is disabled
+      const editItem = within(document.body).getByRole('menuitem', { name: /edit/i });
+      expect(editItem).toBeDisabled();
 
-    // Verify delete item is enabled
-    const deleteItem = within(document.body).getByRole('menuitem', { name: /delete/i });
-    expect(deleteItem).not.toBeDisabled();
+      // Verify delete item is enabled
+      const deleteItem = within(document.body).getByRole('menuitem', { name: /delete/i });
+      expect(deleteItem).not.toBeDisabled();
+    });
   },
 };
 
@@ -162,17 +168,19 @@ export const WithDangerAction: Story = {
     ],
     ouiaId: 'danger-actions',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole('button', { name: /actions for row/i }));
+      await userEvent.click(canvas.getByRole('button', { name: /actions for row/i }));
 
-    // Delete should have danger styling
-    const deleteItem = within(document.body).getByRole('menuitem', { name: /delete/i });
-    expect(deleteItem).toBeInTheDocument();
+      // Delete should have danger styling
+      const deleteItem = within(document.body).getByRole('menuitem', { name: /delete/i });
+      expect(deleteItem).toBeInTheDocument();
 
-    await userEvent.click(deleteItem);
-    expect(onDeleteSpy).toHaveBeenCalledTimes(1);
+      await userEvent.click(deleteItem);
+      expect(onDeleteSpy).toHaveBeenCalledTimes(1);
+    });
   },
 };
 
@@ -188,13 +196,15 @@ export const WithDescriptions: Story = {
     ],
     ouiaId: 'description-actions',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole('button', { name: /actions for row/i }));
+      await userEvent.click(canvas.getByRole('button', { name: /actions for row/i }));
 
-    expect(within(document.body).getByText('Modify this item')).toBeInTheDocument();
-    expect(within(document.body).getByText('Permanently remove')).toBeInTheDocument();
+      expect(within(document.body).getByText('Modify this item')).toBeInTheDocument();
+      expect(within(document.body).getByText('Permanently remove')).toBeInTheDocument();
+    });
   },
 };
 
@@ -211,11 +221,13 @@ export const DisabledToggle: Story = {
     isDisabled: true,
     ouiaId: 'disabled-toggle',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    const toggle = canvas.getByRole('button', { name: /actions for row/i });
-    expect(toggle).toBeDisabled();
+      const toggle = canvas.getByRole('button', { name: /actions for row/i });
+      expect(toggle).toBeDisabled();
+    });
   },
 };
 
@@ -228,11 +240,13 @@ export const EmptyItems: Story = {
     items: [],
     ouiaId: 'empty-actions',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Should not render any button
-    expect(canvas.queryByRole('button')).not.toBeInTheDocument();
+      // Should not render any button
+      expect(canvas.queryByRole('button')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -248,14 +262,16 @@ export const BulkActions: Story = {
     ],
     ouiaId: 'bulk-actions',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole('button', { name: /bulk actions/i }));
+      await userEvent.click(canvas.getByRole('button', { name: /bulk actions/i }));
 
-    // Edit should be disabled, delete should be enabled
-    expect(within(document.body).getByRole('menuitem', { name: /edit/i })).toBeDisabled();
-    expect(within(document.body).getByRole('menuitem', { name: /delete selected/i })).not.toBeDisabled();
+      // Edit should be disabled, delete should be enabled
+      expect(within(document.body).getByRole('menuitem', { name: /edit/i })).toBeDisabled();
+      expect(within(document.body).getByRole('menuitem', { name: /delete selected/i })).not.toBeDisabled();
+    });
   },
 };
 
@@ -271,17 +287,19 @@ export const WithOuiaIds: Story = {
     ],
     ouiaId: 'user-1-actions',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Toggle should exist
-    const toggle = canvas.getByRole('button', { name: /actions for user 1/i });
-    expect(toggle).toBeInTheDocument();
+      // Toggle should exist
+      const toggle = canvas.getByRole('button', { name: /actions for user 1/i });
+      expect(toggle).toBeInTheDocument();
 
-    await userEvent.click(toggle);
+      await userEvent.click(toggle);
 
-    // Menu items should be visible
-    expect(within(document.body).getByRole('menuitem', { name: /edit/i })).toBeInTheDocument();
-    expect(within(document.body).getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
+      // Menu items should be visible
+      expect(within(document.body).getByRole('menuitem', { name: /edit/i })).toBeInTheDocument();
+      expect(within(document.body).getByRole('menuitem', { name: /delete/i })).toBeInTheDocument();
+    });
   },
 };

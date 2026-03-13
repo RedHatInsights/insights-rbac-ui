@@ -104,14 +104,16 @@ export const NormalOperation: Story = {
       <GroupsList />
     </StoryWrapper>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for loading to complete and verify groups loaded
-    await waitFor(() => {
-      expect(canvas.queryByText('Loading groups...')).not.toBeInTheDocument();
+      // Wait for loading to complete and verify groups loaded
+      await waitFor(() => {
+        expect(canvas.queryByText('Loading groups...')).not.toBeInTheDocument();
+      });
+      await expect(canvas.findByText(new RegExp(`Loaded ${DEFAULT_GROUPS.slice(0, 2).length} groups`))).resolves.toBeInTheDocument();
     });
-    await expect(canvas.findByText(new RegExp(`Loaded ${DEFAULT_GROUPS.slice(0, 2).length} groups`))).resolves.toBeInTheDocument();
   },
 };
 
@@ -129,16 +131,18 @@ export const Error403Forbidden: Story = {
       <GroupsList />
     </StoryWrapper>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for the 403 error state to be displayed
-    await waitFor(
-      () => {
-        expect(canvas.getByText(/you do not have access/i)).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Wait for the 403 error state to be displayed
+      await waitFor(
+        () => {
+          expect(canvas.getByText(/you do not have access/i)).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -156,16 +160,18 @@ export const Error500ServerError: Story = {
       <GroupsList />
     </StoryWrapper>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for the 500 error state to be displayed
-    await waitFor(
-      () => {
-        expect(canvas.getByText(/temporarily unavailable/i)).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Wait for the 500 error state to be displayed
+      await waitFor(
+        () => {
+          expect(canvas.getByText(/temporarily unavailable/i)).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -183,16 +189,18 @@ export const Error502BadGateway: Story = {
       <GroupsList />
     </StoryWrapper>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for the 500 error state (502 triggers the same UI)
-    await waitFor(
-      () => {
-        expect(canvas.getByText(/temporarily unavailable/i)).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Wait for the 500 error state (502 triggers the same UI)
+      await waitFor(
+        () => {
+          expect(canvas.getByText(/temporarily unavailable/i)).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -220,16 +228,18 @@ their context.
       <GroupsList />
     </StoryWrapper>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for the error to appear in the component (not caught by ApiErrorBoundary)
-    await waitFor(
-      () => {
-        expect(canvas.getByText(/Query Error/)).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Wait for the error to appear in the component (not caught by ApiErrorBoundary)
+      await waitFor(
+        () => {
+          expect(canvas.getByText(/Query Error/)).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 

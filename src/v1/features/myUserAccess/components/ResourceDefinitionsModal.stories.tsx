@@ -96,31 +96,23 @@ export const Default: Story = {
     permission: 'advisor:systems:read',
     resourceDefinitions: mockResourceDefinitions,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click the button to open modal
-    const openButton = await canvas.findByRole('button', { name: /open modal/i });
-    await userEvent.click(openButton);
+    await step('Open modal and verify content', async () => {
+      const openButton = await canvas.findByRole('button', { name: /open modal/i });
+      await userEvent.click(openButton);
 
-    // Modal renders to document.body, so use screen
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
+      expect(await within(modal).findByText('Resource definitions')).toBeInTheDocument();
+      expect(await within(modal).findByText(/advisor:systems:read/)).toBeInTheDocument();
+      expect(await within(modal).findByText('insights.advisor.cluster_id:cluster-123')).toBeInTheDocument();
+      expect(await within(modal).findByText('insights.advisor.source:advisor')).toBeInTheDocument();
 
-    // Check modal content
-    expect(await within(modal).findByText('Resource definitions')).toBeInTheDocument();
-
-    // Check permission display
-    expect(await within(modal).findByText(/advisor:systems:read/)).toBeInTheDocument();
-
-    // Check resource definitions are shown
-    expect(await within(modal).findByText('insights.advisor.cluster_id:cluster-123')).toBeInTheDocument();
-    expect(await within(modal).findByText('insights.advisor.source:advisor')).toBeInTheDocument();
-
-    // Close the modal using the primary close button (not the X button)
-    // Find button by text content instead of aria-label
-    const closeButton = await within(modal).findByText('Close');
-    await userEvent.click(closeButton);
+      const closeButton = await within(modal).findByText('Close');
+      await userEvent.click(closeButton);
+    });
   },
 };
 
@@ -135,21 +127,17 @@ export const DifferentPermission: Story = {
       },
     ],
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click the button to open modal
-    const openButton = await canvas.findByRole('button', { name: /open modal/i });
-    await userEvent.click(openButton);
+    await step('Open modal and verify content', async () => {
+      const openButton = await canvas.findByRole('button', { name: /open modal/i });
+      await userEvent.click(openButton);
 
-    // Modal renders to document.body
-    const modal = await screen.findByRole('dialog');
-
-    // Check different permission is displayed
-    expect(await within(modal).findByText(/compliance:policies:write/)).toBeInTheDocument();
-
-    // Check specific resource definition
-    expect(await within(modal).findByText('insights.compliance.policy_id:policy-456')).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(await within(modal).findByText(/compliance:policies:write/)).toBeInTheDocument();
+      expect(await within(modal).findByText('insights.compliance.policy_id:policy-456')).toBeInTheDocument();
+    });
   },
 };
 
@@ -164,21 +152,17 @@ export const VulnerabilityPermission: Story = {
       },
     ],
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click the button to open modal
-    const openButton = await canvas.findByRole('button', { name: /open modal/i });
-    await userEvent.click(openButton);
+    await step('Open modal and verify content', async () => {
+      const openButton = await canvas.findByRole('button', { name: /open modal/i });
+      await userEvent.click(openButton);
 
-    // Modal renders to document.body
-    const modal = await screen.findByRole('dialog');
-
-    // Check vulnerability permission is displayed
-    expect(await within(modal).findByText(/vulnerability:reports:read/)).toBeInTheDocument();
-
-    // Should show table or no data message
-    expect(await within(modal).findByRole('grid')).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(await within(modal).findByText(/vulnerability:reports:read/)).toBeInTheDocument();
+      expect(await within(modal).findByRole('grid')).toBeInTheDocument();
+    });
   },
 };
 
@@ -187,21 +171,17 @@ export const WithFiltering: Story = {
     permission: 'advisor:systems:read',
     resourceDefinitions: mockResourceDefinitions,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click the button to open modal
-    const openButton = await canvas.findByRole('button', { name: /open modal/i });
-    await userEvent.click(openButton);
+    await step('Open modal and verify content', async () => {
+      const openButton = await canvas.findByRole('button', { name: /open modal/i });
+      await userEvent.click(openButton);
 
-    // Modal renders to document.body
-    const modal = await screen.findByRole('dialog');
-
-    // Should show the table
-    expect(await within(modal).findByRole('grid')).toBeInTheDocument();
-
-    // Check multiple resource definitions are shown initially
-    expect(await within(modal).findByText('insights.advisor.cluster_id:cluster-123')).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(await within(modal).findByRole('grid')).toBeInTheDocument();
+      expect(await within(modal).findByText('insights.advisor.cluster_id:cluster-123')).toBeInTheDocument();
+    });
   },
 };
 
@@ -210,20 +190,16 @@ export const EmptyState: Story = {
     permission: 'cost-management:aws:organization:account:cost-model:read',
     resourceDefinitions: emptyResourceDefinitions,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click the button to open modal
-    const openButton = await canvas.findByRole('button', { name: /open modal/i });
-    await userEvent.click(openButton);
+    await step('Open modal and verify content', async () => {
+      const openButton = await canvas.findByRole('button', { name: /open modal/i });
+      await userEvent.click(openButton);
 
-    // Modal renders to document.body
-    const modal = await screen.findByRole('dialog');
-
-    // Check permission display
-    expect(await within(modal).findAllByText(/cost-management:aws:organization:account:cost-model:read/)).toHaveLength(2);
-
-    // Check that it shows empty state - no resource definitions table
-    expect(await within(modal).findByText('No resource definitions')).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(await within(modal).findAllByText(/cost-management:aws:organization:account:cost-model:read/)).toHaveLength(2);
+      expect(await within(modal).findByText('No resource definitions')).toBeInTheDocument();
+    });
   },
 };

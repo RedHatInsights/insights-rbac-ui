@@ -1,9 +1,9 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
-import { delay } from 'msw';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
 import { ENVIRONMENTS, v1Db } from './_shared/environments';
-import { TEST_TIMEOUTS, resetStoryState } from './_shared/helpers';
+import { resetStoryState } from './_shared/helpers';
+import { waitForContentReady } from '../test-utils/interactionHelpers';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
 
@@ -57,12 +57,20 @@ Entry point for manual testing of the Org User persona.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // Wait for the permissions section to render - this is the most reliable indicator the page is ready
-    await expect(canvas.findByText(/your red hat enterprise linux/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).resolves.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page content', async () => {
+      await expect(canvas.findByText(/your red hat enterprise linux/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -90,29 +98,37 @@ Validates that Org User (no permissions) only sees "My User Access" in the sideb
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    // ✅ My User Access should be visible
-    const myUserAccess = await canvas.findByRole('link', { name: /my user access/i });
-    expect(myUserAccess).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // ❌ User Access expandable should NOT be visible
-    const userAccessSection = canvas.queryByRole('button', { name: /user access/i });
-    expect(userAccessSection).not.toBeInTheDocument();
+    await step('Wait for sidebar to expand', async () => {
+      await canvas.findByRole('link', { name: /my user access/i });
+    });
 
-    // ❌ Individual nav items should NOT be visible
-    const usersLink = canvas.queryByRole('link', { name: /^users$/i });
-    expect(usersLink).not.toBeInTheDocument();
+    await step('Verify sidebar shows only My User Access', async () => {
+      const myUserAccess = canvas.getByRole('link', { name: /my user access/i });
+      expect(myUserAccess).toBeInTheDocument();
 
-    const groupsLink = canvas.queryByRole('link', { name: /^groups$/i });
-    expect(groupsLink).not.toBeInTheDocument();
+      const userAccessSection = canvas.queryByRole('button', { name: /user access/i });
+      expect(userAccessSection).not.toBeInTheDocument();
 
-    const rolesLink = canvas.queryByRole('link', { name: /^roles$/i });
-    expect(rolesLink).not.toBeInTheDocument();
+      const usersLink = canvas.queryByRole('link', { name: /^users$/i });
+      expect(usersLink).not.toBeInTheDocument();
+
+      const groupsLink = canvas.queryByRole('link', { name: /^groups$/i });
+      expect(groupsLink).not.toBeInTheDocument();
+
+      const rolesLink = canvas.queryByRole('link', { name: /^roles$/i });
+      expect(rolesLink).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -137,15 +153,21 @@ Tests that Org User can view their own access page.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    // Verify the page loaded
-    const heading = await canvas.findByRole('heading', { name: /my user access/i });
-    expect(heading).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and verify heading', async () => {
+      const heading = await canvas.findByRole('heading', { name: /my user access/i });
+      expect(heading).toBeInTheDocument();
+    });
   },
 };
 
@@ -171,19 +193,24 @@ Tests that direct navigation to Users page shows unauthorized.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    // Users link should NOT be in sidebar
-    const usersLink = canvas.queryByRole('link', { name: /^users$/i });
-    expect(usersLink).not.toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Should show unauthorized/access denied
-    const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
-    expect(unauthorized).toBeInTheDocument();
+    await step('Verify unauthorized state', async () => {
+      const usersLink = canvas.queryByRole('link', { name: /^users$/i });
+      expect(usersLink).not.toBeInTheDocument();
+
+      const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
+      expect(unauthorized).toBeInTheDocument();
+    });
   },
 };
 
@@ -204,19 +231,24 @@ Tests that direct navigation to Groups page shows unauthorized.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    // Groups link should NOT be in sidebar
-    const groupsLink = canvas.queryByRole('link', { name: /^groups$/i });
-    expect(groupsLink).not.toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Should show unauthorized/access denied
-    const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
-    expect(unauthorized).toBeInTheDocument();
+    await step('Verify unauthorized state', async () => {
+      const groupsLink = canvas.queryByRole('link', { name: /^groups$/i });
+      expect(groupsLink).not.toBeInTheDocument();
+
+      const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
+      expect(unauthorized).toBeInTheDocument();
+    });
   },
 };
 
@@ -237,18 +269,23 @@ Tests that direct navigation to Roles page shows unauthorized.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    // Roles link should NOT be in sidebar
-    const rolesLink = canvas.queryByRole('link', { name: /^roles$/i });
-    expect(rolesLink).not.toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Should show unauthorized/access denied
-    const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
-    expect(unauthorized).toBeInTheDocument();
+    await step('Verify unauthorized state', async () => {
+      const rolesLink = canvas.queryByRole('link', { name: /^roles$/i });
+      expect(rolesLink).not.toBeInTheDocument();
+
+      const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
+      expect(unauthorized).toBeInTheDocument();
+    });
   },
 };

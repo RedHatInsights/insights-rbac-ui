@@ -51,12 +51,12 @@ export const Default: Story = {
   args: {
     workspaceName: 'my-workspace',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    // Check that navigation links are present with correct URLs
-    const insightsLink = await canvas.findByRole('link', { name: /.*insights.*/i });
-    await expect(insightsLink).toBeInTheDocument();
-    await expect(insightsLink).toHaveAttribute('href', '/insights/inventory?workspace=my-workspace');
+    await step('Verify assets cards links', async () => {
+      const insightsLink = await canvas.findByRole('link', { name: /.*insights.*/i });
+      await expect(insightsLink).toBeInTheDocument();
+      await expect(insightsLink).toHaveAttribute('href', '/insights/inventory?workspace=my-workspace');
+    });
   },
 };

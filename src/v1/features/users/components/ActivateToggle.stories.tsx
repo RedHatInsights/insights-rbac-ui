@@ -88,14 +88,15 @@ export const ActiveExternalUser: Story = {
     onToggle: fn(),
     accountId: '999',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show the switch for external user
-    const toggle = await canvas.findByTestId('user-status-toggle');
-    await expect(toggle).toBeInTheDocument();
-    await expect(toggle).toBeChecked(); // User is active
-    await expect(toggle).toBeEnabled(); // Different account, so enabled
+    await step('Verify active external user toggle', async () => {
+      const toggle = await canvas.findByTestId('user-status-toggle');
+      await expect(toggle).toBeInTheDocument();
+      await expect(toggle).toBeChecked(); // User is active
+      await expect(toggle).toBeEnabled(); // Different account, so enabled
+    });
   },
 };
 
@@ -105,14 +106,15 @@ export const InactiveExternalUser: Story = {
     onToggle: fn(),
     accountId: '999',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show the switch for external user
-    const toggle = await canvas.findByTestId('user-status-toggle');
-    await expect(toggle).toBeInTheDocument();
-    await expect(toggle).not.toBeChecked(); // User is inactive
-    await expect(toggle).toBeEnabled(); // Different account, so enabled
+    await step('Verify inactive external user toggle', async () => {
+      const toggle = await canvas.findByTestId('user-status-toggle');
+      await expect(toggle).toBeInTheDocument();
+      await expect(toggle).not.toBeChecked(); // User is inactive
+      await expect(toggle).toBeEnabled(); // Different account, so enabled
+    });
   },
 };
 
@@ -122,14 +124,15 @@ export const CurrentUserAccount: Story = {
     onToggle: fn(),
     accountId: String(mockUser.external_source_id), // Same as user's external_source_id but as string
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show the switch but disabled (current user)
-    const toggle = await canvas.findByTestId('user-status-toggle');
-    await expect(toggle).toBeInTheDocument();
-    await expect(toggle).toBeChecked(); // User is active
-    await expect(toggle).toBeDisabled(); // Current user's account, so disabled
+    await step('Verify current user toggle is disabled', async () => {
+      const toggle = await canvas.findByTestId('user-status-toggle');
+      await expect(toggle).toBeInTheDocument();
+      await expect(toggle).toBeChecked(); // User is active
+      await expect(toggle).toBeDisabled(); // Current user's account, so disabled
+    });
   },
   parameters: {
     docs: {
@@ -146,15 +149,15 @@ export const InternalUser: Story = {
     onToggle: fn(),
     accountId: '999',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should NOT show any toggle for internal user
-    await expect(canvas.queryByTestId('user-status-toggle')).not.toBeInTheDocument();
+    await step('Verify internal user has no toggle', async () => {
+      await expect(canvas.queryByTestId('user-status-toggle')).not.toBeInTheDocument();
 
-    // Container should be essentially empty
-    const container = (await canvas.findByTestId('activate-toggle-container')) || canvasElement;
-    await expect(container).toBeInTheDocument();
+      const container = (await canvas.findByTestId('activate-toggle-container')) || canvasElement;
+      await expect(container).toBeInTheDocument();
+    });
   },
   parameters: {
     docs: {
@@ -171,20 +174,21 @@ export const InteractiveToggle: Story = {
     onToggle: fn(),
     accountId: '999',
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show inactive toggle
-    const toggle = await canvas.findByTestId('user-status-toggle');
-    await expect(toggle).toBeInTheDocument();
-    await expect(toggle).not.toBeChecked();
-    await expect(toggle).toBeEnabled();
+    await step('Click toggle and verify callback', async () => {
+      const toggle = await canvas.findByTestId('user-status-toggle');
+      await expect(toggle).toBeInTheDocument();
+      await expect(toggle).not.toBeChecked();
+      await expect(toggle).toBeEnabled();
 
-    // Click to activate and verify the callback
-    await userEvent.click(toggle);
+      // Click to activate and verify the callback
+      await userEvent.click(toggle);
 
-    // Verify onToggle was called with correct parameters: (isActive: boolean, user: UserProps)
-    await expect(args.onToggle).toHaveBeenCalledWith(true, mockInactiveUser);
+      // Verify onToggle was called with correct parameters: (isActive: boolean, user: UserProps)
+      await expect(args.onToggle).toHaveBeenCalledWith(true, mockInactiveUser);
+    });
   },
   parameters: {
     docs: {

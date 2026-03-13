@@ -2,7 +2,6 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { delay } from 'msw';
 
 import { EditUserGroup } from './EditUserGroup';
 import { groupsHandlers, groupsLoadingHandlers } from '../../../../../../shared/data/mocks/groups.handlers';
@@ -262,78 +261,79 @@ For testing specific feature scenarios, see these additional stories:
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for form to load
-    await expect(canvas.findByDisplayValue('Test Development Group')).resolves.toBeInTheDocument();
+      // Wait for form to load
+      await expect(canvas.findByDisplayValue('Test Development Group')).resolves.toBeInTheDocument();
 
-    // Verify form fields are populated
-    await expect(canvas.findByDisplayValue('A group for testing purposes')).resolves.toBeInTheDocument();
+      // Verify form fields are populated
+      await expect(canvas.findByDisplayValue('A group for testing purposes')).resolves.toBeInTheDocument();
 
-    // Verify custom component is rendered
-    await expect(canvas.findByTestId('users-and-service-accounts-component')).resolves.toBeInTheDocument();
+      // Verify custom component is rendered
+      await expect(canvas.findByTestId('users-and-service-accounts-component')).resolves.toBeInTheDocument();
 
-    // Test user/service account interaction
-    // Wait for users and service accounts to load
-    await expect(canvas.findByText('developer1')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('test-service-account')).resolves.toBeInTheDocument();
+      // Test user/service account interaction
+      // Wait for users and service accounts to load
+      await expect(canvas.findByText('developer1')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('test-service-account')).resolves.toBeInTheDocument();
 
-    // Test adding a new user - click on developer3 checkbox
-    const dev3Text = await canvas.findByText('developer3');
-    const dev3Row = dev3Text.closest('tr');
-    if (dev3Row) {
-      const dev3Checkbox = await within(dev3Row as HTMLElement).findByRole('checkbox');
-      await userEvent.click(dev3Checkbox);
+      // Test adding a new user - click on developer3 checkbox
+      const dev3Text = await canvas.findByText('developer3');
+      const dev3Row = dev3Text.closest('tr');
+      if (dev3Row) {
+        const dev3Checkbox = await within(dev3Row as HTMLElement).findByRole('checkbox');
+        await userEvent.click(dev3Checkbox);
 
-      // Verify developer3 is now selected
-      await expect(dev3Checkbox).toBeChecked();
-    }
+        // Verify developer3 is now selected
+        await expect(dev3Checkbox).toBeChecked();
+      }
 
-    // Test adding a new service account - switch to service accounts tab first
-    const serviceAccountsTab = await canvas.findByRole('tab', { name: /service accounts/i });
-    await userEvent.click(serviceAccountsTab);
+      // Test adding a new service account - switch to service accounts tab first
+      const serviceAccountsTab = await canvas.findByRole('tab', { name: /service accounts/i });
+      await userEvent.click(serviceAccountsTab);
 
-    // Wait for service accounts to be visible
-    await expect(canvas.findByText('api-service-account')).resolves.toBeInTheDocument();
+      // Wait for service accounts to be visible
+      await expect(canvas.findByText('api-service-account')).resolves.toBeInTheDocument();
 
-    // Test adding api-service-account
-    const apiSAText = await canvas.findByText('api-service-account');
-    const apiSARow = apiSAText.closest('tr');
-    if (apiSARow) {
-      const apiSACheckbox = await within(apiSARow as HTMLElement).findByRole('checkbox');
-      await userEvent.click(apiSACheckbox);
+      // Test adding api-service-account
+      const apiSAText = await canvas.findByText('api-service-account');
+      const apiSARow = apiSAText.closest('tr');
+      if (apiSARow) {
+        const apiSACheckbox = await within(apiSARow as HTMLElement).findByRole('checkbox');
+        await userEvent.click(apiSACheckbox);
 
-      // Verify api-service-account is now selected
-      await expect(apiSACheckbox).toBeChecked();
-    }
+        // Verify api-service-account is now selected
+        await expect(apiSACheckbox).toBeChecked();
+      }
 
-    // Test form field editing
-    const nameField = await canvas.findByDisplayValue('Test Development Group');
-    await userEvent.clear(nameField);
-    await userEvent.type(nameField, 'Updated Group Name');
+      // Test form field editing
+      const nameField = await canvas.findByDisplayValue('Test Development Group');
+      await userEvent.clear(nameField);
+      await userEvent.type(nameField, 'Updated Group Name');
 
-    const descField = await canvas.findByDisplayValue('A group for testing purposes');
-    await userEvent.clear(descField);
-    await userEvent.type(descField, 'Updated description for the group');
+      const descField = await canvas.findByDisplayValue('A group for testing purposes');
+      await userEvent.clear(descField);
+      await userEvent.type(descField, 'Updated description for the group');
 
-    // Verify buttons are present
-    const buttons = await canvas.findAllByRole('button');
-    await expect(buttons.length).toBeGreaterThan(0);
+      // Verify buttons are present
+      const buttons = await canvas.findAllByRole('button');
+      await expect(buttons.length).toBeGreaterThan(0);
 
-    // Test save action
-    const saveButton = buttons.find((button) => button.textContent?.includes('Save'));
-    if (saveButton) {
-      await userEvent.click(saveButton);
-    }
+      // Test save action
+      const saveButton = buttons.find((button) => button.textContent?.includes('Save'));
+      if (saveButton) {
+        await userEvent.click(saveButton);
+      }
 
-    // Test cancel action
-    const buttonsAgain = await canvas.findAllByRole('button');
-    const cancelButton = buttonsAgain.find((button) => button.textContent?.includes('Cancel'));
-    if (cancelButton) {
-      await userEvent.click(cancelButton);
-    }
+      // Test cancel action
+      const buttonsAgain = await canvas.findAllByRole('button');
+      const cancelButton = buttonsAgain.find((button) => button.textContent?.includes('Cancel'));
+      if (cancelButton) {
+        await userEvent.click(cancelButton);
+      }
+    });
   },
 };
 
@@ -371,116 +371,117 @@ This story demonstrates:
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for form to render
-    await expect(canvas.findByRole('textbox', { name: /^name$/i })).resolves.toBeInTheDocument();
+      // Wait for form to render
+      await expect(canvas.findByRole('textbox', { name: /^name$/i })).resolves.toBeInTheDocument();
 
-    const nameField = await canvas.findByRole('textbox', { name: /^name$/i });
-    await expect(nameField).toHaveValue('');
+      const nameField = await canvas.findByRole('textbox', { name: /^name$/i });
+      await expect(nameField).toHaveValue('');
 
-    const descField = await canvas.findByRole('textbox', { name: /description/i });
-    await expect(descField).toHaveValue('');
+      const descField = await canvas.findByRole('textbox', { name: /description/i });
+      await expect(descField).toHaveValue('');
 
-    // Verify custom component is rendered
-    await expect(canvas.findByTestId('users-and-service-accounts-component')).resolves.toBeInTheDocument();
+      // Verify custom component is rendered
+      await expect(canvas.findByTestId('users-and-service-accounts-component')).resolves.toBeInTheDocument();
 
-    // Test user/service account selection for new group
-    // Wait for users to load
-    await expect(canvas.findByText('developer1')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('designer1')).resolves.toBeInTheDocument();
+      // Test user/service account selection for new group
+      // Wait for users to load
+      await expect(canvas.findByText('developer1')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('designer1')).resolves.toBeInTheDocument();
 
-    // Select some users for the new group
-    const dev1Text = await canvas.findByText('developer1');
-    const dev1Row = dev1Text.closest('tr');
-    if (dev1Row) {
-      const dev1Checkbox = await within(dev1Row as HTMLElement).findByRole('checkbox');
-      await userEvent.click(dev1Checkbox);
+      // Select some users for the new group
+      const dev1Text = await canvas.findByText('developer1');
+      const dev1Row = dev1Text.closest('tr');
+      if (dev1Row) {
+        const dev1Checkbox = await within(dev1Row as HTMLElement).findByRole('checkbox');
+        await userEvent.click(dev1Checkbox);
 
-      // Verify developer1 is selected
-      await waitFor(async () => {
-        await expect(dev1Checkbox).toBeChecked();
-      });
-    }
+        // Verify developer1 is selected
+        await waitFor(async () => {
+          await expect(dev1Checkbox).toBeChecked();
+        });
+      }
 
-    const designer1Text = await canvas.findByText('designer1');
-    const designer1Row = designer1Text.closest('tr');
-    if (designer1Row) {
-      const designer1Checkbox = await within(designer1Row as HTMLElement).findByRole('checkbox');
-      await userEvent.click(designer1Checkbox);
+      const designer1Text = await canvas.findByText('designer1');
+      const designer1Row = designer1Text.closest('tr');
+      if (designer1Row) {
+        const designer1Checkbox = await within(designer1Row as HTMLElement).findByRole('checkbox');
+        await userEvent.click(designer1Checkbox);
 
-      // Verify designer1 is selected
-      await waitFor(async () => {
-        await expect(designer1Checkbox).toBeChecked();
-      });
-    }
+        // Verify designer1 is selected
+        await waitFor(async () => {
+          await expect(designer1Checkbox).toBeChecked();
+        });
+      }
 
-    // Switch to service accounts tab and select a service account
-    const serviceAccountsTab = await canvas.findByRole('tab', { name: /service accounts/i });
-    await userEvent.click(serviceAccountsTab);
+      // Switch to service accounts tab and select a service account
+      const serviceAccountsTab = await canvas.findByRole('tab', { name: /service accounts/i });
+      await userEvent.click(serviceAccountsTab);
 
-    // Wait for service accounts to be visible
-    await expect(canvas.findByText('production-sa')).resolves.toBeInTheDocument();
+      // Wait for service accounts to be visible
+      await expect(canvas.findByText('production-sa')).resolves.toBeInTheDocument();
 
-    // Select production-sa
-    const prodSAText = await canvas.findByText('production-sa');
-    const prodSARow = prodSAText.closest('tr');
-    if (prodSARow) {
-      const prodSACheckbox = await within(prodSARow as HTMLElement).findByRole('checkbox');
-      await userEvent.click(prodSACheckbox);
+      // Select production-sa
+      const prodSAText = await canvas.findByText('production-sa');
+      const prodSARow = prodSAText.closest('tr');
+      if (prodSARow) {
+        const prodSACheckbox = await within(prodSARow as HTMLElement).findByRole('checkbox');
+        await userEvent.click(prodSACheckbox);
 
-      // Verify production-sa is selected
-      await expect(prodSACheckbox).toBeChecked();
-    }
+        // Verify production-sa is selected
+        await expect(prodSACheckbox).toBeChecked();
+      }
 
-    // Test form filling
-    await userEvent.type(nameField, 'New Test Group');
-    await userEvent.type(descField, 'A brand new group for testing');
+      // Test form filling
+      await userEvent.type(nameField, 'New Test Group');
+      await userEvent.type(descField, 'A brand new group for testing');
 
-    // Test name validation - try duplicate name
-    await userEvent.clear(nameField);
-    await userEvent.type(nameField, 'Existing Group 1'); // This should trigger validation error
+      // Test name validation - try duplicate name
+      await userEvent.clear(nameField);
+      await userEvent.type(nameField, 'Existing Group 1'); // This should trigger validation error
 
-    // Wait for validation to trigger
-    // Look for validation error in multiple ways
-    const errorByText =
-      canvas.queryByText(/group name.*taken/i) ||
-      canvas.queryByText(/name.*taken/i) ||
-      canvas.queryByText(/already.*taken/i) ||
-      canvas.queryByText(/name.*exists/i);
+      // Wait for validation to trigger
+      // Look for validation error in multiple ways
+      const errorByText =
+        canvas.queryByText(/group name.*taken/i) ||
+        canvas.queryByText(/name.*taken/i) ||
+        canvas.queryByText(/already.*taken/i) ||
+        canvas.queryByText(/name.*exists/i);
 
-    // Look for ARIA invalid attribute - target the input by its value
-    const nameFieldForValidation = await canvas.findByDisplayValue('Existing Group 1');
-    const hasAriaInvalid = nameFieldForValidation.getAttribute('aria-invalid') === 'true';
+      // Look for ARIA invalid attribute - target the input by its value
+      const nameFieldForValidation = await canvas.findByDisplayValue('Existing Group 1');
+      const hasAriaInvalid = nameFieldForValidation.getAttribute('aria-invalid') === 'true';
 
-    // Look for any element with validation error class or role
-    const errorByRole = canvas.queryByRole('alert') || canvas.queryByText(/required/i);
+      // Look for any element with validation error class or role
+      const errorByRole = canvas.queryByRole('alert') || canvas.queryByText(/required/i);
 
-    // Should find validation error through one of these methods
-    await expect(errorByText || hasAriaInvalid || errorByRole).toBeTruthy();
+      // Should find validation error through one of these methods
+      await expect(errorByText || hasAriaInvalid || errorByRole).toBeTruthy();
 
-    // Fix validation error
-    const nameFieldForFix = await canvas.findByRole('textbox', { name: /^name$/i });
-    await userEvent.clear(nameFieldForFix);
-    await userEvent.type(nameFieldForFix, 'Unique New Group');
+      // Fix validation error
+      const nameFieldForFix = await canvas.findByRole('textbox', { name: /^name$/i });
+      await userEvent.clear(nameFieldForFix);
+      await userEvent.type(nameFieldForFix, 'Unique New Group');
 
-    // Submit button should be enabled for valid, dirty form
-    const buttons = await canvas.findAllByRole('button');
-    const submitButton = buttons.find(
-      (button) =>
-        button.getAttribute('type') === 'submit' ||
-        button.textContent?.toLowerCase().includes('submit') ||
-        button.textContent?.toLowerCase().includes('save'),
-    );
-    await expect(submitButton).toBeDefined();
-    await expect(submitButton).not.toBeDisabled();
+      // Submit button should be enabled for valid, dirty form
+      const buttons = await canvas.findAllByRole('button');
+      const submitButton = buttons.find(
+        (button) =>
+          button.getAttribute('type') === 'submit' ||
+          button.textContent?.toLowerCase().includes('submit') ||
+          button.textContent?.toLowerCase().includes('save'),
+      );
+      await expect(submitButton).toBeDefined();
+      await expect(submitButton).not.toBeDisabled();
 
-    // Test final form submission
-    if (submitButton) {
-      await userEvent.click(submitButton);
-    }
+      // Test final form submission
+      if (submitButton) {
+        await userEvent.click(submitButton);
+      }
+    });
   },
 };
 
@@ -509,15 +510,16 @@ export const LoadingState: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Should show loading spinner initially
-    await expect(canvas.findByRole('progressbar')).resolves.toBeInTheDocument();
+      // Should show loading spinner initially
+      await expect(canvas.findByRole('progressbar')).resolves.toBeInTheDocument();
 
-    // Should show page title (be more specific to avoid multiple matches)
-    await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
+      // Should show page title (be more specific to avoid multiple matches)
+      await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -546,48 +548,49 @@ export const ValidationErrors: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for form to load
-    await expect(canvas.findByRole('textbox', { name: /^name$/i })).resolves.toBeInTheDocument();
+      // Wait for form to load
+      await expect(canvas.findByRole('textbox', { name: /^name$/i })).resolves.toBeInTheDocument();
 
-    const nameField = await canvas.findByRole('textbox', { name: /^name$/i });
+      const nameField = await canvas.findByRole('textbox', { name: /^name$/i });
 
-    // Test required field validation
-    await userEvent.click(nameField);
-    await userEvent.tab(); // Move focus away to trigger validation
+      // Test required field validation
+      await userEvent.click(nameField);
+      await userEvent.tab(); // Move focus away to trigger validation
 
-    await expect(canvas.findByText(/required/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/required/i)).resolves.toBeInTheDocument();
 
-    // Test duplicate name validation
-    await userEvent.clear(nameField);
-    await userEvent.type(nameField, 'Platform Administrators'); // Existing group name
+      // Test duplicate name validation
+      await userEvent.clear(nameField);
+      await userEvent.type(nameField, 'Platform Administrators'); // Existing group name
 
-    // Look for the specific validation message
-    await expect(canvas.findByText('Group name already taken')).resolves.toBeInTheDocument();
+      // Look for the specific validation message
+      await expect(canvas.findByText('Group name already taken')).resolves.toBeInTheDocument();
 
-    // Verify the input field is marked as invalid
-    await expect(nameField.getAttribute('aria-invalid')).toBe('true');
+      // Verify the input field is marked as invalid
+      await expect(nameField.getAttribute('aria-invalid')).toBe('true');
 
-    // Verify submit is disabled with validation errors
-    const buttons = await canvas.findAllByRole('button');
-    const submitButton = buttons.find(
-      (button) =>
-        button.getAttribute('type') === 'submit' ||
-        button.textContent?.toLowerCase().includes('submit') ||
-        button.textContent?.toLowerCase().includes('create'),
-    );
-    await expect(submitButton).toBeDefined();
-    await expect(submitButton).toBeDisabled();
+      // Verify submit is disabled with validation errors
+      const buttons = await canvas.findAllByRole('button');
+      const submitButton = buttons.find(
+        (button) =>
+          button.getAttribute('type') === 'submit' ||
+          button.textContent?.toLowerCase().includes('submit') ||
+          button.textContent?.toLowerCase().includes('create'),
+      );
+      await expect(submitButton).toBeDefined();
+      await expect(submitButton).toBeDisabled();
 
-    // Fix validation errors
-    const nameFieldForValidation = await canvas.findByRole('textbox', { name: /^name$/i });
-    await userEvent.clear(nameFieldForValidation);
-    await userEvent.type(nameFieldForValidation, 'Valid Unique Name');
+      // Fix validation errors
+      const nameFieldForValidation = await canvas.findByRole('textbox', { name: /^name$/i });
+      await userEvent.clear(nameFieldForValidation);
+      await userEvent.type(nameFieldForValidation, 'Valid Unique Name');
 
-    // Submit should become enabled
-    await expect(submitButton).not.toBeDisabled();
+      // Submit should become enabled
+      await expect(submitButton).not.toBeDisabled();
+    });
   },
 };

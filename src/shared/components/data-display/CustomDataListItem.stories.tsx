@@ -45,20 +45,22 @@ export const Default: Story = {
       </div>
     ),
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Check that the heading is displayed
-    const heading = canvas.getByText('Cloud Infrastructure');
-    expect(heading).toBeInTheDocument();
+      // Check that the heading is displayed
+      const heading = canvas.getByText('Cloud Infrastructure');
+      expect(heading).toBeInTheDocument();
 
-    // Check that the toggle button is present (DataListToggle)
-    const toggle = canvas.getByRole('button', { name: /details/i });
-    expect(toggle).toBeInTheDocument();
+      // Check that the toggle button is present (DataListToggle)
+      const toggle = canvas.getByRole('button', { name: /details/i });
+      expect(toggle).toBeInTheDocument();
 
-    // Initially should be collapsed
-    const content = canvas.queryByText('This is the expandable content');
-    expect(content).not.toBeInTheDocument();
+      // Initially should be collapsed
+      const content = canvas.queryByText('This is the expandable content');
+      expect(content).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -79,13 +81,15 @@ export const WithLink: Story = {
       </div>
     ),
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Check that the link is displayed
-    const link = canvas.getByRole('link', { name: /view details/i });
-    expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', 'https://example.com/database');
+      // Check that the link is displayed
+      const link = canvas.getByRole('link', { name: /view details/i });
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute('href', 'https://example.com/database');
+    });
   },
 };
 
@@ -108,16 +112,18 @@ export const InitiallyExpanded: Story = {
       </div>
     ),
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Check that the content is initially visible
-    const content = canvas.getByText('Server configuration details and settings.');
-    expect(content).toBeInTheDocument();
+      // Check that the content is initially visible
+      const content = canvas.getByText('Server configuration details and settings.');
+      expect(content).toBeInTheDocument();
 
-    // Check that the configuration details are visible
-    const cpuInfo = canvas.getByText('CPU: 8 cores');
-    expect(cpuInfo).toBeInTheDocument();
+      // Check that the configuration details are visible
+      const cpuInfo = canvas.getByText('CPU: 8 cores');
+      expect(cpuInfo).toBeInTheDocument();
+    });
   },
 };
 
@@ -155,21 +161,23 @@ export const ComplexContent: Story = {
       </div>
     ),
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Check that the main heading is displayed
-    const heading = canvas.getByText('Multi-Service Architecture');
-    expect(heading).toBeInTheDocument();
+      // Check that the main heading is displayed
+      const heading = canvas.getByText('Multi-Service Architecture');
+      expect(heading).toBeInTheDocument();
 
-    // Check that the toggle button is present and indicates collapsed state
-    const toggle = canvas.getByRole('button', { name: /details/i });
-    expect(toggle).toBeInTheDocument();
-    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      // Check that the toggle button is present and indicates collapsed state
+      const toggle = canvas.getByRole('button', { name: /details/i });
+      expect(toggle).toBeInTheDocument();
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
-    // The expandable content area exists but is hidden via CSS
-    const expandableContent = canvas.getByLabelText('Multi-Service Architecture - Detailed Explanation');
-    expect(expandableContent).toBeInTheDocument();
+      // The expandable content area exists but is hidden via CSS
+      const expandableContent = canvas.getByLabelText('Multi-Service Architecture - Detailed Explanation');
+      expect(expandableContent).toBeInTheDocument();
+    });
   },
 };
 

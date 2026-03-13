@@ -113,21 +113,20 @@ export const StandardFlow: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const body = within(document.body);
 
-    // Open the modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+    await step('Open modal and verify content', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    // Verify modal is open and content is correct
-    await expect(body.findByRole('heading')).resolves.toBeInTheDocument();
-    await expect(body.findByText(/john\.doe/i)).resolves.toBeInTheDocument();
+      await expect(body.findByRole('heading')).resolves.toBeInTheDocument();
+      await expect(body.findByText(/john\.doe/i)).resolves.toBeInTheDocument();
 
-    // Verify modal buttons
-    await expect(body.findByRole('button', { name: /remove/i })).resolves.toBeInTheDocument();
-    await expect(body.findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
+      await expect(body.findByRole('button', { name: /remove/i })).resolves.toBeInTheDocument();
+      await expect(body.findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -146,21 +145,20 @@ export const ConfirmAction: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const body = within(document.body);
 
-    // Open modal and confirm deletion
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+    await step('Open modal and confirm deletion', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    // Click confirm button
-    const confirmButton = await body.findByRole('button', { name: /remove/i });
-    await userEvent.click(confirmButton);
+      const confirmButton = await body.findByRole('button', { name: /remove/i });
+      await userEvent.click(confirmButton);
 
-    // Verify success message appears
-    await expect(canvas.findByTestId('submission-result')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/Deleted user "user.to.delete"/)).resolves.toBeInTheDocument();
+      await expect(canvas.findByTestId('submission-result')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/Deleted user "user.to.delete"/)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -179,23 +177,21 @@ export const CancelAction: Story = {
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
     const body = within(document.body);
 
-    // Open modal and cancel
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+    await step('Open modal and cancel', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    // Click cancel button
-    const cancelButton = await body.findByRole('button', { name: /cancel/i });
-    await userEvent.click(cancelButton);
+      const cancelButton = await body.findByRole('button', { name: /cancel/i });
+      await userEvent.click(cancelButton);
 
-    // Verify the onClose callback was called
-    await expect(args.onClose).toHaveBeenCalled();
+      await expect(args.onClose).toHaveBeenCalled();
 
-    // Modal should be closed (no heading in body)
-    await expect(body.queryByRole('heading')).not.toBeInTheDocument();
+      await expect(body.queryByRole('heading')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -214,16 +210,16 @@ export const AdminUser: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const body = within(document.body);
 
-    // Open the modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+    await step('Open modal and verify admin user displayed', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    // Verify org admin user is displayed
-    await expect(body.findByText(/admin\.user/i)).resolves.toBeInTheDocument();
+      await expect(body.findByText(/admin\.user/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -242,16 +238,16 @@ export const SpecialCharacterUsername: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const body = within(document.body);
 
-    // Open the modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+    await step('Open modal and verify email user displayed', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    // Verify email user is displayed
-    await expect(body.findByText(/user@company\.com/i)).resolves.toBeInTheDocument();
+      await expect(body.findByText(/user@company\.com/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -270,15 +266,15 @@ export const NoUsername: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+    await step('Verify modal not visible when username undefined', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    // Modal should not be visible when username is undefined
-    const body = within(document.body);
-    await expect(body.queryByRole('heading')).not.toBeInTheDocument();
+      const body = within(document.body);
+      await expect(body.queryByRole('heading')).not.toBeInTheDocument();
+    });
   },
 };

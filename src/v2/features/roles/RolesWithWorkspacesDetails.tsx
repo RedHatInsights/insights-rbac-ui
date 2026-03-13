@@ -80,7 +80,7 @@ const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole,
   );
 
   return (
-    <DrawerPanelContent minSize="600px">
+    <DrawerPanelContent data-testid="detail-drawer-panel" minSize="600px">
       <DrawerHead>
         <Title className="pf-v6-u-mb-md" headingLevel="h2" ouiaId={`${ouiaId}-drawer-title`}>
           {selectedRole?.name}

@@ -26,7 +26,7 @@ import { type MutationOptions, type QueryOptions } from '../../../shared/data/ty
 export type RolesListResponse = RolePaginationDynamic;
 
 /**
- * Single role type with optional V2 binding fields (gap:guessed-v2-api).
+ * Single role type with optional V2 binding fields.
  */
 export interface Role extends RoleOutDynamic {
   userGroup?: string;

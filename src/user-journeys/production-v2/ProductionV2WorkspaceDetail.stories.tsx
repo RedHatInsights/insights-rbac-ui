@@ -1,5 +1,5 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { clearAndType, waitForContentReady } from '../../test-utils/interactionHelpers';
 import {
   KESSEL_GROUP_DEV_TEAM,
   KESSEL_GROUP_MARKETING,
@@ -22,6 +22,8 @@ import {
   navigateToProductionWorkspaceDetail,
   resetStoryState,
   updateRoleBindingsSpy,
+  waitForDrawer,
+  waitForModal,
   waitForPageToLoad,
 } from './_v2OrgAdminSetup';
 
@@ -61,106 +63,112 @@ Tests workspace detail pages with the Roles tab, including group drawer and pare
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
-
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
-
-    const productionLink = await canvas.findByRole('link', { name: /^production$/i });
-    await user.click(productionLink);
-
-    await waitFor(async () => {
-      await expect(canvas.findByText(/roles assigned in this workspace/i)).resolves.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(db);
     });
 
-    const assetsTab = await canvas.findByRole('tab', { name: /^assets$/i });
-    expect(assetsTab).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await canvas.findByText(/roles assigned in this workspace/i);
-    await canvas.findByText(/roles assigned in parent workspaces/i);
+    await step('Navigate to Production workspace detail', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    await canvas.findByLabelText('Role Assignments Table', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
 
-    await waitFor(
-      async () => {
-        const loadingElements = canvas.queryAllByText(/loading/i);
-        const hasData = canvas.queryByText(KESSEL_GROUP_PROD_ADMINS.name) || canvas.queryByText(KESSEL_GROUP_VIEWERS.name);
-        expect(loadingElements.length === 0 || hasData).toBe(true);
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+      const productionLink = await canvas.findByRole('link', { name: /^production$/i });
+      await user.click(productionLink);
 
-    await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name);
-    await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
-    expect(canvas.queryByText(KESSEL_GROUP_DEV_TEAM.name)).not.toBeInTheDocument();
+      await canvas.findByText(/roles assigned in this workspace/i);
+    });
 
-    const productionAdminsText = await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name);
-    await user.click(productionAdminsText);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Verify detail page tabs and role assignments table', async () => {
+      const assetsTab = await canvas.findByRole('tab', { name: /^assets$/i });
+      expect(assetsTab).toBeInTheDocument();
 
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
-    expect(drawerPanel).toBeInTheDocument();
-    const drawer = within(drawerPanel);
+      await canvas.findByText(/roles assigned in this workspace/i);
+      await canvas.findByText(/roles assigned in parent workspaces/i);
 
-    await drawer.findByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name });
+      // Table loads async after navigation
+      await canvas.findByLabelText('Role Assignments Table', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
 
-    // Workspace context → drawer should show workspace-specific action buttons
-    await expect(drawer.findByRole('button', { name: /edit access for this workspace/i })).resolves.toBeInTheDocument();
+      await waitFor(
+        async () => {
+          const loadingElements = canvas.queryAllByText(/loading/i);
+          const hasData = canvas.queryByText(KESSEL_GROUP_PROD_ADMINS.name) || canvas.queryByText(KESSEL_GROUP_VIEWERS.name);
+          expect(loadingElements.length === 0 || hasData).toBe(true);
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
 
-    const rolesTab = await drawer.findByRole('tab', { name: /^roles$/i });
-    const usersTab = await drawer.findByRole('tab', { name: /^users$/i });
-    expect(rolesTab).toBeInTheDocument();
-    expect(usersTab).toBeInTheDocument();
+      await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name);
+      await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
+      expect(canvas.queryByText(KESSEL_GROUP_DEV_TEAM.name)).not.toBeInTheDocument();
+    });
 
-    await drawer.findByText(KESSEL_ROLE_WS_ADMIN.name!);
-    await drawer.findByText(KESSEL_ROLE_WS_VIEWER.name!);
+    await step('Open Production Admins drawer and verify content', async () => {
+      const productionAdminsText = await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name);
+      await user.click(productionAdminsText);
 
-    await user.click(usersTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+      const drawer = await waitForDrawer();
+      await drawer.findByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name });
 
-    await drawer.findByText(KESSEL_PROD_ADMINS_MEMBERS[0].username);
-    await drawer.findByText(KESSEL_PROD_ADMINS_MEMBERS[1].first_name!);
-    await drawer.findByText(KESSEL_PROD_ADMINS_MEMBERS[2].last_name!);
+      await expect(drawer.findByRole('button', { name: /edit access for this workspace/i })).resolves.toBeInTheDocument();
 
-    const parentWorkspacesTab = await canvas.findByRole('tab', { name: /roles assigned in parent workspaces/i });
-    await user.click(parentWorkspacesTab);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+      const rolesTab = await drawer.findByRole('tab', { name: /^roles$/i });
+      const usersTab = await drawer.findByRole('tab', { name: /^users$/i });
+      expect(rolesTab).toBeInTheDocument();
+      expect(usersTab).toBeInTheDocument();
 
-    const drawerAfterSwitch = document.querySelector('.pf-v6-c-drawer__panel');
-    expect(drawerAfterSwitch).not.toBeInTheDocument();
+      await drawer.findByText(KESSEL_ROLE_WS_ADMIN.name!);
+      await drawer.findByText(KESSEL_ROLE_WS_VIEWER.name!);
 
-    const viewersText = await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
-    expect(canvas.queryByText(KESSEL_GROUP_PROD_ADMINS.name)).not.toBeInTheDocument();
+      await user.click(usersTab);
 
-    await user.click(viewersText);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+      await drawer.findByText(KESSEL_PROD_ADMINS_MEMBERS[0].username);
+      await drawer.findByText(KESSEL_PROD_ADMINS_MEMBERS[1].first_name!);
+      await drawer.findByText(KESSEL_PROD_ADMINS_MEMBERS[2].last_name!);
+    });
 
-    const viewersDrawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
-    expect(viewersDrawerPanel).toBeInTheDocument();
-    const viewersDrawer = within(viewersDrawerPanel);
+    await step('Switch to parent workspaces tab and open Viewers drawer', async () => {
+      const parentWorkspacesTab = await canvas.findByRole('tab', { name: /roles assigned in parent workspaces/i });
+      await user.click(parentWorkspacesTab);
 
-    await viewersDrawer.findByRole('heading', { name: KESSEL_GROUP_VIEWERS.name });
+      // PF6 sets the `hidden` attribute on DrawerPanelContent when collapsed
+      await waitFor(() => {
+        const panel = within(document.body).queryByTestId('detail-drawer-panel');
+        if (panel) expect(panel).not.toBeVisible();
+      });
 
-    const viewersRolesTab = await viewersDrawer.findByRole('tab', { name: /^roles$/i });
-    const viewersUsersTab = await viewersDrawer.findByRole('tab', { name: /^users$/i });
-    expect(viewersRolesTab).toBeInTheDocument();
-    expect(viewersUsersTab).toBeInTheDocument();
+      const viewersText = await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
+      expect(canvas.queryByText(KESSEL_GROUP_PROD_ADMINS.name)).not.toBeInTheDocument();
 
-    await viewersDrawer.findByText(KESSEL_ROLE_WS_VIEWER.name!);
+      await user.click(viewersText);
+    });
 
-    await user.click(viewersUsersTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Verify Viewers drawer content', async () => {
+      const viewersDrawer = await waitForDrawer();
+      await viewersDrawer.findByRole('heading', { name: KESSEL_GROUP_VIEWERS.name });
 
-    await viewersDrawer.findByText(KESSEL_VIEWERS_MEMBERS[0].username);
-    await viewersDrawer.findByText(KESSEL_VIEWERS_MEMBERS[0].first_name!);
-    await viewersDrawer.findByText(KESSEL_VIEWERS_MEMBERS[0].last_name!);
+      const viewersRolesTab = await viewersDrawer.findByRole('tab', { name: /^roles$/i });
+      const viewersUsersTab = await viewersDrawer.findByRole('tab', { name: /^users$/i });
+      expect(viewersRolesTab).toBeInTheDocument();
+      expect(viewersUsersTab).toBeInTheDocument();
+
+      await viewersDrawer.findByText(KESSEL_ROLE_WS_VIEWER.name!);
+
+      await user.click(viewersUsersTab);
+
+      await viewersDrawer.findByText(KESSEL_VIEWERS_MEMBERS[0].username);
+      await viewersDrawer.findByText(KESSEL_VIEWERS_MEMBERS[0].first_name!);
+      await viewersDrawer.findByText(KESSEL_VIEWERS_MEMBERS[0].last_name!);
+    });
   },
 };
 
@@ -202,88 +210,104 @@ End-to-end flow for granting access to a workspace via the 3-step wizard.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    batchCreateRoleBindingsSpy.mockClear();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToProductionWorkspaceDetail(user, canvas);
-
-    const grantAccessButton = await canvas.findByRole('button', { name: /grant access/i });
-    await expect(grantAccessButton).toBeEnabled();
-    await user.click(grantAccessButton);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    const body = within(document.body);
-    await body.findByText(/grant access in workspace/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-
-    await waitFor(
-      async () => {
-        await expect(body.findByText(KESSEL_GROUP_DEV_TEAM.name)).resolves.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
-
-    const devTeamText = await body.findByText(KESSEL_GROUP_DEV_TEAM.name);
-    const devTeamRow = devTeamText.closest('tr') as HTMLElement;
-    const devTeamCheckbox = devTeamRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await user.click(devTeamCheckbox);
-    await delay(TEST_TIMEOUTS.QUICK_SETTLE);
-
-    const wizardDialog = document.querySelector('[role="dialog"]') as HTMLElement;
-    const wizardScope = within(wizardDialog);
-    const nextButton = await wizardScope.findByRole('button', { name: /^next$/i });
-    await user.click(nextButton);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    await waitFor(
-      async () => {
-        await expect(body.findByText(KESSEL_ROLE_WS_EDITOR.name!)).resolves.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
-
-    const editorText = await body.findByText(KESSEL_ROLE_WS_EDITOR.name!);
-    const editorRow = editorText.closest('tr') as HTMLElement;
-    const editorCheckbox = editorRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await user.click(editorCheckbox);
-    await delay(TEST_TIMEOUTS.QUICK_SETTLE);
-
-    const nextButton2 = within(document.querySelector('[role="dialog"]') as HTMLElement).getByRole('button', { name: /^next$/i });
-    await user.click(nextButton2);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    await waitFor(
-      async () => {
-        await expect(body.findByText(KESSEL_GROUP_DEV_TEAM.name)).resolves.toBeInTheDocument();
-        await expect(body.findByText(KESSEL_ROLE_WS_EDITOR.name!)).resolves.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
-
-    const submitButton = await body.findByRole('button', { name: /submit/i });
-    await user.click(submitButton);
-
-    await delay(TEST_TIMEOUTS.LONG_OPERATION);
-
-    await waitFor(() => {
-      const addressBar = canvas.getByTestId('fake-address-bar');
-      expect(addressBar).toHaveTextContent(/workspaces/i);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+      batchCreateRoleBindingsSpy.mockClear();
     });
 
-    expect(batchCreateRoleBindingsSpy).toHaveBeenCalledTimes(1);
-    expect(batchCreateRoleBindingsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        requests: expect.arrayContaining([
-          expect.objectContaining({
-            subject: expect.objectContaining({ id: 'group-2', type: 'group' }),
-            role: expect.objectContaining({ id: expect.any(String) }),
-            resource: expect.objectContaining({ type: 'workspace' }),
-          }),
-        ]),
-      }),
-    );
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Navigate to Production and open Grant access wizard', async () => {
+      await navigateToProductionWorkspaceDetail(user, canvas);
+
+      const grantAccessButton = await canvas.findByRole('button', { name: /grant access/i });
+      await expect(grantAccessButton).toBeEnabled();
+      await user.click(grantAccessButton);
+
+      const body = within(document.body);
+      // Wizard content loads asynchronously
+      await body.findByText(/grant access in workspace/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
+
+    await step('Select Development Team and Workspace Editor', async () => {
+      const body = within(document.body);
+
+      await waitFor(
+        async () => {
+          await expect(body.findByText(KESSEL_GROUP_DEV_TEAM.name)).resolves.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+
+      const devTeamText = await body.findByText(KESSEL_GROUP_DEV_TEAM.name);
+      const devTeamRow = devTeamText.closest('tr') as HTMLElement;
+      const devTeamCheckbox = within(devTeamRow).getByRole('checkbox');
+      await user.click(devTeamCheckbox);
+
+      const wizardScope = await waitForModal();
+      const nextButton = await wizardScope.findByRole('button', { name: /^next$/i });
+      await user.click(nextButton);
+
+      await waitFor(
+        async () => {
+          await expect(body.findByText(KESSEL_ROLE_WS_EDITOR.name!)).resolves.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+
+      const editorText = await body.findByText(KESSEL_ROLE_WS_EDITOR.name!);
+      const editorRow = editorText.closest('tr') as HTMLElement;
+      const editorCheckbox = within(editorRow).getByRole('checkbox');
+      await user.click(editorCheckbox);
+
+      const wizardScope2 = await waitForModal();
+      const nextButton2 = await wizardScope2.findByRole('button', { name: /^next$/i });
+      await user.click(nextButton2);
+    });
+
+    await step('Submit wizard and verify API spy', async () => {
+      const body = within(document.body);
+
+      await waitFor(
+        async () => {
+          await expect(body.findByText(KESSEL_GROUP_DEV_TEAM.name)).resolves.toBeInTheDocument();
+          await expect(body.findByText(KESSEL_ROLE_WS_EDITOR.name!)).resolves.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+
+      const submitButton = await body.findByRole('button', { name: /submit/i });
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        const addressBar = canvas.getByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/workspaces/i);
+      });
+
+      await waitFor(
+        () => {
+          expect(batchCreateRoleBindingsSpy).toHaveBeenCalledTimes(1);
+          expect(batchCreateRoleBindingsSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              requests: expect.arrayContaining([
+                expect.objectContaining({
+                  subject: expect.objectContaining({ id: 'group-2', type: 'group' }),
+                  role: expect.objectContaining({ id: expect.any(String) }),
+                  resource: expect.objectContaining({ type: 'workspace' }),
+                }),
+              ]),
+            }),
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
   },
 };
 
@@ -313,60 +337,70 @@ End-to-end flow for removing a group's access via the kebab menu.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    updateRoleBindingsSpy.mockClear();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToProductionWorkspaceDetail(user, canvas);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+      updateRoleBindingsSpy.mockClear();
+    });
 
-    await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name);
-    await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const viewersText = await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
-    const viewersRow = viewersText.closest('tr') as HTMLElement;
-    const rowScope = within(viewersRow);
+    await step('Navigate to Production and open Viewers kebab menu', async () => {
+      await navigateToProductionWorkspaceDetail(user, canvas);
 
-    const kebabButton = await rowScope.findByLabelText(/actions for viewers/i);
-    await user.click(kebabButton);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+      await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name);
+      await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
 
-    const body = within(document.body);
-    const removeItem = await body.findByText(/remove from workspace/i);
-    await user.click(removeItem);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+      const viewersText = await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
+      const viewersRow = viewersText.closest('tr') as HTMLElement;
+      const rowScope = within(viewersRow);
 
-    await waitFor(
-      async () => {
-        const dialog = body.queryByRole('dialog');
-        await expect(dialog).toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+      const kebabButton = await rowScope.findByLabelText(/actions for viewers/i);
+      await user.click(kebabButton);
 
-    const modal = document.querySelector('[role="dialog"]') as HTMLElement;
-    const modalScope = within(modal);
-    const confirmButton = await modalScope.findByRole('button', { name: /remove from workspace/i });
-    await user.click(confirmButton);
+      const body = within(document.body);
+      const removeItem = await body.findByText(/remove from workspace/i);
+      await user.click(removeItem);
+    });
 
-    await waitFor(
-      () => {
-        expect(body.queryByRole('dialog')).not.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+    await step('Confirm removal in modal', async () => {
+      const body = within(document.body);
 
-    await delay(TEST_TIMEOUTS.LONG_OPERATION);
+      await waitFor(
+        async () => {
+          const dialog = body.queryByRole('dialog');
+          await expect(dialog).toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
 
-    expect(updateRoleBindingsSpy).toHaveBeenCalledTimes(1);
-    expect(updateRoleBindingsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        resourceId: expect.any(String),
-        subjectId: expect.any(String),
-        body: expect.objectContaining({ roles: [] }),
-      }),
-    );
+      const modalScope = await waitForModal();
+      const confirmButton = await modalScope.findByRole('button', { name: /remove from workspace/i });
+      await user.click(confirmButton);
+
+      await waitFor(
+        () => {
+          expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
+
+    await step('Verify API spy called', async () => {
+      expect(updateRoleBindingsSpy).toHaveBeenCalledTimes(1);
+      expect(updateRoleBindingsSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resourceId: expect.any(String),
+          subjectId: expect.any(String),
+          body: expect.objectContaining({ roles: [] }),
+        }),
+      );
+    });
   },
 };
 
@@ -401,88 +435,96 @@ A lighter variation of the Grant Access wizard with one group and one role.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    batchCreateRoleBindingsSpy.mockClear();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToProductionWorkspaceDetail(user, canvas);
-
-    const grantAccessButton = await canvas.findByRole('button', { name: /grant access/i });
-    await user.click(grantAccessButton);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    const body = within(document.body);
-    await body.findByText(/grant access in workspace/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-
-    // Wait for groups table to load (Marketing Team from defaultKesselGroups)
-    const marketingText = await body.findByText(KESSEL_GROUP_MARKETING.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    const marketingRow = marketingText.closest('tr') as HTMLElement;
-    const marketingCheckbox = marketingRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await user.click(marketingCheckbox);
-    await delay(TEST_TIMEOUTS.QUICK_SETTLE);
-
-    const wizardDialog = document.querySelector('[role="dialog"]') as HTMLElement;
-    const wizardScopeInner = within(wizardDialog);
-    const nextButton = await wizardScopeInner.findByRole('button', { name: /^next$/i });
-    await user.click(nextButton);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    // "Workspace Viewer" is on page 2 of the paginated roles table — filter first
-    const roleFilterInput = await body.findByPlaceholderText(/filter by name/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await user.clear(roleFilterInput);
-    await user.type(roleFilterInput, KESSEL_ROLE_WS_VIEWER.name!);
-    await delay(TEST_TIMEOUTS.QUICK_SETTLE);
-
-    // After filtering, the filter chip also contains the role name text.
-    // Select the checkbox in the table body row directly.
-    await waitFor(
-      () => {
-        const rows = document.querySelectorAll('[role="dialog"] tbody tr');
-        if (rows.length === 0) throw new Error('No table rows found');
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
-    const viewerRow = document.querySelector('[role="dialog"] tbody tr') as HTMLElement;
-    const viewerCheckbox = viewerRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await user.click(viewerCheckbox);
-    await delay(TEST_TIMEOUTS.QUICK_SETTLE);
-
-    const nextButton2 = within(document.querySelector('[role="dialog"]') as HTMLElement).getByRole('button', { name: /^next$/i });
-    await user.click(nextButton2);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    await body.findByText(KESSEL_GROUP_MARKETING.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await body.findByText(KESSEL_ROLE_WS_VIEWER.name!, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-
-    const submitButton = await body.findByRole('button', { name: /submit/i });
-    await user.click(submitButton);
-
-    await delay(TEST_TIMEOUTS.LONG_OPERATION);
-
-    await waitFor(() => {
-      const addressBar = canvas.getByTestId('fake-address-bar');
-      expect(addressBar).toHaveTextContent(/workspaces/i);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+      batchCreateRoleBindingsSpy.mockClear();
     });
 
-    expect(batchCreateRoleBindingsSpy).toHaveBeenCalledTimes(1);
-    expect(batchCreateRoleBindingsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        requests: expect.arrayContaining([
-          expect.objectContaining({
-            subject: expect.objectContaining({ id: 'group-4', type: 'group' }),
-            role: expect.objectContaining({ id: expect.any(String) }),
-            resource: expect.objectContaining({ type: 'workspace' }),
-          }),
-        ]),
-      }),
-    );
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Navigate to Production and open Grant access wizard', async () => {
+      await navigateToProductionWorkspaceDetail(user, canvas);
+
+      const grantAccessButton = await canvas.findByRole('button', { name: /grant access/i });
+      await user.click(grantAccessButton);
+
+      const body = within(document.body);
+      // Wizard content loads asynchronously
+      await body.findByText(/grant access in workspace/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
+
+    await step('Select Marketing Team and Workspace Viewer', async () => {
+      const body = within(document.body);
+
+      // First element after wizard opened
+      const marketingText = await body.findByText(KESSEL_GROUP_MARKETING.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const marketingRow = marketingText.closest('tr');
+      expect(marketingRow).not.toBeNull();
+      const marketingCheckbox = within(marketingRow!).getByRole('checkbox');
+      await user.click(marketingCheckbox);
+
+      const wizardScopeInner = await waitForModal();
+      const nextButton = await wizardScopeInner.findByRole('button', { name: /^next$/i });
+      await user.click(nextButton);
+
+      // Data-driven-forms content (async textbox in wizard)
+      await clearAndType(user, () => body.getByPlaceholderText(/filter by name/i) as HTMLInputElement, KESSEL_ROLE_WS_VIEWER.name!);
+
+      const viewerTexts = await waitFor(() => body.findAllByText(KESSEL_ROLE_WS_VIEWER.name!), { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const viewerRow = viewerTexts.map((el) => el.closest('tr')).find(Boolean) as HTMLElement;
+      expect(viewerRow).not.toBeNull();
+      const viewerCheckbox = within(viewerRow).getByRole('checkbox');
+      await user.click(viewerCheckbox);
+
+      const wizardScope2 = await waitForModal();
+      const nextButton2 = await wizardScope2.findByRole('button', { name: /^next$/i });
+      await user.click(nextButton2);
+    });
+
+    await step('Submit wizard and verify API spy', async () => {
+      const body = within(document.body);
+
+      // First element in review step
+      await body.findByText(KESSEL_GROUP_MARKETING.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await body.findByText(KESSEL_ROLE_WS_VIEWER.name!);
+
+      const submitButton = await body.findByRole('button', { name: /submit/i });
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        const addressBar = canvas.getByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/workspaces/i);
+      });
+
+      await waitFor(
+        () => {
+          expect(batchCreateRoleBindingsSpy).toHaveBeenCalledTimes(1);
+          expect(batchCreateRoleBindingsSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              requests: expect.arrayContaining([
+                expect.objectContaining({
+                  subject: expect.objectContaining({ id: 'group-4', type: 'group' }),
+                  role: expect.objectContaining({ id: expect.any(String) }),
+                  resource: expect.objectContaining({ type: 'workspace' }),
+                }),
+              ]),
+            }),
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
   },
 };
 
 export const EditRoleAccess: Story = {
-  tags: ['test-skip'],
+  tags: ['skip-test'],
   name: 'Edit role access',
   args: {
     initialRoute: '/iam/my-user-access',
@@ -491,7 +533,7 @@ export const EditRoleAccess: Story = {
     docs: {
       description: {
         story: `
-## Edit Role Access (test-skip — PatternFly ToolbarFilter bug)
+## Edit Role Access 
 
 Complete flow for editing role access via the RoleAccessModal.
 
@@ -512,80 +554,82 @@ Complete flow for editing role access via the RoleAccessModal.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToProductionWorkspaceDetail(user, canvas);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const productionAdminsText = await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name);
-    await user.click(productionAdminsText);
-    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
-    await expect(drawerPanel).toBeInTheDocument();
-    const drawer = within(drawerPanel);
+    await step('Navigate to Production and open Production Admins drawer', async () => {
+      await navigateToProductionWorkspaceDetail(user, canvas);
 
-    await drawer.findByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name });
+      const productionAdminsText = await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name);
+      await user.click(productionAdminsText);
 
-    const editAccessButton = await drawer.findByRole('button', { name: /edit access for this workspace/i });
-    await expect(editAccessButton).toBeInTheDocument();
-    await user.click(editAccessButton);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+      const drawer = await waitForDrawer();
+      await drawer.findByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name });
 
-    const body = within(document.body);
-    const dialog = await body.findByRole('dialog', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await expect(dialog).toBeInTheDocument();
+      const editAccessButton = await drawer.findByRole('button', { name: /edit access for this workspace/i });
+      await expect(editAccessButton).toBeInTheDocument();
+      await user.click(editAccessButton);
+    });
 
-    await expect(body.findByText(/edit access/i)).resolves.toBeInTheDocument();
+    await step('Deselect Workspace Viewer and update', async () => {
+      const body = within(document.body);
+      const modalScope = await waitForModal();
 
-    await waitFor(
-      async () => {
-        await expect(body.findByText(KESSEL_ROLE_WS_ADMIN.name!)).resolves.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+      await expect(body.findByText(/edit access/i)).resolves.toBeInTheDocument();
 
-    const modalScope = within(dialog);
-    const table = await modalScope.findByRole('grid', { name: /roles selection table/i });
-    const tableScope = within(table);
+      await waitFor(
+        async () => {
+          await expect(body.findByText(KESSEL_ROLE_WS_ADMIN.name!)).resolves.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+      const table = await modalScope.findByRole('grid', { name: /roles selection table/i });
+      const tableScope = within(table);
 
-    const adminRow = (await tableScope.findByText(KESSEL_ROLE_WS_ADMIN.name!)).closest('tr') as HTMLElement;
-    const adminCheckbox = adminRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await expect(adminCheckbox).toBeInTheDocument();
-    await expect(adminCheckbox.checked).toBe(true);
+      const adminRow = (await tableScope.findByText(KESSEL_ROLE_WS_ADMIN.name!)).closest('tr') as HTMLElement;
+      const adminCheckbox = within(adminRow).getByRole('checkbox');
+      await expect(adminCheckbox).toBeInTheDocument();
+      await expect(adminCheckbox).toBeChecked();
 
-    const viewerRow = (await tableScope.findByText(KESSEL_ROLE_WS_VIEWER.name!)).closest('tr') as HTMLElement;
-    const viewerCheckbox = viewerRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await expect(viewerCheckbox).toBeInTheDocument();
-    await expect(viewerCheckbox.checked).toBe(true);
+      const viewerRow = (await tableScope.findByText(KESSEL_ROLE_WS_VIEWER.name!)).closest('tr') as HTMLElement;
+      const viewerCheckbox = within(viewerRow).getByRole('checkbox');
+      await expect(viewerCheckbox).toBeInTheDocument();
+      await expect(viewerCheckbox).toBeChecked();
 
-    await user.click(viewerCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    await expect(viewerCheckbox.checked).toBe(false);
+      await user.click(viewerCheckbox);
+      await expect(viewerCheckbox).not.toBeChecked();
 
-    const updateButton = await modalScope.findByRole('button', { name: /update/i });
-    await expect(updateButton).not.toBeDisabled();
+      const updateButton = await modalScope.findByRole('button', { name: /update/i });
+      await expect(updateButton).not.toBeDisabled();
 
-    await user.click(updateButton);
+      await user.click(updateButton);
 
-    await waitFor(
-      () => {
-        expect(body.queryByRole('dialog')).not.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+      await waitFor(
+        () => {
+          expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
 
-    await waitFor(() => {
-      const addressBar = canvas.getByTestId('fake-address-bar');
-      expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
+      await waitFor(() => {
+        const addressBar = canvas.getByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
+      });
     });
   },
 };
 
 export const RemovePrincipalsFromRole: Story = {
-  tags: ['test-skip'],
+  tags: ['skip-test'],
   name: 'Edit access to deselect a role',
   args: {
     initialRoute: '/iam/my-user-access',
@@ -594,7 +638,7 @@ export const RemovePrincipalsFromRole: Story = {
     docs: {
       description: {
         story: `
-## Edit Access — Deselect a Role (test-skip — PatternFly bug)
+## Edit Access — Deselect a Role 
 
 Same flow as EditRoleAccess but for the Viewers group.
 
@@ -615,62 +659,66 @@ Same flow as EditRoleAccess but for the Viewers group.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToProductionWorkspaceDetail(user, canvas);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const viewersText = await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
-    await user.click(viewersText);
-    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
-    await expect(drawerPanel).toBeInTheDocument();
-    const drawer = within(drawerPanel);
+    await step('Navigate to Production and open Viewers drawer', async () => {
+      await navigateToProductionWorkspaceDetail(user, canvas);
 
-    await drawer.findByRole('heading', { name: KESSEL_GROUP_VIEWERS.name });
+      const viewersText = await canvas.findByText(KESSEL_GROUP_VIEWERS.name);
+      await user.click(viewersText);
 
-    const editAccessButton = await drawer.findByRole('button', { name: /edit access for this workspace/i });
-    await user.click(editAccessButton);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+      const drawer = await waitForDrawer();
+      await drawer.findByRole('heading', { name: KESSEL_GROUP_VIEWERS.name });
 
-    const body = within(document.body);
-    const dialog = await body.findByRole('dialog', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const editAccessButton = await drawer.findByRole('button', { name: /edit access for this workspace/i });
+      await user.click(editAccessButton);
+    });
 
-    await waitFor(
-      async () => {
-        await expect(body.findByText(KESSEL_ROLE_WS_VIEWER.name!)).resolves.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+    await step('Deselect Workspace Viewer and update', async () => {
+      const body = within(document.body);
+      const modalScope = await waitForModal();
 
-    const modalScope = within(dialog);
-    const table = await modalScope.findByRole('grid', { name: /roles selection table/i });
-    const tableScope = within(table);
+      await waitFor(
+        async () => {
+          await expect(body.findByText(KESSEL_ROLE_WS_VIEWER.name!)).resolves.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
 
-    const viewerRow = (await tableScope.findByText(KESSEL_ROLE_WS_VIEWER.name!)).closest('tr') as HTMLElement;
-    const viewerCheckbox = viewerRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await expect(viewerCheckbox.checked).toBe(true);
+      const table = await modalScope.findByRole('grid', { name: /roles selection table/i });
+      const tableScope = within(table);
 
-    await user.click(viewerCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    await expect(viewerCheckbox.checked).toBe(false);
+      const viewerRow = (await tableScope.findByText(KESSEL_ROLE_WS_VIEWER.name!)).closest('tr') as HTMLElement;
+      const viewerCheckbox = within(viewerRow).getByRole('checkbox');
+      await expect(viewerCheckbox).toBeChecked();
 
-    const updateButton = await modalScope.findByRole('button', { name: /update/i });
-    await user.click(updateButton);
+      await user.click(viewerCheckbox);
+      await expect(viewerCheckbox).not.toBeChecked();
 
-    await waitFor(
-      () => {
-        expect(body.queryByRole('dialog')).not.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+      const updateButton = await modalScope.findByRole('button', { name: /update/i });
+      await user.click(updateButton);
 
-    await waitFor(() => {
-      const addressBar = canvas.getByTestId('fake-address-bar');
-      expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
+      await waitFor(
+        () => {
+          expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+
+      await waitFor(() => {
+        const addressBar = canvas.getByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
+      });
     });
   },
 };
@@ -697,34 +745,41 @@ Tests the workspace detail page Assets tab.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
-    const productionLink = await canvas.findByRole('link', { name: /^production$/i });
-    await user.click(productionLink);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const assetsTab = await canvas.findByRole('tab', { name: /assets/i });
-    await user.click(assetsTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    await expect(assetsTab).toHaveAttribute('aria-selected', 'true');
+    await step('Navigate to Production workspace detail', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    // Verify assets content loads (the Assets tab shows service links)
-    await waitFor(
-      () => {
-        const content =
-          canvas.queryByText(/navigate to a service/i) || canvas.queryByText(/red hat insights/i) || canvas.queryByText(/manage your assets/i);
-        expect(content).toBeTruthy();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+      const productionLink = await canvas.findByRole('link', { name: /^production$/i });
+      await user.click(productionLink);
+    });
+
+    await step('Click Assets tab and verify content', async () => {
+      const assetsTab = await canvas.findByRole('tab', { name: /assets/i });
+      await user.click(assetsTab);
+      await waitFor(() => expect(assetsTab).toHaveAttribute('aria-selected', 'true'));
+
+      await waitFor(
+        () => {
+          const content =
+            canvas.queryByText(/navigate to a service/i) || canvas.queryByText(/red hat insights/i) || canvas.queryByText(/manage your assets/i);
+          expect(content).toBeTruthy();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
   },
 };

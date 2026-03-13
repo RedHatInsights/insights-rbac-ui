@@ -200,23 +200,25 @@ export const StandardView: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Verify table is rendered with correct columns - get table header specifically
-    const usernameHeaders = canvas.getAllByText('Username');
-    await expect(usernameHeaders.length).toBeGreaterThan(0);
-    await expect(canvas.findByText('Email')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/First Name/i)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/Last Name/i)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Status')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Org. Admin')).resolves.toBeInTheDocument();
+      // Verify table is rendered with correct columns - get table header specifically
+      const usernameHeaders = canvas.getAllByText('Username');
+      await expect(usernameHeaders.length).toBeGreaterThan(0);
+      await expect(canvas.findByText('Email')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/First Name/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/Last Name/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Status')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Org. Admin')).resolves.toBeInTheDocument();
 
-    // Verify user data is displayed
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('John')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Doe')).resolves.toBeInTheDocument();
+      // Verify user data is displayed
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('John')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Doe')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -234,13 +236,15 @@ export const AuthModelEnabled: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // With authModel, org admin column should be first
-    const headers = canvas.getAllByRole('columnheader');
-    await expect(headers[1]).toHaveTextContent('Org. Admin'); // First sortable column
-    await expect(headers[2]).toHaveTextContent('Username');
+      // With authModel, org admin column should be first
+      const headers = canvas.getAllByRole('columnheader');
+      await expect(headers[1]).toHaveTextContent('Org. Admin'); // First sortable column
+      await expect(headers[2]).toHaveTextContent('Username');
+    });
   },
 };
 
@@ -259,15 +263,17 @@ export const LoadingState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    // Should show skeleton loading state (check for skeleton class)
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        await expect(skeletonElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 },
-    );
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      // Should show skeleton loading state (check for skeleton class)
+      await waitFor(
+        async () => {
+          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+          await expect(skeletonElements.length).toBeGreaterThan(0);
+        },
+        { timeout: 10000 },
+      );
+    });
   },
 };
 
@@ -286,11 +292,13 @@ export const EmptyState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Should show empty state message with heading
-    await expect(canvas.findByRole('heading', { name: 'No users found' })).resolves.toBeInTheDocument();
+      // Should show empty state message with heading
+      await expect(canvas.findByRole('heading', { name: 'No users found' })).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -305,43 +313,45 @@ export const BulkSelection: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Find and click bulk select checkbox
-    const bulkSelectCheckbox = await canvas.findByLabelText('Select page');
-    await expect(bulkSelectCheckbox).toBeInTheDocument();
-    await expect(bulkSelectCheckbox).not.toBeChecked();
+      // Find and click bulk select checkbox
+      const bulkSelectCheckbox = await canvas.findByLabelText('Select page');
+      await expect(bulkSelectCheckbox).toBeInTheDocument();
+      await expect(bulkSelectCheckbox).not.toBeChecked();
 
-    // Click the checkbox to test bulk selection
-    await userEvent.click(bulkSelectCheckbox);
+      // Click the checkbox to test bulk selection
+      await userEvent.click(bulkSelectCheckbox);
 
-    // Verify bulk select is now checked
-    await expect(bulkSelectCheckbox).toBeChecked();
+      // Verify bulk select is now checked
+      await expect(bulkSelectCheckbox).toBeChecked();
 
-    // Verify individual row checkboxes are also checked
-    // Only check row selection checkboxes (not org admin toggles, status switches, etc.)
-    const allCheckboxes = await canvas.findAllByRole('checkbox');
-    const rowCheckboxes = allCheckboxes.filter(
-      (cb) =>
-        cb !== bulkSelectCheckbox &&
-        !cb.getAttribute('aria-label')?.includes('Toggle') && // Exclude toggle switches
-        !cb.getAttribute('id')?.includes('switch'), // Exclude switch elements
-    );
+      // Verify individual row checkboxes are also checked
+      // Only check row selection checkboxes (not org admin toggles, status switches, etc.)
+      const allCheckboxes = await canvas.findAllByRole('checkbox');
+      const rowCheckboxes = allCheckboxes.filter(
+        (cb) =>
+          cb !== bulkSelectCheckbox &&
+          !cb.getAttribute('aria-label')?.includes('Toggle') && // Exclude toggle switches
+          !cb.getAttribute('id')?.includes('switch'), // Exclude switch elements
+      );
 
-    rowCheckboxes.forEach((checkbox) => {
-      expect(checkbox).toBeChecked();
-    });
+      rowCheckboxes.forEach((checkbox) => {
+        expect(checkbox).toBeChecked();
+      });
 
-    // TEST DESELECT: Click bulk select again to deselect all
-    await userEvent.click(bulkSelectCheckbox);
+      // TEST DESELECT: Click bulk select again to deselect all
+      await userEvent.click(bulkSelectCheckbox);
 
-    // Verify bulk select is now unchecked
-    await expect(bulkSelectCheckbox).not.toBeChecked();
+      // Verify bulk select is now unchecked
+      await expect(bulkSelectCheckbox).not.toBeChecked();
 
-    // Verify individual row checkboxes are also unchecked
-    rowCheckboxes.forEach((checkbox) => {
-      expect(checkbox).not.toBeChecked();
+      // Verify individual row checkboxes are also unchecked
+      rowCheckboxes.forEach((checkbox) => {
+        expect(checkbox).not.toBeChecked();
+      });
     });
   },
 };
@@ -357,23 +367,25 @@ export const StatusToggle: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Find status switch for first user (should be active) - switches render as checkboxes
-    const statusSwitch = await canvas.findByLabelText(/Toggle status for john.doe/i);
+      // Find status switch for first user (should be active) - switches render as checkboxes
+      const statusSwitch = await canvas.findByLabelText(/Toggle status for john.doe/i);
 
-    await expect(statusSwitch).toBeInTheDocument();
-    await expect(statusSwitch).toBeChecked();
+      await expect(statusSwitch).toBeInTheDocument();
+      await expect(statusSwitch).toBeChecked();
 
-    // Click to toggle status
-    await userEvent.click(statusSwitch);
+      // Click to toggle status
+      await userEvent.click(statusSwitch);
 
-    // Verify callback was called with user and new status
-    await expect(defaultArgs.onToggleUserStatus).toHaveBeenCalledWith(
-      expect.objectContaining({ username: 'john.doe' }),
-      false, // toggling from active to inactive
-    );
+      // Verify callback was called with user and new status
+      await expect(defaultArgs.onToggleUserStatus).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'john.doe' }),
+        false, // toggling from active to inactive
+      );
+    });
   },
 };
 
@@ -388,23 +400,25 @@ export const OrgAdminToggle: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Find org admin switch for first user (should not be org admin) - switches render as checkboxes
-    const orgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for john.doe/i);
+      // Find org admin switch for first user (should not be org admin) - switches render as checkboxes
+      const orgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for john.doe/i);
 
-    await expect(orgAdminSwitch).toBeInTheDocument();
-    await expect(orgAdminSwitch).not.toBeChecked();
+      await expect(orgAdminSwitch).toBeInTheDocument();
+      await expect(orgAdminSwitch).not.toBeChecked();
 
-    // Click to toggle org admin status
-    await userEvent.click(orgAdminSwitch);
+      // Click to toggle org admin status
+      await userEvent.click(orgAdminSwitch);
 
-    // Verify callback was called with user and new org admin status
-    await expect(defaultArgs.onToggleOrgAdmin).toHaveBeenCalledWith(
-      expect.objectContaining({ username: 'john.doe' }),
-      true, // toggling from non-admin to admin
-    );
+      // Verify callback was called with user and new org admin status
+      await expect(defaultArgs.onToggleOrgAdmin).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'john.doe' }),
+        true, // toggling from non-admin to admin
+      );
+    });
   },
 };
 
@@ -419,34 +433,36 @@ export const AddUsersToGroup: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // First select a user by clicking their row checkbox
-    const firstRowCheckbox = await canvas.findByLabelText('Select row 0');
-    await expect(firstRowCheckbox).toBeInTheDocument();
+      // First select a user by clicking their row checkbox
+      const firstRowCheckbox = await canvas.findByLabelText('Select row 0');
+      await expect(firstRowCheckbox).toBeInTheDocument();
 
-    await userEvent.click(firstRowCheckbox);
+      await userEvent.click(firstRowCheckbox);
 
-    // Wait until selection state updates and button becomes enabled
-    let addToGroupButton: HTMLElement | null = null;
-    await waitFor(async () => {
-      addToGroupButton = canvas.queryByText(/Add to user group/i);
-      if (!addToGroupButton) {
-        const kebabButton = canvas.queryByLabelText('Actions overflow menu');
-        if (kebabButton) {
-          userEvent.click(kebabButton);
-          addToGroupButton = canvas.queryByText(/Add to user group/i);
+      // Wait until selection state updates and button becomes enabled
+      let addToGroupButton: HTMLElement | null = null;
+      await waitFor(async () => {
+        addToGroupButton = canvas.queryByText(/Add to user group/i);
+        if (!addToGroupButton) {
+          const kebabButton = canvas.queryByLabelText('Actions overflow menu');
+          if (kebabButton) {
+            userEvent.click(kebabButton);
+            addToGroupButton = canvas.queryByText(/Add to user group/i);
+          }
         }
-      }
-      await expect(addToGroupButton).not.toBeNull();
-      await expect(addToGroupButton!).not.toBeDisabled();
+        await expect(addToGroupButton).not.toBeNull();
+        await expect(addToGroupButton!).not.toBeDisabled();
+      });
+
+      await userEvent.click(addToGroupButton!);
+
+      // Verify callback was called with selected users
+      await expect(defaultArgs.onAddUserToGroup).toHaveBeenCalled();
     });
-
-    await userEvent.click(addToGroupButton!);
-
-    // Verify callback was called with selected users
-    await expect(defaultArgs.onAddUserToGroup).toHaveBeenCalled();
   },
 };
 
@@ -461,23 +477,25 @@ export const InviteUsers: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Find and click the kebab menu (actions overflow menu)
-    const kebabButton = await canvas.findByLabelText('Actions overflow menu');
-    await expect(kebabButton).toBeInTheDocument();
+      // Find and click the kebab menu (actions overflow menu)
+      const kebabButton = await canvas.findByLabelText('Actions overflow menu');
+      await expect(kebabButton).toBeInTheDocument();
 
-    await userEvent.click(kebabButton);
+      await userEvent.click(kebabButton);
 
-    // Now find and click "Invite users" in the opened dropdown
-    const inviteButton = await within(document.body).findByText(/Invite users/i);
-    await expect(inviteButton).toBeInTheDocument();
+      // Now find and click "Invite users" in the opened dropdown
+      const inviteButton = await within(document.body).findByText(/Invite users/i);
+      await expect(inviteButton).toBeInTheDocument();
 
-    await userEvent.click(inviteButton);
+      await userEvent.click(inviteButton);
 
-    // Verify callback was called
-    await expect(defaultArgs.onInviteUsersClick).toHaveBeenCalled();
+      // Verify callback was called
+      await expect(defaultArgs.onInviteUsersClick).toHaveBeenCalled();
+    });
   },
 };
 
@@ -495,16 +513,18 @@ export const FocusedUser: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Jane Smith's username should be bold when focused
-    const focusedUsername = await canvas.findByText('jane.smith');
-    await expect(focusedUsername.tagName.toLowerCase()).toBe('strong');
+      // Jane Smith's username should be bold when focused
+      const focusedUsername = await canvas.findByText('jane.smith');
+      await expect(focusedUsername.tagName.toLowerCase()).toBe('strong');
 
-    // Other usernames should not be bold
-    const regularUsername = await canvas.findByText('john.doe');
-    await expect(regularUsername.tagName.toLowerCase()).not.toBe('strong');
+      // Other usernames should not be bold
+      const regularUsername = await canvas.findByText('john.doe');
+      await expect(regularUsername.tagName.toLowerCase()).not.toBe('strong');
+    });
   },
 };
 
@@ -522,13 +542,15 @@ export const NonAdminUser: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Org admin switches should be disabled for non-admin users - switches render as checkboxes
-    const firstUserOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for john.doe/i);
+      // Org admin switches should be disabled for non-admin users - switches render as checkboxes
+      const firstUserOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for john.doe/i);
 
-    await expect(firstUserOrgAdminSwitch).toBeDisabled();
+      await expect(firstUserOrgAdminSwitch).toBeDisabled();
+    });
   },
 };
 
@@ -550,20 +572,22 @@ export const MixedUserStates: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Verify different user states are displayed correctly
-    await expect(canvas.findByText('active.user')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('admin.user')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('inactive.user')).resolves.toBeInTheDocument();
+      // Verify different user states are displayed correctly
+      await expect(canvas.findByText('active.user')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('admin.user')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('inactive.user')).resolves.toBeInTheDocument();
 
-    // Check status switches reflect user states - switches render as checkboxes
-    const activeUserSwitch = await canvas.findByLabelText(/Toggle status for active.user/i);
-    const inactiveUserSwitch = await canvas.findByLabelText(/Toggle status for inactive.user/i);
+      // Check status switches reflect user states - switches render as checkboxes
+      const activeUserSwitch = await canvas.findByLabelText(/Toggle status for active.user/i);
+      const inactiveUserSwitch = await canvas.findByLabelText(/Toggle status for inactive.user/i);
 
-    await expect(activeUserSwitch).toBeChecked();
-    await expect(inactiveUserSwitch).not.toBeChecked();
+      await expect(activeUserSwitch).toBeChecked();
+      await expect(inactiveUserSwitch).not.toBeChecked();
+    });
   },
 };
 
@@ -594,29 +618,31 @@ Perfect for testing filter state management and ensuring all filter controls wor
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for initial load
-    await canvas.findByText('john.doe');
-    await canvas.findByText('jane.smith');
-    await canvas.findByText('bob.wilson');
+      // Wait for initial load
+      await canvas.findByText('john.doe');
+      await canvas.findByText('jane.smith');
+      await canvas.findByText('bob.wilson');
 
-    // TEST FILTER INPUT
-    // Multi-field filter pattern: only ONE textbox is visible at a time
-    const filterInput = await canvas.findByRole('textbox');
+      // TEST FILTER INPUT
+      // Multi-field filter pattern: only ONE textbox is visible at a time
+      const filterInput = await canvas.findByRole('textbox');
 
-    await userEvent.type(filterInput, 'john');
+      await userEvent.type(filterInput, 'john');
 
-    // Verify filter input has the value
-    await waitFor(() => expect(filterInput).toHaveValue('john'));
+      // Verify filter input has the value
+      await waitFor(() => expect(filterInput).toHaveValue('john'));
 
-    // TEST CLEAR FILTERS
-    // Find and click "Clear filters" button (there may be two toolbars, use the first one)
-    const clearButtons = await canvas.findAllByText('Clear filters');
-    await userEvent.click(clearButtons[0]);
+      // TEST CLEAR FILTERS
+      // Find and click "Clear filters" button (there may be two toolbars, use the first one)
+      const clearButtons = await canvas.findAllByText('Clear filters');
+      await userEvent.click(clearButtons[0]);
 
-    // Verify filter input is cleared
-    await waitFor(() => expect(filterInput).toHaveValue(''));
+      // Verify filter input is cleared
+      await waitFor(() => expect(filterInput).toHaveValue(''));
+    });
   },
 };

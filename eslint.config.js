@@ -12,6 +12,7 @@ const testingLibrary = require('eslint-plugin-testing-library');
 const requireUseTableState = require('./eslint-rules/require-use-table-state');
 const noDirectGetUser = require('./eslint-rules/no-direct-get-user');
 const noCrossVersionImports = require('./eslint-rules/no-cross-version-imports');
+const noDirectUserType = require('./eslint-rules/no-direct-user-type');
 
 module.exports = defineConfig(
   fecPlugin,
@@ -42,10 +43,16 @@ module.exports = defineConfig(
   },
   {
     files: ['src/**/*.ts', 'src/**/*.tsx'],
+    ignores: ['src/test/**'],
+    plugins: {
+      'rbac-local': { rules: { 'require-use-table-state': requireUseTableState, 'no-direct-get-user': noDirectGetUser, 'no-cross-version-imports': noCrossVersionImports, 'no-direct-user-type': noDirectUserType } },
+    },
+  },
+  {
+    files: ['src/**/*.ts', 'src/**/*.tsx'],
     ignores: ['src/test/**', 'src/**/*.stories.tsx', 'src/user-journeys/**', 'src/cli/**'],
     plugins: {
       '@typescript-eslint': tseslint,
-      'rbac-local': { rules: { 'require-use-table-state': requireUseTableState, 'no-direct-get-user': noDirectGetUser, 'no-cross-version-imports': noCrossVersionImports } },
     },
     languageOptions: {
       parser: tsParser,
@@ -363,6 +370,20 @@ module.exports = defineConfig(
     },
     rules: {
       'testing-library/prefer-find-by': 'error',
+      // Ban findBy*/findAllBy* inside waitFor — creates double-retry where each
+      // inner findBy failure logs a TestingLibraryElementError to console.error,
+      // which failOnConsole catches = flake. Use queryBy* + expect instead.
+      'testing-library/no-wait-for-side-effects': 'error',
+      // Ban console.log/warn/error in play functions — failOnConsole can be
+      // triggered by error-like content in logs, and debug noise has no CI value.
+      'no-console': ['error', { allow: ['error'] }],
+    },
+  },
+  {
+    // Ban direct user.type() in stories and test helpers — use clearAndType instead
+    files: ['**/*.stories.@(js|jsx|ts|tsx)', 'src/**/*.helpers.@(ts|tsx)', 'src/test-utils/**/*.@(ts|tsx)'],
+    rules: {
+      'rbac-local/no-direct-user-type': 'error',
     },
   },
   storybook.configs['flat/recommended'],

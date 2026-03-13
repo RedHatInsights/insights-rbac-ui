@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { delay } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { GroupRoles } from './GroupRoles';
 import { groupsHandlers } from '../../../../data/mocks/groups.handlers';
@@ -239,39 +238,39 @@ For testing specific scenarios, see these additional stories:
       handlers: [
         ...groupsHandlers([mockGroup]),
         ...groupRolesHandlers(rolesByGroupId, {
-          onRemoveRoles: (groupId, roleIds) => console.log('SB: 🗑️ Remove roles API called:', { groupId, roles: roleIds }),
+          onRemoveRoles: fn(),
         }),
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
-    expect(table).toBeInTheDocument();
+    await step('Verify table and role data load', async () => {
+      const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
+      expect(table).toBeInTheDocument();
 
-    // Verify role data is displayed
-    expect(await canvas.findByText('Console Administrator')).toBeInTheDocument();
-    expect(await canvas.findByText('Organization Administrator')).toBeInTheDocument();
-    expect(await canvas.findByText('Insights Viewer')).toBeInTheDocument();
+      expect(await canvas.findByText('Console Administrator')).toBeInTheDocument();
+      expect(await canvas.findByText('Organization Administrator')).toBeInTheDocument();
+      expect(await canvas.findByText('Insights Viewer')).toBeInTheDocument();
+    });
 
-    // CRITICAL: Verify Add role button is present AND enabled (production bug fix)
-    // The bug was that fetchAddRolesForGroup wasn't called on mount, causing button to be disabled
-    const addRoleButton = await canvas.findByRole('button', { name: /add role/i });
-    expect(addRoleButton).toBeInTheDocument();
+    await step('Verify Add role button is enabled', async () => {
+      const addRoleButton = await canvas.findByRole('button', { name: /add role/i });
+      expect(addRoleButton).toBeInTheDocument();
 
-    // Wait for addRoles state to populate (from fetchAddRolesForGroup call on mount)
-    await waitFor(
-      () => {
-        expect(addRoleButton).not.toBeDisabled();
-      },
-      { timeout: 5000 },
-    );
+      await waitFor(
+        () => {
+          expect(addRoleButton).not.toBeDisabled();
+        },
+        { timeout: 5000 },
+      );
+    });
 
-    // Test individual role actions - find actions menu for Console Administrator role
-    const actionButton = await canvas.findByRole('button', { name: /actions for role console administrator/i });
-    expect(actionButton).toBeInTheDocument();
+    await step('Verify individual role actions menu', async () => {
+      const actionButton = await canvas.findByRole('button', { name: /actions for role console administrator/i });
+      expect(actionButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -300,24 +299,19 @@ export const WithoutPermissions: Story = {
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers(rolesByGroupId)],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
-    expect(table).toBeInTheDocument();
+    await step('Verify read-only view without permissions', async () => {
+      const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
+      expect(table).toBeInTheDocument();
 
-    // Verify role data is displayed (read-only view)
-    expect(await canvas.findByText('Console Administrator')).toBeInTheDocument();
+      expect(await canvas.findByText('Console Administrator')).toBeInTheDocument();
 
-    // CRITICAL: Verify no Add role button (no permissions means button not rendered at all)
-    expect(canvas.queryByRole('button', { name: /add role/i })).not.toBeInTheDocument();
-
-    // Verify no bulk select checkbox (no edit permissions)
-    expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
-
-    // Verify no kebab menu actions (read-only)
-    expect(canvas.queryByRole('button', { name: /actions for role/i })).not.toBeInTheDocument();
+      expect(canvas.queryByRole('button', { name: /add role/i })).not.toBeInTheDocument();
+      expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+      expect(canvas.queryByRole('button', { name: /actions for role/i })).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -354,39 +348,29 @@ Although the UI looks the same as WithoutPermissions, the code path is different
       handlers: [...groupsHandlers([mockDefaultGroup]), ...groupRolesHandlers({ ...rolesByGroupId, 'default-group-id': mockDefaultGroupRoles })],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
-    expect(table).toBeInTheDocument();
+    await step('Verify admin default group roles and restricted actions', async () => {
+      const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
+      expect(table).toBeInTheDocument();
 
-    // CRITICAL: Verify DIFFERENT roles than WithoutPermissions (system/platform defaults, not custom roles)
-    // This proves we're actually testing admin default group behavior, not just permissions
-    expect(await canvas.findByText('User Access administrator')).toBeInTheDocument();
-    expect(await canvas.findByText('Inventory Hosts Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Automation Analytics Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Remediations User')).toBeInTheDocument();
-    expect(await canvas.findByText('Subscriptions Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Cost Price List Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Advisor Viewer')).toBeInTheDocument();
+      expect(await canvas.findByText('User Access administrator')).toBeInTheDocument();
+      expect(await canvas.findByText('Inventory Hosts Viewer')).toBeInTheDocument();
+      expect(await canvas.findByText('Automation Analytics Viewer')).toBeInTheDocument();
+      expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
+      expect(await canvas.findByText('Remediations User')).toBeInTheDocument();
+      expect(await canvas.findByText('Subscriptions Viewer')).toBeInTheDocument();
+      expect(await canvas.findByText('Cost Price List Viewer')).toBeInTheDocument();
+      expect(await canvas.findByText('Advisor Viewer')).toBeInTheDocument();
 
-    // Verify these are NOT the same roles as WithoutPermissions story
-    expect(canvas.queryByText('Console Administrator')).not.toBeInTheDocument();
-    expect(canvas.queryByText('Organization Administrator')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Console Administrator')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Organization Administrator')).not.toBeInTheDocument();
 
-    // CRITICAL: For admin default groups, button is NOT rendered (line 311: if (!hasPermissions || isAdminDefault))
-    // This is IDENTICAL behavior to WithoutPermissions, but code path is different:
-    // - WithoutPermissions: !hasPermissions = true → no button
-    // - DefaultGroupRoles: isAdminDefault = true → no button
-    expect(canvas.queryByRole('button', { name: /add role/i })).not.toBeInTheDocument();
-
-    // Verify no bulk select for admin default groups (protected from modifications)
-    expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
-
-    // Verify no individual role actions (protected from modifications)
-    expect(canvas.queryByRole('button', { name: /actions for role/i })).not.toBeInTheDocument();
+      expect(canvas.queryByRole('button', { name: /add role/i })).not.toBeInTheDocument();
+      expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+      expect(canvas.queryByRole('button', { name: /actions for role/i })).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -401,38 +385,40 @@ export const BulkSelection: Story = {
       handlers: [
         ...groupsHandlers([mockGroup]),
         ...groupRolesHandlers(rolesByGroupId, {
-          onRemoveRoles: (groupId, roleIds) => console.log('SB: 🗑️ Bulk remove roles API called:', { groupId, roles: roleIds }),
+          onRemoveRoles: fn(),
         }),
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for actual data to load (not just any grid - wait for content)
-    await canvas.findByText('Console Administrator', undefined, { timeout: 10000 });
+    await step('Wait for data and select first role', async () => {
+      await canvas.findByText('Console Administrator', undefined, { timeout: 10000 });
 
-    // Now get the table with data
-    const table = canvas.getByRole('grid');
-    const tableContext = within(table);
-    const firstRoleCheckbox = tableContext.getByLabelText('Select row 0');
+      const table = canvas.getByRole('grid');
+      const tableContext = within(table);
+      const firstRoleCheckbox = await tableContext.findByLabelText('Select row 0');
 
-    await userEvent.click(firstRoleCheckbox);
-    expect(firstRoleCheckbox).toBeChecked();
+      await userEvent.click(firstRoleCheckbox);
+      expect(firstRoleCheckbox).toBeChecked();
 
-    // Verify bulk actions toggle button appears after selecting a row
-    await canvas.findByLabelText('Bulk select toggle');
+      await canvas.findByLabelText('Bulk select toggle');
+    });
 
-    // Test bulk select page - click the bulk select checkbox (selects all on current page)
-    const bulkSelectCheckbox = await canvas.findByLabelText('Select page');
-    await userEvent.click(bulkSelectCheckbox);
+    await step('Select all on page and verify', async () => {
+      const table = canvas.getByRole('grid');
+      const tableContext = within(table);
+      const firstRoleCheckbox = await tableContext.findByLabelText('Select row 0');
+      const bulkSelectCheckbox = await canvas.findByLabelText('Select page');
+      await userEvent.click(bulkSelectCheckbox);
 
-    // All row checkboxes should now be checked
-    const row1Checkbox = tableContext.getByLabelText('Select row 1');
-    const row2Checkbox = tableContext.getByLabelText('Select row 2');
-    expect(firstRoleCheckbox).toBeChecked();
-    expect(row1Checkbox).toBeChecked();
-    expect(row2Checkbox).toBeChecked();
+      const row1Checkbox = await tableContext.findByLabelText('Select row 1');
+      const row2Checkbox = await tableContext.findByLabelText('Select row 2');
+      expect(firstRoleCheckbox).toBeChecked();
+      expect(row1Checkbox).toBeChecked();
+      expect(row2Checkbox).toBeChecked();
+    });
   },
 };
 
@@ -459,48 +445,43 @@ export const BulkSelectionPaginated: Story = {
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers({ 'test-group-id': manyRoles })],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for actual data to load (not just any grid - wait for content)
-    await canvas.findByText('Role 1', undefined, { timeout: 10000 });
+    await step('Select roles on page 1', async () => {
+      await canvas.findByText('Role 1', undefined, { timeout: 10000 });
 
-    // Now get the table with data
-    const table = canvas.getByRole('grid');
-    const tableContext = within(table);
+      const table = canvas.getByRole('grid');
+      const tableContext = within(table);
 
-    // Select first role on page 1
-    const firstRoleCheckbox = tableContext.getByLabelText('Select row 0');
-    await userEvent.click(firstRoleCheckbox);
-    expect(firstRoleCheckbox).toBeChecked();
+      const firstRoleCheckbox = await tableContext.findByLabelText('Select row 0');
+      await userEvent.click(firstRoleCheckbox);
+      expect(firstRoleCheckbox).toBeChecked();
 
-    // Click the bulk select checkbox to select all on current page
-    const bulkSelectCheckbox = await canvas.findByLabelText('Select page');
-    await userEvent.click(bulkSelectCheckbox);
+      const bulkSelectCheckbox = await canvas.findByLabelText('Select page');
+      await userEvent.click(bulkSelectCheckbox);
 
-    // Verify multiple rows are checked on page 1 (20 items)
-    const row1Checkbox = tableContext.getByLabelText('Select row 1');
-    const row5Checkbox = tableContext.getByLabelText('Select row 5');
-    const row10Checkbox = tableContext.getByLabelText('Select row 10');
-    expect(firstRoleCheckbox).toBeChecked();
-    expect(row1Checkbox).toBeChecked();
-    expect(row5Checkbox).toBeChecked();
-    expect(row10Checkbox).toBeChecked();
+      const row1Checkbox = await tableContext.findByLabelText('Select row 1');
+      const row5Checkbox = await tableContext.findByLabelText('Select row 5');
+      const row10Checkbox = await tableContext.findByLabelText('Select row 10');
+      expect(firstRoleCheckbox).toBeChecked();
+      expect(row1Checkbox).toBeChecked();
+      expect(row5Checkbox).toBeChecked();
+      expect(row10Checkbox).toBeChecked();
+    });
 
-    // Navigate to page 2 using pagination (use getAllByLabelText since we have top and bottom pagination)
-    const nextPageButtons = canvas.getAllByLabelText('Go to next page');
-    await userEvent.click(nextPageButtons[0]); // Click the first (top) pagination button
+    await step('Navigate to page 2 and verify selection is page-level only', async () => {
+      const nextPageButtons = canvas.getAllByLabelText('Go to next page');
+      await userEvent.click(nextPageButtons[0]);
 
-    // Wait for page 2 to load - should have 5 items (25 total - 20 on page 1)
-    await canvas.findByText('Role 21', undefined, { timeout: 10000 });
+      await canvas.findByText('Role 21', undefined, { timeout: 10000 });
 
-    // Re-get table context after pagination
-    const page2Table = canvas.getByRole('grid');
-    const page2TableContext = within(page2Table);
-    const page2FirstCheckbox = page2TableContext.getByLabelText('Select row 0');
+      const page2Table = canvas.getByRole('grid');
+      const page2TableContext = within(page2Table);
+      const page2FirstCheckbox = await page2TableContext.findByLabelText('Select row 0');
 
-    // Page 2 items should NOT be selected (page-level selection only)
-    expect(page2FirstCheckbox).not.toBeChecked();
+      expect(page2FirstCheckbox).not.toBeChecked();
+    });
   },
 };
 
@@ -510,15 +491,16 @@ export const LoadingState: Story = {
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    // Test skeleton loading state (check for skeleton elements)
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        expect(skeletonElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 },
-    );
+  play: async ({ canvasElement, step }) => {
+    await step('Verify skeleton loading state', async () => {
+      await waitFor(
+        () => {
+          const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
+          expect(skeletons.length).toBeGreaterThan(0);
+        },
+        { timeout: 10000 },
+      );
+    });
   },
 };
 
@@ -533,15 +515,15 @@ export const EmptyState: Story = {
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers({ 'test-group-id': [] })],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for empty state message
-    const emptyMessage = await canvas.findByText(/there are no roles in this group/i, undefined, { timeout: 10000 });
-    expect(emptyMessage).toBeInTheDocument();
+    await step('Verify empty state and Add role button', async () => {
+      const emptyMessage = await canvas.findByText(/there are no roles in this group/i, undefined, { timeout: 10000 });
+      expect(emptyMessage).toBeInTheDocument();
 
-    // Verify Add role button is still present
-    expect(await canvas.findByRole('button', { name: /add role/i })).toBeInTheDocument();
+      expect(await canvas.findByRole('button', { name: /add role/i })).toBeInTheDocument();
+    });
   },
 };
 
@@ -571,33 +553,34 @@ Perfect for code review and UX validation.
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers(rolesByGroupId)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
+    await step('Open kebab menu and select Remove', async () => {
+      const table = await canvas.findByRole('grid');
+      expect(table).toBeInTheDocument();
 
-    await canvas.findByText('Console Administrator');
+      await canvas.findByText('Console Administrator');
 
-    const firstRow = (await canvas.findByText('Console Administrator')).closest('tr');
-    if (!firstRow) throw new Error('Could not find first role row');
+      const firstRow = (await canvas.findByText('Console Administrator')).closest('tr');
+      if (!firstRow) throw new Error('Could not find first role row');
 
-    const kebabButton = within(firstRow).getByLabelText(/Actions for role/i);
-    await userEvent.click(kebabButton);
+      const kebabButton = within(firstRow).getByLabelText(/Actions for role/i);
+      await userEvent.click(kebabButton);
 
-    await delay(200);
+      const removeMenuItem = await within(document.body).findByRole('menuitem', { name: /Remove/i });
+      expect(removeMenuItem).toBeInTheDocument();
 
-    const removeMenuItem = await within(document.body).findByRole('menuitem', { name: /Remove/i });
-    expect(removeMenuItem).toBeInTheDocument();
+      await userEvent.click(removeMenuItem);
+    });
 
-    await userEvent.click(removeMenuItem);
-
-    const body = within(document.body);
-    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
-    expect(modal).toBeInTheDocument();
-    expect(within(modal).getByText(/Remove role\?/i)).toBeInTheDocument();
-    expect(within(modal).getByText(/Console Administrator/i)).toBeInTheDocument();
+    await step('Verify removal confirmation modal', async () => {
+      const body = within(document.body);
+      const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
+      expect(modal).toBeInTheDocument();
+      expect(within(modal).getByText(/Remove role\?/i)).toBeInTheDocument();
+      expect(within(modal).getByText(/Console Administrator/i)).toBeInTheDocument();
+    });
   },
 };
 
@@ -627,37 +610,33 @@ Perfect for testing bulk operations and proper pluralization.
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers(rolesByGroupId)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    const table = await canvas.findByRole('grid');
-    const tableContext = within(table);
+    await step('Select multiple roles and open bulk Remove', async () => {
+      await canvas.findByText('Console Administrator', undefined, { timeout: 10000 });
 
-    await canvas.findByText('Console Administrator');
+      const table = canvas.getByRole('grid');
+      const tableContext = within(table);
+      const firstCheckbox = await tableContext.findByLabelText('Select row 0', undefined, { timeout: 15000 });
+      await userEvent.click(firstCheckbox);
 
-    const firstCheckbox = await tableContext.findByLabelText('Select row 0');
-    await userEvent.click(firstCheckbox);
+      const secondCheckbox = await tableContext.findByLabelText('Select row 1', undefined, { timeout: 5000 });
+      await userEvent.click(secondCheckbox);
 
-    await delay(200);
+      const kebabToggle = await canvas.findByLabelText(/bulk actions/i);
+      await userEvent.click(kebabToggle);
 
-    const secondCheckbox = await tableContext.findByLabelText('Select row 1');
-    await userEvent.click(secondCheckbox);
+      const removeMenuItem = await within(document.body).findByRole('menuitem', { name: /Remove/i });
+      await userEvent.click(removeMenuItem);
+    });
 
-    await delay(200);
-
-    const kebabToggle = await canvas.findByLabelText(/bulk actions/i);
-    await userEvent.click(kebabToggle);
-
-    await delay(200);
-
-    const removeMenuItem = await within(document.body).findByRole('menuitem', { name: /Remove/i });
-    await userEvent.click(removeMenuItem);
-
-    const body = within(document.body);
-    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
-    expect(modal).toBeInTheDocument();
-    expect(within(modal).getByText(/Remove roles\?/i)).toBeInTheDocument();
+    await step('Verify bulk removal confirmation modal', async () => {
+      const body = within(document.body);
+      const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
+      expect(modal).toBeInTheDocument();
+      expect(within(modal).getByText(/Remove roles\?/i)).toBeInTheDocument();
+    });
   },
 };
 
@@ -699,58 +678,45 @@ Perfect for testing filter state management and API integration.
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for initial load
-    await canvas.findByText('Console Administrator');
-    await canvas.findByText('Organization Administrator');
-    await canvas.findByText('Insights Viewer');
+    await step('Wait for initial load and apply filter', async () => {
+      await canvas.findByText('Console Administrator');
+      await canvas.findByText('Organization Administrator');
+      await canvas.findByText('Insights Viewer');
 
-    // Clear the spy before testing to ignore mount calls
-    await delay(500); // Wait for any pending calls
-    getRolesSpy.mockClear();
+      getRolesSpy.mockClear();
 
-    // TEST FILTERING: Enter filter text
-    // Note: DataViewFilters onChange receives (event, newFilters)
-    const filterInput = canvas.getByPlaceholderText('Filter by name');
+      const filterInput = canvas.getByPlaceholderText('Filter by name');
 
-    // Type the filter value
-    await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, 'Console');
+      await userEvent.clear(filterInput);
+      await userEvent.type(filterInput, 'Console');
 
-    // Wait longer for all the onChange calls and API to complete
-    await delay(2000);
+      await waitFor(
+        () => {
+          expect(canvas.getByText(mockRoles[0].name)).toBeInTheDocument();
+          expect(canvas.queryByText(mockRoles[1].name)).not.toBeInTheDocument();
+          expect(canvas.queryByText(mockRoles[2].name)).not.toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    // Verify filtered results appear (this proves filtering works)
-    await waitFor(
-      () => {
-        expect(canvas.getByText(mockRoles[0].name)).toBeInTheDocument();
-        expect(canvas.queryByText(mockRoles[1].name)).not.toBeInTheDocument();
-        expect(canvas.queryByText(mockRoles[2].name)).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
-
-    // Verify filter input has the value
-    expect(filterInput).toHaveValue('Console');
-
-    // TEST CLEAR FILTERS: Find and click "Clear filters" button
-    // There are two toolbars (top and bottom), so use findAllByText and click the first one
-    const clearButtons = await canvas.findAllByText('Clear filters');
-    await userEvent.click(clearButtons[0]);
-
-    // Wait for API to be called and data to refresh
-    await delay(500);
-
-    // Verify all roles are displayed again (proves clear filters works)
-    await waitFor(() => {
-      expect(canvas.getByText(mockRoles[0].name)).toBeInTheDocument();
-      expect(canvas.getByText(mockRoles[1].name)).toBeInTheDocument();
-      expect(canvas.getByText(mockRoles[2].name)).toBeInTheDocument();
+      expect(filterInput).toHaveValue('Console');
     });
 
-    // Verify filter input is cleared
-    expect(filterInput).toHaveValue('');
+    await step('Clear filters and verify all roles displayed', async () => {
+      const filterInput = canvas.getByPlaceholderText('Filter by name');
+      const clearButtons = await canvas.findAllByText('Clear filters');
+      await userEvent.click(clearButtons[0]);
+
+      await waitFor(() => {
+        expect(canvas.getByText(mockRoles[0].name)).toBeInTheDocument();
+        expect(canvas.getByText(mockRoles[1].name)).toBeInTheDocument();
+        expect(canvas.getByText(mockRoles[2].name)).toBeInTheDocument();
+      });
+
+      expect(filterInput).toHaveValue('');
+    });
   },
 };

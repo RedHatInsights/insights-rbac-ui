@@ -67,20 +67,22 @@ export const NoSelection: Story = {
     selectedRows: [],
     onRemoveMembers: fn(),
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show the kebab menu button
-    const menuButton = canvas.getByRole('button');
-    expect(menuButton).toBeInTheDocument();
+    await step('Open menu and verify remove disabled', async () => {
+      // Should show the kebab menu button
+      const menuButton = canvas.getByRole('button');
+      expect(menuButton).toBeInTheDocument();
 
-    // Click to open the menu
-    await userEvent.click(menuButton);
+      // Click to open the menu
+      await userEvent.click(menuButton);
 
-    // Should show "Remove" option disabled (no selection)
-    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
-    expect(removeOption).toBeInTheDocument();
-    expect(removeOption).toBeDisabled();
+      // Should show "Remove" option disabled (no selection)
+      const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
+      expect(removeOption).toBeInTheDocument();
+      expect(removeOption).toBeDisabled();
+    });
   },
 };
 
@@ -90,20 +92,22 @@ export const WithSelection: Story = {
     selectedRows: mockSelectedRows,
     onRemoveMembers: fn(),
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show the kebab menu button
-    const menuButton = canvas.getByRole('button');
-    expect(menuButton).toBeInTheDocument();
+    await step('Open menu and verify remove enabled', async () => {
+      // Should show the kebab menu button
+      const menuButton = canvas.getByRole('button');
+      expect(menuButton).toBeInTheDocument();
 
-    // Click to open the menu
-    await userEvent.click(menuButton);
+      // Click to open the menu
+      await userEvent.click(menuButton);
 
-    // Should show "Remove" option enabled (has selection)
-    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
-    expect(removeOption).toBeInTheDocument();
-    expect(removeOption).not.toBeDisabled();
+      // Should show "Remove" option enabled (has selection)
+      const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
+      expect(removeOption).toBeInTheDocument();
+      expect(removeOption).not.toBeDisabled();
+    });
   },
 };
 
@@ -113,19 +117,21 @@ export const RemoveMembersInteraction: Story = {
     selectedRows: mockSelectedRows,
     onRemoveMembers: fn(),
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the menu
-    const menuButton = canvas.getByRole('button');
-    await userEvent.click(menuButton);
+    await step('Click remove and verify callback', async () => {
+      // Open the menu
+      const menuButton = canvas.getByRole('button');
+      await userEvent.click(menuButton);
 
-    // Click "Remove" option
-    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
-    await userEvent.click(removeOption);
+      // Click "Remove" option
+      const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
+      await userEvent.click(removeOption);
 
-    // Verify the callback was called with the member data (not full rows)
-    expect(args.onRemoveMembers).toHaveBeenCalledWith(mockSelectedRows.map((row) => row.member));
+      // Verify the callback was called with the member data (not full rows)
+      expect(args.onRemoveMembers).toHaveBeenCalledWith(mockSelectedRows.map((row) => row.member));
+    });
   },
 };
 
@@ -135,14 +141,16 @@ export const SingleSelection: Story = {
     selectedRows: [mockSelectedRows[0]], // Only Alice selected
     onRemoveMembers: fn(),
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the menu and verify remove option is available
-    const menuButton = canvas.getByRole('button');
-    await userEvent.click(menuButton);
+    await step('Open menu and verify remove enabled', async () => {
+      // Open the menu and verify remove option is available
+      const menuButton = canvas.getByRole('button');
+      await userEvent.click(menuButton);
 
-    const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
-    expect(removeOption).not.toBeDisabled();
+      const removeOption = await within(document.body).findByRole('menuitem', { name: 'Remove' });
+      expect(removeOption).not.toBeDisabled();
+    });
   },
 };

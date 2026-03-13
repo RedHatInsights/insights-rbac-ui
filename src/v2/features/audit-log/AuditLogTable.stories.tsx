@@ -133,14 +133,16 @@ export const Loading: Story = {
     isLoading: true,
     error: null,
   },
-  play: async ({ canvasElement }) => {
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        await expect(skeletonElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 },
-    );
+  play: async ({ canvasElement, step }) => {
+    await step('Verify loading', async () => {
+      await waitFor(
+        async () => {
+          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+          await expect(skeletonElements.length).toBeGreaterThan(0);
+        },
+        { timeout: 10000 },
+      );
+    });
   },
 };
 
@@ -152,9 +154,11 @@ export const Empty: Story = {
     isLoading: false,
     error: null,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.findByText(/no audit log entries found/i)).resolves.toBeInTheDocument();
+    await step('Verify empty', async () => {
+      await expect(canvas.findByText(/no audit log entries found/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -166,9 +170,11 @@ export const Error: Story = {
     isLoading: false,
     error: 'Failed to load audit log. Please try again.',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.findByText(/failed to load audit log/i)).resolves.toBeInTheDocument();
+    await step('Verify error', async () => {
+      await expect(canvas.findByText(/failed to load audit log/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -183,29 +189,30 @@ export const Pagination: Story = {
     isLoading: false,
     error: null,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify pagination', async () => {
+      // Wait for first page: one of the first-page-only entries (id 6 = "Audit action 6: …")
+      await waitFor(() => {
+        expect(canvas.getByText(/Audit action 6:/)).toBeInTheDocument();
+      });
 
-    // Wait for first page: one of the first-page-only entries (id 6 = "Audit action 6: …")
-    await waitFor(() => {
-      expect(canvas.getByText(/Audit action 6:/)).toBeInTheDocument();
+      // Pagination should show total (e.g. "1 - 20 of 25" or "25" in total-items)
+      const paginationRegion = canvasElement.querySelector('.pf-v6-c-pagination, [class*="pagination"]');
+      expect(paginationRegion).toBeInTheDocument();
+      expect(canvasElement.textContent).toMatch(/25/);
+
+      // Go to next page
+      const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+      expect(nextButtons.length).toBeGreaterThan(0);
+      await userEvent.click(nextButtons[0]);
+
+      // Page 2 should show entries 21–25 (first on page 2 is "Audit action 21: …")
+      await waitFor(() => {
+        expect(canvas.getByText(/Audit action 21:/)).toBeInTheDocument();
+      });
+      // First-page-only entry should not be visible
+      expect(canvas.queryByText(/Audit action 6:/)).not.toBeInTheDocument();
     });
-
-    // Pagination should show total (e.g. "1 - 20 of 25" or "25" in total-items)
-    const paginationRegion = canvasElement.querySelector('.pf-v6-c-pagination, [class*="pagination"]');
-    expect(paginationRegion).toBeInTheDocument();
-    expect(canvasElement.textContent).toMatch(/25/);
-
-    // Go to next page
-    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
-    expect(nextButtons.length).toBeGreaterThan(0);
-    await userEvent.click(nextButtons[0]);
-
-    // Page 2 should show entries 21–25 (first on page 2 is "Audit action 21: …")
-    await waitFor(() => {
-      expect(canvas.getByText(/Audit action 21:/)).toBeInTheDocument();
-    });
-    // First-page-only entry should not be visible
-    expect(canvas.queryByText(/Audit action 6:/)).not.toBeInTheDocument();
   },
 };

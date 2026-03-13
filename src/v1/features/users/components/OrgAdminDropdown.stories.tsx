@@ -49,29 +49,31 @@ export const OrgAdminUser: Story = {
     isLoading: false,
     onToggle: fn(),
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show "Yes" since user is org admin
-    const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
-    await expect(toggle).toBeInTheDocument();
-    await expect(toggle).toHaveTextContent('Yes');
-    await expect(toggle).not.toBeDisabled();
+    await step('Open dropdown and demote to regular user', async () => {
+      // Should show "Yes" since user is org admin
+      const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
+      await expect(toggle).toBeInTheDocument();
+      await expect(toggle).toHaveTextContent('Yes');
+      await expect(toggle).not.toBeDisabled();
 
-    // Click to open dropdown
-    await userEvent.click(toggle);
+      // Click to open dropdown
+      await userEvent.click(toggle);
 
-    // Should show both options - find the actual button elements
-    const yesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
-    const noButton = await within(document.body).findByRole('menuitem', { name: 'No' });
-    await expect(yesButton).toBeInTheDocument();
-    await expect(noButton).toBeInTheDocument();
+      // Should show both options - find the actual button elements
+      const yesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
+      const noButton = await within(document.body).findByRole('menuitem', { name: 'No' });
+      await expect(yesButton).toBeInTheDocument();
+      await expect(noButton).toBeInTheDocument();
 
-    // Click "No" to demote from org admin
-    await userEvent.click(noButton);
+      // Click "No" to demote from org admin
+      await userEvent.click(noButton);
 
-    // Verify onToggle was called with correct parameters
-    await waitFor(async () => await expect(args.onToggle).toHaveBeenCalledWith(false, mockUsername));
+      // Verify onToggle was called with correct parameters
+      await waitFor(async () => await expect(args.onToggle).toHaveBeenCalledWith(false, mockUsername));
+    });
   },
   parameters: {
     docs: {
@@ -91,29 +93,31 @@ export const RegularUser: Story = {
     isLoading: false,
     onToggle: fn(),
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show "No" since user is not org admin
-    const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
-    await expect(toggle).toBeInTheDocument();
-    await expect(toggle).toHaveTextContent('No');
-    await expect(toggle).not.toBeDisabled();
+    await step('Open dropdown and promote to org admin', async () => {
+      // Should show "No" since user is not org admin
+      const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
+      await expect(toggle).toBeInTheDocument();
+      await expect(toggle).toHaveTextContent('No');
+      await expect(toggle).not.toBeDisabled();
 
-    // Click to open dropdown
-    await userEvent.click(toggle);
+      // Click to open dropdown
+      await userEvent.click(toggle);
 
-    // Should show both options - find the actual button elements
-    const yesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
-    const noButton = await within(document.body).findByRole('menuitem', { name: 'No' });
-    await expect(yesButton).toBeInTheDocument();
-    await expect(noButton).toBeInTheDocument();
+      // Should show both options - find the actual button elements
+      const yesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
+      const noButton = await within(document.body).findByRole('menuitem', { name: 'No' });
+      await expect(yesButton).toBeInTheDocument();
+      await expect(noButton).toBeInTheDocument();
 
-    // Click "Yes" to promote to org admin
-    await userEvent.click(yesButton);
+      // Click "Yes" to promote to org admin
+      await userEvent.click(yesButton);
 
-    // Verify onToggle was called with correct parameters
-    await waitFor(async () => await expect(args.onToggle).toHaveBeenCalledWith(true, mockUsername));
+      // Verify onToggle was called with correct parameters
+      await waitFor(async () => await expect(args.onToggle).toHaveBeenCalledWith(true, mockUsername));
+    });
   },
   parameters: {
     docs: {
@@ -133,16 +137,18 @@ export const DisabledState: Story = {
     isLoading: false,
     onToggle: fn(),
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should be disabled (e.g., current user can't change their own status)
-    const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
-    await expect(toggle).toBeInTheDocument();
-    await expect(toggle).toBeDisabled();
+    await step('Verify disabled state', async () => {
+      // Should be disabled (e.g., current user can't change their own status)
+      const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
+      await expect(toggle).toBeInTheDocument();
+      await expect(toggle).toBeDisabled();
 
-    // Verify onToggle is not called when disabled
-    await expect(args.onToggle).not.toHaveBeenCalled();
+      // Verify onToggle is not called when disabled
+      await expect(args.onToggle).not.toHaveBeenCalled();
+    });
   },
   parameters: {
     docs: {
@@ -161,13 +167,15 @@ export const LoadingState: Story = {
     isLoading: true,
     onToggle: fn(),
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should be disabled when loading
-    const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
-    await expect(toggle).toBeInTheDocument();
-    await expect(toggle).toBeDisabled();
+    await step('Verify loading state', async () => {
+      // Should be disabled when loading
+      const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
+      await expect(toggle).toBeInTheDocument();
+      await expect(toggle).toBeDisabled();
+    });
   },
   parameters: {
     docs: {
@@ -186,39 +194,40 @@ export const InteractiveDemo: Story = {
     isLoading: false,
     onToggle: fn(),
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Test complete interaction flow
-    const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
+    await step('Test complete interaction flow', async () => {
+      const toggle = await canvas.findByTestId('org-admin-dropdown-toggle');
 
-    // Initial state
-    await expect(toggle).toHaveTextContent('No');
-    await expect(toggle).not.toBeDisabled();
+      // Initial state
+      await expect(toggle).toHaveTextContent('No');
+      await expect(toggle).not.toBeDisabled();
 
-    // Open dropdown
-    await userEvent.click(toggle);
+      // Open dropdown
+      await userEvent.click(toggle);
 
-    // Both options should be visible
-    const yesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
-    const noButton = await within(document.body).findByRole('menuitem', { name: 'No' });
-    await expect(yesButton).toBeInTheDocument();
-    await expect(noButton).toBeInTheDocument();
+      // Both options should be visible
+      const yesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
+      const noButton = await within(document.body).findByRole('menuitem', { name: 'No' });
+      await expect(yesButton).toBeInTheDocument();
+      await expect(noButton).toBeInTheDocument();
 
-    // Test clicking same option (should not trigger callback)
-    await userEvent.click(noButton);
-    await expect(args.onToggle).not.toHaveBeenCalled();
+      // Test clicking same option (should not trigger callback)
+      await userEvent.click(noButton);
+      await expect(args.onToggle).not.toHaveBeenCalled();
 
-    // Wait for dropdown to close, then reopen and test different option
-    await waitFor(async () => await expect(yesButton).not.toBeInTheDocument());
-    await userEvent.click(toggle);
+      // Wait for dropdown to close, then reopen and test different option
+      await waitFor(async () => await expect(yesButton).not.toBeInTheDocument());
+      await userEvent.click(toggle);
 
-    // Find the buttons again after reopening
-    const newYesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
-    await userEvent.click(newYesButton);
+      // Find the buttons again after reopening
+      const newYesButton = await within(document.body).findByRole('menuitem', { name: 'Yes' });
+      await userEvent.click(newYesButton);
 
-    // Verify onToggle was called with correct parameters
-    await waitFor(async () => await expect(args.onToggle).toHaveBeenCalledWith(true, 'demo.user'));
+      // Verify onToggle was called with correct parameters
+      await waitFor(async () => await expect(args.onToggle).toHaveBeenCalledWith(true, 'demo.user'));
+    });
   },
   parameters: {
     docs: {

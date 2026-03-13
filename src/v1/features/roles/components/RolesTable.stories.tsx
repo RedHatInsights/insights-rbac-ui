@@ -2,6 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { BrowserRouter } from 'react-router-dom';
 import { expect, fn, userEvent, within } from 'storybook/test';
+import { findSortButton } from '../../../../test-utils/tableHelpers';
 import { RolesTable } from './RolesTable';
 import { Role } from '../types';
 
@@ -182,16 +183,18 @@ export const WithExpandedGroups: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify the nested groups table is visible for the specific role
-    const groupsTable = await canvas.findByLabelText('Groups for role Platform Administrator');
-    expect(groupsTable).toBeInTheDocument();
+    await step('Verify expanded groups table', async () => {
+      // Verify the nested groups table is visible for the specific role
+      const groupsTable = await canvas.findByLabelText('Groups for role Platform Administrator');
+      expect(groupsTable).toBeInTheDocument();
 
-    // Verify group data is displayed
-    expect(await within(groupsTable).findByText('Administrators')).toBeInTheDocument();
-    expect(await within(groupsTable).findByText('Platform Team')).toBeInTheDocument();
+      // Verify group data is displayed
+      expect(await within(groupsTable).findByText('Administrators')).toBeInTheDocument();
+      expect(await within(groupsTable).findByText('Platform Team')).toBeInTheDocument();
+    });
   },
 };
 
@@ -208,16 +211,18 @@ export const WithExpandedPermissions: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify the nested permissions table is visible for the specific role
-    const permissionsTable = await canvas.findByLabelText('Permissions for role Platform Administrator');
-    expect(permissionsTable).toBeInTheDocument();
+    await step('Verify expanded permissions table', async () => {
+      // Verify the nested permissions table is visible for the specific role
+      const permissionsTable = await canvas.findByLabelText('Permissions for role Platform Administrator');
+      expect(permissionsTable).toBeInTheDocument();
 
-    // Verify permission data is displayed
-    expect(await within(permissionsTable).findByText('rbac')).toBeInTheDocument();
-    expect(await within(permissionsTable).findByText('inventory')).toBeInTheDocument();
+      // Verify permission data is displayed
+      expect(await within(permissionsTable).findByText('rbac')).toBeInTheDocument();
+      expect(await within(permissionsTable).findByText('inventory')).toBeInTheDocument();
+    });
   },
 };
 
@@ -258,15 +263,17 @@ export const InteractiveRowSelection: Story = {
       },
     },
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Find and click the first selectable row checkbox
-    const firstCheckbox = canvas.getAllByRole('checkbox')[0];
-    await userEvent.click(firstCheckbox);
+    await step('Select row and verify callback', async () => {
+      // Find and click the first selectable row checkbox
+      const firstCheckbox = canvas.getAllByRole('checkbox')[0];
+      await userEvent.click(firstCheckbox);
 
-    // Verify the onRowSelection callback was called
-    expect(args.onRowSelection).toHaveBeenCalled();
+      // Verify the onRowSelection callback was called
+      expect(args.onRowSelection).toHaveBeenCalled();
+    });
   },
 };
 
@@ -279,15 +286,17 @@ export const InteractiveCompoundExpand: Story = {
       },
     },
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Find the groups expand button (shows count "3")
-    const groupsButton = canvas.getByRole('button', { name: '3' });
-    await userEvent.click(groupsButton);
+    await step('Expand groups and verify callback', async () => {
+      // Find the groups expand button (shows count "3")
+      const groupsButton = canvas.getByRole('button', { name: '3' });
+      await userEvent.click(groupsButton);
 
-    // Verify the onExpansion callback was called
-    expect(args.onExpansion).toHaveBeenCalledWith('role-1', 'groups', true);
+      // Verify the onExpansion callback was called
+      expect(args.onExpansion).toHaveBeenCalledWith('role-1', 'groups', true);
+    });
   },
 };
 
@@ -300,16 +309,16 @@ export const InteractiveSort: Story = {
       },
     },
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Find and click the Name column header
-    const nameHeader = canvas.getByRole('columnheader', { name: /name/i });
-    const sortButton = within(nameHeader).getByRole('button');
-    await userEvent.click(sortButton);
+    await step('Click sort and verify callback', async () => {
+      const sortButton = await findSortButton(canvas, /name/i);
+      await userEvent.click(sortButton);
 
-    // Verify the onSort callback was called
-    expect(args.onSort).toHaveBeenCalled();
+      // Verify the onSort callback was called
+      expect(args.onSort).toHaveBeenCalled();
+    });
   },
 };
 
@@ -322,22 +331,24 @@ export const InteractiveRowActions: Story = {
       },
     },
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Find the first row actions toggle (for Platform Administrator)
-    const actionsToggle = canvas.getByLabelText(/Actions for role Platform Administrator/i);
-    await userEvent.click(actionsToggle);
+    await step('Open row actions and click edit', async () => {
+      // Find the first row actions toggle (for Platform Administrator)
+      const actionsToggle = canvas.getByLabelText(/Actions for role Platform Administrator/i);
+      await userEvent.click(actionsToggle);
 
-    // Verify dropdown is open and contains actions
-    const editButton = await within(document.body).findByText('Edit');
-    const deleteButton = await within(document.body).findByText('Delete');
-    expect(editButton).toBeInTheDocument();
-    expect(deleteButton).toBeInTheDocument();
+      // Verify dropdown is open and contains actions
+      const editButton = await within(document.body).findByText('Edit');
+      const deleteButton = await within(document.body).findByText('Delete');
+      expect(editButton).toBeInTheDocument();
+      expect(deleteButton).toBeInTheDocument();
 
-    // Click edit
-    await userEvent.click(editButton);
-    expect(args.onEditRole).toHaveBeenCalledWith('role-1');
+      // Click edit
+      await userEvent.click(editButton);
+      expect(args.onEditRole).toHaveBeenCalledWith('role-1');
+    });
   },
 };
 
@@ -376,12 +387,14 @@ export const EmptyGroups: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify empty state message is shown
-    const groupsTable = await canvas.findByLabelText(/Groups for role/i);
-    expect(await within(groupsTable).findByText('No groups')).toBeInTheDocument();
+    await step('Verify empty groups state', async () => {
+      // Verify empty state message is shown
+      const groupsTable = await canvas.findByLabelText(/Groups for role/i);
+      expect(await within(groupsTable).findByText('No groups')).toBeInTheDocument();
+    });
   },
 };
 
@@ -441,14 +454,16 @@ export const SystemRoleNotSelectable: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify system role is displayed
-    expect(await canvas.findByText('System Role')).toBeInTheDocument();
+    await step('Verify system role not selectable', async () => {
+      // Verify system role is displayed
+      expect(await canvas.findByText('System Role')).toBeInTheDocument();
 
-    // Verify checkbox exists but is disabled (system roles can't be selected)
-    const checkbox = canvas.getByRole('checkbox');
-    expect(checkbox).toBeDisabled();
+      // Verify checkbox exists but is disabled (system roles can't be selected)
+      const checkbox = canvas.getByRole('checkbox');
+      expect(checkbox).toBeDisabled();
+    });
   },
 };

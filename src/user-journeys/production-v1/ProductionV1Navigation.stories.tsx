@@ -1,6 +1,6 @@
 import { expect, within } from 'storybook/test';
-import { delay } from 'msw';
-import { Story, TEST_TIMEOUTS, meta, resetStoryState, v1Db } from './_v1OrgAdminSetup';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
+import { Story, meta, resetStoryState, v1Db } from './_v1OrgAdminSetup';
 
 export default { ...meta, title: 'User Journeys/Production/V1 (Current)/Org Admin/Navigation', tags: ['prod-org-admin'] };
 
@@ -26,28 +26,39 @@ Validates that Org Admin sees all sidebar items.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    const myUserAccess = await canvas.findByRole('link', { name: /my user access/i });
-    expect(myUserAccess).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const userAccessSection = await canvas.findByRole('button', { name: /user access/i });
-    expect(userAccessSection).toBeInTheDocument();
+    await step('Wait for sidebar to expand', async () => {
+      await canvas.findByRole('link', { name: /my user access/i });
+    });
 
-    const usersLink = await canvas.findByRole('link', { name: /^users$/i });
-    expect(usersLink).toBeInTheDocument();
+    await step('Verify all admin sidebar items visible', async () => {
+      const myUserAccess = canvas.getByRole('link', { name: /my user access/i });
+      expect(myUserAccess).toBeInTheDocument();
 
-    const groupsLink = await canvas.findByRole('link', { name: /^groups$/i });
-    expect(groupsLink).toBeInTheDocument();
+      const userAccessSection = await canvas.findByRole('button', { name: /user access/i });
+      expect(userAccessSection).toBeInTheDocument();
 
-    const rolesLink = await canvas.findByRole('link', { name: /^roles$/i });
-    expect(rolesLink).toBeInTheDocument();
+      const usersLink = await canvas.findByRole('link', { name: /^users$/i });
+      expect(usersLink).toBeInTheDocument();
 
-    const workspacesLink = await canvas.findByRole('link', { name: /workspaces/i });
-    expect(workspacesLink).toBeInTheDocument();
+      const groupsLink = await canvas.findByRole('link', { name: /^groups$/i });
+      expect(groupsLink).toBeInTheDocument();
+
+      const rolesLink = await canvas.findByRole('link', { name: /^roles$/i });
+      expect(rolesLink).toBeInTheDocument();
+
+      const workspacesLink = await canvas.findByRole('link', { name: /workspaces/i });
+      expect(workspacesLink).toBeInTheDocument();
+    });
   },
 };

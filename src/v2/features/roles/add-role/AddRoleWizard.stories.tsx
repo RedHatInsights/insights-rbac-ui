@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AddRoleWizard } from './AddRoleWizard';
 import { permissionsHandlers } from '../../../../shared/data/mocks/permissions.handlers';
@@ -104,18 +103,19 @@ export const Default: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
-    const body = within(document.body);
+  play: async ({ step }) => {
+    await step('Verify default wizard', async () => {
+      const body = within(document.body);
 
-    const dialogs = await body.findAllByRole('dialog');
-    expect(dialogs.length).toBeGreaterThan(0);
+      const dialogs = await body.findAllByRole('dialog');
+      expect(dialogs.length).toBeGreaterThan(0);
 
-    const createRoleTexts = body.getAllByText(/create role/i);
-    expect(createRoleTexts.length).toBeGreaterThan(0);
+      const createRoleTexts = body.getAllByText(/create role/i);
+      expect(createRoleTexts.length).toBeGreaterThan(0);
 
-    expect(body.getByText(/create a role from scratch/i)).toBeInTheDocument();
-    expect(body.getByText(/copy an existing role/i)).toBeInTheDocument();
+      expect(body.getByText(/create a role from scratch/i)).toBeInTheDocument();
+      expect(body.getByText(/copy an existing role/i)).toBeInTheDocument();
+    });
   },
 };
 
@@ -128,18 +128,19 @@ export const SelectCreateFromScratch: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
-    const body = within(document.body);
+  play: async ({ step }) => {
+    await step('Select create from scratch', async () => {
+      const body = within(document.body);
 
-    await body.findAllByRole('dialog');
+      await body.findAllByRole('dialog');
 
-    const createOption = body.getByText(/create a role from scratch/i);
-    await userEvent.click(createOption);
+      const createOption = body.getByText(/create a role from scratch/i);
+      await userEvent.click(createOption);
 
-    await waitFor(() => {
-      const nameInputs = body.queryAllByRole('textbox');
-      expect(nameInputs.length).toBeGreaterThan(0);
+      await waitFor(() => {
+        const nameInputs = body.queryAllByRole('textbox');
+        expect(nameInputs.length).toBeGreaterThan(0);
+      });
     });
   },
 };
@@ -153,20 +154,19 @@ export const SelectCopyExistingRole: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
-    const body = within(document.body);
+  play: async ({ step }) => {
+    await step('Select copy existing role', async () => {
+      const body = within(document.body);
 
-    await body.findAllByRole('dialog');
+      await body.findAllByRole('dialog');
 
-    const copyOption = body.getByText(/copy an existing role/i);
-    expect(copyOption).toBeInTheDocument();
-    await userEvent.click(copyOption);
+      const copyOption = body.getByText(/copy an existing role/i);
+      expect(copyOption).toBeInTheDocument();
+      await userEvent.click(copyOption);
 
-    await delay(300);
-
-    const radioInputs = body.getAllByRole('radio');
-    expect(radioInputs.length).toBeGreaterThan(0);
+      const radioInputs = await body.findAllByRole('radio');
+      expect(radioInputs.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -179,21 +179,20 @@ export const EnterRoleName: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
-    const body = within(document.body);
+  play: async ({ step }) => {
+    await step('Enter role name', async () => {
+      const body = within(document.body);
 
-    await body.findAllByRole('dialog');
+      await body.findAllByRole('dialog');
 
-    const createOption = body.getByText(/create a role from scratch/i);
-    await userEvent.click(createOption);
+      const createOption = body.getByText(/create a role from scratch/i);
+      await userEvent.click(createOption);
 
-    await delay(300);
-
-    const nameInputs = body.getAllByRole('textbox');
-    const nameInput = nameInputs[0];
-    await userEvent.type(nameInput, 'My Test Role');
-    expect(nameInput).toHaveValue('My Test Role');
+      const nameInputs = await body.findAllByRole('textbox');
+      const nameInput = nameInputs[0];
+      await userEvent.type(nameInput, 'My Test Role');
+      expect(nameInput).toHaveValue('My Test Role');
+    });
   },
 };
 
@@ -206,15 +205,16 @@ export const CancelButtonVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
-    const body = within(document.body);
+  play: async ({ step }) => {
+    await step('Verify cancel button visible', async () => {
+      const body = within(document.body);
 
-    await body.findAllByRole('dialog');
+      await body.findAllByRole('dialog');
 
-    const cancelButton = body.getByRole('button', { name: /cancel/i });
-    expect(cancelButton).toBeInTheDocument();
-    expect(cancelButton).toBeEnabled();
+      const cancelButton = body.getByRole('button', { name: /cancel/i });
+      expect(cancelButton).toBeInTheDocument();
+      expect(cancelButton).toBeEnabled();
+    });
   },
 };
 
@@ -227,13 +227,14 @@ export const NextButtonVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
-    const body = within(document.body);
+  play: async ({ step }) => {
+    await step('Verify next button visible', async () => {
+      const body = within(document.body);
 
-    await body.findAllByRole('dialog');
+      await body.findAllByRole('dialog');
 
-    const nextButton = body.getByRole('button', { name: /next/i });
-    expect(nextButton).toBeInTheDocument();
+      const nextButton = body.getByRole('button', { name: /next/i });
+      expect(nextButton).toBeInTheDocument();
+    });
   },
 };

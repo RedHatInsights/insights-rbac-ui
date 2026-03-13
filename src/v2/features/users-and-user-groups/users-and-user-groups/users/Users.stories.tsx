@@ -3,7 +3,6 @@ import React from 'react';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { Users } from './Users';
 import { BrowserRouter } from 'react-router-dom';
-import { delay } from 'msw';
 import type { MockUserIdentity } from '../../../../../../.storybook/contexts/StorybookMockContext';
 import { usersHandlers, usersLoadingHandlers } from '../../../../../shared/data/mocks/users.handlers';
 import { groupsHandlers } from '../../../../../shared/data/mocks/groups.handlers';
@@ -204,26 +203,27 @@ For testing specific scenarios, see these additional stories:
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for container to load data and render the table through React Query
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      // Wait for container to load data and render the table through React Query
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
 
-    // Verify container passes React Query data to table - all users should be present
-    await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('bob.johnson')).resolves.toBeInTheDocument();
+      // Verify container passes React Query data to table - all users should be present
+      await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('bob.johnson')).resolves.toBeInTheDocument();
 
-    // Verify action buttons are rendered through container (check overflow menu)
-    const kebabButton = await canvas.findByLabelText('Actions overflow menu');
-    await userEvent.click(kebabButton);
+      // Verify action buttons are rendered through container (check overflow menu)
+      const kebabButton = await canvas.findByLabelText('Actions overflow menu');
+      await userEvent.click(kebabButton);
 
-    await expect(canvas.findByText(/Add to user group/i)).resolves.toBeInTheDocument();
-    await expect(within(document.body).findByText(/Invite users/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/Add to user group/i)).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText(/Invite users/i)).resolves.toBeInTheDocument();
 
-    // Close the menu
-    await userEvent.keyboard('{Escape}');
+      // Close the menu
+      await userEvent.keyboard('{Escape}');
+    });
   },
 };
 
@@ -240,12 +240,12 @@ export const Loading: Story = {
       handlers: [...usersLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    // Should show skeleton loading state from container React Query
-    await waitFor(async () => {
-      const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-      await expect(skeletonElements.length).toBeGreaterThan(0);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      // Should show skeleton loading state from container React Query
+      await waitFor(() => {
+        expect(canvasElement.querySelectorAll('[class*="skeleton"]').length).toBeGreaterThan(0);
+      });
     });
   },
 };
@@ -262,12 +262,13 @@ export const EmptyState: Story = {
       handlers: [...usersHandlers([])],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Should show empty state from container coordination
-    await expect(canvas.findByRole('heading', { name: 'No users found' })).resolves.toBeInTheDocument();
+      // Should show empty state from container coordination
+      await expect(canvas.findByRole('heading', { name: 'No users found' })).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -325,68 +326,69 @@ export const AddToGroupModalIntegration: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Reset spy for clean test
-    addMembersToGroupSpy.mockClear();
+      // Reset spy for clean test
+      addMembersToGroupSpy.mockClear();
 
-    // Wait for container to load data and render the user
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      // Wait for container to load data and render the user
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
 
-    // Test bulk selection through container logic - wait for checkbox to be available
-    const firstRowCheckbox = await canvas.findByLabelText('Select row 0');
+      // Test bulk selection through container logic - wait for checkbox to be available
+      const firstRowCheckbox = await canvas.findByLabelText('Select row 0');
 
-    await userEvent.click(firstRowCheckbox);
+      await userEvent.click(firstRowCheckbox);
 
-    let addToGroupButton: HTMLElement | null = null;
-    await waitFor(async () => {
-      // It may be in toolbar or overflow; check both possibilities
-      addToGroupButton = canvas.queryByText(/Add to user group/i);
-      if (!addToGroupButton) {
-        const kebabButton = canvas.queryByLabelText('Actions overflow menu');
-        if (kebabButton) {
-          userEvent.click(kebabButton);
-          addToGroupButton = canvas.queryByText(/Add to user group/i);
+      let addToGroupButton: HTMLElement | null = null;
+      await waitFor(async () => {
+        // It may be in toolbar or overflow; check both possibilities
+        addToGroupButton = canvas.queryByText(/Add to user group/i);
+        if (!addToGroupButton) {
+          const kebabButton = canvas.queryByLabelText('Actions overflow menu');
+          if (kebabButton) {
+            userEvent.click(kebabButton);
+            addToGroupButton = canvas.queryByText(/Add to user group/i);
+          }
         }
-      }
-      await expect(addToGroupButton).not.toBeNull();
-      await expect(addToGroupButton!).not.toHaveAttribute('disabled');
-    });
+        await expect(addToGroupButton).not.toBeNull();
+        await expect(addToGroupButton!).not.toHaveAttribute('disabled');
+      });
 
-    // Test add to group modal coordination
-    await userEvent.click(addToGroupButton!);
+      // Test add to group modal coordination
+      await userEvent.click(addToGroupButton!);
 
-    // Verify modal appears (container manages modal state)
-    // Note: Modal content is rendered to document.body via portal, not in canvas
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
-    await expect(within(modal).getByText(/Add to user group/i)).toBeInTheDocument();
+      // Verify modal appears (container manages modal state)
+      // Note: Modal content is rendered to document.body via portal, not in canvas
+      const modal = await screen.findByRole('dialog');
+      await expect(modal).toBeInTheDocument();
+      await expect(within(modal).getByText(/Add to user group/i)).toBeInTheDocument();
 
-    // Wait for groups to load in modal, then test group selection and API call
-    // Use findByText to wait for the groups to load (important for CI environments)
-    await expect(within(modal).findByText(/Test Group 1/i)).resolves.toBeInTheDocument();
+      // Wait for groups to load in modal, then test group selection and API call
+      // Use findByText to wait for the groups to load (important for CI environments)
+      await expect(within(modal).findByText(/Test Group 1/i)).resolves.toBeInTheDocument();
 
-    // Select a group and submit to test the API call
-    const groupCheckboxes = within(modal).getAllByRole('checkbox');
-    await userEvent.click(groupCheckboxes[0]); // Select first group
+      // Select a group and submit to test the API call
+      const groupCheckboxes = within(modal).getAllByRole('checkbox');
+      await userEvent.click(groupCheckboxes[0]); // Select first group
 
-    const addButton = within(modal).getByRole('button', { name: /add/i });
-    await waitFor(async () => {
-      await expect(addButton).not.toBeDisabled();
-    });
+      const addButton = within(modal).getByRole('button', { name: /add/i });
+      await waitFor(async () => {
+        await expect(addButton).not.toBeDisabled();
+      });
 
-    await userEvent.click(addButton);
+      await userEvent.click(addButton);
 
-    // Verify the API was called with correct group ID
-    await waitFor(async () => {
-      await expect(addMembersToGroupSpy).toHaveBeenCalledWith(expect.any(Request), expect.objectContaining({ groupId: '1' }));
-    });
+      // Verify the API was called with correct group ID
+      await waitFor(async () => {
+        await expect(addMembersToGroupSpy).toHaveBeenCalledWith(expect.any(Request), expect.objectContaining({ groupId: '1' }));
+      });
 
-    // Modal should close after successful submission
-    await waitFor(async () => {
-      await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      // Modal should close after successful submission
+      await waitFor(async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -419,57 +421,54 @@ export const BulkDeactivateModalIntegration: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for container to load data and render the users
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
+      // Wait for container to load data and render the users
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
 
-    // Select multiple users by clicking their checkboxes - wait for them to be available
-    const firstRowCheckbox = await canvas.findByLabelText('Select row 0');
-    const secondRowCheckbox = await canvas.findByLabelText('Select row 1');
+      // Select multiple users by clicking their checkboxes - wait for them to be available
+      const firstRowCheckbox = await canvas.findByLabelText('Select row 0');
+      const secondRowCheckbox = await canvas.findByLabelText('Select row 1');
 
-    await userEvent.click(firstRowCheckbox);
-    await userEvent.click(secondRowCheckbox);
+      await userEvent.click(firstRowCheckbox);
+      await userEvent.click(secondRowCheckbox);
 
-    // Wait for selection state to update
-    await delay(100);
+      // Open the Actions overflow menu first (bulk actions are inside the kebab dropdown)
+      const overflowMenu = await canvas.findByLabelText('Actions overflow menu');
+      await userEvent.click(overflowMenu);
 
-    // Open the Actions overflow menu first (bulk actions are inside the kebab dropdown)
-    const overflowMenu = await canvas.findByLabelText('Actions overflow menu');
-    await userEvent.click(overflowMenu);
-    await delay(100);
+      // Look for deactivate option in the dropdown menu
+      const bulkDeactivateButton = await within(document.body).findByRole('menuitem', { name: /Deactivate users/i });
+      await expect(bulkDeactivateButton).toBeInTheDocument();
 
-    // Look for deactivate option in the dropdown menu
-    const bulkDeactivateButton = await within(document.body).findByRole('menuitem', { name: /Deactivate users/i });
-    await expect(bulkDeactivateButton).toBeInTheDocument();
+      // Click bulk deactivate
+      await userEvent.click(bulkDeactivateButton);
 
-    // Click bulk deactivate
-    await userEvent.click(bulkDeactivateButton);
+      // Verify bulk deactivate modal appears (container manages modal state)
+      // Note: Modal content is rendered to document.body via portal, not in canvas
+      const modal = await screen.findByRole('dialog');
+      await expect(modal).toBeInTheDocument();
+      await expect(within(modal).getByText(/Deactivate users/i)).toBeInTheDocument();
 
-    // Verify bulk deactivate modal appears (container manages modal state)
-    // Note: Modal content is rendered to document.body via portal, not in canvas
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
-    await expect(within(modal).getByText(/Deactivate users/i)).toBeInTheDocument();
+      // Complete the workflow by confirming the action
+      const modalContent = within(modal);
 
-    // Complete the workflow by confirming the action
-    const modalContent = within(modal);
+      // Find and click the confirmation checkbox
+      const confirmCheckbox = await modalContent.findByRole('checkbox');
+      await userEvent.click(confirmCheckbox);
 
-    // Find and click the confirmation checkbox
-    const confirmCheckbox = await modalContent.findByRole('checkbox');
-    await userEvent.click(confirmCheckbox);
+      // Find and click the deactivate button
+      const deactivateButton = await modalContent.findByRole('button', { name: /deactivate user\(s\)/i });
+      await expect(deactivateButton).not.toBeDisabled();
+      await userEvent.click(deactivateButton);
 
-    // Find and click the deactivate button
-    const deactivateButton = await modalContent.findByRole('button', { name: /deactivate user\(s\)/i });
-    await expect(deactivateButton).not.toBeDisabled();
-    await userEvent.click(deactivateButton);
-
-    // Verify modal closes after action (API calls are TODO in the actual component)
-    await waitFor(async () => {
-      await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      // Verify modal closes after action (API calls are TODO in the actual component)
+      await waitFor(async () => {
+        await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -533,73 +532,72 @@ export const UserDetailsIntegration: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for users table to load
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
+      // Wait for users table to load
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
 
-    // Get drawer panel reference (always exists in DOM)
-    const drawerPanel = canvasElement.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
-    await expect(drawerPanel).toBeInTheDocument();
-    const drawer = within(drawerPanel);
+      const drawerPanel = within(document.body).getByTestId('detail-drawer-panel');
+      const drawer = within(drawerPanel);
 
-    // Click on John Doe's row to focus user
-    const johnDoeRow = (await canvas.findByText('john.doe')).closest('tr');
-    await expect(johnDoeRow).toBeInTheDocument();
+      // Click on John Doe's row to focus user
+      const johnDoeRow = (await canvas.findByText('john.doe')).closest('tr');
+      await expect(johnDoeRow).toBeInTheDocument();
 
-    await userEvent.click(johnDoeRow!);
+      await userEvent.click(johnDoeRow!);
 
-    // Verify drawer content shows John Doe's details
-    await expect(drawer.findByText('John Doe')).resolves.toBeInTheDocument();
-    await expect(drawer.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
+      // Verify drawer content shows John Doe's details
+      await expect(drawer.findByText('John Doe')).resolves.toBeInTheDocument();
+      await expect(drawer.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
 
-    // Verify Groups tab content loads (default tab)
-    await expect(drawer.findByText('Administrators')).resolves.toBeInTheDocument();
-    await expect(drawer.findByText('Developers')).resolves.toBeInTheDocument();
+      // Verify Groups tab content loads (default tab)
+      await expect(drawer.findByText('Administrators')).resolves.toBeInTheDocument();
+      await expect(drawer.findByText('Developers')).resolves.toBeInTheDocument();
 
-    // Switch to Roles tab (use role selector to avoid finding text in other places)
-    const rolesTab = await drawer.findByRole('tab', { name: /Assigned roles/i });
-    await userEvent.click(rolesTab);
+      // Switch to Roles tab (use role selector to avoid finding text in other places)
+      const rolesTab = await drawer.findByRole('tab', { name: /Assigned roles/i });
+      await userEvent.click(rolesTab);
 
-    // Verify Roles tab content loads
-    await expect(drawer.findByText('User administrators')).resolves.toBeInTheDocument();
-    await expect(drawer.findByText('Cost Management Viewer')).resolves.toBeInTheDocument();
+      // Verify Roles tab content loads
+      await expect(drawer.findByText('User administrators')).resolves.toBeInTheDocument();
+      await expect(drawer.findByText('Cost Management Viewer')).resolves.toBeInTheDocument();
 
-    // Switch back to Groups tab (use role selector to avoid finding text in other places)
-    const groupsTab = await drawer.findByRole('tab', { name: /User groups/i });
-    await userEvent.click(groupsTab);
+      // Switch back to Groups tab (use role selector to avoid finding text in other places)
+      const groupsTab = await drawer.findByRole('tab', { name: /User groups/i });
+      await userEvent.click(groupsTab);
 
-    // Verify Groups content is still there
-    await expect(drawer.findByText('Administrators')).resolves.toBeInTheDocument();
-    await expect(drawer.findByText('Developers')).resolves.toBeInTheDocument();
+      // Verify Groups content is still there
+      await expect(drawer.findByText('Administrators')).resolves.toBeInTheDocument();
+      await expect(drawer.findByText('Developers')).resolves.toBeInTheDocument();
 
-    // Test selecting a different user - click Jane Smith
-    const janeSmithRow = (await canvas.findByText('jane.smith')).closest('tr');
-    await expect(janeSmithRow).toBeInTheDocument();
+      // Test selecting a different user - click Jane Smith
+      const janeSmithRow = (await canvas.findByText('jane.smith')).closest('tr');
+      await expect(janeSmithRow).toBeInTheDocument();
 
-    await userEvent.click(janeSmithRow!);
+      await userEvent.click(janeSmithRow!);
 
-    // Verify drawer content updates to Jane's details
-    await expect(drawer.findByText('Jane Smith')).resolves.toBeInTheDocument();
-    await expect(drawer.findByText('jane.smith@example.com')).resolves.toBeInTheDocument();
+      // Verify drawer content updates to Jane's details
+      await expect(drawer.findByText('Jane Smith')).resolves.toBeInTheDocument();
+      await expect(drawer.findByText('jane.smith@example.com')).resolves.toBeInTheDocument();
 
-    // Verify Groups content loads for Jane (only Administrators)
-    await expect(drawer.findByText('Administrators')).resolves.toBeInTheDocument();
-    await expect(drawer.queryByText('Developers')).not.toBeInTheDocument(); // Jane is not in Developers
+      // Verify Groups content loads for Jane (only Administrators)
+      await expect(drawer.findByText('Administrators')).resolves.toBeInTheDocument();
+      await expect(drawer.queryByText('Developers')).not.toBeInTheDocument(); // Jane is not in Developers
 
-    // Test close functionality
-    const closeButton = await drawer.findByLabelText('Close drawer panel');
-    await userEvent.click(closeButton);
+      // Test close functionality
+      const closeButton = await drawer.findByLabelText('Close drawer panel');
+      await userEvent.click(closeButton);
 
-    // Verify drawer content is cleared (but drawer panel still exists)
-    await waitFor(
-      async () => {
-        await expect(drawer.queryByText('Jane Smith')).not.toBeInTheDocument();
-      },
-      { timeout: 1000 },
-    );
+      // Verify drawer content is cleared (but drawer panel still exists)
+      await waitFor(
+        async () => {
+          await expect(drawer.queryByText('Jane Smith')).not.toBeInTheDocument();
+        },
+        { timeout: 1000 },
+      );
+    });
   },
 };

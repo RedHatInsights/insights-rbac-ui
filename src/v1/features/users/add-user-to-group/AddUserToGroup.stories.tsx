@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { BrowserRouter } from 'react-router-dom';
 import { AddUserToGroup } from './AddUserToGroup';
 import { groupsHandlers, groupsLoadingHandlers } from '../../../../shared/data/mocks/groups.handlers';
@@ -93,9 +93,6 @@ const meta: Meta<typeof AddUserToGroup> = {
 export default meta;
 type Story = StoryObj<typeof AddUserToGroup>;
 
-// Helper for delays
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 // Helper to get modal content (Modal uses portal, renders outside canvasElement)
 const getModalBody = () => within(document.body);
 
@@ -124,35 +121,27 @@ export const Default: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(1000);
+  play: async ({ step }) => {
+    const body = getModalBody();
 
-    // Wait for modal to appear - use screen for global search
-    await waitFor(
-      async () => {
-        const modal = screen.queryByRole('dialog');
-        expect(modal).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await step('Verify modal and groups table', async () => {
+      // Wait for modal to appear
+      await body.findByRole('dialog', {}, { timeout: 5000 });
 
-    // Verify groups table loaded (groups are visible)
-    await waitFor(
-      async () => {
-        expect(screen.getByText('Administrators')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Wait for groups table to load (or show empty state)
+      // Verify groups table loaded (groups are visible)
+      expect(await body.findByText('Administrators', {}, { timeout: 5000 })).toBeInTheDocument();
 
-    // Verify Save button exists and is disabled (no selection)
-    // Note: Button has aria-label="Save" which overrides the visible text
-    const saveButtons = screen.getAllByRole('button', { name: /save/i });
-    expect(saveButtons.length).toBeGreaterThan(0);
-    expect(saveButtons[0]).toBeDisabled();
+      // Verify Save button exists and is disabled (no selection)
+      // Note: Button has aria-label="Save" which overrides the visible text
+      const saveButtons = body.getAllByRole('button', { name: /save/i });
+      expect(saveButtons.length).toBeGreaterThan(0);
+      expect(saveButtons[0]).toBeDisabled();
 
-    // Verify Cancel button exists
-    const cancelButtons = screen.getAllByRole('button', { name: /cancel/i });
-    expect(cancelButtons.length).toBeGreaterThan(0);
+      // Verify Cancel button exists
+      const cancelButtons = body.getAllByRole('button', { name: /cancel/i });
+      expect(cancelButtons.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -167,32 +156,29 @@ export const SelectGroupAndSave: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(1000);
+  play: async ({ step }) => {
+    const body = getModalBody();
 
-    // Wait for modal and groups to load
-    await waitFor(
-      async () => {
-        expect(screen.getByText('Administrators')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await step('Select group and verify save enabled', async () => {
+      // Wait for modal and groups to load
+      expect(await body.findByText('Administrators', {}, { timeout: 5000 })).toBeInTheDocument();
 
-    // Find checkboxes - admin users can select groups
-    const checkboxes = screen.getAllByRole('checkbox');
-    expect(checkboxes.length).toBeGreaterThan(0);
+      // Find checkboxes - admin users can select groups
+      const checkboxes = body.getAllByRole('checkbox');
+      expect(checkboxes.length).toBeGreaterThan(0);
 
-    // Click first group checkbox (skip header checkbox)
-    await userEvent.click(checkboxes[1]);
+      // Click first group checkbox (skip header checkbox)
+      await userEvent.click(checkboxes[1]);
 
-    // Wait for checkbox to be checked, then verify save button
-    await delay(300);
-
-    // Save button should now be enabled - use screen to search globally
-    // Note: Button has aria-label="Save" which overrides the visible text
-    const saveButtons = screen.getAllByRole('button', { name: /save/i });
-    expect(saveButtons.length).toBeGreaterThan(0);
-    expect(saveButtons[0]).not.toBeDisabled();
+      // Save button should now be enabled
+      await waitFor(() => {
+        const saveButtons = body.getAllByRole('button', { name: /save/i });
+        expect(saveButtons[0]).not.toBeDisabled();
+      });
+      const saveButtons = body.getAllByRole('button', { name: /save/i });
+      expect(saveButtons.length).toBeGreaterThan(0);
+      expect(saveButtons[0]).not.toBeDisabled();
+    });
   },
 };
 
@@ -207,34 +193,30 @@ export const CancelWithChangesShowsWarning: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(1000);
+  play: async ({ step }) => {
     const body = getModalBody();
 
-    // Wait for groups to load
-    await waitFor(
-      async () => {
-        expect(body.getByText('Administrators')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await step('Select group and cancel to show warning', async () => {
+      // Wait for groups to load
+      expect(await body.findByText('Administrators', {}, { timeout: 5000 })).toBeInTheDocument();
 
-    // Select a group
-    const checkboxes = body.getAllByRole('checkbox');
-    await userEvent.click(checkboxes[1]);
+      // Select a group
+      const checkboxes = body.getAllByRole('checkbox');
+      await userEvent.click(checkboxes[1]);
 
-    // Click cancel - should show warning modal
-    const cancelButton = await body.findByRole('button', { name: /cancel/i });
-    await userEvent.click(cancelButton);
+      // Click cancel - should show warning modal
+      const cancelButton = await body.findByRole('button', { name: /cancel/i });
+      await userEvent.click(cancelButton);
 
-    // Warning modal should appear with discard button
-    await waitFor(
-      async () => {
-        const discardButton = body.queryByRole('button', { name: /discard/i });
-        expect(discardButton).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      // Warning modal should appear with discard button
+      await waitFor(
+        async () => {
+          const discardButton = body.queryByRole('button', { name: /discard/i });
+          expect(discardButton).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -248,18 +230,13 @@ export const Loading: Story = {
       handlers: groupsLoadingHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = getModalBody();
 
-    // Wait for modal to appear
-    await waitFor(
-      async () => {
-        const modal = body.queryByRole('dialog');
-        expect(modal).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await step('Verify loading modal', async () => {
+      // Wait for modal to appear (loading handlers never resolve, so we see skeleton)
+      expect(await body.findByRole('dialog', {}, { timeout: 5000 })).toBeInTheDocument();
+    });
   },
 };
 
@@ -273,26 +250,12 @@ export const EmptyGroups: Story = {
       handlers: groupsHandlers([]),
     },
   },
-  play: async () => {
-    await delay(1000);
+  play: async ({ step }) => {
     const body = getModalBody();
 
-    // Wait for modal
-    await waitFor(
-      async () => {
-        const modal = body.queryByRole('dialog');
-        expect(modal).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
-
-    // Empty state should show
-    await waitFor(
-      async () => {
-        const emptyState = document.querySelector('.pf-v6-c-empty-state');
-        expect(emptyState).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify empty groups state', async () => {
+      expect(await body.findByRole('dialog', {}, { timeout: 5000 })).toBeInTheDocument();
+      expect(await body.findByText(/no groups/i, {}, { timeout: 3000 })).toBeInTheDocument();
+    });
   },
 };

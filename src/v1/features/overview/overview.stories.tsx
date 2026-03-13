@@ -31,12 +31,14 @@ export default meta;
 type Story = StoryObj<typeof Overview>;
 
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.findByLabelText('Get started card')).resolves.toBeInTheDocument();
-    await expect(canvas.findByLabelText('Supporting features list')).resolves.toBeInTheDocument();
-    await expect(canvas.findByLabelText('Recommended content table')).resolves.toBeInTheDocument();
-    await expect(canvas.findByRole('heading', { level: 1 })).resolves.toBeInTheDocument();
+    await step('Verify overview page elements', async () => {
+      await expect(canvas.findByLabelText('Get started card')).resolves.toBeInTheDocument();
+      await expect(canvas.findByLabelText('Supporting features list')).resolves.toBeInTheDocument();
+      await expect(canvas.findByLabelText('Recommended content table')).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('heading', { level: 1 })).resolves.toBeInTheDocument();
+    });
   },
 };

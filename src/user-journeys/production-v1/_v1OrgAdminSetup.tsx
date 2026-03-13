@@ -68,18 +68,17 @@ export const meta = {
   },
 };
 
+export { navigateToPage, resetStoryState } from '../_shared/helpers';
+export { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+export { confirmDestructiveModal } from '../../test-utils/interactionHelpers';
 export {
-  TEST_TIMEOUTS,
   clickMenuItem,
-  confirmDeleteModal,
-  navigateToPage,
   openDetailPageActionsMenu,
   openRoleActionsMenu,
   openRowActionsMenu,
-  resetStoryState,
   verifySuccessNotification,
   waitForPageToLoad,
-} from '../_shared/helpers';
+} from '../../test-utils/tableHelpers';
 
 export {
   DEFAULT_GROUPS,

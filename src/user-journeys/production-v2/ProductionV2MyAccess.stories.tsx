@@ -1,15 +1,16 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
 import {
   KESSEL_GROUP_PROD_ADMINS,
   KESSEL_ROLE_WS_ADMIN,
   KESSEL_ROLE_WS_VIEWER,
   Story,
-  TEST_TIMEOUTS,
   WS_PRODUCTION,
+  clickTab,
   db,
   meta,
   resetStoryState,
+  waitForDrawer,
 } from './_v2OrgAdminSetup';
 
 export default { ...meta, title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/My Access', tags: ['prod-v2-org-admin'] };
@@ -37,30 +38,39 @@ Tests the My Access Groups tab: table content, row click to open the group drawe
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const groupsTab = await canvas.findByRole('tab', { name: /my groups/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await expect(groupsTab).toHaveAttribute('aria-selected', 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const groupCell = await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    const groupRow = groupCell.closest('tr')!;
-    await user.click(groupRow);
+    await step('Verify Groups tab and open group drawer', async () => {
+      const groupsTab = await canvas.findByRole('tab', { name: /my groups/i });
+      await expect(groupsTab).toHaveAttribute('aria-selected', 'true');
 
-    await canvas.findByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const groupCell = await canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name);
+      const groupRow = groupCell.closest('tr')!;
+      await user.click(groupRow);
+    });
 
-    await canvas.findByText(KESSEL_ROLE_WS_ADMIN.name!, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await canvas.findByText(KESSEL_ROLE_WS_VIEWER.name!, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    await step('Verify drawer content and close', async () => {
+      const drawer = await waitForDrawer();
+      await drawer.findByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name });
+      await drawer.findByText(KESSEL_ROLE_WS_ADMIN.name!);
+      await drawer.findByText(KESSEL_ROLE_WS_VIEWER.name!);
 
-    const closeButton = canvas.getByRole('button', { name: /close drawer/i });
-    await user.click(closeButton);
+      const closeButton = await drawer.findByRole('button', { name: /close drawer/i });
+      await user.click(closeButton);
 
-    await waitFor(() => {
-      expect(canvas.queryByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name })).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.queryByRole('heading', { name: KESSEL_GROUP_PROD_ADMINS.name })).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -88,32 +98,39 @@ Tests the My Access Workspaces tab: table content, role badges, row click to ope
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const workspacesTab = await canvas.findByRole('tab', { name: /my workspaces/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await expect(workspacesTab).toHaveAttribute('aria-selected', 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const wsCell = await canvas.findByText(WS_PRODUCTION.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    const workspaceRow = wsCell.closest('tr')!;
-    await user.click(workspaceRow);
+    await step('Verify Workspaces tab and open workspace drawer', async () => {
+      const workspacesTab = await canvas.findByRole('tab', { name: /my workspaces/i });
+      await expect(workspacesTab).toHaveAttribute('aria-selected', 'true');
 
-    await canvas.findByRole('heading', { name: WS_PRODUCTION.name }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      const wsCell = await canvas.findByText(WS_PRODUCTION.name);
+      const workspaceRow = wsCell.closest('tr')!;
+      await user.click(workspaceRow);
+    });
 
-    // ws-1 has kessel-role-1 + kessel-role-2 via group-1, and kessel-role-2 via group-3.
-    // The drawer should deduplicate — two unique roles, not three rows.
-    await canvas.findByText(KESSEL_ROLE_WS_ADMIN.name!, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await canvas.findByText(KESSEL_ROLE_WS_VIEWER.name!, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    await step('Verify drawer content and close', async () => {
+      const drawer = await waitForDrawer();
+      await drawer.findByRole('heading', { name: WS_PRODUCTION.name });
+      await drawer.findByText(KESSEL_ROLE_WS_ADMIN.name!);
+      await drawer.findByText(KESSEL_ROLE_WS_VIEWER.name!);
 
-    const closeButton = canvas.getByRole('button', { name: /close drawer/i });
-    await user.click(closeButton);
+      const closeButton = await drawer.findByRole('button', { name: /close drawer/i });
+      await user.click(closeButton);
 
-    await waitFor(() => {
-      expect(canvas.queryByRole('heading', { name: WS_PRODUCTION.name })).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.queryByRole('heading', { name: WS_PRODUCTION.name })).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -140,28 +157,36 @@ Tests tab navigation between Groups and Workspaces on My Access.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    const groupsTab = await canvas.findByRole('tab', { name: /my groups/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await expect(groupsTab).toHaveAttribute('aria-selected', 'true');
-
-    const workspacesTab = await canvas.findByRole('tab', { name: /my workspaces/i });
-    await user.click(workspacesTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await expect(workspacesTab).toHaveAttribute('aria-selected', 'true');
-    await waitFor(() => {
-      const addressBar = canvas.getByTestId('fake-address-bar');
-      expect(addressBar).toHaveTextContent(/workspaces/);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
     });
 
-    await user.click(groupsTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    await expect(groupsTab).toHaveAttribute('aria-selected', 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify Groups tab selected', async () => {
+      const groupsTab = await canvas.findByRole('tab', { name: /my groups/i });
+      await expect(groupsTab).toHaveAttribute('aria-selected', 'true');
+    });
+
+    await step('Switch to Workspaces tab', async () => {
+      await clickTab(user, canvas, /my workspaces/i);
+
+      const workspacesTab = await canvas.findByRole('tab', { name: /my workspaces/i });
+      await expect(workspacesTab).toHaveAttribute('aria-selected', 'true');
+      await waitFor(() => {
+        const addressBar = canvas.getByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/workspaces/);
+      });
+    });
+
+    await step('Switch back to Groups tab', async () => {
+      await clickTab(user, canvas, /my groups/i);
+    });
   },
 };

@@ -131,24 +131,23 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify instructional text (actual text from component)
-    expect(await canvas.findByText(/select roles to assign to this group/i)).toBeInTheDocument();
+    await step('Verify roles table and role data', async () => {
+      expect(await canvas.findByText(/select roles to assign to this group/i)).toBeInTheDocument();
 
-    // Wait for roles table to load
-    await waitFor(
-      () => {
-        expect(canvas.getByRole('grid')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+      await waitFor(
+        () => {
+          expect(canvas.getByRole('grid')).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    // Verify role rows are displayed
-    expect(await canvas.findByText(storyRoles[0].name)).toBeInTheDocument();
-    expect(await canvas.findByText(storyRoles[1].name)).toBeInTheDocument();
-    expect(await canvas.findByText(storyRoles[2].name)).toBeInTheDocument();
+      expect(await canvas.findByText(storyRoles[0].name)).toBeInTheDocument();
+      expect(await canvas.findByText(storyRoles[1].name)).toBeInTheDocument();
+      expect(await canvas.findByText(storyRoles[2].name)).toBeInTheDocument();
+    });
   },
 };
 
@@ -156,40 +155,40 @@ export const RoleSelection: Story = {
   args: {
     onSubmit: fn(),
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await waitFor(
-      () => {
-        expect(canvas.getByRole('grid')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await step('Select roles and submit', async () => {
+      await waitFor(
+        () => {
+          expect(canvas.getByRole('grid')).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    // Select some roles
-    const checkboxes = await canvas.findAllByRole('checkbox');
-    const roleCheckbox1 = checkboxes.find((cb) => cb.getAttribute('data-label') === storyRoles[0].name) || checkboxes[1];
-    const roleCheckbox2 = checkboxes.find((cb) => cb.getAttribute('data-label') === storyRoles[1].name) || checkboxes[2];
+      const checkboxes = await canvas.findAllByRole('checkbox');
+      const roleCheckbox1 = checkboxes.find((cb) => cb.getAttribute('data-label') === storyRoles[0].name) || checkboxes[1];
+      const roleCheckbox2 = checkboxes.find((cb) => cb.getAttribute('data-label') === storyRoles[1].name) || checkboxes[2];
 
-    if (roleCheckbox1) {
-      await userEvent.click(roleCheckbox1);
-    }
-    if (roleCheckbox2) {
-      await userEvent.click(roleCheckbox2);
-    }
+      if (roleCheckbox1) {
+        await userEvent.click(roleCheckbox1);
+      }
+      if (roleCheckbox2) {
+        await userEvent.click(roleCheckbox2);
+      }
 
-    // Submit form
-    const submitButton = await canvas.findByRole('button', { name: /submit/i });
-    await userEvent.click(submitButton);
+      const submitButton = await canvas.findByRole('button', { name: /submit/i });
+      await userEvent.click(submitButton);
+    });
 
-    // Should submit with selected roles
-    await waitFor(() => {
-      expect(args.onSubmit).toHaveBeenCalled();
-      const mockFn = args.onSubmit as ReturnType<typeof fn>;
-      const submittedData = mockFn.mock.calls[0][0] as Record<string, unknown>;
-      expect(submittedData['roles-list']).toBeDefined();
-      expect(Array.isArray(submittedData['roles-list'])).toBe(true);
+    await step('Verify form submission with roles', async () => {
+      await waitFor(() => {
+        expect(args.onSubmit).toHaveBeenCalled();
+        const mockFn = args.onSubmit as ReturnType<typeof fn>;
+        const submittedData = mockFn.mock.calls[0][0] as Record<string, unknown>;
+        expect(submittedData['roles-list']).toBeDefined();
+        expect(Array.isArray(submittedData['roles-list'])).toBe(true);
+      });
     });
   },
 };
@@ -203,119 +202,102 @@ export const WithPreselectedRoles: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await waitFor(
-      () => {
-        expect(canvas.getByRole('grid')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await step('Verify preselected roles displayed', async () => {
+      await waitFor(
+        () => {
+          expect(canvas.getByRole('grid')).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    // **QE APPROACH: Test the form state rather than UI checkboxes**
-    // The roles should be pre-populated in the form data
-    // Verify the initial roles are displayed in the table (more reliable)
-    expect(await canvas.findByText(storyRoles[0].name)).toBeInTheDocument();
-    expect(await canvas.findByText(storyRoles[1].name)).toBeInTheDocument();
+      expect(await canvas.findByText(storyRoles[0].name)).toBeInTheDocument();
+      expect(await canvas.findByText(storyRoles[1].name)).toBeInTheDocument();
 
-    // If there are checkboxes available, check that some are selected
-    // But don't fail the test if checkbox selection isn't working properly
-    const checkboxes = await canvas.findAllByRole('checkbox');
-    if (checkboxes.length > 0) {
-      // At minimum, should have checkboxes present (more than just select-all)
-      expect(checkboxes.length).toBeGreaterThan(1);
-    }
+      const checkboxes = await canvas.findAllByRole('checkbox');
+      if (checkboxes.length > 0) {
+        expect(checkboxes.length).toBeGreaterThan(1);
+      }
+    });
   },
 };
 
 export const FilterRoles: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await waitFor(
-      () => {
-        expect(canvas.getByRole('grid')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await step('Apply filter and verify results', async () => {
+      await waitFor(
+        () => {
+          expect(canvas.getByRole('grid')).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    // **QE APPROACH: Be flexible with filter searching**
-    // Find name filter using multiple strategies (more robust)
-    let nameFilter = null;
-    try {
-      // Try common placeholder variations
-      nameFilter = canvas.getByPlaceholderText(/filter.*name/i);
-    } catch {
+      let nameFilter = null;
       try {
-        nameFilter = canvas.getByPlaceholderText(/search.*name/i);
+        nameFilter = canvas.getByPlaceholderText(/filter.*name/i);
       } catch {
         try {
-          nameFilter = canvas.getByPlaceholderText(/name/i);
+          nameFilter = canvas.getByPlaceholderText(/search.*name/i);
         } catch {
-          // Last resort: find any text input in the toolbar area
-          const toolbar = canvasElement.querySelector('.pf-v6-c-toolbar, .ins-c-primary-toolbar');
-          if (toolbar) {
-            nameFilter = toolbar.querySelector('input[type="text"]');
+          try {
+            nameFilter = canvas.getByPlaceholderText(/name/i);
+          } catch {
+            const toolbar = canvasElement.querySelector('.pf-v6-c-toolbar, .ins-c-primary-toolbar');
+            if (toolbar) {
+              nameFilter = toolbar.querySelector('input[type="text"]');
+            }
           }
         }
       }
-    }
 
-    if (nameFilter) {
-      // **QE APPROACH: Be defensive with clearing - just type directly**
-      try {
-        // Try to clear first, but don't fail if it doesn't work
-        if ((nameFilter as HTMLInputElement).value) {
-          await userEvent.clear(nameFilter);
-        }
-      } catch {}
+      if (nameFilter) {
+        try {
+          if ((nameFilter as HTMLInputElement).value) {
+            await userEvent.clear(nameFilter);
+          }
+        } catch {}
 
-      await userEvent.type(nameFilter, 'viewer');
+        await userEvent.type(nameFilter, 'viewer');
 
-      // Wait for filtered results
-      await waitFor(
-        () => {
-          expect(canvas.getByText(storyRoles[0].name)).toBeInTheDocument();
-          // Administrator might still be visible depending on filter implementation
-          // So just verify Viewer is present
-        },
-        { timeout: 5000 },
-      );
-    } else {
-      // **QE FALLBACK: If no filter found, just verify table works**
-      expect(await canvas.findByText(storyRoles[0].name)).toBeInTheDocument();
-    }
+        await waitFor(
+          () => {
+            expect(canvas.getByText(storyRoles[0].name)).toBeInTheDocument();
+          },
+          { timeout: 5000 },
+        );
+      } else {
+        expect(await canvas.findByText(storyRoles[0].name)).toBeInTheDocument();
+      }
+    });
   },
 };
 
 export const SystemRoles: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await waitFor(
-      () => {
-        expect(canvas.getByRole('grid')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await step('Verify system roles displayed', async () => {
+      await waitFor(
+        () => {
+          expect(canvas.getByRole('grid')).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    // Verify system roles are displayed
-    expect(await canvas.findByText(storyRoles[3].name)).toBeInTheDocument();
+      expect(await canvas.findByText(storyRoles[3].name)).toBeInTheDocument();
 
-    // **QE FIX: Handle multiple "system" text matches properly**
-    // Use getAllByText since "System" appears in both role name and description
-    const systemTexts = canvas.getAllByText(/system/i);
-    expect(systemTexts.length).toBeGreaterThan(0);
+      const systemTexts = canvas.getAllByText(/system/i);
+      expect(systemTexts.length).toBeGreaterThan(0);
 
-    // Should find the "System Administrator" role name specifically
-    const systemRoleName = systemTexts.find((element) => element.textContent?.includes(storyRoles[3].name));
-    if (systemRoleName) {
-      expect(systemRoleName).toBeInTheDocument();
-    }
+      const systemRoleName = systemTexts.find((element) => element.textContent?.includes(storyRoles[3].name));
+      if (systemRoleName) {
+        expect(systemRoleName).toBeInTheDocument();
+      }
+    });
   },
 };
 
@@ -325,35 +307,32 @@ export const EmptyRolesList: Story = {
       handlers: [...v1RolesHandlers([])],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // **QE APPROACH: Wait for API call to complete first**
-    // Give time for the empty API response to be processed
-    await waitFor(
-      () => {
-        // Look for empty state with multiple strategies
-        const emptyMessage =
-          canvas.queryByText(/no.*roles/i) ||
-          canvas.queryByText(/no.*results/i) ||
-          canvas.queryByText(/no.*found/i) ||
-          canvas.queryByText(/empty/i) ||
-          canvasElement.querySelector('.pf-v6-c-empty-state') ||
-          canvasElement.querySelector('[class*="empty"]');
+    await step('Verify empty state', async () => {
+      await waitFor(
+        () => {
+          const emptyMessage =
+            canvas.queryByText(/no.*roles/i) ||
+            canvas.queryByText(/no.*results/i) ||
+            canvas.queryByText(/no.*found/i) ||
+            canvas.queryByText(/empty/i) ||
+            canvasElement.querySelector('.pf-v6-c-empty-state') ||
+            canvasElement.querySelector('[class*="empty"]');
 
-        if (emptyMessage) {
-          expect(emptyMessage).toBeInTheDocument();
-        } else {
-          // **QE FALLBACK: If no empty state component, verify no role rows exist**
-          expect(canvas.queryByText(storyRoles[0].name)).not.toBeInTheDocument();
-          expect(canvas.queryByText(storyRoles[1].name)).not.toBeInTheDocument();
-          expect(canvas.queryByText(storyRoles[2].name)).not.toBeInTheDocument();
+          if (emptyMessage) {
+            expect(emptyMessage).toBeInTheDocument();
+          } else {
+            expect(canvas.queryByText(storyRoles[0].name)).not.toBeInTheDocument();
+            expect(canvas.queryByText(storyRoles[1].name)).not.toBeInTheDocument();
+            expect(canvas.queryByText(storyRoles[2].name)).not.toBeInTheDocument();
 
-          // Table should still be present even if empty
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
-        }
-      },
-      { timeout: 10000 },
-    );
+            expect(canvas.getByRole('grid')).toBeInTheDocument();
+          }
+        },
+        { timeout: 10000 },
+      );
+    });
   },
 };

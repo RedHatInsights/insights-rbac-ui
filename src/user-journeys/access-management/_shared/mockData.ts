@@ -354,7 +354,7 @@ export const roleUserGroups: Record<string, string[]> = {
 };
 
 // =============================================================================
-// ROLE BINDINGS - V2 API GUESSED DATA (gap:guessed-v2-api)
+// ROLE BINDINGS - V2 API DATA
 // Maps roles to their workspace assignments
 // This is educated guessing for V2 role bindings API
 // =============================================================================

@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { ManagedWorkspaceSelector } from './ManagedWorkspaceSelector';
 import { WorkspacesWorkspaceTypes } from '../../../../data/api/workspaces';
-import { delay } from 'msw';
 import { workspacesErrorHandlers, workspacesHandlers } from '../../../../data/mocks/workspaces.handlers';
 
 // Workspace data these stories expect — different from the shared DEFAULT_WORKSPACES
@@ -65,7 +64,9 @@ async function openSelector(canvasElement: HTMLElement) {
 
 /** Expand the root tree node (clicks the first toggle button in the portal). */
 async function expandRootNode() {
-  const expandButton = document.body.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLButtonElement | null;
+  const tree = await getBody().findByRole('tree');
+  const expandButtons = within(tree).getAllByRole('button');
+  const expandButton = expandButtons[0];
   if (expandButton) {
     await userEvent.click(expandButton);
   }
@@ -252,41 +253,42 @@ export const LoadingAndLoaded: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify loading and loaded state', async () => {
+      // Stage 1: wait until the component has mounted and rendered anything (look for menu toggle skeleton)
+      await waitFor(
+        async () => {
+          const toggleNode = canvasElement.querySelector('.pf-v6-c-menu-toggle');
+          await expect(toggleNode).not.toBeNull();
+        },
+        { timeout: 15000 },
+      );
 
-    // Stage 1: wait until the component has mounted and rendered anything (look for menu toggle skeleton)
-    await waitFor(
-      async () => {
-        const toggleNode = canvasElement.querySelector('.pf-v6-c-menu-toggle');
-        await expect(toggleNode).not.toBeNull();
-      },
-      { timeout: 15000 },
-    );
+      // Stage 2: wait for the toggle text to appear once MSW data arrives
+      await expect(canvas.findByText('Select workspaces', {}, { timeout: 15000 })).resolves.toBeInTheDocument();
 
-    // Stage 2: wait for the toggle text to appear once MSW data arrives
-    await expect(canvas.findByText('Select workspaces', {}, { timeout: 15000 })).resolves.toBeInTheDocument();
+      // Click to expand the selector
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
 
-    // Click to expand the selector
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
+      // Wait for loading spinner to appear in the dropdown panel (rendered in portal)
+      await expect(within(document.body).findByRole('progressbar', {}, { timeout: 5000 })).resolves.toBeInTheDocument();
 
-    // Wait for loading spinner to appear in the dropdown panel (rendered in portal)
-    await expect(within(document.body).findByRole('progressbar', {}, { timeout: 5000 })).resolves.toBeInTheDocument();
+      // Wait for loading to complete and content to appear (dropdown renders via portal)
+      await expect(within(document.body).findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('Production Environment')).resolves.toBeInTheDocument();
 
-    // Wait for loading to complete and content to appear (dropdown renders via portal)
-    await expect(within(document.body).findByPlaceholderText('Find a workspace by name')).resolves.toBeInTheDocument();
-    await expect(within(document.body).findByText('Production Environment')).resolves.toBeInTheDocument();
+      // Expand the Production Environment to see its children
+      const tree = await getBody().findByRole('tree');
+      const expandButton = within(tree).getAllByRole('button')[0];
+      await userEvent.click(expandButton);
 
-    // Expand the Production Environment to see its children
-    const expandButton = document.body.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLButtonElement;
-    await userEvent.click(expandButton);
-
-    // Now check for child workspaces that should be visible after expansion
-    await expect(within(document.body).findByText('Web Services')).resolves.toBeInTheDocument();
-    await expect(within(document.body).findByText('API Services')).resolves.toBeInTheDocument();
-    await expect(within(document.body).findByText('Development Environment')).resolves.toBeInTheDocument();
+      // Now check for child workspaces that should be visible after expansion
+      await expect(within(document.body).findByText('Web Services')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('API Services')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('Development Environment')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -300,7 +302,6 @@ export const TreeExpansionAndCollapse: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     // Wait for loading to complete
@@ -318,7 +319,8 @@ export const TreeExpansionAndCollapse: Story = {
     await expect(within(document.body).queryByText('API Services')).not.toBeInTheDocument();
 
     // Click to expand Production Environment
-    const expandButton = document.body.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLButtonElement;
+    const tree = await getBody().findByRole('tree');
+    const expandButton = within(tree).getAllByRole('button')[0];
     await userEvent.click(expandButton);
 
     // Now child workspaces should be visible
@@ -359,7 +361,6 @@ export const WithInitialSelection: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     // Wait for loading to complete
@@ -379,71 +380,73 @@ export const SelectionCallback: Story = {
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
-    await delay(300);
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
+    await step('Select Production Environment', async () => {
+      // Wait for loading to complete
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
 
-    // Wait for loading to complete
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
+      // Click to expand dropdown
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
 
-    // Click to expand dropdown
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
+      // Test 1: Select top-level "Production Environment" workspace
+      // Wait for the workspace to appear and click it (dropdown renders via portal)
+      const prodEnvButton = await within(document.body).findByText('Production Environment');
+      await userEvent.click(prodEnvButton);
 
-    // Test 1: Select top-level "Production Environment" workspace
-    // Wait for the workspace to appear and click it (dropdown renders via portal)
-    const prodEnvButton = await within(document.body).findByText('Production Environment');
-    await userEvent.click(prodEnvButton);
-
-    // Should call onSelect with correct Production Environment workspace data
-    await waitFor(async () => {
-      await expect(args.onSelect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'workspace-1',
-          name: 'Production Environment',
-          workspace: expect.objectContaining({
+      // Should call onSelect with correct Production Environment workspace data
+      await waitFor(async () => {
+        await expect(args.onSelect).toHaveBeenCalledWith(
+          expect.objectContaining({
             id: 'workspace-1',
             name: 'Production Environment',
-            type: WorkspacesWorkspaceTypes.Root,
+            workspace: expect.objectContaining({
+              id: 'workspace-1',
+              name: 'Production Environment',
+              type: WorkspacesWorkspaceTypes.Root,
+            }),
           }),
-        }),
-      );
+        );
+      });
+
+      // Should update the toggle text
+      let menuToggle = canvasElement.querySelector('.pf-v6-c-menu-toggle');
+      await expect(menuToggle).toHaveTextContent('Production Environment');
     });
+    await step('Select API Services', async () => {
+      // Reset mock for second test
+      (args.onSelect as ReturnType<typeof fn>).mockClear();
 
-    // Should update the toggle text
-    let menuToggle = canvasElement.querySelector('.pf-v6-c-menu-toggle');
-    await expect(menuToggle).toHaveTextContent('Production Environment');
+      // Test 2: Expand tree and select "API Services" workspace (dropdown renders via portal)
+      const tree = await getBody().findByRole('tree');
+      const expandButton = within(tree).getAllByRole('button')[0];
+      await userEvent.click(expandButton);
 
-    // Reset mock for second test
-    (args.onSelect as ReturnType<typeof fn>).mockClear();
+      // Wait for child workspaces to appear and select API Services (dropdown renders via portal)
+      const apiServicesButton = await within(document.body).findByText('API Services');
+      await userEvent.click(apiServicesButton);
 
-    // Test 2: Expand tree and select "API Services" workspace (dropdown renders via portal)
-    const expandButton = document.body.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLButtonElement;
-    await userEvent.click(expandButton);
-
-    // Wait for child workspaces to appear and select API Services (dropdown renders via portal)
-    const apiServicesButton = await within(document.body).findByText('API Services');
-    await userEvent.click(apiServicesButton);
-
-    // Should call onSelect with correct API Services workspace data
-    await waitFor(async () => {
-      await expect(args.onSelect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'workspace-3',
-          name: 'API Services',
-          workspace: expect.objectContaining({
+      // Should call onSelect with correct API Services workspace data
+      await waitFor(async () => {
+        await expect(args.onSelect).toHaveBeenCalledWith(
+          expect.objectContaining({
             id: 'workspace-3',
             name: 'API Services',
-            parent_id: 'workspace-1',
-            type: WorkspacesWorkspaceTypes.Standard,
+            workspace: expect.objectContaining({
+              id: 'workspace-3',
+              name: 'API Services',
+              parent_id: 'workspace-1',
+              type: WorkspacesWorkspaceTypes.Standard,
+            }),
           }),
-        }),
-      );
-    });
+        );
+      });
 
-    // Should update the toggle text to show new selection
-    menuToggle = canvasElement.querySelector('.pf-v6-c-menu-toggle');
-    await expect(menuToggle).toHaveTextContent('API Services');
+      // Should update the toggle text to show new selection
+      const menuToggle = canvasElement.querySelector('.pf-v6-c-menu-toggle');
+      await expect(menuToggle).toHaveTextContent('API Services');
+    });
   },
 };
 
@@ -456,35 +459,35 @@ export const SearchIntegration: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify search integration', async () => {
+      // Wait for loading to complete
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
 
-    // Wait for loading to complete
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
+      // Click to expand
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
 
-    // Click to expand
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
+      // Wait for search input to appear (dropdown renders via portal)
+      const searchInput = await within(document.body).findByPlaceholderText('Find a workspace by name');
 
-    // Wait for search input to appear (dropdown renders via portal)
-    const searchInput = await within(document.body).findByPlaceholderText('Find a workspace by name');
+      // Type in search
+      await userEvent.type(searchInput, 'API');
 
-    // Type in search
-    await userEvent.type(searchInput, 'API');
+      // Should show filtered results - API Services matches, parent should be visible for context
+      await expect(within(document.body).findByText('Production Environment')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('API Services')).resolves.toBeInTheDocument();
 
-    // Should show filtered results - API Services matches, parent should be visible for context
-    await expect(within(document.body).findByText('Production Environment')).resolves.toBeInTheDocument();
-    await expect(within(document.body).findByText('API Services')).resolves.toBeInTheDocument();
-
-    // Other child nodes should NOT be visible since they don't match "API"
-    await waitFor(
-      async () => {
-        await expect(within(document.body).queryByText('Web Services')).not.toBeInTheDocument();
-        await expect(within(document.body).queryByText('Development Environment')).not.toBeInTheDocument();
-      },
-      { timeout: 2000 },
-    );
+      // Other child nodes should NOT be visible since they don't match "API"
+      await waitFor(
+        async () => {
+          await expect(within(document.body).queryByText('Web Services')).not.toBeInTheDocument();
+          await expect(within(document.body).queryByText('Development Environment')).not.toBeInTheDocument();
+        },
+        { timeout: 2000 },
+      );
+    });
   },
 };
 
@@ -500,19 +503,19 @@ export const EmptyWorkspaces: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify empty workspaces', async () => {
+      // Wait for loading to complete
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
 
-    // Wait for loading to complete
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
+      // Click to expand
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
 
-    // Click to expand
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
-
-    // Should show empty state message (dropdown renders via portal)
-    await expect(within(document.body).findByText('No workspaces to show.')).resolves.toBeInTheDocument();
+      // Should show empty state message (dropdown renders via portal)
+      await expect(within(document.body).findByText('No workspaces to show.')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -535,31 +538,31 @@ export const DuplicateWorkspaceNames: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify duplicate workspace names', async () => {
+      // Wait for loading to complete
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
 
-    // Wait for loading to complete
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
+      // Click to expand
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
 
-    // Click to expand
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
+      // Should show the root workspace (dropdown renders via portal)
+      await expect(within(document.body).findByText('Root Workspace')).resolves.toBeInTheDocument();
 
-    // Should show the root workspace (dropdown renders via portal)
-    await expect(within(document.body).findByText('Root Workspace')).resolves.toBeInTheDocument();
+      // Expand the root workspace to see duplicate children
+      const expandButton = document.body.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLButtonElement;
+      await userEvent.click(expandButton);
 
-    // Expand the root workspace to see duplicate children
-    const expandButton = document.body.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLButtonElement;
-    await userEvent.click(expandButton);
+      // Should show both duplicate workspaces
+      const duplicateWorkspaces = await within(document.body).findAllByText('Duplicate Workspace');
+      await expect(duplicateWorkspaces).toHaveLength(2);
 
-    // Should show both duplicate workspaces
-    const duplicateWorkspaces = await within(document.body).findAllByText('Duplicate Workspace');
-    await expect(duplicateWorkspaces).toHaveLength(2);
-
-    // Both should be visible and distinct elements
-    duplicateWorkspaces.forEach(async (element) => {
-      await expect(element).toBeInTheDocument();
+      // Both should be visible and distinct elements
+      duplicateWorkspaces.forEach(async (element) => {
+        await expect(element).toBeInTheDocument();
+      });
     });
   },
 };
@@ -593,19 +596,20 @@ This is the common use case for "choose where to create a new workspace" flows.`
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
-    await delay(300);
-    await openSelector(canvasElement);
-    await expandRootNode();
+  play: async ({ canvasElement, args, step }) => {
+    await step('Verify required permission create', async () => {
+      await openSelector(canvasElement);
+      await expandRootNode();
 
-    // Children should be visible but disabled
-    await expectDisabled('Web Services');
+      // Children should be visible but disabled
+      await expectDisabled('Web Services');
 
-    // Click disabled child – should NOT trigger onSelect
-    await clickAndExpectNoSelect('Web Services', args.onSelect as ReturnType<typeof fn>);
+      // Click disabled child – should NOT trigger onSelect
+      await clickAndExpectNoSelect('Web Services', args.onSelect as ReturnType<typeof fn>);
 
-    // Click root (has create permission) – SHOULD trigger onSelect
-    await clickAndExpectSelect('Production Environment', args.onSelect as ReturnType<typeof fn>, 'workspace-1', 'Production Environment');
+      // Click root (has create permission) – SHOULD trigger onSelect
+      await clickAndExpectSelect('Production Environment', args.onSelect as ReturnType<typeof fn>, 'workspace-1', 'Production Environment');
+    });
   },
 };
 
@@ -634,17 +638,18 @@ This scenario is useful for "choose a workspace to edit" flows.`,
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
-    await delay(300);
-    await openSelector(canvasElement);
-    await expandRootNode();
+  play: async ({ canvasElement, args, step }) => {
+    await step('Verify required permission edit', async () => {
+      await openSelector(canvasElement);
+      await expandRootNode();
 
-    // Web Services (has edit) – should be selectable
-    await clickAndExpectSelect('Web Services', args.onSelect as ReturnType<typeof fn>, 'workspace-2', 'Web Services');
-    (args.onSelect as ReturnType<typeof fn>).mockClear();
+      // Web Services (has edit) – should be selectable
+      await clickAndExpectSelect('Web Services', args.onSelect as ReturnType<typeof fn>, 'workspace-2', 'Web Services');
+      (args.onSelect as ReturnType<typeof fn>).mockClear();
 
-    // API Services (no edit) – should NOT be selectable
-    await clickAndExpectNoSelect('API Services', args.onSelect as ReturnType<typeof fn>);
+      // API Services (no edit) – should NOT be selectable
+      await clickAndExpectNoSelect('API Services', args.onSelect as ReturnType<typeof fn>);
+    });
   },
 };
 
@@ -674,7 +679,6 @@ This can happen for users with read-only access trying to select a workspace for
     },
   },
   play: async ({ canvasElement, args }) => {
-    await delay(300);
     await openSelector(canvasElement);
 
     // Root should be visible but disabled
@@ -700,7 +704,6 @@ This is the standard mode for read-only selection (e.g., "view workspace details
     },
   },
   play: async ({ canvasElement, args }) => {
-    await delay(300);
     await openSelector(canvasElement);
 
     // Root should be selectable
@@ -729,19 +732,19 @@ export const ApiError: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify API error', async () => {
+      // Wait for loading to complete with error
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
 
-    // Wait for loading to complete with error
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
+      // Click to expand
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
 
-    // Click to expand
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
-
-    // Should show error state
-    await expect(within(document.body).findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
+      // Should show error state
+      await expect(within(document.body).findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -758,19 +761,19 @@ export const ApiError400: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify API error 400', async () => {
+      // Wait for loading to complete with error
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
 
-    // Wait for loading to complete with error
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
+      // Click to expand
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
 
-    // Click to expand
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
-
-    // Should show error state
-    await expect(within(document.body).findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
+      // Should show error state
+      await expect(within(document.body).findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -786,19 +789,19 @@ export const ApiError403: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify API error 403', async () => {
+      // Wait for loading to complete with error
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
 
-    // Wait for loading to complete with error
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
+      // Click to expand
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
 
-    // Click to expand
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
-
-    // Should show error state
-    await expect(within(document.body).findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
+      // Should show error state
+      await expect(within(document.body).findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -814,18 +817,18 @@ export const ApiError500: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify API error 500', async () => {
+      // Wait for loading to complete with error
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
 
-    // Wait for loading to complete with error
-    await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
+      // Click to expand
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
 
-    // Click to expand
-    const toggle = await canvas.findByText('Select workspaces');
-    await userEvent.click(toggle);
-
-    // Should show error state
-    await expect(within(document.body).findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
+      // Should show error state
+      await expect(within(document.body).findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
+    });
   },
 };

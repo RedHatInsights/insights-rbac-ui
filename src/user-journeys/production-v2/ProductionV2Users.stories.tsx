@@ -1,5 +1,5 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { clearAndType, waitForContentReady } from '../../test-utils/interactionHelpers';
 import {
   Story,
   TEST_TIMEOUTS,
@@ -7,9 +7,9 @@ import {
   db,
   inviteUsersSpyV2,
   meta,
-  pollUntilTrue,
   resetStoryState,
   verifySuccessNotification,
+  waitForModal,
   waitForPageToLoad,
 } from './_v2OrgAdminSetup';
 
@@ -40,23 +40,34 @@ Tests the new Users and User Groups page functionality.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Verify Users tab is active
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    await pollUntilTrue(() => usersTab.getAttribute('aria-selected') === 'true');
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Switch to User Groups tab
-    const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
-    await user.click(groupsTab);
-    await pollUntilTrue(() => groupsTab.getAttribute('aria-selected') === 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Switch back to Users
-    await user.click(usersTab);
-    await pollUntilTrue(() => usersTab.getAttribute('aria-selected') === 'true');
+    await step('Verify Users tab active', async () => {
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      await waitFor(() => expect(usersTab).toHaveAttribute('aria-selected', 'true'));
+    });
+
+    await step('Switch to User Groups tab', async () => {
+      const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
+      await user.click(groupsTab);
+      await waitFor(() => expect(groupsTab).toHaveAttribute('aria-selected', 'true'));
+    });
+
+    await step('Switch back to Users tab', async () => {
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      await user.click(usersTab);
+      await waitFor(() => expect(usersTab).toHaveAttribute('aria-selected', 'true'));
+    });
   },
 };
 
@@ -104,87 +115,95 @@ Tests inviting new users to the organization from the V2 interface.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    inviteUsersSpyV2.mockClear();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
     const body = within(document.body);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for the V2 Users tab to load
-    await delay(500);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+      inviteUsersSpyV2.mockClear();
+    });
 
-    // Verify we're on the Users tab
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    expect(usersTab).toHaveAttribute('aria-selected', 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Wait for users to load
-    await waitForPageToLoad(canvas, USER_JOHN.username);
+    await step('Open Invite users modal', async () => {
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      expect(usersTab).toHaveAttribute('aria-selected', 'true');
 
-    // Open the Actions overflow menu, then click "Invite users"
-    const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
-    await user.click(actionsMenu);
-    await delay(300);
+      await waitForPageToLoad(canvas, USER_JOHN.username);
 
-    const inviteMenuItem = await body.findByRole('menuitem', { name: /invite users/i });
-    await user.click(inviteMenuItem);
-    await delay(500);
+      const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
+      await user.click(actionsMenu);
 
-    // Modal should open
-    await pollUntilTrue(() => !!document.querySelector('[role="dialog"]'));
-    const modal = document.querySelector('[role="dialog"]') as HTMLElement;
+      const inviteMenuItem = await body.findByRole('menuitem', { name: /invite users/i });
+      await user.click(inviteMenuItem);
 
-    const modalContent = within(modal);
+      const modalContent = await waitForModal();
+      await modalContent.findByRole('heading', { name: /invite new users/i });
+    });
 
-    // Wait for modal title (use heading role to avoid conflict with button text)
-    await modalContent.findByRole('heading', { name: /invite new users/i });
+    await step('Wait for invite modal', async () => {
+      await waitForModal({
+        timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH,
+        waitUntil: (dlg) => {
+          expect(dlg.queryByRole('textbox', { name: /enter the e-mail addresses/i })).toBeInTheDocument();
+          expect(dlg.queryByRole('textbox', { name: /send a message with the invite/i })).toBeInTheDocument();
+        },
+      });
+    });
 
-    // Fill in email addresses (required field)
-    const emailInput = await modalContent.findByRole('textbox', { name: /enter the e-mail addresses/i });
-    await user.type(emailInput, 'newuser1@example.com, newuser2@example.com');
-    await delay(300);
+    await step('Fill email addresses', async () => {
+      const modal = await waitForModal();
+      await clearAndType(
+        user,
+        () => modal.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement,
+        'newuser1@example.com, newuser2@example.com',
+      );
+    });
 
-    // Optionally add a message
-    const messageInput = await modalContent.findByRole('textbox', { name: /send a message with the invite/i });
-    await user.type(messageInput, 'Welcome to our organization!');
-    await delay(300);
+    await step('Fill message', async () => {
+      const modal = await waitForModal();
+      await clearAndType(
+        user,
+        () => modal.getByRole('textbox', { name: /send a message with the invite/i }) as HTMLTextAreaElement,
+        'Welcome to our organization!',
+      );
+    });
 
-    // Check the org admin checkbox
-    const orgAdminCheckbox = await modalContent.findByRole('checkbox', { name: /organization administrators/i });
-    await user.click(orgAdminCheckbox);
-    await delay(300);
+    await step('Check org admin and submit', async () => {
+      const modal = await waitForModal();
+      await waitFor(() => {
+        expect(modal.queryByRole('checkbox', { name: /organization administrators/i })).toBeInTheDocument();
+      });
+      const orgAdminCheckbox = modal.getByRole('checkbox', { name: /organization administrators/i });
+      await user.click(orgAdminCheckbox);
+      const submitButton = await modal.findByRole('button', { name: /invite new users/i });
+      await waitFor(() => expect(submitButton).toBeEnabled());
+      await user.click(submitButton);
+    });
 
-    // Submit the form
-    const submitButton = await modalContent.findByRole('button', { name: /invite new users/i });
-    await waitFor(() => expect(submitButton).toBeEnabled());
-    await user.click(submitButton);
-    await delay(500);
+    await step('Verify success notification and API spy', async () => {
+      await verifySuccessNotification();
 
-    // Verify success notification
-    await verifySuccessNotification();
+      await waitFor(
+        () => {
+          expect(inviteUsersSpyV2).toHaveBeenCalled();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
 
-    // CRITICAL: Verify API was called
-    await waitFor(
-      () => {
-        expect(inviteUsersSpyV2).toHaveBeenCalled();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+      const spyCall = inviteUsersSpyV2.mock.calls[0][0];
+      expect(spyCall).toBeDefined();
 
-    // Verify the API call details
-    const spyCall = inviteUsersSpyV2.mock.calls[0][0];
-    expect(spyCall).toBeDefined();
+      expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN_V2);
 
-    // CRITICAL: Verify the URL matches the exact expected format
-    // Should be: https://api.access.stage.redhat.com/account/v1/accounts/{accountId}/users/invite
-    // Should NOT be: https://api.access.stage.redhat.com/management/account/v1/...
-    expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN_V2);
+      expect(spyCall.emails).toContain('newuser1@example.com');
+      expect(spyCall.emails).toContain('newuser2@example.com');
 
-    // Verify correct data was sent
-    expect(spyCall.emails).toContain('newuser1@example.com');
-    expect(spyCall.emails).toContain('newuser2@example.com');
-
-    // Verify org admin role was included (checkbox was checked)
-    expect(spyCall.roles).toContain('organization_administrator');
+      expect(spyCall.roles).toContain('organization_administrator');
+    });
   },
 };

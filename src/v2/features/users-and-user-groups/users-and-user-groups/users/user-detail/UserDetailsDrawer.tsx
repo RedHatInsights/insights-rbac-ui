@@ -43,7 +43,7 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
   const intl = useIntl();
 
   return (
-    <DrawerPanelContent>
+    <DrawerPanelContent data-testid="detail-drawer-panel">
       <DrawerHead>
         <Title headingLevel="h2">
           <span tabIndex={focusedUser ? 0 : -1} ref={drawerRef}>

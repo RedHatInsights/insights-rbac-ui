@@ -1,7 +1,8 @@
-import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import type { UserEvent } from '@testing-library/user-event';
+import { expect, fn, userEvent, waitFor } from 'storybook/test';
+import { clearAndType, clickWizardNext, selectNthCheckbox, waitForModal, waitForModalClose } from '../../../../test-utils/interactionHelpers';
+import { type StepFn, TEST_TIMEOUTS, noopStep } from '../../../../test-utils/testUtils';
 
-// REUSABLE HELPER: Fill Add Group Wizard Form
-// Exported for composition in stories (e.g., AddGroupWizard.stories.tsx, AppEntry.stories.tsx)
 export interface GroupFormData {
   name: string;
   description?: string;
@@ -10,7 +11,6 @@ export interface GroupFormData {
   selectServiceAccounts?: boolean;
 }
 
-// API Spy Types - Define what each spy should receive as parameters
 export interface APISpies {
   groupCreationSpy?: ReturnType<typeof fn>;
   roleAssignmentSpy?: ReturnType<typeof fn>;
@@ -19,356 +19,147 @@ export interface APISpies {
 }
 
 /**
- * Helper function to fill out the Add Group Wizard form
- * EXPORTED for reuse/composition in E2E tests
+ * Fill out the Add Group Wizard form.
  *
- * @param data - Form data to fill
- * @param spies - Optional API spies for validation
- * @param waitForCompletion - If false, returns immediately after clicking submit (default: true for backward compatibility)
- * @param user - Optional custom userEvent instance (e.g., with delay configured). Defaults to userEvent.
+ * Each wizard page becomes a Storybook `step` when a `step` function is
+ * provided, making failures visible at field granularity in the
+ * Interactions panel.
  */
 export async function fillAddGroupWizardForm(
   data: GroupFormData,
   spies?: APISpies,
   waitForCompletion = true,
-  user: ReturnType<typeof userEvent.setup> | typeof userEvent = userEvent,
+  user: UserEvent = userEvent.setup(),
+  step: StepFn = noopStep,
 ): Promise<void> {
-  // Find the wizard dialog and scope all queries to it
-  const dialogElement = document.querySelector('[role="dialog"]');
-  expect(dialogElement).toBeInTheDocument();
-  const dialog = within(dialogElement as HTMLElement);
+  const dialog = await waitForModal();
 
-  // Helper to get the wizard's Next button (not pagination next) - scoped to dialog
-  const getWizardNextButton = () => {
-    const allNextButtons = dialog.queryAllByRole('button', { name: /next/i });
-    return allNextButtons.find((btn) => {
-      const isNotPagination = !btn.closest('.pf-v6-c-pagination');
-      const isEnabled = !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true';
-      return isNotPagination && isEnabled;
-    });
-  };
+  await step('Enter group name and description', async () => {
+    await clearAndType(user, () => document.getElementById('group-name') as HTMLInputElement, data.name);
 
-  // STEP 1: Fill name and description
-  const nameInput = document.getElementById('group-name') as HTMLInputElement;
-  expect(nameInput).toBeInTheDocument();
-
-  await user.clear(nameInput);
-  await user.type(nameInput, data.name);
-
-  if (data.description) {
-    const descriptionInput = document.getElementById('group-description');
-    if (descriptionInput) {
-      await user.clear(descriptionInput);
-      await user.type(descriptionInput, data.description);
+    if (data.description) {
+      await clearAndType(user, () => document.getElementById('group-description') as HTMLInputElement, data.description);
     }
-  }
 
-  // Wait for form validation to complete
-  await waitFor(() => {
-    expect(nameInput.value).toBe(data.name);
+    await waitFor(() => expect((document.getElementById('group-name') as HTMLInputElement).value).toBe(data.name));
+    await clickWizardNext(user, dialog, { timeout: 15000 });
   });
 
-  // Navigate to next step - wait for button to be enabled
-  const nextButton1 = await waitFor(
-    () => {
-      const button = getWizardNextButton();
-      expect(button).toBeInTheDocument();
-      expect(button).toBeEnabled();
-      return button!;
-    },
-    { timeout: 15000 },
-  ); // Extended timeout for async validation
-
-  await user.click(nextButton1);
-
-  // STEP 2: Handle Roles step (if not in workspaces mode)
-  let currentStepHasRoles = false;
-  try {
-    await waitFor(
-      () => {
-        const rolesContent = dialog.queryAllByText(/add roles|select roles/i)[0] || dialog.queryByText(/role/i);
-        if (rolesContent) {
-          currentStepHasRoles = true;
-          expect(rolesContent).toBeInTheDocument();
-        }
-      },
-      { timeout: 3000 },
-    );
-  } catch {
-    // No roles step - probably workspaces mode
-  }
-
-  if (currentStepHasRoles && data.selectRoles) {
-    // Wait for roles to load and click the first role checkbox
-    await waitFor(
-      () => {
-        const roleCheckboxes = dialog.queryAllByRole('checkbox');
-        expect(roleCheckboxes.length).toBeGreaterThan(1);
-      },
-      { timeout: 8000 },
-    );
-
-    // Get fresh reference and click
-    const roleCheckboxes = dialog.getAllByRole('checkbox');
-    await user.click(roleCheckboxes[1]); // Select first role
-
-    // Wait for checkbox to actually be checked (re-query to avoid stale references)
-    await waitFor(
-      () => {
-        const updatedCheckboxes = dialog.getAllByRole('checkbox');
-        expect(updatedCheckboxes[1]).toBeChecked();
-      },
-      { timeout: 2000 },
-    );
-
-    // Navigate to next step
-    const nextButton2 = await waitFor(
-      () => {
-        const button = getWizardNextButton();
-        expect(button).toBeInTheDocument();
-        return button!;
-      },
-      { timeout: 5000 },
-    );
-
-    await user.click(nextButton2);
-  } else if (currentStepHasRoles) {
-    // Skip roles selection but still navigate
-    const nextButton2 = await waitFor(
-      () => {
-        const button = getWizardNextButton();
-        expect(button).toBeInTheDocument();
-        return button!;
-      },
-      { timeout: 5000 },
-    );
-
-    await user.click(nextButton2);
-  }
-
-  // STEP 3: Handle Members/Users step
-  await waitFor(
-    () => {
-      const membersContent = dialog.queryAllByText(/add members|add users|select users/i)[0] || dialog.queryByText(/member|user/i);
-      expect(membersContent).toBeTruthy();
-    },
-    { timeout: 5000 },
-  );
-
-  if (data.selectUsers) {
-    // Wait for users to load
-    await waitFor(
-      () => {
-        const userCheckboxes = dialog.queryAllByRole('checkbox');
-        expect(userCheckboxes.length).toBeGreaterThan(1);
-      },
-      { timeout: 8000 },
-    );
-
-    // Get fresh reference and click
-    const userCheckboxes = dialog.getAllByRole('checkbox');
-    await user.click(userCheckboxes[1]); // Select first user
-
-    // Wait for checkbox to actually be checked (re-query to avoid stale references)
-    await waitFor(
-      () => {
-        const updatedCheckboxes = dialog.getAllByRole('checkbox');
-        expect(updatedCheckboxes[1]).toBeChecked();
-      },
-      { timeout: 2000 },
-    );
-  }
-
-  // Try to navigate to next step (could be service accounts or review)
-  const nextButton3 = await waitFor(
-    () => {
-      const button = getWizardNextButton();
-      expect(button).toBeInTheDocument();
-      return button!;
-    },
-    { timeout: 5000 },
-  );
-
-  await user.click(nextButton3);
-
-  // STEP 4: Handle Service Accounts step (optional)
-  let hasServiceAccountsStep = false;
-  try {
-    await waitFor(
-      () => {
-        const serviceAccountsContent = dialog.queryAllByText(/service account/i)[0];
-        if (serviceAccountsContent) {
-          hasServiceAccountsStep = true;
-          expect(serviceAccountsContent).toBeInTheDocument();
-        }
-      },
-      { timeout: 3000 },
-    );
-  } catch {
-    // No service accounts step - go to review
-  }
-
-  if (hasServiceAccountsStep) {
-    if (data.selectServiceAccounts) {
-      // Wait for service accounts to load
+  // Roles step is optional — some wizards skip it
+  let hasRolesStep = false;
+  await step('Select roles', async () => {
+    try {
       await waitFor(
         () => {
-          const saCheckboxes = dialog.queryAllByRole('checkbox');
-          expect(saCheckboxes.length).toBeGreaterThan(1);
+          const content = dialog.queryAllByText(/add roles|select roles/i)[0] || dialog.queryByText(/role/i);
+          expect(content).toBeInTheDocument();
         },
-        { timeout: 8000 },
+        { timeout: 3000 },
       );
-
-      // Get fresh reference and click
-      const saCheckboxes = dialog.getAllByRole('checkbox');
-      await user.click(saCheckboxes[1]); // Select first service account
-
-      // Wait for checkbox to actually be checked (re-query to avoid stale references)
-      await waitFor(
-        () => {
-          const updatedCheckboxes = dialog.getAllByRole('checkbox');
-          expect(updatedCheckboxes[1]).toBeChecked();
-        },
-        { timeout: 2000 },
-      );
+      hasRolesStep = true;
+    } catch {
+      return;
     }
 
-    // Navigate to review step
-    const nextButton4 = await waitFor(
+    if (data.selectRoles) {
+      await selectNthCheckbox(user, dialog, 0, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    }
+    await clickWizardNext(user, dialog);
+  });
+
+  await step('Select members', async () => {
+    if (!hasRolesStep) return;
+    await waitFor(
       () => {
-        const button = getWizardNextButton();
-        expect(button).toBeInTheDocument();
-        return button!;
+        const content = dialog.queryAllByText(/add members|add users|select users/i)[0] || dialog.queryByText(/member|user/i);
+        expect(content).toBeTruthy();
       },
-      { timeout: 5000 },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
     );
 
-    await user.click(nextButton4);
-  }
+    if (data.selectUsers) {
+      await selectNthCheckbox(user, dialog, 0, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    }
+    await clickWizardNext(user, dialog);
+  });
 
-  // FINAL STEP: Verify we reached Review step
-  await waitFor(
-    () => {
-      const reviewHeading = dialog.queryAllByText(/review/i)[0];
-      expect(reviewHeading).toBeInTheDocument();
-    },
-    { timeout: 8000 },
-  );
-
-  // Verify the review shows the data we entered
-  await waitFor(
-    () => {
-      // Group name should be visible in review
-      expect(dialog.getByText(data.name)).toBeInTheDocument();
-
-      // Description should be visible if provided
-      if (data.description) {
-        expect(dialog.getByText(data.description)).toBeInTheDocument();
-      }
-
-      // Verify specific items that were selected (not just section headers)
-      if (data.selectRoles) {
-        // We selected roleCheckboxes[1] which is "Console Administrator"
-        expect(dialog.getByText('Console Administrator')).toBeInTheDocument();
-      }
-
-      if (data.selectUsers) {
-        // We selected userCheckboxes[1] which is "alice.johnson"
-        expect(dialog.getByText('alice.johnson')).toBeInTheDocument();
-      }
-
-      if (data.selectServiceAccounts) {
-        // We selected saCheckboxes[1] which is "ci-pipeline-prod"
-        expect(dialog.getByText('ci-pipeline-prod')).toBeInTheDocument();
-      }
-    },
-    { timeout: 5000 },
-  );
-
-  // Click the Create/Submit button
-  const createButton = await waitFor(
-    () => {
-      const buttons = dialog.queryAllByRole('button');
-      const submitBtn = buttons.find(
-        (btn) =>
-          /create|submit|finish|add.*group/i.test(btn.textContent || '') &&
-          !btn.hasAttribute('disabled') &&
-          btn.getAttribute('aria-disabled') !== 'true',
+  // Service accounts step is optional
+  await step('Select service accounts', async () => {
+    let hasStep = false;
+    try {
+      await waitFor(
+        () => {
+          const content = dialog.queryAllByText(/service account/i)[0];
+          if (content) {
+            hasStep = true;
+            expect(content).toBeInTheDocument();
+          }
+        },
+        { timeout: 3000 },
       );
-      expect(submitBtn).toBeTruthy();
-      return submitBtn!;
-    },
-    { timeout: 5000 },
-  );
+    } catch {
+      return;
+    }
 
-  await user.click(createButton);
+    if (!hasStep) return;
 
-  // If waitForCompletion is false, return immediately after submission
-  if (!waitForCompletion) {
-    return;
-  }
+    if (data.selectServiceAccounts) {
+      await selectNthCheckbox(user, dialog, 0, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    }
+    await clickWizardNext(user, dialog);
+  });
 
-  // VALIDATION: Use spies if provided, otherwise use UI indicators
-  if (spies) {
+  await step('Review and submit', async () => {
     await waitFor(
       () => {
-        // Build expected group data to match actual form submission
-        // Note: The rbac-client API sends only name and description in the create call.
-        // Users and roles are added via separate API calls after group creation.
-        const expectedGroupData: Record<string, unknown> = {
-          name: data.name,
-          description: data.description,
-        };
-
-        // Verify that the group creation API was called with the correct data
-        expect(spies.groupCreationSpy).toHaveBeenCalledWith(expectedGroupData);
-
-        // If roles were selected, verify role assignment API was called with EXACT data from HAR file
-        if (data.selectRoles && spies.roleAssignmentSpy) {
-          expect(spies.roleAssignmentSpy).toHaveBeenCalledWith('new-group-uuid', {
-            roles: ['role-1'],
-          });
-        }
-
-        // If users were selected, verify principal assignment API was called with correct format
-        if (data.selectUsers && spies.principalAssignmentSpy) {
-          expect(spies.principalAssignmentSpy).toHaveBeenCalledWith('new-group-uuid', {
-            principals: [{ username: 'alice.johnson' }], // No clientId or type for users
-          });
-        }
-
-        // TODO: Add service account validation once the form integration is stabilized
-        // Note: Service accounts work in the real application, but need more complex test setup
-
-        return true;
+        expect(dialog.queryAllByText(/review/i)[0]).toBeInTheDocument();
       },
-      { timeout: 10000 },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
     );
-  } else {
-    // Fallback to UI success indicators when no spies provided
-    await waitFor(
-      () => {
-        const successNotification =
-          document.querySelector('.pf-v6-c-alert--success') ||
-          document.querySelector('.notifications-portal') ||
-          dialog.queryByText(/success/i) ||
-          dialog.queryByText(/created successfully/i) ||
-          dialog.queryByText(/group.*created/i);
 
-        const backToGroupsList = dialog.queryByText('Groups') && !document.querySelector('[data-ouia-component-id="add-group-wizard"]');
+    await waitFor(() => {
+      expect(dialog.getByText(data.name)).toBeInTheDocument();
+      if (data.description) expect(dialog.getByText(data.description)).toBeInTheDocument();
+    });
 
-        const wizardClosed = !document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-
-        const hasSuccessIndicator = successNotification || backToGroupsList || wizardClosed;
-
-        if (hasSuccessIndicator) {
-          expect(hasSuccessIndicator).toBeTruthy();
-          return true;
-        }
-
-        throw new Error('Waiting for form submission to complete...');
-      },
-      { timeout: 10000 },
+    const buttons = dialog.queryAllByRole('button');
+    const submitBtn = buttons.find(
+      (btn: HTMLElement) =>
+        /create|submit|finish|add.*group/i.test(btn.textContent || '') &&
+        !btn.hasAttribute('disabled') &&
+        btn.getAttribute('aria-disabled') !== 'true',
     );
-  }
+    expect(submitBtn).toBeTruthy();
+    await user.click(submitBtn!);
+  });
+
+  if (!waitForCompletion) return;
+
+  await step('Verify API calls', async () => {
+    if (spies) {
+      await waitFor(
+        () => {
+          expect(spies.groupCreationSpy).toHaveBeenCalledWith({
+            name: data.name,
+            description: data.description,
+          });
+
+          if (data.selectRoles && spies.roleAssignmentSpy) {
+            expect(spies.roleAssignmentSpy).toHaveBeenCalledWith('new-group-uuid', {
+              roles: ['role-1'],
+            });
+          }
+
+          if (data.selectUsers && spies.principalAssignmentSpy) {
+            expect(spies.principalAssignmentSpy).toHaveBeenCalledWith('new-group-uuid', {
+              principals: [{ username: 'alice.johnson' }],
+            });
+          }
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    } else {
+      await waitForModalClose({ timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    }
+  });
 }
