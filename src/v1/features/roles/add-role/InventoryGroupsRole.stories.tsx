@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
@@ -101,23 +100,23 @@ Renders the InventoryGroupsRole component with \`inventory:hosts:read\` and \`in
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.findByText(/hosts:read/)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/groups:read/)).resolves.toBeInTheDocument();
+    await step('Verify permissions and dropdown options', async () => {
+      await expect(canvas.findByText(/hosts:read/)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/groups:read/)).resolves.toBeInTheDocument();
 
-    const toggles = await canvas.findAllByRole('combobox');
-    await expect(toggles.length).toBe(2);
+      const toggles = await canvas.findAllByRole('combobox');
+      await expect(toggles.length).toBe(2);
 
-    await userEvent.click(toggles[0]);
-    await delay(300);
+      await userEvent.click(toggles[0]);
 
-    const body = within(document.body);
-    await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
-    await expect(body.findByText(FIXTURE_GROUP_2.name)).resolves.toBeInTheDocument();
-    await expect(body.findByText(/select all/i)).resolves.toBeInTheDocument();
+      const body = within(document.body);
+      await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
+      await expect(body.findByText(FIXTURE_GROUP_2.name)).resolves.toBeInTheDocument();
+      await expect(body.findByText(/select all/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -128,20 +127,20 @@ export const WithHostsPermission: Story = {
   args: {
     inventoryPermissions: [HOSTS_READ_PERMISSION],
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.findByText(/hosts:read/)).resolves.toBeInTheDocument();
+    await step('Verify hosts permission and ungrouped systems option', async () => {
+      await expect(canvas.findByText(/hosts:read/)).resolves.toBeInTheDocument();
 
-    const toggle = await canvas.findByRole('combobox');
-    await userEvent.click(toggle);
-    await delay(300);
+      const toggle = await canvas.findByRole('combobox');
+      await userEvent.click(toggle);
 
-    const body = within(document.body);
-    await expect(body.findByText(/ungrouped systems/i)).resolves.toBeInTheDocument();
-    await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
-    await expect(body.findByText(FIXTURE_GROUP_2.name)).resolves.toBeInTheDocument();
+      const body = within(document.body);
+      await expect(body.findByText(/ungrouped systems/i)).resolves.toBeInTheDocument();
+      await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
+      await expect(body.findByText(FIXTURE_GROUP_2.name)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -152,21 +151,21 @@ export const WithGroupsPermission: Story = {
   args: {
     inventoryPermissions: [GROUPS_READ_PERMISSION],
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.findByText(/groups:read/)).resolves.toBeInTheDocument();
+    await step('Verify groups permission without ungrouped systems', async () => {
+      await expect(canvas.findByText(/groups:read/)).resolves.toBeInTheDocument();
 
-    const toggle = await canvas.findByRole('combobox');
-    await userEvent.click(toggle);
-    await delay(300);
+      const toggle = await canvas.findByRole('combobox');
+      await userEvent.click(toggle);
 
-    const body = within(document.body);
-    await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
+      const body = within(document.body);
+      await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
 
-    const ungrouped = body.queryByText(/ungrouped systems/i);
-    await expect(ungrouped).not.toBeInTheDocument();
+      const ungrouped = body.queryByText(/ungrouped systems/i);
+      await expect(ungrouped).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -177,23 +176,22 @@ export const TypeaheadFiltering: Story = {
   args: {
     inventoryPermissions: [HOSTS_READ_PERMISSION],
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    const toggle = await canvas.findByRole('combobox');
-    await userEvent.click(toggle);
-    await delay(300);
+    await step('Verify typeahead filtering', async () => {
+      const toggle = await canvas.findByRole('combobox');
+      await userEvent.click(toggle);
 
-    const body = within(document.body);
-    await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
-    await expect(body.findByText(FIXTURE_GROUP_2.name)).resolves.toBeInTheDocument();
+      const body = within(document.body);
+      await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
+      await expect(body.findByText(FIXTURE_GROUP_2.name)).resolves.toBeInTheDocument();
 
-    await userEvent.type(toggle, 'RHEL');
-    await delay(100);
+      await userEvent.type(toggle, 'RHEL');
 
-    await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
-    await expect(body.queryByText(FIXTURE_GROUP_2.name)).not.toBeInTheDocument();
+      await expect(body.findByText(FIXTURE_GROUP_1.name)).resolves.toBeInTheDocument();
+      await expect(body.queryByText(FIXTURE_GROUP_2.name)).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -204,30 +202,29 @@ export const SelectAndDeselect: Story = {
   args: {
     inventoryPermissions: [HOSTS_READ_PERMISSION],
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    const toggle = await canvas.findByRole('combobox');
-    await userEvent.click(toggle);
-    await delay(300);
+    await step('Select and deselect group', async () => {
+      const toggle = await canvas.findByRole('combobox');
+      await userEvent.click(toggle);
 
-    const body = within(document.body);
-    const option = await body.findByText(FIXTURE_GROUP_1.name);
-    await userEvent.click(option);
+      const body = within(document.body);
+      const option = await body.findByText(FIXTURE_GROUP_1.name);
+      await userEvent.click(option);
 
-    await waitFor(async () => {
-      await expect(canvas.findByText('selected')).resolves.toBeInTheDocument();
-    });
+      await waitFor(async () => {
+        await expect(canvas.findByText('selected')).resolves.toBeInTheDocument();
+      });
 
-    await userEvent.click(toggle);
-    await delay(300);
+      await userEvent.click(toggle);
 
-    const optionAgain = await body.findByText(FIXTURE_GROUP_1.name);
-    await userEvent.click(optionAgain);
+      const optionAgain = await body.findByText(FIXTURE_GROUP_1.name);
+      await userEvent.click(optionAgain);
 
-    await waitFor(async () => {
-      await expect(canvas.queryByText('selected')).not.toBeInTheDocument();
+      await waitFor(async () => {
+        await expect(canvas.queryByText('selected')).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -241,7 +238,6 @@ export const CopyToAll: Story = {
     inventoryPermissions: [HOSTS_READ_PERMISSION, HOSTS_WRITE_PERMISSION, GROUPS_READ_PERMISSION],
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
     const body = within(document.body);
 
@@ -250,18 +246,15 @@ export const CopyToAll: Story = {
 
     // Select "Ungrouped systems" + first fixture group in the first dropdown (hosts:read)
     await userEvent.click(toggles[0]);
-    await delay(300);
 
     const ungroupedOption = await body.findByText(/ungrouped systems/i);
     await userEvent.click(ungroupedOption);
-    await delay(100);
 
     const groupOption = await body.findByText(FIXTURE_GROUP_1.name);
     await userEvent.click(groupOption);
 
     // Close the dropdown
     await userEvent.click(toggles[0]);
-    await delay(100);
 
     // First row should show a "selected" chip — only one row has selections so far
     const chipsBeforeCopy = canvas.getAllByText('selected');
@@ -270,7 +263,6 @@ export const CopyToAll: Story = {
     // Click "Copy to all"
     const copyBtn = await canvas.findByText(/copy to all/i);
     await userEvent.click(copyBtn);
-    await delay(100);
 
     // All three rows should now show a "selected" chip
     await waitFor(() => {
@@ -311,12 +303,10 @@ export const LargeDataset: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     const toggle = await canvas.findByRole('combobox');
     await userEvent.click(toggle);
-    await delay(300);
 
     const body = within(document.body);
     await expect(body.findByText(LARGE_GROUPS[0].name)).resolves.toBeInTheDocument();
@@ -340,15 +330,15 @@ export const Loading: Story = {
       handlers: [...createInventoryHandlers([], [], { networkDelay: 999999 })],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(100);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    const toggle = await canvas.findByRole('combobox');
-    await userEvent.click(toggle);
-    await delay(100);
+    await step('Verify loading state', async () => {
+      const toggle = await canvas.findByRole('combobox');
+      await userEvent.click(toggle);
 
-    const body = within(document.body);
-    await expect(body.findByRole('progressbar')).resolves.toBeInTheDocument();
+      const body = within(document.body);
+      await expect(body.findByRole('progressbar')).resolves.toBeInTheDocument();
+    });
   },
 };

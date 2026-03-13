@@ -117,19 +117,17 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify default header', async () => {
+      const titleElements = canvas.getAllByText('Production Environment');
+      await expect(titleElements.length).toBe(3);
 
-    // Verify workspace title is displayed (title, page breadcrumb, hierarchy breadcrumb)
-    const titleElements = canvas.getAllByText('Production Environment');
-    await expect(titleElements.length).toBe(3);
+      await expect(canvas.findByText('Main production workspace for critical services and applications')).resolves.toBeInTheDocument();
 
-    // Verify description is displayed
-    await expect(canvas.findByText('Main production workspace for critical services and applications')).resolves.toBeInTheDocument();
-
-    // Verify action menu is present (kebab menu button)
-    const actionButton = await canvas.findByRole('button', { name: /workspace actions|actions|menu/i });
-    await expect(actionButton).toBeInTheDocument();
+      const actionButton = await canvas.findByRole('button', { name: /workspace actions|actions|menu/i });
+      await expect(actionButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -308,21 +306,18 @@ export const WithChildContextAlert: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify child context alert', async () => {
+      const titleElements = canvas.getAllByText('Production Environment');
+      await expect(titleElements.length).toBeGreaterThanOrEqual(2);
 
-    // Verify workspace title is displayed (should appear multiple times: title, breadcrumb, alert)
-    const titleElements = canvas.getAllByText('Production Environment');
-    await expect(titleElements.length).toBeGreaterThanOrEqual(2);
+      const alertMessage = await canvas.findByText(/You are viewing role bindings inherited by Web Services from Production Environment/i);
+      await expect(alertMessage).toBeInTheDocument();
 
-    // Verify the alert message is displayed when navigating from child workspace
-    // Find by the alert message text first, which is more reliable
-    const alertMessage = await canvas.findByText(/You are viewing role bindings inherited by Web Services from Production Environment/i);
-    await expect(alertMessage).toBeInTheDocument();
-
-    // Verify the alert element exists with the correct role
-    const alert = alertMessage.closest('[role="alert"]');
-    await expect(alert).toBeInTheDocument();
+      const alert = alertMessage.closest('[role="alert"]');
+      await expect(alert).toBeInTheDocument();
+    });
   },
 };
 

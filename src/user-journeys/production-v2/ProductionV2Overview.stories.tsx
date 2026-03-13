@@ -1,6 +1,6 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
-import { Story, TEST_TIMEOUTS, db, meta, resetStoryState } from './_v2OrgAdminSetup';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
+import { Story, db, meta, resetStoryState } from './_v2OrgAdminSetup';
 
 export default { ...meta, title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin/Overview', tags: ['prod-v2-org-admin'] };
 
@@ -23,34 +23,37 @@ Tests the Overview page content and link navigation.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const headings = await canvas.findAllByRole('heading', { name: /user access/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    expect(headings.length).toBeGreaterThan(0);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await waitFor(
-      () => {
-        const rolesBtn = canvas.getByRole('button', { name: /view roles/i });
-        expect(rolesBtn).toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+    await step('Verify overview page content', async () => {
+      const headings = await canvas.findAllByRole('heading', { name: /user access/i });
+      expect(headings.length).toBeGreaterThan(0);
 
-    const viewGroupsButton = canvas.getByRole('button', { name: /view groups/i });
-    expect(viewGroupsButton).toBeInTheDocument();
+      const viewRolesButton = await canvas.findByRole('button', { name: /view roles/i });
+      expect(viewRolesButton).toBeInTheDocument();
 
-    const viewRolesButton = canvas.getByRole('button', { name: /view roles/i });
-    await user.click(viewRolesButton);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+      const viewGroupsButton = await canvas.findByRole('button', { name: /view groups/i });
+      expect(viewGroupsButton).toBeInTheDocument();
+    });
 
-    await waitFor(() => {
-      const addressBar = canvas.getByTestId('fake-address-bar');
-      expect(addressBar).toHaveTextContent(/roles/);
+    await step('Click View roles and verify navigation', async () => {
+      const viewRolesButton = await canvas.findByRole('button', { name: /view roles/i });
+      await user.click(viewRolesButton);
+
+      await waitFor(() => {
+        const addressBar = canvas.getByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/roles/);
+      });
     });
   },
 };

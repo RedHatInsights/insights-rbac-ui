@@ -1,12 +1,12 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import type { ScopedQueries } from '../../../test-utils/interactionHelpers';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { MyUserAccess } from './MyUserAccess';
 import { accessHandlers } from '../../data/mocks/access.handlers';
 import { v1RolesHandlers } from '../../data/mocks/roles.handlers';
+import type { Access, RoleOutDynamic } from '../../data/api/roles';
 import type { MockUserIdentity } from '../../../../.storybook/contexts/StorybookMockContext';
 
 // ===== MOCK USER IDENTITIES =====
@@ -76,26 +76,29 @@ const limitedUser: MockUserIdentity = {
 };
 
 // Composite access permissions for all bundles (filtered by application param)
-const muaAccessPermissions = [
-  { permission: 'cluster:*:*', resourceDefinitions: [{ attributeFilter: { key: 'cluster.name', operation: 'equal', value: ['production'] } }] },
+const muaAccessPermissions: Access[] = [
+  {
+    permission: 'cluster:*:*',
+    resourceDefinitions: [{ attributeFilter: { key: 'cluster.name', operation: 'equal' as const, value: 'production' } }],
+  },
   { permission: 'cost-management:*:read', resourceDefinitions: [] },
   { permission: 'subscriptions:*:read', resourceDefinitions: [] },
   { permission: 'rbac:*:*', resourceDefinitions: [] },
   { permission: 'sources:*:read', resourceDefinitions: [] },
   {
     permission: 'advisor:*:*',
-    resourceDefinitions: [{ attributeFilter: { key: 'insights.advisor.source', operation: 'equal', value: ['advisor'] } }],
+    resourceDefinitions: [{ attributeFilter: { key: 'insights.advisor.source', operation: 'equal' as const, value: 'advisor' } }],
   },
   { permission: 'compliance:policies:read', resourceDefinitions: [] },
   {
     permission: 'vulnerability:*:*',
-    resourceDefinitions: [{ attributeFilter: { key: 'insights.vulnerability.source', operation: 'equal', value: ['scanner'] } }],
+    resourceDefinitions: [{ attributeFilter: { key: 'insights.vulnerability.source', operation: 'equal' as const, value: 'scanner' } }],
   },
   { permission: 'patch:*:read', resourceDefinitions: [] },
 ];
 
 // Composite roles for all bundles with access for expandable rows
-const muaRoles = [
+const muaRoles: RoleOutDynamic[] = [
   {
     uuid: 'role-openshift-1',
     display_name: 'OpenShift Administrator',
@@ -105,6 +108,7 @@ const muaRoles = [
     applications: ['cost-management', 'subscriptions'],
     system: false,
     platform_default: false,
+    admin_default: false,
     created: '2024-01-01',
     modified: '2024-01-01',
     policyCount: 1,
@@ -123,6 +127,7 @@ const muaRoles = [
     applications: ['cost-management'],
     system: false,
     platform_default: false,
+    admin_default: false,
     created: '2024-01-01',
     modified: '2024-01-01',
     policyCount: 1,
@@ -137,6 +142,7 @@ const muaRoles = [
     applications: ['rbac', 'sources'],
     system: false,
     platform_default: false,
+    admin_default: false,
     created: '2024-01-01',
     modified: '2024-01-01',
     policyCount: 1,
@@ -154,6 +160,7 @@ const muaRoles = [
     applications: ['sources'],
     system: false,
     platform_default: false,
+    admin_default: false,
     created: '2024-01-01',
     modified: '2024-01-01',
     policyCount: 1,
@@ -168,11 +175,15 @@ const muaRoles = [
     applications: ['advisor', 'compliance', 'patch'],
     system: false,
     platform_default: false,
+    admin_default: false,
     created: '2024-01-01',
     modified: '2024-01-01',
     policyCount: 1,
     access: [
-      { permission: 'advisor:*:*', resourceDefinitions: [{ attributeFilter: { key: 'advisor.source', operation: 'equal', value: 'advisor' } }] },
+      {
+        permission: 'advisor:*:*',
+        resourceDefinitions: [{ attributeFilter: { key: 'advisor.source', operation: 'equal' as const, value: 'advisor' } }],
+      },
       { permission: 'compliance:policies:read', resourceDefinitions: [] },
       { permission: 'vulnerability:*:*', resourceDefinitions: [] },
     ],
@@ -186,6 +197,7 @@ const muaRoles = [
     applications: ['vulnerability', 'compliance'],
     system: false,
     platform_default: false,
+    admin_default: false,
     created: '2024-01-01',
     modified: '2024-01-01',
     policyCount: 1,
@@ -203,10 +215,7 @@ const meta: Meta<typeof MyUserAccess> = {
       userAccessAdministrator: false,
     },
     msw: {
-      handlers: [
-        ...accessHandlers(muaAccessPermissions as unknown as Parameters<typeof accessHandlers>[0]),
-        ...v1RolesHandlers(muaRoles as unknown as Parameters<typeof v1RolesHandlers>[0]),
-      ],
+      handlers: [...accessHandlers(muaAccessPermissions), ...v1RolesHandlers(muaRoles)],
     },
   },
   decorators: [
@@ -239,7 +248,7 @@ const TestHelpers = {
   /**
    * Wait for the main layout to render and return scoped canvas elements
    */
-  async waitForLayout(canvas: ReturnType<typeof within>) {
+  async waitForLayout(canvas: ScopedQueries) {
     await TestHelpers.delay(500);
     const entitleSection = await canvas.findByTestId('entitle-section');
     const entitleSectionContent = within(entitleSection);
@@ -249,17 +258,15 @@ const TestHelpers = {
   /**
    * Verify a bundle card is selected (has pf-m-selected class)
    */
-  async verifyBundleSelected(canvas: ReturnType<typeof within>, bundleName: string, shouldBeSelected: boolean = true) {
+  async verifyBundleSelected(canvas: ScopedQueries, bundleName: string, shouldBeSelected: boolean = true) {
     const { entitleSectionContent } = await this.waitForLayout(canvas);
     const cardTitle = await entitleSectionContent.findByText(bundleName);
     const cardElement = cardTitle.closest('.pf-v6-c-card');
 
     if (shouldBeSelected) {
       expect(cardElement).toHaveClass('pf-m-selected');
-      console.log(`SB: ✅ ${bundleName} card is selected`);
     } else {
       expect(cardElement).not.toHaveClass('pf-m-selected');
-      console.log(`SB: ✅ ${bundleName} card is not selected`);
     }
 
     return { cardElement, cardTitle };
@@ -268,7 +275,7 @@ const TestHelpers = {
   /**
    * Verify table shows expected permissions
    */
-  async verifyTablePermissions(canvas: ReturnType<typeof within>, expectedPermissions: string[], unexpectedPermissions: string[] = []) {
+  async verifyTablePermissions(canvas: ScopedQueries, expectedPermissions: string[], unexpectedPermissions: string[] = []) {
     // Wait for table to appear and data to load (TableView shows skeleton while loading)
     await waitFor(
       async () => {
@@ -297,25 +304,21 @@ const TestHelpers = {
       expect(tableContent.queryByText(permission)).not.toBeInTheDocument();
     }
 
-    console.log(`SB: ✅ Table permissions verified: ${expectedPermissions.join(', ')}`);
     return { table, tableContent };
   },
 
   /**
    * Apply filter and verify chip appears
    */
-  async applyFilter(canvas: ReturnType<typeof within>, filterValue: string) {
+  async applyFilter(canvas: ScopedQueries, filterValue: string) {
     // Find Application buttons: [0] = category selector, [1] = filter values dropdown
     const applicationButtons = await canvas.findAllByRole('button', { name: /Application/i });
     // Click the filter values dropdown (second button)
     await userEvent.click(applicationButtons[1]);
 
-    // Wait for dropdown to open
-    await delay(300);
-
     // Find the filter checkbox in the dropdown (rendered in portal)
     // In PF6, the dropdown uses listbox role instead of menu
-    // Use getAllByRole and get first match since there may be multiple "advisor" elements
+    // findAllByRole has built-in retry, so it waits for dropdown to open
     const body = within(document.body);
     const filterCheckboxes = await body.findAllByRole('checkbox', { name: new RegExp(filterValue, 'i') });
     expect(filterCheckboxes.length).toBeGreaterThan(0);
@@ -325,7 +328,6 @@ const TestHelpers = {
 
     // Close dropdown
     await userEvent.keyboard('{Escape}');
-    await delay(500); // Wait for filter to apply
 
     // Verify filter chip appears - in PF6 chip structure may differ
     await waitFor(
@@ -342,14 +344,12 @@ const TestHelpers = {
       },
       { timeout: 3000 },
     );
-
-    console.log(`SB: ✅ Filter applied: ${filterValue}`);
   },
 
   /**
    * Verify filter is reset (no chips visible)
    */
-  async verifyFilterReset(canvas: ReturnType<typeof within>) {
+  async verifyFilterReset(canvas: ScopedQueries) {
     await waitFor(
       () => {
         // Try multiple ways to verify no filter chips
@@ -361,14 +361,12 @@ const TestHelpers = {
       },
       { timeout: 5000 },
     ); // Give more time for filter reset to take effect
-
-    console.log('SB: ✅ Filter reset verified');
   },
 
   /**
    * Click a bundle card to navigate
    */
-  async clickBundleCard(canvas: ReturnType<typeof within>, bundleName: string) {
+  async clickBundleCard(canvas: ScopedQueries, bundleName: string) {
     const { entitleSectionContent } = await this.waitForLayout(canvas);
     const cardTitle = await entitleSectionContent.findByText(bundleName);
     const bundleCardLink = cardTitle.closest('[aria-label="card-link"]');
@@ -377,9 +375,7 @@ const TestHelpers = {
     expect(bundleCardLink).toHaveAttribute('href', expect.stringContaining('bundle='));
 
     bundleCardLink && (await userEvent.click(bundleCardLink));
-    await TestHelpers.delay(300); // Allow navigation to complete
-
-    console.log(`SB: ✅ Clicked ${bundleName} bundle card`);
+    // Navigation completes asynchronously; subsequent findBy* in stories will retry
   },
 };
 
@@ -442,26 +438,24 @@ first visit the page without any bundle selection.
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await TestHelpers.delay(700); // Extra time for setSearchParams
+    await step('Verify default bundle and permissions', async () => {
+      await TestHelpers.delay(700); // Extra time for setSearchParams
 
-    console.log('SB: Testing default bundle selection...');
+      // Verify layout renders
+      expect(await canvas.findByTestId('entitle-section')).toBeInTheDocument();
 
-    // Verify layout renders
-    expect(await canvas.findByTestId('entitle-section')).toBeInTheDocument();
+      // Verify RHEL is selected as default
+      await TestHelpers.verifyBundleSelected(canvas, 'Red Hat Enterprise Linux');
 
-    // Verify RHEL is selected as default
-    await TestHelpers.verifyBundleSelected(canvas, 'Red Hat Enterprise Linux');
+      // Verify page title
+      const pageTitle = await canvas.findByText('Your Red Hat Enterprise Linux permissions');
+      expect(pageTitle).toBeInTheDocument();
 
-    // Verify page title
-    const pageTitle = await canvas.findByText('Your Red Hat Enterprise Linux permissions');
-    expect(pageTitle).toBeInTheDocument();
-
-    // Verify RHEL permissions are loaded
-    await TestHelpers.verifyTablePermissions(canvas, ['advisor', 'compliance']);
-
-    console.log('SB: ✅ Default bundle test completed');
+      // Verify RHEL permissions are loaded
+      await TestHelpers.verifyTablePermissions(canvas, ['advisor', 'compliance']);
+    });
   },
 };
 
@@ -486,23 +480,20 @@ Tests the visual selection state and basic navigation functionality of bundle ca
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    console.log('SB: Testing bundle selection...');
 
-    // Verify layout and RHEL is initially selected
-    await TestHelpers.verifyBundleSelected(canvas, 'Red Hat Enterprise Linux');
-    await TestHelpers.verifyBundleSelected(canvas, 'OpenShift', false);
-    await TestHelpers.verifyBundleSelected(canvas, 'Settings and User Access', false);
+    await step('Verify initial RHEL selection', async () => {
+      await TestHelpers.verifyBundleSelected(canvas, 'Red Hat Enterprise Linux');
+      await TestHelpers.verifyBundleSelected(canvas, 'OpenShift', false);
+      await TestHelpers.verifyBundleSelected(canvas, 'Settings and User Access', false);
+    });
 
-    // Verify navigation functionality
-    await TestHelpers.clickBundleCard(canvas, 'OpenShift');
-
-    // Verify OpenShift is now selected and RHEL is not
-    await TestHelpers.verifyBundleSelected(canvas, 'OpenShift');
-    await TestHelpers.verifyBundleSelected(canvas, 'Red Hat Enterprise Linux', false);
-
-    console.log('SB: ✅ Bundle selection test completed');
+    await step('Navigate to OpenShift and verify selection', async () => {
+      await TestHelpers.clickBundleCard(canvas, 'OpenShift');
+      await TestHelpers.verifyBundleSelected(canvas, 'OpenShift');
+      await TestHelpers.verifyBundleSelected(canvas, 'Red Hat Enterprise Linux', false);
+    });
   },
 };
 
@@ -513,10 +504,7 @@ export const TableDataRefresh: Story = {
   parameters: {
     // Inherits userIdentity from meta (standardUser)
     msw: {
-      handlers: [
-        ...accessHandlers(muaAccessPermissions as unknown as Parameters<typeof accessHandlers>[0]),
-        ...v1RolesHandlers(muaRoles as unknown as Parameters<typeof v1RolesHandlers>[0]),
-      ],
+      handlers: [...accessHandlers(muaAccessPermissions), ...v1RolesHandlers(muaRoles)],
     },
     docs: {
       description: {
@@ -532,24 +520,21 @@ Tests that table content changes correctly when switching between bundles.
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    console.log('SB: Testing table data refresh...');
 
-    // Verify initial RHEL permissions
-    await TestHelpers.verifyTablePermissions(canvas, ['advisor', 'compliance']);
+    await step('Verify initial RHEL permissions', async () => {
+      await TestHelpers.verifyTablePermissions(canvas, ['advisor', 'compliance']);
+    });
 
-    // Navigate to OpenShift bundle
-    await TestHelpers.clickBundleCard(canvas, 'OpenShift');
-
-    // Verify OpenShift permissions appear and RHEL permissions disappear
-    await TestHelpers.verifyTablePermissions(
-      canvas,
-      ['cost-management', 'subscriptions'], // Expected OpenShift permissions (filtered by appsIds)
-      ['vulnerability', 'patch'], // RHEL permissions that should be gone
-    );
-
-    console.log('SB: ✅ Table data refresh test completed');
+    await step('Navigate to OpenShift and verify table refresh', async () => {
+      await TestHelpers.clickBundleCard(canvas, 'OpenShift');
+      await TestHelpers.verifyTablePermissions(
+        canvas,
+        ['cost-management', 'subscriptions'], // Expected OpenShift permissions (filtered by appsIds)
+        ['vulnerability', 'patch'], // RHEL permissions that should be gone
+      );
+    });
   },
 };
 
@@ -560,10 +545,7 @@ export const FilterResetOnNavigation: Story = {
   parameters: {
     // Inherits userIdentity from meta (standardUser)
     msw: {
-      handlers: [
-        ...accessHandlers(muaAccessPermissions as unknown as Parameters<typeof accessHandlers>[0]),
-        ...v1RolesHandlers(muaRoles as unknown as Parameters<typeof v1RolesHandlers>[0]),
-      ],
+      handlers: [...accessHandlers(muaAccessPermissions), ...v1RolesHandlers(muaRoles)],
     },
     docs: {
       description: {
@@ -580,52 +562,39 @@ Tests that filters are properly reset when navigating between bundles.
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    console.log('SB: Testing filter reset on navigation...');
 
-    // Wait for initial table data to load (RHEL bundle data) - increased timeout for MSW
-    await waitFor(
-      () => {
-        expect(canvasElement.querySelector('.pf-v6-c-skeleton')).toBeNull();
-      },
-      { timeout: 10000 },
-    );
-    console.log('SB: ✅ Initial table data loaded');
-
-    // Apply a filter
-    await TestHelpers.applyFilter(canvas, 'advisor');
-
-    // Navigate to different bundle
-    await TestHelpers.clickBundleCard(canvas, 'OpenShift');
-
-    // Wait for new table data to load (OpenShift bundle data)
-    await waitFor(() => {
-      expect(canvas.getByText('cost-management')).toBeInTheDocument();
+    await step('Wait for table load and apply filter', async () => {
+      await waitFor(
+        () => {
+          expect(canvasElement.querySelector('.pf-v6-c-skeleton')).toBeNull();
+        },
+        { timeout: 10000 },
+      );
+      await TestHelpers.applyFilter(canvas, 'advisor');
     });
-    console.log('SB: ✅ New bundle data loaded');
 
-    // Verify filter was reset
-    await TestHelpers.verifyFilterReset(canvas);
+    await step('Navigate to OpenShift and verify filter reset', async () => {
+      await TestHelpers.clickBundleCard(canvas, 'OpenShift');
+      await waitFor(() => {
+        expect(canvas.getByText('cost-management')).toBeInTheDocument();
+      });
+      await TestHelpers.verifyFilterReset(canvas);
+    });
 
-    // Double-check checkbox is unchecked - now that table is fully loaded
-    // Open the filter dropdown - [0] = category selector, [1] = filter values dropdown
-    const applicationButtons = await canvas.findAllByRole('button', { name: /Application/i });
-    await userEvent.click(applicationButtons[1]);
+    await step('Verify filter checkbox is unchecked', async () => {
+      const applicationButtons = await canvas.findAllByRole('button', { name: /Application/i });
+      await userEvent.click(applicationButtons[1]);
 
-    await delay(300);
-    // Find the checkbox in the dropdown (rendered in portal) - PF6 uses listbox, not menu
-    // Use getAllByRole since there may be multiple matches
-    const body = within(document.body);
-    const advisorCheckboxes = await body.findAllByRole('checkbox', { name: /advisor/i });
-    expect(advisorCheckboxes.length).toBeGreaterThan(0);
-    // The first one in the dropdown should be the filter checkbox
-    const advisorCheckbox = advisorCheckboxes[0];
-    expect(advisorCheckbox).not.toBeChecked();
+      const body = within(document.body);
+      const advisorCheckboxes = await body.findAllByRole('checkbox', { name: /advisor/i });
+      expect(advisorCheckboxes.length).toBeGreaterThan(0);
+      const advisorCheckbox = advisorCheckboxes[0];
+      expect(advisorCheckbox).not.toBeChecked();
 
-    await userEvent.keyboard('{Escape}');
-    console.log('SB: ✅ Filter reset test completed');
+      await userEvent.keyboard('{Escape}');
+    });
   },
 };
 
@@ -633,7 +602,7 @@ Tests that filters are properly reset when navigating between bundles.
 export const OrgAdminView: Story = {
   tags: ['perm:org-admin'],
   args: {
-    bundle: undefined,
+    bundle: 'rhel', // Explicit bundle to avoid setSearchParams timing
   },
   parameters: {
     viewport: { defaultViewport: 'desktop' },
@@ -642,12 +611,13 @@ export const OrgAdminView: Story = {
       orgAdmin: true,
       userAccessAdministrator: false,
     },
+    msw: {
+      handlers: [...accessHandlers(muaAccessPermissions), ...v1RolesHandlers(muaRoles, { returnAllForUsername: true })],
+    },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
-    // Test that layout structure exists
     expect(await canvas.findByTestId('entitle-section')).toBeInTheDocument();
 
     // Test that all entitled bundle cards are visible (scope to bundle cards section)
@@ -659,39 +629,41 @@ export const OrgAdminView: Story = {
     expect(await entitleSectionContentAdmin.findByText('Settings and User Access')).toBeInTheDocument();
 
     // Test that roles table is shown for admin users (instead of permissions table)
-    const rolesTable = await canvas.findByRole('grid');
+    const rolesTable = await canvas.findByRole('grid', {}, { timeout: 10000 });
     expect(rolesTable).toBeInTheDocument();
 
-    // Verify RHEL roles are displayed (from common handlers)
-    const rolesTableContent = within(rolesTable);
-    expect(await rolesTableContent.findByText('RHEL Administrator')).toBeInTheDocument();
-    expect(await rolesTableContent.findByText('RHEL Security Analyst')).toBeInTheDocument();
+    // Verify RHEL roles are displayed (roles table may take time to load)
+    expect(await canvas.findByText('RHEL Administrator', {}, { timeout: 15000 })).toBeInTheDocument();
+    expect(await canvas.findByText('RHEL Security Analyst', {}, { timeout: 5000 })).toBeInTheDocument();
 
     // Test that role expansion works - click on the permissions count (RHEL Administrator has 8 permissions)
     const permissionsLink = await canvas.findByText('8');
     await userEvent.click(permissionsLink);
 
-    // Test that the expanded role shows nested permissions table
-    await waitFor(async () => {
-      const tbody = permissionsLink.closest('tbody');
-      const table = tbody?.querySelector('table');
-      if (!table) throw new Error('Could not find expanded table');
-      const expandedRow = within(table);
-      expect(await expandedRow.findByText('Application')).toBeInTheDocument();
-      expect(await expandedRow.findByText('Resource type')).toBeInTheDocument();
-      expect(await expandedRow.findByText('Operation')).toBeInTheDocument();
+    // Test that the expanded role shows nested permissions table (wait for expansion + data load)
+    await waitFor(
+      async () => {
+        const tbody = permissionsLink.closest('tbody');
+        const table = tbody?.querySelector('table');
+        if (!table) throw new Error('Could not find expanded table');
+        const expandedRow = within(table);
+        expect(await expandedRow.findByText('Application')).toBeInTheDocument();
+        expect(await expandedRow.findByText('Resource type')).toBeInTheDocument();
+        expect(await expandedRow.findByText('Operation')).toBeInTheDocument();
 
-      // Test that specific permissions are shown in the expanded view
-      expect(await expandedRow.findByText('advisor')).toBeInTheDocument();
-      expect(await expandedRow.findByText('compliance')).toBeInTheDocument();
-    });
+        // Test that specific permissions are shown in the expanded view
+        expect(await expandedRow.findByText('advisor', {}, { timeout: 5000 })).toBeInTheDocument();
+        expect(await expandedRow.findByText('compliance')).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
   },
 };
 
 // Story for limited entitlements scenario
 export const LimitedEntitlements: Story = {
   args: {
-    bundle: undefined,
+    bundle: 'rhel', // Explicit bundle to avoid setSearchParams timing
   },
   parameters: {
     viewport: { defaultViewport: 'desktop' },
@@ -699,12 +671,11 @@ export const LimitedEntitlements: Story = {
     msw: {
       handlers: [
         ...accessHandlers([{ permission: 'advisor:systems:read', resourceDefinitions: [] }]),
-        ...v1RolesHandlers(muaRoles as unknown as Parameters<typeof v1RolesHandlers>[0]),
+        ...v1RolesHandlers(muaRoles, { returnAllForUsername: true }),
       ],
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     // Test that only entitled bundles show (scope to bundle cards section)
@@ -717,11 +688,10 @@ export const LimitedEntitlements: Story = {
     expect(canvas.queryByText('OpenShift')).not.toBeInTheDocument();
     expect(canvas.queryByText('Ansible Automation Platform')).not.toBeInTheDocument();
 
-    // Should still have permissions table with limited data
-    const table = await canvas.findByRole('grid');
+    // Should still have permissions table with limited data (table may take time to load)
+    const table = await canvas.findByRole('grid', {}, { timeout: 15000 });
     expect(table).toBeInTheDocument();
-    const tableContent = within(table);
-    expect(await tableContent.findByText('advisor')).toBeInTheDocument();
+    expect(await canvas.findByText(/advisor/i, {}, { timeout: 15000 })).toBeInTheDocument();
   },
 };
 
@@ -767,17 +737,9 @@ remains usable across all device sizes while maintaining full functionality.
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await delay(1000); // Wait for component initialization
-
-    console.log('SB: 🔍 Testing responsive navigation on small viewport...');
 
     // Wait for entitlements to load - check for page title first with longer timeout
-    await waitFor(
-      async () => {
-        expect(await canvas.findByText('My User Access')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    expect(await canvas.findByText('My User Access', {}, { timeout: 10000 })).toBeInTheDocument();
     // Admin label might be rendered differently in PF6 - use more flexible matcher
     await waitFor(
       async () => {

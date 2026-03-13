@@ -1,9 +1,10 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { HttpResponse, delay, http } from 'msw';
+import { HttpResponse, http } from 'msw';
 import { fillAddGroupRolesModal } from '../../v1/features/groups/AddGroupRoles.helpers';
 import { removeSelectedRolesFromGroup } from '../../v1/features/groups/RemoveGroupRoles.helpers';
 import { createV1MockDb } from '../../v1/data/mocks/db';
 import { createV1Handlers } from '../../v1/data/mocks/handlers';
+import { clickTab, confirmDestructiveModal, waitForContentReady, waitForModal } from '../../test-utils/interactionHelpers';
 import {
   DEFAULT_GROUPS,
   DEFAULT_USERS,
@@ -115,108 +116,61 @@ Tests the full flow of copying "Default access" group when adding a role for the
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(v1Db);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_SYSTEM_DEFAULT.name);
-
-    const groupLink = canvas.getByRole('link', { name: GROUP_SYSTEM_DEFAULT.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: GROUP_SYSTEM_DEFAULT.name })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
     });
 
-    const rolesTab = canvas.getByRole('tab', { name: /roles/i });
-    await user.click(rolesTab);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    const addRoleBtn = await waitFor(
-      () => {
-        const btn = canvas.getByRole('button', { name: /add role/i });
-        expect(btn).toBeEnabled();
-        return btn;
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-    await user.click(addRoleBtn);
-
-    await fillAddGroupRolesModal(user, GROUP_SYSTEM_DEFAULT.name, 1);
-
-    let warningModal: HTMLElement | null = null;
-    await waitFor(
-      () => {
-        const modalContainer = document.getElementById('storybook-modals') || document.body;
-        const allDialogs = Array.from(modalContainer.querySelectorAll('[role="dialog"]'));
-        warningModal = (allDialogs.find((dialog) => dialog.getAttribute('data-ouia-component-id') === 'WarningModal') as HTMLElement) || null;
-        expect(warningModal).not.toBeNull();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    const modalContent = within(warningModal!);
-
-    const confirmCheckbox = await waitFor(
-      () => {
-        const checkbox = modalContent.getByLabelText(/I understand, and I want to continue/i);
-        expect(checkbox).toBeInTheDocument();
-        return checkbox;
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    await user.click(confirmCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    const continueButton = await waitFor(
-      () => {
-        const modalContainer = document.getElementById('storybook-modals') || document.body;
-        const button = modalContainer.querySelector('[data-ouia-component-id="WarningModal-confirm-button"]') as HTMLElement;
-        expect(button).toBeInTheDocument();
-        expect(button).toBeEnabled();
-        return button;
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    await user.click(continueButton);
-
-    await waitFor(() => {
-      const modalContainer = document.getElementById('storybook-modals') || document.body;
-      const warningModals = modalContainer.querySelectorAll('[data-ouia-component-id="WarningModal"]');
-      expect(warningModals.length).toBe(0);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    await waitFor(() => {
-      expect(canvas.getByRole('heading', { name: /Custom default access/i })).toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_SYSTEM_DEFAULT.name);
     });
 
-    await waitFor(() => {
-      const alert = canvas.getByText(/Default access group has changed/i);
-      expect(alert).toBeInTheDocument();
+    await step('Open default access group detail page', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_SYSTEM_DEFAULT.name });
+      await user.click(groupLink);
+      await canvas.findByRole('heading', { name: GROUP_SYSTEM_DEFAULT.name });
+      await clickTab(user, canvas, /roles/i);
     });
 
-    const breadcrumbs = canvas.getByLabelText('Breadcrumb');
-    const groupsBreadcrumb = within(breadcrumbs).getByRole('link', { name: 'Groups' });
-    await user.click(groupsBreadcrumb);
-
-    await waitForPageToLoad(canvas, GROUP_PLATFORM_ADMINS.name);
-
-    const regularGroupLink = canvas.getByRole('link', { name: GROUP_PLATFORM_ADMINS.name });
-    await user.click(regularGroupLink);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: /Platform Admins/i })).toBeInTheDocument();
+    await step('Open add role modal and add role', async () => {
+      const addRoleBtn = await canvas.findByRole('button', { name: /add role/i }, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
+      await waitFor(() => expect(addRoleBtn).toBeEnabled());
+      await user.click(addRoleBtn);
+      await fillAddGroupRolesModal(user, GROUP_SYSTEM_DEFAULT.name, 1, step);
     });
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    const alertOnRegularGroup = canvas.queryByText(/Default access group has changed/i);
-    expect(alertOnRegularGroup).not.toBeInTheDocument();
+    await step('Confirm copy in modal', async () => {
+      await confirmDestructiveModal(user, { buttonText: /continue/i });
+      await waitFor(() => {
+        expect(within(document.body).queryByRole('dialog')).toBeNull();
+      });
+    });
+
+    await step('Verify group becomes Custom default access', async () => {
+      // Content appears after API mutation (copy default group)
+      await canvas.findByRole('heading', { name: /Custom default access/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await canvas.findByText(/Default access group has changed/i);
+    });
+
+    await step('Navigate to regular group and verify no alert', async () => {
+      const breadcrumbs = await canvas.findByLabelText('Breadcrumb');
+      const groupsBreadcrumb = within(breadcrumbs).getByRole('link', { name: 'Groups' });
+      await user.click(groupsBreadcrumb);
+      await waitForPageToLoad(canvas, GROUP_PLATFORM_ADMINS.name);
+      const regularGroupLink = await canvas.findByRole('link', { name: GROUP_PLATFORM_ADMINS.name });
+      await user.click(regularGroupLink);
+      await canvas.findByRole('heading', { name: /Platform Admins/i });
+      const alertOnRegularGroup = canvas.queryByText(/Default access group has changed/i);
+      expect(alertOnRegularGroup).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -246,47 +200,43 @@ Tests that modifying an already-copied "Custom default access" group does NOT sh
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(modifyAlreadyCopiedDb);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, 'Custom default access');
-
-    const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: /Custom default access/i })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(modifyAlreadyCopiedDb);
     });
 
-    const rolesTab = canvas.getByRole('tab', { name: /roles/i });
-    await user.click(rolesTab);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const addRoleBtn = await waitFor(
-      () => {
-        const btn = canvas.getByRole('button', { name: /add role/i });
-        expect(btn).toBeEnabled();
-        return btn;
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-    await user.click(addRoleBtn);
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, 'Custom default access');
+    });
 
-    await fillAddGroupRolesModal(user, 'Custom default access', 1);
+    await step('Open Custom default access group detail page', async () => {
+      const groupLink = await canvas.findByRole('link', { name: 'Custom default access' });
+      await user.click(groupLink);
+      await canvas.findByRole('heading', { name: /Custom default access/i });
+      await clickTab(user, canvas, /roles/i);
+    });
 
-    await verifySuccessNotification();
+    await step('Add role without confirmation modal', async () => {
+      const addRoleBtn = await canvas.findByRole('button', { name: /add role/i }, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
+      await waitFor(() => expect(addRoleBtn).toBeEnabled());
+      await user.click(addRoleBtn);
+      await fillAddGroupRolesModal(user, 'Custom default access', 1, step);
+    });
 
-    const modalContainer = document.getElementById('storybook-modals') || document.body;
-    const wModal = modalContainer.querySelector('[data-ouia-component-id="WarningModal"]');
-    expect(wModal).toBeNull();
-
-    await waitFor(async () => {
-      const alert = canvas.queryByText(/Default access group has changed/i);
-      await expect(alert).toBeInTheDocument();
+    await step('Verify success and alert', async () => {
+      await verifySuccessNotification();
+      await waitFor(() => {
+        expect(within(document.body).queryByRole('dialog')).toBeNull();
+      });
+      await canvas.findByText(/Default access group has changed/i);
     });
   },
 };
@@ -313,47 +263,41 @@ Tests that REMOVING roles from an already-copied "Custom default access" group d
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(removeRolesFromCopiedDb);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, 'Custom default access');
-
-    const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: /Custom default access/i })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(removeRolesFromCopiedDb);
     });
 
-    const rolesTab = canvas.getByRole('tab', { name: /roles/i });
-    await user.click(rolesTab);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(async () => {
-      await expect(canvas.getByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    const roleCheckbox = canvas.getByRole('checkbox', { name: /select row 0/i });
-    await user.click(roleCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, 'Custom default access');
+    });
 
-    await removeSelectedRolesFromGroup(user, canvas, false);
+    await step('Open Custom default access group and Roles tab', async () => {
+      const groupLink = await canvas.findByRole('link', { name: 'Custom default access' });
+      await user.click(groupLink);
+      await canvas.findByRole('heading', { name: /Custom default access/i });
+      await clickTab(user, canvas, /roles/i);
+    });
 
-    const warningModal = await within(document.body).findByRole('dialog', {}, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
-    expect(warningModal).toBeInTheDocument();
+    await step('Select role and remove', async () => {
+      await canvas.findByText(V1_ROLE_ADMIN.name);
+      const roleCheckbox = await canvas.findByRole('checkbox', { name: /select row 0/i });
+      await user.click(roleCheckbox);
+      await removeSelectedRolesFromGroup(user, canvas, false);
+      await confirmDestructiveModal(user, { buttonText: /remove/i });
+    });
 
-    const confirmationCheckbox = within(warningModal).queryByRole('checkbox');
-    expect(confirmationCheckbox).toBeNull();
-
-    const confirmButton = within(warningModal).getByRole('button', { name: /remove/i });
-    await user.click(confirmButton);
-
-    await verifySuccessNotification();
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
   },
 };
 
@@ -454,85 +398,51 @@ default group back to its original system-managed state.
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(restoreDefaultGroupDb);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, 'Custom default access');
-
-    const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: /Custom default access/i })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(restoreDefaultGroupDb);
     });
 
-    const restoreLink = await waitFor(
-      () => {
-        const link = canvas.getByRole('button', { name: /restore to default/i });
-        expect(link).toBeInTheDocument();
-        return link;
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    await user.click(restoreLink);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    let restoreWarningModal: HTMLElement | null = null;
-    await waitFor(
-      () => {
-        const modalContainer = document.getElementById('storybook-modals') || document.body;
-        const allDialogs = Array.from(modalContainer.querySelectorAll('[role="dialog"]'));
-        restoreWarningModal =
-          (allDialogs.find((dialog) => {
-            const dialogContent = dialog.textContent || '';
-            return dialogContent.includes('Restore Default access group');
-          }) as HTMLElement) || null;
-        expect(restoreWarningModal).not.toBeNull();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    const modalContent = within(restoreWarningModal!);
-    expect(modalContent.getByText(/Restore Default access group/i)).toBeInTheDocument();
-    expect(restoreWarningModal!.textContent).toContain('Restoring Default access group');
-    expect(restoreWarningModal!.textContent).toContain('Custom default access group');
-
-    const continueButton = await waitFor(
-      () => {
-        const btn = modalContent.getByRole('button', { name: /continue/i });
-        expect(btn).toBeInTheDocument();
-        expect(btn).toBeEnabled();
-        return btn;
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
-
-    await user.click(continueButton);
-
-    await waitFor(() => {
-      const modalContainer = document.getElementById('storybook-modals') || document.body;
-      const restoreModals = modalContainer.querySelectorAll('[role="dialog"]');
-      expect(restoreModals.length).toBe(0);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    await waitFor(() => {
-      const heading = canvas.queryByRole('heading', { name: /^Default access$/i });
-      expect(heading).toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, 'Custom default access');
     });
 
-    await waitFor(() => {
-      const restoreLinkAfter = canvas.queryByRole('button', { name: /restore to default/i });
-      expect(restoreLinkAfter).not.toBeInTheDocument();
+    await step('Open Custom default access group detail page', async () => {
+      const groupLink = await canvas.findByRole('link', { name: 'Custom default access' });
+      await user.click(groupLink);
+      await canvas.findByRole('heading', { name: /Custom default access/i });
     });
 
-    const alert = canvas.queryByText(/Default access group has changed/i);
-    expect(alert).not.toBeInTheDocument();
+    await step('Click restore to default', async () => {
+      const restoreLink = await canvas.findByRole('button', { name: /restore to default/i }, { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
+      await user.click(restoreLink);
+      const modal = await waitForModal();
+      await modal.findByText(/Restore Default access group/i);
+      await modal.findByText(/Restoring/i);
+    });
+
+    await step('Confirm restore', async () => {
+      await confirmDestructiveModal(user, { buttonText: /continue/i });
+      await waitFor(() => {
+        expect(within(document.body).queryByRole('dialog')).toBeNull();
+      });
+    });
+
+    await step('Verify group restored and no alert', async () => {
+      // Content appears after API mutation (restore)
+      await canvas.findByRole('heading', { name: /^Default access$/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      expect(canvas.queryByRole('button', { name: /restore to default/i })).not.toBeInTheDocument();
+      const alert = canvas.queryByText(/Default access group has changed/i);
+      expect(alert).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -551,33 +461,35 @@ instead of a table, with the message about all org admins being members.
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(v1Db);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_ADMIN_DEFAULT.name);
-
-    const groupLink = canvas.getByRole('link', { name: GROUP_ADMIN_DEFAULT.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(() => {
-      expect(canvas.getByRole('heading', { name: /Default admin access/i })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
     });
 
-    const membersTab = canvas.getByRole('tab', { name: /members/i });
-    await user.click(membersTab);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(() => {
-      expect(canvas.getByText(/All organization administrators in this organization are members of this group/i)).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    const table = canvas.queryByRole('table');
-    expect(table).not.toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_ADMIN_DEFAULT.name);
+    });
+
+    await step('Open Default admin access group and Members tab', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_ADMIN_DEFAULT.name });
+      await user.click(groupLink);
+      await canvas.findByRole('heading', { name: /Default admin access/i });
+      await clickTab(user, canvas, /members/i);
+    });
+
+    await step('Verify special card and no table', async () => {
+      await canvas.findByText(/All organization administrators in this organization are members of this group/i);
+      const table = canvas.queryByRole('table');
+      expect(table).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -596,36 +508,37 @@ message about all users being members (not admin-specific message).
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(v1Db);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_SYSTEM_DEFAULT.name);
-
-    const groupLink = canvas.getByRole('link', { name: GROUP_SYSTEM_DEFAULT.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(() => {
-      expect(canvas.getByRole('heading', { name: /^Default access$/i })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
     });
 
-    const membersTab = canvas.getByRole('tab', { name: /members/i });
-    await user.click(membersTab);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(() => {
-      expect(canvas.getByText(/all users in this organization are members of this group/i)).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    const table = canvas.queryByRole('table');
-    expect(table).not.toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_SYSTEM_DEFAULT.name);
+    });
 
-    const adminMessage = canvas.queryByText(/All organization administrators in this organization are members of this group/i);
-    expect(adminMessage).not.toBeInTheDocument();
+    await step('Open Default access group and Members tab', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_SYSTEM_DEFAULT.name });
+      await user.click(groupLink);
+      await canvas.findByRole('heading', { name: /^Default access$/i });
+      await clickTab(user, canvas, /members/i);
+    });
+
+    await step('Verify special card and no table', async () => {
+      await canvas.findByText(/all users in this organization are members of this group/i);
+      const table = canvas.queryByRole('table');
+      expect(table).not.toBeInTheDocument();
+      const adminMessage = canvas.queryByText(/All organization administrators in this organization are members of this group/i);
+      expect(adminMessage).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -644,35 +557,37 @@ message about service accounts not being automatically included for security rea
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(v1Db);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_ADMIN_DEFAULT.name);
-
-    const groupLink = canvas.getByRole('link', { name: GROUP_ADMIN_DEFAULT.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(() => {
-      expect(canvas.getByRole('heading', { name: /Default admin access/i })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
     });
 
-    const serviceAccountsTab = canvas.getByRole('tab', { name: /service accounts/i });
-    await user.click(serviceAccountsTab);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(() => {
-      expect(
-        canvas.getByText(/In adherence to security guidelines, service accounts are not automatically included in the default admin access group/i),
-      ).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    const table = canvas.queryByRole('table');
-    expect(table).not.toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_ADMIN_DEFAULT.name);
+    });
+
+    await step('Open Default admin access group and Service Accounts tab', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_ADMIN_DEFAULT.name });
+      await user.click(groupLink);
+      await canvas.findByRole('heading', { name: /Default admin access/i });
+      await clickTab(user, canvas, /service accounts/i);
+    });
+
+    await step('Verify special message and no table', async () => {
+      await canvas.findByText(
+        /In adherence to security guidelines, service accounts are not automatically included in the default admin access group/i,
+      );
+      const table = canvas.queryByRole('table');
+      expect(table).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -691,34 +606,34 @@ message about service accounts not being automatically included for security rea
       },
     },
   },
-  play: async (context) => {
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await resetStoryState(v1Db);
-
-    await navigateToPage(user, canvas, 'Groups');
-    await waitForPageToLoad(canvas, GROUP_SYSTEM_DEFAULT.name);
-
-    const groupLink = canvas.getByRole('link', { name: GROUP_SYSTEM_DEFAULT.name });
-    await user.click(groupLink);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(() => {
-      expect(canvas.getByRole('heading', { name: /^Default access$/i })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
     });
 
-    const serviceAccountsTab = canvas.getByRole('tab', { name: /service accounts/i });
-    await user.click(serviceAccountsTab);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await waitFor(() => {
-      expect(
-        canvas.getByText(/In adherence to security guidelines, service accounts are not automatically included in the default access group/i),
-      ).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    const table = canvas.queryByRole('table');
-    expect(table).not.toBeInTheDocument();
+    await step('Navigate to Groups page', async () => {
+      await navigateToPage(user, canvas, 'Groups');
+      await waitForPageToLoad(canvas, GROUP_SYSTEM_DEFAULT.name);
+    });
+
+    await step('Open Default access group and Service Accounts tab', async () => {
+      const groupLink = await canvas.findByRole('link', { name: GROUP_SYSTEM_DEFAULT.name });
+      await user.click(groupLink);
+      await canvas.findByRole('heading', { name: /^Default access$/i });
+      await clickTab(user, canvas, /service accounts/i);
+    });
+
+    await step('Verify special message and no table', async () => {
+      await canvas.findByText(/In adherence to security guidelines, service accounts are not automatically included in the default access group/i);
+      const table = canvas.queryByRole('table');
+      expect(table).not.toBeInTheDocument();
+    });
   },
 };

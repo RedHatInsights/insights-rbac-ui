@@ -87,37 +87,47 @@ type Story = StoryObj<typeof AddGroupServiceAccounts>;
 
 export const Default: Story = {
   tags: ['autodocs'],
-  play: async () => {
-    const modal = await screen.findByRole('dialog');
-    const modalContent = within(modal);
+  play: async ({ step }) => {
+    await step('Verify modal and service account list', async () => {
+      const modal = await screen.findByRole('dialog');
+      const modalContent = within(modal);
 
-    await expect(modalContent.findByText(/add service account/i)).resolves.toBeInTheDocument();
+      await expect(modalContent.findByText(/add service account/i)).resolves.toBeInTheDocument();
 
-    const addToGroupButton = await modalContent.findByRole('button', { name: /add to group/i });
-    await expect(addToGroupButton).toBeDisabled();
+      const addToGroupButton = await modalContent.findByRole('button', { name: /add to group/i });
+      await expect(addToGroupButton).toBeDisabled();
 
-    await expect(modalContent.findByText(storyServiceAccounts[0].name)).resolves.toBeInTheDocument();
+      await expect(modalContent.findByText(storyServiceAccounts[0].name)).resolves.toBeInTheDocument();
+    });
 
-    const table = await modalContent.findByRole('grid');
-    const checkboxes = within(table).getAllByRole('checkbox');
-    await userEvent.click(checkboxes[1]);
+    await step('Select service account and verify Add button enabled', async () => {
+      const modal = await screen.findByRole('dialog');
+      const modalContent = within(modal);
+      const addToGroupButton = await modalContent.findByRole('button', { name: /add to group/i });
 
-    await waitFor(async () => {
-      await expect(addToGroupButton).toBeEnabled();
+      const table = await modalContent.findByRole('grid');
+      const checkboxes = within(table).getAllByRole('checkbox');
+      await userEvent.click(checkboxes[1]);
+
+      await waitFor(async () => {
+        await expect(addToGroupButton).toBeEnabled();
+      });
     });
   },
 };
 
 export const CancelClosesModal: Story = {
-  play: async () => {
-    const modal = await screen.findByRole('dialog');
-    const modalContent = within(modal);
+  play: async ({ step }) => {
+    await step('Click Cancel and verify postMethod called', async () => {
+      const modal = await screen.findByRole('dialog');
+      const modalContent = within(modal);
 
-    const cancelButton = await modalContent.findByRole('button', { name: /cancel/i });
-    await userEvent.click(cancelButton);
+      const cancelButton = await modalContent.findByRole('button', { name: /cancel/i });
+      await userEvent.click(cancelButton);
 
-    await waitFor(async () => {
-      await expect(postMethodSpy).toHaveBeenCalled();
+      await waitFor(async () => {
+        await expect(postMethodSpy).toHaveBeenCalled();
+      });
     });
   },
 };

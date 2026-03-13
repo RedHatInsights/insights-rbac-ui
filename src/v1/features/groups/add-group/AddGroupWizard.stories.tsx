@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { waitForModalClose } from '../../../../test-utils/interactionHelpers';
 import { AddGroupWizard } from './AddGroupWizard';
 import { type APISpies, fillAddGroupWizardForm } from './AddGroupWizard.helpers';
 import { mockRoles, mockServiceAccountsForHandlers, mockUsers } from './AddGroupWizard.mocks';
@@ -187,27 +188,21 @@ The wizard adapts based on feature flags:
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Test basic page structure and button presence
-    expect(await canvas.findByRole('heading', { name: 'Groups Management' })).toBeInTheDocument();
-    expect(await canvas.findByRole('button', { name: 'Add Group' })).toBeInTheDocument();
+    await step('Verify page and navigate to wizard', async () => {
+      expect(await canvas.findByRole('heading', { name: 'Groups Management' })).toBeInTheDocument();
+      expect(await canvas.findByRole('button', { name: 'Add Group' })).toBeInTheDocument();
 
-    // Navigate to wizard
-    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
-    await userEvent.click(addButton);
+      const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+      await userEvent.click(addButton);
+    });
 
-    // Verify the wizard has rendered using specific selector (same approach as other tests)
-    await waitFor(
-      async () => {
-        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const nameInput = document.getElementById('group-name');
-        expect(wizardElement).toBeInTheDocument();
-        expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await step('Verify wizard rendered', async () => {
+      const body = within(document.body);
+      expect(await body.findByRole('textbox', { name: /name/i }, { timeout: 5000 })).toBeInTheDocument();
+    });
   },
 };
 
@@ -220,38 +215,28 @@ export const ServiceAccountsEnabled: Story = {
       'platform.rbac.group-service-accounts.stable': true,
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Navigate to wizard
-    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
-    await userEvent.click(addButton);
+    await step('Navigate to wizard', async () => {
+      const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+      await userEvent.click(addButton);
 
-    // Wait for wizard to load
-    await waitFor(
-      async () => {
-        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const nameInput = document.getElementById('group-name');
-        expect(wizardElement).toBeInTheDocument();
-        expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      const body = within(document.body);
+      expect(await body.findByRole('textbox', { name: /name/i }, { timeout: 5000 })).toBeInTheDocument();
+    });
 
-    // KEY TEST: Verify "Add service accounts" step appears in wizard navigation
-    // (No need to navigate through the whole wizard - FullWizardFlow covers that)
-    await waitFor(
-      () => {
-        // Check wizard navigation for service accounts step
-        const navItems = Array.from(document.querySelectorAll('.pf-v6-c-wizard__nav-link, .pf-v6-c-wizard__toggle-list-item'));
-        const hasServiceAccountsStep = navItems.some((item) => item.textContent?.toLowerCase().includes('service account'));
+    await step('Verify Add service accounts step in navigation', async () => {
+      await waitFor(
+        () => {
+          const navItems = Array.from(document.querySelectorAll('.pf-v6-c-wizard__nav-link, .pf-v6-c-wizard__toggle-list-item'));
+          const hasServiceAccountsStep = navItems.some((item) => item.textContent?.toLowerCase().includes('service account'));
 
-        expect(hasServiceAccountsStep).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
-
-    // console.log('SB: ✅ SERVICE ACCOUNTS ENABLED: Wizard navigation includes service accounts step!');
+          expect(hasServiceAccountsStep).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -264,64 +249,48 @@ export const WorkspacesEnabled: Story = {
       'platform.rbac.group-service-accounts.stable': false,
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Navigate to wizard
-    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
-    await userEvent.click(addButton);
+    await step('Enter name and click Next', async () => {
+      const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+      await userEvent.click(addButton);
 
-    // Wait for wizard to load and verify it opens properly
-    const body = within(document.body);
-    await waitFor(
-      async () => {
-        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const nameInput = document.getElementById('group-name');
-        expect(wizardElement).toBeInTheDocument();
-        expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      const body = within(document.body);
+      const nameInput = await body.findByRole('textbox', { name: /name/i }, { timeout: 5000 });
+      await userEvent.type(nameInput, 'Workspaces Test Group');
 
-    // console.log('SB: ✅ WORKSPACES MODE: Wizard opened successfully');
+      await waitFor(() => {
+        expect((nameInput as HTMLInputElement).value).toBe('Workspaces Test Group');
+      });
 
-    // Fill name to enable next button
-    const nameInput = document.getElementById('group-name') as HTMLInputElement;
-    await userEvent.type(nameInput, 'Workspaces Test Group');
+      const nextButton = await waitFor(
+        () => {
+          const allNextButtons = body.queryAllByRole('button', { name: /next/i });
+          const wizardNextButton = allNextButtons.find((btn) => {
+            const isNotPagination = !btn.closest('.pf-v6-c-pagination');
+            const isEnabled = !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true';
+            return isNotPagination && isEnabled;
+          });
+          expect(wizardNextButton).toBeTruthy();
+          return wizardNextButton!;
+        },
+        { timeout: 5000 },
+      );
 
-    await waitFor(() => {
-      expect(nameInput.value).toBe('Workspaces Test Group');
+      await userEvent.click(nextButton);
     });
 
-    // Navigate to Step 2 - in workspaces mode this should skip roles step
-    const nextButton = await waitFor(
-      () => {
-        const allNextButtons = body.queryAllByRole('button', { name: /next/i });
-        const wizardNextButton = allNextButtons.find((btn) => {
-          const isNotPagination = !btn.closest('.pf-v6-c-pagination');
-          const isEnabled = !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true';
-          return isNotPagination && isEnabled;
-        });
-        expect(wizardNextButton).toBeTruthy();
-        return wizardNextButton!;
-      },
-      { timeout: 5000 },
-    );
-
-    await userEvent.click(nextButton);
-
-    // Verify we progressed to Members step (should skip roles in workspaces mode)
-    await waitFor(
-      () => {
-        // Look specifically for the step title using document.querySelector
-        const stepTitle = document.querySelector('h1[class*="pf-v6-c-title"]');
-        expect(stepTitle).toBeTruthy();
-        expect(stepTitle?.textContent?.toLowerCase()).toContain('member');
-      },
-      { timeout: 5000 },
-    );
-
-    // console.log('SB: ✅ WORKSPACES MODE: Successfully tested step progression (roles step skipped)');
+    await step('Verify Members step (roles skipped in workspaces mode)', async () => {
+      await waitFor(
+        () => {
+          const stepTitle = document.querySelector('h1[class*="pf-v6-c-title"]');
+          expect(stepTitle).toBeTruthy();
+          expect(stepTitle?.textContent?.toLowerCase()).toContain('member');
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -329,86 +298,73 @@ export const FormValidation: Story = {
   parameters: {
     msw: { handlers: mockHandlers },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Navigate to wizard
-    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
-    await userEvent.click(addButton);
+    await step('Open wizard and test empty name validation', async () => {
+      const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+      await userEvent.click(addButton);
 
-    // Wait for wizard to fully load
-    const body = within(document.body);
-    await waitFor(
-      async () => {
-        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const nameInput = document.getElementById('group-name');
-        expect(wizardElement).toBeInTheDocument();
-        expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      const body = within(document.body);
+      const nameInput = await body.findByRole('textbox', { name: /name/i }, { timeout: 5000 });
+      const nextButton = await body.findByRole('button', { name: /next/i });
 
-    const nameInput = document.getElementById('group-name') as HTMLInputElement;
-    const nextButton = await body.findByRole('button', { name: /next/i });
+      expect((nameInput as HTMLInputElement).value).toBe('');
 
-    // Test 1: Try to proceed without name (should be disabled or show validation)
-    expect(nameInput.value).toBe('');
+      const isDisabled =
+        nextButton.hasAttribute('disabled') || nextButton.getAttribute('aria-disabled') === 'true' || nextButton.classList.contains('pf-m-disabled');
 
-    // Next button should be disabled when name is empty (required field)
-    const isDisabled =
-      nextButton.hasAttribute('disabled') || nextButton.getAttribute('aria-disabled') === 'true' || nextButton.classList.contains('pf-m-disabled');
-
-    if (!isDisabled) {
-      // If not disabled, clicking should not navigate (validation prevents it)
-      await userEvent.click(nextButton);
-      // Should still be on name step
-      await waitFor(() => {
-        expect(nameInput).toBeInTheDocument();
-        expect(body.queryByText(/add roles|add members/i)).not.toBeInTheDocument();
-      });
-    }
-
-    // Test 2: Enter valid name
-    await userEvent.type(nameInput, 'Valid Group Name');
-
-    await waitFor(() => {
-      expect(nameInput.value).toBe('Valid Group Name');
+      if (!isDisabled) {
+        await userEvent.click(nextButton);
+        await waitFor(() => {
+          expect(nameInput).toBeInTheDocument();
+          expect(body.queryByText(/add roles|add members/i)).not.toBeInTheDocument();
+        });
+      }
     });
 
-    // Test 3: Now navigation should work
-    await waitFor(
-      () => {
-        expect(nextButton).not.toBeDisabled();
-      },
-      { timeout: 5000 },
-    );
+    await step('Enter valid name and progress', async () => {
+      const body = within(document.body);
+      const nameInput = await body.findByRole('textbox', { name: /name/i });
+      const nextButton = await body.findByRole('button', { name: /next/i });
 
-    await userEvent.click(nextButton);
+      await userEvent.type(nameInput, 'Valid Group Name');
 
-    // Should progress to next step in wizard
-    await waitFor(
-      () => {
-        // Check for progress - any step-related content
-        const progressElements = body.queryAllByText(/role/i).concat(body.queryAllByText(/member/i));
-        expect(progressElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 8000 },
-    );
-
-    // Test 4: Description field validation (max 150 characters)
-    const descriptionInput = document.getElementById('group-description');
-    if (descriptionInput) {
-      const longText = 'A'.repeat(151); // 151 characters (over limit)
-      await userEvent.type(descriptionInput, longText);
-
-      // Should show validation error or truncate
       await waitFor(() => {
-        const currentValue = (descriptionInput as HTMLTextAreaElement).value;
-        expect(currentValue.length).toBeLessThanOrEqual(150);
+        expect((nameInput as HTMLInputElement).value).toBe('Valid Group Name');
       });
-    }
 
-    // console.log('SB: ✅ Form validation tests completed!');
+      await waitFor(
+        () => {
+          expect(nextButton).not.toBeDisabled();
+        },
+        { timeout: 5000 },
+      );
+
+      await userEvent.click(nextButton);
+
+      await waitFor(
+        () => {
+          const progressElements = body.queryAllByText(/role/i).concat(body.queryAllByText(/member/i));
+          expect(progressElements.length).toBeGreaterThan(0);
+        },
+        { timeout: 8000 },
+      );
+    });
+
+    await step('Test description character limit', async () => {
+      const body = within(document.body);
+      const descriptionInput = body.queryByRole('textbox', { name: /description/i });
+      if (descriptionInput) {
+        const longText = 'A'.repeat(151);
+        await userEvent.type(descriptionInput, longText);
+
+        await waitFor(() => {
+          const currentValue = (descriptionInput as HTMLTextAreaElement).value;
+          expect(currentValue.length).toBeLessThanOrEqual(150);
+        });
+      }
+    });
   },
 };
 
@@ -416,106 +372,70 @@ export const CancelWarning: Story = {
   parameters: {
     msw: { handlers: mockHandlers },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Navigate to wizard
-    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
-    await userEvent.click(addButton);
+    await step('Open wizard and click Cancel', async () => {
+      const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+      await userEvent.click(addButton);
 
-    // Wait for wizard to load
-    const body = within(document.body);
-    await waitFor(
-      async () => {
-        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const nameInput = document.getElementById('group-name');
-        expect(wizardElement).toBeInTheDocument();
-        expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      const body = within(document.body);
+      const nameInput = await body.findByRole('textbox', { name: /name/i }, { timeout: 5000 });
+      await userEvent.type(nameInput, 'Cancel Test Group');
 
-    // console.log('SB: ✅ CANCEL WARNING: Wizard opened successfully');
+      await waitFor(() => {
+        expect((nameInput as HTMLInputElement).value).toBe('Cancel Test Group');
+      });
 
-    // Fill in some form data to make cancellation meaningful
-    const nameInput = document.getElementById('group-name') as HTMLInputElement;
-    await userEvent.type(nameInput, 'Cancel Test Group');
+      const cancelButton = await waitFor(
+        () => {
+          const allCancelButtons = body.queryAllByRole('button', { name: /cancel/i });
+          const wizardCancelButton = allCancelButtons.find((btn) => !btn.hasAttribute('disabled'));
+          expect(wizardCancelButton).toBeTruthy();
+          return wizardCancelButton!;
+        },
+        { timeout: 5000 },
+      );
 
-    await waitFor(() => {
-      expect(nameInput.value).toBe('Cancel Test Group');
+      await userEvent.click(cancelButton);
     });
 
-    // Find and test that Cancel button exists and is functional
-    const cancelButton = await waitFor(
-      () => {
-        const allCancelButtons = body.queryAllByRole('button', { name: /cancel/i });
-        const wizardCancelButton = allCancelButtons.find((btn) => !btn.hasAttribute('disabled'));
-        expect(wizardCancelButton).toBeTruthy();
-        return wizardCancelButton!;
-      },
-      { timeout: 5000 },
-    );
+    await step('Confirm exit and verify wizard closes', async () => {
+      const body = within(document.body);
 
-    // Click the cancel button
-    await userEvent.click(cancelButton);
+      await waitFor(
+        () => {
+          const warningDialog = body.queryByText(/exit group creation/i);
+          const warningMessage = body.queryByText(/all unsaved changes will be lost/i);
+          const confirmMessage = body.queryByText(/are you sure you want to exit/i);
 
-    // Verify the warning dialog appears with the correct content
-    await waitFor(
-      () => {
-        const warningDialog = body.queryByText(/exit group creation/i);
-        const warningMessage = body.queryByText(/all unsaved changes will be lost/i);
-        const confirmMessage = body.queryByText(/are you sure you want to exit/i);
+          expect(warningDialog).toBeTruthy();
+          expect(warningMessage).toBeTruthy();
+          expect(confirmMessage).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
 
-        expect(warningDialog).toBeTruthy();
-        expect(warningMessage).toBeTruthy();
-        expect(confirmMessage).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
+      const exitButton = await waitFor(
+        () => {
+          const exitBtn =
+            body.queryByRole('button', { name: /exit/i }) ||
+            body.queryByRole('button', { name: /confirm/i }) ||
+            body
+              .queryAllByRole('button')
+              .find((btn) => btn.textContent?.toLowerCase().includes('exit') || btn.textContent?.toLowerCase().includes('yes'));
+          expect(exitBtn).toBeTruthy();
+          return exitBtn!;
+        },
+        { timeout: 3000 },
+      );
 
-    // console.log('SB: ✅ CANCEL WARNING: Warning dialog appeared with correct content');
+      await userEvent.click(exitButton);
 
-    // Find and click the "Exit" button in the warning dialog
-    const exitButton = await waitFor(
-      () => {
-        const exitBtn =
-          body.queryByRole('button', { name: /exit/i }) ||
-          body.queryByRole('button', { name: /confirm/i }) ||
-          body
-            .queryAllByRole('button')
-            .find((btn) => btn.textContent?.toLowerCase().includes('exit') || btn.textContent?.toLowerCase().includes('yes'));
-        expect(exitBtn).toBeTruthy();
-        return exitBtn!;
-      },
-      { timeout: 3000 },
-    );
+      await waitForModalClose({ timeout: 5000 });
 
-    // Click the exit button to confirm cancellation
-    await userEvent.click(exitButton);
-
-    // Verify the wizard closes (the key behavior we're testing)
-    await waitFor(
-      () => {
-        const wizardClosed = !document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        expect(wizardClosed).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
-
-    // Additional verification: wizard is gone from DOM
-    const wizardStillExists = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-    expect(wizardStillExists).toBeNull();
-
-    // Verify navigation back to groups list after cancellation
-    await waitFor(
-      () => {
-        const groupsListPage = document.querySelector('[data-testid="groups-list"]');
-        expect(groupsListPage).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
-
-    // console.log('SB: ✅ CANCEL WARNING: Wizard closed and navigated to groups list successfully');
+      expect(await within(document.body).findByTestId('groups-list', undefined, { timeout: 3000 })).toBeInTheDocument();
+    });
   },
 };
 
@@ -528,37 +448,27 @@ export const DuplicateGroupNameValidation: Story = {
       handlers: createMockHandlersWithSpies({}, { duplicateGroupName: 'Existing Group' }),
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const body = within(document.body);
 
-    // Navigate to wizard
-    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
-    await userEvent.click(addButton);
+    await step('Open wizard and enter duplicate group name', async () => {
+      const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+      await userEvent.click(addButton);
 
-    // Wait for wizard to load
-    await waitFor(
-      () => {
-        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const nameInput = document.getElementById('group-name');
-        expect(wizardElement).toBeInTheDocument();
-        expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      const nameInput = await body.findByRole('textbox', { name: /name/i }, { timeout: 5000 });
+      await userEvent.clear(nameInput);
+      await userEvent.type(nameInput, 'Existing Group');
 
-    const nameInput = document.getElementById('group-name') as HTMLInputElement;
-    await userEvent.clear(nameInput);
-    await userEvent.type(nameInput, 'Existing Group');
+      await expect(body.findByText(/already been taken/i)).resolves.toBeInTheDocument();
+    });
 
-    // Validator is debounced; wait for name-taken error to appear
-    await expect(body.findByText(/already been taken/i)).resolves.toBeInTheDocument();
-
-    // Next should be disabled while the name is invalid
-    const nextButtons = body.getAllByRole('button', { name: /next/i });
-    const wizardNextButton = nextButtons.find((btn) => !btn.closest('.pf-v6-c-pagination'));
-    expect(wizardNextButton).toBeTruthy();
-    expect(wizardNextButton).toBeDisabled();
+    await step('Verify Next is disabled', async () => {
+      const nextButtons = body.getAllByRole('button', { name: /next/i });
+      const wizardNextButton = nextButtons.find((btn) => !btn.closest('.pf-v6-c-pagination'));
+      expect(wizardNextButton).toBeTruthy();
+      expect(wizardNextButton).toBeDisabled();
+    });
   },
 };
 
@@ -583,48 +493,33 @@ export const ServiceAccountIntegration: Story = {
       'platform.rbac.group-service-accounts.stable': true,
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Navigate to wizard
-    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
-    await userEvent.click(addButton);
+    await step('Navigate to wizard and fill form', async () => {
+      const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+      await userEvent.click(addButton);
 
-    // Wait for wizard to load
-    await waitFor(
-      async () => {
-        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const nameInput = document.getElementById('group-name');
-        expect(wizardElement).toBeInTheDocument();
-        expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      await within(document.body).findByRole('textbox', { name: /name/i }, { timeout: 5000 });
 
-    // Reset spies to track calls from this test specifically
-    fullWizardFlowSpies.groupCreationSpy?.mockClear();
-    fullWizardFlowSpies.serviceAccountAssignmentSpy?.mockClear();
+      fullWizardFlowSpies.groupCreationSpy?.mockClear();
+      fullWizardFlowSpies.serviceAccountAssignmentSpy?.mockClear();
 
-    // Test the core functionality: group creation with basic wizard flow
-    await fillAddGroupWizardForm(
-      {
-        name: 'Service Account Test Group',
-        description: 'Testing service account integration',
-        selectRoles: false,
-        selectUsers: false,
-        selectServiceAccounts: false, // Simplified test - just test group creation works
-      },
-      fullWizardFlowSpies,
-    );
+      await fillAddGroupWizardForm(
+        {
+          name: 'Service Account Test Group',
+          description: 'Testing service account integration',
+          selectRoles: false,
+          selectUsers: false,
+          selectServiceAccounts: false,
+        },
+        fullWizardFlowSpies,
+      );
+    });
 
-    // Verify navigation to groups list after completion
-    await waitFor(
-      () => {
-        const groupsListPage = document.querySelector('[data-testid="groups-list"]');
-        expect(groupsListPage).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify navigation to groups list', async () => {
+      expect(await within(document.body).findByTestId('groups-list', undefined, { timeout: 3000 })).toBeInTheDocument();
+    });
   },
 };
 
@@ -639,61 +534,43 @@ export const BasicGroupCreation: Story = {
       'platform.rbac.group-service-accounts.stable': true,
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Navigate to wizard
-    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
-    await userEvent.click(addButton);
+    await step('Navigate to wizard and complete basic group creation', async () => {
+      const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+      await userEvent.click(addButton);
 
-    // Wait for wizard to load
-    await waitFor(
-      async () => {
-        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const nameInput = document.getElementById('group-name');
-        expect(wizardElement).toBeInTheDocument();
-        expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      await within(document.body).findByRole('textbox', { name: /name/i }, { timeout: 5000 });
 
-    // Reset spies to track calls from this test specifically
-    fullWizardFlowSpies.groupCreationSpy?.mockClear();
-    fullWizardFlowSpies.serviceAccountAssignmentSpy?.mockClear();
+      fullWizardFlowSpies.groupCreationSpy?.mockClear();
+      fullWizardFlowSpies.serviceAccountAssignmentSpy?.mockClear();
 
-    // Test basic group creation functionality
-    await fillAddGroupWizardForm(
-      {
-        name: 'Basic Test Group',
-        description: 'Testing basic group creation',
-        selectRoles: false,
-        selectUsers: false,
-        selectServiceAccounts: false, // Simplified - just test basic group creation
-      },
-      fullWizardFlowSpies,
-    );
-
-    // Verify that group creation was successful
-    // Note: The rbac-client API sends only name and description in the create call.
-    // Users, roles, and service accounts are added via separate API calls after group creation.
-    await waitFor(
-      () => {
-        expect(fullWizardFlowSpies.groupCreationSpy).toHaveBeenCalledWith({
+      await fillAddGroupWizardForm(
+        {
           name: 'Basic Test Group',
           description: 'Testing basic group creation',
-        });
-      },
-      { timeout: 5000 },
-    );
+          selectRoles: false,
+          selectUsers: false,
+          selectServiceAccounts: false,
+        },
+        fullWizardFlowSpies,
+      );
+    });
 
-    // Verify navigation back to groups list
-    await waitFor(
-      () => {
-        const groupsListPage = document.querySelector('[data-testid="groups-list"]');
-        expect(groupsListPage).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify group creation API call and navigation', async () => {
+      await waitFor(
+        () => {
+          expect(fullWizardFlowSpies.groupCreationSpy).toHaveBeenCalledWith({
+            name: 'Basic Test Group',
+            description: 'Testing basic group creation',
+          });
+        },
+        { timeout: 5000 },
+      );
+
+      expect(await within(document.body).findByTestId('groups-list', undefined, { timeout: 3000 })).toBeInTheDocument();
+    });
   },
 };
 
@@ -708,43 +585,29 @@ export const FullWizardFlow: Story = {
       'platform.rbac.group-service-accounts.stable': true,
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Navigate to wizard
-    const addButton = await canvas.findByRole('button', { name: 'Add Group' });
-    await userEvent.click(addButton);
+    await step('Navigate to wizard and complete full flow', async () => {
+      const addButton = await canvas.findByRole('button', { name: 'Add Group' });
+      await userEvent.click(addButton);
 
-    // Wait for wizard to load
-    await waitFor(
-      async () => {
-        const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
-        const nameInput = document.getElementById('group-name');
-        expect(wizardElement).toBeInTheDocument();
-        expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      await within(document.body).findByRole('textbox', { name: /name/i }, { timeout: 5000 });
 
-    // Use the reusable helper with API spies for comprehensive validation
-    await fillAddGroupWizardForm(
-      {
-        name: 'Complete Test Group',
-        description: 'Testing full wizard flow',
-        selectRoles: true,
-        selectUsers: true,
-        selectServiceAccounts: false, // Simplified to focus on core functionality
-      },
-      fullWizardFlowSpies,
-    );
+      await fillAddGroupWizardForm(
+        {
+          name: 'Complete Test Group',
+          description: 'Testing full wizard flow',
+          selectRoles: true,
+          selectUsers: true,
+          selectServiceAccounts: false,
+        },
+        fullWizardFlowSpies,
+      );
+    });
 
-    // Verify navigation to groups list after completion
-    await waitFor(
-      () => {
-        const groupsListPage = document.querySelector('[data-testid="groups-list"]');
-        expect(groupsListPage).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify navigation to groups list', async () => {
+      expect(await within(document.body).findByTestId('groups-list', undefined, { timeout: 3000 })).toBeInTheDocument();
+    });
   },
 };

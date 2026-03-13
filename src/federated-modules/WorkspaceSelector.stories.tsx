@@ -10,7 +10,6 @@
 
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import WorkspaceSelector, { type WorkspaceSelectorProps } from './WorkspaceSelector';
 import { workspacesHandlers } from '../v2/data/mocks/workspaces.handlers';
 
@@ -249,8 +248,10 @@ This is the base scenario for consumers that don't use \`requiredPermission\`.`,
     },
   },
   play: async ({ canvasElement, args }) => {
-    await delay(300);
     await openSelector(canvasElement);
+
+    // Wait for tree content to load in dropdown portal
+    await expect(getBody().findByText('Production Environment', {}, { timeout: 5000 })).resolves.toBeInTheDocument();
 
     // Select root workspace – should fire onSelect callback
     await clickAndExpectSelect('Production Environment', args.onSelect as ReturnType<typeof fn>, 'workspace-1', 'Production Environment');
@@ -295,8 +296,11 @@ Child workspaces are visible but **dimmed and non-selectable**, preserving the h
     },
   },
   play: async ({ canvasElement, args }) => {
-    await delay(300);
     await openSelector(canvasElement);
+
+    // Wait for tree content to load in dropdown portal
+    await expect(getBody().findByText('Production Environment', {}, { timeout: 5000 })).resolves.toBeInTheDocument();
+
     await expandRootNode();
 
     // Children should be disabled
@@ -343,8 +347,11 @@ export const FilterByEditPermission: Story = {
     },
   },
   play: async ({ canvasElement, args }) => {
-    await delay(300);
     await openSelector(canvasElement);
+
+    // Wait for tree content to load in dropdown portal
+    await expect(getBody().findByText('Production Environment', {}, { timeout: 5000 })).resolves.toBeInTheDocument();
+
     await expandRootNode();
 
     // Web Services (has edit) – should be selectable
@@ -390,8 +397,10 @@ The root workspace and Development Environment are disabled.
     },
   },
   play: async ({ canvasElement, args }) => {
-    await delay(300);
     await openSelector(canvasElement);
+
+    // Wait for tree content to load in dropdown portal
+    await expect(getBody().findByText('Production Environment', {}, { timeout: 5000 })).resolves.toBeInTheDocument();
 
     // Root is disabled for move
     await expectDisabled('Production Environment');
@@ -430,8 +439,10 @@ to provide context, but the consumer should typically handle this gracefully
     },
   },
   play: async ({ canvasElement, args }) => {
-    await delay(300);
     await openSelector(canvasElement);
+
+    // Wait for tree content to load in dropdown portal
+    await expect(getBody().findByText('Production Environment', {}, { timeout: 5000 })).resolves.toBeInTheDocument();
 
     // Root should be disabled
     await expectDisabled('Production Environment');
@@ -468,8 +479,10 @@ have the \`edit\` permission. When the user searches, the tree is filtered by na
     },
   },
   play: async ({ canvasElement, args }) => {
-    await delay(300);
     await openSelector(canvasElement);
+
+    // Wait for tree content to load in dropdown portal
+    await expect(getBody().findByText('Production Environment', {}, { timeout: 5000 })).resolves.toBeInTheDocument();
 
     // Search for "Services" – should match Web Services and API Services
     const searchInput = await getBody().findByPlaceholderText('Find a workspace by name');

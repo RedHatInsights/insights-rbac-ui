@@ -29,30 +29,32 @@ export default meta;
 type Story = StoryObj<typeof DefaultGroupChangedIcon>;
 
 export const InteractionTest: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify the icon component renders with text label
-    await expect(canvas.findByText('Default access')).resolves.toBeInTheDocument();
+    await step('Verify icon and popover', async () => {
+      // Verify the icon component renders with text label
+      await expect(canvas.findByText('Default access')).resolves.toBeInTheDocument();
 
-    // Find and click the info icon to open popover
-    const infoIcon = await canvas.findByRole('button');
-    await userEvent.click(infoIcon);
+      // Find and click the info icon to open popover
+      const infoIcon = await canvas.findByRole('button');
+      await userEvent.click(infoIcon);
 
-    // Verify popover content appears
-    // Note: Using document.body because popover content is portaled
-    // The text is fragmented by bold tags, so we look for a part that should be together
-    const body = within(document.body);
-    const popoverContent = await body.findByText('Custom default access');
-    await expect(popoverContent).toBeInTheDocument();
+      // Verify popover content appears
+      // Note: Using document.body because popover content is portaled
+      // The text is fragmented by bold tags, so we look for a part that should be together
+      const body = within(document.body);
+      const popoverContent = await body.findByText('Custom default access');
+      await expect(popoverContent).toBeInTheDocument();
 
-    // Click elsewhere to close (click on the group name)
-    const groupName = await canvas.findByText('Default access');
-    await userEvent.click(groupName);
+      // Click elsewhere to close (click on the group name)
+      const groupName = await canvas.findByText('Default access');
+      await userEvent.click(groupName);
 
-    // Click icon again to reopen
-    await userEvent.click(infoIcon);
-    const reopenedContent = await body.findByText('Custom default access');
-    await expect(reopenedContent).toBeInTheDocument();
+      // Click icon again to reopen
+      await userEvent.click(infoIcon);
+      const reopenedContent = await body.findByText('Custom default access');
+      await expect(reopenedContent).toBeInTheDocument();
+    });
   },
 };

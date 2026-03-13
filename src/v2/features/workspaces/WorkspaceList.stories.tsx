@@ -6,7 +6,6 @@ import { WorkspaceList } from './WorkspaceList';
 // Import shared test functions and mock data from helper file
 import { mockWorkspaces, testDefaultWorkspaceDisplay, testEmptyState, testLoadingState } from './workspaceTestHelpers';
 import { BrowserRouter } from 'react-router-dom';
-import { delay } from 'msw';
 import { workspacesErrorHandlers, workspacesHandlers, workspacesLoadingHandlers } from '../../data/mocks/workspaces.handlers';
 import type { WorkspacesWorkspace } from '../../data/mocks/db';
 
@@ -110,13 +109,13 @@ For testing specific scenarios, see these additional stories:
       handlers: [...workspacesHandlers(workspaceDataForHandlers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(mockWorkspaces[0].name)).resolves.toBeInTheDocument();
-
-    await testDefaultWorkspaceDisplay(canvasElement);
+    await step('Verify initial render', async () => {
+      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(mockWorkspaces[0].name)).resolves.toBeInTheDocument();
+      await testDefaultWorkspaceDisplay(canvasElement);
+    });
   },
 };
 
@@ -133,9 +132,10 @@ export const Loading: Story = {
       handlers: [...workspacesLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    await testLoadingState(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify loading state', async () => {
+      await testLoadingState(canvasElement);
+    });
   },
 };
 
@@ -151,9 +151,10 @@ export const Empty: Story = {
       handlers: [...workspacesHandlers([])],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    await testEmptyState(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify empty state', async () => {
+      await testEmptyState(canvasElement);
+    });
   },
 };
 
@@ -173,7 +174,6 @@ export const Error: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     // For error states, we might still have skeletons or they might not disappear
@@ -211,39 +211,33 @@ export const PermissionIntegration: Story = {
       handlers: [...workspacesHandlers(workspaceDataForHandlers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
+    await step('Verify page and workspace list', async () => {
+      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
+      await expect(canvas.getByText('Workspaces')).toBeInTheDocument();
+      await expect(canvas.getByText(mockWorkspaces[0].name)).toBeInTheDocument();
+      await expect(canvas.getByText(mockWorkspaces[1].name)).toBeInTheDocument();
+      await expect(canvas.getByText(mockWorkspaces[2].name)).toBeInTheDocument();
+    });
+    await step('Verify read-only buttons are disabled', async () => {
+      const createButton = canvas.getByRole('button', { name: /create workspace/i });
+      expect(createButton).toBeInTheDocument();
+      expect(createButton).toBeDisabled(); // Read-only users cannot create
 
-    await expect(canvas.getByText('Workspaces')).toBeInTheDocument();
-
-    await expect(canvas.getByText(mockWorkspaces[0].name)).toBeInTheDocument();
-    await expect(canvas.getByText(mockWorkspaces[1].name)).toBeInTheDocument();
-    await expect(canvas.getByText(mockWorkspaces[2].name)).toBeInTheDocument();
-
-    // Verify the Create workspace button is DISABLED for read-only users
-    const createButton = canvas.getByRole('button', { name: /create workspace/i });
-    expect(createButton).toBeInTheDocument();
-    expect(createButton).toBeDisabled(); // Read-only users cannot create
-
-    // Verify the bulk Delete workspaces button is DISABLED for read-only users (M5 feature)
-    const deleteButton = canvas.getByRole('button', { name: /delete workspaces/i });
-    expect(deleteButton).toBeInTheDocument();
-    expect(deleteButton).toBeDisabled(); // Read-only users cannot delete
-
-    // Verify action menus are present
-    const kebabButtons = canvas.getAllByLabelText('Kebab toggle');
-    expect(kebabButtons.length).toBeGreaterThan(0);
-
-    // Open kebab menu to verify actions exist (but will be disabled)
-    await userEvent.click(kebabButtons[0]);
-
-    // Verify menu structure exists
-    await expect(within(document.body).getByText('Edit workspace')).toBeInTheDocument();
-    await expect(within(document.body).getByText('Delete workspace')).toBeInTheDocument();
-    await expect(within(document.body).getByText('Move workspace')).toBeInTheDocument();
+      const deleteButton = canvas.getByRole('button', { name: /delete workspaces/i });
+      expect(deleteButton).toBeInTheDocument();
+      expect(deleteButton).toBeDisabled(); // Read-only users cannot delete
+    });
+    await step('Verify kebab menu structure', async () => {
+      const kebabButtons = canvas.getAllByLabelText('Kebab toggle');
+      expect(kebabButtons.length).toBeGreaterThan(0);
+      await userEvent.click(kebabButtons[0]);
+      await expect(within(document.body).getByText('Edit workspace')).toBeInTheDocument();
+      await expect(within(document.body).getByText('Delete workspace')).toBeInTheDocument();
+      await expect(within(document.body).getByText('Move workspace')).toBeInTheDocument();
+    });
   },
 };
 
@@ -270,81 +264,82 @@ export const MoveWorkspaceModal: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
     moveWorkspaceSpy.mockClear();
 
-    await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
+    await step('Open move modal from kebab menu', async () => {
+      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
 
-    const productionRow = canvasElement.querySelector(`[data-ouia-component-id="workspaces-list-tr-${mockWorkspaces[1].id}"]`) as HTMLElement;
-    await expect(productionRow).toBeTruthy();
+      const productionRow = canvasElement.querySelector(`[data-ouia-component-id="workspaces-list-tr-${mockWorkspaces[1].id}"]`) as HTMLElement;
+      await expect(productionRow).toBeTruthy();
 
-    const productionRowScope = within(productionRow);
-    const actionsButton = productionRowScope.getByLabelText('Kebab toggle');
-    await user.click(actionsButton);
+      const productionRowScope = within(productionRow);
+      const actionsButton = productionRowScope.getByLabelText('Kebab toggle');
+      await user.click(actionsButton);
 
-    // Wait for the menu to open and find "Move workspace" action
-    await expect(within(document.body).findByText('Move workspace')).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText('Move workspace')).resolves.toBeInTheDocument();
 
-    const moveAction = await within(document.body).findByText('Move workspace');
-    await user.click(moveAction);
-
-    const modalCanvas = within(document.body);
-    await expect(
-      await modalCanvas.findByText((content) => {
-        return content.includes('Move') && content.includes(mockWorkspaces[1].name);
-      }),
-    ).toBeInTheDocument();
-    await expect(modalCanvas.getByText('Parent workspace')).toBeInTheDocument();
-
-    const buttons = await modalCanvas.findAllByRole('button');
-    const menuToggleButton = buttons.find((button) => {
-      const menuToggleText = button.querySelector('.pf-v6-c-menu-toggle__text');
-      return menuToggleText?.textContent === mockWorkspaces[0].name;
-    });
-    await expect(menuToggleButton).toBeTruthy();
-    const selectButton = menuToggleButton as HTMLElement;
-    // Ensure the button is not disabled and is interactive
-    await expect(selectButton).not.toBeDisabled();
-
-    // Click the menu toggle button to open the dropdown
-    await user.click(selectButton!);
-
-    await expect(modalCanvas.findByRole('tree')).resolves.toBeInTheDocument();
-
-    const treeViewElement = await modalCanvas.findByRole('tree');
-    const expandButton = treeViewElement.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLElement;
-    await user.click(expandButton);
-
-    const treeViewScope = within(treeViewElement);
-    await expect(treeViewScope.findByText(mockWorkspaces[2].name)).resolves.toBeInTheDocument();
-
-    const devWorkspaceButton = await treeViewScope.findByText(mockWorkspaces[2].name);
-    await user.click(devWorkspaceButton);
-
-    // Wait for submit button to become enabled after selection
-    const submitButton = await modalCanvas.findByRole('button', { name: /submit/i });
-    await expect(submitButton).toBeEnabled();
-
-    // Submit the move operation
-    await user.click(submitButton);
-
-    await waitFor(async () => {
-      await expect(moveWorkspaceSpy).toHaveBeenCalledWith(mockWorkspaces[1].id, {
-        parent_id: mockWorkspaces[2].id,
-      });
+      const moveAction = await within(document.body).findByText('Move workspace');
+      await user.click(moveAction);
     });
 
-    await waitFor(async () => {
+    await step('Select destination and submit', async () => {
+      const modalCanvas = within(document.body);
       await expect(
-        modalCanvas.queryByText((content) => {
+        await modalCanvas.findByText((content) => {
           return content.includes('Move') && content.includes(mockWorkspaces[1].name);
         }),
-      ).not.toBeInTheDocument();
+      ).toBeInTheDocument();
+      await expect(modalCanvas.getByText('Parent workspace')).toBeInTheDocument();
+
+      const buttons = await modalCanvas.findAllByRole('button');
+      const menuToggleButton = buttons.find((button) => {
+        const menuToggleText = button.querySelector('.pf-v6-c-menu-toggle__text');
+        return menuToggleText?.textContent === mockWorkspaces[0].name;
+      });
+      await expect(menuToggleButton).toBeTruthy();
+      const selectButton = menuToggleButton as HTMLElement;
+      await expect(selectButton).not.toBeDisabled();
+
+      await user.click(selectButton!);
+
+      await expect(modalCanvas.findByRole('tree')).resolves.toBeInTheDocument();
+
+      const treeViewElement = await modalCanvas.findByRole('tree');
+      const expandButton = treeViewElement.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLElement;
+      await user.click(expandButton);
+
+      const treeViewScope = within(treeViewElement);
+      await expect(treeViewScope.findByText(mockWorkspaces[2].name)).resolves.toBeInTheDocument();
+
+      const devWorkspaceButton = await treeViewScope.findByText(mockWorkspaces[2].name);
+      await user.click(devWorkspaceButton);
+
+      const submitButton = await modalCanvas.findByRole('button', { name: /submit/i });
+      await expect(submitButton).toBeEnabled();
+
+      await user.click(submitButton);
+    });
+
+    await step('Verify move API called and modal closed', async () => {
+      const modalCanvas = within(document.body);
+      await waitFor(async () => {
+        await expect(moveWorkspaceSpy).toHaveBeenCalledWith(mockWorkspaces[1].id, {
+          parent_id: mockWorkspaces[2].id,
+        });
+      });
+
+      await waitFor(async () => {
+        await expect(
+          modalCanvas.queryByText((content) => {
+            return content.includes('Move') && content.includes(mockWorkspaces[1].name);
+          }),
+        ).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -389,20 +384,19 @@ export const M1_WithWritePermission: Story = {
       handlers: [...workspacesHandlers(workspaceDataForHandlers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify M1 with write permission', async () => {
+      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
 
-    await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
+      const createButton = await canvas.findByRole('button', { name: /create workspace/i });
+      expect(createButton).toBeInTheDocument();
+      await waitFor(() => expect(createButton).not.toBeDisabled(), { timeout: 5000 });
 
-    const createButton = canvas.getByRole('button', { name: /create workspace/i });
-    expect(createButton).toBeInTheDocument();
-    expect(createButton).not.toBeDisabled();
-
-    // Verify bulk delete button does NOT appear (M5 only)
-    const deleteButtons = canvas.queryAllByRole('button', { name: /delete workspaces/i });
-    expect(deleteButtons.length).toBe(0);
+      const deleteButtons = canvas.queryAllByRole('button', { name: /delete workspaces/i });
+      expect(deleteButtons.length).toBe(0);
+    });
   },
 };
 
@@ -437,15 +431,13 @@ export const M1_ReadOnly: Story = {
       handlers: [...workspacesHandlers(workspaceDataForHandlers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
-
-    // Verify "Create workspace" button is DISABLED
-    const createButton = canvas.getByRole('button', { name: /create workspace/i });
-    expect(createButton).toBeDisabled();
+    await step('Verify M1 read-only create button disabled', async () => {
+      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+      const createButton = canvas.getByRole('button', { name: /create workspace/i });
+      expect(createButton).toBeDisabled();
+    });
   },
 };
 
@@ -489,15 +481,14 @@ export const M2_WithWritePermission: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
     await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
     await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
 
-    const createButton = canvas.getByRole('button', { name: /create workspace/i });
-    expect(createButton).not.toBeDisabled();
+    const createButton = await canvas.findByRole('button', { name: /create workspace/i });
+    await waitFor(() => expect(createButton).not.toBeDisabled(), { timeout: 5000 });
 
     const deleteButtons = canvas.queryAllByRole('button', { name: /delete workspaces/i });
     expect(deleteButtons.length).toBe(0);
@@ -551,7 +542,6 @@ export const M2_ReadOnly: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
@@ -598,14 +588,14 @@ export const M3_WithWritePermission: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
 
-    // Verify all buttons enabled
-    const createButton = canvas.getByRole('button', { name: /create workspace/i });
-    expect(createButton).not.toBeDisabled();
+    // Verify all buttons enabled (wait for permission checks to complete)
+    const createButton = await canvas.findByRole('button', { name: /create workspace/i });
+    await waitFor(() => expect(createButton).not.toBeDisabled(), { timeout: 5000 });
 
     // Verify bulk delete button does NOT appear (M5 only)
     const deleteButtons = canvas.queryAllByRole('button', { name: /delete workspaces/i });
@@ -648,15 +638,13 @@ export const M3_ReadOnly: Story = {
       handlers: [...workspacesHandlers(workspaceDataForHandlers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
-
-    // Verify "Create workspace" button is DISABLED
-    const createButton = canvas.getByRole('button', { name: /create workspace/i });
-    expect(createButton).toBeDisabled();
+    await step('Verify M3 read-only create button disabled', async () => {
+      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+      const createButton = canvas.getByRole('button', { name: /create workspace/i });
+      expect(createButton).toBeDisabled();
+    });
   },
 };
 
@@ -689,20 +677,19 @@ export const M5_WithWritePermission: Story = {
       handlers: [...workspacesHandlers(workspaceDataForHandlers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify M5 with write permission', async () => {
+      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
 
-    await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+      const createButton = await canvas.findByRole('button', { name: /create workspace/i });
+      await waitFor(() => expect(createButton).not.toBeDisabled(), { timeout: 5000 });
 
-    // Verify "Create workspace" button is ENABLED
-    const createButton = canvas.getByRole('button', { name: /create workspace/i });
-    expect(createButton).not.toBeDisabled();
-
-    // Verify bulk "Delete workspaces" button APPEARS and is ENABLED (M5 feature)
-    const deleteButton = canvas.getByRole('button', { name: /delete workspaces/i });
-    expect(deleteButton).toBeInTheDocument();
-    expect(deleteButton).not.toBeDisabled();
+      const deleteButton = await canvas.findByRole('button', { name: /delete workspaces/i });
+      expect(deleteButton).toBeInTheDocument();
+      await waitFor(() => expect(deleteButton).not.toBeDisabled(), { timeout: 5000 });
+    });
   },
 };
 
@@ -735,19 +722,17 @@ export const M5_ReadOnly: Story = {
       handlers: [...workspacesHandlers(workspaceDataForHandlers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify M5 read-only buttons disabled', async () => {
+      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
 
-    await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
+      const createButton = canvas.getByRole('button', { name: /create workspace/i });
+      expect(createButton).toBeDisabled();
 
-    // Verify "Create workspace" button is DISABLED
-    const createButton = canvas.getByRole('button', { name: /create workspace/i });
-    expect(createButton).toBeDisabled();
-
-    // Verify bulk "Delete workspaces" button APPEARS but is DISABLED (M5 feature)
-    const deleteButton = canvas.getByRole('button', { name: /delete workspaces/i });
-    expect(deleteButton).toBeInTheDocument();
-    expect(deleteButton).toBeDisabled();
+      const deleteButton = canvas.getByRole('button', { name: /delete workspaces/i });
+      expect(deleteButton).toBeInTheDocument();
+      expect(deleteButton).toBeDisabled();
+    });
   },
 };

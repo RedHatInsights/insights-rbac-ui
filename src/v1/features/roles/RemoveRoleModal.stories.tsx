@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { RemoveRoleModal } from './RemoveRoleModal';
 import { v1RolesHandlers } from '../../data/mocks/roles.handlers';
@@ -80,21 +79,22 @@ export const Default: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Modal should be visible
-    const modal = await body.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+    await step('Verify modal and deletion warning', async () => {
+      // Modal should be visible
+      const modal = await body.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Title should ask about deletion (may appear multiple times)
-    const deleteTexts = body.getAllByText(/delete role/i);
-    expect(deleteTexts.length).toBeGreaterThan(0);
+      // Title should ask about deletion (may appear multiple times)
+      const deleteTexts = body.getAllByText(/delete role/i);
+      expect(deleteTexts.length).toBeGreaterThan(0);
 
-    // Role name should appear in the warning text
-    await waitFor(() => {
-      expect(body.getByText(/platform administrator/i)).toBeInTheDocument();
+      // Role name should appear in the warning text
+      await waitFor(() => {
+        expect(body.getByText(/platform administrator/i)).toBeInTheDocument();
+      });
     });
   },
 };
@@ -108,21 +108,22 @@ export const CheckboxRequired: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for modal
-    await body.findByRole('dialog');
+    await step('Verify checkbox required and delete disabled', async () => {
+      // Wait for modal
+      await body.findByRole('dialog');
 
-    // Find checkbox
-    const checkbox = body.getByRole('checkbox');
-    expect(checkbox).toBeInTheDocument();
-    expect(checkbox).not.toBeChecked();
+      // Find checkbox
+      const checkbox = body.getByRole('checkbox');
+      expect(checkbox).toBeInTheDocument();
+      expect(checkbox).not.toBeChecked();
 
-    // Delete/Confirm button should be disabled initially
-    const deleteButton = body.getByRole('button', { name: /delete role/i });
-    expect(deleteButton).toBeDisabled();
+      // Delete/Confirm button should be disabled initially
+      const deleteButton = body.getByRole('button', { name: /delete role/i });
+      expect(deleteButton).toBeDisabled();
+    });
   },
 };
 
@@ -135,22 +136,23 @@ export const CheckboxEnablesDelete: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for modal
-    await body.findByRole('dialog');
+    await step('Check checkbox and verify delete enabled', async () => {
+      // Wait for modal
+      await body.findByRole('dialog');
 
-    // Find and click checkbox
-    const checkbox = body.getByRole('checkbox');
-    await userEvent.click(checkbox);
-    expect(checkbox).toBeChecked();
+      // Find and click checkbox
+      const checkbox = body.getByRole('checkbox');
+      await userEvent.click(checkbox);
+      expect(checkbox).toBeChecked();
 
-    // Delete button should now be enabled
-    const deleteButton = body.getByRole('button', { name: /delete role/i });
-    await waitFor(() => {
-      expect(deleteButton).toBeEnabled();
+      // Delete button should now be enabled
+      const deleteButton = body.getByRole('button', { name: /delete role/i });
+      await waitFor(() => {
+        expect(deleteButton).toBeEnabled();
+      });
     });
   },
 };
@@ -165,7 +167,6 @@ export const CancelButtonVisible: Story = {
     },
   },
   play: async () => {
-    await delay(500);
     const body = within(document.body);
 
     // Wait for modal
@@ -188,7 +189,6 @@ export const CloseButtonVisible: Story = {
     },
   },
   play: async () => {
-    await delay(500);
     const body = within(document.body);
 
     // Wait for modal
@@ -210,7 +210,6 @@ export const WarningTextContent: Story = {
     },
   },
   play: async () => {
-    await delay(500);
     const body = within(document.body);
 
     // Wait for modal

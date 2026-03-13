@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AddRolePermissionWizard } from './AddRolePermissionWizard';
 import { v1RolesHandlers } from '../../../data/mocks/roles.handlers';
@@ -124,17 +123,18 @@ export const Default: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wizard should be visible (may have multiple dialogs)
-    const dialogs = await body.findAllByRole('dialog');
-    expect(dialogs.length).toBeGreaterThan(0);
+    await step('Verify wizard initial state', async () => {
+      // Wizard should be visible (may have multiple dialogs)
+      const dialogs = await body.findAllByRole('dialog');
+      expect(dialogs.length).toBeGreaterThan(0);
 
-    // Title should show "Add permissions"
-    const addPermissionsTexts = body.getAllByText(/add permissions/i);
-    expect(addPermissionsTexts.length).toBeGreaterThan(0);
+      // Title should show "Add permissions"
+      const addPermissionsTexts = body.getAllByText(/add permissions/i);
+      expect(addPermissionsTexts.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -147,17 +147,18 @@ export const CancelButtonVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for wizard
-    await body.findAllByRole('dialog');
+    await step('Verify cancel button', async () => {
+      // Wait for wizard
+      await body.findAllByRole('dialog');
 
-    // Cancel button should be present
-    const cancelButton = body.getByRole('button', { name: /cancel/i });
-    expect(cancelButton).toBeInTheDocument();
-    expect(cancelButton).toBeEnabled();
+      // Cancel button should be present
+      const cancelButton = body.getByRole('button', { name: /cancel/i });
+      expect(cancelButton).toBeInTheDocument();
+      expect(cancelButton).toBeEnabled();
+    });
   },
 };
 
@@ -171,7 +172,6 @@ export const NextButtonVisible: Story = {
     },
   },
   play: async () => {
-    await delay(500);
     const body = within(document.body);
 
     // Wait for wizard
@@ -192,16 +192,17 @@ export const WizardStepNavigation: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for wizard
-    await body.findAllByRole('dialog');
+    await step('Verify wizard step navigation', async () => {
+      // Wait for wizard
+      await body.findAllByRole('dialog');
 
-    // Step nav should be present
-    const wizardNav = document.querySelector('.pf-v6-c-wizard__nav');
-    expect(wizardNav).toBeInTheDocument();
+      // Step nav should be present (PatternFly-specific, no accessible alternative)
+      const wizardNav = document.querySelector('.pf-v6-c-wizard__nav');
+      expect(wizardNav).toBeInTheDocument();
+    });
   },
 };
 
@@ -214,21 +215,16 @@ export const PermissionsTableRendered: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for wizard
-    await body.findAllByRole('dialog');
+    await step('Verify permissions table rendered', async () => {
+      // Wait for wizard
+      await body.findAllByRole('dialog');
 
-    // Should show permissions selection UI (table or list)
-    await waitFor(
-      () => {
-        const table = document.querySelector('table') || document.querySelector('[role="grid"]');
-        expect(table).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      // Should show permissions selection UI (table or list)
+      await body.findByRole('grid', {}, { timeout: 3000 });
+    });
   },
 };
 
@@ -242,42 +238,43 @@ export const PermissionsFilteringInteraction: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for wizard and initial permissions load
-    await body.findAllByRole('dialog');
-    await waitFor(() => {
-      expect(fetchPermissionsSpy).toHaveBeenCalled();
-    });
+    await step('Apply application filter and verify', async () => {
+      // Wait for wizard and initial permissions load
+      await body.findAllByRole('dialog');
+      await waitFor(() => {
+        expect(fetchPermissionsSpy).toHaveBeenCalled();
+      });
 
-    // Reset spy so we only capture calls triggered by our interaction
-    fetchPermissionsSpy.mockClear();
+      // Reset spy so we only capture calls triggered by our interaction
+      fetchPermissionsSpy.mockClear();
 
-    // Open the Applications checkbox filter dropdown (DataViewCheckboxFilter renders via portal)
-    const appFilterToggle =
-      document.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') ??
-      body.getByRole('button', { name: /filter by application/i });
-    await userEvent.click(appFilterToggle as HTMLElement);
+      // Open the Applications checkbox filter dropdown (DataViewCheckboxFilter renders via portal)
+      const appFilterToggle =
+        body.queryByRole('button', { name: /filter by application/i }) ??
+        (document.body.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement | null);
+      expect(appFilterToggle).toBeTruthy();
+      await userEvent.click(appFilterToggle!);
 
-    // Select the "inventory" option (dropdown renders via portal)
-    const inventoryMenuItem = await body.findByRole('menuitem', { name: /^inventory$/i });
-    const inventoryCheckbox = within(inventoryMenuItem).getByRole('checkbox');
-    await userEvent.click(inventoryCheckbox);
+      // Select the "inventory" option (dropdown renders via portal)
+      const inventoryMenuItem = await body.findByRole('menuitem', { name: /^inventory$/i });
+      const inventoryCheckbox = within(inventoryMenuItem).getByRole('checkbox');
+      await userEvent.click(inventoryCheckbox);
 
-    // Verify API was called with application filter
-    await waitFor(() => {
-      expect(fetchPermissionsSpy).toHaveBeenCalled();
-      const lastCall = fetchPermissionsSpy.mock.calls[fetchPermissionsSpy.mock.calls.length - 1][0];
-      expect(lastCall.application).toBe('inventory');
-    });
+      // Verify API was called with application filter
+      await waitFor(() => {
+        expect(fetchPermissionsSpy).toHaveBeenCalled();
+        const lastCall = fetchPermissionsSpy.mock.calls[fetchPermissionsSpy.mock.calls.length - 1][0];
+        expect(lastCall.application).toBe('inventory');
+      });
 
-    // Verify non-inventory permission is not visible after filtering
-    await waitFor(() => {
-      const filteredTable = document.querySelector('[role="grid"]');
-      expect(filteredTable).toBeInTheDocument();
-      expect(within(filteredTable as HTMLElement).queryByText('rate')).not.toBeInTheDocument();
+      // Verify non-inventory permission is not visible after filtering
+      await waitFor(() => {
+        const filteredTable = body.getByRole('grid');
+        expect(within(filteredTable).queryByText('rate')).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -291,15 +288,16 @@ export const RoleInfoDisplayed: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wait for wizard
-    await body.findAllByRole('dialog');
+    await step('Verify role info displayed', async () => {
+      // Wait for wizard
+      await body.findAllByRole('dialog');
 
-    // Wizard should be visible with some content
-    const wizardTitle = body.getAllByText(/add permissions/i);
-    expect(wizardTitle.length).toBeGreaterThan(0);
+      // Wizard should be visible with some content
+      const wizardTitle = body.getAllByText(/add permissions/i);
+      expect(wizardTitle.length).toBeGreaterThan(0);
+    });
   },
 };

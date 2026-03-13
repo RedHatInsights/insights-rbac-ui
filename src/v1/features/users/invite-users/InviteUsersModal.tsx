@@ -116,6 +116,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
         appendTo={getModalContainer()}
         variant={ModalVariant.medium}
         isOpen={!cancelWarningVisible}
+        disableFocusTrap
         title={intl.formatMessage(messages.inviteUsersTitle)}
         description={intl.formatMessage(messages.inviteUsersDescription)}
         onClose={onCancel}

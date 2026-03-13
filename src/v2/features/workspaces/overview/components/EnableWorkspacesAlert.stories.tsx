@@ -130,13 +130,16 @@ const FeatureFlagTestComponent: React.FC<{ showEligibleUser: boolean; workspaces
 
 export const NotEligibleNotEnabled: StoryObj<FeatureFlagContextArgs> = {
   render: () => <FeatureFlagTestComponent showEligibleUser={false} workspacesEnabled={false} />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    // Component should NOT be shown (user not eligible)
-    await expect(canvas.findByTestId('component-hidden-message')).resolves.toBeInTheDocument();
-    await expect(canvas.queryByText('You are qualified to opt into the workspace user access model for your organization.')).not.toBeInTheDocument();
-    await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+    await step('Verify not eligible not enabled', async () => {
+      // Component should NOT be shown (user not eligible)
+      await expect(canvas.findByTestId('component-hidden-message')).resolves.toBeInTheDocument();
+      await expect(
+        canvas.queryByText('You are qualified to opt into the workspace user access model for your organization.'),
+      ).not.toBeInTheDocument();
+      await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+    });
   },
   parameters: {
     docs: {
@@ -149,13 +152,16 @@ export const NotEligibleNotEnabled: StoryObj<FeatureFlagContextArgs> = {
 
 export const NotEligibleButEnabled: StoryObj<FeatureFlagContextArgs> = {
   render: () => <FeatureFlagTestComponent showEligibleUser={false} workspacesEnabled={true} />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    // Component should NOT be shown (user not eligible, even though workspaces enabled)
-    await expect(canvas.findByTestId('component-hidden-message')).resolves.toBeInTheDocument();
-    await expect(canvas.queryByText('You are qualified to opt into the workspace user access model for your organization.')).not.toBeInTheDocument();
-    await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+    await step('Verify not eligible but enabled', async () => {
+      // Component should NOT be shown (user not eligible, even though workspaces enabled)
+      await expect(canvas.findByTestId('component-hidden-message')).resolves.toBeInTheDocument();
+      await expect(
+        canvas.queryByText('You are qualified to opt into the workspace user access model for your organization.'),
+      ).not.toBeInTheDocument();
+      await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+    });
   },
   parameters: {
     docs: {
@@ -168,19 +174,20 @@ export const NotEligibleButEnabled: StoryObj<FeatureFlagContextArgs> = {
 
 export const EligibleNotEnabled: StoryObj<FeatureFlagContextArgs> = {
   render: () => <FeatureFlagTestComponent showEligibleUser={true} workspacesEnabled={false} />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify eligible not enabled', async () => {
+      // Component SHOULD be shown (eligible user, workspaces not enabled)
+      await expect(
+        canvas.findByText('You are qualified to opt into the workspace user access model for your organization.'),
+      ).resolves.toBeInTheDocument();
+      await expect(canvas.queryByTestId('component-hidden-message')).not.toBeInTheDocument();
 
-    // Component SHOULD be shown (eligible user, workspaces not enabled)
-    await expect(
-      canvas.findByText('You are qualified to opt into the workspace user access model for your organization.'),
-    ).resolves.toBeInTheDocument();
-    await expect(canvas.queryByTestId('component-hidden-message')).not.toBeInTheDocument();
-
-    // Should show the switch (PF6 uses role="switch")
-    const switchElement = await canvas.findByRole('switch');
-    await expect(switchElement).toBeInTheDocument();
-    await expect(switchElement).not.toBeChecked();
+      // Should show the switch (PF6 uses role="switch")
+      const switchElement = await canvas.findByRole('switch');
+      await expect(switchElement).toBeInTheDocument();
+      await expect(switchElement).not.toBeChecked();
+    });
   },
   parameters: {
     docs: {
@@ -193,13 +200,16 @@ export const EligibleNotEnabled: StoryObj<FeatureFlagContextArgs> = {
 
 export const EligibleAndEnabled: StoryObj<FeatureFlagContextArgs> = {
   render: () => <FeatureFlagTestComponent showEligibleUser={true} workspacesEnabled={true} />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    // Component should NOT be shown (workspaces already enabled)
-    await expect(canvas.findByTestId('component-hidden-message')).resolves.toBeInTheDocument();
-    await expect(canvas.queryByText('You are qualified to opt into the workspace user access model for your organization.')).not.toBeInTheDocument();
-    await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+    await step('Verify eligible and enabled', async () => {
+      // Component should NOT be shown (workspaces already enabled)
+      await expect(canvas.findByTestId('component-hidden-message')).resolves.toBeInTheDocument();
+      await expect(
+        canvas.queryByText('You are qualified to opt into the workspace user access model for your organization.'),
+      ).not.toBeInTheDocument();
+      await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+    });
   },
   parameters: {
     docs: {
@@ -212,40 +222,41 @@ export const EligibleAndEnabled: StoryObj<FeatureFlagContextArgs> = {
 
 export const InteractiveDemo: Story = {
   render: () => <EnableWorkspacesAlert />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify interactive demo', async () => {
+      // Initial state should show alert with switch
+      await expect(
+        canvas.findByText('You are qualified to opt into the workspace user access model for your organization.'),
+      ).resolves.toBeInTheDocument();
+      const switchElement = await canvas.findByRole('switch');
+      await expect(switchElement).toBeInTheDocument();
+      await expect(switchElement).not.toBeChecked();
 
-    // Initial state should show alert with switch
-    await expect(
-      canvas.findByText('You are qualified to opt into the workspace user access model for your organization.'),
-    ).resolves.toBeInTheDocument();
-    const switchElement = await canvas.findByRole('switch');
-    await expect(switchElement).toBeInTheDocument();
-    await expect(switchElement).not.toBeChecked();
+      // Click the switch to open modal
+      await userEvent.click(switchElement);
 
-    // Click the switch to open modal
-    await userEvent.click(switchElement);
+      // Modal should now be visible in document body
+      const body = within(document.body);
+      await expect(body.getByRole('heading', { name: 'Enable workspaces' })).toBeInTheDocument();
 
-    // Modal should now be visible in document body
-    const body = within(document.body);
-    await expect(body.getByRole('heading', { name: 'Enable workspaces' })).toBeInTheDocument();
+      // Confirm button should be disabled initially
+      const confirmButton = body.getByRole('button', { name: 'Confirm' });
+      await expect(confirmButton).toBeDisabled();
 
-    // Confirm button should be disabled initially
-    const confirmButton = body.getByRole('button', { name: 'Confirm' });
-    await expect(confirmButton).toBeDisabled();
+      // Check the confirmation checkbox
+      const checkbox = body.getByRole('checkbox');
+      await userEvent.click(checkbox);
 
-    // Check the confirmation checkbox
-    const checkbox = body.getByRole('checkbox');
-    await userEvent.click(checkbox);
+      // Confirm button should now be enabled
+      await expect(confirmButton).toBeEnabled();
 
-    // Confirm button should now be enabled
-    await expect(confirmButton).toBeEnabled();
+      // Click confirm to complete the flow
+      await userEvent.click(confirmButton);
 
-    // Click confirm to complete the flow
-    await userEvent.click(confirmButton);
-
-    // Should now show success alert
-    await expect(canvas.findByText('Your workspace migration is complete and ready to manage!')).resolves.toBeInTheDocument();
+      // Should now show success alert
+      await expect(canvas.findByText('Your workspace migration is complete and ready to manage!')).resolves.toBeInTheDocument();
+    });
   },
 };
 

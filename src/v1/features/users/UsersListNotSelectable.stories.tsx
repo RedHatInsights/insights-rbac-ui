@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { findSortButton } from '../../../test-utils/tableHelpers';
 import UsersListNotSelectable from './UsersListNotSelectable';
 import { usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
 import { withRouter as withRouterDecorator } from '../../../../.storybook/helpers/router-test-utils';
@@ -166,31 +166,30 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
     },
     // Uses default MSW handlers from meta
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for container to load data through React Query
-    expect(await canvas.findByText('john.doe')).toBeInTheDocument();
-    expect(await canvas.findByText('jane.admin')).toBeInTheDocument();
-    expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+    await step('Verify admin user view with users table', async () => {
+      // Wait for container to load data through React Query
+      expect(await canvas.findByText('john.doe')).toBeInTheDocument();
+      expect(await canvas.findByText('jane.admin')).toBeInTheDocument();
+      expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
 
-    // Debug: Check spy call count
-    console.log('SB: 🔍 Total spy calls so far:', fetchUsersSpy.mock.calls.length);
+      // Verify admin users trigger API calls (expected behavior)
+      // Note: Since component makes API call on mount, spy should already have been called
+      expect(fetchUsersSpy).toHaveBeenCalled();
 
-    // Verify admin users trigger API calls (expected behavior)
-    // Note: Since component makes API call on mount, spy should already have been called
-    expect(fetchUsersSpy).toHaveBeenCalled();
+      // Verify users table is displayed with data
+      const table = await canvas.findByRole('grid');
+      expect(table).toBeInTheDocument();
 
-    // Verify users table is displayed with data
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
-
-    // Verify user data is rendered through React Query state
-    const tableContent = within(table);
-    expect(await tableContent.findByText('john.doe')).toBeInTheDocument();
-    expect(await tableContent.findByText('john.doe@redhat.com')).toBeInTheDocument();
-    expect(await tableContent.findByText('John')).toBeInTheDocument();
-    expect(await tableContent.findByText('Doe')).toBeInTheDocument();
+      // Verify user data is rendered through React Query state
+      const tableContent = within(table);
+      expect(await tableContent.findByText('john.doe')).toBeInTheDocument();
+      expect(await tableContent.findByText('john.doe@redhat.com')).toBeInTheDocument();
+      expect(await tableContent.findByText('John')).toBeInTheDocument();
+      expect(await tableContent.findByText('Doe')).toBeInTheDocument();
+    });
   },
 };
 
@@ -213,13 +212,13 @@ export const LoadingState: Story = {
       handlers: usersLoadingHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-
-    // Should show loading state while API calls are pending
-    await waitFor(async () => {
-      const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-      expect(skeletonElements.length).toBeGreaterThan(0);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify loading state', async () => {
+      // Should show loading state while API calls are pending
+      await waitFor(async () => {
+        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+        expect(skeletonElements.length).toBeGreaterThan(0);
+      });
     });
   },
 };
@@ -242,7 +241,6 @@ export const EmptyUsers: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     // Should show empty state message for no users
@@ -265,42 +263,45 @@ export const AdminUserWithUsersFiltering: Story = {
     },
     // Uses default MSW handlers from meta (includes filtering and sorting)
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    console.log('SB: 🧪 FILTERING: Starting username filtering test');
+    await step('Filter by john', async () => {
+      // Wait for initial data load
+      expect(await canvas.findByText('john.doe')).toBeInTheDocument();
 
-    // Wait for initial data load
-    expect(await canvas.findByText('john.doe')).toBeInTheDocument();
+      // Find filter input
+      const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
+      expect(filterInput).toBeInTheDocument();
 
-    // Find filter input
-    const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
-    expect(filterInput).toBeInTheDocument();
+      // Test 1: Filter by "john"
+      await userEvent.clear(filterInput);
+      await userEvent.type(filterInput, 'john');
 
-    // Test 1: Filter by "john"
-    await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, 'john');
-
-    // Wait for filtered results - only john.doe should be visible
-    await waitFor(() => {
-      expect(canvas.getByText('john.doe')).toBeInTheDocument();
-      expect(canvas.queryByText('jane.admin')).not.toBeInTheDocument();
+      // Wait for filtered results - only john.doe should be visible
+      await waitFor(() => {
+        expect(canvas.getByText('john.doe')).toBeInTheDocument();
+        expect(canvas.queryByText('jane.admin')).not.toBeInTheDocument();
+      });
     });
 
-    // Test 2: Filter by "admin"
-    await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, 'admin');
+    await step('Filter by admin', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
+      // Test 2: Filter by "admin"
+      await userEvent.clear(filterInput);
+      await userEvent.type(filterInput, 'admin');
 
-    // Wait for filtered results - only jane.admin should be visible
-    await waitFor(() => {
-      expect(canvas.getByText('jane.admin')).toBeInTheDocument();
-      expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
+      // Wait for filtered results - only jane.admin should be visible
+      await waitFor(() => {
+        expect(canvas.getByText('jane.admin')).toBeInTheDocument();
+        expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
+      });
     });
 
-    // Test 3: Clear filter
-    await userEvent.clear(filterInput);
-
-    console.log('SB: 🧪 FILTERING: Username filtering test completed');
+    await step('Clear filter', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by username/i);
+      await userEvent.clear(filterInput);
+    });
   },
 };
 
@@ -319,62 +320,60 @@ export const AdminUserWithUsersSorting: Story = {
     },
     // Uses default MSW handlers from meta (includes sorting)
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    console.log('SB: 🧪 SORTING: Starting username column sorting test');
+    await step('Verify initial sort and toggle to descending', async () => {
+      // Wait for initial data load (sorted ascending by default)
+      expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
 
-    // Wait for initial data load (sorted ascending by default)
-    expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+      // Helper function to get usernames from table - re-queries DOM each time
+      const getUsernames = () => {
+        const rows = canvasElement.querySelectorAll('table tbody tr');
+        return Array.from(rows)
+          .map((row) => row.querySelector('td:nth-child(2)')?.textContent?.trim())
+          .filter(Boolean);
+      };
 
-    // Helper function to get usernames from table - re-queries DOM each time
-    const getUsernames = () => {
-      const rows = canvasElement.querySelectorAll('table tbody tr');
-      return Array.from(rows)
-        .map((row) => row.querySelector('td:nth-child(2)')?.textContent?.trim())
-        .filter(Boolean);
-    };
+      // Verify initial sort is ascending (bob < jane < john alphabetically)
+      let usernames = getUsernames();
+      expect(usernames[0]).toBe('bob.smith');
 
-    // Verify initial sort is ascending (bob < jane < john alphabetically)
-    let usernames = getUsernames();
-    expect(usernames[0]).toBe('bob.smith');
+      const sortButton = await findSortButton(canvas, /username/i);
+      expect(sortButton).toBeInTheDocument();
 
-    // Helper to find the sort button - re-queries DOM each time
-    const getSortButton = async () => {
-      const header = await canvas.findByRole('columnheader', { name: /username/i });
-      return within(header).findByRole('button');
-    };
+      // Click to sort descending
+      await userEvent.click(sortButton);
 
-    // Wait for table to be fully interactive
-    const sortButton = await getSortButton();
-    expect(sortButton).toBeInTheDocument();
+      // Wait for data to re-sort and verify descending order
+      await waitFor(
+        () => {
+          usernames = getUsernames();
+          expect(usernames[0]).toBe('john.doe'); // john > jane > bob alphabetically
+        },
+        { timeout: 3000 },
+      );
+    });
 
-    // Click to sort descending
-    await userEvent.click(sortButton);
+    await step('Toggle to ascending', async () => {
+      const getUsernames = () => {
+        const rows = canvasElement.querySelectorAll('table tbody tr');
+        return Array.from(rows)
+          .map((row) => row.querySelector('td:nth-child(2)')?.textContent?.trim())
+          .filter(Boolean);
+      };
 
-    // Wait for data to re-sort and verify descending order
-    await waitFor(
-      () => {
-        usernames = getUsernames();
-        expect(usernames[0]).toBe('john.doe'); // john > jane > bob alphabetically
-      },
-      { timeout: 3000 },
-    );
+      const sortButton2 = await findSortButton(canvas, /username/i);
+      await userEvent.click(sortButton2);
 
-    // Re-find the button after table re-render and click again to sort ascending
-    const sortButton2 = await getSortButton();
-    await userEvent.click(sortButton2);
-
-    // Verify ascending order again
-    await waitFor(
-      () => {
-        usernames = getUsernames();
-        expect(usernames[0]).toBe('bob.smith');
-      },
-      { timeout: 3000 },
-    );
-
-    console.log('SB: 🧪 SORTING: Username column sorting test completed');
+      await waitFor(
+        () => {
+          const usernames = getUsernames();
+          expect(usernames[0]).toBe('bob.smith');
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -393,48 +392,45 @@ export const AdminUserWithUsersTableContent: Story = {
     },
     // Uses default MSW handlers from meta - default filter is Active, so only active users shown
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    console.log('SB: 🧪 TABLE CONTENT: Starting table content test');
+    await step('Verify table content and user data', async () => {
+      // Wait for initial data load
+      const table = await canvas.findByRole('grid', { name: /users table/i });
+      expect(table).toBeInTheDocument();
 
-    // Wait for initial data load
-    const table = await canvas.findByRole('grid', { name: /users table/i });
-    expect(table).toBeInTheDocument();
+      // Test user data is rendered correctly (only active users shown due to default filter)
+      expect(await canvas.findByText('john.doe')).toBeInTheDocument();
+      expect(await canvas.findByText('jane.admin')).toBeInTheDocument();
+      expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
 
-    // Test user data is rendered correctly (only active users shown due to default filter)
-    expect(await canvas.findByText('john.doe')).toBeInTheDocument();
-    expect(await canvas.findByText('jane.admin')).toBeInTheDocument();
-    expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+      // alice.inactive is not shown because the default filter is Active
+      expect(canvas.queryByText('alice.inactive')).not.toBeInTheDocument();
 
-    // alice.inactive is not shown because the default filter is Active
-    expect(canvas.queryByText('alice.inactive')).not.toBeInTheDocument();
+      // Test email addresses
+      expect(await canvas.findByText('john.doe@redhat.com')).toBeInTheDocument();
+      expect(await canvas.findByText('jane.admin@redhat.com')).toBeInTheDocument();
+      expect(await canvas.findByText('bob.smith@redhat.com')).toBeInTheDocument();
 
-    // Test email addresses
-    expect(await canvas.findByText('john.doe@redhat.com')).toBeInTheDocument();
-    expect(await canvas.findByText('jane.admin@redhat.com')).toBeInTheDocument();
-    expect(await canvas.findByText('bob.smith@redhat.com')).toBeInTheDocument();
+      // Test names
+      expect(await canvas.findByText('John')).toBeInTheDocument();
+      expect(await canvas.findByText('Jane')).toBeInTheDocument();
+      expect(await canvas.findByText('Bob')).toBeInTheDocument();
+      expect(await canvas.findByText('Doe')).toBeInTheDocument();
+      expect(await canvas.findByText('Admin')).toBeInTheDocument();
+      expect(await canvas.findByText('Smith')).toBeInTheDocument();
 
-    // Test names
-    expect(await canvas.findByText('John')).toBeInTheDocument();
-    expect(await canvas.findByText('Jane')).toBeInTheDocument();
-    expect(await canvas.findByText('Bob')).toBeInTheDocument();
-    expect(await canvas.findByText('Doe')).toBeInTheDocument();
-    expect(await canvas.findByText('Admin')).toBeInTheDocument();
-    expect(await canvas.findByText('Smith')).toBeInTheDocument();
+      // Test org admin indicators (Yes/No) - only 3 active users shown
+      const yesTexts = await canvas.findAllByText('Yes');
+      const noTexts = await canvas.findAllByText('No');
+      expect(yesTexts).toHaveLength(1); // jane.admin is org admin
+      expect(noTexts).toHaveLength(2); // john.doe and bob.smith are not
 
-    // Test org admin indicators (Yes/No) - only 3 active users shown
-    const yesTexts = await canvas.findAllByText('Yes');
-    const noTexts = await canvas.findAllByText('No');
-    expect(yesTexts).toHaveLength(1); // jane.admin is org admin
-    expect(noTexts).toHaveLength(2); // john.doe and bob.smith are not
-
-    // Test status labels - all shown users are Active
-    // Note: "Active" also appears in the filter, so we check for at least 3 (the users) + 1 (filter label)
-    const activeLabels = await canvas.findAllByText('Active');
-    expect(activeLabels.length).toBeGreaterThanOrEqual(3); // john.doe, jane.admin, bob.smith + filter checkbox
-
-    console.log('SB: 🧪 TABLE CONTENT: Table content test completed');
+      // Test status labels - all shown users are Active
+      const activeLabels = await canvas.findAllByText('Active');
+      expect(activeLabels.length).toBeGreaterThanOrEqual(3); // john.doe, jane.admin, bob.smith + filter checkbox
+    });
   },
 };
 

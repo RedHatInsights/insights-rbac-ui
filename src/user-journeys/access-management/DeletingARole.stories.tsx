@@ -11,24 +11,16 @@
 
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, fn, userEvent, within } from 'storybook/test';
-import { delay } from 'msw';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { TEST_TIMEOUTS, openRoleActionsMenu, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import { confirmDestructiveModal, waitForContentReady, waitForModal } from '../../test-utils/interactionHelpers';
+import { openRoleActionsMenu, waitForPageToLoad } from '../../test-utils/tableHelpers';
 import { createV2RolesHandlers, mockRolesV2, v2DefaultHandlers } from './_shared';
 import { createResettableCollection } from '../../shared/data/mocks/db';
-import {
-  clickModalCancelButton,
-  clickModalCheckbox,
-  clickModalDeleteButton,
-  verifyDeleteButtonDisabled,
-  verifyDeleteButtonEnabled,
-  verifyDeleteRoleApiCall,
-  verifyNoApiCalls,
-  verifyRoleNotExists,
-  waitForModal,
-} from './_shared/tableHelpers';
+import { clickModalCancelButton, verifyDeleteRoleApiCall, verifyNoApiCalls, verifyRoleNotExists } from './_shared/tableHelpers';
 import type { Role } from '../../v2/data/queries/roles';
 
 // =============================================================================
@@ -115,7 +107,14 @@ const meta = {
       'platform.rbac.workspaces': true,
     }),
     msw: {
-      handlers: [...rolesHandlers, ...v2DefaultHandlers],
+      handlers: [
+        ...rolesHandlers,
+        ...v2DefaultHandlers.filter((h) => {
+          const path = h.info?.path?.toString() || '';
+          if (path.includes('/api/rbac/v2/roles')) return false;
+          return true;
+        }),
+      ],
     },
     docs: {
       description: {
@@ -204,50 +203,44 @@ Tests the complete delete role workflow:
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    deleteRoleSpy.mockClear();
-    resetCollection();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      deleteRoleSpy.mockClear();
+      resetCollection();
+    });
 
-    // Wait for page to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Step 1: Pre-condition - Verify role exists
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await step('Wait for page with target role', async () => {
+      await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    });
 
-    // Step 2: Open kebab menu for the target role
-    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Open kebab menu and click delete', async () => {
+      await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
+      const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
+      await user.click(deleteOption);
+    });
 
-    // Step 3: Click "Delete role" option
-    const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
-    await user.click(deleteOption);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Verify modal and confirm deletion', async () => {
+      const modalScope = await waitForModal();
+      await expect(modalScope.findByRole('heading', { name: /delete role/i })).resolves.toBeInTheDocument();
+      await expect(modalScope.findByText(new RegExp(TARGET_ROLE.name, 'i'))).resolves.toBeInTheDocument();
+      await confirmDestructiveModal(user);
+    });
 
-    // Step 4: Verify modal appears with delete confirmation
-    const modalScope = await waitForModal();
-    await expect(modalScope.findByRole('heading', { name: /delete role/i })).resolves.toBeInTheDocument();
-    await expect(modalScope.findByText(new RegExp(TARGET_ROLE.name, 'i'))).resolves.toBeInTheDocument();
+    await step('Verify API call', async () => {
+      await waitFor(() => verifyDeleteRoleApiCall(deleteRoleSpy, TARGET_ROLE_ID), { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
 
-    // Step 5: Check acknowledgment checkbox (if present)
-    const checkbox = modalScope.queryByRole('checkbox');
-    if (checkbox) {
-      await user.click(checkbox);
-      await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-    }
-
-    // Step 6: Click Delete button
-    await clickModalDeleteButton(user);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // Step 7: API Spy - Verify delete API called with correct role ID
-    verifyDeleteRoleApiCall(deleteRoleSpy, TARGET_ROLE_ID);
-
-    // Step 8: Post-condition - Verify role is removed from table
-    await verifyRoleNotExists(canvas, TARGET_ROLE.name);
+    await step('Verify role removed from table', async () => {
+      await verifyRoleNotExists(canvas, TARGET_ROLE.name);
+    });
   },
 };
 
@@ -277,38 +270,35 @@ Tests canceling the delete confirmation modal.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    deleteRoleSpy.mockClear();
-    resetCollection();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      deleteRoleSpy.mockClear();
+      resetCollection();
+    });
 
-    // Wait for page to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Step 1: Pre-condition - Verify role exists
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await step('Wait for page and open delete modal', async () => {
+      await waitForPageToLoad(canvas, TARGET_ROLE.name);
+      await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
+      const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
+      await user.click(deleteOption);
+    });
 
-    // Step 2: Open kebab menu and click delete
-    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Click cancel in modal', async () => {
+      await clickModalCancelButton(user);
+    });
 
-    const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
-    await user.click(deleteOption);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Step 3: Click Cancel in modal
-    await waitForModal();
-    await clickModalCancelButton(user);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Step 4: API Spy - Verify NO delete API call made
-    verifyNoApiCalls(deleteRoleSpy);
-
-    // Step 5: Post-condition - Role still exists
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await step('Verify no API call and role still exists', async () => {
+      verifyNoApiCalls(deleteRoleSpy);
+      await canvas.findByText(TARGET_ROLE.name);
+    });
   },
 };
 
@@ -333,27 +323,31 @@ Tests that system/canned roles cannot be deleted.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // Wait for page to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // Verify the system role is displayed
-    await waitForPageToLoad(canvas, SYSTEM_ROLE.name);
-
-    // System role should NOT have a kebab menu (org_id is undefined)
-    const kebab = canvas.queryByRole('button', {
-      name: new RegExp(`Actions for role ${SYSTEM_ROLE.name}`, 'i'),
+    await step('Reset state', async () => {
+      await resetStoryState();
     });
-    expect(kebab).not.toBeInTheDocument();
 
-    // User-created role should still have a kebab menu
-    const writableKebab = await canvas.findByRole('button', {
-      name: new RegExp(`Actions for role ${TARGET_ROLE.name}`, 'i'),
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
     });
-    expect(writableKebab).toBeInTheDocument();
+
+    await step('Wait for page with roles', async () => {
+      await waitForPageToLoad(canvas, SYSTEM_ROLE.name);
+    });
+
+    await step('Verify system role has no kebab, user role has kebab', async () => {
+      const kebab = canvas.queryByRole('button', {
+        name: new RegExp(`Actions for role ${SYSTEM_ROLE.name}`, 'i'),
+      });
+      expect(kebab).not.toBeInTheDocument();
+      const writableKebab = await canvas.findByRole('button', {
+        name: new RegExp(`Actions for role ${TARGET_ROLE.name}`, 'i'),
+      });
+      expect(writableKebab).toBeInTheDocument();
+    });
   },
 };
 
@@ -379,42 +373,34 @@ Tests that the delete button requires checkbox acknowledgment.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Step 1: Open kebab menu and click delete
-    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
-    await user.click(deleteOption);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Open kebab menu and click delete', async () => {
+      await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
+      const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
+      await user.click(deleteOption);
+    });
 
-    // Step 2: Verify modal appears
-    const modalScope = await waitForModal();
-
-    // Step 3: Check if checkbox exists and verify button state
-    const checkbox = modalScope.queryByRole('checkbox');
-    if (checkbox) {
-      // Delete button should be disabled initially
-      await verifyDeleteButtonDisabled();
-
-      // Check checkbox
-      await clickModalCheckbox(user);
-      await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-      // Delete button should now be enabled
-      await verifyDeleteButtonEnabled();
-    } else {
-      // If no checkbox, this is a GAP - document it
-      console.warn('GAP: Delete confirmation modal does not have checkbox acknowledgment');
-      // The delete button may be enabled without checkbox
-    }
+    await step('Verify delete button disabled, check checkbox, verify enabled', async () => {
+      const modalScope = await waitForModal();
+      const checkbox = modalScope.queryByRole('checkbox');
+      if (checkbox) {
+        const deleteButton = await modalScope.findByRole('button', { name: /delete/i });
+        await waitFor(() => expect(deleteButton).toBeDisabled());
+        await user.click(checkbox);
+        await waitFor(() => expect(deleteButton).toBeEnabled());
+      }
+    });
   },
 };
 
@@ -442,38 +428,36 @@ Tests closing the delete modal with the X button.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    deleteRoleSpy.mockClear();
-    resetCollection();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      deleteRoleSpy.mockClear();
+      resetCollection();
+    });
 
-    // Wait for page to load
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Step 1: Pre-condition - Verify role exists
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await step('Wait for page and open delete modal', async () => {
+      await waitForPageToLoad(canvas, TARGET_ROLE.name);
+      await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
+      const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
+      await user.click(deleteOption);
+    });
 
-    // Step 2: Open kebab menu and click delete
-    await openRoleActionsMenu(user, canvas, TARGET_ROLE.name);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Close modal with X button', async () => {
+      const modalScope = await waitForModal();
+      const closeButton = await modalScope.findByLabelText(/close/i);
+      await user.click(closeButton);
+    });
 
-    const deleteOption = await within(document.body).findByRole('menuitem', { name: /^delete$/i });
-    await user.click(deleteOption);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Step 3: Click X button to close modal
-    const modalScope = await waitForModal();
-    const closeButton = await modalScope.findByLabelText(/close/i);
-    await user.click(closeButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Step 4: API Spy - Verify NO delete API call made
-    verifyNoApiCalls(deleteRoleSpy);
-
-    // Step 5: Post-condition - Role still exists
-    await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    await step('Verify no API call and role still exists', async () => {
+      verifyNoApiCalls(deleteRoleSpy);
+      await waitForPageToLoad(canvas, TARGET_ROLE.name);
+    });
   },
 };

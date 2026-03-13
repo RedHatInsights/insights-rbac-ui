@@ -8,7 +8,6 @@ import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { TreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
 import { WorkspacesWorkspaceTypes } from '../../../data/api/workspaces';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { delay } from 'msw';
 import { workspacesHandlers } from '../../../data/mocks/workspaces.handlers';
 
 // Mock workspace data
@@ -210,18 +209,16 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify trigger button and modal closed', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await expect(openButton).toBeInTheDocument();
+      await expect(openButton).toBeEnabled();
 
-    // Verify the trigger button is present
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await expect(openButton).toBeInTheDocument();
-    await expect(openButton).toBeEnabled();
-
-    // Modal should not be visible initially - check in document.body where modals render
-    const body = within(document.body);
-    await expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+      const body = within(document.body);
+      await expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -243,54 +240,44 @@ export const ModalOpen: Story = {
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
-    await delay(300);
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
+    await step('Open modal and verify content', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    // Click the trigger button to open modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+      const body = within(document.body);
+      await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
-    // Wait for modal to appear - IMPORTANT: Use document.body for modals, not canvas
-    const body = within(document.body);
-    await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
+      await expect(body.findByText('Move "Web Services"')).resolves.toBeInTheDocument();
 
-    // Verify modal content - use body since modal renders outside canvas
-    await expect(body.findByText('Move "Web Services"')).resolves.toBeInTheDocument();
+      await expect(body.findByText(/Moving a workspace may change who is able to access it and their permissions/)).resolves.toBeInTheDocument();
 
-    // Verify warning text about permission changes
-    await expect(body.findByText(/Moving a workspace may change who is able to access it and their permissions/)).resolves.toBeInTheDocument();
+      await expect(body.findByText('Parent workspace')).resolves.toBeInTheDocument();
 
-    // Verify parent workspace section header
-    await expect(body.findByText('Parent workspace')).resolves.toBeInTheDocument();
+      await expect(body.findByText('Submit')).resolves.toBeInTheDocument();
+      await expect(body.findByText('Cancel')).resolves.toBeInTheDocument();
 
-    // Verify action buttons are present
-    await expect(body.findByText('Submit')).resolves.toBeInTheDocument();
-    await expect(body.findByText('Cancel')).resolves.toBeInTheDocument();
+      const submitButton = await body.findByText('Submit');
+      await expect(submitButton).toBeEnabled();
 
-    // Submit should be enabled since a workspace is pre-selected
-    const submitButton = await body.findByText('Submit');
-    await expect(submitButton).toBeEnabled();
+      const cancelButton = await body.findByText('Cancel');
+      await userEvent.click(cancelButton);
 
-    // Test the Cancel button and onClose action
-    const cancelButton = await body.findByText('Cancel');
-    await userEvent.click(cancelButton);
+      await waitFor(
+        async () => {
+          await expect(args.onClose).toHaveBeenCalledTimes(1);
+        },
+        { timeout: 2000 },
+      );
 
-    // Verify onClose action was called
-    await waitFor(
-      async () => {
-        await expect(args.onClose).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 2000 },
-    );
-
-    // Modal should close
-    await waitFor(
-      async () => {
-        await expect(body.queryByRole('dialog')).not.toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      await waitFor(
+        async () => {
+          await expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -313,7 +300,6 @@ export const SubmissionWorkflow: Story = {
     },
   },
   play: async ({ canvasElement, args }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     // Open modal
@@ -328,7 +314,6 @@ export const SubmissionWorkflow: Story = {
       async () => {
         // Check if we can find any workspace options (ManagedSelector should load the API data)
         const workspaceOptions = body.queryAllByText(/Environment/);
-        console.log('SB: Found workspace options:', workspaceOptions.length);
         await expect(workspaceOptions.length).toBeGreaterThan(0);
       },
       { timeout: 5000 },
@@ -397,27 +382,23 @@ export const LoadingState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify loading state buttons disabled', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    // Open modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+      const body = within(document.body);
+      await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
-    const body = within(document.body);
-    await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
+      const submitButton = await body.findByRole('button', { name: /submit/i });
+      const cancelButton = await body.findByRole('button', { name: /cancel/i });
 
-    // Verify buttons are disabled during loading (use findByRole to get the actual button element)
-    const submitButton = await body.findByRole('button', { name: /submit/i });
-    const cancelButton = await body.findByRole('button', { name: /cancel/i });
-
-    // In PF6, disabled buttons may use disabled attribute or aria-disabled
-    // Check that the button is disabled using either method
-    const submitDisabled = submitButton.hasAttribute('disabled') || submitButton.getAttribute('aria-disabled') === 'true';
-    const cancelDisabled = cancelButton.hasAttribute('disabled') || cancelButton.getAttribute('aria-disabled') === 'true';
-    await expect(submitDisabled).toBe(true);
-    await expect(cancelDisabled).toBe(true);
+      const submitDisabled = submitButton.hasAttribute('disabled') || submitButton.getAttribute('aria-disabled') === 'true';
+      const cancelDisabled = cancelButton.hasAttribute('disabled') || cancelButton.getAttribute('aria-disabled') === 'true';
+      await expect(submitDisabled).toBe(true);
+      await expect(cancelDisabled).toBe(true);
+    });
   },
 };
 
@@ -439,29 +420,25 @@ export const NoSelection: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify no selection submit disabled', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await userEvent.click(openButton);
 
-    // Open modal
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await userEvent.click(openButton);
+      const body = within(document.body);
+      await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
-    const body = within(document.body);
-    await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
+      const submitButton = await body.findByRole('button', { name: /submit/i });
+      const submitDisabled = submitButton.hasAttribute('disabled') || submitButton.getAttribute('aria-disabled') === 'true';
+      await expect(submitDisabled).toBe(true);
 
-    // Submit should be disabled when no workspace is selected
-    const submitButton = await body.findByRole('button', { name: /submit/i });
-    const submitDisabled = submitButton.hasAttribute('disabled') || submitButton.getAttribute('aria-disabled') === 'true';
-    await expect(submitDisabled).toBe(true);
+      const cancelButton = await body.findByRole('button', { name: /cancel/i });
+      const cancelDisabled = cancelButton.hasAttribute('disabled') || cancelButton.getAttribute('aria-disabled') === 'true';
+      await expect(cancelDisabled).toBe(false);
 
-    // Cancel should still be enabled
-    const cancelButton = await body.findByRole('button', { name: /cancel/i });
-    const cancelDisabled = cancelButton.hasAttribute('disabled') || cancelButton.getAttribute('aria-disabled') === 'true';
-    await expect(cancelDisabled).toBe(false);
-
-    // No change message should appear
-    await expect(body.queryByText(/This will move/)).not.toBeInTheDocument();
+      await expect(body.queryByText(/This will move/)).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -482,21 +459,18 @@ export const NoWorkspaceToMove: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify no dialog when no workspace to move', async () => {
+      const openButton = await canvas.findByTestId('open-modal-button');
+      await expect(openButton).toBeInTheDocument();
 
-    // Button should be present (managed by wrapper)
-    const openButton = await canvas.findByTestId('open-modal-button');
-    await expect(openButton).toBeInTheDocument();
+      await userEvent.click(openButton);
 
-    // Click the trigger button
-    await userEvent.click(openButton);
-
-    // Verify no dialog appears
-    const body = within(document.body);
-    await waitFor(async () => {
-      await expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+      const body = within(document.body);
+      await waitFor(async () => {
+        await expect(body.queryByRole('dialog')).not.toBeInTheDocument();
+      });
     });
   },
 };

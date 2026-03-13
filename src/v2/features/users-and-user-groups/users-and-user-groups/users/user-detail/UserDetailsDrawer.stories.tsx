@@ -5,7 +5,6 @@ import { fn } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { delay } from 'msw';
 
 import { UserDetailsDrawer } from './UserDetailsDrawer';
 import { groupsHandlers } from '../../../../../../shared/data/mocks/groups.handlers';
@@ -175,22 +174,21 @@ For testing specific container scenarios, see these additional stories:
       </UserDetailsDrawer>
     );
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Initially, no drawer should be visible
-    await expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
+    await step('Verify initial state', async () => {
+      await expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
+    });
 
-    // Click the test button to simulate row click
-    const selectButton = await canvas.findByText('Click to select user: John Doe');
-    await userEvent.click(selectButton);
+    await step('Select user and verify drawer', async () => {
+      const selectButton = await canvas.findByText('Click to select user: John Doe');
+      await userEvent.click(selectButton);
 
-    // Verify state update is reflected (the render function handles calling the state setter)
-    await expect(canvas.findByText('John Doe selected')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('John Doe selected')).resolves.toBeInTheDocument();
 
-    // Verify drawer opens with user details
-    await expect(canvas.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -252,28 +250,24 @@ export const WithSelectedUser: Story = {
       </UserDetailsDrawer>
     );
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Drawer should be visible with user information - use more flexible text matcher
-    await canvas.findByText((content, element) => {
-      return element?.textContent === 'Selected User: John Doe';
+    await step('Verify drawer content and tabs', async () => {
+      await canvas.findByText((content, element) => {
+        return element?.textContent === 'Selected User: John Doe';
+      });
+
+      await expect(canvas.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
+
+      await expect(canvas.findByText('User groups')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Assigned roles')).resolves.toBeInTheDocument();
     });
 
-    // Verify user email is displayed
-    await expect(canvas.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
-
-    // Verify tabs are present
-    await expect(canvas.findByText('User groups')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Assigned roles')).resolves.toBeInTheDocument();
-
-    // Test close button functionality
-    const closeButton = await canvas.findByRole('button', { name: /close/i });
-    await userEvent.click(closeButton);
-
-    // Drawer should close (focusedUser should be set to undefined)
-    // Note: This tests the onClose callback which calls setFocusedUser(undefined)
+    await step('Close drawer', async () => {
+      const closeButton = await canvas.findByRole('button', { name: /close/i });
+      await userEvent.click(closeButton);
+    });
   },
 };
 
@@ -361,34 +355,30 @@ export const DataViewIntegration: Story = {
       </UserDetailsDrawer>
     );
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify initial state
-    await expect(canvas.findByText('⏳ Waiting for DataView row click event')).resolves.toBeInTheDocument();
+    await step('Verify initial state and select user', async () => {
+      await expect(canvas.findByText('⏳ Waiting for DataView row click event')).resolves.toBeInTheDocument();
 
-    // Simulate DataView row click through test component
-    const selectButton = await canvas.findByText('Click to select user: John Doe');
-    await userEvent.click(selectButton);
+      const selectButton = await canvas.findByText('Click to select user: John Doe');
+      await userEvent.click(selectButton);
 
-    // Verify DataView event triggers state update
-    await expect(canvas.findByText('✅ User John Doe selected via DataView event')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('✅ User John Doe selected via DataView event')).resolves.toBeInTheDocument();
 
-    // Verify drawer opens with user details
-    await expect(canvas.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
+    });
 
-    // Test tab switching
-    const rolesTab = await canvas.findByText('Assigned roles');
-    await userEvent.click(rolesTab);
+    await step('Test tab switching', async () => {
+      const rolesTab = await canvas.findByText('Assigned roles');
+      await userEvent.click(rolesTab);
 
-    // Verify tab content is rendered (the actual content is handled by child components)
-    await expect(canvas.findByText('Assigned roles')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Assigned roles')).resolves.toBeInTheDocument();
 
-    // Switch back to groups tab
-    const groupsTab = await canvas.findByText('User groups');
-    await userEvent.click(groupsTab);
+      const groupsTab = await canvas.findByText('User groups');
+      await userEvent.click(groupsTab);
 
-    await expect(canvas.findByText('User groups')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('User groups')).resolves.toBeInTheDocument();
+    });
   },
 };

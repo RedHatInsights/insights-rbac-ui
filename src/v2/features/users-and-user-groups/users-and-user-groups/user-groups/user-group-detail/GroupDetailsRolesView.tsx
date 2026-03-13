@@ -28,7 +28,7 @@ const columns = ['name', 'workspace'] as const;
  * GroupDetailsRolesView - Shows assigned roles for a user group
  *
  * Displays roles with their workspace assignments.
- * Workspace data comes from V2-style role bindings API (gap:guessed-v2-api).
+ * Workspace data comes from V2-style role bindings API.
  */
 const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ groupId, ouiaId }) => {
   const intl = useIntl();

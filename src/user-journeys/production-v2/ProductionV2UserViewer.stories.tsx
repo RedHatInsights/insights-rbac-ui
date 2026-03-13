@@ -1,9 +1,10 @@
 import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
-import { delay } from 'msw';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, resetStoryState } from '../_shared/helpers';
+import { resetStoryState } from '../_shared/helpers';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
 import { createV2MockDb } from '../../v2/data/mocks/db';
 import { createV2Handlers } from '../../v2/data/mocks/handlers';
 import { defaultV2Seed } from '../../v2/data/mocks/seed';
@@ -120,20 +121,24 @@ Entry point for manual testing of the V2 User Viewer persona.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // User Viewer has rbac:principal:read - can access Users tab; wait for page heading (h1 to avoid multiple matches)
-    const heading = await canvas.findByRole(
-      'heading',
-      {
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify Users and Groups page loads', async () => {
+      const heading = await canvas.findByRole('heading', {
         level: 1,
         name: /users and (user )?groups/i,
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
-    expect(heading).toBeInTheDocument();
+      });
+      expect(heading).toBeInTheDocument();
+    });
   },
 };
 
@@ -161,31 +166,33 @@ Validates that V2 User Viewer sees the correct sidebar items.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // ✅ My Access should be visible (V2 uses "My Access" label)
-    const myAccess = await canvas.findByRole('link', { name: /my access/i });
-    expect(myAccess).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // ✅ Access Management should be visible (has principal read permission)
-    const accessMgmtSection = await canvas.findByRole('button', { name: /access management/i });
-    expect(accessMgmtSection).toBeInTheDocument();
+    await step('Verify correct sidebar items visible', async () => {
+      const myAccess = await canvas.findByRole('link', { name: /my access/i });
+      expect(myAccess).toBeInTheDocument();
 
-    // ✅ Users and Groups should be visible
-    const usersLink = await canvas.findByRole('link', { name: /users and groups/i });
-    expect(usersLink).toBeInTheDocument();
+      const accessMgmtSection = await canvas.findByRole('button', { name: /access management/i });
+      expect(accessMgmtSection).toBeInTheDocument();
 
-    // ❌ Workspaces should NOT be visible (no inventory:groups:read)
-    const workspacesLink = canvas.queryByRole('link', { name: /workspaces/i });
-    expect(workspacesLink).not.toBeInTheDocument();
+      const usersLink = await canvas.findByRole('link', { name: /users and groups/i });
+      expect(usersLink).toBeInTheDocument();
 
-    // ❌ Roles should NOT be visible (no rbac:role:read)
-    const rolesLink = canvas.queryByRole('link', { name: /roles/i });
-    expect(rolesLink).not.toBeInTheDocument();
+      const workspacesLink = canvas.queryByRole('link', { name: /workspaces/i });
+      expect(workspacesLink).not.toBeInTheDocument();
+
+      const rolesLink = canvas.queryByRole('link', { name: /roles/i });
+      expect(rolesLink).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -211,21 +218,25 @@ so a user with either permission can access the page.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Page should load (has OR permission check)
-    await expect(canvas.findByRole('heading', { name: /users and (user )?groups/i })).resolves.toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Users tab should be present and accessible
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    expect(usersTab).toBeInTheDocument();
+    await step('Verify Users tab and user data visible', async () => {
+      await expect(canvas.findByRole('heading', { name: /users and (user )?groups/i })).resolves.toBeInTheDocument();
 
-    // User data should be visible (using fixture data)
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      expect(usersTab).toBeInTheDocument();
+
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -251,24 +262,29 @@ since they lack \`rbac:group:read\` permission.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Navigate to User Groups tab
-    const userGroupsTab = await canvas.findByRole('tab', { name: /user groups/i });
-    await user.click(userGroupsTab);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Should NOT see group data in table (no rbac:group:read) - may see Access denied or empty state
-    const table = canvas.queryByRole('grid', { name: /user groups/i });
-    if (table) {
-      const groupName = within(table).queryByText('Platform Admins');
-      expect(groupName).not.toBeInTheDocument();
-    }
+    await step('Navigate to User Groups tab and verify no group data', async () => {
+      const userGroupsTab = await canvas.findByRole('tab', { name: /user groups/i });
+      await user.click(userGroupsTab);
+      await waitFor(() => expect(userGroupsTab).toHaveAttribute('aria-selected', 'true'), { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+
+      const table = canvas.queryByRole('grid', { name: /user groups/i });
+      if (table) {
+        const groupName = within(table).queryByText('Platform Admins');
+        expect(groupName).not.toBeInTheDocument();
+      }
+    });
   },
 };
 
@@ -293,19 +309,24 @@ Tests that:
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // ❌ Roles link should NOT be in sidebar
-    const rolesLink = canvas.queryByRole('link', { name: /^roles$/i });
-    expect(rolesLink).not.toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Should see access denied message (navigated via direct URL)
-    const accessDenied = await canvas.findByText(/you don't have permission to view this page|unauthorized|access denied/i);
-    expect(accessDenied).toBeInTheDocument();
+    await step('Verify Roles link absent and access denied shown', async () => {
+      const accessDenied = await canvas.findByText(/you don't have permission to view this page|unauthorized|access denied/i);
+      expect(accessDenied).toBeInTheDocument();
+
+      const rolesLink = canvas.queryByRole('link', { name: /^roles$/i });
+      expect(rolesLink).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -330,22 +351,26 @@ Tests that:
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // ❌ Workspaces link should NOT be in sidebar
-    const workspacesLink = canvas.queryByRole('link', { name: /workspaces/i });
-    expect(workspacesLink).not.toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Should see access denied message (navigated via direct URL)
-    const accessDenied = await canvas.findByText(/you don't have permission to view this page|unauthorized|access denied/i);
-    expect(accessDenied).toBeInTheDocument();
+    await step('Verify Workspaces link absent and access denied shown', async () => {
+      const accessDenied = await canvas.findByText(/you don't have permission to view this page|unauthorized|access denied/i);
+      expect(accessDenied).toBeInTheDocument();
 
-    // Should NOT see workspace data
-    const workspaceName = canvas.queryByText('Root Workspace');
-    expect(workspaceName).not.toBeInTheDocument();
+      const workspacesLink = canvas.queryByRole('link', { name: /workspaces/i });
+      expect(workspacesLink).not.toBeInTheDocument();
+
+      const workspaceName = canvas.queryByText('Root Workspace');
+      expect(workspaceName).not.toBeInTheDocument();
+    });
   },
 };

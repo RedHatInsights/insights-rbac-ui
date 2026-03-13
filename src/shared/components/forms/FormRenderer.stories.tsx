@@ -2,7 +2,6 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import FormRenderer from './FormRenderer';
 
 const meta: Meta<typeof FormRenderer> = {
@@ -56,40 +55,42 @@ export const Default: Story = {
     onCancel: fn(),
   },
   render: ({ onSubmit, onCancel }) => <FormRenderer schema={createFormSchema()} onSubmit={onSubmit} onCancel={onCancel} />,
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, args, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Check that form fields are present
-    const nameInput = canvas.getByLabelText(/name/i);
-    const descriptionInput = canvas.getByLabelText(/description/i);
+      // Check that form fields are present
+      const nameInput = canvas.getByLabelText(/name/i);
+      const descriptionInput = canvas.getByLabelText(/description/i);
 
-    expect(nameInput).toBeInTheDocument();
-    expect(descriptionInput).toBeInTheDocument();
+      expect(nameInput).toBeInTheDocument();
+      expect(descriptionInput).toBeInTheDocument();
 
-    // Check that buttons are present
-    const saveButton = canvas.getByRole('button', { name: /save/i });
-    const cancelButton = canvas.getByRole('button', { name: /cancel/i });
+      // Check that buttons are present
+      const saveButton = canvas.getByRole('button', { name: /save/i });
+      const cancelButton = canvas.getByRole('button', { name: /cancel/i });
 
-    expect(saveButton).toBeInTheDocument();
-    expect(cancelButton).toBeInTheDocument();
+      expect(saveButton).toBeInTheDocument();
+      expect(cancelButton).toBeInTheDocument();
 
-    // Initially, save button should be disabled (form is pristine)
-    expect(saveButton).toBeDisabled();
+      // Initially, save button should be disabled (form is pristine)
+      expect(saveButton).toBeDisabled();
 
-    // Test form interaction to change button state
-    await userEvent.type(nameInput, 'Test Name');
+      // Test form interaction to change button state
+      await userEvent.type(nameInput, 'Test Name');
 
-    // Wait until the save button becomes enabled after typing
-    await waitFor(() => {
-      expect(saveButton).not.toBeDisabled();
+      // Wait until the save button becomes enabled after typing
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled();
+      });
+
+      // Test button interactions
+      await userEvent.click(saveButton);
+      await userEvent.click(cancelButton);
+
+      expect(args.onSubmit).toHaveBeenCalled();
+      expect(args.onCancel).toHaveBeenCalled();
     });
-
-    // Test button interactions
-    await userEvent.click(saveButton);
-    await userEvent.click(cancelButton);
-
-    expect(args.onSubmit).toHaveBeenCalled();
-    expect(args.onCancel).toHaveBeenCalled();
   },
 };
 
@@ -109,27 +110,29 @@ export const WithInitialValues: Story = {
       }}
     />
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Check that initial values are populated
-    const nameInput = canvas.getByLabelText(/name/i) as HTMLInputElement;
-    const descriptionInput = canvas.getByLabelText(/description/i) as HTMLTextAreaElement;
+      // Check that initial values are populated
+      const nameInput = canvas.getByLabelText(/name/i) as HTMLInputElement;
+      const descriptionInput = canvas.getByLabelText(/description/i) as HTMLTextAreaElement;
 
-    expect(nameInput.value).toBe('Initial Name');
-    expect(descriptionInput.value).toBe('Initial description text');
+      expect(nameInput.value).toBe('Initial Name');
+      expect(descriptionInput.value).toBe('Initial description text');
 
-    // With initial values, save button should be disabled (no changes yet)
-    const saveButton = canvas.getByRole('button', { name: /save/i });
-    expect(saveButton).toBeDisabled();
+      // With initial values, save button should be disabled (no changes yet)
+      const saveButton = canvas.getByRole('button', { name: /save/i });
+      expect(saveButton).toBeDisabled();
 
-    // Test making changes
-    await userEvent.clear(nameInput);
-    await userEvent.type(nameInput, 'Modified Name');
+      // Test making changes
+      await userEvent.clear(nameInput);
+      await userEvent.type(nameInput, 'Modified Name');
 
-    // Wait until the save button becomes enabled after changes
-    await waitFor(() => {
-      expect(saveButton).not.toBeDisabled();
+      // Wait until the save button becomes enabled after changes
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled();
+      });
     });
   },
 };
@@ -140,31 +143,32 @@ export const WithValidation: Story = {
     onCancel: fn(),
   },
   render: ({ onSubmit, onCancel }) => <FormRenderer schema={createFormSchema()} onSubmit={onSubmit} onCancel={onCancel} />,
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, args, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    const saveButton = canvas.getByRole('button', { name: /save/i });
-    const nameInput = canvas.getByLabelText(/name/i);
+      const saveButton = canvas.getByRole('button', { name: /save/i });
+      const nameInput = canvas.getByLabelText(/name/i);
 
-    // Initially, save button should be disabled (no changes and required field empty)
-    expect(saveButton).toBeDisabled();
+      // Initially, save button should be disabled (no changes and required field empty)
+      expect(saveButton).toBeDisabled();
 
-    // Try to submit without filling required field - button should be disabled
-    // We can't click a disabled button, so we just verify it's disabled
-    expect(args.onSubmit).not.toHaveBeenCalled();
+      // Try to submit without filling required field - button should be disabled
+      // We can't click a disabled button, so we just verify it's disabled
+      expect(args.onSubmit).not.toHaveBeenCalled();
 
-    // Fill required field
-    await userEvent.type(nameInput, 'Valid Name');
+      // Fill required field
+      await userEvent.type(nameInput, 'Valid Name');
 
-    // Wait for validation to clear and form state to update
-    await delay(100);
+      // Wait for validation to clear and form state to update
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled();
+      });
 
-    // Now the save button should be enabled
-    expect(saveButton).not.toBeDisabled();
-
-    // Now submit should work
-    await userEvent.click(saveButton);
-    expect(args.onSubmit).toHaveBeenCalled();
+      // Now submit should work
+      await userEvent.click(saveButton);
+      expect(args.onSubmit).toHaveBeenCalled();
+    });
   },
 };
 
@@ -186,11 +190,7 @@ The FormRenderer component handles this injection internally, so users don't nee
         The FormRenderer component automatically injects the FormButtons component into the form template. Users interact with FormRenderer, and
         FormButtons is handled internally.
       </p>
-      <FormRenderer
-        schema={createFormSchema()}
-        onSubmit={() => console.log('SB: Form submitted')}
-        onCancel={() => console.log('SB: Form cancelled')}
-      />
+      <FormRenderer schema={createFormSchema()} onSubmit={fn()} onCancel={fn()} />
     </div>
   ),
 };

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { waitForModal } from '../../../test-utils/interactionHelpers';
 import { EditGroupModal } from './EditGroupModal';
 import { groupsHandlers } from '../../data/mocks/groups.handlers';
 import { fillEditGroupModal } from './EditGroupModal.helpers';
@@ -150,29 +150,27 @@ For testing specific scenarios and edge cases, see these additional stories:
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
-    await userEvent.click(openButton);
+    await step('Open modal and verify content', async () => {
+      // Click button to open modal
+      const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
+      await userEvent.click(openButton);
 
-    // ✅ Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      // ✅ Modal renders to document.body via portal
+      const modal = await waitForModal();
+      // Verify modal content
+      await expect(modal.findByText('Edit group "Test Group"')).resolves.toBeInTheDocument();
+      await expect(modal.findByDisplayValue('Test Group')).resolves.toBeInTheDocument();
+      await expect(modal.findByDisplayValue('A test group for demonstration')).resolves.toBeInTheDocument();
 
-    // Verify modal content
-    await expect(within(modal).findByText('Edit group "Test Group"')).resolves.toBeInTheDocument();
-    await expect(within(modal).findByDisplayValue('Test Group')).resolves.toBeInTheDocument();
-    await expect(within(modal).findByDisplayValue('A test group for demonstration')).resolves.toBeInTheDocument();
-
-    // Verify form fields are present
-    const nameField = await within(modal).findByLabelText(/group name/i);
-    const descriptionField = await within(modal).findByLabelText(/description/i);
-    await expect(nameField).toBeInTheDocument();
-    await expect(descriptionField).toBeInTheDocument();
+      // Verify form fields are present
+      const nameField = await modal.findByLabelText(/group name/i);
+      const descriptionField = await modal.findByLabelText(/description/i);
+      await expect(nameField).toBeInTheDocument();
+      await expect(descriptionField).toBeInTheDocument();
+    });
   },
 };
 
@@ -180,23 +178,22 @@ export const SystemGroup: Story = {
   args: {
     initialRoute: '/user-access/groups/edit/system-group-id',
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
-    await userEvent.click(openButton);
+    await step('Open modal and verify system group content', async () => {
+      // Click button to open modal
+      const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
+      await userEvent.click(openButton);
 
-    // ✅ Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      // ✅ Modal renders to document.body via portal
+      const modal = await waitForModal();
 
-    // Verify system group content
-    await expect(within(modal).findByText('Edit group "System Group"')).resolves.toBeInTheDocument();
-    await expect(within(modal).findByDisplayValue('System Group')).resolves.toBeInTheDocument();
-    await expect(within(modal).findByDisplayValue('A system default group')).resolves.toBeInTheDocument();
+      // Verify system group content
+      await expect(modal.findByText('Edit group "System Group"')).resolves.toBeInTheDocument();
+      await expect(modal.findByDisplayValue('System Group')).resolves.toBeInTheDocument();
+      await expect(modal.findByDisplayValue('A system default group')).resolves.toBeInTheDocument();
+    });
   },
   parameters: {
     docs: {
@@ -232,72 +229,63 @@ export const FormSubmission: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // 🔍 Clear any previous spy data
-    updateGroupApiSpy.mockClear();
+    await step('Fill form and submit', async () => {
+      // 🔍 Clear any previous spy data
+      updateGroupApiSpy.mockClear();
 
-    console.log('SB: 🧪 Starting Edit Group Form Submission Test...');
+      // Click button to open modal
+      const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
+      await userEvent.click(openButton);
 
-    // Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
-    await userEvent.click(openButton);
+      // Use the reusable helper to fill and submit the form
+      await fillEditGroupModal(
+        {
+          name: 'Updated Group Name',
+          description: 'Updated description',
+        },
+        false,
+      ); // Don't wait for completion - we'll verify API calls ourselves
 
-    // Use the reusable helper to fill and submit the form
-    console.log('SB: 🚀 Submitting form...');
-    await fillEditGroupModal(
-      {
-        name: 'Updated Group Name',
-        description: 'Updated description',
-      },
-      false,
-    ); // Don't wait for completion - we'll verify API calls ourselves
+      // ✅ VERIFY PUT API CALL: Check that the correct group data was sent
+      // Note: The rbac-client sends uuid in the URL path, not in the request body
+      await waitFor(
+        async () => {
+          await expect(updateGroupApiSpy).toHaveBeenCalledWith({
+            groupId: 'test-group-id',
+            method: 'PUT',
+            body: {
+              name: 'Updated Group Name',
+              description: 'Updated description',
+            },
+            expectedFields: ['uuid', 'name', 'description'],
+          });
+        },
+        { timeout: 5000 },
+      );
 
-    // ✅ VERIFY PUT API CALL: Check that the correct group data was sent
-    // Note: The rbac-client sends uuid in the URL path, not in the request body
-    await waitFor(
-      async () => {
-        await expect(updateGroupApiSpy).toHaveBeenCalledWith({
-          groupId: 'test-group-id',
-          method: 'PUT',
-          body: {
-            name: 'Updated Group Name',
-            description: 'Updated description',
-          },
-          expectedFields: ['uuid', 'name', 'description'],
-        });
-        console.log('SB: ✅ PUT API Spy Verified with correct parameters');
-      },
-      { timeout: 5000 },
-    );
+      // ✅ Form submission completed - the EditGroupModal handles its own post-submission logic
 
-    // ✅ Form submission completed - the EditGroupModal handles its own post-submission logic
+      // ✅ TEST NOTIFICATION: Verify success notification appears in DOM
+      await waitFor(
+        () => {
+          const notificationPortal = document.querySelector('.notifications-portal');
+          expect(notificationPortal).toBeInTheDocument();
 
-    // ✅ TEST NOTIFICATION: Verify success notification appears in DOM
-    await waitFor(
-      async () => {
-        const notificationPortal = document.querySelector('.notifications-portal');
-        await expect(notificationPortal).toBeInTheDocument();
+          const successAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-success');
+          expect(successAlert).toBeInTheDocument();
 
-        const successAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-success');
-        await expect(successAlert).toBeInTheDocument();
+          const alertTitle = successAlert?.querySelector('.pf-v6-c-alert__title');
+          expect(alertTitle).toHaveTextContent('Success updating group');
 
-        const alertTitle = successAlert?.querySelector('.pf-v6-c-alert__title');
-        await expect(alertTitle).toHaveTextContent('Success updating group');
-
-        const alertDescription = successAlert?.querySelector('.pf-v6-c-alert__description');
-        await expect(alertDescription).toHaveTextContent('The group was updated successfully.');
-      },
-      { timeout: 5000 },
-    );
-
-    console.log('SB: ✅ Edit Group Form Submission test completed - check browser console for detailed API spy logs');
-    console.log('SB: 📋 Expected API calls:');
-    console.log('SB:   1. GET /api/rbac/v1/groups/{groupId} - Fetch group details');
-    console.log('SB:   2. PUT /api/rbac/v1/groups/{groupId} - Update group with new data');
+          const alertDescription = successAlert?.querySelector('.pf-v6-c-alert__description');
+          expect(alertDescription).toHaveTextContent('The group was updated successfully.');
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -305,40 +293,39 @@ export const ValidationErrors: Story = {
   args: {
     initialRoute: '/user-access/groups/edit/test-group-id',
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
-    await userEvent.click(openButton);
+    await step('Verify validation errors', async () => {
+      // Click button to open modal
+      const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
+      await userEvent.click(openButton);
 
-    // ✅ Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      // ✅ Modal renders to document.body via portal
+      const modal = await waitForModal();
 
-    // Wait for form to be loaded
-    await expect(within(modal).findByDisplayValue('Test Group')).resolves.toBeInTheDocument();
+      // Wait for form to be loaded
+      await expect(modal.findByDisplayValue('Test Group')).resolves.toBeInTheDocument();
 
-    const nameField = await within(modal).findByLabelText(/group name/i);
+      const nameField = await modal.findByLabelText(/group name/i);
 
-    // Test required field validation
-    await userEvent.clear(nameField);
-    await userEvent.tab(); // Trigger validation
+      // Test required field validation
+      await userEvent.clear(nameField);
+      await userEvent.tab(); // Trigger validation
 
-    await expect(within(modal).findByText(/required/i)).resolves.toBeInTheDocument();
+      await expect(modal.findByText(/required/i)).resolves.toBeInTheDocument();
 
-    // Test invalid pattern
-    await userEvent.clear(nameField);
-    await userEvent.type(nameField, '!invalid-name');
-    await userEvent.tab(); // Trigger validation
+      // Test invalid pattern
+      await userEvent.clear(nameField);
+      await userEvent.type(nameField, '!invalid-name');
+      await userEvent.tab(); // Trigger validation
 
-    await expect(within(modal).findByText(/must start with alphanumeric character/i)).resolves.toBeInTheDocument();
+      await expect(modal.findByText(/must start with alphanumeric character/i)).resolves.toBeInTheDocument();
 
-    // Verify save button is disabled when there are errors
-    const saveButton = await within(modal).findByRole('button', { name: /save/i });
-    await expect(saveButton).toBeDisabled();
+      // Verify save button is disabled when there are errors
+      const saveButton = await modal.findByRole('button', { name: /save/i });
+      await expect(saveButton).toBeDisabled();
+    });
   },
   parameters: {
     docs: {
@@ -354,24 +341,23 @@ export const CancelAction: Story = {
     initialRoute: '/user-access/groups/edit/test-group-id',
     onClose: fn(),
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
-    await userEvent.click(openButton);
+    await step('Open modal and cancel', async () => {
+      // Click button to open modal
+      const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
+      await userEvent.click(openButton);
 
-    // ✅ Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      // ✅ Modal renders to document.body via portal
+      const modal = await waitForModal();
 
-    // Click cancel button
-    const cancelButton = await within(modal).findByRole('button', { name: /cancel/i });
-    await userEvent.click(cancelButton);
+      // Click cancel button
+      const cancelButton = await modal.findByRole('button', { name: /cancel/i });
+      await userEvent.click(cancelButton);
 
-    // ✅ Cancel action completed - modal handles its own navigation logic
+      // ✅ Cancel action completed - modal handles its own navigation logic
+    });
   },
   parameters: {
     docs: {
@@ -396,55 +382,43 @@ export const ErrorNotification: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // 🔍 Clear any previous spy data
-    updateGroupApiSpy.mockClear();
+    await step('Submit form and verify error notification', async () => {
+      // 🔍 Clear any previous spy data
+      updateGroupApiSpy.mockClear();
 
-    // Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
-    await userEvent.click(openButton);
+      // Click button to open modal
+      const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
+      await userEvent.click(openButton);
 
-    // ✅ Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      // ✅ Modal renders to document.body via portal
+      const modal = await waitForModal();
 
-    // Wait for form to be fully loaded
-    await expect(within(modal).findByDisplayValue('Test Group')).resolves.toBeInTheDocument();
+      // Wait for form to be fully loaded
+      const testGroupInput = await modal.findByDisplayValue('Test Group');
+      expect(testGroupInput).toBeInTheDocument();
 
-    // Modify form fields to trigger update
-    const nameField = await within(modal).findByLabelText(/group name/i);
-    await userEvent.clear(nameField);
-    await userEvent.type(nameField, 'Updated Group Name');
+      // Modify form fields to trigger update
+      const nameField = await modal.findByLabelText(/group name/i);
+      await userEvent.clear(nameField);
+      await userEvent.type(nameField, 'Updated Group Name');
 
-    // Wait for save button to be enabled
-    const saveButton = await within(modal).findByRole('button', { name: /save/i });
-    await waitFor(() => expect(saveButton).toBeEnabled(), { timeout: 10000 });
+      // Wait for save button to be enabled
+      const saveButton = await modal.findByRole('button', { name: /save/i });
+      await waitFor(() => expect(saveButton).toBeEnabled(), { timeout: 10000 });
 
-    // Submit the form (this will fail due to our MSW error handler)
-    await userEvent.click(saveButton);
+      // Submit the form (this will fail due to our MSW error handler)
+      await userEvent.click(saveButton);
 
-    // ✅ TEST NOTIFICATION: Verify error notification appears in DOM
-    await waitFor(
-      async () => {
-        const notificationPortal = document.querySelector('.notifications-portal');
-        await expect(notificationPortal).toBeInTheDocument();
+      // ✅ TEST NOTIFICATION: Verify error notification appears in DOM
+      // Notification may take time to render after form submission failure
+      const body = within(document.body);
+      await body.findByText('Failed updating group', {}, { timeout: 5000 });
+      await body.findByText('The group was not updated successfuly.', {}, { timeout: 2000 });
 
-        const errorAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-danger');
-        await expect(errorAlert).toBeInTheDocument();
-
-        const alertTitle = errorAlert?.querySelector('.pf-v6-c-alert__title');
-        await expect(alertTitle).toHaveTextContent('Failed updating group');
-
-        const alertDescription = errorAlert?.querySelector('.pf-v6-c-alert__description');
-        await expect(alertDescription).toHaveTextContent('The group was not updated successfuly.');
-      },
-      { timeout: 5000 },
-    );
-
-    // ✅ Error handling completed - the EditGroupModal handles its own error logic
+      // ✅ Error handling completed - the EditGroupModal handles its own error logic
+    });
   },
 };

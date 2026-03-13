@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { delay } from 'msw';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
+import { waitForModal } from '../../../../../test-utils/interactionHelpers';
 import { AddGroupRoles } from './AddGroupRoles';
 import { groupsHandlers } from '../../../../data/mocks/groups.handlers';
 import { groupRolesHandlers } from '../../../../../shared/data/mocks/groupRoles.handlers';
@@ -121,22 +121,20 @@ The component fetches its own data via React Query.
       },
     },
   },
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
+    await step('Verify modal and roles load', async () => {
+      // Modal is open by default (rendered directly as route)
+      const modal = await waitForModal({ timeout: 5000 });
+      // Verify modal content renders
+      expect(await modal.findByRole('heading', { name: /add roles/i })).toBeInTheDocument();
 
-    // Modal is open by default (rendered directly as route)
-    const modal = await screen.findByRole('dialog', undefined, { timeout: 5000 });
-    expect(modal).toBeInTheDocument();
+      // Wait for roles data to load
+      expect(await modal.findByText('Content Manager')).toBeInTheDocument();
 
-    // Verify modal content renders
-    expect(await within(modal).findByRole('heading', { name: /add roles/i })).toBeInTheDocument();
-
-    // Wait for roles data to load
-    expect(await within(modal).findByText('Content Manager')).toBeInTheDocument();
-
-    // Button should be disabled initially (no selection)
-    const submitButton = await within(modal).findByRole('button', { name: /add to group/i });
-    await waitFor(() => expect(submitButton).toBeDisabled(), { timeout: 2000 });
+      // Button should be disabled initially (no selection)
+      const submitButton = await modal.findByRole('button', { name: /add to group/i });
+      await waitFor(() => expect(submitButton).toBeDisabled(), { timeout: 2000 });
+    });
   },
 };
 
@@ -147,39 +145,39 @@ export const SelectAndAddRoles: Story = {
       handlers: [...createGroupHandler(), ...createRolesHandler(mockAvailableRoles, addRolesApiSpy)],
     },
   },
-  play: async () => {
-    addRolesApiSpy.mockClear();
-    await delay(300);
+  play: async ({ step }) => {
+    await step('Select role and add to group', async () => {
+      addRolesApiSpy.mockClear();
 
-    const modal = await screen.findByRole('dialog', undefined, { timeout: 5000 });
-    const modalContent = within(modal);
+      const modal = await waitForModal({ timeout: 5000 });
 
-    // Wait for roles to load
-    await modalContent.findByText('Content Manager');
+      // Wait for roles to load
+      await modal.findByText('Content Manager');
 
-    // Select a role
-    const checkboxes = await modalContent.findAllByRole('checkbox');
-    await userEvent.click(checkboxes[1]); // First row checkbox
+      // Select a role
+      const checkboxes = await modal.findAllByRole('checkbox');
+      await userEvent.click(checkboxes[1]); // First row checkbox
 
-    // Button should be enabled
-    const submitButton = await modalContent.findByRole('button', { name: /add to group/i });
-    await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: 2000 });
+      // Button should be enabled
+      const submitButton = await modal.findByRole('button', { name: /add to group/i });
+      await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: 2000 });
 
-    // Click submit
-    await userEvent.click(submitButton);
+      // Click submit
+      await userEvent.click(submitButton);
 
-    // Verify API was called
-    await waitFor(
-      () => {
-        expect(addRolesApiSpy).toHaveBeenCalled();
-        expect(addRolesApiSpy).toHaveBeenCalledWith(
-          expect.objectContaining({
-            groupId: 'test-group-id',
-          }),
-        );
-      },
-      { timeout: 3000 },
-    );
+      // Verify API was called
+      await waitFor(
+        () => {
+          expect(addRolesApiSpy).toHaveBeenCalled();
+          expect(addRolesApiSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              groupId: 'test-group-id',
+            }),
+          );
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -217,49 +215,49 @@ The component determines this from the group data:
       ],
     },
   },
-  play: async () => {
-    addRolesApiSpy.mockClear();
-    await delay(300);
+  play: async ({ step }) => {
+    await step('Add role to default group with warning', async () => {
+      addRolesApiSpy.mockClear();
 
-    const modal = await screen.findByRole('dialog', undefined, { timeout: 5000 });
-    const modalContent = within(modal);
+      const modal = await waitForModal({ timeout: 5000 });
 
-    // Wait for roles to load
-    await waitFor(
-      () => {
-        expect(within(modal).getByText('Content Manager')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Wait for roles to load
+      await waitFor(
+        () => {
+          expect(modal.getByText('Content Manager')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    // Select a role
-    const checkboxes = await modalContent.findAllByRole('checkbox');
-    await userEvent.click(checkboxes[1]);
+      // Select a role
+      const checkboxes = await modal.findAllByRole('checkbox');
+      await userEvent.click(checkboxes[1]);
 
-    // Click submit
-    const submitButton = await modalContent.findByRole('button', { name: /add to group/i });
-    await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: 2000 });
-    await userEvent.click(submitButton);
+      // Click submit
+      const submitButton = await modal.findByRole('button', { name: /add to group/i });
+      await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: 2000 });
+      await userEvent.click(submitButton);
 
-    // Warning modal should appear (DefaultGroupChangeModal)
-    const warningModal = await within(document.body).findByRole('dialog', undefined, { timeout: 5000 });
-    expect(warningModal).toBeInTheDocument();
+      // Warning modal should appear (DefaultGroupChangeModal)
+      const warningModal = await within(document.body).findByRole('dialog', undefined, { timeout: 5000 });
+      expect(warningModal).toBeInTheDocument();
 
-    // Check the confirmation checkbox
-    const confirmCheckbox = within(warningModal).getByRole('checkbox');
-    await userEvent.click(confirmCheckbox);
+      // Check the confirmation checkbox
+      const confirmCheckbox = within(warningModal).getByRole('checkbox');
+      await userEvent.click(confirmCheckbox);
 
-    // Click Continue
-    const continueButton = within(warningModal).getByRole('button', { name: /continue/i });
-    await userEvent.click(continueButton);
+      // Click Continue
+      const continueButton = within(warningModal).getByRole('button', { name: /continue/i });
+      await userEvent.click(continueButton);
 
-    // API should be called after confirmation
-    await waitFor(
-      () => {
-        expect(addRolesApiSpy).toHaveBeenCalled();
-      },
-      { timeout: 3000 },
-    );
+      // API should be called after confirmation
+      await waitFor(
+        () => {
+          expect(addRolesApiSpy).toHaveBeenCalled();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -295,86 +293,85 @@ The component determines this from the group data:
       ],
     },
   },
-  play: async () => {
-    addRolesApiSpy.mockClear();
-    await delay(300);
+  play: async ({ step }) => {
+    await step('Add role to already-modified default group', async () => {
+      addRolesApiSpy.mockClear();
 
-    const modal = await screen.findByRole('dialog', undefined, { timeout: 5000 });
-    const modalContent = within(modal);
+      const modal = await waitForModal({ timeout: 5000 });
 
-    // Wait for roles to load
-    await modalContent.findByText('Content Manager');
+      // Wait for roles to load
+      await modal.findByText('Content Manager');
 
-    // Select a role
-    const checkboxes = await modalContent.findAllByRole('checkbox');
-    await userEvent.click(checkboxes[1]);
+      // Select a role
+      const checkboxes = await modal.findAllByRole('checkbox');
+      await userEvent.click(checkboxes[1]);
 
-    // Click submit - should NOT show warning for already-modified group
-    const submitButton = await modalContent.findByRole('button', { name: /add to group/i });
-    await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: 2000 });
-    await userEvent.click(submitButton);
+      // Click submit - should NOT show warning for already-modified group
+      const submitButton = await modal.findByRole('button', { name: /add to group/i });
+      await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: 2000 });
+      await userEvent.click(submitButton);
 
-    // API should be called directly (no warning modal)
-    await waitFor(
-      () => {
-        expect(addRolesApiSpy).toHaveBeenCalled();
-      },
-      { timeout: 3000 },
-    );
+      // API should be called directly (no warning modal)
+      await waitFor(
+        () => {
+          expect(addRolesApiSpy).toHaveBeenCalled();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
 export const CancelNotification: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
+    await step('Cancel and verify warning notification', async () => {
+      const modal = await screen.findByRole('dialog', undefined, { timeout: 5000 });
+      const cancelButton = within(modal).getByRole('button', { name: /^cancel$/i });
+      await userEvent.click(cancelButton);
 
-    const modal = await screen.findByRole('dialog', undefined, { timeout: 5000 });
-    const cancelButton = within(modal).getByRole('button', { name: /^cancel$/i });
-    await userEvent.click(cancelButton);
-
-    // Warning notification should appear
-    await waitFor(
-      () => {
-        const notificationPortal = document.querySelector('.notifications-portal');
-        expect(notificationPortal).toBeInTheDocument();
-        const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
-        expect(warningAlert).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Warning notification should appear
+      await waitFor(
+        () => {
+          const notificationPortal = document.querySelector('.notifications-portal');
+          expect(notificationPortal).toBeInTheDocument();
+          const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
+          expect(warningAlert).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
 export const FilterRoles: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
+    await step('Filter roles', async () => {
+      const modal = await screen.findByRole('dialog', undefined, { timeout: 5000 });
+      const modalContent = within(modal);
 
-    const modal = await screen.findByRole('dialog', undefined, { timeout: 5000 });
-    const modalContent = within(modal);
+      // Wait for roles to load
+      await modalContent.findByText('Content Manager');
 
-    // Wait for roles to load
-    await modalContent.findByText('Content Manager');
+      // Get initial row count
+      const initialRows = modalContent.getAllByRole('row');
+      const initialCount = initialRows.length - 1; // Subtract header
+      expect(initialCount).toBeGreaterThan(0);
 
-    // Get initial row count
-    const initialRows = modalContent.getAllByRole('row');
-    const initialCount = initialRows.length - 1; // Subtract header
-    expect(initialCount).toBeGreaterThan(0);
+      // Type in filter
+      const filterInput = modalContent.getByPlaceholderText('Filter by role name');
+      await userEvent.type(filterInput, 'aud');
 
-    // Type in filter
-    const filterInput = modalContent.getByPlaceholderText('Filter by role name');
-    await userEvent.type(filterInput, 'aud');
-    await delay(500); // Debounce
+      // Should have fewer rows (waitFor handles debounce)
+      await waitFor(
+        () => {
+          const filteredRows = modalContent.getAllByRole('row');
+          expect(filteredRows.length - 1).toBeLessThan(initialCount);
+        },
+        { timeout: 5000 },
+      );
 
-    // Should have fewer rows
-    await waitFor(
-      () => {
-        const filteredRows = modalContent.getAllByRole('row');
-        expect(filteredRows.length - 1).toBeLessThan(initialCount);
-      },
-      { timeout: 5000 },
-    );
-
-    // Auditor should still be visible
-    expect(modalContent.getByText('Auditor')).toBeInTheDocument();
+      // Auditor should still be visible
+      expect(modalContent.getByText('Auditor')).toBeInTheDocument();
+    });
   },
 };

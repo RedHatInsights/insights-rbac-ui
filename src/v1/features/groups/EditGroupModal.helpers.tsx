@@ -1,86 +1,49 @@
-import { expect, userEvent, waitFor, within } from 'storybook/test';
+import type { UserEvent } from '@testing-library/user-event';
+import { expect, userEvent, waitFor } from 'storybook/test';
+import { clearAndType, waitForModal, waitForModalClose } from '../../../test-utils/interactionHelpers';
+import { type StepFn, noopStep } from '../../../test-utils/testUtils';
 
-// REUSABLE HELPER: Fill Edit Group Modal Form
-// Exported for composition in stories (e.g., EditGroupModal.stories.tsx, AppEntry.stories.tsx)
 export interface EditGroupFormData {
   name: string;
   description?: string;
 }
 
-/**
- * Helper function to fill out the Edit Group Modal form
- * EXPORTED for reuse/composition in E2E tests
- *
- * @param data - Form data to fill
- * @param waitForCompletion - If false, returns immediately after clicking submit (default: true)
- * @param user - Optional custom userEvent instance (e.g., with delay configured). Defaults to userEvent.
- */
 export async function fillEditGroupModal(
   data: EditGroupFormData,
   waitForCompletion = true,
-  user: ReturnType<typeof userEvent.setup> | typeof userEvent = userEvent,
+  user: UserEvent = userEvent.setup(),
+  step: StepFn = noopStep,
 ): Promise<void> {
-  // Step 1: Wait for edit modal to appear and load data
-  const modal = await waitFor(
-    () => {
-      const dialog = document.querySelector('[role="dialog"]');
-      expect(dialog).toBeInTheDocument();
-      return dialog as HTMLElement;
-    },
-    { timeout: 5000 },
-  );
+  const modal = await waitForModal();
 
-  const modalContent = within(modal);
+  await step('Wait for form to load', async () => {
+    await waitFor(
+      () => {
+        const textboxes = modal.getAllByRole('textbox');
+        expect(textboxes.length).toBe(2);
+        expect((textboxes[0] as HTMLInputElement).value).not.toBe('');
+      },
+      { timeout: 5000 },
+    );
+  });
 
-  // Step 2: Wait for form to be fully loaded - wait for textboxes to be populated
-  // The form has 2 textboxes: name (input) and description (textarea)
-  await waitFor(
-    () => {
-      const textboxes = modalContent.getAllByRole('textbox');
-      expect(textboxes.length).toBe(2);
-      // Wait for name field to be pre-populated
-      expect((textboxes[0] as HTMLInputElement).value).not.toBe('');
-    },
-    { timeout: 5000 },
-  );
+  await step('Edit group name and description', async () => {
+    await clearAndType(user, () => modal.getAllByRole('textbox')[0] as HTMLInputElement, data.name);
 
-  // Get fields by role - they're in order: name, description
-  const textboxes = modalContent.getAllByRole('textbox');
-  const nameField = textboxes[0] as HTMLInputElement;
-  const descriptionField = textboxes[1] as HTMLTextAreaElement;
+    if (data.description !== undefined) {
+      await clearAndType(user, () => modal.getAllByRole('textbox')[1] as HTMLTextAreaElement, data.description);
+    }
+  });
 
-  // Step 3: Edit the group name and description
-  // Use direct selection manipulation instead of clear() for CLI test runner compatibility
-  // Focus the field first
-  await user.click(nameField);
-  // Select all text using setSelectionRange
-  nameField.setSelectionRange(0, nameField.value.length);
-  // Delete the selected text, then type the new value
-  await user.keyboard('{Backspace}');
-  await user.type(nameField, data.name);
+  await step('Save changes', async () => {
+    const saveButton = await modal.findByRole('button', { name: /save/i });
+    await waitFor(() => expect(saveButton).toBeEnabled(), { timeout: 10000 });
+    await user.click(saveButton);
+  });
 
-  if (data.description !== undefined) {
-    await user.click(descriptionField);
-    descriptionField.setSelectionRange(0, descriptionField.value.length);
-    await user.keyboard('{Backspace}');
-    await user.type(descriptionField, data.description);
-  }
+  if (!waitForCompletion) return;
 
-  // Step 4: Wait for validation and click Save button
-  const saveButton = await modalContent.findByRole('button', { name: /save/i });
-  await waitFor(() => expect(saveButton).toBeEnabled(), { timeout: 10000 });
-  await user.click(saveButton);
-
-  if (!waitForCompletion) {
-    return;
-  }
-
-  // Step 5: Wait for modal to close
-  await waitFor(
-    () => {
-      const modal = document.querySelector('[role="dialog"]');
-      expect(modal).not.toBeInTheDocument();
-    },
-    { timeout: 5000 },
-  );
+  await step('Wait for modal to close', async () => {
+    await waitForModalClose();
+  });
 }

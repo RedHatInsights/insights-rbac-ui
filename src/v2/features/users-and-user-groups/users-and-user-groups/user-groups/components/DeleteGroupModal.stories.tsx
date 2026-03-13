@@ -110,33 +110,28 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    await userEvent.click(await canvas.findByText('Delete Group'));
+    await step('Open modal and verify content', async () => {
+      await userEvent.click(await canvas.findByText('Delete Group'));
 
-    // Modal should be visible in document.body (portal)
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      await expect(modal).toBeInTheDocument();
 
-    // Check modal displays the group name correctly
-    await expect(within(modal).findByText('Test Group')).resolves.toBeInTheDocument();
+      await expect(within(modal).findByText('Test Group')).resolves.toBeInTheDocument();
 
-    // Verify action buttons are present and accessible
-    await expect(within(modal).findByRole('button', { name: /delete/i })).resolves.toBeInTheDocument();
-    await expect(within(modal).findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
+      await expect(within(modal).findByRole('button', { name: /delete/i })).resolves.toBeInTheDocument();
+      await expect(within(modal).findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
 
-    // Verify delete button is initially disabled (checkbox confirmation required)
-    const deleteButton = await within(modal).findByRole('button', { name: /delete/i });
-    await expect(deleteButton).toBeDisabled();
+      const deleteButton = await within(modal).findByRole('button', { name: /delete/i });
+      await expect(deleteButton).toBeDisabled();
 
-    // Check the confirmation checkbox
-    const checkbox = await within(modal).findByRole('checkbox');
-    await userEvent.click(checkbox);
+      const checkbox = await within(modal).findByRole('checkbox');
+      await userEvent.click(checkbox);
 
-    // Now delete button should be enabled
-    await expect(deleteButton).toBeEnabled();
+      await expect(deleteButton).toBeEnabled();
+    });
   },
 };
 
@@ -179,20 +174,19 @@ export const OpenModal: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal first
-    await userEvent.click(await canvas.findByText('Delete Group'));
+    await step('Open modal and verify content', async () => {
+      await userEvent.click(await canvas.findByText('Delete Group'));
 
-    // Modal should be visible in document.body (portal)
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      await expect(modal).toBeInTheDocument();
 
-    // Check modal content
-    await expect(within(modal).findByText('Test Group')).resolves.toBeInTheDocument();
-    await expect(within(modal).findByRole('button', { name: /delete/i })).resolves.toBeInTheDocument();
-    await expect(within(modal).findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
+      await expect(within(modal).findByText('Test Group')).resolves.toBeInTheDocument();
+      await expect(within(modal).findByRole('button', { name: /delete/i })).resolves.toBeInTheDocument();
+      await expect(within(modal).findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -235,25 +229,22 @@ export const ConfirmAction: Story = {
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    await userEvent.click(await canvas.findByText('Delete Group'));
+    await step('Open modal, check confirmation, and confirm', async () => {
+      await userEvent.click(await canvas.findByText('Delete Group'));
 
-    // Find and click the confirm button
-    const modal = await screen.findByRole('dialog');
+      const modal = await screen.findByRole('dialog');
 
-    // First check the confirmation checkbox (required by withCheckbox prop)
-    const checkbox = await within(modal).findByRole('checkbox');
-    await userEvent.click(checkbox);
+      const checkbox = await within(modal).findByRole('checkbox');
+      await userEvent.click(checkbox);
 
-    // Now click the confirm button
-    const confirmButton = await within(modal).findByRole('button', { name: /delete/i });
-    await userEvent.click(confirmButton);
+      const confirmButton = await within(modal).findByRole('button', { name: /delete/i });
+      await userEvent.click(confirmButton);
 
-    // Verify callback was called
-    await expect(args.onConfirm).toHaveBeenCalled();
+      await expect(args.onConfirm).toHaveBeenCalled();
+    });
   },
 };
 
@@ -296,19 +287,18 @@ export const CancelAction: Story = {
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    await userEvent.click(await canvas.findByText('Delete Group'));
+    await step('Open modal and cancel', async () => {
+      await userEvent.click(await canvas.findByText('Delete Group'));
 
-    // Find and click the cancel button
-    const modal = await screen.findByRole('dialog');
-    const cancelButton = await within(modal).findByRole('button', { name: /cancel/i });
-    await userEvent.click(cancelButton);
+      const modal = await screen.findByRole('dialog');
+      const cancelButton = await within(modal).findByRole('button', { name: /cancel/i });
+      await userEvent.click(cancelButton);
 
-    // Verify close callback was called
-    await expect(args.onClose).toHaveBeenCalled();
+      await expect(args.onClose).toHaveBeenCalled();
+    });
   },
 };
 

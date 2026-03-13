@@ -200,14 +200,16 @@ export const InteractiveTest: Story = {
       </table>
     </div>
   ),
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Find the clickable element and test interaction
-    const clickableElement = await canvas.findByText('Click me to test interaction');
-    if (args.onClick) {
-      await userEvent.click(clickableElement);
-      await expect(args.onClick).toHaveBeenCalled();
-    }
+    await step('Verify click interaction', async () => {
+      // Find the clickable element and test interaction
+      const clickableElement = await canvas.findByText('Click me to test interaction');
+      if (args.onClick) {
+        await userEvent.click(clickableElement);
+        await expect(args.onClick).toHaveBeenCalled();
+      }
+    });
   },
 };

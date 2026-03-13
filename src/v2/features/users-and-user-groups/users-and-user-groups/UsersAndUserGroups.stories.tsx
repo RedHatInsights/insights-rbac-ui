@@ -2,7 +2,6 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, within } from 'storybook/test';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { delay } from 'msw';
 
 import { UsersAndUserGroups } from './UsersAndUserGroups';
 import { usersHandlers } from '../../../../shared/data/mocks/users.handlers';
@@ -118,37 +117,35 @@ Use this story to test basic container rendering and tab structure. For comprehe
       handlers: [...usersHandlers(mockUsers), ...groupsHandlers(mockGroups)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify main container renders with header
-    await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
+    await step('Verify container and tab structure', async () => {
+      await expect(canvas.findByText('Users and User Groups')).resolves.toBeInTheDocument();
 
-    // Check tab structure
-    await expect(canvas.findByRole('region')).resolves.toBeInTheDocument();
-    await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
-    await expect(canvas.findByRole('tab', { name: /user groups/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('region')).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('tab', { name: /user groups/i })).resolves.toBeInTheDocument();
 
-    // Verify the Users tab is initially active and outlet content is rendered
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    await expect(usersTab).toHaveAttribute('aria-selected', 'true');
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      await expect(usersTab).toHaveAttribute('aria-selected', 'true');
 
-    // Verify Users outlet content is loaded
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+    });
 
-    // Test tab navigation - click on User Groups tab
-    const userGroupsTab = await canvas.findByRole('tab', { name: /user groups/i });
-    await userEvent.click(userGroupsTab);
+    await step('Navigate to User Groups tab', async () => {
+      const userGroupsTab = await canvas.findByRole('tab', { name: /user groups/i });
+      await userEvent.click(userGroupsTab);
 
-    // Verify User Groups outlet content is loaded
-    await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Developers')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Developers')).resolves.toBeInTheDocument();
+    });
 
-    // Navigate back to Users tab
-    await userEvent.click(usersTab);
+    await step('Navigate back to Users tab', async () => {
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      await userEvent.click(usersTab);
 
-    // Verify Users outlet content is loaded again
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+    });
   },
 };

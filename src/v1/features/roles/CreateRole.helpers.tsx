@@ -1,143 +1,57 @@
-import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import type { UserEvent } from '@testing-library/user-event';
+import { expect, waitFor, within } from 'storybook/test';
+import { clearAndType, clickWizardNext, selectNthCheckbox, waitForModal, waitForModalClose } from '../../../test-utils/interactionHelpers';
+import { type StepFn, TEST_TIMEOUTS, noopStep } from '../../../test-utils/testUtils';
 
-/**
- * Helper function to fill out the Create Role wizard (simple flow: create from scratch, add permissions)
- * @param user The userEvent instance.
- * @param roleName The name for the new role.
- * @param roleDescription The description for the new role.
- * @param permissions Array of permission strings to search for and add (e.g., ['insights:*:*'])
- */
 export async function fillCreateRoleWizard(
-  user: ReturnType<typeof userEvent.setup>,
+  user: UserEvent,
   roleName: string,
   roleDescription: string,
   permissions: string[] = ['insights:*:*'],
+  step: StepFn = noopStep,
 ) {
-  // Wait for the Create Role wizard modal to appear
-  const modal = await waitFor(
-    () => {
-      const dialog = document.querySelector('[role="dialog"]');
-      expect(dialog).toBeInTheDocument();
-      const modalContent = within(dialog as HTMLElement);
-      // Wait for the type selector radio buttons to appear
-      expect(modalContent.getByRole('radio', { name: /create a role from scratch/i })).toBeInTheDocument();
-      return dialog as HTMLElement;
-    },
-    { timeout: 5000 },
-  );
+  const modal = await waitForModal();
 
-  await delay(300);
+  await step('Select "Create from scratch" and enter role name', async () => {
+    const createOption = await modal.findByRole('radio', { name: /create a role from scratch/i });
+    await user.click(createOption);
 
-  // Step 1: Select "Create a role from scratch" (should be default, but let's click it to be sure)
-  const createOption = within(modal).getByRole('radio', { name: /create a role from scratch/i });
-  await user.click(createOption);
-  await delay(200);
+    await clearAndType(user, () => modal.getByLabelText(/role name/i) as HTMLInputElement, roleName);
 
-  // Fill in role name
-  const nameInput = within(modal).getByLabelText(/role name/i) as HTMLInputElement;
-  await user.click(nameInput);
-  await user.type(nameInput, roleName);
-  await delay(1000); // Wait for async validation (debounced)
+    await clickWizardNext(user, modal, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+  });
 
-  // Wait for wizard's Next button (primary button) to become enabled, then click it
-  const buttons = within(modal).getAllByRole('button', { name: /^next$/i });
-  const nextButton = buttons.find((btn) => btn.classList.contains('pf-m-primary'));
-  expect(nextButton).toBeInTheDocument();
-  await waitFor(() => expect(nextButton!).toBeEnabled(), { timeout: 10000 });
-  await user.click(nextButton!);
-  await delay(500);
+  await step('Add permissions', async () => {
+    await modal.findByRole('heading', { name: /add permissions/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
 
-  // Step 2: Add permissions
-  // Wait for the permissions table to load
-  await waitFor(
-    () => {
-      const heading = within(modal).queryByRole('heading', { name: /add permissions/i });
-      expect(heading).toBeInTheDocument();
-    },
-    { timeout: 5000 },
-  );
-
-  await delay(500);
-
-  // Wait for permissions table to load and select permissions
-  await waitFor(
-    async () => {
-      const checkboxes = within(modal).queryAllByRole('checkbox');
-      expect(checkboxes.length).toBeGreaterThan(0);
-    },
-    { timeout: 5000 },
-  );
-  await delay(500);
-
-  // Select the specified permissions
-  for (const permission of permissions) {
-    // For simplicity, just select the first few checkboxes (skip header checkbox at index 0)
-    const checkboxes = within(modal).getAllByRole('checkbox');
-    const targetIndex = permissions.indexOf(permission) + 1; // +1 to skip header
-    if (checkboxes.length > targetIndex) {
-      await user.click(checkboxes[targetIndex]);
+    for (let i = 0; i < permissions.length; i++) {
+      await selectNthCheckbox(user, modal, i, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
     }
-    await delay(200);
-  }
 
-  // Click Next to go to Review step (find the wizard's primary Next button)
-  const buttons2 = within(modal).getAllByRole('button', { name: /^next$/i });
-  const nextButton2 = buttons2.find((btn) => btn.classList.contains('pf-m-primary'));
-  expect(nextButton2).toBeInTheDocument();
-  await user.click(nextButton2!);
-  await delay(500);
+    await clickWizardNext(user, modal);
+  });
 
-  // Step 3: Review and submit
-  await waitFor(
-    () => {
-      const heading = within(modal).queryByRole('heading', { name: /review details/i });
-      expect(heading).toBeInTheDocument();
-    },
-    { timeout: 5000 },
-  );
+  await step('Review and submit', async () => {
+    await modal.findByRole('heading', { name: /review details/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
 
-  // Add description in review step if there's a description field
-  const descInputs = within(modal).queryAllByLabelText(/description/i);
-  if (descInputs.length > 0) {
-    const descInput = descInputs[0] as HTMLTextAreaElement;
-    await user.click(descInput);
-    await user.type(descInput, roleDescription);
-    await delay(200);
-  }
+    if (modal.queryAllByLabelText(/description/i).length > 0) {
+      await clearAndType(user, () => modal.queryAllByLabelText(/description/i)[0] as HTMLTextAreaElement, roleDescription);
+    }
 
-  await delay(300);
+    const submitButton = await modal.findByRole('button', { name: /submit/i });
+    await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    await user.click(submitButton);
+  });
 
-  // Click Submit
-  const submitButton = within(modal).getByRole('button', { name: /submit/i });
-  await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: 5000 });
-  await user.click(submitButton);
+  await step('Verify success and close wizard', async () => {
+    // Success screen renders in a fresh dialog reference
+    const body = within(document.body);
+    await body.findByText(/you have successfully created a new role/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
 
-  // Wait for success screen (appears in document, not necessarily within the original modal ref)
-  await waitFor(
-    () => {
-      // Looking for the success message in the empty state - check whole document
-      const dialog = document.querySelector('[role="dialog"]');
-      expect(dialog).toBeInTheDocument();
-      const successText = within(dialog as HTMLElement).queryByText(/you have successfully created a new role/i);
-      expect(successText).toBeInTheDocument();
-    },
-    { timeout: 5000 },
-  );
+    const successModal = await waitForModal();
+    const exitButton = successModal.getByRole('button', { name: /exit/i });
+    await user.click(exitButton);
 
-  await delay(300); // Human moment to see success
-
-  // Click "Exit" button to close the wizard (get fresh dialog reference)
-  const successDialog = document.querySelector('[role="dialog"]') as HTMLElement;
-  const exitButton = within(successDialog).getByRole('button', { name: /exit/i });
-  await user.click(exitButton);
-
-  // Wait for modal to close
-  await waitFor(
-    () => {
-      const dialog = document.querySelector('[role="dialog"]');
-      expect(dialog).not.toBeInTheDocument();
-    },
-    { timeout: 5000 },
-  );
+    await waitForModalClose();
+  });
 }

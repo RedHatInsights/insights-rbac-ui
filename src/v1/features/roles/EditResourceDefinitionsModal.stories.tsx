@@ -120,9 +120,6 @@ const meta: Meta<typeof EditResourceDefinitionsModal> = {
 export default meta;
 type Story = StoryObj<typeof EditResourceDefinitionsModal>;
 
-// Helper for play function delays
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 /**
  * Default - Shows the edit resource definitions modal with inventory permission
  */
@@ -131,26 +128,26 @@ export const Default: Story = {
     roleId: 'role-123',
     permissionId: 'inventory:hosts:read',
   },
-  play: async () => {
-    await sleep(300);
+  play: async ({ step }) => {
+    await step('Verify modal and title', async () => {
+      // The modal should be rendered - look for it in the document body (PatternFly modals portal)
+      await waitFor(
+        () => {
+          const modal = document.querySelector('[class*="pf-v6-c-modal-box"]') || document.querySelector('[class*="modal"]');
+          expect(modal).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
 
-    // The modal should be rendered - look for it in the document body (PatternFly modals portal)
-    await waitFor(
-      () => {
-        const modal = document.querySelector('[class*="pf-v6-c-modal-box"]') || document.querySelector('[class*="modal"]');
-        expect(modal).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
-
-    // Verify the modal title
-    await waitFor(
-      () => {
-        const title = document.querySelector('[class*="pf-v6-c-modal-box__title"]');
-        expect(title?.textContent).toContain('Edit resource definitions');
-      },
-      { timeout: 5000 },
-    );
+      // Verify the modal title
+      await waitFor(
+        () => {
+          const title = document.querySelector('[class*="pf-v6-c-modal-box__title"]');
+          expect(title?.textContent).toContain('Edit resource definitions');
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -165,17 +162,17 @@ export const Loading: Story = {
       handlers: [...v1RolesHandlers([mockRole as unknown as RoleOutDynamic]), ...inventoryLoadingHandlers()],
     },
   },
-  play: async () => {
-    await sleep(500);
-
-    // Should show spinner during loading (inside modal)
-    await waitFor(
-      () => {
-        const spinner = document.querySelector('[class*="pf-v6-c-spinner"]') || document.querySelector('[class*="spinner"]');
-        expect(spinner).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
+  play: async ({ step }) => {
+    await step('Verify loading spinner', async () => {
+      // Should show spinner during loading (inside modal)
+      await waitFor(
+        () => {
+          const spinner = document.querySelector('[class*="pf-v6-c-spinner"]') || document.querySelector('[class*="spinner"]');
+          expect(spinner).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -205,8 +202,6 @@ export const AddResourceAndSave: Story = {
     // Clear spies from previous runs
     updateRoleSpy.mockClear();
     getRoleAccessSpy.mockClear();
-
-    await sleep(300);
 
     // Wait for the modal to be fully loaded (no spinner)
     await waitFor(
@@ -255,10 +250,11 @@ export const AddResourceAndSave: Story = {
     await userEvent.click(addButton);
 
     // Verify UI state changed - Staging should now be in chosen list
-    await sleep(100);
-    const chosenPane = dualList?.querySelector('.pf-m-chosen ul');
-    const chosenTexts = Array.from(chosenPane?.querySelectorAll('li') || []).map((li) => li.textContent?.trim());
-    expect(chosenTexts.some((t) => t?.includes('Staging'))).toBe(true);
+    await waitFor(() => {
+      const chosenPane = dualList?.querySelector('.pf-m-chosen ul');
+      const chosenTexts = Array.from(chosenPane?.querySelectorAll('li') || []).map((li) => li.textContent?.trim());
+      expect(chosenTexts.some((t) => t?.includes('Staging'))).toBe(true);
+    });
 
     // Now Save button should be enabled - click it
     const saveButton = await modalContent.findByRole('button', { name: /save/i });
@@ -298,39 +294,39 @@ export const CancelWithoutChanges: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    updateRoleSpy.mockClear();
+  play: async ({ step }) => {
+    await step('Cancel without changes and verify navigation', async () => {
+      updateRoleSpy.mockClear();
 
-    await sleep(300);
+      // Wait for loading to complete
+      await waitFor(
+        () => {
+          const spinner = document.querySelector('[class*="pf-v6-c-spinner"]');
+          expect(spinner).toBeFalsy();
+        },
+        { timeout: 10000 },
+      );
 
-    // Wait for loading to complete
-    await waitFor(
-      () => {
-        const spinner = document.querySelector('[class*="pf-v6-c-spinner"]');
-        expect(spinner).toBeFalsy();
-      },
-      { timeout: 10000 },
-    );
+      const modal = document.querySelector('[class*="pf-v6-c-modal-box"]');
+      expect(modal).toBeTruthy();
+      const modalContent = within(modal as HTMLElement);
 
-    const modal = document.querySelector('[class*="pf-v6-c-modal-box"]');
-    expect(modal).toBeTruthy();
-    const modalContent = within(modal as HTMLElement);
+      // Click Cancel button
+      const cancelButton = await modalContent.findByRole('button', { name: /cancel/i });
+      expect(cancelButton).toBeInTheDocument();
+      await userEvent.click(cancelButton);
 
-    // Click Cancel button
-    const cancelButton = await modalContent.findByRole('button', { name: /cancel/i });
-    expect(cancelButton).toBeInTheDocument();
-    await userEvent.click(cancelButton);
+      // Should NOT call updateRole API
+      expect(updateRoleSpy).not.toHaveBeenCalled();
 
-    // Should NOT call updateRole API
-    expect(updateRoleSpy).not.toHaveBeenCalled();
-
-    // Should navigate away
-    await waitFor(
-      () => {
-        const navigatedPage = document.querySelector('[data-testid="permission-page"]') || document.querySelector('[data-testid="navigated-page"]');
-        expect(navigatedPage).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
+      // Should navigate away
+      await waitFor(
+        () => {
+          const navigatedPage = document.querySelector('[data-testid="permission-page"]') || document.querySelector('[data-testid="navigated-page"]');
+          expect(navigatedPage).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };

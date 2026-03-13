@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, waitFor, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
 import { ENVIRONMENTS, v1Db } from './_shared/environments';
 import { resetStoryState } from './_shared/helpers';
+import { waitForContentReady } from '../test-utils/interactionHelpers';
 
 type Story = StoryObj<typeof AppEntryWithRouter>;
 
@@ -119,14 +120,20 @@ For automated test journeys, see the environment-specific story folders.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // Simple verification that the page loads
-    await waitFor(async () => {
-      // Wait for My User Access page to load - check for the main heading
-      await expect(canvas.getByRole('heading', { name: /my user access/i })).toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify page loads', async () => {
+      const heading = await canvas.findByRole('heading', { name: /my user access/i });
+      expect(heading).toBeInTheDocument();
     });
   },
 };

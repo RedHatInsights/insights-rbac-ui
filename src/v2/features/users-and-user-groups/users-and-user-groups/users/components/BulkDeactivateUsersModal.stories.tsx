@@ -80,32 +80,28 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    await userEvent.click(canvas.getByText('Deactivate Users'));
+    await step('Open modal and verify content', async () => {
+      await userEvent.click(canvas.getByText('Deactivate Users'));
 
-    // Modal should be visible in document.body (portal)
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      await expect(modal).toBeInTheDocument();
 
-    // Verify both usernames are displayed in the modal
-    await expect(within(modal).getByText('user1')).toBeInTheDocument();
-    await expect(within(modal).getByText('user2')).toBeInTheDocument();
+      await expect(within(modal).getByText('user1')).toBeInTheDocument();
+      await expect(within(modal).getByText('user2')).toBeInTheDocument();
 
-    // Verify confirmation checkbox is present and unchecked
-    const checkbox = within(modal).getByRole('checkbox');
-    await expect(checkbox).toBeInTheDocument();
-    await expect(checkbox).not.toBeChecked();
+      const checkbox = within(modal).getByRole('checkbox');
+      await expect(checkbox).toBeInTheDocument();
+      await expect(checkbox).not.toBeChecked();
 
-    // Verify confirm button is disabled initially (requires checkbox)
-    const confirmButton = within(modal).getByRole('button', { name: /deactivate/i });
-    await expect(confirmButton).toBeDisabled();
+      const confirmButton = within(modal).getByRole('button', { name: /deactivate/i });
+      await expect(confirmButton).toBeDisabled();
 
-    // Verify cancel button is always enabled
-    const cancelButton = within(modal).getByRole('button', { name: /cancel/i });
-    await expect(cancelButton).toBeEnabled();
+      const cancelButton = within(modal).getByRole('button', { name: /cancel/i });
+      await expect(cancelButton).toBeEnabled();
+    });
   },
 };
 
@@ -147,36 +143,34 @@ export const ConfirmationFlow: Story = {
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    await userEvent.click(canvas.getByText('Deactivate Users'));
+    await step('Open modal and verify initial state', async () => {
+      await userEvent.click(canvas.getByText('Deactivate Users'));
 
-    // Modal should be visible in document.body (portal)
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      await expect(modal).toBeInTheDocument();
 
-    // Verify both usernames are displayed
-    await expect(within(modal).getByText('john.doe')).toBeInTheDocument();
-    await expect(within(modal).getByText('jane.smith')).toBeInTheDocument();
+      await expect(within(modal).getByText('john.doe')).toBeInTheDocument();
+      await expect(within(modal).getByText('jane.smith')).toBeInTheDocument();
 
-    // Confirm button should be disabled initially
-    const confirmButton = within(modal).getByRole('button', { name: /deactivate/i });
-    await expect(confirmButton).toBeDisabled();
+      const confirmButton = within(modal).getByRole('button', { name: /deactivate/i });
+      await expect(confirmButton).toBeDisabled();
+    });
 
-    // Check the confirmation checkbox
-    const checkbox = within(modal).getByRole('checkbox');
-    await userEvent.click(checkbox);
+    await step('Check confirmation and confirm', async () => {
+      const modal = await screen.findByRole('dialog');
+      const checkbox = within(modal).getByRole('checkbox');
+      await userEvent.click(checkbox);
 
-    // Confirm button should now be enabled
-    await expect(confirmButton).toBeEnabled();
+      const confirmButton = within(modal).getByRole('button', { name: /deactivate/i });
+      await expect(confirmButton).toBeEnabled();
 
-    // Click confirm
-    await userEvent.click(confirmButton);
+      await userEvent.click(confirmButton);
 
-    // Verify callback was called
-    await expect(args.onConfirm).toHaveBeenCalled();
+      await expect(args.onConfirm).toHaveBeenCalled();
+    });
   },
 };
 
@@ -218,19 +212,18 @@ export const CancelAction: Story = {
       },
     },
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    await userEvent.click(canvas.getByText('Deactivate Users'));
+    await step('Open modal and cancel', async () => {
+      await userEvent.click(canvas.getByText('Deactivate Users'));
 
-    // Find and click the cancel button
-    const modal = await screen.findByRole('dialog');
-    const cancelButton = within(modal).getByRole('button', { name: /cancel/i });
-    await userEvent.click(cancelButton);
+      const modal = await screen.findByRole('dialog');
+      const cancelButton = within(modal).getByRole('button', { name: /cancel/i });
+      await userEvent.click(cancelButton);
 
-    // Verify close callback was called
-    await expect(args.onClose).toHaveBeenCalled();
+      await expect(args.onClose).toHaveBeenCalled();
+    });
   },
 };
 
@@ -271,15 +264,15 @@ export const SingleUser: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    await userEvent.click(canvas.getByText('Deactivate User'));
+    await step('Open modal and verify single user', async () => {
+      await userEvent.click(canvas.getByText('Deactivate User'));
 
-    // Should show the single username
-    const modal = await screen.findByRole('dialog');
-    await expect(within(modal).getByText('single.user')).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      await expect(within(modal).getByText('single.user')).toBeInTheDocument();
+    });
   },
 };
 
@@ -320,16 +313,16 @@ export const ManyUsers: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    await userEvent.click(canvas.getByText('Deactivate 10 Users'));
+    await step('Open modal and verify many users', async () => {
+      await userEvent.click(canvas.getByText('Deactivate 10 Users'));
 
-    // Should show multiple usernames
-    const modal = await screen.findByRole('dialog');
-    await expect(within(modal).getByText('user1')).toBeInTheDocument();
-    await expect(within(modal).getByText('user10')).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      await expect(within(modal).getByText('user1')).toBeInTheDocument();
+      await expect(within(modal).getByText('user10')).toBeInTheDocument();
+    });
   },
 };
 
@@ -370,13 +363,11 @@ export const EmptyList: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Open the modal
-    await userEvent.click(canvas.getByText('Deactivate Users'));
-
-    // Modal behavior with empty list - should either not show or handle gracefully
-    // The exact behavior depends on the component implementation
+    await step('Open modal with empty list', async () => {
+      await userEvent.click(canvas.getByText('Deactivate Users'));
+    });
   },
 };

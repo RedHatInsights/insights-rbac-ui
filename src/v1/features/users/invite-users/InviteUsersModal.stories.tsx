@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { InviteUsersModal } from './InviteUsersModal';
 
@@ -47,33 +46,34 @@ type Story = StoryObj<typeof InviteUsersModal>;
  * Default state - Modal is open with empty form
  */
 export const Default: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Modal should be visible
-    const modal = await body.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+    await step('Verify modal initial state', async () => {
+      // Modal should be visible
+      const modal = await body.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Title should be visible
-    expect(body.getByText(/invite users/i)).toBeInTheDocument();
+      // Title should be visible
+      expect(body.getByText(/invite users/i)).toBeInTheDocument();
 
-    // Email text area should be present
-    const emailInput = body.getByRole('textbox');
-    expect(emailInput).toBeInTheDocument();
+      // Email text area should be present
+      const emailInput = body.getByRole('textbox');
+      expect(emailInput).toBeInTheDocument();
 
-    // Admin checkbox should be present and unchecked
-    const adminCheckbox = body.getByRole('checkbox');
-    expect(adminCheckbox).toBeInTheDocument();
-    expect(adminCheckbox).not.toBeChecked();
+      // Admin checkbox should be present and unchecked
+      const adminCheckbox = body.getByRole('checkbox');
+      expect(adminCheckbox).toBeInTheDocument();
+      expect(adminCheckbox).not.toBeChecked();
 
-    // Save button should be disabled (no emails entered)
-    const saveButton = body.getByRole('button', { name: /save/i });
-    expect(saveButton).toBeDisabled();
+      // Save button should be disabled (no emails entered)
+      const saveButton = body.getByRole('button', { name: /save/i });
+      expect(saveButton).toBeDisabled();
 
-    // Cancel button should be enabled
-    const cancelButton = body.getByRole('button', { name: /cancel/i });
-    expect(cancelButton).toBeEnabled();
+      // Cancel button should be enabled
+      const cancelButton = body.getByRole('button', { name: /cancel/i });
+      expect(cancelButton).toBeEnabled();
+    });
   },
 };
 
@@ -81,25 +81,26 @@ export const Default: Story = {
  * Enter valid emails - Save button becomes enabled
  */
 export const EnterValidEmails: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Email text area
-    const emailInput = body.getByRole('textbox');
-    expect(emailInput).toBeInTheDocument();
+    await step('Enter valid emails and verify save enabled', async () => {
+      // Email text area
+      const emailInput = body.getByRole('textbox');
+      expect(emailInput).toBeInTheDocument();
 
-    // Save button should initially be disabled
-    const saveButton = body.getByRole('button', { name: /save/i });
-    expect(saveButton).toBeDisabled();
+      // Save button should initially be disabled
+      const saveButton = body.getByRole('button', { name: /save/i });
+      expect(saveButton).toBeDisabled();
 
-    // Enter valid email addresses
-    await userEvent.type(emailInput, 'user1@example.com, user2@example.com');
-    expect(emailInput).toHaveValue('user1@example.com, user2@example.com');
+      // Enter valid email addresses
+      await userEvent.type(emailInput, 'user1@example.com, user2@example.com');
+      expect(emailInput).toHaveValue('user1@example.com, user2@example.com');
 
-    // Save button should now be enabled
-    await waitFor(() => {
-      expect(saveButton).toBeEnabled();
+      // Save button should now be enabled
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
     });
   },
 };
@@ -108,26 +109,24 @@ export const EnterValidEmails: Story = {
  * Enter invalid emails - Save button remains disabled
  */
 export const EnterInvalidEmails: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Email text area
-    const emailInput = body.getByRole('textbox');
+    await step('Enter invalid emails and verify save disabled', async () => {
+      // Email text area
+      const emailInput = body.getByRole('textbox');
 
-    // Save button should initially be disabled
-    const saveButton = body.getByRole('button', { name: /save/i });
-    expect(saveButton).toBeDisabled();
+      // Save button should initially be disabled
+      const saveButton = body.getByRole('button', { name: /save/i });
+      expect(saveButton).toBeDisabled();
 
-    // Enter invalid text (not emails)
-    await userEvent.type(emailInput, 'not an email, also not valid');
-    expect(emailInput).toHaveValue('not an email, also not valid');
+      // Enter invalid text (not emails)
+      await userEvent.type(emailInput, 'not an email, also not valid');
+      expect(emailInput).toHaveValue('not an email, also not valid');
 
-    // Wait a bit for the email extraction to run
-    await delay(200);
-
-    // Save button should still be disabled (no valid emails)
-    expect(saveButton).toBeDisabled();
+      // Save button should still be disabled (no valid emails)
+      expect(saveButton).toBeDisabled();
+    });
   },
 };
 
@@ -135,21 +134,22 @@ export const EnterInvalidEmails: Story = {
  * Toggle admin checkbox
  */
 export const ToggleAdminCheckbox: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Find and verify admin checkbox
-    const adminCheckbox = body.getByRole('checkbox');
-    expect(adminCheckbox).not.toBeChecked();
+    await step('Toggle admin checkbox', async () => {
+      // Find and verify admin checkbox
+      const adminCheckbox = body.getByRole('checkbox');
+      expect(adminCheckbox).not.toBeChecked();
 
-    // Click to check
-    await userEvent.click(adminCheckbox);
-    expect(adminCheckbox).toBeChecked();
+      // Click to check
+      await userEvent.click(adminCheckbox);
+      expect(adminCheckbox).toBeChecked();
 
-    // Click to uncheck
-    await userEvent.click(adminCheckbox);
-    expect(adminCheckbox).not.toBeChecked();
+      // Click to uncheck
+      await userEvent.click(adminCheckbox);
+      expect(adminCheckbox).not.toBeChecked();
+    });
   },
 };
 
@@ -157,22 +157,21 @@ export const ToggleAdminCheckbox: Story = {
  * Expand admin description section
  */
 export const ExpandAdminDescription: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Find the expandable toggle button
-    const expandToggle = body.getByRole('button', { name: /organization administrator/i });
-    expect(expandToggle).toBeInTheDocument();
+    await step('Expand admin description', async () => {
+      // Find the expandable toggle button
+      const expandToggle = body.getByRole('button', { name: /organization administrator/i });
+      expect(expandToggle).toBeInTheDocument();
 
-    // Click to expand
-    await userEvent.click(expandToggle);
+      // Click to expand
+      await userEvent.click(expandToggle);
 
-    // Description should be visible after expansion
-    await waitFor(() => {
-      // The description text about org admin privileges should appear
-      const expandedContent = document.querySelector('.pf-v6-c-expandable-section__content');
-      expect(expandedContent).toBeInTheDocument();
+      // Description should be visible after expansion - wait for expanded content text
+      await waitFor(() => {
+        expect(body.getByText(/highest permission level|manage users/i)).toBeInTheDocument();
+      });
     });
   },
 };
@@ -181,14 +180,15 @@ export const ExpandAdminDescription: Story = {
  * Cancel without changes - verifies cancel button is present and clickable
  */
 export const CancelWithoutChanges: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Find cancel button
-    const cancelButton = body.getByRole('button', { name: /cancel/i });
-    expect(cancelButton).toBeInTheDocument();
-    expect(cancelButton).toBeEnabled();
+    await step('Verify cancel button', async () => {
+      // Find cancel button
+      const cancelButton = body.getByRole('button', { name: /cancel/i });
+      expect(cancelButton).toBeInTheDocument();
+      expect(cancelButton).toBeEnabled();
+    });
   },
 };
 
@@ -196,24 +196,24 @@ export const CancelWithoutChanges: Story = {
  * Save button enabled state with valid emails and admin checkbox
  */
 export const SaveButtonEnabledWithValidEmails: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Enter valid emails
-    const emailInput = body.getByRole('textbox');
-    await userEvent.type(emailInput, 'user1@example.com, user2@example.com');
-    await delay(200);
+    await step('Enter emails and admin checkbox, verify save enabled', async () => {
+      // Enter valid emails
+      const emailInput = body.getByRole('textbox');
+      await userEvent.type(emailInput, 'user1@example.com, user2@example.com');
 
-    // Check admin checkbox
-    const adminCheckbox = body.getByRole('checkbox');
-    await userEvent.click(adminCheckbox);
-    expect(adminCheckbox).toBeChecked();
+      // Check admin checkbox
+      const adminCheckbox = body.getByRole('checkbox');
+      await userEvent.click(adminCheckbox);
+      expect(adminCheckbox).toBeChecked();
 
-    // Verify save button is enabled
-    const saveButton = body.getByRole('button', { name: /save/i });
-    await waitFor(() => {
-      expect(saveButton).toBeEnabled();
+      // Verify save button is enabled
+      const saveButton = body.getByRole('button', { name: /save/i });
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
     });
   },
 };
@@ -222,23 +222,20 @@ export const SaveButtonEnabledWithValidEmails: Story = {
  * Mixed valid and invalid emails - only valid ones enable save
  */
 export const MixedValidInvalidEmails: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Save button should initially be disabled
-    const saveButton = body.getByRole('button', { name: /save/i });
-    expect(saveButton).toBeDisabled();
+    await step('Enter mixed emails and verify save enabled', async () => {
+      const saveButton = body.getByRole('button', { name: /save/i });
+      expect(saveButton).toBeDisabled();
 
-    // Enter mixed valid and invalid emails
-    const emailInput = body.getByRole('textbox');
-    await userEvent.type(emailInput, 'valid@example.com, not-an-email, another.valid@test.org, @invalid');
+      const emailInput = body.getByRole('textbox');
+      await userEvent.type(emailInput, 'valid@example.com, not-an-email, another.valid@test.org, @invalid');
 
-    await delay(200);
-
-    // Save button should be enabled (valid emails were found)
-    await waitFor(() => {
-      expect(saveButton).toBeEnabled();
+      // Save button should be enabled (valid emails were found)
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
     });
   },
 };
@@ -247,23 +244,23 @@ export const MixedValidInvalidEmails: Story = {
  * Admin checkbox unchecked by default
  */
 export const AdminCheckboxUncheckedByDefault: Story = {
-  play: async () => {
-    await delay(300);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Admin checkbox should be unchecked by default
-    const adminCheckbox = body.getByRole('checkbox');
-    expect(adminCheckbox).not.toBeChecked();
+    await step('Verify admin unchecked and save enabled with valid email', async () => {
+      // Admin checkbox should be unchecked by default
+      const adminCheckbox = body.getByRole('checkbox');
+      expect(adminCheckbox).not.toBeChecked();
 
-    // Enter valid email
-    const emailInput = body.getByRole('textbox');
-    await userEvent.type(emailInput, 'user@example.com');
-    await delay(200);
+      // Enter valid email
+      const emailInput = body.getByRole('textbox');
+      await userEvent.type(emailInput, 'user@example.com');
 
-    // Save button should be enabled
-    const saveButton = body.getByRole('button', { name: /save/i });
-    await waitFor(() => {
-      expect(saveButton).toBeEnabled();
+      // Save button should be enabled
+      const saveButton = body.getByRole('button', { name: /save/i });
+      await waitFor(() => {
+        expect(saveButton).toBeEnabled();
+      });
     });
   },
 };

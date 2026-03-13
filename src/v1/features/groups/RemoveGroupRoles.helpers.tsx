@@ -1,4 +1,6 @@
-import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { expect, waitFor, within } from 'storybook/test';
+import type { ScopedQueries } from '../../../test-utils/interactionHelpers';
+import type { UserEvent } from '../../../test-utils/testUtils';
 import { delay } from 'msw';
 
 /**
@@ -10,11 +12,7 @@ import { delay } from 'msw';
  * - Clicking the "Remove" menu item
  * - Confirming the removal in the modal (if confirmModal is true)
  */
-export async function removeSelectedRolesFromGroup(
-  user: ReturnType<typeof userEvent.setup>,
-  canvas: ReturnType<typeof within>,
-  confirmModal: boolean = true,
-) {
+export async function removeSelectedRolesFromGroup(user: UserEvent, canvas: ScopedQueries, confirmModal: boolean = true) {
   // Find the bulk actions toggle button (kebab menu in toolbar)
   // Use the specific aria-label to distinguish it from row-level action menus
   const actionsToggle = await waitFor(

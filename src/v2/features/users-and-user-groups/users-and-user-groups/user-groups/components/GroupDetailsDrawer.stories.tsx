@@ -98,43 +98,40 @@ const DrawerExample = () => {
 
 export const Default: Story = {
   render: () => <DrawerExample />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Initially drawer should be closed
-    await expect(await canvas.queryByText('Administrators')).not.toBeInTheDocument();
+    await step('Open drawer and verify content', async () => {
+      await expect(await canvas.queryByText('Administrators')).not.toBeInTheDocument();
 
-    // Open drawer by clicking button
-    const openButton = await canvas.findByRole('button', { name: /view group details/i });
-    await userEvent.click(openButton);
+      const openButton = await canvas.findByRole('button', { name: /view group details/i });
+      await userEvent.click(openButton);
 
-    // Verify drawer opens with group details
-    await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
 
-    // Verify tabs are present and Users tab is active by default
-    await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
-    await expect(canvas.findByRole('tab', { name: /service accounts/i })).resolves.toBeInTheDocument();
-    await expect(canvas.findByRole('tab', { name: /assigned roles/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('tab', { name: /service accounts/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('tab', { name: /assigned roles/i })).resolves.toBeInTheDocument();
 
-    // Verify Users tab content is visible
-    await expect(canvas.findByText(/john\.doe@example\.com/)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/john\.doe@example\.com/)).resolves.toBeInTheDocument();
+    });
 
-    // Test tab navigation - click Service Accounts tab
-    const serviceAccountsTab = await canvas.findByRole('tab', { name: /service accounts/i });
-    await userEvent.click(serviceAccountsTab);
+    await step('Switch to Service Accounts tab', async () => {
+      const serviceAccountsTab = await canvas.findByRole('tab', { name: /service accounts/i });
+      await userEvent.click(serviceAccountsTab);
 
-    // Verify tab content switched
-    await expect(canvas.findByRole('heading', { name: 'Service Accounts' })).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/rbac-service-account/)).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('heading', { name: 'Service Accounts' })).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/rbac-service-account/)).resolves.toBeInTheDocument();
 
-    // Verify Users tab content is no longer visible (conditional rendering)
-    await expect(await canvas.queryByText(/john\.doe@example\.com/)).not.toBeInTheDocument();
+      await expect(await canvas.queryByText(/john\.doe@example\.com/)).not.toBeInTheDocument();
+    });
 
-    // Test Assigned Roles tab
-    const rolesTab = await canvas.findByRole('tab', { name: /assigned roles/i });
-    await userEvent.click(rolesTab);
+    await step('Switch to Assigned Roles tab', async () => {
+      const rolesTab = await canvas.findByRole('tab', { name: /assigned roles/i });
+      await userEvent.click(rolesTab);
 
-    await expect(canvas.findByRole('heading', { name: 'Assigned Roles' })).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/User Manager/)).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('heading', { name: 'Assigned Roles' })).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/User Manager/)).resolves.toBeInTheDocument();
+    });
   },
 };

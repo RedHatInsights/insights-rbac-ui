@@ -1,5 +1,6 @@
 import { expect, within } from 'storybook/test';
-import { Story, TEST_TIMEOUTS, meta, resetStoryState, v1Db } from './_v1OrgAdminSetup';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
+import { Story, meta, resetStoryState, v1Db } from './_v1OrgAdminSetup';
 
 export default { ...meta, title: 'User Journeys/Production/V1 (Current)/Org Admin', tags: ['prod-org-admin'] };
 
@@ -19,10 +20,19 @@ Interactive entry point for exploring the V1 Org Admin environment.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await expect(canvas.findByText(/your red hat enterprise linux/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).resolves.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify My User Access page loads', async () => {
+      await expect(canvas.findByText(/your red hat enterprise linux/i)).resolves.toBeInTheDocument();
+    });
   },
 };

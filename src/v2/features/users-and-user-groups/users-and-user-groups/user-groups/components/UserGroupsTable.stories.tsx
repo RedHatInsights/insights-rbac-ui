@@ -151,28 +151,30 @@ export const StandardView: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Verify table structure is rendered
-    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+      // Verify table structure is rendered
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
 
-    // Verify group data appears in table
-    await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Developers')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Platform Default Group')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('System Group')).resolves.toBeInTheDocument();
+      // Verify group data appears in table
+      await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Developers')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Platform Default Group')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('System Group')).resolves.toBeInTheDocument();
 
-    // Test column headers appear
-    await expect(canvas.findByRole('columnheader', { name: 'Name' })).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Description')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Actions')).resolves.toBeInTheDocument();
+      // Test column headers appear
+      await expect(canvas.findByRole('columnheader', { name: 'Name' })).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Description')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Actions')).resolves.toBeInTheDocument();
 
-    // Verify Create User Group button is present and functional
-    const createButton = await canvas.findByRole('button', { name: /create user group/i });
-    await expect(createButton).toBeInTheDocument();
-    await expect(createButton).toBeEnabled();
+      // Verify Create User Group button is present and functional
+      const createButton = await canvas.findByRole('button', { name: /create user group/i });
+      await expect(createButton).toBeInTheDocument();
+      await expect(createButton).toBeEnabled();
+    });
   },
 };
 
@@ -191,15 +193,17 @@ export const LoadingState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    // Should show skeleton loading state
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        await expect(skeletonElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 },
-    );
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      // Should show skeleton loading state
+      await waitFor(
+        async () => {
+          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+          await expect(skeletonElements.length).toBeGreaterThan(0);
+        },
+        { timeout: 10000 },
+      );
+    });
   },
 };
 
@@ -218,11 +222,13 @@ export const EmptyState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Should show empty state
-    await expect(canvas.findByRole('heading', { name: /no user group found/i })).resolves.toBeInTheDocument();
+      // Should show empty state
+      await expect(canvas.findByRole('heading', { name: /no user group found/i })).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -239,20 +245,22 @@ export const FocusedGroup: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Verify focused group is displayed
-    await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
+      // Verify focused group is displayed
+      await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
 
-    // Test row click functionality
-    const adminRow = (await canvas.findByText('Administrators')).closest('tr');
-    await expect(adminRow).toBeInTheDocument();
+      // Test row click functionality
+      const adminRow = (await canvas.findByText('Administrators')).closest('tr');
+      await expect(adminRow).toBeInTheDocument();
 
-    if (adminRow) {
-      await userEvent.click(adminRow);
-      await expect(defaultArgs.onRowClick).toHaveBeenCalled();
-    }
+      if (adminRow) {
+        await userEvent.click(adminRow);
+        await expect(defaultArgs.onRowClick).toHaveBeenCalled();
+      }
+    });
   },
 };
 
@@ -269,17 +277,19 @@ export const SystemGroupActions: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Test kebab menu functionality for system group (should show both edit and delete)
-    const kebabButton = await canvas.findByLabelText('Actions for group System Group');
-    await userEvent.click(kebabButton);
+      // Test kebab menu functionality for system group (should show both edit and delete)
+      const kebabButton = await canvas.findByLabelText('Actions for group System Group');
+      await userEvent.click(kebabButton);
 
-    const editAction = await within(document.body).findByText(/edit/i);
-    const deleteAction = await within(document.body).findByText(/delete/i);
-    await expect(editAction).toBeInTheDocument();
-    await expect(deleteAction).toBeInTheDocument();
+      const editAction = await within(document.body).findByText(/edit/i);
+      const deleteAction = await within(document.body).findByText(/delete/i);
+      await expect(editAction).toBeInTheDocument();
+      await expect(deleteAction).toBeInTheDocument();
+    });
   },
 };
 
@@ -296,22 +306,24 @@ export const RegularGroupActions: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Test kebab menu functionality for regular group (should show both edit and delete)
-    const kebabButton = await canvas.findByLabelText('Actions for group Administrators');
-    await userEvent.click(kebabButton);
+      // Test kebab menu functionality for regular group (should show both edit and delete)
+      const kebabButton = await canvas.findByLabelText('Actions for group Administrators');
+      await userEvent.click(kebabButton);
 
-    const editAction = await within(document.body).findByText(/edit/i);
-    const deleteAction = await within(document.body).findByText(/delete/i);
+      const editAction = await within(document.body).findByText(/edit/i);
+      const deleteAction = await within(document.body).findByText(/delete/i);
 
-    await expect(editAction.closest('[role="menuitem"]')).not.toHaveAttribute('aria-disabled');
-    await expect(deleteAction.closest('[role="menuitem"]')).not.toHaveAttribute('aria-disabled');
+      await expect(editAction.closest('[role="menuitem"]')).not.toHaveAttribute('aria-disabled');
+      await expect(deleteAction.closest('[role="menuitem"]')).not.toHaveAttribute('aria-disabled');
 
-    // Test edit action
-    await userEvent.click(editAction);
-    await expect(defaultArgs.onEditGroup).toHaveBeenCalledWith(mockGroups[0]);
+      // Test edit action
+      await userEvent.click(editAction);
+      await expect(defaultArgs.onEditGroup).toHaveBeenCalledWith(mockGroups[0]);
+    });
   },
 };
 
@@ -328,18 +340,20 @@ export const DeleteGroupAction: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Test kebab menu functionality for developers group (should have delete disabled)
-    const kebabButton = await canvas.findByLabelText('Actions for group Developers');
-    await userEvent.click(kebabButton);
+      // Test kebab menu functionality for developers group (should have delete disabled)
+      const kebabButton = await canvas.findByLabelText('Actions for group Developers');
+      await userEvent.click(kebabButton);
 
-    const deleteAction = await within(document.body).findByText(/delete/i);
-    await userEvent.click(deleteAction);
+      const deleteAction = await within(document.body).findByText(/delete/i);
+      await userEvent.click(deleteAction);
 
-    // Verify delete callback was called
-    await expect(defaultArgs.onDeleteGroup).toHaveBeenCalledWith(mockGroups[1]);
+      // Verify delete callback was called
+      await expect(defaultArgs.onDeleteGroup).toHaveBeenCalledWith(mockGroups[1]);
+    });
   },
 };
 
@@ -353,64 +367,66 @@ export const BulkSelection: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Test that individual row checkboxes are present
-    const checkboxes = await canvas.findAllByRole('checkbox');
-    await expect(checkboxes.length).toBeGreaterThan(0); // Should have individual row checkboxes
+      // Test that individual row checkboxes are present
+      const checkboxes = await canvas.findAllByRole('checkbox');
+      await expect(checkboxes.length).toBeGreaterThan(0); // Should have individual row checkboxes
 
-    // Select multiple groups for bulk operations
-    const developersRow = (await canvas.findByText('Developers')).closest('tr');
-    const systemGroupRow = (await canvas.findByText('System Group')).closest('tr');
+      // Select multiple groups for bulk operations
+      const developersRow = (await canvas.findByText('Developers')).closest('tr');
+      const systemGroupRow = (await canvas.findByText('System Group')).closest('tr');
 
-    await expect(developersRow).toBeInTheDocument();
-    await expect(systemGroupRow).toBeInTheDocument();
+      await expect(developersRow).toBeInTheDocument();
+      await expect(systemGroupRow).toBeInTheDocument();
 
-    const developersCheckbox = await within(developersRow!).findByRole('checkbox');
-    const systemGroupCheckbox = await within(systemGroupRow!).findByRole('checkbox');
+      const developersCheckbox = await within(developersRow!).findByRole('checkbox');
+      const systemGroupCheckbox = await within(systemGroupRow!).findByRole('checkbox');
 
-    // Initially, no checkboxes should be checked
-    await expect(developersCheckbox).not.toBeChecked();
-    await expect(systemGroupCheckbox).not.toBeChecked();
+      // Initially, no checkboxes should be checked
+      await expect(developersCheckbox).not.toBeChecked();
+      await expect(systemGroupCheckbox).not.toBeChecked();
 
-    // Select the "Developers" row
-    await userEvent.click(developersCheckbox);
-    await expect(developersCheckbox).toBeChecked();
+      // Select the "Developers" row
+      await userEvent.click(developersCheckbox);
+      await expect(developersCheckbox).toBeChecked();
 
-    // Select the "System Group" row
-    await userEvent.click(systemGroupCheckbox);
-    await expect(systemGroupCheckbox).toBeChecked();
+      // Select the "System Group" row
+      await userEvent.click(systemGroupCheckbox);
+      await expect(systemGroupCheckbox).toBeChecked();
 
-    // Both should now be selected
-    await expect(developersCheckbox).toBeChecked();
-    await expect(systemGroupCheckbox).toBeChecked();
+      // Both should now be selected
+      await expect(developersCheckbox).toBeChecked();
+      await expect(systemGroupCheckbox).toBeChecked();
 
-    // Deselect the "Developers" row to test unchecking
-    await userEvent.click(developersCheckbox);
-    await expect(developersCheckbox).not.toBeChecked();
-    // "System Group" should still be checked
-    await expect(systemGroupCheckbox).toBeChecked();
+      // Deselect the "Developers" row to test unchecking
+      await userEvent.click(developersCheckbox);
+      await expect(developersCheckbox).not.toBeChecked();
+      // "System Group" should still be checked
+      await expect(systemGroupCheckbox).toBeChecked();
 
-    // Test bulk select functionality
-    const bulkSelectButton = await canvas.findByLabelText('Select page');
-    await expect(bulkSelectButton).toBeInTheDocument();
+      // Test bulk select functionality
+      const bulkSelectButton = await canvas.findByLabelText('Select page');
+      await expect(bulkSelectButton).toBeInTheDocument();
 
-    // Click bulk select to select all
-    await userEvent.click(bulkSelectButton);
+      // Click bulk select to select all
+      await userEvent.click(bulkSelectButton);
 
-    // After clicking bulk select, all individual checkboxes should be checked
-    const allCheckboxes = await canvas.findAllByRole('checkbox');
-    allCheckboxes.forEach(async (checkbox) => {
-      await expect(checkbox).toBeChecked();
-    });
+      // After clicking bulk select, all individual checkboxes should be checked
+      const allCheckboxes = await canvas.findAllByRole('checkbox');
+      allCheckboxes.forEach(async (checkbox) => {
+        await expect(checkbox).toBeChecked();
+      });
 
-    // TEST DESELECT: Click bulk select again to deselect all
-    await userEvent.click(bulkSelectButton);
+      // TEST DESELECT: Click bulk select again to deselect all
+      await userEvent.click(bulkSelectButton);
 
-    // After clicking bulk select again, all checkboxes should be unchecked
-    allCheckboxes.forEach(async (checkbox) => {
-      await expect(checkbox).not.toBeChecked();
+      // After clicking bulk select again, all checkboxes should be unchecked
+      allCheckboxes.forEach(async (checkbox) => {
+        await expect(checkbox).not.toBeChecked();
+      });
     });
   },
 };
@@ -428,15 +444,17 @@ export const NoActionsMode: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Verify table is rendered but no action menus exist
-    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
-    await expect(canvas.queryByLabelText(/Actions for group/)).not.toBeInTheDocument();
+      // Verify table is rendered but no action menus exist
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+      await expect(canvas.queryByLabelText(/Actions for group/)).not.toBeInTheDocument();
 
-    // Bulk select should also be hidden
-    await expect(canvas.queryByLabelText('Select page')).not.toBeInTheDocument();
+      // Bulk select should also be hidden
+      await expect(canvas.queryByLabelText('Select page')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -454,15 +472,17 @@ export const LargeDataset: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Verify pagination shows correct total - there are TWO pagination components (top and bottom)
-    const countElements = await canvas.findAllByText(/1500/);
-    await expect(countElements.length).toBeGreaterThanOrEqual(1);
+      // Verify pagination shows correct total - there are TWO pagination components (top and bottom)
+      const countElements = await canvas.findAllByText(/1500/);
+      await expect(countElements.length).toBeGreaterThanOrEqual(1);
 
-    // Verify table still renders properly
-    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+      // Verify table still renders properly
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -479,20 +499,22 @@ export const MixedGroupTypes: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Test that various group types are present and visible
-    await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument(); // Regular
-    await expect(canvas.findByText('Platform Default Group')).resolves.toBeInTheDocument(); // Platform default
-    await expect(canvas.findByText('System Group')).resolves.toBeInTheDocument(); // System
+      // Test that various group types are present and visible
+      await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument(); // Regular
+      await expect(canvas.findByText('Platform Default Group')).resolves.toBeInTheDocument(); // Platform default
+      await expect(canvas.findByText('System Group')).resolves.toBeInTheDocument(); // System
 
-    // Test that system groups still have restricted actions
-    const systemKebab = await canvas.findByLabelText('Actions for group System Group');
-    await userEvent.click(systemKebab);
+      // Test that system groups still have restricted actions
+      const systemKebab = await canvas.findByLabelText('Actions for group System Group');
+      await userEvent.click(systemKebab);
 
-    const systemDeleteAction = await within(document.body).findByText(/delete/i);
-    await expect(systemDeleteAction).toBeInTheDocument();
+      const systemDeleteAction = await within(document.body).findByText(/delete/i);
+      await expect(systemDeleteAction).toBeInTheDocument();
+    });
   },
 };
 
@@ -506,31 +528,33 @@ export const CreateUserGroupButton: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Verify table is loaded first
-    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+      // Verify table is loaded first
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
 
-    // Find the Create User Group button
-    const createButton = await canvas.findByRole('button', { name: /create user group/i });
-    await expect(createButton).toBeInTheDocument();
+      // Find the Create User Group button
+      const createButton = await canvas.findByRole('button', { name: /create user group/i });
+      await expect(createButton).toBeInTheDocument();
 
-    // Verify button is enabled and clickable
-    await expect(createButton).toBeEnabled();
+      // Verify button is enabled and clickable
+      await expect(createButton).toBeEnabled();
 
-    // Verify button has correct OUIA ID for testing
-    await expect(createButton).toHaveAttribute('data-ouia-component-id', 'add-usergroup-button');
+      // Verify button has correct OUIA ID for testing
+      await expect(createButton).toHaveAttribute('data-ouia-component-id', 'add-usergroup-button');
 
-    // Verify button has isPinned attribute (should be prominently displayed)
-    await expect(createButton).toHaveClass('pf-m-primary');
+      // Verify button has isPinned attribute (should be prominently displayed)
+      await expect(createButton).toHaveClass('pf-m-primary');
 
-    // Test clicking the button (should not throw error even though we're in MemoryRouter)
-    await userEvent.click(createButton);
+      // Test clicking the button (should not throw error even though we're in MemoryRouter)
+      await userEvent.click(createButton);
 
-    // In a real app, this would navigate to the create user group form
-    // Here we just verify the click was successful and didn't cause errors
-    await expect(createButton).toBeInTheDocument();
+      // In a real app, this would navigate to the create user group form
+      // Here we just verify the click was successful and didn't cause errors
+      await expect(createButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -544,35 +568,37 @@ export const ActionsToolbar: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+      // Wait for table to load
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
 
-    // Test Create User Group button presence
-    const createButton = await canvas.findByRole('button', { name: /create user group/i });
-    await expect(createButton).toBeInTheDocument();
-    await expect(createButton).toBeEnabled();
+      // Test Create User Group button presence
+      const createButton = await canvas.findByRole('button', { name: /create user group/i });
+      await expect(createButton).toBeInTheDocument();
+      await expect(createButton).toBeEnabled();
 
-    // Test filter input is present
-    const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
-    await expect(filterInput).toBeInTheDocument();
+      // Test filter input is present
+      const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
+      await expect(filterInput).toBeInTheDocument();
 
-    // Test pagination is present (there are typically two pagination components: top and bottom)
-    const paginationElements = canvas.getAllByRole('navigation', { name: /pagination/i });
-    await expect(paginationElements.length).toBeGreaterThanOrEqual(1);
+      // Test pagination is present (there are typically two pagination components: top and bottom)
+      const paginationElements = canvas.getAllByRole('navigation', { name: /pagination/i });
+      await expect(paginationElements.length).toBeGreaterThanOrEqual(1);
 
-    // Test filter functionality - type in filter and verify it accepts input
-    await userEvent.type(filterInput, 'Admin');
-    await expect(filterInput).toHaveValue('Admin');
+      // Test filter functionality - type in filter and verify it accepts input
+      await userEvent.type(filterInput, 'Admin');
+      await expect(filterInput).toHaveValue('Admin');
 
-    // Test that all action elements are properly positioned
-    // The UserGroupsTable uses DataViewToolbar which may not have role="toolbar"
-    // Instead, verify that key UI elements are present and functional
-    await expect(createButton).toBeInTheDocument();
-    await expect(filterInput).toBeInTheDocument();
-    await expect(paginationElements.length).toBeGreaterThanOrEqual(1);
+      // Test that all action elements are properly positioned
+      // The UserGroupsTable uses DataViewToolbar which may not have role="toolbar"
+      // Instead, verify that key UI elements are present and functional
+      await expect(createButton).toBeInTheDocument();
+      await expect(filterInput).toBeInTheDocument();
+      await expect(paginationElements.length).toBeGreaterThanOrEqual(1);
+    });
   },
 };
 
@@ -601,27 +627,29 @@ Perfect for testing filter state management and ensuring the clear filters butto
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for initial load
-    await canvas.findByText('Admin Group');
-    await canvas.findByText('Developer Group');
-    await canvas.findByText('Viewer Group');
+      // Wait for initial load
+      await canvas.findByText('Admin Group');
+      await canvas.findByText('Developer Group');
+      await canvas.findByText('Viewer Group');
 
-    // TEST FILTER INPUT
-    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
-    await userEvent.type(filterInput, 'Admin');
+      // TEST FILTER INPUT
+      const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+      await userEvent.type(filterInput, 'Admin');
 
-    // Verify filter input has the value
-    await expect(filterInput).toHaveValue('Admin');
+      // Verify filter input has the value
+      await expect(filterInput).toHaveValue('Admin');
 
-    // TEST CLEAR FILTERS
-    // Find and click "Clear filters" button (there may be two toolbars, use the first one)
-    const clearButtons = await canvas.findAllByText('Clear filters');
-    await userEvent.click(clearButtons[0]);
+      // TEST CLEAR FILTERS
+      // Find and click "Clear filters" button (there may be two toolbars, use the first one)
+      const clearButtons = await canvas.findAllByText('Clear filters');
+      await userEvent.click(clearButtons[0]);
 
-    // Verify filter was cleared
-    await waitFor(() => expect(filterInput).toHaveValue(''));
+      // Verify filter was cleared
+      await waitFor(() => expect(filterInput).toHaveValue(''));
+    });
   },
 };

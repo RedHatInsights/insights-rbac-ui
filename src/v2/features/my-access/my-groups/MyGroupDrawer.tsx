@@ -120,7 +120,7 @@ const MyGroupDrawer: React.FunctionComponent<MyGroupDrawerProps> = ({
   <Drawer isExpanded={isOpen} onExpand={() => drawerRef.current?.focus()} data-ouia-component-id="my-group-drawer">
     <DrawerContent
       panelContent={
-        <DrawerPanelContent>
+        <DrawerPanelContent data-testid="detail-drawer-panel">
           <DrawerHead>
             <Title headingLevel="h2">
               <span tabIndex={isOpen ? 0 : -1} ref={drawerRef}>

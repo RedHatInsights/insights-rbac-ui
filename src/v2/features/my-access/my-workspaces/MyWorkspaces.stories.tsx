@@ -1,9 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { waitForContentReady } from '../../../../test-utils/interactionHelpers';
+import { TEST_TIMEOUTS } from '../../../../test-utils/testUtils';
+import { findSortButton } from '../../../../test-utils/tableHelpers';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { MyWorkspaces } from './MyWorkspaces';
 import { workspacesHandlers } from '../../../data/mocks/workspaces.handlers';
+import { DEFAULT_WORKSPACES, WS_DEFAULT, WS_STAGING } from '../../../data/mocks/seed';
+
+const ALL_WORKSPACE_IDS = DEFAULT_WORKSPACES.map((ws) => ws.id);
 
 const meta: Meta<typeof MyWorkspaces> = {
   component: MyWorkspaces,
@@ -11,6 +17,13 @@ const meta: Meta<typeof MyWorkspaces> = {
   parameters: {
     msw: {
       handlers: [...workspacesHandlers()],
+    },
+    workspacePermissions: {
+      view: ALL_WORKSPACE_IDS,
+      edit: ALL_WORKSPACE_IDS,
+      delete: ALL_WORKSPACE_IDS,
+      create: ALL_WORKSPACE_IDS,
+      move: ALL_WORKSPACE_IDS,
     },
     docs: {
       description: {
@@ -40,10 +53,11 @@ export default meta;
 type Story = StoryObj<typeof MyWorkspaces>;
 
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    await expect(canvas.findByLabelText('My workspaces')).resolves.toBeInTheDocument();
+    await step('Verify default my workspaces', async () => {
+      await expect(canvas.findByLabelText('My workspaces')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -56,42 +70,36 @@ export const Default: Story = {
  * - The data is correctly sorted after each click
  */
 export const SortByName: Story = {
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    // Wait for table to load
-    const table = await canvas.findByLabelText('My workspaces');
-    await expect(table).toBeInTheDocument();
-
-    // Find the "Workspace" column header sort button
-    const workspaceHeader = await canvas.findByRole('button', { name: /workspace/i });
-    await expect(workspaceHeader).toBeInTheDocument();
-
-    // Initially sorted ascending by name (default)
-    // Workspaces in seed data: "Root Workspace", "Default Workspace", "Development", "Production", "Staging"
-    const initialRows = await canvas.findAllByRole('row');
-    // Skip header row (index 0), check data rows
-    expect(initialRows.length).toBeGreaterThan(1);
-
-    // Click to sort descending
-    await user.click(workspaceHeader);
-    // Wait for re-render by checking text content changes
-    await waitFor(() => {
-      const rows = canvas.getAllByRole('row');
-      const firstDataRow = rows[1]; // Skip header
-      // After descending sort, "Staging" should be first (alphabetically last)
-      expect(firstDataRow).toHaveTextContent(/staging|root/i);
+    await step('Wait for data to load', async () => {
+      await waitForContentReady(canvasElement);
     });
 
-    // Click again to sort ascending
-    await user.click(workspaceHeader);
-    // Wait for re-render by checking text content changes
-    await waitFor(() => {
-      const rows = canvas.getAllByRole('row');
-      const firstDataRow = rows[1]; // Skip header
-      // After ascending sort, "Default Workspace" or "Development" should be first (alphabetically)
-      expect(firstDataRow).toHaveTextContent(/default|development/i);
+    await step('Sort descending', async () => {
+      const sortButton = await findSortButton(canvas, /workspace/i);
+      await user.click(sortButton);
+      await waitFor(
+        () => {
+          const rows = canvas.getAllByRole('row');
+          expect(rows[1]).toHaveTextContent(new RegExp(WS_STAGING.name, 'i'));
+        },
+        { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
+    });
+
+    await step('Sort ascending', async () => {
+      const sortButton = await findSortButton(canvas, /workspace/i);
+      await user.click(sortButton);
+      await waitFor(
+        () => {
+          const rows = canvas.getAllByRole('row');
+          expect(rows[1]).toHaveTextContent(new RegExp(WS_DEFAULT.name, 'i'));
+        },
+        { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
     });
   },
 };

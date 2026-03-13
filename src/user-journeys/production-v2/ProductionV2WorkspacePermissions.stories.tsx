@@ -7,22 +7,16 @@ import {
   type WorkspacePermissionsOverride,
   createDynamicEnvironment,
 } from '../_shared/components/KesselAppEntryWithRouter';
-import {
-  TEST_TIMEOUTS,
-  expandWorkspaceInTree,
-  expandWorkspaceRow,
-  navigateToPage,
-  openWorkspaceKebabMenu,
-  openWorkspaceWizard,
-  resetStoryState,
-  waitForPageToLoad,
-} from '../_shared/helpers';
+import { navigateToPage, resetStoryState } from '../_shared/helpers';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import { expandWorkspaceRow, waitForPageToLoad } from '../../test-utils/tableHelpers';
+import { expandWorkspaceInTree, openWorkspaceKebabMenu, openWorkspaceWizard } from '../../test-utils/workspaceHelpers';
 import { createV2MockDb } from '../../v2/data/mocks/db';
 import { createV2Handlers } from '../../v2/data/mocks/handlers';
 import { DEFAULT_USERS } from '../../shared/data/mocks/seed';
 import { DEFAULT_WORKSPACES, WS_DEFAULT, WS_DEVELOPMENT, WS_PRODUCTION, WS_ROOT, WS_STAGING } from '../../v2/data/mocks/seed';
 import { defaultKesselRoles } from '../../v2/data/mocks/kesselGroupsRoles.fixtures';
-import { delay } from 'msw';
 
 type Story = StoryObj<typeof meta>;
 
@@ -140,19 +134,28 @@ Verifies that a user with zero workspace permissions sees the correct disabled s
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const createButton = await canvas.findByRole('button', { name: /create workspace/i });
-    await expect(createButton).toBeDisabled();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const rootText = await canvas.findByText(WS_ROOT.name);
-    await expect(rootText.closest('a')).toBeNull();
+    await step('Navigate to Workspaces and verify disabled state', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+
+      const createButton = await canvas.findByRole('button', { name: /create workspace/i });
+      await expect(createButton).toBeDisabled();
+
+      const rootText = await canvas.findByText(WS_ROOT.name);
+      await expect(rootText.closest('a')).toBeNull();
+    });
   },
 };
 
@@ -178,27 +181,40 @@ Root is excluded from all permission lists; standard workspaces have full permis
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_ROOT.name);
-    await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const rootText = await canvas.findByText(WS_ROOT.name);
-    await expect(rootText.closest('a')).toBeNull();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const productionLink = await canvas.findByRole('link', { name: /^Production$/i });
-    await expect(productionLink).toBeInTheDocument();
+    await step('Navigate to Workspaces and expand hierarchy', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+    });
 
-    const body = await openWorkspaceKebabMenu(user, canvas, WS_ROOT.name);
-    const editItem = await body.findByText('Edit workspace');
-    await expect(editItem.closest('button')).toHaveAttribute('disabled');
-    const deleteItem = await body.findByText('Delete workspace');
-    await expect(deleteItem.closest('button')).toHaveAttribute('disabled');
+    await step('Verify Root is plain text and Production is link', async () => {
+      const rootText = await canvas.findByText(WS_ROOT.name);
+      await expect(rootText.closest('a')).toBeNull();
+
+      const productionLink = await canvas.findByRole('link', { name: /^Production$/i });
+      await expect(productionLink).toBeInTheDocument();
+    });
+
+    await step('Verify Root kebab actions disabled', async () => {
+      const body = await openWorkspaceKebabMenu(user, canvas, WS_ROOT.name);
+      const editItem = await body.findByText('Edit workspace');
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
+      const deleteItem = await body.findByText('Delete workspace');
+      await expect(deleteItem.closest('button')).toHaveAttribute('disabled');
+    });
   },
 };
 
@@ -224,34 +240,41 @@ because the user has no create permission on Root.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const wizard = await openWorkspaceWizard(user, canvas);
-    const treePanel = await (async () => {
-      const parentSelector = await wizard.findByRole('button', { name: /select workspaces/i });
-      await user.click(parentSelector);
-      await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-      const panel = document.querySelector('.rbac-c-workspace-selector-menu');
-      expect(panel).toBeInTheDocument();
-      return within(panel as HTMLElement);
-    })();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const rootItem = await treePanel.findByText(WS_ROOT.name);
-    const disabledSpan = rootItem.closest('span[style*="opacity"]');
-    await expect(disabledSpan).toBeInTheDocument();
+    await step('Open Create workspace wizard and verify Root disabled', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    const toggleBefore = wizard.getByRole('button', { name: /select workspaces/i });
-    await expect(toggleBefore).toBeInTheDocument();
-    await user.click(rootItem);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    const toggleAfter = wizard.getByRole('button', { name: /select workspaces/i });
-    await expect(toggleAfter).toBeInTheDocument();
+      const wizard = await openWorkspaceWizard(user, canvas);
+      const treePanel = await (async () => {
+        const parentSelector = await wizard.findByRole('button', { name: /select workspaces/i });
+        await user.click(parentSelector);
+        // Async popover content
+        const panel = await within(document.body).findByTestId('workspace-selector-menu', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+        return within(panel);
+      })();
+
+      const rootItem = await treePanel.findByText(WS_ROOT.name);
+      const disabledSpan = rootItem.closest('span[style*="opacity"]');
+      await expect(disabledSpan).toBeInTheDocument();
+
+      const toggleBefore = await wizard.findByRole('button', { name: /select workspaces/i });
+      await expect(toggleBefore).toBeInTheDocument();
+      await user.click(rootItem);
+      const toggleAfter = await wizard.findByRole('button', { name: /select workspaces/i });
+      await expect(toggleAfter).toBeInTheDocument();
+    });
   },
 };
 
@@ -282,41 +305,49 @@ User has create permission on ws-1 only.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const createButton = await canvas.findByRole('button', { name: /create workspace/i });
-    await expect(createButton).toBeEnabled();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const wizard = await openWorkspaceWizard(user, canvas);
-    const treePanel = await (async () => {
-      const parentSelector = await wizard.findByRole('button', { name: /select workspaces/i });
-      await user.click(parentSelector);
-      await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-      const panel = document.querySelector('.rbac-c-workspace-selector-menu');
-      expect(panel).toBeInTheDocument();
-      return within(panel as HTMLElement);
-    })();
+    await step('Navigate to Workspaces and open Create wizard', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    const rootItem = await treePanel.findByText(WS_ROOT.name);
-    const disabledSpan = rootItem.closest('span[style*="opacity"]');
-    await expect(disabledSpan).toBeInTheDocument();
+      const createButton = await canvas.findByRole('button', { name: /create workspace/i });
+      await expect(createButton).toBeEnabled();
 
-    await expandWorkspaceInTree(user, treePanel, WS_ROOT.name);
-    await expandWorkspaceInTree(user, treePanel, WS_DEFAULT.name);
+      const wizard = await openWorkspaceWizard(user, canvas);
+      const treePanel = await (async () => {
+        const parentSelector = await wizard.findByRole('button', { name: /select workspaces/i });
+        await user.click(parentSelector);
+        // Async popover content
+        const panel = await within(document.body).findByTestId('workspace-selector-menu', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+        return within(panel);
+      })();
 
-    const productionItem = await treePanel.findByText(WS_PRODUCTION.name);
-    await expect(productionItem.closest('span[style*="opacity"]')).toBeNull();
+      const rootItem = await treePanel.findByText(WS_ROOT.name);
+      const disabledSpan = rootItem.closest('span[style*="opacity"]');
+      await expect(disabledSpan).toBeInTheDocument();
 
-    const developmentItem = await treePanel.findByText(WS_DEVELOPMENT.name);
-    await expect(developmentItem.closest('span[style*="opacity"]')).toBeInTheDocument();
-    const stagingItem = await treePanel.findByText(WS_STAGING.name);
-    await expect(stagingItem.closest('span[style*="opacity"]')).toBeInTheDocument();
+      await expandWorkspaceInTree(user, treePanel, WS_ROOT.name);
+      await expandWorkspaceInTree(user, treePanel, WS_DEFAULT.name);
+
+      const productionItem = await treePanel.findByText(WS_PRODUCTION.name);
+      await expect(productionItem.closest('span[style*="opacity"]')).toBeNull();
+
+      const developmentItem = await treePanel.findByText(WS_DEVELOPMENT.name);
+      await expect(developmentItem.closest('span[style*="opacity"]')).toBeInTheDocument();
+      const stagingItem = await treePanel.findByText(WS_STAGING.name);
+      await expect(stagingItem.closest('span[style*="opacity"]')).toBeInTheDocument();
+    });
   },
 };
 
@@ -347,38 +378,46 @@ User has create permission on Production and Development.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const wizard = await openWorkspaceWizard(user, canvas);
-    const treePanel = await (async () => {
-      const parentSelector = await wizard.findByRole('button', { name: /select workspaces/i });
-      await user.click(parentSelector);
-      await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-      const panel = document.querySelector('.rbac-c-workspace-selector-menu');
-      expect(panel).toBeInTheDocument();
-      return within(panel as HTMLElement);
-    })();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const rootItem = await treePanel.findByText(WS_ROOT.name);
-    const disabledSpan = rootItem.closest('span[style*="opacity"]');
-    await expect(disabledSpan).toBeInTheDocument();
+    await step('Open Create wizard and verify parent selector states', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
 
-    await expandWorkspaceInTree(user, treePanel, WS_ROOT.name);
-    await expandWorkspaceInTree(user, treePanel, WS_DEFAULT.name);
+      const wizard = await openWorkspaceWizard(user, canvas);
+      const treePanel = await (async () => {
+        const parentSelector = await wizard.findByRole('button', { name: /select workspaces/i });
+        await user.click(parentSelector);
+        // Async popover content
+        const panel = await within(document.body).findByTestId('workspace-selector-menu', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+        return within(panel);
+      })();
 
-    const productionItem = await treePanel.findByText(WS_PRODUCTION.name);
-    await expect(productionItem.closest('span[style*="opacity"]')).toBeNull();
-    const developmentItem = await treePanel.findByText(WS_DEVELOPMENT.name);
-    await expect(developmentItem.closest('span[style*="opacity"]')).toBeNull();
+      const rootItem = await treePanel.findByText(WS_ROOT.name);
+      const disabledSpan = rootItem.closest('span[style*="opacity"]');
+      await expect(disabledSpan).toBeInTheDocument();
 
-    const stagingItem = await treePanel.findByText(WS_STAGING.name);
-    await expect(stagingItem.closest('span[style*="opacity"]')).toBeInTheDocument();
+      await expandWorkspaceInTree(user, treePanel, WS_ROOT.name);
+      await expandWorkspaceInTree(user, treePanel, WS_DEFAULT.name);
+
+      const productionItem = await treePanel.findByText(WS_PRODUCTION.name);
+      await expect(productionItem.closest('span[style*="opacity"]')).toBeNull();
+      const developmentItem = await treePanel.findByText(WS_DEVELOPMENT.name);
+      await expect(developmentItem.closest('span[style*="opacity"]')).toBeNull();
+
+      const stagingItem = await treePanel.findByText(WS_STAGING.name);
+      await expect(stagingItem.closest('span[style*="opacity"]')).toBeInTheDocument();
+    });
   },
 };
 
@@ -415,16 +454,25 @@ Read-only user — no \`inventory:groups:write\` permission.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Workspaces');
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const createButton = await canvas.findByRole('button', { name: /create workspace/i });
-    expect(createButton).toBeInTheDocument();
-    expect(createButton).toBeDisabled();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Navigate to Workspaces and verify Create button disabled', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+
+      const createButton = await canvas.findByRole('button', { name: /create workspace/i });
+      expect(createButton).toBeInTheDocument();
+      expect(createButton).toBeDisabled();
+    });
   },
 };

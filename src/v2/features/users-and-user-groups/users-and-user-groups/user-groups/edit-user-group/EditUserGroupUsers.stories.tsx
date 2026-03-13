@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 
 import { EditGroupUsersTable } from './EditUserGroupUsers';
 import { usersErrorHandlers, usersHandlers, usersLoadingHandlers } from '../../../../../../shared/data/mocks/users.handlers';
@@ -103,25 +102,26 @@ export const Default: Story = {
       handlers: [...usersHandlers(mockUsers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for users to load
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      // Wait for users to load
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
 
-    // Verify table structure
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('bob.wilson')).resolves.toBeInTheDocument();
+      // Verify table structure
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('bob.wilson')).resolves.toBeInTheDocument();
 
-    // Verify initial selection (John should be pre-selected)
-    const johnRow = (await canvas.findByText('john.doe')).closest('tr');
-    await expect(johnRow).toBeInTheDocument();
+      // Verify initial selection (John should be pre-selected)
+      const johnRow = (await canvas.findByText('john.doe')).closest('tr');
+      await expect(johnRow).toBeInTheDocument();
 
-    // Check pagination is present (find first matching element)
-    const paginations = await canvas.findAllByLabelText(/pagination/i);
-    await expect(paginations.length).toBeGreaterThan(0);
+      // Check pagination is present (find first matching element)
+      const paginations = await canvas.findAllByLabelText(/pagination/i);
+      await expect(paginations.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -137,15 +137,15 @@ export const Loading: Story = {
       handlers: [...usersLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Check for loading skeleton
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        await expect(skeletonElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 },
-    );
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      await waitFor(
+        () => {
+          expect(canvasElement.querySelectorAll('[class*="skeleton"]').length).toBeGreaterThan(0);
+        },
+        { timeout: 10000 },
+      );
+    });
   },
 };
 
@@ -161,15 +161,16 @@ export const EmptyState: Story = {
       handlers: [...usersHandlers([])],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for empty state to appear
-    await expect(canvas.findByText(/no users found/i)).resolves.toBeInTheDocument();
+      // Wait for empty state to appear
+      await expect(canvas.findByText(/no users found/i)).resolves.toBeInTheDocument();
 
-    // Verify empty state message
-    await expect(canvas.findByText(/no users found/i)).resolves.toBeInTheDocument();
+      // Verify empty state message
+      await expect(canvas.findByText(/no users found/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -185,45 +186,46 @@ export const UserSelection: Story = {
       handlers: [...usersHandlers(mockUsers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for users to load
-    await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
+      // Wait for users to load
+      await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
 
-    // Find Jane's row and checkbox
-    const janeRow = (await canvas.findByText('jane.smith')).closest('tr');
-    await expect(janeRow).toBeInTheDocument();
+      // Find Jane's row and checkbox
+      const janeRow = (await canvas.findByText('jane.smith')).closest('tr');
+      await expect(janeRow).toBeInTheDocument();
 
-    const janeCheckbox = within(janeRow as HTMLElement).getByRole('checkbox');
-    await expect(janeCheckbox).not.toBeChecked();
+      const janeCheckbox = within(janeRow as HTMLElement).getByRole('checkbox');
+      await expect(janeCheckbox).not.toBeChecked();
 
-    // Select Jane
-    await userEvent.click(janeCheckbox);
+      // Select Jane
+      await userEvent.click(janeCheckbox);
 
-    // Verify Jane is now selected
-    await expect(await janeCheckbox).toBeChecked();
+      // Verify Jane is now selected
+      await expect(await janeCheckbox).toBeChecked();
 
-    // Test bulk selection
-    const bulkSelectButton = await canvas.findByRole('button', { name: /bulk select/i });
-    if (bulkSelectButton) {
-      await userEvent.click(bulkSelectButton);
+      // Test bulk selection
+      const bulkSelectButton = await canvas.findByRole('button', { name: /bulk select/i });
+      if (bulkSelectButton) {
+        await userEvent.click(bulkSelectButton);
 
-      // Look for "Select page" option
-      const selectPageOption = await canvas.queryByText(/select page/i);
-      if (selectPageOption) {
-        await userEvent.click(selectPageOption);
+        // Look for "Select page" option
+        const selectPageOption = await canvas.queryByText(/select page/i);
+        if (selectPageOption) {
+          await userEvent.click(selectPageOption);
 
-        // All visible checkboxes should now be checked
-        const allCheckboxes = await canvas.getAllByRole('checkbox');
-        allCheckboxes.forEach(async (checkbox) => {
-          if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
-            await expect(checkbox).toBeChecked();
-          }
-        });
+          // All visible checkboxes should now be checked
+          const allCheckboxes = await canvas.getAllByRole('checkbox');
+          allCheckboxes.forEach(async (checkbox) => {
+            if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
+              await expect(checkbox).toBeChecked();
+            }
+          });
+        }
       }
-    }
+    });
   },
 };
 
@@ -239,27 +241,28 @@ export const PreSelectedUsers: Story = {
       handlers: [...usersHandlers(mockUsers)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for users to load
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
+      // Wait for users to load
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
 
-    // Verify John and Jane are pre-selected
-    const johnRow = (await canvas.findByText('john.doe')).closest('tr');
-    const johnCheckbox = within(johnRow as HTMLElement).getByRole('checkbox');
-    await expect(johnCheckbox).toBeChecked();
+      // Verify John and Jane are pre-selected
+      const johnRow = (await canvas.findByText('john.doe')).closest('tr');
+      const johnCheckbox = within(johnRow as HTMLElement).getByRole('checkbox');
+      await expect(johnCheckbox).toBeChecked();
 
-    const janeRow = (await canvas.findByText('jane.smith')).closest('tr');
-    const janeCheckbox = within(janeRow as HTMLElement).getByRole('checkbox');
-    await expect(janeCheckbox).toBeChecked();
+      const janeRow = (await canvas.findByText('jane.smith')).closest('tr');
+      const janeCheckbox = within(janeRow as HTMLElement).getByRole('checkbox');
+      await expect(janeCheckbox).toBeChecked();
 
-    // Bob should not be selected
-    const bobRow = (await canvas.findByText('bob.wilson')).closest('tr');
-    const bobCheckbox = within(bobRow as HTMLElement).getByRole('checkbox');
-    await expect(bobCheckbox).not.toBeChecked();
+      // Bob should not be selected
+      const bobRow = (await canvas.findByText('bob.wilson')).closest('tr');
+      const bobCheckbox = within(bobRow as HTMLElement).getByRole('checkbox');
+      await expect(bobCheckbox).not.toBeChecked();
+    });
   },
 };
 
@@ -278,15 +281,16 @@ export const APIError: Story = {
       handlers: [...usersErrorHandlers(500)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for error state to appear
-    await expect(canvas.findByText(/failed to load users/i)).resolves.toBeInTheDocument();
+      // Wait for error state to appear
+      await expect(canvas.findByText(/failed to load users/i)).resolves.toBeInTheDocument();
 
-    // Verify error message details
-    await expect(canvas.findByText(/failed to load users/i)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/please try refreshing the page/i)).resolves.toBeInTheDocument();
+      // Verify error message details
+      await expect(canvas.findByText(/failed to load users/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/please try refreshing the page/i)).resolves.toBeInTheDocument();
+    });
   },
 };

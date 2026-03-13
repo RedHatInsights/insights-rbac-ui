@@ -56,15 +56,17 @@ const InlineErrorWrapper = (props: InlineErrorWrapperProps) => {
 
 export const Default: Story = {
   render: () => <InlineErrorWrapper />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Check that the error message is displayed
-    const errorTitle = canvas.getByText('Email Address');
-    const errorDescription = canvas.getByText('This field is required and cannot be empty.');
+      // Check that the error message is displayed
+      const errorTitle = canvas.getByText('Email Address');
+      const errorDescription = canvas.getByText('This field is required and cannot be empty.');
 
-    expect(errorTitle).toBeInTheDocument();
-    expect(errorDescription).toBeInTheDocument();
+      expect(errorTitle).toBeInTheDocument();
+      expect(errorDescription).toBeInTheDocument();
+    });
   },
 };
 
@@ -76,15 +78,17 @@ export const WithCustomError: Story = {
     };
     return <InlineError {...customProps} />;
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Check that the custom error message is displayed
-    const errorTitle = canvas.getByText('Invalid Email Format');
-    const errorDescription = canvas.getByText('Please enter a valid email address in the format user@domain.com');
+      // Check that the custom error message is displayed
+      const errorTitle = canvas.getByText('Invalid Email Format');
+      const errorDescription = canvas.getByText('Please enter a valid email address in the format user@domain.com');
 
-    expect(errorTitle).toBeInTheDocument();
-    expect(errorDescription).toBeInTheDocument();
+      expect(errorTitle).toBeInTheDocument();
+      expect(errorDescription).toBeInTheDocument();
+    });
   },
 };
 
@@ -97,15 +101,17 @@ export const LongErrorMessage: Story = {
     };
     return <InlineError {...longErrorProps} />;
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Check that the long error message is displayed
-    const errorTitle = canvas.getByText('Complex Validation Error');
-    const errorDescription = canvas.getByText(/This is a very long error message/);
+      // Check that the long error message is displayed
+      const errorTitle = canvas.getByText('Complex Validation Error');
+      const errorDescription = canvas.getByText(/This is a very long error message/);
 
-    expect(errorTitle).toBeInTheDocument();
-    expect(errorDescription).toBeInTheDocument();
+      expect(errorTitle).toBeInTheDocument();
+      expect(errorDescription).toBeInTheDocument();
+    });
   },
 };
 

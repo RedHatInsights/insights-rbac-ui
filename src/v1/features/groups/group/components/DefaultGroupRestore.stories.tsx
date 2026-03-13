@@ -29,32 +29,34 @@ export default meta;
 type Story = StoryObj<typeof DefaultGroupRestore>;
 
 export const InteractionTest: Story = {
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify the restore button is displayed
-    const restoreButton = await canvas.findByRole('button', { name: /restore to default/i });
-    await expect(restoreButton).toBeInTheDocument();
+    await step('Verify restore button and popover', async () => {
+      // Verify the restore button is displayed
+      const restoreButton = await canvas.findByRole('button', { name: /restore to default/i });
+      await expect(restoreButton).toBeInTheDocument();
 
-    // Test clicking the restore button
-    await userEvent.click(restoreButton);
-    await expect(args.onRestore).toHaveBeenCalled();
+      // Test clicking the restore button
+      await userEvent.click(restoreButton);
+      await expect(args.onRestore).toHaveBeenCalled();
 
-    // Find and test the info icon
-    const infoIcon = await canvas.findByRole('button', { name: /more information/i });
-    await userEvent.click(infoIcon);
+      // Find and test the info icon
+      const infoIcon = await canvas.findByRole('button', { name: /more information/i });
+      await userEvent.click(infoIcon);
 
-    // Verify popover content appears
-    // Note: Using document.body because popover content is portaled
-    const body = within(document.body);
-    const popoverContent = await body.queryAllByText('Custom default access');
-    await expect(popoverContent).toHaveLength(2);
+      // Verify popover content appears
+      // Note: Using document.body because popover content is portaled
+      const body = within(document.body);
+      const popoverContent = await body.queryAllByText('Custom default access');
+      await expect(popoverContent).toHaveLength(2);
 
-    // Click elsewhere to close popover
-    await userEvent.click(document.body);
+      // Click elsewhere to close popover
+      await userEvent.click(document.body);
 
-    // Test restore button again to ensure it still works
-    await userEvent.click(restoreButton);
-    await expect(args.onRestore).toHaveBeenCalledTimes(2);
+      // Test restore button again to ensure it still works
+      await userEvent.click(restoreButton);
+      await expect(args.onRestore).toHaveBeenCalledTimes(2);
+    });
   },
 };

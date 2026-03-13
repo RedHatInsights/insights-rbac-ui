@@ -76,7 +76,7 @@ export const ModalFormTemplate: React.FC<ModalFormTemplateProps> = ({ ModalProps
   const { formFields = [], schema = { fields: [] }, ...otherProps } = props;
 
   return (
-    <Modal {...ModalProps} appendTo={getModalContainer()} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
+    <Modal {...ModalProps} appendTo={getModalContainer()} disableFocusTrap footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
       {alert?.()}
       <FormTemplate formFields={formFields} schema={schema} {...otherProps} showFormControls={false} FormWrapper={CustomFormWrapper} />
     </Modal>

@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
-import { delay } from 'msw';
 
 import { UserDetailsRolesView } from './UserDetailsRolesView';
 import { v2RolesErrorHandlers, v2RolesHandlers, v2RolesLoadingHandlers } from '../../../../../../v2/data/mocks/roles.handlers';
@@ -115,14 +114,15 @@ Each story demonstrates different aspects of container state management and erro
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.findByText('Organization Administrator')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('User Access Administrator')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Insights Viewer')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Custom Development Role')).resolves.toBeInTheDocument();
+    await step('Verify roles displayed', async () => {
+      await expect(canvas.findByText('Organization Administrator')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('User Access Administrator')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Insights Viewer')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Custom Development Role')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -143,13 +143,13 @@ export const Loading: Story = {
       handlers: [...v2RolesLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show skeleton loading state while API call is in progress (TableView uses SkeletonTable)
-    await expect(canvas.findByLabelText('UserRolesView', {}, { timeout: 10000 })).resolves.toBeInTheDocument();
-    await expect(canvas.queryByText('Organization Administrator')).not.toBeInTheDocument();
+    await step('Verify loading state', async () => {
+      await expect(canvas.findByLabelText('UserRolesView', {}, { timeout: 10000 })).resolves.toBeInTheDocument();
+      await expect(canvas.queryByText('Organization Administrator')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -170,15 +170,14 @@ export const EmptyUserRoles: Story = {
       handlers: [...v2RolesHandlers([])],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for empty state to render
-    await expect(canvas.findByText('No roles found')).resolves.toBeInTheDocument();
+    await step('Verify empty state', async () => {
+      await expect(canvas.findByText('No roles found')).resolves.toBeInTheDocument();
 
-    // Should show appropriate empty state message
-    await expect(canvas.findByText('This user has no roles assigned.')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('This user has no roles assigned.')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -202,15 +201,14 @@ export const APIError: Story = {
       dangerouslyIgnoreUnhandledErrors: true,
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show error state with proper message
-    await expect(canvas.findByText('Unable to load roles')).resolves.toBeInTheDocument();
+    await step('Verify API error state', async () => {
+      await expect(canvas.findByText('Unable to load roles')).resolves.toBeInTheDocument();
 
-    // Should show generic fallback message for API errors
-    await expect(canvas.findByText('Something went wrong. Please try again.')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Something went wrong. Please try again.')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -234,14 +232,13 @@ export const NetworkFailure: Story = {
       dangerouslyIgnoreUnhandledErrors: true,
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show generic error message for network failures
-    await expect(canvas.findByText('Unable to load roles')).resolves.toBeInTheDocument();
+    await step('Verify network failure state', async () => {
+      await expect(canvas.findByText('Unable to load roles')).resolves.toBeInTheDocument();
 
-    // Should show generic fallback message for network errors
-    await expect(canvas.findByText('Something went wrong. Please try again.')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Something went wrong. Please try again.')).resolves.toBeInTheDocument();
+    });
   },
 };

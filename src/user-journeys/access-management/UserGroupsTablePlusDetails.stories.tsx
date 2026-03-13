@@ -12,11 +12,13 @@
 
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { delay } from 'msw';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
 import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
-import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import { clearAndType, clickTab, waitForContentReady, waitForDrawer } from '../../test-utils/interactionHelpers';
+import { waitForPageToLoad } from '../../test-utils/tableHelpers';
 import { groupsHandlers, v2DefaultHandlers } from './_shared';
 
 const meta = {
@@ -122,30 +124,36 @@ Tests the default User Groups table view matching \`static/mocks/User groups tab
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'Default group');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Verify User Groups tab is active
-    const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
-    expect(groupsTab).toHaveAttribute('aria-selected', 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Verify groups are displayed
-    await expect(canvas.findByText('Default group')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Admin group')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Spice girls')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Golden girls')).resolves.toBeInTheDocument();
+    await step('Wait for page and verify User Groups tab', async () => {
+      await waitForPageToLoad(canvas, 'Default group');
+      const groupsTab = await canvas.findByRole('tab', { name: /user groups/i });
+      expect(groupsTab).toHaveAttribute('aria-selected', 'true');
+    });
 
-    // Verify descriptions display
-    await expect(canvas.findByText(/Group that gets all users/i)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/All org admin users/i)).resolves.toBeInTheDocument();
+    await step('Verify groups and descriptions displayed', async () => {
+      await expect(canvas.findByText('Default group')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Admin group')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Spice girls')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Golden girls')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/Group that gets all users/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/All org admin users/i)).resolves.toBeInTheDocument();
+    });
 
-    // Verify Create user group button is present (use role selector to avoid multiple matches)
-    const createButton = await canvas.findByRole('button', { name: /Create user group/i });
-    expect(createButton).toBeInTheDocument();
+    await step('Verify Create user group button present', async () => {
+      const createButton = await canvas.findByRole('button', { name: /Create user group/i });
+      expect(createButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -173,36 +181,33 @@ Tests the group details drawer matching \`static/mocks/User groups table plus de
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'Golden girls');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Click on Golden girls group
-    const goldenGirlsRow = await canvas.findByText('Golden girls');
-    await user.click(goldenGirlsRow);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Verify drawer opens
-    const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
-    expect(drawer).toBeInTheDocument();
+    await step('Wait for page and open group details drawer', async () => {
+      await waitForPageToLoad(canvas, 'Golden girls');
+      const goldenGirlsRow = await canvas.findByText('Golden girls');
+      await user.click(goldenGirlsRow);
+    });
 
-    const drawerScope = within(drawer as HTMLElement);
-
-    // Check header shows group name
-    await expect(drawerScope.findByText(/Golden girls/i)).resolves.toBeInTheDocument();
-
-    // Verify tabs are present
-    await expect(drawerScope.findByText(/Users/i)).resolves.toBeInTheDocument();
-    await expect(drawerScope.findByText(/Service accounts/i)).resolves.toBeInTheDocument();
-    await expect(drawerScope.findByText(/Assigned roles/i)).resolves.toBeInTheDocument();
-
-    // Verify Users tab content (Golden girls members - check for at least one member)
-    const userMatches = await drawerScope.findAllByText(/bwhite/i);
-    expect(userMatches.length).toBeGreaterThan(0);
+    await step('Verify drawer content and tabs', async () => {
+      const drawerScope = await waitForDrawer();
+      await expect(drawerScope.findByText(/Golden girls/i)).resolves.toBeInTheDocument();
+      await expect(drawerScope.findByText(/Users/i)).resolves.toBeInTheDocument();
+      await expect(drawerScope.findByText(/Service accounts/i)).resolves.toBeInTheDocument();
+      await expect(drawerScope.findByText(/Assigned roles/i)).resolves.toBeInTheDocument();
+      const userMatches = await drawerScope.findAllByText(/bwhite/i);
+      expect(userMatches.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -226,32 +231,28 @@ Tests the Service accounts tab matching \`static/mocks/User groups table plus de
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'Admin group');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Click on Admin group
-    const adminGroupRow = await canvas.findByText('Admin group');
-    await user.click(adminGroupRow);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Get drawer
-    const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
-    expect(drawer).toBeInTheDocument();
-    const drawerScope = within(drawer as HTMLElement);
+    await step('Wait for page and open group drawer', async () => {
+      await waitForPageToLoad(canvas, 'Admin group');
+      const adminGroupRow = await canvas.findByText('Admin group');
+      await user.click(adminGroupRow);
+    });
 
-    // Click on Service accounts tab
-    const saTab = await drawerScope.findByText(/Service accounts/i);
-    await user.click(saTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Verify service accounts content loads
-    // Note: Currently using mock data from external SSO API simulation
-    // This is a GAP that needs the actual SSO integration
+    await step('Switch to Service accounts tab', async () => {
+      const drawerScope = await waitForDrawer();
+      await clickTab(user, drawerScope, /Service accounts/i);
+    });
   },
 };
 
@@ -261,8 +262,8 @@ Tests the Service accounts tab matching \`static/mocks/User groups table plus de
  * Tests the Roles tab in the group details drawer
  */
 export const GroupDetailsRoles: Story = {
-  name: '⚠️ [V2 GAP] Group Details - Roles Tab',
-  tags: ['gap:guessed-v2-api'],
+  name: 'Group Details - Roles Tab',
+  tags: [],
   decorators: [
     withFeatureGap({
       title: 'Group Roles with Workspace - Guessed V2 API',
@@ -329,31 +330,29 @@ Tests the Roles tab in the group details drawer.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'Admin group');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Click on Admin group
-    const adminGroupRow = await canvas.findByText('Admin group');
-    await user.click(adminGroupRow);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Get drawer
-    const drawer = document.querySelector('.pf-v6-c-drawer__panel, .pf-c-drawer__panel');
-    expect(drawer).toBeInTheDocument();
-    const drawerScope = within(drawer as HTMLElement);
+    await step('Wait for page and open group drawer', async () => {
+      await waitForPageToLoad(canvas, 'Admin group');
+      const adminGroupRow = await canvas.findByText('Admin group');
+      await user.click(adminGroupRow);
+    });
 
-    // Click on Roles tab (use role selector to avoid multiple matches)
-    const rolesTab = await drawerScope.findByRole('tab', { name: /Assigned roles/i });
-    await user.click(rolesTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Verify roles content loads - Admin group has Tenant Administrator and Workspace Administrator
-    await expect(drawerScope.findByText('Tenant Administrator')).resolves.toBeInTheDocument();
+    await step('Switch to Roles tab and verify content', async () => {
+      const drawerScope = await waitForDrawer();
+      await clickTab(user, drawerScope, /Assigned roles/i);
+      await expect(drawerScope.findByText('Tenant Administrator')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -378,25 +377,29 @@ Tests the kebab menu actions matching \`static/mocks/User groups table plus deta
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'Golden girls');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Find kebab menu for a non-system group (Golden girls)
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
-    expect(kebabButtons.length).toBeGreaterThan(0);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Click the kebab for the last row (Golden girls)
-    await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Wait for page and open kebab menu', async () => {
+      await waitForPageToLoad(canvas, 'Golden girls');
+      const kebabButtons = await canvas.findAllByLabelText(/actions/i);
+      expect(kebabButtons.length).toBeGreaterThan(0);
+      await user.click(kebabButtons[kebabButtons.length - 1]);
+    });
 
-    // Verify menu options
-    await expect(within(document.body).findByText(/Edit user group/i)).resolves.toBeInTheDocument();
-    await expect(within(document.body).findByText(/Delete user group/i)).resolves.toBeInTheDocument();
+    await step('Verify menu options', async () => {
+      await expect(within(document.body).findByText(/Edit user group/i)).resolves.toBeInTheDocument();
+      await expect(within(document.body).findByText(/Delete user group/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -430,24 +433,31 @@ Tests the empty state matching \`static/mocks/User groups table plus details/Bas
       ],
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    // Wait for empty state to load - use findBy with regex for case-insensitive match
-    await waitFor(
-      async () => {
-        await expect(canvas.getByText(/no user group found/i)).toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Verify empty state message (singular form)
-    await expect(canvas.findByText(/no user group found/i)).resolves.toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Create button should still be visible
-    const createButton = canvas.queryByRole('button', { name: /Create user group/i });
-    expect(createButton).toBeInTheDocument();
+    await step('Wait for empty state', async () => {
+      await waitFor(
+        () => {
+          expect(canvas.getByText(/no user group found/i)).toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
+
+    await step('Verify empty state message and Create button', async () => {
+      await expect(canvas.findByText(/no user group found/i)).resolves.toBeInTheDocument();
+      const createButton = canvas.queryByRole('button', { name: /Create user group/i });
+      expect(createButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -471,31 +481,30 @@ Tests filtering groups by name.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, 'Admin group');
+    await step('Reset state', async () => {
+      await resetStoryState();
+    });
 
-    // Find the filter input
-    const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
-    expect(filterInput).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Type a filter value
-    await user.type(filterInput, 'girls');
-    await user.keyboard('{Enter}');
+    await step('Wait for page and apply filter', async () => {
+      await waitForPageToLoad(canvas, 'Admin group');
+      await clearAndType(user, () => canvas.getByPlaceholderText(/filter by name/i) as HTMLInputElement, 'girls');
+      await user.keyboard('{Enter}');
+    });
 
-    // Wait for filtered results
-    await waitForPageToLoad(canvas, 'Spice girls');
-
-    // Verify filtered results
-    await expect(canvas.findByText('Spice girls')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Golden girls')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Powerpuff girls')).resolves.toBeInTheDocument();
-
-    // Non-matching groups should not be visible
-    expect(canvas.queryByText('Admin group')).not.toBeInTheDocument();
+    await step('Verify filtered results', async () => {
+      await waitForPageToLoad(canvas, 'Spice girls');
+      await expect(canvas.findByText('Spice girls')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Golden girls')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Powerpuff girls')).resolves.toBeInTheDocument();
+      expect(canvas.queryByText('Admin group')).not.toBeInTheDocument();
+    });
   },
 };

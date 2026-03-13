@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { delay } from 'msw';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { AddGroupMembers } from './AddGroupMembers';
 import { groupsHandlers } from '../../../../data/mocks/groups.handlers';
@@ -255,31 +254,31 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // 🎯 MODAL TESTING: Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
-    await userEvent.click(openButton);
+    await step('Open Add Members modal', async () => {
+      const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
+      await userEvent.click(openButton);
 
-    // 🎯 MODAL TESTING: Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Test modal content using within(modal)
-    expect(within(modal).getByText('Add members')).toBeInTheDocument();
-
-    // Should show user selection interface with checkboxes
-    await waitFor(async () => {
-      const userElements = within(modal).queryAllByText(
-        new RegExp([DEFAULT_USERS[0].username, DEFAULT_USERS[1].username, DEFAULT_USERS[2].username].join('|')),
-      );
-      expect(userElements.length).toBeGreaterThanOrEqual(1);
+      expect(within(modal).getByText('Add members')).toBeInTheDocument();
     });
 
-    // Check that "Add to group" button is initially disabled
-    const addButton = within(modal).getByRole('button', { name: /add to group/i });
-    expect(addButton).toBeDisabled();
+    await step('Verify user list and Add button state', async () => {
+      const modal = await screen.findByRole('dialog');
+      await waitFor(async () => {
+        const userElements = within(modal).queryAllByText(
+          new RegExp([DEFAULT_USERS[0].username, DEFAULT_USERS[1].username, DEFAULT_USERS[2].username].join('|')),
+        );
+        expect(userElements.length).toBeGreaterThanOrEqual(1);
+      });
+
+      const addButton = within(modal).getByRole('button', { name: /add to group/i });
+      expect(addButton).toBeDisabled();
+    });
   },
 };
 
@@ -305,24 +304,23 @@ export const WithUsers: Story = {
       handlers: [...usersHandlers(filteringTestUsers, { onList: usersApiSpy }), ...sharedGroupHandlers],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // 🎯 MODAL TESTING: Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
-    await userEvent.click(openButton);
+    await step('Open modal and verify extended user list', async () => {
+      const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
+      await userEvent.click(openButton);
 
-    // 🎯 MODAL TESTING: Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Test modal content using within(modal)
-    expect(within(modal).getByText('Add members')).toBeInTheDocument();
+      expect(within(modal).getByText('Add members')).toBeInTheDocument();
 
-    await waitFor(async () => {
-      expect(within(modal).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
-      expect(within(modal).queryByText(filteringTestUsers[2].username)).toBeInTheDocument();
-      expect(within(modal).queryByText(filteringTestUsers[7].username)).toBeInTheDocument();
+      await waitFor(async () => {
+        expect(within(modal).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
+        expect(within(modal).queryByText(filteringTestUsers[2].username)).toBeInTheDocument();
+        expect(within(modal).queryByText(filteringTestUsers[7].username)).toBeInTheDocument();
+      });
     });
   },
 };
@@ -348,142 +346,139 @@ export const WithFiltering: Story = {
       handlers: [...usersHandlers(filteringTestUsers, { onList: usersApiSpy }), ...sharedGroupHandlers],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Clear spy to ensure clean state
-    usersApiSpy.mockClear();
+    await step('Open modal and verify initial API call', async () => {
+      usersApiSpy.mockClear();
 
-    // 🎯 MODAL TESTING: Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
-    await userEvent.click(openButton);
+      const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
+      await userEvent.click(openButton);
 
-    // 🎯 MODAL TESTING: Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Test modal content
-    expect(within(modal).getByText('Add members')).toBeInTheDocument();
+      expect(within(modal).getByText('Add members')).toBeInTheDocument();
 
-    // CRITICAL: Verify initial API call
-    await waitFor(() => {
-      expect(usersApiSpy).toHaveBeenCalled();
-      const params = usersApiSpy.mock.calls[0][0] as URLSearchParams;
-      expect(params.get('usernames')).toBeNull();
-      expect(params.get('email')).toBeNull();
-    });
+      await waitFor(() => {
+        expect(usersApiSpy).toHaveBeenCalled();
+        const params = usersApiSpy.mock.calls[0][0] as URLSearchParams;
+        expect(params.get('usernames')).toBeNull();
+        expect(params.get('email')).toBeNull();
+      });
 
-    await waitFor(() => {
-      const grid = within(modal).getByRole('grid');
-      expect(within(grid).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
-      expect(within(grid).queryByText(filteringTestUsers[2].username)).toBeInTheDocument();
-    });
-
-    const usernameInput = await within(modal).findByPlaceholderText(/filter by username/i);
-    usersApiSpy.mockClear();
-    await userEvent.type(usernameInput, 'spice');
-    await waitFor(() => {
-      expect(usersApiSpy).toHaveBeenCalled();
-      const params = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0] as URLSearchParams;
-      expect(params.get('usernames')).toBe('spice');
-    });
-    await delay(400);
-    await waitFor(
-      () => {
+      await waitFor(() => {
         const grid = within(modal).getByRole('grid');
-        const gridScope = within(grid);
-        expect(gridScope.queryByText(spiceUsers[0].username)).toBeInTheDocument();
-        expect(gridScope.queryByText(spiceUsers[1].username)).toBeInTheDocument();
-        expect(gridScope.queryByText(spiceUsers[2].username)).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
-
-    usersApiSpy.mockClear();
-    const clearButton = await within(modal).findByRole('button', { name: /clear.*filter/i });
-    await userEvent.click(clearButton);
-    await delay(300);
-    await waitFor(() => {
-      expect(usersApiSpy).toHaveBeenCalled();
-      const params = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0] as URLSearchParams;
-      expect(params.get('usernames')).toBeNull();
-      expect(params.get('email')).toBeNull();
+        expect(within(grid).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
+        expect(within(grid).queryByText(filteringTestUsers[2].username)).toBeInTheDocument();
+      });
     });
-    await delay(500);
-    await waitFor(
-      () => {
-        const grid = within(modal).getByRole('grid');
-        const gridScope = within(grid);
-        expect(gridScope.queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
-        expect(gridScope.queryByText(filteringTestUsers[2].username)).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
 
-    await waitForMembersTable(modal, { active: filteringTestUsers.filter((u) => u.is_active).length, inactive: inactiveUsers.length });
+    await step('Test username filter and clear', async () => {
+      const modal = await screen.findByRole('dialog');
+      const usernameInput = await within(modal).findByPlaceholderText(/filter by username/i);
+      usersApiSpy.mockClear();
+      await userEvent.type(usernameInput, 'spice');
+      await waitFor(() => {
+        expect(usersApiSpy).toHaveBeenCalled();
+        const params = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0] as URLSearchParams;
+        expect(params.get('usernames')).toBe('spice');
+      });
+      await waitFor(
+        () => {
+          const grid = within(modal).getByRole('grid');
+          const gridScope = within(grid);
+          expect(gridScope.queryByText(spiceUsers[0].username)).toBeInTheDocument();
+          expect(gridScope.queryByText(spiceUsers[1].username)).toBeInTheDocument();
+          expect(gridScope.queryByText(spiceUsers[2].username)).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    usersApiSpy.mockClear();
-    const emailFilterContainer = modal.querySelector('[data-ouia-component-id="DataViewFilters"]') as HTMLElement;
-    expect(emailFilterContainer).toBeTruthy();
-    const emailFilterCanvas = within(emailFilterContainer);
-    const filterTypeBtn = emailFilterCanvas.getAllByRole('button').find((btn) => btn.textContent?.includes('Username'));
-    expect(filterTypeBtn).toBeTruthy();
-    await userEvent.click(filterTypeBtn!);
-    await userEvent.click(await within(modal).findByRole('menuitem', { name: /^email$/i }));
-    await userEvent.type(await within(modal).findByPlaceholderText(/filter by email/i), 'bspice');
-    await delay(600);
-    await waitFor(() => {
-      const params = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0] as URLSearchParams;
-      expect(params.get('email')).toBe('bspice');
+      usersApiSpy.mockClear();
+      const clearButton = await within(modal).findByRole('button', { name: /clear.*filter/i });
+      await userEvent.click(clearButton);
+      await waitFor(() => {
+        expect(usersApiSpy).toHaveBeenCalled();
+        const params = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0] as URLSearchParams;
+        expect(params.get('usernames')).toBeNull();
+        expect(params.get('email')).toBeNull();
+      });
+      await waitFor(
+        () => {
+          const grid = within(modal).getByRole('grid');
+          const gridScope = within(grid);
+          expect(gridScope.queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
+          expect(gridScope.queryByText(filteringTestUsers[2].username)).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
+
+      await waitForMembersTable(modal, { active: filteringTestUsers.filter((u) => u.is_active).length, inactive: inactiveUsers.length });
     });
-    const babySpice = filteringTestUsers.find((u) => u.email?.includes('bspice'))!;
-    await waitFor(
-      () => {
-        const grid = within(modal).getByRole('grid');
-        const gridScope = within(grid);
-        expect(gridScope.queryByText(babySpice.username)).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
 
-    usersApiSpy.mockClear();
-    await userEvent.click(await within(modal).findByRole('button', { name: /clear.*filter/i }));
-    await delay(500);
-    await waitFor(() => {
-      const grid = within(modal).getByRole('grid');
-      expect(within(grid).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
-      expect(within(grid).queryByText(inactiveUsers[0].username)).toBeInTheDocument();
+    await step('Test email filter', async () => {
+      const modal = await screen.findByRole('dialog');
+      usersApiSpy.mockClear();
+      const emailFilterContainer = modal.querySelector('[data-ouia-component-id="DataViewFilters"]') as HTMLElement;
+      expect(emailFilterContainer).toBeTruthy();
+      const emailFilterCanvas = within(emailFilterContainer);
+      const filterTypeBtn = emailFilterCanvas.getAllByRole('button').find((btn) => btn.textContent?.includes('Username'));
+      expect(filterTypeBtn).toBeTruthy();
+      await userEvent.click(filterTypeBtn!);
+      await userEvent.click(await within(modal).findByRole('menuitem', { name: /^email$/i }));
+      await userEvent.type(await within(modal).findByPlaceholderText(/filter by email/i), 'bspice');
+      await waitFor(() => {
+        const params = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0] as URLSearchParams;
+        expect(params.get('email')).toBe('bspice');
+      });
+      const babySpice = filteringTestUsers.find((u) => u.email?.includes('bspice'))!;
+      await waitFor(
+        () => {
+          const grid = within(modal).getByRole('grid');
+          const gridScope = within(grid);
+          expect(gridScope.queryByText(babySpice.username)).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
     });
-    const filterContainer = modal.querySelector('[data-ouia-component-id="DataViewFilters"]') as HTMLElement;
-    expect(filterContainer).toBeTruthy();
-    const filterCanvas = within(filterContainer);
-    const filterTypeButtons = filterCanvas.getAllByRole('button');
-    const filterDropdownButton = filterTypeButtons.find(
-      (btn) => btn.textContent?.toLowerCase().includes('email') || btn.textContent?.toLowerCase().includes('username'),
-    );
-    expect(filterDropdownButton).toBeTruthy();
-    await userEvent.click(filterDropdownButton!);
-    await delay(200);
-    await userEvent.click(await within(modal).findByRole('menuitem', { name: /^status$/i }));
-    await delay(300);
-    const statusFilterToggle = modal.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement;
-    expect(statusFilterToggle).toBeTruthy();
-    await userEvent.click(statusFilterToggle);
-    await delay(200);
-    const inactiveMenuItem = await within(document.body).findByRole('menuitem', { name: /inactive/i });
-    await userEvent.click(inactiveMenuItem);
-    await delay(300);
-    await waitForMembersTable(modal, { inactive: inactiveUsers.length });
-    await waitFor(
-      () => {
+
+    await step('Test status filter (Inactive)', async () => {
+      const modal = await screen.findByRole('dialog');
+      usersApiSpy.mockClear();
+      await userEvent.click(await within(modal).findByRole('button', { name: /clear.*filter/i }));
+      await waitFor(() => {
         const grid = within(modal).getByRole('grid');
-        const gridScope = within(grid);
-        expect(gridScope.queryByText(inactiveUsers[0].username)).toBeInTheDocument();
-        expect(gridScope.queryByText(inactiveUsers[1].username)).toBeInTheDocument();
-        expect(gridScope.queryByText(inactiveUsers[2].username)).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+        expect(within(grid).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
+        expect(within(grid).queryByText(inactiveUsers[0].username)).toBeInTheDocument();
+      });
+      const filterContainer = modal.querySelector('[data-ouia-component-id="DataViewFilters"]') as HTMLElement;
+      expect(filterContainer).toBeTruthy();
+      const filterCanvas = within(filterContainer);
+      const filterTypeButtons = filterCanvas.getAllByRole('button');
+      const filterDropdownButton = filterTypeButtons.find(
+        (btn) => btn.textContent?.toLowerCase().includes('email') || btn.textContent?.toLowerCase().includes('username'),
+      );
+      expect(filterDropdownButton).toBeTruthy();
+      await userEvent.click(filterDropdownButton!);
+      await userEvent.click(await within(modal).findByRole('menuitem', { name: /^status$/i }));
+      const statusFilterToggle = modal.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement;
+      expect(statusFilterToggle).toBeTruthy();
+      await userEvent.click(statusFilterToggle);
+      const inactiveMenuItem = await within(document.body).findByRole('menuitem', { name: /inactive/i });
+      await userEvent.click(inactiveMenuItem);
+      await waitForMembersTable(modal, { inactive: inactiveUsers.length });
+      await waitFor(
+        () => {
+          const grid = within(modal).getByRole('grid');
+          const gridScope = within(grid);
+          expect(gridScope.queryByText(inactiveUsers[0].username)).toBeInTheDocument();
+          expect(gridScope.queryByText(inactiveUsers[1].username)).toBeInTheDocument();
+          expect(gridScope.queryByText(inactiveUsers[2].username)).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
+    });
   },
 };
 
@@ -620,22 +615,21 @@ export const ITLessMode: Story = {
       'platform.rbac.itless': true,
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // 🎯 MODAL TESTING: Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
-    await userEvent.click(openButton);
+    await step('Open modal and verify IT-less mode content', async () => {
+      const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
+      await userEvent.click(openButton);
 
-    // 🎯 MODAL TESTING: Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Test modal content using within(modal)
-    expect(within(modal).getByText('Add members')).toBeInTheDocument();
+      expect(within(modal).getByText('Add members')).toBeInTheDocument();
 
-    await waitFor(async () => {
-      expect(within(modal).queryByText(DEFAULT_USERS[0].username)).toBeInTheDocument();
+      await waitFor(async () => {
+        expect(within(modal).queryByText(DEFAULT_USERS[0].username)).toBeInTheDocument();
+      });
     });
   },
 };
@@ -648,95 +642,81 @@ export const SubmitNotification: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // 🎯 MODAL TESTING: Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
-    await userEvent.click(openButton);
+    await step('Open modal and wait for users', async () => {
+      const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
+      await userEvent.click(openButton);
 
-    // 🎯 MODAL TESTING: Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    await waitFor(
-      () => {
-        const userText = within(modal).queryByText(DEFAULT_USERS[0].username) || within(modal).queryByText(DEFAULT_USERS[1].username);
-        expect(userText).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
-
-    // Select a user - find and click a row selection checkbox
-    let selectedAUser = false;
-
-    // Wait for checkboxes to be available and find row selection checkboxes
-    await waitFor(() => {
-      const checkboxes = within(modal).queryAllByRole('checkbox');
-      expect(checkboxes.length).toBeGreaterThan(0);
+      await waitFor(
+        () => {
+          const userText = within(modal).queryByText(DEFAULT_USERS[0].username) || within(modal).queryByText(DEFAULT_USERS[1].username);
+          expect(userText).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
     });
 
-    // Find row selection checkboxes (not bulk select or toggle switches)
-    const checkboxes = within(modal).getAllByRole('checkbox');
-    const rowCheckboxes = checkboxes.filter((cb) => {
-      const ariaLabel = cb.getAttribute('aria-label') || '';
-      // Skip bulk select and toggle switches, find row selection checkboxes
-      return !ariaLabel.includes('Select page') && !ariaLabel.includes('Toggle') && !cb.getAttribute('id')?.includes('switch');
-    });
+    await step('Select user and submit', async () => {
+      const modal = await screen.findByRole('dialog');
+      let selectedAUser = false;
 
-    if (rowCheckboxes.length > 0) {
-      await userEvent.click(rowCheckboxes[0]);
-      selectedAUser = true;
+      await waitFor(() => {
+        const checkboxes = within(modal).queryAllByRole('checkbox');
+        expect(checkboxes.length).toBeGreaterThan(0);
+      });
 
-      // Just wait a bit for the click to register
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
+      const checkboxes = within(modal).getAllByRole('checkbox');
+      const rowCheckboxes = checkboxes.filter((cb) => {
+        const ariaLabel = cb.getAttribute('aria-label') || '';
+        return !ariaLabel.includes('Select page') && !ariaLabel.includes('Toggle') && !cb.getAttribute('id')?.includes('switch');
+      });
 
-    // Only try to submit if we managed to select a user
-    if (selectedAUser) {
-      // Submit the form - try different button text variations
-      const submitButton = within(modal).queryByRole('button', { name: /add to group/i });
+      if (rowCheckboxes.length > 0) {
+        await userEvent.click(rowCheckboxes[0]);
+        selectedAUser = true;
 
-      if (submitButton) {
-        // Try to click the button even if it might be disabled for now
-        try {
+        await waitFor(() => expect(rowCheckboxes[0]).toBeChecked());
+      }
+
+      if (selectedAUser) {
+        const submitButton = within(modal).queryByRole('button', { name: /add to group/i });
+
+        if (submitButton) {
           await userEvent.click(submitButton);
-        } catch (error) {
-          // If click fails due to disabled state, just continue
-          console.log('SB: Button click failed, possibly disabled:', error);
         }
       }
-    }
 
-    // ✅ TEST NOTIFICATION: Try to verify notification if it appears
-    if (selectedAUser) {
-      try {
-        await waitFor(
-          () => {
-            const notificationPortal = document.querySelector('.notifications-portal');
-            expect(notificationPortal).toBeInTheDocument();
+      if (selectedAUser) {
+        try {
+          await waitFor(
+            () => {
+              const notificationPortal = document.querySelector('.notifications-portal');
+              expect(notificationPortal).toBeInTheDocument();
 
-            const infoAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-info');
-            expect(infoAlert).toBeInTheDocument();
+              const infoAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-info');
+              expect(infoAlert).toBeInTheDocument();
 
-            const alertTitle = infoAlert?.querySelector('.pf-v6-c-alert__title');
-            expect(alertTitle).toHaveTextContent(/adding.*member/i);
+              const alertTitle = infoAlert?.querySelector('.pf-v6-c-alert__title');
+              expect(alertTitle).toHaveTextContent(/adding.*member/i);
 
-            const alertDescription = infoAlert?.querySelector('.pf-v6-c-alert__description');
-            expect(alertDescription).toHaveTextContent(/adding.*member/i);
-          },
-          { timeout: 2000 }, // Reduced timeout
-        );
-      } catch {
-        // If notification doesn't appear, just verify the modal functionality worked
-        console.log('SB: Notification not found, checking modal functionality instead');
+              const alertDescription = infoAlert?.querySelector('.pf-v6-c-alert__description');
+              expect(alertDescription).toHaveTextContent(/adding.*member/i);
+            },
+            { timeout: 2000 },
+          );
+        } catch {
+          expect(within(modal).getByText('Add members')).toBeInTheDocument();
+          expect(rowCheckboxes.length).toBeGreaterThan(0);
+        }
+      } else {
         expect(within(modal).getByText('Add members')).toBeInTheDocument();
-        expect(rowCheckboxes.length).toBeGreaterThan(0);
       }
-    } else {
-      // If we couldn't select a user, just verify the modal opened
-      expect(within(modal).getByText('Add members')).toBeInTheDocument();
-    }
+    });
   },
 };
 
@@ -748,49 +728,44 @@ export const CancelNotification: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    // Reset spy to ensure clean state for this test
+  play: async ({ canvasElement, step }) => {
     usersApiSpy.mockClear();
     const canvas = within(canvasElement);
 
-    // 🎯 MODAL TESTING: Click button to open modal
-    const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
-    await userEvent.click(openButton);
+    await step('Open modal and click Cancel', async () => {
+      const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
+      await userEvent.click(openButton);
 
-    // 🎯 MODAL TESTING: Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+      const modal = await screen.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Wait for modal to load
-    await waitFor(() => {
-      expect(within(modal).getByText('Add members')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(within(modal).getByText('Add members')).toBeInTheDocument();
+      });
+
+      const cancelButton = within(modal).queryByRole('button', { name: /^cancel$/i });
+      if (cancelButton) {
+        await userEvent.click(cancelButton);
+
+        await waitFor(
+          () => {
+            const notificationPortal = document.querySelector('.notifications-portal');
+            expect(notificationPortal).toBeInTheDocument();
+
+            const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
+            expect(warningAlert).toBeInTheDocument();
+
+            const alertTitle = warningAlert?.querySelector('.pf-v6-c-alert__title');
+            expect(alertTitle).toHaveTextContent(/cancel/i);
+
+            const alertDescription = warningAlert?.querySelector('.pf-v6-c-alert__description');
+            expect(alertDescription).toHaveTextContent(/cancelled/i);
+          },
+          { timeout: 5000 },
+        );
+      } else {
+        expect(within(modal).getByText('Add members')).toBeInTheDocument();
+      }
     });
-
-    // Find and click the Cancel button (not the X close button)
-    const cancelButton = within(modal).queryByRole('button', { name: /^cancel$/i });
-    if (cancelButton) {
-      await userEvent.click(cancelButton);
-
-      // ✅ TEST NOTIFICATION: Verify warning notification appears in DOM
-      await waitFor(
-        () => {
-          const notificationPortal = document.querySelector('.notifications-portal');
-          expect(notificationPortal).toBeInTheDocument();
-
-          const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
-          expect(warningAlert).toBeInTheDocument();
-
-          const alertTitle = warningAlert?.querySelector('.pf-v6-c-alert__title');
-          expect(alertTitle).toHaveTextContent(/cancel/i);
-
-          const alertDescription = warningAlert?.querySelector('.pf-v6-c-alert__description');
-          expect(alertDescription).toHaveTextContent(/cancelled/i);
-        },
-        { timeout: 5000 },
-      );
-    } else {
-      // If no cancel button found, just verify the modal opened
-      expect(within(modal).getByText('Add members')).toBeInTheDocument();
-    }
   },
 };

@@ -53,40 +53,42 @@ export const Default: Story = {
     onClose: fn(),
     onSubmit: fn(),
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
     const body = within(document.body);
 
-    // Click the trigger button to open modal
-    const triggerButton = await canvas.findByRole('button', { name: /open default group change modal/i });
-    await userEvent.click(triggerButton);
+    await step('Open modal, confirm checkbox, and submit', async () => {
+      // Click the trigger button to open modal
+      const triggerButton = await canvas.findByRole('button', { name: /open default group change modal/i });
+      await userEvent.click(triggerButton);
 
-    // Check that warning modal is displayed (modals attach to body)
-    const modal = body.getByRole('dialog');
-    await expect(modal).toBeInTheDocument();
+      // Check that warning modal is displayed (modals attach to body)
+      const modal = body.getByRole('dialog');
+      await expect(modal).toBeInTheDocument();
 
-    // Check for warning title
-    const warningTitle = body.getByText('Warning');
-    await expect(warningTitle).toBeInTheDocument();
+      // Check for warning title
+      const warningTitle = body.getByText('Warning');
+      await expect(warningTitle).toBeInTheDocument();
 
-    // Check for confirmation checkbox
-    const checkbox = body.getByRole('checkbox');
-    await expect(checkbox).toBeInTheDocument();
-    await expect(checkbox).not.toBeChecked();
+      // Check for confirmation checkbox
+      const checkbox = body.getByRole('checkbox');
+      await expect(checkbox).toBeInTheDocument();
+      await expect(checkbox).not.toBeChecked();
 
-    // Check that continue button is initially disabled
-    const continueButton = body.getByRole('button', { name: 'Continue' });
-    await expect(continueButton).toBeDisabled();
+      // Check that continue button is initially disabled
+      const continueButton = body.getByRole('button', { name: 'Continue' });
+      await expect(continueButton).toBeDisabled();
 
-    // Check the confirmation checkbox
-    await userEvent.click(checkbox);
-    await expect(checkbox).toBeChecked();
+      // Check the confirmation checkbox
+      await userEvent.click(checkbox);
+      await expect(checkbox).toBeChecked();
 
-    // Continue button should now be enabled
-    await expect(continueButton).toBeEnabled();
+      // Continue button should now be enabled
+      await expect(continueButton).toBeEnabled();
 
-    // Test continue button click
-    await userEvent.click(continueButton);
-    await expect(args.onSubmit).toHaveBeenCalled();
+      // Test continue button click
+      await userEvent.click(continueButton);
+      await expect(args.onSubmit).toHaveBeenCalled();
+    });
   },
 };

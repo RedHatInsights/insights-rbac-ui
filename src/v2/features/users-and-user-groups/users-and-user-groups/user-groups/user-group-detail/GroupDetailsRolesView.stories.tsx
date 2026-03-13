@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
-import { delay } from 'msw';
 
 import { GroupDetailsRolesView } from './GroupDetailsRolesView';
 import { groupRolesErrorHandlers, groupRolesHandlers, groupRolesLoadingHandlers } from '../../../../../../shared/data/mocks/groupRoles.handlers';
@@ -125,14 +124,14 @@ Each story demonstrates different aspects of container state management and erro
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for the table to load and display roles
-    await expect(canvas.findByText('Organization Administrator')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('User Access Administrator')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Custom Team Role')).resolves.toBeInTheDocument();
+    await step('Verify roles displayed', async () => {
+      await expect(canvas.findByText('Organization Administrator')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('User Access Administrator')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Custom Team Role')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -152,12 +151,12 @@ export const Loading: Story = {
       handlers: [...groupRolesLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show skeleton loading state while API call is in progress (TableView uses SkeletonTable)
-    await expect(canvas.findByLabelText('GroupRolesView')).resolves.toBeInTheDocument();
+    await step('Verify loading state', async () => {
+      await expect(canvas.findByLabelText('GroupRolesView')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -177,14 +176,14 @@ export const EmptyGroup: Story = {
       handlers: [...groupRolesHandlers({ 'empty-group-id': [] })],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show empty state
-    await expect(canvas.findByText('No roles found')).resolves.toBeInTheDocument();
+    await step('Verify empty state', async () => {
+      await expect(canvas.findByText('No roles found')).resolves.toBeInTheDocument();
 
-    await expect(canvas.findByText('This group currently has no roles assigned to it.')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('This group currently has no roles assigned to it.')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -207,13 +206,14 @@ export const APIError: Story = {
       handlers: [...groupRolesErrorHandlers(500)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(
-      await canvas.findByText((content, element) => element?.textContent === 'Something went wrong. Please try again.'),
-    ).toBeInTheDocument();
+    await step('Verify API error state', async () => {
+      await expect(
+        await canvas.findByText((content, element) => element?.textContent === 'Something went wrong. Please try again.'),
+      ).toBeInTheDocument();
+    });
   },
 };
 
@@ -236,12 +236,13 @@ export const NetworkFailure: Story = {
       handlers: [...groupRolesErrorHandlers(500)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(
-      await canvas.findByText((content, element) => element?.textContent === 'Something went wrong. Please try again.'),
-    ).toBeInTheDocument();
+    await step('Verify network failure state', async () => {
+      await expect(
+        await canvas.findByText((content, element) => element?.textContent === 'Something went wrong. Please try again.'),
+      ).toBeInTheDocument();
+    });
   },
 };

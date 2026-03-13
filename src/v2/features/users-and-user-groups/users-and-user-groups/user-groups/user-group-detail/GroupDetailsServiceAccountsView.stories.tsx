@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
-import { delay } from 'msw';
 
 import { GroupDetailsServiceAccountsView } from './GroupDetailsServiceAccountsView';
 import {
@@ -128,14 +127,15 @@ Each story demonstrates different aspects of container state management and erro
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.findByText('RBAC Service Account')).resolves.toBeInTheDocument();
+    await step('Verify service accounts displayed', async () => {
+      await expect(canvas.findByText('RBAC Service Account')).resolves.toBeInTheDocument();
 
-    await expect(canvas.findByText('Automation Service Account')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Monitoring Service Account')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Automation Service Account')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Monitoring Service Account')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -155,12 +155,12 @@ export const Loading: Story = {
       handlers: [...groupMembersLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show skeleton loading state while API call is in progress (TableView uses SkeletonTable)
-    await expect(canvas.findByLabelText('GroupServiceAccountsView')).resolves.toBeInTheDocument();
+    await step('Verify loading state', async () => {
+      await expect(canvas.findByLabelText('GroupServiceAccountsView')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -180,14 +180,14 @@ export const EmptyGroup: Story = {
       handlers: [...createGroupMembersHandlers({}, { 'empty-group-id': [] })],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show empty state
-    await expect(canvas.findByText('No service accounts found')).resolves.toBeInTheDocument();
+    await step('Verify empty state', async () => {
+      await expect(canvas.findByText('No service accounts found')).resolves.toBeInTheDocument();
 
-    await expect(canvas.findByText('This group currently has no service accounts assigned to it.')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('This group currently has no service accounts assigned to it.')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -210,13 +210,14 @@ export const APIError: Story = {
       handlers: [...groupMembersErrorHandlers(500)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(
-      await canvas.findByText((content, element) => element?.textContent === 'Something went wrong. Please try again.'),
-    ).toBeInTheDocument();
+    await step('Verify API error state', async () => {
+      await expect(
+        await canvas.findByText((content, element) => element?.textContent === 'Something went wrong. Please try again.'),
+      ).toBeInTheDocument();
+    });
   },
 };
 
@@ -239,12 +240,13 @@ export const NetworkFailure: Story = {
       handlers: [...groupMembersErrorHandlers(500)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await expect(
-      await canvas.findByText((content, element) => element?.textContent === 'Something went wrong. Please try again.'),
-    ).toBeInTheDocument();
+    await step('Verify network failure state', async () => {
+      await expect(
+        await canvas.findByText((content, element) => element?.textContent === 'Something went wrong. Please try again.'),
+      ).toBeInTheDocument();
+    });
   },
 };

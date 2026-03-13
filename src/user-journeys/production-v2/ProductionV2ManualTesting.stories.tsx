@@ -1,5 +1,6 @@
 import { expect, within } from 'storybook/test';
-import { Story, TEST_TIMEOUTS, db, meta, resetStoryState } from './_v2OrgAdminSetup';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
+import { Story, db, meta, resetStoryState } from './_v2OrgAdminSetup';
 
 export default { ...meta, title: 'User Journeys/Production/V2 (Management Fabric)/Org Admin', tags: ['prod-v2-org-admin'] };
 
@@ -18,10 +19,19 @@ Use the **Controls** panel to toggle individual V2 flags and test partial rollou
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await expect(canvas.findByRole('tab', { name: /users/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).resolves.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify Users tab visible', async () => {
+      await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
+    });
   },
 };

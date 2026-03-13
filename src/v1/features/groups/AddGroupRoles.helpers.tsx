@@ -1,63 +1,33 @@
-import { userEvent, waitFor, within } from 'storybook/test';
+import type { UserEvent } from '@testing-library/user-event';
+import { expect, waitFor } from 'storybook/test';
+import { selectNthCheckbox, waitForModal } from '../../../test-utils/interactionHelpers';
+import { type StepFn, TEST_TIMEOUTS, noopStep } from '../../../test-utils/testUtils';
 
-/**
- * Helper function to fill and submit the Add Group Roles modal
- *
- * @param user - userEvent instance from the test
- * @param groupName - Name of the group (appears in modal title)
- * @param roleCount - Number of roles to select (by row index)
- */
-export async function fillAddGroupRolesModal(user: ReturnType<typeof userEvent.setup>, groupName: string, roleCount: number) {
-  // In Storybook, modals render to #storybook-modals (from preview-body.html)
-  // In production/user journeys, modals render to document.body
-  const modalContainer = document.getElementById('storybook-modals') || document.body;
+export async function fillAddGroupRolesModal(user: UserEvent, groupName: string, roleCount: number, step: StepFn = noopStep) {
+  await step('Open Add roles modal', async () => {
+    const modal = await waitForModal();
+    await modal.findByRole('heading', { name: new RegExp(`add roles to.*${groupName}`, 'i') });
+  });
 
-  // Wait for "Add roles" modal to be visible and find the specific modal by its heading
-  let addRolesModal: HTMLElement | null = null;
-  await waitFor(() => {
-    const allDialogs = Array.from(modalContainer.querySelectorAll('[role="dialog"]'));
-    // Find the dialog that contains "Add roles to [groupName]" heading
-    addRolesModal =
-      (allDialogs.find((dialog) => {
-        const heading = within(dialog as HTMLElement).queryByRole('heading', { name: new RegExp(`add roles to.*${groupName}`, 'i') });
-        return heading !== null;
-      }) as HTMLElement) || null;
+  const modal = await waitForModal();
 
-    if (!addRolesModal) {
-      throw new Error('Add roles modal not found');
+  await step('Wait for roles table to load', async () => {
+    await waitFor(
+      () => {
+        expect(modal.queryByRole('grid')).toBeInTheDocument();
+      },
+      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+    );
+  });
+
+  await step('Select roles', async () => {
+    for (let i = 0; i < roleCount; i++) {
+      await selectNthCheckbox(user, modal, i, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
     }
   });
 
-  const modal = within(addRolesModal!);
-
-  // Wait for roles table to load in the modal - look for the grid/table
-  await waitFor(
-    () => {
-      const table = modal.queryByRole('grid');
-      if (!table) {
-        throw new Error('Roles table not found in modal');
-      }
-    },
-    { timeout: 5000 },
-  );
-
-  // Give additional time for data to load
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Select roles by checkbox index
-  // Note: checkboxes[0] is the BulkSelect checkbox, row checkboxes start at index 1
-  const checkboxes = modal.getAllByRole('checkbox');
-  for (let i = 0; i < roleCount; i++) {
-    // Row checkboxes start at index 1 (index 0 is the bulk select checkbox)
-    const checkboxIndex = i + 1;
-    if (checkboxIndex < checkboxes.length) {
-      await user.click(checkboxes[checkboxIndex]);
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    }
-  }
-
-  // Click "Add to group" button
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const submitBtn = modal.getByRole('button', { name: /add to group/i });
-  await user.click(submitBtn);
+  await step('Submit', async () => {
+    const submitBtn = modal.getByRole('button', { name: /add to group/i });
+    await user.click(submitBtn);
+  });
 }

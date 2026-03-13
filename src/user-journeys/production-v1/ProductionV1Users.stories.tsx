@@ -1,5 +1,6 @@
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { type ScopedQueries, clearAndType, waitForContentReady, waitForModal } from '../../test-utils/interactionHelpers';
+import type { UserEvent } from '../../test-utils/testUtils';
 import { accountManagementHandlers } from '../../shared/data/mocks/accountManagement.handlers';
 import { createV1Handlers } from '../../v1/data/mocks/handlers';
 import {
@@ -21,16 +22,15 @@ const inviteUsersSpy = fn();
 
 const EXPECTED_INVITE_URL_PATTERN = /^https:\/\/api\.access\.(stage\.)?redhat\.com\/account\/v1\/accounts\/\d+\/users\/invite$/;
 
-async function navigateToUserDetailPage(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, username: string) {
+async function navigateToUserDetailPage(user: UserEvent, canvas: ScopedQueries, username: string) {
   await navigateToPage(user, canvas, 'Users');
   await waitForPageToLoad(canvas, username);
 
-  const statusToggles = canvas.getAllByTestId('user-status-toggle');
+  const statusToggles = await canvas.findAllByTestId('user-status-toggle');
   expect(statusToggles.length).toBeGreaterThan(0);
 
-  const usernameLink = canvas.getByRole('link', { name: username });
+  const usernameLink = await canvas.findByRole('link', { name: username });
   await user.click(usernameLink);
-  await delay(TEST_TIMEOUTS.AFTER_EXPAND);
 
   await waitForPageToLoad(canvas, 'Add user to a group');
 }
@@ -42,12 +42,21 @@ export const ViewUserDetailPageJourney: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToUserDetailPage(user, canvas, USER_JOHN.username);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Navigate to user detail page', async () => {
+      await navigateToUserDetailPage(user, canvas, USER_JOHN.username);
+    });
   },
 };
 
@@ -56,36 +65,42 @@ export const AddUserToGroupFromDetailPageJourney: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToUserDetailPage(user, canvas, USER_JOHN.username);
-
-    const addToGroupButton = await canvas.findByRole('button', { name: /add user to a group/i });
-    await user.click(addToGroupButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    const modal = await waitFor(() => {
-      const dialog = document.querySelector('[role="dialog"]');
-      expect(dialog).toBeInTheDocument();
-      return dialog as HTMLElement;
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
     });
 
-    const modalContent = within(modal);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const groupRow = await modalContent.findByText(GROUP_PLATFORM_ADMINS.name);
-    const row = groupRow.closest('tr');
-    const groupCheckbox = within(row as HTMLElement).getByRole('checkbox');
-    await user.click(groupCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Navigate to user detail page', async () => {
+      await navigateToUserDetailPage(user, canvas, USER_JOHN.username);
+    });
 
-    const addButton = modalContent.getByRole('button', { name: 'Save' });
-    await user.click(addButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Open add to group modal', async () => {
+      const addToGroupButton = await canvas.findByRole('button', { name: /add user to a group/i });
+      await user.click(addToGroupButton);
+      await waitForModal();
+    });
 
-    await verifySuccessNotification();
+    await step('Select group and save', async () => {
+      const modalContent = await waitForModal();
+      const groupRow = await modalContent.findByText(GROUP_PLATFORM_ADMINS.name);
+      const row = groupRow.closest('tr');
+      const groupCheckbox = within(row as HTMLElement).getByRole('checkbox');
+      await user.click(groupCheckbox);
+
+      const addButton = await modalContent.findByRole('button', { name: 'Save' });
+      await user.click(addButton);
+    });
+
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
   },
 };
 
@@ -94,42 +109,46 @@ export const DeactivateUserJourney: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Users');
-    await waitForPageToLoad(canvas, USER_JOHN.username);
-
-    const userCheckbox = canvas.getByRole('checkbox', { name: 'Select row 0' });
-    await user.click(userCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    const kebabButton = canvas.getByRole('button', { name: /kebab dropdown toggle/i });
-    await user.click(kebabButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await clickMenuItem(user, 'Deactivate users');
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    const modal = await waitFor(() => {
-      const dialog = document.querySelector('[role="dialog"]');
-      expect(dialog).toBeInTheDocument();
-      return dialog as HTMLElement;
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
     });
 
-    const modalContent = within(modal);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const confirmCheckbox = modalContent.getByRole('checkbox', { name: /yes, i confirm that i want to deactivate these users/i });
-    await user.click(confirmCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for users table', async () => {
+      await navigateToPage(user, canvas, 'Users');
+      await waitForPageToLoad(canvas, USER_JOHN.username);
+    });
 
-    const deactivateButton = modalContent.getByRole('button', { name: /deactivate user/i });
-    await user.click(deactivateButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Select user and open deactivate modal', async () => {
+      const userCheckbox = await canvas.findByRole('checkbox', { name: 'Select row 0' });
+      await user.click(userCheckbox);
 
-    await verifySuccessNotification();
+      const kebabButton = await canvas.findByRole('button', { name: /kebab dropdown toggle/i });
+      await user.click(kebabButton);
+
+      await clickMenuItem(user, 'Deactivate users');
+      await waitForModal();
+    });
+
+    await step('Confirm deactivation', async () => {
+      const modalContent = await waitForModal();
+      const confirmCheckbox = await modalContent.findByRole('checkbox', { name: /yes, i confirm that i want to deactivate these users/i });
+      await user.click(confirmCheckbox);
+
+      const deactivateButton = await modalContent.findByRole('button', { name: /deactivate user/i });
+      await user.click(deactivateButton);
+    });
+
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
   },
 };
 
@@ -138,65 +157,68 @@ export const ActivateUserJourney: Story = {
   args: {
     initialRoute: '/iam/my-user-access',
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Users');
-    await waitForPageToLoad(canvas, USER_JOHN.username);
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+    });
 
-    const filterContainer = context.canvasElement.querySelector('[data-ouia-component-id="DataViewFilters"]');
-    if (filterContainer) {
-      const filterCanvas = within(filterContainer as HTMLElement);
-      const filterTypeButtons = filterCanvas.getAllByRole('button');
-      const filterDropdownButton = filterTypeButtons.find((btn) => btn.textContent?.toLowerCase().includes('username'));
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for users table', async () => {
+      await navigateToPage(user, canvas, 'Users');
+      await waitForPageToLoad(canvas, USER_JOHN.username);
+    });
+
+    await step('Apply inactive filter', async () => {
+      const filterDropdownButtons = canvas.queryAllByRole('button', { name: /username/i });
+      const filterDropdownButton = filterDropdownButtons[0] ?? null;
       if (filterDropdownButton) {
         await user.click(filterDropdownButton);
         const statusOption = await within(document.body).findByRole('menuitem', { name: /status/i });
         await user.click(statusOption);
-        await delay(TEST_TIMEOUTS.AFTER_CLICK);
-        const statusFilterToggle = context.canvasElement.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement;
+        const statusFilterToggles = canvas.queryAllByRole('button', { name: /filter by status/i });
+        const statusFilterToggle = statusFilterToggles[0] ?? null;
         if (statusFilterToggle) {
           await user.click(statusFilterToggle);
           const inactiveMenuItem = await within(document.body).findByRole('menuitem', { name: /inactive/i });
           const inactiveCheckbox = within(inactiveMenuItem).getByRole('checkbox');
           await user.click(inactiveCheckbox);
-          await delay(TEST_TIMEOUTS.AFTER_CLICK);
         }
       }
-    }
-
-    await waitForPageToLoad(canvas, USER_BOB.username);
-
-    const userCheckbox = await canvas.findByRole('checkbox', { name: 'Select row 0' });
-    await user.click(userCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    const kebabButton = canvas.getByRole('button', { name: /kebab dropdown toggle/i });
-    await user.click(kebabButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    await clickMenuItem(user, 'Activate users');
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    const modal = await waitFor(() => {
-      const dialog = document.querySelector('[role="dialog"]');
-      expect(dialog).toBeInTheDocument();
-      return dialog as HTMLElement;
     });
 
-    const modalContent = within(modal);
+    await step('Wait for filtered table', async () => {
+      await waitForPageToLoad(canvas, USER_BOB.username);
+    });
 
-    const confirmCheckbox = modalContent.getByRole('checkbox', { name: /yes, i confirm that i want to add these users/i });
-    await user.click(confirmCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Select user and open activate modal', async () => {
+      const userCheckbox = await canvas.findByRole('checkbox', { name: 'Select row 0' });
+      await user.click(userCheckbox);
 
-    const activateButton = modalContent.getByRole('button', { name: /activate user/i });
-    await user.click(activateButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+      const kebabButton = await canvas.findByRole('button', { name: /kebab dropdown toggle/i });
+      await user.click(kebabButton);
 
-    await verifySuccessNotification();
+      await clickMenuItem(user, 'Activate users');
+      await waitForModal();
+    });
+
+    await step('Confirm activation', async () => {
+      const modalContent = await waitForModal();
+      const confirmCheckbox = await modalContent.findByRole('checkbox', { name: /yes, i confirm that i want to add these users/i });
+      await user.click(confirmCheckbox);
+
+      const activateButton = await modalContent.findByRole('button', { name: /activate user/i });
+      await user.click(activateButton);
+    });
+
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
   },
 };
 
@@ -222,60 +244,88 @@ export const InviteUsersJourney: Story = {
       ],
     },
   },
-  play: async (context) => {
-    await resetStoryState(v1Db);
-    inviteUsersSpy.mockClear();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Users');
-    await waitForPageToLoad(canvas, USER_JOHN.username);
-
-    const inviteButton = canvas.getByRole('button', { name: /invite users/i });
-    await user.click(inviteButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    const modal = await waitFor(() => {
-      const dialog = document.querySelector('[role="dialog"]');
-      expect(dialog).toBeInTheDocument();
-      return dialog as HTMLElement;
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+      inviteUsersSpy.mockClear();
     });
 
-    const modalContent = within(modal);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    await modalContent.findByRole('heading', { name: /invite new users/i });
+    await step('Wait for users table', async () => {
+      await navigateToPage(user, canvas, 'Users');
+      await waitForPageToLoad(canvas, USER_JOHN.username);
+    });
 
-    const emailInput = modalContent.getByRole('textbox', { name: /enter the e-mail addresses/i });
-    await user.type(emailInput, 'newuser1@example.com, newuser2@example.com');
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Open invite modal', async () => {
+      const inviteButton = await canvas.findByRole('button', { name: /invite users/i });
+      await user.click(inviteButton);
+      await waitForModal();
+    });
 
-    const messageInput = modalContent.getByRole('textbox', { name: /send a message with the invite/i });
-    await user.type(messageInput, 'Welcome to our organization!');
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for invite modal', async () => {
+      await waitForModal({
+        timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH,
+        waitUntil: (dlg) => {
+          expect(dlg.queryByRole('textbox', { name: /enter the e-mail addresses/i })).toBeInTheDocument();
+          expect(dlg.queryByRole('textbox', { name: /send a message with the invite/i })).toBeInTheDocument();
+        },
+      });
+    });
 
-    const orgAdminCheckbox = modalContent.getByRole('checkbox', { name: /organization administrators/i });
-    await user.click(orgAdminCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Fill email addresses', async () => {
+      const modal = await waitForModal();
+      await clearAndType(
+        user,
+        () => modal.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement,
+        'newuser1@example.com, newuser2@example.com',
+      );
+    });
 
-    const submitButton = modalContent.getByRole('button', { name: /invite new users/i });
-    await waitFor(() => expect(submitButton).toBeEnabled());
-    await user.click(submitButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Fill message', async () => {
+      const modal = await waitForModal();
+      await clearAndType(
+        user,
+        () => modal.getByRole('textbox', { name: /send a message with the invite/i }) as HTMLTextAreaElement,
+        'Welcome to our organization!',
+      );
+    });
 
-    await verifySuccessNotification();
+    await step('Check org admin and submit', async () => {
+      const modal = await waitForModal();
+      await waitFor(() => {
+        expect(modal.queryByRole('checkbox', { name: /organization administrators/i })).toBeInTheDocument();
+      });
+      const orgAdminCheckbox = modal.getByRole('checkbox', { name: /organization administrators/i });
+      await user.click(orgAdminCheckbox);
+      const submitButton = await modal.findByRole('button', { name: /invite new users/i });
+      await waitFor(() => expect(submitButton).toBeEnabled());
+      await user.click(submitButton);
+    });
 
-    await waitFor(
-      () => {
-        expect(inviteUsersSpy).toHaveBeenCalled();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
 
-    const spyCall = inviteUsersSpy.mock.calls[0][0];
-    expect(spyCall).toBeDefined();
-    expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN);
-    expect(spyCall.emails).toContain('newuser1@example.com');
-    expect(spyCall.emails).toContain('newuser2@example.com');
-    expect(spyCall.roles).toContain('organization_administrator');
+    await step('Verify invite API called', async () => {
+      await waitFor(
+        () => {
+          expect(inviteUsersSpy).toHaveBeenCalled();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+
+      const spyCall = inviteUsersSpy.mock.calls[0][0];
+      expect(spyCall).toBeDefined();
+      expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN);
+      expect(spyCall.emails).toContain('newuser1@example.com');
+      expect(spyCall.emails).toContain('newuser2@example.com');
+      expect(spyCall.roles).toContain('organization_administrator');
+    });
   },
 };

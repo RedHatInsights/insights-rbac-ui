@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AddRoleWizard } from './AddRoleWizard';
 import { v1RolesHandlers } from '../../../data/mocks/roles.handlers';
@@ -120,7 +119,6 @@ export const Default: Story = {
     },
   },
   play: async () => {
-    await delay(500);
     const body = within(document.body);
 
     // Wizard should be visible (may have multiple dialogs - wizard + warning modal)
@@ -146,21 +144,22 @@ export const SelectCreateFromScratch: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wizard should be visible
-    await body.findAllByRole('dialog');
+    await step('Select create from scratch and verify name input', async () => {
+      // Wizard should be visible
+      await body.findAllByRole('dialog');
 
-    // Click "Create a role from scratch" option
-    const createOption = body.getByText(/create a role from scratch/i);
-    await userEvent.click(createOption);
+      // Click "Create a role from scratch" option
+      const createOption = body.getByText(/create a role from scratch/i);
+      await userEvent.click(createOption);
 
-    // Role name input should appear (conditional field)
-    await waitFor(() => {
-      const nameInputs = body.queryAllByRole('textbox');
-      expect(nameInputs.length).toBeGreaterThan(0);
+      // Role name input should appear (conditional field)
+      await waitFor(() => {
+        const nameInputs = body.queryAllByRole('textbox');
+        expect(nameInputs.length).toBeGreaterThan(0);
+      });
     });
   },
 };
@@ -174,24 +173,27 @@ export const SelectCopyExistingRole: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wizard should be visible
-    await body.findAllByRole('dialog');
+    await step('Select copy existing role option', async () => {
+      // Wizard should be visible
+      await body.findAllByRole('dialog');
 
-    // Click "Copy an existing role" option
-    const copyOption = body.getByText(/copy an existing role/i);
-    expect(copyOption).toBeInTheDocument();
-    await userEvent.click(copyOption);
+      // Click "Copy an existing role" option
+      const copyOption = body.getByText(/copy an existing role/i);
+      expect(copyOption).toBeInTheDocument();
+      await userEvent.click(copyOption);
 
-    // Wait for UI to update
-    await delay(300);
+      // Wait for UI to update
+      await waitFor(() => {
+        expect(body.getAllByRole('radio').length).toBeGreaterThan(0);
+      });
 
-    // The radio should now be selected (checked)
-    const radioInputs = body.getAllByRole('radio');
-    expect(radioInputs.length).toBeGreaterThan(0);
+      // The radio should now be selected (checked)
+      const radioInputs = body.getAllByRole('radio');
+      expect(radioInputs.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -204,25 +206,28 @@ export const EnterRoleName: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wizard should be visible
-    await body.findAllByRole('dialog');
+    await step('Enter role name', async () => {
+      // Wizard should be visible
+      await body.findAllByRole('dialog');
 
-    // Click "Create a role from scratch" option
-    const createOption = body.getByText(/create a role from scratch/i);
-    await userEvent.click(createOption);
+      // Click "Create a role from scratch" option
+      const createOption = body.getByText(/create a role from scratch/i);
+      await userEvent.click(createOption);
 
-    // Wait for name input
-    await delay(300);
+      // Wait for name input
+      await waitFor(() => {
+        expect(body.getAllByRole('textbox').length).toBeGreaterThan(0);
+      });
 
-    // Find text inputs and type role name
-    const nameInputs = body.getAllByRole('textbox');
-    const nameInput = nameInputs[0];
-    await userEvent.type(nameInput, 'My Test Role');
-    expect(nameInput).toHaveValue('My Test Role');
+      // Find text inputs and type role name
+      const nameInputs = body.getAllByRole('textbox');
+      const nameInput = nameInputs[0];
+      await userEvent.type(nameInput, 'My Test Role');
+      expect(nameInput).toHaveValue('My Test Role');
+    });
   },
 };
 
@@ -235,17 +240,18 @@ export const CancelButtonVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wizard should be visible
-    await body.findAllByRole('dialog');
+    await step('Verify cancel button', async () => {
+      // Wizard should be visible
+      await body.findAllByRole('dialog');
 
-    // Cancel button should be present
-    const cancelButton = body.getByRole('button', { name: /cancel/i });
-    expect(cancelButton).toBeInTheDocument();
-    expect(cancelButton).toBeEnabled();
+      // Cancel button should be present
+      const cancelButton = body.getByRole('button', { name: /cancel/i });
+      expect(cancelButton).toBeInTheDocument();
+      expect(cancelButton).toBeEnabled();
+    });
   },
 };
 
@@ -258,16 +264,17 @@ export const NextButtonVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wizard should be visible
-    await body.findAllByRole('dialog');
+    await step('Verify next button', async () => {
+      // Wizard should be visible
+      await body.findAllByRole('dialog');
 
-    // Next button should be present
-    const nextButton = body.getByRole('button', { name: /next/i });
-    expect(nextButton).toBeInTheDocument();
+      // Next button should be present
+      const nextButton = body.getByRole('button', { name: /next/i });
+      expect(nextButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -280,16 +287,17 @@ export const WizardStepIndicators: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wizard should be visible
-    await body.findAllByRole('dialog');
+    await step('Verify wizard step indicators', async () => {
+      // Wizard should be visible
+      await body.findAllByRole('dialog');
 
-    // Step nav should show step names - check for wizard step structure
-    const wizardNav = document.querySelector('.pf-v6-c-wizard__nav');
-    expect(wizardNav).toBeInTheDocument();
+      // Step nav should show step names (PatternFly-specific, no accessible alternative)
+      const wizardNav = document.querySelector('.pf-v6-c-wizard__nav');
+      expect(wizardNav).toBeInTheDocument();
+    });
   },
 };
 
@@ -302,26 +310,29 @@ export const RoleNameInputAcceptsText: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wizard should be visible
-    await body.findAllByRole('dialog');
+    await step('Verify role name input accepts text', async () => {
+      // Wizard should be visible
+      await body.findAllByRole('dialog');
 
-    // Click "Create a role from scratch"
-    const createOption = body.getByText(/create a role from scratch/i);
-    await userEvent.click(createOption);
-    await delay(300);
+      // Click "Create a role from scratch"
+      const createOption = body.getByText(/create a role from scratch/i);
+      await userEvent.click(createOption);
 
-    // Find text inputs
-    const nameInputs = body.getAllByRole('textbox');
-    expect(nameInputs.length).toBeGreaterThan(0);
+      // Find text inputs
+      await waitFor(() => {
+        expect(body.getAllByRole('textbox').length).toBeGreaterThan(0);
+      });
+      const nameInputs = body.getAllByRole('textbox');
+      expect(nameInputs.length).toBeGreaterThan(0);
 
-    // Type role name
-    const nameInput = nameInputs[0];
-    await userEvent.type(nameInput, 'Test Role Name');
-    expect(nameInput).toHaveValue('Test Role Name');
+      // Type role name
+      const nameInput = nameInputs[0];
+      await userEvent.type(nameInput, 'Test Role Name');
+      expect(nameInput).toHaveValue('Test Role Name');
+    });
   },
 };
 
@@ -354,28 +365,33 @@ export const DuplicateRoleNameValidation: Story = {
       ],
     },
   },
-  play: async () => {
-    await delay(500);
+  play: async ({ step }) => {
     const body = within(document.body);
 
-    // Wizard should be visible
-    await body.findAllByRole('dialog');
+    await step('Verify duplicate role name validation', async () => {
+      // Wizard should be visible
+      await body.findAllByRole('dialog');
 
-    // Select create from scratch
-    const createOption = body.getByText(/create a role from scratch/i);
-    await userEvent.click(createOption);
-    await delay(300);
+      // Select create from scratch
+      const createOption = body.getByText(/create a role from scratch/i);
+      await userEvent.click(createOption);
 
-    // Type duplicate role name (validator is debounced)
-    const roleNameInput = body.getByLabelText('Role name');
-    await userEvent.clear(roleNameInput);
-    await userEvent.type(roleNameInput, 'Duplicate Role');
+      // Wait for name input
+      await waitFor(() => {
+        expect(body.getByLabelText('Role name')).toBeInTheDocument();
+      });
 
-    // Wait for duplicate-name error message
-    await expect(body.findByText(/already been taken/i)).resolves.toBeInTheDocument();
+      // Type duplicate role name (validator is debounced)
+      const roleNameInput = body.getByLabelText('Role name');
+      await userEvent.clear(roleNameInput);
+      await userEvent.type(roleNameInput, 'Duplicate Role');
 
-    // Next should be disabled while the name is invalid
-    const nextButton = body.getByRole('button', { name: /next/i });
-    expect(nextButton).toBeDisabled();
+      // Wait for duplicate-name error message
+      await expect(body.findByText(/already been taken/i)).resolves.toBeInTheDocument();
+
+      // Next should be disabled while the name is invalid
+      const nextButton = body.getByRole('button', { name: /next/i });
+      expect(nextButton).toBeDisabled();
+    });
   },
 };

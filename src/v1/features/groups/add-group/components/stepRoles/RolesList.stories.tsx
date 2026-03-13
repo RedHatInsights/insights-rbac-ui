@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { delay } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { v1RolesHandlers, v1RolesLoadingHandlers } from '../../../../../data/mocks/roles.handlers';
 import type { RoleOutDynamic } from '../../../../../data/mocks/db';
@@ -178,25 +177,22 @@ export const Default: Story = {
       handlers: [...v1RolesHandlers(storyRoles)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify table headers
-    expect(await canvas.findByRole('columnheader', { name: /name/i })).toBeInTheDocument();
-    expect(await canvas.findByRole('columnheader', { name: /description/i })).toBeInTheDocument();
+    await step('Verify table and role data', async () => {
+      expect(await canvas.findByRole('columnheader', { name: /name/i })).toBeInTheDocument();
+      expect(await canvas.findByRole('columnheader', { name: /description/i })).toBeInTheDocument();
 
-    // Verify roles are displayed
-    expect(await canvas.findByText(storyRoles[0].display_name!)).toBeInTheDocument();
-    expect(await canvas.findByText(storyRoles[1].display_name!)).toBeInTheDocument();
-    expect(await canvas.findByText(storyRoles[2].display_name!)).toBeInTheDocument();
+      expect(await canvas.findByText(storyRoles[0].display_name!)).toBeInTheDocument();
+      expect(await canvas.findByText(storyRoles[1].display_name!)).toBeInTheDocument();
+      expect(await canvas.findByText(storyRoles[2].display_name!)).toBeInTheDocument();
 
-    // Verify pagination is present (there are two - top and bottom)
-    const paginationElements = canvas.getAllByRole('navigation', { name: /pagination/i });
-    expect(paginationElements.length).toBeGreaterThanOrEqual(1);
+      const paginationElements = canvas.getAllByRole('navigation', { name: /pagination/i });
+      expect(paginationElements.length).toBeGreaterThanOrEqual(1);
 
-    // Verify search filter is present
-    expect(await canvas.findByPlaceholderText(/filter by role name/i)).toBeInTheDocument();
+      expect(await canvas.findByPlaceholderText(/filter by role name/i)).toBeInTheDocument();
+    });
   },
 };
 
@@ -212,20 +208,18 @@ export const WithInitialSelection: Story = {
       handlers: [...v1RolesHandlers(storyRoles)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await canvas.findByText(storyRoles[0].display_name!);
+    await step('Verify initial selection displayed', async () => {
+      await canvas.findByText(storyRoles[0].display_name!);
 
-    // Verify initial selections are handled by the component
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
+      const table = await canvas.findByRole('grid');
+      expect(table).toBeInTheDocument();
 
-    // Verify roles are displayed (selection state is managed externally)
-    expect(canvas.getByText(storyRoles[0].display_name!)).toBeInTheDocument();
-    expect(canvas.getByText(storyRoles[2].display_name!)).toBeInTheDocument();
+      expect(canvas.getByText(storyRoles[0].display_name!)).toBeInTheDocument();
+      expect(canvas.getByText(storyRoles[2].display_name!)).toBeInTheDocument();
+    });
   },
 };
 
@@ -236,32 +230,30 @@ export const FilteringTest: Story = {
       handlers: [...v1RolesHandlers(storyRoles)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await canvas.findByText(storyRoles[0].display_name!);
+    await step('Apply filter and verify filtered results', async () => {
+      await canvas.findByText(storyRoles[0].display_name!);
 
-    // Test filtering by "admin"
-    const filterInput = await canvas.findByPlaceholderText(/filter by role name/i);
-    await userEvent.type(filterInput, 'admin');
+      const filterInput = await canvas.findByPlaceholderText(/filter by role name/i);
+      await userEvent.type(filterInput, 'admin');
 
-    // Wait for filtered results
-    await canvas.findByText(storyRoles[0].display_name!);
-    await canvas.findByText(storyRoles[1].display_name!);
+      await canvas.findByText(storyRoles[0].display_name!);
+      await canvas.findByText(storyRoles[1].display_name!);
 
-    // Verify non-matching roles are filtered out
-    await waitFor(() => {
-      expect(canvas.queryByText(storyRoles[2].display_name!)).not.toBeInTheDocument();
-      expect(canvas.queryByText(storyRoles[5].display_name!)).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.queryByText(storyRoles[2].display_name!)).not.toBeInTheDocument();
+        expect(canvas.queryByText(storyRoles[5].display_name!)).not.toBeInTheDocument();
+      });
     });
 
-    // Test clearing the filter
-    await userEvent.clear(filterInput);
+    await step('Clear filter and verify roles reappear', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by role name/i);
+      await userEvent.clear(filterInput);
 
-    // Wait for previously filtered roles to reappear
-    await canvas.findByText(storyRoles[2].display_name!, {}, { timeout: 3000 });
+      await canvas.findByText(storyRoles[2].display_name!, {}, { timeout: 3000 });
+    });
   },
 };
 
@@ -275,49 +267,44 @@ export const SelectionTest: Story = {
       handlers: [...v1RolesHandlers(storyRoles)],
     },
   },
-  play: async ({ canvasElement, args }) => {
-    await delay(300);
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await canvas.findByText(storyRoles[0].display_name!);
-    const table = await canvas.findByRole('grid');
+    await step('Test individual selection', async () => {
+      await canvas.findByText(storyRoles[0].display_name!);
+      const table = await canvas.findByRole('grid');
 
-    // Test individual selection - find any checkbox and click it
-    const checkboxes = within(table).getAllByRole('checkbox');
-    const firstRowCheckbox = checkboxes.find((checkbox) => checkbox.getAttribute('aria-label')?.includes('Select row'));
+      const checkboxes = within(table).getAllByRole('checkbox');
+      const firstRowCheckbox = checkboxes.find((checkbox) => checkbox.getAttribute('aria-label')?.includes('Select row'));
 
-    if (firstRowCheckbox) {
-      await userEvent.click(firstRowCheckbox);
+      if (firstRowCheckbox) {
+        await userEvent.click(firstRowCheckbox);
 
-      // Verify onSelect was called (selection state may be managed externally)
+        await waitFor(
+          () => {
+            expect(args.onSelect).toHaveBeenCalled();
+          },
+          { timeout: 1000 },
+        );
+      }
+    });
+
+    await step('Test bulk select dropdown', async () => {
+      const bulkSelectButton = await canvas.findByRole('button', { name: /select/i });
+      await userEvent.click(bulkSelectButton);
+
+      const selectPageOption = await within(document.body).findByText(/select page/i);
+      await userEvent.click(selectPageOption);
+
       await waitFor(
         () => {
-          expect(args.onSelect).toHaveBeenCalled();
+          const mockFn = args.onSelect as unknown as { mock: { calls: unknown[] } };
+          expect(mockFn).toHaveBeenCalled();
+          expect(mockFn.mock.calls.length).toBeGreaterThanOrEqual(2);
         },
         { timeout: 1000 },
       );
-    }
-
-    // Test bulk select dropdown
-    const bulkSelectButton = await canvas.findByRole('button', { name: /select/i });
-    await userEvent.click(bulkSelectButton);
-
-    // Select page option (dropdown renders via portal)
-    const selectPageOption = await within(document.body).findByText(/select page/i);
-    await userEvent.click(selectPageOption);
-
-    // Verify bulk select interaction occurred (external state management via onSelect)
-    await waitFor(
-      () => {
-        // Component calls onSelect multiple times due to internal selection management
-        // Just verify it was called at least twice (individual + bulk selection)
-        const mockFn = args.onSelect as unknown as { mock: { calls: unknown[] } };
-        expect(mockFn).toHaveBeenCalled();
-        expect(mockFn.mock.calls.length).toBeGreaterThanOrEqual(2);
-      },
-      { timeout: 1000 },
-    );
+    });
   },
 };
 
@@ -328,33 +315,29 @@ export const PaginationTest: Story = {
       handlers: [...v1RolesHandlers(storyRoles)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await canvas.findByText(storyRoles[0].display_name!);
+    await step('Verify pagination and per-page dropdown', async () => {
+      await canvas.findByText(storyRoles[0].display_name!);
 
-    // Verify pagination controls are present (there are two - top and bottom)
-    const paginationNavs = canvas.getAllByRole('navigation', { name: /pagination/i });
-    expect(paginationNavs.length).toBeGreaterThanOrEqual(1);
+      const paginationNavs = canvas.getAllByRole('navigation', { name: /pagination/i });
+      expect(paginationNavs.length).toBeGreaterThanOrEqual(1);
 
-    // Test per-page dropdown if we have enough data
-    const perPageButton = canvas.queryByRole('button', { name: /items per page/i });
-    if (perPageButton) {
-      await userEvent.click(perPageButton);
+      const perPageButton = canvas.queryByRole('button', { name: /items per page/i });
+      if (perPageButton) {
+        await userEvent.click(perPageButton);
 
-      // Look for per-page options
-      const option10 = canvas.queryByText('10 per page');
-      if (option10) {
-        await userEvent.click(option10);
+        const option10 = canvas.queryByText('10 per page');
+        if (option10) {
+          await userEvent.click(option10);
 
-        // Verify the change took effect
-        await waitFor(() => {
-          expect(canvas.queryByRole('button', { name: /10 per page/i })).toBeInTheDocument();
-        });
+          await waitFor(() => {
+            expect(canvas.queryByRole('button', { name: /10 per page/i })).toBeInTheDocument();
+          });
+        }
       }
-    }
+    });
   },
 };
 
@@ -365,30 +348,26 @@ export const ClearFiltersTest: Story = {
       handlers: [...v1RolesHandlers(storyRoles)],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for table to load
-    await canvas.findByText(storyRoles[0].display_name!);
+    await step('Apply filter and clear filters', async () => {
+      await canvas.findByText(storyRoles[0].display_name!);
 
-    // Apply a filter first
-    const filterInput = await canvas.findByPlaceholderText(/filter by role name/i);
-    await userEvent.type(filterInput, 'admin');
+      const filterInput = await canvas.findByPlaceholderText(/filter by role name/i);
+      await userEvent.type(filterInput, 'admin');
 
-    // Wait for filtered results
-    await canvas.findByText(storyRoles[0].display_name!);
+      await canvas.findByText(storyRoles[0].display_name!);
 
-    // Find and click clear filters button
-    const clearFiltersButton = await canvas.findByRole('button', { name: /clear filters/i });
-    expect(clearFiltersButton).toBeInTheDocument();
+      const clearFiltersButton = await canvas.findByRole('button', { name: /clear filters/i });
+      expect(clearFiltersButton).toBeInTheDocument();
 
-    await userEvent.click(clearFiltersButton);
+      await userEvent.click(clearFiltersButton);
 
-    // Verify filters are cleared — input empty and previously filtered roles reappear
-    await waitFor(() => expect(filterInput).toHaveValue(''));
-    await canvas.findByText(storyRoles[2].display_name!, {}, { timeout: 3000 });
-    await canvas.findByText(storyRoles[5].display_name!, {}, { timeout: 3000 });
+      await waitFor(() => expect(filterInput).toHaveValue(''));
+      await canvas.findByText(storyRoles[2].display_name!, {}, { timeout: 3000 });
+      await canvas.findByText(storyRoles[5].display_name!, {}, { timeout: 3000 });
+    });
   },
 };
 
@@ -399,16 +378,16 @@ export const LoadingState: Story = {
       handlers: [...v1RolesLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify loading skeleton is shown
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
+    await step('Verify loading skeleton', async () => {
+      const table = await canvas.findByRole('grid');
+      expect(table).toBeInTheDocument();
 
-    // Look for skeleton elements (they have specific classes or attributes)
-    const skeletons = canvas.queryAllByRole('row');
-    expect(skeletons.length).toBeGreaterThan(1); // Should have header + skeleton rows
+      const skeletons = canvas.queryAllByRole('row');
+      expect(skeletons.length).toBeGreaterThan(1);
+    });
   },
 };
 
@@ -419,22 +398,20 @@ export const EmptyState: Story = {
       handlers: [...v1RolesHandlers([])],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify empty state message is displayed
-    await waitFor(
-      async () => {
-        // Look for empty state indicators
-        expect(canvas.queryByText(storyRoles[0].display_name!)).not.toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify empty state', async () => {
+      await waitFor(
+        async () => {
+          expect(canvas.queryByText(storyRoles[0].display_name!)).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
-    // The empty state should show "No roles available" heading
-    const emptyStateTitle = await canvas.findByRole('heading', { name: /no roles available/i });
-    expect(emptyStateTitle).toBeInTheDocument();
+      const emptyStateTitle = await canvas.findByRole('heading', { name: /no roles available/i });
+      expect(emptyStateTitle).toBeInTheDocument();
+    });
   },
 };
 
@@ -444,16 +421,15 @@ export const ErrorState: Story = {
       handlers: [...v1RolesHandlers([])],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(600);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify component handles API error gracefully with empty state heading
-    const emptyStateTitle = await canvas.findByRole('heading', { name: /no roles available/i });
-    expect(emptyStateTitle).toBeInTheDocument();
+    await step('Verify error state with empty message', async () => {
+      const emptyStateTitle = await canvas.findByRole('heading', { name: /no roles available/i });
+      expect(emptyStateTitle).toBeInTheDocument();
 
-    // Verify no role data is displayed (empty response)
-    expect(canvas.queryByText(storyRoles[0].display_name!)).not.toBeInTheDocument();
-    expect(canvas.queryByText(storyRoles[1].display_name!)).not.toBeInTheDocument();
+      expect(canvas.queryByText(storyRoles[0].display_name!)).not.toBeInTheDocument();
+      expect(canvas.queryByText(storyRoles[1].display_name!)).not.toBeInTheDocument();
+    });
   },
 };

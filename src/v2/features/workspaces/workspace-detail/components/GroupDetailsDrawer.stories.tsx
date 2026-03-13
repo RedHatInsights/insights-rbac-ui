@@ -224,44 +224,45 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify default drawer', async () => {
+      // Initially drawer should be closed
+      await expect(canvas.queryByText('Platform Administrators')).not.toBeInTheDocument();
 
-    // Initially drawer should be closed
-    await expect(canvas.queryByText('Platform Administrators')).not.toBeInTheDocument();
+      // Open drawer by clicking button
+      const openButton = await canvas.findByRole('button', { name: /open group details drawer/i });
+      await userEvent.click(openButton);
 
-    // Open drawer by clicking button
-    const openButton = await canvas.findByRole('button', { name: /open group details drawer/i });
-    await userEvent.click(openButton);
+      // Wait for drawer to open and show group name
+      await canvas.findByText('Platform Administrators');
 
-    // Wait for drawer to open and show group name
-    await canvas.findByText('Platform Administrators');
+      // Verify the "Edit access for this workspace" button is present
+      await canvas.findByRole('button', { name: /edit access for this workspace/i });
 
-    // Verify the "Edit access for this workspace" button is present
-    await canvas.findByRole('button', { name: /edit access for this workspace/i });
+      // Verify tabs are present - Roles tab should be active by default
+      await canvas.findByRole('tab', { name: /roles/i });
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
 
-    // Verify tabs are present - Roles tab should be active by default
-    await canvas.findByRole('tab', { name: /roles/i });
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      // Verify role data loads (roles come from mockGroup.roles, not a separate fetch)
+      await canvas.findByText(mockGroup.roles[0].name);
+      await canvas.findByText(mockGroup.roles[1].name);
 
-    // Verify role data loads (roles come from mockGroup.roles, not a separate fetch)
-    await canvas.findByText(mockGroup.roles[0].name);
-    await canvas.findByText(mockGroup.roles[1].name);
+      const adminRoleLink = await canvas.findByRole('link', { name: mockGroup.roles[0].name });
+      const userManagerRoleLink = await canvas.findByRole('link', { name: mockGroup.roles[1].name });
 
-    const adminRoleLink = await canvas.findByRole('link', { name: mockGroup.roles[0].name });
-    const userManagerRoleLink = await canvas.findByRole('link', { name: mockGroup.roles[1].name });
+      expect(adminRoleLink).toHaveAttribute('href');
+      expect(userManagerRoleLink).toHaveAttribute('href');
+      expect(adminRoleLink.getAttribute('href')).toContain(`/roles/detail/${mockGroup.roles[0].id}`);
+      expect(userManagerRoleLink.getAttribute('href')).toContain(`/roles/detail/${mockGroup.roles[1].id}`);
 
-    expect(adminRoleLink).toHaveAttribute('href');
-    expect(userManagerRoleLink).toHaveAttribute('href');
-    expect(adminRoleLink.getAttribute('href')).toContain(`/roles/detail/${mockGroup.roles[0].id}`);
-    expect(userManagerRoleLink.getAttribute('href')).toContain(`/roles/detail/${mockGroup.roles[1].id}`);
+      await userEvent.click(usersTab);
 
-    await userEvent.click(usersTab);
-
-    // Verify user data loads
-    await canvas.findByText('john.doe');
-    await canvas.findByText('Jane');
-    await canvas.findByText('Doe');
+      // Verify user data loads
+      await canvas.findByText('john.doe');
+      await canvas.findByText('Jane');
+      await canvas.findByText('Doe');
+    });
   },
 };
 
@@ -281,17 +282,16 @@ export const OpenState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify open state', async () => {
+      const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
+      await expect(editAccessButton).toBeInTheDocument();
 
-    // Verify the "Edit access for this workspace" button is present
-    const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
-    await expect(editAccessButton).toBeInTheDocument();
-
-    // Verify close button is present and enabled
-    const closeButton = await canvas.findByRole('button', { name: /close drawer panel/i });
-    await expect(closeButton).toBeInTheDocument();
-    expect(closeButton).not.toBeDisabled();
+      const closeButton = await canvas.findByRole('button', { name: /close drawer panel/i });
+      await expect(closeButton).toBeInTheDocument();
+      expect(closeButton).not.toBeDisabled();
+    });
   },
 };
 
@@ -314,16 +314,16 @@ export const LoadingState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify loading state', async () => {
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      await userEvent.click(usersTab);
 
-    // Switch to Users tab — members are fetched async, so this tab shows a spinner
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    await userEvent.click(usersTab);
-
-    await waitFor(async () => {
-      const spinners = canvas.getAllByLabelText(/loading/i);
-      expect(spinners.length).toBeGreaterThan(0);
+      await waitFor(async () => {
+        const spinners = canvas.getAllByLabelText(/loading/i);
+        expect(spinners.length).toBeGreaterThan(0);
+      });
     });
   },
 };
@@ -349,17 +349,16 @@ export const EmptyState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify empty state', async () => {
+      await canvas.findByText(/currently has no roles assigned/i);
 
-    // Should show empty state messages
-    await canvas.findByText(/currently has no roles assigned/i);
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      await userEvent.click(usersTab);
 
-    // Switch to Users tab to see empty users message
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    await userEvent.click(usersTab);
-
-    await canvas.findByText(/currently has no users assigned/i);
+      await canvas.findByText(/currently has no users assigned/i);
+    });
   },
 };
 
@@ -379,24 +378,25 @@ export const RoleLinks: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify role links', async () => {
+      const adminRoleLink = await canvas.findByRole('link', { name: mockGroup.roles[0].name });
+      const userManagerRoleLink = await canvas.findByRole('link', { name: mockGroup.roles[1].name });
+      await expect(adminRoleLink).toBeInTheDocument();
+      await expect(userManagerRoleLink).toBeInTheDocument();
 
-    const adminRoleLink = await canvas.findByRole('link', { name: mockGroup.roles[0].name });
-    const userManagerRoleLink = await canvas.findByRole('link', { name: mockGroup.roles[1].name });
-    await expect(adminRoleLink).toBeInTheDocument();
-    await expect(userManagerRoleLink).toBeInTheDocument();
+      expect(adminRoleLink).toHaveAttribute('href');
+      expect(userManagerRoleLink).toHaveAttribute('href');
+      expect(adminRoleLink.getAttribute('href')).toContain(`/roles/detail/${mockGroup.roles[0].id}`);
+      expect(userManagerRoleLink.getAttribute('href')).toContain(`/roles/detail/${mockGroup.roles[1].id}`);
 
-    expect(adminRoleLink).toHaveAttribute('href');
-    expect(userManagerRoleLink).toHaveAttribute('href');
-    expect(adminRoleLink.getAttribute('href')).toContain(`/roles/detail/${mockGroup.roles[0].id}`);
-    expect(userManagerRoleLink.getAttribute('href')).toContain(`/roles/detail/${mockGroup.roles[1].id}`);
+      expect(adminRoleLink).toHaveClass('pf-v6-c-button', 'pf-m-link', 'pf-m-inline');
+      expect(userManagerRoleLink).toHaveClass('pf-v6-c-button', 'pf-m-link', 'pf-m-inline');
 
-    expect(adminRoleLink).toHaveClass('pf-v6-c-button', 'pf-m-link', 'pf-m-inline');
-    expect(userManagerRoleLink).toHaveClass('pf-v6-c-button', 'pf-m-link', 'pf-m-inline');
-
-    expect(adminRoleLink).toHaveTextContent(mockGroup.roles[0].name);
-    expect(userManagerRoleLink).toHaveTextContent(mockGroup.roles[1].name);
+      expect(adminRoleLink).toHaveTextContent(mockGroup.roles[0].name);
+      expect(userManagerRoleLink).toHaveTextContent(mockGroup.roles[1].name);
+    });
   },
 };
 
@@ -417,35 +417,36 @@ export const InheritedState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify inherited state', async () => {
+      // Verify subtitle
+      await canvas.findByText(/roles listed here were granted in a parent workspace/i);
 
-    // Verify subtitle
-    await canvas.findByText(/roles listed here were granted in a parent workspace/i);
+      // Verify info alert
+      await canvas.findByText(/editing access to a parent workspace must be done within that workspace/i);
 
-    // Verify info alert
-    await canvas.findByText(/editing access to a parent workspace must be done within that workspace/i);
+      // Verify no "Edit access" or "Remove group" buttons
+      await expect(canvas.queryByRole('button', { name: /edit access for this workspace/i })).not.toBeInTheDocument();
+      await expect(canvas.queryByRole('button', { name: /remove group from workspace/i })).not.toBeInTheDocument();
 
-    // Verify no "Edit access" or "Remove group" buttons
-    await expect(canvas.queryByRole('button', { name: /edit access for this workspace/i })).not.toBeInTheDocument();
-    await expect(canvas.queryByRole('button', { name: /remove group from workspace/i })).not.toBeInTheDocument();
+      // Verify role names are present
+      await canvas.findByText(mockInheritedGroup.roles[0].name);
+      await canvas.findByText(mockInheritedGroup.roles[1].name);
 
-    // Verify role names are present
-    await canvas.findByText(mockInheritedGroup.roles[0].name);
-    await canvas.findByText(mockInheritedGroup.roles[1].name);
+      // Verify workspace links with external icon are present in the inherited-from column
+      const workspaceLinks = await canvas.findAllByText(mockInheritedGroup.inheritedFrom!.workspaceName);
+      await expect(workspaceLinks.length).toBeGreaterThanOrEqual(1);
 
-    // Verify workspace links with external icon are present in the inherited-from column
-    const workspaceLinks = await canvas.findAllByText(mockInheritedGroup.inheritedFrom!.workspaceName);
-    await expect(workspaceLinks.length).toBeGreaterThanOrEqual(1);
-
-    // Verify the alert can be dismissed (scope to the alert container to avoid matching the drawer close button)
-    const alertElement = canvas
-      .getByText(/editing access to a parent workspace must be done within that workspace/i)
-      .closest('.pf-v6-c-alert') as HTMLElement;
-    const closeAlertButton = within(alertElement).getByRole('button', { name: /close/i });
-    await userEvent.click(closeAlertButton);
-    await waitFor(() => {
-      expect(canvas.queryByText(/editing access to a parent workspace must be done within that workspace/i)).not.toBeInTheDocument();
+      // Verify the alert can be dismissed (scope to the alert container to avoid matching the drawer close button)
+      const alertElement = canvas
+        .getByText(/editing access to a parent workspace must be done within that workspace/i)
+        .closest('.pf-v6-c-alert') as HTMLElement;
+      const closeAlertButton = within(alertElement).getByRole('button', { name: /close/i });
+      await userEvent.click(closeAlertButton);
+      await waitFor(() => {
+        expect(canvas.queryByText(/editing access to a parent workspace must be done within that workspace/i)).not.toBeInTheDocument();
+      });
     });
   },
 };

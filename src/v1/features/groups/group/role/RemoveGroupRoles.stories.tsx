@@ -81,27 +81,29 @@ export const Default: Story = {
     onClose: fn(),
     onSubmit: fn(),
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Click trigger button to open modal
-    const triggerButton = await canvas.findByRole('button', { name: /remove role/i });
-    await userEvent.click(triggerButton);
+    await step('Open modal and confirm remove', async () => {
+      // Click trigger button to open modal
+      const triggerButton = await canvas.findByRole('button', { name: /remove role/i });
+      await userEvent.click(triggerButton);
 
-    // Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
+      // Modal renders to document.body via portal
+      const modal = await screen.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
 
-    // Verify modal content
-    expect(within(modal).getByText('Remove role from group?')).toBeInTheDocument();
-    expect(within(modal).getByText(/this action will remove/i)).toBeInTheDocument();
+      // Verify modal content
+      expect(within(modal).getByText('Remove role from group?')).toBeInTheDocument();
+      expect(within(modal).getByText(/this action will remove/i)).toBeInTheDocument();
 
-    // Click confirm button
-    const confirmButton = within(modal).getByRole('button', { name: /remove/i });
-    await userEvent.click(confirmButton);
+      // Click confirm button
+      const confirmButton = within(modal).getByRole('button', { name: /remove/i });
+      await userEvent.click(confirmButton);
 
-    // Verify callback was called
-    expect(args.onSubmit).toHaveBeenCalled();
+      // Verify callback was called
+      expect(args.onSubmit).toHaveBeenCalled();
+    });
   },
 };
 
@@ -115,35 +117,37 @@ export const DefaultGroupUnchanged: Story = {
     onClose: fn(),
     onSubmit: fn(),
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement, args, step }) => {
     const canvas = within(canvasElement);
 
-    // Open modal
-    const triggerButton = await canvas.findByRole('button', { name: /remove role/i });
-    await userEvent.click(triggerButton);
+    await step('Open modal and complete default group flow', async () => {
+      // Open modal
+      const triggerButton = await canvas.findByRole('button', { name: /remove role/i });
+      await userEvent.click(triggerButton);
 
-    // Should show WarningModal first
-    const warningModal = await screen.findByRole('dialog');
-    expect(within(warningModal).getByText('Remove role from default group?')).toBeInTheDocument();
+      // Should show WarningModal first
+      const warningModal = await screen.findByRole('dialog');
+      expect(within(warningModal).getByText('Remove role from default group?')).toBeInTheDocument();
 
-    // Click confirm on WarningModal (this sets showConfirmModal=true)
-    const confirmButton = within(warningModal).getByRole('button', { name: /remove/i });
-    await userEvent.click(confirmButton);
+      // Click confirm on WarningModal (this sets showConfirmModal=true)
+      const confirmButton = within(warningModal).getByRole('button', { name: /remove/i });
+      await userEvent.click(confirmButton);
 
-    // Now should show DefaultGroupChangeModal with checkbox
-    const changeModal = await screen.findByRole('dialog');
-    expect(changeModal).toBeInTheDocument();
+      // Now should show DefaultGroupChangeModal with checkbox
+      const changeModal = await screen.findByRole('dialog');
+      expect(changeModal).toBeInTheDocument();
 
-    // Find and check the required checkbox first
-    const checkbox = within(changeModal).getByRole('checkbox');
-    await userEvent.click(checkbox);
+      // Find and check the required checkbox first
+      const checkbox = within(changeModal).getByRole('checkbox');
+      await userEvent.click(checkbox);
 
-    // Now find and click the "Continue" button in DefaultGroupChangeModal
-    const continueButton = within(changeModal).getByRole('button', { name: /continue/i });
-    await userEvent.click(continueButton);
+      // Now find and click the "Continue" button in DefaultGroupChangeModal
+      const continueButton = within(changeModal).getByRole('button', { name: /continue/i });
+      await userEvent.click(continueButton);
 
-    // onSubmit should be called after the DefaultGroupChangeModal confirms
-    expect(args.onSubmit).toHaveBeenCalled();
+      // onSubmit should be called after the DefaultGroupChangeModal confirms
+      expect(args.onSubmit).toHaveBeenCalled();
+    });
   },
 };
 
@@ -157,13 +161,15 @@ export const ClosedState: Story = {
     onClose: fn(),
     onSubmit: fn(),
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Should show trigger button but no modal
-    expect(await canvas.findByRole('button', { name: /remove role/i })).toBeInTheDocument();
+    await step('Verify closed state', async () => {
+      // Should show trigger button but no modal
+      expect(await canvas.findByRole('button', { name: /remove role/i })).toBeInTheDocument();
 
-    // No modal should be present initially
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      // No modal should be present initially
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
   },
 };

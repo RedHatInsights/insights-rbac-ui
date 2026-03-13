@@ -1,5 +1,5 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
 import { fillCopyRoleWizard } from '../../v1/features/roles/CopyRole.helpers';
 import { fillCreateRoleWizard } from '../../v1/features/roles/CreateRole.helpers';
 import { createInventoryHandlers } from '../../v1/data/mocks/inventory.handlers';
@@ -18,6 +18,9 @@ import {
   mswHandlers,
   navigateToPage,
   resetStoryState,
+  selectTableRow,
+  waitForDrawer,
+  waitForModal,
   waitForPageToLoad,
 } from './_v2OrgAdminSetup';
 
@@ -66,35 +69,42 @@ Tests the full flow of creating a role from scratch in the V2 environment.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Navigate to Roles page
-    await navigateToPage(user, canvas, 'Roles');
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Wait for roles list to load
-    await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Click "Create role" button
-    const createButton = await canvas.findByRole('button', { name: /create role/i });
-    await user.click(createButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
+    });
 
-    // Fill and submit the wizard
-    await fillCreateRoleWizard(user, 'V2 Automation Test Role', 'A test custom role for V2 automation', ['insights:*:*']);
+    await step('Open create role wizard', async () => {
+      const createButton = await canvas.findByRole('button', { name: /create role/i });
+      await user.click(createButton);
+    });
 
-    // Verify we're back on the roles list and the new role appears
-    await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
+    await step('Fill and submit wizard', async () => {
+      await fillCreateRoleWizard(user, 'V2 Automation Test Role', 'A test custom role for V2 automation', ['insights:*:*'], step);
+    });
 
-    // CRITICAL: Verify the newly created role appears in the table
-    await waitFor(
-      () => {
-        expect(canvas.getByText('V2 Automation Test Role')).toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+    await step('Verify new role appears in table', async () => {
+      await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
+
+      await waitFor(
+        () => {
+          expect(canvas.getByText('V2 Automation Test Role')).toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
   },
 };
 
@@ -148,38 +158,39 @@ Tests the full flow of creating a role by copying an existing one in V2.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    // Navigate to Roles page
-    await navigateToPage(user, canvas, 'Roles');
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Wait for roles list to load
-    await waitForPageToLoad(canvas, V2_ROLE_RHEL_DEVOPS.name!);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Click "Create role" button
-    const createButton = await canvas.findByRole('button', { name: /create role/i });
-    await user.click(createButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Navigate to Roles page', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V2_ROLE_RHEL_DEVOPS.name!);
+    });
 
-    // Fill the copy role wizard - uses default "Copy of RHEL DevOps" name
-    // CRITICAL: This tests that the Next button becomes enabled after async validation
-    await fillCopyRoleWizard(user, V2_ROLE_RHEL_DEVOPS.name!);
+    await step('Open create role wizard and fill copy wizard', async () => {
+      const createButton = await canvas.findByRole('button', { name: /create role/i });
+      await user.click(createButton);
+      await fillCopyRoleWizard(user, V2_ROLE_RHEL_DEVOPS.name!, step);
+    });
 
-    // Verify we're back on the roles list and the new role appears
-    await waitForPageToLoad(canvas, V2_ROLE_RHEL_DEVOPS.name!);
+    await step('Verify copied role appears in table', async () => {
+      await waitForPageToLoad(canvas, V2_ROLE_RHEL_DEVOPS.name!);
 
-    // CRITICAL: Verify the newly created role appears in the table
-    // This confirms the wizard completed successfully and the role was created
-    // V2_ROLE_RHEL_DEVOPS.name is "RHEL DevOps", so copy is "Copy of RHEL DevOps"
-    await waitFor(
-      () => {
-        expect(canvas.getByText('Copy of RHEL DevOps')).toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+      await waitFor(
+        () => {
+          expect(canvas.getByText('Copy of RHEL DevOps')).toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
   },
 };
 
@@ -207,70 +218,65 @@ Tests bulk delete of multiple roles from the Roles table with API spy verificati
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    batchDeleteRolesSpy.mockClear();
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+      batchDeleteRolesSpy.mockClear();
+    });
 
-    const table = await canvas.findByRole('grid');
-    const rhelDevOpsCell = await within(table).findByText(V2_ROLE_RHEL_DEVOPS.name!);
-    const rhelDevOpsRow = rhelDevOpsCell.closest('tr') as HTMLElement;
-    const rhelDevOpsCheckbox = rhelDevOpsRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await expect(rhelDevOpsCheckbox).toBeInTheDocument();
-    await user.click(rhelDevOpsCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const workspaceAdminCell = await within(table).findByText(KESSEL_ROLE_WS_ADMIN.name!);
-    const workspaceAdminRow = workspaceAdminCell.closest('tr') as HTMLElement;
-    const workspaceAdminCheckbox = workspaceAdminRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await expect(workspaceAdminCheckbox).toBeInTheDocument();
-    await user.click(workspaceAdminCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Navigate to Roles and select rows', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
 
-    const actionsKebab = await canvas.findByRole('button', { name: /actions overflow menu/i });
-    await user.click(actionsKebab);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+      const table = await canvas.findByRole('grid');
+      const tableScope = within(table);
+      await selectTableRow(user, tableScope, V2_ROLE_RHEL_DEVOPS.name!);
+      await selectTableRow(user, tableScope, KESSEL_ROLE_WS_ADMIN.name!);
+    });
 
-    const deleteRoleItem = await within(document.body).findByRole('menuitem', { name: /delete role/i });
-    await user.click(deleteRoleItem);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Open delete modal and confirm', async () => {
+      const actionsKebab = await canvas.findByRole('button', { name: /actions overflow menu/i });
+      await user.click(actionsKebab);
 
-    const dialog = await within(document.body).findByRole('dialog', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-    await expect(dialog).toBeInTheDocument();
+      const deleteRoleItem = await within(document.body).findByRole('menuitem', { name: /delete role/i });
+      await user.click(deleteRoleItem);
 
-    const understandCheckbox = within(dialog).queryByRole('checkbox');
-    if (understandCheckbox) {
-      await user.click(understandCheckbox);
-      await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    }
+      const modal = await waitForModal();
 
-    const deleteButton = await within(dialog).findByRole('button', { name: /delete/i });
-    await expect(deleteButton).toBeEnabled();
-    await user.click(deleteButton);
+      const understandCheckbox = modal.queryByRole('checkbox');
+      if (understandCheckbox) {
+        await user.click(understandCheckbox);
+      }
 
-    // Verify API spy was called
-    await waitFor(
-      () => {
-        expect(batchDeleteRolesSpy).toHaveBeenCalledTimes(1);
-      },
-      { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
-    );
+      const deleteButton = await modal.findByRole('button', { name: /delete/i });
+      await expect(deleteButton).toBeEnabled();
+      await user.click(deleteButton);
+    });
 
-    // onBatchDelete spy receives (body.ids) as first arg, not the full body
-    expect(batchDeleteRolesSpy).toHaveBeenCalledWith(expect.arrayContaining([expect.any(String)]));
+    await step('Verify API spy and table update', async () => {
+      await waitFor(
+        () => {
+          expect(batchDeleteRolesSpy).toHaveBeenCalledTimes(1);
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
 
-    // Verify deleted roles are removed from the table
-    await waitFor(
-      () => {
-        expect(canvas.queryByText(V2_ROLE_RHEL_DEVOPS.name!)).not.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+      expect(batchDeleteRolesSpy).toHaveBeenCalledWith(expect.arrayContaining([expect.any(String)]));
+
+      await waitFor(
+        () => {
+          expect(canvas.queryByText(V2_ROLE_RHEL_DEVOPS.name!)).not.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
   },
 };
 
@@ -296,37 +302,44 @@ Tests editing a role from the toolbar when exactly one role is selected.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    const table = await canvas.findByRole('grid');
-    const rhelDevOpsCell = await within(table).findByText(V2_ROLE_RHEL_DEVOPS.name!);
-    const rhelDevOpsRow = rhelDevOpsCell.closest('tr') as HTMLElement;
-    const rhelDevOpsCheckbox = rhelDevOpsRow?.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    await user.click(rhelDevOpsCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    const actionsKebab = await canvas.findByRole('button', { name: /actions overflow menu/i });
-    await user.click(actionsKebab);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    const editRoleItem = await within(document.body).findByRole('menuitem', { name: /edit role/i });
-    await user.click(editRoleItem);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
-
-    await waitFor(() => {
-      const addressBar = canvas.getByTestId('fake-address-bar');
-      expect(addressBar).toHaveTextContent(/\/edit\//);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
     });
 
-    await waitFor(() => {
-      expect(canvas.getByDisplayValue(V2_ROLE_RHEL_DEVOPS.name!)).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Navigate to Roles and select role', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
+
+      const table = await canvas.findByRole('grid');
+      const tableScope = within(table);
+      await selectTableRow(user, tableScope, V2_ROLE_RHEL_DEVOPS.name!);
+    });
+
+    await step('Click edit role from toolbar', async () => {
+      const actionsKebab = await canvas.findByRole('button', { name: /actions overflow menu/i });
+      await user.click(actionsKebab);
+
+      const editRoleItem = await within(document.body).findByRole('menuitem', { name: /edit role/i });
+      await user.click(editRoleItem);
+    });
+
+    await step('Verify navigation to edit page and form', async () => {
+      await waitFor(() => {
+        const addressBar = canvas.getByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/\/edit\//);
+      });
+
+      await waitFor(() => {
+        expect(canvas.getByDisplayValue(V2_ROLE_RHEL_DEVOPS.name!)).toBeInTheDocument();
+      });
     });
   },
 };
@@ -351,39 +364,41 @@ Tests the role drawer's Assigned user groups tab with actual data verification.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    await navigateToPage(user, canvas, 'Roles');
-    await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    // Click Workspace Viewer — it has kessel-role-2 which is bound in multiple workspaces
-    const roleLink = await canvas.findByText(KESSEL_ROLE_WS_VIEWER.name!);
-    await user.click(roleLink);
-    await delay(TEST_TIMEOUTS.AFTER_DRAWER_OPEN);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement;
-    await expect(drawerPanel).toBeInTheDocument();
+    await step('Navigate to Roles and open role drawer', async () => {
+      await navigateToPage(user, canvas, 'Roles');
+      await waitForPageToLoad(canvas, V2_ROLE_INVENTORY_VIEWER.name!);
 
-    const drawer = within(drawerPanel);
-    await expect(drawer.findByRole('heading', { name: /Workspace Viewer/i })).resolves.toBeInTheDocument();
+      const roleLink = await canvas.findByText(KESSEL_ROLE_WS_VIEWER.name!);
+      await user.click(roleLink);
+    });
 
-    const assignedGroupsTab = await drawer.findByRole('tab', { name: /assigned user groups/i });
-    await user.click(assignedGroupsTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    await expect(assignedGroupsTab).toHaveAttribute('aria-selected', 'true');
+    await step('Switch to Assigned user groups tab and verify data', async () => {
+      const drawer = await waitForDrawer();
+      await expect(drawer.findByRole('heading', { name: /Workspace Viewer/i })).resolves.toBeInTheDocument();
 
-    // Verify group data from role bindings (kessel-role-2 is assigned to Production Admins and Viewers)
-    // Search within drawer — GET /role-bindings/?role_id= returns RoleBindingsRoleBinding[] with subject.group.name
-    await waitFor(
-      async () => {
-        await expect(drawer.findByText(KESSEL_GROUP_PROD_ADMINS.name)).resolves.toBeInTheDocument();
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
-    await expect(drawer.findByText(KESSEL_GROUP_VIEWERS.name)).resolves.toBeInTheDocument();
+      const assignedGroupsTab = await drawer.findByRole('tab', { name: /assigned user groups/i });
+      await user.click(assignedGroupsTab);
+      await waitFor(() => expect(assignedGroupsTab).toHaveAttribute('aria-selected', 'true'));
+
+      await waitFor(
+        async () => {
+          await expect(drawer.findByText(KESSEL_GROUP_PROD_ADMINS.name)).resolves.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+      await expect(drawer.findByText(KESSEL_GROUP_VIEWERS.name)).resolves.toBeInTheDocument();
+    });
   },
 };

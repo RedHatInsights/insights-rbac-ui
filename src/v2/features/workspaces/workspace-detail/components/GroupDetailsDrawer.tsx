@@ -396,7 +396,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
       <DrawerContent
         panelContent={
           group ? (
-            <DrawerPanelContent>
+            <DrawerPanelContent data-testid="detail-drawer-panel">
               <DrawerHead>
                 <Title headingLevel="h2" size="lg">
                   {group.name}

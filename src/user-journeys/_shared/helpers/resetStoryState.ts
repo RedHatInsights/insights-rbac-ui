@@ -1,5 +1,5 @@
 import { delay } from 'msw';
-import { TEST_TIMEOUTS } from './testUtils';
+import { TEST_TIMEOUTS } from '../../../test-utils/testUtils';
 
 /**
  * Verify MSW handlers are ready by making a test request.
@@ -9,12 +9,15 @@ import { TEST_TIMEOUTS } from './testUtils';
 async function verifyMswReady(maxAttempts = 5): Promise<void> {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const response = await fetch('/api/rbac/v1/groups/?limit=1');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3_000);
+      const response = await fetch('/api/rbac/v1/groups/?limit=1', { signal: controller.signal });
+      clearTimeout(timeoutId);
       if (response.ok) {
         return; // MSW is ready
       }
     } catch {
-      // Network error - MSW not ready yet
+      // Network error or abort — MSW not ready yet
     }
 
     if (attempt < maxAttempts) {

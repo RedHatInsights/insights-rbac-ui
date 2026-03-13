@@ -17,44 +17,49 @@ type Story = StoryObj;
 
 export const WithGroups: Story = {
   render: () => <AssignedUserGroupsTable groups={sampleGroups} />,
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify with groups', async () => {
+      const table = await canvas.findByRole('grid');
+      await expect(table).toBeInTheDocument();
 
-    const table = await canvas.findByRole('grid');
-    await expect(table).toBeInTheDocument();
+      // Column headers (match intl defaultMessage)
+      await expect(canvas.findByText('User group')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Workspace assignment (TBD)')).resolves.toBeInTheDocument();
 
-    // Column headers (match intl defaultMessage)
-    await expect(canvas.findByText('User group')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Workspace assignment (TBD)')).resolves.toBeInTheDocument();
+      // Verify cell data
+      await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Default workspace')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Developers')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Production workspace')).resolves.toBeInTheDocument();
 
-    // Verify cell data
-    await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Default workspace')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Developers')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Production workspace')).resolves.toBeInTheDocument();
-
-    // 2 data rows + 1 header row = 3
-    const rows = within(table).getAllByRole('row');
-    await expect(rows.length).toBe(3);
+      // 2 data rows + 1 header row = 3
+      const rows = within(table).getAllByRole('row');
+      await expect(rows.length).toBe(3);
+    });
   },
 };
 
 export const Empty: Story = {
   render: () => <AssignedUserGroupsTable groups={[]} />,
-  play: async ({ canvasElement }) => {
-    await waitFor(() => {
-      const dataRows = canvasElement.querySelectorAll('tbody tr');
-      expect(dataRows.length).toBe(0);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify empty', async () => {
+      await waitFor(() => {
+        const dataRows = canvasElement.querySelectorAll('tbody tr');
+        expect(dataRows.length).toBe(0);
+      });
     });
   },
 };
 
 export const Loading: Story = {
   render: () => <AssignedUserGroupsTable groups={undefined} />,
-  play: async ({ canvasElement }) => {
-    await waitFor(() => {
-      const skeletons = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
-      expect(skeletons.length).toBeGreaterThan(0);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify loading', async () => {
+      await waitFor(() => {
+        const skeletons = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
+        expect(skeletons.length).toBeGreaterThan(0);
+      });
     });
   },
 };

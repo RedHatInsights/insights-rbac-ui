@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, waitFor, within } from 'storybook/test';
+import type { ScopedQueries } from '../../../test-utils/interactionHelpers';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { OrganizationManagement } from './OrganizationManagement';
@@ -260,7 +261,7 @@ type OrgExpectations = {
   orgId: string;
 };
 
-const expectOrgDetails = async (canvas: ReturnType<typeof within>, exp: OrgExpectations) => {
+const expectOrgDetails = async (canvas: ScopedQueries, exp: OrgExpectations) => {
   // Always expect the main heading
   await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
 
@@ -301,24 +302,25 @@ export const Default: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify default', async () => {
+      // Test main page structure
+      await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Grant organization-level access to users and groups.')).resolves.toBeInTheDocument();
 
-    // Test main page structure
-    await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Grant organization-level access to users and groups.')).resolves.toBeInTheDocument();
+      // Test minimal organization data scenario
+      await expectOrgDetails(canvas, {
+        orgId: 'org-minimal',
+        name: null,
+        account: null,
+      });
 
-    // Test minimal organization data scenario
-    await expectOrgDetails(canvas, {
-      orgId: 'org-minimal',
-      name: null,
-      account: null,
-    });
-
-    // Wait for table to render (should be empty in default state) - PatternFly uses 'grid' role
-    await waitFor(() => {
-      const table = canvas.getByRole('grid');
-      expect(table).toBeInTheDocument();
+      // Wait for table to render (should be empty in default state) - PatternFly uses 'grid' role
+      await waitFor(() => {
+        const table = canvas.getByRole('grid');
+        expect(table).toBeInTheDocument();
+      });
     });
   },
 };
@@ -333,42 +335,43 @@ export const WithFullOrganizationData: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify full org data', async () => {
+      // Test page structure
+      await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
 
-    // Test page structure
-    await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
+      // Test full organization data scenario
+      await expectOrgDetails(canvas, {
+        name: 'Red Hat Test Organization',
+        account: '123456789',
+        orgId: 'org-987654321',
+      });
 
-    // Test full organization data scenario
-    await expectOrgDetails(canvas, {
-      name: 'Red Hat Test Organization',
-      account: '123456789',
-      orgId: 'org-987654321',
+      // Wait for role bindings table to load - PatternFly uses 'grid' role for interactive tables
+      await waitFor(() => {
+        const table = canvas.getByRole('grid');
+        expect(table).toBeInTheDocument();
+      });
+
+      // Test that role bindings data is displayed
+      await waitFor(() => {
+        // Check that table rows are present (header + 5 data rows)
+        const rows = canvas.getAllByRole('row');
+        expect(rows).toHaveLength(6); // 1 header + 5 data rows
+      });
+
+      // Test specific group data from our mock
+      await expect(canvas.findByText('Engineering Team')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Quality Assurance')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Product Management')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Security Team')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Customer Support')).resolves.toBeInTheDocument();
+
+      // Test member counts are displayed correctly
+      await expect(canvas.findByText('25')).resolves.toBeInTheDocument(); // Engineering Team members
+      await expect(canvas.findByText('12')).resolves.toBeInTheDocument(); // QA team members
     });
-
-    // Wait for role bindings table to load - PatternFly uses 'grid' role for interactive tables
-    await waitFor(() => {
-      const table = canvas.getByRole('grid');
-      expect(table).toBeInTheDocument();
-    });
-
-    // Test that role bindings data is displayed
-    await waitFor(() => {
-      // Check that table rows are present (header + 5 data rows)
-      const rows = canvas.getAllByRole('row');
-      expect(rows).toHaveLength(6); // 1 header + 5 data rows
-    });
-
-    // Test specific group data from our mock
-    await expect(canvas.findByText('Engineering Team')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Quality Assurance')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Product Management')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Security Team')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Customer Support')).resolves.toBeInTheDocument();
-
-    // Test member counts are displayed correctly
-    await expect(canvas.findByText('25')).resolves.toBeInTheDocument(); // Engineering Team members
-    await expect(canvas.findByText('12')).resolves.toBeInTheDocument(); // QA team members
   },
 };
 
@@ -381,17 +384,18 @@ export const WithPartialOrganizationData: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify partial org data', async () => {
+      // Test page structure
+      await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
 
-    // Test page structure
-    await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
-
-    // Test partial organization data scenario
-    await expectOrgDetails(canvas, {
-      orgId: 'org-987654321',
-      name: null,
-      account: null,
+      // Test partial organization data scenario
+      await expectOrgDetails(canvas, {
+        orgId: 'org-987654321',
+        name: null,
+        account: null,
+      });
     });
   },
 };
@@ -405,23 +409,24 @@ export const AccessibilityCheck: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify accessibility', async () => {
+      // Test semantic structure
+      await expect(canvas.findByRole('heading')).resolves.toBeInTheDocument();
 
-    // Test semantic structure
-    await expect(canvas.findByRole('heading')).resolves.toBeInTheDocument();
+      // Wait for organization data to load - component shows actual organization name
+      await expect(canvas.findByText('Red Hat Test Organization')).resolves.toBeInTheDocument();
 
-    // Wait for organization data to load - component shows actual organization name
-    await expect(canvas.findByText('Red Hat Test Organization')).resolves.toBeInTheDocument();
+      // Test that content is properly structured when data is available
+      const organizationDetails = canvas.getAllByText(/Organization name:|Account number:|Organization ID:/);
+      expect(organizationDetails).toHaveLength(3);
 
-    // Test that content is properly structured when data is available
-    const organizationDetails = canvas.getAllByText(/Organization name:|Account number:|Organization ID:/);
-    expect(organizationDetails).toHaveLength(3);
-
-    // Verify proper text content structure
-    await expect(canvas.findByText(/Organization name:/)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/Account number:/)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/Organization ID:/)).resolves.toBeInTheDocument();
+      // Verify proper text content structure
+      await expect(canvas.findByText(/Organization name:/)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/Account number:/)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/Organization ID:/)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -434,23 +439,24 @@ export const ContentValidation: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify content', async () => {
+      // Verify subtitle content
+      const subtitle = await canvas.findByText('Grant organization-level access to users and groups.');
+      expect(subtitle).toBeInTheDocument();
 
-    // Verify subtitle content
-    const subtitle = await canvas.findByText('Grant organization-level access to users and groups.');
-    expect(subtitle).toBeInTheDocument();
+      // Use shared helper to validate all organization content
+      await expectOrgDetails(canvas, {
+        name: 'Red Hat Test Organization',
+        account: '123456789',
+        orgId: 'org-987654321',
+      });
 
-    // Use shared helper to validate all organization content
-    await expectOrgDetails(canvas, {
-      name: 'Red Hat Test Organization',
-      account: '123456789',
-      orgId: 'org-987654321',
+      // Verify organization details structure when data is available
+      const organizationSection = canvas.getByText('Organization name:').closest('div');
+      expect(organizationSection).toBeInTheDocument();
     });
-
-    // Verify organization details structure when data is available
-    const organizationSection = canvas.getByText('Organization name:').closest('div');
-    expect(organizationSection).toBeInTheDocument();
   },
 };
 
@@ -461,71 +467,72 @@ export const WithRoleBindingsTableTest: Story = {
     ...withRoleBindings(mockRoleBindingsResponse),
     ...withStoryDescription('Tests the role bindings table functionality with comprehensive mock data.'),
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify role bindings table', async () => {
+      // Wait for the component to load
+      await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
 
-    // Wait for the component to load
-    await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
+      // Wait for organization data to be loaded first (API calls depend on organizationId)
+      await waitFor(() => {
+        expect(canvas.getByText('org-987654321')).toBeInTheDocument();
+      });
 
-    // Wait for organization data to be loaded first (API calls depend on organizationId)
-    await waitFor(() => {
-      expect(canvas.getByText('org-987654321')).toBeInTheDocument();
+      // Give the component time to fetch and process role bindings data
+      await waitFor(
+        () => {
+          // Check if we have any table content - look for the table grid first
+          const tables = canvas.queryAllByRole('grid');
+          expect(tables.length).toBeGreaterThan(0);
+        },
+        { timeout: 15000 },
+      );
+
+      // Once we have the table, wait for data to populate
+      await waitFor(
+        () => {
+          // Look for specific data from our mock response
+          expect(canvas.getByText('Engineering Team')).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
+
+      // Test table headers are present
+      await expect(canvas.findByText('User group')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Description')).resolves.toBeInTheDocument();
+
+      // Now test table functionality - all group names should be visible
+      await expect(canvas.findByText('Quality Assurance')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Product Management')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Security Team')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Customer Support')).resolves.toBeInTheDocument();
+
+      // Test that group descriptions are displayed (truncated in table)
+      await expect(canvas.findByText(/Development and engi.*/)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/QA team responsible.*/)).resolves.toBeInTheDocument();
+
+      // Test member counts from our mock data
+      await expect(canvas.findByText('25')).resolves.toBeInTheDocument(); // Engineering Team
+      await expect(canvas.findByText('12')).resolves.toBeInTheDocument(); // Quality Assurance
+      await expect(canvas.findByText('8')).resolves.toBeInTheDocument(); // Product Management
+      await expect(canvas.findByText('6')).resolves.toBeInTheDocument(); // Security Team
+      await expect(canvas.findByText('18')).resolves.toBeInTheDocument(); // Customer Support
+
+      // Test role counts from our mock data - check that values appear in table
+      const roleCountElements = canvas.getAllByText('2');
+      expect(roleCountElements.length).toBeGreaterThanOrEqual(3); // Engineering Team, Product Management, Customer Support all have 2 roles
+
+      const singleRoleElements = canvas.getAllByText('1');
+      expect(singleRoleElements.length).toBeGreaterThanOrEqual(2); // Quality Assurance and Security Team have 1 role
+
+      // Test table structure - check for rows
+      const rows = canvas.getAllByRole('row');
+      expect(rows.length).toBeGreaterThanOrEqual(6); // 1 header + 5 data rows (may have more due to pagination)
+
+      // Test pagination is present by looking for pagination controls
+      const paginationElements = canvas.getAllByText('of');
+      expect(paginationElements.length).toBeGreaterThan(0); // Should have pagination "of" text somewhere
     });
-
-    // Give the component time to fetch and process role bindings data
-    await waitFor(
-      () => {
-        // Check if we have any table content - look for the table grid first
-        const tables = canvas.queryAllByRole('grid');
-        expect(tables.length).toBeGreaterThan(0);
-      },
-      { timeout: 15000 },
-    );
-
-    // Once we have the table, wait for data to populate
-    await waitFor(
-      () => {
-        // Look for specific data from our mock response
-        expect(canvas.getByText('Engineering Team')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
-
-    // Test table headers are present
-    await expect(canvas.findByText('User group')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Description')).resolves.toBeInTheDocument();
-
-    // Now test table functionality - all group names should be visible
-    await expect(canvas.findByText('Quality Assurance')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Product Management')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Security Team')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Customer Support')).resolves.toBeInTheDocument();
-
-    // Test that group descriptions are displayed (truncated in table)
-    await expect(canvas.findByText(/Development and engi.*/)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/QA team responsible.*/)).resolves.toBeInTheDocument();
-
-    // Test member counts from our mock data
-    await expect(canvas.findByText('25')).resolves.toBeInTheDocument(); // Engineering Team
-    await expect(canvas.findByText('12')).resolves.toBeInTheDocument(); // Quality Assurance
-    await expect(canvas.findByText('8')).resolves.toBeInTheDocument(); // Product Management
-    await expect(canvas.findByText('6')).resolves.toBeInTheDocument(); // Security Team
-    await expect(canvas.findByText('18')).resolves.toBeInTheDocument(); // Customer Support
-
-    // Test role counts from our mock data - check that values appear in table
-    const roleCountElements = canvas.getAllByText('2');
-    expect(roleCountElements.length).toBeGreaterThanOrEqual(3); // Engineering Team, Product Management, Customer Support all have 2 roles
-
-    const singleRoleElements = canvas.getAllByText('1');
-    expect(singleRoleElements.length).toBeGreaterThanOrEqual(2); // Quality Assurance and Security Team have 1 role
-
-    // Test table structure - check for rows
-    const rows = canvas.getAllByRole('row');
-    expect(rows.length).toBeGreaterThanOrEqual(6); // 1 header + 5 data rows (may have more due to pagination)
-
-    // Test pagination is present by looking for pagination controls
-    const paginationElements = canvas.getAllByText('of');
-    expect(paginationElements.length).toBeGreaterThan(0); // Should have pagination "of" text somewhere
   },
 };
 
@@ -543,24 +550,25 @@ export const EmptyRoleBindingsState: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify empty role bindings', async () => {
+      // Wait for the component to load
+      await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
 
-    // Wait for the component to load
-    await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
+      // Wait for organization data to load first
+      await waitFor(() => {
+        expect(canvas.getByText('org-987654321')).toBeInTheDocument();
+      });
 
-    // Wait for organization data to load first
-    await waitFor(() => {
-      expect(canvas.getByText('org-987654321')).toBeInTheDocument();
+      // Wait for empty state to appear
+      await expect(canvas.findByText('No user group found')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('There is no data to display.')).resolves.toBeInTheDocument();
+
+      // Verify empty state is shown instead of populated table
+      expect(canvas.queryByText('Engineering Team')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Quality Assurance')).not.toBeInTheDocument();
     });
-
-    // Wait for empty state to appear
-    await expect(canvas.findByText('No user group found')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('There is no data to display.')).resolves.toBeInTheDocument();
-
-    // Verify empty state is shown instead of populated table
-    expect(canvas.queryByText('Engineering Team')).not.toBeInTheDocument();
-    expect(canvas.queryByText('Quality Assurance')).not.toBeInTheDocument();
   },
 };
 

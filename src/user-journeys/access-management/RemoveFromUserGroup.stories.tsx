@@ -15,7 +15,10 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import { confirmDestructiveModal, waitForContentReady, waitForModal } from '../../test-utils/interactionHelpers';
+import { waitForPageToLoad } from '../../test-utils/tableHelpers';
 import { v2DefaultHandlers } from './_shared';
 import { mockGroups, mockUsers, userGroupsMembership } from './_shared/mockData';
 
@@ -75,7 +78,6 @@ const removeMembersHandler = http.delete('/api/rbac/v1/groups/:uuid/principals/'
   const removedSet = removedMemberships.get(groupId)!;
   usernames.forEach((username) => removedSet.add(username));
 
-  console.log(`SB: MSW: Removed ${usernames.join(', ')} from group ${groupId}`);
   return new HttpResponse(null, { status: 204 });
 });
 
@@ -265,82 +267,74 @@ Tests the complete "Remove from user group" workflow:
       },
     },
   },
-  play: async (context) => {
-    // 1. SETUP
-    await resetStoryState();
-    resetMutableState();
-    removeMembersSpy.mockClear();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
-
-    // Wait for page to load
-    await waitForPageToLoad(canvas, TARGET_USER.username);
-
-    // 2. VISUAL VERIFICATION: Initial state
-    // Find the target user row and verify User groups count is 2
-    const usersTable = await canvas.findByRole('grid');
-    const userRow = await within(usersTable).findByText(TARGET_USER.username);
-    expect(userRow).toBeInTheDocument();
-
-    const userRowElement = userRow.closest('tr')!;
-    // Verify initial user groups count is 2
-    expect(within(userRowElement).getByText('2')).toBeInTheDocument();
-
-    // 3. OPEN ROW KEBAB MENU
-    const kebabButton = within(userRowElement).getByRole('button', { name: /actions/i });
-    await user.click(kebabButton);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // 4. CLICK "REMOVE FROM USER GROUP" in row kebab
-    const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
-    await user.click(removeOption);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // 5. VERIFY MODAL OPENS
-    const modal = await within(document.body).findByRole('dialog');
-    expect(modal).toBeInTheDocument();
-    const modalScope = within(modal);
-
-    // Verify modal title
-    await expect(modalScope.findByText(/remove.*from.*user group/i)).resolves.toBeInTheDocument();
-
-    // 6. SELECT GROUP TO REMOVE FROM
-    // Find the Spice girls group checkbox
-    const spiceGirlsCheckbox = await modalScope.findByRole('checkbox', { name: /spice girls/i });
-    await user.click(spiceGirlsCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // 7. CHECK CONFIRMATION CHECKBOX
-    const confirmCheckbox = await modalScope.findByRole('checkbox', { name: /understand|irreversible/i });
-    await user.click(confirmCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // 8. CLICK REMOVE BUTTON
-    const removeButton = await modalScope.findByRole('button', { name: /^remove$/i });
-    expect(removeButton).not.toBeDisabled();
-    await user.click(removeButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // 9. API VERIFICATION
-    expect(removeMembersSpy).toHaveBeenCalled();
-    expect(removeMembersSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        groupId: TARGET_GROUP.uuid,
-        usernames: expect.arrayContaining([TARGET_USER.username]),
-      }),
-    );
-
-    // 10. VERIFY MODAL CLOSED
-    await waitFor(() => {
-      expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
+    await step('Reset state', async () => {
+      await resetStoryState();
+      resetMutableState();
+      removeMembersSpy.mockClear();
     });
 
-    // 11. VISUAL VERIFICATION: User groups count decreased to 1
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-    const updatedUserRow = await within(usersTable).findByText(TARGET_USER.username);
-    const updatedRowElement = updatedUserRow.closest('tr')!;
-    expect(within(updatedRowElement).getByText('1')).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and verify initial user groups count', async () => {
+      await waitForPageToLoad(canvas, TARGET_USER.username);
+      const usersTable = await canvas.findByRole('grid');
+      const userRow = await within(usersTable).findByText(TARGET_USER.username);
+      expect(userRow).toBeInTheDocument();
+      const userRowElement = userRow.closest('tr')!;
+      await expect(within(userRowElement).findByText('2')).resolves.toBeInTheDocument();
+    });
+
+    await step('Open kebab menu and click remove from user group', async () => {
+      const usersTable = await canvas.findByRole('grid');
+      const userRow = await within(usersTable).findByText(TARGET_USER.username);
+      const userRowElement = userRow.closest('tr')!;
+      const kebabButton = await within(userRowElement).findByRole('button', { name: /actions/i });
+      await user.click(kebabButton);
+      const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
+      await user.click(removeOption);
+    });
+
+    await step('Select group and confirm removal', async () => {
+      const modalScope = await waitForModal();
+      await expect(modalScope.findByText(/remove.*from.*user group/i)).resolves.toBeInTheDocument();
+      const spiceGirlsCheckbox = await modalScope.findByRole('checkbox', { name: /spice girls/i });
+      await user.click(spiceGirlsCheckbox);
+      await confirmDestructiveModal(user, {
+        checkboxLabel: /understand|irreversible/i,
+        buttonText: /^remove$/i,
+      });
+    });
+
+    await step('Verify API call', async () => {
+      await waitFor(
+        () => {
+          expect(removeMembersSpy).toHaveBeenCalled();
+          expect(removeMembersSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              groupId: TARGET_GROUP.uuid,
+              usernames: expect.arrayContaining([TARGET_USER.username]),
+            }),
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
+
+    await step('Verify modal closed and user groups count decreased', async () => {
+      await waitFor(() => {
+        expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
+      });
+      const usersTable = await canvas.findByRole('grid');
+      const updatedUserRow = await within(usersTable).findByText(TARGET_USER.username);
+      const updatedRowElement = updatedUserRow.closest('tr')!;
+      await expect(within(updatedRowElement).findByText('1')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -366,50 +360,54 @@ Tests canceling the remove from user group modal.
       },
     },
   },
-  play: async (context) => {
-    // 1. SETUP
-    await resetStoryState();
-    resetMutableState();
-    removeMembersSpy.mockClear();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      resetMutableState();
+      removeMembersSpy.mockClear();
+    });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, TARGET_USER.username);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // 2. FIND TARGET USER ROW AND VERIFY INITIAL STATE
-    const usersTable = await canvas.findByRole('grid');
-    const userRow = await within(usersTable).findByText(TARGET_USER.username);
-    const userRowElement = userRow.closest('tr')!;
-    // Verify initial user groups count is 2
-    expect(within(userRowElement).getByText('2')).toBeInTheDocument();
+    await step('Wait for page and verify initial state', async () => {
+      await waitForPageToLoad(canvas, TARGET_USER.username);
+      const usersTable = await canvas.findByRole('grid');
+      const userRow = await within(usersTable).findByText(TARGET_USER.username);
+      const userRowElement = userRow.closest('tr')!;
+      await expect(within(userRowElement).findByText('2')).resolves.toBeInTheDocument();
+    });
 
-    // 3. OPEN ROW KEBAB AND CLICK REMOVE
-    const kebabButton = within(userRowElement).getByRole('button', { name: /actions/i });
-    await user.click(kebabButton);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Open kebab, click remove, then cancel', async () => {
+      const usersTable = await canvas.findByRole('grid');
+      const userRow = await within(usersTable).findByText(TARGET_USER.username);
+      const userRowElement = userRow.closest('tr')!;
+      const kebabButton = await within(userRowElement).findByRole('button', { name: /actions/i });
+      await user.click(kebabButton);
+      const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
+      await user.click(removeOption);
+      const modal = await waitForModal();
+      const cancelButton = await modal.findByRole('button', { name: /cancel/i });
+      await user.click(cancelButton);
+    });
 
-    const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
-    await user.click(removeOption);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Verify modal closed and no API call', async () => {
+      await waitFor(() => {
+        expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
+      });
+      expect(removeMembersSpy).not.toHaveBeenCalled();
+    });
 
-    // 4. CLICK CANCEL
-    const modal = await within(document.body).findByRole('dialog');
-    const cancelButton = await within(modal).findByRole('button', { name: /cancel/i });
-    await user.click(cancelButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // 5. VERIFY MODAL CLOSED
-    expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
-
-    // 6. API VERIFICATION: No call made
-    expect(removeMembersSpy).not.toHaveBeenCalled();
-
-    // 7. VISUAL VERIFICATION: User groups count unchanged (still 2)
-    const unchangedUserRow = await within(usersTable).findByText(TARGET_USER.username);
-    const unchangedRowElement = unchangedUserRow.closest('tr')!;
-    expect(within(unchangedRowElement).getByText('2')).toBeInTheDocument();
+    await step('Verify user groups count unchanged', async () => {
+      const usersTable = await canvas.findByRole('grid');
+      const unchangedUserRow = await within(usersTable).findByText(TARGET_USER.username);
+      const unchangedRowElement = unchangedUserRow.closest('tr')!;
+      await expect(within(unchangedRowElement).findByText('2')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -436,53 +434,41 @@ Tests that the remove button requires confirmation.
       },
     },
   },
-  play: async (context) => {
-    // 1. SETUP
-    await resetStoryState();
-    resetMutableState();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      resetMutableState();
+    });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, TARGET_USER.username);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // 2. OPEN KEBAB AND CLICK REMOVE
-    const usersTable = await canvas.findByRole('grid');
-    const userRow = await within(usersTable).findByText(TARGET_USER.username);
-    const userRowElement = userRow.closest('tr')!;
+    await step('Wait for page and open remove modal', async () => {
+      await waitForPageToLoad(canvas, TARGET_USER.username);
+      const usersTable = await canvas.findByRole('grid');
+      const userRow = await within(usersTable).findByText(TARGET_USER.username);
+      const userRowElement = userRow.closest('tr')!;
+      const kebabButton = await within(userRowElement).findByRole('button', { name: /actions/i });
+      await user.click(kebabButton);
+      const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
+      await user.click(removeOption);
+    });
 
-    const kebabButton = within(userRowElement).getByRole('button', { name: /actions/i });
-    await user.click(kebabButton);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
-    await user.click(removeOption);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // 3. VERIFY MODAL IS OPEN
-    const modal = await within(document.body).findByRole('dialog');
-    const modalScope = within(modal);
-
-    // 4. VERIFY REMOVE BUTTON IS DISABLED INITIALLY
-    const removeButton = await modalScope.findByRole('button', { name: /^remove$/i });
-    expect(removeButton).toBeDisabled();
-
-    // 5. SELECT A GROUP
-    const spiceGirlsCheckbox = await modalScope.findByRole('checkbox', { name: /spice girls/i });
-    await user.click(spiceGirlsCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // 6. VERIFY REMOVE BUTTON IS STILL DISABLED (no confirmation yet)
-    expect(removeButton).toBeDisabled();
-
-    // 7. CHECK CONFIRMATION CHECKBOX
-    const confirmCheckbox = await modalScope.findByRole('checkbox', { name: /understand|irreversible/i });
-    await user.click(confirmCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // 8. VERIFY REMOVE BUTTON IS NOW ENABLED
-    expect(removeButton).not.toBeDisabled();
+    await step('Verify remove button disabled, select group, check confirmation, verify enabled', async () => {
+      const modalScope = await waitForModal();
+      const removeButton = await modalScope.findByRole('button', { name: /^remove$/i });
+      expect(removeButton).toBeDisabled();
+      const spiceGirlsCheckbox = await modalScope.findByRole('checkbox', { name: /spice girls/i });
+      await user.click(spiceGirlsCheckbox);
+      await waitFor(() => expect(removeButton).toBeDisabled());
+      const confirmCheckbox = await modalScope.findByRole('checkbox', { name: /understand|irreversible/i });
+      await user.click(confirmCheckbox);
+      await waitFor(() => expect(removeButton).not.toBeDisabled());
+    });
   },
 };
 
@@ -509,52 +495,40 @@ Tests that the remove button requires group selection.
       },
     },
   },
-  play: async (context) => {
-    // 1. SETUP
-    await resetStoryState();
-    resetMutableState();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      await resetStoryState();
+      resetMutableState();
+    });
 
-    // Wait for page to load
-    await waitForPageToLoad(canvas, TARGET_USER.username);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // 2. OPEN KEBAB AND CLICK REMOVE
-    const usersTable = await canvas.findByRole('grid');
-    const userRow = await within(usersTable).findByText(TARGET_USER.username);
-    const userRowElement = userRow.closest('tr')!;
+    await step('Wait for page and open remove modal', async () => {
+      await waitForPageToLoad(canvas, TARGET_USER.username);
+      const usersTable = await canvas.findByRole('grid');
+      const userRow = await within(usersTable).findByText(TARGET_USER.username);
+      const userRowElement = userRow.closest('tr')!;
+      const kebabButton = await within(userRowElement).findByRole('button', { name: /actions/i });
+      await user.click(kebabButton);
+      const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
+      await user.click(removeOption);
+    });
 
-    const kebabButton = within(userRowElement).getByRole('button', { name: /actions/i });
-    await user.click(kebabButton);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    const removeOption = await within(document.body).findByRole('menuitem', { name: /remove from user group/i });
-    await user.click(removeOption);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // 3. VERIFY MODAL IS OPEN
-    const modal = await within(document.body).findByRole('dialog');
-    const modalScope = within(modal);
-
-    // 4. VERIFY REMOVE BUTTON IS DISABLED INITIALLY
-    const removeButton = await modalScope.findByRole('button', { name: /^remove$/i });
-    expect(removeButton).toBeDisabled();
-
-    // 5. CHECK CONFIRMATION CHECKBOX (but no group selected)
-    const confirmCheckbox = await modalScope.findByRole('checkbox', { name: /understand|irreversible/i });
-    await user.click(confirmCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // 6. VERIFY REMOVE BUTTON IS STILL DISABLED (no group selected)
-    expect(removeButton).toBeDisabled();
-
-    // 7. SELECT A GROUP
-    const spiceGirlsCheckbox = await modalScope.findByRole('checkbox', { name: /spice girls/i });
-    await user.click(spiceGirlsCheckbox);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // 8. VERIFY REMOVE BUTTON IS NOW ENABLED
-    expect(removeButton).not.toBeDisabled();
+    await step('Verify remove button disabled without group, check confirmation, select group, verify enabled', async () => {
+      const modalScope = await waitForModal();
+      const removeButton = await modalScope.findByRole('button', { name: /^remove$/i });
+      expect(removeButton).toBeDisabled();
+      const confirmCheckbox = await modalScope.findByRole('checkbox', { name: /understand|irreversible/i });
+      await user.click(confirmCheckbox);
+      await waitFor(() => expect(removeButton).toBeDisabled());
+      const spiceGirlsCheckbox = await modalScope.findByRole('checkbox', { name: /spice girls/i });
+      await user.click(spiceGirlsCheckbox);
+      await waitFor(() => expect(removeButton).not.toBeDisabled());
+    });
   },
 };

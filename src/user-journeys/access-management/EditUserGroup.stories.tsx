@@ -12,13 +12,19 @@
 
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, fn, userEvent, within } from 'storybook/test';
-import { delay } from 'msw';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { resetStoryState } from '../_shared/helpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import { clearAndType, clickTab, waitForContentReady, waitForDrawer } from '../../test-utils/interactionHelpers';
+import { waitForPageToLoad } from '../../test-utils/tableHelpers';
 import { createGroupsHandlers, mockGroups, v2DefaultHandlers } from './_shared';
 import type { Group } from '../../shared/data/mocks/db';
 import { createResettableCollection } from '../../shared/data/mocks/db';
+
+// Named alias for the group under test — avoids index-dependent sort-order bugs
+const TARGET_GROUP = mockGroups[4]; // Golden girls
+const DUPLICATE_NAME_GROUP = mockGroups[1]; // Admin group — used for duplicate-name validation
 
 // Spy for tracking API calls
 const updateGroupSpy = fn();
@@ -147,112 +153,83 @@ Tests the complete "Edit user group" workflow:
       },
     },
   },
-  play: async (context) => {
-    resetMutableState();
-    await resetStoryState();
-    updateGroupSpy.mockClear();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      resetMutableState();
+      await resetStoryState();
+      updateGroupSpy.mockClear();
+    });
 
-    // Wait for page to load and table to be fully interactive
-    await waitForPageToLoad(canvas, mockGroups[4].name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const originalDescription = await canvas.findByText(new RegExp(mockGroups[4].description, 'i'));
-    expect(originalDescription).toBeInTheDocument();
+    await step('Wait for page and verify original description', async () => {
+      await waitForPageToLoad(canvas, TARGET_GROUP.name);
+      const originalDescription = await canvas.findByText(new RegExp(TARGET_GROUP.description, 'i'));
+      expect(originalDescription).toBeInTheDocument();
+    });
 
-    // ==========================================================================
-    // ACTION: Open edit form from kebab menu
-    // ==========================================================================
-    // Wait for kebab buttons to be present and interactive
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
-    expect(kebabButtons.length).toBeGreaterThan(0);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Open edit form from kebab menu', async () => {
+      const kebab = await canvas.findByLabelText(`Actions for group ${TARGET_GROUP.name}`);
+      await user.click(kebab);
+      const editOption = await within(document.body).findByRole('menuitem', { name: /edit user group/i });
+      await user.click(editOption);
+      await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
+    });
 
-    // Click the last kebab (Golden girls)
-    await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Edit description and save', async () => {
+      // data-driven-forms populates fields asynchronously after render;
+      // on slow CI the route-mount + fetch + form-init chain can exceed 10s
+      await waitFor(
+        () => {
+          const input = canvas.queryByRole('textbox', { name: /^name$/i });
+          expect(input).toBeInTheDocument();
+          expect(input).toHaveValue(TARGET_GROUP.name);
+        },
+        { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
+      const descriptionInput = await canvas.findByRole('textbox', { name: /description/i });
+      await user.tripleClick(descriptionInput);
+      await user.keyboard(`Updated description for ${TARGET_GROUP.name}`);
+      await user.tab();
+      const submitButton = await canvas.findByRole('button', { name: /submit|save/i });
+      expect(submitButton).not.toBeDisabled();
+      await user.click(submitButton);
+    });
 
-    const editOption = await within(document.body).findByRole('menuitem', { name: /edit user group/i });
-    await user.click(editOption);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD); // Wait for form to fully load
+    await step('Verify API call', async () => {
+      await waitFor(
+        () => {
+          expect(updateGroupSpy).toHaveBeenCalledWith(
+            TARGET_GROUP.uuid,
+            expect.objectContaining({
+              description: `Updated description for ${TARGET_GROUP.name}`,
+            }),
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
 
-    // Verify we're on the edit form
-    await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
+    await step('Verify table shows updated description', async () => {
+      const groupsTable = await canvas.findByRole('grid', { name: /user groups table/i });
+      expect(groupsTable).toBeInTheDocument();
+      await expect(canvas.findByText(/Updated description/i)).resolves.toBeInTheDocument();
+    });
 
-    // ==========================================================================
-    // ACTION: Edit description
-    // ==========================================================================
-    const nameInput = await canvas.findByRole('textbox', { name: /^name$/i });
-    expect(nameInput).toHaveValue(mockGroups[4].name);
-
-    const descriptionInput = await canvas.findByRole('textbox', { name: /description/i });
-    await user.tripleClick(descriptionInput);
-    await user.keyboard(`Updated description for ${mockGroups[4].name}`);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-    await user.tab();
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // ==========================================================================
-    // ACTION: Save changes
-    // ==========================================================================
-    const submitButton = await canvas.findByRole('button', { name: /submit|save/i });
-    expect(submitButton).not.toBeDisabled();
-    await user.click(submitButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // ==========================================================================
-    // API VERIFICATION
-    // ==========================================================================
-    expect(updateGroupSpy).toHaveBeenCalledWith(
-      mockGroups[4].uuid,
-      expect.objectContaining({
-        description: `Updated description for ${mockGroups[4].name}`,
-      }),
-    );
-
-    // ==========================================================================
-    // POST-CONDITION: Verify we're back on the groups table
-    // ==========================================================================
-    const groupsTable = await canvas.findByRole('grid', { name: /user groups table/i });
-    expect(groupsTable).toBeInTheDocument();
-
-    // ==========================================================================
-    // VISUAL VERIFICATION: Verify updated description in table
-    // ==========================================================================
-    await expect(canvas.findByText(/Updated description/i)).resolves.toBeInTheDocument();
-
-    // ==========================================================================
-    // VISUAL VERIFICATION: Open drawer and verify changes
-    // ==========================================================================
-    // Click on the Golden girls row to open the drawer
-    const goldenGirlsRow = await canvas.findByText(mockGroups[4].name);
-    await user.click(goldenGirlsRow);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // Find the drawer panel
-    const drawerPanel = document.querySelector('.pf-v6-c-drawer__panel') as HTMLElement | null;
-    expect(drawerPanel).toBeInTheDocument();
-    const drawerScope = within(drawerPanel!);
-
-    // Verify group name in drawer header
-    await expect(drawerScope.findByText(mockGroups[4].name)).resolves.toBeInTheDocument();
-
-    // Note: The drawer doesn't display the description, only the group name and tabs
-
-    // Check Users tab in drawer to verify existing members
-    const drawerUsersTab = await drawerScope.findByRole('tab', { name: /users/i });
-    await user.click(drawerUsersTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Verify at least one user is shown (from mock data)
-    // Golden girls group has members: bwhite, dzbornak, spetrillo, bdevereaux
-    await expect(drawerScope.findByText('bwhite')).resolves.toBeInTheDocument();
-
-    // Check Service accounts tab in drawer
-    const drawerServiceAccountsTab = await drawerScope.findByRole('tab', { name: /service accounts/i });
-    await user.click(drawerServiceAccountsTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Open drawer and verify tabs', async () => {
+      const goldenGirlsRow = await canvas.findByText(TARGET_GROUP.name);
+      await user.click(goldenGirlsRow);
+      const drawerScope = await waitForDrawer();
+      await expect(drawerScope.findByText(TARGET_GROUP.name)).resolves.toBeInTheDocument();
+      await clickTab(user, drawerScope, /users/i);
+      await expect(drawerScope.findByText('bwhite')).resolves.toBeInTheDocument();
+      await clickTab(user, drawerScope, /service accounts/i);
+    });
   },
 };
 
@@ -277,47 +254,56 @@ Tests editing the group name.
       },
     },
   },
-  play: async (context) => {
-    resetMutableState();
-    await resetStoryState();
-    updateGroupSpy.mockClear();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      resetMutableState();
+      await resetStoryState();
+      updateGroupSpy.mockClear();
+    });
 
-    // Wait for page to load and table to be fully interactive
-    await waitForPageToLoad(canvas, mockGroups[4].name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
-    expect(kebabButtons.length).toBeGreaterThan(0);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Wait for page and open edit form', async () => {
+      await waitForPageToLoad(canvas, TARGET_GROUP.name);
+      const kebab = await canvas.findByLabelText(`Actions for group ${TARGET_GROUP.name}`);
+      await user.click(kebab);
+      const editOption = await within(document.body).findByRole('menuitem', { name: /edit user group/i });
+      await user.click(editOption);
+    });
 
-    // Open edit for a group (last kebab button)
-    await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Change name and save', async () => {
+      // data-driven-forms populates fields asynchronously after render
+      await waitFor(
+        () => {
+          const input = canvas.queryByRole('textbox', { name: /^name$/i });
+          expect(input).toBeInTheDocument();
+          expect(input).toHaveValue(TARGET_GROUP.name);
+        },
+        { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
+      await clearAndType(user, () => canvas.getByRole('textbox', { name: /^name$/i }) as HTMLInputElement, 'Renamed Group');
+      const submitButton = await canvas.findByRole('button', { name: /submit|save/i });
+      await user.click(submitButton);
+    });
 
-    const editOption = await within(document.body).findByRole('menuitem', { name: /edit user group/i });
-    await user.click(editOption);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // Change name
-    const nameInput = await canvas.findByRole('textbox', { name: /^name$/i });
-    await user.clear(nameInput);
-    await user.type(nameInput, 'Renamed Group');
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // Save
-    const submitButton = await canvas.findByRole('button', { name: /submit|save/i });
-    await user.click(submitButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // Verify API was called with new name
-    expect(updateGroupSpy).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        name: 'Renamed Group',
-      }),
-    );
+    await step('Verify API call with new name', async () => {
+      await waitFor(
+        () => {
+          expect(updateGroupSpy).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.objectContaining({
+              name: 'Renamed Group',
+            }),
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
   },
 };
 
@@ -344,49 +330,51 @@ Tests that changing to an existing group name shows validation error.
       },
     },
   },
-  play: async (context) => {
-    resetMutableState();
-    await resetStoryState();
-    updateGroupSpy.mockClear();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+    const targetGroupName = TARGET_GROUP.name;
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      resetMutableState();
+      await resetStoryState();
+      updateGroupSpy.mockClear();
+    });
 
-    // Wait for page to load and table to be fully interactive
-    await waitForPageToLoad(canvas, mockGroups[4].name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
-    expect(kebabButtons.length).toBeGreaterThan(0);
+    await step('Wait for table and open edit form', async () => {
+      await waitForPageToLoad(canvas, targetGroupName);
+      const kebab = await canvas.findByLabelText(`Actions for group ${targetGroupName}`);
+      await user.click(kebab);
+      const editOption = await within(document.body).findByRole('menuitem', { name: /edit user group/i });
+      await user.click(editOption);
+    });
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Change name to duplicate and trigger validation', async () => {
+      // data-driven-forms populates fields asynchronously after render
+      await waitFor(
+        () => {
+          const input = canvas.queryByRole('textbox', { name: /^name$/i });
+          expect(input).toBeInTheDocument();
+          expect(input).toHaveValue(targetGroupName);
+        },
+        { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
+      const nameInput = canvas.getByRole('textbox', { name: /^name$/i });
+      await user.tripleClick(nameInput);
+      await user.keyboard(DUPLICATE_NAME_GROUP.name);
+      await user.tab();
+    });
 
-    // Open edit for Golden girls (last kebab button)
-    await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    const editOption = await within(document.body).findByRole('menuitem', { name: /edit user group/i });
-    await user.click(editOption);
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD); // Wait for form to load
-
-    const nameInput = await canvas.findByRole('textbox', { name: /^name$/i });
-    expect(nameInput).toHaveValue(mockGroups[4].name);
-
-    await user.tripleClick(nameInput);
-    await user.keyboard(mockGroups[1].name);
-
-    // Blur the name field to trigger validation (tab to description)
-    await user.tab();
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // Verify validation error
-    await expect(canvas.findByText(/already exists|taken/i)).resolves.toBeInTheDocument();
-
-    // Save button should be disabled
-    const submitButton = await canvas.findByRole('button', { name: /submit|save/i });
-    expect(submitButton).toBeDisabled();
-
-    // No API call should be made
-    expect(updateGroupSpy).not.toHaveBeenCalled();
+    await step('Verify validation error and save disabled', async () => {
+      await expect(canvas.findByText(/already exists|taken/i)).resolves.toBeInTheDocument();
+      const submitButton = await canvas.findByRole('button', { name: /submit|save/i });
+      expect(submitButton).toBeDisabled();
+      expect(updateGroupSpy).not.toHaveBeenCalled();
+    });
   },
 };
 
@@ -412,44 +400,47 @@ Tests canceling the edit form.
       },
     },
   },
-  play: async (context) => {
-    resetMutableState();
-    await resetStoryState();
-    updateGroupSpy.mockClear();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      resetMutableState();
+      await resetStoryState();
+      updateGroupSpy.mockClear();
+    });
 
-    // Wait for page to load and table to be fully interactive
-    await waitForPageToLoad(canvas, mockGroups[4].name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const kebabButtons = await canvas.findAllByLabelText(/actions/i);
-    expect(kebabButtons.length).toBeGreaterThan(0);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Wait for page and open edit form', async () => {
+      await waitForPageToLoad(canvas, TARGET_GROUP.name);
+      const kebab = await canvas.findByLabelText(`Actions for group ${TARGET_GROUP.name}`);
+      await user.click(kebab);
+      const editOption = await within(document.body).findByRole('menuitem', { name: /edit user group/i });
+      await user.click(editOption);
+    });
 
-    // Open edit (last kebab button)
-    await user.click(kebabButtons[kebabButtons.length - 1]);
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
+    await step('Make changes and cancel', async () => {
+      // data-driven-forms populates fields asynchronously after render
+      await waitFor(
+        () => {
+          const input = canvas.queryByRole('textbox', { name: /^name$/i });
+          expect(input).toBeInTheDocument();
+          expect(input).toHaveValue(TARGET_GROUP.name);
+        },
+        { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
+      await clearAndType(user, () => canvas.getByRole('textbox', { name: /^name$/i }) as HTMLInputElement, 'Changed Name');
+      const cancelButton = await canvas.findByRole('button', { name: /cancel/i });
+      await user.click(cancelButton);
+    });
 
-    const editOption = await within(document.body).findByRole('menuitem', { name: /edit user group/i });
-    await user.click(editOption);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    // Make changes
-    const nameInput = await canvas.findByRole('textbox', { name: /^name$/i });
-    await user.clear(nameInput);
-    await user.type(nameInput, 'Changed Name');
-    await delay(TEST_TIMEOUTS.AFTER_MENU_OPEN);
-
-    // Cancel
-    const cancelButton = await canvas.findByRole('button', { name: /cancel/i });
-    await user.click(cancelButton);
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
-
-    await expect(canvas.findByText(mockGroups[4].name)).resolves.toBeInTheDocument();
-
-    // Verify no API call
-    expect(updateGroupSpy).not.toHaveBeenCalled();
+    await step('Verify returned to table and no API call', async () => {
+      await expect(canvas.findByText(TARGET_GROUP.name)).resolves.toBeInTheDocument();
+      expect(updateGroupSpy).not.toHaveBeenCalled();
+    });
   },
 };
 
@@ -461,7 +452,7 @@ Tests canceling the edit form.
 export const UsersAllSelectedToggle: Story = {
   name: 'Users All/Selected Toggle',
   args: {
-    initialRoute: `/iam/access-management/users-and-user-groups/edit-group/${mockGroups[4].uuid}`,
+    initialRoute: `/iam/access-management/users-and-user-groups/edit-group/${TARGET_GROUP.uuid}`,
   },
   parameters: {
     docs: {
@@ -477,40 +468,34 @@ Tests the All/Selected toggle in the Users tab of the edit user group form.
       },
     },
   },
-  play: async (context) => {
-    resetMutableState();
-    await resetStoryState();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      resetMutableState();
+      await resetStoryState();
+    });
 
-    // Wait for edit form to load
-    await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
-    await waitForPageToLoad(canvas, 'bwhite');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Find the Users tab content - Users tab is first (index 0)
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    await user.click(usersTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for edit form and switch to Users tab', async () => {
+      await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
+      await waitForPageToLoad(canvas, 'bwhite');
+      await clickTab(user, canvas, /users/i);
+    });
 
-    // Find the ToggleGroup - "All" and "Selected" buttons
-    const allButton = await canvas.findByRole('button', { name: /^all$/i });
-    const selectedButton = await canvas.findByRole('button', { name: /^selected/i });
-
-    // Click "Selected" toggle
-    await user.click(selectedButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Verify Selected is now selected (table may show selected users or empty)
-    expect(selectedButton).toHaveAttribute('aria-pressed', 'true');
-
-    // Click "All" toggle back
-    await user.click(allButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Verify All is selected and users are shown again
-    expect(allButton).toHaveAttribute('aria-pressed', 'true');
-    await expect(canvas.findByText('bwhite')).resolves.toBeInTheDocument();
+    await step('Toggle Selected then All and verify', async () => {
+      const allButton = await canvas.findByRole('button', { name: /^all$/i });
+      const selectedButton = await canvas.findByRole('button', { name: /^selected/i });
+      await user.click(selectedButton);
+      expect(selectedButton).toHaveAttribute('aria-pressed', 'true');
+      await user.click(allButton);
+      expect(allButton).toHaveAttribute('aria-pressed', 'true');
+      await expect(canvas.findByText('bwhite')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -522,7 +507,7 @@ Tests the All/Selected toggle in the Users tab of the edit user group form.
 export const ServiceAccountsAllSelectedToggle: Story = {
   name: 'Service Accounts All/Selected Toggle',
   args: {
-    initialRoute: `/iam/access-management/users-and-user-groups/edit-group/${mockGroups[4].uuid}`,
+    initialRoute: `/iam/access-management/users-and-user-groups/edit-group/${TARGET_GROUP.uuid}`,
   },
   parameters: {
     docs: {
@@ -539,38 +524,31 @@ Tests the All/Selected toggle in the Service Accounts tab of the edit user group
       },
     },
   },
-  play: async (context) => {
-    resetMutableState();
-    await resetStoryState();
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
-    const canvas = within(context.canvasElement);
-    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+    await step('Reset state', async () => {
+      resetMutableState();
+      await resetStoryState();
+    });
 
-    // Wait for edit form to load
-    await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
-    await delay(TEST_TIMEOUTS.AFTER_PAGE_LOAD);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    // Find and click the Service Accounts tab
-    const serviceAccountsTab = await canvas.findByRole('tab', { name: /service accounts/i });
-    await user.click(serviceAccountsTab);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
+    await step('Wait for edit form and switch to Service Accounts tab', async () => {
+      await expect(canvas.findByRole('heading', { name: /edit user group/i })).resolves.toBeInTheDocument();
+      await clickTab(user, canvas, /service accounts/i);
+    });
 
-    // Find the ToggleGroup - "All" and "Selected" buttons
-    const allButton = await canvas.findByRole('button', { name: /^all$/i });
-    const selectedButton = await canvas.findByRole('button', { name: /^selected/i });
-
-    // Click "Selected" toggle
-    await user.click(selectedButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Verify Selected is selected
-    expect(selectedButton).toHaveAttribute('aria-pressed', 'true');
-
-    // Click "All" toggle back
-    await user.click(allButton);
-    await delay(TEST_TIMEOUTS.AFTER_CLICK);
-
-    // Verify All is selected
-    expect(allButton).toHaveAttribute('aria-pressed', 'true');
+    await step('Toggle Selected then All and verify', async () => {
+      const allButton = await canvas.findByRole('button', { name: /^all$/i });
+      const selectedButton = await canvas.findByRole('button', { name: /^selected/i });
+      await user.click(selectedButton);
+      expect(selectedButton).toHaveAttribute('aria-pressed', 'true');
+      await user.click(allButton);
+      expect(allButton).toHaveAttribute('aria-pressed', 'true');
+    });
   },
 };

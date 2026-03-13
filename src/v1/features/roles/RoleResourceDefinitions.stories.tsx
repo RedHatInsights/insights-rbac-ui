@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { RoleResourceDefinitions } from './RoleResourceDefinitions';
 import { v1RolesHandlers } from '../../data/mocks/roles.handlers';
@@ -126,21 +125,22 @@ export const Default: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Permission ID should be in title (appears multiple times)
-    await waitFor(
-      () => {
-        const permissionTexts = canvas.getAllByText(/inventory:hosts:read/i);
-        expect(permissionTexts.length).toBeGreaterThan(0);
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify permission and defined resources', async () => {
+      // Permission ID should be in title (appears multiple times)
+      await waitFor(
+        () => {
+          const permissionTexts = canvas.getAllByText(/inventory:hosts:read/i);
+          expect(permissionTexts.length).toBeGreaterThan(0);
+        },
+        { timeout: 3000 },
+      );
 
-    // "Defined resources" heading should be visible
-    expect(canvas.getByText(/defined resources/i)).toBeInTheDocument();
+      // "Defined resources" heading should be visible
+      expect(canvas.getByText(/defined resources/i)).toBeInTheDocument();
+    });
   },
 };
 
@@ -155,18 +155,19 @@ export const EditButtonVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Edit button should be visible
-    await waitFor(
-      () => {
-        const editButton = canvas.queryByRole('button', { name: /edit/i }) || canvas.queryByRole('link', { name: /edit/i });
-        expect(editButton).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify edit button visible', async () => {
+      // Edit button should be visible
+      await waitFor(
+        () => {
+          const editButton = canvas.queryByRole('button', { name: /edit/i }) || canvas.queryByRole('link', { name: /edit/i });
+          expect(editButton).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -181,22 +182,28 @@ export const EditButtonHiddenForSystemRole: Story = {
       handlers: createDefaultHandlers({ ...mockRole, system: true }),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for data to load (permission ID appears multiple times in breadcrumb and title)
-    await waitFor(
-      () => {
-        const permissionTexts = canvas.getAllByText(/inventory:hosts:read/i);
-        expect(permissionTexts.length).toBeGreaterThan(0);
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify edit button hidden for system role', async () => {
+      // Wait for data to load (permission ID appears multiple times in breadcrumb and title)
+      await waitFor(
+        () => {
+          const permissionTexts = canvas.getAllByText(/inventory:hosts:read/i);
+          expect(permissionTexts.length).toBeGreaterThan(0);
+        },
+        { timeout: 3000 },
+      );
 
-    // Edit button should NOT be visible for system roles
-    const editButton = canvas.queryByRole('button', { name: /edit/i });
-    expect(editButton).not.toBeInTheDocument();
+      // Edit button should NOT be visible for system roles - wait for page to fully render
+      await waitFor(
+        () => {
+          const editButton = canvas.queryByRole('button', { name: /edit/i });
+          expect(editButton).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -211,17 +218,18 @@ export const BreadcrumbsVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Breadcrumb should show "Roles" link
-    await waitFor(
-      () => {
-        expect(canvas.getByRole('link', { name: /roles/i })).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify breadcrumbs', async () => {
+      // Breadcrumb should show "Roles" link
+      await waitFor(
+        () => {
+          expect(canvas.getByRole('link', { name: /roles/i })).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -236,18 +244,19 @@ export const RoleNameInBreadcrumb: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for role data to load and breadcrumb to update
-    await waitFor(
-      () => {
-        const roleLink = canvas.queryByRole('link', { name: /inventory administrator/i });
-        expect(roleLink).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify role name in breadcrumb', async () => {
+      // Wait for role data to load and breadcrumb to update
+      await waitFor(
+        () => {
+          const roleLink = canvas.queryByRole('link', { name: /inventory administrator/i });
+          expect(roleLink).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -263,8 +272,6 @@ export const ResourceDefinitionsTable: Story = {
     },
   },
   play: async () => {
-    await delay(500);
-
     // Wait for table to render
     await waitFor(
       () => {
@@ -287,18 +294,19 @@ export const FilterInputVisible: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Filter input should be visible
-    await waitFor(
-      () => {
-        const filterInput = canvas.queryByRole('textbox') || canvas.queryByPlaceholderText(/filter/i);
-        expect(filterInput).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify filter input visible', async () => {
+      // Filter input should be visible
+      await waitFor(
+        () => {
+          const filterInput = canvas.queryByRole('textbox') || canvas.queryByPlaceholderText(/filter/i);
+          expect(filterInput).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -313,18 +321,19 @@ export const PermissionIdInTitle: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(500);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Permission ID should be visible as page title
-    await waitFor(
-      () => {
-        const permissionTexts = canvas.getAllByText(/inventory:hosts:read/i);
-        expect(permissionTexts.length).toBeGreaterThan(0);
-      },
-      { timeout: 3000 },
-    );
+    await step('Verify permission ID in title', async () => {
+      // Permission ID should be visible as page title
+      await waitFor(
+        () => {
+          const permissionTexts = canvas.getAllByText(/inventory:hosts:read/i);
+          expect(permissionTexts.length).toBeGreaterThan(0);
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -339,71 +348,77 @@ export const FilterResources: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await waitFor(
-      async () => {
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await step('Verify initial data and filter by Production', async () => {
+      await waitFor(
+        async () => {
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
-    expect(await canvas.findByText(Object.values(mockInventoryGroups)[1].name)).toBeInTheDocument();
-    expect(await canvas.findByText(Object.values(mockInventoryGroups)[2].name)).toBeInTheDocument();
+      expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
+      expect(await canvas.findByText(Object.values(mockInventoryGroups)[1].name)).toBeInTheDocument();
+      expect(await canvas.findByText(Object.values(mockInventoryGroups)[2].name)).toBeInTheDocument();
 
-    // Find the filter input
-    const filterInput = await canvas.findByPlaceholderText(/filter by resource/i);
-    expect(filterInput).toBeInTheDocument();
+      // Find the filter input
+      const filterInput = await canvas.findByPlaceholderText(/filter by resource/i);
+      expect(filterInput).toBeInTheDocument();
 
-    // Type "Production" in the filter
-    await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, 'Production');
+      // Type "Production" in the filter
+      await userEvent.clear(filterInput);
+      await userEvent.type(filterInput, 'Production');
 
-    await waitFor(
-      async () => {
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
-        expect(canvas.queryByText(Object.values(mockInventoryGroups)[1].name)).not.toBeInTheDocument();
-        expect(canvas.queryByText(Object.values(mockInventoryGroups)[2].name)).not.toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      await waitFor(
+        async () => {
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
+          expect(canvas.queryByText(Object.values(mockInventoryGroups)[1].name)).not.toBeInTheDocument();
+          expect(canvas.queryByText(Object.values(mockInventoryGroups)[2].name)).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
 
-    await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, 'Servers');
+    await step('Filter by Servers then Dev then clear', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by resource/i);
 
-    await waitFor(
-      async () => {
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[1].name)).toBeInTheDocument();
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[2].name)).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      await userEvent.clear(filterInput);
+      await userEvent.type(filterInput, 'Servers');
 
-    await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, 'Dev');
+      await waitFor(
+        async () => {
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[1].name)).toBeInTheDocument();
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[2].name)).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
-    await waitFor(
-      async () => {
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[1].name)).toBeInTheDocument();
-        expect(canvas.queryByText(Object.values(mockInventoryGroups)[0].name)).not.toBeInTheDocument();
-        expect(canvas.queryByText(Object.values(mockInventoryGroups)[2].name)).not.toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      await userEvent.clear(filterInput);
+      await userEvent.type(filterInput, 'Dev');
 
-    await userEvent.clear(filterInput);
+      await waitFor(
+        async () => {
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[1].name)).toBeInTheDocument();
+          expect(canvas.queryByText(Object.values(mockInventoryGroups)[0].name)).not.toBeInTheDocument();
+          expect(canvas.queryByText(Object.values(mockInventoryGroups)[2].name)).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
-    await waitFor(
-      async () => {
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[1].name)).toBeInTheDocument();
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[2].name)).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      await userEvent.clear(filterInput);
+
+      await waitFor(
+        async () => {
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[1].name)).toBeInTheDocument();
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[2].name)).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+    });
   },
 };
 
@@ -418,30 +433,32 @@ export const FilterNoResults: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for data to load - use findByText which has built-in retry
-    const productionText = await canvas.findByText(Object.values(mockInventoryGroups)[0].name, {}, { timeout: 5000 });
-    expect(productionText).toBeInTheDocument();
+    await step('Filter with no results', async () => {
+      // Wait for data to load - use findByText which has built-in retry
+      const productionText = await canvas.findByText(Object.values(mockInventoryGroups)[0].name, {}, { timeout: 5000 });
+      expect(productionText).toBeInTheDocument();
 
-    const filterInput = await canvas.findByPlaceholderText(/filter by resource/i);
+      const filterInput = await canvas.findByPlaceholderText(/filter by resource/i);
 
-    await userEvent.type(filterInput, 'NonExistentResource');
+      await userEvent.type(filterInput, 'NonExistentResource');
 
-    await waitFor(
-      () => {
-        expect(canvas.queryByText(Object.values(mockInventoryGroups)[0].name)).not.toBeInTheDocument();
-        expect(canvas.queryByText(Object.values(mockInventoryGroups)[1].name)).not.toBeInTheDocument();
-        expect(canvas.queryByText(Object.values(mockInventoryGroups)[2].name)).not.toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+      await waitFor(
+        () => {
+          expect(canvas.queryByText(Object.values(mockInventoryGroups)[0].name)).not.toBeInTheDocument();
+          expect(canvas.queryByText(Object.values(mockInventoryGroups)[1].name)).not.toBeInTheDocument();
+          expect(canvas.queryByText(Object.values(mockInventoryGroups)[2].name)).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
-    // After filtering with no results, the table should have no data rows
-    // Verify by checking the table exists but the specific data items are gone
-    const table = canvas.queryByRole('grid') || canvas.queryByRole('table');
-    expect(table).toBeInTheDocument();
+      // After filtering with no results, the table should have no data rows
+      // Verify by checking the table exists but the specific data items are gone
+      const table = canvas.queryByRole('grid') || canvas.queryByRole('table');
+      expect(table).toBeInTheDocument();
+    });
   },
 };
 
@@ -456,32 +473,34 @@ export const APISpyVerification: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await waitFor(
-      async () => {
-        expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await step('Verify API spy calls', async () => {
+      await waitFor(
+        async () => {
+          expect(await canvas.findByText(Object.values(mockInventoryGroups)[0].name)).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    await waitFor(() => {
-      expect(fetchRoleSpy).toHaveBeenCalledWith({ roleId: 'role-123' });
-    });
+      await waitFor(() => {
+        expect(fetchRoleSpy).toHaveBeenCalledWith({ roleId: 'role-123' });
+      });
 
-    // Verify the inventory groups API was called
-    await waitFor(() => {
-      expect(fetchInventoryGroupsSpy).toHaveBeenCalled();
-    });
+      // Verify the inventory groups API was called
+      await waitFor(() => {
+        expect(fetchInventoryGroupsSpy).toHaveBeenCalled();
+      });
 
-    // Verify inventory API was called with the correct URL pattern
-    await waitFor(() => {
-      const calls = fetchInventoryGroupsSpy.mock.calls;
-      expect(calls.length).toBeGreaterThan(0);
-      // The URL should contain the group IDs
-      const lastCall = calls[calls.length - 1][0];
-      expect(lastCall.url).toContain('/api/inventory/v1/groups');
+      // Verify inventory API was called with the correct URL pattern
+      await waitFor(() => {
+        const calls = fetchInventoryGroupsSpy.mock.calls;
+        expect(calls.length).toBeGreaterThan(0);
+        // The URL should contain the group IDs
+        const lastCall = calls[calls.length - 1][0];
+        expect(lastCall.url).toContain('/api/inventory/v1/groups');
+      });
     });
   },
 };

@@ -5,6 +5,8 @@
  * and easier adjustment if tests become flaky.
  */
 
+export type { UserEvent } from '@testing-library/user-event';
+
 /**
  * Centralized timeout configuration for test helpers.
  * Use these constants instead of hard-coded values to ensure
@@ -13,6 +15,8 @@
 export const TEST_TIMEOUTS = {
   /** Default timeout for waiting on elements after mutations (e.g., API calls) */
   ELEMENT_WAIT: 10000,
+  /** Extended timeout for post-mutation list refreshes on slow CI (query invalidation + refetch + render) */
+  POST_MUTATION_REFRESH: 20000,
   /** Timeout for notifications and transient UI elements */
   NOTIFICATION_WAIT: 5000,
 
@@ -33,20 +37,13 @@ export const TEST_TIMEOUTS = {
 } as const;
 
 /**
- * Non-instrumented polling loop that never throws during retries. Unlike
- * Storybook's `waitFor`, this does NOT log intermediate failures to the
- * browser console, so the test-runner's postVisit hook won't flag retries
- * as critical errors.
+ * Non-generic stand-in for Storybook's `StepFunction<TRenderer, TArgs>`.
+ *
+ * The real type is generic over renderer and args, which makes it unusable
+ * as a plain parameter type in helpers. This alias erases the generics
+ * while remaining assignment-compatible: Storybook's `step` accepts a
+ * `PlayFunction<R,A>` (one-arg callback), and TypeScript allows a zero-arg
+ * callback in its place, so helpers can pass `async () => { … }` directly.
  */
-export async function pollUntilTrue(fn: () => boolean, timeout = 5000, interval = 200): Promise<boolean> {
-  const start = Date.now();
-  while (Date.now() - start < timeout) {
-    try {
-      if (fn()) return true;
-    } catch {
-      // swallow — element might not exist yet
-    }
-    await new Promise((r) => setTimeout(r, interval));
-  }
-  return false;
-}
+export type StepFn = (label: string, play: () => Promise<void> | void) => Promise<void> | void;
+export const noopStep: StepFn = async (_label, fn) => fn();

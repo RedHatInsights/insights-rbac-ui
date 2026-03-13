@@ -28,14 +28,16 @@ export const PlatformDefault: Story = {
   args: {
     isPlatformDefault: true,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify the correct message is displayed for platform default
-    const message = await canvas.findByText(
-      /In adherence to security guidelines, service accounts are not automatically included in the default access group/i,
-    );
-    await expect(message).toBeInTheDocument();
+    await step('Verify platform default message', async () => {
+      // Verify the correct message is displayed for platform default
+      const message = await canvas.findByText(
+        /In adherence to security guidelines, service accounts are not automatically included in the default access group/i,
+      );
+      await expect(message).toBeInTheDocument();
+    });
   },
 };
 
@@ -43,13 +45,15 @@ export const AdminDefault: Story = {
   args: {
     isPlatformDefault: false,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Verify the correct message is displayed for admin default
-    const message = await canvas.findByText(
-      /In adherence to security guidelines, service accounts are not automatically included in the default admin access group/i,
-    );
-    await expect(message).toBeInTheDocument();
+    await step('Verify admin default message', async () => {
+      // Verify the correct message is displayed for admin default
+      const message = await canvas.findByText(
+        /In adherence to security guidelines, service accounts are not automatically included in the default admin access group/i,
+      );
+      await expect(message).toBeInTheDocument();
+    });
   },
 };

@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { delay } from 'msw';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { GroupServiceAccounts } from './GroupServiceAccounts';
 import { groupsHandlers } from '../../../../../shared/data/mocks/groups.handlers';
@@ -142,7 +141,6 @@ For testing specific scenarios and edge cases, see these additional stories:
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     await waitFor(
@@ -168,11 +166,10 @@ export const Loading: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        expect(skeletonElements.length).toBeGreaterThan(0);
+      () => {
+        const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
+        expect(skeletons.length).toBeGreaterThan(0);
       },
       { timeout: 10000 },
     );
@@ -189,7 +186,6 @@ export const EmptyState: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     await waitFor(
@@ -245,7 +241,6 @@ export const EmptyState: Story = {
 
 export const DefaultGroup: Story = {
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     expect(canvasElement.querySelector('#tab-service-accounts')).toBeInTheDocument();
@@ -255,13 +250,14 @@ export const DefaultGroup: Story = {
 };
 
 export const AdminDefault: Story = {
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    expect(canvasElement.querySelector('#tab-service-accounts')).toBeInTheDocument();
+    await step('Verify admin default service accounts tab', async () => {
+      expect(canvasElement.querySelector('#tab-service-accounts')).toBeInTheDocument();
 
-    expect(await canvas.findByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
+      expect(await canvas.findByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
+    });
   },
 };
 
@@ -273,19 +269,20 @@ export const WithSelection: Story = {
       userAccessAdministrator: false,
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    expect(await canvas.findByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
-    expect(await canvas.findByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
+    await step('Verify selection of service account', async () => {
+      expect(await canvas.findByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
+      expect(await canvas.findByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
 
-    const checkboxes = await canvas.findAllByRole('checkbox');
-    if (checkboxes.length > 1) {
-      await userEvent.click(checkboxes[1]);
+      const checkboxes = await canvas.findAllByRole('checkbox');
+      if (checkboxes.length > 1) {
+        await userEvent.click(checkboxes[1]);
 
-      expect(checkboxes[1]).toBeChecked();
-    }
+        expect(checkboxes[1]).toBeChecked();
+      }
+    });
   },
 };
 
@@ -300,41 +297,46 @@ export const ServiceAccountWorkflows: Story = {
       handlers: [...groupsHandlers([testGroup]), ...groupMembersHandlers({}, { 'test-group-id': storyServiceAccounts })],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await waitFor(
-      async () => {
-        expect(await canvas.findByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
-        expect(await canvas.findByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
-        expect(await canvas.findByText(storyServiceAccounts[2].name!)).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await step('Verify service accounts and Add link', async () => {
+      await waitFor(
+        async () => {
+          expect(await canvas.findByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
+          expect(await canvas.findByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
+          expect(await canvas.findByText(storyServiceAccounts[2].name!)).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    const addElements = canvas.queryAllByText(/add service account/i);
-    expect(addElements.length).toBeGreaterThan(0);
-    const interactiveAddElement = addElements.find((el: Element) => el.closest('a') || el.closest('button') || el.getAttribute('role') === 'button');
-    expect(interactiveAddElement).toBeTruthy();
+      const addElements = canvas.queryAllByText(/add service account/i);
+      expect(addElements.length).toBeGreaterThan(0);
+      const interactiveAddElement = addElements.find(
+        (el: Element) => el.closest('a') || el.closest('button') || el.getAttribute('role') === 'button',
+      );
+      expect(interactiveAddElement).toBeTruthy();
+    });
 
-    const checkboxes = await canvas.findAllByRole('checkbox');
-    expect(checkboxes.length).toBeGreaterThan(2);
+    await step('Select service accounts and verify bulk selection', async () => {
+      const checkboxes = await canvas.findAllByRole('checkbox');
+      expect(checkboxes.length).toBeGreaterThan(2);
 
-    await userEvent.click(checkboxes[1]);
-    expect(checkboxes[1]).toBeChecked();
-    await userEvent.click(checkboxes[2]);
-    expect(checkboxes[2]).toBeChecked();
+      await userEvent.click(checkboxes[1]);
+      expect(checkboxes[1]).toBeChecked();
+      await userEvent.click(checkboxes[2]);
+      expect(checkboxes[2]).toBeChecked();
 
-    const headerCheckbox = checkboxes[0];
-    await userEvent.click(headerCheckbox);
-    expect(headerCheckbox).toBeInTheDocument();
+      const headerCheckbox = checkboxes[0];
+      await userEvent.click(headerCheckbox);
+      expect(headerCheckbox).toBeInTheDocument();
 
-    const selectedCheckboxes = checkboxes.filter((cb: Element) => cb instanceof HTMLInputElement && cb.checked);
-    expect(selectedCheckboxes.length).toBeGreaterThan(0);
+      const selectedCheckboxes = checkboxes.filter((cb: Element) => cb instanceof HTMLInputElement && cb.checked);
+      expect(selectedCheckboxes.length).toBeGreaterThan(0);
 
-    expect(checkboxes[1]).toBeChecked();
-    expect(checkboxes[2]).toBeChecked();
+      expect(checkboxes[1]).toBeChecked();
+      expect(checkboxes[2]).toBeChecked();
+    });
   },
 };
 
@@ -350,7 +352,6 @@ export const ServiceAccountsFilteringWithData: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    await delay(300);
     const canvas = within(canvasElement);
 
     await waitFor(
@@ -462,14 +463,15 @@ export const AddServiceAccountLinkTest: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    const addButton = await canvas.findByRole('button', { name: /add service account/i });
-    expect(addButton).toBeInTheDocument();
+    await step('Verify Add button and hover', async () => {
+      const addButton = await canvas.findByRole('button', { name: /add service account/i });
+      expect(addButton).toBeInTheDocument();
 
-    await userEvent.hover(addButton);
+      await userEvent.hover(addButton);
+    });
   },
 };
 
@@ -496,36 +498,46 @@ export const BulkActionsTest: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await canvas.findByText(bulkActionsServiceAccounts[0].name!, undefined, { timeout: 10000 });
+    await step('Select row and open bulk actions', async () => {
+      await canvas.findByText(bulkActionsServiceAccounts[0].name!, undefined, { timeout: 10000 });
 
-    const table = canvas.getByRole('grid');
-    const allCheckboxes = within(table).getAllByRole('checkbox');
+      const table = canvas.getByRole('grid');
+      const allCheckboxes = within(table).getAllByRole('checkbox');
 
-    const rowCheckboxes = allCheckboxes.filter((checkbox) => {
-      const label = checkbox.getAttribute('aria-label') || '';
-      return label.includes('Select row');
+      const rowCheckboxes = allCheckboxes.filter((checkbox) => {
+        const label = checkbox.getAttribute('aria-label') || '';
+        return label.includes('Select row');
+      });
+
+      expect(rowCheckboxes.length).toBeGreaterThan(0);
+
+      await userEvent.click(rowCheckboxes[0]);
+
+      expect(rowCheckboxes[0]).toBeChecked();
+
+      const bulkActionButton = await canvas.findByRole('button', { name: /bulk actions/i });
+      await userEvent.click(bulkActionButton);
+
+      const removeOption = await within(document.body).findByRole('menuitem', { name: /remove/i });
+      expect(removeOption).toBeInTheDocument();
+
+      await userEvent.click(canvasElement);
     });
 
-    expect(rowCheckboxes.length).toBeGreaterThan(0);
+    await step('Deselect row', async () => {
+      const table = canvas.getByRole('grid');
+      const allCheckboxes = within(table).getAllByRole('checkbox');
+      const rowCheckboxes = allCheckboxes.filter((checkbox) => {
+        const label = checkbox.getAttribute('aria-label') || '';
+        return label.includes('Select row');
+      });
 
-    await userEvent.click(rowCheckboxes[0]);
-
-    expect(rowCheckboxes[0]).toBeChecked();
-
-    const bulkActionButton = await canvas.findByRole('button', { name: /bulk actions/i });
-    await userEvent.click(bulkActionButton);
-
-    const removeOption = await within(document.body).findByRole('menuitem', { name: /remove/i });
-    expect(removeOption).toBeInTheDocument();
-
-    await userEvent.click(canvasElement);
-
-    await userEvent.click(rowCheckboxes[0]);
-    expect(rowCheckboxes[0]).not.toBeChecked();
+      await userEvent.click(rowCheckboxes[0]);
+      expect(rowCheckboxes[0]).not.toBeChecked();
+    });
   },
 };
 
@@ -556,46 +568,51 @@ export const SelectAllTest: Story = {
   args: {
     groupId: 'test-group-id',
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    await waitFor(() => {
-      expect(canvas.getByRole('grid')).toBeInTheDocument();
-    });
-
-    await waitFor(() => {
-      expect(canvas.getByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
-    });
-
-    const selectAllCheckbox = canvas.getByLabelText('Select page');
-    expect(selectAllCheckbox).toBeInTheDocument();
-    expect(selectAllCheckbox).not.toBeChecked();
-
-    await user.click(selectAllCheckbox);
-
-    await waitFor(() => {
-      const allCheckboxes = canvas.getAllByRole('checkbox');
-      const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
-
-      rowCheckboxes.forEach((checkbox) => {
-        expect(checkbox).toBeChecked();
+    await step('Select all on page', async () => {
+      await waitFor(() => {
+        expect(canvas.getByRole('grid')).toBeInTheDocument();
       });
+
+      await waitFor(() => {
+        expect(canvas.getByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
+      });
+
+      const selectAllCheckbox = canvas.getByLabelText('Select page');
+      expect(selectAllCheckbox).toBeInTheDocument();
+      expect(selectAllCheckbox).not.toBeChecked();
+
+      await user.click(selectAllCheckbox);
+
+      await waitFor(() => {
+        const allCheckboxes = canvas.getAllByRole('checkbox');
+        const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
+
+        rowCheckboxes.forEach((checkbox) => {
+          expect(checkbox).toBeChecked();
+        });
+      });
+
+      const bulkActionsButton = canvas.queryByRole('button', { name: /bulk actions/i });
+      if (bulkActionsButton) {
+        expect(bulkActionsButton).toBeEnabled();
+      }
     });
 
-    const bulkActionsButton = canvas.queryByRole('button', { name: /bulk actions/i });
-    if (bulkActionsButton) {
-      expect(bulkActionsButton).toBeEnabled();
-    }
+    await step('Deselect all on page', async () => {
+      const selectAllCheckbox = canvas.getByLabelText('Select page');
+      await user.click(selectAllCheckbox);
 
-    await user.click(selectAllCheckbox);
+      await waitFor(() => {
+        const allCheckboxes = canvas.getAllByRole('checkbox');
+        const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
 
-    await waitFor(() => {
-      const allCheckboxes = canvas.getAllByRole('checkbox');
-      const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
-
-      rowCheckboxes.forEach((checkbox) => {
-        expect(checkbox).not.toBeChecked();
+        rowCheckboxes.forEach((checkbox) => {
+          expect(checkbox).not.toBeChecked();
+        });
       });
     });
   },
@@ -624,39 +641,43 @@ export const ActionsTest: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    const addButton = await canvas.findByRole('button', { name: /add service account/i });
-    expect(addButton).toBeInTheDocument();
+    await step('Verify Add button and row actions', async () => {
+      const addButton = await canvas.findByRole('button', { name: /add service account/i });
+      expect(addButton).toBeInTheDocument();
 
-    const actionsHeader = await canvas.findByText('Actions');
-    expect(actionsHeader).toBeInTheDocument();
+      const actionsHeader = await canvas.findByText('Actions');
+      expect(actionsHeader).toBeInTheDocument();
 
-    const table = await canvas.findByRole('grid');
-    const rowActionButtons = within(table).queryAllByRole('button', { name: /actions for service account/i });
-    expect(rowActionButtons.length).toBeGreaterThan(0);
+      const table = await canvas.findByRole('grid');
+      const rowActionButtons = within(table).queryAllByRole('button', { name: /actions for service account/i });
+      expect(rowActionButtons.length).toBeGreaterThan(0);
+    });
 
-    const checkboxes = within(table).getAllByRole('checkbox');
-    const selectableCheckboxes = checkboxes.filter((checkbox) => checkbox.getAttribute('aria-label')?.includes('Select row'));
+    await step('Select row and verify bulk actions', async () => {
+      const table = await canvas.findByRole('grid');
+      const checkboxes = within(table).getAllByRole('checkbox');
+      const selectableCheckboxes = checkboxes.filter((checkbox) => checkbox.getAttribute('aria-label')?.includes('Select row'));
 
-    if (selectableCheckboxes.length > 0) {
-      await userEvent.click(selectableCheckboxes[0]);
+      if (selectableCheckboxes.length > 0) {
+        await userEvent.click(selectableCheckboxes[0]);
 
-      await waitFor(
-        async () => {
-          const bulkActionButton = canvas.queryByRole('button', { name: /bulk actions/i });
-          expect(bulkActionButton).toBeInTheDocument();
-        },
-        { timeout: 2000 },
-      );
+        await waitFor(
+          async () => {
+            const bulkActionButton = canvas.queryByRole('button', { name: /bulk actions/i });
+            expect(bulkActionButton).toBeInTheDocument();
+          },
+          { timeout: 2000 },
+        );
 
-      const bulkActionButton = canvas.getByRole('button', { name: /bulk actions/i });
-      await userEvent.click(bulkActionButton);
+        const bulkActionButton = canvas.getByRole('button', { name: /bulk actions/i });
+        await userEvent.click(bulkActionButton);
 
-      const removeOption = await within(document.body).findByText('Remove');
-      expect(removeOption).toBeInTheDocument();
-    }
+        const removeOption = await within(document.body).findByText('Remove');
+        expect(removeOption).toBeInTheDocument();
+      }
+    });
   },
 };

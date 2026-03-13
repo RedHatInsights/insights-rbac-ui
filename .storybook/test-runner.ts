@@ -23,9 +23,15 @@
  */
 
 import type { TestRunnerConfig } from '@storybook/test-runner';
+import type { ConsoleMessage } from 'playwright';
 
 // Track errors per story
 const storyErrors = new Map<string, string[]>();
+
+// Track console listeners so we can remove them in postVisit.
+// Without cleanup, ~900 listeners accumulate over a full test run,
+// degrading performance for late-running (heavy) stories on CI.
+const storyListeners = new Map<string, (msg: ConsoleMessage) => void>();
 
 /**
  * ============================================================================
@@ -73,6 +79,12 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
     pattern: /OrganizationManagement: (Failed to fetch user data|No user data received|User identity not available)/,
     label: 'OrganizationManagement error testing (intentional)',
   },
+
+  // Play function assertion errors re-logged to console.error by Storybook's runtime.
+  // The play function itself already throws — the test runner reports that failure.
+  // Without this ignore, postVisit double-counts the error with a less useful message.
+  { pattern: /HtmlElementTypeError/, label: 'jest-dom assertion (play function)' },
+  { pattern: /TestingLibraryElementError/, label: 'testing-library assertion (play function)' },
 
   // Storybook/Testing Library informational warnings (not runtime issues)
   { pattern: /You are using Testing Library's `screen` object/, label: 'Testing Library screen warning' },
@@ -227,6 +239,20 @@ const IGNORED_ERROR_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
    * NOT A BUG: Test should use more specific selectors
    */
   { pattern: /TestingLibraryElementError: Found multiple elements with the text.*select role/i, label: 'Multiple select role elements' },
+
+  /**
+   * EXTERNAL: React act() warning in test environment
+   * WHERE: Stories with async state updates during Playwright evaluation
+   * WORKAROUND: None — Storybook test-runner doesn't configure act() support
+   */
+  { pattern: /The current testing environment is not configured to support act/, label: 'React act() warning' },
+
+  /**
+   * EXTERNAL: Storybook Story Store deprecation warning
+   * WHERE: Stories that access the deprecated Story Store API
+   * WORKAROUND: Will be resolved when upgrading to Storybook 9.x
+   */
+  { pattern: /Accessing the Story Store is deprecated/, label: 'Storybook Story Store deprecation' },
 ];
 
 /**
@@ -268,22 +294,39 @@ function isCriticalError(errorText: string): boolean {
 }
 
 const config: TestRunnerConfig = {
+  async prepare({ page, browserContext, testRunnerConfig }) {
+    page.setDefaultTimeout(60_000);
+    const targetURL = process.env.TARGET_URL || 'http://127.0.0.1:6006';
+    const iframeURL = new URL('iframe.html', targetURL).toString();
+    if (testRunnerConfig?.getHttpHeaders) {
+      const headers = await testRunnerConfig.getHttpHeaders(iframeURL);
+      await browserContext.setExtraHTTPHeaders(headers);
+    }
+    await page.goto(iframeURL, { waitUntil: 'load' });
+  },
   async preVisit(page, context) {
     const { id, tags } = context;
 
-    // Skip stories with 'test-skip' tag
-    if (tags?.includes('test-skip')) {
+    // Skip stories with 'skip-test' tag
+    if (tags?.includes('skip-test')) {
       return;
     }
 
     // force the same viewport Chromatic uses
     await page.setViewportSize({ width: 1200, height: 500 });
 
+    // Remove any leftover listener from the previous story on this page
+    const prev = storyListeners.get(id);
+    if (prev) {
+      page.off('console', prev);
+      storyListeners.delete(id);
+    }
+
     // Initialize error collection for this story
     storyErrors.set(id, []);
 
     // Attach a listener to capture all browser console messages
-    page.on('console', async (msg) => {
+    const listener = (msg: ConsoleMessage) => {
       const text = msg.text();
       const type = msg.type();
 
@@ -320,15 +363,25 @@ const config: TestRunnerConfig = {
           storyErrors.set(id, errors);
         }
       }
-    });
+    };
+
+    storyListeners.set(id, listener);
+    page.on('console', listener);
   },
 
   // Hook to execute after each story is tested
   async postVisit(page, context) {
     const { id, title, name, tags } = context;
 
-    // Skip stories with 'test-skip' tag
-    if (tags?.includes('test-skip')) {
+    // Clean up the console listener to prevent accumulation across stories
+    const listener = storyListeners.get(id);
+    if (listener) {
+      page.off('console', listener);
+      storyListeners.delete(id);
+    }
+
+    // Skip stories with 'skip-test' tag
+    if (tags?.includes('skip-test')) {
       return;
     }
 
@@ -351,7 +404,7 @@ const config: TestRunnerConfig = {
 
   // Configure tags to skip certain stories if needed
   tags: {
-    skip: ['skip-test', 'test-skip'],
+    skip: ['skip-test'],
   },
 };
 

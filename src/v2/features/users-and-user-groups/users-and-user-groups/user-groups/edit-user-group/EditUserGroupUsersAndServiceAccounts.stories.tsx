@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
 import { ComponentMapper, FormRenderer } from '@data-driven-forms/react-form-renderer';
 
 import { usersHandlers, usersLoadingHandlers } from '../../../../../../shared/data/mocks/users.handlers';
@@ -195,38 +194,39 @@ export const Default: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for the component to load
-    await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Service accounts')).resolves.toBeInTheDocument();
+      // Wait for the component to load
+      await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Service accounts')).resolves.toBeInTheDocument();
 
-    // Verify the Users tab is active by default
-    const usersTab = await canvas.findByText('Users');
+      // Verify the Users tab is active by default
+      const usersTab = await canvas.findByText('Users');
 
-    // Wait for users to load in the table
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      // Wait for users to load in the table
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
 
-    // Verify users are displayed
-    await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
+      // Verify users are displayed
+      await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
 
-    // Switch to Service Accounts tab
-    const serviceAccountsTab = await canvas.findByText('Service accounts');
-    await userEvent.click(serviceAccountsTab);
+      // Switch to Service Accounts tab
+      const serviceAccountsTab = await canvas.findByText('Service accounts');
+      await userEvent.click(serviceAccountsTab);
 
-    // Wait for service accounts to load
-    await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
+      // Wait for service accounts to load
+      await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
 
-    // Verify service accounts are displayed
-    await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
+      // Verify service accounts are displayed
+      await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
 
-    // Switch back to Users tab
-    await userEvent.click(usersTab);
+      // Switch back to Users tab
+      await userEvent.click(usersTab);
 
-    // Verify users are still displayed
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      // Verify users are still displayed
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -243,38 +243,39 @@ export const NewGroup: Story = {
       handlers: [...usersHandlers(mockUsers), ...serviceAccountsHandlers(mockServiceAccountsForList), ...createGroupMembersHandlers({}, {})],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for the component to load
-    await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Service accounts')).resolves.toBeInTheDocument();
+      // Wait for the component to load
+      await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Service accounts')).resolves.toBeInTheDocument();
 
-    // Wait for users to load
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      // Wait for users to load
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
 
-    // Verify no users are pre-selected
-    const userCheckboxes = await canvas.findAllByRole('checkbox');
-    userCheckboxes.forEach(async (checkbox) => {
-      if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
-        await expect(checkbox).not.toBeChecked();
-      }
-    });
+      // Verify no users are pre-selected
+      const userCheckboxes = await canvas.findAllByRole('checkbox');
+      userCheckboxes.forEach(async (checkbox) => {
+        if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
+          await expect(checkbox).not.toBeChecked();
+        }
+      });
 
-    // Switch to Service Accounts tab
-    const serviceAccountsTab = await canvas.findByText('Service accounts');
-    await userEvent.click(serviceAccountsTab);
+      // Switch to Service Accounts tab
+      const serviceAccountsTab = await canvas.findByText('Service accounts');
+      await userEvent.click(serviceAccountsTab);
 
-    // Wait for service accounts to load
-    await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
+      // Wait for service accounts to load
+      await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
 
-    // Verify no service accounts are pre-selected
-    const serviceAccountCheckboxes = await canvas.findAllByRole('checkbox');
-    serviceAccountCheckboxes.forEach(async (checkbox) => {
-      if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
-        await expect(checkbox).not.toBeChecked();
-      }
+      // Verify no service accounts are pre-selected
+      const serviceAccountCheckboxes = await canvas.findAllByRole('checkbox');
+      serviceAccountCheckboxes.forEach(async (checkbox) => {
+        if (checkbox.getAttribute('aria-label')?.includes('Select row')) {
+          await expect(checkbox).not.toBeChecked();
+        }
+      });
     });
   },
 };
@@ -296,61 +297,62 @@ export const TabSwitchingWithSelections: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for component to load
-    await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
+      // Wait for component to load
+      await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
 
-    // Wait for users to load and verify John is pre-selected
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      // Wait for users to load and verify John is pre-selected
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
 
-    // Find John's row and verify he's selected
-    const johnRow = (await canvas.findByText('john.doe')).closest('tr');
-    const johnCheckbox = within(johnRow as HTMLElement).getByRole('checkbox');
+      // Find John's row and verify he's selected
+      const johnRow = (await canvas.findByText('john.doe')).closest('tr');
+      const johnCheckbox = within(johnRow as HTMLElement).getByRole('checkbox');
 
-    // Wait for initial selection to be applied
-    await expect(johnCheckbox).toBeChecked();
+      // Wait for initial selection to be applied
+      await expect(johnCheckbox).toBeChecked();
 
-    // Select Jane as well
-    const janeRow = (await canvas.findByText('jane.smith')).closest('tr');
-    const janeCheckbox = within(janeRow as HTMLElement).getByRole('checkbox');
-    await userEvent.click(janeCheckbox);
+      // Select Jane as well
+      const janeRow = (await canvas.findByText('jane.smith')).closest('tr');
+      const janeCheckbox = within(janeRow as HTMLElement).getByRole('checkbox');
+      await userEvent.click(janeCheckbox);
 
-    // Verify Jane is now selected
-    await expect(janeCheckbox).toBeChecked();
+      // Verify Jane is now selected
+      await expect(janeCheckbox).toBeChecked();
 
-    // Switch to Service Accounts tab
-    const serviceAccountsTab = await canvas.findByText('Service accounts');
-    await userEvent.click(serviceAccountsTab);
+      // Switch to Service Accounts tab
+      const serviceAccountsTab = await canvas.findByText('Service accounts');
+      await userEvent.click(serviceAccountsTab);
 
-    // Wait for service accounts to load
-    await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
+      // Wait for service accounts to load
+      await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
 
-    // Select a service account
-    const webappRow = (await canvas.findByText('webapp-service')).closest('tr');
-    const webappCheckbox = within(webappRow as HTMLElement).getByRole('checkbox');
-    await userEvent.click(webappCheckbox);
+      // Select a service account
+      const webappRow = (await canvas.findByText('webapp-service')).closest('tr');
+      const webappCheckbox = within(webappRow as HTMLElement).getByRole('checkbox');
+      await userEvent.click(webappCheckbox);
 
-    // Verify service account is selected
-    await expect(webappCheckbox).toBeChecked();
+      // Verify service account is selected
+      await expect(webappCheckbox).toBeChecked();
 
-    // Switch back to Users tab
-    const usersTab = await canvas.findByText('Users');
-    await userEvent.click(usersTab);
+      // Switch back to Users tab
+      const usersTab = await canvas.findByText('Users');
+      await userEvent.click(usersTab);
 
-    // Verify user selections are preserved
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      // Verify user selections are preserved
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
 
-    // Check that both users are still selected
-    const johnRowAgain = (await canvas.findByText('john.doe')).closest('tr');
-    const johnCheckboxAgain = within(johnRowAgain as HTMLElement).getByRole('checkbox');
-    await expect(johnCheckboxAgain).toBeChecked();
+      // Check that both users are still selected
+      const johnRowAgain = (await canvas.findByText('john.doe')).closest('tr');
+      const johnCheckboxAgain = within(johnRowAgain as HTMLElement).getByRole('checkbox');
+      await expect(johnCheckboxAgain).toBeChecked();
 
-    const janeRowAgain = (await canvas.findByText('jane.smith')).closest('tr');
-    const janeCheckboxAgain = within(janeRowAgain as HTMLElement).getByRole('checkbox');
-    await expect(janeCheckboxAgain).toBeChecked();
+      const janeRowAgain = (await canvas.findByText('jane.smith')).closest('tr');
+      const janeCheckboxAgain = within(janeRowAgain as HTMLElement).getByRole('checkbox');
+      await expect(janeCheckboxAgain).toBeChecked();
+    });
   },
 };
 
@@ -371,46 +373,47 @@ export const PrePopulatedGroup: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for component to load
-    await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
+      // Wait for component to load
+      await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
 
-    // Wait for users to load
-    await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
+      // Wait for users to load
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
 
-    // Verify both users are pre-selected
-    const johnRow = (await canvas.findByText('john.doe')).closest('tr');
-    const johnCheckbox = within(johnRow as HTMLElement).getByRole('checkbox');
+      // Verify both users are pre-selected
+      const johnRow = (await canvas.findByText('john.doe')).closest('tr');
+      const johnCheckbox = within(johnRow as HTMLElement).getByRole('checkbox');
 
-    const janeRow = (await canvas.findByText('jane.smith')).closest('tr');
-    const janeCheckbox = within(janeRow as HTMLElement).getByRole('checkbox');
+      const janeRow = (await canvas.findByText('jane.smith')).closest('tr');
+      const janeCheckbox = within(janeRow as HTMLElement).getByRole('checkbox');
 
-    // Wait for initial user selection to be applied
-    await expect(johnCheckbox).toBeChecked();
-    await expect(janeCheckbox).toBeChecked();
+      // Wait for initial user selection to be applied
+      await expect(johnCheckbox).toBeChecked();
+      await expect(janeCheckbox).toBeChecked();
 
-    // Switch to Service Accounts tab
-    const serviceAccountsTab = await canvas.findByText('Service accounts');
-    await userEvent.click(serviceAccountsTab);
+      // Switch to Service Accounts tab
+      const serviceAccountsTab = await canvas.findByText('Service accounts');
+      await userEvent.click(serviceAccountsTab);
 
-    // Wait for service accounts to load
-    await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
+      // Wait for service accounts to load
+      await expect(canvas.findByText('webapp-service')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('api-gateway-service')).resolves.toBeInTheDocument();
 
-    // Verify both service accounts are pre-selected
-    const webappRow = (await canvas.findByText('webapp-service')).closest('tr');
-    const webappCheckbox = within(webappRow as HTMLElement).getByRole('checkbox');
+      // Verify both service accounts are pre-selected
+      const webappRow = (await canvas.findByText('webapp-service')).closest('tr');
+      const webappCheckbox = within(webappRow as HTMLElement).getByRole('checkbox');
 
-    const apiGatewayRow = (await canvas.findByText('api-gateway-service')).closest('tr');
-    const apiGatewayCheckbox = within(apiGatewayRow as HTMLElement).getByRole('checkbox');
+      const apiGatewayRow = (await canvas.findByText('api-gateway-service')).closest('tr');
+      const apiGatewayCheckbox = within(apiGatewayRow as HTMLElement).getByRole('checkbox');
 
-    // Wait for initial service account selection to be applied
-    await expect(webappCheckbox).toBeChecked();
-    await expect(apiGatewayCheckbox).toBeChecked();
+      // Wait for initial service account selection to be applied
+      await expect(webappCheckbox).toBeChecked();
+      await expect(apiGatewayCheckbox).toBeChecked();
+    });
   },
 };
 
@@ -427,34 +430,35 @@ export const LoadingStates: Story = {
       handlers: [...usersLoadingHandlers(), ...serviceAccountsLoadingHandlers(), ...groupMembersLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for component structure to load
-    await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Service accounts')).resolves.toBeInTheDocument();
+      // Wait for component structure to load
+      await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Service accounts')).resolves.toBeInTheDocument();
 
-    // Check for loading state in Users tab
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        await expect(skeletonElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 },
-    );
+      // Check for loading state in Users tab
+      await waitFor(
+        async () => {
+          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+          await expect(skeletonElements.length).toBeGreaterThan(0);
+        },
+        { timeout: 10000 },
+      );
 
-    // Switch to Service Accounts tab and check loading there too
-    const serviceAccountsTab = await canvas.findByText('Service accounts');
-    await userEvent.click(serviceAccountsTab);
+      // Switch to Service Accounts tab and check loading there too
+      const serviceAccountsTab = await canvas.findByText('Service accounts');
+      await userEvent.click(serviceAccountsTab);
 
-    // Service accounts should also show loading
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        await expect(skeletonElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 },
-    );
+      // Service accounts should also show loading
+      await waitFor(
+        async () => {
+          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+          await expect(skeletonElements.length).toBeGreaterThan(0);
+        },
+        { timeout: 10000 },
+      );
+    });
   },
 };

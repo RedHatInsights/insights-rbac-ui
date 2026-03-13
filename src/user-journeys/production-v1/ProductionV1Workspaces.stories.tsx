@@ -1,9 +1,9 @@
 import { expect, within } from 'storybook/test';
-import { delay } from 'msw';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
 import { createResettableCollection } from '../../shared/data/mocks/db';
 import { createV1Handlers } from '../../v1/data/mocks/handlers';
 import { createWorkspacesHandlers } from '../../v2/data/mocks/workspaces.handlers';
-import { Story, TEST_TIMEOUTS, meta, resetStoryState, v1Db, waitForPageToLoad } from './_v1OrgAdminSetup';
+import { Story, meta, resetStoryState, v1Db, waitForPageToLoad } from './_v1OrgAdminSetup';
 import { DEFAULT_WORKSPACES, WS_ROOT } from '../../v2/data/mocks/seed';
 
 const workspacesCollection = createResettableCollection(DEFAULT_WORKSPACES);
@@ -39,20 +39,27 @@ Tests that V1 Org Admin can access the Workspaces page.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(viewWorkspacesDb);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await delay(TEST_TIMEOUTS.AFTER_EXPAND);
+    await step('Reset state', async () => {
+      await resetStoryState(viewWorkspacesDb);
+    });
 
-    await waitForPageToLoad(canvas, WS_ROOT.name);
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
 
-    const workspacesHeading = await canvas.findByRole('heading', { name: /workspaces/i, level: 1 });
-    expect(workspacesHeading).toBeInTheDocument();
+    await step('Wait for page to load', async () => {
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+    });
 
-    expect(canvas.getByText(WS_ROOT.name)).toBeInTheDocument();
-
-    const createButton = await canvas.findByRole('button', { name: /create workspace/i });
-    expect(createButton).toBeInTheDocument();
+    await step('Verify workspaces list and create button', async () => {
+      const workspacesHeading = await canvas.findByRole('heading', { name: /workspaces/i, level: 1 });
+      expect(workspacesHeading).toBeInTheDocument();
+      expect(canvas.getByText(WS_ROOT.name)).toBeInTheDocument();
+      const createButton = await canvas.findByRole('button', { name: /create workspace/i });
+      expect(createButton).toBeInTheDocument();
+    });
   },
 };

@@ -123,7 +123,14 @@ export const WorkspaceSelector = <T extends TreeViewDataItem>({
   }, [customMenuWidth, isMenuExpanded]);
 
   const menu = (
-    <Panel isScrollable ref={menuRef} variant="raised" className="rbac-c-workspace-selector-menu" style={{ width: menuWidth, maxWidth: menuWidth }}>
+    <Panel
+      isScrollable
+      ref={menuRef}
+      variant="raised"
+      className="rbac-c-workspace-selector-menu"
+      data-testid="workspace-selector-menu"
+      style={{ width: menuWidth, maxWidth: menuWidth }}
+    >
       <PanelHeader className="pf-v6-u-pb-0">
         <SearchInput
           placeholder={searchPlaceholder}

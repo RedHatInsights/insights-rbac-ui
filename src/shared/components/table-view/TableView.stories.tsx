@@ -12,6 +12,7 @@ import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dis
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
+import type { ScopedQueries } from '../../../test-utils/interactionHelpers';
 import { withRouter } from '../../../../.storybook/helpers/router-test-utils';
 import { v1RolesHandlers, v1RolesLoadingHandlers } from '../../../v1/data/mocks/roles.handlers';
 import type { RoleOutDynamic } from '../../../v1/data/mocks/db';
@@ -275,7 +276,7 @@ async function waitForInitialLoad(canvasElement: HTMLElement) {
 /**
  * Apply a text filter to the name filter input.
  */
-async function applyNameFilter(canvas: ReturnType<typeof within>, value: string) {
+async function applyNameFilter(canvas: ScopedQueries, value: string) {
   const input = canvas.getByPlaceholderText(/filter by name/i);
   await userEvent.clear(input);
   await userEvent.type(input, value);
@@ -292,7 +293,7 @@ function getLastApiCall(spy: ReturnType<typeof fn>) {
 /**
  * Click the "Clear filters" button.
  */
-async function clickClearFilters(canvas: ReturnType<typeof within>) {
+async function clickClearFilters(canvas: ScopedQueries) {
   const clearButtons = canvas.getAllByText('Clear filters');
   await userEvent.click(clearButtons[0]);
 }
@@ -871,15 +872,17 @@ Override default empty states with custom components:
     enableFilters: true,
     variant: 'default',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
+
+      // Verify toolbar actions
+      expect(canvas.getByText('Create role')).toBeInTheDocument();
     });
-
-    // Verify toolbar actions
-    expect(canvas.getByText('Create role')).toBeInTheDocument();
   },
 };
 
@@ -890,16 +893,18 @@ export const CompactVariant: Story = {
   args: {
     variant: 'compact',
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
+
+      // Verify compact class is applied
+      const table = canvasElement.querySelector('.pf-m-compact');
+      expect(table).toBeInTheDocument();
     });
-
-    // Verify compact class is applied
-    const table = canvasElement.querySelector('.pf-m-compact');
-    expect(table).toBeInTheDocument();
   },
 };
 
@@ -913,9 +918,11 @@ export const Loading: Story = {
       handlers: [...v1RolesLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
-    expect(skeletonElements.length).toBeGreaterThan(0);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
+      expect(skeletonElements.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -927,13 +934,15 @@ export const DefaultEmptyState: Story = {
   args: {
     forceEmpty: true,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      // Default empty state shows "No data available"
-      expect(canvas.getByText('No data available')).toBeInTheDocument();
-      expect(canvas.getByText(/There is no data to display/)).toBeInTheDocument();
+      await waitFor(() => {
+        // Default empty state shows "No data available"
+        expect(canvas.getByText('No data available')).toBeInTheDocument();
+        expect(canvas.getByText(/There is no data to display/)).toBeInTheDocument();
+      });
     });
   },
 };
@@ -949,12 +958,14 @@ export const CustomEmptyStateNoData: Story = {
       <DefaultEmptyStateNoData title="🚀 No roles configured yet" body="Create your first role to start managing permissions." />
     ),
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('🚀 No roles configured yet')).toBeInTheDocument();
-      expect(canvas.getByText('Create your first role to start managing permissions.')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText('🚀 No roles configured yet')).toBeInTheDocument();
+        expect(canvas.getByText('Create your first role to start managing permissions.')).toBeInTheDocument();
+      });
     });
   },
 };
@@ -971,20 +982,22 @@ export const CustomEmptyStateNoResults: Story = {
       <DefaultEmptyStateNoResults title="🔍 No matching roles found" body="Try adjusting your search criteria or removing some filters." />
     ),
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
 
-    // Type a filter that will return no results
-    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
-    await userEvent.type(filterInput, 'nonexistent12345');
+      // Type a filter that will return no results
+      const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+      await userEvent.type(filterInput, 'nonexistent12345');
 
-    // Verify custom empty state appears
-    await waitFor(() => {
-      expect(canvas.getByText('🔍 No matching roles found')).toBeInTheDocument();
+      // Verify custom empty state appears
+      await waitFor(() => {
+        expect(canvas.getByText('🔍 No matching roles found')).toBeInTheDocument();
+      });
     });
   },
 };
@@ -1006,18 +1019,20 @@ export const CustomEmptyStateWithAction: Story = {
       </div>
     ),
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('🎉 Get started with roles')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText('🎉 Get started with roles')).toBeInTheDocument();
+      });
+
+      // Click the action button
+      const createButton = canvas.getByRole('button', { name: /create your first role/i });
+      await userEvent.click(createButton);
+
+      expect(onCreateSpy).toHaveBeenCalled();
     });
-
-    // Click the action button
-    const createButton = canvas.getByRole('button', { name: /create your first role/i });
-    await userEvent.click(createButton);
-
-    expect(onCreateSpy).toHaveBeenCalled();
   },
 };
 
@@ -1033,45 +1048,47 @@ export const SelectionWithBulkDelete: Story = {
   args: {
     enableSelection: true,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
 
-    // Clear spies
-    onBulkDeleteSpy.mockClear();
+      // Clear spies
+      onBulkDeleteSpy.mockClear();
 
-    // Find row checkboxes (skip bulk select which is first)
-    const checkboxes = canvas.getAllByRole('checkbox');
-    expect(checkboxes.length).toBeGreaterThan(1);
+      // Find row checkboxes (skip bulk select which is first)
+      const checkboxes = canvas.getAllByRole('checkbox');
+      expect(checkboxes.length).toBeGreaterThan(1);
 
-    // Select first two rows
-    await userEvent.click(checkboxes[1]);
-    await userEvent.click(checkboxes[2]);
+      // Select first two rows
+      await userEvent.click(checkboxes[1]);
+      await userEvent.click(checkboxes[2]);
 
-    // Should see bulk delete button
-    await waitFor(() => {
-      expect(canvas.getByText(/Delete selected \(2\)/)).toBeInTheDocument();
-    });
+      // Should see bulk delete button
+      await waitFor(() => {
+        expect(canvas.getByText(/Delete selected \(2\)/)).toBeInTheDocument();
+      });
 
-    // Click bulk delete
-    const deleteButton = canvas.getByText(/Delete selected/);
-    await userEvent.click(deleteButton);
+      // Click bulk delete
+      const deleteButton = canvas.getByText(/Delete selected/);
+      await userEvent.click(deleteButton);
 
-    // Verify callback was called with correct selected rows data
-    await waitFor(() => {
-      expect(onBulkDeleteSpy).toHaveBeenCalledTimes(1);
-      const selectedRows = onBulkDeleteSpy.mock.calls[0][0];
-      expect(selectedRows).toHaveLength(2);
+      // Verify callback was called with correct selected rows data
+      await waitFor(() => {
+        expect(onBulkDeleteSpy).toHaveBeenCalledTimes(1);
+        const selectedRows = onBulkDeleteSpy.mock.calls[0][0];
+        expect(selectedRows).toHaveLength(2);
 
-      selectedRows.forEach((row: RoleOutDynamic) => {
-        expect(row).toHaveProperty('uuid');
-        expect(row).toHaveProperty('display_name');
-        expect(row).toHaveProperty('description');
-        expect(row).toHaveProperty('accessCount');
-        expect(row.uuid).toMatch(/^role-\d+$/);
+        selectedRows.forEach((row: RoleOutDynamic) => {
+          expect(row).toHaveProperty('uuid');
+          expect(row).toHaveProperty('display_name');
+          expect(row).toHaveProperty('description');
+          expect(row).toHaveProperty('accessCount');
+          expect(row.uuid).toMatch(/^role-\d+$/);
+        });
       });
     });
   },
@@ -1084,16 +1101,18 @@ export const NoSelection: Story = {
   args: {
     enableSelection: false,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
+
+      // Should not have checkboxes
+      const checkboxes = canvas.queryAllByRole('checkbox');
+      expect(checkboxes.length).toBe(0);
     });
-
-    // Should not have checkboxes
-    const checkboxes = canvas.queryAllByRole('checkbox');
-    expect(checkboxes.length).toBe(0);
   },
 };
 
@@ -1107,60 +1126,62 @@ export const NoSelection: Story = {
  */
 export const RowActionsWithCallbacks: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
-
-    // Clear spies
-    onEditSpy.mockClear();
-    onDeleteSpy.mockClear();
-
-    // Find and click actions menu for first row
-    const actionsToggle = canvas.getByLabelText('Actions for Administrator 1');
-    await userEvent.click(actionsToggle);
-
-    // Click Edit
-    await waitFor(() => {
-      expect(within(document.body).getByText('Edit')).toBeInTheDocument();
-    });
-    await userEvent.click(within(document.body).getByText('Edit'));
-
-    // Verify edit callback was called with correct role data
-    await waitFor(() => {
-      expect(onEditSpy).toHaveBeenCalledTimes(1);
-      const editedRole = onEditSpy.mock.calls[0][0];
-      // Verify the full role object structure
-      expect(editedRole).toMatchObject({
-        uuid: 'role-1',
-        display_name: 'Administrator 1',
-        description: 'Full system access',
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
       });
-      expect(editedRole.accessCount).toBeGreaterThan(0);
-      expect(editedRole.modified).toBeDefined();
-    });
 
-    // Open menu again and click Delete
-    await userEvent.click(actionsToggle);
-    await waitFor(() => {
-      expect(within(document.body).getByText('Delete')).toBeInTheDocument();
-    });
-    await userEvent.click(within(document.body).getByText('Delete'));
+      // Clear spies
+      onEditSpy.mockClear();
+      onDeleteSpy.mockClear();
 
-    // Verify delete callback was called with correct role data
-    await waitFor(() => {
-      expect(onDeleteSpy).toHaveBeenCalledTimes(1);
-      const deletedRole = onDeleteSpy.mock.calls[0][0];
-      // Verify the full role object structure
-      expect(deletedRole).toMatchObject({
-        uuid: 'role-1',
-        display_name: 'Administrator 1',
-        description: 'Full system access',
+      // Find and click actions menu for first row
+      const actionsToggle = canvas.getByLabelText('Actions for Administrator 1');
+      await userEvent.click(actionsToggle);
+
+      // Click Edit
+      await waitFor(() => {
+        expect(within(document.body).getByText('Edit')).toBeInTheDocument();
       });
-      expect(deletedRole.accessCount).toBeGreaterThan(0);
-      expect(deletedRole.modified).toBeDefined();
+      await userEvent.click(within(document.body).getByText('Edit'));
+
+      // Verify edit callback was called with correct role data
+      await waitFor(() => {
+        expect(onEditSpy).toHaveBeenCalledTimes(1);
+        const editedRole = onEditSpy.mock.calls[0][0];
+        // Verify the full role object structure
+        expect(editedRole).toMatchObject({
+          uuid: 'role-1',
+          display_name: 'Administrator 1',
+          description: 'Full system access',
+        });
+        expect(editedRole.accessCount).toBeGreaterThan(0);
+        expect(editedRole.modified).toBeDefined();
+      });
+
+      // Open menu again and click Delete
+      await userEvent.click(actionsToggle);
+      await waitFor(() => {
+        expect(within(document.body).getByText('Delete')).toBeInTheDocument();
+      });
+      await userEvent.click(within(document.body).getByText('Delete'));
+
+      // Verify delete callback was called with correct role data
+      await waitFor(() => {
+        expect(onDeleteSpy).toHaveBeenCalledTimes(1);
+        const deletedRole = onDeleteSpy.mock.calls[0][0];
+        // Verify the full role object structure
+        expect(deletedRole).toMatchObject({
+          uuid: 'role-1',
+          display_name: 'Administrator 1',
+          description: 'Full system access',
+        });
+        expect(deletedRole.accessCount).toBeGreaterThan(0);
+        expect(deletedRole.modified).toBeDefined();
+      });
     });
   },
 };
@@ -1172,15 +1193,17 @@ export const NoActions: Story = {
   args: {
     enableActions: false,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
+
+      const actionsToggle = canvas.queryByLabelText(/Actions for/);
+      expect(actionsToggle).toBeNull();
     });
-
-    const actionsToggle = canvas.queryByLabelText(/Actions for/);
-    expect(actionsToggle).toBeNull();
   },
 };
 
@@ -1190,24 +1213,26 @@ export const NoActions: Story = {
  */
 export const ToolbarActionsCallback: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
 
-    // Clear the spy
-    onCreateSpy.mockClear();
+      // Clear the spy
+      onCreateSpy.mockClear();
 
-    // Find and click the Create button
-    const createButton = canvas.getByText('Create role');
-    expect(createButton).toBeInTheDocument();
-    await userEvent.click(createButton);
+      // Find and click the Create button
+      const createButton = canvas.getByText('Create role');
+      expect(createButton).toBeInTheDocument();
+      await userEvent.click(createButton);
 
-    // Verify callback was triggered
-    await waitFor(() => {
-      expect(onCreateSpy).toHaveBeenCalledTimes(1);
+      // Verify callback was triggered
+      await waitFor(() => {
+        expect(onCreateSpy).toHaveBeenCalledTimes(1);
+      });
     });
   },
 };
@@ -1222,27 +1247,29 @@ export const ToolbarActionsCallback: Story = {
  */
 export const TextFilteringWithClear: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = await waitForInitialLoad(canvasElement);
-    apiCallSpy.mockClear();
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = await waitForInitialLoad(canvasElement);
+      apiCallSpy.mockClear();
 
-    // Apply filter using helper
-    await applyNameFilter(canvas, 'Admin');
+      // Apply filter using helper
+      await applyNameFilter(canvas, 'Admin');
 
-    // Verify API was called with filter parameter
-    await waitFor(() => {
-      const lastCall = getLastApiCall(apiCallSpy);
-      expect(lastCall?.nameFilter).toContain('Admin');
-      expect(lastCall?.offset).toBe(0);
-    });
+      // Verify API was called with filter parameter
+      await waitFor(() => {
+        const lastCall = getLastApiCall(apiCallSpy);
+        expect(lastCall?.nameFilter).toContain('Admin');
+        expect(lastCall?.offset).toBe(0);
+      });
 
-    // Clear filters using helper
-    await clickClearFilters(canvas);
+      // Clear filters using helper
+      await clickClearFilters(canvas);
 
-    // Verify API was called with cleared filter
-    await waitFor(() => {
-      const lastCall = getLastApiCall(apiCallSpy);
-      expect(lastCall?.nameFilter).toBe('');
+      // Verify API was called with cleared filter
+      await waitFor(() => {
+        const lastCall = getLastApiCall(apiCallSpy);
+        expect(lastCall?.nameFilter).toBe('');
+      });
     });
   },
 };
@@ -1253,63 +1280,65 @@ export const TextFilteringWithClear: Story = {
  */
 export const MultipleFiltersWithChips: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
 
-    apiCallSpy.mockClear();
+      apiCallSpy.mockClear();
 
-    // 1. Apply name filter (text filter)
-    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
-    await userEvent.type(filterInput, 'Admin');
+      // 1. Apply name filter (text filter)
+      const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+      await userEvent.type(filterInput, 'Admin');
 
-    // Verify name filter was sent to API (wait for debounce)
-    await waitFor(() => {
-      const { calls } = apiCallSpy.mock;
-      expect(calls.length).toBeGreaterThan(0);
-      const filterCall = calls.find((c) => c[0].nameFilter?.includes('Admin'));
-      expect(filterCall).toBeDefined();
-    });
+      // Verify name filter was sent to API (wait for debounce)
+      await waitFor(() => {
+        const { calls } = apiCallSpy.mock;
+        expect(calls.length).toBeGreaterThan(0);
+        const filterCall = calls.find((c) => c[0].nameFilter?.includes('Admin'));
+        expect(filterCall).toBeDefined();
+      });
 
-    // 2. Switch to Type filter - find the filter type toggle within DataViewFilters
-    // The toggle is a MenuToggle button that shows the current filter type (initially "Name")
-    const filterContainer = canvasElement.querySelector('[data-ouia-component-id="DataViewFilters"]');
-    expect(filterContainer).toBeTruthy();
-    const filterCanvas = within(filterContainer as HTMLElement);
+      // 2. Switch to Type filter - find the filter type toggle within DataViewFilters
+      // The toggle is a MenuToggle button that shows the current filter type (initially "Name")
+      const filterContainer = canvasElement.querySelector('[data-ouia-component-id="DataViewFilters"]');
+      expect(filterContainer).toBeTruthy();
+      const filterCanvas = within(filterContainer as HTMLElement);
 
-    // Find the filter type dropdown button (it shows "Name" as current selection)
-    const filterTypeButtons = filterCanvas.getAllByRole('button');
-    // The first MenuToggle with text content is the filter type selector
-    const filterDropdownButton = filterTypeButtons.find((btn) => btn.textContent?.includes('Name'));
-    expect(filterDropdownButton).toBeTruthy();
-    await userEvent.click(filterDropdownButton!);
+      // Find the filter type dropdown button (it shows "Name" as current selection)
+      const filterTypeButtons = filterCanvas.getAllByRole('button');
+      // The first MenuToggle with text content is the filter type selector
+      const filterDropdownButton = filterTypeButtons.find((btn) => btn.textContent?.includes('Name'));
+      expect(filterDropdownButton).toBeTruthy();
+      await userEvent.click(filterDropdownButton!);
 
-    // Wait for dropdown menu and select "Type" option
-    const typeOption = await within(document.body).findByRole('menuitem', { name: /Type/i });
-    await userEvent.click(typeOption);
+      // Wait for dropdown menu and select "Type" option
+      const typeOption = await within(document.body).findByRole('menuitem', { name: /Type/i });
+      await userEvent.click(typeOption);
 
-    // 3. Now interact with the Type filter checkbox dropdown
-    // The checkbox filter toggle has a specific OUIA ID
-    const typeFilterToggle = canvasElement.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement;
-    expect(typeFilterToggle).toBeTruthy();
-    await userEvent.click(typeFilterToggle);
+      // 3. Now interact with the Type filter checkbox dropdown
+      // The checkbox filter toggle has a specific OUIA ID
+      const typeFilterToggle = canvasElement.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement;
+      expect(typeFilterToggle).toBeTruthy();
+      await userEvent.click(typeFilterToggle);
 
-    // Select "Custom" checkbox option from the dropdown
-    const customMenuItem = await within(document.body).findByRole('menuitem', { name: /Custom/i });
-    const customCheckbox = within(customMenuItem).getByRole('checkbox');
+      // Select "Custom" checkbox option from the dropdown
+      const customMenuItem = await within(document.body).findByRole('menuitem', { name: /Custom/i });
+      const customCheckbox = within(customMenuItem).getByRole('checkbox');
 
-    apiCallSpy.mockClear();
-    await userEvent.click(customCheckbox);
+      apiCallSpy.mockClear();
+      await userEvent.click(customCheckbox);
 
-    // Verify both filters are sent to API
-    await waitFor(() => {
-      const { calls } = apiCallSpy.mock;
-      expect(calls.length).toBeGreaterThan(0);
-      const filterCall = calls.find((c) => c[0].nameFilter?.includes('Admin') && c[0].typeFilter?.includes('custom'));
-      expect(filterCall).toBeDefined();
+      // Verify both filters are sent to API
+      await waitFor(() => {
+        const { calls } = apiCallSpy.mock;
+        expect(calls.length).toBeGreaterThan(0);
+        const filterCall = calls.find((c) => c[0].nameFilter?.includes('Admin') && c[0].typeFilter?.includes('custom'));
+        expect(filterCall).toBeDefined();
+      });
     });
   },
 };
@@ -1320,39 +1349,41 @@ export const MultipleFiltersWithChips: Story = {
  */
 export const ClearAllFilters: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(
-      () => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      await waitFor(
+        () => {
+          expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    // Apply a filter that returns no results
-    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
-    await userEvent.type(filterInput, 'nonexistent12345');
+      // Apply a filter that returns no results
+      const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+      await userEvent.type(filterInput, 'nonexistent12345');
 
-    // Should see default empty state with clear filters option
-    await waitFor(
-      () => {
-        expect(canvas.getByText('No results found')).toBeInTheDocument();
-        expect(canvas.getByText('Clear all filters')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Should see default empty state with clear filters option
+      await waitFor(
+        () => {
+          expect(canvas.getByText('No results found')).toBeInTheDocument();
+          expect(canvas.getByText('Clear all filters')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    // Click clear all filters
-    await userEvent.click(canvas.getByText('Clear all filters'));
+      // Click clear all filters
+      await userEvent.click(canvas.getByText('Clear all filters'));
 
-    // Should see data again
-    await waitFor(
-      () => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Should see data again
+      await waitFor(
+        () => {
+          expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -1363,15 +1394,17 @@ export const NoFilters: Story = {
   args: {
     enableFilters: false,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
+
+      const filterInput = canvas.queryByPlaceholderText(/filter/i);
+      expect(filterInput).toBeNull();
     });
-
-    const filterInput = canvas.queryByPlaceholderText(/filter/i);
-    expect(filterInput).toBeNull();
   },
 };
 
@@ -1384,42 +1417,44 @@ export const NoFilters: Story = {
  */
 export const PaginationResetsOnFilterChange: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
-
-    apiCallSpy.mockClear();
-
-    // Navigate to page 2
-    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
-    if (nextButtons.length > 0) {
-      await userEvent.click(nextButtons[0]);
-
-      // Verify we're on page 2 (offset = 10 for page 2 with limit 10)
       await waitFor(() => {
-        const { calls } = apiCallSpy.mock;
-        const pageCall = calls.find((c) => c[0].offset === 10);
-        expect(pageCall).toBeDefined();
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
       });
 
-      // Now apply a filter
-      const filterInput = canvas.getByPlaceholderText(/filter by name/i);
-      await userEvent.type(filterInput, 'Admin');
+      apiCallSpy.mockClear();
 
-      // Page should reset to 1 (offset = 0)
-      await waitFor(
-        () => {
+      // Navigate to page 2
+      const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+      if (nextButtons.length > 0) {
+        await userEvent.click(nextButtons[0]);
+
+        // Verify we're on page 2 (offset = 10 for page 2 with limit 10)
+        await waitFor(() => {
           const { calls } = apiCallSpy.mock;
-          const lastCall = calls[calls.length - 1][0];
-          expect(lastCall.offset).toBe(0);
-          expect(lastCall.nameFilter).toContain('Admin');
-        },
-        { timeout: 5000 },
-      );
-    }
+          const pageCall = calls.find((c) => c[0].offset === 10);
+          expect(pageCall).toBeDefined();
+        });
+
+        // Now apply a filter
+        const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+        await userEvent.type(filterInput, 'Admin');
+
+        // Page should reset to 1 (offset = 0)
+        await waitFor(
+          () => {
+            const { calls } = apiCallSpy.mock;
+            const lastCall = calls[calls.length - 1][0];
+            expect(lastCall.offset).toBe(0);
+            expect(lastCall.nameFilter).toContain('Admin');
+          },
+          { timeout: 5000 },
+        );
+      }
+    });
   },
 };
 
@@ -1459,29 +1494,31 @@ This behavior is centralized in TableView so:
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for data to load and TableView to clamp to last valid page
-    // With 50 items and perPage=10, max page is 5
-    // Note: Clamping happens after data loads (when totalCount is known)
-    // Sorted by name (role_1, role_10, ...): page 5 = role_46..role_49, role_5, role_50, role_6..role_9
-    // Display names on page 5: Manager 5, Analyst 5, Support 5, Tester 5, Developer 1, Designer 5, Manager 1, Analyst 1, Support 1, Tester 1
-    await waitFor(
-      () => {
-        expect(canvas.getByText('Tester 5')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+      // Wait for data to load and TableView to clamp to last valid page
+      // With 50 items and perPage=10, max page is 5
+      // Note: Clamping happens after data loads (when totalCount is known)
+      // Sorted by name (role_1, role_10, ...): page 5 = role_46..role_49, role_5, role_50, role_6..role_9
+      // Display names on page 5: Manager 5, Analyst 5, Support 5, Tester 5, Developer 1, Designer 5, Manager 1, Analyst 1, Support 1, Tester 1
+      await waitFor(
+        () => {
+          expect(canvas.getByText('Tester 5')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
 
-    // URL should be updated to the clamped page
-    await waitFor(() => {
-      const urlDisplay = canvas.getByTestId('url-params');
-      expect(urlDisplay.textContent).toContain('page=5');
+      // URL should be updated to the clamped page
+      await waitFor(() => {
+        const urlDisplay = canvas.getByTestId('url-params');
+        expect(urlDisplay.textContent).toContain('page=5');
+      });
+
+      // Verify we don't see items from page 1
+      expect(canvas.queryByText('Administrator 1')).not.toBeInTheDocument();
     });
-
-    // Verify we don't see items from page 1
-    expect(canvas.queryByText('Administrator 1')).not.toBeInTheDocument();
   },
 };
 
@@ -1490,26 +1527,28 @@ This behavior is centralized in TableView so:
  */
 export const Pagination: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
-
-    apiCallSpy.mockClear();
-
-    // Navigate to next page
-    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
-    if (nextButtons.length > 0) {
-      await userEvent.click(nextButtons[0]);
-
-      // Verify API was called with offset for page 2 (offset = 10)
       await waitFor(() => {
-        const { calls } = apiCallSpy.mock;
-        expect(calls.some((c) => c[0].offset === 10)).toBe(true);
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
       });
-    }
+
+      apiCallSpy.mockClear();
+
+      // Navigate to next page
+      const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+      if (nextButtons.length > 0) {
+        await userEvent.click(nextButtons[0]);
+
+        // Verify API was called with offset for page 2 (offset = 10)
+        await waitFor(() => {
+          const { calls } = apiCallSpy.mock;
+          expect(calls.some((c) => c[0].offset === 10)).toBe(true);
+        });
+      }
+    });
   },
 };
 
@@ -1523,33 +1562,38 @@ export const Pagination: Story = {
  */
 export const Sorting: Story = {
   args: {},
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for initial data load
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
+      // Wait for initial data load
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
 
-    // Find and click the Name column header to sort
-    const columnHeaders = canvas.getAllByRole('columnheader');
-    const nameHeader = columnHeaders.find((h) => h.textContent?.includes('Name'));
-    expect(nameHeader).toBeTruthy();
+      // Find and click the Name column header to sort
+      const columnHeaders = canvas.getAllByRole('columnheader');
+      const nameHeader = columnHeaders.find((h) => h.textContent?.includes('Name'));
+      expect(nameHeader).toBeTruthy();
 
-    const sortButton = nameHeader?.querySelector('button');
-    expect(sortButton).toBeTruthy();
+      const sortButton = within(nameHeader!).getByRole('button');
 
-    // Initial state is sorted by name ascending (A-Z)
-    // First click toggles to descending (Z-A)
-    apiCallSpy.mockClear();
-    await userEvent.click(sortButton!);
+      // Initial state is sorted by name ascending (A-Z)
+      // First click toggles to descending (Z-A)
+      apiCallSpy.mockClear();
+      await userEvent.click(sortButton);
 
-    // Wait for the API to be called with descending sort
-    await waitFor(() => {
-      const { calls } = apiCallSpy.mock;
-      // Check that at least one call was made with descending sort
-      const hasDescSort = calls.some((c) => c[0].orderBy === '-name');
-      expect(hasDescSort).toBe(true);
+      // The spy fires from two sources: the useEffect (sort state) and the
+      // MSW handler (orderBy param). Check either to avoid flakes when React
+      // Query batches the refetch beyond the default waitFor timeout.
+      await waitFor(
+        () => {
+          const { calls } = apiCallSpy.mock;
+          const hasDescSort = calls.some((c) => c[0].orderBy === '-name' || (c[0].sort?.column === 'name' && c[0].sort?.direction === 'desc'));
+          expect(hasDescSort).toBe(true);
+        },
+        { timeout: 5000 },
+      );
     });
   },
 };
@@ -1566,58 +1610,60 @@ export const CompoundExpansion: Story = {
   args: {
     enableExpansion: true,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
 
-    // Find the expandable cells (they have compoundExpand buttons)
-    const rows = canvas.getAllByRole('row');
-    const dataRow = rows[1]; // First data row after header
+      // Find the expandable cells (they have compoundExpand buttons)
+      const rows = canvas.getAllByRole('row');
+      const dataRow = rows[1]; // First data row after header
 
-    // Find the expand button in the permissions cell
-    const expandButtons = within(dataRow).getAllByRole('button');
-    const expandButton = expandButtons.find((btn) => {
-      const cell = btn.closest('td');
-      return cell?.getAttribute('data-label') === 'Permissions';
-    });
+      // Find the expand button in the permissions cell
+      const expandButtons = within(dataRow).getAllByRole('button');
+      const expandButton = expandButtons.find((btn) => {
+        const cell = btn.closest('td');
+        return cell?.getAttribute('data-label') === 'Permissions';
+      });
 
-    expect(expandButton).toBeTruthy();
-    await userEvent.click(expandButton!);
+      expect(expandButton).toBeTruthy();
+      await userEvent.click(expandButton!);
 
-    // Wait for expansion content - verify nested table is rendered
-    await waitFor(() => {
-      const expandedContent = canvasElement.querySelector('[data-testid="expanded-permissions-role-1"]');
-      expect(expandedContent).toBeInTheDocument();
+      // Wait for expansion content - verify nested table is rendered
+      await waitFor(() => {
+        const expandedContent = canvasElement.querySelector('[data-testid="expanded-permissions-role-1"]');
+        expect(expandedContent).toBeInTheDocument();
 
-      // Verify nested table exists with permission data
-      const nestedTable = expandedContent?.querySelector('table');
-      expect(nestedTable).toBeInTheDocument();
+        // Verify nested table exists with permission data
+        const nestedTable = expandedContent?.querySelector('table');
+        expect(nestedTable).toBeInTheDocument();
 
-      // Scope assertions to the expanded content area
-      const expandedArea = within(expandedContent as HTMLElement);
+        // Scope assertions to the expanded content area
+        const expandedArea = within(expandedContent as HTMLElement);
 
-      // Verify nested table has headers
-      expect(expandedArea.getByText('Permission')).toBeInTheDocument();
-      expect(expandedArea.getByText('Description')).toBeInTheDocument();
+        // Verify nested table has headers
+        expect(expandedArea.getByText('Permission')).toBeInTheDocument();
+        expect(expandedArea.getByText('Description')).toBeInTheDocument();
 
-      // Verify actual permission data from mockPermissions['role-1']
-      expect(expandedArea.getByText('rbac:role:read')).toBeInTheDocument();
-      expect(expandedArea.getByText('Read roles')).toBeInTheDocument();
-      expect(expandedArea.getByText('rbac:role:write')).toBeInTheDocument();
-      expect(expandedArea.getByText('Write roles')).toBeInTheDocument();
-    });
+        // Verify actual permission data from mockPermissions['role-1']
+        expect(expandedArea.getByText('rbac:role:read')).toBeInTheDocument();
+        expect(expandedArea.getByText('Read roles')).toBeInTheDocument();
+        expect(expandedArea.getByText('rbac:role:write')).toBeInTheDocument();
+        expect(expandedArea.getByText('Write roles')).toBeInTheDocument();
+      });
 
-    // Click again to collapse
-    await userEvent.click(expandButton!);
+      // Click again to collapse
+      await userEvent.click(expandButton!);
 
-    // Verify expanded content is hidden
-    await waitFor(() => {
-      // The element might still be in DOM but row should be collapsed
-      const expandedRow = canvasElement.querySelector('tr.pf-m-expanded');
-      expect(expandedRow).toBeNull();
+      // Verify expanded content is hidden
+      await waitFor(() => {
+        // The element might still be in DOM but row should be collapsed
+        const expandedRow = canvasElement.querySelector('tr.pf-m-expanded');
+        expect(expandedRow).toBeNull();
+      });
     });
   },
 };
@@ -1629,25 +1675,27 @@ export const NoExpansion: Story = {
   args: {
     enableExpansion: false,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
+
+      // Permissions cells should NOT have expand buttons
+      const rows = canvas.getAllByRole('row');
+      const dataRow = rows[1];
+      const cells = within(dataRow).getAllByRole('cell');
+
+      // Find permissions cell
+      const permissionsCell = cells.find((c) => c.getAttribute('data-label') === 'Permissions');
+      if (permissionsCell) {
+        // Should NOT have a compound expand button (only plain content)
+        const expandButton = within(permissionsCell).queryByRole('button');
+        expect(expandButton).toBeNull();
+      }
     });
-
-    // Permissions cells should NOT have expand buttons
-    const rows = canvas.getAllByRole('row');
-    const dataRow = rows[1];
-    const cells = within(dataRow).getAllByRole('cell');
-
-    // Find permissions cell
-    const permissionsCell = cells.find((c) => c.getAttribute('data-label') === 'Permissions');
-    if (permissionsCell) {
-      // Should NOT have a compound expand button (only plain content)
-      const expandButton = within(permissionsCell).queryByRole('button');
-      expect(expandButton).toBeNull();
-    }
   },
 };
 
@@ -1661,45 +1709,47 @@ export const ConditionalExpansion: Story = {
     enableExpansion: true,
     conditionalExpansion: true,
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
+
+      const rows = canvas.getAllByRole('row');
+
+      // Row 1 (Administrator 1 - role-1) should have an expand button (has permissions)
+      const row1 = rows[1];
+      const row1PermissionsCell = within(row1)
+        .getAllByRole('cell')
+        .find((c) => c.getAttribute('data-label') === 'Permissions');
+      expect(row1PermissionsCell).toBeDefined();
+      const row1ExpandButton = within(row1PermissionsCell!).queryByRole('button');
+      expect(row1ExpandButton).toBeInTheDocument();
+
+      // Row 4 (Auditor 1 - role-4) should NOT have an expand button (no permissions)
+      const row4 = rows[4];
+      const row4PermissionsCell = within(row4)
+        .getAllByRole('cell')
+        .find((c) => c.getAttribute('data-label') === 'Permissions');
+      expect(row4PermissionsCell).toBeDefined();
+      const row4ExpandButton = within(row4PermissionsCell!).queryByRole('button');
+      expect(row4ExpandButton).toBeNull();
+
+      // Click the expand button on row 1 to expand it
+      await userEvent.click(row1ExpandButton!);
+
+      // Verify expanded content appears
+      await waitFor(() => {
+        expect(canvas.getByTestId('expanded-permissions-role-1')).toBeInTheDocument();
+      });
+
+      // Verify the nested table shows the permissions
+      const expandedContent = canvas.getByTestId('expanded-permissions-role-1');
+      expect(within(expandedContent).getByText('rbac:role:read')).toBeInTheDocument();
+      expect(within(expandedContent).getByText('rbac:role:write')).toBeInTheDocument();
     });
-
-    const rows = canvas.getAllByRole('row');
-
-    // Row 1 (Administrator 1 - role-1) should have an expand button (has permissions)
-    const row1 = rows[1];
-    const row1PermissionsCell = within(row1)
-      .getAllByRole('cell')
-      .find((c) => c.getAttribute('data-label') === 'Permissions');
-    expect(row1PermissionsCell).toBeDefined();
-    const row1ExpandButton = within(row1PermissionsCell!).queryByRole('button');
-    expect(row1ExpandButton).toBeInTheDocument();
-
-    // Row 4 (Auditor 1 - role-4) should NOT have an expand button (no permissions)
-    const row4 = rows[4];
-    const row4PermissionsCell = within(row4)
-      .getAllByRole('cell')
-      .find((c) => c.getAttribute('data-label') === 'Permissions');
-    expect(row4PermissionsCell).toBeDefined();
-    const row4ExpandButton = within(row4PermissionsCell!).queryByRole('button');
-    expect(row4ExpandButton).toBeNull();
-
-    // Click the expand button on row 1 to expand it
-    await userEvent.click(row1ExpandButton!);
-
-    // Verify expanded content appears
-    await waitFor(() => {
-      expect(canvas.getByTestId('expanded-permissions-role-1')).toBeInTheDocument();
-    });
-
-    // Verify the nested table shows the permissions
-    const expandedContent = canvas.getByTestId('expanded-permissions-role-1');
-    expect(within(expandedContent).getByText('rbac:role:read')).toBeInTheDocument();
-    expect(within(expandedContent).getByText('rbac:role:write')).toBeInTheDocument();
   },
 };
 
@@ -1713,74 +1763,76 @@ export const ConditionalExpansion: Story = {
  */
 export const UrlSyncWithQueryParams: StoryObj<typeof UrlSyncTable> = {
   render: () => <UrlSyncTable />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(
-      () => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
-
-    // Check URL params display element exists
-    const urlDisplay = canvas.getByTestId('url-params');
-    expect(urlDisplay).toBeInTheDocument();
-
-    apiCallSpy.mockClear();
-
-    // Apply a filter
-    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
-    await userEvent.type(filterInput, 'Admin');
-
-    // Wait for API to be called with filter and URL to update
-    await waitFor(
-      () => {
-        const { calls } = apiCallSpy.mock;
-        const filterCall = calls.find((c) => c[0].nameFilter?.includes('Admin'));
-        expect(filterCall).toBeDefined();
-      },
-      { timeout: 5000 },
-    );
-
-    // Check URL params display shows the filter
-    await waitFor(
-      () => {
-        expect(urlDisplay.textContent).toContain('name=');
-      },
-      { timeout: 5000 },
-    );
-
-    // Sort by a column
-    const columnHeaders = canvas.getAllByRole('columnheader');
-    const nameHeader = columnHeaders.find((h) => h.textContent?.includes('Name'));
-    const sortButton = nameHeader?.querySelector('button');
-    if (sortButton) {
-      await userEvent.click(sortButton);
-
-      // URL should have sort params
       await waitFor(
         () => {
-          expect(urlDisplay.textContent).toContain('sortBy=');
-          expect(urlDisplay.textContent).toContain('sortDir=');
+          expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
-    }
 
-    // Clear filters
-    await userEvent.clear(filterInput);
+      // Check URL params display element exists
+      const urlDisplay = canvas.getByTestId('url-params');
+      expect(urlDisplay).toBeInTheDocument();
 
-    // API should be called with empty filter
-    await waitFor(
-      () => {
-        const { calls } = apiCallSpy.mock;
-        // Find a call with empty nameFilter (from the onList handler after clearing)
-        const clearCall = calls.find((c) => c[0].nameFilter === '');
-        expect(clearCall).toBeDefined();
-      },
-      { timeout: 5000 },
-    );
+      apiCallSpy.mockClear();
+
+      // Apply a filter
+      const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+      await userEvent.type(filterInput, 'Admin');
+
+      // Wait for API to be called with filter and URL to update
+      await waitFor(
+        () => {
+          const { calls } = apiCallSpy.mock;
+          const filterCall = calls.find((c) => c[0].nameFilter?.includes('Admin'));
+          expect(filterCall).toBeDefined();
+        },
+        { timeout: 5000 },
+      );
+
+      // Check URL params display shows the filter
+      await waitFor(
+        () => {
+          expect(urlDisplay.textContent).toContain('name=');
+        },
+        { timeout: 5000 },
+      );
+
+      // Sort by a column
+      const columnHeaders = canvas.getAllByRole('columnheader');
+      const nameHeader = columnHeaders.find((h) => h.textContent?.includes('Name'));
+      const sortButton = nameHeader?.querySelector('button');
+      if (sortButton) {
+        await userEvent.click(sortButton);
+
+        // URL should have sort params
+        await waitFor(
+          () => {
+            expect(urlDisplay.textContent).toContain('sortBy=');
+            expect(urlDisplay.textContent).toContain('sortDir=');
+          },
+          { timeout: 5000 },
+        );
+      }
+
+      // Clear filters
+      await userEvent.clear(filterInput);
+
+      // API should be called with empty filter
+      await waitFor(
+        () => {
+          const { calls } = apiCallSpy.mock;
+          // Find a call with empty nameFilter (from the onList handler after clearing)
+          const clearCall = calls.find((c) => c[0].nameFilter === '');
+          expect(clearCall).toBeDefined();
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };
 
@@ -1830,55 +1882,57 @@ await waitFor(() => {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
 
-    apiCallSpy.mockClear();
+      apiCallSpy.mockClear();
 
-    // 1. Test pagination API params
-    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
-    if (nextButtons.length > 0) {
-      await userEvent.click(nextButtons[0]);
+      // 1. Test pagination API params
+      const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+      if (nextButtons.length > 0) {
+        await userEvent.click(nextButtons[0]);
+
+        await waitFor(() => {
+          const { calls } = apiCallSpy.mock;
+          // Find call with offset = 10 (page 2 with limit 10)
+          const pageCall = calls.find((c) => c[0].offset === 10);
+          expect(pageCall).toBeDefined();
+          expect(pageCall![0].limit).toBe(10);
+        });
+      }
+
+      // 2. Test sort API params
+      const columnHeaders = canvas.getAllByRole('columnheader');
+      const nameHeader = columnHeaders.find((h) => h.textContent?.includes('Name'));
+      const sortButton = nameHeader?.querySelector('button');
+      if (sortButton) {
+        await userEvent.click(sortButton);
+
+        await waitFor(() => {
+          const { calls } = apiCallSpy.mock;
+          // Find call with descending sort (orderBy = '-name')
+          const sortCall = calls.find((c) => c[0].orderBy === '-name');
+          expect(sortCall).toBeDefined();
+        });
+      }
+
+      // 3. Test filter API params
+      const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+      await userEvent.type(filterInput, 'Admin');
 
       await waitFor(() => {
         const { calls } = apiCallSpy.mock;
-        // Find call with offset = 10 (page 2 with limit 10)
-        const pageCall = calls.find((c) => c[0].offset === 10);
-        expect(pageCall).toBeDefined();
-        expect(pageCall![0].limit).toBe(10);
+        // Find call with nameFilter containing 'Admin'
+        const filterCall = calls.find((c) => c[0].nameFilter?.includes('Admin'));
+        expect(filterCall).toBeDefined();
+        // Page should reset to 1 (offset = 0)
+        expect(filterCall![0].offset).toBe(0);
       });
-    }
-
-    // 2. Test sort API params
-    const columnHeaders = canvas.getAllByRole('columnheader');
-    const nameHeader = columnHeaders.find((h) => h.textContent?.includes('Name'));
-    const sortButton = nameHeader?.querySelector('button');
-    if (sortButton) {
-      await userEvent.click(sortButton);
-
-      await waitFor(() => {
-        const { calls } = apiCallSpy.mock;
-        // Find call with descending sort (orderBy = '-name')
-        const sortCall = calls.find((c) => c[0].orderBy === '-name');
-        expect(sortCall).toBeDefined();
-      });
-    }
-
-    // 3. Test filter API params
-    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
-    await userEvent.type(filterInput, 'Admin');
-
-    await waitFor(() => {
-      const { calls } = apiCallSpy.mock;
-      // Find call with nameFilter containing 'Admin'
-      const filterCall = calls.find((c) => c[0].nameFilter?.includes('Admin'));
-      expect(filterCall).toBeDefined();
-      // Page should reset to 1 (offset = 0)
-      expect(filterCall![0].offset).toBe(0);
     });
   },
 };
@@ -1983,29 +2037,31 @@ const tableState = useTableState({
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for data to load
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
+      // Wait for data to load
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
 
-    // Verify initial selection - 2 rows should be selected
-    const clearButton = canvas.getByRole('button', { name: /clear selection \(2\)/i });
-    expect(clearButton).toBeInTheDocument();
+      // Verify initial selection - 2 rows should be selected
+      const clearButton = canvas.getByRole('button', { name: /clear selection \(2\)/i });
+      expect(clearButton).toBeInTheDocument();
 
-    // Verify checkboxes are checked for initial rows
-    const checkboxes = canvas.getAllByRole('checkbox');
-    // First row (Administrator 1) should be checked
-    expect(checkboxes[1]).toBeChecked(); // [0] is bulk select
+      // Verify checkboxes are checked for initial rows
+      const checkboxes = canvas.getAllByRole('checkbox');
+      // First row (Administrator 1) should be checked
+      expect(checkboxes[1]).toBeChecked(); // [0] is bulk select
 
-    // Clear selection
-    await userEvent.click(clearButton);
+      // Clear selection
+      await userEvent.click(clearButton);
 
-    // Verify selection is cleared
-    await waitFor(() => {
-      expect(canvas.queryByRole('button', { name: /clear selection/i })).not.toBeInTheDocument();
+      // Verify selection is cleared
+      await waitFor(() => {
+        expect(canvas.queryByRole('button', { name: /clear selection/i })).not.toBeInTheDocument();
+      });
     });
   },
 };
@@ -2184,24 +2240,26 @@ tableState.cursorMeta?.setCursorLinks(response.links);
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for initial data to load
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      // Wait for initial data to load
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
+
+      // Verify pagination renders in indeterminate mode
+      // PF renders "1 - 10 of many" when itemCount is omitted
+      await waitFor(() => {
+        const paginationText = canvasElement.querySelector('.pf-v6-c-pagination__total-items, .pf-v6-c-pagination');
+        expect(paginationText).toBeInTheDocument();
+      });
+
+      // Verify "next" button exists
+      const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+      expect(nextButtons.length).toBeGreaterThan(0);
     });
-
-    // Verify pagination renders in indeterminate mode
-    // PF renders "1 - 10 of many" when itemCount is omitted
-    await waitFor(() => {
-      const paginationText = canvasElement.querySelector('.pf-v6-c-pagination__total-items, .pf-v6-c-pagination');
-      expect(paginationText).toBeInTheDocument();
-    });
-
-    // Verify "next" button exists
-    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
-    expect(nextButtons.length).toBeGreaterThan(0);
   },
 };
 
@@ -2223,54 +2281,56 @@ export const CursorPaginationNavigation: StoryObj<typeof CursorPaginatedTable> =
   beforeEach: () => {
     cursorApiCallSpy.mockClear();
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for initial data
-    await waitFor(() => {
+      // Wait for initial data
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
+
+      // Verify first page data (should show first 10 items sorted by name)
       expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
 
-    // Verify first page data (should show first 10 items sorted by name)
-    expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      cursorApiCallSpy.mockClear();
 
-    cursorApiCallSpy.mockClear();
+      // Navigate to page 2
+      const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+      await userEvent.click(nextButtons[0]);
 
-    // Navigate to page 2
-    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
-    await userEvent.click(nextButtons[0]);
+      // Wait for page 2 to load
+      await waitFor(() => {
+        const { calls } = cursorApiCallSpy.mock;
+        // Should have been called with a cursor (non-null)
+        const cursorCall = calls.find((c) => c[0].cursor !== null);
+        expect(cursorCall).toBeDefined();
+      });
 
-    // Wait for page 2 to load
-    await waitFor(() => {
-      const { calls } = cursorApiCallSpy.mock;
-      // Should have been called with a cursor (non-null)
-      const cursorCall = calls.find((c) => c[0].cursor !== null);
-      expect(cursorCall).toBeDefined();
-    });
+      // Wait for page 2 data to render (different items)
+      await waitFor(() => {
+        // Page 2 should not show page 1's first item
+        expect(canvas.queryByText('Administrator 1')).not.toBeInTheDocument();
+      });
 
-    // Wait for page 2 data to render (different items)
-    await waitFor(() => {
-      // Page 2 should not show page 1's first item
-      expect(canvas.queryByText('Administrator 1')).not.toBeInTheDocument();
-    });
+      cursorApiCallSpy.mockClear();
 
-    cursorApiCallSpy.mockClear();
+      // Navigate back to page 1
+      const prevButtons = canvas.getAllByRole('button', { name: /previous/i });
+      await userEvent.click(prevButtons[0]);
 
-    // Navigate back to page 1
-    const prevButtons = canvas.getAllByRole('button', { name: /previous/i });
-    await userEvent.click(prevButtons[0]);
+      // Wait for page 1 to load again
+      await waitFor(() => {
+        const { calls } = cursorApiCallSpy.mock;
+        // Should have been called with null cursor (page 1)
+        const firstPageCall = calls.find((c) => c[0].cursor === null);
+        expect(firstPageCall).toBeDefined();
+      });
 
-    // Wait for page 1 to load again
-    await waitFor(() => {
-      const { calls } = cursorApiCallSpy.mock;
-      // Should have been called with null cursor (page 1)
-      const firstPageCall = calls.find((c) => c[0].cursor === null);
-      expect(firstPageCall).toBeDefined();
-    });
-
-    // Page 1 data should be back
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      // Page 1 data should be back
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
     });
   },
 };
@@ -2290,43 +2350,45 @@ export const CursorPaginationFilterReset: StoryObj<typeof CursorPaginatedTable> 
   beforeEach: () => {
     cursorApiCallSpy.mockClear();
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify', async () => {
+      const canvas = within(canvasElement);
 
-    // Wait for initial data
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-    });
+      // Wait for initial data
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
 
-    cursorApiCallSpy.mockClear();
+      cursorApiCallSpy.mockClear();
 
-    // Navigate to page 2
-    const nextButtons = canvas.getAllByRole('button', { name: /next/i });
-    await userEvent.click(nextButtons[0]);
+      // Navigate to page 2
+      const nextButtons = canvas.getAllByRole('button', { name: /next/i });
+      await userEvent.click(nextButtons[0]);
 
-    // Wait for page 2 data
-    await waitFor(() => {
-      expect(canvas.queryByText('Administrator 1')).not.toBeInTheDocument();
-    });
+      // Wait for page 2 data
+      await waitFor(() => {
+        expect(canvas.queryByText('Administrator 1')).not.toBeInTheDocument();
+      });
 
-    cursorApiCallSpy.mockClear();
+      cursorApiCallSpy.mockClear();
 
-    // Apply a name filter
-    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
-    await userEvent.type(filterInput, 'Admin');
+      // Apply a name filter
+      const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+      await userEvent.type(filterInput, 'Admin');
 
-    // Wait for API to be called - should be back to first page (no cursor)
-    await waitFor(() => {
-      const { calls } = cursorApiCallSpy.mock;
-      const lastCall = calls[calls.length - 1]?.[0];
-      // Filter call should have no cursor (page 1)
-      expect(lastCall?.cursor).toBeNull();
-      expect(lastCall?.nameFilter).toContain('Admin');
-    });
+      // Wait for API to be called - should be back to first page (no cursor)
+      await waitFor(() => {
+        const { calls } = cursorApiCallSpy.mock;
+        const lastCall = calls[calls.length - 1]?.[0];
+        // Filter call should have no cursor (page 1)
+        expect(lastCall?.cursor).toBeNull();
+        expect(lastCall?.nameFilter).toContain('Admin');
+      });
 
-    // Filtered results should appear
-    await waitFor(() => {
-      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      // Filtered results should appear
+      await waitFor(() => {
+        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+      });
     });
   },
 };

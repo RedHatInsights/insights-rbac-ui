@@ -3,7 +3,6 @@ import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceDetail } from './WorkspaceDetail';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { delay } from 'msw';
 import { waitForSkeletonToDisappear } from '../workspaceTestHelpers';
 import { workspacesHandlers, workspacesLoadingHandlers } from '../../../data/mocks/workspaces.handlers';
 import { groupsHandlers, groupsLoadingHandlers } from '../../../../shared/data/mocks/groups.handlers';
@@ -226,25 +225,20 @@ For testing specific scenarios, see these additional stories:
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify default workspace detail', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Wait for skeleton loading to complete first
-    await waitForSkeletonToDisappear(canvasElement);
+      await expect(canvas.findByText('Workspace hierarchy:')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
 
-    // Additional wait for async content to load after skeletons disappear
-    // Ensure the hierarchy and workspace names are fully loaded
-    await expect(canvas.findByText('Workspace hierarchy:')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
+      await expect(canvas.queryByText('Role assignments')).not.toBeInTheDocument();
 
-    // Container-specific: Verify tabs are rendered based on feature flags
-    await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
-    await expect(canvas.queryByText('Role assignments')).not.toBeInTheDocument();
-
-    // Handle multiple "Web Services" - get the one in the breadcrumb
-    const webServicesElements = canvas.getAllByText('Web Services');
-    await expect(webServicesElements.length).toBeGreaterThanOrEqual(1);
+      const webServicesElements = canvas.getAllByText('Web Services');
+      await expect(webServicesElements.length).toBeGreaterThanOrEqual(1);
+    });
   },
 };
 
@@ -260,23 +254,19 @@ export const WithRolesEnabled: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify with roles enabled', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Wait for skeleton loading to complete first
-    await waitForSkeletonToDisappear(canvasElement);
+      await expect(canvas.findByText('Role assignments')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
 
-    // Container-specific: Verify both tabs are present when feature flag is enabled
-    await expect(canvas.findByText('Role assignments')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
 
-    // Container-specific: Verify hierarchy breadcrumb is built correctly
-    await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
-
-    // Handle multiple "Web Services" - verify at least one exists
-    const webServicesElements = canvas.getAllByText('Web Services');
-    await expect(webServicesElements.length).toBeGreaterThanOrEqual(1);
+      const webServicesElements = canvas.getAllByText('Web Services');
+      await expect(webServicesElements.length).toBeGreaterThanOrEqual(1);
+    });
   },
 };
 
@@ -292,22 +282,19 @@ export const TabSwitching: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify tab switching', async () => {
+      const assetsTab = await canvas.findByText('Assets');
+      const rolesTab = await canvas.findByText('Role assignments');
 
-    // Container-specific: Test tab switching functionality
-    const assetsTab = await canvas.findByText('Assets');
-    const rolesTab = await canvas.findByText('Role assignments');
+      await expect(assetsTab).toBeInTheDocument();
+      await expect(rolesTab).toBeInTheDocument();
 
-    await expect(assetsTab).toBeInTheDocument();
-    await expect(rolesTab).toBeInTheDocument();
+      await userEvent.click(rolesTab);
 
-    // Click on Role assignments tab
-    await userEvent.click(rolesTab);
-
-    // Click back to Assets tab
-    await userEvent.click(assetsTab);
+      await userEvent.click(assetsTab);
+    });
   },
 };
 
@@ -327,26 +314,27 @@ export const LoadingState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Container-specific: Verify loading state shows skeleton elements (using CSS class since PatternFly doesn't use progressbar role)
-    await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        await expect(skeletonElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 10000 },
-    );
+    await step('Verify skeleton loading state', async () => {
+      await waitFor(
+        async () => {
+          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+          await expect(skeletonElements.length).toBeGreaterThan(0);
+        },
+        { timeout: 10000 },
+      );
+    });
 
-    // Container-specific: Tabs should still render during loading (structural consistency)
-    await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
+    await step('Verify tabs render during loading', async () => {
+      await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
+    });
 
-    // Container-specific: Verify the component handles slow API responses gracefully
-    // The workspace name/description should show skeletons instead of actual content
-    await expect(canvas.queryByText('Web Services')).not.toBeInTheDocument();
-    await expect(canvas.queryByText('Frontend web applications and services')).not.toBeInTheDocument();
+    await step('Verify skeletons instead of content', async () => {
+      await expect(canvas.queryByText('Web Services')).not.toBeInTheDocument();
+      await expect(canvas.queryByText('Frontend web applications and services')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -362,23 +350,19 @@ export const RootWorkspace: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify root workspace', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Wait for skeletons to disappear to ensure data loaded
-    await waitForSkeletonToDisappear(canvasElement);
+      await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
 
-    // Additional wait for content
-    await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
+      await expect(canvas.queryByText('Role assignments')).not.toBeInTheDocument();
 
-    // Container-specific: Root workspace should only show Assets tab
-    await expect(canvas.queryByText('Role assignments')).not.toBeInTheDocument();
-
-    // Container-specific: Root workspace breadcrumb should only show itself
-    const prodElements = await canvas.findAllByText('Production Environment');
-    await expect(prodElements).toHaveLength(3); // page title, page breadcrumb, hierarchy breadcrumb
-    await expect(canvas.queryByText('Web Services')).not.toBeInTheDocument();
+      const prodElements = await canvas.findAllByText('Production Environment');
+      await expect(prodElements).toHaveLength(3);
+      await expect(canvas.queryByText('Web Services')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -394,13 +378,12 @@ export const EmptyGroupsState: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    // Container-specific: Verify both tabs present with feature flag enabled
-    await expect(canvas.findByText('Role assignments')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
+    await step('Verify empty groups state', async () => {
+      await expect(canvas.findByText('Role assignments')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -416,28 +399,23 @@ export const RoleAssignmentTabSwitching: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify role assignment tab switching', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Wait for skeleton loading to complete
-    await waitForSkeletonToDisappear(canvasElement);
+      const thisWorkspaceTab = await canvas.findByText('Roles assigned in this workspace');
+      const parentWorkspacesTab = await canvas.findByText('Roles assigned in parent workspaces');
 
-    // Start with roles assigned in this workspace tab
-    const thisWorkspaceTab = await canvas.findByText('Roles assigned in this workspace');
-    const parentWorkspacesTab = await canvas.findByText('Roles assigned in parent workspaces');
+      await expect(thisWorkspaceTab).toBeInTheDocument();
+      await expect(parentWorkspacesTab).toBeInTheDocument();
 
-    await expect(thisWorkspaceTab).toBeInTheDocument();
-    await expect(parentWorkspacesTab).toBeInTheDocument();
+      await userEvent.click(parentWorkspacesTab);
 
-    // Switch to parent workspaces tab
-    await userEvent.click(parentWorkspacesTab);
+      await userEvent.click(thisWorkspaceTab);
 
-    // Switch back to this workspace tab
-    await userEvent.click(thisWorkspaceTab);
-
-    // Verify we can see role assignments table content
-    await expect(canvas.findByText('Platform Team')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Platform Team')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -454,35 +432,28 @@ export const ParentRoleBindingsWithInheritance: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify parent role bindings with inheritance', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // Wait for skeleton loading to complete
-    await waitForSkeletonToDisappear(canvasElement);
+      await expect(canvas.findByText('Roles assigned in parent workspaces')).resolves.toBeInTheDocument();
 
-    // Verify we're on the parent workspaces tab
-    await expect(canvas.findByText('Roles assigned in parent workspaces')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(/click the workspace name/i)).resolves.toBeInTheDocument();
 
-    // Verify instructional text banner is shown
-    await expect(canvas.findByText(/click the workspace name/i)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Platform Team')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('QE Team')).resolves.toBeInTheDocument();
 
-    // Wait for the table to load by finding the first group name
-    await expect(canvas.findByText('Platform Team')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('QE Team')).resolves.toBeInTheDocument();
+      await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
 
-    // Verify the table is read-only (no checkboxes, no Grant Access)
-    await expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
+      await waitFor(async () => {
+        const table = canvas.getByRole('grid');
+        expect(table).toBeInTheDocument();
+      });
 
-    // Verify inherited_from information is displayed
-    await waitFor(async () => {
-      const table = canvas.getByRole('grid');
-      expect(table).toBeInTheDocument();
+      const productionEnvElements = canvas.getAllByText('Production Environment');
+      expect(productionEnvElements.length).toBeGreaterThan(1);
     });
-
-    // Check that Production Environment appears multiple times (breadcrumb and table)
-    const productionEnvElements = canvas.getAllByText('Production Environment');
-    expect(productionEnvElements.length).toBeGreaterThan(1);
   },
 };
 
@@ -512,19 +483,18 @@ export const AccessDeniedWhenNoViewPermission: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await waitForSkeletonToDisappear(canvasElement);
+    await step('Verify access denied', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
 
-    // UnauthorizedAccess renders when view permission is denied
-    await waitFor(async () => {
-      const deniedHeading = canvas.queryByText(/do not have access/i);
-      await expect(deniedHeading).toBeInTheDocument();
+      await waitFor(async () => {
+        const deniedHeading = canvas.queryByText(/do not have access/i);
+        await expect(deniedHeading).toBeInTheDocument();
+      });
+
+      const wsName = canvas.queryByText('Web Services');
+      await expect(wsName).not.toBeInTheDocument();
     });
-
-    // The workspace header should NOT be visible
-    const wsName = canvas.queryByText('Web Services');
-    await expect(wsName).not.toBeInTheDocument();
   },
 };

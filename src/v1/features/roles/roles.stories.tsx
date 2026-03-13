@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { findSortButton } from '../../../test-utils/tableHelpers';
 import { Roles } from './Roles';
 import { v1RolesHandlers, v1RolesLoadingHandlers } from '../../data/mocks/roles.handlers';
 import { groupsHandlers, groupsLoadingHandlers } from '../../../shared/data/mocks/groups.handlers';
@@ -14,7 +14,7 @@ import {
   openPerPageMenu,
   selectPerPage,
 } from '../../../../.storybook/helpers/pagination-test-utils';
-import { waitForPageToLoad } from '../../../user-journeys/_shared/helpers';
+import { waitForPageToLoad } from '../../../test-utils/tableHelpers';
 
 // Spy functions to track API calls
 const fetchRolesSpy = fn();
@@ -163,36 +163,32 @@ For testing specific scenarios, see these additional stories:
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for debounced functions to settle
-    await delay(300);
+    await step('Verify initial data load and API calls', async () => {
+      // Wait for container to load data through React Query
+      expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
+      expect(await canvas.findByText(mockRoles[1].display_name)).toBeInTheDocument();
+      expect(await canvas.findByText(mockRoles[2].display_name)).toBeInTheDocument();
 
-    // Add debugging to see what's happening
-    console.log('SB: 🔍 PLAY: Starting admin roles test');
+      // Verify admin users trigger API calls (expected behavior)
+      await waitFor(() => {
+        expect(fetchRolesSpy).toHaveBeenCalled();
+        expect(fetchAdminGroupSpy).toHaveBeenCalled();
+      });
+    });
 
-    // Debug: Check spy call counts
-    console.log('SB: 🔍 Roles spy calls:', fetchRolesSpy.mock.calls.length);
-    console.log('SB: 🔍 Admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
+    await step('Verify roles table and data', async () => {
+      // Verify roles table is displayed with data
+      const table = await canvas.findByRole('grid');
+      expect(table).toBeInTheDocument();
 
-    // Wait for container to load data through React Query
-    expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
-    expect(await canvas.findByText(mockRoles[1].display_name)).toBeInTheDocument();
-    expect(await canvas.findByText(mockRoles[2].display_name)).toBeInTheDocument();
-
-    // Verify admin users trigger API calls (expected behavior)
-    expect(fetchRolesSpy).toHaveBeenCalled();
-    expect(fetchAdminGroupSpy).toHaveBeenCalled();
-
-    // Verify roles table is displayed with data
-    const table = await canvas.findByRole('grid');
-    expect(table).toBeInTheDocument();
-
-    // Verify role data is rendered through React Query state
-    const tableContent = within(table);
-    expect(await tableContent.findByText(mockRoles[0].display_name)).toBeInTheDocument();
-    expect(await tableContent.findByText(String(mockRoles[0].accessCount))).toBeInTheDocument();
+      // Verify role data is rendered through React Query state
+      const tableContent = within(table);
+      expect(await tableContent.findByText(mockRoles[0].display_name)).toBeInTheDocument();
+      expect(await tableContent.findByText(String(mockRoles[0].accessCount))).toBeInTheDocument();
+    });
   },
 };
 
@@ -214,13 +210,16 @@ export const LoadingState: Story = {
       handlers: [...v1RolesLoadingHandlers(), ...groupsLoadingHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
-    await delay(300);
-
-    // Should show loading state while API calls are pending
-    await waitFor(async () => {
-      const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-      expect(skeletonElements.length).toBeGreaterThan(0);
+  play: async ({ canvasElement, step }) => {
+    await step('Verify loading state', async () => {
+      // Should show loading state while API calls are pending
+      await waitFor(
+        () => {
+          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+          expect(skeletonElements.length).toBeGreaterThan(0);
+        },
+        { timeout: 5000 },
+      );
     });
   },
 };
@@ -241,14 +240,13 @@ export const EmptyRoles: Story = {
       handlers: [...v1RolesHandlers([]), ...groupsHandlers()],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for debounced functions to settle
-    await delay(300);
-
-    // Should show empty state message for no roles - "Configure roles"
-    await expect(canvas.findByText(/Configure roles/i)).resolves.toBeInTheDocument();
+    await step('Verify empty state', async () => {
+      // Should show empty state message for no roles - "Configure roles"
+      await expect(canvas.findByText(/Configure roles/i)).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -281,68 +279,68 @@ export const AdminUserWithRolesFiltering: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for debounced functions to settle
-    await delay(300);
+    await step('Wait for initial data and apply filter', async () => {
+      // Clear spy to ensure clean state (spies persist across stories)
+      filterSpy.mockClear();
 
-    console.log('SB: 🧪 FILTERING: Starting role filtering test');
+      // Wait for initial data load
+      expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
+      expect(await canvas.findByText(mockRoles[1].display_name)).toBeInTheDocument();
 
-    // Clear spy to ensure clean state (spies persist across stories)
-    filterSpy.mockClear();
+      // Test filtering functionality
+      const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
+      expect(filterInput).toBeInTheDocument();
 
-    // Wait for initial data load
-    expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
-    expect(await canvas.findByText(mockRoles[1].display_name)).toBeInTheDocument();
+      // Test 1: Filter by "vulner" - should match "Vulnerability Administrator"
+      await userEvent.type(filterInput, 'vulner');
 
-    // Test filtering functionality
-    const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
-    expect(filterInput).toBeInTheDocument();
+      // Wait for debounce + React Query state update + re-render
+      await waitFor(
+        () => {
+          expect(filterSpy).toHaveBeenCalledWith('vulner');
+        },
+        { timeout: 3000 },
+      );
 
-    // Test 1: Filter by "vulner" - should match "Vulnerability Administrator"
-    console.log('SB: 🧪 FILTERING: Typing "vulner" filter');
-    await userEvent.type(filterInput, 'vulner');
+      // Wait for the filtered data to render - Platform Administrator should disappear
+      await waitFor(
+        () => {
+          expect(canvas.queryByText(mockRoles[0].display_name)).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
-    // Wait for debounce + React Query state update + re-render
-    await waitFor(
-      () => {
-        expect(filterSpy).toHaveBeenCalledWith('vulner');
-      },
-      { timeout: 3000 },
-    );
+      // Verify only Vulnerability Administrator is visible
+      expect(await canvas.findByText(mockRoles[2].display_name)).toBeInTheDocument();
+      expect(canvas.queryByText(mockRoles[1].display_name)).not.toBeInTheDocument();
+    });
 
-    // Wait for the filtered data to render - Platform Administrator should disappear
-    await waitFor(
-      () => {
-        expect(canvas.queryByText(mockRoles[0].display_name)).not.toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+    await step('Clear filters and verify all roles visible', async () => {
+      // Test 2: Clear filter by clicking the Clear filters button
+      const clearFiltersButton = await canvas.findByRole('button', { name: /clear filters/i });
+      expect(clearFiltersButton).toBeInTheDocument();
 
-    // Verify only Vulnerability Administrator is visible
-    expect(await canvas.findByText(mockRoles[2].display_name)).toBeInTheDocument();
-    expect(canvas.queryByText(mockRoles[1].display_name)).not.toBeInTheDocument();
+      filterSpy.mockClear();
+      await userEvent.click(clearFiltersButton);
 
-    // Test 2: Clear filter by clicking the Clear filters button
-    console.log('SB: 🧪 FILTERING: Clicking clear filters button');
-    const clearFiltersButton = await canvas.findByRole('button', { name: /clear filters/i });
-    expect(clearFiltersButton).toBeInTheDocument();
+      // Wait for API call and table refresh
+      await waitFor(
+        () => {
+          expect(canvas.getByText(mockRoles[0].display_name)).toBeInTheDocument();
+          expect(canvas.getByText(mockRoles[1].display_name)).toBeInTheDocument();
+          expect(canvas.getByText(mockRoles[2].display_name)).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
-    filterSpy.mockClear();
-    await userEvent.click(clearFiltersButton);
-
-    // Wait for API call and table refresh
-    console.log('SB: 🧪 FILTERING: Waiting for clear to complete...');
-    await delay(600);
-
-    // All roles should be visible again after clearing
-    console.log('SB: 🧪 FILTERING: Verifying all roles are back...');
-    expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
-    expect(await canvas.findByText(mockRoles[1].display_name)).toBeInTheDocument();
-    expect(await canvas.findByText(mockRoles[2].display_name)).toBeInTheDocument();
-
-    console.log('SB: 🧪 FILTERING: Role filtering test completed successfully');
+      // All roles should be visible again after clearing
+      expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
+      expect(await canvas.findByText(mockRoles[1].display_name)).toBeInTheDocument();
+      expect(await canvas.findByText(mockRoles[2].display_name)).toBeInTheDocument();
+    });
   },
 };
 
@@ -365,68 +363,67 @@ export const AdminUserWithRolesExpandableContent: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for debounced functions to settle
-    await delay(300);
+    await step('Wait for initial data and expand groups', async () => {
+      // Wait for initial data load
+      expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
 
-    console.log('SB: 🧪 EXPANDABLE: Starting expandable content test');
+      // Find the Platform Administrator row specifically
+      const platformAdminRow = canvas.getByText(mockRoles[0].display_name).closest('tr');
+      expect(platformAdminRow).toBeInTheDocument();
 
-    // Wait for initial data load
-    expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
+      if (!platformAdminRow) {
+        throw new Error(`${mockRoles[0].display_name} row not found`);
+      }
 
-    // Find the Platform Administrator row specifically
-    const platformAdminRow = canvas.getByText(mockRoles[0].display_name).closest('tr');
-    expect(platformAdminRow).toBeInTheDocument();
+      // Test groups expandable content
+      const groupsButton = within(platformAdminRow).getByRole('button', { name: String(mockRoles[0].groups_in_count) });
+      expect(groupsButton).toBeInTheDocument();
+      const row = within(groupsButton.closest('tbody') as HTMLElement);
 
-    if (!platformAdminRow) {
-      throw new Error(`${mockRoles[0].display_name} row not found`);
-    }
+      await userEvent.click(groupsButton);
 
-    // Test groups expandable content
-    console.log('SB: 🧪 Testing groups expandable...');
-    const groupsButton = within(platformAdminRow).getByRole('button', { name: String(mockRoles[0].groups_in_count) });
-    expect(groupsButton).toBeInTheDocument();
-    const row = within(groupsButton.closest('tbody') as HTMLElement);
+      // Scope queries to the nested groups table within the expanded row
+      const expandedGroupsRow = within(await row.findByLabelText(/Groups for role/i));
 
-    await userEvent.click(groupsButton);
+      // Test nested groups table headers (they're <th> elements, not role="columnheader")
+      expect(await expandedGroupsRow.findByText('Group name')).toBeInTheDocument();
+      expect(await expandedGroupsRow.findByText('Description')).toBeInTheDocument();
 
-    // Scope queries to the nested groups table within the expanded row
-    const expandedGroupsRow = within(await row.findByLabelText(/Groups for role/i));
+      // Test group data within the nested table only
+      expect(await expandedGroupsRow.findByText(mockRoles[0].groups_in[0].name)).toBeInTheDocument();
+      expect(await expandedGroupsRow.findByText(mockRoles[0].groups_in[0].description)).toBeInTheDocument();
+      expect(await expandedGroupsRow.findByText(mockRoles[0].groups_in[1].name)).toBeInTheDocument();
+      expect(await expandedGroupsRow.findByText(mockRoles[0].groups_in[2].name)).toBeInTheDocument();
+    });
 
-    // Test nested groups table headers (they're <th> elements, not role="columnheader")
-    expect(await expandedGroupsRow.findByText('Group name')).toBeInTheDocument();
-    expect(await expandedGroupsRow.findByText('Description')).toBeInTheDocument();
+    await step('Expand permissions and verify content', async () => {
+      const platformAdminRow = canvas.getByText(mockRoles[0].display_name).closest('tr');
+      if (!platformAdminRow) throw new Error(`${mockRoles[0].display_name} row not found`);
+      const row = within(platformAdminRow.closest('tbody') as HTMLElement);
 
-    // Test group data within the nested table only
-    expect(await expandedGroupsRow.findByText(mockRoles[0].groups_in[0].name)).toBeInTheDocument();
-    expect(await expandedGroupsRow.findByText(mockRoles[0].groups_in[0].description)).toBeInTheDocument();
-    expect(await expandedGroupsRow.findByText(mockRoles[0].groups_in[1].name)).toBeInTheDocument();
-    expect(await expandedGroupsRow.findByText(mockRoles[0].groups_in[2].name)).toBeInTheDocument();
+      // Test permissions expandable content
+      const permissionsButton = within(platformAdminRow).getByRole('button', { name: String(mockRoles[0].accessCount) });
+      expect(permissionsButton).toBeInTheDocument();
 
-    // Test permissions expandable content
-    console.log('SB: 🧪 Testing permissions expandable...');
-    const permissionsButton = within(platformAdminRow).getByRole('button', { name: String(mockRoles[0].accessCount) });
-    expect(permissionsButton).toBeInTheDocument();
+      await userEvent.click(permissionsButton);
 
-    await userEvent.click(permissionsButton);
+      // Scope queries to the nested permissions table within the expanded row
+      const expandedPermissionsRow = within(await row.findByLabelText(/Permissions for role/i));
 
-    // Scope queries to the nested permissions table within the expanded row
-    const expandedPermissionsRow = within(await row.findByLabelText(/Permissions for role/i));
+      // Test nested permissions table headers (they're <th> elements, not role="columnheader")
+      expect(await expandedPermissionsRow.findByText('Application')).toBeInTheDocument();
+      expect(await expandedPermissionsRow.findByText('Resource type')).toBeInTheDocument();
+      expect(await expandedPermissionsRow.findByText('Operation')).toBeInTheDocument();
+      expect(await expandedPermissionsRow.findByText('Last modified')).toBeInTheDocument();
 
-    // Test nested permissions table headers (they're <th> elements, not role="columnheader")
-    expect(await expandedPermissionsRow.findByText('Application')).toBeInTheDocument();
-    expect(await expandedPermissionsRow.findByText('Resource type')).toBeInTheDocument();
-    expect(await expandedPermissionsRow.findByText('Operation')).toBeInTheDocument();
-    expect(await expandedPermissionsRow.findByText('Last modified')).toBeInTheDocument();
-
-    // Test permission data within the nested table only
-    expect(await expandedPermissionsRow.findByText(mockRoles[0].applications[0])).toBeInTheDocument();
-    expect(await expandedPermissionsRow.findByText(mockRoles[0].applications[1])).toBeInTheDocument();
-    expect(await expandedPermissionsRow.findByText(mockRoles[0].applications[2])).toBeInTheDocument();
-
-    console.log('SB: 🧪 EXPANDABLE: Expandable content test completed');
+      // Test permission data within the nested table only
+      expect(await expandedPermissionsRow.findByText(mockRoles[0].applications[0])).toBeInTheDocument();
+      expect(await expandedPermissionsRow.findByText(mockRoles[0].applications[1])).toBeInTheDocument();
+      expect(await expandedPermissionsRow.findByText(mockRoles[0].applications[2])).toBeInTheDocument();
+    });
   },
 };
 
@@ -455,86 +452,76 @@ export const AdminUserWithRolesSorting: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    console.log('SB: 🧪 SORTING: Starting column sorting test');
+    await step('Sort by Name descending then ascending', async () => {
+      // Wait for initial data load - table should be fully rendered with sortable headers
+      await waitForPageToLoad(canvas, mockRoles[0].display_name);
 
-    // Wait for initial data load - table should be fully rendered with sortable headers
-    await waitForPageToLoad(canvas, mockRoles[0].display_name);
+      let nameButton = await findSortButton(canvas, /name/i);
 
-    // Test sorting by Name column (display_name)
-    console.log('SB: 🧪 Testing Name column sorting...');
-    let nameColumnHeader = await canvas.findByRole('columnheader', { name: /name/i });
-    let nameButton = await within(nameColumnHeader).findByRole('button');
+      // Reset spy
+      sortSpy.mockClear();
 
-    // Reset spy
-    sortSpy.mockClear();
+      // Click to sort descending (reverses default ascending)
+      await userEvent.click(nameButton);
 
-    // Click to sort descending (reverses default ascending)
-    await userEvent.click(nameButton);
+      // Verify sort API was called with display_name descending
+      await waitFor(() => {
+        expect(sortSpy).toHaveBeenCalledWith('-display_name');
+      });
 
-    // Verify sort API was called with display_name descending
-    await waitFor(() => {
-      expect(sortSpy).toHaveBeenCalledWith('-display_name');
+      // Wait for table to reload after sort
+      await waitForPageToLoad(canvas, mockRoles[0].display_name);
+
+      nameButton = await findSortButton(canvas, /name/i);
+
+      // Reset spy
+      sortSpy.mockClear();
+
+      // Click again to sort ascending
+      await userEvent.click(nameButton);
+
+      // Verify sort API was called with display_name ascending
+      await waitFor(() => {
+        expect(sortSpy).toHaveBeenCalledWith('display_name');
+      });
+
+      // Wait for table to reload after sort
+      await waitForPageToLoad(canvas, mockRoles[0].display_name);
     });
 
-    // Wait for table to reload after sort
-    await waitForPageToLoad(canvas, mockRoles[0].display_name);
+    await step('Sort by Last Modified column', async () => {
+      let lastModifiedButton = await findSortButton(canvas, /last modified/i);
 
-    // Re-find the button after table re-render
-    nameColumnHeader = await canvas.findByRole('columnheader', { name: /name/i });
-    nameButton = await within(nameColumnHeader).findByRole('button');
+      // Reset spy
+      sortSpy.mockClear();
 
-    // Reset spy
-    sortSpy.mockClear();
+      // Click to sort by modified date
+      await userEvent.click(lastModifiedButton);
 
-    // Click again to sort ascending
-    await userEvent.click(nameButton);
+      // Verify sort API was called with modified
+      await waitFor(() => {
+        expect(sortSpy).toHaveBeenCalledWith('modified');
+      });
 
-    // Verify sort API was called with display_name ascending
-    await waitFor(() => {
-      expect(sortSpy).toHaveBeenCalledWith('display_name');
+      // Wait for table to reload after sort
+      await waitForPageToLoad(canvas, mockRoles[0].display_name);
+
+      lastModifiedButton = await findSortButton(canvas, /last modified/i);
+
+      // Reset spy
+      sortSpy.mockClear();
+
+      // Click again for descending
+      await userEvent.click(lastModifiedButton);
+
+      // Verify sort API was called with modified descending
+      await waitFor(() => {
+        expect(sortSpy).toHaveBeenCalledWith('-modified');
+      });
     });
-
-    // Wait for table to reload after sort
-    await waitForPageToLoad(canvas, mockRoles[0].display_name);
-
-    // Test sorting by Last Modified column
-    console.log('SB: 🧪 Testing Last Modified column sorting...');
-    let lastModifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
-    let lastModifiedButton = await within(lastModifiedHeader).findByRole('button');
-
-    // Reset spy
-    sortSpy.mockClear();
-
-    // Click to sort by modified date
-    await userEvent.click(lastModifiedButton);
-
-    // Verify sort API was called with modified
-    await waitFor(() => {
-      expect(sortSpy).toHaveBeenCalledWith('modified');
-    });
-
-    // Wait for table to reload after sort
-    await waitForPageToLoad(canvas, mockRoles[0].display_name);
-
-    // Re-find the button after table re-render
-    lastModifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
-    lastModifiedButton = await within(lastModifiedHeader).findByRole('button');
-
-    // Reset spy
-    sortSpy.mockClear();
-
-    // Click again for descending
-    await userEvent.click(lastModifiedButton);
-
-    // Verify sort API was called with modified descending
-    await waitFor(() => {
-      expect(sortSpy).toHaveBeenCalledWith('-modified');
-    });
-
-    console.log('SB: 🧪 SORTING: Column sorting test completed');
   },
 };
 
@@ -557,31 +544,26 @@ export const AdminUserWithRolesPrimaryActions: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    // Wait for debounced functions to settle
-    await delay(300);
+    await step('Verify primary actions and row kebab', async () => {
+      // Wait for data load
+      expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
 
-    console.log('SB: 🧪 ACTIONS: Starting primary actions test');
+      // Test Create Role button availability and state
+      const createRoleButton = canvas.getByRole('button', { name: /create role/i });
+      expect(createRoleButton).toBeInTheDocument();
+      expect(createRoleButton).not.toBeDisabled();
 
-    // Wait for data load
-    expect(await canvas.findByText(mockRoles[0].display_name)).toBeInTheDocument();
+      // Test row actions (kebab menus) availability
+      const kebabMenus = canvas.getAllByLabelText(/Actions for role/i);
+      expect(kebabMenus.length).toBeGreaterThan(0);
 
-    // Test Create Role button availability and state
-    const createRoleButton = canvas.getByRole('button', { name: /create role/i });
-    expect(createRoleButton).toBeInTheDocument();
-    expect(createRoleButton).not.toBeDisabled();
-
-    // Test row actions (kebab menus) availability
-    const kebabMenus = canvas.getAllByLabelText(/Actions for role/i);
-    expect(kebabMenus.length).toBeGreaterThan(0);
-
-    // Test first row kebab menu interaction
-    const firstRowKebab = kebabMenus[0]; // Actions dropdown;
-    await userEvent.click(firstRowKebab);
-
-    console.log('SB: 🧪 ACTIONS: Primary actions test completed');
+      // Test first row kebab menu interaction
+      const firstRowKebab = kebabMenus[0]; // Actions dropdown;
+      await userEvent.click(firstRowKebab);
+    });
   },
 };
 
@@ -613,49 +595,55 @@ export const PaginationUrlSync: Story = {
       ],
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const body = within(document.body);
 
-    paginationSpy.mockClear();
+    await step('Verify initial load and change per page', async () => {
+      paginationSpy.mockClear();
 
-    // Wait for initial load - rely on UI state instead of a fixed delay
-    await expect(canvas.findByText(mockRolesLarge[0].display_name)).resolves.toBeInTheDocument();
+      // Wait for initial load - rely on UI state instead of a fixed delay
+      await expect(canvas.findByText(mockRolesLarge[0].display_name)).resolves.toBeInTheDocument();
 
-    // Assert initial URL params
-    const locEl = canvas.getByTestId('router-location');
-    await expectLocationParams(locEl, {
-      page: null, // page=1 is represented by absence of the param (see updatePageInUrl)
-      perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE),
+      // Assert initial URL params
+      const locEl = canvas.getByTestId('router-location');
+      await expectLocationParams(locEl, {
+        page: null, // page=1 is represented by absence of the param (see updatePageInUrl)
+        perPage: String(PAGINATION_TEST_DEFAULT_PER_PAGE),
+      });
+
+      await openPerPageMenu(body);
+      await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
+      await expectLocationParams(locEl, {
+        page: null, // perPage change resets page and deletes the page param
+        perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
+      });
+
+      await waitFor(() => {
+        expect(paginationSpy).toHaveBeenCalled();
+        const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
+        expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+        expect(last.offset).toBe(0);
+      });
     });
 
-    await openPerPageMenu(body);
-    await selectPerPage(body, PAGINATION_TEST_SMALL_PER_PAGE);
-    await expectLocationParams(locEl, {
-      page: null, // perPage change resets page and deletes the page param
-      perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
-    });
+    await step('Navigate to next page', async () => {
+      const locEl = canvas.getByTestId('router-location');
 
-    await waitFor(() => {
-      expect(paginationSpy).toHaveBeenCalled();
-      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
-      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
-      expect(last.offset).toBe(0);
-    });
+      // Navigate to next page
+      const nextButtons = canvas.getAllByRole('button', { name: /go to next page/i });
+      await userEvent.click(nextButtons[0]);
 
-    // Navigate to next page
-    const nextButtons = canvas.getAllByRole('button', { name: /go to next page/i });
-    await userEvent.click(nextButtons[0]);
+      await expectLocationParams(locEl, {
+        page: '2',
+        perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
+      });
 
-    await expectLocationParams(locEl, {
-      page: '2',
-      perPage: String(PAGINATION_TEST_SMALL_PER_PAGE),
-    });
-
-    await waitFor(() => {
-      const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
-      expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
-      expect(last.offset).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      await waitFor(() => {
+        const last = getLastCallArg<{ limit: number; offset: number }>(paginationSpy);
+        expect(last.limit).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+        expect(last.offset).toBe(PAGINATION_TEST_SMALL_PER_PAGE);
+      });
     });
   },
 };

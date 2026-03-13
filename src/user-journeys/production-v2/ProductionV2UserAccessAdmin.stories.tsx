@@ -10,7 +10,10 @@ import type { Decorator, StoryContext, StoryObj } from '@storybook/react-webpack
 import React from 'react';
 import { expect, waitFor, within } from 'storybook/test';
 import { KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { TEST_TIMEOUTS, resetStoryState, waitForPageToLoad } from '../_shared/helpers';
+import { resetStoryState } from '../_shared/helpers';
+import { waitForContentReady } from '../../test-utils/interactionHelpers';
+import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
+import { waitForPageToLoad } from '../../test-utils/tableHelpers';
 import { createV2MockDb } from '../../v2/data/mocks/db';
 import { createV2Handlers } from '../../v2/data/mocks/handlers';
 import { V2_ROLE_TENANT_ADMIN, defaultV2Seed } from '../../v2/data/mocks/seed';
@@ -116,14 +119,23 @@ Tests that a User Access Administrator can view and manage roles.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await waitForPageToLoad(canvas, V2_ROLE_TENANT_ADMIN.name!);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const createButton = canvas.queryByRole('button', { name: /create role/i });
-    await expect(createButton).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify roles table and Create role button', async () => {
+      await waitForPageToLoad(canvas, V2_ROLE_TENANT_ADMIN.name!);
+
+      const createButton = canvas.queryByRole('button', { name: /create role/i });
+      await expect(createButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -148,14 +160,23 @@ Tests that a User Access Administrator can view and manage user groups.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await waitForPageToLoad(canvas, GROUP_ADMIN_DEFAULT.name);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const createButton = canvas.queryByRole('button', { name: /create user group/i });
-    await expect(createButton).toBeInTheDocument();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify groups table and Create user group button', async () => {
+      await waitForPageToLoad(canvas, GROUP_ADMIN_DEFAULT.name);
+
+      const createButton = canvas.queryByRole('button', { name: /create user group/i });
+      await expect(createButton).toBeInTheDocument();
+    });
   },
 };
 
@@ -180,14 +201,23 @@ Tests that a non-org-admin User Access Administrator cannot invite new users.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await waitForPageToLoad(canvas, USER_JOHN.username);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    const usersTab = await canvas.findByRole('tab', { name: /users/i });
-    expect(usersTab).toHaveAttribute('aria-selected', 'true');
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify Users tab and table', async () => {
+      await waitForPageToLoad(canvas, USER_JOHN.username);
+
+      const usersTab = await canvas.findByRole('tab', { name: /users/i });
+      expect(usersTab).toHaveAttribute('aria-selected', 'true');
+    });
   },
 };
 
@@ -212,22 +242,31 @@ Tests that org admin toggles are disabled for a non-org-admin user.
       },
     },
   },
-  play: async (context) => {
-    await resetStoryState(db);
-    const canvas = within(context.canvasElement);
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
 
-    await waitForPageToLoad(canvas, USER_JOHN.username);
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
 
-    await waitFor(
-      async () => {
-        const orgAdminSwitches = canvas.queryAllByLabelText(/toggle org admin/i);
-        if (orgAdminSwitches.length > 0) {
-          for (const switchEl of orgAdminSwitches) {
-            await expect(switchEl).toBeDisabled();
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify org admin switches disabled', async () => {
+      await waitForPageToLoad(canvas, USER_JOHN.username);
+
+      await waitFor(
+        async () => {
+          const orgAdminSwitches = canvas.queryAllByLabelText(/toggle org admin/i);
+          if (orgAdminSwitches.length > 0) {
+            for (const switchEl of orgAdminSwitches) {
+              await expect(switchEl).toBeDisabled();
+            }
           }
-        }
-      },
-      { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
-    );
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
   },
 };

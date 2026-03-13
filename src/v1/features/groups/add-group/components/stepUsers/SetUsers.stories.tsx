@@ -65,17 +65,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    // Wait for users table or component to load
-    await waitFor(
-      () => {
-        expect(canvasElement).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+  play: async ({ canvasElement, step }) => {
+    await step('Verify component renders', async () => {
+      await waitFor(
+        () => {
+          expect(canvasElement).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    // Verify basic component rendering
-    expect(canvasElement).toBeInTheDocument();
+      expect(canvasElement).toBeInTheDocument();
+    });
   },
 };
 
@@ -85,15 +85,16 @@ export const ITLessMode: Story = {
       'platform.rbac.itless': true,
     },
   },
-  play: async ({ canvasElement }) => {
-    // Should load ITLess version
-    await waitFor(
-      () => {
-        expect(canvasElement).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+  play: async ({ canvasElement, step }) => {
+    await step('Verify IT-less mode component renders', async () => {
+      await waitFor(
+        () => {
+          expect(canvasElement).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
 
-    expect(canvasElement).toBeInTheDocument();
+      expect(canvasElement).toBeInTheDocument();
+    });
   },
 };

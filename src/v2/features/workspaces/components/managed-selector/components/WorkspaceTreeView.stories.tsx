@@ -123,28 +123,29 @@ export const WithSelectedWorkspace: Story = {
     selectedWorkspace: mockTreeData[0], // Select first workspace (Production Environment)
     areElementsFiltered: false, // Keep tree collapsed by default but show selection
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify selected workspace', async () => {
+      // Should show tree view
+      const treeView = await canvas.findByRole('tree');
+      await expect(treeView).toBeInTheDocument();
 
-    // Should show tree view
-    const treeView = await canvas.findByRole('tree');
-    await expect(treeView).toBeInTheDocument();
+      // Should have the selected item visible
+      await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
 
-    // Should have the selected item visible
-    await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
+      // Verify the selected item has the active/selected styling
+      // PatternFly applies pf-m-current class to selected tree items
+      // We need to await the element first before calling closest on it
+      const prodElement = await canvas.findByText('Production Environment');
+      const selectedItem = prodElement.closest('[role="treeitem"]');
+      await expect(selectedItem).toBeInTheDocument();
 
-    // Verify the selected item has the active/selected styling
-    // PatternFly applies pf-m-current class to selected tree items
-    // We need to await the element first before calling closest on it
-    const prodElement = await canvas.findByText('Production Environment');
-    const selectedItem = prodElement.closest('[role="treeitem"]');
-    await expect(selectedItem).toBeInTheDocument();
+      // Note: PatternFly selection styling may be applied differently,
+      // so we verify the item is present and properly structured
+      await expect(selectedItem).toHaveAttribute('role', 'treeitem');
 
-    // Note: PatternFly selection styling may be applied differently,
-    // so we verify the item is present and properly structured
-    await expect(selectedItem).toHaveAttribute('role', 'treeitem');
-
-    // Note: Selected item styling is handled by PatternFly internally
+      // Note: Selected item styling is handled by PatternFly internally
+    });
   },
 };
 
@@ -180,15 +181,16 @@ export const ExpandedFilteredView: Story = {
     ...defaultArgs,
     areElementsFiltered: true,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify expanded filtered view', async () => {
+      // Should show tree view with all nodes expanded due to filtering
+      await expect(canvas.findByRole('tree')).resolves.toBeInTheDocument();
 
-    // Should show tree view with all nodes expanded due to filtering
-    await expect(canvas.findByRole('tree')).resolves.toBeInTheDocument();
-
-    // Wait for tree expansion - check for nested items with timeout
-    await expect(canvas.findByText('Frontend Apps')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Backend APIs')).resolves.toBeInTheDocument();
+      // Wait for tree expansion - check for nested items with timeout
+      await expect(canvas.findByText('Frontend Apps')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Backend APIs')).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -197,15 +199,16 @@ export const Loading: Story = {
     ...defaultArgs,
     isLoading: true,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify loading', async () => {
+      // Should show loading spinner
+      await expect(canvas.findByTestId('workspace-loading')).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('progressbar')).resolves.toBeInTheDocument();
 
-    // Should show loading spinner
-    await expect(canvas.findByTestId('workspace-loading')).resolves.toBeInTheDocument();
-    await expect(canvas.findByRole('progressbar')).resolves.toBeInTheDocument();
-
-    // Should not show tree view
-    await expect(canvas.queryByRole('tree')).not.toBeInTheDocument();
+      // Should not show tree view
+      await expect(canvas.queryByRole('tree')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -214,15 +217,16 @@ export const Error: Story = {
     ...defaultArgs,
     isError: true,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify error state', async () => {
+      // Should show error alert (PatternFly Alert doesn't expose role="alert")
+      await expect(canvas.findByTestId('workspace-load-error')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
 
-    // Should show error alert (PatternFly Alert doesn't expose role="alert")
-    await expect(canvas.findByTestId('workspace-load-error')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Failed to load workspaces')).resolves.toBeInTheDocument();
-
-    // Should not show tree view
-    await expect(canvas.queryByRole('tree')).not.toBeInTheDocument();
+      // Should not show tree view
+      await expect(canvas.queryByRole('tree')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -232,15 +236,16 @@ export const EmptyNoFilter: Story = {
     treeElements: [],
     areElementsFiltered: false,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify empty no filter', async () => {
+      // Should show empty message for no workspaces
+      await expect(canvas.findByTestId('workspace-empty-message')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('No workspaces to show.')).resolves.toBeInTheDocument();
 
-    // Should show empty message for no workspaces
-    await expect(canvas.findByTestId('workspace-empty-message')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('No workspaces to show.')).resolves.toBeInTheDocument();
-
-    // Should not show tree view
-    await expect(canvas.queryByRole('tree')).not.toBeInTheDocument();
+      // Should not show tree view
+      await expect(canvas.queryByRole('tree')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -250,15 +255,16 @@ export const EmptyFiltered: Story = {
     treeElements: [],
     areElementsFiltered: true,
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify empty filtered', async () => {
+      // Should show filtered empty message
+      await expect(canvas.findByTestId('workspace-empty-message')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('No workspaces match your search.')).resolves.toBeInTheDocument();
 
-    // Should show filtered empty message
-    await expect(canvas.findByTestId('workspace-empty-message')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('No workspaces match your search.')).resolves.toBeInTheDocument();
-
-    // Should not show tree view
-    await expect(canvas.queryByRole('tree')).not.toBeInTheDocument();
+      // Should not show tree view
+      await expect(canvas.queryByRole('tree')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -267,40 +273,42 @@ export const SingleWorkspace: Story = {
     ...defaultArgs,
     treeElements: [createMockTreeItem('single', 'Single Workspace', undefined)],
   },
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify single workspace', async () => {
+      // Should show tree view with single workspace
+      await expect(canvas.findByRole('tree')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Single Workspace')).resolves.toBeInTheDocument();
 
-    // Should show tree view with single workspace
-    await expect(canvas.findByRole('tree')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Single Workspace')).resolves.toBeInTheDocument();
+      // Test selection
+      const workspace = await canvas.findByText('Single Workspace');
+      await userEvent.click(workspace);
 
-    // Test selection
-    const workspace = await canvas.findByText('Single Workspace');
-    await userEvent.click(workspace);
-
-    await expect(args.onSelect).toHaveBeenCalled();
+      await expect(args.onSelect).toHaveBeenCalled();
+    });
   },
 };
 
 export const InteractiveSelection: Story = {
   args: defaultArgs,
-  play: async ({ args, canvasElement }) => {
+  play: async ({ args, canvasElement, step }) => {
     const canvas = within(canvasElement);
+    await step('Verify interactive selection', async () => {
+      // Test multiple selections
+      const prodWorkspace = await canvas.findByText('Production Environment');
+      const devWorkspace = await canvas.findByText('Development Environment');
 
-    // Test multiple selections
-    const prodWorkspace = await canvas.findByText('Production Environment');
-    const devWorkspace = await canvas.findByText('Development Environment');
+      // Click first workspace
+      await userEvent.click(prodWorkspace);
+      await expect(args.onSelect).toHaveBeenCalledTimes(1);
 
-    // Click first workspace
-    await userEvent.click(prodWorkspace);
-    await expect(args.onSelect).toHaveBeenCalledTimes(1);
+      // Click second workspace
+      await userEvent.click(devWorkspace);
+      await expect(args.onSelect).toHaveBeenCalledTimes(2);
 
-    // Click second workspace
-    await userEvent.click(devWorkspace);
-    await expect(args.onSelect).toHaveBeenCalledTimes(2);
-
-    // Verify both workspaces are clickable
-    await expect(prodWorkspace).toBeInTheDocument();
-    await expect(devWorkspace).toBeInTheDocument();
+      // Verify both workspaces are clickable
+      await expect(prodWorkspace).toBeInTheDocument();
+      await expect(devWorkspace).toBeInTheDocument();
+    });
   },
 };
