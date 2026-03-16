@@ -207,6 +207,7 @@ export const WorkspaceDetail = () => {
                   isLoading={roleBindingsIsLoading}
                   workspaceName={selectedWorkspace?.name || ''}
                   currentWorkspace={currentWorkspace}
+                  canGrantAccess={currentPermissions.create}
                   ouiaId="current-role-assignments-table"
                   isGrantAccessWizardOpen={isGrantAccessOpen}
                   onGrantAccessWizardToggle={setIsGrantAccessOpen}

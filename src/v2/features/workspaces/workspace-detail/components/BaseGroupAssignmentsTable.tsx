@@ -30,6 +30,8 @@ export interface BaseGroupAssignmentsTableProps {
   workspaceName?: string;
   currentWorkspace?: { id: string; name: string };
   ouiaId?: string;
+  /** Whether the user has permission to grant access (Kessel `create` relation). Defaults to `false`. */
+  canGrantAccess?: boolean;
   /** Controlled state: whether the grant access wizard is open */
   isGrantAccessWizardOpen?: boolean;
   /** Controlled callback: toggle the grant access wizard */
@@ -43,6 +45,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
   workspaceName,
   currentWorkspace,
   ouiaId = 'iam-role-assignments-table',
+  canGrantAccess = false,
   isGrantAccessWizardOpen: externalWizardOpen,
   onGrantAccessWizardToggle,
 }) => {
@@ -148,14 +151,14 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
       currentWorkspace ? (
         <Button
           variant="primary"
-          isDisabled={!grantAccessEnabled}
+          isDisabled={!grantAccessEnabled || !canGrantAccess}
           onClick={() => setIsGrantAccessWizardOpen(true)}
           ouiaId={`${ouiaId}-grant-access-button`}
         >
           {intl.formatMessage(messages.grantAccess)}
         </Button>
       ) : undefined,
-    [grantAccessEnabled, ouiaId, intl, currentWorkspace],
+    [grantAccessEnabled, canGrantAccess, ouiaId, intl, currentWorkspace],
   );
 
   return (

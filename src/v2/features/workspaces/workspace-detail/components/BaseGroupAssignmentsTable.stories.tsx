@@ -256,13 +256,14 @@ export const DrawerInteraction: Story = {
   },
 };
 
-export const GrantAccessButtonDisabled: Story = {
+export const GrantAccessButtonDisabledByFlag: Story = {
   args: {
     groups: mockGroups,
     totalCount: mockGroups.length,
     isLoading: false,
     workspaceName: 'Test Workspace',
     currentWorkspace: { id: 'ws-test', name: 'Test Workspace' },
+    canGrantAccess: true,
     ouiaId: 'role-assignments-grant-access-disabled-test',
   },
   parameters: {
@@ -272,7 +273,36 @@ export const GrantAccessButtonDisabled: Story = {
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await step('Verify grant access disabled', async () => {
+    await step('Verify grant access disabled when m4 flag is off', async () => {
+      const table = await canvas.findByRole('grid');
+      await expect(table).toBeInTheDocument();
+
+      const grantAccessButton = await canvas.findByRole('button', { name: /grant access/i });
+      await expect(grantAccessButton).toBeInTheDocument();
+      await expect(grantAccessButton).toBeDisabled();
+    });
+  },
+};
+
+export const GrantAccessButtonDisabledByPermission: Story = {
+  tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    workspaceName: 'Test Workspace',
+    currentWorkspace: { id: 'ws-test', name: 'Test Workspace' },
+    canGrantAccess: false,
+    ouiaId: 'role-assignments-grant-access-no-permission-test',
+  },
+  parameters: {
+    featureFlags: {
+      'platform.rbac.workspaces-role-bindings-write': true,
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify grant access disabled when user lacks create permission', async () => {
       const table = await canvas.findByRole('grid');
       await expect(table).toBeInTheDocument();
 
@@ -291,6 +321,7 @@ export const GrantAccessWizardTest: Story = {
     isLoading: false,
     workspaceName: 'Test Workspace',
     currentWorkspace: { id: 'ws-test', name: 'Test Workspace' },
+    canGrantAccess: true,
     ouiaId: 'role-assignments-grant-access-test',
     onGrantAccessWizardToggle: undefined,
   },
