@@ -99,6 +99,7 @@
     "eslint-plugin-storybook": "^10.2.8",
     "eslint-plugin-testing-library": "^7.15.4",
     "happy-dom": "^20.3.4",
+    "http-server": "^14.1.1",
     "https-proxy-agent": "^7.0.6",
     "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
@@ -119,6 +120,7 @@
     "remark-gfm": "^4.0.1",
     "resolve-url-loader": "^5.0.0",
     "semantic-release": "^25.0.3",
+    "start-server-and-test": "^2.1.5",
     "storybook": "^10.2.15",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
@@ -191,6 +193,7 @@
     "test-storybook": "test-storybook --excludeTags skip-test --testTimeout=30000",
     "test-storybook:fast": "CI=true test-storybook --excludeTags skip-test --testTimeout=30000",
     "test-storybook:ci": "test-storybook --ci --excludeTags skip-test --testTimeout=60000",
+    "test:storybook": "storybook build && start-server-and-test 'http-server storybook-static -p 6007 -s' http://127.0.0.1:6007 'test-storybook --ci --excludeTags skip-test --testTimeout=60000 --url http://127.0.0.1:6007'",
     "cli": "node --import tsx src/cli/cli.tsx",
     "test:cli": "vitest run --config src/cli/vitest.config.ts"
   },

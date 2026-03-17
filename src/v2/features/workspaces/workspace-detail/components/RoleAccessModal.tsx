@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { ActionGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core/dist/dynamic/components/Modal';
@@ -16,6 +17,7 @@ import type { Role } from '../../../../data/api/roles';
 import { useAllRolesV2Query } from '../../../../data/queries/roles';
 import { useGroupQuery } from '../../../../data/queries/groups';
 import { useRoleBindingsQuery, useUpdateGroupRolesMutation, useWorkspaceQuery } from '../../../../data/queries/workspaces';
+import { useWorkspacePermissions } from '../../hooks/useWorkspacePermissions';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
@@ -95,6 +97,23 @@ export const RoleAccessModal: React.FC = () => {
     [updateMutation, workspaceId, groupId, handleClose],
   );
 
+  // --- Kessel permission guard (MVP: workspace `create` relation) ---
+  const { hasPermission, isLoading: permissionsLoading } = useWorkspacePermissions(workspace ? [workspace] : []);
+  const addNotification = useAddNotification();
+
+  const lacksCreatePermission = !!workspace && !permissionsLoading && !hasPermission(workspace.id ?? '', 'create');
+
+  useEffect(() => {
+    if (lacksCreatePermission) {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.editAccess),
+        description: intl.formatMessage(messages.editingWorkspaceNoPermissionDescription),
+      });
+      handleClose();
+    }
+  }, [lacksCreatePermission, addNotification, intl, handleClose]);
+
   // --- Derived ---
   const assignedRoleIds = useMemo(() => {
     if (!bindingsData?.data) return [];
@@ -105,7 +124,11 @@ export const RoleAccessModal: React.FC = () => {
     return null;
   }
 
-  const isLoading = groupLoading || workspaceLoading || rolesLoading || bindingsLoading;
+  if (lacksCreatePermission) {
+    return null;
+  }
+
+  const isLoading = groupLoading || workspaceLoading || rolesLoading || bindingsLoading || permissionsLoading;
   const dataReady = !isLoading && !!group && !!workspace && !!allRoles;
 
   return (

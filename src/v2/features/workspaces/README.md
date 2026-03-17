@@ -58,8 +58,16 @@ hasPermission(ws.id, 'delete')  // → boolean
 | Operation | MVP Kessel relation | Post-MVP relation |
 |-----------|-------------------|-------------------|
 | View role bindings | `view` | `role_binding_view` |
-| Create role binding | `create` | `role_binding_create` |
-| Revoke role binding | `delete` | `role_binding_revoke` |
+| Create role binding (Grant access) | `create` | `role_binding_create` |
+| Edit role binding (Edit access modal) | `create` | `role_binding_update` |
+| Revoke role binding (Remove from workspace) | `delete` | `role_binding_revoke` |
+
+**Enforcement points:**
+- **Toolbar "Grant access" button** (`BaseGroupAssignmentsTable`): `canGrantAccess` prop, gated on `create` + M4 flag
+- **Row kebab "Edit access"** (`BaseGroupAssignmentsTable`): `canEditAccess` prop, gated on `create`
+- **Row kebab "Remove from workspace"** (`BaseGroupAssignmentsTable`): `canRevokeAccess` prop, gated on `delete`
+- **Drawer "Edit access" / "Remove from workspace" buttons** (`GroupDetailsDrawer`): same props, passed through
+- **`RoleAccessModal`** (route-driven): Kessel `create` permission guard — redirects back if denied (direct URL defense)
 
 ## Federated modules
 

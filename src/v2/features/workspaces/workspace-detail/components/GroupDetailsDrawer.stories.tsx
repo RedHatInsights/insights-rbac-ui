@@ -163,6 +163,8 @@ const DrawerExample = ({
   ouiaId = 'group-details-drawer',
   currentWorkspace = mockWorkspace,
   showInheritance = false,
+  canEditAccess = false,
+  canRevokeAccess = false,
   onRemoveFromWorkspace,
 }: {
   isOpen?: boolean;
@@ -171,6 +173,8 @@ const DrawerExample = ({
   ouiaId?: string;
   currentWorkspace?: { id: string; name: string };
   showInheritance?: boolean;
+  canEditAccess?: boolean;
+  canRevokeAccess?: boolean;
   onRemoveFromWorkspace?: (group: WorkspaceGroupRow) => void;
 }) => {
   const [isOpen, setIsOpen] = React.useState(initialIsOpen);
@@ -188,6 +192,8 @@ const DrawerExample = ({
       ouiaId={ouiaId}
       currentWorkspace={currentWorkspace}
       showInheritance={showInheritance}
+      canEditAccess={canEditAccess}
+      canRevokeAccess={canRevokeAccess}
       onRemoveFromWorkspace={onRemoveFromWorkspace}
     >
       <Card>
@@ -216,6 +222,9 @@ export const Default: Story = {
     group: mockGroup,
     onClose: fn(),
     ouiaId: 'group-details-drawer',
+    canEditAccess: true,
+    canRevokeAccess: true,
+    onRemoveFromWorkspace: fn(),
   },
   parameters: {
     docs: {
@@ -237,8 +246,11 @@ export const Default: Story = {
       // Wait for drawer to open and show group name
       await canvas.findByText('Platform Administrators');
 
-      // Verify the "Edit access for this workspace" button is present
-      await canvas.findByRole('button', { name: /edit access for this workspace/i });
+      const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
+      await expect(editAccessButton).toBeEnabled();
+
+      const removeButton = await canvas.findByRole('button', { name: /remove from workspace/i });
+      await expect(removeButton).toBeEnabled();
 
       // Verify tabs are present - Roles tab should be active by default
       await canvas.findByRole('tab', { name: /roles/i });
@@ -471,5 +483,64 @@ export const ErrorState: Story = {
       },
     },
   },
-  // No play function - error state testing with React Query error handling requires proper error boundary setup
+};
+
+export const PermissionDenied: Story = {
+  render: (args) => <DrawerExample {...args} />,
+  args: {
+    isOpen: true,
+    group: mockGroup,
+    onClose: fn(),
+    ouiaId: 'group-details-drawer-no-permissions',
+    canEditAccess: false,
+    canRevokeAccess: false,
+    onRemoveFromWorkspace: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Drawer with both edit and revoke permissions denied. Both action buttons are present but disabled.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify both buttons are disabled when permissions are denied', async () => {
+      const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
+      await expect(editAccessButton).toBeDisabled();
+
+      const removeButton = await canvas.findByRole('button', { name: /remove from workspace/i });
+      await expect(removeButton).toBeDisabled();
+    });
+  },
+};
+
+export const EditOnlyPermission: Story = {
+  render: (args) => <DrawerExample {...args} />,
+  args: {
+    isOpen: true,
+    group: mockGroup,
+    onClose: fn(),
+    ouiaId: 'group-details-drawer-edit-only',
+    canEditAccess: true,
+    canRevokeAccess: false,
+    onRemoveFromWorkspace: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Drawer with edit permission granted but revoke denied. Edit access button is enabled, remove button is disabled.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify edit enabled but revoke disabled', async () => {
+      const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
+      await expect(editAccessButton).toBeEnabled();
+
+      const removeButton = await canvas.findByRole('button', { name: /remove from workspace/i });
+      await expect(removeButton).toBeDisabled();
+    });
+  },
 };

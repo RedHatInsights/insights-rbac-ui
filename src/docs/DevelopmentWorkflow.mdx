@@ -120,22 +120,34 @@ npm run lint:js
 # 3. Unit tests
 npm test
 
-# 4. Storybook interaction tests
-npm run test-storybook:ci
+# 4. Storybook interaction tests (self-contained — no dev server needed)
+npm run test:storybook
 ```
+
+`test:storybook` builds Storybook, serves it on port 6007, runs all interaction tests, and cleans up the server automatically. No running dev server required.
 
 All four must pass with exit code 0. Any failure means the work is not done.
 
 ---
 
-## Targeted test-storybook Runs
+## Storybook Test Commands
 
-When debugging or verifying specific stories, **always use `--includeTags`** to avoid running the full 900+ test suite. Full suite runs take 2+ minutes; tagged runs finish in seconds.
+| Command | Use case | Dev server needed? |
+| --- | --- | --- |
+| `npm run test:storybook` | Full suite, self-contained (build + serve + test + cleanup) | No |
+| `npm run test-storybook:fast -- --includeTags <tag>` | Fast targeted run during iteration | Yes (port 6006) |
+| `npm run test-storybook:ci -- --includeTags <tag>` | CI-mode targeted run (snapshot failures = errors) | Yes (port 6006) |
+
+`test:storybook` builds Storybook, starts an HTTP server on **port 6007**, runs the full test suite, and kills the server on completion (or failure/signal). It is the recommended command for final validation and automated agents — no manual server management required.
+
+### Targeted runs (fast iteration)
+
+When debugging or verifying specific stories, **always use `--includeTags`** against a running dev server to avoid running the full 900+ test suite. Full suite runs take 2+ minutes; tagged runs finish in seconds.
 
 ```bash
 # ✅ Run only stories tagged for a specific feature
-npm run test-storybook -- --includeTags prod-v1-org-admin
-npm run test-storybook -- --includeTags prod-v2-org-admin
+npm run test-storybook:fast -- --includeTags prod-v1-org-admin
+npm run test-storybook:fast -- --includeTags prod-v2-org-admin
 
 # ✅ Combine with CI mode for non-interactive output
 npm run test-storybook:ci -- --includeTags prod-v2-org-admin
@@ -144,7 +156,7 @@ npm run test-storybook:ci -- --includeTags prod-v2-org-admin
 npm run test-storybook:fast   # 2+ min, tests 900+ stories
 ```
 
-Only run the full suite (`test-storybook:ci` without `--includeTags`) as a final check before pushing.
+For final validation before pushing, use `npm run test:storybook` (no dev server needed).
 
 ---
 
@@ -154,14 +166,14 @@ Run the test suite once and pipe output to a file. Analyze the file — don't re
 
 ```bash
 # ✅ Run once, save, analyze many times
-npm run test-storybook:fast 2>&1 | tee /tmp/test-output.txt | tail -20
+npm run test:storybook 2>&1 | tee /tmp/test-output.txt | tail -20
 grep -i "error" /tmp/test-output.txt
 grep -i "fail"  /tmp/test-output.txt
 grep -i "skip"  /tmp/test-output.txt
 
 # ❌ Running the suite multiple times wastes 2+ minutes per run
-npm run test-storybook:fast 2>&1 | grep -i "error"
-npm run test-storybook:fast 2>&1 | grep -i "fail"   # don't do this
+npm run test:storybook 2>&1 | grep -i "error"
+npm run test:storybook 2>&1 | grep -i "fail"   # don't do this
 ```
 
 ---

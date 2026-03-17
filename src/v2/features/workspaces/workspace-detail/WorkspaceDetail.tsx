@@ -208,6 +208,8 @@ export const WorkspaceDetail = () => {
                   workspaceName={selectedWorkspace?.name || ''}
                   currentWorkspace={currentWorkspace}
                   canGrantAccess={currentPermissions.create}
+                  canEditAccess={currentPermissions.create}
+                  canRevokeAccess={currentPermissions.delete}
                   ouiaId="current-role-assignments-table"
                   isGrantAccessWizardOpen={isGrantAccessOpen}
                   onGrantAccessWizardToggle={setIsGrantAccessOpen}

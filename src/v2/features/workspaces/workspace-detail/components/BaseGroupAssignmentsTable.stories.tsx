@@ -256,14 +256,119 @@ export const DrawerInteraction: Story = {
   },
 };
 
+const WORKSPACE_ARGS = {
+  groups: mockGroups,
+  totalCount: mockGroups.length,
+  isLoading: false,
+  workspaceName: 'Test Workspace',
+  currentWorkspace: { id: 'ws-test', name: 'Test Workspace' },
+} as const;
+
+export const RowActionsEnabled: Story = {
+  tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
+  args: {
+    ...WORKSPACE_ARGS,
+    canGrantAccess: true,
+    canEditAccess: true,
+    canRevokeAccess: true,
+    ouiaId: 'role-assignments-row-actions-enabled',
+  },
+  parameters: {
+    featureFlags: { 'platform.rbac.workspaces-role-bindings-write': true },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify row actions are enabled with full permissions', async () => {
+      const table = await canvas.findByRole('grid');
+      await expect(table).toBeInTheDocument();
+
+      const firstGroupRow = await canvas.findByText(mockGroups[0].name);
+      const row = firstGroupRow.closest('tr') as HTMLElement;
+      const kebab = within(row).getByLabelText(`Actions for ${mockGroups[0].name}`);
+      await userEvent.click(kebab);
+
+      const body = within(document.body);
+      const editItem = await body.findByText(/edit access for this workspace/i);
+      await expect(editItem.closest('button')).not.toHaveAttribute('disabled');
+
+      const removeItem = await body.findByText(/remove from workspace/i);
+      await expect(removeItem.closest('button')).not.toHaveAttribute('disabled');
+    });
+  },
+};
+
+export const RowActionsDisabledByPermission: Story = {
+  tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
+  args: {
+    ...WORKSPACE_ARGS,
+    canGrantAccess: false,
+    canEditAccess: false,
+    canRevokeAccess: false,
+    ouiaId: 'role-assignments-row-actions-disabled',
+  },
+  parameters: {
+    featureFlags: { 'platform.rbac.workspaces-role-bindings-write': true },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify row actions are disabled without permissions', async () => {
+      const table = await canvas.findByRole('grid');
+      await expect(table).toBeInTheDocument();
+
+      const firstGroupRow = await canvas.findByText(mockGroups[0].name);
+      const row = firstGroupRow.closest('tr') as HTMLElement;
+      const kebab = within(row).getByLabelText(`Actions for ${mockGroups[0].name}`);
+      await userEvent.click(kebab);
+
+      const body = within(document.body);
+      const editItem = await body.findByText(/edit access for this workspace/i);
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
+
+      const removeItem = await body.findByText(/remove from workspace/i);
+      await expect(removeItem.closest('button')).toHaveAttribute('disabled');
+    });
+  },
+};
+
+export const EditAccessDisabledRevokeEnabled: Story = {
+  tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
+  args: {
+    ...WORKSPACE_ARGS,
+    canGrantAccess: true,
+    canEditAccess: false,
+    canRevokeAccess: true,
+    ouiaId: 'role-assignments-mixed-permissions',
+  },
+  parameters: {
+    featureFlags: { 'platform.rbac.workspaces-role-bindings-write': true },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify edit disabled but revoke enabled', async () => {
+      const table = await canvas.findByRole('grid');
+      await expect(table).toBeInTheDocument();
+
+      const firstGroupRow = await canvas.findByText(mockGroups[0].name);
+      const row = firstGroupRow.closest('tr') as HTMLElement;
+      const kebab = within(row).getByLabelText(`Actions for ${mockGroups[0].name}`);
+      await userEvent.click(kebab);
+
+      const body = within(document.body);
+      const editItem = await body.findByText(/edit access for this workspace/i);
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
+
+      const removeItem = await body.findByText(/remove from workspace/i);
+      await expect(removeItem.closest('button')).not.toHaveAttribute('disabled');
+    });
+  },
+};
+
 export const GrantAccessButtonDisabledByFlag: Story = {
   args: {
-    groups: mockGroups,
-    totalCount: mockGroups.length,
-    isLoading: false,
-    workspaceName: 'Test Workspace',
-    currentWorkspace: { id: 'ws-test', name: 'Test Workspace' },
+    ...WORKSPACE_ARGS,
     canGrantAccess: true,
+    canEditAccess: true,
+    canRevokeAccess: true,
     ouiaId: 'role-assignments-grant-access-disabled-test',
   },
   parameters: {
@@ -287,12 +392,10 @@ export const GrantAccessButtonDisabledByFlag: Story = {
 export const GrantAccessButtonDisabledByPermission: Story = {
   tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
   args: {
-    groups: mockGroups,
-    totalCount: mockGroups.length,
-    isLoading: false,
-    workspaceName: 'Test Workspace',
-    currentWorkspace: { id: 'ws-test', name: 'Test Workspace' },
+    ...WORKSPACE_ARGS,
     canGrantAccess: false,
+    canEditAccess: false,
+    canRevokeAccess: false,
     ouiaId: 'role-assignments-grant-access-no-permission-test',
   },
   parameters: {
@@ -316,12 +419,10 @@ export const GrantAccessButtonDisabledByPermission: Story = {
 export const GrantAccessWizardTest: Story = {
   tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
   args: {
-    groups: mockGroups,
-    totalCount: mockGroups.length,
-    isLoading: false,
-    workspaceName: 'Test Workspace',
-    currentWorkspace: { id: 'ws-test', name: 'Test Workspace' },
+    ...WORKSPACE_ARGS,
     canGrantAccess: true,
+    canEditAccess: true,
+    canRevokeAccess: true,
     ouiaId: 'role-assignments-grant-access-test',
     onGrantAccessWizardToggle: undefined,
   },

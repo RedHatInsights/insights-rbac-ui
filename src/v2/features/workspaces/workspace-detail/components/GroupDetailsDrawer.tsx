@@ -56,6 +56,10 @@ interface GroupDetailsDrawerProps {
   children: React.ReactNode;
   showInheritance?: boolean;
   currentWorkspace?: { id: string; name: string };
+  /** Whether the user has permission to edit role bindings (Kessel `create` relation, MVP proxy). */
+  canEditAccess?: boolean;
+  /** Whether the user has permission to revoke role bindings (Kessel `delete` relation, MVP proxy). */
+  canRevokeAccess?: boolean;
   /** Callback to trigger the remove-from-workspace modal for the focused group */
   onRemoveFromWorkspace?: (group: WorkspaceGroupRow) => void;
 }
@@ -83,6 +87,8 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   children,
   showInheritance = false,
   currentWorkspace,
+  canEditAccess = false,
+  canRevokeAccess = false,
   onRemoveFromWorkspace,
 }) => {
   const intl = useIntl();
@@ -426,12 +432,13 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                 <Flex className="pf-v6-u-px-md pf-v6-u-pb-md" gap={{ default: 'gapSm' }}>
                   <Button
                     variant="secondary"
+                    isDisabled={!canEditAccess}
                     onClick={() => group && navigate(pathnames['workspace-role-access'].link(currentWorkspace.id, group.id))}
                   >
                     {intl.formatMessage(messages.editAccessForThisWorkspace)}
                   </Button>
                   {onRemoveFromWorkspace && (
-                    <Button variant="secondary" isDanger onClick={() => group && onRemoveFromWorkspace(group)}>
+                    <Button variant="secondary" isDanger isDisabled={!canRevokeAccess} onClick={() => group && onRemoveFromWorkspace(group)}>
                       {intl.formatMessage(messages.removeGroupFromWorkspace)}
                     </Button>
                   )}

@@ -32,6 +32,10 @@ export interface BaseGroupAssignmentsTableProps {
   ouiaId?: string;
   /** Whether the user has permission to grant access (Kessel `create` relation). Defaults to `false`. */
   canGrantAccess?: boolean;
+  /** Whether the user has permission to edit role bindings (Kessel `create` relation, MVP proxy). Defaults to `false`. */
+  canEditAccess?: boolean;
+  /** Whether the user has permission to revoke role bindings (Kessel `delete` relation, MVP proxy). Defaults to `false`. */
+  canRevokeAccess?: boolean;
   /** Controlled state: whether the grant access wizard is open */
   isGrantAccessWizardOpen?: boolean;
   /** Controlled callback: toggle the grant access wizard */
@@ -46,6 +50,8 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
   currentWorkspace,
   ouiaId = 'iam-role-assignments-table',
   canGrantAccess = false,
+  canEditAccess = false,
+  canRevokeAccess = false,
   isGrantAccessWizardOpen: externalWizardOpen,
   onGrantAccessWizardToggle,
 }) => {
@@ -120,7 +126,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
               navigate(pathnames['workspace-role-access'].link(currentWorkspace.id, group.id));
             }
           },
-          isDisabled: !currentWorkspace,
+          isDisabled: !currentWorkspace || !canEditAccess,
         },
         { key: 'divider', label: '', isDivider: true },
         {
@@ -128,11 +134,12 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
           label: intl.formatMessage(messages.removeGroupFromWorkspace),
           isDanger: true,
           onClick: () => setGroupToRemove(group),
+          isDisabled: !canRevokeAccess,
         },
       ];
       return <ActionDropdown items={items} ariaLabel={`Actions for ${group.name}`} ouiaId={`${ouiaId}-row-actions-${group.id}`} />;
     },
-    [intl, currentWorkspace, navigate, ouiaId],
+    [intl, currentWorkspace, navigate, ouiaId, canEditAccess, canRevokeAccess],
   );
 
   const handleRowClick = useCallback(
@@ -168,6 +175,8 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
       onClose={onCloseDrawer}
       ouiaId={ouiaId}
       currentWorkspace={currentWorkspace}
+      canEditAccess={canEditAccess}
+      canRevokeAccess={canRevokeAccess}
       onRemoveFromWorkspace={currentWorkspace ? (group) => setGroupToRemove(group) : undefined}
     >
       <TableView<typeof columns, WorkspaceGroupRow, SortableColumn>
