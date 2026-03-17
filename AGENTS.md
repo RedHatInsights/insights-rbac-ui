@@ -13,7 +13,8 @@ React application for Red Hat's Role-Based Access Control system. Built on Patte
 **Boundary rules** (enforced by ESLint rule `rbac-local/no-cross-version-imports`):
 - `src/v1/` cannot import from `src/v2/`
 - `src/v2/` cannot import from `src/v1/`
-- `src/shared/` cannot import from `src/v1/` or `src/v2/`
+- **Any file outside `src/v1/` and `src/v2/`** cannot import from either versioned directory. This includes `src/shared/` and prevents rogue paths (e.g. `src/data/`, `src/features/`) from bypassing the boundary. The only exceptions are `src/Iam.tsx` (app shell) and `src/federated-modules/` (module federation entry points that wrap V2 components with providers).
+- New files must go in `src/v1/`, `src/v2/`, or `src/shared/` — never directly under `src/` (except `Iam.tsx` and federated module entry points).
 - V2 RBAC feature islands (roles, groups, workspaces) use Kessel domain hooks for permission checks. Other V2 code may use `useAccessPermissions` for non-RBAC domains. V1 features use `useAccessPermissions` + `useUserData`.
 - `useUserData` lives in `src/shared/hooks/useUserData.ts` and is used by both V1 and V2 for identity flags.
 

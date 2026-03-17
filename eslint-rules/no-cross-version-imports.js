@@ -4,7 +4,9 @@
  * Enforces strict import boundaries between V1, V2, and shared code:
  *   - src/v1/ cannot import from src/v2/
  *   - src/v2/ cannot import from src/v1/
- *   - src/shared/ cannot import from src/v1/ or src/v2/
+ *   - Any file outside src/v1/ and src/v2/ cannot import from either
+ *     (this covers src/shared/ and prevents rogue paths like src/data/
+ *     or src/features/ from bypassing the boundary)
  *
  * Additional:
  *   - V2 RBAC feature islands (roles, groups, workspaces) cannot import
@@ -27,7 +29,8 @@ module.exports = {
     messages: {
       v1ImportsV2: 'V1 code cannot import from V2. Move shared code to src/shared/.',
       v2ImportsV1: 'V2 code cannot import from V1. Use V2 or shared data layers instead.',
-      sharedImportsVersioned: 'Shared code cannot import from {{version}}. Only V1/V2 can import from shared.',
+      sharedImportsVersioned:
+        'Non-versioned code cannot import from {{version}}. Files outside src/v1/ and src/v2/ must not depend on versioned code. Move shared code to src/shared/.',
       noLegacyPermissionsInV2:
         'V2 RBAC feature islands (roles, groups, workspaces) must use Kessel domain hooks from src/v2/hooks/useRbacAccess.ts, not useAccessPermissions. If this file checks non-RBAC permissions (e.g. cost-management), disable this rule with a comment explaining why.',
       noPermissionsContext: 'permissionsContext has been deleted. Use useUserData() (V1) or domain hooks (V2) directly.',
@@ -38,9 +41,16 @@ module.exports = {
     const filename = context.getFilename();
     const normalizedFilename = filename.replace(/\\/g, '/');
 
+    const isInSrc = normalizedFilename.includes('/src/');
     const isV1 = normalizedFilename.includes('/src/v1/');
     const isV2 = normalizedFilename.includes('/src/v2/');
-    const isShared = normalizedFilename.includes('/src/shared/');
+
+    // Entry points that must bridge into versioned code:
+    // - src/Iam.tsx: app shell rendering V1 or V2
+    // - src/federated-modules/*: module federation wrappers exposing V2 components
+    const isEntryPoint =
+      normalizedFilename.endsWith('/src/Iam.tsx') || normalizedFilename.includes('/src/federated-modules/');
+    const isNonVersioned = isInSrc && !isV1 && !isV2 && !isEntryPoint;
 
     function checkImport(node, importPath) {
       if (!importPath || typeof importPath !== 'string') return;
@@ -68,12 +78,14 @@ module.exports = {
         return;
       }
 
-      // Check: shared cannot import V1 or V2
-      if (isShared && resolvedImport.includes('/src/v1/')) {
+      // Check: any non-versioned src/ file cannot import V1 or V2
+      // This covers src/shared/, src/docs/, and prevents rogue paths
+      // like src/data/ or src/features/ from bypassing the boundary.
+      if (isNonVersioned && resolvedImport.includes('/src/v1/')) {
         context.report({ node, messageId: 'sharedImportsVersioned', data: { version: 'V1' } });
         return;
       }
-      if (isShared && resolvedImport.includes('/src/v2/')) {
+      if (isNonVersioned && resolvedImport.includes('/src/v2/')) {
         context.report({ node, messageId: 'sharedImportsVersioned', data: { version: 'V2' } });
         return;
       }
