@@ -22,17 +22,26 @@ No exceptions. V2 owns its own data layer for roles and groups. Shared APIs (use
 
 ## Permission Models
 
+### Shared identity — `useIdentity` (src/shared/hooks/useIdentity.ts)
+
+Chrome-only identity hook. Returns `{ orgAdmin, identity, ready, entitlements }` without any V1 RBAC API dependency. This is the shared identity primitive used by both V1 and V2.
+
 ### V1 (src/v1/)
 
 ```tsx
-import { useAccessPermissions } from '../../shared/hooks/useAccessPermissions';
-import useUserData from '../../shared/hooks/useUserData';
+import { useAccessPermissions } from '../hooks/useAccessPermissions';
+import useUserData from '../hooks/useUserData';
 
 const { hasAccess } = useAccessPermissions(['rbac:role:write']);
 const { orgAdmin, userAccessAdministrator } = useUserData();
 ```
 
-V1 uses Chrome-based `app:resource:action` permission strings (e.g. `rbac:role:write`) checked via `useAccessPermissions` (shared). The `orgAdmin` and `userAccessAdministrator` flags come from `useUserData`.
+V1 uses Chrome-based `app:resource:action` permission strings (e.g. `rbac:role:write`) checked via `useAccessPermissions` (V1-only, in `src/v1/hooks/`). The `orgAdmin` and `userAccessAdministrator` flags come from `useUserData` (V1-only, composes `useIdentity` + `useAccessPermissions`).
+
+**V1-only hooks** (cannot be imported by V2 or shared code — enforced by ESLint):
+- `src/v1/hooks/useAccessPermissions.ts` — wraps Chrome's `usePermissions` RBACHook, calls `/api/rbac/v1/access/`
+- `src/v1/hooks/useUserData.ts` — composes `useIdentity` + `useAccessPermissions(['rbac:*:*'])`
+- `src/v1/components/PermissionGuard.tsx` — route-level guard using `useAccessPermissions`
 
 ### V2 (src/v2/)
 
@@ -51,9 +60,9 @@ Available domain hooks (all in `src/v2/hooks/useRbacAccess.ts`):
 - `useWorkspaceTenantAccess()` — tenant-scoped workspace management
 - `useRoleBindingsAccess(workspaceId)` — workspace-scoped role binding permissions (workspaceId is dynamic)
 
-### Shared (src/shared/)
+### Non-RBAC permissions — `useNonRbacPermissions` (src/shared/hooks/useNonRbacPermissions.ts)
 
-`useUserData()` in `src/shared/hooks/useUserData.ts` — fetches identity from Chrome, exposes `orgAdmin` and `userAccessAdministrator` flags. Used by V1 directly and by V2 Kessel hooks internally.
+The `useNonRbacPermissions` hook is for non-RBAC domains (cost-management, inventory) that have no Kessel equivalent. It uses the same Chrome `usePermissions` hook as `useAccessPermissions`, but is semantically scoped to non-RBAC domains. It can be used by both V1 and V2.
 
 ## Data Layer
 
@@ -64,11 +73,12 @@ Available domain hooks (all in `src/v2/hooks/useRbacAccess.ts`):
 
 ## Routing
 
-Both V1 and V2 use **declarative JSX** in their respective `Routing.tsx` files. There are no route-definition objects or `renderRoutes` — permissions are colocated on each route via `guard()` layout routes.
+Both V1 and V2 use **declarative JSX** in their respective `Routing.tsx` files. There are no route-definition objects or `renderRoutes` — permissions are colocated on each route via guard layout routes.
 
-- **`src/v1/Routing.tsx`** — V1-only routes. Uses `guard(['rbac:role:read'])` (and similar) from `src/shared/components/PermissionGuard.tsx` to wrap layout routes. Permissions are inline on each route.
-- **`src/v2/Routing.tsx`** — V2-only routes. Same pattern: `guard()` and `guardOrgAdmin()` layout routes with inline permissions.
-- **`src/shared/components/PermissionGuard.tsx`** — Shared between V1 and V2. Exports `PermissionGuard`, `guard()`, and `guardOrgAdmin()` helpers. Uses `useAccessPermissions` (Chrome-based) for route-level checks.
+- **`src/v1/Routing.tsx`** — V1-only routes. Uses `guard(['rbac:role:read'])` (and similar) from `src/v1/components/PermissionGuard.tsx` to wrap layout routes. Permissions are inline on each route.
+- **`src/v2/Routing.tsx`** — V2-only routes. Uses `v2Guard([roles.canView])` and `v2GuardOrgAdmin()` from `src/v2/components/V2PermissionGuard.tsx`. Typed domain tokens (`roles`, `groups`, `workspaces`, `principals`) map to Kessel relations internally.
+- **V1 PermissionGuard** (`src/v1/components/PermissionGuard.tsx`) — V1-only. Exports `PermissionGuard`, `guard()`, and `guardOrgAdmin()` helpers. Uses `useAccessPermissions` (Chrome-based V1 API) for route-level checks.
+- **V2 PermissionGuard** (`src/v2/components/V2PermissionGuard.tsx`) — V2-only. Exports `V2PermissionGuard`, `v2Guard()`, and `v2GuardOrgAdmin()` helpers. Uses Kessel SDK (`useSelfAccessCheck`) for route-level checks. No V1 API dependency.
 - **Pathnames** — Split by version: `src/v1/utilities/pathnames.ts` (V1 paths), `src/v2/utilities/pathnames.ts` (V2 paths). Shared `src/shared/utilities/pathnames.ts` exports only the `PathnameConfig` type.
 - **`route-definitions.ts`** — Deleted. Permissions are colocated on routes, not in a separate definitions file.
 - **`ApiErrorBoundary`** — Links to `/iam` (app root) for error recovery, not a version-specific path.
@@ -90,3 +100,13 @@ export const WithWriteAccess: Story = {
 ```
 
 Workspace-scoped permissions use the existing `workspacePermissions` parameter.
+
+V1 stories use `permissions` parameter to control Chrome-based mock responses:
+
+```tsx
+export const WithRoleWrite: Story = {
+  parameters: {
+    permissions: ['rbac:role:write'],
+  },
+};
+```

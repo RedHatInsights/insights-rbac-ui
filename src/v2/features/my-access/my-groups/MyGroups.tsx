@@ -3,7 +3,7 @@ import { useIntl } from 'react-intl';
 import { TableView, useTableState } from '../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
 import { type Group, useGroupsQuery } from '../../../../shared/data/queries/groups';
-import useUserData from '../../../../shared/hooks/useUserData';
+import useIdentity from '../../../../shared/hooks/useIdentity';
 import messages from '../../../../Messages';
 import { MyGroupDrawer } from './MyGroupDrawer';
 
@@ -12,7 +12,7 @@ type SortableColumnId = 'name';
 
 const MyGroups: React.FunctionComponent = () => {
   const intl = useIntl();
-  const { identity } = useUserData();
+  const { identity } = useIdentity();
   const username = identity?.user?.username;
 
   const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>();

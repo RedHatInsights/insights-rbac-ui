@@ -2,9 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
-import useUserData from '../../../../shared/hooks/useUserData';
-// eslint-disable-next-line rbac-local/no-cross-version-imports -- cost-management and inventory access checks have no Kessel equivalent
-import { useAccessPermissions } from '../../../../shared/hooks/useAccessPermissions';
+import useIdentity from '../../../../shared/hooks/useIdentity';
+import { useNonRbacPermissions } from '../../../../shared/hooks/useNonRbacPermissions';
 import { TableView } from '../../../../shared/components/table-view/TableView';
 import { useTableState } from '../../../../shared/components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../shared/components/table-view/components/TableViewEmptyState';
@@ -47,10 +46,10 @@ const permissionToString = (p: { application?: string; resource_type?: string; o
 
 const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const [basePermissionsLoaded, setBasePermissionsLoaded] = useState(false);
-  const { orgAdmin } = useUserData();
+  const { orgAdmin } = useIdentity();
   const intl = useIntl();
-  const { hasAccess: hasCostAccess } = useAccessPermissions(['cost-management:*:*']);
-  const { hasAccess: hasRbacAccess } = useAccessPermissions(['rbac:*:*']);
+  const { hasAccess: hasCostAccess } = useNonRbacPermissions(['cost-management:*:*']);
+  const { hasAccess: hasInventoryAccess } = useNonRbacPermissions(['inventory:*:*']);
 
   const { input } = useFieldApi(props as { name: string });
   const formOptions = useFormApi();
@@ -73,7 +72,7 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
     formOptions.change('has-cost-resources', false);
   }, []);
 
-  const inventoryAccess = useMemo(() => orgAdmin || (hasRbacAccess ?? false), [hasRbacAccess, orgAdmin]);
+  const inventoryAccess = orgAdmin || hasInventoryAccess;
 
   // ============================================================================
   // TanStack Query Hooks

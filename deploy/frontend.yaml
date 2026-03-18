@@ -90,9 +90,9 @@ objects:
                   args:
                     - platform.rbac.overview
                     - true
-                - method: loosePermissions
+                - method: loosePermissionsKessel
                   args:
-                    - - rbac:*:read
+                    - - rbac_roles_read
               product: Identity & Access Management
             - id: my-access
               title: My Access
@@ -110,29 +110,29 @@ objects:
                   args:
                     - platform.rbac.workspaces-organization-management
                     - true
-                - method: loosePermissions
+                - method: loosePermissionsKessel
                   args:
-                    - - rbac:principal:read
-                    - - rbac:group:read
-                    - - rbac:role:read
-                    - - inventory:groups:read
+                    - - rbac_principal_read
+                      - rbac_groups_read
+                      - rbac_roles_read
+                      - rbac_workspace_view
               routes:
                 - id: users-and-groups
                   title: Users and Groups
                   href: /iam/access-management/users-and-user-groups
                   permissions:
-                    - method: loosePermissions
+                    - method: loosePermissionsKessel
                       args:
-                        - - rbac:principal:read
-                        - - rbac:group:read
+                        - - rbac_principal_read
+                          - rbac_groups_read
                   product: Identity & Access Management
                 - id: roles
                   title: Roles
                   href: /iam/access-management/roles
                   permissions:
-                    - method: loosePermissions
+                    - method: loosePermissionsKessel
                       args:
-                        - - rbac:role:read
+                        - - rbac_roles_read
                   product: Identity & Access Management
                 - id: workspaces
                   title: Workspaces
@@ -143,9 +143,9 @@ objects:
                       args:
                         - platform.rbac.workspaces-list
                         - true
-                    - method: loosePermissions
+                    - method: loosePermissionsKessel
                       args:
-                        - - 'inventory:groups:read'
+                        - - rbac_workspace_view
                   product: Identity & Access Management
                 - id: audit-log
                   title: Audit Log

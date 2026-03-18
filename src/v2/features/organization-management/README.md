@@ -16,7 +16,7 @@ The role bindings API uses cursor-based pagination with no offset support. To av
 
 ## Permission model
 
-V2 uses **Kessel domain hooks** from `src/v2/hooks/useRbacAccess.ts`, not V1 patterns. For organization-level role bindings, access is gated by the same Kessel relations used for workspace role bindings. `useUserData()` from `src/shared/hooks/useUserData.ts` provides `orgAdmin` when needed.
+V2 uses **Kessel domain hooks** from `src/v2/hooks/useRbacAccess.ts`, not V1 patterns. For organization-level role bindings, access is gated by the same Kessel relations used for workspace role bindings. `useIdentity()` from `src/shared/hooks/useIdentity.ts` provides `orgAdmin` when needed.
 
 ## Constraints
 

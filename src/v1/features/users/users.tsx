@@ -1,4 +1,4 @@
-import useUserData from '../../../shared/hooks/useUserData';
+import useUserData from '../../hooks/useUserData';
 import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { usePlatformTracking } from '../../../shared/hooks/usePlatformTracking';

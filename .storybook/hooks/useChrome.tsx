@@ -235,7 +235,7 @@ export default function useChrome(): ChromeAPI {
         },
       },
 
-      // Permissions (used by useUserData)
+      // Permissions (used by V1 useUserData and shared useNonRbacPermissions)
       getUserPermissions: (app: string) =>
         Promise.resolve(
           mockRef.current.permissions.filter((p) => p.startsWith(`${app}:`)).map((permission) => ({ permission, resourceDefinitions: [] })),

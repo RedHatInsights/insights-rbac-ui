@@ -23,7 +23,7 @@ import { useBundleApps } from './useBundleApps';
 import { DEFAULT_MUA_BUNDLE } from '../../../shared/utilities/constants';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import useUserData from '../../../shared/hooks/useUserData';
+import useUserData from '../../hooks/useUserData';
 
 // FilterState is now in shared types.ts file
 

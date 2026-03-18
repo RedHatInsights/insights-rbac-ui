@@ -1,4 +1,4 @@
-import useUserData from '../../../shared/hooks/useUserData';
+import useUserData from '../../hooks/useUserData';
 import { useFlag } from '@unleash/proxy-client-react';
 import React, { FunctionComponent } from 'react';
 import { usePlatformEnvironment } from '../../../shared/hooks/usePlatformEnvironment';

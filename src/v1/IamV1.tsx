@@ -1,5 +1,5 @@
 import React from 'react';
-import useUserData from '../shared/hooks/useUserData';
+import useUserData from './hooks/useUserData';
 import { AppPlaceholder } from '../shared/components/ui-states/LoaderPlaceholders';
 import { V1Routing } from './Routing';
 

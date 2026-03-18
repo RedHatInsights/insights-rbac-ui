@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports -- this IS the wrapper around the raw RBACHook
 import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
 
 interface AccessPermissionsResult {
@@ -27,25 +26,10 @@ const getAppsFromPermissions = (permissions: string[]): string[] => {
 };
 
 /**
- * Check if the current user has the specified permissions.
- * Supports permissions from any app (rbac, inventory, etc.)
+ * V1 permission check via Chrome's getUserPermissions API.
+ * Calls /api/rbac/v1/access/ under the hood.
  *
- * @param permissions - Array of permission strings (e.g., ['rbac:role:write', 'inventory:groups:read'])
- * @param options - Optional settings
- * @returns hasAccess boolean and isLoading state
- *
- * @example
- * // Check single permission
- * const { hasAccess } = useAccessPermissions(['rbac:role:write']);
- *
- * // Check mixed app permissions
- * const { hasAccess } = useAccessPermissions(['rbac:role:read', 'inventory:groups:write']);
- *
- * // Check ALL permissions (AND)
- * const { hasAccess } = useAccessPermissions(
- *   ['rbac:role:read', 'rbac:role:write'],
- *   { checkAll: true }
- * );
+ * V1-only — V2 code must use Kessel domain hooks from src/v2/hooks/useRbacAccess.ts.
  */
 export const useAccessPermissions = (permissions: string[], options: AccessPermissionsOptions = {}): AccessPermissionsResult => {
   const { checkAll = false } = options;

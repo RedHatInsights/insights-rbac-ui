@@ -15,7 +15,7 @@ import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import { useRoleBindingsQuery } from '../../../data/queries/workspaces';
-import useUserData from '../../../../shared/hooks/useUserData';
+import useIdentity from '../../../../shared/hooks/useIdentity';
 import { extractErrorMessage } from '../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../shared/components/table-view/types';
@@ -42,7 +42,7 @@ interface RoleData {
 
 const WorkspaceRolesPanel: React.FC<{ workspaceId: string }> = ({ workspaceId }) => {
   const intl = useIntl();
-  const { identity } = useUserData();
+  const { identity } = useIdentity();
   // The V2 role-bindings API expects the account number, not the username string
   const userId = identity?.account_number;
 

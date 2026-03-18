@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { usePlatformEnvironment } from '../../../shared/hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../../shared/hooks/usePlatformAuth';
-import useUserData from '../../../shared/hooks/useUserData';
+import useUserData from '../../hooks/useUserData';
 import { OrgAdminDropdown as PresentationalOrgAdminDropdown } from './components/OrgAdminDropdown';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useUpdateUserOrgAdminMutation } from '../../../shared/data/queries/users';

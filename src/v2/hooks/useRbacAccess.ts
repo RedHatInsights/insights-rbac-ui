@@ -9,7 +9,7 @@
 import { useMemo } from 'react';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
 import type { NotEmptyArray, SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
-import useUserData from '../../shared/hooks/useUserData';
+import useIdentity from '../../shared/hooks/useIdentity';
 import { useOrganizationData } from './useOrganizationData';
 
 // ============================================================================
@@ -219,11 +219,11 @@ const PRINCIPALS_RELATIONS = ['rbac_principal_read'] as const;
 /**
  * Principals access combines Kessel SDK (canList) with orgAdmin flag
  * (canInvite, canDelete, canToggleOrgAdmin). The orgAdmin source is
- * useUserData from shared/hooks — a Chrome identity check, not RBAC.
+ * useIdentity from shared/hooks — a Chrome identity check, not RBAC.
  */
 export function usePrincipalsAccess() {
   const { result, isLoading: kesselLoading } = useBulkTenantCheck(PRINCIPALS_RELATIONS);
-  const { orgAdmin, ready: orgAdminReady } = useUserData();
+  const { orgAdmin, ready: orgAdminReady } = useIdentity();
 
   return {
     canList: result.rbac_principal_read,

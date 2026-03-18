@@ -56,6 +56,29 @@ interface RoutePermissions {
 // ===========================================
 
 const IAM_PREFIX = '/iam';
+
+/**
+ * V2 domain tokens → Kessel relations. Mirrors the KESSEL_MAP in
+ * src/v2/components/V2PermissionGuard.tsx so the validator can resolve
+ * v2Guard([roles.canView]) to its Kessel relation for frontend.yaml comparison.
+ */
+const V2_TOKEN_TO_KESSEL: Record<string, string> = {
+  'roles.canView': 'rbac_roles_read',
+  'roles.canCreate': 'rbac_roles_write',
+  'roles.canUpdate': 'rbac_roles_write',
+  'roles.canDelete': 'rbac_roles_write',
+  'groups.canView': 'rbac_groups_read',
+  'groups.canCreate': 'rbac_groups_write',
+  'groups.canUpdate': 'rbac_groups_write',
+  'groups.canDelete': 'rbac_groups_write',
+  'workspaces.canView': 'rbac_workspace_view',
+  'workspaces.canCreate': 'rbac_workspace_create',
+  'workspaces.canUpdate': 'rbac_workspace_edit',
+  'workspaces.canDelete': 'rbac_workspace_delete',
+  'workspaces.canMove': 'rbac_workspace_move',
+  'principals.canList': 'rbac_principal_read',
+};
+
 const COLORS = {
   green: '\x1b[32m',
   red: '\x1b[31m',
@@ -96,6 +119,15 @@ function extractYamlPermissions(permissions: YamlPermission[]): {
         rbacPermissions = [...rbacPermissions, ...permsInArray];
         if (permsInArray.length > 1) {
           checkAll = true;
+        }
+      }
+      hasFeatureFlagOnly = false;
+    } else if (perm.method === 'loosePermissionsKessel' && perm.args) {
+      const innerArrays = perm.args.filter((arg): arg is string[] => Array.isArray(arg));
+      if (innerArrays.length >= 1) {
+        checkAll = false;
+        for (const arr of innerArrays) {
+          rbacPermissions = [...rbacPermissions, ...arr.filter((p): p is string => typeof p === 'string')];
         }
       }
       hasFeatureFlagOnly = false;
@@ -205,13 +237,14 @@ function extractRoutesFromFile(
       const callee = expr.callee;
       if (callee.type !== 'Identifier') continue;
 
-      if (callee.name === 'guardOrgAdmin') {
+      if (callee.name === 'guardOrgAdmin' || callee.name === 'v2GuardOrgAdmin') {
         return { permissions: [], checkAll: true, requireOrgAdmin: true };
       }
 
-      if (callee.name === 'guard') {
+      if (callee.name === 'guard' || callee.name === 'v2Guard') {
         const permissions: string[] = [];
         let checkAll = true;
+        const isV2 = callee.name === 'v2Guard';
 
         // First arg: permission array
         const firstArg = expr.arguments[0];
@@ -219,6 +252,16 @@ function extractRoutesFromFile(
           for (const el of firstArg.elements) {
             if (el?.type === 'Literal' && typeof el.value === 'string') {
               permissions.push(el.value);
+            } else if (isV2 && el?.type === 'MemberExpression') {
+              const obj = el.object;
+              const prop = el.property;
+              if (obj.type === 'Identifier' && prop.type === 'Identifier') {
+                const tokenKey = `${obj.name}.${prop.name}`;
+                const kesselRelation = V2_TOKEN_TO_KESSEL[tokenKey];
+                if (kesselRelation) {
+                  permissions.push(kesselRelation);
+                }
+              }
             }
           }
         }

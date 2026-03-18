@@ -35,7 +35,7 @@ API layer: `src/v2/data/api/roles.ts`
 
 The `org_id` field is fetched as part of the roles list query (`fields` param includes `org_id`). The `Role` type from `@redhat-cloud-services/rbac-client` (v7+) includes `org_id?: string`.
 
-Never use `useAccessPermissions` or `useUserData` for V2 role permissions.
+V2 role permissions use Kessel domain hooks only. Chrome identity (orgAdmin) comes from `useIdentity` (shared).
 
 ## V1 API delegation
 

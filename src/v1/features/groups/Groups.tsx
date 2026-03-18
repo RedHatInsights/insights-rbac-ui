@@ -1,4 +1,4 @@
-import useUserData from '../../../shared/hooks/useUserData';
+import useUserData from '../../hooks/useUserData';
 /**
  * Groups Page
  *

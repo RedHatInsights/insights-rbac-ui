@@ -3,7 +3,7 @@ import { Outlet, useOutletContext } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useAccessPermissions } from '../hooks/useAccessPermissions';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
-import { AppPlaceholder } from './ui-states/LoaderPlaceholders';
+import { AppPlaceholder } from '../../shared/components/ui-states/LoaderPlaceholders';
 import useUserData from '../hooks/useUserData';
 import messages from '../../Messages';
 
@@ -15,7 +15,8 @@ interface PermissionGuardProps {
 }
 
 /**
- * Route-level permission guard. Used by both V1 and V2 routing.
+ * V1 route-level permission guard. Uses Chrome-based useAccessPermissions
+ * (V1 /api/rbac/v1/access/ API) for permission checks.
  *
  * Two modes:
  * - **Wrap mode**: pass children directly — renders children on success.
@@ -25,7 +26,6 @@ interface PermissionGuardProps {
 export const PermissionGuard: React.FC<PermissionGuardProps> = ({ permissions = [], checkAll = true, requireOrgAdmin = false, children }) => {
   const intl = useIntl();
   const { orgAdmin, ready: orgAdminReady } = useUserData();
-  // Forward parent's outlet context so nested routes maintain access to it
   const parentContext = useOutletContext();
 
   const { hasAccess, isLoading } = useAccessPermissions(permissions.length > 0 ? permissions : ['rbac:*:*'], { checkAll });
@@ -58,13 +58,6 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({ permissions = 
 
 /**
  * Helper for spreading permission guard onto a pathless layout `<Route>`.
- * React Router v6 only allows `<Route>` as children of `<Routes>`,
- * so we return `{ element }` for spreading.
- *
- * @example
- * <Route {...guard(['rbac:role:read'])}>
- *   <Route path="roles" element={<Roles />} />
- * </Route>
  */
 export const guard = (permissions: string[], opts?: { checkAll?: boolean; requireOrgAdmin?: boolean }) => ({
   element: <PermissionGuard permissions={permissions} {...opts} />,

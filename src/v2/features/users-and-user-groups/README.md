@@ -33,10 +33,10 @@ Top-level container (`UsersAndUserGroups.tsx`) — owns the Users / User Groups 
 
 ## Permission model
 
-V2 uses **Kessel domain hooks** from `src/v2/hooks/useRbacAccess.ts`, not V1 patterns (`useAccessPermissions`, `useUserData`, `orgAdmin`):
+V2 uses **Kessel domain hooks** from `src/v2/hooks/useRbacAccess.ts`, not V1 patterns. Chrome identity (`orgAdmin`) comes from `useIdentity` (shared):
 
 - **`useGroupsAccess()`** — groups tab: create/edit/delete, add/remove members (`rbac_groups_read`, `rbac_groups_write`)
-- **`usePrincipalsAccess()`** — users tab: list users; `canInvite`, `canDelete`, `canToggleOrgAdmin` come from `useUserData().orgAdmin` in `src/shared/hooks/useUserData.ts`
+- **`usePrincipalsAccess()`** — users tab: list users; `canInvite`, `canDelete`, `canToggleOrgAdmin` come from `useIdentity().orgAdmin` in `src/shared/hooks/useIdentity.ts`
 
 **Data layer:** V2 owns its own data layer in `src/v2/data/queries/` (roles, groups). Shared APIs (users, permissions, service accounts) live in `src/shared/data/queries/`. No cross-version imports (enforced by `rbac-local/no-cross-version-imports`).
 

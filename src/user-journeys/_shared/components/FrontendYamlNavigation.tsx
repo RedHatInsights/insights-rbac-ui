@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Nav, NavExpandable, NavItem, NavList } from '@patternfly/react-core';
 import yaml from 'yaml';
-import { useMockState } from '../../../../.storybook/contexts/StorybookMockContext';
+import { type TenantPermissionsMap, useMockState } from '../../../../.storybook/contexts/StorybookMockContext';
 import { FeatureFlagsContext } from '../../../../.storybook/context-providers';
 
 // Import frontend.yaml as raw text
@@ -15,7 +15,7 @@ import frontendYamlRaw from '../../../../deploy/frontend.yaml?raw';
 // =============================================================================
 
 interface NavPermission {
-  method: 'loosePermissions' | 'isOrgAdmin' | 'featureFlag';
+  method: 'loosePermissions' | 'loosePermissionsKessel' | 'isOrgAdmin' | 'featureFlag';
   args?: (string | string[] | boolean)[];
 }
 
@@ -105,8 +105,21 @@ function evaluateLoosePermissions(args: (string | string[])[], userPermissions: 
 
 interface NavigationContext {
   userPermissions: string[];
+  tenantPermissions: TenantPermissionsMap;
   isOrgAdmin: boolean;
   featureFlags: Record<string, boolean>;
+}
+
+/**
+ * Evaluate loosePermissionsKessel - OR logic across Kessel relation strings.
+ * Format: [['rbac_roles_read', 'rbac_groups_read']] means any-of.
+ */
+function evaluateLoosePermissionsKessel(args: (string | string[] | boolean)[], tenantPermissions: TenantPermissionsMap): boolean {
+  const relationArrays = args.filter((arg): arg is string[] => Array.isArray(arg));
+  if (relationArrays.length === 0) return true;
+
+  const relations = relationArrays.flat();
+  return relations.some((rel) => tenantPermissions[rel as keyof TenantPermissionsMap] === true);
 }
 
 /**
@@ -128,6 +141,9 @@ function canAccessNavItem(item: NavItemConfig, ctx: NavigationContext): boolean 
 
       case 'loosePermissions':
         return evaluateLoosePermissions(perm.args as (string | string[])[], ctx.userPermissions);
+
+      case 'loosePermissionsKessel':
+        return evaluateLoosePermissionsKessel(perm.args ?? [], ctx.tenantPermissions);
 
       default:
         return true;
@@ -188,7 +204,7 @@ const allNavItems = parseNavItems();
  */
 export const FrontendYamlNavigation: React.FC = () => {
   const location = useLocation();
-  const { permissions, isOrgAdmin } = useMockState();
+  const { permissions, isOrgAdmin, tenantPermissions } = useMockState();
   const featureFlags = useContext(FeatureFlagsContext);
 
   // Filter nav items based on current context
@@ -196,11 +212,12 @@ export const FrontendYamlNavigation: React.FC = () => {
   const visibleItems = useMemo(() => {
     const ctx: NavigationContext = {
       userPermissions: permissions,
+      tenantPermissions,
       isOrgAdmin,
       featureFlags,
     };
     return filterNavItems(allNavItems, ctx);
-  }, [permissions, isOrgAdmin, featureFlags]);
+  }, [permissions, isOrgAdmin, tenantPermissions, featureFlags]);
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 

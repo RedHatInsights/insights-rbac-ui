@@ -1,4 +1,4 @@
-import useUserData from '../../shared/hooks/useUserData';
+import useIdentity from '../../shared/hooks/useIdentity';
 
 export interface OrganizationData {
   accountNumber: string;
@@ -12,10 +12,10 @@ interface UseOrganizationDataResult extends OrganizationData {
 
 /**
  * Hook to access organization data from the platform auth service.
- * V2-only — reads from useUserData which already fetches identity once.
+ * V2-only — reads from useIdentity which fetches Chrome identity once.
  */
 export function useOrganizationData(): UseOrganizationDataResult {
-  const { identity, ready } = useUserData();
+  const { identity, ready } = useIdentity();
 
   return {
     accountNumber: identity?.account_number || '',

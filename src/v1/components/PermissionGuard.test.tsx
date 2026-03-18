@@ -24,7 +24,7 @@ vi.mock('@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess', ()
   ),
 }));
 
-vi.mock('./ui-states/LoaderPlaceholders', () => ({
+vi.mock('../../shared/components/ui-states/LoaderPlaceholders', () => ({
   AppPlaceholder: () => <div data-testid="loading-placeholder">Loading...</div>,
 }));
 

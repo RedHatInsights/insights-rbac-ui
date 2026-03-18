@@ -1,4 +1,4 @@
-import useUserData from '../../../../../shared/hooks/useUserData';
+import useUserData from '../../../../hooks/useUserData';
 import React, { Fragment, Suspense, useCallback, useMemo, useRef } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';

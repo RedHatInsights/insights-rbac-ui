@@ -25,7 +25,7 @@ All fetching uses hooks from `src/data/queries/workspaces.ts`. See `workspacesKe
 
 ## Permission model
 
-V2 uses **Kessel domain hooks** from `src/v2/hooks/useRbacAccess.ts`, not V1 patterns (`useAccessPermissions`, `useUserData`, `orgAdmin`). Permissions are resolved per workspace, per relation.
+V2 uses **Kessel domain hooks** from `src/v2/hooks/useRbacAccess.ts`, not V1 patterns. Chrome identity (`orgAdmin`) comes from `useIdentity` (shared). Permissions are resolved per workspace, per relation.
 
 - **`useWorkspaceTenantAccess()`** — tenant-level workspace permissions (view, edit, create, delete, move); fetches org ID internally
 - **`useRoleBindingsAccess(workspaceId)`** — role binding operations (view, grant, revoke, update)

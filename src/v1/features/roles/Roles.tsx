@@ -1,4 +1,4 @@
-import useUserData from '../../../shared/hooks/useUserData';
+import useUserData from '../../hooks/useUserData';
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useIntl } from 'react-intl';

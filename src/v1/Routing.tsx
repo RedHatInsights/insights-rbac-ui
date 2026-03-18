@@ -6,7 +6,7 @@ import { useWorkspacesFlag } from '../shared/hooks/useWorkspacesFlag';
 import { usePlatformTracking } from '../shared/hooks/usePlatformTracking';
 import { AppPlaceholder } from '../shared/components/ui-states/LoaderPlaceholders';
 import ElementWrapper from '../shared/components/ElementWrapper';
-import { guard } from '../shared/components/PermissionGuard';
+import { guard } from './components/PermissionGuard';
 import pathnames from './utilities/pathnames';
 import QuickstartsTestButtons from './utilities/quickstartsTestButtons';
 

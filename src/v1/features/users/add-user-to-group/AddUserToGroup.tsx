@@ -1,4 +1,4 @@
-import useUserData from '../../../../shared/hooks/useUserData';
+import useUserData from '../../../hooks/useUserData';
 import React, { Fragment, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';

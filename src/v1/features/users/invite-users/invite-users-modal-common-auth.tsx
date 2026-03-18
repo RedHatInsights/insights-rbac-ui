@@ -12,7 +12,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import { useOutletContext } from 'react-router-dom';
 import { usePlatformEnvironment } from '../../../../shared/hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../../../shared/hooks/usePlatformAuth';
-import useUserData from '../../../../shared/hooks/useUserData';
+import useUserData from '../../../hooks/useUserData';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 // Portal subscription permission levels (moved from React Query helper)

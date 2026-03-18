@@ -10,7 +10,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import { usePlatformEnvironment } from '../../../shared/hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../../shared/hooks/usePlatformAuth';
-import useUserData from '../../../shared/hooks/useUserData';
+import useUserData from '../../hooks/useUserData';
 import { WarningModal } from '@patternfly/react-component-groups';
 import { AppLink } from '../../../shared/components/navigation/AppLink';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';

@@ -11,7 +11,7 @@ import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/com
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { usePlatformEnvironment } from '../../../../shared/hooks/usePlatformEnvironment';
 import { usePlatformAuth } from '../../../../shared/hooks/usePlatformAuth';
-import useUserData from '../../../../shared/hooks/useUserData';
+import useUserData from '../../../hooks/useUserData';
 import { useFlag } from '@unleash/proxy-client-react';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
