@@ -93,7 +93,7 @@ export const Default: Story = {
 
       // Role name should appear in the warning text
       await waitFor(() => {
-        expect(body.getByText(/platform administrator/i)).toBeInTheDocument();
+        expect(body.queryByText(/platform administrator/i)).toBeInTheDocument();
       });
     });
   },
@@ -217,7 +217,7 @@ export const WarningTextContent: Story = {
 
     // Should contain warning about role deletion
     await waitFor(() => {
-      const warningText = body.getByText(/platform administrator/i);
+      const warningText = body.queryByText(/platform administrator/i);
       expect(warningText).toBeInTheDocument();
     });
 

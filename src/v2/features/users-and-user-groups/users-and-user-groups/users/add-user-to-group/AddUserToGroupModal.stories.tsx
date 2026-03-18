@@ -161,7 +161,7 @@ The modal displays:
       await waitFor(
         async () => {
           const body = within(document.body);
-          await expect(body.getByText('Add to user group')).toBeInTheDocument();
+          await expect(body.queryByText('Add to user group')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -206,7 +206,7 @@ This story demonstrates:
       await waitFor(
         async () => {
           const body = within(document.body);
-          await expect(body.getByText('Add to user group')).toBeInTheDocument();
+          await expect(body.queryByText('Add to user group')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -257,7 +257,7 @@ This story tests:
       await waitFor(
         async () => {
           const body = within(document.body);
-          await expect(body.getByText('Add to user group')).toBeInTheDocument();
+          await expect(body.queryByText('Add to user group')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );

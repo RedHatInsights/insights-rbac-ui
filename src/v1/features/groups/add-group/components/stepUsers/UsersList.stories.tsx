@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { queryByOuiaId } from '../../../../../../test-utils/interactionHelpers';
 import { findSortButton } from '../../../../../../test-utils/tableHelpers';
 import { usersHandlers } from '../../../../../../shared/data/mocks/users.handlers';
 import type { Principal } from '../../../../../../shared/data/mocks/db';
@@ -161,7 +162,7 @@ export const Default: Story = {
     await step('Verify users table and data', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -185,7 +186,7 @@ export const SelectUsers: Story = {
     await step('Select user and verify onSelect', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -214,7 +215,7 @@ export const FilterByUsername: Story = {
     await step('Apply username filter and verify', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -248,14 +249,14 @@ export const FilterByStatus: Story = {
     await step('Switch to Status filter and select Inactive', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 3000 },
       );
 
       await canvas.findByText(storyUsers[0].username);
 
-      const filterContainer = canvasElement.querySelector('[data-ouia-component-id="DataViewFilters"]');
+      const filterContainer = queryByOuiaId(canvasElement, 'DataViewFilters');
       expect(filterContainer).toBeTruthy();
       const filterCanvas = within(filterContainer as HTMLElement);
 
@@ -267,7 +268,7 @@ export const FilterByStatus: Story = {
       const statusOption = await within(document.body).findByRole('menuitem', { name: /status/i });
       await userEvent.click(statusOption);
 
-      const statusFilterToggle = canvasElement.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement;
+      const statusFilterToggle = queryByOuiaId(canvasElement, 'DataViewCheckboxFilter-toggle') as HTMLElement;
       expect(statusFilterToggle).toBeTruthy();
       await userEvent.click(statusFilterToggle);
 
@@ -299,7 +300,7 @@ export const SortByUsername: Story = {
     await step('Verify initial ascending sort', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -307,10 +308,11 @@ export const SortByUsername: Story = {
       await canvas.findByText(storyUsers[0].username);
 
       const getUsernames = () => {
-        const rows = canvasElement.querySelectorAll('table tbody tr');
-        return Array.from(rows)
-          .map((row) => row.querySelector('td:nth-child(3)')?.textContent?.trim())
-          .filter(Boolean);
+        const table = canvas.queryByRole('grid');
+        if (!table) return [];
+        const rows = within(table).queryAllByRole('row');
+        const dataRows = rows.slice(1);
+        return dataRows.map((row) => within(row).queryAllByRole('cell')[2]?.textContent?.trim()).filter(Boolean);
       };
 
       let usernames = getUsernames();
@@ -332,10 +334,11 @@ export const SortByUsername: Story = {
 
     await step('Click sort again for ascending', async () => {
       const getUsernames = () => {
-        const rows = canvasElement.querySelectorAll('table tbody tr');
-        return Array.from(rows)
-          .map((row) => row.querySelector('td:nth-child(3)')?.textContent?.trim())
-          .filter(Boolean);
+        const table = canvas.queryByRole('grid');
+        if (!table) return [];
+        const rows = within(table).queryAllByRole('row');
+        const dataRows = rows.slice(1);
+        return dataRows.map((row) => within(row).queryAllByRole('cell')[2]?.textContent?.trim()).filter(Boolean);
       };
 
       const sortButton2 = await findSortButton(canvas, /username/i);
@@ -367,7 +370,7 @@ export const EmptyState: Story = {
     await step('Verify empty state', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByText(/no users match your search/i)).toBeInTheDocument();
+          expect(canvas.queryByText(/no users match your search/i)).toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -386,7 +389,7 @@ export const WithInitialSelection: Story = {
     await step('Verify initial selection displayed', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 3000 },
       );

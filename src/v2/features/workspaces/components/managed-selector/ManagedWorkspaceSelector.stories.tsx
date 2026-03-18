@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { queryMenuToggle, queryTreeViewToggle } from '../../../../../test-utils/interactionHelpers';
 import { ManagedWorkspaceSelector } from './ManagedWorkspaceSelector';
 import { WorkspacesWorkspaceTypes } from '../../../../data/api/workspaces';
 import { workspacesErrorHandlers, workspacesHandlers } from '../../../../data/mocks/workspaces.handlers';
@@ -258,9 +259,9 @@ export const LoadingAndLoaded: Story = {
     await step('Verify loading and loaded state', async () => {
       // Stage 1: wait until the component has mounted and rendered anything (look for menu toggle skeleton)
       await waitFor(
-        async () => {
-          const toggleNode = canvasElement.querySelector('.pf-v6-c-menu-toggle');
-          await expect(toggleNode).not.toBeNull();
+        () => {
+          const toggleNode = queryMenuToggle(canvasElement);
+          expect(toggleNode).not.toBeNull();
         },
         { timeout: 15000 },
       );
@@ -411,8 +412,9 @@ export const SelectionCallback: Story = {
       });
 
       // Should update the toggle text
-      let menuToggle = canvasElement.querySelector('.pf-v6-c-menu-toggle');
-      await expect(menuToggle).toHaveTextContent('Production Environment');
+      const menuToggle = queryMenuToggle(canvasElement);
+      expect(menuToggle).toBeTruthy();
+      expect(menuToggle).toHaveTextContent('Production Environment');
     });
     await step('Select API Services', async () => {
       // Reset mock for second test
@@ -444,8 +446,9 @@ export const SelectionCallback: Story = {
       });
 
       // Should update the toggle text to show new selection
-      const menuToggle = canvasElement.querySelector('.pf-v6-c-menu-toggle');
-      await expect(menuToggle).toHaveTextContent('API Services');
+      const menuToggle = queryMenuToggle(canvasElement);
+      expect(menuToggle).toBeTruthy();
+      expect(menuToggle).toHaveTextContent('API Services');
     });
   },
 };
@@ -552,8 +555,9 @@ export const DuplicateWorkspaceNames: Story = {
       await expect(within(document.body).findByText('Root Workspace')).resolves.toBeInTheDocument();
 
       // Expand the root workspace to see duplicate children
-      const expandButton = document.body.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLButtonElement;
-      await userEvent.click(expandButton);
+      const expandButton = queryTreeViewToggle(document.body);
+      expect(expandButton).toBeInTheDocument();
+      await userEvent.click(expandButton as HTMLElement);
 
       // Should show both duplicate workspaces
       const duplicateWorkspaces = await within(document.body).findAllByText('Duplicate Workspace');

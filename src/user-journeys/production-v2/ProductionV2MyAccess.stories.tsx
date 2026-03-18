@@ -180,7 +180,7 @@ Tests tab navigation between Groups and Workspaces on My Access.
       const workspacesTab = await canvas.findByRole('tab', { name: /my workspaces/i });
       await expect(workspacesTab).toHaveAttribute('aria-selected', 'true');
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/workspaces/);
       });
     });

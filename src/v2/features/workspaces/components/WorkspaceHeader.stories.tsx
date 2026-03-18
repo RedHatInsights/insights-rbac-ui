@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
+import { getSkeletonCount } from '../../../../test-utils/interactionHelpers';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceHeader } from './WorkspaceHeader';
 import { IntlProvider } from 'react-intl';
@@ -178,9 +179,8 @@ export const LoadingState: Story = {
 
     // Verify skeleton loading indicators are present
     await waitFor(
-      async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        await expect(skeletonElements.length).toBeGreaterThan(0);
+      () => {
+        expect(getSkeletonCount(canvasElement)).toBeGreaterThan(0);
       },
       { timeout: 10000 },
     );

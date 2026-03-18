@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { waitForModal } from '../../../../test-utils/interactionHelpers';
+import { getSkeletonCount, waitForModal } from '../../../../test-utils/interactionHelpers';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Group } from './Group';
 import { groupsErrorHandlers, groupsHandlers, groupsLoadingHandlers } from '../../../data/mocks/groups.handlers';
@@ -138,8 +138,7 @@ export const LoadingState: Story = {
       // Test skeleton loading state (standard pattern)
       await waitFor(
         () => {
-          const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
-          expect(skeletons.length).toBeGreaterThan(0);
+          expect(getSkeletonCount(canvasElement)).toBeGreaterThan(0);
         },
         { timeout: 10000 },
       );

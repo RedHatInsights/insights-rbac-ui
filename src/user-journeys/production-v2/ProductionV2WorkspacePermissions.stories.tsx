@@ -502,7 +502,7 @@ async function navigateToWorkspaceDetail(user: ReturnType<typeof userEvent.setup
   const link = await canvas.findByRole('link', { name: new RegExp(`^${workspaceName}$`, 'i') });
   await user.click(link);
   await waitFor(() => {
-    const addressBar = canvas.getByTestId('fake-address-bar');
+    const addressBar = canvas.queryByTestId('fake-address-bar');
     expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
   });
   await canvas.findByLabelText('Role Assignments Table', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
@@ -844,7 +844,7 @@ Production (ws-1) has full access; siblings (ws-2, ws-3) and parents are view-on
       await user.click(productionLink);
 
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
       });
       await canvas.findByLabelText('Role Assignments Table', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
@@ -890,7 +890,7 @@ Production (ws-1) has full access; siblings (ws-2, ws-3) and parents are view-on
       await user.click(stagingLink);
 
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
       });
       await canvas.findByLabelText('Role Assignments Table', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
@@ -985,7 +985,7 @@ User navigates directly to the role-access modal URL without \`create\` permissi
       );
 
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).not.toHaveTextContent(/role-access/i);
       });
 
@@ -1056,7 +1056,7 @@ verifies the RoleAccessModal opens.
 
     await step('Verify RoleAccessModal opens', async () => {
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/role-access/i);
       });
 

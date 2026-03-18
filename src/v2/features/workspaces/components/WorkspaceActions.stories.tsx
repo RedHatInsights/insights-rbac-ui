@@ -282,7 +282,7 @@ export const ExternalLinkAction: Story = {
     await expect(manageNotifications).toBeInTheDocument();
 
     // The external link icon should be in the menu (document.body, not canvas)
-    const externalIcon = document.body.querySelector('[aria-label="Manage Notifications"]');
+    const externalIcon = await body.findByLabelText('Manage Notifications');
     await expect(externalIcon).toBeInTheDocument();
   },
 };

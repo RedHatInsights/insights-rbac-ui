@@ -2,6 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { expectLoadingVisible, queryPagination } from '../../../test-utils/interactionHelpers';
 import { type AuditLogEntry, AuditLogTable } from './AuditLogTable';
 
 // ----------------------------------------------------------------------------
@@ -137,8 +138,7 @@ export const Loading: Story = {
     await step('Verify loading', async () => {
       await waitFor(
         async () => {
-          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-          await expect(skeletonElements.length).toBeGreaterThan(0);
+          expectLoadingVisible(canvasElement);
         },
         { timeout: 10000 },
       );
@@ -194,11 +194,11 @@ export const Pagination: Story = {
     await step('Verify pagination', async () => {
       // Wait for first page: one of the first-page-only entries (id 6 = "Audit action 6: …")
       await waitFor(() => {
-        expect(canvas.getByText(/Audit action 6:/)).toBeInTheDocument();
+        expect(canvas.queryByText(/Audit action 6:/)).toBeInTheDocument();
       });
 
       // Pagination should show total (e.g. "1 - 20 of 25" or "25" in total-items)
-      const paginationRegion = canvasElement.querySelector('.pf-v6-c-pagination, [class*="pagination"]');
+      const paginationRegion = queryPagination(canvasElement);
       expect(paginationRegion).toBeInTheDocument();
       expect(canvasElement.textContent).toMatch(/25/);
 
@@ -209,7 +209,7 @@ export const Pagination: Story = {
 
       // Page 2 should show entries 21–25 (first on page 2 is "Audit action 21: …")
       await waitFor(() => {
-        expect(canvas.getByText(/Audit action 21:/)).toBeInTheDocument();
+        expect(canvas.queryByText(/Audit action 21:/)).toBeInTheDocument();
       });
       // First-page-only entry should not be visible
       expect(canvas.queryByText(/Audit action 6:/)).not.toBeInTheDocument();

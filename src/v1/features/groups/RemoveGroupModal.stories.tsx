@@ -174,7 +174,7 @@ For testing specific scenarios, see these additional stories:
       // ✅ Modal renders to document.body via portal - use screen, not canvas
       await waitFor(
         async () => {
-          const modal = screen.getByRole('dialog');
+          const modal = screen.queryByRole('dialog');
           expect(modal).toBeInTheDocument();
         },
         { timeout: 5000 },
@@ -186,7 +186,7 @@ For testing specific scenarios, see these additional stories:
       // Wait for group data to load and title to update
       await waitFor(
         () => {
-          expect(within(modal).getByText('Remove group "Test Group"?')).toBeInTheDocument();
+          expect(within(modal).queryByText('Remove group "Test Group"?')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -223,7 +223,7 @@ export const SystemGroup: Story = {
       // ✅ Modal renders to document.body via portal - use screen, not canvas
       await waitFor(
         async () => {
-          const modal = screen.getByRole('dialog');
+          const modal = screen.queryByRole('dialog');
           expect(modal).toBeInTheDocument();
         },
         { timeout: 5000 },
@@ -235,7 +235,7 @@ export const SystemGroup: Story = {
       // Wait for system group data to load and title to update
       await waitFor(
         () => {
-          expect(within(modal).getByText('Remove group "Default access"?')).toBeInTheDocument();
+          expect(within(modal).queryByText('Remove group "Default access"?')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -272,7 +272,7 @@ export const MultipleGroups: Story = {
       // ✅ Modal renders to document.body via portal - use screen, not canvas
       await waitFor(
         async () => {
-          const modal = screen.getByRole('dialog');
+          const modal = screen.queryByRole('dialog');
           expect(modal).toBeInTheDocument();
         },
         { timeout: 5000 },

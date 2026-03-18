@@ -266,7 +266,7 @@ export const CopyToAll: Story = {
 
     // All three rows should now show a "selected" chip
     await waitFor(() => {
-      const chipsAfterCopy = canvas.getAllByText('selected');
+      const chipsAfterCopy = canvas.queryAllByText('selected');
       expect(chipsAfterCopy).toHaveLength(3);
     });
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { queryWizardNav } from '../../../../test-utils/interactionHelpers';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AddRoleWizard } from './AddRoleWizard';
 import { v1RolesHandlers } from '../../../data/mocks/roles.handlers';
@@ -187,7 +188,7 @@ export const SelectCopyExistingRole: Story = {
 
       // Wait for UI to update
       await waitFor(() => {
-        expect(body.getAllByRole('radio').length).toBeGreaterThan(0);
+        expect(body.queryAllByRole('radio').length).toBeGreaterThan(0);
       });
 
       // The radio should now be selected (checked)
@@ -219,7 +220,7 @@ export const EnterRoleName: Story = {
 
       // Wait for name input
       await waitFor(() => {
-        expect(body.getAllByRole('textbox').length).toBeGreaterThan(0);
+        expect(body.queryAllByRole('textbox').length).toBeGreaterThan(0);
       });
 
       // Find text inputs and type role name
@@ -295,8 +296,9 @@ export const WizardStepIndicators: Story = {
       await body.findAllByRole('dialog');
 
       // Step nav should show step names (PatternFly-specific, no accessible alternative)
-      const wizardNav = document.querySelector('.pf-v6-c-wizard__nav');
-      expect(wizardNav).toBeInTheDocument();
+      await waitFor(() => {
+        expect(queryWizardNav()).toBeInTheDocument();
+      });
     });
   },
 };
@@ -323,7 +325,7 @@ export const RoleNameInputAcceptsText: Story = {
 
       // Find text inputs
       await waitFor(() => {
-        expect(body.getAllByRole('textbox').length).toBeGreaterThan(0);
+        expect(body.queryAllByRole('textbox').length).toBeGreaterThan(0);
       });
       const nameInputs = body.getAllByRole('textbox');
       expect(nameInputs.length).toBeGreaterThan(0);
@@ -378,7 +380,7 @@ export const DuplicateRoleNameValidation: Story = {
 
       // Wait for name input
       await waitFor(() => {
-        expect(body.getByLabelText('Role name')).toBeInTheDocument();
+        expect(body.queryByLabelText('Role name')).toBeInTheDocument();
       });
 
       // Type duplicate role name (validator is debounced)

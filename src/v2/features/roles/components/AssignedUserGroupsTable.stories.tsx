@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, waitFor, within } from 'storybook/test';
+import { expectLoadingVisible, getTableBodyRowCount } from '../../../../test-utils/interactionHelpers';
 import { AssignedUserGroupsTable, type GroupRow } from './AssignedUserGroupsTable';
 
 const sampleGroups: GroupRow[] = [
@@ -45,8 +46,7 @@ export const Empty: Story = {
   play: async ({ canvasElement, step }) => {
     await step('Verify empty', async () => {
       await waitFor(() => {
-        const dataRows = canvasElement.querySelectorAll('tbody tr');
-        expect(dataRows.length).toBe(0);
+        expect(getTableBodyRowCount(canvasElement)).toBe(0);
       });
     });
   },
@@ -57,8 +57,7 @@ export const Loading: Story = {
   play: async ({ canvasElement, step }) => {
     await step('Verify loading', async () => {
       await waitFor(() => {
-        const skeletons = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
-        expect(skeletons.length).toBeGreaterThan(0);
+        expectLoadingVisible(canvasElement);
       });
     });
   },

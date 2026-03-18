@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
+import { queryAlert } from '../../../../test-utils/interactionHelpers';
 import { DefaultMembersCard } from './DefaultMembersCard';
 
 const meta: Meta<typeof DefaultMembersCard> = {
@@ -34,7 +35,7 @@ export const PlatformDefault: Story = {
 
     await step('Verify platform default card', async () => {
       // Verify the alert is displayed for platform default (PF6 inline alerts use pf-v6-c-alert class)
-      const alert = canvasElement.querySelector('.pf-v6-c-alert');
+      const alert = queryAlert(canvasElement, 'info');
       await expect(alert).toBeInTheDocument();
       await expect(canvas.findByText('All users in this organization are members of this group.')).resolves.toBeInTheDocument();
     });
@@ -50,7 +51,7 @@ export const AdminDefault: Story = {
 
     await step('Verify admin default card', async () => {
       // Verify the alert is displayed for admin default (PF6 inline alerts use pf-v6-c-alert class)
-      const alert = canvasElement.querySelector('.pf-v6-c-alert');
+      const alert = queryAlert(canvasElement, 'info');
       await expect(alert).toBeInTheDocument();
       await expect(canvas.findByText('All organization administrators in this organization are members of this group.')).resolves.toBeInTheDocument();
     });

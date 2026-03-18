@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, within } from 'storybook/test';
+import { expectLoadingVisible, queryById } from '../../../../../test-utils/interactionHelpers';
 import { MemoryRouter } from 'react-router-dom';
 import { RoleDetail } from './RoleDetail';
 
@@ -75,7 +76,7 @@ export const Default: Story = {
       expect(await canvas.findByText('A custom role for managing platform resources')).toBeInTheDocument();
 
       // Verify action dropdown is present
-      const kebabToggle = canvasElement.querySelector('#role-actions-dropdown');
+      const kebabToggle = queryById(canvasElement, 'role-actions-dropdown');
       expect(kebabToggle).toBeInTheDocument();
 
       // Verify children content is rendered
@@ -99,7 +100,7 @@ export const SystemRole: Story = {
       expect(await canvas.findByText('System Administrator')).toBeInTheDocument();
 
       // System roles should NOT show action dropdown
-      const kebabToggle = canvasElement.querySelector('#role-actions-dropdown');
+      const kebabToggle = queryById(canvasElement, 'role-actions-dropdown');
       expect(kebabToggle).not.toBeInTheDocument();
     });
   },
@@ -115,8 +116,7 @@ export const LoadingState: Story = {
   play: async ({ canvasElement, step }) => {
     await step('Verify loading placeholder', async () => {
       // Loading state shows placeholder
-      const placeholder = canvasElement.querySelector('.ins-c-skeleton');
-      expect(placeholder).toBeInTheDocument();
+      expectLoadingVisible(canvasElement);
     });
   },
 };
@@ -129,7 +129,7 @@ export const ActionDropdownOpen: Story = {
   play: async ({ canvasElement, step }) => {
     await step('Open dropdown and verify Edit/Delete actions', async () => {
       // Open the dropdown
-      const kebabToggle = canvasElement.querySelector('#role-actions-dropdown');
+      const kebabToggle = queryById(canvasElement, 'role-actions-dropdown');
       if (!kebabToggle) throw new Error('Kebab toggle not found');
       await userEvent.click(kebabToggle);
 

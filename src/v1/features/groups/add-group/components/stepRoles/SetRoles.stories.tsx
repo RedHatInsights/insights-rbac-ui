@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { queryEmptyState, queryToolbar } from '../../../../../../test-utils/interactionHelpers';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
@@ -139,7 +140,7 @@ export const Default: Story = {
 
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 10000 },
       );
@@ -161,7 +162,7 @@ export const RoleSelection: Story = {
     await step('Select roles and submit', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 10000 },
       );
@@ -208,7 +209,7 @@ export const WithPreselectedRoles: Story = {
     await step('Verify preselected roles displayed', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 10000 },
       );
@@ -231,7 +232,7 @@ export const FilterRoles: Story = {
     await step('Apply filter and verify results', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 10000 },
       );
@@ -246,9 +247,9 @@ export const FilterRoles: Story = {
           try {
             nameFilter = canvas.getByPlaceholderText(/name/i);
           } catch {
-            const toolbar = canvasElement.querySelector('.pf-v6-c-toolbar, .ins-c-primary-toolbar');
+            const toolbar = queryToolbar(canvasElement);
             if (toolbar) {
-              nameFilter = toolbar.querySelector('input[type="text"]');
+              nameFilter = within(toolbar).queryByRole('textbox') as HTMLInputElement | null;
             }
           }
         }
@@ -265,7 +266,7 @@ export const FilterRoles: Story = {
 
         await waitFor(
           () => {
-            expect(canvas.getByText(storyRoles[0].name)).toBeInTheDocument();
+            expect(canvas.queryByText(storyRoles[0].name)).toBeInTheDocument();
           },
           { timeout: 5000 },
         );
@@ -283,7 +284,7 @@ export const SystemRoles: Story = {
     await step('Verify system roles displayed', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByRole('grid')).toBeInTheDocument();
+          expect(canvas.queryByRole('grid')).toBeInTheDocument();
         },
         { timeout: 10000 },
       );
@@ -318,8 +319,7 @@ export const EmptyRolesList: Story = {
             canvas.queryByText(/no.*results/i) ||
             canvas.queryByText(/no.*found/i) ||
             canvas.queryByText(/empty/i) ||
-            canvasElement.querySelector('.pf-v6-c-empty-state') ||
-            canvasElement.querySelector('[class*="empty"]');
+            queryEmptyState(canvasElement);
 
           if (emptyMessage) {
             expect(emptyMessage).toBeInTheDocument();
@@ -328,7 +328,7 @@ export const EmptyRolesList: Story = {
             expect(canvas.queryByText(storyRoles[1].name)).not.toBeInTheDocument();
             expect(canvas.queryByText(storyRoles[2].name)).not.toBeInTheDocument();
 
-            expect(canvas.getByRole('grid')).toBeInTheDocument();
+            expect(canvas.queryByRole('grid')).toBeInTheDocument();
           }
         },
         { timeout: 10000 },

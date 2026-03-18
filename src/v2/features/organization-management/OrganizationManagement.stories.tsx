@@ -318,7 +318,7 @@ export const Default: Story = {
 
       // Wait for table to render (should be empty in default state) - PatternFly uses 'grid' role
       await waitFor(() => {
-        const table = canvas.getByRole('grid');
+        const table = canvas.queryByRole('grid');
         expect(table).toBeInTheDocument();
       });
     });
@@ -350,14 +350,14 @@ export const WithFullOrganizationData: Story = {
 
       // Wait for role bindings table to load - PatternFly uses 'grid' role for interactive tables
       await waitFor(() => {
-        const table = canvas.getByRole('grid');
+        const table = canvas.queryByRole('grid');
         expect(table).toBeInTheDocument();
       });
 
       // Test that role bindings data is displayed
       await waitFor(() => {
         // Check that table rows are present (header + 5 data rows)
-        const rows = canvas.getAllByRole('row');
+        const rows = canvas.queryAllByRole('row');
         expect(rows).toHaveLength(6); // 1 header + 5 data rows
       });
 
@@ -475,7 +475,7 @@ export const WithRoleBindingsTableTest: Story = {
 
       // Wait for organization data to be loaded first (API calls depend on organizationId)
       await waitFor(() => {
-        expect(canvas.getByText('org-987654321')).toBeInTheDocument();
+        expect(canvas.queryByText('org-987654321')).toBeInTheDocument();
       });
 
       // Give the component time to fetch and process role bindings data
@@ -492,7 +492,7 @@ export const WithRoleBindingsTableTest: Story = {
       await waitFor(
         () => {
           // Look for specific data from our mock response
-          expect(canvas.getByText('Engineering Team')).toBeInTheDocument();
+          expect(canvas.queryByText('Engineering Team')).toBeInTheDocument();
         },
         { timeout: 10000 },
       );
@@ -558,7 +558,7 @@ export const EmptyRoleBindingsState: Story = {
 
       // Wait for organization data to load first
       await waitFor(() => {
-        expect(canvas.getByText('org-987654321')).toBeInTheDocument();
+        expect(canvas.queryByText('org-987654321')).toBeInTheDocument();
       });
 
       // Wait for empty state to appear

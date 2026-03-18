@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expectLoadingVisible } from '../../../../../test-utils/interactionHelpers';
 import { GroupRoles } from './GroupRoles';
 import { groupsHandlers } from '../../../../data/mocks/groups.handlers';
 import { groupRolesHandlers, groupRolesLoadingHandlers } from '../../../../../shared/data/mocks/groupRoles.handlers';
@@ -495,8 +496,7 @@ export const LoadingState: Story = {
     await step('Verify skeleton loading state', async () => {
       await waitFor(
         () => {
-          const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
-          expect(skeletons.length).toBeGreaterThan(0);
+          expectLoadingVisible(canvasElement);
         },
         { timeout: 10000 },
       );
@@ -695,7 +695,7 @@ Perfect for testing filter state management and API integration.
 
       await waitFor(
         () => {
-          expect(canvas.getByText(mockRoles[0].name)).toBeInTheDocument();
+          expect(canvas.queryByText(mockRoles[0].name)).toBeInTheDocument();
           expect(canvas.queryByText(mockRoles[1].name)).not.toBeInTheDocument();
           expect(canvas.queryByText(mockRoles[2].name)).not.toBeInTheDocument();
         },
@@ -711,9 +711,9 @@ Perfect for testing filter state management and API integration.
       await userEvent.click(clearButtons[0]);
 
       await waitFor(() => {
-        expect(canvas.getByText(mockRoles[0].name)).toBeInTheDocument();
-        expect(canvas.getByText(mockRoles[1].name)).toBeInTheDocument();
-        expect(canvas.getByText(mockRoles[2].name)).toBeInTheDocument();
+        expect(canvas.queryByText(mockRoles[0].name)).toBeInTheDocument();
+        expect(canvas.queryByText(mockRoles[1].name)).toBeInTheDocument();
+        expect(canvas.queryByText(mockRoles[2].name)).toBeInTheDocument();
       });
 
       expect(filterInput).toHaveValue('');

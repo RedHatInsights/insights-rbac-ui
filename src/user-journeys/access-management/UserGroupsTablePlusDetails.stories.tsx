@@ -447,7 +447,7 @@ Tests the empty state matching \`static/mocks/User groups table plus details/Bas
     await step('Wait for empty state', async () => {
       await waitFor(
         () => {
-          expect(canvas.getByText(/no user group found/i)).toBeInTheDocument();
+          expect(canvas.queryByText(/no user group found/i)).toBeInTheDocument();
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );

@@ -138,11 +138,12 @@
   "scripts": {
     "prepare": "husky",
     "build": "fec build",
-    "test": "sh -c 'npm run test:web && npm run test:cli'",
+    "test": "npm-run-all test:web test:cli",
     "test:web": "TZ=UTC vitest run",
+    "test:cli": "vitest run --config src/cli/vitest.config.ts",
+    "test:storybook": "storybook build && start-server-and-test 'http-server storybook-static -p 6007 -s' http://127.0.0.1:6007 'test-storybook --ci --excludeTags skip-test --testTimeout=60000 --url http://127.0.0.1:6007'",
     "test:watch": "TZ=UTC vitest",
     "test:ui": "TZ=UTC vitest --ui",
-    "test:e2e": "npx playwright test --config=e2e/playwright.config.ts",
     "e2e:ci:setup": "test -n \"$CI\" && for f in e2e/auth/.env.*.ci; do envsubst < \"$f\" > \"${f%.ci}\"; done || echo 'Skipped: CI env var not set (run in CI only)'",
     "e2e:v1:seed": "node scripts/run-with-env.js e2e/auth/.env.v1-orgadmin npm run cli -- seed --api-version v1 --file e2e/fixtures/seed-v1.json --prefix \"${TEST_PREFIX_V1}\" --json --output e2e/seed-map-v1.json",
     "e2e:v1:cleanup": "node scripts/run-with-env.js e2e/auth/.env.v1-orgadmin npm run cli -- cleanup --prefix \"${TEST_PREFIX_V1}\"",
@@ -185,7 +186,7 @@
     "translations:datafile": "node scripts/createDataJson.js",
     "circular-dependencies": "madge --circular --extensions ts,js ./src",
     "deploy": "npm-run-all build circular-dependencies lint",
-    "verify": "npm-run-all build circular-dependencies lint test-storybook:ci",
+    "verify": "npm-run-all build circular-dependencies lint test test:storybook",
     "nightly": "npm run deploy",
     "postinstall": "ts-patch install && rm -rf .cache",
     "storybook": "storybook dev -p 6006",
@@ -193,9 +194,7 @@
     "test-storybook": "test-storybook --excludeTags skip-test --testTimeout=30000",
     "test-storybook:fast": "CI=true test-storybook --excludeTags skip-test --testTimeout=30000",
     "test-storybook:ci": "test-storybook --ci --excludeTags skip-test --testTimeout=60000",
-    "test:storybook": "storybook build && start-server-and-test 'http-server storybook-static -p 6007 -s' http://127.0.0.1:6007 'test-storybook --ci --excludeTags skip-test --testTimeout=60000 --url http://127.0.0.1:6007'",
-    "cli": "node --import tsx src/cli/cli.tsx",
-    "test:cli": "vitest run --config src/cli/vitest.config.ts"
+    "cli": "node --import tsx src/cli/cli.tsx"
   },
   "insights": {
     "appname": "rbac"

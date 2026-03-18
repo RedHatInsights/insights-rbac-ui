@@ -51,7 +51,7 @@ Tests the Overview page content and link navigation.
       await user.click(viewRolesButton);
 
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/roles/);
       });
     });

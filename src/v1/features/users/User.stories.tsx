@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expectLoadingVisible, queryBreadcrumb, queryEmptyState, queryPagination } from '../../../test-utils/interactionHelpers';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { User } from './User';
 import { usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
@@ -210,8 +211,7 @@ export const Loading: Story = {
   },
   play: async ({ canvasElement }) => {
     await waitFor(() => {
-      const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
-      expect(skeletons.length).toBeGreaterThan(0);
+      expectLoadingVisible(canvasElement);
     });
   },
 };
@@ -410,7 +410,7 @@ export const FilterRoles: Story = {
 
       await waitFor(
         () => {
-          expect(canvas.getByText(mockRoles[0].display_name)).toBeInTheDocument();
+          expect(canvas.queryByText(mockRoles[0].display_name)).toBeInTheDocument();
           expect(canvas.queryByText(mockRoles[1].display_name)).not.toBeInTheDocument();
         },
         { timeout: 5000 },
@@ -577,7 +577,7 @@ export const Pagination: Story = {
       await expect(await canvas.findByText('Role 1')).toBeInTheDocument();
 
       // Find pagination controls
-      const paginationNav = canvasElement.querySelector('.pf-v6-c-pagination');
+      const paginationNav = queryPagination(canvasElement);
       expect(paginationNav).toBeInTheDocument();
 
       // Clear spy to track pagination calls
@@ -619,7 +619,7 @@ export const BreadcrumbNavigation: Story = {
       expect(usersBreadcrumb).toBeInTheDocument();
       expect(usersBreadcrumb).toHaveAttribute('href', '/iam/user-access/users');
 
-      const breadcrumbNav = canvasElement.querySelector('.pf-v6-c-breadcrumb');
+      const breadcrumbNav = queryBreadcrumb(canvasElement);
       expect(breadcrumbNav).toBeInTheDocument();
       expect(within(breadcrumbNav as HTMLElement).getByText(mockActiveUser.username)).toBeInTheDocument();
     });
@@ -647,7 +647,7 @@ export const EmptyRoles: Story = {
 
       await waitFor(
         async () => {
-          const emptyState = canvasElement.querySelector('.pf-v6-c-empty-state');
+          const emptyState = queryEmptyState(canvasElement);
           expect(emptyState).toBeInTheDocument();
         },
         { timeout: 3000 },

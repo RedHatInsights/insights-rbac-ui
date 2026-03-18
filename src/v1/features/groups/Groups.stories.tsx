@@ -331,8 +331,8 @@ export const RolesExpansion: Story = {
       // Should see expanded roles content
       await waitFor(
         () => {
-          expect(canvas.getByText(expandedRoles[0].name)).toBeInTheDocument();
-          expect(canvas.getByText(expandedRoles[1].name)).toBeInTheDocument();
+          expect(canvas.queryByText(expandedRoles[0].name)).toBeInTheDocument();
+          expect(canvas.queryByText(expandedRoles[1].name)).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -373,8 +373,8 @@ export const MembersExpansion: Story = {
       // Should see expanded members content - look for first names which are unique
       await waitFor(
         () => {
-          expect(canvas.getByText(mockMembersData[0].first_name)).toBeInTheDocument();
-          expect(canvas.getByText(mockMembersData[1].first_name)).toBeInTheDocument();
+          expect(canvas.queryByText(mockMembersData[0].first_name)).toBeInTheDocument();
+          expect(canvas.queryByText(mockMembersData[1].first_name)).toBeInTheDocument();
         },
         { timeout: 5000 },
       );

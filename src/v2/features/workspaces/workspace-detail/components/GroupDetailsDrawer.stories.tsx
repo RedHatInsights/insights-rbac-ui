@@ -333,7 +333,7 @@ export const LoadingState: Story = {
       await userEvent.click(usersTab);
 
       await waitFor(async () => {
-        const spinners = canvas.getAllByLabelText(/loading/i);
+        const spinners = canvas.queryAllByLabelText(/loading/i);
         expect(spinners.length).toBeGreaterThan(0);
       });
     });

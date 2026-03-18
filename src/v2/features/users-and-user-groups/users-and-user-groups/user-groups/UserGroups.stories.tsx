@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { BrowserRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 
-import { waitForModal, waitForModalClose } from '../../../../../test-utils/interactionHelpers';
+import { expectLoadingVisible, getSkeletonCount, waitForDrawer, waitForModal, waitForModalClose } from '../../../../../test-utils/interactionHelpers';
 import { UserGroups } from './UserGroups';
 import { groupsErrorHandlers, groupsHandlers, groupsLoadingHandlers } from '../../../../../shared/data/mocks/groups.handlers';
 import type { GroupOut } from '../../../../../shared/data/mocks/db';
@@ -300,8 +300,7 @@ For testing specific scenarios, see these additional stories:
         await userEvent.click(adminRow);
 
         // Wait for drawer to open and scope searches to drawer panel
-        const drawerPanel = within(document.body).getByTestId('detail-drawer-panel');
-        const drawer = within(drawerPanel);
+        const drawer = await waitForDrawer();
 
         // Verify drawer title within the drawer scope
         await expect(drawer.findByText(mockGroups[0].name)).resolves.toBeInTheDocument();
@@ -376,7 +375,7 @@ export const LoadingState: StoryObj<typeof meta> = {
       // Should show skeleton loading state
       await waitFor(
         () => {
-          expect(canvasElement.querySelectorAll('[class*="skeleton"]').length).toBeGreaterThan(0);
+          expectLoadingVisible(canvasElement);
         },
         { timeout: 10000 },
       );
@@ -672,7 +671,7 @@ export const ErrorStateHandling: StoryObj<typeof meta> = {
         () => {
           const grid = canvas.queryByRole('grid');
           const emptyStates = canvas.queryAllByText(/no data|no groups|no user group|error|failed/i);
-          const loadingState = canvasElement.querySelector('.pf-v6-c-skeleton');
+          const loadingState = getSkeletonCount(canvasElement) > 0;
           // Either the grid, an empty/error state (could be multiple), or still loading should be present
           expect(grid || emptyStates.length > 0 || loadingState).toBeTruthy();
         },

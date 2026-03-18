@@ -9,6 +9,7 @@ import { createGroupMembersHandlers, groupMembersLoadingHandlers } from '../../.
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 
+import { expectLoadingVisible } from '../../../../../../test-utils/interactionHelpers';
 import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
 
 // Mock users data
@@ -440,9 +441,8 @@ export const LoadingStates: Story = {
 
       // Check for loading state in Users tab
       await waitFor(
-        async () => {
-          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-          await expect(skeletonElements.length).toBeGreaterThan(0);
+        () => {
+          expectLoadingVisible(canvasElement);
         },
         { timeout: 10000 },
       );
@@ -453,9 +453,8 @@ export const LoadingStates: Story = {
 
       // Service accounts should also show loading
       await waitFor(
-        async () => {
-          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-          await expect(skeletonElements.length).toBeGreaterThan(0);
+        () => {
+          expectLoadingVisible(canvasElement);
         },
         { timeout: 10000 },
       );

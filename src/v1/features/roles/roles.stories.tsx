@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { getSkeletonCount } from '../../../test-utils/interactionHelpers';
 import { findSortButton } from '../../../test-utils/tableHelpers';
 import { Roles } from './Roles';
 import { v1RolesHandlers, v1RolesLoadingHandlers } from '../../data/mocks/roles.handlers';
@@ -215,8 +216,7 @@ export const LoadingState: Story = {
       // Should show loading state while API calls are pending
       await waitFor(
         () => {
-          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-          expect(skeletonElements.length).toBeGreaterThan(0);
+          expect(getSkeletonCount(canvasElement)).toBeGreaterThan(0);
         },
         { timeout: 5000 },
       );
@@ -329,9 +329,9 @@ export const AdminUserWithRolesFiltering: Story = {
       // Wait for API call and table refresh
       await waitFor(
         () => {
-          expect(canvas.getByText(mockRoles[0].display_name)).toBeInTheDocument();
-          expect(canvas.getByText(mockRoles[1].display_name)).toBeInTheDocument();
-          expect(canvas.getByText(mockRoles[2].display_name)).toBeInTheDocument();
+          expect(canvas.queryByText(mockRoles[0].display_name)).toBeInTheDocument();
+          expect(canvas.queryByText(mockRoles[1].display_name)).toBeInTheDocument();
+          expect(canvas.queryByText(mockRoles[2].display_name)).toBeInTheDocument();
         },
         { timeout: 3000 },
       );

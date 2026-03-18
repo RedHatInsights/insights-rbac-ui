@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { delay } from 'msw';
-import { clearAndType } from '../../../../test-utils/interactionHelpers';
+import { clearAndType, getSkeletonCount, queryNotificationPortal } from '../../../../test-utils/interactionHelpers';
 import { CreateWorkspaceWizard } from './CreateWorkspaceWizard';
 import { MemoryRouter } from 'react-router-dom';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -224,9 +223,10 @@ export const LoadingWorkspaces: Story = {
       await expect(body.findByText('Create new workspace')).resolves.toBeInTheDocument();
 
       const loadingElements = body.queryAllByText(/loading/i);
-      const skeletons = document.body.querySelectorAll('.pf-c-skeleton, .pf-v6-c-skeleton');
 
-      await expect(loadingElements.length > 0 || skeletons.length > 0).toBe(true);
+      const skeletonCount = getSkeletonCount(document.body);
+
+      await expect(loadingElements.length > 0 || skeletonCount > 0).toBe(true);
     });
   },
 };
@@ -294,9 +294,12 @@ export const FormValidation: Story = {
     },
   },
   play: async ({ canvasElement, step }) => {
-    await delay(300);
     const canvas = within(canvasElement);
     const user = userEvent.setup();
+
+    await step('Wait for content ready', async () => {
+      await canvas.findByTestId('open-wizard-button');
+    });
 
     await step('Open wizard and fill only workspace name', async () => {
       const openButton = await canvas.findByTestId('open-wizard-button');
@@ -353,7 +356,7 @@ export const CancelNotification: Story = {
 
         await expect(args.onCancel).toHaveBeenCalled();
 
-        const notificationPortal = document.querySelector('.notifications-portal');
+        const notificationPortal = queryNotificationPortal();
         if (notificationPortal) {
           const warningAlert = notificationPortal.querySelector('.pf-v6-c-alert.pf-m-warning');
           if (warningAlert) {

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
-import { waitForModal } from '../../../../../test-utils/interactionHelpers';
+import { queryNotificationPortal, waitForModal } from '../../../../../test-utils/interactionHelpers';
 import { AddGroupRoles } from './AddGroupRoles';
 import { groupsHandlers } from '../../../../data/mocks/groups.handlers';
 import { groupRolesHandlers } from '../../../../../shared/data/mocks/groupRoles.handlers';
@@ -224,7 +224,7 @@ The component determines this from the group data:
       // Wait for roles to load
       await waitFor(
         () => {
-          expect(modal.getByText('Content Manager')).toBeInTheDocument();
+          expect(modal.queryByText('Content Manager')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -332,7 +332,7 @@ export const CancelNotification: Story = {
       // Warning notification should appear
       await waitFor(
         () => {
-          const notificationPortal = document.querySelector('.notifications-portal');
+          const notificationPortal = queryNotificationPortal();
           expect(notificationPortal).toBeInTheDocument();
           const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');
           expect(warningAlert).toBeInTheDocument();
@@ -364,7 +364,8 @@ export const FilterRoles: Story = {
       // Should have fewer rows (waitFor handles debounce)
       await waitFor(
         () => {
-          const filteredRows = modalContent.getAllByRole('row');
+          const filteredRows = modalContent.queryAllByRole('row');
+          expect(filteredRows.length).toBeGreaterThan(1);
           expect(filteredRows.length - 1).toBeLessThan(initialCount);
         },
         { timeout: 5000 },

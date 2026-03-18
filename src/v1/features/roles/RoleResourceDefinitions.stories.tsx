@@ -132,7 +132,7 @@ export const Default: Story = {
       // Permission ID should be in title (appears multiple times)
       await waitFor(
         () => {
-          const permissionTexts = canvas.getAllByText(/inventory:hosts:read/i);
+          const permissionTexts = canvas.queryAllByText(/inventory:hosts:read/i);
           expect(permissionTexts.length).toBeGreaterThan(0);
         },
         { timeout: 3000 },
@@ -189,7 +189,7 @@ export const EditButtonHiddenForSystemRole: Story = {
       // Wait for data to load (permission ID appears multiple times in breadcrumb and title)
       await waitFor(
         () => {
-          const permissionTexts = canvas.getAllByText(/inventory:hosts:read/i);
+          const permissionTexts = canvas.queryAllByText(/inventory:hosts:read/i);
           expect(permissionTexts.length).toBeGreaterThan(0);
         },
         { timeout: 3000 },
@@ -225,7 +225,7 @@ export const BreadcrumbsVisible: Story = {
       // Breadcrumb should show "Roles" link
       await waitFor(
         () => {
-          expect(canvas.getByRole('link', { name: /roles/i })).toBeInTheDocument();
+          expect(canvas.queryByRole('link', { name: /roles/i })).toBeInTheDocument();
         },
         { timeout: 3000 },
       );
@@ -271,15 +271,9 @@ export const ResourceDefinitionsTable: Story = {
       handlers: createDefaultHandlers(),
     },
   },
-  play: async () => {
-    // Wait for table to render
-    await waitFor(
-      () => {
-        const table = document.querySelector('table') || document.querySelector('[role="grid"]');
-        expect(table).toBeInTheDocument();
-      },
-      { timeout: 3000 },
-    );
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByRole('grid', {}, { timeout: 3000 });
   },
 };
 
@@ -328,7 +322,7 @@ export const PermissionIdInTitle: Story = {
       // Permission ID should be visible as page title
       await waitFor(
         () => {
-          const permissionTexts = canvas.getAllByText(/inventory:hosts:read/i);
+          const permissionTexts = canvas.queryAllByText(/inventory:hosts:read/i);
           expect(permissionTexts.length).toBeGreaterThan(0);
         },
         { timeout: 3000 },

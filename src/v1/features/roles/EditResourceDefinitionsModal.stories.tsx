@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { queryDocumentByTestId, queryModalBox, queryModalTitle, querySpinner } from '../../../test-utils/interactionHelpers';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EditResourceDefinitionsModal } from './EditResourceDefinitionsModal';
 import { v1RolesHandlers } from '../../data/mocks/roles.handlers';
@@ -133,7 +134,7 @@ export const Default: Story = {
       // The modal should be rendered - look for it in the document body (PatternFly modals portal)
       await waitFor(
         () => {
-          const modal = document.querySelector('[class*="pf-v6-c-modal-box"]') || document.querySelector('[class*="modal"]');
+          const modal = queryModalBox();
           expect(modal).toBeTruthy();
         },
         { timeout: 5000 },
@@ -142,7 +143,7 @@ export const Default: Story = {
       // Verify the modal title
       await waitFor(
         () => {
-          const title = document.querySelector('[class*="pf-v6-c-modal-box__title"]');
+          const title = queryModalTitle();
           expect(title?.textContent).toContain('Edit resource definitions');
         },
         { timeout: 5000 },
@@ -167,7 +168,7 @@ export const Loading: Story = {
       // Should show spinner during loading (inside modal)
       await waitFor(
         () => {
-          const spinner = document.querySelector('[class*="pf-v6-c-spinner"]') || document.querySelector('[class*="spinner"]');
+          const spinner = querySpinner();
           expect(spinner).toBeTruthy();
         },
         { timeout: 5000 },
@@ -206,21 +207,21 @@ export const AddResourceAndSave: Story = {
     // Wait for the modal to be fully loaded (no spinner)
     await waitFor(
       () => {
-        const spinner = document.querySelector('[class*="pf-v6-c-spinner"]');
+        const spinner = querySpinner();
         expect(spinner).toBeFalsy();
       },
       { timeout: 10000 },
     );
 
     // Get the modal content
-    const modal = document.querySelector('[class*="pf-v6-c-modal-box"]');
+    const modal = queryModalBox();
     expect(modal).toBeTruthy();
     const modalContent = within(modal as HTMLElement);
 
     // Verify the modal title
     await waitFor(
       () => {
-        const title = document.querySelector('[class*="pf-v6-c-modal-box__title"]');
+        const title = queryModalTitle();
         expect(title?.textContent).toContain('Edit resource definitions');
       },
       { timeout: 5000 },
@@ -229,7 +230,7 @@ export const AddResourceAndSave: Story = {
     // Wait for the dual-list to be populated with available resources
     await waitFor(
       () => {
-        expect(modalContent.getByText('Staging Servers')).toBeInTheDocument();
+        expect(modalContent.queryByText('Staging Servers')).toBeInTheDocument();
       },
       { timeout: 5000 },
     );
@@ -301,13 +302,13 @@ export const CancelWithoutChanges: Story = {
       // Wait for loading to complete
       await waitFor(
         () => {
-          const spinner = document.querySelector('[class*="pf-v6-c-spinner"]');
+          const spinner = querySpinner();
           expect(spinner).toBeFalsy();
         },
         { timeout: 10000 },
       );
 
-      const modal = document.querySelector('[class*="pf-v6-c-modal-box"]');
+      const modal = queryModalBox();
       expect(modal).toBeTruthy();
       const modalContent = within(modal as HTMLElement);
 
@@ -322,7 +323,7 @@ export const CancelWithoutChanges: Story = {
       // Should navigate away
       await waitFor(
         () => {
-          const navigatedPage = document.querySelector('[data-testid="permission-page"]') || document.querySelector('[data-testid="navigated-page"]');
+          const navigatedPage = queryDocumentByTestId('permission-page') || queryDocumentByTestId('navigated-page');
           expect(navigatedPage).toBeTruthy();
         },
         { timeout: 5000 },

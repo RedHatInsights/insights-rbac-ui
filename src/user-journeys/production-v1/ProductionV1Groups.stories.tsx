@@ -228,7 +228,7 @@ export const EditGroupFromDetailPage: Story = {
       await user.click(groupLink);
       await waitFor(
         async () => {
-          await expect(canvas.getByRole('heading', { name: GROUP_SUPPORT_TEAM.name })).toBeInTheDocument();
+          await expect(canvas.queryByRole('heading', { name: GROUP_SUPPORT_TEAM.name })).toBeInTheDocument();
           expect(canvas.queryByRole('heading', { name: 'Customer Support Team' })).not.toBeInTheDocument();
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
@@ -364,8 +364,8 @@ export const DeleteGroupFromDetailPage: Story = {
     await step('Verify success notification and redirect', async () => {
       await verifySuccessNotification();
       await waitFor(() => {
-        expect(canvas.getByText(GROUP_PLATFORM_ADMINS.name)).toBeInTheDocument();
-        expect(canvas.getByText(GROUP_ENGINEERING.name)).toBeInTheDocument();
+        expect(canvas.queryByText(GROUP_PLATFORM_ADMINS.name)).toBeInTheDocument();
+        expect(canvas.queryByText(GROUP_ENGINEERING.name)).toBeInTheDocument();
         expect(canvas.queryByText(GROUP_SUPPORT_TEAM.name)).not.toBeInTheDocument();
       });
     });

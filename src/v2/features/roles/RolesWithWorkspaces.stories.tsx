@@ -2,10 +2,11 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { BrowserRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { HttpResponse, delay, http } from 'msw';
+import { expectLoadingVisible, queryAlert, queryByOuiaId, queryDrawerPanel, queryEmptyState } from '../../../test-utils/interactionHelpers';
 
 import { RolesPage } from './RolesWithWorkspaces';
 import { DEFAULT_V2_ROLES, V2_ROLE_RHEL_DEVOPS } from '../../data/mocks/seed';
+import { createRoleBindingsListHandlers } from '../../data/mocks/roleBindings.handlers';
 import { v2RolesErrorHandlers, v2RolesHandlers, v2RolesLoadingHandlers } from '../../data/mocks/roles.handlers';
 
 // =============================================================================
@@ -20,14 +21,7 @@ const batchDeleteRolesSpy = fn();
 // MSW HANDLERS
 // =============================================================================
 
-const roleBindingsListHandler = http.get('*/api/rbac/v2/role-bindings/', async () => {
-  await delay(200);
-  return HttpResponse.json({
-    data: [],
-    meta: { limit: 1000 },
-    links: { next: null, previous: null },
-  });
-});
+const roleBindingsListHandlers = createRoleBindingsListHandlers([]);
 
 // =============================================================================
 // META
@@ -53,7 +47,7 @@ const meta: Meta<typeof RolesPage> = {
           onRead: readRoleSpy,
           onBatchDelete: batchDeleteRolesSpy,
         }),
-        roleBindingsListHandler,
+        ...roleBindingsListHandlers,
       ],
     },
   },
@@ -114,7 +108,7 @@ export const DrawerInteraction: Story = {
       // Wait for drawer panel to appear
       await waitFor(
         () => {
-          const panel = document.body.querySelector('.pf-v6-c-drawer__panel:not([hidden])');
+          const panel = queryDrawerPanel({ hidden: false });
           expect(panel).toBeInTheDocument();
         },
         { timeout: 5000 },
@@ -147,17 +141,17 @@ export const DrawerInteraction: Story = {
 
       // Groups table renders (empty since mock returns [])
       await waitFor(() => {
-        const groupsTable = document.body.querySelector('[data-ouia-component-id="assigned-usergroups-table"]');
+        const groupsTable = queryByOuiaId(document.body, 'assigned-usergroups-table');
         expect(groupsTable).toBeInTheDocument();
       });
 
       // Close drawer
-      const closeButton = document.body.querySelector('[data-ouia-component-id="RolesTable-drawer-close-button"]');
+      const closeButton = queryByOuiaId(document.body, 'RolesTable-drawer-close-button');
       await expect(closeButton).toBeInTheDocument();
       await userEvent.click(closeButton as HTMLElement);
 
       await waitFor(() => {
-        const panel = document.body.querySelector('.pf-v6-c-drawer__panel');
+        const panel = queryDrawerPanel();
         expect(panel === null || panel.hasAttribute('hidden')).toBe(true);
       });
     });
@@ -204,10 +198,8 @@ export const DeleteModalFlow: Story = {
       await userEvent.click(deleteItem);
 
       // Modal appears
-      await waitFor(() => {
-        expect(document.body.querySelector('[role="dialog"]')).toBeInTheDocument();
-      });
-      const modal = within(document.body.querySelector('[role="dialog"]') as HTMLElement);
+      const modalEl = await within(document.body).findByRole('dialog');
+      const modal = within(modalEl);
 
       // Modal mentions the role name
       await expect(modal.findByText(new RegExp(TARGET_CUSTOM_ROLE.name!, 'i'))).resolves.toBeInTheDocument();
@@ -234,14 +226,13 @@ export const DeleteModalFlow: Story = {
 export const LoadingState: Story = {
   parameters: {
     msw: {
-      handlers: [...v2RolesLoadingHandlers(), roleBindingsListHandler],
+      handlers: [...v2RolesLoadingHandlers(), ...roleBindingsListHandlers],
     },
   },
   play: async ({ canvasElement, step }) => {
     await step('Verify loading state', async () => {
       await waitFor(() => {
-        const skeletons = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
-        expect(skeletons.length).toBeGreaterThan(0);
+        expectLoadingVisible(canvasElement);
       });
     });
   },
@@ -250,7 +241,7 @@ export const LoadingState: Story = {
 export const EmptyState: Story = {
   parameters: {
     msw: {
-      handlers: [...v2RolesHandlers([]), roleBindingsListHandler],
+      handlers: [...v2RolesHandlers([]), ...roleBindingsListHandlers],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -264,7 +255,7 @@ export const EmptyState: Story = {
 export const ErrorState: Story = {
   parameters: {
     msw: {
-      handlers: [...v2RolesErrorHandlers(500), roleBindingsListHandler],
+      handlers: [...v2RolesErrorHandlers(500), ...roleBindingsListHandlers],
     },
     test: { dangerouslyIgnoreUnhandledErrors: true },
   },
@@ -273,7 +264,8 @@ export const ErrorState: Story = {
       await waitFor(() => {
         const hasState =
           !!canvasElement.textContent?.match(/configure roles|no roles|error|failed/i) ||
-          !!canvasElement.querySelector('[class*="empty-state"], [class*="error"]');
+          !!queryEmptyState(canvasElement) ||
+          !!queryAlert(canvasElement, 'danger');
         expect(hasState).toBe(true);
       });
     });
@@ -284,7 +276,7 @@ export const ReadOnlyUser: Story = {
   parameters: {
     permissions: ['rbac:role:read'],
     msw: {
-      handlers: [...v2RolesHandlers(), roleBindingsListHandler],
+      handlers: [...v2RolesHandlers(), ...roleBindingsListHandlers],
     },
   },
   play: async ({ canvasElement, step }) => {

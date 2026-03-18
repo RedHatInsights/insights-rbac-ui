@@ -74,7 +74,7 @@ export const SortByName: Story = {
       await user.click(sortButton);
       await waitFor(
         () => {
-          const rows = canvas.getAllByRole('row');
+          const rows = canvas.queryAllByRole('row');
           expect(rows[1]).toHaveTextContent(new RegExp(GROUP_SUPPORT_TEAM.name, 'i'));
         },
         { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
@@ -86,7 +86,7 @@ export const SortByName: Story = {
       await user.click(sortButton);
       await waitFor(
         () => {
-          const rows = canvas.getAllByRole('row');
+          const rows = canvas.queryAllByRole('row');
           expect(rows[1]).toHaveTextContent(new RegExp(GROUP_SYSTEM_DEFAULT.name, 'i'));
         },
         { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },

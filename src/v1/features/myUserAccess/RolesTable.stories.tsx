@@ -293,8 +293,8 @@ export const PermissionExpansion: Story = {
         const table = tbody?.querySelector('table');
         if (!table) throw new Error('Could not find expanded table');
         const expandedRow = within(table);
-        expect(expandedRow.getByText('advisor')).toBeInTheDocument();
-        expect(expandedRow.getByText('compliance')).toBeInTheDocument();
+        expect(expandedRow.queryByText('advisor')).toBeInTheDocument();
+        expect(expandedRow.queryByText('compliance')).toBeInTheDocument();
       });
     });
   },
@@ -340,15 +340,14 @@ export const SortingInteraction: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
+    await step('Wait for data to load', async () => {
+      await canvas.findByText('Advisor Administrator');
+    });
+
     await step('Verify initial sort', async () => {
-      await waitFor(
-        () => {
-          expect(apiCallSpy).toHaveBeenCalled();
-          const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
-          expect(lastCall.orderBy).toBe('display_name');
-        },
-        { timeout: 1000 },
-      );
+      expect(apiCallSpy).toHaveBeenCalled();
+      const lastCall = apiCallSpy.mock.calls[apiCallSpy.mock.calls.length - 1][0];
+      expect(lastCall.orderBy).toBe('display_name');
     });
 
     await step('Toggle to descending sort', async () => {

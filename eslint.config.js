@@ -13,6 +13,7 @@ const requireUseTableState = require('./eslint-rules/require-use-table-state');
 const noDirectGetUser = require('./eslint-rules/no-direct-get-user');
 const noCrossVersionImports = require('./eslint-rules/no-cross-version-imports');
 const noDirectUserType = require('./eslint-rules/no-direct-user-type');
+const enforceStoryPatterns = require('./eslint-rules/enforce-story-patterns');
 
 module.exports = defineConfig(
   fecPlugin,
@@ -45,7 +46,15 @@ module.exports = defineConfig(
     files: ['src/**/*.ts', 'src/**/*.tsx'],
     ignores: ['src/test/**'],
     plugins: {
-      'rbac-local': { rules: { 'require-use-table-state': requireUseTableState, 'no-direct-get-user': noDirectGetUser, 'no-cross-version-imports': noCrossVersionImports, 'no-direct-user-type': noDirectUserType } },
+      'rbac-local': {
+        rules: {
+          'require-use-table-state': requireUseTableState,
+          'no-direct-get-user': noDirectGetUser,
+          'no-cross-version-imports': noCrossVersionImports,
+          'no-direct-user-type': noDirectUserType,
+          'enforce-story-patterns': enforceStoryPatterns,
+        },
+      },
     },
   },
   {
@@ -89,8 +98,16 @@ module.exports = defineConfig(
           ],
           patterns: [
             {
-              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
-              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+              group: [
+                '@redhat-cloud-services/rbac-client',
+                '@redhat-cloud-services/rbac-client/*',
+                '@redhat-cloud-services/javascript-clients-shared',
+                '@redhat-cloud-services/javascript-clients-shared/*',
+                '@redhat-cloud-services/host-inventory-client',
+                '@redhat-cloud-services/host-inventory-client/*',
+              ],
+              message:
+                'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
             },
           ],
         },
@@ -176,8 +193,16 @@ module.exports = defineConfig(
               message: 'V1 code cannot import from V2. Move shared code to src/shared/.',
             },
             {
-              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
-              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+              group: [
+                '@redhat-cloud-services/rbac-client',
+                '@redhat-cloud-services/rbac-client/*',
+                '@redhat-cloud-services/javascript-clients-shared',
+                '@redhat-cloud-services/javascript-clients-shared/*',
+                '@redhat-cloud-services/host-inventory-client',
+                '@redhat-cloud-services/host-inventory-client/*',
+              ],
+              message:
+                'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
             },
           ],
         },
@@ -214,8 +239,16 @@ module.exports = defineConfig(
               message: 'V2 code cannot import from V1. Use V2 data wrappers in src/v2/data/queries/ instead.',
             },
             {
-              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
-              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+              group: [
+                '@redhat-cloud-services/rbac-client',
+                '@redhat-cloud-services/rbac-client/*',
+                '@redhat-cloud-services/javascript-clients-shared',
+                '@redhat-cloud-services/javascript-clients-shared/*',
+                '@redhat-cloud-services/host-inventory-client',
+                '@redhat-cloud-services/host-inventory-client/*',
+              ],
+              message:
+                'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
             },
           ],
         },
@@ -264,19 +297,123 @@ module.exports = defineConfig(
       'no-restricted-imports': [
         'error',
         {
-          patterns: [
+          paths: [
             {
-              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
-              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+              name: 'msw',
+              importNames: ['http'],
+              message:
+                'Do not define inline MSW handlers in stories. Import handler factories from src/*/data/mocks/ instead. See AGENTS.md rule 15.',
+            },
+            {
+              name: 'msw',
+              importNames: ['delay'],
+              message:
+                'Do not import delay from msw in feature stories. Use findBy* queries or waitFor with assertions instead. See AGENTS.md rule 19.',
             },
           ],
+          patterns: [
+            {
+              group: [
+                '@redhat-cloud-services/rbac-client',
+                '@redhat-cloud-services/rbac-client/*',
+                '@redhat-cloud-services/javascript-clients-shared',
+                '@redhat-cloud-services/javascript-clients-shared/*',
+                '@redhat-cloud-services/host-inventory-client',
+                '@redhat-cloud-services/host-inventory-client/*',
+              ],
+              message:
+                'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+            },
+          ],
+        },
+      ],
+      // Enforce play function patterns from AGENTS.md rules 19, 22
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'CallExpression[callee.object.name="document"][callee.property.name="querySelector"]',
+          message:
+            'document.querySelector is banned in play functions. Use within() + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        {
+          selector: 'CallExpression[callee.object.name="document"][callee.property.name="querySelectorAll"]',
+          message:
+            'document.querySelectorAll is banned in play functions. Use within() + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        {
+          selector: 'CallExpression[callee.object.name="document"][callee.property.name="getElementById"]',
+          message:
+            'document.getElementById is banned in play functions. Use within() + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        {
+          selector: 'CallExpression[callee.object.object.name="document"][callee.object.property.name="body"][callee.property.name="querySelector"]',
+          message:
+            'document.body.querySelector is banned in play functions. Use within(document.body) + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        {
+          selector:
+            'CallExpression[callee.object.object.name="document"][callee.object.property.name="body"][callee.property.name="querySelectorAll"]',
+          message:
+            'document.body.querySelectorAll is banned in play functions. Use within(document.body) + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        {
+          selector: 'CallExpression[callee.name="delay"]',
+          message:
+            'delay() is banned in play functions (except inside resetStoryState). Use findBy* queries or waitFor with assertions instead. See AGENTS.md rule 19.',
         },
       ],
     },
   },
   {
-    // User journey test files - ban magic numbers in timeouts
-    files: ['src/user-journeys/**/*.tsx', 'src/user-journeys/**/*.ts'],
+    // User journey shared helpers/handlers (.ts) - ban magic timeouts only
+    files: ['src/user-journeys/**/*.ts'],
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    languageOptions: {
+      parser: tsParser,
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 1,
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@redhat-cloud-services/rbac-client',
+                '@redhat-cloud-services/rbac-client/*',
+                '@redhat-cloud-services/javascript-clients-shared',
+                '@redhat-cloud-services/javascript-clients-shared/*',
+                '@redhat-cloud-services/host-inventory-client',
+                '@redhat-cloud-services/host-inventory-client/*',
+              ],
+              message:
+                'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+            },
+          ],
+        },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Property[key.name="timeout"][value.type="Literal"][value.raw=/^\\d+$/]',
+          message:
+            'Magic numbers in timeout are not allowed. Use TEST_TIMEOUTS constants from src/user-journeys/_shared/helpers/testUtils.ts instead.',
+        },
+        {
+          selector: 'CallExpression[callee.property.name="waitForTimeout"] > Literal[raw=/^\\d+$/]',
+          message:
+            'Magic numbers in waitForTimeout are not allowed. Use TEST_TIMEOUTS constants from src/user-journeys/_shared/helpers/testUtils.ts instead.',
+        },
+      ],
+    },
+  },
+  {
+    // User journey story files (.tsx) - ban magic timeouts + play function patterns
+    files: ['src/user-journeys/**/*.tsx'],
     plugins: {
       '@typescript-eslint': tseslint,
     },
@@ -293,25 +430,61 @@ module.exports = defineConfig(
         {
           patterns: [
             {
-              group: ['@redhat-cloud-services/rbac-client', '@redhat-cloud-services/rbac-client/*', '@redhat-cloud-services/javascript-clients-shared', '@redhat-cloud-services/javascript-clients-shared/*', '@redhat-cloud-services/host-inventory-client', '@redhat-cloud-services/host-inventory-client/*'],
-              message: 'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
+              group: [
+                '@redhat-cloud-services/rbac-client',
+                '@redhat-cloud-services/rbac-client/*',
+                '@redhat-cloud-services/javascript-clients-shared',
+                '@redhat-cloud-services/javascript-clients-shared/*',
+                '@redhat-cloud-services/host-inventory-client',
+                '@redhat-cloud-services/host-inventory-client/*',
+              ],
+              message:
+                'Import API clients and types from the data layer (src/*/data/api/) instead of directly from @redhat-cloud-services client packages.',
             },
           ],
         },
       ],
-      // Ban magic numbers in timeouts - use TEST_TIMEOUTS constants instead
       'no-restricted-syntax': [
         'error',
         {
-          // Catches: { timeout: 5000 }
           selector: 'Property[key.name="timeout"][value.type="Literal"][value.raw=/^\\d+$/]',
-          message: 'Magic numbers in timeout are not allowed. Use TEST_TIMEOUTS constants from src/user-journeys/_shared/helpers/testUtils.ts instead.',
+          message:
+            'Magic numbers in timeout are not allowed. Use TEST_TIMEOUTS constants from src/user-journeys/_shared/helpers/testUtils.ts instead.',
         },
         {
-          // Catches: waitForTimeout(5000)
           selector: 'CallExpression[callee.property.name="waitForTimeout"] > Literal[raw=/^\\d+$/]',
-          message: 'Magic numbers in waitForTimeout are not allowed. Use TEST_TIMEOUTS constants from src/user-journeys/_shared/helpers/testUtils.ts instead.',
+          message:
+            'Magic numbers in waitForTimeout are not allowed. Use TEST_TIMEOUTS constants from src/user-journeys/_shared/helpers/testUtils.ts instead.',
         },
+        {
+          selector: 'CallExpression[callee.object.name="document"][callee.property.name="querySelector"]',
+          message:
+            'document.querySelector is banned in play functions. Use within() + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        {
+          selector: 'CallExpression[callee.object.name="document"][callee.property.name="querySelectorAll"]',
+          message:
+            'document.querySelectorAll is banned in play functions. Use within() + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        {
+          selector: 'CallExpression[callee.object.name="document"][callee.property.name="getElementById"]',
+          message:
+            'document.getElementById is banned in play functions. Use within() + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        {
+          selector: 'CallExpression[callee.object.object.name="document"][callee.object.property.name="body"][callee.property.name="querySelector"]',
+          message:
+            'document.body.querySelector is banned in play functions. Use within(document.body) + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        {
+          selector:
+            'CallExpression[callee.object.object.name="document"][callee.object.property.name="body"][callee.property.name="querySelectorAll"]',
+          message:
+            'document.body.querySelectorAll is banned in play functions. Use within(document.body) + role/text queries, or extract a shared interaction helper. See AGENTS.md rule 19.',
+        },
+        // delay() is NOT banned here — user-journey stories legitimately use delay() from msw
+        // inside inline handlers (permitted per AGENTS.md rule 15 exception for stateful journeys).
+        // Feature stories ban the import itself via no-restricted-imports.
       ],
     },
   },
@@ -384,6 +557,13 @@ module.exports = defineConfig(
     files: ['**/*.stories.@(js|jsx|ts|tsx)', 'src/**/*.helpers.@(ts|tsx)', 'src/test-utils/**/*.@(ts|tsx)'],
     rules: {
       'rbac-local/no-direct-user-type': 'error',
+    },
+  },
+  {
+    // Discouraged patterns in play functions — canvasElement.querySelector, getBy* inside waitFor
+    files: ['**/*.stories.@(js|jsx|ts|tsx)'],
+    rules: {
+      'rbac-local/enforce-story-patterns': 'error',
     },
   },
   storybook.configs['flat/recommended'],

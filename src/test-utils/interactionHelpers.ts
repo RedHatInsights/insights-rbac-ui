@@ -228,9 +228,207 @@ export async function waitForContentReady(canvasElement: HTMLElement, options?: 
   await delay(500);
   await waitFor(
     () => {
-      const skeletons = canvasElement.querySelectorAll('.pf-v6-c-skeleton, [aria-label="Loading"]');
-      expect(skeletons.length).toBe(0);
+      expect(getSkeletonCount(canvasElement)).toBe(0);
     },
     { timeout },
   );
+}
+
+/**
+ * Count PatternFly skeleton/loading indicators currently in the DOM tree.
+ * Use in assertions to verify loading states:
+ *   `expect(getSkeletonCount(canvasElement)).toBeGreaterThan(0)`
+ */
+export function getSkeletonCount(root: HTMLElement): number {
+  return root.querySelectorAll('.pf-v6-c-skeleton, .ins-c-skeleton, [aria-label="Loading"]').length;
+}
+
+/**
+ * Assert that skeleton/loading indicators ARE visible (loading-state tests).
+ */
+export function expectLoadingVisible(root: HTMLElement): void {
+  expect(getSkeletonCount(root)).toBeGreaterThan(0);
+}
+
+/**
+ * Count `<tbody>` rows in the first table under `root`.
+ * Excludes header rows (`<thead> tr`) but includes expansion rows.
+ */
+export function getTableBodyRowCount(root: HTMLElement): number {
+  return root.querySelectorAll('table tbody tr, [role="grid"] tbody tr').length;
+}
+
+/**
+ * Find an element by its OUIA component ID (`data-ouia-component-id`).
+ * Returns `null` if not found.
+ */
+export function queryByOuiaId(root: HTMLElement, ouiaId: string): HTMLElement | null {
+  return root.querySelector(`[data-ouia-component-id="${ouiaId}"]`);
+}
+
+/**
+ * Find a PatternFly empty state container in the tree.
+ * Returns `null` if not found.
+ */
+export function queryEmptyState(root: HTMLElement): HTMLElement | null {
+  return root.querySelector('.pf-v6-c-empty-state');
+}
+
+/**
+ * Find a PatternFly pagination container in the tree.
+ * Returns `null` if not found.
+ */
+export function queryPagination(root: HTMLElement): HTMLElement | null {
+  return root.querySelector('.pf-v6-c-pagination');
+}
+
+/**
+ * Find a PatternFly toolbar container in the tree.
+ * Returns `null` if not found.
+ */
+export function queryToolbar(root: HTMLElement): HTMLElement | null {
+  return root.querySelector('.pf-v6-c-toolbar, .ins-c-primary-toolbar');
+}
+
+/**
+ * Find a PatternFly breadcrumb nav in the tree.
+ * Returns `null` if not found.
+ */
+export function queryBreadcrumb(root: HTMLElement): HTMLElement | null {
+  return root.querySelector('.pf-v6-c-breadcrumb');
+}
+
+/**
+ * Find a PatternFly alert of a specific variant in the tree.
+ */
+export function queryAlert(root: HTMLElement, variant: 'success' | 'danger' | 'warning' | 'info'): HTMLElement | null {
+  return root.querySelector(`.pf-v6-c-alert.pf-m-${variant}, .pf-c-alert.pf-m-${variant}`);
+}
+
+/**
+ * Find elements by data-testid attribute.
+ */
+export function queryByDataTestId(root: HTMLElement, testId: string): HTMLElement | null {
+  return root.querySelector(`[data-testid="${testId}"]`);
+}
+
+/**
+ * Find a PatternFly menu toggle button in the tree.
+ * Returns `null` if not found.
+ */
+export function queryMenuToggle(root: HTMLElement): HTMLElement | null {
+  return root.querySelector('.pf-v6-c-menu-toggle');
+}
+
+/**
+ * Find an element by its ID.
+ */
+export function queryById(root: HTMLElement, id: string): HTMLElement | null {
+  return root.querySelector(`#${id}`);
+}
+
+/**
+ * Find a PatternFly tree view toggle button.
+ */
+export function queryTreeViewToggle(root: HTMLElement): HTMLElement | null {
+  return root.querySelector('.pf-v6-c-tree-view__node-toggle');
+}
+
+/**
+ * Check if a table uses compact styling.
+ */
+export function queryCompactTable(root: HTMLElement): HTMLElement | null {
+  return root.querySelector('.pf-m-compact');
+}
+
+/**
+ * Find expanded table rows (PatternFly expandable rows).
+ */
+export function queryExpandedRow(root: HTMLElement): HTMLElement | null {
+  return root.querySelector('tr.pf-m-expanded');
+}
+
+// ---------------------------------------------------------------------------
+// Portal-scoped helpers — these query the global `document`, NOT a scoped root.
+// Safe ONLY in isolated story rendering (test-runner, one story at a time).
+// NOT safe in Storybook docs mode where multiple stories render on one page.
+// ---------------------------------------------------------------------------
+
+/**
+ * Query the notification portal (PatternFly renders alerts in a portal outside the story root).
+ */
+export function queryNotificationPortal(): HTMLElement | null {
+  return document.querySelector('.notifications-portal');
+}
+
+/**
+ * Query the PatternFly wizard nav element.
+ */
+export function queryWizardNav(): HTMLElement | null {
+  return document.querySelector('.pf-v6-c-wizard__nav');
+}
+
+/**
+ * Query wizard nav links/items.
+ */
+export function queryWizardNavItems(): HTMLElement[] {
+  return Array.from(document.querySelectorAll('.pf-v6-c-wizard__nav-link, .pf-v6-c-wizard__toggle-list-item'));
+}
+
+/**
+ * Query a modal box (PatternFly renders modals in a portal outside the story root).
+ */
+export function queryModalBox(): HTMLElement | null {
+  return document.querySelector('.pf-v6-c-modal-box');
+}
+
+/**
+ * Query the modal box title.
+ */
+export function queryModalTitle(): HTMLElement | null {
+  return document.querySelector('[class*="pf-v6-c-modal-box__title"]');
+}
+
+/**
+ * Query a spinner element.
+ */
+export function querySpinner(): HTMLElement | null {
+  return document.querySelector('.pf-v6-c-spinner');
+}
+
+/**
+ * Query a dialog from the document body (for portal-rendered dialogs).
+ */
+export function queryDialog(): HTMLElement | null {
+  return document.querySelector('[role="dialog"]');
+}
+
+/**
+ * Query a wizard step title (h1 in the wizard).
+ */
+export function queryWizardStepTitle(): HTMLElement | null {
+  return document.querySelector('h1[class*="pf-v6-c-title"]');
+}
+
+/**
+ * Query by data-testid from the document (for portal-rendered elements).
+ */
+export function queryDocumentByTestId(testId: string): HTMLElement | null {
+  return document.querySelector(`[data-testid="${testId}"]`);
+}
+
+/**
+ * Query a PatternFly drawer panel (portal-rendered outside canvas root).
+ * Pass `hidden: false` to exclude hidden panels.
+ */
+export function queryDrawerPanel(options?: { hidden?: boolean }): HTMLElement | null {
+  const selector = options?.hidden === false ? '.pf-v6-c-drawer__panel:not([hidden])' : '.pf-v6-c-drawer__panel';
+  return document.body.querySelector(selector);
+}
+
+/**
+ * Query a PatternFly chip group (V5 or V6 class names).
+ */
+export function queryChipGroup(): HTMLElement | null {
+  return document.body.querySelector('.pf-v6-c-chip-group, .pf-c-chip-group');
 }

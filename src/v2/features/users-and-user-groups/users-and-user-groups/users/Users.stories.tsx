@@ -1,6 +1,7 @@
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
+import { expectLoadingVisible, waitForDrawer } from '../../../../../test-utils/interactionHelpers';
 import { Users } from './Users';
 import { BrowserRouter } from 'react-router-dom';
 import type { MockUserIdentity } from '../../../../../../.storybook/contexts/StorybookMockContext';
@@ -244,7 +245,7 @@ export const Loading: Story = {
     await step('Verify', async () => {
       // Should show skeleton loading state from container React Query
       await waitFor(() => {
-        expect(canvasElement.querySelectorAll('[class*="skeleton"]').length).toBeGreaterThan(0);
+        expectLoadingVisible(canvasElement);
       });
     });
   },
@@ -540,8 +541,7 @@ export const UserDetailsIntegration: Story = {
       await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
       await expect(canvas.findByText('jane.smith')).resolves.toBeInTheDocument();
 
-      const drawerPanel = within(document.body).getByTestId('detail-drawer-panel');
-      const drawer = within(drawerPanel);
+      const drawer = await waitForDrawer();
 
       // Click on John Doe's row to focus user
       const johnDoeRow = (await canvas.findByText('john.doe')).closest('tr');

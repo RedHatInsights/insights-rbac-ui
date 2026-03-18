@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { getSkeletonCount, queryById } from '../../../../../test-utils/interactionHelpers';
 import { GroupServiceAccounts } from './GroupServiceAccounts';
 import { groupsHandlers } from '../../../../../shared/data/mocks/groups.handlers';
 import { groupMembersHandlers, groupMembersLoadingHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
@@ -168,8 +169,7 @@ export const Loading: Story = {
   play: async ({ canvasElement }) => {
     await waitFor(
       () => {
-        const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
-        expect(skeletons.length).toBeGreaterThan(0);
+        expect(getSkeletonCount(canvasElement)).toBeGreaterThan(0);
       },
       { timeout: 10000 },
     );
@@ -243,7 +243,7 @@ export const DefaultGroup: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    expect(canvasElement.querySelector('#tab-service-accounts')).toBeInTheDocument();
+    expect(queryById(canvasElement, 'tab-service-accounts')).toBeInTheDocument();
 
     expect(await canvas.findByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
   },
@@ -254,7 +254,7 @@ export const AdminDefault: Story = {
     const canvas = within(canvasElement);
 
     await step('Verify admin default service accounts tab', async () => {
-      expect(canvasElement.querySelector('#tab-service-accounts')).toBeInTheDocument();
+      expect(queryById(canvasElement, 'tab-service-accounts')).toBeInTheDocument();
 
       expect(await canvas.findByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
     });
@@ -370,7 +370,7 @@ export const ServiceAccountsFilteringWithData: Story = {
 
     await waitFor(
       () => {
-        expect(canvas.getByText(storyServiceAccounts[2].name!)).toBeInTheDocument();
+        expect(canvas.queryByText(storyServiceAccounts[2].name!)).toBeInTheDocument();
         expect(canvas.queryByText(storyServiceAccounts[0].name!)).not.toBeInTheDocument();
         expect(canvas.queryByText(storyServiceAccounts[1].name!)).not.toBeInTheDocument();
       },
@@ -381,9 +381,9 @@ export const ServiceAccountsFilteringWithData: Story = {
 
     await waitFor(
       () => {
-        expect(canvas.getByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
-        expect(canvas.getByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
-        expect(canvas.getByText(storyServiceAccounts[2].name!)).toBeInTheDocument();
+        expect(canvas.queryByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
+        expect(canvas.queryByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
+        expect(canvas.queryByText(storyServiceAccounts[2].name!)).toBeInTheDocument();
       },
       { timeout: 5000 },
     );
@@ -399,7 +399,7 @@ export const ServiceAccountsFilteringWithData: Story = {
 
     await waitFor(
       () => {
-        expect(canvas.getByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
+        expect(canvas.queryByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
         expect(canvas.queryByText(storyServiceAccounts[0].name!)).not.toBeInTheDocument();
         expect(canvas.queryByText(storyServiceAccounts[2].name!)).not.toBeInTheDocument();
       },
@@ -431,9 +431,9 @@ export const ServiceAccountsFilteringWithData: Story = {
 
     await waitFor(
       () => {
-        expect(canvas.getByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
-        expect(canvas.getByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
-        expect(canvas.getByText(storyServiceAccounts[2].name!)).toBeInTheDocument();
+        expect(canvas.queryByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
+        expect(canvas.queryByText(storyServiceAccounts[1].name!)).toBeInTheDocument();
+        expect(canvas.queryByText(storyServiceAccounts[2].name!)).toBeInTheDocument();
       },
       { timeout: 5000 },
     );
@@ -574,11 +574,11 @@ export const SelectAllTest: Story = {
 
     await step('Select all on page', async () => {
       await waitFor(() => {
-        expect(canvas.getByRole('grid')).toBeInTheDocument();
+        expect(canvas.queryByRole('grid')).toBeInTheDocument();
       });
 
       await waitFor(() => {
-        expect(canvas.getByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
+        expect(canvas.queryByText(storyServiceAccounts[0].name!)).toBeInTheDocument();
       });
 
       const selectAllCheckbox = canvas.getByLabelText('Select page');
@@ -588,8 +588,9 @@ export const SelectAllTest: Story = {
       await user.click(selectAllCheckbox);
 
       await waitFor(() => {
-        const allCheckboxes = canvas.getAllByRole('checkbox');
+        const allCheckboxes = canvas.queryAllByRole('checkbox');
         const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
+        expect(rowCheckboxes.length).toBeGreaterThan(0);
 
         rowCheckboxes.forEach((checkbox) => {
           expect(checkbox).toBeChecked();
@@ -607,8 +608,9 @@ export const SelectAllTest: Story = {
       await user.click(selectAllCheckbox);
 
       await waitFor(() => {
-        const allCheckboxes = canvas.getAllByRole('checkbox');
+        const allCheckboxes = canvas.queryAllByRole('checkbox');
         const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
+        expect(rowCheckboxes.length).toBeGreaterThan(0);
 
         rowCheckboxes.forEach((checkbox) => {
           expect(checkbox).not.toBeChecked();

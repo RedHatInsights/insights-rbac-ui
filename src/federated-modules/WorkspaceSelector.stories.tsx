@@ -12,6 +12,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import WorkspaceSelector, { type WorkspaceSelectorProps } from './WorkspaceSelector';
 import { workspacesHandlers } from '../v2/data/mocks/workspaces.handlers';
+import { queryTreeViewToggle } from '../test-utils/interactionHelpers';
 
 // Workspace data these stories expect — different from the shared DEFAULT_WORKSPACES
 const selectorWorkspaces = [
@@ -73,7 +74,7 @@ async function openSelector(canvasElement: HTMLElement) {
 
 /** Expand the root tree node (clicks the first toggle button in the portal). */
 async function expandRootNode() {
-  const expandButton = document.body.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLButtonElement | null;
+  const expandButton = queryTreeViewToggle(document.body);
   if (expandButton) {
     await userEvent.click(expandButton);
   }

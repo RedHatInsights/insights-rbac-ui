@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 
+import { expectLoadingVisible } from '../../../../../../test-utils/interactionHelpers';
 import { EditGroupUsersTable } from './EditUserGroupUsers';
 import { usersErrorHandlers, usersHandlers, usersLoadingHandlers } from '../../../../../../shared/data/mocks/users.handlers';
 
@@ -141,7 +142,7 @@ export const Loading: Story = {
     await step('Verify', async () => {
       await waitFor(
         () => {
-          expect(canvasElement.querySelectorAll('[class*="skeleton"]').length).toBeGreaterThan(0);
+          expectLoadingVisible(canvasElement);
         },
         { timeout: 10000 },
       );

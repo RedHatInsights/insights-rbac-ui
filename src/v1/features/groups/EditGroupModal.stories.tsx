@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { waitForModal } from '../../../test-utils/interactionHelpers';
+import { queryNotificationPortal, waitForModal } from '../../../test-utils/interactionHelpers';
 import { EditGroupModal } from './EditGroupModal';
 import { groupsHandlers } from '../../data/mocks/groups.handlers';
 import { fillEditGroupModal } from './EditGroupModal.helpers';
@@ -271,7 +271,7 @@ export const FormSubmission: Story = {
       // ✅ TEST NOTIFICATION: Verify success notification appears in DOM
       await waitFor(
         () => {
-          const notificationPortal = document.querySelector('.notifications-portal');
+          const notificationPortal = queryNotificationPortal();
           expect(notificationPortal).toBeInTheDocument();
 
           const successAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-success');

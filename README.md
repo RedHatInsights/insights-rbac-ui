@@ -65,7 +65,7 @@ Builds the production version of the application. The output will be placed in t
 
 Runs the unit tests suite using Jest.
 
-### `npm run test:e2e`
+### `npm run e2e`
 
 Runs the Playwright E2E test suite against stage. See [`e2e/README.md`](./e2e/README.md) for complete setup instructions including authentication and data seeding.
 

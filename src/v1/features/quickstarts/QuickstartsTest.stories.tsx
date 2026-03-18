@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import QuickstartsTest from './QuickstartsTest';
 
 const meta: Meta<typeof QuickstartsTest> = {
@@ -78,13 +78,14 @@ The catalog layout is responsive and follows PatternFly design patterns for opti
       await expect(canvasElement.children.length).toBeGreaterThan(0);
 
       // Check for the main heading
-      const heading = canvasElement.querySelector('h2');
+      const canvas = within(canvasElement);
+      const heading = canvas.queryByRole('heading', { level: 2 });
       await expect(heading).toBeTruthy();
       await expect(heading?.textContent).toContain('Quick starts');
 
-      // Verify tutorial cards are present
-      const tutorialCards = canvasElement.querySelectorAll('[style*="border: 1px solid"]');
-      await expect(tutorialCards.length).toBeGreaterThan(0);
+      // Verify tutorial cards are present (heading level 3 = card titles)
+      const cardHeadings = canvas.getAllByRole('heading', { level: 3 });
+      expect(cardHeadings.length).toBeGreaterThan(0);
     });
   },
 };

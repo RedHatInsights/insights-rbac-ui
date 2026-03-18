@@ -4,6 +4,7 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceList } from './WorkspaceList';
 
 // Import shared test functions and mock data from helper file
+import { getSkeletonCount, queryByOuiaId } from '../../../test-utils/interactionHelpers';
 import { mockWorkspaces, testDefaultWorkspaceDisplay, testEmptyState, testLoadingState } from './workspaceTestHelpers';
 import { BrowserRouter } from 'react-router-dom';
 import { workspacesErrorHandlers, workspacesHandlers, workspacesLoadingHandlers } from '../../data/mocks/workspaces.handlers';
@@ -180,10 +181,9 @@ export const Error: Story = {
     // Focus on finding the actual error state instead
     // Wait for loading to complete first, then check for error state
     await waitFor(
-      async () => {
+      () => {
         // First check that we're not in loading state anymore
-        const skeletons = canvasElement.querySelectorAll('.pf-v6-c-skeleton');
-        await expect(skeletons.length).toBe(0);
+        expect(getSkeletonCount(canvasElement)).toBe(0);
       },
       { timeout: 5000 },
     );
@@ -274,10 +274,10 @@ export const MoveWorkspaceModal: Story = {
       await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
       await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
 
-      const productionRow = canvasElement.querySelector(`[data-ouia-component-id="workspaces-list-tr-${mockWorkspaces[1].id}"]`) as HTMLElement;
+      const productionRow = queryByOuiaId(canvasElement, `workspaces-list-tr-${mockWorkspaces[1].id}`);
       await expect(productionRow).toBeTruthy();
 
-      const productionRowScope = within(productionRow);
+      const productionRowScope = within(productionRow!);
       const actionsButton = productionRowScope.getByLabelText('Kebab toggle');
       await user.click(actionsButton);
 
@@ -504,9 +504,8 @@ export const M2_WithWritePermission: Story = {
     await within(document.body).findByText('Delete workspace');
 
     // Verify the kebab menu has its own "Create workspace" option
-    const menuItems = document.querySelectorAll('[role="menuitem"]');
-    const createWorkspaceMenuItem = Array.from(menuItems).find((item) => item.textContent?.includes('Create workspace'));
-    expect(createWorkspaceMenuItem).toBeTruthy();
+    const createWorkspaceMenuItem = await within(document.body).findByRole('menuitem', { name: /create workspace/i });
+    expect(createWorkspaceMenuItem).toBeInTheDocument();
   },
 };
 

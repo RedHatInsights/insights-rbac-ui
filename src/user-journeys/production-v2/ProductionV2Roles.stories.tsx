@@ -100,7 +100,7 @@ Tests the full flow of creating a role from scratch in the V2 environment.
 
       await waitFor(
         () => {
-          expect(canvas.getByText('V2 Automation Test Role')).toBeInTheDocument();
+          expect(canvas.queryByText('V2 Automation Test Role')).toBeInTheDocument();
         },
         { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
       );
@@ -186,7 +186,7 @@ Tests the full flow of creating a role by copying an existing one in V2.
 
       await waitFor(
         () => {
-          expect(canvas.getByText('Copy of RHEL DevOps')).toBeInTheDocument();
+          expect(canvas.queryByText('Copy of RHEL DevOps')).toBeInTheDocument();
         },
         { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
       );
@@ -333,12 +333,12 @@ Tests editing a role from the toolbar when exactly one role is selected.
 
     await step('Verify navigation to edit page and form', async () => {
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/\/edit\//);
       });
 
       await waitFor(() => {
-        expect(canvas.getByDisplayValue(V2_ROLE_RHEL_DEVOPS.name!)).toBeInTheDocument();
+        expect(canvas.queryByDisplayValue(V2_ROLE_RHEL_DEVOPS.name!)).toBeInTheDocument();
       });
     });
   },

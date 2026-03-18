@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
+import { queryNotificationPortal } from '../../../../../test-utils/interactionHelpers';
 import { AddGroupMembers } from './AddGroupMembers';
 import { groupsHandlers } from '../../../../data/mocks/groups.handlers';
 import { groupMembersHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
@@ -368,9 +369,10 @@ export const WithFiltering: Story = {
       });
 
       await waitFor(() => {
-        const grid = within(modal).getByRole('grid');
-        expect(within(grid).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
-        expect(within(grid).queryByText(filteringTestUsers[2].username)).toBeInTheDocument();
+        const grid = within(modal).queryByRole('grid');
+        expect(grid).toBeInTheDocument();
+        expect(within(grid!).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
+        expect(within(grid!).queryByText(filteringTestUsers[2].username)).toBeInTheDocument();
       });
     });
 
@@ -386,8 +388,9 @@ export const WithFiltering: Story = {
       });
       await waitFor(
         () => {
-          const grid = within(modal).getByRole('grid');
-          const gridScope = within(grid);
+          const grid = within(modal).queryByRole('grid');
+          expect(grid).toBeInTheDocument();
+          const gridScope = within(grid!);
           expect(gridScope.queryByText(spiceUsers[0].username)).toBeInTheDocument();
           expect(gridScope.queryByText(spiceUsers[1].username)).toBeInTheDocument();
           expect(gridScope.queryByText(spiceUsers[2].username)).toBeInTheDocument();
@@ -406,8 +409,9 @@ export const WithFiltering: Story = {
       });
       await waitFor(
         () => {
-          const grid = within(modal).getByRole('grid');
-          const gridScope = within(grid);
+          const grid = within(modal).queryByRole('grid');
+          expect(grid).toBeInTheDocument();
+          const gridScope = within(grid!);
           expect(gridScope.queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
           expect(gridScope.queryByText(filteringTestUsers[2].username)).toBeInTheDocument();
         },
@@ -435,9 +439,9 @@ export const WithFiltering: Story = {
       const babySpice = filteringTestUsers.find((u) => u.email?.includes('bspice'))!;
       await waitFor(
         () => {
-          const grid = within(modal).getByRole('grid');
-          const gridScope = within(grid);
-          expect(gridScope.queryByText(babySpice.username)).toBeInTheDocument();
+          const grid = within(modal).queryByRole('grid');
+          expect(grid).toBeInTheDocument();
+          expect(within(grid!).queryByText(babySpice.username)).toBeInTheDocument();
         },
         { timeout: 10000 },
       );
@@ -448,9 +452,10 @@ export const WithFiltering: Story = {
       usersApiSpy.mockClear();
       await userEvent.click(await within(modal).findByRole('button', { name: /clear.*filter/i }));
       await waitFor(() => {
-        const grid = within(modal).getByRole('grid');
-        expect(within(grid).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
-        expect(within(grid).queryByText(inactiveUsers[0].username)).toBeInTheDocument();
+        const grid = within(modal).queryByRole('grid');
+        expect(grid).toBeInTheDocument();
+        expect(within(grid!).queryByText(filteringTestUsers[0].username)).toBeInTheDocument();
+        expect(within(grid!).queryByText(inactiveUsers[0].username)).toBeInTheDocument();
       });
       const filterContainer = modal.querySelector('[data-ouia-component-id="DataViewFilters"]') as HTMLElement;
       expect(filterContainer).toBeTruthy();
@@ -470,8 +475,9 @@ export const WithFiltering: Story = {
       await waitForMembersTable(modal, { inactive: inactiveUsers.length });
       await waitFor(
         () => {
-          const grid = within(modal).getByRole('grid');
-          const gridScope = within(grid);
+          const grid = within(modal).queryByRole('grid');
+          expect(grid).toBeInTheDocument();
+          const gridScope = within(grid!);
           expect(gridScope.queryByText(inactiveUsers[0].username)).toBeInTheDocument();
           expect(gridScope.queryByText(inactiveUsers[1].username)).toBeInTheDocument();
           expect(gridScope.queryByText(inactiveUsers[2].username)).toBeInTheDocument();
@@ -534,8 +540,8 @@ export const WithPagination: Story = {
         await userEvent.click(nextButton);
 
         // Verify page navigation worked
-        await waitFor(async () => {
-          const modal = screen.getByRole('dialog');
+        await waitFor(() => {
+          const modal = screen.queryByRole('dialog');
           expect(modal).toBeInTheDocument();
         });
       }
@@ -583,12 +589,13 @@ export const Loading: Story = {
     expect(within(modal).getByText('Add members')).toBeInTheDocument();
 
     // Should show loading state for user selection within modal
-    await waitFor(async () => {
+    await waitFor(() => {
       // Modal should stay functional during loading
       expect(modal).toBeInTheDocument();
 
       // Add button should be disabled during loading
-      const addButton = within(modal).getByRole('button', { name: /add to group/i });
+      const addButton = within(modal).queryByRole('button', { name: /add to group/i });
+      expect(addButton).toBeInTheDocument();
       expect(addButton).toBeDisabled();
     });
   },
@@ -695,7 +702,7 @@ export const SubmitNotification: Story = {
         try {
           await waitFor(
             () => {
-              const notificationPortal = document.querySelector('.notifications-portal');
+              const notificationPortal = queryNotificationPortal();
               expect(notificationPortal).toBeInTheDocument();
 
               const infoAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-info');
@@ -740,7 +747,7 @@ export const CancelNotification: Story = {
       expect(modal).toBeInTheDocument();
 
       await waitFor(() => {
-        expect(within(modal).getByText('Add members')).toBeInTheDocument();
+        expect(within(modal).queryByText('Add members')).toBeInTheDocument();
       });
 
       const cancelButton = within(modal).queryByRole('button', { name: /^cancel$/i });
@@ -749,7 +756,7 @@ export const CancelNotification: Story = {
 
         await waitFor(
           () => {
-            const notificationPortal = document.querySelector('.notifications-portal');
+            const notificationPortal = queryNotificationPortal();
             expect(notificationPortal).toBeInTheDocument();
 
             const warningAlert = notificationPortal?.querySelector('.pf-v6-c-alert.pf-m-warning');

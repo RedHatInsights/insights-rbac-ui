@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { queryByOuiaId, queryWizardNav } from '../../../../test-utils/interactionHelpers';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AddRolePermissionWizard } from './AddRolePermissionWizard';
 import { v1RolesHandlers } from '../../../data/mocks/roles.handlers';
@@ -200,7 +201,7 @@ export const WizardStepNavigation: Story = {
       await body.findAllByRole('dialog');
 
       // Step nav should be present (PatternFly-specific, no accessible alternative)
-      const wizardNav = document.querySelector('.pf-v6-c-wizard__nav');
+      const wizardNav = queryWizardNav();
       expect(wizardNav).toBeInTheDocument();
     });
   },
@@ -253,8 +254,7 @@ export const PermissionsFilteringInteraction: Story = {
 
       // Open the Applications checkbox filter dropdown (DataViewCheckboxFilter renders via portal)
       const appFilterToggle =
-        body.queryByRole('button', { name: /filter by application/i }) ??
-        (document.body.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement | null);
+        body.queryByRole('button', { name: /filter by application/i }) ?? queryByOuiaId(document.body, 'DataViewCheckboxFilter-toggle');
       expect(appFilterToggle).toBeTruthy();
       await userEvent.click(appFilterToggle!);
 
@@ -272,8 +272,9 @@ export const PermissionsFilteringInteraction: Story = {
 
       // Verify non-inventory permission is not visible after filtering
       await waitFor(() => {
-        const filteredTable = body.getByRole('grid');
-        expect(within(filteredTable).queryByText('rate')).not.toBeInTheDocument();
+        const filteredTable = body.queryByRole('grid');
+        expect(filteredTable).toBeInTheDocument();
+        expect(within(filteredTable as HTMLElement).queryByText('rate')).not.toBeInTheDocument();
       });
     });
   },

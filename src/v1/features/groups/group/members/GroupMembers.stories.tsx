@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expectLoadingVisible } from '../../../../../test-utils/interactionHelpers';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { GroupMembers } from './GroupMembers';
@@ -256,8 +257,7 @@ export const Loading: Story = {
 
       await waitFor(
         () => {
-          const skeletons = canvasElement.querySelectorAll('[class*="skeleton"]');
-          expect(skeletons.length).toBeGreaterThan(0);
+          expectLoadingVisible(canvasElement);
         },
         { timeout: 10000 },
       );

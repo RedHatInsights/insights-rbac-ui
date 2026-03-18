@@ -172,7 +172,7 @@ export const SelectGroupAndSave: Story = {
 
       // Save button should now be enabled
       await waitFor(() => {
-        const saveButtons = body.getAllByRole('button', { name: /save/i });
+        const saveButtons = body.queryAllByRole('button', { name: /save/i });
         expect(saveButtons[0]).not.toBeDisabled();
       });
       const saveButtons = body.getAllByRole('button', { name: /save/i });

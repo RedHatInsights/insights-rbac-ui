@@ -311,7 +311,7 @@ Tests canceling the delete confirmation modal.
 
     await step('Verify group still exists in table', async () => {
       const table = await canvas.findByRole('grid', { name: /user groups table/i });
-      await waitFor(() => expect(within(table).getByText(targetGroup)).toBeInTheDocument(), { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await waitFor(() => expect(within(table).queryByText(targetGroup)).toBeInTheDocument(), { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
     });
   },
 };

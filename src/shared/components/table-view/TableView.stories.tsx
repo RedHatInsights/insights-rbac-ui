@@ -12,7 +12,15 @@ import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dis
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
-import type { ScopedQueries } from '../../../test-utils/interactionHelpers';
+import {
+  type ScopedQueries,
+  expectLoadingVisible,
+  queryByDataTestId,
+  queryByOuiaId,
+  queryCompactTable,
+  queryExpandedRow,
+  queryPagination,
+} from '../../../test-utils/interactionHelpers';
 import { withRouter } from '../../../../.storybook/helpers/router-test-utils';
 import { v1RolesHandlers, v1RolesLoadingHandlers } from '../../../v1/data/mocks/roles.handlers';
 import type { RoleOutDynamic } from '../../../v1/data/mocks/db';
@@ -268,7 +276,7 @@ const onCreateSpy = fn();
 async function waitForInitialLoad(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   await waitFor(() => {
-    expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+    expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
   });
   return canvas;
 }
@@ -877,7 +885,7 @@ Override default empty states with custom components:
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Verify toolbar actions
@@ -898,11 +906,11 @@ export const CompactVariant: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Verify compact class is applied
-      const table = canvasElement.querySelector('.pf-m-compact');
+      const table = queryCompactTable(canvasElement);
       expect(table).toBeInTheDocument();
     });
   },
@@ -920,8 +928,7 @@ export const Loading: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step('Verify', async () => {
-      const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v6-c-skeleton');
-      expect(skeletonElements.length).toBeGreaterThan(0);
+      expectLoadingVisible(canvasElement);
     });
   },
 };
@@ -940,8 +947,8 @@ export const DefaultEmptyState: Story = {
 
       await waitFor(() => {
         // Default empty state shows "No data available"
-        expect(canvas.getByText('No data available')).toBeInTheDocument();
-        expect(canvas.getByText(/There is no data to display/)).toBeInTheDocument();
+        expect(canvas.queryByText('No data available')).toBeInTheDocument();
+        expect(canvas.queryByText(/There is no data to display/)).toBeInTheDocument();
       });
     });
   },
@@ -963,8 +970,8 @@ export const CustomEmptyStateNoData: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('🚀 No roles configured yet')).toBeInTheDocument();
-        expect(canvas.getByText('Create your first role to start managing permissions.')).toBeInTheDocument();
+        expect(canvas.queryByText('🚀 No roles configured yet')).toBeInTheDocument();
+        expect(canvas.queryByText('Create your first role to start managing permissions.')).toBeInTheDocument();
       });
     });
   },
@@ -987,7 +994,7 @@ export const CustomEmptyStateNoResults: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Type a filter that will return no results
@@ -996,7 +1003,7 @@ export const CustomEmptyStateNoResults: Story = {
 
       // Verify custom empty state appears
       await waitFor(() => {
-        expect(canvas.getByText('🔍 No matching roles found')).toBeInTheDocument();
+        expect(canvas.queryByText('🔍 No matching roles found')).toBeInTheDocument();
       });
     });
   },
@@ -1024,7 +1031,7 @@ export const CustomEmptyStateWithAction: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('🎉 Get started with roles')).toBeInTheDocument();
+        expect(canvas.queryByText('🎉 Get started with roles')).toBeInTheDocument();
       });
 
       // Click the action button
@@ -1053,7 +1060,7 @@ export const SelectionWithBulkDelete: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Clear spies
@@ -1069,7 +1076,7 @@ export const SelectionWithBulkDelete: Story = {
 
       // Should see bulk delete button
       await waitFor(() => {
-        expect(canvas.getByText(/Delete selected \(2\)/)).toBeInTheDocument();
+        expect(canvas.queryByText(/Delete selected \(2\)/)).toBeInTheDocument();
       });
 
       // Click bulk delete
@@ -1106,7 +1113,7 @@ export const NoSelection: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Should not have checkboxes
@@ -1131,7 +1138,7 @@ export const RowActionsWithCallbacks: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Clear spies
@@ -1144,7 +1151,7 @@ export const RowActionsWithCallbacks: Story = {
 
       // Click Edit
       await waitFor(() => {
-        expect(within(document.body).getByText('Edit')).toBeInTheDocument();
+        expect(within(document.body).queryByText('Edit')).toBeInTheDocument();
       });
       await userEvent.click(within(document.body).getByText('Edit'));
 
@@ -1165,7 +1172,7 @@ export const RowActionsWithCallbacks: Story = {
       // Open menu again and click Delete
       await userEvent.click(actionsToggle);
       await waitFor(() => {
-        expect(within(document.body).getByText('Delete')).toBeInTheDocument();
+        expect(within(document.body).queryByText('Delete')).toBeInTheDocument();
       });
       await userEvent.click(within(document.body).getByText('Delete'));
 
@@ -1198,7 +1205,7 @@ export const NoActions: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       const actionsToggle = canvas.queryByLabelText(/Actions for/);
@@ -1218,7 +1225,7 @@ export const ToolbarActionsCallback: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Clear the spy
@@ -1285,7 +1292,7 @@ export const MultipleFiltersWithChips: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       apiCallSpy.mockClear();
@@ -1304,7 +1311,7 @@ export const MultipleFiltersWithChips: Story = {
 
       // 2. Switch to Type filter - find the filter type toggle within DataViewFilters
       // The toggle is a MenuToggle button that shows the current filter type (initially "Name")
-      const filterContainer = canvasElement.querySelector('[data-ouia-component-id="DataViewFilters"]');
+      const filterContainer = queryByOuiaId(canvasElement, 'DataViewFilters');
       expect(filterContainer).toBeTruthy();
       const filterCanvas = within(filterContainer as HTMLElement);
 
@@ -1321,9 +1328,9 @@ export const MultipleFiltersWithChips: Story = {
 
       // 3. Now interact with the Type filter checkbox dropdown
       // The checkbox filter toggle has a specific OUIA ID
-      const typeFilterToggle = canvasElement.querySelector('[data-ouia-component-id="DataViewCheckboxFilter-toggle"]') as HTMLElement;
+      const typeFilterToggle = queryByOuiaId(canvasElement, 'DataViewCheckboxFilter-toggle');
       expect(typeFilterToggle).toBeTruthy();
-      await userEvent.click(typeFilterToggle);
+      await userEvent.click(typeFilterToggle!);
 
       // Select "Custom" checkbox option from the dropdown
       const customMenuItem = await within(document.body).findByRole('menuitem', { name: /Custom/i });
@@ -1355,7 +1362,7 @@ export const ClearAllFilters: Story = {
 
       await waitFor(
         () => {
-          expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+          expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -1367,8 +1374,8 @@ export const ClearAllFilters: Story = {
       // Should see default empty state with clear filters option
       await waitFor(
         () => {
-          expect(canvas.getByText('No results found')).toBeInTheDocument();
-          expect(canvas.getByText('Clear all filters')).toBeInTheDocument();
+          expect(canvas.queryByText('No results found')).toBeInTheDocument();
+          expect(canvas.queryByText('Clear all filters')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -1379,7 +1386,7 @@ export const ClearAllFilters: Story = {
       // Should see data again
       await waitFor(
         () => {
-          expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+          expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -1399,7 +1406,7 @@ export const NoFilters: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       const filterInput = canvas.queryByPlaceholderText(/filter/i);
@@ -1422,7 +1429,7 @@ export const PaginationResetsOnFilterChange: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       apiCallSpy.mockClear();
@@ -1505,15 +1512,16 @@ This behavior is centralized in TableView so:
       // Display names on page 5: Manager 5, Analyst 5, Support 5, Tester 5, Developer 1, Designer 5, Manager 1, Analyst 1, Support 1, Tester 1
       await waitFor(
         () => {
-          expect(canvas.getByText('Tester 5')).toBeInTheDocument();
+          expect(canvas.queryByText('Tester 5')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
 
       // URL should be updated to the clamped page
       await waitFor(() => {
-        const urlDisplay = canvas.getByTestId('url-params');
-        expect(urlDisplay.textContent).toContain('page=5');
+        const urlDisplay = canvas.queryByTestId('url-params');
+        expect(urlDisplay).toBeInTheDocument();
+        expect(urlDisplay!.textContent).toContain('page=5');
       });
 
       // Verify we don't see items from page 1
@@ -1532,7 +1540,7 @@ export const Pagination: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       apiCallSpy.mockClear();
@@ -1568,7 +1576,7 @@ export const Sorting: Story = {
 
       // Wait for initial data load
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Find and click the Name column header to sort
@@ -1615,7 +1623,7 @@ export const CompoundExpansion: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Find the expandable cells (they have compoundExpand buttons)
@@ -1634,7 +1642,7 @@ export const CompoundExpansion: Story = {
 
       // Wait for expansion content - verify nested table is rendered
       await waitFor(() => {
-        const expandedContent = canvasElement.querySelector('[data-testid="expanded-permissions-role-1"]');
+        const expandedContent = queryByDataTestId(canvasElement, 'expanded-permissions-role-1');
         expect(expandedContent).toBeInTheDocument();
 
         // Verify nested table exists with permission data
@@ -1645,14 +1653,14 @@ export const CompoundExpansion: Story = {
         const expandedArea = within(expandedContent as HTMLElement);
 
         // Verify nested table has headers
-        expect(expandedArea.getByText('Permission')).toBeInTheDocument();
-        expect(expandedArea.getByText('Description')).toBeInTheDocument();
+        expect(expandedArea.queryByText('Permission')).toBeInTheDocument();
+        expect(expandedArea.queryByText('Description')).toBeInTheDocument();
 
         // Verify actual permission data from mockPermissions['role-1']
-        expect(expandedArea.getByText('rbac:role:read')).toBeInTheDocument();
-        expect(expandedArea.getByText('Read roles')).toBeInTheDocument();
-        expect(expandedArea.getByText('rbac:role:write')).toBeInTheDocument();
-        expect(expandedArea.getByText('Write roles')).toBeInTheDocument();
+        expect(expandedArea.queryByText('rbac:role:read')).toBeInTheDocument();
+        expect(expandedArea.queryByText('Read roles')).toBeInTheDocument();
+        expect(expandedArea.queryByText('rbac:role:write')).toBeInTheDocument();
+        expect(expandedArea.queryByText('Write roles')).toBeInTheDocument();
       });
 
       // Click again to collapse
@@ -1661,7 +1669,7 @@ export const CompoundExpansion: Story = {
       // Verify expanded content is hidden
       await waitFor(() => {
         // The element might still be in DOM but row should be collapsed
-        const expandedRow = canvasElement.querySelector('tr.pf-m-expanded');
+        const expandedRow = queryExpandedRow(canvasElement);
         expect(expandedRow).toBeNull();
       });
     });
@@ -1680,7 +1688,7 @@ export const NoExpansion: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Permissions cells should NOT have expand buttons
@@ -1714,7 +1722,7 @@ export const ConditionalExpansion: Story = {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       const rows = canvas.getAllByRole('row');
@@ -1742,7 +1750,7 @@ export const ConditionalExpansion: Story = {
 
       // Verify expanded content appears
       await waitFor(() => {
-        expect(canvas.getByTestId('expanded-permissions-role-1')).toBeInTheDocument();
+        expect(canvas.queryByTestId('expanded-permissions-role-1')).toBeInTheDocument();
       });
 
       // Verify the nested table shows the permissions
@@ -1769,7 +1777,7 @@ export const UrlSyncWithQueryParams: StoryObj<typeof UrlSyncTable> = {
 
       await waitFor(
         () => {
-          expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+          expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -1887,7 +1895,7 @@ await waitFor(() => {
       const canvas = within(canvasElement);
 
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       apiCallSpy.mockClear();
@@ -2043,7 +2051,7 @@ const tableState = useTableState({
 
       // Wait for data to load
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Verify initial selection - 2 rows should be selected
@@ -2246,13 +2254,13 @@ tableState.cursorMeta?.setCursorLinks(response.links);
 
       // Wait for initial data to load
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Verify pagination renders in indeterminate mode
       // PF renders "1 - 10 of many" when itemCount is omitted
       await waitFor(() => {
-        const paginationText = canvasElement.querySelector('.pf-v6-c-pagination__total-items, .pf-v6-c-pagination');
+        const paginationText = queryPagination(canvasElement);
         expect(paginationText).toBeInTheDocument();
       });
 
@@ -2287,7 +2295,7 @@ export const CursorPaginationNavigation: StoryObj<typeof CursorPaginatedTable> =
 
       // Wait for initial data
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       // Verify first page data (should show first 10 items sorted by name)
@@ -2329,7 +2337,7 @@ export const CursorPaginationNavigation: StoryObj<typeof CursorPaginatedTable> =
 
       // Page 1 data should be back
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
     });
   },
@@ -2356,7 +2364,7 @@ export const CursorPaginationFilterReset: StoryObj<typeof CursorPaginatedTable> 
 
       // Wait for initial data
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
 
       cursorApiCallSpy.mockClear();
@@ -2387,7 +2395,7 @@ export const CursorPaginationFilterReset: StoryObj<typeof CursorPaginatedTable> 
 
       // Filtered results should appear
       await waitFor(() => {
-        expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+        expect(canvas.queryByText('Administrator 1')).toBeInTheDocument();
       });
     });
   },

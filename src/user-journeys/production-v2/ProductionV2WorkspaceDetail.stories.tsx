@@ -286,7 +286,7 @@ End-to-end flow for granting access to a workspace via the 3-step wizard.
       await user.click(submitButton);
 
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/workspaces/i);
       });
 
@@ -498,7 +498,7 @@ A lighter variation of the Grant Access wizard with one group and one role.
       await user.click(submitButton);
 
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/workspaces/i);
       });
 
@@ -621,7 +621,7 @@ Complete flow for editing role access via the RoleAccessModal.
       );
 
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
       });
     });
@@ -716,7 +716,7 @@ Same flow as EditRoleAccess but for the Viewers group.
       );
 
       await waitFor(() => {
-        const addressBar = canvas.getByTestId('fake-address-bar');
+        const addressBar = canvas.queryByTestId('fake-address-bar');
         expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
       });
     });

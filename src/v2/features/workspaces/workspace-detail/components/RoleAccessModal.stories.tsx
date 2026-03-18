@@ -231,7 +231,7 @@ export const Pagination: Story = {
       await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
       await waitFor(() => {
-        const paginationTexts = body.getAllByText(/1 - 10/i);
+        const paginationTexts = body.queryAllByText(/1 - 10/i);
         expect(paginationTexts.length).toBeGreaterThan(0);
       });
 
@@ -243,7 +243,7 @@ export const Pagination: Story = {
         await userEvent.click(enabledNextButtons[0]);
         await waitFor(
           () => {
-            const page2Texts = body.getAllByText(/11 - 20/i);
+            const page2Texts = body.queryAllByText(/11 - 20/i);
             expect(page2Texts.length).toBeGreaterThan(0);
           },
           { timeout: 5000 },
@@ -256,7 +256,7 @@ export const Pagination: Story = {
         await userEvent.click(perPageButton);
         await waitFor(
           () => {
-            const perPage20 = body.getByRole('option', { name: /20 per page/i });
+            const perPage20 = body.queryByRole('option', { name: /20 per page/i });
             expect(perPage20).toBeInTheDocument();
           },
           { timeout: 5000 },
@@ -265,7 +265,7 @@ export const Pagination: Story = {
         await userEvent.click(perPage20);
         await waitFor(
           () => {
-            const updatedPaginationTexts = body.getAllByText(/1 - 20/i);
+            const updatedPaginationTexts = body.queryAllByText(/1 - 20/i);
             expect(updatedPaginationTexts.length).toBeGreaterThan(0);
           },
           { timeout: 5000 },
@@ -298,7 +298,7 @@ export const TabSwitchWithPagination: Story = {
       await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
       await waitFor(() => {
-        expect(body.getByText('Cost Administrator')).toBeInTheDocument();
+        expect(body.queryByText('Cost Administrator')).toBeInTheDocument();
       });
 
       // Navigate to page 2
@@ -308,7 +308,7 @@ export const TabSwitchWithPagination: Story = {
         await userEvent.click(enabledNextButtons[0]);
         await waitFor(
           () => {
-            const page2Texts = body.getAllByText(/11 - 20/i);
+            const page2Texts = body.queryAllByText(/11 - 20/i);
             expect(page2Texts.length).toBeGreaterThan(0);
           },
           { timeout: 5000 },
@@ -321,10 +321,10 @@ export const TabSwitchWithPagination: Story = {
 
       await waitFor(
         () => {
-          const page1Texts = body.getAllByText(/1 - 2/i);
+          const page1Texts = body.queryAllByText(/1 - 2/i);
           expect(page1Texts.length).toBeGreaterThan(0);
-          expect(body.getByText('Workspace Administrator')).toBeInTheDocument();
-          expect(body.getByText('Workspace Editor')).toBeInTheDocument();
+          expect(body.queryByText('Workspace Administrator')).toBeInTheDocument();
+          expect(body.queryByText('Workspace Editor')).toBeInTheDocument();
         },
         { timeout: 5000 },
       );

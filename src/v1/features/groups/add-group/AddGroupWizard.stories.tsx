@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { waitForModalClose } from '../../../../test-utils/interactionHelpers';
+import { queryWizardNavItems, queryWizardStepTitle, waitForModalClose } from '../../../../test-utils/interactionHelpers';
 import { AddGroupWizard } from './AddGroupWizard';
 import { type APISpies, fillAddGroupWizardForm } from './AddGroupWizard.helpers';
 import { mockRoles, mockServiceAccountsForHandlers, mockUsers } from './AddGroupWizard.mocks';
@@ -229,7 +229,7 @@ export const ServiceAccountsEnabled: Story = {
     await step('Verify Add service accounts step in navigation', async () => {
       await waitFor(
         () => {
-          const navItems = Array.from(document.querySelectorAll('.pf-v6-c-wizard__nav-link, .pf-v6-c-wizard__toggle-list-item'));
+          const navItems = queryWizardNavItems();
           const hasServiceAccountsStep = navItems.some((item) => item.textContent?.toLowerCase().includes('service account'));
 
           expect(hasServiceAccountsStep).toBeTruthy();
@@ -284,7 +284,7 @@ export const WorkspacesEnabled: Story = {
     await step('Verify Members step (roles skipped in workspaces mode)', async () => {
       await waitFor(
         () => {
-          const stepTitle = document.querySelector('h1[class*="pf-v6-c-title"]');
+          const stepTitle = queryWizardStepTitle();
           expect(stepTitle).toBeTruthy();
           expect(stepTitle?.textContent?.toLowerCase()).toContain('member');
         },

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { getSkeletonCount, queryById, queryChipGroup } from '../../../test-utils/interactionHelpers';
 import type { ScopedQueries } from '../../../test-utils/interactionHelpers';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { MyUserAccess } from './MyUserAccess';
@@ -334,7 +335,7 @@ const TestHelpers = {
       () => {
         // Try multiple ways to find the filter chip
         const chipGroup = canvas.queryByRole('group', { name: /application/i });
-        const chipByClass = document.body.querySelector('.pf-v6-c-chip-group, .pf-c-chip-group');
+        const chipByClass = queryChipGroup();
         // Use queryAllByText since there may be multiple matches (table + chip)
         const chipByText = canvas.queryAllByText(filterValue);
 
@@ -354,7 +355,7 @@ const TestHelpers = {
       () => {
         // Try multiple ways to verify no filter chips
         const chipGroup = canvas.queryByRole('group', { name: /application/i });
-        const chipByClass = document.body.querySelector('.pf-v6-c-chip-group, .pf-c-chip-group');
+        const chipByClass = queryChipGroup();
         // Both should be null/not present
         expect(chipGroup).toBeNull();
         expect(chipByClass).toBeNull();
@@ -568,7 +569,7 @@ Tests that filters are properly reset when navigating between bundles.
     await step('Wait for table load and apply filter', async () => {
       await waitFor(
         () => {
-          expect(canvasElement.querySelector('.pf-v6-c-skeleton')).toBeNull();
+          expect(getSkeletonCount(canvasElement)).toBe(0);
         },
         { timeout: 10000 },
       );
@@ -578,7 +579,7 @@ Tests that filters are properly reset when navigating between bundles.
     await step('Navigate to OpenShift and verify filter reset', async () => {
       await TestHelpers.clickBundleCard(canvas, 'OpenShift');
       await waitFor(() => {
-        expect(canvas.getByText('cost-management')).toBeInTheDocument();
+        expect(canvas.queryByText('cost-management')).toBeInTheDocument();
       });
       await TestHelpers.verifyFilterReset(canvas);
     });
@@ -750,7 +751,7 @@ remains usable across all device sizes while maintaining full functionality.
 
     // CRITICAL TEST: On small viewport, dropdown should be visible for admins
     // Find dropdown specifically by id - on small viewports it should be present
-    const dropdownButton = canvasElement.querySelector('#mua-bundle-dropdown');
+    const dropdownButton = queryById(canvasElement, 'mua-bundle-dropdown');
     expect(dropdownButton).toBeInTheDocument();
     if (!dropdownButton) throw new Error('Dropdown button not found');
     // Note: Visibility depends on viewport CSS class pf-v6-u-display-none-on-lg
@@ -782,7 +783,7 @@ remains usable across all device sizes while maintaining full functionality.
     // Wait for navigation to complete - dropdown should now show OpenShift
     await waitFor(
       () => {
-        const updatedDropdownButton = canvasElement.querySelector('#mua-bundle-dropdown');
+        const updatedDropdownButton = queryById(canvasElement, 'mua-bundle-dropdown');
         if (!updatedDropdownButton) throw new Error('Updated dropdown button not found');
         expect(updatedDropdownButton).toHaveTextContent('OpenShift');
       },
@@ -792,7 +793,7 @@ remains usable across all device sizes while maintaining full functionality.
     // Verify OpenShift roles are now displayed
     await waitFor(
       async () => {
-        await expect(canvas.getByText('Your OpenShift roles')).toBeInTheDocument();
+        await expect(canvas.queryByText('Your OpenShift roles')).toBeInTheDocument();
       },
       { timeout: 5000 },
     );

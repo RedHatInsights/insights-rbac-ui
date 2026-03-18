@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { getSkeletonCount, queryDialog } from '../../../../../test-utils/interactionHelpers';
 import { MemoryRouter } from 'react-router-dom';
 import { BaseGroupAssignmentsTable } from './BaseGroupAssignmentsTable';
 import type { WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
@@ -103,10 +104,10 @@ export const Default: Story = {
       await expect(table).toBeInTheDocument();
 
       await waitFor(async () => {
-        await expect(canvas.getByText('Description')).toBeInTheDocument();
-        await expect(canvas.getByText('Users')).toBeInTheDocument();
-        await expect(canvas.getByText('Roles')).toBeInTheDocument();
-        await expect(canvas.getByText('Last modified')).toBeInTheDocument();
+        await expect(canvas.queryByText('Description')).toBeInTheDocument();
+        await expect(canvas.queryByText('Users')).toBeInTheDocument();
+        await expect(canvas.queryByText('Roles')).toBeInTheDocument();
+        await expect(canvas.queryByText('Last modified')).toBeInTheDocument();
       });
 
       await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
@@ -130,9 +131,8 @@ export const LoadingState: Story = {
     const canvas = within(canvasElement);
     await step('Verify loading state', async () => {
       await waitFor(
-        async () => {
-          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-          expect(skeletonElements.length).toBeGreaterThan(0);
+        () => {
+          expect(getSkeletonCount(canvasElement)).toBeGreaterThan(0);
           const loadingElements = canvas.queryAllByText('Platform Administrators');
           expect(loadingElements.length).toBe(0);
         },
@@ -208,7 +208,7 @@ export const DrawerInteraction: Story = {
 
       await waitFor(
         async () => {
-          const tabs = canvas.getAllByRole('tab');
+          const tabs = canvas.queryAllByRole('tab');
           expect(tabs.length).toBeGreaterThanOrEqual(2);
           const tabTexts = tabs.map((tab) => tab.textContent?.toLowerCase() || '');
           expect(tabTexts.some((text) => text.includes('role'))).toBeTruthy();
@@ -226,7 +226,7 @@ export const DrawerInteraction: Story = {
       );
 
       await waitFor(async () => {
-        const tabs = canvas.getAllByRole('tab');
+        const tabs = canvas.queryAllByRole('tab');
         const usersTab = tabs.find((tab) => tab.textContent?.toLowerCase().includes('user'));
         expect(usersTab).toBeTruthy();
         if (usersTab) await userEvent.click(usersTab);
@@ -466,10 +466,10 @@ export const GrantAccessWizardTest: Story = {
       const table = await canvas.findByRole('grid');
       await expect(table).toBeInTheDocument();
 
-      let grantAccessButton: HTMLElement;
+      let grantAccessButton: HTMLElement | null = null;
       await waitFor(
         async () => {
-          grantAccessButton = canvas.getByRole('button', { name: /grant access/i });
+          grantAccessButton = canvas.queryByRole('button', { name: /grant access/i });
           await expect(grantAccessButton).toBeInTheDocument();
           await expect(grantAccessButton).toBeEnabled();
         },
@@ -480,10 +480,10 @@ export const GrantAccessWizardTest: Story = {
 
       await waitFor(
         async () => {
-          const wizardModal = document.querySelector('[role="dialog"]');
+          const wizardModal = queryDialog();
           expect(wizardModal).toBeInTheDocument();
-          const modalContent = within(wizardModal as HTMLElement);
-          await expect(modalContent.getByText(/grant access in workspace test workspace/i)).toBeInTheDocument();
+          const modalContent = within(wizardModal!);
+          await expect(modalContent.queryByText(/grant access in workspace test workspace/i)).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -491,8 +491,9 @@ export const GrantAccessWizardTest: Story = {
       // Cancel the wizard
       await waitFor(
         async () => {
-          const wizardModal = document.querySelector('[role="dialog"]') as HTMLElement;
-          const allButtons = wizardModal.querySelectorAll('button');
+          const wizardModal = queryDialog();
+          expect(wizardModal).toBeInTheDocument();
+          const allButtons = wizardModal!.querySelectorAll('button');
           let cancelButton: HTMLButtonElement | null = null;
           for (const button of allButtons) {
             const buttonText = button.textContent?.toLowerCase() || '';
@@ -510,7 +511,7 @@ export const GrantAccessWizardTest: Story = {
 
       await waitFor(
         async () => {
-          const wizardModal = document.querySelector('[role="dialog"]');
+          const wizardModal = queryDialog();
           expect(wizardModal).not.toBeInTheDocument();
         },
         { timeout: 3000 },

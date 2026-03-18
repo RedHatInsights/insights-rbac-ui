@@ -170,7 +170,7 @@ export const ExpandAdminDescription: Story = {
 
       // Description should be visible after expansion - wait for expanded content text
       await waitFor(() => {
-        expect(body.getByText(/highest permission level|manage users/i)).toBeInTheDocument();
+        expect(body.queryByText(/highest permission level|manage users/i)).toBeInTheDocument();
       });
     });
   },

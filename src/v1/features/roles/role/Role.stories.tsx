@@ -2,6 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { getSkeletonCount, getTableBodyRowCount, queryById } from '../../../../test-utils/interactionHelpers';
 import Role from './Role';
 import { v1RolesHandlers, v1RolesLoadingHandlers } from '../../../data/mocks/roles.handlers';
 import type { RoleOutDynamic } from '../../../data/mocks/db';
@@ -248,7 +249,7 @@ For testing specific scenarios, see these additional stories:
       await expect(fetchRoleSpy).toHaveBeenCalledWith({ roleId: 'role-123' });
       await expect(await canvas.findByText('A custom role for managing platform resources')).toBeInTheDocument();
 
-      const kebabToggle = canvasElement.querySelector('#role-actions-dropdown');
+      const kebabToggle = queryById(canvasElement, 'role-actions-dropdown');
       await expect(kebabToggle).toBeInTheDocument();
       if (!kebabToggle) throw new Error('Kebab toggle not found');
       await userEvent.click(kebabToggle);
@@ -286,7 +287,7 @@ export const SystemRole: Story = {
       await expect(heading).toBeInTheDocument();
 
       // Verify NO action dropdown for system roles
-      const roleActionsDropdown = canvasElement.querySelector('#role-actions-dropdown');
+      const roleActionsDropdown = queryById(canvasElement, 'role-actions-dropdown');
       await expect(roleActionsDropdown).not.toBeInTheDocument();
     });
   },
@@ -319,7 +320,7 @@ export const PlatformDefaultRole: Story = {
       await expect(heading).toBeInTheDocument();
 
       // Platform default roles show action dropdown (not system)
-      const kebabToggle = canvasElement.querySelector('#role-actions-dropdown');
+      const kebabToggle = queryById(canvasElement, 'role-actions-dropdown');
       await expect(kebabToggle).toBeInTheDocument();
 
       // "Add permissions" button is DISABLED for platform_default roles
@@ -360,7 +361,7 @@ export const AdminDefaultRole: Story = {
       await expect(heading).toBeInTheDocument();
 
       // Admin default roles show action dropdown
-      const kebabToggle = canvasElement.querySelector('#role-actions-dropdown');
+      const kebabToggle = queryById(canvasElement, 'role-actions-dropdown');
       await expect(kebabToggle).toBeInTheDocument();
 
       // "Add permissions" button is DISABLED for admin_default roles
@@ -396,8 +397,7 @@ export const LoadingState: Story = {
   play: async ({ canvasElement, step }) => {
     await step('Verify loading skeleton', async () => {
       await waitFor(() => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        expect(skeletonElements.length).toBeGreaterThan(0);
+        expect(getSkeletonCount(canvasElement)).toBeGreaterThan(0);
       });
     });
   },
@@ -499,10 +499,10 @@ export const ActionDropdown: Story = {
       await canvas.findByRole('heading', { name: mockCustomRole.name });
 
       await waitFor(() => {
-        expect(canvasElement.querySelector('#role-actions-dropdown')).toBeTruthy();
+        expect(queryById(canvasElement, 'role-actions-dropdown')).toBeTruthy();
       });
 
-      const kebabToggle = canvasElement.querySelector('#role-actions-dropdown')!;
+      const kebabToggle = queryById(canvasElement, 'role-actions-dropdown')!;
       await userEvent.click(kebabToggle);
 
       const editAction = await within(document.body).findByText('Edit');
@@ -546,7 +546,7 @@ export const UserAccessAdministrator: Story = {
       await expect(await canvas.findByText(mockCustomRole.description!)).toBeInTheDocument();
       await expect(fetchRoleSpy).toHaveBeenCalled();
 
-      const kebabToggle = canvasElement.querySelector('#role-actions-dropdown');
+      const kebabToggle = queryById(canvasElement, 'role-actions-dropdown');
       await expect(kebabToggle).toBeInTheDocument();
     });
   },
@@ -580,7 +580,7 @@ export const PermissionsTableRendering: Story = {
       await canvas.findByRole('heading', { name: mockCustomRole.name });
 
       await waitFor(() => {
-        expect(canvas.getAllByText(mockCustomRole.applications[0]).length).toBe(2);
+        expect(canvas.queryAllByText(mockCustomRole.applications[0]).length).toBe(2);
       });
 
       await expect(canvas.getAllByText(mockCustomRole.applications[1]).length).toBe(2);
@@ -622,10 +622,10 @@ export const FilterByApplicationApplied: Story = {
       await canvas.findByRole('heading', { name: mockCustomRole.name });
 
       await waitFor(() => {
-        expect(canvas.getAllByText(mockCustomRole.applications[0]).length).toBe(2);
+        expect(canvas.queryAllByText(mockCustomRole.applications[0]).length).toBe(2);
       });
 
-      await expect(canvasElement.querySelectorAll('tbody tr').length).toBe(6);
+      await expect(getTableBodyRowCount(canvasElement)).toBe(6);
 
       const applicationButtons = await canvas.findAllByRole('button', { name: /Applications/i });
       await userEvent.click(applicationButtons[1]);
@@ -636,7 +636,7 @@ export const FilterByApplicationApplied: Story = {
       await userEvent.keyboard('{Escape}');
 
       await waitFor(() => {
-        expect(canvasElement.querySelectorAll('tbody tr').length).toBe(2);
+        expect(getTableBodyRowCount(canvasElement)).toBe(2);
       });
 
       await expect(canvas.getAllByText(mockCustomRole.applications[1]).length).toBeGreaterThan(0);
@@ -647,7 +647,7 @@ export const FilterByApplicationApplied: Story = {
       await userEvent.click(clearFiltersButton);
 
       await waitFor(() => {
-        expect(canvasElement.querySelectorAll('tbody tr').length).toBe(6);
+        expect(getTableBodyRowCount(canvasElement)).toBe(6);
       });
 
       await expect(canvas.getAllByText(mockCustomRole.applications[0]).length).toBe(2);
@@ -701,7 +701,7 @@ export const FilterByResourceApplied: Story = {
       await userEvent.keyboard('{Escape}');
 
       await waitFor(() => {
-        expect(canvasElement.querySelectorAll('tbody tr').length).toBe(1);
+        expect(getTableBodyRowCount(canvasElement)).toBe(1);
       });
 
       await expect(canvas.getAllByText('host').length).toBeGreaterThan(0);
@@ -753,7 +753,7 @@ export const FilterByOperationApplied: Story = {
       await userEvent.keyboard('{Escape}');
 
       await waitFor(() => {
-        expect(canvasElement.querySelectorAll('tbody tr').length).toBe(3);
+        expect(getTableBodyRowCount(canvasElement)).toBe(3);
       });
 
       await expect(canvas.getAllByText('read').length).toBeGreaterThan(0);
@@ -803,8 +803,9 @@ export const BulkSelectPermissions: Story = {
 
       await waitFor(() => {
         expect(selectPageCheckbox).toBeChecked();
-        const updatedCheckboxes = canvas.getAllByRole('checkbox');
+        const updatedCheckboxes = canvas.queryAllByRole('checkbox');
         const updatedRowCheckboxes = updatedCheckboxes.filter((cb) => cb !== selectPageCheckbox);
+        expect(updatedRowCheckboxes.length).toBeGreaterThan(0);
         updatedRowCheckboxes.forEach((checkbox) => {
           expect(checkbox).toBeChecked();
         });
@@ -878,7 +879,7 @@ export const PaginationWithMultiplePages: Story = {
 
     await step('Verify initial page and navigate to next', async () => {
       await waitFor(() => {
-        expect(canvasElement.querySelectorAll('tbody tr').length).toBeGreaterThan(0);
+        expect(getTableBodyRowCount(canvasElement)).toBeGreaterThan(0);
         const allText = canvasElement.textContent || '';
         expect(allText).toContain('1 - 20');
         expect(allText).toContain('25');

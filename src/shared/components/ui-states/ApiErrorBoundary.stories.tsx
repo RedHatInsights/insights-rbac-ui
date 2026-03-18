@@ -138,7 +138,7 @@ export const Error403Forbidden: Story = {
       // Wait for the 403 error state to be displayed
       await waitFor(
         () => {
-          expect(canvas.getByText(/you do not have access/i)).toBeInTheDocument();
+          expect(canvas.queryByText(/you do not have access/i)).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -167,7 +167,7 @@ export const Error500ServerError: Story = {
       // Wait for the 500 error state to be displayed
       await waitFor(
         () => {
-          expect(canvas.getByText(/temporarily unavailable/i)).toBeInTheDocument();
+          expect(canvas.queryByText(/temporarily unavailable/i)).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -196,7 +196,7 @@ export const Error502BadGateway: Story = {
       // Wait for the 500 error state (502 triggers the same UI)
       await waitFor(
         () => {
-          expect(canvas.getByText(/temporarily unavailable/i)).toBeInTheDocument();
+          expect(canvas.queryByText(/temporarily unavailable/i)).toBeInTheDocument();
         },
         { timeout: 5000 },
       );
@@ -235,7 +235,7 @@ their context.
       // Wait for the error to appear in the component (not caught by ApiErrorBoundary)
       await waitFor(
         () => {
-          expect(canvas.getByText(/Query Error/)).toBeInTheDocument();
+          expect(canvas.queryByText(/Query Error/)).toBeInTheDocument();
         },
         { timeout: 5000 },
       );

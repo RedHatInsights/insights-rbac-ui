@@ -679,7 +679,8 @@ Tests toggling a user's active status via the switch in the users table.
     await step('Verify switch reflects inactive state', async () => {
       await waitFor(
         () => {
-          const updatedSwitch = canvas.getByRole('switch', { name: /toggle status for adumble/i });
+          const updatedSwitch = canvas.queryByRole('switch', { name: /toggle status for adumble/i });
+          expect(updatedSwitch).toBeInTheDocument();
           expect(updatedSwitch).not.toBeChecked();
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },

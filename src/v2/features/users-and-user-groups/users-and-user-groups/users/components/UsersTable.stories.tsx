@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expectLoadingVisible } from '../../../../../../test-utils/interactionHelpers';
 import { UsersTable } from './UsersTable';
 import type { User } from '../../../../../../shared/data/queries/users';
 
@@ -267,9 +268,8 @@ export const LoadingState: Story = {
     await step('Verify', async () => {
       // Should show skeleton loading state (check for skeleton class)
       await waitFor(
-        async () => {
-          const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-          await expect(skeletonElements.length).toBeGreaterThan(0);
+        () => {
+          expectLoadingVisible(canvasElement);
         },
         { timeout: 10000 },
       );

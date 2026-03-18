@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expectLoadingVisible } from '../../../test-utils/interactionHelpers';
 import { findSortButton } from '../../../test-utils/tableHelpers';
 import UsersListNotSelectable from './UsersListNotSelectable';
 import { usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
@@ -216,8 +217,7 @@ export const LoadingState: Story = {
     await step('Verify loading state', async () => {
       // Should show loading state while API calls are pending
       await waitFor(async () => {
-        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
-        expect(skeletonElements.length).toBeGreaterThan(0);
+        expectLoadingVisible(canvasElement);
       });
     });
   },
@@ -280,7 +280,7 @@ export const AdminUserWithUsersFiltering: Story = {
 
       // Wait for filtered results - only john.doe should be visible
       await waitFor(() => {
-        expect(canvas.getByText('john.doe')).toBeInTheDocument();
+        expect(canvas.queryByText('john.doe')).toBeInTheDocument();
         expect(canvas.queryByText('jane.admin')).not.toBeInTheDocument();
       });
     });
@@ -293,7 +293,7 @@ export const AdminUserWithUsersFiltering: Story = {
 
       // Wait for filtered results - only jane.admin should be visible
       await waitFor(() => {
-        expect(canvas.getByText('jane.admin')).toBeInTheDocument();
+        expect(canvas.queryByText('jane.admin')).toBeInTheDocument();
         expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
       });
     });
@@ -329,9 +329,15 @@ export const AdminUserWithUsersSorting: Story = {
 
       // Helper function to get usernames from table - re-queries DOM each time
       const getUsernames = () => {
-        const rows = canvasElement.querySelectorAll('table tbody tr');
-        return Array.from(rows)
-          .map((row) => row.querySelector('td:nth-child(2)')?.textContent?.trim())
+        const grid = canvas.queryByRole('grid');
+        if (!grid) throw new Error('Grid not found');
+        const rows = within(grid).queryAllByRole('row');
+        const dataRows = rows.slice(1); // skip header
+        return dataRows
+          .map((row) => {
+            const cells = within(row).queryAllByRole('cell');
+            return cells[1]?.textContent?.trim();
+          })
           .filter(Boolean);
       };
 
@@ -357,9 +363,15 @@ export const AdminUserWithUsersSorting: Story = {
 
     await step('Toggle to ascending', async () => {
       const getUsernames = () => {
-        const rows = canvasElement.querySelectorAll('table tbody tr');
-        return Array.from(rows)
-          .map((row) => row.querySelector('td:nth-child(2)')?.textContent?.trim())
+        const grid = canvas.queryByRole('grid');
+        if (!grid) throw new Error('Grid not found');
+        const rows = within(grid).queryAllByRole('row');
+        const dataRows = rows.slice(1); // skip header
+        return dataRows
+          .map((row) => {
+            const cells = within(row).queryAllByRole('cell');
+            return cells[1]?.textContent?.trim();
+          })
           .filter(Boolean);
       };
 

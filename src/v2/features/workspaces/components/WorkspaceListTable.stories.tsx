@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
+import { queryByOuiaId, queryTreeViewToggle } from '../../../../test-utils/interactionHelpers';
 import { WorkspaceListTable } from './WorkspaceListTable';
 import { BrowserRouter } from 'react-router-dom';
 // Import shared test functions and mock data from helper file
@@ -90,11 +91,9 @@ export const ExpandedByDefault: Story = {
       await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
       await expect(canvas.findByText('Development Environment')).resolves.toBeInTheDocument();
 
-      const expandButtons = canvasElement.querySelectorAll('.pf-v6-c-tree-view__node-toggle');
-
-      if (expandButtons.length > 0) {
-        const rootExpandButton = expandButtons[0] as HTMLElement;
-        expect(rootExpandButton.getAttribute('aria-expanded')).toBe('true');
+      const rootExpandButton = queryTreeViewToggle(canvasElement);
+      if (rootExpandButton) {
+        expect(rootExpandButton).toHaveAttribute('aria-expanded', 'true');
       }
     });
   },
@@ -187,10 +186,10 @@ export const NoPermissions: Story = {
 
       await expect(canvas.findByText('Production Environment')).resolves.toBeInTheDocument();
 
-      const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
+      const productionRow = queryByOuiaId(canvasElement, 'workspaces-list-tr-1');
       await expect(productionRow).toBeInTheDocument();
 
-      const productionRowScope = within(productionRow);
+      const productionRowScope = within(productionRow!);
       const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
 
       await userEvent.click(productionKebab);
@@ -223,8 +222,8 @@ export const RestrictedPermissions: Story = {
     await step('Verify Production Environment has enabled actions', async () => {
       await waitForSkeletonToDisappear(canvasElement);
 
-      const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
-      const productionRowScope = within(productionRow);
+      const productionRow = queryByOuiaId(canvasElement, 'workspaces-list-tr-1');
+      const productionRowScope = within(productionRow!);
       const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
 
       await userEvent.click(productionKebab);
@@ -240,8 +239,8 @@ export const RestrictedPermissions: Story = {
       await userEvent.click(productionKebab);
     });
     await step('Verify Development Environment has disabled actions', async () => {
-      const developmentRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-2"]') as HTMLElement;
-      const developmentRowScope = within(developmentRow);
+      const developmentRow = queryByOuiaId(canvasElement, 'workspaces-list-tr-2');
+      const developmentRowScope = within(developmentRow!);
       const developmentKebab = developmentRowScope.getByLabelText('Kebab toggle');
 
       await userEvent.click(developmentKebab);
@@ -274,8 +273,8 @@ export const RootWorkspaceRestrictions: Story = {
     await step('Verify root workspace actions disabled', async () => {
       await waitForSkeletonToDisappear(canvasElement);
 
-      const rootRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-0"]') as HTMLElement;
-      const rootRowScope = within(rootRow);
+      const rootRow = queryByOuiaId(canvasElement, 'workspaces-list-tr-0');
+      const rootRowScope = within(rootRow!);
       const rootKebab = rootRowScope.getByLabelText('Kebab toggle');
 
       await userEvent.click(rootKebab);
@@ -333,8 +332,8 @@ export const CorrectRelationsForRowActions: Story = {
     await step('Verify correct relations per action', async () => {
       await waitForSkeletonToDisappear(canvasElement);
 
-      const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
-      const productionRowScope = within(productionRow);
+      const productionRow = queryByOuiaId(canvasElement, 'workspaces-list-tr-1');
+      const productionRowScope = within(productionRow!);
       const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
 
       await userEvent.click(productionKebab);
@@ -365,8 +364,8 @@ export const FullPermissions: Story = {
     await step('Verify full permissions actions enabled', async () => {
       await waitForSkeletonToDisappear(canvasElement);
 
-      const productionRow = canvasElement.querySelector('[data-ouia-component-id="workspaces-list-tr-1"]') as HTMLElement;
-      const productionRowScope = within(productionRow);
+      const productionRow = queryByOuiaId(canvasElement, 'workspaces-list-tr-1');
+      const productionRowScope = within(productionRow!);
       const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
 
       await userEvent.click(productionKebab);
