@@ -77,6 +77,10 @@ const V2_TOKEN_TO_KESSEL: Record<string, string> = {
   'workspaces.canDelete': 'rbac_workspace_delete',
   'workspaces.canMove': 'rbac_workspace_move',
   'principals.canList': 'rbac_principal_read',
+  'assignments.canView': 'rbac_assignments_read',
+  'assignments.canCreate': 'rbac_assignments_write',
+  'assignments.canUpdate': 'rbac_assignments_write',
+  'assignments.canRevoke': 'rbac_assignments_write',
 };
 
 const COLORS = {

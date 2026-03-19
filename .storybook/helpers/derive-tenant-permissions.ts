@@ -44,5 +44,7 @@ export function deriveTenantPermissions(permissions: string[]): Partial<TenantPe
     rbac_workspace_create: has('inventory:groups:write'),
     rbac_workspace_delete: has('inventory:groups:write'),
     rbac_workspace_move: has('inventory:groups:write'),
+    rbac_assignments_read: has('rbac:assignment:read'),
+    rbac_assignments_write: has('rbac:assignment:write'),
   };
 }

@@ -167,7 +167,9 @@ objects:
                   title: Organization-Wide Access
                   href: /iam/organization-management/organization-wide-access
                   permissions:
-                    - method: isOrgAdmin
+                    - method: loosePermissionsKessel
+                      args:
+                        - - rbac_assignments_read
                   product: Identity & Access Management
                 - id: trusted-organizations
                   title: Trusted Organizations

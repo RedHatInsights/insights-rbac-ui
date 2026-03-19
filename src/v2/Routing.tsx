@@ -4,7 +4,7 @@ import { useAppLink } from '../shared/hooks/useAppLink';
 import { usePlatformTracking } from '../shared/hooks/usePlatformTracking';
 import { AppPlaceholder } from '../shared/components/ui-states/LoaderPlaceholders';
 import ElementWrapper from '../shared/components/ElementWrapper';
-import { groups, principals, roles, v2Guard, v2GuardOrgAdmin, workspaces } from './components/V2PermissionGuard';
+import { assignments, groups, principals, roles, v2Guard, v2GuardOrgAdmin, workspaces } from './components/V2PermissionGuard';
 import pathnames from './utilities/pathnames';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- outlet context props are injected at runtime via ElementWrapper/cloneElement
@@ -135,8 +135,8 @@ export const V2Routing = () => {
           <Route path={pathnames['access-management-audit-log'].path} element={<AuditLog />} />
         </Route>
 
-        {/* Organization Management — requires orgAdmin */}
-        <Route {...v2GuardOrgAdmin()}>
+        {/* Organization Management — requires assignments read */}
+        <Route {...v2Guard([assignments.canView])}>
           <Route path={pathnames['organization-management'].path} element={<OrganizationManagement />} />
         </Route>
 

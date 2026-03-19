@@ -4,6 +4,7 @@ import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page
 import { Flex } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { useOrganizationData } from '../../hooks/useOrganizationData';
+import { useAssignmentsAccess } from '../../hooks/useRbacAccess';
 import messages from '../../../Messages';
 import { useIntl } from 'react-intl';
 import { useOrgGroups } from '../../data/queries/groupAssignments';
@@ -12,6 +13,7 @@ import { BaseGroupAssignmentsTable } from '../workspaces/workspace-detail/compon
 export const OrganizationManagement = () => {
   const intl = useIntl();
   const { accountNumber, organizationId, organizationName, isLoading } = useOrganizationData();
+  const { canCreate, canUpdate, canRevoke } = useAssignmentsAccess();
 
   const { data: roleBindings, isLoading: roleBindingsIsLoading } = useOrgGroups(organizationId!, {
     enabled: !isLoading && !!organizationId,
@@ -51,7 +53,14 @@ export const OrganizationManagement = () => {
         </Flex>
       </PageHeader>
       <PageSection>
-        <BaseGroupAssignmentsTable groups={roleBindings} isLoading={roleBindingsIsLoading} ouiaId="organization-role-assignments-table" />
+        <BaseGroupAssignmentsTable
+          groups={roleBindings}
+          isLoading={roleBindingsIsLoading}
+          canGrantAccess={canCreate}
+          canEditAccess={canUpdate}
+          canRevokeAccess={canRevoke}
+          ouiaId="organization-role-assignments-table"
+        />
       </PageSection>
     </>
   );

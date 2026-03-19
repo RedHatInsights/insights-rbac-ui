@@ -18,6 +18,8 @@ const ALL_GRANTED: TenantPermissionsMap = {
   rbac_workspace_create: true,
   rbac_workspace_delete: true,
   rbac_workspace_move: true,
+  rbac_assignments_read: true,
+  rbac_assignments_write: true,
 };
 
 const ALL_DENIED: TenantPermissionsMap = {
@@ -31,6 +33,8 @@ const ALL_DENIED: TenantPermissionsMap = {
   rbac_workspace_create: false,
   rbac_workspace_delete: false,
   rbac_workspace_move: false,
+  rbac_assignments_read: false,
+  rbac_assignments_write: false,
 };
 
 const meta: Meta<typeof V2PermissionGuard> = {

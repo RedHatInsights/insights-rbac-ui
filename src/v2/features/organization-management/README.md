@@ -16,7 +16,18 @@ The role bindings API uses cursor-based pagination with no offset support. To av
 
 ## Permission model
 
-V2 uses **Kessel domain hooks** from `src/v2/hooks/useRbacAccess.ts`, not V1 patterns. For organization-level role bindings, access is gated by the same Kessel relations used for workspace role bindings. `useIdentity()` from `src/shared/hooks/useIdentity.ts` provides `orgAdmin` when needed.
+V2 uses **Kessel domain hooks** from `src/v2/hooks/useRbacAccess.ts`, not V1 patterns.
+
+Route access is gated by `v2Guard([assignments.canView])` in `src/v2/Routing.tsx`, which checks `rbac_assignments_read` on the tenant resource via Kessel. CRUD actions on the role bindings table use `useAssignmentsAccess()`:
+
+| Action | Kessel relation |
+|--------|-----------------|
+| View/list org role bindings | `rbac_assignments_read` |
+| Grant access | `rbac_assignments_write` |
+| Edit access | `rbac_assignments_write` |
+| Revoke access | `rbac_assignments_write` |
+
+Org admins have these permissions by default. Non-org-admin users with explicitly granted `rbac_assignments_read`/`rbac_assignments_write` can also access this page.
 
 ## Constraints
 

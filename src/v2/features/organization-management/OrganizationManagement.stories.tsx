@@ -202,10 +202,21 @@ const mockRoleBindingsResponse = {
   ],
 };
 
+const FULL_ASSIGNMENTS_PERMS = {
+  rbac_assignments_read: true,
+  rbac_assignments_write: true,
+} as const;
+
+const READ_ONLY_ASSIGNMENTS_PERMS = {
+  rbac_assignments_read: true,
+  rbac_assignments_write: false,
+} as const;
+
 const meta: Meta<typeof OrganizationManagement> = {
   component: OrganizationManagement,
   tags: ['autodocs'],
   parameters: {
+    tenantPermissions: FULL_ASSIGNMENTS_PERMS,
     docs: {
       description: {
         component: `
@@ -568,6 +579,36 @@ export const EmptyRoleBindingsState: Story = {
       // Verify empty state is shown instead of populated table
       expect(canvas.queryByText('Engineering Team')).not.toBeInTheDocument();
       expect(canvas.queryByText('Quality Assurance')).not.toBeInTheDocument();
+    });
+  },
+};
+
+export const ReadOnlyAccess: Story = {
+  name: 'Read-Only Access (No Write)',
+  parameters: {
+    userIdentity: mockUserWithAllData,
+    tenantPermissions: READ_ONLY_ASSIGNMENTS_PERMS,
+    ...withRoleBindings(mockRoleBindingsResponse),
+    ...withStoryDescription('Organization page with read-only access — user has rbac_assignments_read but not rbac_assignments_write.'),
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify read-only table renders', async () => {
+      await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(canvas.queryByText('org-987654321')).toBeInTheDocument();
+      });
+
+      await waitFor(
+        () => {
+          const tables = canvas.queryAllByRole('grid');
+          expect(tables.length).toBeGreaterThan(0);
+        },
+        { timeout: 15000 },
+      );
+
+      await expect(canvas.findByText('Engineering Team')).resolves.toBeInTheDocument();
     });
   },
 };

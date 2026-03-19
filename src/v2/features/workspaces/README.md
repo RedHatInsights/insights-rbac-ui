@@ -62,7 +62,7 @@ hasPermission(ws.id, 'delete')  // → boolean
 | Edit role binding (Edit access modal) | `rbac_workspaces_role_binding_grant` AND `rbac_workspaces_role_binding_revoke` |
 | Revoke role binding (Remove from workspace) | `rbac_workspaces_role_binding_revoke` |
 
-Role binding permissions are checked via `useRoleBindingsAccess(workspaceId)` from `src/v2/hooks/useRbacAccess.ts`.
+Workspace-scoped role binding permissions are checked via `useRoleBindingsAccess(workspaceId)` from `src/v2/hooks/useRbacAccess.ts`.
 
 **Enforcement points:**
 - **Toolbar "Grant access" button** (`BaseGroupAssignmentsTable`): `canGrantAccess` prop, gated on `rbac_workspaces_role_binding_grant` + M4 flag

@@ -39,11 +39,19 @@ export const principals = {
   canList: 'principals.canList',
 } as const;
 
+export const assignments = {
+  canView: 'assignments.canView',
+  canCreate: 'assignments.canCreate',
+  canUpdate: 'assignments.canUpdate',
+  canRevoke: 'assignments.canRevoke',
+} as const;
+
 export type V2Permission =
   | (typeof roles)[keyof typeof roles]
   | (typeof groups)[keyof typeof groups]
   | (typeof workspaces)[keyof typeof workspaces]
-  | (typeof principals)[keyof typeof principals];
+  | (typeof principals)[keyof typeof principals]
+  | (typeof assignments)[keyof typeof assignments];
 
 // ============================================================================
 // Internal Kessel mapping — never exported
@@ -61,7 +69,9 @@ type RbacTenantRelation =
   | 'rbac_workspace_edit'
   | 'rbac_workspace_create'
   | 'rbac_workspace_delete'
-  | 'rbac_workspace_move';
+  | 'rbac_workspace_move'
+  | 'rbac_assignments_read'
+  | 'rbac_assignments_write';
 
 const KESSEL_MAP: Record<V2Permission, RbacTenantRelation> = {
   'roles.canView': 'rbac_roles_read',
@@ -78,6 +88,10 @@ const KESSEL_MAP: Record<V2Permission, RbacTenantRelation> = {
   'workspaces.canDelete': 'rbac_workspace_delete',
   'workspaces.canMove': 'rbac_workspace_move',
   'principals.canList': 'rbac_principal_read',
+  'assignments.canView': 'rbac_assignments_read',
+  'assignments.canCreate': 'rbac_assignments_write',
+  'assignments.canUpdate': 'rbac_assignments_write',
+  'assignments.canRevoke': 'rbac_assignments_write',
 };
 
 // ============================================================================

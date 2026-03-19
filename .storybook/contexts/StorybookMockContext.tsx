@@ -76,6 +76,8 @@ export interface TenantPermissionsMap {
   rbac_workspace_create: boolean;
   rbac_workspace_delete: boolean;
   rbac_workspace_move: boolean;
+  rbac_assignments_read: boolean;
+  rbac_assignments_write: boolean;
 }
 
 /** Default tenant permissions (all denied) */
@@ -90,6 +92,8 @@ export const EMPTY_TENANT_PERMISSIONS: TenantPermissionsMap = {
   rbac_workspace_create: false,
   rbac_workspace_delete: false,
   rbac_workspace_move: false,
+  rbac_assignments_read: false,
+  rbac_assignments_write: false,
 };
 
 export interface MockState {

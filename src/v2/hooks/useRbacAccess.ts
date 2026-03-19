@@ -33,6 +33,8 @@ const _RBAC_TENANT_RELATIONS = [
   'rbac_workspace_create',
   'rbac_workspace_delete',
   'rbac_workspace_move',
+  'rbac_assignments_read',
+  'rbac_assignments_write',
 ] as const;
 
 type RbacTenantRelation = (typeof _RBAC_TENANT_RELATIONS)[number];
@@ -96,18 +98,11 @@ const _RBAC_WORKSPACE_RELATIONS = [
 
 type RbacWorkspaceRelation = (typeof _RBAC_WORKSPACE_RELATIONS)[number];
 
-const NOOP_WS_RESOURCE: SelfAccessCheckResourceWithRelation = {
-  id: '__noop__',
-  type: 'workspace',
-  reporter: RBAC_REPORTER,
-  relation: '__noop__',
-};
-
 function useBulkWorkspaceCheck<R extends RbacWorkspaceRelation>(workspaceId: string, relations: readonly R[]): BulkCheckResult<R> {
   const hasId = workspaceId !== '';
 
   const resources = useMemo<NotEmptyArray<SelfAccessCheckResourceWithRelation>>(() => {
-    if (!hasId) return [NOOP_WS_RESOURCE] as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+    if (!hasId) return [] as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
     return relations.map((rel) => ({
       id: workspaceId,
       type: 'workspace' as const,
@@ -191,7 +186,7 @@ export function useRoleBindingsAccess(workspaceId: string | undefined) {
     canCreate: result.rbac_workspaces_role_binding_grant,
     canView: result.rbac_workspaces_role_binding_view,
     canList: result.rbac_workspaces_role_binding_view,
-    canUpdate: false,
+    canUpdate: result.rbac_workspaces_role_binding_grant && result.rbac_workspaces_role_binding_revoke,
     canRevoke: result.rbac_workspaces_role_binding_revoke,
     isLoading,
   };
@@ -236,5 +231,22 @@ export function usePrincipalsAccess() {
     canDelete: orgAdmin,
     canToggleOrgAdmin: orgAdmin,
     isLoading: kesselLoading || !orgAdminReady,
+  };
+}
+
+const ASSIGNMENTS_RELATIONS = ['rbac_assignments_read', 'rbac_assignments_write'] as const;
+
+export function useAssignmentsAccess() {
+  const { result, isLoading } = useBulkTenantCheck(ASSIGNMENTS_RELATIONS);
+  const read = result.rbac_assignments_read;
+  const write = result.rbac_assignments_write;
+
+  return {
+    canView: read,
+    canList: read,
+    canCreate: write,
+    canUpdate: write,
+    canRevoke: write,
+    isLoading,
   };
 }
