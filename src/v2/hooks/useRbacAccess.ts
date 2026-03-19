@@ -92,7 +92,6 @@ const _RBAC_WORKSPACE_RELATIONS = [
   'rbac_workspaces_role_binding_view',
   'rbac_workspaces_role_binding_grant',
   'rbac_workspaces_role_binding_revoke',
-  'rbac_workspaces_role_binding_update',
 ] as const;
 
 type RbacWorkspaceRelation = (typeof _RBAC_WORKSPACE_RELATIONS)[number];
@@ -176,7 +175,6 @@ const ROLE_BINDINGS_RELATIONS = [
   'rbac_workspaces_role_binding_view',
   'rbac_workspaces_role_binding_grant',
   'rbac_workspaces_role_binding_revoke',
-  'rbac_workspaces_role_binding_update',
 ] as const;
 
 export function useRoleBindingsAccess(workspaceId: string | undefined) {
@@ -186,7 +184,7 @@ export function useRoleBindingsAccess(workspaceId: string | undefined) {
     canCreate: result.rbac_workspaces_role_binding_grant,
     canView: result.rbac_workspaces_role_binding_view,
     canList: result.rbac_workspaces_role_binding_view,
-    canUpdate: result.rbac_workspaces_role_binding_update,
+    canUpdate: false,
     canRevoke: result.rbac_workspaces_role_binding_revoke,
     isLoading,
   };

@@ -34,7 +34,6 @@ function checkWorkspacePermission(relation: string, resourceId: string, wsPerms:
     rbac_workspaces_role_binding_view: 'view',
     rbac_workspaces_role_binding_grant: 'edit',
     rbac_workspaces_role_binding_revoke: 'edit',
-    rbac_workspaces_role_binding_update: 'edit',
     view: 'view',
     edit: 'edit',
     create: 'create',
