@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { ResponsiveAction, ResponsiveActions } from '@patternfly/react-component-groups';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 
 // eslint-disable-next-line rbac-local/require-use-table-state -- tableState received as prop from parent container
 import {
@@ -36,6 +37,7 @@ interface UserGroupsTableProps {
   onRowClick?: (group: Group | undefined) => void;
   onEditGroup?: (group: Group) => void;
   onDeleteGroup?: (group: Group) => void;
+  onDeleteGroups?: (groups: Group[]) => void;
 
   // Children for modals
   children?: React.ReactNode;
@@ -54,6 +56,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
   onRowClick,
   onEditGroup,
   onDeleteGroup,
+  onDeleteGroups,
   children,
 }) => {
   const intl = useIntl();
@@ -143,6 +146,13 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
         filterConfig={filterConfig}
         // Toolbar
         toolbarActions={toolbarActions}
+        bulkActions={
+          onDeleteGroups && tableState.selectedRows.length > 0 ? (
+            <Button variant="secondary" isDanger onClick={() => onDeleteGroups(tableState.selectedRows)}>
+              {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup)} ({tableState.selectedRows.length})
+            </Button>
+          ) : undefined
+        }
         // Empty states
         emptyStateNoData={
           <DefaultEmptyStateNoData

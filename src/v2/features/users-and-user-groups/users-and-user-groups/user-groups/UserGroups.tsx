@@ -80,12 +80,10 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
     setIsDeleteModalOpen(true);
   }, []);
 
-  // Handle bulk delete (if multiple groups selected)
-  // TODO: Implement bulk delete functionality
-  // const handleDeleteGroups = useCallback((groupsToDelete: Group[]) => {
-  //   setCurrentGroups(groupsToDelete);
-  //   setIsDeleteModalOpen(true);
-  // }, []);
+  const handleDeleteGroups = useCallback((groupsToDelete: Group[]) => {
+    setCurrentGroups(groupsToDelete);
+    setIsDeleteModalOpen(true);
+  }, []);
 
   // Confirm deletion - using React Query mutation
   const handleConfirmDelete = useCallback(async () => {
@@ -96,12 +94,12 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
       }
       setIsDeleteModalOpen(false);
       setCurrentGroups([]);
-      // Note: React Query automatically invalidates and refetches after mutation
+      tableState.clearSelection();
     } catch (error) {
       console.error('Failed to delete groups:', error);
       // Note: Error notification is handled by the mutation hook
     }
-  }, [currentGroups, deleteGroupMutation]);
+  }, [currentGroups, deleteGroupMutation, tableState]);
 
   // Close delete modal
   const handleCloseDeleteModal = useCallback(() => {
@@ -175,6 +173,7 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
               }}
               onEditGroup={handleEditGroup}
               onDeleteGroup={handleDeleteGroup}
+              onDeleteGroups={handleDeleteGroups}
             >
               {deleteModal}
             </UserGroupsTable>
