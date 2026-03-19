@@ -2,12 +2,12 @@
   "$schema": "./seed-schema.json",
   "description": "V2 seed data: roles, groups, and workspaces (full Access Management support)",
   "personas": {
-    "admin": { "username": "rbac-e2e-admin-v2" },
-    "userviewer": { "username": "rbac-e2e-userviewer-v2" },
-    "readonly": { "username": "rbac-e2e-user-v2" }
+    "admin": { "username": "iqe_rbac_v2_admin" },
+    "userviewer": { "username": "iqe_rbac_v2_viewer" },
+    "readonly": { "username": "iqe_rbac_v2_normal" }
   },
   "seededUsers": [
-    { "username": "rbac-e2e-seed-user" }
+    { "username": "iqe_rbac_v2_normal" }
   ],
   "roles": [
     {

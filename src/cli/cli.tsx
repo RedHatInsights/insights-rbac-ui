@@ -167,10 +167,12 @@ async function runHeadlessCommand(command: { type: 'login-headless' | 'seed' | '
 
     case 'cleanup': {
       const { runCleanup } = await import('./commands/cleanup.js');
+      const cleanupApiVersion = parsedArgs['api-version'];
       exitCode = await runCleanup({
         prefix: typeof parsedArgs['prefix'] === 'string' ? parsedArgs['prefix'] : undefined,
         nameMatch: typeof parsedArgs['name-match'] === 'string' ? parsedArgs['name-match'] : undefined,
         dryRun: parsedArgs['dry-run'] === true,
+        apiVersion: cleanupApiVersion === 'v1' ? 'v1' : cleanupApiVersion === 'v2' ? 'v2' : undefined,
       });
       break;
     }
@@ -582,6 +584,7 @@ async function runInteractiveCli(): Promise<void> {
     .option('--prefix <string>', 'Filter by name prefix (min 4 chars)')
     .option('--name-match <glob>', 'Filter by glob pattern (min 4 chars)')
     .option('--dry-run', 'Preview what would be deleted without making changes')
+    .option('--api-version <version>', 'Target API version: v1, v2, or omit for both')
     .action(async (options) => {
       // This should have been caught above
       const { runCleanup } = await import('./commands/cleanup.js');
@@ -589,6 +592,7 @@ async function runInteractiveCli(): Promise<void> {
         prefix: options.prefix,
         nameMatch: options.nameMatch,
         dryRun: options.dryRun,
+        apiVersion: options.apiVersion === 'v1' ? 'v1' : options.apiVersion === 'v2' ? 'v2' : undefined,
       });
       process.exit(exitCode);
     });

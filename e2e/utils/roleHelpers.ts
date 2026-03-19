@@ -79,7 +79,7 @@ async function fillNameAndDescription(wizard: Locator, roleName: string, descrip
 
 /**
  * STEP: Handle permissions
- * For "create from scratch": selects multiple permissions
+ * For "create from scratch": selects "advisor" permissions (safe — no workspace step)
  * For "copy existing": permissions are inherited, just click Next
  */
 async function handlePermissions(wizard: Locator, selectPermissions: boolean): Promise<void> {
@@ -88,15 +88,13 @@ async function handlePermissions(wizard: Locator, selectPermissions: boolean): P
   await expect(permissionCheckboxes.first()).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
   if (selectPermissions) {
-    // Select multiple permissions for "create from scratch"
-    const permCount = await permissionCheckboxes.count();
-    if (permCount > 1) {
-      await permissionCheckboxes.nth(1).click();
-      await expect(permissionCheckboxes.nth(1)).toBeChecked({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
-    }
-    if (permCount > 2) {
-      await permissionCheckboxes.nth(2).click();
-      await expect(permissionCheckboxes.nth(2)).toBeChecked({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+    // Select the first two "advisor" rows — these never trigger the workspace step
+    const advisorRows = wizard.getByRole('row').filter({ hasText: 'advisor' });
+    const count = await advisorRows.count();
+    for (let i = 0; i < Math.min(count, 2); i++) {
+      const checkbox = advisorRows.nth(i).getByRole('checkbox');
+      await checkbox.click();
+      await expect(checkbox).toBeChecked({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
     }
   }
 

@@ -37,7 +37,7 @@
 
 import { expect, test } from '@playwright/test';
 import { AUTH_V1_ORGADMIN, AUTH_V1_READONLY, AUTH_V1_USERVIEWER, iamUrl, requireTestPrefix, setupPage, v1 } from '../../../utils';
-import { getSeededRoleName, getSeededWorkspaceName } from '../../../utils/seed-map';
+import { getSeededRoleName } from '../../../utils/seed-map';
 import { RolesPage } from '../../../pages/v1/RolesPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -52,11 +52,6 @@ const ROLES_URL = iamUrl(v1.roles.link());
 const SEEDED_ROLE_NAME = getSeededRoleName('v1');
 if (!SEEDED_ROLE_NAME) {
   throw new Error('No seeded role found in seed map. Run: npm run e2e:v1:seed');
-}
-
-const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName('v1');
-if (!SEEDED_WORKSPACE_NAME) {
-  throw new Error('No seeded workspace found in seed map. Run: npm run e2e:v1:seed');
 }
 
 // Generate unique name for this test run
@@ -89,7 +84,7 @@ test.describe('Role Management', () => {
       await rolesPage.goto();
 
       await rolesPage.createButton.click();
-      await rolesPage.fillCreateWizard(uniqueRoleName, roleDescription, SEEDED_WORKSPACE_NAME);
+      await rolesPage.fillCreateWizard(uniqueRoleName, roleDescription);
     });
 
     test('Verify role appears in table [OrgAdmin]', async ({ page }) => {
@@ -160,7 +155,7 @@ test.describe('Role Management', () => {
       await rolesPage.goto();
 
       await rolesPage.createButton.click();
-      await rolesPage.fillCreateWizardAsCopy(copiedRoleName, SEEDED_ROLE_NAME, SEEDED_WORKSPACE_NAME, copiedRoleDescription);
+      await rolesPage.fillCreateWizardAsCopy(copiedRoleName, SEEDED_ROLE_NAME, undefined, copiedRoleDescription);
     });
 
     test('Verify copied role appears in table [OrgAdmin]', async ({ page }) => {

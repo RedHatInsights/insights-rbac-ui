@@ -323,6 +323,23 @@ describe('cleanup command', () => {
       expect(mockWorkspacesApi.deleteWorkspace).toHaveBeenCalledWith({ id: 'child-ws' });
       expect(mockWorkspacesApi.deleteWorkspace).not.toHaveBeenCalledWith(expect.objectContaining({ id: 'root-ws' }));
     });
+
+    test('deletes child workspaces before parents using parent_id hierarchy', async () => {
+      mockWorkspacesApi.listWorkspaces.mockResolvedValue({
+        data: {
+          data: [
+            { id: 'parent-ws', name: 'test-parent', type: 'standard', parent_id: 'default-1' },
+            { id: 'grandchild-ws', name: 'test-grandchild', type: 'standard', parent_id: 'child-ws' },
+            { id: 'child-ws', name: 'test-child', type: 'standard', parent_id: 'parent-ws' },
+          ],
+        },
+      });
+
+      await runCleanup({ prefix: 'test-' });
+
+      const calls = mockWorkspacesApi.deleteWorkspace.mock.calls.map((c: [{ id: string }]) => c[0].id);
+      expect(calls).toEqual(['grandchild-ws', 'child-ws', 'parent-ws']);
+    });
   });
 
   // ==========================================================================
@@ -364,6 +381,75 @@ describe('cleanup command', () => {
       expect(mockRolesV2Api.rolesBatchDelete).not.toHaveBeenCalled();
       expect(mockGroupsApi.deleteGroup).not.toHaveBeenCalled();
       expect(mockWorkspacesApi.deleteWorkspace).not.toHaveBeenCalled();
+    });
+  });
+
+  // ==========================================================================
+  // API Version Scoping Tests
+  // ==========================================================================
+
+  describe('API Version Scoping', () => {
+    test('apiVersion=v1 fetches only V1 roles and skips V2 API entirely', async () => {
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: { data: [{ uuid: 'v1-role', name: 'ci-123-role' }] },
+      });
+
+      await runCleanup({ prefix: 'ci-123-', apiVersion: 'v1' });
+
+      expect(mockRolesApi.listRoles).toHaveBeenCalled();
+      expect(mockRolesV2Api.rolesList).not.toHaveBeenCalled();
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledWith({ uuid: 'v1-role' });
+      expect(mockRolesV2Api.rolesBatchDelete).not.toHaveBeenCalled();
+    });
+
+    test('apiVersion=v1 skips workspace scanning', async () => {
+      await runCleanup({ prefix: 'ci-123-', apiVersion: 'v1' });
+
+      expect(mockWorkspacesApi.listWorkspaces).not.toHaveBeenCalled();
+    });
+
+    test('apiVersion=v2 fetches only V2 roles and skips V1 API entirely', async () => {
+      mockRolesV2Api.rolesList.mockResolvedValue({
+        data: { data: [{ id: 'v2-role', name: 'ci-123-role' }] },
+      });
+
+      await runCleanup({ prefix: 'ci-123-', apiVersion: 'v2' });
+
+      expect(mockRolesV2Api.rolesList).toHaveBeenCalled();
+      expect(mockRolesApi.listRoles).not.toHaveBeenCalled();
+      expect(mockRolesV2Api.rolesBatchDelete).toHaveBeenCalledWith({
+        rolesBatchDeleteRolesRequest: { ids: ['v2-role'] },
+      });
+      expect(mockRolesApi.deleteRole).not.toHaveBeenCalled();
+    });
+
+    test('apiVersion=v2 scans workspaces normally', async () => {
+      mockWorkspacesApi.listWorkspaces.mockResolvedValue({
+        data: { data: [{ id: 'ws-1', name: 'ci-123-ws', type: 'standard' }] },
+      });
+
+      await runCleanup({ prefix: 'ci-123-', apiVersion: 'v2' });
+
+      expect(mockWorkspacesApi.listWorkspaces).toHaveBeenCalled();
+      expect(mockWorkspacesApi.deleteWorkspace).toHaveBeenCalledWith({ id: 'ws-1' });
+    });
+
+    test('no apiVersion fetches from both V1 and V2 (default behavior)', async () => {
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: { data: [{ uuid: 'v1-role', name: 'ci-123-role' }] },
+      });
+      mockRolesV2Api.rolesList.mockResolvedValue({
+        data: { data: [{ id: 'v2-only', name: 'ci-123-v2-only' }] },
+      });
+
+      await runCleanup({ prefix: 'ci-123-' });
+
+      expect(mockRolesApi.listRoles).toHaveBeenCalled();
+      expect(mockRolesV2Api.rolesList).toHaveBeenCalled();
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledWith({ uuid: 'v1-role' });
+      expect(mockRolesV2Api.rolesBatchDelete).toHaveBeenCalledWith({
+        rolesBatchDeleteRolesRequest: { ids: ['v2-only'] },
+      });
     });
   });
 

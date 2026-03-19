@@ -329,7 +329,7 @@ export async function performHeadlessLogin(options: HeadlessLoginOptions): Promi
 
     // Step 1: Enter username
     if (!options.stdout) {
-      console.error('[AuthBridge] Entering username...');
+      console.error(`[AuthBridge] Entering username (${options.username})...`);
     }
     await session.page.waitForSelector(LOGIN_SELECTORS.usernameInput, { timeout: HEADLESS_TIMEOUT_MS });
     await session.page.fill(LOGIN_SELECTORS.usernameInput, options.username);
@@ -339,7 +339,7 @@ export async function performHeadlessLogin(options: HeadlessLoginOptions): Promi
 
     // Step 3: Enter password
     if (!options.stdout) {
-      console.error('[AuthBridge] Entering password...');
+      console.error(`[AuthBridge] Entering password for ${options.username}...`);
     }
     await session.page.waitForSelector(LOGIN_SELECTORS.passwordInput, { timeout: HEADLESS_TIMEOUT_MS });
     await session.page.fill(LOGIN_SELECTORS.passwordInput, options.password);
@@ -351,9 +351,21 @@ export async function performHeadlessLogin(options: HeadlessLoginOptions): Promi
     if (!options.stdout) {
       console.error('[AuthBridge] Waiting for dashboard...');
     }
-    await session.page.waitForFunction((indicator) => document.body?.innerText?.includes(indicator), LOGGED_IN_INDICATOR, {
-      timeout: HEADLESS_TIMEOUT_MS,
-    });
+    try {
+      await session.page.waitForFunction((indicator) => document.body?.innerText?.includes(indicator), LOGGED_IN_INDICATOR, {
+        timeout: HEADLESS_TIMEOUT_MS,
+      });
+    } catch (error) {
+      const screenshotPath = `e2e/test-results/login-failure-${options.username}-${Date.now()}.png`;
+      try {
+        await session.page.screenshot({ path: screenshotPath, fullPage: true });
+        console.error(`[AuthBridge] ❌ Dashboard not reached. Screenshot saved: ${screenshotPath}`);
+        console.error(`[AuthBridge] Current URL: ${session.page.url()}`);
+      } catch {
+        console.error(`[AuthBridge] ❌ Dashboard not reached. Could not save screenshot.`);
+      }
+      throw error;
+    }
 
     if (!options.stdout) {
       console.error('[AuthBridge] Login successful!');

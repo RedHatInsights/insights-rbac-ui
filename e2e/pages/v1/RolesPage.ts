@@ -140,11 +140,11 @@ export class RolesPage {
   // CRUD Operations
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async fillCreateWizard(name: string, description: string, workspaceName: string): Promise<void> {
+  async fillCreateWizard(name: string, description: string, workspaceName?: string): Promise<void> {
     await fillCreateRoleWizard(this.page, name, description, workspaceName);
   }
 
-  async fillCreateWizardAsCopy(newRoleName: string, sourceRoleName: string, workspaceName: string, description?: string): Promise<void> {
+  async fillCreateWizardAsCopy(newRoleName: string, sourceRoleName: string, workspaceName?: string, description?: string): Promise<void> {
     await fillCreateRoleWizardAsCopy(this.page, newRoleName, sourceRoleName, workspaceName, description);
   }
 

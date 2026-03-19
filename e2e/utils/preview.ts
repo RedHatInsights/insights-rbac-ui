@@ -76,6 +76,11 @@ export async function ensurePreviewMode(page: Page, version: ApiVersion): Promis
  * Call once per persona during auth setup — not per test.
  */
 export async function setPreviewModeInSetup(authFile: string, version: ApiVersion): Promise<void> {
+  if (process.env.E2E_PREVIEW_TOGGLE !== 'true') {
+    console.log(`[Preview Setup] Skipped (set E2E_PREVIEW_TOGGLE=true to enable)`);
+    return;
+  }
+
   const baseURL = process.env.E2E_BASE_URL || 'https://console.stage.redhat.com';
   const browser = await chromium.launch();
   const context = await browser.newContext({

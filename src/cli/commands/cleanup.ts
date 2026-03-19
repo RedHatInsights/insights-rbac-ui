@@ -43,6 +43,7 @@ export interface CleanupOptions {
   prefix?: string;
   nameMatch?: string;
   dryRun?: boolean;
+  apiVersion?: 'v1' | 'v2';
 }
 
 interface CleanupResult {
@@ -61,6 +62,7 @@ interface Resource {
   system?: boolean;
   platform_default?: boolean;
   type?: string;
+  parent_id?: string | null;
   _apiVersion?: 'v1' | 'v2';
 }
 
@@ -104,6 +106,21 @@ function matchesFilter(resource: Resource, prefix?: string, nameMatch?: string):
  */
 function isProtected(resource: Resource): boolean {
   return resource.system === true || resource.platform_default === true || resource.type === 'root';
+}
+
+/**
+ * Topologically sort workspaces so children are deleted before parents.
+ * Uses parent_id from the API response to compute depth; deepest first.
+ */
+function sortChildrenFirst(workspaces: Resource[]): Resource[] {
+  const byId = new Map(workspaces.map((w) => [w.id!, w]));
+
+  function depth(ws: Resource): number {
+    if (!ws.parent_id || !byId.has(ws.parent_id)) return 0;
+    return 1 + depth(byId.get(ws.parent_id)!);
+  }
+
+  return [...workspaces].sort((a, b) => depth(b) - depth(a));
 }
 
 // ============================================================================
@@ -160,11 +177,26 @@ async function fetchRolesV2(rolesV2Api: RolesV2ApiClient): Promise<Resource[]> {
 }
 
 /**
- * Fetch all roles from both V1 and V2 APIs, deduplicating overlaps.
- * Roles that exist in V1 are deleted via V1 (individual DELETE).
- * Only V2-exclusive roles (not in V1) use V2 batch delete.
+ * Fetch roles from V1 and/or V2 APIs based on the target API version.
+ *
+ * - apiVersion 'v1': Only fetches V1 roles (skips V2 entirely).
+ * - apiVersion 'v2': Only fetches V2 roles (skips V1 entirely).
+ * - apiVersion undefined: Fetches both, deduplicates overlaps. V1 roles are
+ *   deleted via V1 API; only V2-exclusive roles use V2 batch delete.
  */
-async function fetchRoles(rolesApi: RolesApiClient, rolesV2Api: RolesV2ApiClient): Promise<Resource[]> {
+async function fetchRoles(rolesApi: RolesApiClient, rolesV2Api: RolesV2ApiClient, apiVersion?: 'v1' | 'v2'): Promise<Resource[]> {
+  if (apiVersion === 'v1') {
+    const v1Roles = await fetchRolesV1(rolesApi);
+    console.error(`  Fetched ${v1Roles.length} V1 role(s)`);
+    return v1Roles;
+  }
+
+  if (apiVersion === 'v2') {
+    const v2Roles = await fetchRolesV2(rolesV2Api);
+    console.error(`  Fetched ${v2Roles.length} V2 role(s)`);
+    return v2Roles;
+  }
+
   const [v1Roles, v2Roles] = await Promise.all([fetchRolesV1(rolesApi), fetchRolesV2(rolesV2Api)]);
 
   const v1Names = new Set(v1Roles.map((r) => r.display_name || r.name));
@@ -310,7 +342,13 @@ interface ApiClients {
 /**
  * Execute cleanup operations.
  */
-async function executeCleanup(clients: ApiClients, prefix?: string, nameMatch?: string, dryRun: boolean = false): Promise<CleanupResult> {
+async function executeCleanup(
+  clients: ApiClients,
+  prefix?: string,
+  nameMatch?: string,
+  dryRun: boolean = false,
+  apiVersion?: 'v1' | 'v2',
+): Promise<CleanupResult> {
   const { rolesApi, rolesV2Api, groupsApi, workspacesApi } = clients;
   const result: CleanupResult = {
     success: true,
@@ -324,7 +362,7 @@ async function executeCleanup(clients: ApiClients, prefix?: string, nameMatch?: 
 
   // Cleanup roles (V1 via individual delete, V2-only via singular batch delete)
   console.error(`\n🔍 Scanning roles...`);
-  const roles = await fetchRoles(rolesApi, rolesV2Api);
+  const roles = await fetchRoles(rolesApi, rolesV2Api, apiVersion);
   const matchingRoles = roles.filter((r) => matchesFilter(r, prefix, nameMatch) && !isProtected(r));
   console.error(`  Found ${matchingRoles.length} matching role(s)`);
 
@@ -359,20 +397,25 @@ async function executeCleanup(clients: ApiClients, prefix?: string, nameMatch?: 
     }
   }
 
-  // Cleanup workspaces (delete in reverse order to handle children first)
-  console.error(`\n🔍 Scanning workspaces...`);
-  const workspaces = await fetchWorkspaces(workspacesApi);
-  const matchingWorkspaces = workspaces.filter((w) => matchesFilter(w, prefix, nameMatch) && !isProtected(w));
-  console.error(`  Found ${matchingWorkspaces.length} matching workspace(s)`);
+  // Cleanup workspaces (V2-only — skip entirely in V1 mode)
+  if (apiVersion === 'v1') {
+    console.error(`\n📋 Skipping workspaces (V1 mode)`);
+  } else {
+    console.error(`\n🔍 Scanning workspaces...`);
+    const workspaces = await fetchWorkspaces(workspacesApi);
+    const matchingWorkspaces = workspaces.filter((w) => matchesFilter(w, prefix, nameMatch) && !isProtected(w));
+    console.error(`  Found ${matchingWorkspaces.length} matching workspace(s)`);
 
-  if (matchingWorkspaces.length > 0) {
-    console.error(`\n🗑️  ${actionWord} workspaces...`);
-    for (const workspace of matchingWorkspaces.reverse()) {
-      const success = await deleteWorkspaceById(workspacesApi, workspace.id!, workspace.name, result.errors, dryRun);
-      if (success) {
-        result.workspaces.deleted++;
-      } else {
-        result.workspaces.failed++;
+    if (matchingWorkspaces.length > 0) {
+      const sorted = sortChildrenFirst(matchingWorkspaces);
+      console.error(`\n🗑️  ${actionWord} workspaces...`);
+      for (const workspace of sorted) {
+        const success = await deleteWorkspaceById(workspacesApi, workspace.id!, workspace.name, result.errors, dryRun);
+        if (success) {
+          result.workspaces.deleted++;
+        } else {
+          result.workspaces.failed++;
+        }
       }
     }
   }
@@ -404,10 +447,14 @@ export async function runCleanup(options: CleanupOptions): Promise<number> {
     assertValidPattern(pattern, patternType, 'cleanup');
 
     const envConfig = getEnvConfig();
+    const apiVersion = options.apiVersion;
     console.error(`\n🧹 RBAC Cleanup${options.dryRun ? ' [DRY-RUN MODE]' : ''}`);
     console.error(`━`.repeat(50));
     console.error(`Environment: ${envConfig.name}`);
     console.error(`API URL: ${envConfig.apiUrl}`);
+    if (apiVersion) {
+      console.error(`API Version: ${apiVersion}`);
+    }
     if (options.prefix) {
       console.error(`Filter: prefix="${options.prefix}"`);
     }
@@ -437,7 +484,7 @@ export async function runCleanup(options: CleanupOptions): Promise<number> {
     };
 
     // Execute cleanup
-    const result = await executeCleanup(clients, options.prefix, options.nameMatch, options.dryRun);
+    const result = await executeCleanup(clients, options.prefix, options.nameMatch, options.dryRun, apiVersion);
 
     // Output summary
     const totalDeleted = result.roles.deleted + result.groups.deleted + result.workspaces.deleted;
