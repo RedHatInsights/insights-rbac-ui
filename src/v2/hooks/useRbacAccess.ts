@@ -179,8 +179,8 @@ const ROLE_BINDINGS_RELATIONS = [
   'rbac_workspaces_role_binding_update',
 ] as const;
 
-export function useRoleBindingsAccess(workspaceId: string) {
-  const { result, isLoading } = useBulkWorkspaceCheck(workspaceId, ROLE_BINDINGS_RELATIONS);
+export function useRoleBindingsAccess(workspaceId: string | undefined) {
+  const { result, isLoading } = useBulkWorkspaceCheck(workspaceId ?? '', ROLE_BINDINGS_RELATIONS);
 
   return {
     canCreate: result.rbac_workspaces_role_binding_grant,
