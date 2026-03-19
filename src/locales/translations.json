@@ -160,8 +160,6 @@
   "deleteRolesAction": "Delete Roles",
   "deleteUserGroupModalBody": "Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.",
   "deleteUserGroupModalTitle": "Delete user {count, plural, one {group} other {groups}}?",
-  "deleteUserModalBody": "will lose all the roles associated with the user groups it belongs to.",
-  "deleteUserModalTitle": "Remove from user groups?",
   "deleteWorkspaceAction": "Delete Workspaces",
   "deleteWorkspaceErrorDescription": "The workspace {workspace} was not deleted successfuly.",
   "deleteWorkspaceErrorTitle": "Failed deleting workspace",

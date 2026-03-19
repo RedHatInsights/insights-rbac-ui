@@ -106,7 +106,6 @@ const defaultArgs = {
   onInviteUsersClick: fn(),
   onToggleUserStatus: fn(),
   onToggleOrgAdmin: fn(),
-  onDeleteUser: fn(),
   onBulkActivate: fn(),
   onBulkDeactivate: fn(),
 };

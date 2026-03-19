@@ -394,8 +394,6 @@ export const AddToGroupModalIntegration: Story = {
   },
 };
 
-// DeleteUserModalIntegration story removed - delete user feature was removed from the app
-
 // API spy for org admin toggle
 const toggleOrgAdminSpy = fn();
 

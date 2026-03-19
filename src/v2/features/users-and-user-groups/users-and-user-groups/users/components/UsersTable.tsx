@@ -36,7 +36,6 @@ interface UsersTableProps {
   onInviteUsersClick: () => void;
   onToggleUserStatus: (user: User, isActive: boolean) => void;
   onToggleOrgAdmin: (user: User, isOrgAdmin: boolean) => void;
-  onDeleteUser: (user: User) => void;
   onBulkActivate: (users: User[]) => void;
   onBulkDeactivate: (users: User[]) => void;
   onRowClick?: (user: User | undefined) => void;
@@ -61,7 +60,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   onInviteUsersClick,
   onToggleUserStatus,
   onToggleOrgAdmin,
-  onDeleteUser,
   onBulkActivate,
   onBulkDeactivate,
   onRowClick,
@@ -93,9 +91,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
     },
     [onRowClick, focusedUser],
   );
-
-  // Check if user can be deleted (only org admins can delete users)
-  const isDeleteDisabled = !orgAdmin;
 
   // Toolbar actions: "Add to user group" button + overflow kebab (only visible with write permission)
   const toolbarActions = useMemo(
@@ -195,17 +190,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                       key: 'remove-from-group',
                       label: intl.formatMessage(messages.removeFromUserGroup),
                       onClick: () => onRemoveUserFromGroup([user]),
-                    },
-                    {
-                      key: 'divider',
-                      label: '',
-                      isDivider: true,
-                    },
-                    {
-                      key: 'delete',
-                      label: intl.formatMessage(messages.delete),
-                      onClick: () => onDeleteUser(user),
-                      isDisabled: isDeleteDisabled,
                     },
                   ]}
                 />

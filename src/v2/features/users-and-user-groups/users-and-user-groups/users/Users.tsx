@@ -9,7 +9,6 @@ import { type User, useChangeUserStatusMutation, useUpdateUserOrgAdminMutation }
 import paths from '../../../../utilities/pathnames';
 import { useUsers } from './useUsers';
 import { UsersTable } from './components/UsersTable';
-import { DeleteUserModal } from './components/DeleteUserModal';
 import { BulkDeactivateUsersModal } from './components/BulkDeactivateUsersModal';
 import { AddUserToGroupModal } from './add-user-to-group/AddUserToGroupModal';
 import { RemoveUserFromGroupModal } from './remove-user-from-group/RemoveUserFromGroupModal';
@@ -33,9 +32,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   const { users, isLoading, totalCount, tableState, setFocusedUser, handleRowClick: hookHandleRowClick } = useUsers({ enableAdminFeatures: true });
 
   // Modal state
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | undefined>();
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
   // Add user to group modal state
@@ -72,12 +69,6 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     },
     [updateOrgAdminMutation],
   );
-
-  // Delete user handler
-  const handleDeleteUser = useCallback((user: User) => {
-    setCurrentUser(user);
-    setIsDeleteModalOpen(true);
-  }, []);
 
   const handleBulkActivate = useCallback(
     async (usersToActivate: User[]) => {
@@ -136,16 +127,6 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     [context, hookHandleRowClick, setFocusedUser],
   );
 
-  // Modal handlers
-  const handleConfirmDelete = useCallback(() => {
-    if (currentUser) {
-      console.log(`Deleting ${currentUser.username} from user groups`);
-      // TODO: Add delete user API call here when v2 is ready
-      setIsDeleteModalOpen(false);
-      setCurrentUser(undefined);
-    }
-  }, [currentUser]);
-
   const handleConfirmBulkDeactivate = useCallback(async () => {
     const valid = selectedUsers.filter((u) => u.external_source_id != null);
     if (valid.length > 0) {
@@ -156,20 +137,6 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     setIsStatusModalOpen(false);
     setSelectedUsers([]);
   }, [selectedUsers, changeUserStatusMutation]);
-
-  // Render modals
-  const deleteModal = (
-    <DeleteUserModal
-      isOpen={isDeleteModalOpen}
-      username={currentUser?.username}
-      onClose={() => {
-        setIsDeleteModalOpen(false);
-        setCurrentUser(undefined);
-      }}
-      onConfirm={handleConfirmDelete}
-      ouiaId={`${ouiaId}-remove-user-modal`}
-    />
-  );
 
   const statusModal = (
     <BulkDeactivateUsersModal
@@ -209,14 +176,12 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
               onInviteUsersClick={handleInviteUsers}
               onToggleUserStatus={handleToggleUserStatus}
               onToggleOrgAdmin={handleToggleOrgAdmin}
-              onDeleteUser={handleDeleteUser}
               onBulkActivate={handleBulkActivate}
               onBulkDeactivate={handleBulkDeactivate}
               onRowClick={handleRowClick}
               // Table state props - managed by useTableState via useUsers hook
               tableState={tableState}
             >
-              {deleteModal}
               {statusModal}
             </UsersTable>
           </TabContent>

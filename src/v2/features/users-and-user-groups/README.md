@@ -17,7 +17,6 @@ Top-level container (`UsersAndUserGroups.tsx`) — owns the Users / User Groups 
 - `add-user-to-group/AddUserToGroupModal` — add an existing user to a group
 - `remove-user-from-group/RemoveUserFromGroupModal` — remove a user from a group
 - `components/UsersTable` — table with row actions
-- `components/DeleteUserModal` — single user deletion
 - `components/BulkDeactivateUsersModal` — multi-user deactivation
 
 **user-groups/**

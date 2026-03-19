@@ -2866,16 +2866,6 @@ export default defineMessages({
     description: 'column header for assigned user groups table',
     defaultMessage: 'Workspace assignment (TBD)',
   },
-  deleteUserModalTitle: {
-    id: 'deleteUserModalTitle',
-    description: 'Title for delete user modal ',
-    defaultMessage: 'Remove from user groups?',
-  },
-  deleteUserModalBody: {
-    id: 'deleteUserModalBody',
-    description: 'Modal body text for delete user',
-    defaultMessage: 'will lose all the roles associated with the user groups it belongs to.',
-  },
   deleteUserGroupModalTitle: {
     id: 'deleteUserGroupModalTitle',
     description: 'Title for delete user group modal',
