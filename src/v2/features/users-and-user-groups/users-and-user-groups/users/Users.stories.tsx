@@ -396,6 +396,77 @@ export const AddToGroupModalIntegration: Story = {
 
 // DeleteUserModalIntegration story removed - delete user feature was removed from the app
 
+// API spy for org admin toggle
+const toggleOrgAdminSpy = fn();
+
+// Container org admin toggle integration test
+export const OrgAdminToggleIntegration: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tests the full org admin toggle mutation flow. Validates that clicking the org admin switch calls the IT API roles endpoint with the correct method (POST to grant, DELETE to revoke) and shows a success notification.',
+      },
+    },
+    msw: {
+      handlers: [
+        ...usersHandlers(
+          mockUsers.map((u) => ({
+            username: u.username,
+            email: u.email,
+            first_name: u.first_name,
+            last_name: u.last_name,
+            is_active: u.is_active,
+            is_org_admin: u.is_org_admin,
+            external_source_id: String(u.external_source_id),
+          })),
+        ),
+        ...accountManagementHandlers({
+          onToggleOrgAdmin: (accountId, userId, body) => {
+            toggleOrgAdminSpy({ accountId, userId, body });
+          },
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Reset spy', async () => {
+      toggleOrgAdminSpy.mockClear();
+    });
+
+    await step('Grant org admin to non-admin user', async () => {
+      const canvas = within(canvasElement);
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+
+      const orgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for john.doe/i);
+      await expect(orgAdminSwitch).not.toBeChecked();
+      await userEvent.click(orgAdminSwitch);
+    });
+
+    await step('Verify API call and success notification', async () => {
+      await waitFor(
+        async () => {
+          await expect(toggleOrgAdminSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              userId: String(mockUsers[0].external_source_id),
+              body: { role: 'organization_administrator' },
+            }),
+          );
+        },
+        { timeout: 5000 },
+      );
+
+      await waitFor(
+        async () => {
+          const notification = within(document.body).queryByText(/Success updating user/i);
+          await expect(notification).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
+  },
+};
+
 // Container bulk deactivate modal integration test
 export const BulkDeactivateModalIntegration: Story = {
   parameters: {

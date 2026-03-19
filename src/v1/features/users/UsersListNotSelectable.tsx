@@ -8,8 +8,6 @@ import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
-import { usePlatformEnvironment } from '../../../shared/hooks/usePlatformEnvironment';
-import { usePlatformAuth } from '../../../shared/hooks/usePlatformAuth';
 import useUserData from '../../hooks/useUserData';
 import { WarningModal } from '@patternfly/react-component-groups';
 import { AppLink } from '../../../shared/components/navigation/AppLink';
@@ -24,7 +22,6 @@ import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon
 import OrgAdminDropdown from './OrgAdminDropdown';
 import { ActivateToggle } from './components/ActivateToggle';
 import pathnames from '../../utilities/pathnames';
-import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { useChangeUserStatusMutation, useUsersQuery } from '../../../shared/data/queries/users';
 
 interface UsersListNotSelectableProps {
@@ -54,16 +51,11 @@ const columns = ['org_admin', 'username', 'email', 'first_name', 'last_name', 's
 
 const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLinks, props, usesMetaInURL }) => {
   const intl = useIntl();
-  const addNotification = useAddNotification();
   const { orgAdmin } = useUserData();
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
-  const { environment } = usePlatformEnvironment();
-  const { getToken } = usePlatformAuth();
   const userData = useUserData();
   const appNavigate = useAppNavigate();
-  const isITLess = useFlag('platform.rbac.itless');
 
-  const accountId = userData.identity?.internal?.account_id ?? null;
   const currAccountId = userData.identity?.internal?.account_id;
 
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
@@ -130,33 +122,14 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   // React Query mutation for changing user status
   const changeUserStatusMutation = useChangeUserStatusMutation();
 
-  // Handle user status toggle
   const handleToggle = useCallback(
     async (isActive: boolean, updatedUser: User) => {
       if (changeUserStatusMutation.isPending) return;
-
-      try {
-        const token = await getToken();
-        await changeUserStatusMutation.mutateAsync({
-          users: [{ ...updatedUser, id: updatedUser.external_source_id, is_active: isActive }],
-          config: { environment, token, accountId },
-          itless: isITLess,
-        });
-        addNotification({
-          variant: 'success',
-          title: intl.formatMessage(messages.editUserSuccessTitle),
-          dismissable: true,
-        });
-      } catch (error) {
-        console.error('Failed to update status: ', error);
-        addNotification({
-          variant: 'danger',
-          title: intl.formatMessage(messages.editUserErrorTitle),
-          dismissable: true,
-        });
-      }
+      await changeUserStatusMutation.mutateAsync({
+        users: [{ id: updatedUser.external_source_id, username: updatedUser.username, is_active: isActive }],
+      });
     },
-    [changeUserStatusMutation, environment, getToken, accountId, isITLess, addNotification, intl],
+    [changeUserStatusMutation],
   );
 
   // Column configuration
@@ -259,45 +232,17 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
     [intl],
   );
 
-  // Handle bulk status change
   const handleBulkActivation = useCallback(
     async (userStatus: boolean) => {
       if (changeUserStatusMutation.isPending) return;
 
-      const usersList = tableState.selectedRows.map((user) => ({
-        ...user,
-        id: user.external_source_id,
-        is_active: userStatus,
-      }));
-
-      try {
-        const token = await getToken();
-        await changeUserStatusMutation.mutateAsync({
-          users: usersList,
-          config: { environment, token, accountId },
-          itless: isITLess,
-        });
-        addNotification({
-          variant: 'success',
-          title: intl.formatMessage(messages.editUserSuccessTitle),
-          dismissable: true,
-          description: intl.formatMessage(messages.editUserSuccessDescription),
-        });
-        tableState.clearSelection();
-        // React Query will automatically refetch due to cache invalidation
-      } catch (error) {
-        console.error('Failed to update status: ', error);
-        addNotification({
-          variant: 'danger',
-          title: intl.formatMessage(messages.editUserErrorTitle),
-          dismissable: true,
-          description: intl.formatMessage(messages.editUserErrorDescription),
-        });
-      }
-
+      await changeUserStatusMutation.mutateAsync({
+        users: tableState.selectedRows.map((user) => ({ id: user.external_source_id, username: user.username, is_active: userStatus })),
+      });
+      tableState.clearSelection();
       userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
     },
-    [changeUserStatusMutation, tableState, environment, getToken, accountId, isITLess, addNotification, intl],
+    [changeUserStatusMutation, tableState],
   );
 
   // Toolbar buttons

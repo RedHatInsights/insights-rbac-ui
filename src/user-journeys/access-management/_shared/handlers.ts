@@ -430,3 +430,70 @@ export function createStatefulUserStatusHandlers({ onToggleStatus }: StatefulUse
     }),
   ];
 }
+
+// =============================================================================
+// STATEFUL ORG ADMIN TOGGLE HANDLERS
+// For stories that test org admin role mutations — the users GET handler
+// returns updated data after the IT API POST/DELETE handler flips `is_org_admin`.
+// =============================================================================
+
+interface StatefulOrgAdminOptions {
+  onToggleOrgAdmin?: (...args: unknown[]) => void;
+}
+
+/**
+ * Returns handlers where the IT API roles endpoint mutates a local users
+ * snapshot, so the next principals refetch returns the flipped org admin state.
+ * Place these BEFORE v2DefaultHandlers — MSW first-match ensures they win.
+ */
+export function createStatefulOrgAdminHandlers({ onToggleOrgAdmin }: StatefulOrgAdminOptions = {}) {
+  const usersSnapshot = mockUsers.map((u) => ({ ...u }));
+
+  const handleOrgAdminToggle = async (method: string, params: Record<string, string | readonly string[]>, request: Request) => {
+    await delay(NETWORK_DELAY);
+    const body = (await request.json()) as { role: string };
+
+    const user = usersSnapshot.find((u) => String(u.external_source_id) === String(params.userId));
+    if (user) {
+      user.is_org_admin = method === 'POST';
+    }
+
+    onToggleOrgAdmin?.(params.accountId, params.userId, body, method);
+    return HttpResponse.json({ success: true });
+  };
+
+  return [
+    http.get('/api/rbac/v1/principals/', async ({ request }) => {
+      await delay(NETWORK_DELAY);
+      const url = new URL(request.url);
+      const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+      const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+      const usernameFilter = url.searchParams.get('usernames');
+
+      let filtered = [...usersSnapshot];
+      if (usernameFilter) {
+        filtered = filtered.filter((u) => u.username.toLowerCase().includes(usernameFilter.toLowerCase()));
+      }
+
+      const withGroups = filtered.map((user) => ({
+        ...user,
+        user_groups_count: userGroupsMembership[user.username]?.length || 0,
+      }));
+
+      return HttpResponse.json({
+        data: withGroups.slice(offset, offset + limit),
+        meta: { count: filtered.length, limit, offset },
+      });
+    }),
+
+    // Grant org admin (POST)
+    ...['https://api.access.stage.redhat.com', 'https://api.access.redhat.com'].flatMap((baseUrl) => [
+      http.post(`${baseUrl}/account/v1/accounts/:accountId/users/:userId/roles`, ({ params, request }) =>
+        handleOrgAdminToggle('POST', params as Record<string, string | readonly string[]>, request),
+      ),
+      http.delete(`${baseUrl}/account/v1/accounts/:accountId/users/:userId/roles`, ({ params, request }) =>
+        handleOrgAdminToggle('DELETE', params as Record<string, string | readonly string[]>, request),
+      ),
+    ]),
+  ];
+}

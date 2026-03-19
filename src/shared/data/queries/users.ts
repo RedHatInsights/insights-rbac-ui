@@ -4,7 +4,13 @@ import { useAppServices } from '../../contexts/ServiceContext';
 import { isITLessProd, isInt, isStage } from '../../../itLessConfig';
 import { useMutationQueryClient } from '../utils';
 import { type MutationOptions, type QueryOptions } from '../types';
-import type { Environment } from '../../hooks/usePlatformEnvironment';
+import { type Environment, usePlatformEnvironment } from '../../hooks/usePlatformEnvironment';
+import { usePlatformAuth } from '../../hooks/usePlatformAuth';
+import useIdentity from '../../hooks/useIdentity';
+import { useFlag } from '@unleash/proxy-client-react';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 // ============================================================================
 // Environment URL Helpers
@@ -180,38 +186,34 @@ interface ChangeUserStatusParams {
     username: string;
     is_active: boolean;
   }>;
-  config: {
-    environment: Environment;
-    token: string | null;
-    accountId?: string | number | null; // Handle both string and number since different components use different sources
-  };
-  itless?: boolean;
 }
 
 /**
  * Change user status (activate/deactivate).
- * This uses the external IT API, not the RBAC API.
- *
- * IMPORTANT: The `config.token` must be obtained using `useChrome().auth.getToken()`
- * at the component level before calling this mutation. Never use `window.insights` directly.
+ * Uses the external IT API (or ITLess RBAC fallback).
+ * Auth, environment, and notifications are handled internally.
  *
  * @tag api-v1-external - Uses external IT identity provider API
  */
 export function useChangeUserStatusMutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
+  const { getToken } = usePlatformAuth();
+  const { environment } = usePlatformEnvironment();
+  const { identity } = useIdentity();
+  const isITLess = useFlag('platform.rbac.itless');
+  const addNotification = useAddNotification();
+  const intl = useIntl();
 
   return useMutation({
-    mutationFn: async ({ users, config, itless }: ChangeUserStatusParams) => {
-      // Token must always be provided via config (obtained from useChrome hook)
-      if (!config.token) {
-        throw new Error('Token is required. Obtain it using useChrome().auth.getToken() before calling this mutation.');
-      }
+    mutationFn: async ({ users }: ChangeUserStatusParams) => {
+      const token = await getToken();
+      const accountId = identity?.org_id ?? null;
 
-      if (config.accountId && !itless) {
+      if (accountId && !isITLess) {
         // External IT API for status change
         return Promise.all(
           users.map((user) => {
-            const url = `${getITApiUrl(config.environment)}/account/v1/accounts/${config.accountId}/users/${user.id}/status`;
+            const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/${user.id}/status`;
             return fetch(url, {
               method: 'POST',
               body: JSON.stringify({
@@ -219,7 +221,7 @@ export function useChangeUserStatusMutation(options?: MutationOptions) {
               }),
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${config.token}`,
+                Authorization: `Bearer ${token}`,
               },
             });
           }),
@@ -233,14 +235,27 @@ export function useChangeUserStatusMutation(options?: MutationOptions) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ users }),
       });
     },
     onSuccess: () => {
-      // Invalidate users queries to refetch updated status
       queryClient.invalidateQueries({ queryKey: usersKeys.all });
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.editUserSuccessTitle),
+        dismissable: true,
+        description: intl.formatMessage(messages.editUserSuccessDescription),
+      });
+    },
+    onError: () => {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.editUserErrorTitle),
+        dismissable: true,
+        description: intl.formatMessage(messages.editUserErrorDescription),
+      });
     },
   });
 }
@@ -252,35 +267,32 @@ export function useChangeUserStatusMutation(options?: MutationOptions) {
 interface UpdateUserOrgAdminParams {
   userId: string;
   isOrgAdmin: boolean;
-  config: {
-    environment: Environment;
-    token: string | null;
-    accountId: string | null;
-  };
-  itless?: boolean;
 }
 
 /**
  * Update user's org admin status.
- * Uses external IT API for org admin role management.
- *
- * IMPORTANT: The `config.token` must be obtained using `useChrome().auth.getToken()`
- * at the component level before calling this mutation.
+ * Uses external IT API (or ITLess RBAC fallback).
+ * Auth, environment, and notifications are handled internally.
  *
  * @tag api-v1-external - Uses external IT identity provider API
  */
 export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
+  const { getToken } = usePlatformAuth();
+  const { environment } = usePlatformEnvironment();
+  const { identity } = useIdentity();
+  const isITLess = useFlag('platform.rbac.itless');
+  const addNotification = useAddNotification();
+  const intl = useIntl();
 
   return useMutation({
-    mutationFn: async ({ userId, isOrgAdmin, config, itless }: UpdateUserOrgAdminParams) => {
-      if (!config.token) {
-        throw new Error('Token is required. Obtain it using useChrome().auth.getToken() before calling this mutation.');
-      }
+    mutationFn: async ({ userId, isOrgAdmin }: UpdateUserOrgAdminParams) => {
+      const token = await getToken();
+      const accountId = identity?.org_id ?? null;
 
-      if (config.accountId && !itless) {
+      if (accountId && !isITLess) {
         // External IT API for org admin role management
-        const url = `${getITApiUrl(config.environment)}/account/v1/accounts/${config.accountId}/users/${userId}/roles`;
+        const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/${userId}/roles`;
         return fetch(url, {
           method: isOrgAdmin ? 'POST' : 'DELETE',
           body: JSON.stringify({
@@ -288,7 +300,7 @@ export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
           }),
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${config.token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
       }
@@ -299,7 +311,7 @@ export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           user_id: userId,
@@ -308,8 +320,21 @@ export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
       });
     },
     onSuccess: () => {
-      // Invalidate users queries to refetch updated status
       queryClient.invalidateQueries({ queryKey: usersKeys.all });
+      addNotification({
+        variant: 'success',
+        title: intl.formatMessage(messages.editUserSuccessTitle),
+        dismissable: true,
+        description: intl.formatMessage(messages.editUserSuccessDescription),
+      });
+    },
+    onError: () => {
+      addNotification({
+        variant: 'danger',
+        title: intl.formatMessage(messages.editUserErrorTitle),
+        dismissable: true,
+        description: intl.formatMessage(messages.editUserErrorDescription),
+      });
     },
   });
 }

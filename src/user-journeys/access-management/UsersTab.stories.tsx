@@ -19,7 +19,7 @@ import { resetStoryState } from '../_shared/helpers';
 import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
 import { clearAndType, clickTab, waitForContentReady, waitForDrawer, waitForModal } from '../../test-utils/interactionHelpers';
 import { verifySuccessNotification, waitForPageToLoad } from '../../test-utils/tableHelpers';
-import { accountManagementHandlers, createStatefulUserStatusHandlers, v2DefaultHandlers } from './_shared';
+import { accountManagementHandlers, createStatefulOrgAdminHandlers, createStatefulUserStatusHandlers, mockUsers, v2DefaultHandlers } from './_shared';
 
 const meta = {
   component: KesselAppEntryWithRouter,
@@ -682,6 +682,94 @@ Tests toggling a user's active status via the switch in the users table.
           const updatedSwitch = canvas.queryByRole('switch', { name: /toggle status for adumble/i });
           expect(updatedSwitch).toBeInTheDocument();
           expect(updatedSwitch).not.toBeChecked();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
+  },
+};
+
+const orgAdminSpy = fn();
+const orgAdminHandlers = createStatefulOrgAdminHandlers({ onToggleOrgAdmin: orgAdminSpy });
+
+// ginger-spice is not an org admin — ideal for testing the grant flow
+const GINGER_SPICE = mockUsers.find((u) => u.username === 'ginger-spice')!;
+
+/**
+ * Toggle Org Admin
+ *
+ * Tests toggling a user's org admin status via the switch in the users table.
+ * The mutation calls the external IT API (POST/DELETE .../users/{userId}/roles).
+ * Uses stateful handlers so the switch visually flips after the mutation.
+ */
+export const ToggleOrgAdmin: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests toggling a user's org admin status via the switch in the users table.
+
+**Expected behavior:**
+1. Find a non-admin user row's org admin toggle switch
+2. Click the toggle to grant org admin
+3. Verify the IT API was called with POST and role: organization_administrator
+4. Verify success notification appears
+5. Verify the switch visually reflects the new state
+        `,
+      },
+    },
+    msw: {
+      handlers: [...orgAdminHandlers, ...v2DefaultHandlers],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState();
+      orgAdminSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for page and toggle org admin switch', async () => {
+      await waitForPageToLoad(canvas, GINGER_SPICE.username);
+      const orgAdminSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${GINGER_SPICE.username}`, 'i'),
+      });
+      await expect(orgAdminSwitch).not.toBeChecked();
+      await user.click(orgAdminSwitch);
+    });
+
+    await step('Verify API call', async () => {
+      await waitFor(
+        () => {
+          expect(orgAdminSpy).toHaveBeenCalledWith(
+            expect.anything(),
+            GINGER_SPICE.external_source_id,
+            expect.objectContaining({ role: 'organization_administrator' }),
+            'POST',
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
+
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
+
+    await step('Verify switch reflects org admin state', async () => {
+      await waitFor(
+        () => {
+          const updatedSwitch = canvas.queryByRole('switch', {
+            name: new RegExp(`toggle org admin for ${GINGER_SPICE.username}`, 'i'),
+          });
+          expect(updatedSwitch).toBeInTheDocument();
+          expect(updatedSwitch).toBeChecked();
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
