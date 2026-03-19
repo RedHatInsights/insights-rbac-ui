@@ -139,10 +139,6 @@ objects:
                   href: /iam/access-management/workspaces
                   icon: PlaceholderIcon
                   permissions:
-                    - method: featureFlag
-                      args:
-                        - platform.rbac.workspaces-list
-                        - true
                     - method: loosePermissionsKessel
                       args:
                         - - rbac_workspace_view
