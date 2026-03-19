@@ -1,4 +1,4 @@
-import React, { type ReactNode, createContext, useContext } from 'react';
+import React, { type ReactNode, createContext, useContext, useMemo } from 'react';
 
 export type Environment = 'production' | 'staging';
 
@@ -170,25 +170,28 @@ interface ProviderProps extends Partial<MockState> {
   children: ReactNode;
 }
 
+const EMPTY_PERMISSIONS: string[] = [];
+
 export const StorybookMockProvider: React.FC<ProviderProps> = ({
   children,
   environment = 'staging',
   isOrgAdmin = false,
-  permissions = [],
+  permissions = EMPTY_PERMISSIONS,
   workspacePermissions = EMPTY_WORKSPACE_PERMISSIONS,
   tenantPermissions = EMPTY_TENANT_PERMISSIONS,
   userIdentity,
 }) => {
-  const mergedWorkspacePermissions: WorkspacePermissionsMap = { ...EMPTY_WORKSPACE_PERMISSIONS, ...workspacePermissions };
-  const mergedTenantPermissions: TenantPermissionsMap = { ...EMPTY_TENANT_PERMISSIONS, ...tenantPermissions };
-  const value: MockState = {
-    environment,
-    isOrgAdmin,
-    permissions,
-    workspacePermissions: mergedWorkspacePermissions,
-    tenantPermissions: mergedTenantPermissions,
-    userIdentity,
-  };
+  const value = useMemo<MockState>(
+    () => ({
+      environment,
+      isOrgAdmin,
+      permissions,
+      workspacePermissions: { ...EMPTY_WORKSPACE_PERMISSIONS, ...workspacePermissions },
+      tenantPermissions: { ...EMPTY_TENANT_PERMISSIONS, ...tenantPermissions },
+      userIdentity,
+    }),
+    [environment, isOrgAdmin, permissions, workspacePermissions, tenantPermissions, userIdentity],
+  );
   return <StorybookMockContext.Provider value={value}>{children}</StorybookMockContext.Provider>;
 };
 

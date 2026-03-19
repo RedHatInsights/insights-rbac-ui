@@ -129,7 +129,8 @@ export const V2PermissionGuard: React.FC<V2PermissionGuardProps> = ({ permission
     return children ? <>{children}</> : <Outlet context={parentContext} />;
   }
 
-  const isLoading = orgLoading || (hasOrgId && kesselLoading) || (requireOrgAdmin && !identityReady);
+  const needsTenantContext = permissions.length > 0;
+  const isLoading = (needsTenantContext && orgLoading) || (needsTenantContext && hasOrgId && kesselLoading) || (requireOrgAdmin && !identityReady);
 
   if (isLoading) {
     return <AppPlaceholder />;
