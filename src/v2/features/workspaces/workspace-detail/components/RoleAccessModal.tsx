@@ -17,7 +17,7 @@ import type { Role } from '../../../../data/api/roles';
 import { useAllRolesV2Query } from '../../../../data/queries/roles';
 import { useGroupQuery } from '../../../../data/queries/groups';
 import { useRoleBindingsQuery, useUpdateGroupRolesMutation, useWorkspaceQuery } from '../../../../data/queries/workspaces';
-import { useWorkspacePermissions } from '../../hooks/useWorkspacePermissions';
+import { useRoleBindingsAccess } from '../../../../hooks/useRbacAccess';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
@@ -97,14 +97,13 @@ export const RoleAccessModal: React.FC = () => {
     [updateMutation, workspaceId, groupId, handleClose],
   );
 
-  // --- Kessel permission guard (MVP: workspace `create` relation) ---
-  const { hasPermission, isLoading: permissionsLoading } = useWorkspacePermissions(workspace ? [workspace] : []);
+  const { canUpdate: canUpdateBindings, isLoading: permissionsLoading } = useRoleBindingsAccess(workspace?.id);
   const addNotification = useAddNotification();
 
-  const lacksCreatePermission = !!workspace && !permissionsLoading && !hasPermission(workspace.id ?? '', 'create');
+  const lacksPermission = !!workspace && !permissionsLoading && !canUpdateBindings;
 
   useEffect(() => {
-    if (lacksCreatePermission) {
+    if (lacksPermission) {
       addNotification({
         variant: 'danger',
         title: intl.formatMessage(messages.editAccess),
@@ -112,7 +111,7 @@ export const RoleAccessModal: React.FC = () => {
       });
       handleClose();
     }
-  }, [lacksCreatePermission, addNotification, intl, handleClose]);
+  }, [lacksPermission, addNotification, intl, handleClose]);
 
   // --- Derived ---
   const assignedRoleIds = useMemo(() => {
@@ -124,7 +123,7 @@ export const RoleAccessModal: React.FC = () => {
     return null;
   }
 
-  if (lacksCreatePermission) {
+  if (lacksPermission) {
     return null;
   }
 

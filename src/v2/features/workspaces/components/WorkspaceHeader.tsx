@@ -29,6 +29,8 @@ export interface WorkspaceHeaderProps {
   hasAssets: boolean;
   /** Per-workspace Kessel permissions forwarded to WorkspaceActions */
   permissions?: WorkspacePermissions;
+  /** Whether the user has role-binding grant permission for this workspace */
+  canGrantAccess?: boolean;
   /** Callback fired when "Grant access" is selected from the workspace actions menu */
   onGrantAccess?: () => void;
 }
@@ -45,6 +47,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
   workspaceHierarchy,
   hasAssets,
   permissions,
+  canGrantAccess,
   onGrantAccess,
 }) => {
   const intl = useIntl();
@@ -72,7 +75,13 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         breadcrumbs={isLoading ? undefined : <RbacBreadcrumbs breadcrumbs={pageBreadcrumbs} />}
         actionMenu={
           workspace ? (
-            <WorkspaceActions currentWorkspace={workspace} hasAssets={hasAssets} permissions={permissions} onGrantAccess={onGrantAccess} />
+            <WorkspaceActions
+              currentWorkspace={workspace}
+              hasAssets={hasAssets}
+              permissions={permissions}
+              canGrantAccess={canGrantAccess}
+              onGrantAccess={onGrantAccess}
+            />
           ) : undefined
         }
       >

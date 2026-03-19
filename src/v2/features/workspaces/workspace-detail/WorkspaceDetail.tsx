@@ -14,6 +14,7 @@ import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
 import { EMPTY_PERMISSIONS, type WorkspaceWithPermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { useWorkspacesWithPermissions } from '../hooks/useWorkspacesWithPermissions';
+import { useRoleBindingsAccess } from '../../../hooks/useRbacAccess';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { useWorkspaceGroups, useWorkspaceInheritedGroups } from '../../../data/queries/groupAssignments';
 
@@ -117,6 +118,8 @@ export const WorkspaceDetail = () => {
 
   const currentWorkspace = selectedWorkspace ? { id: selectedWorkspace.id ?? '', name: selectedWorkspace.name ?? '' } : undefined;
 
+  const roleBindingPerms = useRoleBindingsAccess(selectedWorkspace?.id);
+
   // Kessel view-permission guard — deny only once permissions are fully resolved.
   // During 'settling', permissions default to all-false; redirecting then would be
   // a false positive for users who actually have view access.
@@ -133,6 +136,7 @@ export const WorkspaceDetail = () => {
         workspaceHierarchy={workspaceHierarchy}
         hasAssets={hasAssets}
         permissions={currentPermissions}
+        canGrantAccess={roleBindingPerms.canCreate}
         onGrantAccess={() => {
           setSearchParams({ activeTab: 'roles', roleAssignmentTab: 'roles-assigned-in-workspace' });
           setIsGrantAccessOpen(true);
@@ -207,9 +211,9 @@ export const WorkspaceDetail = () => {
                   isLoading={roleBindingsIsLoading}
                   workspaceName={selectedWorkspace?.name || ''}
                   currentWorkspace={currentWorkspace}
-                  canGrantAccess={currentPermissions.create}
-                  canEditAccess={currentPermissions.create}
-                  canRevokeAccess={currentPermissions.delete}
+                  canGrantAccess={roleBindingPerms.canCreate}
+                  canEditAccess={roleBindingPerms.canUpdate}
+                  canRevokeAccess={roleBindingPerms.canRevoke}
                   ouiaId="current-role-assignments-table"
                   isGrantAccessWizardOpen={isGrantAccessOpen}
                   onGrantAccessWizardToggle={setIsGrantAccessOpen}

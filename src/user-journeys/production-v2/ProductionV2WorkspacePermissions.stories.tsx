@@ -603,7 +603,7 @@ User has \`view\` on all non-root workspaces but no \`create\`, \`edit\`, or \`d
 };
 
 export const DetailPageCanCreateOnly: Story = {
-  name: 'Detail page — create only (grant/edit enabled, delete disabled)',
+  name: 'Detail page — create only (grant enabled, edit/remove disabled)',
   args: {
     workspacePermissions: { view: NON_ROOT_IDS, edit: [], delete: [], create: NON_ROOT_IDS, move: [] },
     initialRoute: '/iam/access-management/users-and-user-groups',
@@ -615,10 +615,12 @@ export const DetailPageCanCreateOnly: Story = {
 ## Detail Page — Create Only
 
 User has \`view\` and \`create\` but no \`edit\`, \`delete\`, or \`move\`.
+Role binding: \`grant\` maps to \`create\`, \`revoke\` maps to \`delete\`.
+\`canUpdate\` requires both grant AND revoke, so edit access is disabled.
 
 ### Checks
 - "Grant access" toolbar button: enabled
-- Row kebab "Edit access": enabled; "Remove from workspace": disabled
+- Row kebab "Edit access": disabled (needs grant+revoke); "Remove from workspace": disabled
 - Header menu "Grant access" and "Create subworkspace": enabled; "Edit workspace", "Delete workspace": disabled
         `,
       },
@@ -645,7 +647,7 @@ User has \`view\` and \`create\` but no \`edit\`, \`delete\`, or \`move\`.
       await expect(grantAccessButton).toBeEnabled();
     });
 
-    await step('Verify row kebab: edit enabled, remove disabled', async () => {
+    await step('Verify row kebab: edit disabled (needs grant+revoke), remove disabled', async () => {
       await waitFor(
         async () => {
           expect(canvas.queryByText(KESSEL_GROUP_PROD_ADMINS.name)).toBeTruthy();
@@ -660,7 +662,7 @@ User has \`view\` and \`create\` but no \`edit\`, \`delete\`, or \`move\`.
 
       const body = within(document.body);
       const editItem = await body.findByText(/edit access for this workspace/i);
-      await expect(editItem.closest('button')).not.toHaveAttribute('disabled');
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
       const removeItem = await body.findByText(/remove from workspace/i);
       await expect(removeItem.closest('button')).toHaveAttribute('disabled');
 
@@ -700,10 +702,11 @@ export const DetailPageCanDeleteOnly: Story = {
 ## Detail Page — Delete Only
 
 User has \`view\` and \`delete\` but no \`create\`, \`edit\`, or \`move\`.
+Role binding: \`revoke\` maps to \`delete\`, \`grant\` maps to \`create\`.
 
 ### Checks
-- "Grant access" toolbar button: disabled
-- Row kebab "Edit access": disabled; "Remove from workspace": enabled
+- "Grant access" toolbar button: disabled (no grant/create)
+- Row kebab "Edit access": disabled (needs grant+revoke); "Remove from workspace": enabled (has revoke/delete)
 - Header menu "Delete workspace": enabled; "Grant access", "Edit workspace": disabled
         `,
       },

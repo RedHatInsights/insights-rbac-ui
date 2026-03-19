@@ -53,21 +53,24 @@ hasPermission(ws.id, 'delete')  // → boolean
 - **Detail page:** renders `<UnauthorizedAccess>` when `view` is denied; `WorkspaceActions` menu items disabled per relation
 - **Edit modal:** redirects if `edit` permission is denied (direct URL guard)
 
-**Role binding permission mapping (MVP):**
+**Role binding permission mapping:**
 
-| Operation | MVP Kessel relation | Post-MVP relation |
-|-----------|-------------------|-------------------|
-| View role bindings | `view` | `role_binding_view` |
-| Create role binding (Grant access) | `create` | `role_binding_create` |
-| Edit role binding (Edit access modal) | `create` | `role_binding_update` |
-| Revoke role binding (Remove from workspace) | `delete` | `role_binding_revoke` |
+| Operation | Kessel relation (workspace-scoped) |
+|-----------|-----------------------------------|
+| View role bindings | `rbac_workspaces_role_binding_view` |
+| Create role binding (Grant access) | `rbac_workspaces_role_binding_grant` |
+| Edit role binding (Edit access modal) | `rbac_workspaces_role_binding_grant` AND `rbac_workspaces_role_binding_revoke` |
+| Revoke role binding (Remove from workspace) | `rbac_workspaces_role_binding_revoke` |
+
+Role binding permissions are checked via `useRoleBindingsAccess(workspaceId)` from `src/v2/hooks/useRbacAccess.ts`.
 
 **Enforcement points:**
-- **Toolbar "Grant access" button** (`BaseGroupAssignmentsTable`): `canGrantAccess` prop, gated on `create` + M4 flag
-- **Row kebab "Edit access"** (`BaseGroupAssignmentsTable`): `canEditAccess` prop, gated on `create`
-- **Row kebab "Remove from workspace"** (`BaseGroupAssignmentsTable`): `canRevokeAccess` prop, gated on `delete`
+- **Toolbar "Grant access" button** (`BaseGroupAssignmentsTable`): `canGrantAccess` prop, gated on `rbac_workspaces_role_binding_grant` + M4 flag
+- **Row kebab "Edit access"** (`BaseGroupAssignmentsTable`): `canEditAccess` prop, gated on `canUpdate` (`grant && revoke`)
+- **Row kebab "Remove from workspace"** (`BaseGroupAssignmentsTable`): `canRevokeAccess` prop, gated on `rbac_workspaces_role_binding_revoke`
 - **Drawer "Edit access" / "Remove from workspace" buttons** (`GroupDetailsDrawer`): same props, passed through
-- **`RoleAccessModal`** (route-driven): Kessel `create` permission guard — redirects back if denied (direct URL defense)
+- **`RoleAccessModal`** (route-driven): Kessel `canUpdate` permission guard — redirects back if denied (direct URL defense)
+- **`WorkspaceActions` "Grant access"** menu item: `canGrantAccess` prop from `useRoleBindingsAccess`
 
 ## Federated modules
 

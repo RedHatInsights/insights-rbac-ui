@@ -38,6 +38,8 @@ interface WorkspaceActionsProps {
   hasAssets: boolean;
   /** Per-workspace Kessel permissions. When absent, all actions are disabled (deny-by-default). */
   permissions?: WorkspacePermissions;
+  /** Whether the user has role-binding grant permission for this workspace */
+  canGrantAccess?: boolean;
   /** Callback fired when "Grant access" is selected from the actions menu. */
   onGrantAccess?: () => void;
 }
@@ -47,6 +49,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
   currentWorkspace,
   hasAssets,
   permissions,
+  canGrantAccess,
   onGrantAccess,
 }) => {
   const perms = permissions ?? EMPTY_PERMISSIONS;
@@ -120,8 +123,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
           <MenuItem onClick={() => dispatchAction(ActionType.EDIT_WORKSPACE)} itemId="edit_workspace" isDisabled={!perms.edit}>
             {intl.formatMessage(messages.workspacesActionEditWorkspace)}
           </MenuItem>
-          {/* TODO: replace `create` with `role_binding_create` when role_binding_* relations ship */}
-          <MenuItem onClick={() => dispatchAction(ActionType.GRANT_ACCESS)} itemId="grant_access" isDisabled={!perms.create || !hasM4Flag}>
+          <MenuItem onClick={() => dispatchAction(ActionType.GRANT_ACCESS)} itemId="grant_access" isDisabled={canGrantAccess === false || !hasM4Flag}>
             {intl.formatMessage(messages.workspacesActionGrantAccessToWorkspace)}
           </MenuItem>
           <MenuItem onClick={() => dispatchAction(ActionType.CREATE_SUBWORKSPACE)} itemId="create_subworkspace" isDisabled={!perms.create}>
