@@ -29,7 +29,7 @@ const meta = {
       const dynamicEnv = createDynamicEnvironment({
         ...context.args,
         permissions: KESSEL_PERMISSIONS.NONE,
-        'platform.rbac.workspaces-organization-management': true,
+        'platform.rbac.workspaces': true,
       });
       context.parameters = { ...context.parameters, ...dynamicEnv };
       const argsKey = JSON.stringify(context.args);
@@ -56,7 +56,7 @@ const meta = {
     ...createDynamicEnvironment({
       permissions: KESSEL_PERMISSIONS.NONE, // No RBAC permissions
       orgAdmin: false,
-      'platform.rbac.workspaces-organization-management': true, // V2 Navigation
+      'platform.rbac.workspaces': true,
     }),
     msw: {
       handlers: mswHandlers,

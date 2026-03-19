@@ -81,7 +81,6 @@ const meta = {
       permissions: USER_ACCESS_ADMIN_PERMISSIONS,
       orgAdmin: false,
       'platform.rbac.common-auth-model': true,
-      'platform.rbac.workspaces-organization-management': true,
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': true,
       'platform.rbac.workspaces-role-bindings': true,

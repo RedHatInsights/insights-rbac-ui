@@ -8,7 +8,7 @@ React application for Red Hat's Role-Based Access Control system. Built on Patte
 - **`src/v2/`** — Access Management (V2). Uses Kessel SDK domain hooks (`src/v2/hooks/useRbacAccess.ts`) for permissions. Routes defined in `src/v2/Routing.tsx`.
 - **`src/shared/`** — Code shared between V1 and V2: platform hooks, UI components, table-view, contexts, and utilities.
 
-`src/Iam.tsx` is the shell that conditionally renders `IamV1` or `IamV2` based on the `platform.rbac.workspaces-organization-management` feature flag.
+`src/Iam.tsx` is the shell that conditionally renders `IamV1` or `IamV2` based on the `platform.rbac.workspaces` feature flag.
 
 **Boundary rules** (enforced by ESLint rule `rbac-local/no-cross-version-imports`):
 - `src/v1/` cannot import from `src/v2/`

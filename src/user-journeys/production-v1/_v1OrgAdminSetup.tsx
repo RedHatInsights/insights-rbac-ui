@@ -53,7 +53,6 @@ export const meta = {
     orgAdmin: true,
     userAccessAdministrator: false,
     'platform.rbac.workspaces-list': true,
-    'platform.rbac.workspaces-organization-management': false,
     'platform.rbac.group-service-accounts': false,
     'platform.rbac.group-service-accounts.stable': true,
     'platform.rbac.common-auth-model': true,

@@ -19,7 +19,6 @@ interface StoryArgs {
   'platform.rbac.workspaces-role-bindings'?: boolean;
   'platform.rbac.workspaces-role-bindings-write'?: boolean;
   'platform.rbac.workspaces'?: boolean;
-  'platform.rbac.workspaces-organization-management'?: boolean;
   'platform.rbac.group-service-accounts'?: boolean;
   'platform.rbac.group-service-accounts.stable'?: boolean;
   'platform.rbac.common-auth-model'?: boolean;
@@ -53,11 +52,6 @@ const meta = {
       description: 'Kessel M1 - Workspace list view',
       table: { category: 'Kessel Flags', defaultValue: { summary: 'true' } },
     },
-    'platform.rbac.workspaces-organization-management': {
-      control: 'boolean',
-      description: 'V2 Navigation - Access Management layout',
-      table: { category: 'Kessel Flags', defaultValue: { summary: 'true' } },
-    },
   },
   args: {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
@@ -69,7 +63,6 @@ const meta = {
     'platform.rbac.workspaces-role-bindings': true,
     'platform.rbac.workspaces-role-bindings-write': false,
     'platform.rbac.workspaces': true,
-    'platform.rbac.workspaces-organization-management': true,
     'platform.rbac.group-service-accounts': true,
     'platform.rbac.group-service-accounts.stable': true,
     'platform.rbac.common-auth-model': true,
@@ -83,7 +76,6 @@ const meta = {
       'platform.rbac.workspaces-role-bindings': true,
       'platform.rbac.workspaces-role-bindings-write': false,
       'platform.rbac.workspaces': true,
-      'platform.rbac.workspaces-organization-management': true,
       'platform.rbac.group-service-accounts': true,
       'platform.rbac.group-service-accounts.stable': true,
       'platform.rbac.common-auth-model': true,

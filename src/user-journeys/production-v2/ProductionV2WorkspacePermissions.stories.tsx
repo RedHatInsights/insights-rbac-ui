@@ -38,7 +38,6 @@ interface StoryArgs {
   'platform.rbac.workspaces-role-bindings'?: boolean;
   'platform.rbac.workspaces-role-bindings-write'?: boolean;
   'platform.rbac.workspaces'?: boolean;
-  'platform.rbac.workspaces-organization-management'?: boolean;
   initialRoute?: string;
 }
 
@@ -58,7 +57,6 @@ const ALL_FLAGS = {
   'platform.rbac.workspaces-role-bindings': true,
   'platform.rbac.workspaces-role-bindings-write': true,
   'platform.rbac.workspaces': true,
-  'platform.rbac.workspaces-organization-management': true,
 } as const;
 
 const db = createV2MockDb({

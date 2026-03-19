@@ -25,7 +25,6 @@ const meta = {
     permissions: ['rbac:principal:read'],
     orgAdmin: false,
     'platform.rbac.workspaces': false,
-    'platform.rbac.workspaces-organization-management': false, // V1 navigation
   },
   parameters: {
     ...ENVIRONMENTS.PROD_USER_VIEWER,

@@ -7,7 +7,7 @@ Use this as the single source of truth when deciding which persona to use for a 
 
 Both V1 and V2 use the same **granular permission model**. The difference between V1 and V2 is:
 - **V1**: User Access routes (`/iam/user-access/...`)
-- **V2**: Access Management routes (`/iam/access-management/...`) — enabled by `platform.rbac.workspaces-organization-management` flag
+- **V2**: Access Management routes (`/iam/access-management/...`) — enabled by `platform.rbac.workspaces` flag
 
 Permissions are checked against route definitions in `src/utilities/route-definitions.ts`.
 

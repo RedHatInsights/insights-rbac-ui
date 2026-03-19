@@ -15,7 +15,7 @@ export const SidebarValidation: Story = {
         story: `
 Validates that V2 Org Admin sees all sidebar items.
 
-V2 navigation (when \`platform.rbac.workspaces-organization-management\` is enabled):
+V2 navigation (when \`platform.rbac.workspaces\` is enabled):
 - **My Access** — top-level link
 - **Access Management** — expandable section containing:
   - Users and Groups

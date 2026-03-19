@@ -56,7 +56,6 @@ export const ENVIRONMENTS: Record<string, EnvironmentConfig> = {
       'platform.rbac.group-service-accounts': false, // OLD feature flag, DO NOT USE
       'platform.rbac.group-service-accounts.stable': true, // current feature flag, used after isBeta deprecation
       'platform.rbac.workspaces-list': true, // Show Workspaces page inside V1 User Access
-      'platform.rbac.workspaces-organization-management': false, // V1 navigation
       'platform.rbac.common-auth-model': true, // Enables selectable users table for org admins
     },
     msw: {
@@ -99,7 +98,6 @@ export const ENVIRONMENTS: Record<string, EnvironmentConfig> = {
       'platform.rbac.group-service-accounts': false,
       'platform.rbac.group-service-accounts.stable': true,
       'platform.rbac.workspaces': false,
-      'platform.rbac.workspaces-organization-management': false, // V1 navigation
     },
     msw: {
       handlers: v1Handlers,
@@ -143,7 +141,6 @@ export const ENVIRONMENTS: Record<string, EnvironmentConfig> = {
       'platform.rbac.group-service-accounts': false,
       'platform.rbac.group-service-accounts.stable': true,
       'platform.rbac.workspaces': false,
-      'platform.rbac.workspaces-organization-management': false, // V1 navigation
     },
     msw: {
       handlers: v1Handlers,
@@ -185,7 +182,6 @@ export const ENVIRONMENTS: Record<string, EnvironmentConfig> = {
     featureFlags: {
       'platform.rbac.group-service-accounts.stable': true,
       'platform.rbac.workspaces': true,
-      'platform.rbac.workspaces-organization-management': false, // V1 with workspaces
     },
     msw: {
       handlers: v1Handlers,

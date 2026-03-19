@@ -77,14 +77,14 @@ objects:
         - segmentId: module-rbac-ui
           bundleId: iam
           navItems:
-            # New navigation structure with platform.rbac.workspaces-organization-management feature flag
+            # New navigation structure with platform.rbac.workspaces feature flag
             - id: overview
               title: Overview
               href: /iam/overview
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - true
                 - method: featureFlag
                   args:
@@ -100,7 +100,7 @@ objects:
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - true
             - id: access-management
               title: Access Management
@@ -108,7 +108,7 @@ objects:
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - true
                 - method: loosePermissionsKessel
                   args:
@@ -159,7 +159,7 @@ objects:
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - true
                 - method: isOrgAdmin
               routes:
@@ -194,7 +194,7 @@ objects:
               permissions:
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - false
             - id: user-access
               title: User Access
@@ -208,7 +208,7 @@ objects:
                     - - inventory:groups:read
                 - method: featureFlag
                   args:
-                    - platform.rbac.workspaces-organization-management
+                    - platform.rbac.workspaces
                     - false
               routes:
                 - id: user-access-overview

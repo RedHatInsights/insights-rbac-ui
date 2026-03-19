@@ -64,14 +64,14 @@ const meta = {
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
-    'platform.rbac.workspaces-organization-management': true,
+    'platform.rbac.workspaces': true,
   },
   parameters: {
     ...createDynamicEnvironment({
       permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
-      'platform.rbac.workspaces-organization-management': true,
+      'platform.rbac.workspaces': true,
     }),
     msw: {
       handlers: [

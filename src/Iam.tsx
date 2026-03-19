@@ -41,7 +41,7 @@ const SharedProviders: React.FC<IamProps & { children: React.ReactNode }> = ({ t
  * Version router: reads the access-management flag and renders V1 or V2.
  */
 const VersionRouter: React.FC = () => {
-  const hasAccessManagement = useFlag('platform.rbac.workspaces-organization-management');
+  const hasAccessManagement = useFlag('platform.rbac.workspaces');
   return hasAccessManagement ? <IamV2 /> : <IamV1 />;
 };
 

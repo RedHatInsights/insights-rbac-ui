@@ -145,7 +145,6 @@ export const meta = {
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
     permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
     orgAdmin: true,
-    'platform.rbac.workspaces-organization-management': true,
     'platform.rbac.workspaces-list': true,
     'platform.rbac.workspace-hierarchy': true,
     'platform.rbac.workspaces-role-bindings': true,
@@ -159,7 +158,6 @@ export const meta = {
     ...createDynamicEnvironment({
       permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
-      'platform.rbac.workspaces-organization-management': true,
       'platform.rbac.workspaces-list': true,
       'platform.rbac.workspace-hierarchy': true,
       'platform.rbac.workspaces-role-bindings': true,

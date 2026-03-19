@@ -65,14 +65,12 @@ const meta = {
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
     'platform.rbac.workspaces': true, // M5 flag - enables V2 roles view with kebab menus
-    'platform.rbac.workspaces-organization-management': true, // Enables access-management routes
   },
   parameters: {
     ...createDynamicEnvironment({
       permissions: KESSEL_PERMISSIONS.FULL_ADMIN,
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
-      'platform.rbac.workspaces-organization-management': true,
       'platform.rbac.workspaces': true,
     }),
     msw: {
