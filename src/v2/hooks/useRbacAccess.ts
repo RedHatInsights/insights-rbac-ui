@@ -96,11 +96,18 @@ const _RBAC_WORKSPACE_RELATIONS = [
 
 type RbacWorkspaceRelation = (typeof _RBAC_WORKSPACE_RELATIONS)[number];
 
+const NOOP_WS_RESOURCE: SelfAccessCheckResourceWithRelation = {
+  id: '__noop__',
+  type: 'workspace',
+  reporter: RBAC_REPORTER,
+  relation: '__noop__',
+};
+
 function useBulkWorkspaceCheck<R extends RbacWorkspaceRelation>(workspaceId: string, relations: readonly R[]): BulkCheckResult<R> {
   const hasId = workspaceId !== '';
 
   const resources = useMemo<NotEmptyArray<SelfAccessCheckResourceWithRelation>>(() => {
-    if (!hasId) return [] as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+    if (!hasId) return [NOOP_WS_RESOURCE] as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
     return relations.map((rel) => ({
       id: workspaceId,
       type: 'workspace' as const,
