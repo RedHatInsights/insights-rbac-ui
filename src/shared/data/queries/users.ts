@@ -1,14 +1,10 @@
 import { type UseQueryResult, useMutation, useQuery } from '@tanstack/react-query';
 import { type ListPrincipalsParams, type PrincipalPagination, createUsersApi } from '../api/users';
 import { useAppServices } from '../../contexts/ServiceContext';
+import type { Environment } from '../../services/types';
 import { isITLessProd, isInt, isStage } from '../../../itLessConfig';
 import { useMutationQueryClient } from '../utils';
 import { type MutationOptions, type QueryOptions } from '../types';
-import { type Environment, usePlatformEnvironment } from '../../hooks/usePlatformEnvironment';
-import { usePlatformAuth } from '../../hooks/usePlatformAuth';
-import useIdentity from '../../hooks/useIdentity';
-import { useFlag } from '@unleash/proxy-client-react';
-import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
@@ -192,11 +188,7 @@ interface ChangeUserStatusParams {
  */
 export function useChangeUserStatusMutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
-  const { getToken } = usePlatformAuth();
-  const { environment } = usePlatformEnvironment();
-  const { identity } = useIdentity();
-  const isITLess = useFlag('platform.rbac.itless');
-  const addNotification = useAddNotification();
+  const { notify, getToken, environment, identity, isITLess } = useAppServices();
   const intl = useIntl();
 
   return useMutation({
@@ -259,12 +251,7 @@ export function useChangeUserStatusMutation(options?: MutationOptions) {
       return { previousQueries };
     },
     onSuccess: () => {
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.editUserSuccessTitle),
-        dismissable: true,
-        description: intl.formatMessage(messages.editUserSuccessDescription),
-      });
+      notify('success', intl.formatMessage(messages.editUserSuccessTitle), intl.formatMessage(messages.editUserSuccessDescription));
     },
     onError: (_err, _vars, context) => {
       if (context?.previousQueries) {
@@ -272,12 +259,7 @@ export function useChangeUserStatusMutation(options?: MutationOptions) {
           queryClient.setQueryData(key, data);
         }
       }
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.editUserErrorTitle),
-        dismissable: true,
-        description: intl.formatMessage(messages.editUserErrorDescription),
-      });
+      notify('danger', intl.formatMessage(messages.editUserErrorTitle), intl.formatMessage(messages.editUserErrorDescription));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: usersKeys.all });
@@ -303,11 +285,7 @@ interface UpdateUserOrgAdminParams {
  */
 export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
-  const { getToken } = usePlatformAuth();
-  const { environment } = usePlatformEnvironment();
-  const { identity } = useIdentity();
-  const isITLess = useFlag('platform.rbac.itless');
-  const addNotification = useAddNotification();
+  const { notify, getToken, environment, identity, isITLess } = useAppServices();
   const intl = useIntl();
 
   return useMutation({
@@ -346,20 +324,10 @@ export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: usersKeys.all });
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.editUserSuccessTitle),
-        dismissable: true,
-        description: intl.formatMessage(messages.editUserSuccessDescription),
-      });
+      notify('success', intl.formatMessage(messages.editUserSuccessTitle), intl.formatMessage(messages.editUserSuccessDescription));
     },
     onError: () => {
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.editUserErrorTitle),
-        dismissable: true,
-        description: intl.formatMessage(messages.editUserErrorDescription),
-      });
+      notify('danger', intl.formatMessage(messages.editUserErrorTitle), intl.formatMessage(messages.editUserErrorDescription));
     },
   });
 }
@@ -368,41 +336,35 @@ export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
 // Invite Users Mutation
 // ============================================================================
 
-interface InviteUsersParams {
+export interface InviteUsersParams {
   emails: string[];
   isAdmin?: boolean;
   portal_manage_cases?: boolean;
   portal_download?: boolean;
   portal_manage_subscriptions?: string;
-  config: {
-    environment: Environment;
-    token: string | null;
-    accountId: string | null;
-  };
-  itless?: boolean;
 }
 
 /**
  * Invite users via email.
- * Uses external IT API for user invitation.
- *
- * IMPORTANT: The `config.token` must be obtained using `useChrome().auth.getToken()`
- * at the component level before calling this mutation.
+ * Auth, environment, identity, and ITLess flag are resolved from useAppServices().
  *
  * @tag api-v1-external - Uses external IT identity provider API
  */
 export function useInviteUsersMutation(options?: MutationOptions) {
   const queryClient = useMutationQueryClient(options?.queryClient);
+  const { getToken, environment, identity, isITLess } = useAppServices();
 
   return useMutation({
-    mutationFn: async ({ emails, isAdmin, portal_manage_cases, portal_download, portal_manage_subscriptions, config, itless }: InviteUsersParams) => {
-      if (!config.token) {
-        throw new Error('Token is required. Obtain it using useChrome().auth.getToken() before calling this mutation.');
+    mutationFn: async ({ emails, isAdmin, portal_manage_cases, portal_download, portal_manage_subscriptions }: InviteUsersParams) => {
+      const token = await getToken();
+      if (!token) {
+        throw new Error('Auth token is required for invite users mutation.');
       }
 
-      if (config.accountId && !itless) {
-        // External IT API for user invitation
-        const url = `${getITApiUrl(config.environment)}/account/v1/accounts/${config.accountId}/users/invite`;
+      const accountId = identity?.org_id ?? null;
+
+      if (accountId && !isITLess) {
+        const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/invite`;
         const response = await fetch(url, {
           method: 'POST',
           body: JSON.stringify({
@@ -415,21 +377,19 @@ export function useInviteUsersMutation(options?: MutationOptions) {
           }),
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${config.token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
-        return response; // Return raw response for status checking
+        return response;
       }
 
-      // ITLess fallback - use dynamic base URL from env.json
-      // In tests, env.json doesn't exist, so baseUrl is empty string -> '/user/invite'
       const envUrl = await fetchEnvBaseUrl();
       const response = await fetch(`${envUrl}/user/invite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           emails,
@@ -437,10 +397,9 @@ export function useInviteUsersMutation(options?: MutationOptions) {
         }),
       });
 
-      return response; // Return raw response for status checking
+      return response;
     },
     onSuccess: () => {
-      // Invalidate users queries to refetch updated list
       queryClient.invalidateQueries({ queryKey: usersKeys.all });
     },
   });

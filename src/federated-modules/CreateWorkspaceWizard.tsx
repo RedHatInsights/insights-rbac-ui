@@ -27,6 +27,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { IntlProvider } from 'react-intl';
 import { createStandaloneQueryClient } from '../shared/components/QueryClientSetup';
 import { ServiceProvider } from '../shared/contexts/ServiceContext';
+import type { AppServices } from '../shared/services/types';
 import { browserApiClient } from '../shared/entry/browser';
 import messages from '../locales/data.json';
 import {
@@ -39,10 +40,16 @@ export const locale = 'en';
 // Create a standalone query client for the module
 const moduleQueryClient = createStandaloneQueryClient();
 
-// Create standalone services for the module
-const moduleServices = {
+// Standalone services — federated modules run inside Chrome, so these are safe defaults.
+// The wizard only uses axios for RBAC API calls; external IT API fields are unused.
+const moduleServices: AppServices = {
   axios: browserApiClient,
-  notify: () => {}, // Wizard handles its own notifications via useAddNotification
+  notify: () => {},
+  getToken: async () => '',
+  environment: 'staging',
+  ssoUrl: '',
+  identity: undefined,
+  isITLess: false,
 };
 
 const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = (props) => {

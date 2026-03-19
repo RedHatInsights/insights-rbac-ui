@@ -1,4 +1,4 @@
-import useIdentity from '../../shared/hooks/useIdentity';
+import { useIdentity } from '../../shared/hooks/useIdentity';
 
 export interface OrganizationData {
   accountNumber: string;

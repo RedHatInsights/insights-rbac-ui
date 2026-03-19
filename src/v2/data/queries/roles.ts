@@ -8,8 +8,7 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
-import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import { rolesV2Api } from '../api/roles';
+import { createRolesV2Api } from '../api/roles';
 import type {
   CursorPaginationLinks,
   ExcludeSources,
@@ -22,6 +21,7 @@ import type {
   RolesListParams,
 } from '../api/roles';
 
+import { useAppServices } from '../../../shared/contexts/ServiceContext';
 import messages from '../../../Messages';
 import { useMutationQueryClient } from '../../../shared/data/utils';
 import type { MutationOptions } from '../../../shared/data/types';
@@ -66,12 +66,14 @@ export interface RolesV2QueryParams extends RolesListParams {
  * return no results. This is acceptable since V2 is behind a feature flag.
  */
 export function useRolesV2Query(params: RolesV2QueryParams = {}, options?: { enabled?: boolean }) {
+  const { axios } = useAppServices();
+  const rolesApi = createRolesV2Api(axios);
   const { username, ...apiParams } = params;
 
   return useQuery({
     queryKey: rolesV2Keys.list(params as RolesListParams),
     queryFn: async (): Promise<RolesList200Response> => {
-      const response = await rolesV2Api.rolesList({
+      const response = await rolesApi.rolesList({
         ...apiParams,
         ...(username ? { options: { params: { username } } } : {}),
       });
@@ -91,6 +93,8 @@ export function useRolesV2Query(params: RolesV2QueryParams = {}, options?: { ena
  * Axios query params until the rbac-client ships first-class support.
  */
 export function useAllRolesV2Query(options?: { enabled?: boolean; name?: string; resourceType?: string; resourceId?: string }) {
+  const { axios } = useAppServices();
+  const rolesApi = createRolesV2Api(axios);
   const extraParams: Record<string, string> = {};
   if (options?.resourceType) extraParams.resource_type = options.resourceType;
   if (options?.resourceId) extraParams.resource_id = options.resourceId;
@@ -106,7 +110,7 @@ export function useAllRolesV2Query(options?: { enabled?: boolean; name?: string;
   return useQuery({
     queryKey: [...rolesV2Keys.lists(), 'all', options?.name, options?.resourceType, options?.resourceId] as const,
     queryFn: async (): Promise<Role[]> => {
-      const response = await rolesV2Api.rolesList(params);
+      const response = await rolesApi.rolesList(params);
       return response.data.data;
     },
     enabled: options?.enabled ?? true,
@@ -124,10 +128,13 @@ export function extractRolesV2Links(data: RolesList200Response | undefined): Cur
  * Fetch single V2 role by ID.
  */
 export function useRoleQuery(id: string, options?: { enabled?: boolean }) {
+  const { axios } = useAppServices();
+  const rolesApi = createRolesV2Api(axios);
+
   return useQuery({
     queryKey: rolesV2Keys.detail(id),
     queryFn: async (): Promise<Role> => {
-      const response = await rolesV2Api.rolesRead({
+      const response = await rolesApi.rolesRead({
         id,
         fields: 'id,name,description,permissions,permissions_count,last_modified',
       });
@@ -153,12 +160,15 @@ export function useRoleAssignmentsQuery(
     excludeSources?: ExcludeSources;
   },
 ) {
+  const { axios } = useAppServices();
+  const rolesApi = createRolesV2Api(axios);
+
   return useQuery({
     queryKey: [...roleBindingsKeys.all, 'workspace-role-bindings', workspaceId, options?.limit, options?.cursor, options?.excludeSources],
     queryFn: async (): Promise<RoleBindingsListBySubject200Response> => {
       const fields = 'last_modified,subject(id,group.name,group.description,group.user_count),roles(id,name),resource(id,name,type)';
 
-      const response = await rolesV2Api.roleBindingsListBySubject({
+      const response = await rolesApi.roleBindingsListBySubject({
         resourceId: workspaceId,
         resourceType: 'workspace',
         subjectType: 'group',
@@ -177,10 +187,13 @@ export function useRoleAssignmentsQuery(
  * Fetch where a specific role is used: which groups have it and in which workspaces.
  */
 export function useRoleUsageQuery(roleId: string, options?: { enabled?: boolean }) {
+  const { axios } = useAppServices();
+  const rolesApi = createRolesV2Api(axios);
+
   return useQuery({
     queryKey: [...roleBindingsKeys.all, 'role-bindings', roleId],
     queryFn: async (): Promise<RoleBindingsRoleBinding[]> => {
-      const response = await rolesV2Api.roleBindingsList({
+      const response = await rolesApi.roleBindingsList({
         roleId,
         limit: 1000,
         fields: 'subject(id,group.name),resource(id,name,type)',
@@ -199,31 +212,24 @@ export function useRoleUsageQuery(roleId: string, options?: { enabled?: boolean 
  * Create a new V2 role.
  */
 export function useCreateRoleMutation(options?: MutationOptions) {
+  const { axios, notify } = useAppServices();
+  const rolesApi = createRolesV2Api(axios);
   const queryClient = useMutationQueryClient(options?.queryClient);
-  const addNotification = useAddNotification();
   const intl = useIntl();
 
   return useMutation({
     mutationFn: async (data: RolesCreateOrUpdateRoleRequest): Promise<Role> => {
-      const response = await rolesV2Api.rolesCreate({
+      const response = await rolesApi.rolesCreate({
         rolesCreateOrUpdateRoleRequest: data,
       });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
-      addNotification({
-        variant: 'success',
-        title: 'Role created successfully',
-        dismissable: true,
-      });
+      notify('success', 'Role created successfully');
     },
     onError: () => {
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.createRoleErrorTitle),
-        dismissable: true,
-      });
+      notify('danger', intl.formatMessage(messages.createRoleErrorTitle));
     },
   });
 }
@@ -232,13 +238,14 @@ export function useCreateRoleMutation(options?: MutationOptions) {
  * Update a V2 role.
  */
 export function useUpdateRoleMutation(options?: MutationOptions) {
+  const { axios, notify } = useAppServices();
+  const rolesApi = createRolesV2Api(axios);
   const queryClient = useMutationQueryClient(options?.queryClient);
-  const addNotification = useAddNotification();
   const intl = useIntl();
 
   return useMutation({
     mutationFn: async ({ id, ...data }: RolesCreateOrUpdateRoleRequest & { id: string }): Promise<Role> => {
-      const response = await rolesV2Api.rolesUpdate({
+      const response = await rolesApi.rolesUpdate({
         id,
         rolesCreateOrUpdateRoleRequest: data,
       });
@@ -246,18 +253,10 @@ export function useUpdateRoleMutation(options?: MutationOptions) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.editRoleSuccessTitle),
-        dismissable: true,
-      });
+      notify('success', intl.formatMessage(messages.editRoleSuccessTitle));
     },
     onError: () => {
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.editRoleErrorTitle),
-        dismissable: true,
-      });
+      notify('danger', intl.formatMessage(messages.editRoleErrorTitle));
     },
   });
 }
@@ -266,31 +265,24 @@ export function useUpdateRoleMutation(options?: MutationOptions) {
  * Batch delete V2 roles.
  */
 export function useBatchDeleteRolesV2Mutation(options?: MutationOptions) {
+  const { axios, notify } = useAppServices();
+  const rolesApi = createRolesV2Api(axios);
   const queryClient = useMutationQueryClient(options?.queryClient);
-  const addNotification = useAddNotification();
   const intl = useIntl();
 
   return useMutation({
     mutationFn: async (data: RolesBatchDeleteRolesRequest): Promise<void> => {
-      await rolesV2Api.rolesBatchDelete({
+      await rolesApi.rolesBatchDelete({
         rolesBatchDeleteRolesRequest: data,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
       queryClient.invalidateQueries({ queryKey: roleBindingsKeys.all });
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.removeRoleSuccessTitle),
-        dismissable: true,
-      });
+      notify('success', intl.formatMessage(messages.removeRoleSuccessTitle));
     },
     onError: () => {
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.removeRoleErrorTitle),
-        dismissable: true,
-      });
+      notify('danger', intl.formatMessage(messages.removeRoleErrorTitle));
     },
   });
 }

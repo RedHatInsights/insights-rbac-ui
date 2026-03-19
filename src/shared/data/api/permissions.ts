@@ -83,10 +83,10 @@ export interface ListPermissionOptionsParams {
 /**
  * List permissions with optional filtering
  */
-export async function listPermissionsFiltered(params: ListPermissionsParams = {}): Promise<PermissionsResponse> {
+export async function listPermissionsFiltered(api: PermissionsApiClient, params: ListPermissionsParams = {}): Promise<PermissionsResponse> {
   const { limit, offset, orderBy, application, resourceType, verb, permission, excludeGlobals = true, excludeRoles, allowedOnly } = params;
 
-  const response = await permissionsApi.listPermissions({
+  const response = await api.listPermissions({
     limit,
     offset,
     orderBy: orderBy as 'application' | 'resource_type' | 'verb' | undefined,
@@ -101,7 +101,6 @@ export async function listPermissionsFiltered(params: ListPermissionsParams = {}
 
   const data = response.data as PermissionsResponse;
 
-  // Filter out disallowed permissions
   return {
     ...data,
     data: data.data.filter(({ permission }) => !disallowedPermissions.some((item) => permission.includes(item))),
@@ -111,10 +110,13 @@ export async function listPermissionsFiltered(params: ListPermissionsParams = {}
 /**
  * List permission options (applications, resource types, or verbs)
  */
-export async function listPermissionOptionsFiltered(params: ListPermissionOptionsParams): Promise<PermissionOptionsResponse> {
+export async function listPermissionOptionsFiltered(
+  api: PermissionsApiClient,
+  params: ListPermissionOptionsParams,
+): Promise<PermissionOptionsResponse> {
   const { field, limit, offset, application, resourceType, verb, allowedOnly } = params;
 
-  const response = await permissionsApi.listPermissionOptions({
+  const response = await api.listPermissionOptions({
     field,
     limit,
     offset,

@@ -9,11 +9,6 @@ import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
-import { usePlatformEnvironment } from '../../../../shared/hooks/usePlatformEnvironment';
-import { usePlatformAuth } from '../../../../shared/hooks/usePlatformAuth';
-import useUserData from '../../../hooks/useUserData';
-import { useFlag } from '@unleash/proxy-client-react';
-
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import messages from '../../../../Messages';
 import { useInviteUsersMutation } from '../../../../shared/data/queries/users';
@@ -29,10 +24,6 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const addNotification = useAddNotification();
-  const { environment } = usePlatformEnvironment();
-  const { getToken } = usePlatformAuth();
-  const user = useUserData();
-  const isITLess = useFlag('platform.rbac.itless');
 
   const [isCheckboxLabelExpanded, setIsCheckboxLabelExpanded] = useState(false);
   const [areNewUsersAdmins, setAreNewUsersAdmins] = useState(false);
@@ -40,19 +31,13 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
   const [userEmailList, setUserEmailList] = useState<string[]>([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
 
-  const accountId = user.identity?.org_id ?? null;
-
-  // React Query mutation for inviting users
   const inviteUsersMutation = useInviteUsersMutation();
 
   const onSubmit = async () => {
     try {
-      const token = await getToken();
       await inviteUsersMutation.mutateAsync({
         emails: userEmailList,
         isAdmin: areNewUsersAdmins,
-        config: { environment, token, accountId },
-        itless: isITLess,
       });
       addNotification({
         variant: 'success',

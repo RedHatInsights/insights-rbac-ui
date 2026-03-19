@@ -26,6 +26,7 @@ import { IntlProvider } from 'react-intl';
 import { AccessCheck } from '@project-kessel/react-kessel-access-check';
 import { createStandaloneQueryClient } from '../shared/components/QueryClientSetup';
 import { ServiceProvider } from '../shared/contexts/ServiceContext';
+import type { AppServices } from '../shared/services/types';
 import { browserApiClient } from '../shared/entry/browser';
 import messages from '../locales/data.json';
 import {
@@ -38,10 +39,16 @@ export const locale = 'en';
 // Create a standalone query client for the module
 const moduleQueryClient = createStandaloneQueryClient();
 
-// Create standalone services for the module (no notifications needed for read-only selector)
-const moduleServices = {
+// Standalone services — federated modules run inside Chrome, so these are safe defaults.
+// The selector only uses axios for RBAC API calls; external IT API fields are unused.
+const moduleServices: AppServices = {
   axios: browserApiClient,
-  notify: () => {}, // No-op since selector doesn't trigger notifications
+  notify: () => {},
+  getToken: async () => '',
+  environment: 'staging',
+  ssoUrl: '',
+  identity: undefined,
+  isITLess: false,
 };
 
 // Kessel access check API configuration (same as Iam.tsx)

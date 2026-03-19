@@ -14,7 +14,7 @@ export interface IdentityData extends UserIdentity {
  * V1 composes this with useAccessPermissions in useUserData.
  * V2 uses this directly.
  */
-const useIdentity = (): IdentityData => {
+export const useIdentity = (): IdentityData => {
   // eslint-disable-next-line rbac-local/no-direct-get-user -- useIdentity is the canonical Chrome identity wrapper
   const { getUser } = usePlatformAuth();
 
@@ -53,5 +53,3 @@ const useIdentity = (): IdentityData => {
 
   return data;
 };
-
-export default useIdentity;

@@ -14,7 +14,7 @@
 import React, { type ReactNode } from 'react';
 import axios, { type AxiosError, type AxiosInstance } from 'axios';
 import { ServiceProvider } from '../contexts/ServiceContext';
-import type { AppServices, NotifyFn } from '../services/types';
+import type { AppIdentity, AppServices, Environment, NotifyFn } from '../services/types';
 
 // ============================================================================
 // Axios Instance Factory
@@ -86,47 +86,55 @@ export function createBrowserNotify(addNotification: AddNotificationFn): NotifyF
 // ============================================================================
 
 /**
- * Create browser-specific services with Redux notification integration.
+ * Configuration for browser-specific service creation.
+ * All fields are wired from Chrome SDK + Unleash in the app shell.
+ */
+export interface BrowserServicesConfig {
+  addNotification: AddNotificationFn;
+  getToken: () => Promise<string>;
+  environment: Environment;
+  ssoUrl: string;
+  identity: AppIdentity | undefined;
+  isITLess: boolean;
+}
+
+/**
+ * Create browser-specific services with Chrome SDK integration.
  *
- * @param addNotification - The addNotification function from frontend-components-notifications
+ * @param config - Chrome/Unleash values resolved in the app shell
  * @returns AppServices configured for browser environment
  *
  * @example
  * ```tsx
- * import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
- * import { createBrowserServices } from './entry/browser';
- *
- * function App() {
- *   const addNotification = useAddNotification();
- *   const services = createBrowserServices(addNotification);
- *
- *   return (
- *     <ServiceProvider value={services}>
- *       <MyApp />
- *     </ServiceProvider>
- *   );
- * }
+ * const services = createBrowserServices({
+ *   addNotification,
+ *   getToken: platformAuth.getToken,
+ *   environment: platformEnv.environment,
+ *   ssoUrl: platformEnv.ssoUrl,
+ *   identity: identityData.identity,
+ *   isITLess: useFlag('platform.rbac.itless'),
+ * });
  * ```
  */
-export function createBrowserServices(addNotification: AddNotificationFn): AppServices {
+export function createBrowserServices(config: BrowserServicesConfig): AppServices {
   return {
     axios: browserApiClient,
-    notify: createBrowserNotify(addNotification),
+    notify: createBrowserNotify(config.addNotification),
+    getToken: config.getToken,
+    environment: config.environment,
+    ssoUrl: config.ssoUrl,
+    identity: config.identity,
+    isITLess: config.isITLess,
   };
 }
 
 /**
  * Create browser-specific services with a custom axios instance.
- * Use this when you need to provide a different axios configuration.
- *
- * @param axiosInstance - Custom axios instance
- * @param addNotification - The addNotification function from frontend-components-notifications
- * @returns AppServices configured for browser environment
  */
-export function createBrowserServicesWithAxios(axiosInstance: AxiosInstance, addNotification: AddNotificationFn): AppServices {
+export function createBrowserServicesWithAxios(axiosInstance: AxiosInstance, config: BrowserServicesConfig): AppServices {
   return {
+    ...createBrowserServices(config),
     axios: axiosInstance,
-    notify: createBrowserNotify(addNotification),
   };
 }
 
@@ -171,4 +179,4 @@ export function BrowserAppWrapper({ children, services }: BrowserAppWrapperProps
 // ============================================================================
 
 export { ServiceProvider } from '../contexts/ServiceContext';
-export type { AppServices, NotifyFn } from '../services/types';
+export type { AppIdentity, AppServices, Environment, NotifyFn } from '../services/types';

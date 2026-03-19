@@ -1,0 +1,144 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Patterns/Data Layer Dependency Injection" />
+
+# Data Layer Dependency Injection
+
+Data layer hooks (`src/*/data/queries/*.ts`) are shared between the browser app, CLI, and Storybook. They must be **environment-agnostic** — all dependencies come from `useAppServices()` (ServiceContext), never from platform-specific hooks or packages.
+
+---
+
+## Goals
+
+1. **Consumers don't need to know implementation details.** A component calling `useChangeUserStatusMutation()` should not need to provide tokens, environment URLs, or account IDs.
+2. **Browser, CLI, and Storybook use the same hooks.** The only difference is how `ServiceProvider` is configured at the app shell level.
+
+---
+
+## The `AppServices` Interface
+
+Defined in `src/shared/services/types.ts`. Every field is wired once per environment at the ServiceProvider level.
+
+| Field | Type | Browser | CLI | Storybook |
+|-------|------|---------|-----|-----------|
+| `axios` | `AxiosInstance` | Cookie auth + 401 reload | Bearer token + proxy | Mock instance |
+| `notify` | `NotifyFn` | Redux toast via `addNotification` | Chalk console output | `fn()` spy |
+| `getToken` | `() => Promise<string \| null>` | `chrome.auth.getToken()` | Cached token | `() => 'mock-token'` |
+| `environment` | `Environment` | `chrome.getEnvironment()` | Env config | `'stage'` |
+| `ssoUrl` | `string` | From Chrome environment | Env config | Mock URL |
+| `identity` | `{ org_id: string \| null }` | `chrome.auth.getUser()` | Decoded JWT | `{ org_id: '12345' }` |
+| `isITLess` | `boolean` | `useFlag('platform.rbac.itless')` | `false` / env config | `false` |
+
+---
+
+## Correct Pattern
+
+### Query hook
+
+```typescript
+export function useRolesQuery(params: ListRolesParams, options?: QueryOptions) {
+  const { axios } = useAppServices();
+  const rolesApi = createRolesApi(axios);
+
+  return useQuery({
+    queryKey: rolesKeys.list(params),
+    queryFn: async () => {
+      const response = await rolesApi.listRoles(params);
+      return response.data;
+    },
+  }, options?.queryClient);
+}
+```
+
+### Mutation hook with notifications
+
+```typescript
+export function useDeleteRoleMutation(options?: MutationOptions) {
+  const { axios, notify } = useAppServices();
+  const rolesApi = createRolesApi(axios);
+  const intl = useIntl();
+  const qc = useMutationQueryClient(options?.queryClient);
+
+  return useMutation({
+    mutationFn: (uuid: string) => rolesApi.deleteRole({ uuid }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: rolesKeys.all });
+      notify('success', intl.formatMessage(messages.removeRoleSuccessTitle));
+    },
+    onError: () => {
+      notify('danger', intl.formatMessage(messages.removeRoleErrorTitle));
+    },
+  }, options?.queryClient);
+}
+```
+
+### Mutation hook needing external API auth
+
+```typescript
+export function useChangeUserStatusMutation(options?: MutationOptions) {
+  const { axios, notify, getToken, environment, identity, isITLess } = useAppServices();
+  const intl = useIntl();
+  const qc = useMutationQueryClient(options?.queryClient);
+
+  return useMutation({
+    mutationFn: async ({ users }) => {
+      const token = await getToken();
+      const accountId = identity?.org_id ?? null;
+      // Use token, environment, accountId, isITLess to call external IT API
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: usersKeys.all });
+      notify('success', intl.formatMessage(messages.editUserSuccessTitle));
+    },
+  }, options?.queryClient);
+}
+```
+
+---
+
+## Banned Imports (ESLint-enforced)
+
+These imports are **banned in all `src/**/data/queries/**/*.ts` files** via `no-restricted-imports`:
+
+| Package / Module | Why | Use instead |
+|------------------|-----|-------------|
+| `@redhat-cloud-services/frontend-components-notifications/*` | Pulls in PatternFly CSS, crashes Node.js/CLI | `useAppServices().notify` |
+| `@redhat-cloud-services/frontend-components/useChrome` | Browser-only Chrome SDK | `useAppServices()` fields |
+| `@unleash/proxy-client-react` | Browser-only feature flag provider | `useAppServices().isITLess` |
+| `**/hooks/usePlatformAuth` | Wraps `useChrome` — browser-only | `useAppServices().getToken` |
+| `**/hooks/usePlatformEnvironment` | Wraps `useChrome` — browser-only | `useAppServices().environment` / `.ssoUrl` |
+| `**/hooks/useIdentity` | Wraps `useChrome` — browser-only | `useAppServices().identity` |
+
+---
+
+## Environment Wiring
+
+Each environment creates its `AppServices` once at the app shell level:
+
+- **Browser:** `src/shared/entry/browser.tsx` → `createBrowserServices(...)` wires Chrome + Unleash values
+- **CLI:** `src/cli/api-client.ts` → `createCliServices(...)` wires cached token + env config
+- **Storybook:** `.storybook/context-providers.tsx` → mock services with spies
+
+---
+
+## API Layer Factories
+
+Every API module in `src/*/data/api/` should export a `createXxxApi(axios)` factory:
+
+```typescript
+export function createRolesApi(axios: AxiosInstance): RolesApiClient {
+  return APIFactory(RBAC_API_BASE, rolesEndpoints, { axios });
+}
+```
+
+Query hooks call the factory with the injected axios — never use the module-level singleton directly.
+
+---
+
+## Adding a New Service to `AppServices`
+
+1. Add the field + type to `AppServices` in `src/shared/services/types.ts`
+2. Wire it in `createBrowserServices` (`src/shared/entry/browser.tsx`)
+3. Wire it in `createCliServices` (`src/cli/api-client.ts`)
+4. Wire it in Storybook context (`.storybook/context-providers.tsx`)
+5. Use it in data hooks via `useAppServices()`

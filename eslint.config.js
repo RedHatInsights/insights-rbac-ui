@@ -489,6 +489,47 @@ module.exports = defineConfig(
     },
   },
   {
+    // Data layer DI enforcement — ban platform-specific imports in shared data hooks.
+    // All dependencies must come from useAppServices() (ServiceContext DI).
+    // See src/docs/DataLayerDI.mdx for the full pattern.
+    files: ['src/**/data/queries/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@redhat-cloud-services/frontend-components/useChrome',
+              message: 'Data layer hooks must not import Chrome directly. Use useAppServices() from ServiceContext instead.',
+            },
+            {
+              name: '@redhat-cloud-services/frontend-components-utilities/RBACHook',
+              message: 'Data layer hooks must not import platform utilities directly. Use useAppServices() from ServiceContext instead.',
+            },
+            {
+              name: '@unleash/proxy-client-react',
+              message: 'Data layer hooks must not import feature flag hooks directly. Use useAppServices().isITLess from ServiceContext instead.',
+            },
+          ],
+          patterns: [
+            {
+              group: [
+                '@redhat-cloud-services/frontend-components-notifications',
+                '@redhat-cloud-services/frontend-components-notifications/*',
+              ],
+              message:
+                'Data layer hooks must not import notification packages directly (pulls in PatternFly CSS, crashes CLI). Use useAppServices().notify from ServiceContext instead.',
+            },
+            {
+              group: ['**/hooks/usePlatformAuth', '**/hooks/usePlatformEnvironment', '**/hooks/useIdentity'],
+              message: 'Data layer hooks must not import platform hooks directly. Use useAppServices() fields (getToken, environment, identity) from ServiceContext instead.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // Config, CLI, and Storybook TypeScript files
     files: ['config/**/*.ts', 'src/cli/**/*.ts', 'src/cli/**/*.tsx', '.storybook/**/*.ts', '.storybook/**/*.tsx'],
     plugins: {

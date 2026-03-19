@@ -5,7 +5,7 @@ import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
 import type { NotEmptyArray, SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { AppPlaceholder } from '../../shared/components/ui-states/LoaderPlaceholders';
-import useIdentity from '../../shared/hooks/useIdentity';
+import { useIdentity } from '../../shared/hooks/useIdentity';
 import { useOrganizationData } from '../hooks/useOrganizationData';
 import messages from '../../Messages';
 

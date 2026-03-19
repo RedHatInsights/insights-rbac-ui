@@ -54,7 +54,7 @@ const ENVIRONMENTS: Record<Environment, EnvConfig> = {
   },
 };
 
-function getCurrentEnv(): Environment {
+export function getCurrentEnv(): Environment {
   const env = process.env.RBAC_ENV as Environment | undefined;
   if (env && env in ENVIRONMENTS) {
     return env;

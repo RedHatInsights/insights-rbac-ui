@@ -1,4 +1,5 @@
-import { COST_API_BASE, apiClient } from './client';
+import type { AxiosInstance } from 'axios';
+import { COST_API_BASE } from './client';
 
 // Type definitions
 export interface ResourceType {
@@ -29,15 +30,14 @@ export interface GetResourceParams {
 }
 
 /**
- * Get resource types (for cost management permissions)
+ * Get resource types (for cost management permissions).
  * Uses direct axios calls since there's no typed client library for cost API.
  */
-export async function getResourceTypes(): Promise<ResourceTypesResponse> {
+export async function getResourceTypes(axios: AxiosInstance): Promise<ResourceTypesResponse> {
   try {
-    const response = await apiClient.get<ResourceTypesResponse>(`${COST_API_BASE}/resource-types/`);
+    const response = await axios.get<ResourceTypesResponse>(`${COST_API_BASE}/resource-types/`);
     return response.data;
   } catch {
-    // This API can be unavailable in some environments
     return {
       data: [],
       links: {},
@@ -52,9 +52,9 @@ export async function getResourceTypes(): Promise<ResourceTypesResponse> {
  * (e.g. "/api/cost-management/v1/resource-types/aws-accounts/")
  * or a bare slug for backward compatibility (e.g. "aws-accounts").
  */
-export async function getResource(params: GetResourceParams): Promise<ResourceResponse> {
+export async function getResource(axios: AxiosInstance, params: GetResourceParams): Promise<ResourceResponse> {
   const fullPath = params.path.includes('/') ? params.path : `${COST_API_BASE}/resource-types/${params.path}/`;
   const separator = fullPath.includes('?') ? '&' : '?';
-  const response = await apiClient.get<ResourceResponse>(`${fullPath}${separator}limit=20000`);
+  const response = await axios.get<ResourceResponse>(`${fullPath}${separator}limit=20000`);
   return response.data;
 }

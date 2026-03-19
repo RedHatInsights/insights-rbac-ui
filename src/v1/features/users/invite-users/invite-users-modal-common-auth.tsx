@@ -10,9 +10,6 @@ import InlineError from '../../../../shared/components/ui-states/InlineError';
 import { useInviteUsersMutation } from '../../../../shared/data/queries/users';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useOutletContext } from 'react-router-dom';
-import { usePlatformEnvironment } from '../../../../shared/hooks/usePlatformEnvironment';
-import { usePlatformAuth } from '../../../../shared/hooks/usePlatformAuth';
-import useUserData from '../../../hooks/useUserData';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 // Portal subscription permission levels (moved from React Query helper)
@@ -40,16 +37,9 @@ type SubmitValues = {
 const InviteUsers = () => {
   const { fetchData } = useOutletContext<{ fetchData: (isSubmit: boolean) => void }>();
   const advancedPermissions = useFlag('platform.rbac.common-auth-model_advanced-permissions');
-  const isITLess = useFlag('platform.rbac.itless');
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
-  const { environment } = usePlatformEnvironment();
-  const { getToken } = usePlatformAuth();
-  const userData = useUserData();
   const addNotification = useAddNotification();
 
-  const accountId = userData.identity?.org_id ?? null;
-
-  // React Query mutation for inviting users
   const inviteUsersMutation = useInviteUsersMutation();
 
   const onCancel = () => {
@@ -59,15 +49,12 @@ const InviteUsers = () => {
   const onSubmit = async (values: Record<string, unknown>) => {
     const typedValues = values as SubmitValues;
     try {
-      const token = await getToken();
       const response = await inviteUsersMutation.mutateAsync({
         emails: typedValues['email-addresses']?.split(/[\s,]+/),
         isAdmin: typedValues['customer-portal-permissions']?.['is-org-admin'],
         portal_manage_cases: typedValues['customer-portal-permissions']?.['manage-support-cases'],
         portal_download: typedValues['customer-portal-permissions']?.['download-software-updates'],
         portal_manage_subscriptions: typedValues['customer-portal-permissions']?.['manage-subscriptions'],
-        config: { environment, token, accountId },
-        itless: isITLess,
       });
 
       if (response.status === 200 || response.status === 204) {

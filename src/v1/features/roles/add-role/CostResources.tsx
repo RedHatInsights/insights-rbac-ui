@@ -23,6 +23,7 @@ import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import { useQueries } from '@tanstack/react-query';
 import { costKeys, getResource, useResourceTypesQuery } from '../../../../shared/data/queries/cost';
+import { useAppServices } from '../../../../shared/contexts/ServiceContext';
 import messages from '../../../../Messages';
 
 interface ResourceType {
@@ -127,6 +128,7 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
   );
 
   // TanStack Query - fetch resource types
+  const { axios } = useAppServices();
   const { data: resourceTypesData, isLoading } = useResourceTypesQuery();
 
   const resourceTypes = useMemo(() => (resourceTypesData?.data || []) as ResourceType[], [resourceTypesData]);
@@ -143,7 +145,7 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
   const resourceQueries = useQueries({
     queries: resourcePaths.map((path) => ({
       queryKey: costKeys.resourceDetail({ path }),
-      queryFn: () => getResource({ path }),
+      queryFn: () => getResource(axios, { path }),
       enabled: !!path,
     })),
   });

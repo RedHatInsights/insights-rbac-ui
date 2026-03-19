@@ -1,4 +1,4 @@
-import useIdentity, { type IdentityData } from '../../shared/hooks/useIdentity';
+import { type IdentityData, useIdentity } from '../../shared/hooks/useIdentity';
 import { useAccessPermissions } from './useAccessPermissions';
 
 export interface UserData extends IdentityData {

@@ -11,6 +11,9 @@ import { QueryClientSetup } from './shared/components/QueryClientSetup';
 import ApiErrorBoundary from './shared/components/ui-states/ApiErrorBoundary';
 import { ServiceProvider } from './shared/contexts/ServiceContext';
 import { type AddNotificationFn, createBrowserServices } from './shared/entry/browser';
+import { usePlatformAuth } from './shared/hooks/usePlatformAuth';
+import { usePlatformEnvironment } from './shared/hooks/usePlatformEnvironment';
+import { useIdentity } from './shared/hooks/useIdentity';
 import { IamV1 } from './v1/IamV1';
 import { IamV2 } from './v2/IamV2';
 
@@ -20,11 +23,24 @@ export interface IamProps {
 
 /**
  * Shared provider stack for both V1 and V2.
- * Sets up: ApiErrorProvider → ServiceProvider → QueryClientSetup → ApiErrorBoundary
+ * Wires all Chrome/Unleash values into ServiceProvider so data layer hooks
+ * can access them via useAppServices() without importing platform hooks.
  */
 const SharedProviders: React.FC<IamProps & { children: React.ReactNode }> = ({ testMode, children }) => {
   const addNotification = useAddNotification() as AddNotificationFn;
-  const services = createBrowserServices(addNotification);
+  const { getToken } = usePlatformAuth();
+  const { environment, ssoUrl } = usePlatformEnvironment();
+  const { identity } = useIdentity();
+  const isITLess = useFlag('platform.rbac.itless');
+
+  const services = createBrowserServices({
+    addNotification,
+    getToken,
+    environment,
+    ssoUrl,
+    identity,
+    isITLess,
+  });
 
   return (
     <ApiErrorProvider>

@@ -9,7 +9,7 @@
 import { useMemo } from 'react';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
 import type { NotEmptyArray, SelfAccessCheckResourceWithRelation } from '@project-kessel/react-kessel-access-check/types';
-import useIdentity from '../../shared/hooks/useIdentity';
+import { useIdentity } from '../../shared/hooks/useIdentity';
 import { useOrganizationData } from './useOrganizationData';
 
 // ============================================================================

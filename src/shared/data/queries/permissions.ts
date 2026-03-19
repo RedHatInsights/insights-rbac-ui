@@ -4,9 +4,11 @@ import {
   type ListPermissionsParams,
   type PermissionOptionsResponse,
   type PermissionsResponse,
+  createPermissionsApi,
   listPermissionOptionsFiltered,
   listPermissionsFiltered,
 } from '../api/permissions';
+import { useAppServices } from '../../contexts/ServiceContext';
 
 // ============================================================================
 // Query Keys Factory
@@ -26,32 +28,43 @@ export const permissionsKeys = {
 // ============================================================================
 
 /**
- * Fetch a list of permissions with optional filtering
+ * Fetch a list of permissions with optional filtering.
+ * Uses useAppServices().axios for DI — works in browser, CLI, and Storybook.
  */
 export function usePermissionsQuery(params: ListPermissionsParams, options?: { enabled?: boolean }) {
+  const { axios } = useAppServices();
+  const permissionsApi = createPermissionsApi(axios);
+
   return useQuery<PermissionsResponse>({
     queryKey: permissionsKeys.list(params),
-    queryFn: () => listPermissionsFiltered(params),
+    queryFn: () => listPermissionsFiltered(permissionsApi, params),
     enabled: options?.enabled ?? true,
   });
 }
 
 /**
- * Fetch permission options for a specific field (application, resource_type, or verb)
+ * Fetch permission options for a specific field (application, resource_type, or verb).
+ * Uses useAppServices().axios for DI — works in browser, CLI, and Storybook.
  */
 export function usePermissionOptionsQuery(params: ListPermissionOptionsParams, options?: { enabled?: boolean }) {
+  const { axios } = useAppServices();
+  const permissionsApi = createPermissionsApi(axios);
+
   return useQuery<PermissionOptionsResponse>({
     queryKey: permissionsKeys.optionsByField(params.field, params),
-    queryFn: () => listPermissionOptionsFiltered(params),
+    queryFn: () => listPermissionOptionsFiltered(permissionsApi, params),
     enabled: options?.enabled ?? true,
   });
 }
 
 /**
- * Expand splat permissions (wildcards) to actual permissions
- * Uses the same API as listPermissions but with different defaults
+ * Expand splat permissions (wildcards) to actual permissions.
+ * Uses useAppServices().axios for DI — works in browser, CLI, and Storybook.
  */
 export function useExpandSplatsQuery(params: ListPermissionsParams, options?: { enabled?: boolean }) {
+  const { axios } = useAppServices();
+  const permissionsApi = createPermissionsApi(axios);
+
   const queryParams: ListPermissionsParams = {
     limit: 1000,
     offset: 0,
@@ -61,7 +74,7 @@ export function useExpandSplatsQuery(params: ListPermissionsParams, options?: { 
 
   return useQuery<PermissionsResponse>({
     queryKey: permissionsKeys.expandSplats(queryParams),
-    queryFn: () => listPermissionsFiltered(queryParams),
+    queryFn: () => listPermissionsFiltered(permissionsApi, queryParams),
     enabled: options?.enabled ?? true,
   });
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
-import useIdentity from '../../../../shared/hooks/useIdentity';
+import { useIdentity } from '../../../../shared/hooks/useIdentity';
 import { useNonRbacPermissions } from '../../../../shared/hooks/useNonRbacPermissions';
 import { TableView } from '../../../../shared/components/table-view/TableView';
 import { useTableState } from '../../../../shared/components/table-view/hooks/useTableState';

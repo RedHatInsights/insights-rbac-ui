@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import type { AxiosInstance } from 'axios';
 
 /**
  * Service Account type from the SSO API
@@ -13,10 +13,11 @@ export interface ServiceAccount {
 }
 
 /**
- * Service Accounts API configuration
- * Uses the external SSO API for service account management
+ * Service Accounts API configuration.
+ * Uses the external SSO API for service account management.
  */
 export interface ServiceAccountsQueryParams {
+  axios: AxiosInstance;
   page?: number;
   perPage?: number;
   token: string;
@@ -24,11 +25,12 @@ export interface ServiceAccountsQueryParams {
 }
 
 /**
- * Fetch service accounts from the SSO API
+ * Fetch service accounts from the SSO API.
+ * Accepts an injected AxiosInstance for DI compatibility.
  */
-export async function fetchServiceAccounts({ page = 1, perPage = 20, token, ssoUrl }: ServiceAccountsQueryParams): Promise<ServiceAccount[]> {
+export async function fetchServiceAccounts({ axios, page = 1, perPage = 20, token, ssoUrl }: ServiceAccountsQueryParams): Promise<ServiceAccount[]> {
   const first = (page - 1) * perPage;
-  const response = await apiClient.get(`${ssoUrl}/realms/redhat-external/apis/service_accounts/v1`, {
+  const response = await axios.get(`${ssoUrl}/realms/redhat-external/apis/service_accounts/v1`, {
     params: { first, max: Math.min(perPage + 1, 100) },
     headers: {
       Authorization: `Bearer ${token}`,

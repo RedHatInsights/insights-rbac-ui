@@ -111,15 +111,15 @@ interface ResourceDefinition {
  * Using (apiMethod as any) to bypass broken type definitions.
  * APIFactory returns AxiosResponse - we must access .data to get the payload.
  */
-export async function getInventoryGroups(params: GetInventoryGroupsParams = {}): Promise<InventoryGroupsResponse> {
+export async function getInventoryGroups(
+  api: InventoryResourceTypesApiClient,
+  params: GetInventoryGroupsParams = {},
+): Promise<InventoryGroupsResponse> {
   const { name, perPage, page } = params;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await (inventoryResourceTypesApi.apiResourceTypeGetResourceTypeGroupsList as any)(name, perPage, page);
+  const response = await (api.apiResourceTypeGetResourceTypeGroupsList as any)(name, perPage, page);
 
-  // APIFactory returns AxiosResponse { data, status, headers, ... }
-  // The actual API response is in response.data
-  // Real API structure: { meta: { count }, links: {...}, data: [...] }
   return response.data as InventoryGroupsResponse;
 }
 
@@ -129,7 +129,7 @@ export async function getInventoryGroups(params: GetInventoryGroupsParams = {}):
  * Using (apiMethod as any) to bypass broken type definitions.
  * APIFactory returns AxiosResponse - we must access .data to get the payload.
  */
-export async function getInventoryGroupsDetails(groupIds: string[]): Promise<InventoryGroupDetailsResponse> {
+export async function getInventoryGroupsDetails(api: InventoryGroupsApiClient, groupIds: string[]): Promise<InventoryGroupDetailsResponse> {
   const validIds = groupIds.filter((id) => id?.length > 0);
 
   if (validIds.length === 0) {
@@ -143,11 +143,8 @@ export async function getInventoryGroupsDetails(groupIds: string[]): Promise<Inv
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await (inventoryGroupsApi.apiGroupGetGroupsById as any)(validIds);
+  const response = await (api.apiGroupGetGroupsById as any)(validIds);
 
-  // APIFactory returns AxiosResponse { data, status, headers, ... }
-  // The actual API response is in response.data
-  // Real API structure: { total, count, page, per_page, results: [...] }
   return response.data as InventoryGroupDetailsResponse;
 }
 
