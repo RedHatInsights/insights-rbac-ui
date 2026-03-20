@@ -296,9 +296,6 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
             FormTemplateProps={{
               disableSubmit: ['pristine', 'invalid'],
             }}
-            debug={(values) => {
-              console.log('values:', values);
-            }}
           />
         )}
       </PageSection>
