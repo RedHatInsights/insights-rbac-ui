@@ -30,10 +30,10 @@ API layer: `src/v2/data/api/roles.ts`
 
 `useRolePermissions` (from `hooks/useRolePermissions.ts`) combines the tenant-scoped write check with a data-level guard using `org_id`:
 
-- `org_id: undefined` → system/canned role, immutable regardless of tenant permission
+- `org_id: null` or `undefined` → system/canned role, immutable regardless of tenant permission
 - `org_id: string` → user-created role, editable/deletable if `canUpdate`/`canDelete` is true
 
-The `org_id` field is fetched as part of the roles list query (`fields` param includes `org_id`). The `Role` type from `@redhat-cloud-services/rbac-client` (v7+) includes `org_id?: string`.
+The `org_id` field is fetched as part of the roles list query (`fields` param includes `org_id`). The `Role` type from `@redhat-cloud-services/rbac-client` (v7+) includes `org_id?: string | null`. The V2 API returns `org_id: null` for system roles (rather than omitting the field), so both `null` and `undefined` are treated as the system-role sentinel.
 
 V2 role permissions use Kessel domain hooks only. Chrome identity (orgAdmin) comes from `useIdentity` (shared).
 
