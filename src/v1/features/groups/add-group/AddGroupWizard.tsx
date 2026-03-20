@@ -6,7 +6,7 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { schemaBuilder } from './schema';
-import { type ServiceAccount, useAddServiceAccountsToGroupMutationV1, useCreateGroupMutation } from '../../../../shared/data/queries/groups';
+import { type ServiceAccount, useAddServiceAccountsToGroupMutation, useCreateGroupMutation } from '../../../../shared/data/queries/groups';
 import { SetName } from './components/stepName/SetName';
 import { SetRoles } from './components/stepRoles/SetRoles';
 import { SetUsers } from './components/stepUsers/SetUsers';
@@ -41,7 +41,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
 
   // React Query mutations
   const createGroupMutation = useCreateGroupMutation();
-  const addServiceAccountsMutation = useAddServiceAccountsToGroupMutationV1();
+  const addServiceAccountsMutation = useAddServiceAccountsToGroupMutation();
 
   // Feature flags for wizard configuration
   const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts.stable');

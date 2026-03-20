@@ -426,7 +426,7 @@ Tests the empty state matching \`static/mocks/User groups table plus details/Bas
         ...groupsHandlers([]),
         ...v2DefaultHandlers.filter((h) => {
           const path = h.info?.path?.toString() || '';
-          if (!path.includes('/api/rbac/v1/groups') && !path.includes('/api/rbac/v2/groups')) return true;
+          if (!path.includes('/api/rbac/v1/groups')) return true;
           if (path.includes('/principals/') || path.includes('/service-accounts/')) return true;
           return false;
         }),

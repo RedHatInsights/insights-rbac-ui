@@ -16,7 +16,6 @@ import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, http } from 'msw';
 import { KESSEL_PERMISSIONS, KesselAppEntryWithRouter, createDynamicEnvironment } from '../_shared/components/KesselAppEntryWithRouter';
-import { withFeatureGap } from '../_shared/components/FeatureGapBanner';
 import { resetStoryState } from '../_shared/helpers';
 import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
 import { clickTab, selectTableRow, waitForContentReady, waitForDrawer, waitForNotification } from '../../test-utils/interactionHelpers';
@@ -111,54 +110,47 @@ const createGroupSpyHandler = http.post('/api/rbac/v1/groups/', async ({ request
   return HttpResponse.json(newGroup, { status: 201 });
 });
 
-const addMembersHandler = http.post('/api/rbac/v1/groups/:uuid/principals/', async ({ request, params }) => {
+const addPrincipalsHandler = http.post('/api/rbac/v1/groups/:uuid/principals/', async ({ request, params }) => {
   const groupId = params.uuid as string;
-  const body = (await request.json()) as { principals: Array<{ username: string }> };
+  const body = (await request.json()) as { principals: Array<{ username?: string; clientId?: string; type?: string }> };
 
-  addMembersSpy({ groupId, principals: body.principals });
+  const isServiceAccountRequest = body.principals.some((p) => p.type === 'service-account');
 
-  // Track members in mutable state
-  if (!groupMembers[groupId]) {
-    groupMembers[groupId] = [];
-  }
-  body.principals.forEach((p) => {
-    if (!groupMembers[groupId].includes(p.username)) {
-      groupMembers[groupId].push(p.username);
+  if (isServiceAccountRequest) {
+    addServiceAccountsSpy({ groupId, serviceAccounts: body.principals.map((p) => ({ clientId: p.clientId })) });
+
+    if (!groupServiceAccounts[groupId]) {
+      groupServiceAccounts[groupId] = [];
     }
-  });
+    body.principals.forEach((p) => {
+      if (p.clientId && !groupServiceAccounts[groupId].includes(p.clientId)) {
+        groupServiceAccounts[groupId].push(p.clientId);
+      }
+    });
 
-  // Update principal count on created group
-  const createdGroup = createdGroups.find((g) => g.uuid === groupId);
-  if (createdGroup) {
-    createdGroup.principalCount = groupMembers[groupId].length;
+    const createdGroup = createdGroups.find((g) => g.uuid === groupId);
+    if (createdGroup) {
+      createdGroup.serviceAccountCount = groupServiceAccounts[groupId].length;
+    }
+  } else {
+    addMembersSpy({ groupId, principals: body.principals });
+
+    if (!groupMembers[groupId]) {
+      groupMembers[groupId] = [];
+    }
+    body.principals.forEach((p) => {
+      if (p.username && !groupMembers[groupId].includes(p.username)) {
+        groupMembers[groupId].push(p.username);
+      }
+    });
+
+    const createdGroup = createdGroups.find((g) => g.uuid === groupId);
+    if (createdGroup) {
+      createdGroup.principalCount = groupMembers[groupId].length;
+    }
   }
 
   return HttpResponse.json({ data: body.principals }, { status: 200 });
-});
-
-const addServiceAccountsHandler = http.post('/api/rbac/v2/groups/:uuid/service-accounts/', async ({ request, params }) => {
-  const groupId = params.uuid as string;
-  const body = (await request.json()) as { service_accounts: Array<{ clientId: string }> };
-
-  addServiceAccountsSpy({ groupId, serviceAccounts: body.service_accounts });
-
-  // Track service accounts in mutable state
-  if (!groupServiceAccounts[groupId]) {
-    groupServiceAccounts[groupId] = [];
-  }
-  body.service_accounts.forEach((sa) => {
-    if (!groupServiceAccounts[groupId].includes(sa.clientId)) {
-      groupServiceAccounts[groupId].push(sa.clientId);
-    }
-  });
-
-  // Update service account count on created group
-  const createdGroup = createdGroups.find((g) => g.uuid === groupId);
-  if (createdGroup) {
-    createdGroup.serviceAccountCount = groupServiceAccounts[groupId].length;
-  }
-
-  return HttpResponse.json({ data: body.service_accounts }, { status: 200 });
 });
 
 const listGroupsSpyHandler = http.get('/api/rbac/v1/groups/', async ({ request }) => {
@@ -306,8 +298,7 @@ const meta = {
       handlers: [
         // Spy handlers FIRST to intercept before v2DefaultHandlers
         createGroupSpyHandler,
-        addMembersHandler,
-        addServiceAccountsHandler,
+        addPrincipalsHandler,
         listGroupsSpyHandler,
         groupMembersHandler,
         groupServiceAccountsHandler,
@@ -358,7 +349,7 @@ Tests the workflow for creating a new user group with users and service accounts
 | Description field | ✅ Implemented | - |
 | Add users to group | ✅ Implemented | V1 |
 | List service accounts | ✅ Implemented | SSO API |
-| Add service accounts to group | ⚠️ GAP | V2 (guessed) |
+| Add service accounts to group | ✅ Implemented | V1 |
 | Create group API | ✅ Implemented | V1 |
 | Success redirect | ✅ Implemented | - |
         `,
@@ -378,72 +369,11 @@ type Story = StoryObj<typeof meta>;
  */
 export const CompleteFlow: Story = {
   tags: ['autodocs'],
-  decorators: [
-    withFeatureGap({
-      title: 'Add Service Accounts to Group - Guessed V2 API',
-      currentState: (
-        <>
-          <p style={{ margin: '0 0 8px 0' }}>
-            <strong>Guessed Endpoint:</strong>
-          </p>
-          <code
-            style={{
-              display: 'block',
-              background: 'rgba(0,0,0,0.08)',
-              padding: '4px 8px',
-              borderRadius: '3px',
-              fontSize: '11px',
-              marginBottom: '8px',
-            }}
-          >
-            POST /api/rbac/v2/groups/:uuid/service-accounts/
-          </code>
-          <p style={{ margin: '8px 0 4px 0' }}>
-            <strong>Request Body:</strong>
-          </p>
-          <pre
-            style={{
-              background: 'rgba(0,0,0,0.08)',
-              padding: '8px',
-              borderRadius: '3px',
-              fontSize: '10px',
-              margin: '0 0 8px 0',
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            {`{
-  "service_accounts": [
-    { "clientId": "sa-12345-abcde" },
-    { "clientId": "sa-67890-fghij" }
-  ]
-}`}
-          </pre>
-          <p style={{ margin: '8px 0 4px 0' }}>
-            <strong>Expected Response:</strong>
-          </p>
-          <pre style={{ background: 'rgba(0,0,0,0.08)', padding: '8px', borderRadius: '3px', fontSize: '10px', margin: 0, whiteSpace: 'pre-wrap' }}>
-            {`{
-  "data": [
-    { "clientId": "sa-12345-abcde" },
-    { "clientId": "sa-67890-fghij" }
-  ],
-  "meta": { "count": 2 }
-}`}
-          </pre>
-        </>
-      ),
-      expectedBehavior: [
-        'This endpoint is guessed based on the principals API pattern',
-        'The actual V2 RBAC API may use a different endpoint or payload format',
-      ],
-    }),
-  ],
+  decorators: [],
   parameters: {
     docs: {
       description: {
         story: `
-⚠️ **V2 GAP: Uses guessed API for service accounts**
-
 Tests the complete "Create user group" workflow including user and service account selection:
 
 1. Click "Create user group" button
@@ -459,15 +389,6 @@ Tests the complete "Create user group" workflow including user and service accou
 11. Open drawer for created group
 12. Verify selected users appear in drawer
 13. Verify selected service accounts appear in drawer
-
-**Guessed APIs used:**
-- \`POST /api/rbac/v2/groups/:uuid/service-accounts/\` (for service accounts) [guessed V2 API]
-
-**Design references:**
-- Frame 126: Create button
-- Frame 129: Create form
-- Frame 189: Add users
-- Frame 192: Add service accounts
         `,
       },
     },

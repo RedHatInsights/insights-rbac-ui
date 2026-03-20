@@ -95,7 +95,6 @@ export function createGroupsHandlers(groups: MockCollection<Group>, options: Gro
 
   return [
     http.get('*/api/rbac/v1/groups/', listHandler),
-    http.get('*/api/rbac/v2/groups/', listHandler),
 
     http.get('*/api/rbac/v1/groups/:uuid/', async ({ params }) => {
       await delay(networkDelay);
@@ -174,21 +173,6 @@ export function createGroupsHandlers(groups: MockCollection<Group>, options: Gro
       return HttpResponse.json({ message: 'Service accounts assigned successfully' });
     }),
 
-    http.post('*/api/rbac/v2/groups/:uuid/service-accounts/', async ({ request }) => {
-      await delay(networkDelay);
-      const body = (await request.json()) as { service_accounts: Array<{ clientId: string }> };
-      return HttpResponse.json({
-        data: body.service_accounts,
-        meta: { count: body.service_accounts.length },
-      });
-    }),
-
-    http.delete('*/api/rbac/v2/groups/:uuid/service-accounts/', async ({ request }) => {
-      await delay(networkDelay);
-      await request.json();
-      return new HttpResponse(null, { status: 204 });
-    }),
-
     http.get('*/api/rbac/v1/cross-account-requests/', async () => {
       await delay(networkDelay);
       return HttpResponse.json({ data: [], meta: { count: 0 } });
@@ -206,7 +190,6 @@ export function groupsErrorHandlers(status: number = 500) {
   const body = { error: 'Error' };
   return [
     http.get('*/api/rbac/v1/groups/', () => HttpResponse.json(body, { status })),
-    http.get('*/api/rbac/v2/groups/', () => HttpResponse.json(body, { status })),
     http.get('*/api/rbac/v1/groups/:uuid/', () => HttpResponse.json(body, { status })),
     http.post('*/api/rbac/v1/groups/', () => HttpResponse.json(body, { status })),
     http.put('*/api/rbac/v1/groups/:uuid/', () => HttpResponse.json(body, { status })),
@@ -222,13 +205,9 @@ export function groupsLoadingHandlers() {
   };
   return [
     http.get('*/api/rbac/v1/groups/', handler),
-    http.get('*/api/rbac/v2/groups/', handler),
     http.get('*/api/rbac/v1/groups/:uuid/', handler),
-    http.get('*/api/rbac/v2/groups/:uuid/', handler),
     http.post('*/api/rbac/v1/groups/', handler),
     http.put('*/api/rbac/v1/groups/:uuid/', handler),
     http.delete('*/api/rbac/v1/groups/:uuid/', handler),
-    http.post('*/api/rbac/v2/groups/:uuid/service-accounts/', handler),
-    http.delete('*/api/rbac/v2/groups/:uuid/service-accounts/', handler),
   ];
 }

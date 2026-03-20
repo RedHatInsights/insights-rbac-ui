@@ -78,7 +78,7 @@ const meta = {
         ...editGroupHandlers,
         ...v2DefaultHandlers.filter((h) => {
           const path = h.info?.path?.toString() || '';
-          if (!path.includes('/api/rbac/v1/groups') && !path.includes('/api/rbac/v2/groups')) return true;
+          if (!path.includes('/api/rbac/v1/groups')) return true;
           if (path.includes('/principals/') || path.includes('/service-accounts/')) return true;
           return false;
         }),
@@ -109,13 +109,9 @@ Tests the workflow for editing an existing user group.
 | Edit description | ✅ Implemented | V1 |
 | Add/remove users | ✅ Implemented | V1 |
 | List service accounts | ✅ Implemented | SSO API |
-| Add service accounts to group | ⚠️ GAP | V2 (guessed) |
-| Remove service accounts from group | ⚠️ GAP | V2 (guessed) |
+| Add service accounts to group | ✅ Implemented | V1 |
+| Remove service accounts from group | ✅ Implemented | V1 |
 | Save changes | ✅ Implemented | V1 |
-
-**Note:** Service account group operations use guessed APIs:
-- \`POST /api/rbac/v2/groups/:uuid/service-accounts/\` (add) [guessed V2 API]
-- \`DELETE /api/rbac/v2/groups/:uuid/service-accounts/\` (remove) [guessed V2 API]
         `,
       },
     },

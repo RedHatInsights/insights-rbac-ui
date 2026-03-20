@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams, useSearchParams } from 'react-router-dom';
 
-import { useGroupQuery, useGroupServiceAccountsQuery, useRemoveServiceAccountsFromGroupMutationV1 } from '../../../../../shared/data/queries/groups';
+import { useGroupQuery, useGroupServiceAccountsQuery, useRemoveServiceAccountsFromGroupMutation } from '../../../../../shared/data/queries/groups';
 import messages from '../../../../../Messages';
 
 type RemoveGroupServiceAccountsProps = {
@@ -41,7 +41,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<RemoveGroupServiceA
   }, [accountsCount, selectedServiceAccountUUIDs, serviceAccountsData]);
 
   // Remove mutation - handles notifications and cache invalidation
-  const removeServiceAccountsMutation = useRemoveServiceAccountsFromGroupMutationV1();
+  const removeServiceAccountsMutation = useRemoveServiceAccountsFromGroupMutation();
 
   const handleConfirm = async () => {
     if (!groupId) return;

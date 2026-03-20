@@ -90,9 +90,7 @@ export const {
   useRemoveMembersFromGroupMutation,
   useAddRolesToGroupMutation,
   useRemoveRolesFromGroupMutation,
-  useAddServiceAccountsToGroupMutationV1,
   useAddServiceAccountsToGroupMutation,
-  useRemoveServiceAccountsFromGroupMutationV1,
   useRemoveServiceAccountsFromGroupMutation,
   groupsKeys,
 } = groupsModule;

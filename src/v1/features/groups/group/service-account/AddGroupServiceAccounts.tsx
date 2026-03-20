@@ -10,7 +10,7 @@ import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 
 import type { ServiceAccount } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
-import { useAddServiceAccountsToGroupMutationV1, useGroupQuery, useGroupsQuery } from '../../../../../shared/data/queries/groups';
+import { useAddServiceAccountsToGroupMutation, useGroupQuery, useGroupsQuery } from '../../../../../shared/data/queries/groups';
 import messages from '../../../../../Messages';
 import { ExternalLink } from '../../../../../shared/components/navigation/ExternalLink';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../../shared/utilities/constants';
@@ -57,7 +57,7 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
   useGroupQuery(groupId ?? '', { enabled: !name && !!groupId });
 
   // Add service accounts mutation
-  const addServiceAccountsMutation = useAddServiceAccountsToGroupMutationV1();
+  const addServiceAccountsMutation = useAddServiceAccountsToGroupMutation();
 
   const onCancel = () => {
     postMethod();
