@@ -34,7 +34,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, getSeededChildGroupName, getSeededChildWorkspaceName, getSeededGroupName, getSeededWorkspaceName } from '../../../utils';
+import { AUTH_V2_ORGADMIN, getSeededChildGroupName, getSeededChildWorkspaceName, getSeededGroupName, getSeededWorkspaceName, waitForTableUpdate } from '../../../utils';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
@@ -62,15 +62,17 @@ test.describe('Workspace Role Bindings', () => {
       await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME!);
 
       await workspacesPage.roleAssignmentsTab.click();
-      await expect(workspacesPage.currentRoleAssignmentsTable.or(page.getByRole('grid'))).toBeVisible({
-        timeout: E2E_TIMEOUTS.SLOW_DATA,
-      });
+      await waitForTableUpdate(page, { timeout: E2E_TIMEOUTS.SLOW_DATA });
 
-      const firstGroupRow = workspacesPage.currentRoleAssignmentsTable.getByRole('row').nth(1);
-      const groupName = await firstGroupRow.getByRole('gridcell').first().textContent();
+      let groupName: string | null = null;
+      await expect(async () => {
+        const firstGroupRow = workspacesPage.currentRoleAssignmentsTable.getByRole('row').nth(1);
+        groupName = await firstGroupRow.getByRole('gridcell').first().textContent();
+        expect(groupName).toBeTruthy();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
       if (groupName) {
-        await workspacesPage.openGroupDrawer(groupName.trim());
+        await workspacesPage.openGroupDrawer((groupName as string).trim());
 
         await expect(page.getByRole('tab', { name: /members/i })).toBeVisible();
         await expect(page.getByRole('tab', { name: /roles/i })).toBeVisible();
@@ -86,15 +88,17 @@ test.describe('Workspace Role Bindings', () => {
       await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME!);
 
       await workspacesPage.roleAssignmentsTab.click();
-      await expect(workspacesPage.currentRoleAssignmentsTable.or(page.getByRole('grid'))).toBeVisible({
-        timeout: E2E_TIMEOUTS.SLOW_DATA,
-      });
+      await waitForTableUpdate(page, { timeout: E2E_TIMEOUTS.SLOW_DATA });
 
-      const firstGroupRow = workspacesPage.currentRoleAssignmentsTable.getByRole('row').nth(1);
-      const groupName = await firstGroupRow.getByRole('gridcell').first().textContent();
+      let groupName: string | null = null;
+      await expect(async () => {
+        const firstGroupRow = workspacesPage.currentRoleAssignmentsTable.getByRole('row').nth(1);
+        groupName = await firstGroupRow.getByRole('gridcell').first().textContent();
+        expect(groupName).toBeTruthy();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
       if (groupName) {
-        await workspacesPage.openGroupDrawer(groupName.trim());
+        await workspacesPage.openGroupDrawer((groupName as string).trim());
         await workspacesPage.closeGroupDrawer();
 
         await expect(page.getByRole('tab', { name: /members/i })).not.toBeVisible();

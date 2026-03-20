@@ -169,20 +169,22 @@ export class WorkspacesPage {
   }
 
   async fillEditForm(newDescription: string): Promise<void> {
-    // Wait for the edit modal to appear with the Name field
+    // Wait for the edit modal to fully render (workspace data + permissions loading)
     const nameInput = this.page.getByRole('textbox', { name: /name/i });
-    await expect(nameInput).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await expect(nameInput).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
-    // Update the description
+    // Wait for description field to render — the modal loads async
     const descInput = this.page.getByRole('textbox', { name: /description/i });
-    if (await descInput.isVisible()) {
-      await descInput.click();
-      await descInput.selectText();
-      await this.page.keyboard.press('Backspace');
-      await descInput.fill(newDescription);
-    }
+    await expect(descInput).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    await descInput.click();
+    await descInput.selectText();
+    await this.page.keyboard.press('Backspace');
+    await descInput.fill(newDescription);
 
-    await this.page.getByRole('button', { name: /save/i }).click();
+    // Wait for the Save button to become enabled (form is no longer pristine)
+    const saveButton = this.page.getByRole('button', { name: /save/i });
+    await expect(saveButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
+    await saveButton.click();
   }
 
   async confirmDelete(): Promise<void> {
@@ -227,7 +229,8 @@ export class WorkspacesPage {
   }
 
   get inheritedRoleAssignmentsSubTab(): Locator {
-    return this.page.getByRole('tab', { name: /roles assigned in parent/i });
+    // Tab title includes a Popover icon which may alter the accessible name
+    return this.page.getByRole('tab', { name: /parent workspaces/i });
   }
 
   get currentRoleAssignmentsTable(): Locator {
@@ -284,7 +287,10 @@ export class WorkspacesPage {
 
   async openGroupDrawer(groupName: string): Promise<void> {
     const table = this.currentRoleAssignmentsTable.or(this.parentRoleAssignmentsTable);
-    await table.getByRole('row').filter({ hasText: groupName }).click();
+    const row = table.getByRole('row').filter({ hasText: groupName });
+    await expect(row).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    await row.click();
+    // Wait for the drawer slide-in animation and data load
     await expect(this.page.getByRole('tab', { name: /members/i })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
@@ -336,8 +342,14 @@ export class WorkspacesPage {
    */
   async switchToInheritedTab(): Promise<void> {
     await this.roleAssignmentsTab.click();
+    // Wait for sub-tabs to render after the main tab switch
+    await expect(this.inheritedRoleAssignmentsSubTab).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     await this.inheritedRoleAssignmentsSubTab.click();
     await expect(this.inheritedRoleAssignmentsSubTab).toHaveAttribute('aria-selected', 'true', {
+      timeout: E2E_TIMEOUTS.SLOW_DATA,
+    });
+    // The inherited table is conditionally rendered — wait for it to mount and load data
+    await expect(this.parentRoleAssignmentsTable.or(this.page.getByRole('grid'))).toBeVisible({
       timeout: E2E_TIMEOUTS.SLOW_DATA,
     });
     await waitForTableUpdate(this.page, { timeout: E2E_TIMEOUTS.SLOW_DATA });
@@ -370,9 +382,10 @@ export class WorkspacesPage {
    */
   async openRowKebab(workspaceName: string): Promise<void> {
     await this.expandTreeNodes();
-    const row = this.table
+    const row = this.page
+      .getByRole('treegrid')
       .getByRole('row')
-      .filter({ has: this.table.getByText(workspaceName) })
+      .filter({ hasText: workspaceName })
       .first();
     await expect(row).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     const kebab = row.getByRole('button', { name: /actions|kebab toggle/i });

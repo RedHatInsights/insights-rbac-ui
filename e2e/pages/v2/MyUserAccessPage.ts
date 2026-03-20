@@ -2,7 +2,7 @@
  * Page Object for V2 My User Access Page
  *
  * Encapsulates all interactions with the V2 My User Access page at:
- * /iam/my-user-access
+ * /iam/my-access
  *
  * All personas can access this page.
  */

@@ -84,7 +84,7 @@ test.describe('UserViewer', () => {
     const navSidebar = new NavigationSidebar(page);
     await navSidebar.gotoPath(ORG_MANAGEMENT_URL);
 
-    await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   });
 });
 

@@ -8,7 +8,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, AUTH_V2_WORKSPACEUSER } from '../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, AUTH_V2_WORKSPACEUSER, iamUrl, v2 } from '../../utils';
 import { MyUserAccessPage } from '../../pages/v2/MyUserAccessPage';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
@@ -69,7 +69,7 @@ test.describe('My Access - Tab Navigation', () => {
       const workspacesTab = page.getByRole('tab', { name: /workspaces/i });
       await workspacesTab.click();
       await expect(workspacesTab).toHaveAttribute('aria-selected', 'true');
-      await expect(page).toHaveURL(/my-user-access\/workspaces/);
+      await expect(page).toHaveURL(iamUrl(v2.myAccessWorkspaces.link()));
 
       // Switch back to Groups
       await groupsTab.click();

@@ -349,7 +349,7 @@ export async function performHeadlessLogin(options: HeadlessLoginOptions): Promi
 
     // Step 5: Wait for dashboard
     if (!options.stdout) {
-      console.error('[AuthBridge] Waiting for dashboard...');
+      console.error(`[AuthBridge] Waiting for dashboard (${options.username})...`);
     }
     try {
       await session.page.waitForFunction((indicator) => document.body?.innerText?.includes(indicator), LOGGED_IN_INDICATOR, {
@@ -368,7 +368,7 @@ export async function performHeadlessLogin(options: HeadlessLoginOptions): Promi
     }
 
     if (!options.stdout) {
-      console.error('[AuthBridge] Login successful!');
+      console.error(`[AuthBridge] Login successful (${options.username})!`);
     }
 
     // Extract token

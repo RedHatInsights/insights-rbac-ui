@@ -19,6 +19,33 @@ const HAR_PATH = path.join(CACHE_DIR, 'session-assets.har');
 
 const STATIC_ASSET_PATTERN = '**/*.{js,css,woff,woff2,ttf,eot,png,jpg,jpeg,gif,svg,ico,webp}';
 
+/**
+ * Strip HAR entries whose response body was not captured.
+ *
+ * Playwright's routeFromHAR(update:true, updateContent:'embed') silently
+ * drops the body for preloaded / modulepreloaded resources (the browser
+ * fires a prefetch, then a real import() ~1-2 s later — Playwright records
+ * both but only embeds the second). During replay the empty entry is served
+ * first, webpack evaluates empty JS, and the chunk load fails.
+ *
+ * Removing those entries is safe: routeFromHAR({ notFound:'fallback' })
+ * lets missing URLs fall through to the live network.
+ */
+function sanitizeHar(harPath: string): { removed: number; kept: number } {
+  const raw = JSON.parse(fs.readFileSync(harPath, 'utf-8'));
+  const before: number = raw.log.entries.length;
+
+  raw.log.entries = raw.log.entries.filter(
+    (entry: { response?: { content?: { size?: number; text?: string } } }) => {
+      const content = entry.response?.content;
+      return content && content.size != null && content.size > 0 && content.text;
+    },
+  );
+
+  fs.writeFileSync(harPath, JSON.stringify(raw));
+  return { removed: before - raw.log.entries.length, kept: raw.log.entries.length };
+}
+
 setup('warm asset cache', async () => {
   if (!fs.existsSync(CACHE_DIR)) {
     fs.mkdirSync(CACHE_DIR, { recursive: true });
@@ -48,7 +75,9 @@ setup('warm asset cache', async () => {
     console.log('[Cache Warmer] Navigating to /iam...');
     await page.goto(`${baseURL}/iam`, { timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
 
-    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({
+    const v1Indicator = page.getByText('Your Red Hat Enterprise Linux roles');
+    const v2Indicator = page.getByText('View your permissions across all groups and workspaces within the Hybrid Cloud Console.');
+    await expect(v1Indicator.or(v2Indicator)).toBeVisible({
       timeout: E2E_TIMEOUTS.DETAIL_CONTENT,
     });
 
@@ -61,8 +90,9 @@ setup('warm asset cache', async () => {
   }
 
   if (fs.existsSync(HAR_PATH)) {
+    const { removed, kept } = sanitizeHar(HAR_PATH);
     const sizeMB = (fs.statSync(HAR_PATH).size / (1024 * 1024)).toFixed(2);
-    console.log(`[Cache Warmer] Cache created: ${sizeMB} MB`);
+    console.log(`[Cache Warmer] Cache created: ${sizeMB} MB (${kept} entries, ${removed} empty entries stripped)`);
   } else {
     throw new Error('[Cache Warmer] HAR file was not created — static assets were not captured');
   }

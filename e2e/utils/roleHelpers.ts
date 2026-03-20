@@ -37,12 +37,13 @@ async function selectSourceRole(wizard: Locator, sourceRoleName: string): Promis
   // Wait for roles table
   await expect(wizard.getByRole('grid', { name: /roles/i })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
-  // Search for the source role
-  const searchInput = wizard.getByRole('textbox', { name: /search|filter/i });
-  if (await searchInput.isVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION }).catch(() => false)) {
-    await searchInput.fill(sourceRoleName);
-    await searchInput.press('Enter');
-  }
+  // Search for the source role — the filter input's placeholder varies by version.
+  // Do NOT press Enter: the TableView filter is debounce-driven via onChange.
+  // Pressing Enter may trigger form-level submission inside the wizard.
+  const searchInput = wizard.getByPlaceholder(/role name|search|filter/i);
+  await expect(searchInput).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+  await searchInput.fill(sourceRoleName);
+  await waitForTableUpdate(wizard.page(), { timeout: E2E_TIMEOUTS.SLOW_DATA });
 
   // Click the radio button for the source role
   await wizard.getByRole('radio', { name: new RegExp(sourceRoleName, 'i') }).click();
@@ -51,6 +52,35 @@ async function selectSourceRole(wizard: Locator, sourceRoleName: string): Promis
   const nextButton = getWizardNextButton(wizard);
   await expect(nextButton).toBeEnabled({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   await nextButton.click();
+}
+
+/**
+ * STEP: Select the first role in the copy table.
+ * Used when no specific source role is needed — avoids roles with inventory
+ * permissions that trigger the unhandled "Define Workspaces access" step.
+ * Returns the selected role's display name for downstream verification.
+ */
+async function selectFirstSourceRole(wizard: Locator): Promise<string> {
+  const copyRadio = wizard.getByRole('radio', { name: /copy an existing role/i });
+  await expect(copyRadio).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+  await copyRadio.click();
+
+  const grid = wizard.getByRole('grid', { name: /roles/i });
+  await expect(grid).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+  const firstRoleRadio = grid.getByRole('radio').first();
+  await firstRoleRadio.click();
+
+  // Navigate from the radio up to its containing row, then read the role name
+  // from the second gridcell (index 0 = radio cell, index 1 = name cell).
+  const selectedRow = firstRoleRadio.locator('xpath=ancestor::tr[1]');
+  const roleName = await selectedRow.getByRole('gridcell').nth(1).textContent();
+
+  const nextButton = getWizardNextButton(wizard);
+  await expect(nextButton).toBeEnabled({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+  await nextButton.click();
+
+  return roleName?.trim() ?? '';
 }
 
 /**
@@ -210,31 +240,43 @@ export async function fillCreateRoleWizard(page: Page, roleName: string, descrip
  * Create role by copying an existing role.
  *
  * Flow:
- * 1. Select source role to copy
+ * 1. Select source role to copy (by name, or first in table if omitted)
  * 2. Name and description
  * 3. Permissions (inherited, just advance)
  * 4. Define Workspaces access (conditional - only if source role has inventory permissions)
  * 5. Review and submit
+ *
+ * Returns the source role name that was actually selected — useful when
+ * `sourceRoleName` is omitted and the first role is picked automatically.
  */
 export async function fillCreateRoleWizardAsCopy(
   page: Page,
   newRoleName: string,
-  sourceRoleName: string,
+  sourceRoleName?: string,
   seededWorkspaceName?: string,
   description?: string,
-): Promise<void> {
+): Promise<{ sourceRoleName: string }> {
   await page.waitForURL(/add-role/, { timeout: E2E_TIMEOUTS.TABLE_DATA });
 
   const wizard = page.getByRole('dialog').first();
   await expect(wizard).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
-  await selectSourceRole(wizard, sourceRoleName);
+  let selectedSource: string;
+  if (sourceRoleName) {
+    await selectSourceRole(wizard, sourceRoleName);
+    selectedSource = sourceRoleName;
+  } else {
+    selectedSource = await selectFirstSourceRole(wizard);
+  }
+
   await fillNameAndDescription(wizard, newRoleName, description || '');
-  await handlePermissions(wizard, false); // false = don't select, inherited
+  await handlePermissions(wizard, false);
   if (seededWorkspaceName) {
     await defineWorkspacesAccess(wizard, seededWorkspaceName);
   }
   await reviewAndSubmit(wizard, newRoleName);
+
+  return { sourceRoleName: selectedSource };
 }
 
 /**

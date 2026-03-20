@@ -144,8 +144,8 @@ export class RolesPage {
     await fillCreateRoleWizard(this.page, name, description, workspaceName);
   }
 
-  async fillCreateWizardAsCopy(newRoleName: string, sourceRoleName: string, workspaceName?: string, description?: string): Promise<void> {
-    await fillCreateRoleWizardAsCopy(this.page, newRoleName, sourceRoleName, workspaceName, description);
+  async fillCreateWizardAsCopy(newRoleName: string, sourceRoleName?: string, workspaceName?: string, description?: string): Promise<{ sourceRoleName: string }> {
+    return fillCreateRoleWizardAsCopy(this.page, newRoleName, sourceRoleName, workspaceName, description);
   }
 
   async fillEditModal(newName: string, newDescription: string): Promise<void> {

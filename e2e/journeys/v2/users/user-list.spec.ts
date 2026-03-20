@@ -231,7 +231,7 @@ test.describe('User List', () => {
     test(`Admin-only navigation links should not be visible [ReadOnlyUser]`, async ({ page }) => {
       await setupPage(page);
       await page.goto(iamUrl(v2.myAccess.link()));
-      await expect(page).toHaveURL(/\/iam\/my-user-access/);
+      await expect(page).toHaveURL(new RegExp(iamUrl(v2.myAccess.link())));
 
       // Wait for navigation to render
       await page.waitForTimeout(E2E_TIMEOUTS.DRAWER_ANIMATION);

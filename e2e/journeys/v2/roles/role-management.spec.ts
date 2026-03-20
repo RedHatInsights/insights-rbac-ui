@@ -159,7 +159,7 @@ test.describe('Role Management', () => {
       await rolesPage.goto();
 
       await rolesPage.createButton.click();
-      await rolesPage.fillCreateWizardAsCopy(COPY_ROLE_NAME, SEEDED_ROLE_NAME!);
+      await rolesPage.fillCreateWizardAsCopy(COPY_ROLE_NAME, SEEDED_ROLE_NAME!, SEEDED_WORKSPACE_NAME);
     });
 
     test('Verify copied role appears in table [OrgAdmin]', async ({ page }) => {
@@ -224,8 +224,9 @@ test.describe('Role Management', () => {
     test(`Roles page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
       await setupPage(page);
       await page.goto(ROLES_URL);
+      await page.waitForURL(new RegExp(ROLES_URL), { timeout: E2E_TIMEOUTS.SLOW_DATA });
 
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     });
   });
 

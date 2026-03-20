@@ -240,7 +240,8 @@ From `src/utilities/route-definitions.ts`:
 | `/access-management/users-and-user-groups` | `rbac:principal:read` OR `rbac:group:read` |
 | `/access-management/workspaces` | `inventory:groups:read` |
 | `/access-management/roles` | `rbac:role:read` |
-| `/my-user-access` | (public) |
+| `/my-user-access` | (public) — V1 |
+| `/my-access` | (public) — V2 |
 | `/organization-management/organization-wide-access` | **requireOrgAdmin** (platform `is_org_admin`, not RBAC) |
 
 ---

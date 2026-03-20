@@ -49,7 +49,9 @@ import {
   getGroupUuid,
   getSeededGroupName,
   getSeededUsername,
+  iamUrl,
   setupPage,
+  v2,
 } from '../../../utils';
 import { UserGroupsPage } from '../../../pages/v2/UserGroupsPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
@@ -60,7 +62,6 @@ import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 const SEEDED_GROUP_NAME = getSeededGroupName('v2');
 const SEEDED_GROUP_UUID = SEEDED_GROUP_NAME ? getGroupUuid(SEEDED_GROUP_NAME, 'v2') : undefined;
-const EDIT_GROUP_URL = '/iam/access-management/users-and-user-groups/edit-group';
 
 // Use a dedicated seeded user (not a persona) for add/remove membership tests.
 // This avoids side effects on persona-dependent tests.
@@ -237,7 +238,7 @@ test.describe('User Group Membership', () => {
       await groupsPage.clickDrawerEditButton();
 
       // Verify we're on the edit page
-      await expect(page).toHaveURL(new RegExp(`${EDIT_GROUP_URL}/${SEEDED_GROUP_UUID}`), {
+      await expect(page).toHaveURL(new RegExp(iamUrl(v2.usersAndUserGroupsEditGroup.link(SEEDED_GROUP_UUID!))), {
         timeout: E2E_TIMEOUTS.URL_CHANGE,
       });
       await expect(groupsPage.editPageForm).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
@@ -253,7 +254,7 @@ test.describe('User Group Membership', () => {
       await groupsPage.clickRowAction('Edit');
 
       // Verify we're on the edit page
-      await expect(page).toHaveURL(new RegExp(`${EDIT_GROUP_URL}/${SEEDED_GROUP_UUID}`), {
+      await expect(page).toHaveURL(new RegExp(iamUrl(v2.usersAndUserGroupsEditGroup.link(SEEDED_GROUP_UUID!))), {
         timeout: E2E_TIMEOUTS.URL_CHANGE,
       });
       await expect(groupsPage.editPageForm).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
@@ -267,7 +268,7 @@ test.describe('User Group Membership', () => {
       await groupsPage.cancelEditForm();
 
       // Verify we're back on the list page
-      await expect(page).toHaveURL(/\/user-groups/, { timeout: E2E_TIMEOUTS.URL_CHANGE });
+      await expect(page).toHaveURL(new RegExp(v2.userGroups.link()), { timeout: E2E_TIMEOUTS.URL_CHANGE });
     });
   });
 
@@ -321,10 +322,10 @@ test.describe('User Group Membership', () => {
     test(`Edit group page shows unauthorized access [UserViewer]`, async ({ page }) => {
       test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       await setupPage(page);
-      await page.goto(`${EDIT_GROUP_URL}/${SEEDED_GROUP_UUID}`);
+      await page.goto(iamUrl(v2.usersAndUserGroupsEditGroup.link(SEEDED_GROUP_UUID!)));
 
       await expect(page.getByText(/You do not have access to/i)).toBeVisible({
-        timeout: E2E_TIMEOUTS.DETAIL_CONTENT,
+        timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
     });
   });
@@ -339,10 +340,10 @@ test.describe('User Group Membership', () => {
     test(`Edit group page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
       test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       await setupPage(page);
-      await page.goto(`${EDIT_GROUP_URL}/${SEEDED_GROUP_UUID}`);
+      await page.goto(iamUrl(v2.usersAndUserGroupsEditGroup.link(SEEDED_GROUP_UUID!)));
 
       await expect(page.getByText(/You do not have access to/i)).toBeVisible({
-        timeout: E2E_TIMEOUTS.DETAIL_CONTENT,
+        timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
     });
   });

@@ -33,7 +33,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, AUTH_V2_RBACADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, AUTH_V2_WORKSPACEUSER, setupPage } from '../../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_RBACADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, AUTH_V2_WORKSPACEUSER, iamUrl, setupPage, v2 } from '../../../utils';
 import { NavigationSidebar } from '../../../pages/v2/NavigationSidebar';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -86,11 +86,11 @@ test.describe('OrgAdmin', () => {
       await page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
     }
 
-    await expect(navSidebar.getNavLink(NAV_OVERVIEW)).toHaveAttribute('href', /\/overview/);
-    await expect(navSidebar.getNavLink(NAV_MY_ACCESS)).toHaveAttribute('href', /\/my-user-access/);
-    await expect(navSidebar.getNavLink(NAV_USERS_AND_GROUPS)).toHaveAttribute('href', /\/access-management\/users-and-user-groups/);
-    await expect(navSidebar.getNavLink(NAV_ROLES)).toHaveAttribute('href', /\/access-management\/roles/);
-    await expect(navSidebar.getNavLink(NAV_WORKSPACES)).toHaveAttribute('href', /\/access-management\/workspaces/);
+    await expect(navSidebar.getNavLink(NAV_OVERVIEW)).toHaveAttribute('href', iamUrl(v2.overview.link()));
+    await expect(navSidebar.getNavLink(NAV_MY_ACCESS)).toHaveAttribute('href', iamUrl(v2.myAccess.link()));
+    await expect(navSidebar.getNavLink(NAV_USERS_AND_GROUPS)).toHaveAttribute('href', iamUrl(v2.usersAndUserGroups.link()));
+    await expect(navSidebar.getNavLink(NAV_ROLES)).toHaveAttribute('href', iamUrl(v2.accessManagementRoles.link()));
+    await expect(navSidebar.getNavLink(NAV_WORKSPACES)).toHaveAttribute('href', iamUrl(v2.accessManagementWorkspaces.link()));
 
     const orgMgmt = navSidebar.getNavExpandable(NAV_ORGANIZATION_MANAGEMENT);
     const orgExpanded = await orgMgmt.getAttribute('aria-expanded');
@@ -99,7 +99,7 @@ test.describe('OrgAdmin', () => {
       await page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
     }
 
-    await expect(navSidebar.getNavLink(NAV_ORGANIZATION_WIDE_ACCESS)).toHaveAttribute('href', /\/organization-management\/organization-wide-access/);
+    await expect(navSidebar.getNavLink(NAV_ORGANIZATION_WIDE_ACCESS)).toHaveAttribute('href', iamUrl(v2.organizationManagement.link()));
   });
 });
 

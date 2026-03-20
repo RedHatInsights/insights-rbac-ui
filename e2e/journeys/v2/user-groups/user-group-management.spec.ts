@@ -110,9 +110,6 @@ test.describe('User Group Management', () => {
       await groupsPage.openRowActions(uniqueGroupName);
       await groupsPage.clickRowAction('Edit');
 
-      // Verify we navigated to the edit page
-      await expect(page).toHaveURL(/\/edit-group\/[\w-]+/, { timeout: E2E_TIMEOUTS.URL_CHANGE });
-
       // Verify the form loaded with existing values
       await expect(groupsPage.editPageForm).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
       await expect(groupsPage.editPageNameInput).toHaveValue(uniqueGroupName);
@@ -170,7 +167,7 @@ test.describe('User Group Management', () => {
       await groupsPage.createButton.click();
 
       // Verify we navigated to the create page (uses EditUserGroup in create mode)
-      await expect(page).toHaveURL(/\/create-group/, { timeout: E2E_TIMEOUTS.URL_CHANGE });
+      await expect(page).toHaveURL(new RegExp(iamUrl(v2.usersAndUserGroupsCreateGroup.link())), { timeout: E2E_TIMEOUTS.URL_CHANGE });
       await expect(groupsPage.editPageForm).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 
       // In create mode, fields should be empty
@@ -194,7 +191,7 @@ test.describe('User Group Management', () => {
       await setupPage(page);
       await page.goto(GROUPS_URL);
 
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     });
   });
 

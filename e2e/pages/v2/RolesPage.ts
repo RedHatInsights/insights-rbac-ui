@@ -120,8 +120,8 @@ export class RolesPage {
     await fillCreateRoleWizard(this.page, name, description);
   }
 
-  async fillCreateWizardAsCopy(newRoleName: string, sourceRoleName: string, description?: string): Promise<void> {
-    await fillCreateRoleWizardAsCopy(this.page, newRoleName, sourceRoleName, description);
+  async fillCreateWizardAsCopy(newRoleName: string, sourceRoleName: string, seededWorkspaceName?: string, description?: string): Promise<void> {
+    await fillCreateRoleWizardAsCopy(this.page, newRoleName, sourceRoleName, seededWorkspaceName, description);
   }
 
   async fillEditPage(newName: string, newDescription: string): Promise<void> {

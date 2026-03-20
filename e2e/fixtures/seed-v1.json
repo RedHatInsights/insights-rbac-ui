@@ -15,8 +15,7 @@
       "display_name": "Seeded Role",
       "description": "Controlled test role for search and view tests",
       "permissions": [
-        "rbac:role:read",
-        "rbac:group:read"
+        "notifications:*:*"
       ]
     }
   ],
