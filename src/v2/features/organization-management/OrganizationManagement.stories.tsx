@@ -261,36 +261,32 @@ type OrgExpectations = {
   orgId: string;
 };
 
+const PLACEHOLDER = '--';
+
 const expectOrgDetails = async (canvas: ScopedQueries, exp: OrgExpectations) => {
   // Always expect the main heading
   await expect(canvas.findByRole('heading', { name: 'Organization-Wide Access' })).resolves.toBeInTheDocument();
 
-  // Wait for org ID to appear (this indicates useEffect has run)
-  await expect(canvas.findByText(exp.orgId)).resolves.toBeInTheDocument();
+  // Labels are always rendered; wait for org ID label to confirm the component has mounted
+  await expect(canvas.findByText('Organization ID:')).resolves.toBeInTheDocument();
 
-  // Organization name is only shown when available
+  // Organization name label is always shown; value is either the name or the placeholder
+  await expect(canvas.findByText('Organization name:')).resolves.toBeInTheDocument();
   if (exp.name) {
-    await expect(canvas.findByText('Organization name:')).resolves.toBeInTheDocument();
     await expect(canvas.findByText(exp.name)).resolves.toBeInTheDocument();
   } else {
-    // If no organization name, the section should not be rendered at all
-    await waitFor(() => {
-      expect(canvas.queryByText('Organization name:')).not.toBeInTheDocument();
-    });
+    // Multiple placeholders may be present; just assert at least one exists
+    await expect(canvas.findAllByText(PLACEHOLDER)).resolves.not.toHaveLength(0);
   }
 
-  // Check account number
+  // Account number label is always shown; value is either the account or the placeholder
+  await expect(canvas.findByText('Account number:')).resolves.toBeInTheDocument();
   if (exp.account) {
-    await expect(canvas.findByText('Account number:')).resolves.toBeInTheDocument();
     await expect(canvas.findByText(exp.account)).resolves.toBeInTheDocument();
-  } else {
-    await waitFor(() => {
-      expect(canvas.queryByText('Account number:')).not.toBeInTheDocument();
-    });
   }
 
-  // Always check that org ID is present
-  await expect(canvas.findByText('Organization ID:')).resolves.toBeInTheDocument();
+  // Org ID value
+  await expect(canvas.findByText(exp.orgId)).resolves.toBeInTheDocument();
 };
 
 export const Default: Story = {
