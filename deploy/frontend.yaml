@@ -134,6 +134,9 @@ objects:
                       args:
                         - - rbac_roles_read
                   product: Identity & Access Management
+                - segmentRef:
+                    frontendName: service-accounts
+                    segmentId: iam-access-management-service-accounts
                 - id: workspaces
                   title: Workspaces
                   href: /iam/access-management/workspaces
