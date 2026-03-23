@@ -1,10 +1,10 @@
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useMemo } from 'react';
 
-export type Environment = 'production' | 'staging' | 'qa';
+export type Environment = 'production' | 'stage' | 'qa';
 
 export interface PlatformEnvironment {
-  /** Current environment: 'production', 'staging', or 'qa' */
+  /** Current environment: 'production', 'stage', or 'qa' */
   environment: Environment;
   /** SSO URL for the current environment */
   ssoUrl: string;
@@ -24,7 +24,7 @@ export const usePlatformEnvironment = (): PlatformEnvironment => {
 
   return useMemo(() => {
     const rawEnv = chrome.getEnvironment();
-    const environment: Environment = rawEnv === 'prod' ? 'production' : rawEnv === 'stage' ? 'staging' : 'qa';
+    const environment: Environment = rawEnv === 'prod' ? 'production' : rawEnv === 'stage' ? 'stage' : 'qa';
     const envDetails = chrome.getEnvironmentDetails?.();
 
     return {
