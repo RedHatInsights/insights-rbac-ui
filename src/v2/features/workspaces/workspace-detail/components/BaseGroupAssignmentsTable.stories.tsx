@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { getSkeletonCount, queryDialog } from '../../../../../test-utils/interactionHelpers';
+import { clearAndType, getSkeletonCount, queryDialog } from '../../../../../test-utils/interactionHelpers';
 import { MemoryRouter } from 'react-router-dom';
 import { BaseGroupAssignmentsTable } from './BaseGroupAssignmentsTable';
 import type { WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
@@ -518,6 +518,59 @@ export const GrantAccessWizardTest: Story = {
       );
 
       await expect(canvas.findByRole('button', { name: /grant access/i })).resolves.toBeInTheDocument();
+    });
+  },
+};
+
+const GROUP_PLATFORM = mockGroups[0];
+const GROUP_DEV = mockGroups[1];
+const GROUP_QA = mockGroups[2];
+
+/**
+ * Tests client-side filtering by group name.
+ */
+export const FilterByGroupName: Story = {
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    ouiaId: 'role-assignments-table',
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    await step('Type partial name and verify rows narrow', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by user group/i);
+      await clearAndType(user, filterInput, 'Platform');
+      await expect(canvas.findByText(GROUP_PLATFORM.name)).resolves.toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.queryByText(GROUP_DEV.name)).not.toBeInTheDocument();
+        expect(canvas.queryByText(GROUP_QA.name)).not.toBeInTheDocument();
+      });
+    });
+
+    await step('Clear filter and verify all rows return', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by user group/i);
+      await user.clear(filterInput);
+      await expect(canvas.findByText(GROUP_PLATFORM.name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(GROUP_DEV.name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(GROUP_QA.name)).resolves.toBeInTheDocument();
+    });
+
+    await step('Filter is case-insensitive', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by user group/i);
+      await clearAndType(user, filterInput, 'qa');
+      await expect(canvas.findByText(GROUP_QA.name)).resolves.toBeInTheDocument();
+      await waitFor(() => {
+        expect(canvas.queryByText(GROUP_PLATFORM.name)).not.toBeInTheDocument();
+      });
+    });
+
+    await step('No-match shows empty state', async () => {
+      const filterInput = await canvas.findByPlaceholderText(/filter by user group/i);
+      await clearAndType(user, filterInput, 'zzz-nonexistent');
+      await expect(canvas.findByText('No results found')).resolves.toBeInTheDocument();
     });
   },
 };
