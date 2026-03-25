@@ -195,10 +195,6 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
         perPage={tableState.perPage}
         onPageChange={tableState.onPageChange}
         onPerPageChange={tableState.onPerPageChange}
-        selectable={true}
-        selectedRows={tableState.selectedRows}
-        onSelectRow={tableState.onSelectRow}
-        onSelectAll={tableState.onSelectAll}
         filterConfig={filterConfig}
         filters={tableState.filters}
         onFiltersChange={tableState.onFiltersChange}
