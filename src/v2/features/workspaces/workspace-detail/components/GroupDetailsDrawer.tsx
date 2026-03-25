@@ -89,7 +89,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   showInheritance = false,
   currentWorkspace,
   canEditAccess = false,
-  canRevokeAccess = false,
+  canRevokeAccess: _canRevokeAccess = false,
   onRemoveFromWorkspace,
 }) => {
   const intl = useIntl();
@@ -475,11 +475,12 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                   >
                     {intl.formatMessage(messages.editAccessForThisWorkspace)}
                   </Button>
+                  {/* TODO: re-enable when removal flow is confirmed
                   {onRemoveFromWorkspace && (
                     <Button variant="secondary" isDanger isDisabled={!canRevokeAccess} onClick={() => group && onRemoveFromWorkspace?.(group)}>
                       {intl.formatMessage(messages.removeGroupFromWorkspace)}
                     </Button>
-                  )}
+                  )} */}
                 </Flex>
               )}
             </DrawerPanelContent>
