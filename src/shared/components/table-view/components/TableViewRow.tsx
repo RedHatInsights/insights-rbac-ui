@@ -40,6 +40,8 @@ export interface TableViewRowProps<TColumns extends readonly string[], TRow, TCo
   onRowClick?: (row: TRow) => void;
 
   // Expansion
+  /** Whether this table has compound-expandable columns */
+  hasExpansion: boolean;
   /** Currently expanded cell info */
   expandedCell?: { rowId: string; column: TCompound } | null;
   /** Expansion content renderers */
@@ -77,6 +79,7 @@ export function TableViewRow<TColumns extends readonly string[], TRow, TCompound
   onSelectRow,
   isClickable,
   onRowClick,
+  hasExpansion,
   expandedCell,
   expansionRenderers,
   isCellExpandable,
@@ -108,57 +111,63 @@ export function TableViewRow<TColumns extends readonly string[], TRow, TCompound
     return expandedCell?.rowId === rowId && expandedCell?.column === columnId;
   };
 
-  return (
-    <Tbody isExpanded={isExpanded}>
-      <Tr isClickable={isClickable} isRowSelected={isSelected} onRowClick={isClickable && onRowClick ? handleRowClick : undefined}>
-        {selectable && (
+  const mainRow = (
+    <Tr isClickable={isClickable} isRowSelected={isSelected} onRowClick={isClickable && onRowClick ? handleRowClick : undefined}>
+      {selectable && (
+        <Td
+          className={!canSelect ? 'pf-v6-c-table__check' : undefined}
+          select={
+            canSelect && onSelectRow
+              ? {
+                  rowIndex,
+                  onSelect: (_e, isSelecting) => onSelectRow(row, isSelecting),
+                  isSelected,
+                }
+              : undefined
+          }
+        />
+      )}
+
+      {columns.map((col) => {
+        const isCompound = compoundColumnSet.has(col);
+        const canExpand = isCompound && isCellExpandable(row, col as TCompound);
+        const cellExpanded = isCellExpanded(col);
+        const rawLabel = columnConfig[col as keyof typeof columnConfig]?.label;
+        const dataLabel = typeof rawLabel === 'string' ? rawLabel : col;
+
+        return (
           <Td
-            className={!canSelect ? 'pf-v6-c-table__check' : undefined}
-            select={
-              canSelect && onSelectRow
+            key={col}
+            dataLabel={dataLabel}
+            compoundExpand={
+              canExpand && onToggleExpand
                 ? {
-                    rowIndex,
-                    onSelect: (_e, isSelecting) => onSelectRow(row, isSelecting),
-                    isSelected,
+                    isExpanded: cellExpanded,
+                    onToggle: () => onToggleExpand(row, col as TCompound),
                   }
                 : undefined
             }
-          />
-        )}
-
-        {columns.map((col) => {
-          const isCompound = compoundColumnSet.has(col);
-          const canExpand = isCompound && isCellExpandable(row, col as TCompound);
-          const cellExpanded = isCellExpanded(col);
-          const rawLabel = columnConfig[col as keyof typeof columnConfig]?.label;
-          const dataLabel = typeof rawLabel === 'string' ? rawLabel : col;
-
-          return (
-            <Td
-              key={col}
-              dataLabel={dataLabel}
-              compoundExpand={
-                canExpand && onToggleExpand
-                  ? {
-                      isExpanded: cellExpanded,
-                      onToggle: () => onToggleExpand(row, col as TCompound),
-                    }
-                  : undefined
-              }
-            >
-              {cellRenderers[col as keyof typeof cellRenderers](row)}
-            </Td>
-          );
-        })}
-
-        {renderActions && (
-          <Td data-actions isActionCell>
-            {renderActions(row)}
+          >
+            {cellRenderers[col as keyof typeof cellRenderers](row)}
           </Td>
-        )}
-      </Tr>
+        );
+      })}
 
-      {/* Single expansion row - only render if this row has an expanded cell */}
+      {renderActions && (
+        <Td data-actions isActionCell>
+          {renderActions(row)}
+        </Td>
+      )}
+    </Tr>
+  );
+
+  if (!hasExpansion) {
+    return mainRow;
+  }
+
+  return (
+    <Tbody isExpanded={isExpanded}>
+      {mainRow}
       {expansionRenderer && (
         <Tr key={`${rowId}-${expandedColumnId}-expansion`} isExpanded>
           <Td colSpan={columnCount}>

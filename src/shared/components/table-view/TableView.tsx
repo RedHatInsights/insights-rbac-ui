@@ -9,7 +9,7 @@
  */
 
 import React, { useEffect, useMemo } from 'react';
-import { Table, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Table, Tbody, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { TableVariant } from '@patternfly/react-table';
 import { BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { ToolbarPosition } from './types';
@@ -178,6 +178,8 @@ export function TableView<
     return set;
   }, [columns, columnConfig]);
 
+  const hasExpansion = compoundColumnSet.size > 0;
+
   // Selection derived state
   const selectableCount = data?.filter(isRowSelectable).length || 0;
   const selectedOnPage = data?.filter((row) => isRowSelected(row) && isRowSelectable(row)).length || 0;
@@ -331,30 +333,61 @@ export function TableView<
             </Tr>
           </Thead>
 
-          {data.map((row, rowIndex) => (
-            <TableViewRow
-              key={getRowId(row)}
-              row={row}
-              rowIndex={rowIndex}
-              rowId={getRowId(row)}
-              columns={columns}
-              selectable={selectable}
-              canSelect={isRowSelectable(row)}
-              isSelected={isRowSelected(row)}
-              onSelectRow={onSelectRow}
-              isClickable={isRowClickable(row)}
-              onRowClick={onRowClick}
-              expandedCell={expandedCell}
-              expansionRenderers={expansionRenderers}
-              isCellExpandable={isCellExpandable}
-              onToggleExpand={handleToggleExpand}
-              compoundColumnSet={compoundColumnSet}
-              columnConfig={columnConfig}
-              cellRenderers={cellRenderers}
-              renderActions={renderActions}
-              columnCount={columnCount}
-            />
-          ))}
+          {hasExpansion ? (
+            data.map((row, rowIndex) => (
+              <TableViewRow
+                key={getRowId(row)}
+                row={row}
+                rowIndex={rowIndex}
+                rowId={getRowId(row)}
+                columns={columns}
+                selectable={selectable}
+                canSelect={isRowSelectable(row)}
+                isSelected={isRowSelected(row)}
+                onSelectRow={onSelectRow}
+                isClickable={isRowClickable(row)}
+                onRowClick={onRowClick}
+                hasExpansion
+                expandedCell={expandedCell}
+                expansionRenderers={expansionRenderers}
+                isCellExpandable={isCellExpandable}
+                onToggleExpand={handleToggleExpand}
+                compoundColumnSet={compoundColumnSet}
+                columnConfig={columnConfig}
+                cellRenderers={cellRenderers}
+                renderActions={renderActions}
+                columnCount={columnCount}
+              />
+            ))
+          ) : (
+            <Tbody>
+              {data.map((row, rowIndex) => (
+                <TableViewRow
+                  key={getRowId(row)}
+                  row={row}
+                  rowIndex={rowIndex}
+                  rowId={getRowId(row)}
+                  columns={columns}
+                  selectable={selectable}
+                  canSelect={isRowSelectable(row)}
+                  isSelected={isRowSelected(row)}
+                  onSelectRow={onSelectRow}
+                  isClickable={isRowClickable(row)}
+                  onRowClick={onRowClick}
+                  hasExpansion={false}
+                  expandedCell={expandedCell}
+                  expansionRenderers={expansionRenderers}
+                  isCellExpandable={isCellExpandable}
+                  onToggleExpand={handleToggleExpand}
+                  compoundColumnSet={compoundColumnSet}
+                  columnConfig={columnConfig}
+                  cellRenderers={cellRenderers}
+                  renderActions={renderActions}
+                  columnCount={columnCount}
+                />
+              ))}
+            </Tbody>
+          )}
         </Table>
       )}
 
