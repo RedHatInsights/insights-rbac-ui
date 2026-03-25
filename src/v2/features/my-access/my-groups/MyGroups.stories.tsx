@@ -49,6 +49,11 @@ export const Default: Story = {
     await step('Verify default my groups', async () => {
       await expect(canvas.findByLabelText('My groups')).resolves.toBeInTheDocument();
     });
+
+    await step('Verify group names are links', async () => {
+      const link = await canvas.findByRole('link', { name: new RegExp(GROUP_SYSTEM_DEFAULT.name, 'i') });
+      await expect(link).toBeInTheDocument();
+    });
   },
 };
 

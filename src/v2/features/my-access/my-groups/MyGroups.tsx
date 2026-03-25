@@ -4,6 +4,8 @@ import { TableView, useTableState } from '../../../../shared/components/table-vi
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
 import { type Group, useGroupsQuery } from '../../../../shared/data/queries/groups';
 import useIdentity from '../../../../shared/hooks/useIdentity';
+import { AppLink } from '../../../../shared/components/navigation/AppLink';
+import pathnames from '../../../utilities/pathnames';
 import messages from '../../../../Messages';
 import { MyGroupDrawer } from './MyGroupDrawer';
 
@@ -28,7 +30,11 @@ const MyGroups: React.FunctionComponent = () => {
 
   const cellRenderers: CellRendererMap<typeof columns, Group> = useMemo(
     () => ({
-      name: (group) => group.name,
+      name: (group) => (
+        <AppLink to={pathnames['user-groups'].link()} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+          {group.name}
+        </AppLink>
+      ),
       description: (group) => group.description || '—',
     }),
     [],
