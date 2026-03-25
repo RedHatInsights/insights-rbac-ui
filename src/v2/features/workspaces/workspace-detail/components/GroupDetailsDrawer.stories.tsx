@@ -249,8 +249,7 @@ export const Default: Story = {
       const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
       await expect(editAccessButton).toBeEnabled();
 
-      const removeButton = await canvas.findByRole('button', { name: /remove from workspace/i });
-      await expect(removeButton).toBeEnabled();
+      await expect(canvas.queryByRole('button', { name: /remove from workspace/i })).not.toBeInTheDocument();
 
       // Verify tabs are present - Roles tab should be active by default
       await canvas.findByRole('tab', { name: /roles/i });
@@ -505,12 +504,11 @@ export const PermissionDenied: Story = {
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await step('Verify both buttons are disabled when permissions are denied', async () => {
+    await step('Verify edit button disabled and remove hidden', async () => {
       const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
       await expect(editAccessButton).toBeDisabled();
 
-      const removeButton = await canvas.findByRole('button', { name: /remove from workspace/i });
-      await expect(removeButton).toBeDisabled();
+      await expect(canvas.queryByRole('button', { name: /remove from workspace/i })).not.toBeInTheDocument();
     });
   },
 };
@@ -529,18 +527,17 @@ export const EditOnlyPermission: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Drawer with edit permission granted but revoke denied. Edit access button is enabled, remove button is disabled.',
+        story: 'Drawer with edit permission granted but revoke denied. Remove button is hidden (temporarily disabled feature).',
       },
     },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await step('Verify edit enabled but revoke disabled', async () => {
+    await step('Verify edit enabled and remove hidden', async () => {
       const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
       await expect(editAccessButton).toBeEnabled();
 
-      const removeButton = await canvas.findByRole('button', { name: /remove from workspace/i });
-      await expect(removeButton).toBeDisabled();
+      await expect(canvas.queryByRole('button', { name: /remove from workspace/i })).not.toBeInTheDocument();
     });
   },
 };
