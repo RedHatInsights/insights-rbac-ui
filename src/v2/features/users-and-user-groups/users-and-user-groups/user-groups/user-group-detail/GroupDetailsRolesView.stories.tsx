@@ -130,10 +130,11 @@ Each story demonstrates different aspects of container state management and erro
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify roles displayed', async () => {
-      await expect(canvas.findByText('Organization Administrator')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText('User Access Administrator')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText('Custom Team Role')).resolves.toBeInTheDocument();
+    await step('Verify role binding data renders', async () => {
+      await expect(canvas.findByText(MOCK_GROUP_BINDINGS[0].role_name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(MOCK_GROUP_BINDINGS[1].role_name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(MOCK_GROUP_BINDINGS[2].role_name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(MOCK_GROUP_BINDINGS[0].resource_id)).resolves.toBeInTheDocument();
     });
   },
 };

@@ -142,6 +142,47 @@ const journeySpecificGroupRolesHandlers = [
   }),
 ];
 
+/**
+ * V2 role-bindings list handler that serves journey mock data.
+ * Converts mockRoleBindings into the V2 RoleBindingsRoleBinding shape
+ * and filters by subject_type + subject_id when present.
+ */
+const journeySpecificRoleBindingsListHandler = [
+  http.get('*/api/rbac/v2/role-bindings/', async ({ request }) => {
+    await delay(NETWORK_DELAY);
+    const url = new URL(request.url);
+    const subjectType = url.searchParams.get('subject_type');
+    const subjectId = url.searchParams.get('subject_id');
+    const roleId = url.searchParams.get('role_id');
+    const limit = parseInt(url.searchParams.get('limit') || '1000', 10);
+
+    const { mockRoleBindings } = await import('./mockData');
+    let filtered = [...mockRoleBindings];
+
+    if (subjectType === 'group' && subjectId) {
+      filtered = filtered.filter((b) => b.groupId === subjectId);
+    }
+    if (subjectType === 'user' && subjectId) {
+      const { userGroupsMembership } = await import('./mockData');
+      const userGroups = userGroupsMembership[subjectId] || [];
+      filtered = filtered.filter((b) => userGroups.includes(b.groupId));
+    }
+    if (roleId) {
+      filtered = filtered.filter((b) => b.roleId === roleId);
+    }
+
+    return HttpResponse.json({
+      data: filtered.map((b) => ({
+        role: { id: b.roleId, name: b.roleName },
+        subject: { id: b.groupId, type: 'group', group: { name: b.groupName } },
+        resource: { id: b.workspaceId, name: b.workspaceName, type: 'workspace' },
+      })),
+      meta: { count: filtered.length, limit },
+      links: { next: null, previous: null },
+    });
+  }),
+];
+
 const journeySpecificUsersHandlers = [
   http.get('/api/rbac/v1/principals/', async ({ request }) => {
     await delay(NETWORK_DELAY);
@@ -347,6 +388,7 @@ export const v1DefaultHandlers = [...journeyV1RoleHandlers, ...v1RolesHandlers()
 export const v2DefaultHandlers = [
   ...journeyV2RoleHandlers,
   ...v2RolesHandlers(),
+  ...journeySpecificRoleBindingsListHandler,
   ...roleBindingsHandlers(),
   ...auditHandlers(),
   ...sharedApiHandlers,

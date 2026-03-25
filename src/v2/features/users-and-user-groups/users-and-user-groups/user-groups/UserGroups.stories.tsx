@@ -9,7 +9,8 @@ import { groupsErrorHandlers, groupsHandlers, groupsLoadingHandlers } from '../.
 import type { GroupOut } from '../../../../../shared/data/mocks/db';
 import { createGroupMembersHandlers, groupMembersHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
 import type { Principal } from '../../../../../shared/data/mocks/db';
-import { groupRolesHandlers } from '../../../../../shared/data/mocks/groupRoles.handlers';
+import { roleBindingsHandlers } from '../../../../data/mocks/roleBindings.handlers';
+import type { MockRoleBinding } from '../../../../data/mocks/roleBindings.fixtures';
 import type { Group } from '../../../../../v2/data/queries/groups';
 import type { MockUserIdentity } from '../../../../../../.storybook/contexts/StorybookMockContext';
 
@@ -97,44 +98,28 @@ const standardServiceAccounts: Record<
   '2': [],
   '3': [],
 };
-const standardGroupRoles: Record<
-  string,
-  Array<{
-    uuid: string;
-    name: string;
-    display_name: string;
-    description: string;
-    system: boolean;
-    platform_default: boolean;
-    created: string;
-    modified: string;
-  }>
-> = {
-  '1': [
-    {
-      uuid: 'role-1',
-      name: 'Organization Administrator',
-      display_name: 'Organization Administrator',
-      description: 'Full administrative access to the organization',
-      system: true,
-      platform_default: false,
-      created: '2023-01-01T00:00:00Z',
-      modified: '2023-01-01T00:00:00Z',
-    },
-    {
-      uuid: 'role-2',
-      name: 'User Manager',
-      display_name: 'User Manager',
-      description: 'Manage users and basic access permissions',
-      system: false,
-      platform_default: false,
-      created: '2023-01-01T00:00:00Z',
-      modified: '2023-01-01T00:00:00Z',
-    },
-  ],
-  '2': [],
-  '3': [],
-};
+const groupRoleBindings: MockRoleBinding[] = [
+  {
+    id: 'binding-grp-1a',
+    role_id: 'role-1',
+    role_name: 'Organization Administrator',
+    subject_type: 'group',
+    subject_id: '1',
+    resource_id: 'workspace-1',
+    resource_type: 'workspace',
+    created: '2023-01-01T00:00:00Z',
+  },
+  {
+    id: 'binding-grp-1b',
+    role_id: 'role-2',
+    role_name: 'User Manager',
+    subject_type: 'group',
+    subject_id: '1',
+    resource_id: 'workspace-1',
+    resource_type: 'workspace',
+    created: '2023-01-01T00:00:00Z',
+  },
+];
 const standardMembers: Record<string, Principal[]> = Object.fromEntries(
   Object.entries(standardMembersRaw).map(([k, v]) => [k, v.map((m) => ({ ...m, external_source_id: m.external_source_id ?? m.username }))]),
 ) as Record<string, Principal[]>;
@@ -272,7 +257,7 @@ For testing specific scenarios, see these additional stories:
         ...createGroupMembersHandlers(standardMembers, standardServiceAccounts, {
           onAddMembersWithRequest: deleteMembersFromGroupSpy,
         }),
-        ...groupRolesHandlers(standardGroupRoles),
+        ...roleBindingsHandlers(groupRoleBindings),
       ],
     },
   },
@@ -322,7 +307,7 @@ For testing specific scenarios, see these additional stories:
         // Click Roles tab
         await userEvent.click(rolesTab);
         // Should show roles data now that we have proper MSW handlers
-        await expect(drawer.findByText(standardGroupRoles['1'][0].name)).resolves.toBeInTheDocument();
+        await expect(drawer.findByText(groupRoleBindings[0].role_name)).resolves.toBeInTheDocument();
 
         // Close drawer
         const closeButton = await drawer.findByLabelText('Close drawer panel');
@@ -419,7 +404,7 @@ const focusMembers: Record<string, Principal[]> = {
 export const GroupFocusInteraction: StoryObj<typeof meta> = {
   parameters: {
     msw: {
-      handlers: [...groupsHandlers(mockGroupsForHandlers), ...groupMembersHandlers(focusMembers, {}), ...groupRolesHandlers({})],
+      handlers: [...groupsHandlers(mockGroupsForHandlers), ...groupMembersHandlers(focusMembers, {}), ...roleBindingsHandlers([])],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -447,7 +432,7 @@ export const EditGroupNavigation: StoryObj<typeof meta> = {
   parameters: {
     permissions: ['rbac:group:read', 'rbac:group:write'],
     msw: {
-      handlers: [...groupsHandlers(mockGroupsForHandlers), ...groupMembersHandlers({}, {}), ...groupRolesHandlers({})],
+      handlers: [...groupsHandlers(mockGroupsForHandlers), ...groupMembersHandlers({}, {}), ...roleBindingsHandlers([])],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -495,7 +480,7 @@ export const DeleteModalIntegration: StoryObj<typeof meta> = {
       handlers: [
         ...groupsHandlers(mockGroupsForHandlers, { onList: fetchGroupsSpy, onDelete: deleteGroupsSpy }),
         ...createGroupMembersHandlers({}, {}, { onAddMembersWithRequest: deleteMembersFromGroupSpy }),
-        ...groupRolesHandlers({}),
+        ...roleBindingsHandlers([]),
       ],
     },
   },
@@ -599,7 +584,7 @@ export const SystemGroupProtection: StoryObj<typeof meta> = {
 export const BulkSelectionManagement: StoryObj<typeof meta> = {
   parameters: {
     msw: {
-      handlers: [...groupsHandlers(mockGroupsForHandlers), ...groupMembersHandlers({}, {}), ...groupRolesHandlers({})],
+      handlers: [...groupsHandlers(mockGroupsForHandlers), ...groupMembersHandlers({}, {}), ...roleBindingsHandlers([])],
     },
   },
   play: async ({ canvasElement, step }) => {
