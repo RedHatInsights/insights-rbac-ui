@@ -148,31 +148,19 @@ async function fetchRolesV1(rolesApi: RolesApiClient): Promise<Resource[]> {
 }
 
 /**
- * Fetch all V2 roles via the typed RolesV2ApiClient (cursor-paginated).
+ * Fetch all V2 roles via the typed RolesV2ApiClient.
+ * Uses limit=-1 to retrieve all roles in a single request (same pattern as fetchWorkspaces).
  */
 async function fetchRolesV2(rolesV2Api: RolesV2ApiClient): Promise<Resource[]> {
-  const roles: Resource[] = [];
-  let cursor: string | undefined;
-
-  while (true) {
-    const params: Record<string, unknown> = { limit: 100 };
-    if (cursor) params.cursor = cursor;
-
-    const response = await rolesV2Api.rolesList(params);
-    const data = response.data?.data ?? [];
-
-    for (const role of data) {
-      roles.push({ ...role, id: role.id, name: role.name ?? '', _apiVersion: 'v2' });
-    }
-
-    const next = response.data?.links?.next;
-    if (!next) break;
-
-    const url = new URL(next, 'https://placeholder');
-    cursor = url.searchParams.get('cursor') ?? undefined;
-    if (!cursor) break;
+  // resource_type=workspace is required — without it the V2 endpoint returns a
+  // restricted view that excludes roles with no active workspace bindings.
+  const response = await rolesV2Api.rolesList({ limit: -1, options: { params: { resource_type: 'workspace' } } });
+  const data = response.data?.data ?? [];
+  const roles = data.map((role) => ({ ...role, id: role.id, name: role.name ?? '', _apiVersion: 'v2' as const }));
+  if (process.env.DEBUG_CLI) {
+    console.error(`  [DEBUG] V2 rolesList returned ${roles.length} role(s):`);
+    for (const r of roles) console.error(`    - "${r.name}" (id: ${r.id})`);
   }
-
   return roles;
 }
 
@@ -180,21 +168,16 @@ async function fetchRolesV2(rolesV2Api: RolesV2ApiClient): Promise<Resource[]> {
  * Fetch roles from V1 and/or V2 APIs based on the target API version.
  *
  * - apiVersion 'v1': Only fetches V1 roles (skips V2 entirely).
- * - apiVersion 'v2': Only fetches V2 roles (skips V1 entirely).
- * - apiVersion undefined: Fetches both, deduplicates overlaps. V1 roles are
- *   deleted via V1 API; only V2-exclusive roles use V2 batch delete.
+ * - apiVersion 'v2' or undefined: Fetches both V1 and V2, deduplicates overlaps.
+ *   V2 mode also scans V1 to catch roles that may have been created via V1 in prior
+ *   runs (e.g. from a previous V1 seed that was never cleaned up). V1 roles are
+ *   deleted via V1 API; V2-exclusive roles use V2 batch delete.
  */
 async function fetchRoles(rolesApi: RolesApiClient, rolesV2Api: RolesV2ApiClient, apiVersion?: 'v1' | 'v2'): Promise<Resource[]> {
   if (apiVersion === 'v1') {
     const v1Roles = await fetchRolesV1(rolesApi);
     console.error(`  Fetched ${v1Roles.length} V1 role(s)`);
     return v1Roles;
-  }
-
-  if (apiVersion === 'v2') {
-    const v2Roles = await fetchRolesV2(rolesV2Api);
-    console.error(`  Fetched ${v2Roles.length} V2 role(s)`);
-    return v2Roles;
   }
 
   const [v1Roles, v2Roles] = await Promise.all([fetchRolesV1(rolesApi), fetchRolesV2(rolesV2Api)]);
@@ -484,7 +467,7 @@ export async function runCleanup(options: CleanupOptions): Promise<number> {
     };
 
     // Execute cleanup
-    const result = await executeCleanup(clients, options.prefix, options.nameMatch, options.dryRun, apiVersion);
+    const result = await executeCleanup(clients, options.prefix, options.nameMatch, options.dryRun, apiVersion, options.seedMapFile);
 
     // Output summary
     const totalDeleted = result.roles.deleted + result.groups.deleted + result.workspaces.deleted;

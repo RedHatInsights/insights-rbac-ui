@@ -118,4 +118,14 @@ export interface SeedSummary {
     failed: number;
     results: Record<string, OperationResult>;
   };
+  role_bindings?: {
+    created: number;
+    failed: number;
+  };
+  /** Name-to-UUID mappings for seed-map output. Includes both system and created resources. */
+  mappings?: {
+    roles: Record<string, string>;
+    groups: Record<string, string>;
+    workspaces: Record<string, string>;
+  };
 }

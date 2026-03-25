@@ -70,7 +70,7 @@ export const DirectRolesTab: React.FC<DirectRolesTabProps> = ({ groupId }) => {
           canGrantAccess={rbAccess.canCreate}
           canEditAccess={rbAccess.canCreate}
           canRevokeAccess={rbAccess.canRevoke}
-          ouiaId="current-role-assignments-table"
+          ouiaId="current-role-assignments"
           focusedGroupId={groupId}
           onGroupSelect={handleGroupSelect}
           onGroupDeselect={handleGroupDeselect}

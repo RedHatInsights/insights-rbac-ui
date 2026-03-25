@@ -17,7 +17,6 @@ import { initialize, mswLoader } from 'msw-storybook-addon';
 import { ServiceProvider, createBrowserServices } from '../src/shared/services';
 import type { AddNotificationFn } from '../src/shared/entry/browser';
 import { ApiErrorProvider } from '../src/shared/contexts/ApiErrorContext';
-import type { Environment as AppEnvironment } from '../src/shared/services/types';
 
 // Wrapper that provides all providers for component stories (non-journey)
 // This must be inside NotificationsProvider, StorybookMockProvider, and FeatureFlagsProvider
@@ -30,9 +29,11 @@ const ComponentProviders: React.FC<{ children: React.ReactNode }> = ({ children 
   const services = createBrowserServices({
     addNotification,
     getToken: async () => 'mock-token',
-    environment: environment as AppEnvironment,
+    environment,
     ssoUrl: 'https://sso.redhat.com',
-    identity: userIdentity ? { org_id: userIdentity.org_id } : { org_id: '12345' },
+    identity: userIdentity
+      ? { org_id: userIdentity.org_id, account_id: userIdentity.internal?.account_id }
+      : { org_id: '12345', account_id: '54321' },
     isITLess,
   });
 
@@ -110,11 +111,11 @@ const preview: Preview = {
       // Environment mapping - check explicit story parameter first, then chrome.environment
       // Story-level parameters.environment takes precedence over default chrome.environment
       const environment: Environment =
-        parameters.environment === 'staging'
-          ? 'staging'
+        parameters.environment === 'stage'
+          ? 'stage'
           : parameters.environment === 'production' || parameters.chrome?.environment === 'prod'
             ? 'production'
-            : 'staging';
+            : 'stage';
 
       // Workspace permissions for Kessel stories (all 5 relations)
       // Check args first (for stories with decorators that override permissions via args), then parameters

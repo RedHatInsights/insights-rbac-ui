@@ -35,12 +35,10 @@ function sanitizeHar(harPath: string): { removed: number; kept: number } {
   const raw = JSON.parse(fs.readFileSync(harPath, 'utf-8'));
   const before: number = raw.log.entries.length;
 
-  raw.log.entries = raw.log.entries.filter(
-    (entry: { response?: { content?: { size?: number; text?: string } } }) => {
-      const content = entry.response?.content;
-      return content && content.size != null && content.size > 0 && content.text;
-    },
-  );
+  raw.log.entries = raw.log.entries.filter((entry: { response?: { content?: { size?: number; text?: string } } }) => {
+    const content = entry.response?.content;
+    return content && content.size != null && content.size > 0 && content.text;
+  });
 
   fs.writeFileSync(harPath, JSON.stringify(raw));
   return { removed: before - raw.log.entries.length, kept: raw.log.entries.length };

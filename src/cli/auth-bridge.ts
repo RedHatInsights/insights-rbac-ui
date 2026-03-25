@@ -169,11 +169,6 @@ export async function blockAnalyticsAndOverlays(page: Page): Promise<void> {
   });
 }
 
-/**
- * @deprecated Use blockAnalyticsAndOverlays instead
- */
-export const blockTrustArc = blockAnalyticsAndOverlays;
-
 // ============================================================================
 // Token Extraction
 // ============================================================================

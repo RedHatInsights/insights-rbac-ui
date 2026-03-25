@@ -152,28 +152,102 @@ async function runHeadlessCommand(command: { type: 'login-headless' | 'seed' | '
     }
 
     case 'seed': {
-      const { runSeeder } = await import('./commands/seeder.js');
       const apiVersionArg = parsedArgs['api-version'];
-      exitCode = await runSeeder({
-        file: typeof parsedArgs['file'] === 'string' ? parsedArgs['file'] : '',
-        prefix: typeof parsedArgs['prefix'] === 'string' ? parsedArgs['prefix'] : undefined,
-        dryRun: parsedArgs['dry-run'] === true,
-        json: parsedArgs['json'] === true,
-        output: typeof parsedArgs['output'] === 'string' ? parsedArgs['output'] : undefined,
-        apiVersion: apiVersionArg === 'v2' ? 'v2' : 'v1',
-      });
+      const seedApiVersion: 'v1' | 'v2' = apiVersionArg === 'v2' ? 'v2' : 'v1';
+      const seedFile = typeof parsedArgs['file'] === 'string' ? parsedArgs['file'] : '';
+      const seedPrefix = typeof parsedArgs['prefix'] === 'string' ? parsedArgs['prefix'] : undefined;
+      const seedOutput = typeof parsedArgs['output'] === 'string' ? parsedArgs['output'] : undefined;
+      const seedDryRun = parsedArgs['dry-run'] === true;
+
+      if (seedApiVersion === 'v2') {
+        // V2: route through Ink + shared hooks for structural correctness
+        const { assertNotProduction, assertValidPrefix } = await import('./commands/safety.js');
+        const { applyPrefix, readPayload } = await import('./commands/seeder.js');
+        const { getEnvConfig } = await import('./auth-bridge.js');
+
+        if (!seedDryRun) assertNotProduction('Seeding');
+        const prefix = assertValidPrefix(seedPrefix, 'seed');
+
+        const envConfig = getEnvConfig();
+        process.stderr.write(`\n🌱 RBAC Seeder (V2)${seedDryRun ? ' [DRY-RUN]' : ''}\n`);
+        process.stderr.write(`${'━'.repeat(50)}\n`);
+        process.stderr.write(`Environment: ${envConfig.name}\n`);
+        process.stderr.write(`API URL: ${envConfig.apiUrl}\n`);
+        process.stderr.write(`Payload: ${seedFile}\n`);
+        process.stderr.write(`Prefix: "${prefix}"\n`);
+        process.stderr.write(`${'━'.repeat(50)}\n`);
+        process.stderr.write(`\n🔐 Authenticating...\n`);
+
+        const seedServices = await ensureAuthenticated();
+        process.stderr.write(`✓ Authenticated\n`);
+
+        let payload = await readPayload(seedFile);
+        payload = applyPrefix(payload, prefix);
+
+        const seedQueryClient = createQueryClient({ scripting: true });
+        const { waitUntilExit } = render(
+          <AppWrapper queryClient={seedQueryClient} services={seedServices}>
+            <HeadlessSeeder payload={payload} apiVersion="v2" outputPath={seedOutput} onComplete={() => {}} />
+          </AppWrapper>,
+          { exitOnCtrlC: true },
+        );
+        await waitUntilExit();
+        exitCode = typeof process.exitCode === 'number' ? process.exitCode : 0;
+      } else {
+        // V1: use existing imperative seeder (handles system role/group discovery)
+        const { runSeeder } = await import('./commands/seeder.js');
+        exitCode = await runSeeder({
+          file: seedFile,
+          prefix: seedPrefix,
+          dryRun: seedDryRun,
+          json: parsedArgs['json'] === true,
+          output: seedOutput,
+          apiVersion: 'v1',
+        });
+      }
       break;
     }
 
     case 'cleanup': {
-      const { runCleanup } = await import('./commands/cleanup.js');
-      const cleanupApiVersion = parsedArgs['api-version'];
-      exitCode = await runCleanup({
-        prefix: typeof parsedArgs['prefix'] === 'string' ? parsedArgs['prefix'] : undefined,
-        nameMatch: typeof parsedArgs['name-match'] === 'string' ? parsedArgs['name-match'] : undefined,
-        dryRun: parsedArgs['dry-run'] === true,
-        apiVersion: cleanupApiVersion === 'v1' ? 'v1' : cleanupApiVersion === 'v2' ? 'v2' : undefined,
-      });
+      const { assertNotProduction, assertValidPattern } = await import('./commands/safety.js');
+      const { getEnvConfig } = await import('./auth-bridge.js');
+
+      const cleanupPrefix = typeof parsedArgs['prefix'] === 'string' ? parsedArgs['prefix'] : undefined;
+      const cleanupNameMatch = typeof parsedArgs['name-match'] === 'string' ? parsedArgs['name-match'] : undefined;
+      const cleanupDryRun = parsedArgs['dry-run'] === true;
+      const cleanupApiVersionRaw = parsedArgs['api-version'];
+      const cleanupApiVersion: 'v1' | 'v2' | undefined = cleanupApiVersionRaw === 'v1' ? 'v1' : cleanupApiVersionRaw === 'v2' ? 'v2' : undefined;
+
+      // Safety checks (before any Ink rendering)
+      if (!cleanupDryRun) {
+        assertNotProduction('Cleanup');
+      }
+      const cleanupPattern = cleanupPrefix || cleanupNameMatch;
+      assertValidPattern(cleanupPattern, cleanupPrefix ? 'prefix' : 'name-match', 'cleanup');
+
+      const envConfig = getEnvConfig();
+      process.stderr.write(`\n🧹 RBAC Cleanup${cleanupDryRun ? ' [DRY-RUN MODE]' : ''}\n`);
+      process.stderr.write(`${'━'.repeat(50)}\n`);
+      process.stderr.write(`Environment: ${envConfig.name}\n`);
+      process.stderr.write(`API URL: ${envConfig.apiUrl}\n`);
+      if (cleanupApiVersion) process.stderr.write(`API Version: ${cleanupApiVersion}\n`);
+      if (cleanupPrefix) process.stderr.write(`Filter: prefix="${cleanupPrefix}"\n`);
+      if (cleanupNameMatch) process.stderr.write(`Filter: name-match="${cleanupNameMatch}"\n`);
+      process.stderr.write(`${'━'.repeat(50)}\n`);
+      process.stderr.write(`\n🔐 Authenticating...\n`);
+
+      const cleanupServices = await ensureAuthenticated();
+      process.stderr.write(`✓ Authenticated\n`);
+
+      const cleanupQueryClient = createQueryClient({ scripting: true });
+      const { waitUntilExit } = render(
+        <AppWrapper queryClient={cleanupQueryClient} services={cleanupServices}>
+          <HeadlessCleanup prefix={cleanupPrefix} nameMatch={cleanupNameMatch} dryRun={cleanupDryRun} apiVersion={cleanupApiVersion} />
+        </AppWrapper>,
+        { exitOnCtrlC: true },
+      );
+      await waitUntilExit();
+      exitCode = typeof process.exitCode === 'number' ? process.exitCode : 0;
       break;
     }
   }
@@ -192,7 +266,7 @@ import { render } from 'ink';
 import { Command } from 'commander';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { IntlProvider } from 'react-intl';
-import { ErrorBoundary, HeadlessSeeder, InteractiveDashboard } from './components/index.js';
+import { ErrorBoundary, HeadlessCleanup, HeadlessSeeder, InteractiveDashboard } from './components/index.js';
 import { type SeedPayload, SeedPayloadSchema } from './types.js';
 import { clearToken, getApiBaseUrl, getToken, getTokenInfo } from './auth.js';
 import { createCliServices, getApiClient, getCurrentToken, initializeApiClient } from './api-client.js';
@@ -204,6 +278,56 @@ const __dirname = dirname(__filename);
 const { ServiceProvider } = await import(resolve(__dirname, '../shared/contexts/ServiceContext.js'));
 import type { AppServices } from '../shared/contexts/ServiceContext.js';
 import { useGroupsQuery, useRolesQuery, useWorkspacesQuery } from './queries.js';
+
+// ============================================================================
+// Shared helpers (used by both headless routing and interactive CLI)
+// ============================================================================
+
+function createQueryClient(options: { scripting?: boolean } = {}): QueryClient {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        retry: options.scripting ? false : 1,
+        staleTime: options.scripting ? 0 : 30_000,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+}
+
+interface AppWrapperProps {
+  children: React.ReactNode;
+  queryClient: QueryClient;
+  services: AppServices;
+}
+
+function AppWrapper({ children, queryClient, services }: AppWrapperProps): React.ReactElement {
+  return (
+    <ErrorBoundary>
+      <IntlProvider locale="en" messages={{}}>
+        <ServiceProvider value={services}>
+          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        </ServiceProvider>
+      </IntlProvider>
+    </ErrorBoundary>
+  );
+}
+
+async function ensureAuthenticated(): Promise<AppServices> {
+  try {
+    const token = await getToken();
+    initializeApiClient(token);
+    return createCliServices(getApiClient());
+  } catch (error) {
+    console.error('\n❌ Authentication failed:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('   Please try: npm run cli -- login\n');
+    process.exit(1);
+  }
+}
 
 // ============================================================================
 // ENTRY POINT - Must be after ServiceProvider import
@@ -219,65 +343,6 @@ if (headlessCommand) {
 }
 
 async function runInteractiveCli(): Promise<void> {
-  // ============================================================================
-  // Query Client Configuration
-  // ============================================================================
-
-  function createQueryClient(options: { scripting?: boolean } = {}): QueryClient {
-    return new QueryClient({
-      defaultOptions: {
-        queries: {
-          refetchOnWindowFocus: false,
-          refetchOnReconnect: false,
-          retry: options.scripting ? false : 1,
-          staleTime: options.scripting ? 0 : 30_000,
-        },
-        mutations: {
-          retry: false,
-        },
-      },
-    });
-  }
-
-  // ============================================================================
-  // App Wrapper with ServiceProvider and IntlProvider
-  // ============================================================================
-
-  interface AppWrapperProps {
-    children: React.ReactNode;
-    queryClient: QueryClient;
-    services: AppServices;
-  }
-
-  function AppWrapper({ children, queryClient, services }: AppWrapperProps): React.ReactElement {
-    return (
-      <ErrorBoundary>
-        <IntlProvider locale="en" messages={{}}>
-          <ServiceProvider value={services}>
-            <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-          </ServiceProvider>
-        </IntlProvider>
-      </ErrorBoundary>
-    );
-  }
-
-  // ============================================================================
-  // Authentication Helper
-  // ============================================================================
-
-  async function ensureAuthenticated(): Promise<AppServices> {
-    try {
-      const token = await getToken();
-      initializeApiClient(token);
-      // Create CLI services with the initialized axios client
-      return createCliServices(getApiClient());
-    } catch (error) {
-      console.error('\n❌ Authentication failed:', error instanceof Error ? error.message : 'Unknown error');
-      console.error('   Please try: npm run cli -- login\n');
-      process.exit(1);
-    }
-  }
-
   // ============================================================================
   // Command Handlers
   // ============================================================================

@@ -11,7 +11,7 @@ import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import { ModalFormTemplate } from '../../../shared/components/forms/ModalFormTemplate';
 import { usePatchRoleMutation, useRoleQuery } from '../../data/queries/roles';
 import { rolesApi } from '../../data/api/roles';
-import { debounceAsync as asyncDebounce } from '../../../shared/utilities/debounce';
+import { debounce } from '../../../shared/utilities/debounce';
 import messages from '../../../Messages';
 
 type RouteLocation =
@@ -89,8 +89,11 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
     };
   };
 
-  const uniqueNameValidator = asyncDebounce((value: string, idKey: string, id: string, validationPromiseFn: ValidationPromiseFn) =>
-    !value || value.length === 0 ? Promise.reject(intl.formatMessage(messages.required)) : validationPromiseFn(value, idKey, id),
+  const uniqueNameValidator = debounce(
+    (value: string, idKey: string, id: string, validationPromiseFn: ValidationPromiseFn) =>
+      !value || value.length === 0 ? Promise.reject(intl.formatMessage(messages.required)) : validationPromiseFn(value, idKey, id),
+    250,
+    { onlyResolvesLast: false },
   );
 
   const validatorMapper = {

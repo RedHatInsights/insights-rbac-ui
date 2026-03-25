@@ -33,7 +33,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, getSeededGroupName } from '../../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_WORKSPACEUSER, getSeededGroupName } from '../../../utils';
 import { UserGroupsPage } from '../../../pages/v2/UserGroupsPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -129,6 +129,34 @@ test.describe('User Group Detail', () => {
 
       // Close via the X button instead of clicking the row again
       await groupsPage.closeDrawerViaButton();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WORKSPACEUSER (WorkspaceViewer) - Read-only group detail (rbac_groups_read)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe('WorkspaceUser', () => {
+    test.use({ storageState: AUTH_V2_WORKSPACEUSER });
+
+    test('Can view group details in drawer [WorkspaceUser]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(SEEDED_GROUP_NAME!);
+      await groupsPage.openDrawer(SEEDED_GROUP_NAME!);
+      await expect(groupsPage.drawer.getByRole('heading', { name: SEEDED_GROUP_NAME! })).toBeVisible();
+    });
+
+    test('Edit button is not visible in group drawer [WorkspaceUser]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(SEEDED_GROUP_NAME!);
+      await groupsPage.openDrawer(SEEDED_GROUP_NAME!);
+      await expect(groupsPage.drawerEditButton).not.toBeVisible();
     });
   });
 });

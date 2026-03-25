@@ -144,69 +144,58 @@ test.describe('User List', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // USERVIEWER - Full list access (can see users but not manage)
+  // USERVIEWER - Has rbac_principal_read, can view users list (read-only)
   // ═══════════════════════════════════════════════════════════════════════════
   //
-  // NOTE: UserViewer passes the route guard (rbac:principal:read OR rbac:group:read)
-  // via rbac:group:read, but the Users sub-tab fetches the principals API which
-  // returns 403 for this persona. The ApiErrorBoundary catches the 403 and replaces
-  // the page with UnauthorizedAccess. The "list" test is a false positive (assertions
-  // pass before the error boundary triggers). All three tests are fixme'd until the
-  // route guard is tightened or UserViewer gets rbac:principal:read.
+  // UserViewer passes the outer "Users and User Groups" route guard via
+  // principals.canList (rbac_principal_read). The inner Users guard also
+  // requires principals.canList, which UserViewer has. Full read access.
   // ═══════════════════════════════════════════════════════════════════════════
 
   test.describe('UserViewer', () => {
     test.use({ storageState: AUTH_V2_USERVIEWER });
 
-    test.fixme(`Can view users list [UserViewer]`, async ({ page }) => {
+    test(`Can view users list [UserViewer]`, async ({ page }) => {
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
-      // Verify table structure
       await expect(usersPage.table).toBeVisible();
       await expect(usersPage.usernameColumn).toBeVisible();
       await expect(usersPage.emailColumn).toBeVisible();
       await expect(usersPage.statusColumn).toBeVisible();
     });
 
-    test.fixme(`Can filter users by username [UserViewer]`, async ({ page }) => {
+    test(`Can filter users by username [UserViewer]`, async ({ page }) => {
       test.skip(!KNOWN_USERNAME, 'Seeded username not configured in seed fixture');
 
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
-      // Filter by known admin user
       await usersPage.filterByUsername(KNOWN_USERNAME!);
       await expect(usersPage.getUserRow(KNOWN_USERNAME!)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
-      // Clear filter
       await usersPage.clearFilter();
       await expect(usersPage.table).toBeVisible();
     });
 
-    test.fixme(`Can view user details in drawer [UserViewer]`, async ({ page }) => {
+    test(`Can view user details in drawer [UserViewer]`, async ({ page }) => {
       test.skip(!KNOWN_USERNAME, 'Seeded username not configured in seed fixture');
 
       const usersPage = new UsersPage(page);
       await usersPage.goto();
 
-      // Search and open drawer for known admin user
       await usersPage.filterByUsername(KNOWN_USERNAME!);
       await usersPage.openUserDrawer(KNOWN_USERNAME!);
 
-      // Verify drawer content
       await expect(usersPage.drawer.getByRole('heading', { level: 2 })).toBeVisible();
       await expect(usersPage.drawer.locator('p').filter({ hasText: /@/ })).toBeVisible();
 
-      // Check tabs
-      await expect(usersPage.getDrawerTab('User groups')).toBeVisible();
+      // UserViewer has no rbac_groups_read, so "User groups" tab is correctly hidden
       await expect(usersPage.getDrawerTab('Assigned roles')).toBeVisible();
+      await expect(usersPage.getDrawerTab('User groups')).not.toBeVisible();
 
-      // Navigate tabs
-      await usersPage.clickDrawerTab('User groups');
       await usersPage.clickDrawerTab('Assigned roles');
 
-      // Close drawer
       await usersPage.closeUserDrawer(KNOWN_USERNAME!);
     });
   });
@@ -221,59 +210,51 @@ test.describe('User List', () => {
     test.use({ storageState: AUTH_V2_READONLY });
 
     test(`Users page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
-      test.fixme(true, 'APP BUG: ReadOnlyUser navigating to users URL sees My User Access instead of UnauthorizedAccess page');
       await setupPage(page);
-      await page.goto(USERS_URL);
-
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      await expect(async () => {
+        await page.goto(USERS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
 
     test(`Admin-only navigation links should not be visible [ReadOnlyUser]`, async ({ page }) => {
-      await setupPage(page);
-      await page.goto(iamUrl(v2.myAccess.link()));
-      await expect(page).toHaveURL(new RegExp(iamUrl(v2.myAccess.link())));
-
-      // Wait for navigation to render
-      await page.waitForTimeout(E2E_TIMEOUTS.DRAWER_ANIMATION);
-
-      // ReadOnlyUser should see My Access page but not admin nav links
       const navSidebar = new NavigationSidebar(page);
-      await expect(navSidebar.getNavExpandable(NavigationSidebar.NAV_ACCESS_MANAGEMENT)).not.toBeVisible();
+      await navSidebar.gotoMyAccess();
+
+      const accessMgmtVisible = await navSidebar.isNavItemVisible(NavigationSidebar.NAV_ACCESS_MANAGEMENT);
+      expect(accessMgmtVisible).toBe(false);
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WORKSPACEUSER (WorkspaceViewer) - No rbac_principal_read, denied Users page
+  // ═══════════════════════════════════════════════════════════════════════════
 
   test.describe('WorkspaceUser', () => {
     test.use({ storageState: AUTH_V2_WORKSPACEUSER });
 
     test('Users page shows unauthorized access [WorkspaceUser]', async ({ page }) => {
       await setupPage(page);
-      await page.goto(USERS_URL);
-
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      await expect(async () => {
+        await page.goto(USERS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // RBACADMIN - rbac:: write perms, not org admin; full list access
+  // RBACADMIN (WorkspaceAdmin) - No rbac_principal_read, denied Users page
   // ═══════════════════════════════════════════════════════════════════════════
 
   test.describe('RbacAdmin', () => {
     test.use({ storageState: AUTH_V2_RBACADMIN });
 
-    test('Can view users list [RbacAdmin]', async ({ page }) => {
-      const usersPage = new UsersPage(page);
-      await usersPage.goto();
-      await expect(usersPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-    });
-
-    test('Can filter users by username [RbacAdmin]', async ({ page }) => {
-      const seededUsername = getSeededUsername(0, 'v2');
-      if (seededUsername) {
-        const usersPage = new UsersPage(page);
-        await usersPage.goto();
-        await usersPage.filterByUsername(seededUsername);
-        await expect(usersPage.getUserRow(seededUsername)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-      }
+    test('Users page shows unauthorized access [RbacAdmin]', async ({ page }) => {
+      await setupPage(page);
+      await expect(async () => {
+        await page.goto(USERS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
 });

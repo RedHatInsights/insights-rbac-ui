@@ -150,15 +150,12 @@ test.describe('Role Management', () => {
   test.describe.serial('Admin Copy Lifecycle', () => {
     test.use({ storageState: AUTH_V1_ORGADMIN });
 
-    let sourceRoleName: string;
-
     test('Create role by copying first available role [OrgAdmin]', async ({ page }) => {
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
       await rolesPage.createButton.click();
-      const result = await rolesPage.fillCreateWizardAsCopy(copiedRoleName, undefined, undefined, copiedRoleDescription);
-      sourceRoleName = result.sourceRoleName;
+      await rolesPage.fillCreateWizardAsCopy(copiedRoleName, undefined, undefined, copiedRoleDescription);
     });
 
     test('Verify copied role appears in table [OrgAdmin]', async ({ page }) => {

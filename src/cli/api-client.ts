@@ -138,7 +138,8 @@ export function initializeApiClient(token: string): AxiosInstance {
             console.error('      Your account may lack required permissions.');
             break;
           case 404:
-            console.error('\n[CLI] ❌ Resource not found.');
+            // Callers handle 404 themselves (e.g. purge-by-uuid skips already-deleted roles).
+            // No global log — it would appear before the caller's catch and look like an error.
             break;
           case 500:
             console.error('\n[CLI] ❌ Server error. The API may be temporarily unavailable.');
@@ -230,7 +231,7 @@ function resolveEnvironment(): Environment {
     case 'stage':
     case 'local':
     default:
-      return 'staging';
+      return 'stage';
   }
 }
 

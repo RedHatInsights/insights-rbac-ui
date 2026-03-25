@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { debounceAsync as asyncDebounce } from '../../../../shared/utilities/debounce';
+import { debounce } from '../../../../shared/utilities/debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { createIntl, createIntlCache } from 'react-intl';
 import { rolesApi } from '../../../data/api/roles';
@@ -39,7 +39,7 @@ export const asyncValidator = async (roleName: string): Promise<undefined> => {
   return undefined;
 };
 
-export const debouncedAsyncValidator = asyncDebounce(asyncValidator);
+export const debouncedAsyncValidator = debounce(asyncValidator, 250, { onlyResolvesLast: false });
 
 interface ValidatorResetProps {
   name: string;

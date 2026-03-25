@@ -47,7 +47,7 @@ import {
   setupPage,
   v2,
 } from '../../../utils';
-import { getSeededRoleName, getSeededWorkspaceName } from '../../../utils/seed-map';
+import { getSeedFixture, getSeededRoleName, getSeededWorkspaceName } from '../../../utils/seed-map';
 import { RolesPage } from '../../../pages/v2/RolesPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -155,6 +155,12 @@ test.describe('Role Management', () => {
 
     test('Create role by copying [OrgAdmin]', async ({ page }) => {
       test.skip(!SEEDED_WORKSPACE_NAME || !SEEDED_ROLE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      test
+        .info()
+        .annotations.push(
+          { type: 'seed-role', description: `SEEDED_ROLE_NAME="${SEEDED_ROLE_NAME}"` },
+          { type: 'seed-workspace', description: `SEEDED_WORKSPACE_NAME="${SEEDED_WORKSPACE_NAME}"` },
+        );
       const rolesPage = new RolesPage(page);
       await rolesPage.goto();
 
@@ -169,6 +175,27 @@ test.describe('Role Management', () => {
 
       await rolesPage.searchFor(COPY_ROLE_NAME);
       await rolesPage.verifyRoleInTable(COPY_ROLE_NAME);
+    });
+
+    test('Copied role has correct permissions [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_WORKSPACE_NAME || !SEEDED_ROLE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      // The seeded role has permissions: ["inventory:hosts:read", "inventory:groups:read"]
+      // Verify the copy's Permissions tab shows these values
+      const seedPermissions = getSeedFixture('v2').roles?.[0]?.permissions ?? [];
+      test.skip(seedPermissions.length === 0, 'No permissions defined in seed fixture');
+
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(COPY_ROLE_NAME);
+      await rolesPage.openDrawer(COPY_ROLE_NAME);
+
+      // Permissions tab is active by default — verify expected permission strings appear
+      const grid = page.getByRole('grid');
+      await expect(grid.getByText('inventory').first()).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      await expect(grid.getByText('hosts')).toBeVisible();
+      await expect(grid.getByText('groups')).toBeVisible();
+      await expect(grid.getByText('read').first()).toBeVisible();
     });
 
     test('Delete copied role [OrgAdmin]', async ({ page }) => {
@@ -204,40 +231,105 @@ test.describe('Role Management', () => {
     test.use({ storageState: AUTH_V2_USERVIEWER });
 
     test(`Roles page shows unauthorized access [UserViewer]`, async ({ page }) => {
-      test.fixme(true, 'APP BUG: UserViewer navigating to roles URL sees My Access instead of UnauthorizedAccess page');
       await setupPage(page);
-      await page.goto(ROLES_URL);
-
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      await expect(async () => {
+        await page.goto(ROLES_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // READONLYUSER - No page access at all
+  // READONLYUSER - No permissions at all
   // ═══════════════════════════════════════════════════════════════════════════
-  // Add "unauthorized message" tests here
-  // These tests should navigate to URL and verify blocked access
 
   test.describe('ReadOnlyUser', () => {
     test.use({ storageState: AUTH_V2_READONLY });
 
     test(`Roles page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
       await setupPage(page);
-      await page.goto(ROLES_URL);
-      await page.waitForURL(new RegExp(ROLES_URL), { timeout: E2E_TIMEOUTS.SLOW_DATA });
-
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(async () => {
+        await page.goto(ROLES_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WORKSPACEUSER (WorkspaceViewer) - Read-only roles access (has rbac_roles_read)
+  // ═══════════════════════════════════════════════════════════════════════════
 
   test.describe('WorkspaceUser', () => {
     test.use({ storageState: AUTH_V2_WORKSPACEUSER });
 
-    test('Roles page shows unauthorized access [WorkspaceUser]', async ({ page }) => {
-      await setupPage(page);
-      await page.goto(ROLES_URL);
+    test('Roles page is accessible in read-only mode [WorkspaceUser]', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+      await expect(rolesPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      await expect(rolesPage.createButton).not.toBeVisible();
+    });
+  });
 
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+  test.describe.serial('RbacAdmin Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_RBACADMIN });
+
+    const raTimestamp = Date.now();
+    const raRoleName = `${TEST_PREFIX}__RA_Lifecycle_${raTimestamp}`;
+    const raRoleDescription = 'E2E RbacAdmin lifecycle role';
+    const raEditedRoleName = `${raRoleName}_Edited`;
+    const raEditedDescription = 'E2E RbacAdmin lifecycle role - EDITED';
+
+    test('Create role via wizard [RbacAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_WORKSPACE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.createButton.click();
+      await rolesPage.fillCreateWizard(raRoleName, raRoleDescription);
+    });
+
+    test('Verify role appears in table [RbacAdmin]', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(raRoleName);
+      await rolesPage.verifyRoleInTable(raRoleName);
+    });
+
+    test('Edit role [RbacAdmin]', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(raRoleName);
+      await rolesPage.openRowActions(raRoleName);
+      await rolesPage.clickRowAction('Edit');
+      await rolesPage.fillEditPage(raEditedRoleName, raEditedDescription);
+    });
+
+    test('Verify edit was applied [RbacAdmin]', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(raEditedRoleName);
+      await rolesPage.verifyRoleInTable(raEditedRoleName);
+    });
+
+    test('Delete role [RbacAdmin]', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(raEditedRoleName);
+      await rolesPage.openRowActions(raEditedRoleName);
+      await rolesPage.clickRowAction('Delete');
+      await rolesPage.confirmDelete();
+    });
+
+    test('Verify role is deleted [RbacAdmin]', async ({ page }) => {
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(raEditedRoleName);
+      await rolesPage.verifyRoleNotInTable(raEditedRoleName);
     });
   });
 

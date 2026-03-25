@@ -45,7 +45,7 @@ const moduleServices: AppServices = {
   axios: browserApiClient,
   notify: () => {},
   getToken: async () => '',
-  environment: 'staging',
+  environment: 'stage',
   ssoUrl: '',
   identity: undefined,
   isITLess: false,

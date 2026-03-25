@@ -59,4 +59,12 @@ export class OrganizationManagementPage {
   get organizationId(): Locator {
     return this.page.getByText(/organization id/i);
   }
+
+  get grantAccessButton(): Locator {
+    return this.page.getByRole('button', { name: /grant access/i });
+  }
+
+  get grantAccessWizard(): Locator {
+    return this.page.getByRole('dialog');
+  }
 }

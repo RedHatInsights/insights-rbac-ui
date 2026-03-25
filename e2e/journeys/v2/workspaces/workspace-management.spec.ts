@@ -26,7 +26,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, requireTestPrefix, waitForTableUpdate } from '../../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_RBACADMIN, getSeededWorkspaceName, requireTestPrefix, waitForTableUpdate } from '../../../utils';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
@@ -35,12 +35,14 @@ import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 // ═══════════════════════════════════════════════════════════════════════════
 
 const TEST_PREFIX = requireTestPrefix('v2');
+const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName('v2');
 
 // Generate unique name for this test run
 const timestamp = Date.now();
 const workspaceName = `${TEST_PREFIX}__Lifecycle_Workspace_${timestamp}`;
 const workspaceDescription = 'E2E lifecycle test workspace';
 const editedDescription = 'E2E lifecycle test workspace (edited)';
+const editedWorkspaceName = `${workspaceName}_Edited`;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests
@@ -78,12 +80,13 @@ test.describe('Workspace Management', () => {
 
     test('View workspace detail page [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
-      await workspacesPage.goto();
 
-      await workspacesPage.searchFor(workspaceName);
-      await workspacesPage.navigateToDetail(workspaceName);
-
-      await expect(page.getByRole('heading', { name: workspaceName })).toBeVisible();
+      await expect(async () => {
+        await workspacesPage.goto();
+        await workspacesPage.searchFor(workspaceName);
+        await workspacesPage.navigateToDetail(workspaceName);
+        await expect(page.getByRole('heading', { name: workspaceName })).toBeVisible();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [5_000] });
     });
 
     test('Edit workspace description [OrgAdmin]', async ({ page }) => {
@@ -93,19 +96,25 @@ test.describe('Workspace Management', () => {
       await workspacesPage.searchFor(workspaceName);
       await workspacesPage.navigateToDetail(workspaceName);
 
-      // Open Actions menu and click Edit
-      await page.getByRole('button', { name: /actions/i }).click();
+      // Wait for Actions to become enabled (backend permission propagation)
+      const actionsButton = page.getByRole('button', { name: /actions/i });
+      await expect(actionsButton).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(async () => {
+        await actionsButton.click();
+        await expect(page.getByRole('menuitem', { name: /edit/i })).toBeEnabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [2_000] });
+
       await page.getByRole('menuitem', { name: /edit/i }).click();
 
-      await workspacesPage.fillEditForm(editedDescription);
+      await workspacesPage.fillEditForm(editedDescription, editedWorkspaceName);
     });
 
     test('Verify edit was applied [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
-      await workspacesPage.searchFor(workspaceName);
-      await workspacesPage.navigateToDetail(workspaceName);
+      await workspacesPage.searchFor(editedWorkspaceName);
+      await workspacesPage.navigateToDetail(editedWorkspaceName);
 
       await expect(page.getByText(editedDescription)).toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
     });
@@ -114,8 +123,8 @@ test.describe('Workspace Management', () => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
-      await workspacesPage.searchFor(workspaceName);
-      await workspacesPage.navigateToDetail(workspaceName);
+      await workspacesPage.searchFor(editedWorkspaceName);
+      await workspacesPage.navigateToDetail(editedWorkspaceName);
 
       // Open Actions menu and click Delete
       await page.getByRole('button', { name: /actions/i }).click();
@@ -128,9 +137,9 @@ test.describe('Workspace Management', () => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
-      await workspacesPage.searchFor(workspaceName);
+      await workspacesPage.searchFor(editedWorkspaceName);
       await waitForTableUpdate(page);
-      await workspacesPage.verifyWorkspaceNotInTable(workspaceName);
+      await workspacesPage.verifyWorkspaceNotInTable(editedWorkspaceName);
     });
   });
 
@@ -142,6 +151,20 @@ test.describe('Workspace Management', () => {
       await workspacesPage.goto();
 
       await expect(workspacesPage.createButton).toBeVisible();
+    });
+
+    test('Delete is disabled for workspace with children [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_WORKSPACE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(SEEDED_WORKSPACE_NAME!);
+      await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME!);
+
+      await page.getByRole('button', { name: /actions/i }).click();
+      await expect(page.getByRole('menuitem', { name: /delete/i })).toHaveAttribute('aria-disabled', 'true', {
+        timeout: E2E_TIMEOUTS.MENU_ANIMATION,
+      });
     });
   });
 
@@ -229,6 +252,92 @@ test.describe('Workspace Management', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // RBACADMIN (WorkspaceAdmin) - Full workspace CRUD (rbac_workspace_*)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe.serial('RbacAdmin Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_RBACADMIN });
+
+    const raTimestamp = Date.now();
+    const raWorkspaceName = `${TEST_PREFIX}__RA_Workspace_${raTimestamp}`;
+    const raWorkspaceDescription = 'E2E RbacAdmin lifecycle workspace';
+    const raEditedDescription = 'E2E RbacAdmin lifecycle workspace (edited)';
+
+    test('Create workspace [RbacAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.createButton.click();
+      await workspacesPage.fillCreateModal(raWorkspaceName, raWorkspaceDescription, 'Default Workspace');
+    });
+
+    test('Verify workspace appears in table [RbacAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+
+      await expect(async () => {
+        await workspacesPage.goto();
+        await workspacesPage.searchFor(raWorkspaceName);
+        await expect(workspacesPage.table.getByText(raWorkspaceName)).toBeVisible();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [5_000] });
+    });
+
+    test('View workspace detail page [RbacAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(raWorkspaceName);
+      await workspacesPage.navigateToDetail(raWorkspaceName);
+
+      await expect(page.getByRole('heading', { name: raWorkspaceName })).toBeVisible();
+    });
+
+    test('Edit workspace description [RbacAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(raWorkspaceName);
+      await workspacesPage.navigateToDetail(raWorkspaceName);
+
+      await page.getByRole('button', { name: /actions/i }).click();
+      await page.getByRole('menuitem', { name: /edit/i }).click();
+
+      await workspacesPage.fillEditForm(raEditedDescription);
+    });
+
+    test('Verify edit was applied [RbacAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(raWorkspaceName);
+      await workspacesPage.navigateToDetail(raWorkspaceName);
+
+      await expect(page.getByText(raEditedDescription)).toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
+    });
+
+    test('Delete workspace [RbacAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(raWorkspaceName);
+      await workspacesPage.navigateToDetail(raWorkspaceName);
+
+      await page.getByRole('button', { name: /actions/i }).click();
+      await page.getByRole('menuitem', { name: /delete/i }).click();
+
+      await workspacesPage.confirmDelete();
+    });
+
+    test('Verify workspace is deleted [RbacAdmin]', async ({ page }) => {
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(raWorkspaceName);
+      await waitForTableUpdate(page);
+      await workspacesPage.verifyWorkspaceNotInTable(raWorkspaceName);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Admin - Move Workspace
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -240,6 +349,7 @@ test.describe('Workspace Management', () => {
     const moveWorkspaceDescription = 'E2E move workspace test';
 
     test('Move workspace to different parent [OrgAdmin]', async ({ page }) => {
+      test.info().annotations.push({ type: 'move-target', description: `Moving "${moveWorkspaceName}" to Root Workspace` });
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -253,8 +363,14 @@ test.describe('Workspace Management', () => {
         await expect(workspacesPage.table.getByText(moveWorkspaceName)).toBeVisible();
       }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [5_000] });
 
-      await workspacesPage.searchFor(moveWorkspaceName);
-      await workspacesPage.openRowKebab(moveWorkspaceName);
+      // Permissions propagate asynchronously — retry until Move is enabled
+      await expect(async () => {
+        await workspacesPage.goto();
+        await workspacesPage.searchFor(moveWorkspaceName);
+        await workspacesPage.openRowKebab(moveWorkspaceName);
+        await expect(page.getByRole('menuitem', { name: /move workspace/i })).toBeEnabled();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [3_000] });
+
       await page.getByRole('menuitem', { name: /move workspace/i }).click();
 
       await workspacesPage.fillMoveModal('Root Workspace');

@@ -6,7 +6,7 @@ import { Flex } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import { useOrganizationData } from '../../hooks/useOrganizationData';
-import useIdentity from '../../../shared/hooks/useIdentity';
+import { useIdentity } from '../../../shared/hooks/useIdentity';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import pathnames from '../../utilities/pathnames';
 import messages from '../../../Messages';

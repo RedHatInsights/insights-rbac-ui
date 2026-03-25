@@ -84,9 +84,11 @@ export function useRolesV2Query(params: RolesV2QueryParams = {}, options?: { ena
 }
 
 /**
- * Fetch all V2 roles (cursor-paginated fetch-all).
+ * Fetch all V2 roles by walking cursor-paginated pages.
  * Useful for role pickers and wizards that need the full list.
- * Uses limit=-1 which the API supports to return all objects.
+ *
+ * The V2 API ignores `limit=-1`, so we fetch pages sequentially
+ * and accumulate until `links.next` is null.
  *
  * `resourceType` and `resourceId` filter roles to those assignable at a
  * specific resource level (workspace vs tenant).  These are passed as extra
@@ -100,21 +102,40 @@ export function useAllRolesV2Query(options?: { enabled?: boolean; name?: string;
   if (options?.resourceId) extraParams.resource_id = options.resourceId;
   const hasExtra = Object.keys(extraParams).length > 0;
 
-  const params: RolesListParams = {
-    limit: -1,
-    fields: 'id,name,description,permissions_count,last_modified,org_id',
-    ...(options?.name && { name: options.name }),
-    ...(hasExtra && { options: { params: extraParams } }),
-  };
-
   return useQuery({
     queryKey: [...rolesV2Keys.lists(), 'all', options?.name, options?.resourceType, options?.resourceId] as const,
     queryFn: async (): Promise<Role[]> => {
-      const response = await rolesApi.rolesList(params);
-      return response.data.data;
+      const allRoles: Role[] = [];
+      let cursor: string | undefined;
+
+      do {
+        const response = await rolesApi.rolesList({
+          limit: 100,
+          fields: 'id,name,description,permissions_count,last_modified,org_id',
+          ...(cursor && { cursor }),
+          ...(options?.name && { name: options.name }),
+          ...(hasExtra && { options: { params: extraParams } }),
+        });
+        const page = response.data;
+        allRoles.push(...page.data);
+
+        const nextUrl = page.links?.next;
+        cursor = nextUrl ? extractCursor(nextUrl) : undefined;
+      } while (cursor);
+
+      return allRoles;
     },
     enabled: options?.enabled ?? true,
   });
+}
+
+function extractCursor(nextUrl: string): string | undefined {
+  try {
+    const url = new URL(nextUrl, 'https://placeholder');
+    return url.searchParams.get('cursor') ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /**

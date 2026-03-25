@@ -35,7 +35,8 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, AUTH_V2_RBACADMIN, AUTH_V2_USERVIEWER } from '../../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_RBACADMIN, AUTH_V2_USERVIEWER, iamUrl, setupPage, v2 } from '../../../utils';
+import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { UsersPage } from '../../../pages/v2/UsersPage';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -85,7 +86,6 @@ test.describe('User Invite', () => {
     test.use({ storageState: AUTH_V2_ORGADMIN });
 
     test(`Can invite users with correct API URL [OrgAdmin]`, async ({ page }) => {
-      test.fixme(true, 'Invite modal does not close after mocked API response — IT API mock response format may need updating');
       const inviteApiCalls = await interceptInviteApi(page);
       const usersPage = new UsersPage(page);
 
@@ -131,14 +131,19 @@ test.describe('User Invite', () => {
     });
   });
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RBACADMIN (WorkspaceAdmin) - No rbac_principal_read, denied Users page
+  // ═══════════════════════════════════════════════════════════════════════════
+
   test.describe('RbacAdmin', () => {
     test.use({ storageState: AUTH_V2_RBACADMIN });
 
-    test('Invite action is not available [RbacAdmin]', async ({ page }) => {
-      const usersPage = new UsersPage(page);
-      await usersPage.goto();
-      // RbacAdmin is not org admin, so Actions overflow menu is not rendered
-      await expect(usersPage.actionsMenu).not.toBeVisible();
+    test('Users page shows unauthorized access [RbacAdmin]', async ({ page }) => {
+      await setupPage(page);
+      await expect(async () => {
+        await page.goto(iamUrl(v2.usersNew.link()), { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
 });

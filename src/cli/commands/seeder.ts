@@ -146,7 +146,7 @@ async function fetchSystemGroups(groupsApi: GroupsApiClient): Promise<SystemGrou
 /**
  * Read and validate JSON payload from file.
  */
-async function readPayload(filePath: string): Promise<SeedPayload> {
+export async function readPayload(filePath: string): Promise<SeedPayload> {
   let content: string;
 
   try {
@@ -178,7 +178,7 @@ async function readPayload(filePath: string): Promise<SeedPayload> {
  * Role references in groups are also prefixed to match.
  * Personas are passed through unchanged (they are real usernames).
  */
-function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
+export function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
   const separator = '__';
 
   return {

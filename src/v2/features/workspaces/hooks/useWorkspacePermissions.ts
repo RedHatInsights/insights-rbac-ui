@@ -73,13 +73,6 @@ export interface UseWorkspacePermissionsResult {
   /** Whether the user can delete at least one workspace. */
   canDeleteAny: boolean;
 
-  /**
-   * Whether the user can create top-level workspaces (under root).
-   * @deprecated Use canCreateAny for the toolbar button. This is kept for
-   * specific cases where only root-level creation permission matters.
-   */
-  canCreateTopLevel: boolean;
-
   /** Whether the permission checks are still loading */
   isLoading: boolean;
 }
@@ -126,12 +119,8 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
   // When OFF (default), apply defense-in-depth type constraints on top of Kessel results.
   const trustKessel = useFlag('platform.rbac.workspaces.trust-kessel-permissions');
 
-  // Build workspace IDs and find root
-  const { workspaceIds, rootId } = useMemo(() => {
-    const ids = workspaces.filter((ws) => ws.id).map((ws) => ws.id!);
-    const root = workspaces.find((ws) => ws.type === 'root')?.id ?? '';
-    return { workspaceIds: ids, rootId: root };
-  }, [workspaces]);
+  // Build workspace IDs
+  const workspaceIds = useMemo(() => workspaces.filter((ws) => ws.id).map((ws) => ws.id!), [workspaces]);
 
   const hasRealResources = workspaceIds.length > 0;
 
@@ -220,7 +209,6 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
   const canCreateAny = allowedIds.create.size > 0;
   const canMoveAny = allowedIds.move.size > 0;
   const canDeleteAny = allowedIds.delete.size > 0;
-  const canCreateTopLevel = rootId !== '' && allowedIds.create.has(rootId);
   const isLoading = hasRealResources && (viewLoading || editLoading || deleteLoading || createLoading || moveLoading);
 
   return {
@@ -232,7 +220,6 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
     canCreateAny,
     canMoveAny,
     canDeleteAny,
-    canCreateTopLevel,
     isLoading,
   };
 }

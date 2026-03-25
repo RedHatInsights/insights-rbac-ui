@@ -1,6 +1,6 @@
 import React, { type ReactNode, createContext, useContext, useMemo } from 'react';
 
-export type Environment = 'production' | 'staging';
+export type Environment = 'production' | 'stage';
 
 /**
  * Mock entitlements for auth.getUser() responses
@@ -119,8 +119,8 @@ export interface StoryParameters {
   permissions?: readonly string[];
   /** Is this user an Org Admin? */
   orgAdmin?: boolean;
-  /** Environment: 'staging' or 'production' */
-  environment?: 'staging' | 'production';
+  /** Environment: 'stage' or 'production' */
+  environment?: 'stage' | 'production';
   /**
    * Workspace permissions for Kessel stories.
    * Maps workspace relations to arrays of workspace IDs the user has that permission on.
@@ -163,7 +163,7 @@ export interface StoryParameters {
 }
 
 const defaultState: MockState = {
-  environment: 'staging',
+  environment: 'stage',
   isOrgAdmin: false,
   permissions: [],
   workspacePermissions: EMPTY_WORKSPACE_PERMISSIONS,
@@ -180,7 +180,7 @@ const EMPTY_PERMISSIONS: string[] = [];
 
 export const StorybookMockProvider: React.FC<ProviderProps> = ({
   children,
-  environment = 'staging',
+  environment = 'stage',
   isOrgAdmin = false,
   permissions = EMPTY_PERMISSIONS,
   workspacePermissions = EMPTY_WORKSPACE_PERMISSIONS,

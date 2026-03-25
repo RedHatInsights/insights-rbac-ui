@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import type { RoleBindingsRoleBinding } from '../api/workspaces';
 import { createWorkspacesApi } from '../api/workspaces';
 import { useAppServices } from '../../../shared/contexts/ServiceContext';
-import useIdentity from '../../../shared/hooks/useIdentity';
 import { roleBindingsKeys } from './workspaces';
 
 // =============================================================================
@@ -105,7 +104,7 @@ export function useUserRoleBindingsQuery(userId: string | undefined, options?: {
 
 /** Fetch role bindings for the current authenticated user. Resolves identity internally so consumers don't need to. */
 export function useCurrentUserRoleBindingsQuery(options?: { enabled?: boolean; resourceId?: string }) {
-  const { identity } = useIdentity();
-  const userId = identity?.internal?.account_id;
+  const { identity } = useAppServices();
+  const userId = identity?.account_id;
   return useUserRoleBindingsQuery(userId, options);
 }

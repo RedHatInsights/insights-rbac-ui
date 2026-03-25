@@ -1,5 +1,5 @@
 import { groupsApi } from '../../../shared/data/api/groups';
-import { debounceAsync as asyncDebounce } from '../../../shared/utilities/debounce';
+import { debounce } from '../../../shared/utilities/debounce';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
@@ -38,4 +38,6 @@ export const asyncValidator = async (groupName: string, idKey: string, id?: stri
   return undefined;
 };
 
-export const debouncedAsyncValidator = asyncDebounce((value: string, idKey: string, id?: string) => asyncValidator(value, idKey, id), 250);
+export const debouncedAsyncValidator = debounce((value: string, idKey: string, id?: string) => asyncValidator(value, idKey, id), 250, {
+  onlyResolvesLast: false,
+});

@@ -71,6 +71,19 @@ test.describe('OrgAdmin', () => {
     await expect(orgPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await expect(orgPage.table.getByRole('row')).not.toHaveCount(0, { timeout: E2E_TIMEOUTS.TABLE_DATA });
   });
+
+  test('OrgAdmin can open and cancel grant access wizard [OrgAdmin]', async ({ page }) => {
+    const orgPage = new OrganizationManagementPage(page);
+    await orgPage.goto();
+
+    await orgPage.grantAccessButton.click();
+    await expect(orgPage.grantAccessWizard).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(orgPage.grantAccessWizard.getByText(/grant.*access/i).first()).toBeVisible();
+
+    await orgPage.grantAccessWizard.getByRole('button', { name: /cancel/i }).click();
+    await expect(orgPage.grantAccessWizard).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(orgPage.heading).toBeVisible();
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -96,11 +109,10 @@ test.describe('ReadOnlyUser', () => {
   test.use({ storageState: AUTH_V2_READONLY });
 
   test('Non-org admin is blocked from direct URL to Organization Management [ReadOnlyUser]', async ({ page }) => {
-    test.fixme(true, 'APP BUG: ReadOnlyUser navigating to org management URL does not see UnauthorizedAccess page');
     const navSidebar = new NavigationSidebar(page);
     await navSidebar.gotoPath(ORG_MANAGEMENT_URL);
 
-    await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   });
 });
 

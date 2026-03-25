@@ -31,7 +31,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN } from '../../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_WORKSPACEUSER } from '../../../utils';
 import { RolesPage } from '../../../pages/v2/RolesPage';
 import { getSeededRoleName } from '../../../utils/seed-map';
 
@@ -60,6 +60,26 @@ test.describe('Role Detail', () => {
       // Verify drawer content
       await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME!, level: 2 })).toBeVisible();
 
+      await rolesPage.closeDrawer(SEEDED_ROLE_NAME!);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WORKSPACEUSER (WorkspaceViewer) - Read-only role detail (rbac_roles_read)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe('WorkspaceUser', () => {
+    test.use({ storageState: AUTH_V2_WORKSPACEUSER });
+
+    test('Can view role details in drawer [WorkspaceUser]', async ({ page }) => {
+      test.skip(!SEEDED_ROLE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const rolesPage = new RolesPage(page);
+      await rolesPage.goto();
+
+      await rolesPage.searchFor(SEEDED_ROLE_NAME!);
+      await rolesPage.openDrawer(SEEDED_ROLE_NAME!);
+
+      await expect(page.getByRole('heading', { name: SEEDED_ROLE_NAME!, level: 2 })).toBeVisible();
       await rolesPage.closeDrawer(SEEDED_ROLE_NAME!);
     });
   });

@@ -90,12 +90,18 @@ export interface SeededUserInput {
   username: string;
 }
 
+export interface SeedServiceAccountInput {
+  clientId: string;
+  name?: string;
+}
+
 export interface SeedFixture {
   personas?: Partial<Record<PersonaType, SeedPersonaInput>>;
   seededUsers?: SeededUserInput[];
   roles?: SeedRoleInput[];
   groups?: SeedGroupInput[];
   workspaces?: SeedWorkspaceInput[];
+  serviceAccounts?: SeedServiceAccountInput[];
 }
 
 const EMPTY_SEED_FIXTURE: SeedFixture = {
@@ -104,6 +110,7 @@ const EMPTY_SEED_FIXTURE: SeedFixture = {
   roles: [],
   groups: [],
   workspaces: [],
+  serviceAccounts: [],
 };
 
 // Cache for seed fixture to avoid re-reading
@@ -355,4 +362,94 @@ export function getSeededUsernames(version?: 'v1' | 'v2'): string[] {
  */
 export function getSeededUsername(index = 0, version?: 'v1' | 'v2'): string | undefined {
   return getSeededUsernames(version)[index];
+}
+
+// ============================================================================
+// Service Account Helpers (from seed fixture, not seed map)
+// ============================================================================
+
+/**
+ * Get the clientId of a seeded service account from the fixture by index.
+ * Returns undefined if not found.
+ */
+export function getSeededServiceAccountClientId(index = 0, version?: 'v1' | 'v2'): string | undefined {
+  const fixture = getSeedFixture(version);
+  return fixture.serviceAccounts?.[index]?.clientId;
+}
+
+/**
+ * Get the clientId of a seeded service account — throws if not found.
+ * Use at module level (like requireTestPrefix) to fail fast if fixture is misconfigured.
+ */
+export function requireSeededServiceAccountClientId(index = 0, version?: 'v1' | 'v2'): string {
+  const clientId = getSeededServiceAccountClientId(index, version);
+  if (!clientId) {
+    const v = version ?? 'v2';
+    throw new Error(
+      `[SeedFixture] serviceAccounts[${index}].clientId not found for version ${v}. ` + `Add a serviceAccounts entry to seed-${v}.json`,
+    );
+  }
+  return clientId;
+}
+
+// ============================================================================
+// require* variants — throw at module evaluation time if seed data is missing
+// ============================================================================
+
+function makeSeedRequireError(entity: string, version: ApiVersion): Error {
+  return new Error(
+    `[SeedMap] Seeded ${entity} not found for version ${version}.\n` +
+      `Run: npm run e2e:${version}:seed\n` +
+      `(TEST_PREFIX_${version.toUpperCase()} must also be set)`,
+  );
+}
+
+/**
+ * Like getSeededWorkspaceName but throws if not found.
+ */
+export function requireSeededWorkspaceName(version?: ApiVersion): string {
+  const v = version ?? getTestVersion();
+  const name = getSeededWorkspaceName(v);
+  if (!name) throw makeSeedRequireError('workspace name', v);
+  return name;
+}
+
+/**
+ * Like getSeededGroupName but throws if not found.
+ */
+export function requireSeededGroupName(version?: ApiVersion): string {
+  const v = version ?? getTestVersion();
+  const name = getSeededGroupName(v);
+  if (!name) throw makeSeedRequireError('group name', v);
+  return name;
+}
+
+/**
+ * Like getSeededChildGroupName but throws if not found.
+ */
+export function requireSeededChildGroupName(version?: ApiVersion): string {
+  const v = version ?? getTestVersion();
+  const name = getSeededChildGroupName(v);
+  if (!name) throw makeSeedRequireError('child group name', v);
+  return name;
+}
+
+/**
+ * Like getSeededRoleName but throws if not found.
+ */
+export function requireSeededRoleName(version?: ApiVersion): string {
+  const v = version ?? getTestVersion();
+  const name = getSeededRoleName(v);
+  if (!name) throw makeSeedRequireError('role name', v);
+  return name;
+}
+
+/**
+ * Like getSeededChildWorkspaceName but throws if not found.
+ */
+export function requireSeededChildWorkspaceName(version?: ApiVersion): string {
+  const v = version ?? getTestVersion();
+  const name = getSeededChildWorkspaceName(v);
+  if (!name) throw makeSeedRequireError('child workspace name', v);
+  return name;
 }

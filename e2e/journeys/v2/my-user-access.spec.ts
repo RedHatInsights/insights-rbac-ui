@@ -97,3 +97,56 @@ test.describe('My Access - Tab Navigation', () => {
     });
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Workspaces Tab — Interaction Tests
+// ═══════════════════════════════════════════════════════════════════════════
+
+test.describe('My Access — Workspaces tab', () => {
+  test.describe('OrgAdmin', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    test('Workspace rows show Admin or Viewer label [OrgAdmin]', async ({ page }) => {
+      const myUserAccessPage = new MyUserAccessPage(page);
+      await myUserAccessPage.goto();
+
+      await page.getByRole('tab', { name: /workspaces/i }).click();
+      await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      const roleLabel = page.getByRole('grid').getByText('Admin').or(page.getByRole('grid').getByText('Viewer')).first();
+      await expect(roleLabel).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    });
+
+    test('Workspace link navigates to workspace detail [OrgAdmin]', async ({ page }) => {
+      const myUserAccessPage = new MyUserAccessPage(page);
+      await myUserAccessPage.goto();
+
+      await page.getByRole('tab', { name: /workspaces/i }).click();
+      await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      const firstLink = page.getByRole('grid').getByRole('link').first();
+      await expect(firstLink).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      const workspaceName = (await firstLink.textContent()) ?? '';
+
+      await firstLink.click();
+      await expect(page).toHaveURL(/\/workspaces\//, { timeout: E2E_TIMEOUTS.URL_CHANGE });
+      await expect(page.getByRole('heading', { name: workspaceName })).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    });
+
+    test('Workspace row click opens detail drawer [OrgAdmin]', async ({ page }) => {
+      const myUserAccessPage = new MyUserAccessPage(page);
+      await myUserAccessPage.goto();
+
+      await page.getByRole('tab', { name: /workspaces/i }).click();
+      await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      // Click the Admin/Viewer role label (not the workspace name link) to open the drawer
+      // without navigating away. The link has stopPropagation; the label triggers the row click.
+      const roleLabel = page.getByRole('grid').getByText('Admin').or(page.getByRole('grid').getByText('Viewer')).first();
+      await expect(roleLabel).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      await roleLabel.click();
+
+      await expect(page.getByTestId('detail-drawer-panel')).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    });
+  });
+});

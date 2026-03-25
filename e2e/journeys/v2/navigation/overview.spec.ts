@@ -20,8 +20,10 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, iamUrl, setupPage, v2 } from '../../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_USERVIEWER, iamUrl, setupPage, v2 } from '../../../utils';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
+
+const overviewUrl = iamUrl(v2.overview.link());
 
 test.describe('Overview', () => {
   test.describe('OrgAdmin', () => {
@@ -29,7 +31,6 @@ test.describe('Overview', () => {
 
     test('Can view overview page content [OrgAdmin]', async ({ page }) => {
       await setupPage(page);
-      const overviewUrl = iamUrl(v2.overview.link());
       await expect(async () => {
         await page.goto(overviewUrl, { timeout: E2E_TIMEOUTS.SLOW_DATA });
         await expect(page.getByRole('heading', { name: /user access/i, level: 1 }).first()).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
@@ -38,6 +39,22 @@ test.describe('Overview', () => {
       await expect(page.getByLabel('Get started card')).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
       await expect(page.getByRole('button', { name: /view groups/i })).toBeVisible();
       await expect(page.getByRole('button', { name: /view roles/i })).toBeVisible();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // USERVIEWER - No rbac_roles_read, denied Overview (requires v2Guard([roles.canView]))
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe('UserViewer', () => {
+    test.use({ storageState: AUTH_V2_USERVIEWER });
+
+    test('Overview page shows unauthorized access [UserViewer]', async ({ page }) => {
+      await setupPage(page);
+      await expect(async () => {
+        await page.goto(overviewUrl, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
 });

@@ -33,7 +33,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, AUTH_V2_RBACADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, AUTH_V2_WORKSPACEUSER, iamUrl, setupPage, v2 } from '../../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_RBACADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, AUTH_V2_WORKSPACEUSER, iamUrl, v2 } from '../../../utils';
 import { NavigationSidebar } from '../../../pages/v2/NavigationSidebar';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
@@ -139,29 +139,94 @@ test.describe('ReadOnlyUser', () => {
 // RBACADMIN - rbac:: write perms, not org admin; no Organization Management
 // ═══════════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Full navigation visibility per persona
+// ═══════════════════════════════════════════════════════════════════════════
+
 test.describe('RbacAdmin', () => {
   test.use({ storageState: AUTH_V2_RBACADMIN });
 
-  test('Non-org admin does not see Organization Management in navigation [RbacAdmin]', async ({ page }) => {
-    // Same assertion as UserViewer - RbacAdmin has RBAC perms but is not org admin
-    await setupPage(page);
+  test('V2 navigation shows correct items [RbacAdmin]', async ({ page }) => {
     const navSidebar = new NavigationSidebar(page);
     await navSidebar.gotoOverview();
-    await expect(navSidebar.getNavLink(NAV_ORGANIZATION_MANAGEMENT)).not.toBeVisible();
+
+    await expect(navSidebar.getNavLink(NAV_MY_ACCESS)).toBeVisible();
+    await expect(navSidebar.getNavLink(NAV_OVERVIEW)).toBeVisible();
+
+    const accessMgmt = navSidebar.getNavExpandable(NAV_ACCESS_MANAGEMENT);
+    await expect(accessMgmt).toBeVisible();
+    const expanded = await accessMgmt.getAttribute('aria-expanded');
+    if (expanded !== 'true') {
+      await accessMgmt.click();
+    }
+
+    await expect(navSidebar.getNavLink(NAV_USERS_AND_GROUPS)).toBeVisible();
+    await expect(navSidebar.getNavLink(NAV_ROLES)).toBeVisible();
+    await expect(navSidebar.getNavLink(NAV_WORKSPACES)).toBeVisible();
+
+    expect(await navSidebar.isNavItemVisible(NAV_ORGANIZATION_MANAGEMENT)).toBe(false);
   });
 });
-
-// ═══════════════════════════════════════════════════════════════════════════
-// WORKSPACEUSER - Non-admin with explicit workspace access
-// ═══════════════════════════════════════════════════════════════════════════
 
 test.describe('WorkspaceUser', () => {
   test.use({ storageState: AUTH_V2_WORKSPACEUSER });
 
-  test('Non-org admin does not see Organization Management in navigation [WorkspaceUser]', async ({ page }) => {
-    await setupPage(page);
+  test('V2 navigation shows correct items [WorkspaceUser]', async ({ page }) => {
     const navSidebar = new NavigationSidebar(page);
     await navSidebar.gotoOverview();
-    await expect(navSidebar.getNavLink(NAV_ORGANIZATION_MANAGEMENT)).not.toBeVisible();
+
+    await expect(navSidebar.getNavLink(NAV_MY_ACCESS)).toBeVisible();
+    await expect(navSidebar.getNavLink(NAV_OVERVIEW)).toBeVisible();
+
+    const accessMgmt = navSidebar.getNavExpandable(NAV_ACCESS_MANAGEMENT);
+    await expect(accessMgmt).toBeVisible();
+    const expanded = await accessMgmt.getAttribute('aria-expanded');
+    if (expanded !== 'true') {
+      await accessMgmt.click();
+    }
+
+    await expect(navSidebar.getNavLink(NAV_USERS_AND_GROUPS)).toBeVisible();
+    await expect(navSidebar.getNavLink(NAV_ROLES)).toBeVisible();
+    await expect(navSidebar.getNavLink(NAV_WORKSPACES)).toBeVisible();
+
+    expect(await navSidebar.isNavItemVisible(NAV_ORGANIZATION_MANAGEMENT)).toBe(false);
+  });
+});
+
+test.describe('UserViewer — Full Nav', () => {
+  test.use({ storageState: AUTH_V2_USERVIEWER });
+
+  test('V2 navigation shows limited items [UserViewer]', async ({ page }) => {
+    const navSidebar = new NavigationSidebar(page);
+    await navSidebar.gotoMyAccess();
+
+    await expect(navSidebar.getNavLink(NAV_MY_ACCESS)).toBeVisible();
+    expect(await navSidebar.isNavItemVisible(NAV_OVERVIEW)).toBe(false);
+
+    const accessMgmt = navSidebar.getNavExpandable(NAV_ACCESS_MANAGEMENT);
+    await expect(accessMgmt).toBeVisible();
+    const expanded = await accessMgmt.getAttribute('aria-expanded');
+    if (expanded !== 'true') {
+      await accessMgmt.click();
+    }
+
+    await expect(navSidebar.getNavLink(NAV_USERS_AND_GROUPS)).toBeVisible();
+    expect(await navSidebar.isNavItemVisible(NAV_ROLES)).toBe(false);
+    expect(await navSidebar.isNavItemVisible(NAV_WORKSPACES)).toBe(false);
+    expect(await navSidebar.isNavItemVisible(NAV_ORGANIZATION_MANAGEMENT)).toBe(false);
+  });
+});
+
+test.describe('ReadOnlyUser — Full Nav', () => {
+  test.use({ storageState: AUTH_V2_READONLY });
+
+  test('V2 navigation shows My Access only [ReadOnlyUser]', async ({ page }) => {
+    const navSidebar = new NavigationSidebar(page);
+    await navSidebar.gotoMyAccess();
+
+    await expect(navSidebar.getNavLink(NAV_MY_ACCESS)).toBeVisible();
+    expect(await navSidebar.isNavItemVisible(NAV_OVERVIEW)).toBe(false);
+    expect(await navSidebar.isNavItemVisible(NAV_ACCESS_MANAGEMENT)).toBe(false);
+    expect(await navSidebar.isNavItemVisible(NAV_ORGANIZATION_MANAGEMENT)).toBe(false);
   });
 });

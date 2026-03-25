@@ -24,7 +24,7 @@
       "display_name": "Child Role",
       "description": "Role for child workspace testing",
       "permissions": [
-        "cost-management:cost_model:read"
+        "vulnerability:vulnerability.report:read"
       ]
     }
   ],
@@ -62,5 +62,8 @@
       "role": "Child Role",
       "workspace": "Seeded Child Workspace"
     }
+  ],
+  "serviceAccounts": [
+    { "clientId": "iqe-rbac-v2-e2e-service-account" }
   ]
 }

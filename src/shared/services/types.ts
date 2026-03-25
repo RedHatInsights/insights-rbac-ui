@@ -26,14 +26,16 @@ export type NotifyFn = (variant: NotificationVariant, title: string, description
 /**
  * Environment identifier for data layer URL resolution.
  */
-export type Environment = 'production' | 'staging' | 'qa';
+export type Environment = 'production' | 'stage' | 'qa';
 
 /**
  * Minimal identity subset needed by data layer hooks.
- * Only includes fields required for external API calls (e.g., IT account API).
+ * Only includes fields required for external API calls (e.g., IT account API)
+ * and user-scoped queries (e.g., current user's role bindings).
  */
 export interface AppIdentity {
   org_id?: string;
+  account_id?: string;
 }
 
 /**
@@ -82,7 +84,7 @@ export interface AppServices {
    * Current deployment environment.
    * - Browser: Resolved from `chrome.getEnvironment()`
    * - CLI: From env config
-   * - Storybook: Defaults to `'staging'`
+   * - Storybook: Defaults to `'stage'`
    */
   environment: Environment;
 

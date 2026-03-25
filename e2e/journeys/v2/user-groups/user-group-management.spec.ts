@@ -37,6 +37,7 @@
 import { expect, test } from '@playwright/test';
 import {
   AUTH_V2_ORGADMIN,
+  AUTH_V2_RBACADMIN,
   AUTH_V2_READONLY,
   AUTH_V2_USERVIEWER,
   AUTH_V2_WORKSPACEUSER,
@@ -160,6 +161,26 @@ test.describe('User Group Management', () => {
       await expect(groupsPage.createButton).toBeVisible();
     });
 
+    test('Default access group delete is disabled [OrgAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await page.getByRole('button', { name: 'Actions for group Default access' }).click();
+      await expect(page.getByRole('menuitem', { name: /delete user group/i })).toHaveAttribute('aria-disabled', 'true', {
+        timeout: E2E_TIMEOUTS.MENU_ANIMATION,
+      });
+    });
+
+    test('Default admin access group delete is disabled [OrgAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await page.getByRole('button', { name: 'Actions for group Default admin access' }).click();
+      await expect(page.getByRole('menuitem', { name: /delete user group/i })).toHaveAttribute('aria-disabled', 'true', {
+        timeout: E2E_TIMEOUTS.MENU_ANIMATION,
+      });
+    });
+
     test(`Create User Group button navigates to create form [OrgAdmin]`, async ({ page }) => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
@@ -179,47 +200,185 @@ test.describe('User Group Management', () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // USERVIEWER - No page access at all
+  // Admin - Bulk Delete
   // ═══════════════════════════════════════════════════════════════════════════
-  // Add "unauthorized message" tests here
-  // These tests should navigate to URL and verify blocked access
+
+  test.describe.serial('OrgAdmin — Bulk Delete', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    const bulkTimestamp = Date.now();
+    const bulkGroup1 = `${TEST_PREFIX}__Bulk1_${bulkTimestamp}`;
+    const bulkGroup2 = `${TEST_PREFIX}__Bulk2_${bulkTimestamp}`;
+
+    test('Create bulk group 1 [OrgAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+      await groupsPage.createButton.click();
+      await groupsPage.fillGroupForm(bulkGroup1, 'E2E bulk delete test group 1');
+    });
+
+    test('Create bulk group 2 [OrgAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+      await groupsPage.createButton.click();
+      await groupsPage.fillGroupForm(bulkGroup2, 'E2E bulk delete test group 2');
+    });
+
+    test('Bulk delete both groups [OrgAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      // Filter to show only bulk groups from this run (unique timestamp in name)
+      await groupsPage.searchFor(`${TEST_PREFIX}__Bulk`);
+
+      // Wait for both rows to appear before checking
+      await expect(groupsPage.table.getByRole('row', { name: new RegExp(bulkGroup1, 'i') })).toBeVisible({
+        timeout: E2E_TIMEOUTS.TABLE_DATA,
+      });
+      await expect(groupsPage.table.getByRole('row', { name: new RegExp(bulkGroup2, 'i') })).toBeVisible({
+        timeout: E2E_TIMEOUTS.TABLE_DATA,
+      });
+
+      // Check both row checkboxes
+      await groupsPage.table
+        .getByRole('row', { name: new RegExp(bulkGroup1, 'i') })
+        .getByRole('checkbox')
+        .click();
+      await groupsPage.table
+        .getByRole('row', { name: new RegExp(bulkGroup2, 'i') })
+        .getByRole('checkbox')
+        .click();
+
+      // Click the overflow kebab and select bulk delete
+      await page.getByRole('button', { name: 'Actions overflow menu' }).click();
+      await page.getByText(/delete user group \(\d+\)/i).click();
+      await groupsPage.confirmDelete();
+    });
+
+    test('Verify both groups deleted [OrgAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(bulkGroup1);
+      await groupsPage.verifyGroupNotInTable(bulkGroup1);
+
+      await groupsPage.searchFor(bulkGroup2);
+      await groupsPage.verifyGroupNotInTable(bulkGroup2);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RBACADMIN (WorkspaceAdmin) - Full groups CRUD (rbac_groups_read/write)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  test.describe.serial('RbacAdmin Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_RBACADMIN });
+
+    const raTimestamp = Date.now();
+    const raGroupName = `${TEST_PREFIX}__RA_Group_${raTimestamp}`;
+    const raGroupDescription = 'E2E RbacAdmin lifecycle group';
+    const raEditedGroupName = `${raGroupName}_Edited`;
+    const raEditedDescription = 'E2E RbacAdmin lifecycle group - EDITED';
+
+    test('Create user group [RbacAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.createButton.click();
+      await groupsPage.fillGroupForm(raGroupName, raGroupDescription);
+    });
+
+    test('Verify group appears in table [RbacAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(raGroupName);
+      await groupsPage.verifyGroupInTable(raGroupName);
+    });
+
+    test('Edit group [RbacAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(raGroupName);
+      await groupsPage.openRowActions(raGroupName);
+      await groupsPage.clickRowAction('Edit');
+
+      await expect(groupsPage.editPageForm).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      await groupsPage.fillGroupForm(raEditedGroupName, raEditedDescription);
+    });
+
+    test('Verify edit was applied [RbacAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(raEditedGroupName);
+      await groupsPage.verifyGroupInTable(raEditedGroupName);
+    });
+
+    test('Delete group [RbacAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(raEditedGroupName);
+      await groupsPage.openRowActions(raEditedGroupName);
+      await groupsPage.clickRowAction('Delete');
+      await groupsPage.confirmDelete();
+    });
+
+    test('Verify group is deleted [RbacAdmin]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(raEditedGroupName);
+      await groupsPage.verifyGroupNotInTable(raEditedGroupName);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // USERVIEWER - No groups access (has rbac_principal_read only)
+  // ═══════════════════════════════════════════════════════════════════════════
 
   test.describe('UserViewer', () => {
     test.use({ storageState: AUTH_V2_USERVIEWER });
 
     test(`User Groups page shows unauthorized access [UserViewer]`, async ({ page }) => {
       await setupPage(page);
-      await page.goto(GROUPS_URL);
-
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await expect(async () => {
+        await page.goto(GROUPS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // READONLYUSER - No page access at all
+  // READONLYUSER - No permissions at all
   // ═══════════════════════════════════════════════════════════════════════════
-  // Add "unauthorized message" tests here
-  // These tests should navigate to URL and verify blocked access
 
   test.describe('ReadOnlyUser', () => {
     test.use({ storageState: AUTH_V2_READONLY });
 
     test(`User Groups page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
       await setupPage(page);
-      await page.goto(GROUPS_URL);
-
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      await expect(async () => {
+        await page.goto(GROUPS_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WORKSPACEUSER (WorkspaceViewer) - Read-only groups access (has rbac_groups_read)
+  // ═══════════════════════════════════════════════════════════════════════════
 
   test.describe('WorkspaceUser', () => {
     test.use({ storageState: AUTH_V2_WORKSPACEUSER });
 
-    test('User Groups page shows unauthorized access [WorkspaceUser]', async ({ page }) => {
-      await setupPage(page);
-      await page.goto(GROUPS_URL);
-
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+    test('User Groups page is accessible in read-only mode [WorkspaceUser]', async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+      await expect(groupsPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      await expect(groupsPage.createButton).not.toBeVisible();
     });
   });
 });

@@ -45,7 +45,7 @@ export const InheritedRolesTab: React.FC = () => {
           groups={parentGroups}
           isLoading={parentGroupsIsLoading || rbAccess.isLoading}
           currentWorkspace={currentWorkspace}
-          ouiaId="parent-role-assignments-table"
+          ouiaId="parent-role-assignments"
         />
       )}
     </WorkspaceDetailLayout>

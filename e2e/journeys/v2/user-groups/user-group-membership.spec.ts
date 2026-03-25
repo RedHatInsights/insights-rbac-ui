@@ -50,6 +50,7 @@ import {
   getSeededGroupName,
   getSeededUsername,
   iamUrl,
+  requireSeededServiceAccountClientId,
   setupPage,
   v2,
 } from '../../../utils';
@@ -62,6 +63,9 @@ import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
 const SEEDED_GROUP_NAME = getSeededGroupName('v2');
 const SEEDED_GROUP_UUID = SEEDED_GROUP_NAME ? getGroupUuid(SEEDED_GROUP_NAME, 'v2') : undefined;
+
+// SA client ID lives in seed-v2.json (environment-level constant, not provisioned by seed script)
+const SA_CLIENT_ID = requireSeededServiceAccountClientId(0, 'v2');
 
 // Use a dedicated seeded user (not a persona) for add/remove membership tests.
 // This avoids side effects on persona-dependent tests.
@@ -312,8 +316,76 @@ test.describe('User Group Membership', () => {
     });
   });
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Service Account add → verify → remove lifecycle (self-cleaning)
+  // SA_CLIENT_ID is declared in fixture; SEEDED_GROUP_UUID from seed map
+  // ─────────────────────────────────────────────────────────────────────────
+  test.describe.serial('OrgAdmin — Service Account Lifecycle', () => {
+    test.use({ storageState: AUTH_V2_ORGADMIN });
+
+    test('Add service account to group via edit page [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME || !SEEDED_GROUP_UUID, 'No seed data — run npm run e2e:seed:v2');
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
+
+      await groupsPage.clickEditPageTab('Service accounts');
+      await expect(groupsPage.editPageServiceAccountsTable).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      // Idempotent: if SA is already a member, remove it first so we test a real "add"
+      const wasAlreadyMember = await groupsPage.isSASelectedInEditPage(SA_CLIENT_ID).catch(() => false);
+      if (wasAlreadyMember) {
+        await groupsPage.deselectSAInEditPage(SA_CLIENT_ID);
+        await groupsPage.submitEditForm();
+        await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
+        await groupsPage.clickEditPageTab('Service accounts');
+        await expect(groupsPage.editPageServiceAccountsTable).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      }
+
+      await groupsPage.selectSAInEditPage(SA_CLIENT_ID);
+      expect(await groupsPage.isSASelectedInEditPage(SA_CLIENT_ID)).toBe(true);
+      await groupsPage.submitEditForm();
+    });
+
+    test('Verify service account appears in drawer [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME || !SEEDED_GROUP_UUID, 'No seed data — run npm run e2e:seed:v2');
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(SEEDED_GROUP_NAME!);
+      await groupsPage.openDrawer(SEEDED_GROUP_NAME!);
+      await groupsPage.clickDrawerTab('Service accounts');
+
+      await expect(groupsPage.drawer.getByText(SA_CLIENT_ID)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    });
+
+    test('Remove service account from group [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME || !SEEDED_GROUP_UUID, 'No seed data — run npm run e2e:seed:v2');
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.gotoEditPage(SEEDED_GROUP_UUID!);
+
+      await groupsPage.clickEditPageTab('Service accounts');
+      await expect(groupsPage.editPageServiceAccountsTable).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      await groupsPage.deselectSAInEditPage(SA_CLIENT_ID);
+      expect(await groupsPage.isSASelectedInEditPage(SA_CLIENT_ID)).toBe(false);
+      await groupsPage.submitEditForm();
+    });
+
+    test('Verify service account removed from drawer [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_GROUP_NAME || !SEEDED_GROUP_UUID, 'No seed data — run npm run e2e:seed:v2');
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.searchFor(SEEDED_GROUP_NAME!);
+      await groupsPage.openDrawer(SEEDED_GROUP_NAME!);
+      await groupsPage.clickDrawerTab('Service accounts');
+
+      await expect(groupsPage.drawer.getByText(SA_CLIENT_ID)).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    });
+  });
+
   // ═══════════════════════════════════════════════════════════════════════════
-  // USERVIEWER - No page access at all
+  // USERVIEWER - No groups write access (has rbac_principal_read only)
   // ═══════════════════════════════════════════════════════════════════════════
 
   test.describe('UserViewer', () => {
@@ -322,16 +394,15 @@ test.describe('User Group Membership', () => {
     test(`Edit group page shows unauthorized access [UserViewer]`, async ({ page }) => {
       test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       await setupPage(page);
-      await page.goto(iamUrl(v2.usersAndUserGroupsEditGroup.link(SEEDED_GROUP_UUID!)));
-
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({
-        timeout: E2E_TIMEOUTS.SLOW_DATA,
-      });
+      await expect(async () => {
+        await page.goto(iamUrl(v2.usersAndUserGroupsEditGroup.link(SEEDED_GROUP_UUID!)), { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // READONLYUSER - No page access at all
+  // READONLYUSER - No permissions at all
   // ═══════════════════════════════════════════════════════════════════════════
 
   test.describe('ReadOnlyUser', () => {
@@ -340,11 +411,10 @@ test.describe('User Group Membership', () => {
     test(`Edit group page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
       test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       await setupPage(page);
-      await page.goto(iamUrl(v2.usersAndUserGroupsEditGroup.link(SEEDED_GROUP_UUID!)));
-
-      await expect(page.getByText(/You do not have access to/i)).toBeVisible({
-        timeout: E2E_TIMEOUTS.SLOW_DATA,
-      });
+      await expect(async () => {
+        await page.goto(iamUrl(v2.usersAndUserGroupsEditGroup.link(SEEDED_GROUP_UUID!)), { timeout: E2E_TIMEOUTS.SLOW_DATA });
+        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
     });
   });
 });

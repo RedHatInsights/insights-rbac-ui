@@ -1,360 +1,402 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Text, useApp } from 'ink';
-import type { QueryClient } from '@tanstack/react-query';
-import type { OperationResult, RoleInput, SeedPayload, SeedSummary } from '../types.js';
+import type { SeedPayload, SeedSummary } from '../types.js';
 import { Spinner } from './shared/index.js';
-import { type RoleIn, useCreateGroupMutation, useCreateRoleMutation, useCreateWorkspaceMutation, useWorkspacesQuery } from '../queries.js';
+import {
+  useCreateGroupMutation,
+  useCreateRoleMutation,
+  useCreateRoleV2Mutation,
+  useCreateWorkspaceMutation,
+  useUpdateGroupRolesMutation,
+  useWorkspacesQuery,
+} from '../queries.js';
 
-// Types for internal components that need hookOptions
-interface HookOptions {
-  queryClient: QueryClient;
-}
+// ============================================================================
+// Types
+// ============================================================================
 
 /**
  * Props for HeadlessSeeder component
  */
 export interface HeadlessSeederProps {
   payload: SeedPayload;
-  queryClient: QueryClient;
   onComplete: (summary: SeedSummary) => void;
+  /** 'v1' (default) or 'v2'. Controls role creation API and whether role bindings are created. */
+  apiVersion?: 'v1' | 'v2';
+  /** Write seed-map JSON to this file path when done. */
+  outputPath?: string;
 }
 
-// Types for mutation params (needed for internal seeder components)
-interface CreateGroupParams {
-  name: string;
-  description?: string;
+interface Mappings {
+  roles: Record<string, string>;
+  groups: Record<string, string>;
+  workspaces: Record<string, string>;
 }
 
-interface CreateWorkspaceParams {
-  name: string;
-  description?: string;
-  parent_id?: string;
+type Phase = 'fetching' | 'creating' | 'binding' | 'done' | 'empty';
+
+// ============================================================================
+// Permission parsing (V2)
+// ============================================================================
+
+function parsePermission(perm: string) {
+  const [application, resource_type, operation] = perm.split(':');
+  return { application, resource_type, operation };
 }
+
+// ============================================================================
+// HeadlessSeeder Component
+// ============================================================================
 
 /**
- * Generic resource seeder component
- */
-interface ResourceSeederProps<T, R> {
-  resource: T;
-  resourceType: 'role' | 'group' | 'workspace';
-  getName: (r: T) => string;
-  mutation: {
-    mutate: (data: T, options?: { onSuccess?: (result: R) => void; onError?: (error: Error) => void }) => void;
-    isPending: boolean;
-    isError: boolean;
-    isSuccess: boolean;
-    error: Error | null;
-    data?: R;
-  };
-  onComplete: (result: OperationResult) => void;
-}
-
-function ResourceSeeder<T, R extends { uuid?: string; id?: string; name?: string }>({
-  resource,
-  resourceType,
-  getName,
-  mutation,
-  onComplete,
-}: ResourceSeederProps<T, R>): React.ReactElement {
-  const hasStarted = useRef(false);
-  const name = getName(resource);
-
-  useEffect(() => {
-    if (hasStarted.current) return;
-    hasStarted.current = true;
-
-    mutation.mutate(resource, {
-      onSuccess: (result) => {
-        onComplete({
-          success: true,
-          uuid: result.uuid,
-          id: result.id,
-          name: result.name || name,
-        });
-      },
-      onError: (error) => {
-        onComplete({
-          success: false,
-          name,
-          error: error.message,
-        });
-      },
-    });
-  }, [resource, mutation, onComplete, name]);
-
-  if (mutation.isPending) {
-    return (
-      <Box>
-        <Spinner />
-        <Text>
-          {' '}
-          Creating {resourceType} &quot;{name}&quot;...
-        </Text>
-      </Box>
-    );
-  }
-
-  if (mutation.isError) {
-    return (
-      <Text color="#C9190B">
-        ✗ Failed to create {resourceType} &quot;{name}&quot;: {mutation.error?.message}
-      </Text>
-    );
-  }
-
-  if (mutation.isSuccess && mutation.data) {
-    const id = mutation.data.uuid || mutation.data.id;
-    return (
-      <Text color="#3E8635">
-        ✓ Created {resourceType} &quot;{name}&quot; → {id}
-      </Text>
-    );
-  }
-
-  return (
-    <Text color="#6A6E73">
-      Preparing to create {resourceType} &quot;{name}&quot;...
-    </Text>
-  );
-}
-
-/**
- * Role seeder wrapper
- * Uses RoleInput from CLI types which is compatible with the API's RoleIn type.
- */
-function RoleSeeder({
-  role,
-  hookOptions,
-  onComplete,
-}: {
-  role: RoleInput;
-  hookOptions: HookOptions;
-  onComplete: (result: OperationResult) => void;
-}): React.ReactElement {
-  const mutation = useCreateRoleMutation(hookOptions);
-  // Cast RoleInput to RoleIn - they are structurally compatible
-  return (
-    <ResourceSeeder resource={role as unknown as RoleIn} resourceType="role" getName={(r) => r.name} mutation={mutation} onComplete={onComplete} />
-  );
-}
-
-/**
- * Group seeder wrapper
- */
-function GroupSeeder({
-  group,
-  hookOptions,
-  onComplete,
-}: {
-  group: CreateGroupParams;
-  hookOptions: HookOptions;
-  onComplete: (result: OperationResult) => void;
-}): React.ReactElement {
-  const mutation = useCreateGroupMutation(hookOptions);
-  return <ResourceSeeder resource={group} resourceType="group" getName={(g) => g.name} mutation={mutation} onComplete={onComplete} />;
-}
-
-/**
- * Workspace seeder wrapper
- * Automatically fetches root workspace to use as parent_id if not provided
- */
-function WorkspaceSeeder({
-  workspace,
-  hookOptions,
-  onComplete,
-}: {
-  workspace: CreateWorkspaceParams;
-  hookOptions: HookOptions;
-  onComplete: (result: OperationResult) => void;
-}): React.ReactElement {
-  const mutation = useCreateWorkspaceMutation(hookOptions);
-  const rootQuery = useWorkspacesQuery({ type: 'root' }, hookOptions);
-  const rootWorkspaceId = rootQuery.data?.data?.[0]?.id;
-
-  // Wait for root workspace to be fetched if parent_id not provided
-  const workspaceWithParent = React.useMemo(() => {
-    if (workspace.parent_id) return workspace;
-    if (!rootWorkspaceId) return null; // Still loading
-    return { ...workspace, parent_id: rootWorkspaceId };
-  }, [workspace, rootWorkspaceId]);
-
-  if (!workspaceWithParent) {
-    return (
-      <Box>
-        <Spinner />
-        <Text> Fetching root workspace...</Text>
-      </Box>
-    );
-  }
-
-  return (
-    <ResourceSeeder resource={workspaceWithParent} resourceType="workspace" getName={(w) => w.name} mutation={mutation} onComplete={onComplete} />
-  );
-}
-
-/**
- * HeadlessSeeder component for scripting mode
+ * Headless Ink component that creates RBAC resources from a seed payload.
  *
- * Executes seed operations and outputs results to stdout.
- * Exits with code 0 on success, 1 on failure.
+ * Uses shared mutation hooks for creation and binding so parameter contracts
+ * are guaranteed. The default workspace ID (needed as workspace parent in V2)
+ * is fetched via the shared useWorkspacesQuery hook.
+ *
+ * Must be rendered inside AppWrapper (which provides QueryClientProvider + ServiceProvider).
+ *
+ * Phases:
+ *   fetching (default workspace) → creating → binding (V2 only) → done
  */
-export function HeadlessSeeder({ payload, queryClient, onComplete }: HeadlessSeederProps): React.ReactElement {
+export function HeadlessSeeder({ payload, onComplete, apiVersion = 'v1', outputPath }: HeadlessSeederProps): React.ReactElement {
   const { exit } = useApp();
-  const hookOptions = { queryClient };
+  const isV2 = apiVersion === 'v2';
 
-  const [roleResults, setRoleResults] = useState<Map<string, OperationResult>>(new Map());
-  const [groupResults, setGroupResults] = useState<Map<string, OperationResult>>(new Map());
-  const [workspaceResults, setWorkspaceResults] = useState<Map<string, OperationResult>>(new Map());
-  const [phase, setPhase] = useState<'pending' | 'processing' | 'complete' | 'empty'>('pending');
-  const [exitCode, setExitCode] = useState<number | null>(null);
+  const [phase, setPhase] = useState<Phase>('fetching');
+  const [log, setLog] = useState<string[]>([]);
+  const [summary, setSummary] = useState<SeedSummary | null>(null);
+  const workStarted = useRef(false);
 
-  // Rename to avoid shadowing module-level imports
+  const appendLog = (line: string) => {
+    process.stderr.write(line + '\n');
+    setLog((prev) => [...prev.slice(-20), line]);
+  };
+
+  // -- Query hook: fetch default workspace to use as parent for new workspaces (V2) --
+  const payloadWorkspaces = payload.workspaces ?? [];
+  const needsParentWorkspace = isV2 && payloadWorkspaces.length > 0;
+  const defaultWorkspaceQuery = useWorkspacesQuery({ type: 'default' }, { enabled: needsParentWorkspace && phase === 'fetching' });
+  const rootWorkspaceQuery = useWorkspacesQuery(
+    { type: 'root' },
+    { enabled: needsParentWorkspace && phase === 'fetching' && defaultWorkspaceQuery.isSuccess && !defaultWorkspaceQuery.data?.data?.[0]?.id },
+  );
+
+  // -- Mutation hooks (use React Query context client via AppWrapper's QueryClientProvider) --
+  const createRoleV1 = useCreateRoleMutation();
+  const createRoleV2 = useCreateRoleV2Mutation();
+  const createGroup = useCreateGroupMutation();
+  const createWorkspace = useCreateWorkspaceMutation();
+  const updateGroupRoles = useUpdateGroupRolesMutation();
+
   const payloadRoles = payload.roles ?? [];
   const payloadGroups = payload.groups ?? [];
-  const payloadWorkspaces = payload.workspaces ?? [];
+  const payloadBindings = payload.role_bindings ?? [];
 
-  const totalOperations = payloadRoles.length + payloadGroups.length + payloadWorkspaces.length;
-  const completedOperations = roleResults.size + groupResults.size + workspaceResults.size;
+  const totalCustomOps = payloadRoles.length + payloadGroups.length + payloadWorkspaces.length + (isV2 ? payloadBindings.length : 0);
 
-  // Handle completion of individual operations
-  const handleRoleComplete = React.useCallback((roleName: string, result: OperationResult) => {
-    setRoleResults((prev) => new Map(prev).set(roleName, result));
-  }, []);
+  // Persona users to add to every created group
+  const personaUsers = payload.personas ? Object.values(payload.personas).map((p) => ({ username: p.username })) : [];
 
-  const handleGroupComplete = React.useCallback((groupName: string, result: OperationResult) => {
-    setGroupResults((prev) => new Map(prev).set(groupName, result));
-  }, []);
-
-  const handleWorkspaceComplete = React.useCallback((workspaceName: string, result: OperationResult) => {
-    setWorkspaceResults((prev) => new Map(prev).set(workspaceName, result));
-  }, []);
-
-  // Track phase transitions
+  // Transition from fetching → creating once default workspace is available (or not needed)
   useEffect(() => {
-    if (phase === 'pending' && totalOperations === 0) {
-      setPhase('empty');
-      setExitCode(1);
-    } else if (phase === 'pending' && totalOperations > 0) {
-      setPhase('processing');
-    } else if (phase === 'processing' && completedOperations === totalOperations) {
-      setPhase('complete');
+    if (phase !== 'fetching') return;
+    if (!needsParentWorkspace) {
+      setPhase(totalCustomOps === 0 ? 'empty' : 'creating');
+      return;
     }
-  }, [phase, completedOperations, totalOperations]);
+    // Wait for at least one workspace query to succeed
+    if (defaultWorkspaceQuery.isSuccess || rootWorkspaceQuery.isSuccess) {
+      setPhase(totalCustomOps === 0 ? 'empty' : 'creating');
+    }
+  }, [phase, needsParentWorkspace, defaultWorkspaceQuery.isSuccess, rootWorkspaceQuery.isSuccess, totalCustomOps]);
 
-  // Handle empty payload exit
+  // Run all creation phases imperatively once we enter 'creating'
   useEffect(() => {
-    if (phase !== 'empty') return;
+    if (phase !== 'creating' || workStarted.current) return;
+    workStarted.current = true;
 
-    process.stderr.write('No operations to perform. Payload was empty.\n');
-    // Use setTimeout to allow React to finish rendering before exit
-    setTimeout(() => {
-      exit();
-    }, 100);
+    // Compute the default parent workspace ID for new workspaces
+    const defaultWorkspaceId = defaultWorkspaceQuery.data?.data?.[0]?.id ?? rootWorkspaceQuery.data?.data?.[0]?.id;
+
+    async function run() {
+      const mappings: Mappings = { roles: {}, groups: {}, workspaces: {} };
+      let roleCreated = 0,
+        roleFailed = 0,
+        groupCreated = 0,
+        groupFailed = 0,
+        wsCreated = 0,
+        wsFailed = 0,
+        bindingsCreated = 0,
+        bindingsFailed = 0;
+      const roleResults: Record<string, import('../types.js').OperationResult> = {};
+      const groupResults: Record<string, import('../types.js').OperationResult> = {};
+      const wsResults: Record<string, import('../types.js').OperationResult> = {};
+
+      // ======================================================================
+      // PHASE 1: DISCOVER system groups (V1 only, using raw API factory via
+      //          ServiceContext axios — accessed through a hook-provided ref)
+      // ======================================================================
+      appendLog(`\n${'━'.repeat(50)}`);
+      appendLog(`📦 PHASE 1: Creating ${totalCustomOps} resource(s) via ${isV2 ? 'V2' : 'V1'} API`);
+      appendLog(`${'━'.repeat(50)}`);
+
+      // -- Roles --
+      if (payloadRoles.length > 0) {
+        appendLog(`\n📦 Creating ${payloadRoles.length} role(s)...`);
+        for (const role of payloadRoles) {
+          try {
+            if (isV2) {
+              const result = await createRoleV2.mutateAsync({
+                name: role.name,
+                description: role.description ?? '',
+                permissions: (role.permissions ?? []).map(parsePermission),
+              });
+              const id = result.id!;
+              mappings.roles[role.name] = id;
+              roleResults[role.name] = { success: true, id, name: role.name };
+              appendLog(`  ✓ Created V2 role "${role.name}" → ${id}`);
+            } else {
+              const result = await createRoleV1.mutateAsync({
+                name: role.name,
+                display_name: role.display_name,
+                description: role.description,
+                access: (role.permissions ?? []).map((p) => ({ permission: p, resourceDefinitions: [] })),
+              });
+              const uuid = result.uuid!;
+              mappings.roles[role.display_name || role.name] = uuid;
+              roleResults[role.name] = { success: true, uuid, name: role.name };
+              appendLog(`  ✓ Created V1 role "${role.name}" → ${uuid}`);
+            }
+            roleCreated++;
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Unknown error';
+            roleResults[role.name] = { success: false, name: role.name, error: msg };
+            appendLog(`  ✗ Failed to create role "${role.name}": ${msg}`);
+            roleFailed++;
+          }
+        }
+      }
+
+      // -- Groups --
+      if (payloadGroups.length > 0) {
+        appendLog(`\n📦 Creating ${payloadGroups.length} group(s)...`);
+        for (const group of payloadGroups) {
+          try {
+            // V1: resolve role names → UUIDs for direct attachment; V2 uses role bindings
+            const resolvedRoleUuids =
+              !isV2 && group.roles_list ? group.roles_list.map((name) => mappings.roles[name]).filter((uuid): uuid is string => !!uuid) : undefined;
+
+            const result = await createGroup.mutateAsync({
+              name: group.name,
+              description: group.description,
+              user_list: personaUsers.length > 0 ? personaUsers : undefined,
+              roles_list: resolvedRoleUuids && resolvedRoleUuids.length > 0 ? resolvedRoleUuids : undefined,
+            });
+            const uuid = result.uuid!;
+            mappings.groups[group.name] = uuid;
+            groupResults[group.name] = { success: true, uuid, name: group.name };
+            appendLog(`  ✓ Created group "${group.name}" → ${uuid}`);
+            groupCreated++;
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Unknown error';
+            groupResults[group.name] = { success: false, name: group.name, error: msg };
+            appendLog(`  ✗ Failed to create group "${group.name}": ${msg}`);
+            groupFailed++;
+          }
+        }
+      }
+
+      // -- Workspaces --
+      if (payloadWorkspaces.length > 0) {
+        appendLog(`\n📦 Creating ${payloadWorkspaces.length} workspace(s)...`);
+        for (const workspace of payloadWorkspaces) {
+          try {
+            // Resolve parent_id: workspace name → UUID, or use default/root workspace
+            const resolvedParentId = workspace.parent_id ? (mappings.workspaces[workspace.parent_id] ?? workspace.parent_id) : defaultWorkspaceId;
+
+            const result = await createWorkspace.mutateAsync({
+              name: workspace.name,
+              description: workspace.description,
+              parent_id: resolvedParentId,
+            });
+            const id = result?.id!;
+            mappings.workspaces[workspace.name] = id;
+            wsResults[workspace.name] = { success: true, id, name: workspace.name };
+            appendLog(`  ✓ Created workspace "${workspace.name}" → ${id}`);
+            wsCreated++;
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Unknown error';
+            wsResults[workspace.name] = { success: false, name: workspace.name, error: msg };
+            appendLog(`  ✗ Failed to create workspace "${workspace.name}": ${msg}`);
+            wsFailed++;
+          }
+        }
+      }
+
+      // ======================================================================
+      // PHASE 2: BIND (V2 only)
+      // ======================================================================
+      if (isV2 && payloadBindings.length > 0) {
+        setPhase('binding');
+        appendLog(`\n${'━'.repeat(50)}`);
+        appendLog(`🔗 PHASE 2: Creating ${payloadBindings.length} role binding(s)`);
+        appendLog(`${'━'.repeat(50)}`);
+
+        // Group by (group, workspace) — one PUT per pair with all applicable roles
+        const bySubject = new Map<string, { groupId: string; workspaceId: string; roleIds: string[]; label: string }>();
+
+        for (const binding of payloadBindings) {
+          const groupId = mappings.groups[binding.group];
+          const roleId = mappings.roles[binding.role];
+          const workspaceId = mappings.workspaces[binding.workspace];
+
+          if (!groupId || !roleId || !workspaceId) {
+            appendLog(`  ⚠ Skipping binding ${binding.group} → ${binding.workspace}: missing UUID`);
+            bindingsFailed++;
+            continue;
+          }
+
+          const key = `${groupId}:${workspaceId}`;
+          const existing = bySubject.get(key);
+          if (existing) {
+            existing.roleIds.push(roleId);
+          } else {
+            bySubject.set(key, { groupId, workspaceId, roleIds: [roleId], label: `${binding.group} → ${binding.workspace}` });
+          }
+        }
+
+        for (const { groupId, workspaceId, roleIds, label } of bySubject.values()) {
+          try {
+            await updateGroupRoles.mutateAsync({
+              resourceId: workspaceId,
+              resourceType: 'workspace',
+              subjectId: groupId,
+              subjectType: 'group',
+              roleIds,
+            });
+            appendLog(`  ✓ Bound ${roleIds.length} role(s) for ${label}`);
+            bindingsCreated += roleIds.length;
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Unknown error';
+            appendLog(`  ✗ Failed to bind ${label}: ${msg}`);
+            bindingsFailed++;
+          }
+        }
+      }
+
+      // ======================================================================
+      // DONE: Build summary and write seed-map
+      // ======================================================================
+      const totalFailures = roleFailed + groupFailed + wsFailed + bindingsFailed;
+      const finalSummary: SeedSummary = {
+        success: totalFailures === 0,
+        roles: { created: roleCreated, failed: roleFailed, results: roleResults },
+        groups: { created: groupCreated, failed: groupFailed, results: groupResults },
+        workspaces: { created: wsCreated, failed: wsFailed, results: wsResults },
+        ...(isV2 && { role_bindings: { created: bindingsCreated, failed: bindingsFailed } }),
+        mappings,
+      };
+
+      // Write seed-map
+      const seedMap = { roles: mappings.roles, groups: mappings.groups, workspaces: mappings.workspaces };
+      if (outputPath) {
+        const { writeFile } = await import('fs/promises');
+        try {
+          await writeFile(outputPath, JSON.stringify(seedMap, null, 2), 'utf-8');
+          appendLog(`\n📄 Seed map written to: ${outputPath}`);
+        } catch (err) {
+          appendLog(`\n⚠ Failed to write seed map: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      } else {
+        process.stdout.write('\n' + JSON.stringify(seedMap, null, 2) + '\n');
+      }
+
+      setSummary(finalSummary);
+      onComplete(finalSummary);
+      process.exitCode = totalFailures > 0 ? 1 : 0;
+      setPhase('done');
+    }
+
+    run().catch((err) => {
+      appendLog(`\n❌ Unexpected error: ${err instanceof Error ? err.message : String(err)}`);
+      process.exitCode = 1;
+      setPhase('done');
+    });
+  }, [phase]); // intentional: run once on phase transition, mutation refs are stable
+
+  // Exit Ink once done or empty
+  useEffect(() => {
+    if (phase !== 'done' && phase !== 'empty') return;
+
+    if (phase === 'empty') {
+      process.stderr.write('No operations to perform. Payload was empty.\n');
+      process.exitCode = 1;
+    }
+
+    setTimeout(() => exit(), 100);
   }, [phase, exit]);
 
-  // Handle final exit after completion
-  useEffect(() => {
-    if (phase !== 'complete') return;
-
-    const roleFailures = Array.from(roleResults.values()).filter((r) => !r.success).length;
-    const groupFailures = Array.from(groupResults.values()).filter((r) => !r.success).length;
-    const workspaceFailures = Array.from(workspaceResults.values()).filter((r) => !r.success).length;
-    const totalFailures = roleFailures + groupFailures + workspaceFailures;
-
-    // Build summary
-    const summary: SeedSummary = {
-      success: totalFailures === 0,
-      roles: {
-        created: payloadRoles.length - roleFailures,
-        failed: roleFailures,
-        results: Object.fromEntries(roleResults.entries()),
-      },
-      groups: {
-        created: payloadGroups.length - groupFailures,
-        failed: groupFailures,
-        results: Object.fromEntries(groupResults.entries()),
-      },
-      workspaces: {
-        created: payloadWorkspaces.length - workspaceFailures,
-        failed: workspaceFailures,
-        results: Object.fromEntries(workspaceResults.entries()),
-      },
-    };
-
-    // Output JSON summary
-    process.stdout.write('\n' + JSON.stringify(summary, null, 2) + '\n');
-
-    // Call completion callback
-    onComplete(summary);
-
-    // Set exit code and let Ink handle exit gracefully
-    setExitCode(totalFailures > 0 ? 1 : 0);
-    setTimeout(() => {
-      exit();
-    }, 100);
-  }, [phase, roleResults, groupResults, workspaceResults, payloadRoles.length, payloadGroups.length, payloadWorkspaces.length, exit, onComplete]);
-
-  // Handle process exit after Ink exits
-  useEffect(() => {
-    if (exitCode === null) return;
-    // Set up cleanup on unmount to handle exit code
-    return () => {
-      process.exitCode = exitCode;
-    };
-  }, [exitCode]);
-
-  // Empty payload state
   if (phase === 'empty') {
     return <Text color="#F0AB00">⚠ No operations to perform</Text>;
   }
 
+  const phaseLabel =
+    phase === 'fetching'
+      ? 'Fetching workspace info...'
+      : phase === 'creating'
+        ? 'Creating resources...'
+        : phase === 'binding'
+          ? 'Creating role bindings...'
+          : 'Done';
+
   return (
     <Box flexDirection="column" padding={1}>
       <Text bold color="#00A4FF">
-        RBAC Seeder - Processing {totalOperations} operation(s)
+        RBAC Seeder ({apiVersion.toUpperCase()}) — {totalCustomOps} operation(s)
       </Text>
 
-      {/* Roles */}
-      {payloadRoles.length > 0 && (
-        <Box marginTop={1} flexDirection="column">
-          <Text bold>Roles ({payloadRoles.length})</Text>
-          {payloadRoles.map((role) => (
-            <RoleSeeder key={role.name} role={role} hookOptions={hookOptions} onComplete={(result) => handleRoleComplete(role.name, result)} />
-          ))}
-        </Box>
-      )}
-
-      {/* Groups */}
-      {payloadGroups.length > 0 && (
-        <Box marginTop={1} flexDirection="column">
-          <Text bold>Groups ({payloadGroups.length})</Text>
-          {payloadGroups.map((group) => (
-            <GroupSeeder key={group.name} group={group} hookOptions={hookOptions} onComplete={(result) => handleGroupComplete(group.name, result)} />
-          ))}
-        </Box>
-      )}
-
-      {/* Workspaces */}
-      {payloadWorkspaces.length > 0 && (
-        <Box marginTop={1} flexDirection="column">
-          <Text bold>Workspaces ({payloadWorkspaces.length})</Text>
-          {payloadWorkspaces.map((workspace) => (
-            <WorkspaceSeeder
-              key={workspace.name}
-              workspace={workspace}
-              hookOptions={hookOptions}
-              onComplete={(result) => handleWorkspaceComplete(workspace.name, result)}
-            />
-          ))}
-        </Box>
-      )}
-
-      {/* Progress */}
-      {phase === 'processing' && (
+      {phase !== 'done' && (
         <Box marginTop={1}>
-          <Text color="#6A6E73">
-            Progress: {completedOperations}/{totalOperations}
+          <Spinner />
+          <Text> {phaseLabel}</Text>
+        </Box>
+      )}
+
+      {log.slice(-8).map((line, i) => (
+        <Text key={i} color="#6A6E73" dimColor>
+          {line}
+        </Text>
+      ))}
+
+      {phase === 'done' && summary && (
+        <Box marginTop={1} flexDirection="column">
+          <Text bold>{'━'.repeat(40)}</Text>
+          <Text bold>📊 Summary:</Text>
+          <Text>
+            {' '}
+            Roles: {summary.roles.created} created, {summary.roles.failed} failed
           </Text>
+          <Text>
+            {' '}
+            Groups: {summary.groups.created} created, {summary.groups.failed} failed
+          </Text>
+          <Text>
+            {' '}
+            Workspaces: {summary.workspaces.created} created, {summary.workspaces.failed} failed
+          </Text>
+          {summary.role_bindings && (
+            <Text>
+              {' '}
+              Role bindings: {summary.role_bindings.created} created, {summary.role_bindings.failed} failed
+            </Text>
+          )}
+          {summary.success ? (
+            <Text color="#3E8635">✅ Seeding completed successfully!</Text>
+          ) : (
+            <Text color="#F0AB00">⚠ Seeding completed with errors</Text>
+          )}
         </Box>
       )}
     </Box>

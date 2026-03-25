@@ -70,7 +70,7 @@ test.describe('Workspace Detail', () => {
       });
     });
 
-    test('Parent workspace shows empty inherited tab [OrgAdmin]', async ({ page }) => {
+    test('Inherited tab shows inherited roles from parent workspaces [OrgAdmin]', async ({ page }) => {
       test.skip(!SEEDED_WORKSPACE_NAME, 'No seed data — run npm run e2e:seed:v2');
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
@@ -80,7 +80,7 @@ test.describe('Workspace Detail', () => {
 
       await workspacesPage.switchToInheritedTab();
 
-      await expect(page.getByText(/no user group found/i)).toBeVisible({
+      await expect(workspacesPage.parentRoleAssignmentsTable.getByRole('row')).not.toHaveCount(0, {
         timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
     });
@@ -102,6 +102,10 @@ test.describe('Workspace Detail', () => {
     });
   });
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WORKSPACEUSER (WorkspaceViewer) - Read-only workspace detail
+  // ═══════════════════════════════════════════════════════════════════════════
+
   test.describe('WorkspaceUser', () => {
     test.use({ storageState: AUTH_V2_WORKSPACEUSER });
 
@@ -116,6 +120,26 @@ test.describe('Workspace Detail', () => {
       if (SEEDED_WORKSPACE_DATA?.description) {
         await expect(page.getByText(SEEDED_WORKSPACE_DATA.description)).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
       }
+    });
+
+    test('Actions menu is not visible on workspace detail [WorkspaceUser]', async ({ page }) => {
+      test.skip(!SEEDED_WORKSPACE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(SEEDED_WORKSPACE_NAME!);
+      await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME!);
+      await expect(page.getByRole('button', { name: /actions/i })).not.toBeVisible();
+    });
+
+    test('Grant access button is not visible on workspace detail [WorkspaceUser]', async ({ page }) => {
+      test.skip(!SEEDED_WORKSPACE_NAME, 'No seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.searchFor(SEEDED_WORKSPACE_NAME!);
+      await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME!);
+      await expect(workspacesPage.grantAccessButton).not.toBeVisible();
     });
   });
 });

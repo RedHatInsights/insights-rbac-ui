@@ -38,6 +38,75 @@ test.describe('Audit Log', () => {
         timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD,
       });
     });
+
+    test('Audit log table shows expected column headers [OrgAdmin]', async ({ page }) => {
+      await setupPage(page);
+      await page.goto(iamUrl(v2.accessManagementAuditLog.link()));
+      await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      for (const header of ['Date', 'Requester', 'Action', 'Resource', 'Description']) {
+        await expect(page.getByRole('columnheader', { name: header })).toBeVisible();
+      }
+    });
+
+    test('Requester text filter accepts input [OrgAdmin]', async ({ page }) => {
+      await setupPage(page);
+      await page.goto(iamUrl(v2.accessManagementAuditLog.link()));
+      await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      await page.getByPlaceholder(/filter by requester/i).fill('zzz-no-match');
+      // Wait for the filter to apply (table updates or shows empty state)
+      await page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
+      // Input accepted the value
+      await expect(page.getByPlaceholder(/filter by requester/i)).toHaveValue('zzz-no-match');
+    });
+
+    test('Resource checkbox filter shows options [OrgAdmin]', async ({ page }) => {
+      await setupPage(page);
+      await page.goto(iamUrl(v2.accessManagementAuditLog.link()));
+      await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      await page.getByRole('button', { name: /Resource/i }).click();
+      await expect(page.getByRole('option', { name: /group/i }).or(page.getByText(/group/i)).first()).toBeVisible({
+        timeout: E2E_TIMEOUTS.MENU_ANIMATION,
+      });
+      await expect(
+        page
+          .getByRole('option', { name: /role/i })
+          .or(page.getByText(/^role$/i))
+          .first(),
+      ).toBeVisible();
+    });
+
+    test('Action checkbox filter shows options [OrgAdmin]', async ({ page }) => {
+      await setupPage(page);
+      await page.goto(iamUrl(v2.accessManagementAuditLog.link()));
+      await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      await page.getByRole('button', { name: /Action/i }).click();
+      await expect(
+        page
+          .getByRole('option', { name: /create/i })
+          .or(page.getByText(/^create$/i))
+          .first(),
+      ).toBeVisible({
+        timeout: E2E_TIMEOUTS.MENU_ANIMATION,
+      });
+      await expect(
+        page
+          .getByRole('option', { name: /delete/i })
+          .or(page.getByText(/^delete$/i))
+          .first(),
+      ).toBeVisible();
+    });
+
+    test('Pagination controls are present [OrgAdmin]', async ({ page }) => {
+      await setupPage(page);
+      await page.goto(iamUrl(v2.accessManagementAuditLog.link()));
+      await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+      await expect(page.getByRole('navigation', { name: /pagination/i })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    });
   });
 
   test.describe('UserViewer', () => {

@@ -11,6 +11,7 @@
  */
 
 import * as rolesQueries from '../v1/data/queries/roles.js';
+import * as rolesV2Queries from '../v2/data/queries/roles.js';
 import * as groupsQueries from '../shared/data/queries/groups.js';
 import * as workspacesQueries from '../v2/data/queries/workspaces.js';
 import * as usersQueries from '../shared/data/queries/users.js';
@@ -29,6 +30,7 @@ function unwrapModule<T>(mod: T | { default: T }): T {
 
 // Normalize all modules
 const rolesModule = unwrapModule(rolesQueries);
+const rolesV2Module = unwrapModule(rolesV2Queries);
 const groupsModule = unwrapModule(groupsQueries);
 const workspacesModule = unwrapModule(workspacesQueries);
 const usersModule = unwrapModule(usersQueries);
@@ -38,7 +40,7 @@ const groupsApiModule = unwrapModule(groupsApi);
 const workspacesApiModule = unwrapModule(workspacesApi);
 
 // ============================================================================
-// Roles Exports
+// Roles Exports (V1)
 // ============================================================================
 
 export const {
@@ -51,6 +53,17 @@ export const {
   usePatchRoleMutation,
   rolesKeys,
 } = rolesModule;
+
+// ============================================================================
+// Roles Exports (V2)
+// ============================================================================
+
+export const useRolesV2Query = rolesV2Module.useRolesV2Query;
+export const useAllRolesV2Query = rolesV2Module.useAllRolesV2Query;
+// Alias to disambiguate from V1 useCreateRoleMutation
+export const useCreateRoleV2Mutation = rolesV2Module.useCreateRoleMutation;
+export const useBatchDeleteRolesV2Mutation = rolesV2Module.useBatchDeleteRolesV2Mutation;
+export const rolesV2Keys = rolesV2Module.rolesV2Keys;
 
 // Re-export types (QueryOptions/MutationOptions from shared - not re-exported by roles)
 export type { QueryOptions as RolesQueryOptions, MutationOptions as RolesMutationOptions } from '../shared/data/types.js';
@@ -132,6 +145,7 @@ export const {
   useUpdateWorkspaceMutation,
   useDeleteWorkspaceMutation,
   useMoveWorkspaceMutation,
+  useUpdateGroupRolesMutation,
   isWorkspace,
   workspacesKeys,
   roleBindingsKeys,

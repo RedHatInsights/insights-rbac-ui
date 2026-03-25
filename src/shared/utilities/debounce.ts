@@ -10,20 +10,29 @@ import type { DebounceSettings } from 'lodash';
 export const DEFAULT_DEBOUNCE_DELAY = 250;
 
 /**
- * Debounces an async function with race condition prevention
+ * Debounces an async function using awesome-debounce-promise.
+ *
+ * Pass `onlyResolvesLast: true` for race-safe debouncing (only the last call's
+ * promise resolves; earlier ones are rejected). Use `onlyResolvesLast: false`
+ * when you need every call's promise to resolve with the same result — e.g.
+ * form validators where the framework tracks individual validation promises.
  *
  * @param fn - The async function to debounce
  * @param wait - Delay in milliseconds
- * @param options - Must include onlyResolvesLast: true for race-safe debouncing
+ * @param options - Must include onlyResolvesLast (true or false)
  * @returns Debounced version of the function with cancel() method
  *
  * @example
+ * // Race-safe: only the final search resolves
  * const safeFetch = debounce(fetchId, 300, { onlyResolvesLast: true });
+ *
+ * // Form validator: all promises resolve (framework tracks each one)
+ * const validator = debounce(checkName, 250, { onlyResolvesLast: false });
  */
 export function debounce<TArgs extends unknown[], TReturn>(
   fn: (...args: TArgs) => Promise<TReturn>,
   wait: number,
-  options: AwesomeDebounceOptions & { onlyResolvesLast: true },
+  options: Partial<AwesomeDebounceOptions> & { onlyResolvesLast: boolean },
 ): ((...args: TArgs) => Promise<TReturn>) & { cancel(): void };
 
 /**
@@ -35,11 +44,6 @@ export function debounce<TArgs extends unknown[], TReturn>(
  * @returns Debounced version of the function with cancel() and flush() methods
  *
  * @example
- * // Async functions
- * const debouncedSearch = debounce(
- *   async (query: string) => fetchResults(query)
- * );
- *
  * // React Query refetch
  * const debouncedFetch = debounce(fetchData);
  *
@@ -56,30 +60,10 @@ export function debounce<TArgs extends unknown[], TReturn>(
 export function debounce<TArgs extends unknown[], TReturn>(
   fn: (...args: TArgs) => TReturn,
   wait = DEFAULT_DEBOUNCE_DELAY,
-  options: (AwesomeDebounceOptions & { onlyResolvesLast: true }) | DebounceSettings = {},
+  options: (Partial<AwesomeDebounceOptions> & { onlyResolvesLast: boolean }) | DebounceSettings = {},
 ) {
-  if ('onlyResolvesLast' in options && options.onlyResolvesLast === true) {
-    return awesomeDebouncePromise(fn, wait, options);
+  if ('onlyResolvesLast' in options) {
+    return awesomeDebouncePromise(fn, wait, options as Partial<AwesomeDebounceOptions>);
   }
   return lodashDebounce(fn, wait, options as DebounceSettings);
-}
-
-/**
- * Legacy debounceAsync function - wraps awesome-debounce-promise for backwards compatibility
- *
- * @param asyncFunction - The async function to debounce
- * @param debounceTime - Delay in milliseconds (default: 250ms)
- * @param options - Awesome debounce options
- * @returns Debounced version of the function
- *
- * @deprecated Use debounce() with { onlyResolvesLast: true } when you need race-safe debouncing
- */
-export function debounceAsync<TArgs extends unknown[], TReturn>(
-  asyncFunction: (...args: TArgs) => Promise<TReturn>,
-  debounceTime = DEFAULT_DEBOUNCE_DELAY,
-  options: Partial<AwesomeDebounceOptions> = { onlyResolvesLast: false },
-): ((...args: TArgs) => Promise<TReturn>) & { cancel(): void } {
-  return awesomeDebouncePromise(asyncFunction, debounceTime, options) as ((...args: TArgs) => Promise<TReturn>) & {
-    cancel(): void;
-  };
 }

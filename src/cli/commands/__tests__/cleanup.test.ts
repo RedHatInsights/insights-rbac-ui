@@ -408,19 +408,24 @@ describe('cleanup command', () => {
       expect(mockWorkspacesApi.listWorkspaces).not.toHaveBeenCalled();
     });
 
-    test('apiVersion=v2 fetches only V2 roles and skips V1 API entirely', async () => {
+    test('apiVersion=v2 fetches from both V1 and V2 to catch stale V1-created roles', async () => {
+      mockRolesApi.listRoles.mockResolvedValue({
+        data: { data: [{ uuid: 'v1-stale', name: 'ci-123-v1-stale' }] },
+      });
       mockRolesV2Api.rolesList.mockResolvedValue({
         data: { data: [{ id: 'v2-role', name: 'ci-123-role' }] },
       });
 
       await runCleanup({ prefix: 'ci-123-', apiVersion: 'v2' });
 
+      expect(mockRolesApi.listRoles).toHaveBeenCalled();
       expect(mockRolesV2Api.rolesList).toHaveBeenCalled();
-      expect(mockRolesApi.listRoles).not.toHaveBeenCalled();
+      // V1 stale role deleted via V1 API
+      expect(mockRolesApi.deleteRole).toHaveBeenCalledWith({ uuid: 'v1-stale' });
+      // V2-exclusive role deleted via V2 batch delete
       expect(mockRolesV2Api.rolesBatchDelete).toHaveBeenCalledWith({
         rolesBatchDeleteRolesRequest: { ids: ['v2-role'] },
       });
-      expect(mockRolesApi.deleteRole).not.toHaveBeenCalled();
     });
 
     test('apiVersion=v2 scans workspaces normally', async () => {

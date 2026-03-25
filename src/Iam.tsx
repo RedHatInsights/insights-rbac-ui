@@ -38,7 +38,7 @@ const SharedProviders: React.FC<IamProps & { children: React.ReactNode }> = ({ t
     getToken,
     environment,
     ssoUrl,
-    identity,
+    identity: identity ? { org_id: identity.org_id, account_id: identity.internal?.account_id } : undefined,
     isITLess,
   });
 

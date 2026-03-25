@@ -168,10 +168,17 @@ export class WorkspacesPage {
     });
   }
 
-  async fillEditForm(newDescription: string): Promise<void> {
+  async fillEditForm(newDescription: string, newName?: string): Promise<void> {
     // Wait for the edit modal to fully render (workspace data + permissions loading)
     const nameInput = this.page.getByRole('textbox', { name: /name/i });
     await expect(nameInput).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+
+    if (newName) {
+      await nameInput.click();
+      await nameInput.selectText();
+      await this.page.keyboard.press('Backspace');
+      await nameInput.fill(newName);
+    }
 
     // Wait for description field to render — the modal loads async
     const descInput = this.page.getByRole('textbox', { name: /description/i });
@@ -185,6 +192,22 @@ export class WorkspacesPage {
     const saveButton = this.page.getByRole('button', { name: /save/i });
     await expect(saveButton).toBeEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE });
     await saveButton.click();
+  }
+
+  async openEditAccessModal(groupName: string): Promise<void> {
+    const row = this.currentRoleAssignmentsTable.getByRole('row').filter({ hasText: groupName });
+    await row.getByRole('button', { name: /actions|kebab/i }).click();
+    await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
+    await this.page.getByRole('menuitem', { name: /edit access/i }).click();
+    await expect(this.page.getByRole('dialog').getByRole('heading', { name: /edit access/i })).toBeVisible({
+      timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
+    });
+  }
+
+  async closeEditAccessModal(): Promise<void> {
+    const dialog = this.page.getByRole('dialog');
+    await dialog.getByRole('button', { name: /cancel/i }).click();
+    await expect(dialog).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
   }
 
   async confirmDelete(): Promise<void> {
@@ -382,11 +405,7 @@ export class WorkspacesPage {
    */
   async openRowKebab(workspaceName: string): Promise<void> {
     await this.expandTreeNodes();
-    const row = this.page
-      .getByRole('treegrid')
-      .getByRole('row')
-      .filter({ hasText: workspaceName })
-      .first();
+    const row = this.page.getByRole('treegrid').getByRole('row').filter({ hasText: workspaceName }).first();
     await expect(row).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     const kebab = row.getByRole('button', { name: /actions|kebab toggle/i });
     await kebab.click();

@@ -302,6 +302,37 @@ export class UserGroupsPage {
     return this.getUserRowCheckbox(username).isChecked();
   }
 
+  /**
+   * Get the checkbox for a specific service account row in the edit page SA table.
+   */
+  getSARowCheckbox(clientId: string): Locator {
+    return this.editPageServiceAccountsTable.getByRole('row').filter({ hasText: clientId }).getByRole('checkbox');
+  }
+
+  async selectSAInEditPage(clientId: string): Promise<void> {
+    await expect(this.editPageServiceAccountsTable.getByRole('row').filter({ hasText: clientId })).toBeVisible({
+      timeout: E2E_TIMEOUTS.TABLE_DATA,
+    });
+    const checkbox = this.getSARowCheckbox(clientId);
+    if (!(await checkbox.isChecked())) {
+      await checkbox.click();
+    }
+  }
+
+  async deselectSAInEditPage(clientId: string): Promise<void> {
+    await expect(this.editPageServiceAccountsTable.getByRole('row').filter({ hasText: clientId })).toBeVisible({
+      timeout: E2E_TIMEOUTS.TABLE_DATA,
+    });
+    const checkbox = this.getSARowCheckbox(clientId);
+    if (await checkbox.isChecked()) {
+      await checkbox.click();
+    }
+  }
+
+  async isSASelectedInEditPage(clientId: string): Promise<boolean> {
+    return this.getSARowCheckbox(clientId).isChecked();
+  }
+
   async submitEditForm(): Promise<void> {
     await this.editPageSubmitButton.click();
     await expect(this.page).toHaveURL(/\/user-groups(\?|$)/, { timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });
