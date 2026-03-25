@@ -100,7 +100,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
         ) : (
           <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
         ),
-      userCount: (row) => row.userCount,
+      userCount: (row) => (row.isDefaultGroup ? intl.formatMessage(messages.allUsers) : row.userCount),
       roleCount: (row) => row.roleCount,
       lastModified: (row) => (row.lastModified ? formatDistanceToNow(new Date(row.lastModified), { addSuffix: true }) : ''),
     }),

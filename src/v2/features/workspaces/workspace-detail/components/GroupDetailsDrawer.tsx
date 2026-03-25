@@ -276,7 +276,16 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
       );
     }
 
-    // Show empty state when no users
+    if (group?.isDefaultGroup) {
+      return (
+        <div className="pf-v6-u-pt-md">
+          <EmptyState variant="sm" headingLevel="h4" icon={UsersIcon} titleText={intl.formatMessage(messages.allUsers)}>
+            <EmptyStateBody>{intl.formatMessage(messages.allUsersAreMembers)}</EmptyStateBody>
+          </EmptyState>
+        </div>
+      );
+    }
+
     if (members.length === 0) {
       return (
         <div className="pf-v6-u-pt-md">

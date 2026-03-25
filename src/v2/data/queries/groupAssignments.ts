@@ -34,6 +34,8 @@ export interface WorkspaceGroupRow {
   name: string;
   description: string;
   userCount: number;
+  /** True for platform-default or admin-default groups (all org users) */
+  isDefaultGroup: boolean;
   roleCount: number;
   roles: WorkspaceGroupRole[];
   lastModified: string;
@@ -50,6 +52,16 @@ export interface InheritedWorkspaceGroupRow extends WorkspaceGroupRow {
 // Private transformer (rbac-client type IN → UI model OUT)
 // =============================================================================
 
+/** Well-known default group names used as fallback detection */
+const DEFAULT_GROUP_NAMES = new Set(['default access', 'default admin access']);
+
+function isDefaultGroupSubject(subject?: WorkspaceGroupBinding['subject']): boolean {
+  const group = subject?.group as Record<string, unknown> | undefined;
+  if (group?.platform_default || group?.admin_default) return true;
+  const name = (group?.name as string) ?? '';
+  return DEFAULT_GROUP_NAMES.has(name.toLowerCase());
+}
+
 function toWorkspaceGroupRow(binding: WorkspaceGroupBinding): WorkspaceGroupRow {
   const { subject } = binding;
   const roles: WorkspaceGroupRole[] = (binding.roles ?? []).map((r) => ({ id: r.id ?? '', name: r.name ?? '' }));
@@ -58,6 +70,7 @@ function toWorkspaceGroupRow(binding: WorkspaceGroupBinding): WorkspaceGroupRow 
     name: subject?.group?.name ?? '',
     description: subject?.group?.description ?? '',
     userCount: subject?.group?.user_count ?? 0,
+    isDefaultGroup: isDefaultGroupSubject(subject),
     roleCount: roles.length,
     roles,
     lastModified: binding.last_modified ?? '',
@@ -135,7 +148,7 @@ export function useOrgGroups(organizationId: string, options?: { enabled?: boole
     {
       resourceId: `redhat/${organizationId}`,
       resourceType: 'tenant',
-      fields: 'subject(id,group.name,group.user_count,group.description),roles(id,name),last_modified',
+      fields: 'subject(id,group.name,group.user_count,group.description,group.platform_default,group.admin_default),roles(id,name),last_modified',
       limit: ROLE_BINDINGS_LIMIT,
     },
     { enabled: options?.enabled ?? true },

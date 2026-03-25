@@ -141,7 +141,8 @@ export function useRoleAssignmentsQuery(
   return useQuery({
     queryKey: [...rolesV2Keys.all, 'workspace-role-bindings', workspaceId, options?.limit, options?.cursor, options?.excludeSources],
     queryFn: async (): Promise<RoleBindingsListBySubject200Response> => {
-      const fields = 'last_modified,subject(id,group.name,group.description,group.user_count),roles(id,name),resource(id,name,type)';
+      const fields =
+        'last_modified,subject(id,group.name,group.description,group.user_count,group.platform_default,group.admin_default),roles(id,name),resource(id,name,type)';
 
       const response = await rolesV2Api.roleBindingsListBySubject({
         resourceId: workspaceId,

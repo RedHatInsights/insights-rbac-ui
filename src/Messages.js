@@ -1731,6 +1731,11 @@ export default defineMessages({
     description: 'All org. admins are members of this group message',
     defaultMessage: 'All organization administrators in this organization are members of this group.',
   },
+  allUsers: {
+    id: 'allUsers',
+    description: 'All users label for default groups',
+    defaultMessage: 'All users',
+  },
   allUsersAreMembers: {
     id: 'allUsersAreMembers',
     description: 'All users are members of this group message',
