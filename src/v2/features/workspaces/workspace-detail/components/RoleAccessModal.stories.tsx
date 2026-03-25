@@ -337,6 +337,48 @@ export const TabSwitchWithPagination: Story = {
 };
 
 /**
+ * Verify Update is disabled when all roles are deselected.
+ */
+export const UpdateDisabledWhenEmpty: Story = {
+  render: (args) => <ModalWrapper initialOpen {...args} />,
+  args: {
+    allRoles: mockRoles,
+    assignedRoleIds: mockAssignedRoleIds,
+    group: mockGroup,
+    workspaceName: 'Development Workspace',
+    onClose: fn(),
+    onUpdate: fn(),
+  },
+  parameters: {
+    docs: { description: { story: 'Update button should be disabled when all roles are deselected.' } },
+  },
+  play: async ({ step }) => {
+    await step('Deselect all and verify Update is disabled', async () => {
+      const body = within(document.body);
+      const dialog = await body.findByRole('dialog', {}, { timeout: 5000 });
+      const modalScope = within(dialog);
+      const table = await modalScope.findByRole('grid', { name: /roles selection table/i });
+      const tableScope = within(table);
+
+      await waitFor(
+        () => {
+          expect(tableScope.queryByText('Workspace Administrator')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+
+      const checkboxes = table.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked');
+      for (const cb of checkboxes) {
+        await userEvent.click(cb);
+      }
+
+      const updateButton = await modalScope.findByRole('button', { name: /update/i });
+      await expect(updateButton).toBeDisabled();
+    });
+  },
+};
+
+/**
  * Edit access journey: open modal, change selection, save, verify callback.
  *
  * **Journey:**

@@ -377,7 +377,7 @@ export const RoleAccessModalContent: React.FC<RoleAccessModalContentProps> = ({
       </Stack>
       <ModalFooter>
         <ActionGroup>
-          <Button variant="primary" onClick={handleUpdate} isDisabled={!hasChanges} isLoading={isUpdating}>
+          <Button variant="primary" onClick={handleUpdate} isDisabled={!hasChanges || selectedCount === 0} isLoading={isUpdating}>
             {intl.formatMessage(messages.update)}
           </Button>
           <Button variant="link" onClick={onClose}>
