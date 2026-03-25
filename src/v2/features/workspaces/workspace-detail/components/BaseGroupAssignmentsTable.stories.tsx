@@ -541,8 +541,7 @@ export const FilterByGroupName: Story = {
     const user = userEvent.setup();
 
     await step('Type partial name and verify rows narrow', async () => {
-      const filterInput = await canvas.findByPlaceholderText(/filter by user group/i);
-      await clearAndType(user, filterInput, 'Platform');
+      await clearAndType(user, () => canvas.getByPlaceholderText(/filter by user group/i) as HTMLInputElement, 'Platform');
       await expect(canvas.findByText(GROUP_PLATFORM.name)).resolves.toBeInTheDocument();
       await waitFor(() => {
         expect(canvas.queryByText(GROUP_DEV.name)).not.toBeInTheDocument();
@@ -559,8 +558,7 @@ export const FilterByGroupName: Story = {
     });
 
     await step('Filter is case-insensitive', async () => {
-      const filterInput = await canvas.findByPlaceholderText(/filter by user group/i);
-      await clearAndType(user, filterInput, 'qa');
+      await clearAndType(user, () => canvas.getByPlaceholderText(/filter by user group/i) as HTMLInputElement, 'qa');
       await expect(canvas.findByText(GROUP_QA.name)).resolves.toBeInTheDocument();
       await waitFor(() => {
         expect(canvas.queryByText(GROUP_PLATFORM.name)).not.toBeInTheDocument();
@@ -568,8 +566,7 @@ export const FilterByGroupName: Story = {
     });
 
     await step('No-match shows empty state', async () => {
-      const filterInput = await canvas.findByPlaceholderText(/filter by user group/i);
-      await clearAndType(user, filterInput, 'zzz-nonexistent');
+      await clearAndType(user, () => canvas.getByPlaceholderText(/filter by user group/i) as HTMLInputElement, 'zzz-nonexistent');
       await expect(canvas.findByText('No results found')).resolves.toBeInTheDocument();
     });
   },
