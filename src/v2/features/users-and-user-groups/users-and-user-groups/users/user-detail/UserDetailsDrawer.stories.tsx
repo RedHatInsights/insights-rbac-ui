@@ -9,6 +9,8 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { UserDetailsDrawer } from './UserDetailsDrawer';
 import { groupsHandlers } from '../../../../../../shared/data/mocks/groups.handlers';
 import { v2RolesHandlers } from '../../../../../../v2/data/mocks/roles.handlers';
+import { roleBindingsHandlers } from '../../../../../../v2/data/mocks/roleBindings.handlers';
+import type { MockRoleBinding } from '../../../../../../v2/data/mocks/roleBindings.fixtures';
 import type { User } from '../../../../../../shared/data/queries/users';
 
 // Mock user data for testing
@@ -21,6 +23,47 @@ const mockUser: User = {
   is_org_admin: false,
   external_source_id: 123,
 };
+
+const userBindings: MockRoleBinding[] = [
+  {
+    id: 'binding-u-1',
+    role_id: 'role-1',
+    role_name: 'Red Hat Insights Viewer',
+    subject_type: 'user',
+    subject_id: mockUser.username,
+    resource_id: 'ws-1',
+    resource_type: 'workspace',
+    created: '2024-01-01T00:00:00Z',
+  },
+];
+
+const drawerMswHandlers = [
+  ...groupsHandlers([
+    {
+      uuid: '1',
+      name: 'Administrators',
+      description: 'System administrators',
+      principalCount: 5,
+      roleCount: 3,
+      created: '2023-01-01T00:00:00Z',
+      modified: '2023-06-15T10:30:00Z',
+      platform_default: false,
+      admin_default: false,
+      system: false,
+    },
+  ]),
+  ...v2RolesHandlers([
+    {
+      id: '1',
+      name: 'Red Hat Insights Viewer',
+      description: 'Read-only access to Red Hat Insights',
+      permissions: [],
+      permissions_count: 5,
+      last_modified: '2023-06-15T10:30:00Z',
+    },
+  ]),
+  ...roleBindingsHandlers(userBindings),
+];
 
 // Component to simulate DataView table row clicks for testing
 const TestDataViewTable: React.FC<{ onUserSelect: (user: User) => void }> = ({ onUserSelect }) => {
@@ -107,32 +150,7 @@ export const Default: Story = {
   },
   parameters: {
     msw: {
-      handlers: [
-        ...groupsHandlers([
-          {
-            uuid: '1',
-            name: 'Administrators',
-            description: 'System administrators',
-            principalCount: 5,
-            roleCount: 3,
-            created: '2023-01-01T00:00:00Z',
-            modified: '2023-06-15T10:30:00Z',
-            platform_default: false,
-            admin_default: false,
-            system: false,
-          },
-        ]),
-        ...v2RolesHandlers([
-          {
-            id: '1',
-            name: 'Red Hat Insights Viewer',
-            description: 'Read-only access to Red Hat Insights',
-            permissions: [],
-            permissions_count: 5,
-            last_modified: '2023-06-15T10:30:00Z',
-          },
-        ]),
-      ],
+      handlers: drawerMswHandlers,
     },
     docs: {
       description: {
@@ -200,32 +218,7 @@ export const WithSelectedUser: Story = {
   },
   parameters: {
     msw: {
-      handlers: [
-        ...groupsHandlers([
-          {
-            uuid: '1',
-            name: 'Administrators',
-            description: 'System administrators',
-            principalCount: 5,
-            roleCount: 3,
-            created: '2023-01-01T00:00:00Z',
-            modified: '2023-06-15T10:30:00Z',
-            platform_default: false,
-            admin_default: false,
-            system: false,
-          },
-        ]),
-        ...v2RolesHandlers([
-          {
-            id: '1',
-            name: 'Red Hat Insights Viewer',
-            description: 'Read-only access to Red Hat Insights',
-            permissions: [],
-            permissions_count: 5,
-            last_modified: '2023-06-15T10:30:00Z',
-          },
-        ]),
-      ],
+      handlers: drawerMswHandlers,
     },
     docs: {
       description: {
@@ -279,32 +272,7 @@ export const DataViewIntegration: Story = {
   },
   parameters: {
     msw: {
-      handlers: [
-        ...groupsHandlers([
-          {
-            uuid: '1',
-            name: 'Administrators',
-            description: 'System administrators',
-            principalCount: 5,
-            roleCount: 3,
-            created: '2023-01-01T00:00:00Z',
-            modified: '2023-06-15T10:30:00Z',
-            platform_default: false,
-            admin_default: false,
-            system: false,
-          },
-        ]),
-        ...v2RolesHandlers([
-          {
-            id: '1',
-            name: 'Red Hat Insights Viewer',
-            description: 'Read-only access to Red Hat Insights',
-            permissions: [],
-            permissions_count: 5,
-            last_modified: '2023-06-15T10:30:00Z',
-          },
-        ]),
-      ],
+      handlers: drawerMswHandlers,
     },
     docs: {
       description: {

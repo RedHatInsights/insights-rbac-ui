@@ -98,11 +98,12 @@ export const Default: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify roles displayed', async () => {
-      await expect(canvas.findByText('Organization Administrator')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText('User Access Administrator')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText('Insights Viewer')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText('Custom Development Role')).resolves.toBeInTheDocument();
+    await step('Verify role binding data renders', async () => {
+      await expect(canvas.findByText(MOCK_USER_BINDINGS[0].role_name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(MOCK_USER_BINDINGS[1].role_name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(MOCK_USER_BINDINGS[2].role_name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(MOCK_USER_BINDINGS[3].role_name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(MOCK_USER_BINDINGS[0].resource_id)).resolves.toBeInTheDocument();
     });
   },
 };
