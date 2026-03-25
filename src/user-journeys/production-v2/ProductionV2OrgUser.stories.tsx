@@ -84,7 +84,7 @@ export const ManualTesting: Story = {
         story: `
 Entry point for manual testing of the V2 Org User persona.
 
-**Expected:** Only "My Access" in sidebar - NO "Access Management" section.
+**Expected:** "My Access" and "Access Management > Workspaces" in sidebar. Other items require permissions.
         `,
       },
     },
@@ -107,24 +107,25 @@ Entry point for manual testing of the V2 Org User persona.
 };
 
 /**
- * Sidebar validation - verify Access Management is NOT visible
+ * Sidebar validation - verify limited visibility for user with no RBAC permissions
  */
 export const SidebarValidation: Story = {
-  name: 'Only My Access visible',
+  name: 'My Access and Workspaces visible',
   args: {
-    initialRoute: '/iam/access-management/users-and-user-groups',
+    initialRoute: '/iam/access-management/workspaces',
   },
   parameters: {
     docs: {
       description: {
         story: `
-Validates that V2 Org User (no permissions) only sees "My Access" in the sidebar.
+Validates that V2 Org User (no permissions) sees "My Access" and "Workspaces" in the sidebar,
+but not permission-gated items like "Users and Groups" or "Roles".
 
 **Checks:**
 - ✅ "My Access" link IS present (V2 label)
-- ❌ "Access Management" expandable section is NOT present
+- ✅ "Access Management" expandable section IS present
+- ✅ "Workspaces" link IS present (no permission check)
 - ❌ "Users and Groups" link is NOT present
-- ❌ "Workspaces" link is NOT present
 - ❌ "Roles" link is NOT present
         `,
       },
@@ -141,20 +142,20 @@ Validates that V2 Org User (no permissions) only sees "My Access" in the sidebar
       await waitForContentReady(canvasElement);
     });
 
-    await step('Verify only My Access visible in sidebar', async () => {
+    await step('Verify sidebar items', async () => {
       const myAccess = await canvas.findByRole('link', { name: /my access/i });
       expect(myAccess).toBeInTheDocument();
 
-      const accessMgmtSection = canvas.queryByRole('button', { name: /access management/i });
-      expect(accessMgmtSection).not.toBeInTheDocument();
+      const accessMgmtSection = await canvas.findByRole('button', { name: /access management/i });
+      expect(accessMgmtSection).toBeInTheDocument();
+
+      const workspacesLink = await canvas.findByRole('link', { name: /^workspaces$/i });
+      expect(workspacesLink).toBeInTheDocument();
 
       const usersLink = canvas.queryByRole('link', { name: /users and groups/i });
       expect(usersLink).not.toBeInTheDocument();
 
-      const workspacesLink = canvas.queryByRole('link', { name: /workspaces/i });
-      expect(workspacesLink).not.toBeInTheDocument();
-
-      const rolesLink = canvas.queryByRole('link', { name: /roles/i });
+      const rolesLink = canvas.queryByRole('link', { name: /^roles$/i });
       expect(rolesLink).not.toBeInTheDocument();
     });
   },
@@ -196,10 +197,10 @@ Tests that direct navigation to Users and Groups shows unauthorized.
 };
 
 /**
- * Direct navigation to Workspaces - should show unauthorized
+ * Direct navigation to Workspaces - should render workspace list (no permission check)
  */
-export const WorkspacesUnauthorized: Story = {
-  name: 'Direct URL - Unauthorized (Workspaces)',
+export const WorkspacesAccessible: Story = {
+  name: 'Direct URL - Workspaces accessible',
   args: {
     initialRoute: '/iam/access-management/workspaces',
   },
@@ -207,7 +208,8 @@ export const WorkspacesUnauthorized: Story = {
     docs: {
       description: {
         story: `
-Tests that direct navigation to Workspaces shows unauthorized.
+Tests that direct navigation to Workspaces renders the workspace list
+for users without RBAC permissions (rbac_workspace_view check is disabled).
         `,
       },
     },
@@ -223,9 +225,9 @@ Tests that direct navigation to Workspaces shows unauthorized.
       await waitForContentReady(canvasElement);
     });
 
-    await step('Verify unauthorized message shown', async () => {
-      const unauthorized = await canvas.findByText(/unauthorized|access denied|not authorized|you do not have access/i);
-      expect(unauthorized).toBeInTheDocument();
+    await step('Verify workspace list renders', async () => {
+      const heading = await canvas.findByRole('heading', { name: /workspaces/i });
+      expect(heading).toBeInTheDocument();
     });
   },
 };

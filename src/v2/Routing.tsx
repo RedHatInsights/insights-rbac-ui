@@ -106,27 +106,22 @@ export const V2Routing = () => {
           <Route path={`${pathnames['access-management-roles'].link()}/${pathnames['access-management-edit-role'].path}`} element={<EditRole />} />
         </Route>
 
-        {/* Workspaces — require workspace view */}
-        <Route {...v2Guard([workspaces.canView])}>
-          <Route path={pathnames['workspace-detail'].path} element={<WorkspaceDetail />}>
-            <Route {...v2Guard([workspaces.canUpdate])}>
-              <Route path={pathnames['edit-workspace'].path} element={outletElement(EditWorkspaceModal, pathnames['edit-workspace'].path)} />
-              <Route
-                path={pathnames['workspace-role-access'].path}
-                element={outletElement(RoleAccessModal, pathnames['workspace-role-access'].path)}
-              />
-            </Route>
+        {/* Workspaces — view is public (rbac_workspace_view check disabled) */}
+        <Route path={pathnames['workspace-detail'].path} element={<WorkspaceDetail />}>
+          <Route {...v2Guard([workspaces.canUpdate])}>
+            <Route path={pathnames['edit-workspace'].path} element={outletElement(EditWorkspaceModal, pathnames['edit-workspace'].path)} />
+            <Route path={pathnames['workspace-role-access'].path} element={outletElement(RoleAccessModal, pathnames['workspace-role-access'].path)} />
           </Route>
-          <Route path={pathnames['access-management-workspaces'].path} element={<WorkspaceList />}>
-            <Route {...v2Guard([workspaces.canCreate])}>
-              <Route path={pathnames['create-workspace'].path} element={<CreateWorkspaceWizard />} />
-            </Route>
-            <Route {...v2Guard([workspaces.canUpdate])}>
-              <Route
-                path={pathnames['edit-workspaces-list'].path}
-                element={outletElement(EditWorkspaceModal, pathnames['edit-workspaces-list'].path)}
-              />
-            </Route>
+        </Route>
+        <Route path={pathnames['access-management-workspaces'].path} element={<WorkspaceList />}>
+          <Route {...v2Guard([workspaces.canCreate])}>
+            <Route path={pathnames['create-workspace'].path} element={<CreateWorkspaceWizard />} />
+          </Route>
+          <Route {...v2Guard([workspaces.canUpdate])}>
+            <Route
+              path={pathnames['edit-workspaces-list'].path}
+              element={outletElement(EditWorkspaceModal, pathnames['edit-workspaces-list'].path)}
+            />
           </Route>
         </Route>
 

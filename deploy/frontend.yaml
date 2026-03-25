@@ -110,12 +110,6 @@ objects:
                   args:
                     - platform.rbac.workspaces
                     - true
-                - method: loosePermissionsKessel
-                  args:
-                    - - rbac_principal_read
-                      - rbac_groups_read
-                      - rbac_roles_read
-                      - rbac_workspace_view
               routes:
                 - id: users-and-groups
                   title: Users and Groups
@@ -138,10 +132,6 @@ objects:
                   title: Workspaces
                   href: /iam/access-management/workspaces
                   icon: PlaceholderIcon
-                  permissions:
-                    - method: loosePermissionsKessel
-                      args:
-                        - - rbac_workspace_view
                   product: Identity & Access Management
                 - id: audit-log
                   title: Audit Log
