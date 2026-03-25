@@ -6,7 +6,7 @@ import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import React, { useMemo } from 'react';
 import messages from '../../../../../../Messages';
 import { useIntl } from 'react-intl';
-import { useGroupRolesQuery } from '../../../../../../v2/data/queries/groups';
+import { type GroupRoleRow, useGroupRoleBindingsQuery } from '../../../../../../v2/data/queries/groupRoleBindings';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '../../../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
@@ -16,20 +16,8 @@ interface GroupRolesViewProps {
   ouiaId: string;
 }
 
-interface RoleData {
-  uuid: string;
-  display_name: string;
-  workspace?: string;
-}
-
 const columns = ['name', 'workspace'] as const;
 
-/**
- * GroupDetailsRolesView - Shows assigned roles for a user group
- *
- * Displays roles with their workspace assignments.
- * Workspace data comes from V2-style role bindings API.
- */
 const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ groupId, ouiaId }) => {
   const intl = useIntl();
 
@@ -41,7 +29,7 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
     [intl],
   );
 
-  const cellRenderers: CellRendererMap<typeof columns, RoleData> = useMemo(
+  const cellRenderers: CellRendererMap<typeof columns, GroupRoleRow> = useMemo(
     () => ({
       name: (role) => role.display_name,
       workspace: (role) => role.workspace || '—',
@@ -49,21 +37,15 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
     [],
   );
 
-  // Use useTableState for table state management
-  const tableState = useTableState<typeof columns, RoleData>({
+  const tableState = useTableState<typeof columns, GroupRoleRow>({
     columns,
     getRowId: (role) => role.uuid,
-    initialPerPage: 100, // Show all items in detail views
-    syncWithUrl: false, // Drawer tables shouldn't sync with URL
+    initialPerPage: 100,
+    syncWithUrl: false,
   });
 
-  // Use React Query - returns unwrapped, typed data
-  const { data, isLoading, error } = useGroupRolesQuery(groupId, {
-    limit: tableState.apiParams.limit,
-  });
-  const roles = data?.roles ?? [];
+  const { data: roleData, isLoading, error } = useGroupRoleBindingsQuery(groupId);
 
-  // Show error state
   if (error) {
     return (
       <div className="pf-v6-u-pt-md">
@@ -80,15 +62,9 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
     </EmptyState>
   );
 
-  const roleData: RoleData[] = roles.map((role) => ({
-    uuid: role.uuid,
-    display_name: role.display_name ?? role.name,
-    workspace: role.workspace,
-  }));
-
   return (
     <div className="pf-v6-u-pt-md">
-      <TableView<typeof columns, RoleData>
+      <TableView<typeof columns, GroupRoleRow>
         columns={columns}
         columnConfig={columnConfig}
         data={isLoading ? undefined : roleData}

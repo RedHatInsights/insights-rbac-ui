@@ -369,13 +369,20 @@ export function createStatefulRoleBindingsHandlers(
 
 /** All role-bindings endpoints return the given error status */
 export function roleBindingsErrorHandlers(status: number = 500) {
-  return [http.get('*/api/rbac/v2/role-bindings/by-subject', () => HttpResponse.json({ error: 'Error' }, { status }))];
+  return [
+    http.get('*/api/rbac/v2/role-bindings/by-subject', () => HttpResponse.json({ error: 'Error' }, { status })),
+    http.get('*/api/rbac/v2/role-bindings/', () => HttpResponse.json({ error: 'Error' }, { status })),
+  ];
 }
 
 /** All role-bindings endpoints delay forever (loading state) */
 export function roleBindingsLoadingHandlers() {
   return [
     http.get('*/api/rbac/v2/role-bindings/by-subject', async () => {
+      await delay('infinite');
+      return new HttpResponse(null);
+    }),
+    http.get('*/api/rbac/v2/role-bindings/', async () => {
       await delay('infinite');
       return new HttpResponse(null);
     }),

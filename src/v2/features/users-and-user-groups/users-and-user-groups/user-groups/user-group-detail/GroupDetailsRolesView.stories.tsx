@@ -5,7 +5,45 @@ import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
 
 import { GroupDetailsRolesView } from './GroupDetailsRolesView';
-import { groupRolesErrorHandlers, groupRolesHandlers, groupRolesLoadingHandlers } from '../../../../../../shared/data/mocks/groupRoles.handlers';
+import {
+  createRoleBindingsListHandlers,
+  roleBindingsErrorHandlers,
+  roleBindingsLoadingHandlers,
+} from '../../../../../../v2/data/mocks/roleBindings.handlers';
+import type { MockRoleBinding } from '../../../../../../v2/data/mocks/roleBindings.fixtures';
+
+const MOCK_GROUP_BINDINGS: MockRoleBinding[] = [
+  {
+    id: 'b-1',
+    role_id: 'role-1',
+    role_name: 'Organization Administrator',
+    subject_type: 'group',
+    subject_id: 'test-group-id',
+    resource_id: 'ws-1',
+    resource_type: 'workspace',
+    created: '2023-01-01T00:00:00Z',
+  },
+  {
+    id: 'b-2',
+    role_id: 'role-2',
+    role_name: 'User Access Administrator',
+    subject_type: 'group',
+    subject_id: 'test-group-id',
+    resource_id: 'ws-1',
+    resource_type: 'workspace',
+    created: '2023-01-01T00:00:00Z',
+  },
+  {
+    id: 'b-3',
+    role_id: 'role-3',
+    role_name: 'Custom Team Role',
+    subject_type: 'group',
+    subject_id: 'test-group-id',
+    resource_id: 'ws-2',
+    resource_type: 'workspace',
+    created: '2023-01-01T00:00:00Z',
+  },
+];
 
 const meta: Meta<typeof GroupDetailsRolesView> = {
   component: GroupDetailsRolesView,
@@ -86,42 +124,7 @@ Each story demonstrates different aspects of container state management and erro
       },
     },
     msw: {
-      handlers: [
-        ...groupRolesHandlers({
-          'test-group-id': [
-            {
-              uuid: 'role-1',
-              name: 'Organization Administrator',
-              display_name: 'Organization Administrator',
-              description: 'Full administrative access to the organization',
-              system: true,
-              platform_default: false,
-              created: '2023-01-01T00:00:00Z',
-              modified: '2023-01-01T00:00:00Z',
-            },
-            {
-              uuid: 'role-2',
-              name: 'User Access Administrator',
-              display_name: 'User Access Administrator',
-              description: 'Manage user access and group memberships',
-              system: true,
-              platform_default: false,
-              created: '2023-01-01T00:00:00Z',
-              modified: '2023-01-01T00:00:00Z',
-            },
-            {
-              uuid: 'role-3',
-              name: 'Custom Team Role',
-              display_name: 'Custom Team Role',
-              description: 'Custom role with specific team permissions',
-              system: false,
-              platform_default: false,
-              created: '2023-01-01T00:00:00Z',
-              modified: '2023-01-01T00:00:00Z',
-            },
-          ],
-        }),
-      ],
+      handlers: [...createRoleBindingsListHandlers(MOCK_GROUP_BINDINGS)],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -148,7 +151,7 @@ export const Loading: Story = {
       },
     },
     msw: {
-      handlers: [...groupRolesLoadingHandlers()],
+      handlers: [...roleBindingsLoadingHandlers()],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -173,7 +176,7 @@ export const EmptyGroup: Story = {
       },
     },
     msw: {
-      handlers: [...groupRolesHandlers({ 'empty-group-id': [] })],
+      handlers: [...createRoleBindingsListHandlers([])],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -203,7 +206,7 @@ export const APIError: Story = {
       dangerouslyIgnoreUnhandledErrors: true, // Ignore Chrome context errors in outlet components
     },
     msw: {
-      handlers: [...groupRolesErrorHandlers(500)],
+      handlers: [...roleBindingsErrorHandlers(500)],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -230,10 +233,10 @@ export const NetworkFailure: Story = {
       },
     },
     test: {
-      dangerouslyIgnoreUnhandledErrors: true, // Ignore Chrome context errors in outlet components
+      dangerouslyIgnoreUnhandledErrors: true,
     },
     msw: {
-      handlers: [...groupRolesErrorHandlers(500)],
+      handlers: [...roleBindingsErrorHandlers(500)],
     },
   },
   play: async ({ canvasElement, step }) => {
