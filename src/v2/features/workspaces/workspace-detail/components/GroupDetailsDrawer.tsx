@@ -335,6 +335,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     );
   }, [
     intl,
+    group,
     members,
     membersError,
     membersLoading,
