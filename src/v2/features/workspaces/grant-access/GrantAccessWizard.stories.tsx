@@ -65,10 +65,10 @@ export const Default: Story = {
       );
     });
 
-    await step('Default groups are not selectable', async () => {
+    await step('Default groups are filtered out of selection', async () => {
       const modal = await waitForModal();
-      await expect(modal.findByText(GROUP_ADMIN_DEFAULT.name)).resolves.toBeInTheDocument();
-      await expect(modal.findByText(GROUP_SYSTEM_DEFAULT.name)).resolves.toBeInTheDocument();
+      expect(modal.queryByText(GROUP_ADMIN_DEFAULT.name)).not.toBeInTheDocument();
+      expect(modal.queryByText(GROUP_SYSTEM_DEFAULT.name)).not.toBeInTheDocument();
     });
 
     await step('Select a group — Next becomes enabled', async () => {
