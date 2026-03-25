@@ -15,6 +15,7 @@ const mockGroups: WorkspaceGroupRow[] = [
     name: 'Platform Administrators',
     description: 'Full access to all platform resources and administrative functions',
     userCount: 12,
+    isDefaultGroup: false,
     roleCount: 2,
     roles: [
       { id: 'role-1', name: 'Administrator' },
@@ -27,6 +28,7 @@ const mockGroups: WorkspaceGroupRow[] = [
     name: 'Development Team',
     description: 'Access to development resources and environments',
     userCount: 25,
+    isDefaultGroup: false,
     roleCount: 2,
     roles: [
       { id: 'role-3', name: 'Developer' },
@@ -39,6 +41,7 @@ const mockGroups: WorkspaceGroupRow[] = [
     name: 'QA Engineers',
     description: '',
     userCount: 8,
+    isDefaultGroup: false,
     roleCount: 1,
     roles: [{ id: 'role-5', name: 'Tester' }],
     lastModified: '2024-01-19T13:30:00Z',

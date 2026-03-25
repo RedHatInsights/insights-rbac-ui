@@ -7,7 +7,9 @@
  */
 
 import { useMemo } from 'react';
+import { useIntl } from 'react-intl';
 import type { RoleBindingsGroupSubject, RoleBindingsRoleBindingBySubject } from '../api/workspaces';
+import messages from '../../../Messages';
 import { useRoleAssignmentsQuery } from './roles';
 import { useRoleBindingsQuery } from './workspaces';
 
@@ -33,8 +35,8 @@ export interface WorkspaceGroupRow {
   id: string;
   name: string;
   description: string;
-  userCount: number;
-  /** True for platform-default or admin-default groups (all org users) */
+  userCount: number | string;
+  /** True for well-known default groups (all org users belong implicitly) */
   isDefaultGroup: boolean;
   roleCount: number;
   roles: WorkspaceGroupRole[];
@@ -52,33 +54,32 @@ export interface InheritedWorkspaceGroupRow extends WorkspaceGroupRow {
 // Private transformer (rbac-client type IN → UI model OUT)
 // =============================================================================
 
-/** Well-known default group names used as fallback detection */
+/** V2 API does not expose platform_default/admin_default — detect by well-known names only */
 const DEFAULT_GROUP_NAMES = new Set(['default access', 'default admin access']);
 
-function isDefaultGroupSubject(subject?: WorkspaceGroupBinding['subject']): boolean {
-  const group = subject?.group as Record<string, unknown> | undefined;
-  if (group?.platform_default || group?.admin_default) return true;
-  const name = (group?.name as string) ?? '';
+function isDefaultGroupName(name: string): boolean {
   return DEFAULT_GROUP_NAMES.has(name.toLowerCase());
 }
 
-function toWorkspaceGroupRow(binding: WorkspaceGroupBinding): WorkspaceGroupRow {
+function toWorkspaceGroupRow(binding: WorkspaceGroupBinding, defaultUsersLabel: string): WorkspaceGroupRow {
   const { subject } = binding;
+  const name = subject?.group?.name ?? '';
+  const isDefault = isDefaultGroupName(name);
   const roles: WorkspaceGroupRole[] = (binding.roles ?? []).map((r) => ({ id: r.id ?? '', name: r.name ?? '' }));
   return {
-    id: subject?.id ?? subject?.group?.name ?? '',
-    name: subject?.group?.name ?? '',
+    id: subject?.id ?? name,
+    name,
     description: subject?.group?.description ?? '',
-    userCount: subject?.group?.user_count ?? 0,
-    isDefaultGroup: isDefaultGroupSubject(subject),
+    userCount: isDefault ? defaultUsersLabel : (subject?.group?.user_count ?? 0),
+    isDefaultGroup: isDefault,
     roleCount: roles.length,
     roles,
     lastModified: binding.last_modified ?? '',
   };
 }
 
-function transformBindings(data: WorkspaceGroupBinding[]): WorkspaceGroupRow[] {
-  return data.map(toWorkspaceGroupRow).filter((row) => row.roleCount > 0);
+function transformBindings(data: WorkspaceGroupBinding[], defaultUsersLabel: string): WorkspaceGroupRow[] {
+  return data.map((b) => toWorkspaceGroupRow(b, defaultUsersLabel)).filter((row) => row.roleCount > 0);
 }
 
 // =============================================================================
@@ -92,13 +93,19 @@ const ROLE_BINDINGS_LIMIT = 1000;
  * Groups with zero roles are excluded.
  */
 export function useWorkspaceGroups(workspaceId: string, options?: { enabled?: boolean }) {
+  const intl = useIntl();
+  const defaultUsersLabel = intl.formatMessage(messages.allUsers);
+
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
     limit: ROLE_BINDINGS_LIMIT,
     excludeSources: 'indirect',
   });
 
-  const data = useMemo(() => (query.data?.data ? transformBindings(query.data.data as WorkspaceGroupBinding[]) : []), [query.data]);
+  const data = useMemo(
+    () => (query.data?.data ? transformBindings(query.data.data as WorkspaceGroupBinding[], defaultUsersLabel) : []),
+    [query.data, defaultUsersLabel],
+  );
 
   return { data, isLoading: query.isLoading };
 }
@@ -109,6 +116,9 @@ export function useWorkspaceGroups(workspaceId: string, options?: { enabled?: bo
  * Each row's `inheritedFrom` is derived from the `sources` array on the binding.
  */
 export function useWorkspaceInheritedGroups(workspaceId: string, options?: { enabled?: boolean }) {
+  const intl = useIntl();
+  const defaultUsersLabel = intl.formatMessage(messages.allUsers);
+
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
     limit: ROLE_BINDINGS_LIMIT,
@@ -121,7 +131,7 @@ export function useWorkspaceInheritedGroups(workspaceId: string, options?: { ena
     const seen = new Set<string>();
     return bindings
       .map((binding): InheritedWorkspaceGroupRow => {
-        const row = toWorkspaceGroupRow(binding);
+        const row = toWorkspaceGroupRow(binding, defaultUsersLabel);
         const source = binding.sources?.[0];
         return {
           ...row,
@@ -134,7 +144,7 @@ export function useWorkspaceInheritedGroups(workspaceId: string, options?: { ena
         seen.add(row.id);
         return true;
       });
-  }, [query.data]);
+  }, [query.data, defaultUsersLabel]);
 
   return { data, isLoading: query.isLoading };
 }
@@ -144,17 +154,23 @@ export function useWorkspaceInheritedGroups(workspaceId: string, options?: { ena
  * Used by OrganizationManagement.
  */
 export function useOrgGroups(organizationId: string, options?: { enabled?: boolean }) {
+  const intl = useIntl();
+  const defaultUsersLabel = intl.formatMessage(messages.allUsers);
+
   const query = useRoleBindingsQuery(
     {
       resourceId: `redhat/${organizationId}`,
       resourceType: 'tenant',
-      fields: 'subject(id,group.name,group.user_count,group.description,group.platform_default,group.admin_default),roles(id,name),last_modified',
+      fields: 'subject(id,group.name,group.user_count,group.description),roles(id,name),last_modified',
       limit: ROLE_BINDINGS_LIMIT,
     },
     { enabled: options?.enabled ?? true },
   );
 
-  const data = useMemo(() => (query.data?.data ? transformBindings(query.data.data as WorkspaceGroupBinding[]) : []), [query.data]);
+  const data = useMemo(
+    () => (query.data?.data ? transformBindings(query.data.data as WorkspaceGroupBinding[], defaultUsersLabel) : []),
+    [query.data, defaultUsersLabel],
+  );
 
   return { data, isLoading: query.isLoading };
 }

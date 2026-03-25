@@ -40,6 +40,7 @@ const mockGroup: WorkspaceGroupRow = {
   name: 'Platform Administrators',
   description: 'Full access to all platform resources and administrative functions',
   userCount: 12,
+  isDefaultGroup: false,
   roleCount: 2,
   roles: [
     { id: '1', name: 'Administrator' },
@@ -144,6 +145,7 @@ const mockInheritedGroup: InheritedWorkspaceGroupRow = {
   name: 'Powerpuff Girls',
   description: 'Inherited group from parent workspace',
   userCount: 3,
+  isDefaultGroup: false,
   roleCount: 2,
   roles: [
     { id: 'role-1', name: 'RHEL DevOps' },
