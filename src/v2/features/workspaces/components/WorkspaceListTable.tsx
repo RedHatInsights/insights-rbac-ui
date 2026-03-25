@@ -47,12 +47,6 @@ interface WorkspaceListTableProps {
   hasPermission: (workspaceId: string, relation: WorkspaceRelation) => boolean;
 
   /**
-   * Whether the user can edit at least one workspace.
-   * Used for enabling/disabling bulk actions like "Delete workspaces".
-   */
-  canEditAny: boolean;
-
-  /**
    * Whether the user can create workspaces in at least one workspace.
    * Used for the main "Create workspace" toolbar button.
    */
@@ -145,7 +139,6 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   onDeleteWorkspaces,
   onMoveWorkspace,
   hasPermission,
-  canEditAny,
   canCreateAny,
   children,
 }) => {
@@ -157,9 +150,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
 
   // Feature flags via custom hook (see WORKSPACE_FEATURE_FLAGS.md for complete documentation)
   // M3: RBAC detail pages with read-only role bindings
-  // M5: Master flag that enables all features (including bulk delete)
   const hasRbacDetailPages = useWorkspacesFlag('m3'); // M3+ or master flag
-  const hasAllFeatures = useWorkspacesFlag('m5'); // Master flag only
 
   const handleModalToggle = (workspacesToDelete: WorkspacesWorkspace[]) => {
     setCurrentWorkspaces(workspacesToDelete);
@@ -350,16 +341,9 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
               />
             }
             actions={
-              <>
-                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link())} isDisabled={!canCreateAny}>
-                  {intl.formatMessage(messages.createWorkspace)}
-                </Button>
-                {hasAllFeatures && (
-                  <Button variant="secondary" onClick={() => handleModalToggle(workspaces)} isDisabled={!canEditAny}>
-                    {intl.formatMessage(messages.deleteWorkspacesAction)}
-                  </Button>
-                )}
-              </>
+              <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link())} isDisabled={!canCreateAny}>
+                {intl.formatMessage(messages.createWorkspace)}
+              </Button>
             }
           />
           <DataViewTable

@@ -225,10 +225,6 @@ export const PermissionIntegration: Story = {
       const createButton = canvas.getByRole('button', { name: /create workspace/i });
       expect(createButton).toBeInTheDocument();
       expect(createButton).toBeDisabled(); // Read-only users cannot create
-
-      const deleteButton = canvas.getByRole('button', { name: /delete workspaces/i });
-      expect(deleteButton).toBeInTheDocument();
-      expect(deleteButton).toBeDisabled(); // Read-only users cannot delete
     });
     await step('Verify kebab menu structure', async () => {
       const kebabButtons = canvas.getAllByLabelText('Kebab toggle');
@@ -366,7 +362,6 @@ export const M1_WithWritePermission: Story = {
 **Expected Behavior:**
 - ✅ "Create workspace" button: **enabled** (basic creation, parent auto-set to Default)
 - ❌ Kebab actions (Edit/Move/Delete): **visible but disabled** (M2+ features)
-- ❌ Bulk "Delete workspaces": **not shown** (M5 feature)
 - ❌ Workspace links: **plain text** (links appear in M2+)
         `,
       },
@@ -393,9 +388,6 @@ export const M1_WithWritePermission: Story = {
       const createButton = await canvas.findByRole('button', { name: /create workspace/i });
       expect(createButton).toBeInTheDocument();
       await waitFor(() => expect(createButton).not.toBeDisabled(), { timeout: 5000 });
-
-      const deleteButtons = canvas.queryAllByRole('button', { name: /delete workspaces/i });
-      expect(deleteButtons.length).toBe(0);
     });
   },
 };
@@ -462,7 +454,6 @@ export const M2_WithWritePermission: Story = {
 - ✅ Kebab "Create subworkspace": **enabled**
 - ✅ Kebab "Move workspace": **enabled**
 - ✅ Kebab "Delete workspace": **enabled** (for leaf workspaces)
-- ❌ Bulk "Delete workspaces": **not shown** (M5 feature)
 - ✅ Workspace links: **link to Inventory** (standard/ungrouped-hosts types)
         `,
       },
@@ -489,9 +480,6 @@ export const M2_WithWritePermission: Story = {
 
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });
     await waitFor(() => expect(createButton).not.toBeDisabled(), { timeout: 5000 });
-
-    const deleteButtons = canvas.queryAllByRole('button', { name: /delete workspaces/i });
-    expect(deleteButtons.length).toBe(0);
 
     // Open kebab menu and verify M2 actions are enabled
     const kebabButtons = canvas.getAllByLabelText('Kebab toggle');
@@ -569,7 +557,6 @@ export const M3_WithWritePermission: Story = {
 - ✅ All M2 features: CRUD operations enabled
 - ✅ Workspace links: **link to RBAC detail pages** (not Inventory)
 - ✅ Detail page shows Roles tab (read-only role bindings)
-- ❌ Bulk "Delete workspaces": **not shown** (M5 feature)
         `,
       },
     },
@@ -595,10 +582,6 @@ export const M3_WithWritePermission: Story = {
     // Verify all buttons enabled (wait for permission checks to complete)
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });
     await waitFor(() => expect(createButton).not.toBeDisabled(), { timeout: 5000 });
-
-    // Verify bulk delete button does NOT appear (M5 only)
-    const deleteButtons = canvas.queryAllByRole('button', { name: /delete workspaces/i });
-    expect(deleteButtons.length).toBe(0);
 
     // Note: Workspace links to RBAC detail pages would be tested in E2E
     // as Storybook doesn't have full routing setup
@@ -643,95 +626,6 @@ export const M3_ReadOnly: Story = {
       await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
       const createButton = canvas.getByRole('button', { name: /create workspace/i });
       expect(createButton).toBeDisabled();
-    });
-  },
-};
-
-export const M5_WithWritePermission: Story = {
-  name: 'M5: With Write Permission',
-  parameters: {
-    docs: {
-      description: {
-        story: `
-**Kessel M5** (master flag) with write permissions.
-
-**Feature Flags:**
-- \`platform.rbac.workspaces\` = **true** ✅ (master flag enables all features)
-
-**Expected Behavior:**
-- ✅ All M1-M3 features: Full CRUD + role bindings
-- ✅ "Create workspace" button: **enabled**
-- ✅ Bulk "Delete workspaces" button: **visible and enabled** ⭐
-- ✅ All kebab actions: **enabled**
-        `,
-      },
-    },
-    featureFlags: {
-      'platform.rbac.workspaces': true,
-    },
-    chrome: {
-      environment: 'prod',
-    },
-    msw: {
-      handlers: [...workspacesHandlers(workspaceDataForHandlers)],
-    },
-  },
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
-    await step('Verify M5 with write permission', async () => {
-      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
-
-      const createButton = await canvas.findByRole('button', { name: /create workspace/i });
-      await waitFor(() => expect(createButton).not.toBeDisabled(), { timeout: 5000 });
-
-      const deleteButton = await canvas.findByRole('button', { name: /delete workspaces/i });
-      expect(deleteButton).toBeInTheDocument();
-      await waitFor(() => expect(deleteButton).not.toBeDisabled(), { timeout: 5000 });
-    });
-  },
-};
-
-export const M5_ReadOnly: Story = {
-  name: 'M5: Read Only',
-  parameters: {
-    docs: {
-      description: {
-        story: `
-**Kessel M5** (master flag) with read-only permissions.
-
-**Feature Flags:** Same as M5 With Write
-
-**Expected Behavior:**
-- ❌ "Create workspace" button: **disabled**
-- ✅ Bulk "Delete workspaces" button: **visible but disabled** ⭐
-- ❌ All CRUD actions: **disabled**
-        `,
-      },
-    },
-    featureFlags: {
-      'platform.rbac.workspaces': true,
-    },
-    // Mock Kessel permissions - read-only user (empty workspace IDs)
-    workspacePermissions: { view: [], edit: [], delete: [], create: [], move: [] },
-    chrome: {
-      environment: 'prod',
-    },
-    msw: {
-      handlers: [...workspacesHandlers(workspaceDataForHandlers)],
-    },
-  },
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
-    await step('Verify M5 read-only buttons disabled', async () => {
-      await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
-
-      const createButton = canvas.getByRole('button', { name: /create workspace/i });
-      expect(createButton).toBeDisabled();
-
-      const deleteButton = canvas.getByRole('button', { name: /delete workspaces/i });
-      expect(deleteButton).toBeInTheDocument();
-      expect(deleteButton).toBeDisabled();
     });
   },
 };

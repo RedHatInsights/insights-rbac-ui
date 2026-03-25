@@ -23,7 +23,6 @@ const defaultProps = {
   onMoveWorkspace: fn(),
   // Default: user has all permissions
   hasPermission: () => true,
-  canEditAny: true,
   canCreateAny: true,
 };
 
@@ -168,7 +167,6 @@ export const NoPermissions: Story = {
   args: {
     ...defaultProps,
     hasPermission: () => false, // User cannot edit any workspace
-    canEditAny: false,
     canCreateAny: false,
   },
   parameters: {
