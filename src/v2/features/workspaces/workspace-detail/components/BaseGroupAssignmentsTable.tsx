@@ -118,6 +118,12 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
     [intl],
   );
 
+  const filteredGroups = useMemo(() => {
+    const nameFilter = typeof tableState.filters.name === 'string' ? tableState.filters.name.toLowerCase() : '';
+    if (!nameFilter) return groups;
+    return groups.filter((g) => g.name.toLowerCase().includes(nameFilter));
+  }, [groups, tableState.filters.name]);
+
   const renderActions = useCallback(
     (group: WorkspaceGroupRow) => {
       const items: ActionDropdownItem[] = [
@@ -185,8 +191,8 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
         columns={columns}
         columnConfig={columnConfig}
         sortableColumns={sortableColumns}
-        data={isLoading ? undefined : groups}
-        totalCount={totalCount}
+        data={isLoading ? undefined : filteredGroups}
+        totalCount={tableState.filters.name ? filteredGroups.length : totalCount}
         getRowId={(row) => row.id}
         cellRenderers={cellRenderers}
         sort={tableState.sort}
