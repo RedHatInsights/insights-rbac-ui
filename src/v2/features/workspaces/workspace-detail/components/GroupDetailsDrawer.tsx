@@ -102,7 +102,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     data: membersData,
     isLoading: membersLoading,
     error: membersError,
-  } = useGroupMembersQuery(group?.id || '', { limit: 1000 }, { enabled: !!group?.id && isOpen });
+  } = useGroupMembersQuery(group?.id || '', { limit: 1000 }, { enabled: !!group?.id && isOpen && !group?.isDefaultGroup });
 
   const members = membersData?.members ?? [];
 
@@ -257,6 +257,16 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   // Render users tab content
   const renderUsersTab = useCallback(() => {
     // Show loading state
+    if (group?.isDefaultGroup) {
+      return (
+        <div className="pf-v6-u-pt-md">
+          <EmptyState variant="sm" headingLevel="h4" icon={UsersIcon} titleText={intl.formatMessage(messages.allUsers)}>
+            <EmptyStateBody>{intl.formatMessage(messages.allUsersAreMembers)}</EmptyStateBody>
+          </EmptyState>
+        </div>
+      );
+    }
+
     if (membersLoading) {
       return (
         <div className="pf-v6-u-pt-md pf-v6-u-text-align-center">
@@ -265,22 +275,11 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
       );
     }
 
-    // Show error state
     if (membersError) {
       return (
         <div className="pf-v6-u-pt-md">
           <EmptyState variant="sm" headingLevel="h4" icon={ExclamationCircleIcon} titleText={intl.formatMessage(messages.unableToLoadUsers)}>
             <EmptyStateBody>{extractErrorMessage(membersError)}</EmptyStateBody>
-          </EmptyState>
-        </div>
-      );
-    }
-
-    if (group?.isDefaultGroup) {
-      return (
-        <div className="pf-v6-u-pt-md">
-          <EmptyState variant="sm" headingLevel="h4" icon={UsersIcon} titleText={intl.formatMessage(messages.allUsers)}>
-            <EmptyStateBody>{intl.formatMessage(messages.allUsersAreMembers)}</EmptyStateBody>
           </EmptyState>
         </div>
       );
