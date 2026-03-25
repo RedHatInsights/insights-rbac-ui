@@ -10,13 +10,13 @@ import { roleBindingsHandlers } from '../../../data/mocks/roleBindings.handlers'
 import { waitForModal } from '../../../../test-utils/interactionHelpers';
 import { TEST_TIMEOUTS } from '../../../../test-utils/testUtils';
 import { GROUP_ADMIN_DEFAULT, GROUP_PLATFORM_ADMINS, GROUP_SUPPORT_TEAM, GROUP_SYSTEM_DEFAULT } from '../../../../shared/data/mocks/seed';
-import { V2_ROLE_TENANT_ADMIN, V2_ROLE_WORKSPACE_ADMIN } from '../../../data/mocks/seed';
+import { V2_ROLE_TENANT_ADMIN, V2_ROLE_WORKSPACE_ADMIN, WS_PRODUCTION } from '../../../data/mocks/seed';
 
 const TENANT_ADMIN_NAME = V2_ROLE_TENANT_ADMIN.name!;
 const WORKSPACE_ADMIN_NAME = V2_ROLE_WORKSPACE_ADMIN.name!;
 
-const WORKSPACE_NAME = 'Production';
-const WORKSPACE_ID = 'ws-1';
+const WORKSPACE_NAME = WS_PRODUCTION.name!;
+const WORKSPACE_ID = WS_PRODUCTION.id!;
 
 const onCancelSpy = fn();
 const afterSubmitSpy = fn();
@@ -121,7 +121,7 @@ export const Default: Story = {
       const nextBtn = modal.getByRole('button', { name: /^next$/i });
       await user.click(nextBtn);
 
-      await expect(modal.findByText(/select roles/i)).resolves.toBeInTheDocument();
+      await expect(modal.findByRole('heading', { name: /select role\(s\)/i })).resolves.toBeInTheDocument();
     });
 
     await step('Roles step — Next disabled until a role is selected', async () => {
@@ -187,7 +187,7 @@ export const MultipleSelections: Story = {
       });
 
       await user.click(modal.getByRole('button', { name: /^next$/i }));
-      await expect(modal.findByText(/select roles/i)).resolves.toBeInTheDocument();
+      await expect(modal.findByRole('heading', { name: /select role\(s\)/i })).resolves.toBeInTheDocument();
     });
 
     await step('Select two roles and advance to review', async () => {
