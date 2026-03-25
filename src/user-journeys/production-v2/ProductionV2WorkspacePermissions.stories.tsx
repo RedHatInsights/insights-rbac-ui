@@ -581,8 +581,7 @@ User has \`view\` on all non-root workspaces but no \`create\`, \`edit\`, or \`d
       const editAccessButton = await drawer.findByRole('button', { name: /edit access for this workspace/i });
       await expect(editAccessButton).toBeDisabled();
 
-      const removeButton = await drawer.findByRole('button', { name: /remove from workspace/i });
-      await expect(removeButton).toBeDisabled();
+      expect(drawer.queryByRole('button', { name: /remove from workspace/i })).not.toBeInTheDocument();
     });
 
     await step('Verify header actions menu items are disabled', async () => {
@@ -873,8 +872,7 @@ Production (ws-1) has full access; siblings (ws-2, ws-3) and parents are view-on
       const drawer = await waitForDrawer();
       const drawerEdit = await drawer.findByRole('button', { name: /edit access for this workspace/i });
       await expect(drawerEdit).toBeEnabled();
-      const drawerRemove = await drawer.findByRole('button', { name: /remove from workspace/i });
-      await expect(drawerRemove).toBeEnabled();
+      expect(drawer.queryByRole('button', { name: /remove from workspace/i })).not.toBeInTheDocument();
     });
 
     await step('Navigate to Staging detail — verify read-only buttons', async () => {
@@ -919,8 +917,7 @@ Production (ws-1) has full access; siblings (ws-2, ws-3) and parents are view-on
       const drawer = await waitForDrawer();
       const drawerEdit = await drawer.findByRole('button', { name: /edit access for this workspace/i });
       await expect(drawerEdit).toBeDisabled();
-      const drawerRemove = await drawer.findByRole('button', { name: /remove from workspace/i });
-      await expect(drawerRemove).toBeDisabled();
+      expect(drawer.queryByRole('button', { name: /remove from workspace/i })).not.toBeInTheDocument();
 
       const actionsButtons = await canvas.findAllByRole('button', { name: /^actions$/i });
       await user.click(actionsButtons[0]);
