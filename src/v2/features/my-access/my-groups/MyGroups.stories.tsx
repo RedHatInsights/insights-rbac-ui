@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { waitForContentReady } from '../../../../test-utils/interactionHelpers';
+import { waitForContentReady, waitForDrawer } from '../../../../test-utils/interactionHelpers';
 import { TEST_TIMEOUTS } from '../../../../test-utils/testUtils';
 import { findSortButton } from '../../../../test-utils/tableHelpers';
 import React from 'react';
@@ -46,13 +46,23 @@ type Story = StoryObj<typeof MyGroups>;
 export const Default: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
     await step('Verify default my groups', async () => {
       await expect(canvas.findByLabelText('My groups')).resolves.toBeInTheDocument();
     });
 
-    await step('Verify group names are links', async () => {
-      const link = await canvas.findByRole('link', { name: new RegExp(GROUP_SYSTEM_DEFAULT.name, 'i') });
-      await expect(link).toBeInTheDocument();
+    await step('Verify group name renders as clickable button', async () => {
+      await waitForContentReady(canvasElement);
+      const btn = await canvas.findByRole('button', { name: new RegExp(GROUP_SYSTEM_DEFAULT.name, 'i') });
+      await expect(btn).toBeInTheDocument();
+    });
+
+    await step('Click group name button and verify drawer opens', async () => {
+      const btn = await canvas.findByRole('button', { name: new RegExp(GROUP_SYSTEM_DEFAULT.name, 'i') });
+      await user.click(btn);
+      const drawer = await waitForDrawer();
+      await expect(drawer.findByText(GROUP_SYSTEM_DEFAULT.name)).resolves.toBeInTheDocument();
     });
   },
 };
