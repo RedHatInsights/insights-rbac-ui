@@ -8,7 +8,7 @@ import { useTableState } from '../../../../../../shared/components/table-view/ho
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../../shared/components/table-view/components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../../shared/components/table-view/types';
 import { type ServiceAccount, useServiceAccountsQuery } from '../../../../../../shared/data/queries/serviceAccounts';
-import { TableState } from './EditUserGroupUsersAndServiceAccounts';
+import type { TableState } from './EditUserGroupTableState';
 
 interface EditGroupServiceAccountsTableProps {
   onChange: (serviceAccountDiff: TableState) => void;

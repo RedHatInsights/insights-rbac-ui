@@ -5,13 +5,9 @@ import React, { useEffect, useState } from 'react';
 import { UseFieldApiConfig, useFieldApi, useFormApi } from '@data-driven-forms/react-form-renderer';
 import { EditGroupServiceAccountsTable } from './EditUserGroupServiceAccounts';
 import { EditGroupUsersTable } from './EditUserGroupUsers';
+import type { TableState } from './EditUserGroupTableState';
 import { useIntl } from 'react-intl';
 import Messages from '../../../../../../Messages';
-
-export interface TableState {
-  initial: string[];
-  updated: string[];
-}
 
 interface ExtendedUseFieldApiConfig extends UseFieldApiConfig {
   initialUsers?: string[];

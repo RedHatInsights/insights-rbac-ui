@@ -7,7 +7,7 @@ import { useTableState } from '../../../../../../shared/components/table-view/ho
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../../shared/components/table-view/components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../../shared/components/table-view/types';
 import { type User, useUsersQuery } from '../../../../../../shared/data/queries/users';
-import { TableState } from './EditUserGroupUsersAndServiceAccounts';
+import type { TableState } from './EditUserGroupTableState';
 import Messages from '../../../../../../Messages';
 
 interface EditGroupUsersTableProps {
