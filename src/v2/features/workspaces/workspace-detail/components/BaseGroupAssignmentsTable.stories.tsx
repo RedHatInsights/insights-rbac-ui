@@ -567,7 +567,7 @@ export const FilterByGroupName: Story = {
 
     await step('No-match shows empty state', async () => {
       await clearAndType(user, () => canvas.getByPlaceholderText(/filter by user group/i) as HTMLInputElement, 'zzz-nonexistent');
-      await expect(canvas.findByText('No results found')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('No user group found')).resolves.toBeInTheDocument();
     });
   },
 };
