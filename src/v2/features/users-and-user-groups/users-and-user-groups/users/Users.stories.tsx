@@ -8,6 +8,8 @@ import type { MockUserIdentity } from '../../../../../../.storybook/contexts/Sto
 import { usersHandlers, usersLoadingHandlers } from '../../../../../shared/data/mocks/users.handlers';
 import { groupsHandlers } from '../../../../../shared/data/mocks/groups.handlers';
 import { v2RolesHandlers } from '../../../../data/mocks/roles.handlers';
+import { createRoleBindingsListHandlers } from '../../../../data/mocks/roleBindings.handlers';
+import type { MockRoleBinding } from '../../../../data/mocks/roleBindings.fixtures';
 import { groupMembersHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
 import { accountManagementHandlers } from '../../../../../shared/data/mocks/accountManagement.handlers';
 
@@ -165,6 +167,39 @@ const mockUserRolesV2 = [
     permissions: [],
     permissions_count: 2,
     last_modified: '2024-01-01T00:00:00Z',
+  },
+];
+
+const mockUserRoleBindings: MockRoleBinding[] = [
+  {
+    id: 'ub-1',
+    role_id: mockUserRolesV2[0].id,
+    role_name: mockUserRolesV2[0].name,
+    subject_type: 'user',
+    subject_id: 'john.doe',
+    resource_id: 'ws-1',
+    resource_type: 'workspace',
+    created: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'ub-2',
+    role_id: mockUserRolesV2[1].id,
+    role_name: mockUserRolesV2[1].name,
+    subject_type: 'user',
+    subject_id: 'john.doe',
+    resource_id: 'ws-2',
+    resource_type: 'workspace',
+    created: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'ub-3',
+    role_id: mockUserRolesV2[1].id,
+    role_name: mockUserRolesV2[1].name,
+    subject_type: 'user',
+    subject_id: 'jane.smith',
+    resource_id: 'ws-1',
+    resource_type: 'workspace',
+    created: '2024-01-01T00:00:00Z',
   },
 ];
 
@@ -599,6 +634,7 @@ export const UserDetailsIntegration: Story = {
             return null;
           },
         }),
+        ...createRoleBindingsListHandlers(mockUserRoleBindings),
       ],
     },
   },
