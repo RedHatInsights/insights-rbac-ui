@@ -85,6 +85,7 @@ const meta: Meta<typeof EditWorkspaceModal> = {
   component: EditWorkspaceModal,
   tags: ['autodocs'],
   parameters: {
+    featureFlags: { 'platform.rbac.workspaces': true },
     workspacePermissions: {
       view: ['workspace-1', 'workspace-2', 'workspace-3'],
       edit: ['workspace-1', 'workspace-2', 'workspace-3'],

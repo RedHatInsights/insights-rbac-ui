@@ -15,7 +15,8 @@
  */
 
 import * as v1 from '../../src/v1/utilities/pathnames';
-import * as v2 from '../../src/v2/utilities/pathnames';
+import * as v2Base from '../../src/v2/utilities/pathnames';
+import { v2WorkspacePathnames } from '../../src/v2/features/workspaces/workspacePathnames';
 
 const IAM_PREFIX = '/iam';
 
@@ -24,4 +25,5 @@ export function iamUrl(path: string): string {
   return `${IAM_PREFIX}${path}`;
 }
 
+const v2 = { ...v2Base, ...v2WorkspacePathnames };
 export { v1, v2 };

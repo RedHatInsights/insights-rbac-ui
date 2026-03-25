@@ -71,6 +71,7 @@ const meta: Meta<typeof InheritedGroupAssignmentsTable> = {
   tags: ['autodocs'],
   decorators: [withRouter()],
   parameters: {
+    featureFlags: { 'platform.rbac.workspaces': true },
     msw: { handlers: groupDetailsHandlers },
     docs: {
       description: {

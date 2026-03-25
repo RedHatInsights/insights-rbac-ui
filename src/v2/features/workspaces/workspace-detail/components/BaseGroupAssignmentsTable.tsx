@@ -16,7 +16,7 @@ import { useTableState } from '../../../../../shared/components/table-view/hooks
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../shared/components/table-view/components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../shared/components/table-view/types';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
-import pathnames from '../../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../../workspacePathnames';
 
 const columns = ['name', 'description', 'userCount', 'roleCount', 'lastModified'] as const;
 type SortableColumn = 'name' | 'userCount' | 'roleCount' | 'lastModified';
@@ -61,6 +61,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
   const intl = useIntl();
   const navigate = useAppNavigate();
   const grantAccessEnabled = useWorkspacesFlag('m4');
+  const pathnames = useWorkspacePathnames();
 
   const [focusedGroup, setFocusedGroup] = useState<WorkspaceGroupRow | undefined>();
   const [internalWizardOpen, setInternalWizardOpen] = useState(false);
@@ -147,7 +148,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
       ];
       return <ActionDropdown items={items} ariaLabel={`Actions for ${group.name}`} ouiaId={`${ouiaId}-row-actions-${group.id}`} />;
     },
-    [intl, currentWorkspace, navigate, ouiaId, canEditAccess, canRevokeAccess],
+    [intl, currentWorkspace, navigate, ouiaId, canEditAccess, canRevokeAccess, pathnames],
   );
 
   const handleRowClick = useCallback(

@@ -105,7 +105,7 @@ test.describe('Workspace Grant Access', () => {
     test('Grant access is not available [UserViewer]', async ({ page }) => {
       test.fixme(true, 'APP BUG: UserViewer navigating to workspaces URL sees My Access instead of UnauthorizedAccess page');
       await setupPage(page);
-      await page.goto(iamUrl(v2.accessManagementWorkspaces.link()));
+      await page.goto(iamUrl(v2.workspaces.link()));
 
       await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
     });
@@ -117,7 +117,7 @@ test.describe('Workspace Grant Access', () => {
     test('Grant access is not available [ReadOnlyUser]', async ({ page }) => {
       test.fixme(true, 'APP BUG: ReadOnlyUser navigating to workspaces URL sees My Access instead of UnauthorizedAccess page');
       await setupPage(page);
-      await page.goto(iamUrl(v2.accessManagementWorkspaces.link()));
+      await page.goto(iamUrl(v2.workspaces.link()));
 
       await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
     });

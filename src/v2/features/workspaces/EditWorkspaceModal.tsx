@@ -16,7 +16,7 @@ import {
   useWorkspaceQuery,
   useWorkspacesQuery,
 } from '../../data/queries/workspaces';
-import paths from '../../utilities/pathnames';
+import { useWorkspacePathnames } from './workspacePathnames';
 import { ModalFormTemplate } from '../../../shared/components/forms/ModalFormTemplate';
 
 interface EditWorkspaceModalProps {
@@ -30,6 +30,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
   const params = useParams();
   const workspaceId = params.workspaceId;
   const addNotification = useAddNotification();
+  const paths = useWorkspacePathnames();
 
   // React Query hooks
   const { data: workspace, isLoading: isWorkspaceLoading } = useWorkspaceQuery(workspaceId || '', {

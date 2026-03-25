@@ -9,7 +9,7 @@ import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import pathnames from '../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../workspacePathnames';
 import messages from '../../../../Messages';
 import { useCreateWorkspaceMutation, useWorkspacesQuery } from '../../../data/queries/workspaces';
 import { ReviewStep as Review } from './components/Review';
@@ -40,6 +40,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   const { data: workspacesData } = useWorkspacesQuery();
   const existingWorkspaceNames = (workspacesData?.data ?? []).map((w) => w.name).filter((n): n is string => !!n);
   const createWorkspaceMutation = useCreateWorkspaceMutation();
+  const pathnames = useWorkspacePathnames();
 
   // Default handlers for when component is used as a route element
   const defaultAfterSubmit = () => {

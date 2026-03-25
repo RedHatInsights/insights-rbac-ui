@@ -117,6 +117,7 @@ const ModalWrapper = ({ initialOpen = false, ...contentProps }: Partial<RoleAcce
 const meta: Meta<typeof RoleAccessModalContent> = {
   component: RoleAccessModalContent,
   parameters: {
+    featureFlags: { 'platform.rbac.workspaces': true },
     docs: {
       description: {
         component: `

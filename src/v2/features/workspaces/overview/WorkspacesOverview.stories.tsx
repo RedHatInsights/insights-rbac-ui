@@ -15,6 +15,9 @@ const meta: Meta<typeof WorkspacesOverview> = {
     ),
   ],
   parameters: {
+    featureFlags: {
+      'platform.rbac.workspaces': true,
+    },
     docs: {
       description: {
         component: `

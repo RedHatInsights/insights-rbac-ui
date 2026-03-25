@@ -85,6 +85,7 @@ const meta: Meta<typeof GroupDetailsDrawer> = {
   tags: ['autodocs'],
   decorators: [withWrapper()],
   parameters: {
+    featureFlags: { 'platform.rbac.workspaces': true },
     msw: {
       handlers: groupDetailsHandlers,
     },

@@ -19,7 +19,7 @@ import { useGroupQuery } from '../../../../data/queries/groups';
 import { useRoleBindingsQuery, useUpdateGroupRolesMutation, useWorkspaceQuery } from '../../../../data/queries/workspaces';
 import { useWorkspacePermissions } from '../../hooks/useWorkspacePermissions';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
-import pathnames from '../../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../../workspacePathnames';
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
 import messages from '../../../../../Messages';
 
@@ -51,12 +51,13 @@ export const RoleAccessModal: React.FC = () => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const { workspaceId, groupId } = useParams<{ workspaceId: string; groupId: string }>();
+  const pathnames = useWorkspacePathnames();
 
   const handleClose = useCallback(() => {
     if (workspaceId) {
       navigate(pathnames['workspace-detail'].link(workspaceId));
     }
-  }, [navigate, workspaceId]);
+  }, [navigate, workspaceId, pathnames]);
 
   // --- Queries ---
   const { data: group, isLoading: groupLoading } = useGroupQuery(groupId ?? '', {

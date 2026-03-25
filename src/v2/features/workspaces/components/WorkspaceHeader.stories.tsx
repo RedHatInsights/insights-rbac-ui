@@ -60,6 +60,7 @@ const meta: Meta<typeof WorkspaceHeader> = {
   tags: ['autodocs'],
   decorators: [withProviders],
   parameters: {
+    featureFlags: { 'platform.rbac.workspaces': true },
     docs: {
       description: {
         component: `

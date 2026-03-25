@@ -45,6 +45,7 @@ const meta: Meta<typeof WorkspaceActions> = {
   tags: ['autodocs'],
   decorators: [withProviders],
   parameters: {
+    featureFlags: { 'platform.rbac.workspaces': true },
     docs: {
       description: {
         component: `

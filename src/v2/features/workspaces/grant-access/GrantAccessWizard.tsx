@@ -5,7 +5,7 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import React from 'react';
 
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import pathnames from '../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../workspacePathnames';
 import { useGrantAccessMutation } from '../../../data/queries/workspaces';
 import { schemaBuilder } from './schema';
 import UserGroupsSelectionField from './components/UserGroupsSelectionField';
@@ -38,6 +38,7 @@ export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> 
 }) => {
   const navigate = useAppNavigate();
   const batchCreateMutation = useGrantAccessMutation();
+  const pathnames = useWorkspacePathnames();
 
   const defaultAfterSubmit = () => {
     navigate(pathnames.workspaces.link());

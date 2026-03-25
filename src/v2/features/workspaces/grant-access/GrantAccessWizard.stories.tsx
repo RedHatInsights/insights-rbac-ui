@@ -31,6 +31,7 @@ const meta: Meta<typeof GrantAccessWizard> = {
     afterSubmit: afterSubmitSpy,
   },
   parameters: {
+    featureFlags: { 'platform.rbac.workspaces': true },
     msw: {
       handlers: [...groupsHandlers(), ...groupMembersHandlers({}, {}), ...v2RolesHandlers(), ...roleBindingsHandlers()],
     },

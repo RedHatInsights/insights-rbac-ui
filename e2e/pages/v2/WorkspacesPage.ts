@@ -9,7 +9,7 @@ import { iamUrl, setupPage, v2, waitForTableUpdate } from '../../utils';
 import { ManagedWorkspaceSelectorComponent } from '../components/ManagedWorkspaceSelectorComponent';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
-const WORKSPACES_URL = iamUrl(v2.accessManagementWorkspaces.link());
+const WORKSPACES_URL = iamUrl(v2.workspaces.link());
 
 export class WorkspacesPage {
   readonly page: Page;

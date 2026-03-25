@@ -30,6 +30,7 @@ const meta: Meta<typeof WorkspaceListTable> = {
   component: WorkspaceListTable,
   tags: ['autodocs'],
   parameters: {
+    featureFlags: { 'platform.rbac.workspaces': true },
     docs: {
       description: {
         component: `
@@ -289,7 +290,10 @@ export const RootWorkspaceRestrictions: Story = {
 };
 
 export const RootWorkspaceNameIsNotALink: Story = {
-  args: defaultProps,
+  args: {
+    ...defaultProps,
+    hasPermission: (id: string) => id !== 'root-1',
+  },
   parameters: {
     docs: {
       description: {

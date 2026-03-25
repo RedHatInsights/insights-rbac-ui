@@ -232,36 +232,6 @@ const groupServiceAccountsRemoveGroup: PathnameConfig<(groupId: string) => strin
   title: 'Group service-accounts - remove group',
 };
 
-const workspaces: PathnameConfig = {
-  link: () => '/user-access/workspaces',
-  path: '/user-access/workspaces/*',
-  title: 'Workspaces',
-};
-
-const editWorkspacesList: PathnameConfig<(workspaceId: string) => string> = {
-  link: (workspaceId) => `/user-access/workspaces/edit/${workspaceId}`,
-  path: 'edit/:workspaceId',
-  title: 'Edit Workspace',
-};
-
-const createWorkspace: PathnameConfig = {
-  link: () => '/user-access/workspaces/create-workspace',
-  path: 'create-workspace',
-  title: 'Create workspace',
-};
-
-const editWorkspace: PathnameConfig<(workspaceId: string) => string> = {
-  link: (workspaceId) => `/user-access/workspaces/detail/${workspaceId}/edit`,
-  path: '/user-access/workspaces/detail/:workspaceId/edit',
-  title: 'Edit Workspace',
-};
-
-const workspaceDetail: PathnameConfig<(workspaceId: string) => string> = {
-  link: (workspaceId) => `/user-access/workspaces/detail/${workspaceId}`,
-  path: '/user-access/workspaces/detail/:workspaceId/',
-  title: 'Workspace detail',
-};
-
 const quickstartsTest: PathnameConfig = {
   link: () => '/user-access/quickstarts-test',
   path: '/user-access/quickstarts-test',
@@ -319,11 +289,6 @@ const pathnames = {
   'group-add-service-account': groupAddServiceAccount,
   'group-service-accounts-edit-group': groupServiceAccountsEditGroup,
   'group-service-accounts-remove-group': groupServiceAccountsRemoveGroup,
-  workspaces,
-  'edit-workspaces-list': editWorkspacesList,
-  'create-workspace': createWorkspace,
-  'edit-workspace': editWorkspace,
-  'workspace-detail': workspaceDetail,
   'quickstarts-test': quickstartsTest,
   'my-user-access': myUserAccess,
 } as const;
@@ -367,11 +332,6 @@ export {
   groupAddServiceAccount,
   groupServiceAccountsEditGroup,
   groupServiceAccountsRemoveGroup,
-  workspaces,
-  editWorkspacesList,
-  createWorkspace,
-  editWorkspace,
-  workspaceDetail,
   quickstartsTest,
   myUserAccess,
 };

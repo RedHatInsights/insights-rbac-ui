@@ -11,7 +11,7 @@ import { type WorkspacePermissions, type WorkspacesWorkspace } from '../../../da
 import messages from '../../../../Messages';
 import { RbacBreadcrumbs } from '../../../../shared/components/navigation/Breadcrumbs';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import pathnames from '../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../workspacePathnames';
 
 interface WorkspaceData {
   name: string;
@@ -49,6 +49,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
 }) => {
   const intl = useIntl();
   const [searchParams] = useSearchParams();
+  const pathnames = useWorkspacePathnames();
 
   // Check if navigated from a child workspace
   const fromChildId = searchParams.get('fromChildId');

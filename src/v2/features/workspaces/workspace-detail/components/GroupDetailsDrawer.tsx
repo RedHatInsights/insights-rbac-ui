@@ -34,7 +34,7 @@ import { AppLink } from '../../../../../shared/components/navigation/AppLink';
 import { TableView } from '../../../../../shared/components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../shared/components/table-view/types';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
-import pathnames from '../../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../../workspacePathnames';
 import { ActionDropdown, type ActionDropdownItem } from '../../../../../shared/components/ActionDropdown/ActionDropdown';
 
 // Extended Role interface to include inheritedFrom data
@@ -115,6 +115,8 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
       setIsAlertDismissed(false);
     }
   }, [group]);
+
+  const pathnames = useWorkspacePathnames();
 
   // Column config for users with inheritance
   const userColumnConfigWithInheritance: ColumnConfigMap<typeof userColumnsWithInheritance> = useMemo(
@@ -197,7 +199,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         return <div className="pf-v6-u-color-400">-</div>;
       },
     }),
-    [intl, group, currentWorkspace],
+    [intl, group, currentWorkspace, pathnames],
   );
 
   // Cell renderers for users without inheritance
@@ -213,11 +215,17 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   // Cell renderers for roles with inheritance
   const roleCellRenderersWithInheritance: CellRendererMap<typeof roleColumnsWithInheritance, GroupRole> = useMemo(
     () => ({
-      role: (row) => (
-        <AppLink to={pathnames['role-detail'].link(row.uuid)} className="pf-v6-c-button pf-m-link pf-m-inline">
-          {row.display_name || row.name || ''}
-        </AppLink>
-      ),
+      role: (row) => {
+        const label = row.display_name || row.name || '';
+        const roleDetailPath = pathnames['role-detail'];
+        return roleDetailPath ? (
+          <AppLink to={roleDetailPath.link(row.uuid)} className="pf-v6-c-button pf-m-link pf-m-inline">
+            {label}
+          </AppLink>
+        ) : (
+          label
+        );
+      },
       inheritedFrom: () => {
         const inherited = group as InheritedWorkspaceGroupRow;
         if (inherited?.inheritedFrom) {
@@ -239,19 +247,25 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         return <div className="pf-v6-u-color-400">-</div>;
       },
     }),
-    [intl, group],
+    [intl, group, pathnames],
   );
 
   // Cell renderers for roles without inheritance
   const roleCellRenderersWithoutInheritance: CellRendererMap<typeof roleColumnsWithoutInheritance, GroupRole> = useMemo(
     () => ({
-      role: (row) => (
-        <AppLink to={pathnames['role-detail'].link(row.uuid)} className="pf-v6-c-button pf-m-link pf-m-inline">
-          {row.display_name || row.name || ''}
-        </AppLink>
-      ),
+      role: (row) => {
+        const label = row.display_name || row.name || '';
+        const roleDetailPath = pathnames['role-detail'];
+        return roleDetailPath ? (
+          <AppLink to={roleDetailPath.link(row.uuid)} className="pf-v6-c-button pf-m-link pf-m-inline">
+            {label}
+          </AppLink>
+        ) : (
+          label
+        );
+      },
     }),
-    [],
+    [pathnames],
   );
 
   // Render users tab content

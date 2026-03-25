@@ -10,7 +10,7 @@ import type { InheritedWorkspaceGroupRow, WorkspaceGroupRow } from '../../../../
 import messages from '../../../../../Messages';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
-import pathnames from '../../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../../workspacePathnames';
 import { TableView } from '../../../../../shared/components/table-view/TableView';
 import { useTableState } from '../../../../../shared/components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../shared/components/table-view/components/TableViewEmptyState';
@@ -37,6 +37,7 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
   ouiaId = 'iam-role-assignments-table',
 }) => {
   const intl = useIntl();
+  const pathnames = useWorkspacePathnames();
 
   const [focusedGroup, setFocusedGroup] = useState<WorkspaceGroupRow | undefined>();
 
@@ -103,7 +104,7 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
       },
       lastModified: (row) => (row.lastModified ? formatDistanceToNow(new Date(row.lastModified), { addSuffix: true }) : ''),
     }),
-    [intl],
+    [intl, pathnames],
   );
 
   const filterConfig: FilterConfig[] = useMemo(

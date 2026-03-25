@@ -16,8 +16,7 @@ import messages from '../../../../Messages';
 import { WarningModal } from '@patternfly/react-component-groups';
 import { EMPTY_PERMISSIONS, type WorkspacePermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { Outlet } from 'react-router-dom';
-import pathnames from '../../../utilities/pathnames';
-import paths from '../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../workspacePathnames';
 import { useAppLink } from '../../../../shared/hooks/useAppLink';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
@@ -63,6 +62,8 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
   const intl = useIntl();
   const navigate = useAppNavigate();
   const toAppLink = useAppLink();
+  const pathnames = useWorkspacePathnames();
+  const paths = pathnames;
 
   const toggle = (
     <MenuToggle ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen} isDisabled={isDisabled} variant="default">

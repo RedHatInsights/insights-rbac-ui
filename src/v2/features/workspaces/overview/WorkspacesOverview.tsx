@@ -30,7 +30,7 @@ import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useAppLink } from '../../../../shared/hooks/useAppLink';
 import useExternalLink from '../../../../shared/hooks/useExternalLink';
 import { ExternalLink } from '../../../../shared/components/navigation/ExternalLink';
-import pathnames from '../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../workspacePathnames';
 
 const VIEW_DEFAULT_GROUPS = 'https://console.redhat.com/iam/user-access/groups';
 // to do - update link when available
@@ -43,6 +43,7 @@ export const WorkspacesOverview = () => {
   const navigate = useAppNavigate();
   const toAppLink = useAppLink();
   const externalLink = useExternalLink();
+  const pathnames = useWorkspacePathnames();
 
   return (
     <>

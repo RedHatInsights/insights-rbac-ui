@@ -114,55 +114,10 @@ const accessManagementEditRole: PathnameConfig<(roleId: string) => string> = {
   title: 'Edit role',
 };
 
-const accessManagementWorkspaces: PathnameConfig = {
-  link: () => '/access-management/workspaces',
-  path: '/access-management/workspaces/*',
-  title: 'Workspaces',
-};
-
-// ===========================================
-// Workspace paths (V2 access-management routes)
-// ===========================================
-
-const workspaceDetail: PathnameConfig<(workspaceId: string) => string> = {
-  link: (workspaceId) => `/access-management/workspaces/detail/${workspaceId}`,
-  path: '/access-management/workspaces/detail/:workspaceId/*',
-  title: 'Workspace detail',
-};
-
-const editWorkspacesList: PathnameConfig<(workspaceId: string) => string> = {
-  link: (workspaceId) => `/access-management/workspaces/edit/${workspaceId}`,
-  path: 'edit/:workspaceId',
-  title: 'Edit Workspace',
-};
-
-const createWorkspace: PathnameConfig = {
-  link: () => '/access-management/workspaces/create-workspace',
-  path: 'create-workspace',
-  title: 'Create workspace',
-};
-
-const editWorkspace: PathnameConfig<(workspaceId: string) => string> = {
-  link: (workspaceId) => `/access-management/workspaces/detail/${workspaceId}/edit`,
-  path: 'edit',
-  title: 'Edit Workspace',
-};
-
-// TODO: V1 roleDetail path used by V2 GroupDetailsDrawer. Migrate when V2 role detail routes exist.
 const roleDetail: PathnameConfig<(roleId: string) => string> = {
   link: (roleId) => `/user-access/roles/detail/${roleId}`,
   path: '/user-access/roles/detail/:roleId/*',
   title: 'Role',
-};
-
-// ===========================================
-// Role Access Modal
-// ===========================================
-
-const workspaceRoleAccess: PathnameConfig<(workspaceId: string, groupId: string) => string> = {
-  link: (workspaceId, groupId) => `/access-management/workspaces/detail/${workspaceId}/role-access/${groupId}`,
-  path: 'role-access/:groupId',
-  title: 'Edit access',
 };
 
 // ===========================================
@@ -185,7 +140,6 @@ const pathnames = {
   'my-access-groups': myAccessGroups,
   'my-access-workspaces': myAccessWorkspaces,
   'organization-management': organizationManagement,
-  workspaces: accessManagementWorkspaces,
   'users-and-user-groups': usersAndUserGroups,
   'users-new': usersNew,
   'user-groups': userGroups,
@@ -196,13 +150,7 @@ const pathnames = {
   'access-management-roles': accessManagementRoles,
   'access-management-add-role': accessManagementAddRole,
   'access-management-edit-role': accessManagementEditRole,
-  'access-management-workspaces': accessManagementWorkspaces,
-  'workspace-detail': workspaceDetail,
-  'edit-workspaces-list': editWorkspacesList,
-  'create-workspace': createWorkspace,
-  'edit-workspace': editWorkspace,
   'role-detail': roleDetail,
-  'workspace-role-access': workspaceRoleAccess,
   'access-management-audit-log': accessManagementAuditLog,
 } as const;
 
@@ -224,13 +172,7 @@ export {
   accessManagementRoles,
   accessManagementAddRole,
   accessManagementEditRole,
-  accessManagementWorkspaces,
-  workspaceDetail,
-  editWorkspacesList,
-  createWorkspace,
-  editWorkspace,
   roleDetail,
-  workspaceRoleAccess,
   accessManagementAuditLog,
 };
 

@@ -6,7 +6,7 @@ import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../..
 import { useWorkspacesWithPermissions } from '../../workspaces/hooks/useWorkspacesWithPermissions';
 import type { WorkspaceWithPermissions } from '../../../data/queries/workspaces';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import pathnames from '../../../utilities/pathnames';
+import { v2WorkspacePathnames as wsPathnames } from '../../workspaces/workspacePathnames';
 import messages from '../../../../Messages';
 import { MyWorkspaceDrawer } from './MyWorkspaceDrawer';
 
@@ -29,7 +29,7 @@ const MyWorkspaces: React.FunctionComponent = () => {
   const cellRenderers: CellRendererMap<typeof columns, WorkspaceWithPermissions> = useMemo(
     () => ({
       name: (ws) => (
-        <AppLink to={pathnames['workspace-detail'].link(ws.id)} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+        <AppLink to={wsPathnames['workspace-detail'].link(ws.id)} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
           {ws.name}
         </AppLink>
       ),

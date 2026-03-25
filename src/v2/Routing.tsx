@@ -6,6 +6,7 @@ import { AppPlaceholder } from '../shared/components/ui-states/LoaderPlaceholder
 import ElementWrapper from '../shared/components/ElementWrapper';
 import { groups, principals, roles, v2Guard, v2GuardOrgAdmin, workspaces } from './components/V2PermissionGuard';
 import pathnames from './utilities/pathnames';
+import { v2WorkspacePathnames as wsPathnames } from './features/workspaces/workspacePathnames';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- outlet context props are injected at runtime via ElementWrapper/cloneElement
 const outletElement = (Component: React.ComponentType<any>, path?: string) => (
@@ -50,8 +51,10 @@ export const V2Routing = () => {
   const { setDocumentTitle } = usePlatformTracking();
   const toAppLink = useAppLink();
 
+  const allPathnames = { ...pathnames, ...wsPathnames };
+
   useEffect(() => {
-    const currPath = Object.values(pathnames).find((item) => !!matchPath({ path: item.path, end: true }, location.pathname));
+    const currPath = Object.values(allPathnames).find((item) => item && !!matchPath({ path: item.path, end: true }, location.pathname));
     if (currPath?.title) setDocumentTitle(`${currPath.title} - Access Management`);
   }, [location.pathname, setDocumentTitle]);
 
@@ -107,20 +110,23 @@ export const V2Routing = () => {
         </Route>
 
         {/* Workspaces — view is public (rbac_workspace_view check disabled) */}
-        <Route path={pathnames['workspace-detail'].path} element={<WorkspaceDetail />}>
+        <Route path={wsPathnames['workspace-detail'].path} element={<WorkspaceDetail />}>
           <Route {...v2Guard([workspaces.canUpdate])}>
-            <Route path={pathnames['edit-workspace'].path} element={outletElement(EditWorkspaceModal, pathnames['edit-workspace'].path)} />
-            <Route path={pathnames['workspace-role-access'].path} element={outletElement(RoleAccessModal, pathnames['workspace-role-access'].path)} />
+            <Route path={wsPathnames['edit-workspace'].path} element={outletElement(EditWorkspaceModal, wsPathnames['edit-workspace'].path)} />
+            <Route
+              path={wsPathnames['workspace-role-access'].path}
+              element={outletElement(RoleAccessModal, wsPathnames['workspace-role-access'].path)}
+            />
           </Route>
         </Route>
-        <Route path={pathnames['access-management-workspaces'].path} element={<WorkspaceList />}>
+        <Route path={wsPathnames['access-management-workspaces'].path} element={<WorkspaceList />}>
           <Route {...v2Guard([workspaces.canCreate])}>
-            <Route path={pathnames['create-workspace'].path} element={<CreateWorkspaceWizard />} />
+            <Route path={wsPathnames['create-workspace'].path} element={<CreateWorkspaceWizard />} />
           </Route>
           <Route {...v2Guard([workspaces.canUpdate])}>
             <Route
-              path={pathnames['edit-workspaces-list'].path}
-              element={outletElement(EditWorkspaceModal, pathnames['edit-workspaces-list'].path)}
+              path={wsPathnames['edit-workspaces-list'].path}
+              element={outletElement(EditWorkspaceModal, wsPathnames['edit-workspaces-list'].path)}
             />
           </Route>
         </Route>

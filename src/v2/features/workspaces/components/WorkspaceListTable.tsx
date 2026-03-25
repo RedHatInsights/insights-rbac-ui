@@ -28,7 +28,7 @@ import useExternalLink from '../../../../shared/hooks/useExternalLink';
 import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
 import messages from '../../../../Messages';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import pathnames from '../../../utilities/pathnames';
+import { useWorkspacePathnames } from '../workspacePathnames';
 import type { WorkspaceFilters, WorkspaceWithChildren, WorkspacesWorkspace } from '../types';
 import type { WorkspaceRelation, WorkspaceWithPermissions } from '../../../data/queries/workspaces';
 
@@ -151,6 +151,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   // Feature flags via custom hook (see WORKSPACE_FEATURE_FLAGS.md for complete documentation)
   // M3: RBAC detail pages with read-only role bindings
   const hasRbacDetailPages = useWorkspacesFlag('m3'); // M3+ or master flag
+  const pathnames = useWorkspacePathnames();
 
   const handleModalToggle = (workspacesToDelete: WorkspacesWorkspace[]) => {
     setCurrentWorkspaces(workspacesToDelete);

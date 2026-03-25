@@ -49,7 +49,7 @@ import {
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 
-const WORKSPACES_URL = iamUrl(v2.accessManagementWorkspaces.link());
+const WORKSPACES_URL = iamUrl(v2.workspaces.link());
 
 const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName('v2');
 
