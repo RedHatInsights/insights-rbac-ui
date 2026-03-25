@@ -7,7 +7,7 @@ import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { MyGroups } from './MyGroups';
 import { groupsHandlers } from '../../../../shared/data/mocks/groups.handlers';
-import { groupRolesHandlers } from '../../../../shared/data/mocks/groupRoles.handlers';
+import { roleBindingsHandlers } from '../../../data/mocks/roleBindings.handlers';
 import { GROUP_SUPPORT_TEAM, GROUP_SYSTEM_DEFAULT } from '../../../../shared/data/mocks/seed';
 
 const meta: Meta<typeof MyGroups> = {
@@ -15,7 +15,7 @@ const meta: Meta<typeof MyGroups> = {
   tags: ['autodocs'],
   parameters: {
     msw: {
-      handlers: [...groupsHandlers(), ...groupRolesHandlers()],
+      handlers: [...groupsHandlers(), ...roleBindingsHandlers()],
     },
     docs: {
       description: {

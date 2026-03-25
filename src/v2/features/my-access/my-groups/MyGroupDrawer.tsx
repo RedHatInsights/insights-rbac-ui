@@ -12,7 +12,7 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
-import { useGroupRolesQuery } from '../../../../shared/data/queries/groups';
+import { useGroupRoleBindingsQuery } from '../../../data/queries/groupRoleBindings';
 import { extractErrorMessage } from '../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../shared/components/table-view/types';
@@ -62,10 +62,7 @@ const GroupRolesPanel: React.FC<{ groupId: string }> = ({ groupId }) => {
     syncWithUrl: false,
   });
 
-  const { data, isLoading, error } = useGroupRolesQuery(groupId, {
-    limit: tableState.apiParams.limit,
-  });
-  const roles = data?.roles ?? [];
+  const { data: roleData, isLoading, error } = useGroupRoleBindingsQuery(groupId);
 
   if (error) {
     return (
@@ -76,12 +73,6 @@ const GroupRolesPanel: React.FC<{ groupId: string }> = ({ groupId }) => {
       </div>
     );
   }
-
-  const roleData: RoleData[] = roles.map((role) => ({
-    uuid: role.uuid,
-    display_name: role.display_name ?? role.name,
-    workspace: role.workspace,
-  }));
 
   const emptyState = (
     <EmptyState headingLevel="h4" icon={KeyIcon} titleText="No roles found" variant="sm">
