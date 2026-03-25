@@ -134,7 +134,8 @@ Each story demonstrates different aspects of container state management and erro
       await expect(canvas.findByText(MOCK_GROUP_BINDINGS[0].role_name)).resolves.toBeInTheDocument();
       await expect(canvas.findByText(MOCK_GROUP_BINDINGS[1].role_name)).resolves.toBeInTheDocument();
       await expect(canvas.findByText(MOCK_GROUP_BINDINGS[2].role_name)).resolves.toBeInTheDocument();
-      await expect(canvas.findByText(MOCK_GROUP_BINDINGS[0].resource_id)).resolves.toBeInTheDocument();
+      const wsCells = await canvas.findAllByText(MOCK_GROUP_BINDINGS[0].resource_id);
+      expect(wsCells.length).toBeGreaterThanOrEqual(1);
     });
   },
 };
