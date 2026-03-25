@@ -11,12 +11,14 @@ import { FormGroup, Stack, StackItem } from '@patternfly/react-core';
 
 interface RolesSelectionFieldProps {
   name: string;
+  validate?: unknown[];
+  [key: string]: unknown;
 }
 
-const RolesSelectionField: React.FC<RolesSelectionFieldProps> = ({ name }) => {
+const RolesSelectionField: React.FC<RolesSelectionFieldProps> = (props) => {
   const intl = useIntl();
   const formOptions = useFormApi();
-  const { input } = useFieldApi({ name });
+  const { input } = useFieldApi(props);
 
   const { data: rolesForWizard = [], isLoading } = useAllRolesV2Query();
 
@@ -24,6 +26,7 @@ const RolesSelectionField: React.FC<RolesSelectionFieldProps> = ({ name }) => {
 
   useEffect(() => {
     input.onChange(selectedRoles);
+    input.onBlur();
     formOptions.change('selected-roles', selectedRoles);
   }, [selectedRoles]);
 

@@ -9,6 +9,8 @@ export interface GrantAccessFormValues {
   // Add form fields here when needed
 }
 
+const requireNonEmptyArray = (value: unknown) => (!Array.isArray(value) || value.length === 0 ? 'At least one selection is required' : undefined);
+
 export const schemaBuilder = (workspaceName: string) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
@@ -36,6 +38,7 @@ export const schemaBuilder = (workspaceName: string) => {
                 name: 'selected-user-groups',
                 component: 'user-groups-selection',
                 isRequired: true,
+                validate: [requireNonEmptyArray],
               },
             ],
           },
@@ -49,6 +52,7 @@ export const schemaBuilder = (workspaceName: string) => {
                 name: 'selected-roles',
                 component: 'roles-selection',
                 isRequired: true,
+                validate: [requireNonEmptyArray],
               },
             ],
           },

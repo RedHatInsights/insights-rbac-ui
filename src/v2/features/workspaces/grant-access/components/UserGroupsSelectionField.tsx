@@ -11,12 +11,14 @@ import { FormGroup, Stack, StackItem } from '@patternfly/react-core';
 
 interface UserGroupsSelectionFieldProps {
   name: string;
+  validate?: unknown[];
+  [key: string]: unknown;
 }
 
-const UserGroupsSelectionField: React.FC<UserGroupsSelectionFieldProps> = ({ name }) => {
+const UserGroupsSelectionField: React.FC<UserGroupsSelectionFieldProps> = (props) => {
   const intl = useIntl();
   const formOptions = useFormApi();
-  const { input } = useFieldApi({ name });
+  const { input } = useFieldApi(props);
 
   // React Query hook for groups
   const { data: groupsData, isLoading } = useGroupsQuery({ limit: 1000 });
@@ -26,6 +28,7 @@ const UserGroupsSelectionField: React.FC<UserGroupsSelectionFieldProps> = ({ nam
 
   useEffect(() => {
     input.onChange(selectedGroups);
+    input.onBlur();
     formOptions.change('selected-user-groups', selectedGroups);
   }, [selectedGroups]);
 
