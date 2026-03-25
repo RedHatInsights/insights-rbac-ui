@@ -643,11 +643,15 @@ export const UserDetailsIntegration: Story = {
       await expect(drawer.findByText('John Doe')).resolves.toBeInTheDocument();
       await expect(drawer.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
 
-      // Verify Groups tab content loads (default tab)
-      await expect(drawer.findByText('Administrators')).resolves.toBeInTheDocument();
-      await expect(drawer.findByText('Developers')).resolves.toBeInTheDocument();
+      // PF tabs render all tab content into the DOM (hidden via CSS), so group
+      // names like "Administrators" can appear in both the Groups tab and the
+      // Roles tab's "User Group" column simultaneously. Use findAllByText.
+      const initialAdminTexts = await drawer.findAllByText('Administrators');
+      await expect(initialAdminTexts.length).toBeGreaterThanOrEqual(1);
+      const initialDevTexts = await drawer.findAllByText('Developers');
+      await expect(initialDevTexts.length).toBeGreaterThanOrEqual(1);
 
-      // Switch to Roles tab (use role selector to avoid finding text in other places)
+      // Switch to Roles tab
       const rolesTab = await drawer.findByRole('tab', { name: /Assigned roles/i });
       await userEvent.click(rolesTab);
 
@@ -655,12 +659,10 @@ export const UserDetailsIntegration: Story = {
       await expect(drawer.findByText('User administrators')).resolves.toBeInTheDocument();
       await expect(drawer.findByText('Cost Management Viewer')).resolves.toBeInTheDocument();
 
-      // Switch back to Groups tab (use role selector to avoid finding text in other places)
+      // Switch back to Groups tab
       const groupsTab = await drawer.findByRole('tab', { name: /User groups/i });
       await userEvent.click(groupsTab);
 
-      // Verify Groups content is still there (use findAllByText since group names
-      // also appear as User Group column in the roles tab which PF keeps in the DOM)
       const adminTexts = await drawer.findAllByText('Administrators');
       await expect(adminTexts.length).toBeGreaterThanOrEqual(1);
       const devTexts = await drawer.findAllByText('Developers');
