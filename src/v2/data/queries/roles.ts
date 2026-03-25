@@ -25,6 +25,7 @@ import type {
 import messages from '../../../Messages';
 import { useMutationQueryClient } from '../../../shared/data/utils';
 import type { MutationOptions } from '../../../shared/data/types';
+import { roleBindingsKeys } from './workspaces';
 
 // =============================================================================
 // Query Keys Factory
@@ -139,7 +140,7 @@ export function useRoleAssignmentsQuery(
   },
 ) {
   return useQuery({
-    queryKey: [...rolesV2Keys.all, 'workspace-role-bindings', workspaceId, options?.limit, options?.cursor, options?.excludeSources],
+    queryKey: [...roleBindingsKeys.all, 'workspace-role-bindings', workspaceId, options?.limit, options?.cursor, options?.excludeSources],
     queryFn: async (): Promise<RoleBindingsListBySubject200Response> => {
       const fields = 'last_modified,subject(id,group.name,group.description,group.user_count),roles(id,name),resource(id,name,type)';
 
@@ -163,7 +164,7 @@ export function useRoleAssignmentsQuery(
  */
 export function useRoleUsageQuery(roleId: string, options?: { enabled?: boolean }) {
   return useQuery({
-    queryKey: [...rolesV2Keys.all, 'role-bindings', roleId],
+    queryKey: [...roleBindingsKeys.all, 'role-bindings', roleId],
     queryFn: async (): Promise<RoleBindingsRoleBinding[]> => {
       const response = await rolesV2Api.roleBindingsList({
         roleId,
@@ -263,6 +264,7 @@ export function useBatchDeleteRolesV2Mutation(options?: MutationOptions) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: rolesV2Keys.all });
+      queryClient.invalidateQueries({ queryKey: roleBindingsKeys.all });
       addNotification({
         variant: 'success',
         title: intl.formatMessage(messages.removeRoleSuccessTitle),
