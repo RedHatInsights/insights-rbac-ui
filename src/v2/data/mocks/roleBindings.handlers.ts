@@ -359,6 +359,21 @@ export function createStatefulRoleBindingsHandlers(
   ];
 }
 
+/**
+ * Simple batchCreate handler for non-stateful stories (e.g. GrantAccessWizard).
+ * Accepts POST with or without trailing slash.
+ */
+export function roleBindingsBatchCreateHandlers(options: { networkDelay?: number; onBatchCreate?: (...args: unknown[]) => void } = {}) {
+  const networkDelay = options.networkDelay ?? MOCK_DELAY;
+  const handler = async ({ request }: { request: Request }) => {
+    await delay(networkDelay);
+    const body = await request.json();
+    options.onBatchCreate?.(body);
+    return HttpResponse.json({ data: { created: (body as { requests?: unknown[] }).requests?.length ?? 0 } });
+  };
+  return [http.post('*/api/rbac/v2/role-bindings:batchCreate', handler), http.post('*/api/rbac/v2/role-bindings:batchCreate/', handler)];
+}
+
 /** All role-bindings endpoints return the given error status */
 export function roleBindingsErrorHandlers(status: number = 500) {
   return [http.get('*/api/rbac/v2/role-bindings/by-subject', () => HttpResponse.json({ error: 'Error' }, { status }))];
