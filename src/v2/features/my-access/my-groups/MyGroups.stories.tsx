@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { waitForContentReady } from '../../../../test-utils/interactionHelpers';
+import { waitForContentReady, waitForDrawer } from '../../../../test-utils/interactionHelpers';
 import { TEST_TIMEOUTS } from '../../../../test-utils/testUtils';
 import { findSortButton } from '../../../../test-utils/tableHelpers';
 import React from 'react';
@@ -8,7 +8,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { MyGroups } from './MyGroups';
 import { groupsHandlers } from '../../../../shared/data/mocks/groups.handlers';
 import { roleBindingsHandlers } from '../../../data/mocks/roleBindings.handlers';
-import { GROUP_SUPPORT_TEAM, GROUP_SYSTEM_DEFAULT } from '../../../../shared/data/mocks/seed';
+import type { MockRoleBinding } from '../../../data/mocks/roleBindings.fixtures';
+import { GROUP_PLATFORM_ADMINS, GROUP_SUPPORT_TEAM, GROUP_SYSTEM_DEFAULT } from '../../../../shared/data/mocks/seed';
+import { V2_ROLE_WORKSPACE_ADMIN, WS_PRODUCTION } from '../../../data/mocks/seed';
 
 const meta: Meta<typeof MyGroups> = {
   component: MyGroups,
@@ -91,6 +93,48 @@ export const SortByName: Story = {
         },
         { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
       );
+    });
+  },
+};
+
+const DRAWER_BINDING: MockRoleBinding = {
+  id: 'binding-drawer-1',
+  role_id: V2_ROLE_WORKSPACE_ADMIN.id!,
+  role_name: V2_ROLE_WORKSPACE_ADMIN.name!,
+  subject_type: 'group',
+  subject_id: GROUP_PLATFORM_ADMINS.uuid,
+  resource_id: WS_PRODUCTION.id!,
+  resource_type: 'workspace',
+  created: '2024-06-01T00:00:00Z',
+};
+
+/**
+ * Opens the drawer for a group and verifies V2 role binding data.
+ */
+export const DrawerShowsRoleBindings: Story = {
+  parameters: {
+    msw: {
+      handlers: [...groupsHandlers(), ...roleBindingsHandlers([DRAWER_BINDING])],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    await step('Wait for data to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Click Platform Admins row to open drawer', async () => {
+      const row = await canvas.findByText(GROUP_PLATFORM_ADMINS.name);
+      await user.click(row);
+    });
+
+    await step('Verify drawer shows role binding data', async () => {
+      const drawer = await waitForDrawer();
+      await expect(drawer.findByText(GROUP_PLATFORM_ADMINS.name)).resolves.toBeInTheDocument();
+      await expect(drawer.findByText(DRAWER_BINDING.role_name)).resolves.toBeInTheDocument();
+      await expect(drawer.findByText(DRAWER_BINDING.resource_id)).resolves.toBeInTheDocument();
     });
   },
 };

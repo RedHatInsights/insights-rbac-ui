@@ -121,12 +121,20 @@ export function createRoleBindingsListHandlers(bindings: MockRoleBinding[], opti
       await delay(networkDelay);
       const url = new URL(request.url);
       const roleId = url.searchParams.get('role_id');
+      const subjectType = url.searchParams.get('subject_type');
+      const subjectId = url.searchParams.get('subject_id');
       const limit = parseInt(url.searchParams.get('limit') || '1000', 10);
 
       let filtered = bindings;
 
       if (roleId) {
         filtered = filtered.filter((b) => b.role_id === roleId);
+      }
+      if (subjectType) {
+        filtered = filtered.filter((b) => b.subject_type === subjectType);
+      }
+      if (subjectId) {
+        filtered = filtered.filter((b) => b.subject_id === subjectId);
       }
 
       options.onList?.(url.searchParams);
