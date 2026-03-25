@@ -308,6 +308,10 @@ End-to-end flow for granting access to a workspace via the 3-step wizard.
         { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
       );
     });
+
+    await step('Verify new binding is visible in the table', async () => {
+      await expect(canvas.findByText(KESSEL_GROUP_DEV_TEAM.name, {}, { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH })).resolves.toBeInTheDocument();
+    });
   },
 };
 
@@ -400,6 +404,16 @@ End-to-end flow for removing a group's access via the kebab menu.
           body: expect.objectContaining({ roles: [] }),
         }),
       );
+    });
+
+    await step('Verify removed group is gone from table', async () => {
+      await waitFor(
+        () => {
+          expect(canvas.queryByText(KESSEL_GROUP_VIEWERS.name)).not.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
+      await expect(canvas.findByText(KESSEL_GROUP_PROD_ADMINS.name)).resolves.toBeInTheDocument();
     });
   },
 };
@@ -519,6 +533,10 @@ A lighter variation of the Grant Access wizard with one group and one role.
         },
         { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
       );
+    });
+
+    await step('Verify new binding is visible in the table', async () => {
+      await expect(canvas.findByText(KESSEL_GROUP_MARKETING.name, {}, { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH })).resolves.toBeInTheDocument();
     });
   },
 };
