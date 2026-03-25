@@ -12,7 +12,7 @@ Two route-based tabs (following the `UsersAndUserGroups` pattern):
 
 - Lists groups the current user belongs to via `useGroupsQuery({ username })`.
 - Columns: Group name, Description.
-- Row click opens `MyGroupDrawer` showing assigned roles + workspace for each role (via `useGroupRolesQuery`).
+- Row click opens `MyGroupDrawer` showing assigned roles + workspace for each role (via `useGroupRoleBindingsQuery` from `src/v2/data/queries/roleBindings.ts`).
 
 ### My workspaces
 
@@ -40,7 +40,7 @@ Two route-based tabs (following the `UsersAndUserGroups` pattern):
 ## APIs called
 
 - `GET /api/rbac/v1/groups/?username=<current>` — user's groups
-- `GET /api/rbac/v1/groups/<id>/roles/` — group's assigned roles
+- `GET /api/rbac/v2/role-bindings/?subject_type=group&subject_id=<id>` — group's role bindings
 - `GET /api/rbac/v2/workspaces/` — all visible workspaces
 - `POST /api/rbac/v2/role-bindings/list-by-subject` — role bindings per workspace for current user
 - Kessel `/checkselfbulk` — workspace permission checks (view, edit, delete, create, move)

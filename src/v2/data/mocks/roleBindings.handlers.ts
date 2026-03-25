@@ -1,11 +1,12 @@
 import { HttpResponse, delay, http } from 'msw';
-import { type MockRoleBinding, defaultRoleBindings } from './roleBindings.fixtures';
 import type {
   RoleBindingsGroupSubject,
   RoleBindingsList200Response,
   RoleBindingsListBySubject200Response,
   RoleBindingsRoleBinding,
 } from '../api/workspaces';
+import type { RoleBinding } from '../queries/roleBindings';
+import { DEFAULT_ROLE_BINDINGS } from './seed';
 
 const MOCK_DELAY = 200;
 const VALID_EXCLUDE_SOURCES = new Set(['direct', 'indirect']);
@@ -45,7 +46,19 @@ export interface RoleBindingsHandlerOptions {
   onUpdate?: (...args: unknown[]) => void;
 }
 
-export function createRoleBindingsHandlers(bindings: MockRoleBinding[], options: RoleBindingsHandlerOptions = {}) {
+function toApiBinding(b: RoleBinding): RoleBindingsRoleBinding {
+  return {
+    role: { id: b.role.id, name: b.role.name },
+    subject: {
+      id: b.subject.id,
+      type: b.subject.type,
+      ...(b.subject.groupName && { group: { name: b.subject.groupName } }),
+    } as RoleBindingsGroupSubject,
+    resource: { id: b.resource.id, name: b.resource.name, type: b.resource.type },
+  };
+}
+
+export function createRoleBindingsHandlers(bindings: RoleBinding[], options: RoleBindingsHandlerOptions = {}) {
   const networkDelay = options.networkDelay ?? MOCK_DELAY;
 
   return [
@@ -59,17 +72,15 @@ export function createRoleBindingsHandlers(bindings: MockRoleBinding[], options:
       let filtered = bindings;
 
       if (resourceId) {
-        filtered = filtered.filter((b) => b.resource_id === resourceId);
+        filtered = filtered.filter((b) => b.resource.id === resourceId);
       }
       if (excludeSources === 'direct') {
-        // Simple handler has no parent-workspace context — cannot model inheritance.
-        // Use createStatefulRoleBindingsHandlers for inheritance-aware flows.
         filtered = [];
       }
 
       options.onList?.(url.searchParams);
       return HttpResponse.json({
-        data: filtered,
+        data: filtered.map(toApiBinding),
         meta: { count: filtered.length },
       });
     }),
@@ -77,8 +88,8 @@ export function createRoleBindingsHandlers(bindings: MockRoleBinding[], options:
 }
 
 /** Convenience wrapper with default data */
-export function roleBindingsHandlers(data?: MockRoleBinding[], options?: RoleBindingsHandlerOptions) {
-  const bindings = data ?? defaultRoleBindings;
+export function roleBindingsHandlers(data?: RoleBinding[], options?: RoleBindingsHandlerOptions) {
+  const bindings = data ?? DEFAULT_ROLE_BINDINGS;
   return [
     ...createRoleBindingsHandlers(bindings, options),
     ...createRoleBindingsListHandlers(bindings, options),
@@ -111,9 +122,9 @@ export function roleBindingsUpdateHandlers(options: Pick<RoleBindingsHandlerOpti
 
 /**
  * Handler for GET /api/rbac/v2/role-bindings/ (base list endpoint).
- * Used by useRoleUsageQuery to fetch where a role is used.
+ * Used by useRoleUsageQuery and useGroup/UserRoleBindingsQuery.
  */
-export function createRoleBindingsListHandlers(bindings: MockRoleBinding[], options: RoleBindingsHandlerOptions = {}) {
+export function createRoleBindingsListHandlers(bindings: RoleBinding[], options: RoleBindingsHandlerOptions = {}) {
   const networkDelay = options.networkDelay ?? MOCK_DELAY;
 
   return [
@@ -121,21 +132,29 @@ export function createRoleBindingsListHandlers(bindings: MockRoleBinding[], opti
       await delay(networkDelay);
       const url = new URL(request.url);
       const roleId = url.searchParams.get('role_id');
+      const subjectType = url.searchParams.get('subject_type');
+      const subjectId = url.searchParams.get('subject_id');
+      const resourceId = url.searchParams.get('resource_id');
       const limit = parseInt(url.searchParams.get('limit') || '1000', 10);
 
       let filtered = bindings;
 
       if (roleId) {
-        filtered = filtered.filter((b) => b.role_id === roleId);
+        filtered = filtered.filter((b) => b.role.id === roleId);
+      }
+      if (subjectType) {
+        filtered = filtered.filter((b) => b.subject.type === subjectType);
+      }
+      if (subjectId) {
+        filtered = filtered.filter((b) => b.subject.id === subjectId);
+      }
+      if (resourceId) {
+        filtered = filtered.filter((b) => b.resource.id === resourceId);
       }
 
       options.onList?.(url.searchParams);
       return HttpResponse.json({
-        data: filtered.map((b) => ({
-          role: { id: b.role_id, name: b.role_name },
-          subject: { id: b.subject_id, type: b.subject_type, group: { name: b.subject_id } },
-          resource: { id: b.resource_id, name: b.resource_id, type: b.resource_type },
-        })),
+        data: filtered.map(toApiBinding),
         meta: { count: filtered.length, limit },
         links: { next: null, previous: null },
       });
@@ -361,13 +380,20 @@ export function createStatefulRoleBindingsHandlers(
 
 /** All role-bindings endpoints return the given error status */
 export function roleBindingsErrorHandlers(status: number = 500) {
-  return [http.get('*/api/rbac/v2/role-bindings/by-subject', () => HttpResponse.json({ error: 'Error' }, { status }))];
+  return [
+    http.get('*/api/rbac/v2/role-bindings/by-subject', () => HttpResponse.json({ error: 'Error' }, { status })),
+    http.get('*/api/rbac/v2/role-bindings/', () => HttpResponse.json({ error: 'Error' }, { status })),
+  ];
 }
 
 /** All role-bindings endpoints delay forever (loading state) */
 export function roleBindingsLoadingHandlers() {
   return [
     http.get('*/api/rbac/v2/role-bindings/by-subject', async () => {
+      await delay('infinite');
+      return new HttpResponse(null);
+    }),
+    http.get('*/api/rbac/v2/role-bindings/', async () => {
       await delay('infinite');
       return new HttpResponse(null);
     }),

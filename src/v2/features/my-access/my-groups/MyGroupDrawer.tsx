@@ -12,7 +12,7 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
-import { useGroupRolesQuery } from '../../../../shared/data/queries/groups';
+import { type RoleBinding, useGroupRoleBindingsQuery } from '../../../../v2/data/queries/roleBindings';
 import { extractErrorMessage } from '../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../shared/components/table-view/types';
@@ -30,12 +30,6 @@ interface MyGroupDrawerProps {
 
 const roleColumns = ['name', 'workspace'] as const;
 
-interface RoleData {
-  uuid: string;
-  display_name: string;
-  workspace?: string;
-}
-
 const GroupRolesPanel: React.FC<{ groupId: string }> = ({ groupId }) => {
   const intl = useIntl();
 
@@ -47,25 +41,22 @@ const GroupRolesPanel: React.FC<{ groupId: string }> = ({ groupId }) => {
     [intl],
   );
 
-  const cellRenderers: CellRendererMap<typeof roleColumns, RoleData> = useMemo(
+  const cellRenderers: CellRendererMap<typeof roleColumns, RoleBinding> = useMemo(
     () => ({
-      name: (role) => role.display_name,
-      workspace: (role) => role.workspace || '—',
+      name: (binding) => binding.role.name,
+      workspace: (binding) => binding.resource.name,
     }),
     [],
   );
 
-  const tableState = useTableState<typeof roleColumns, RoleData>({
+  const tableState = useTableState<typeof roleColumns, RoleBinding>({
     columns: roleColumns,
-    getRowId: (role) => role.uuid,
+    getRowId: (binding) => `${binding.role.id}-${binding.resource.id}`,
     initialPerPage: 100,
     syncWithUrl: false,
   });
 
-  const { data, isLoading, error } = useGroupRolesQuery(groupId, {
-    limit: tableState.apiParams.limit,
-  });
-  const roles = data?.roles ?? [];
+  const { data: bindings = [], isLoading, error } = useGroupRoleBindingsQuery(groupId);
 
   if (error) {
     return (
@@ -77,12 +68,6 @@ const GroupRolesPanel: React.FC<{ groupId: string }> = ({ groupId }) => {
     );
   }
 
-  const roleData: RoleData[] = roles.map((role) => ({
-    uuid: role.uuid,
-    display_name: role.display_name ?? role.name,
-    workspace: role.workspace,
-  }));
-
   const emptyState = (
     <EmptyState headingLevel="h4" icon={KeyIcon} titleText="No roles found" variant="sm">
       <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
@@ -91,13 +76,13 @@ const GroupRolesPanel: React.FC<{ groupId: string }> = ({ groupId }) => {
 
   return (
     <div className="pf-v6-u-pt-md">
-      <TableView<typeof roleColumns, RoleData>
+      <TableView<typeof roleColumns, RoleBinding>
         {...tableState}
         columns={roleColumns}
         columnConfig={columnConfig}
-        data={isLoading ? undefined : roleData}
-        totalCount={roleData.length}
-        getRowId={(role) => role.uuid}
+        data={isLoading ? undefined : bindings}
+        totalCount={bindings.length}
+        getRowId={(binding) => `${binding.role.id}-${binding.resource.id}`}
         cellRenderers={cellRenderers}
         ariaLabel="Group roles"
         ouiaId="my-group-drawer-roles"

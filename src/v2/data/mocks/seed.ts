@@ -1,6 +1,7 @@
 import type { Permission } from '../api/roles';
 import type { Role } from '../queries/roles';
 import type { WorkspacesWorkspace } from '../api/workspaces';
+import type { RoleBinding } from '../queries/roleBindings';
 import type { V2Seed } from './db';
 import {
   DEFAULT_GROUPS,
@@ -10,6 +11,11 @@ import {
   DEFAULT_PERMISSIONS,
   DEFAULT_SERVICE_ACCOUNTS,
   DEFAULT_USERS,
+  GROUP_ENGINEERING,
+  GROUP_PLATFORM_ADMINS,
+  GROUP_SUPPORT_TEAM,
+  USER_JANE,
+  USER_JOHN,
 } from '../../../shared/data/mocks/seed';
 
 export const DEFAULT_V2_ROLE_PERMISSIONS: Record<string, Permission[]> = {
@@ -144,6 +150,44 @@ export const WS_DEFAULT = DEFAULT_WORKSPACES[1];
 export const WS_PRODUCTION = DEFAULT_WORKSPACES[2];
 export const WS_DEVELOPMENT = DEFAULT_WORKSPACES[3];
 export const WS_STAGING = DEFAULT_WORKSPACES[4];
+
+// ---------------------------------------------------------------------------
+// Role bindings (strict domain type from RoleBinding in queries/roleBindings.ts)
+// ---------------------------------------------------------------------------
+
+export const DEFAULT_ROLE_BINDINGS: RoleBinding[] = [
+  {
+    role: { id: V2_ROLE_TENANT_ADMIN.id!, name: V2_ROLE_TENANT_ADMIN.name! },
+    subject: { id: GROUP_PLATFORM_ADMINS.uuid, type: 'group' },
+    resource: { id: WS_PRODUCTION.id!, name: WS_PRODUCTION.name!, type: 'workspace' },
+  },
+  {
+    role: { id: V2_ROLE_WORKSPACE_ADMIN.id!, name: V2_ROLE_WORKSPACE_ADMIN.name! },
+    subject: { id: GROUP_PLATFORM_ADMINS.uuid, type: 'group' },
+    resource: { id: WS_DEVELOPMENT.id!, name: WS_DEVELOPMENT.name!, type: 'workspace' },
+  },
+  {
+    role: { id: V2_ROLE_RHEL_DEVOPS.id!, name: V2_ROLE_RHEL_DEVOPS.name! },
+    subject: { id: GROUP_ENGINEERING.uuid, type: 'group' },
+    resource: { id: WS_STAGING.id!, name: WS_STAGING.name!, type: 'workspace' },
+  },
+  {
+    role: { id: V2_ROLE_TENANT_ADMIN.id!, name: V2_ROLE_TENANT_ADMIN.name! },
+    subject: { id: USER_JOHN.username, type: 'user', groupName: GROUP_PLATFORM_ADMINS.name },
+    resource: { id: WS_PRODUCTION.id!, name: WS_PRODUCTION.name!, type: 'workspace' },
+  },
+  {
+    role: { id: V2_ROLE_INVENTORY_VIEWER.id!, name: V2_ROLE_INVENTORY_VIEWER.name! },
+    subject: { id: USER_JANE.username, type: 'user', groupName: GROUP_SUPPORT_TEAM.name },
+    resource: { id: WS_DEVELOPMENT.id!, name: WS_DEVELOPMENT.name!, type: 'workspace' },
+  },
+];
+
+export const BINDING_TENANT_ADMIN_ADMINS_PROD = DEFAULT_ROLE_BINDINGS[0];
+export const BINDING_WS_ADMIN_ADMINS_DEV = DEFAULT_ROLE_BINDINGS[1];
+export const BINDING_RHEL_DEVOPS_ENGINEERING_STAGING = DEFAULT_ROLE_BINDINGS[2];
+export const BINDING_TENANT_ADMIN_JOHN_PROD = DEFAULT_ROLE_BINDINGS[3];
+export const BINDING_INVENTORY_VIEWER_JANE_DEV = DEFAULT_ROLE_BINDINGS[4];
 
 /** Default seed data for a fully-populated V2 mock database. */
 export function defaultV2Seed(): V2Seed {

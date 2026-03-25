@@ -12,6 +12,8 @@ import type { GroupOut } from '../../../../../shared/data/mocks/db';
 import { createGroupMembersHandlers, groupMembersHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
 import type { Principal } from '../../../../../shared/data/mocks/db';
 import { groupRolesHandlers } from '../../../../../shared/data/mocks/groupRoles.handlers';
+import { createRoleBindingsListHandlers } from '../../../../data/mocks/roleBindings.handlers';
+import type { RoleBinding } from '../../../../data/queries/roleBindings';
 import type { Group } from '../../../../../v2/data/queries/groups';
 import type { MockUserIdentity } from '../../../../../../.storybook/contexts/StorybookMockContext';
 
@@ -137,6 +139,13 @@ const standardGroupRoles: Record<
   '2': [],
   '3': [],
 };
+
+const storyRoleBindings: RoleBinding[] = standardGroupRoles['1'].map((role) => ({
+  role: { id: role.uuid, name: role.name },
+  subject: { id: '1', type: 'group' },
+  resource: { id: 'ws-1', name: 'Production', type: 'workspace' },
+}));
+
 const standardMembers: Record<string, Principal[]> = Object.fromEntries(
   Object.entries(standardMembersRaw).map(([k, v]) => [k, v.map((m) => ({ ...m, external_source_id: m.external_source_id ?? m.username }))]),
 ) as Record<string, Principal[]>;
@@ -296,6 +305,7 @@ For testing specific scenarios, see these additional stories:
           onAddMembersWithRequest: deleteMembersFromGroupSpy,
         }),
         ...groupRolesHandlers(standardGroupRoles),
+        ...createRoleBindingsListHandlers(storyRoleBindings),
       ],
     },
   },
@@ -442,7 +452,12 @@ const focusMembers: Record<string, Principal[]> = {
 export const GroupFocusInteraction: StoryObj<typeof meta> = {
   parameters: {
     msw: {
-      handlers: [...groupsHandlers(mockGroupsForHandlers), ...groupMembersHandlers(focusMembers, {}), ...groupRolesHandlers({})],
+      handlers: [
+        ...groupsHandlers(mockGroupsForHandlers),
+        ...groupMembersHandlers(focusMembers, {}),
+        ...groupRolesHandlers({}),
+        ...createRoleBindingsListHandlers(storyRoleBindings),
+      ],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -470,7 +485,12 @@ export const EditGroupNavigation: StoryObj<typeof meta> = {
   parameters: {
     permissions: ['rbac:group:read', 'rbac:group:write'],
     msw: {
-      handlers: [...groupsHandlers(mockGroupsForHandlers), ...groupMembersHandlers({}, {}), ...groupRolesHandlers({})],
+      handlers: [
+        ...groupsHandlers(mockGroupsForHandlers),
+        ...groupMembersHandlers({}, {}),
+        ...groupRolesHandlers({}),
+        ...createRoleBindingsListHandlers(storyRoleBindings),
+      ],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -519,6 +539,7 @@ export const DeleteModalIntegration: StoryObj<typeof meta> = {
         ...groupsHandlers(mockGroupsForHandlers, { onList: fetchGroupsSpy, onDelete: deleteGroupsSpy }),
         ...createGroupMembersHandlers({}, {}, { onAddMembersWithRequest: deleteMembersFromGroupSpy }),
         ...groupRolesHandlers({}),
+        ...createRoleBindingsListHandlers(storyRoleBindings),
       ],
     },
   },
@@ -622,7 +643,12 @@ export const SystemGroupProtection: StoryObj<typeof meta> = {
 export const BulkSelectionManagement: StoryObj<typeof meta> = {
   parameters: {
     msw: {
-      handlers: [...groupsHandlers(mockGroupsForHandlers), ...groupMembersHandlers({}, {}), ...groupRolesHandlers({})],
+      handlers: [
+        ...groupsHandlers(mockGroupsForHandlers),
+        ...groupMembersHandlers({}, {}),
+        ...groupRolesHandlers({}),
+        ...createRoleBindingsListHandlers(storyRoleBindings),
+      ],
     },
   },
   play: async ({ canvasElement, step }) => {

@@ -14,7 +14,7 @@ import type { Group, Principal } from '../../shared/data/mocks/db';
 import type { WorkspacesWorkspace } from '../../v2/data/mocks/db';
 import { createResettableCollection, createResettableMap } from '../../shared/data/mocks/db';
 import { createWorkspacesHandlers } from '../../v2/data/mocks/workspaces.handlers';
-import { createRoleBindingsHandlers } from '../../v2/data/mocks/roleBindings.handlers';
+import { createRoleBindingsHandlers, createRoleBindingsListHandlers } from '../../v2/data/mocks/roleBindings.handlers';
 
 // ============================================================================
 // Default Initial State for CLI Tests
@@ -200,8 +200,9 @@ const workspacesCollection = createResettableCollection<WorkspacesWorkspace>(CLI
 const roleBindingsMap = createResettableMap<string, never[]>([]);
 const workspacesHandlers = createWorkspacesHandlers(workspacesCollection);
 const roleBindingsHandlers = createRoleBindingsHandlers([]);
+const roleBindingsListHandlers = createRoleBindingsListHandlers([]);
 
-export const server = setupServer(...v1Handlers, ...workspacesHandlers, ...roleBindingsHandlers);
+export const server = setupServer(...v1Handlers, ...workspacesHandlers, ...roleBindingsHandlers, ...roleBindingsListHandlers);
 
 // ============================================================================
 // Reset Function

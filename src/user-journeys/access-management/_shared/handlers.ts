@@ -39,7 +39,12 @@ export { createV2RolesHandlers, v2RolesHandlers, v2RolesErrorHandlers, v2RolesLo
 export { groupMembersHandlers, groupMembersErrorHandlers, groupMembersLoadingHandlers } from '../../../shared/data/mocks/groupMembers.handlers';
 export { groupRolesHandlers, groupRolesErrorHandlers, groupRolesLoadingHandlers } from '../../../shared/data/mocks/groupRoles.handlers';
 export { workspacesHandlers, workspacesErrorHandlers, workspacesLoadingHandlers } from '../../../v2/data/mocks/workspaces.handlers';
-export { roleBindingsHandlers, roleBindingsErrorHandlers, roleBindingsLoadingHandlers } from '../../../v2/data/mocks/roleBindings.handlers';
+export {
+  roleBindingsHandlers,
+  roleBindingsErrorHandlers,
+  roleBindingsLoadingHandlers,
+  createRoleBindingsListHandlers,
+} from '../../../v2/data/mocks/roleBindings.handlers';
 export {
   accountManagementHandlers,
   accountManagementErrorHandlers,
@@ -58,13 +63,15 @@ import { accountManagementHandlers } from '../../../shared/data/mocks/accountMan
 import { v1RolesHandlers } from '../../../v1/data/mocks/roles.handlers';
 import { v2RolesHandlers } from '../../../v2/data/mocks/roles.handlers';
 import { auditHandlers } from '../../../v2/data/mocks/audit.handlers';
-import { roleBindingsHandlers } from '../../../v2/data/mocks/roleBindings.handlers';
+import { createRoleBindingsListHandlers, roleBindingsHandlers } from '../../../v2/data/mocks/roleBindings.handlers';
+import type { RoleBinding } from '../../../v2/data/queries/roleBindings';
 
 import {
   getRoleBindingsForGroup,
   getRoleBindingsForUser,
   groupMembers,
   mockGroups,
+  mockRoleBindings,
   mockRolesV2,
   mockServiceAccounts,
   mockUsers,
@@ -343,10 +350,26 @@ const sharedApiHandlers = [
 /** V1 stories: V1 roles + shared APIs */
 export const v1DefaultHandlers = [...journeyV1RoleHandlers, ...v1RolesHandlers(), ...sharedApiHandlers];
 
+const journeyRoleBindings: RoleBinding[] = mockRoleBindings.map((b) => ({
+  role: { id: b.roleId, name: b.roleName },
+  subject: { id: b.groupId, type: 'group', groupName: b.groupName },
+  resource: { id: b.workspaceId, name: b.workspaceName, type: 'workspace' },
+}));
+
+/** Expand group bindings into per-user bindings so subject_type=user queries match. */
+const journeyUserRoleBindings: RoleBinding[] = Object.entries(userGroupsMembership).flatMap(([username, groupIds]) =>
+  groupIds.flatMap((groupId) =>
+    journeyRoleBindings.filter((b) => b.subject.id === groupId).map((b) => ({ ...b, subject: { ...b.subject, id: username, type: 'user' } })),
+  ),
+);
+
+const allJourneyBindings = [...journeyRoleBindings, ...journeyUserRoleBindings];
+
 /** V2 stories: V2 roles + shared APIs + audit log + role bindings */
 export const v2DefaultHandlers = [
   ...journeyV2RoleHandlers,
   ...v2RolesHandlers(),
+  ...createRoleBindingsListHandlers(allJourneyBindings),
   ...roleBindingsHandlers(),
   ...auditHandlers(),
   ...sharedApiHandlers,

@@ -4,7 +4,7 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
-import { type Role, useRolesV2Query } from '../../../../../../v2/data/queries/roles';
+import { type RoleBinding, useUserRoleBindingsQuery } from '../../../../../../v2/data/queries/roleBindings';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '../../../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
@@ -14,21 +14,8 @@ interface UserRolesViewProps {
   ouiaId: string;
 }
 
-interface RoleData {
-  uuid: string;
-  name: string;
-  userGroup?: string;
-  workspace?: string;
-}
-
 const columns = ['name', 'userGroup', 'workspace'] as const;
 
-/**
- * UserDetailsRolesView - Shows assigned roles for a user
- *
- * Displays roles with their user group and workspace assignments.
- * This data comes from V2-style role bindings API.
- */
 const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ userId, ouiaId }) => {
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
@@ -39,31 +26,24 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     [],
   );
 
-  const cellRenderers: CellRendererMap<typeof columns, RoleData> = useMemo(
+  const cellRenderers: CellRendererMap<typeof columns, RoleBinding> = useMemo(
     () => ({
-      name: (role) => role.name,
-      userGroup: (role) => role.userGroup || '—',
-      workspace: (role) => role.workspace || '—',
+      name: (binding) => binding.role.name,
+      userGroup: (binding) => binding.subject.groupName || '—',
+      workspace: (binding) => binding.resource.name,
     }),
     [],
   );
 
-  // Use useTableState for table state management
-  const tableState = useTableState<typeof columns, RoleData>({
+  const tableState = useTableState<typeof columns, RoleBinding>({
     columns,
-    getRowId: (role) => role.uuid,
-    initialPerPage: 100, // Show all items in detail views
-    syncWithUrl: false, // Drawer tables shouldn't sync with URL
+    getRowId: (binding) => `${binding.role.id}-${binding.subject.id}-${binding.resource.id}`,
+    initialPerPage: 100,
+    syncWithUrl: false,
   });
 
-  const { data, isLoading, error } = useRolesV2Query({
-    limit: tableState.apiParams.limit,
-    username: userId,
-  });
+  const { data: bindings = [], isLoading, error } = useUserRoleBindingsQuery(userId);
 
-  const roles: Role[] = data?.data ?? [];
-
-  // Show error state
   if (error) {
     return (
       <div className="pf-v6-u-pt-md">
@@ -80,19 +60,14 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     </EmptyState>
   );
 
-  const roleData: RoleData[] = roles.map((role) => ({
-    uuid: role.id ?? '',
-    name: role.name ?? 'Unknown',
-  }));
-
   return (
     <div className="pf-v6-u-pt-md">
-      <TableView<typeof columns, RoleData>
+      <TableView<typeof columns, RoleBinding>
         columns={columns}
         columnConfig={columnConfig}
-        data={isLoading ? undefined : roleData}
-        totalCount={roleData.length}
-        getRowId={(role) => role.uuid}
+        data={isLoading ? undefined : bindings}
+        totalCount={bindings.length}
+        getRowId={(binding) => `${binding.role.id}-${binding.subject.id}-${binding.resource.id}`}
         cellRenderers={cellRenderers}
         ariaLabel="UserRolesView"
         ouiaId={ouiaId}
@@ -104,5 +79,4 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
   );
 };
 
-// Component uses named export only
 export { UserDetailsRolesView };

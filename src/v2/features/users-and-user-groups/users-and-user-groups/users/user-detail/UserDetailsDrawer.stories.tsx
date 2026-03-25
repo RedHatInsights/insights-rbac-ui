@@ -9,6 +9,8 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { UserDetailsDrawer } from './UserDetailsDrawer';
 import { groupsHandlers } from '../../../../../../shared/data/mocks/groups.handlers';
 import { v2RolesHandlers } from '../../../../../../v2/data/mocks/roles.handlers';
+import { createRoleBindingsListHandlers } from '../../../../../../v2/data/mocks/roleBindings.handlers';
+import type { RoleBinding } from '../../../../../../v2/data/queries/roleBindings';
 import type { User } from '../../../../../../shared/data/queries/users';
 
 // Mock user data for testing
@@ -21,6 +23,14 @@ const mockUser: User = {
   is_org_admin: false,
   external_source_id: 123,
 };
+
+const storyRoleBindings: RoleBinding[] = [
+  {
+    role: { id: '1', name: 'Red Hat Insights Viewer' },
+    subject: { id: 'john.doe', type: 'user', groupName: 'Administrators' },
+    resource: { id: 'ws-1', name: 'Production', type: 'workspace' },
+  },
+];
 
 // Component to simulate DataView table row clicks for testing
 const TestDataViewTable: React.FC<{ onUserSelect: (user: User) => void }> = ({ onUserSelect }) => {
@@ -132,6 +142,7 @@ export const Default: Story = {
             last_modified: '2023-06-15T10:30:00Z',
           },
         ]),
+        ...createRoleBindingsListHandlers(storyRoleBindings),
       ],
     },
     docs: {
@@ -225,6 +236,7 @@ export const WithSelectedUser: Story = {
             last_modified: '2023-06-15T10:30:00Z',
           },
         ]),
+        ...createRoleBindingsListHandlers(storyRoleBindings),
       ],
     },
     docs: {
@@ -304,6 +316,7 @@ export const DataViewIntegration: Story = {
             last_modified: '2023-06-15T10:30:00Z',
           },
         ]),
+        ...createRoleBindingsListHandlers(storyRoleBindings),
       ],
     },
     docs: {
