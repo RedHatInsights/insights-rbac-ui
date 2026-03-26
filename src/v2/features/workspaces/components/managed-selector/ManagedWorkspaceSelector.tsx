@@ -130,12 +130,21 @@ export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> =
   const [selectedWorkspace, setSelectedWorkspace] = React.useState<TreeViewWorkspaceItem | undefined>(initialSelectedWorkspace);
   const [searchInputValue, setSearchInputValue] = React.useState('');
 
-  // Set initial selection
+  // Sync initial selection from props
   React.useEffect(() => {
     if (initialSelectedWorkspace) {
       setSelectedWorkspace(initialSelectedWorkspace);
     }
   }, [initialSelectedWorkspace]);
+
+  // Reject current selection if it falls into the disabled set
+  // (e.g. a root workspace pre-selected via location.state, or permissions
+  // resolving after mount marking it as non-creatable).
+  React.useEffect(() => {
+    if (selectedWorkspace?.id && disabledIds.has(selectedWorkspace.id)) {
+      setSelectedWorkspace(undefined);
+    }
+  }, [disabledIds, selectedWorkspace?.id]);
 
   // Derive filtered tree from workspace tree and search input (no mutation, no extra state)
   const { filteredTreeElements, areElementsFiltered } = React.useMemo(() => {

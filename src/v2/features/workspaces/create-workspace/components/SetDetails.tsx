@@ -21,7 +21,7 @@ import { ManagedWorkspaceSelector } from '../../components/managed-selector/Mana
 import { type TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from '../../components/managed-selector/TreeViewWorkspaceItem';
 import { WorkspacesWorkspaceTypes } from '../../../../data/api/workspaces';
 import { type WorkspacesWorkspace } from '../../../../data/queries/workspaces';
-import { findDefaultParentWorkspace } from '../../workspaceTypes';
+import { canCreateInType, findDefaultParentWorkspace } from '../../workspaceTypes';
 import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from '../schema';
 
 export const SetDetails = () => {
@@ -77,20 +77,32 @@ export const SetDetails = () => {
   };
 
   const parentFromForm = values[WORKSPACE_PARENT] as WorkspacesWorkspace | undefined;
-  const initialTreeItem: TreeViewWorkspaceItem | undefined = parentFromForm?.id
-    ? {
-        name: parentFromForm.name ?? '',
-        id: parentFromForm.id,
-        workspace: {
-          id: parentFromForm.id,
+
+  // Clear pre-selected parent if user lacks create permission on that type
+  // (e.g. root workspace passed via location.state).
+  useEffect(() => {
+    if (!isWorkspaceSelectorEnabled) return;
+    if (parentFromForm?.type && !canCreateInType(parentFromForm.type)) {
+      formOptions.change(WORKSPACE_PARENT, undefined);
+    }
+  }, [parentFromForm?.type, isWorkspaceSelectorEnabled]);
+
+  const parentIsCreatable = !parentFromForm?.type || canCreateInType(parentFromForm.type);
+  const initialTreeItem: TreeViewWorkspaceItem | undefined =
+    parentFromForm?.id && parentIsCreatable
+      ? {
           name: parentFromForm.name ?? '',
-          description: parentFromForm.description,
-          type: (parentFromForm.type as WorkspacesWorkspaceTypes) ?? WorkspacesWorkspaceTypes.Standard,
-          parent_id: parentFromForm.parent_id ?? '',
-        },
-        children: [],
-      }
-    : undefined;
+          id: parentFromForm.id,
+          workspace: {
+            id: parentFromForm.id,
+            name: parentFromForm.name ?? '',
+            description: parentFromForm.description,
+            type: (parentFromForm.type as WorkspacesWorkspaceTypes) ?? WorkspacesWorkspaceTypes.Standard,
+            parent_id: parentFromForm.parent_id ?? '',
+          },
+          children: [],
+        }
+      : undefined;
 
   const renderWorkspaceSelector = () => {
     if (isWorkspaceSelectorEnabled) {
