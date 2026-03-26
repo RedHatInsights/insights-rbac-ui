@@ -1406,6 +1406,11 @@ export default defineMessages({
     description: 'Menu item Manage notifications',
     defaultMessage: 'Manage notifications',
   },
+  workspacesActionMoveWorkspace: {
+    id: 'workspacesActionMoveWorkspace',
+    description: 'Menu item Move workspace',
+    defaultMessage: 'Move workspace',
+  },
   workspacesActionDeleteWorkspace: {
     id: 'workspacesActionDeleteWorkspace',
     description: 'Menu item Delete workspace',

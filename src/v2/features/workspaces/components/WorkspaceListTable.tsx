@@ -1,7 +1,7 @@
-import { ErrorState, PageHeader, SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
+import { ErrorState, PageHeader, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ButtonVariant } from '@patternfly/react-core';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
+import { DeleteWorkspaceModal } from './DeleteWorkspaceModal';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 
@@ -299,31 +299,15 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
       />
       <PageSection hasBodyWrapper={false}>
         {isDeleteModalOpen && (
-          <WarningModal
-            ouiaId={'remove-workspaces-modal'}
+          <DeleteWorkspaceModal
             isOpen={isDeleteModalOpen}
-            title={intl.formatMessage(messages.deleteWorkspaceModalHeader)}
-            confirmButtonLabel={intl.formatMessage(messages.delete)}
-            confirmButtonVariant={ButtonVariant.danger}
-            withCheckbox={true}
-            checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
             onClose={() => setIsDeleteModalOpen(false)}
             onConfirm={async () => {
               await onDeleteWorkspaces(currentWorkspaces);
               setIsDeleteModalOpen(false);
             }}
-            cancelButtonLabel={intl.formatMessage(messages.cancel)}
-          >
-            <FormattedMessage
-              {...messages.deleteWorkspaceModalBody}
-              values={{
-                b: (text) => <b>{text}</b>,
-                count: currentWorkspaces.length,
-                plural: currentWorkspaces.length > 1 ? intl.formatMessage(messages.workspaces) : intl.formatMessage(messages.workspace),
-                name: currentWorkspaces[0]?.name,
-              }}
-            />
-          </WarningModal>
+            workspaces={currentWorkspaces}
+          />
         )}
         <DataView activeState={activeState}>
           <DataViewToolbar

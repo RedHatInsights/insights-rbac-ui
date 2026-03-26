@@ -1,5 +1,4 @@
 import React, { Suspense, useState } from 'react';
-import { ButtonVariant } from '@patternfly/react-core';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
 import { DrilldownMenu } from '@patternfly/react-core';
 import { Menu } from '@patternfly/react-core';
@@ -9,28 +8,44 @@ import { MenuItem } from '@patternfly/react-core';
 import { MenuItemAction } from '@patternfly/react-core';
 import { MenuList } from '@patternfly/react-core';
 import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import {} from '@patternfly/react-core';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-link-alt-icon';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
-import { WarningModal } from '@patternfly/react-component-groups';
 import { EMPTY_PERMISSIONS, type WorkspacePermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { Outlet } from 'react-router-dom';
 import pathnames from '../../../utilities/pathnames';
-import paths from '../../../utilities/pathnames';
 import { useAppLink } from '../../../../shared/hooks/useAppLink';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
+import { DeleteWorkspaceModal } from './DeleteWorkspaceModal';
+import { MoveWorkspaceDialog } from './MoveWorkspaceDialog';
+import { type TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
+import { WorkspacesWorkspaceTypes } from '../../../data/api/workspaces';
 
 enum ActionType {
   EDIT_WORKSPACE = 'EDIT_WORKSPACE',
   GRANT_ACCESS = 'GRANT_ACCESS',
   CREATE_SUBWORKSPACE = 'CREATE_SUBWORKSPACE',
+  MOVE_WORKSPACE = 'MOVE_WORKSPACE',
   VIEW_TENANT = 'VIEW_TENANT',
   MANAGE_NOTIFICATIONS = 'MANAGE_NOTIFICATIONS',
   DELETE_WORKSPACE = 'DELETE_WORKSPACE',
   DUMMY_ACTION = 'DUMMY_ACTION',
 }
+
+/** Convert a WorkspacesWorkspace to a TreeViewWorkspaceItem for the move dialog. */
+const toTreeViewItem = (ws: WorkspacesWorkspace): TreeViewWorkspaceItem => ({
+  name: ws.name ?? '',
+  id: ws.id ?? '',
+  workspace: {
+    id: ws.id ?? '',
+    name: ws.name ?? '',
+    description: ws.description,
+    type: (ws.type as WorkspacesWorkspaceTypes) ?? WorkspacesWorkspaceTypes.Standard,
+    parent_id: ws.parent_id ?? '',
+  },
+  children: [],
+});
 
 interface WorkspaceActionsProps {
   isDisabled?: boolean;
@@ -38,8 +53,14 @@ interface WorkspaceActionsProps {
   hasAssets: boolean;
   /** Per-workspace Kessel permissions. When absent, all actions are disabled (deny-by-default). */
   permissions?: WorkspacePermissions;
+  /** All workspaces (needed by MoveWorkspaceDialog to find the current parent). */
+  allWorkspaces?: WorkspacesWorkspace[];
   /** Callback fired when "Grant access" is selected from the actions menu. */
   onGrantAccess?: () => void;
+  /** Callback fired when delete is confirmed. Consumer handles the mutation + navigation. */
+  onDelete?: (workspace: WorkspacesWorkspace) => void;
+  /** Callback fired when move is confirmed. Consumer handles the mutation. */
+  onMove?: (workspace: WorkspacesWorkspace, targetParentId: string) => void;
 }
 
 export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
@@ -47,7 +68,10 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
   currentWorkspace,
   hasAssets,
   permissions,
+  allWorkspaces = [],
   onGrantAccess,
+  onDelete,
+  onMove,
 }) => {
   const perms = permissions ?? EMPTY_PERMISSIONS;
   const hasM4Flag = useWorkspacesFlag('m4');
@@ -59,6 +83,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
   const [menuHeights, setMenuHeights] = React.useState<Record<string, number>>({});
   const [activeMenu, setActiveMenu] = React.useState<string>('workspaceActions-rootMenu');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
 
   const intl = useIntl();
   const navigate = useAppNavigate();
@@ -96,12 +121,23 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
       setIsDeleteModalOpen(true);
     }
     if (action === ActionType.EDIT_WORKSPACE) {
-      navigate(paths['edit-workspace'].link(currentWorkspace.id ?? ''));
+      navigate(pathnames['edit-workspace'].link(currentWorkspace.id ?? ''));
     }
     if (action === ActionType.GRANT_ACCESS) {
       onGrantAccess?.();
     }
+    if (action === ActionType.CREATE_SUBWORKSPACE) {
+      navigate(pathnames['create-workspace'].link(), {
+        state: { parentWorkspace: currentWorkspace },
+      });
+    }
+    if (action === ActionType.MOVE_WORKSPACE) {
+      setIsMoveModalOpen(true);
+    }
   };
+
+  const currentParent = allWorkspaces.find((ws) => ws.id === currentWorkspace.parent_id);
+  const moveInitialSelection = currentParent ?? allWorkspaces.find((ws) => ws.type === 'root') ?? allWorkspaces[0];
 
   const menu = (
     <Menu
@@ -126,6 +162,9 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
           </MenuItem>
           <MenuItem onClick={() => dispatchAction(ActionType.CREATE_SUBWORKSPACE)} itemId="create_subworkspace" isDisabled={!perms.create}>
             {intl.formatMessage(messages.workspacesActionCreateSubWorkspace)}
+          </MenuItem>
+          <MenuItem onClick={() => dispatchAction(ActionType.MOVE_WORKSPACE)} itemId="move_workspace" isDisabled={!perms.move}>
+            {intl.formatMessage(messages.workspacesActionMoveWorkspace)}
           </MenuItem>
           <MenuItem onClick={() => dispatchAction(ActionType.VIEW_TENANT)} itemId="view_tenant">
             {intl.formatMessage(messages.workspacesActionViewTenant)}
@@ -199,34 +238,31 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
 
   return (
     <React.Fragment>
-      {isDeleteModalOpen && (
-        <WarningModal
-          ouiaId={'remove-workspaces-modal'}
-          isOpen={isDeleteModalOpen}
-          title={intl.formatMessage(messages.deleteWorkspaceModalHeader)}
-          confirmButtonLabel={!hasAssets ? intl.formatMessage(messages.delete) : intl.formatMessage(messages.gotItButtonLabel)}
-          confirmButtonVariant={!hasAssets ? ButtonVariant.danger : ButtonVariant.primary}
-          withCheckbox={!hasAssets}
-          checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={() => {
-            setIsDeleteModalOpen(false);
+      <DeleteWorkspaceModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => {
+          setIsDeleteModalOpen(false);
+          onDelete?.(currentWorkspace);
+        }}
+        workspaces={[currentWorkspace]}
+        hasAssets={hasAssets}
+      />
+      {isMoveModalOpen && moveInitialSelection && (
+        <MoveWorkspaceDialog
+          isOpen={isMoveModalOpen}
+          onClose={() => setIsMoveModalOpen(false)}
+          onSubmit={(destination) => {
+            if (instanceOfTreeViewWorkspaceItem(destination) && destination.id) {
+              setIsMoveModalOpen(false);
+              onMove?.(currentWorkspace, destination.id);
+            }
           }}
-          cancelButtonLabel={!hasAssets ? 'Cancel' : ''}
-        >
-          {hasAssets ? (
-            intl.formatMessage(messages.workspaceNotEmptyWarning, { count: 1 })
-          ) : (
-            <FormattedMessage
-              {...messages.deleteWorkspaceModalBody}
-              values={{
-                b: (text) => <b>{text}</b>,
-                count: 1,
-                name: currentWorkspace.name,
-              }}
-            />
-          )}
-        </WarningModal>
+          workspaceToMove={currentWorkspace}
+          availableWorkspaces={allWorkspaces}
+          initialSelectedWorkspace={toTreeViewItem(moveInitialSelection)}
+          sourceWorkspace={toTreeViewItem(currentWorkspace)}
+        />
       )}
       <MenuContainer
         isOpen={isOpen}
@@ -242,10 +278,10 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
           context={{
             [pathnames['edit-workspace'].path]: {
               afterSubmit: () => {
-                navigate(toAppLink(paths['workspace-detail'].link(currentWorkspace.id ?? '')));
+                navigate(toAppLink(pathnames['workspace-detail'].link(currentWorkspace.id ?? '')));
               },
               onCancel: () => {
-                navigate(toAppLink(paths['workspace-detail'].link(currentWorkspace.id ?? '')));
+                navigate(toAppLink(pathnames['workspace-detail'].link(currentWorkspace.id ?? '')));
               },
             },
           }}

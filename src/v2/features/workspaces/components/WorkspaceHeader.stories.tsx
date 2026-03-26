@@ -32,11 +32,11 @@ const mockChildWorkspace: WorkspacesWorkspace = {
 
 // Mock hierarchy data (from root to current)
 const mockHierarchy = [
-  { name: 'Production Environment', id: 'workspace-1' },
-  { name: 'Web Services', id: 'workspace-2' },
+  { name: 'Production Environment', id: 'workspace-1', canView: true },
+  { name: 'Web Services', id: 'workspace-2', canView: true },
 ];
 
-const mockSingleWorkspaceHierarchy = [{ name: 'Production Environment', id: 'workspace-1' }];
+const mockSingleWorkspaceHierarchy = [{ name: 'Production Environment', id: 'workspace-1', canView: true }];
 
 // Story decorator to provide necessary context
 const withProviders = (Story: React.ComponentType, context: { parameters?: { route?: string } }) => {
@@ -199,7 +199,7 @@ export const NoAssets: Story = {
       description: 'A workspace with no child assets or workspaces',
     },
     isLoading: false,
-    workspaceHierarchy: [{ name: 'Empty Workspace', id: 'workspace-empty' }],
+    workspaceHierarchy: [{ name: 'Empty Workspace', id: 'workspace-empty', canView: true }],
     hasAssets: false,
   },
   parameters: {
@@ -234,10 +234,10 @@ export const LongContent: Story = {
     },
     isLoading: false,
     workspaceHierarchy: [
-      { name: 'Root', id: 'root-1' },
-      { name: 'Level 1 Parent', id: 'level-1' },
-      { name: 'Level 2 Parent', id: 'level-2' },
-      { name: 'Very Long Workspace Name That Should Test Text Wrapping Behavior', id: 'current' },
+      { name: 'Root', id: 'root-1', canView: true },
+      { name: 'Level 1 Parent', id: 'level-1', canView: true },
+      { name: 'Level 2 Parent', id: 'level-2', canView: true },
+      { name: 'Very Long Workspace Name That Should Test Text Wrapping Behavior', id: 'current', canView: true },
     ],
     hasAssets: true,
   },
@@ -317,6 +317,38 @@ export const WithChildContextAlert: Story = {
 
       const alert = alertMessage.closest('[role="alert"]');
       await expect(alert).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Tests that breadcrumb items without `canView` permission render as plain text,
+ * not as links. Root workspace (canView: false) should not be clickable.
+ */
+export const BreadcrumbPermissionGating: Story = {
+  args: {
+    workspace: mockChildWorkspace,
+    isLoading: false,
+    workspaceHierarchy: [
+      { name: 'Production Environment', id: 'workspace-1', canView: false },
+      { name: 'Web Services', id: 'workspace-2', canView: true },
+    ],
+    hasAssets: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Tests that parent workspaces without view permission render as plain text instead of links in the hierarchy breadcrumb.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify non-viewable parent is plain text, not a link', async () => {
+      const prodEnvElements = canvas.getAllByText('Production Environment');
+      const hierarchyProdEnv = prodEnvElements.find((el) => el.closest('.pf-v6-c-breadcrumb__item'));
+      await expect(hierarchyProdEnv).toBeTruthy();
+      await expect(hierarchyProdEnv?.closest('a')).toBeNull();
     });
   },
 };

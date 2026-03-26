@@ -50,7 +50,7 @@ hasPermission(ws.id, 'delete')  // → boolean
 **Propagation (PR1 — Kessel Permission Guards):** Permissions are now checked across all workspace surfaces:
 - **List table:** name link gated on `view`, row actions use correct per-action relations (`edit` for edit, `move` for move, `delete` for delete, `create` for sub-workspace)
 - **Create workspace:** parent selector passes `requiredPermission="create"` to `ManagedWorkspaceSelector`
-- **Detail page:** renders `<UnauthorizedAccess>` when `view` is denied; `WorkspaceActions` menu items disabled per relation
+- **Detail page:** renders `<UnauthorizedAccess>` when `view` is denied; `WorkspaceActions` menu items disabled per relation; delete calls `useDeleteWorkspaceMutation` and navigates to list; move uses `MoveWorkspaceDialog` + `useMoveWorkspaceMutation`; create-subworkspace navigates to wizard with pre-selected parent; hierarchy breadcrumb gates links on `view` permission
 - **Edit modal:** redirects if `edit` permission is denied (direct URL guard)
 
 **Role binding permission mapping (MVP):**

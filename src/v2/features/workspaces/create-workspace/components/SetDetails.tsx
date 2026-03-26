@@ -18,7 +18,9 @@ import { useWorkspacesFlag } from '../../../../../shared/hooks/useWorkspacesFlag
 import { useWorkspacesQuery } from '../../../../data/queries/workspaces';
 
 import { ManagedWorkspaceSelector } from '../../components/managed-selector/ManagedWorkspaceSelector';
-import { instanceOfTreeViewWorkspaceItem } from '../../components/managed-selector/TreeViewWorkspaceItem';
+import { type TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from '../../components/managed-selector/TreeViewWorkspaceItem';
+import { WorkspacesWorkspaceTypes } from '../../../../data/api/workspaces';
+import { type WorkspacesWorkspace } from '../../../../data/queries/workspaces';
 import { findDefaultParentWorkspace } from '../../workspaceTypes';
 import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from '../schema';
 
@@ -74,9 +76,25 @@ export const SetDetails = () => {
     }
   };
 
+  const parentFromForm = values[WORKSPACE_PARENT] as WorkspacesWorkspace | undefined;
+  const initialTreeItem: TreeViewWorkspaceItem | undefined = parentFromForm?.id
+    ? {
+        name: parentFromForm.name ?? '',
+        id: parentFromForm.id,
+        workspace: {
+          id: parentFromForm.id,
+          name: parentFromForm.name ?? '',
+          description: parentFromForm.description,
+          type: (parentFromForm.type as WorkspacesWorkspaceTypes) ?? WorkspacesWorkspaceTypes.Standard,
+          parent_id: parentFromForm.parent_id ?? '',
+        },
+        children: [],
+      }
+    : undefined;
+
   const renderWorkspaceSelector = () => {
     if (isWorkspaceSelectorEnabled) {
-      return <ManagedWorkspaceSelector onSelect={handleWorkspaceSelection} requiredPermission="create" />;
+      return <ManagedWorkspaceSelector onSelect={handleWorkspaceSelection} requiredPermission="create" initialSelectedWorkspace={initialTreeItem} />;
     }
 
     if (isLoading) {

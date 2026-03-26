@@ -13,9 +13,10 @@ import { RbacBreadcrumbs } from '../../../../shared/components/navigation/Breadc
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
 
-interface WorkspaceData {
+export interface WorkspaceHierarchyItem {
   name: string;
   id: string;
+  canView: boolean;
 }
 
 export interface WorkspaceHeaderProps {
@@ -24,13 +25,19 @@ export interface WorkspaceHeaderProps {
   /** Whether workspace data is loading */
   isLoading: boolean;
   /** Array of workspaces representing the hierarchy path (from root to current) */
-  workspaceHierarchy: WorkspaceData[];
+  workspaceHierarchy: WorkspaceHierarchyItem[];
   /** Whether the workspace has child assets/workspaces */
   hasAssets: boolean;
   /** Per-workspace Kessel permissions forwarded to WorkspaceActions */
   permissions?: WorkspacePermissions;
+  /** All workspaces, forwarded to WorkspaceActions for the move dialog */
+  allWorkspaces?: WorkspacesWorkspace[];
   /** Callback fired when "Grant access" is selected from the workspace actions menu */
   onGrantAccess?: () => void;
+  /** Callback fired when delete is confirmed in WorkspaceActions */
+  onDelete?: (workspace: WorkspacesWorkspace) => void;
+  /** Callback fired when move is confirmed in WorkspaceActions */
+  onMove?: (workspace: WorkspacesWorkspace, targetParentId: string) => void;
 }
 
 /**
@@ -45,12 +52,14 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
   workspaceHierarchy,
   hasAssets,
   permissions,
+  allWorkspaces,
   onGrantAccess,
+  onDelete,
+  onMove,
 }) => {
   const intl = useIntl();
   const [searchParams] = useSearchParams();
 
-  // Check if navigated from a child workspace
   const fromChildId = searchParams.get('fromChildId');
   const fromChildName = searchParams.get('fromChildName');
   const showChildContextAlert = fromChildId && fromChildName;
@@ -72,7 +81,15 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         breadcrumbs={isLoading ? undefined : <RbacBreadcrumbs breadcrumbs={pageBreadcrumbs} />}
         actionMenu={
           workspace ? (
-            <WorkspaceActions currentWorkspace={workspace} hasAssets={hasAssets} permissions={permissions} onGrantAccess={onGrantAccess} />
+            <WorkspaceActions
+              currentWorkspace={workspace}
+              hasAssets={hasAssets}
+              permissions={permissions}
+              allWorkspaces={allWorkspaces}
+              onGrantAccess={onGrantAccess}
+              onDelete={onDelete}
+              onMove={onMove}
+            />
           ) : undefined
         }
       >
@@ -83,7 +100,13 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
               const isActive = index === workspaceHierarchy.length - 1;
               return (
                 <BreadcrumbItem key={workspaceItem.id} isActive={isActive}>
-                  {isActive ? workspaceItem.name : <AppLink to={pathnames['workspace-detail'].link(workspaceItem.id)}>{workspaceItem.name}</AppLink>}
+                  {isActive ? (
+                    workspaceItem.name
+                  ) : workspaceItem.canView ? (
+                    <AppLink to={pathnames['workspace-detail'].link(workspaceItem.id)}>{workspaceItem.name}</AppLink>
+                  ) : (
+                    workspaceItem.name
+                  )}
                 </BreadcrumbItem>
               );
             })}

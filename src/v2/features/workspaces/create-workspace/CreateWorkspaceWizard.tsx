@@ -9,10 +9,11 @@ import { useIntl } from 'react-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
+import { useLocation } from 'react-router-dom';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../../Messages';
-import { useCreateWorkspaceMutation, useWorkspacesQuery, workspacesKeys } from '../../../data/queries/workspaces';
+import { type WorkspacesWorkspace, useCreateWorkspaceMutation, useWorkspacesQuery, workspacesKeys } from '../../../data/queries/workspaces';
 import { ReviewStep as Review } from './components/Review';
 import { WaitForWorkspaceReady } from './components/WaitForWorkspaceReady';
 import { WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT, schemaBuilder } from './schema';
@@ -35,9 +36,12 @@ export const mapperExtension = {
 export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = ({ afterSubmit, onCancel }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const enableFeatures = useFlag('platform.rbac.workspaces-billing-features');
   const addNotification = useAddNotification();
+
+  const parentWorkspace = (location.state as { parentWorkspace?: WorkspacesWorkspace } | null)?.parentWorkspace;
 
   const [createdWorkspace, setCreatedWorkspace] = useState<{ id: string; name: string } | null>(null);
 
@@ -98,6 +102,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
       FormTemplate={FormTemplate}
       onSubmit={onSubmit}
       onCancel={onCancel || defaultOnCancel}
+      initialValues={parentWorkspace ? ({ [WORKSPACE_PARENT]: parentWorkspace } as Record<string, unknown>) : undefined}
     />
   );
 };

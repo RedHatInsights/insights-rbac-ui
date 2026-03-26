@@ -1,6 +1,6 @@
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceActions } from './WorkspaceActions';
 import { BrowserRouter } from 'react-router-dom';
 import { IntlProvider } from 'react-intl';
@@ -171,26 +171,90 @@ export const WithAssets: Story = {
   },
 };
 
+/**
+ * Tests the delete confirmation modal interaction.
+ * Verifies the modal opens, shows confirmation checkbox, and calls onDelete on confirm.
+ */
 export const DeleteConfirmation: Story = {
   args: {
-    currentWorkspace: mockWorkspace,
+    currentWorkspace: mockSubWorkspace,
     hasAssets: false,
     isDisabled: false,
+    permissions: { view: true, edit: true, delete: true, create: true, move: true },
+    onDelete: fn(),
   },
   parameters: {
     docs: {
       description: {
-        story: 'Delete confirmation behavior for empty workspaces. Note: Full modal functionality requires additional app context.',
+        story: 'Delete confirmation modal — opens on click, requires checkbox, calls onDelete callback.',
       },
     },
   },
-  play: async ({ canvasElement, step }) => {
+  play: async ({ canvasElement, step, args }) => {
     const canvas = within(canvasElement);
-    await step('Verify delete confirmation menu', async () => {
+    await step('Open menu and click delete', async () => {
       const actionsButton = await canvas.findByRole('button', { name: /actions/i });
       await userEvent.click(actionsButton);
 
-      await expect(within(document.body).findByText('Delete workspace')).resolves.toBeInTheDocument();
+      const deleteItem = await within(document.body).findByText('Delete workspace');
+      await userEvent.click(deleteItem);
+    });
+
+    await step('Verify modal and confirm', async () => {
+      const body = within(document.body);
+      await expect(body.findByText(/Delete workspace/i)).resolves.toBeInTheDocument();
+
+      const checkbox = await body.findByRole('checkbox');
+      await userEvent.click(checkbox);
+
+      const confirmButton = await body.findByRole('button', { name: /delete/i });
+      await userEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(args.onDelete).toHaveBeenCalledWith(mockSubWorkspace);
+      });
+    });
+  },
+};
+
+/**
+ * Tests the delete modal in "has assets" informational mode.
+ * The modal shows a "Got it" button instead of a danger "Delete" button.
+ */
+export const DeleteBlockedByAssets: Story = {
+  args: {
+    currentWorkspace: mockSubWorkspace,
+    hasAssets: true,
+    isDisabled: false,
+    permissions: { view: true, edit: true, delete: true, create: true, move: true },
+    onDelete: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Delete blocked when workspace has child assets — shows informational "Got it" modal.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    await step('Open menu and click delete', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await userEvent.click(actionsButton);
+
+      const deleteItem = await within(document.body).findByText('Delete workspace');
+      await userEvent.click(deleteItem);
+    });
+
+    await step('Verify informational modal with "Got it" button', async () => {
+      const body = within(document.body);
+      const gotItButton = await body.findByRole('button', { name: /got it/i });
+      await expect(gotItButton).toBeInTheDocument();
+
+      await expect(body.queryByRole('checkbox')).not.toBeInTheDocument();
+
+      await userEvent.click(gotItButton);
+      expect(args.onDelete).not.toHaveBeenCalled();
     });
   },
 };
@@ -358,6 +422,9 @@ export const ItemsDisabledByPermissions: Story = {
 
       const grantItem = await within(document.body).findByText('Grant access to workspace');
       await expect(grantItem.closest('button')).toHaveAttribute('disabled');
+
+      const moveItem = await within(document.body).findByText('Move workspace');
+      await expect(moveItem.closest('button')).toHaveAttribute('disabled');
 
       const deleteItem = await within(document.body).findByText('Delete workspace');
       await expect(deleteItem.closest('button')).toHaveAttribute('disabled');

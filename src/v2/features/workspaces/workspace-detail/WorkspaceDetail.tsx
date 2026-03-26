@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Content, ContentVariants, Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
 import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
@@ -10,17 +10,20 @@ import messages from '../../../../Messages';
 import AssetsCards from './components/AssetsCards';
 import { BaseGroupAssignmentsTable } from './components/BaseGroupAssignmentsTable';
 import { InheritedGroupAssignmentsTable } from './components/InheritedGroupAssignmentsTable';
-import { WorkspaceHeader } from '../components/WorkspaceHeader';
+import { WorkspaceHeader, type WorkspaceHierarchyItem } from '../components/WorkspaceHeader';
 import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
-import { EMPTY_PERMISSIONS, type WorkspaceWithPermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import {
+  EMPTY_PERMISSIONS,
+  type WorkspaceWithPermissions,
+  type WorkspacesWorkspace,
+  useDeleteWorkspaceMutation,
+  useMoveWorkspaceMutation,
+} from '../../../data/queries/workspaces';
 import { useWorkspacesWithPermissions } from '../hooks/useWorkspacesWithPermissions';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { useWorkspaceGroups, useWorkspaceInheritedGroups } from '../../../data/queries/groupAssignments';
-
-interface WorkspaceData {
-  name: string;
-  id: string;
-}
+import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
+import pathnames from '../../../utilities/pathnames';
 
 const WORKSPACE_TABS = {
   roles: 0,
@@ -38,6 +41,7 @@ export const WorkspaceDetail = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const enableRoles = useWorkspacesFlag('m3');
   const [isGrantAccessOpen, setIsGrantAccessOpen] = useState(false);
+  const navigate = useAppNavigate();
   const activeTabString = (() => {
     const raw = searchParams.get('activeTab');
     if (!raw) return enableRoles ? 'roles' : 'assets';
@@ -49,10 +53,8 @@ export const WorkspaceDetail = () => {
   const rolesRef = React.createRef<HTMLElement>();
   const assetsRef = React.createRef<HTMLElement>();
 
-  // Single composite hook: workspaces enriched with per-workspace Kessel permissions
   const { workspaces, status } = useWorkspacesWithPermissions();
 
-  // Find the current workspace from the enriched list
   const selectedWorkspace = useMemo<WorkspaceWithPermissions | undefined>(
     () => workspaces.find((ws) => ws.id === workspaceId),
     [workspaces, workspaceId],
@@ -74,14 +76,16 @@ export const WorkspaceDetail = () => {
     enabled: shouldFetchParentBindings && !!workspaceId,
   });
 
-  const buildWorkspacesHierarchy = (allWorkspaces: WorkspacesWorkspace[], targetWorkspaceId: string): WorkspaceData[] => {
-    let currentWorkspace = allWorkspaces.find((ws) => ws.id === targetWorkspaceId);
+  const buildWorkspacesHierarchy = (allWorkspaces: WorkspaceWithPermissions[], targetWorkspaceId: string): WorkspaceHierarchyItem[] => {
+    let currentWs = allWorkspaces.find((ws) => ws.id === targetWorkspaceId);
 
-    const hierarchy: WorkspaceData[] = currentWorkspace ? [{ name: currentWorkspace.name ?? '', id: currentWorkspace.id ?? '' }] : [];
-    while (currentWorkspace?.parent_id?.length && currentWorkspace?.parent_id?.length > 0) {
-      currentWorkspace = allWorkspaces.find((ws) => ws.id === currentWorkspace?.parent_id);
-      if (!currentWorkspace) break;
-      hierarchy.unshift({ name: currentWorkspace.name ?? '', id: currentWorkspace.id ?? '' });
+    const hierarchy: WorkspaceHierarchyItem[] = currentWs
+      ? [{ name: currentWs.name ?? '', id: currentWs.id ?? '', canView: currentWs.permissions.view }]
+      : [];
+    while (currentWs?.parent_id?.length && currentWs?.parent_id?.length > 0) {
+      currentWs = allWorkspaces.find((ws) => ws.id === currentWs?.parent_id);
+      if (!currentWs) break;
+      hierarchy.unshift({ name: currentWs.name ?? '', id: currentWs.id ?? '', canView: currentWs.permissions.view });
     }
     return hierarchy;
   };
@@ -119,6 +123,27 @@ export const WorkspaceDetail = () => {
     ? { id: selectedWorkspace.id ?? '', name: selectedWorkspace.name ?? '', type: 'workspace' as const }
     : undefined;
 
+  // Mutations
+  const deleteWorkspaceMutation = useDeleteWorkspaceMutation();
+  const moveWorkspaceMutation = useMoveWorkspaceMutation();
+
+  const handleDelete = useCallback(
+    async (workspace: WorkspacesWorkspace) => {
+      if (!workspace.id) return;
+      await deleteWorkspaceMutation.mutateAsync({ id: workspace.id, name: workspace.name });
+      navigate(pathnames['access-management-workspaces'].link());
+    },
+    [deleteWorkspaceMutation, navigate],
+  );
+
+  const handleMove = useCallback(
+    async (workspace: WorkspacesWorkspace, targetParentId: string) => {
+      if (!workspace.id) return;
+      await moveWorkspaceMutation.mutateAsync({ id: workspace.id, parent_id: targetParentId, name: workspace.name });
+    },
+    [moveWorkspaceMutation],
+  );
+
   // Kessel view-permission guard — deny only once permissions are fully resolved.
   // During 'settling', permissions default to all-false; redirecting then would be
   // a false positive for users who actually have view access.
@@ -135,10 +160,13 @@ export const WorkspaceDetail = () => {
         workspaceHierarchy={workspaceHierarchy}
         hasAssets={hasAssets}
         permissions={currentPermissions}
+        allWorkspaces={workspaces}
         onGrantAccess={() => {
           setSearchParams({ activeTab: 'roles', roleAssignmentTab: 'roles-assigned-in-workspace' });
           setIsGrantAccessOpen(true);
         }}
+        onDelete={handleDelete}
+        onMove={handleMove}
       />
       <Divider />
       <Tabs

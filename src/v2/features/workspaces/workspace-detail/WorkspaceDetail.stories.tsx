@@ -458,6 +458,46 @@ export const ParentRoleBindingsWithInheritance: Story = {
 };
 
 /**
+ * Tests that the workspace hierarchy breadcrumb does NOT render a link for the root
+ * workspace when the user lacks `view` permission on the root.
+ *
+ * In this scenario, workspace-1 (root) does NOT appear in the view permission list,
+ * so its breadcrumb item should be plain text, not a link.
+ */
+export const BreadcrumbNoLinkWithoutViewPermission: Story = {
+  parameters: {
+    route: '/iam/access-management/workspaces/detail/workspace-2?activeTab=assets',
+    featureFlags: {
+      'platform.rbac.workspaces-role-bindings': false,
+    },
+    workspacePermissions: {
+      view: ['workspace-2', 'workspace-3', 'workspace-4'],
+      edit: ['workspace-2', 'workspace-3', 'workspace-4'],
+      delete: ['workspace-2', 'workspace-3', 'workspace-4'],
+      create: ['workspace-2', 'workspace-3', 'workspace-4'],
+      move: ['workspace-2', 'workspace-3', 'workspace-4'],
+    },
+    docs: {
+      description: {
+        story:
+          'Tests that the root workspace breadcrumb item renders as plain text (not a link) when the user lacks `view` permission on the root workspace.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify root breadcrumb is not a link', async () => {
+      await waitForSkeletonToDisappear(canvasElement);
+
+      const prodEnvElements = await canvas.findAllByText('Production Environment');
+      const hierarchyProdEnv = prodEnvElements.find((el) => el.closest('.pf-v6-c-breadcrumb__item'));
+      await expect(hierarchyProdEnv).toBeTruthy();
+      await expect(hierarchyProdEnv?.closest('a')).toBeNull();
+    });
+  },
+};
+
+/**
  * When the user has no `view` permission for a workspace, the detail page should
  * render an "Access denied" / "Unauthorized" state instead of the workspace content.
  *
