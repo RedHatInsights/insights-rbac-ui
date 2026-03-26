@@ -58,6 +58,8 @@ hasPermission(ws.id, 'delete')  // → boolean
 
 The rules are defined in `workspaceTypes.ts` (`canEditType`, `canMoveType`, `canDeleteType`, `canCreateInType`) and applied inside the hook's `allowedIds` memo. Consumers (list table, detail page, etc.) do not need their own type guards — `hasPermission()` and `permissionsFor()` already return the correct answer.
 
+**Feature flag bypass:** When `platform.rbac.workspaces.trust-kessel-permissions` is **ON**, the hook skips type-constraint filtering and trusts Kessel as the sole authority — `hasPermission()` returns raw Kessel results. When **OFF** (default), the defense-in-depth filtering above is applied. Flip the flag once the backend enforces these constraints natively.
+
 **Propagation (PR1 — Kessel Permission Guards):** Permissions are now checked across all workspace surfaces:
 - **List table:** name link gated on `view`, row actions use correct per-action relations (`edit` for edit, `move` for move, `delete` for delete, `create` for sub-workspace)
 - **Create workspace:** parent selector passes `requiredPermission="create"` to `ManagedWorkspaceSelector`

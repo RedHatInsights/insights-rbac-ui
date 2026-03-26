@@ -403,6 +403,7 @@ export const ItemsDisabledByWorkspaceType: Story = {
     permissions: { view: true, edit: false, delete: false, create: false, move: false },
   },
   parameters: {
+    featureFlags: { 'platform.rbac.workspaces': true },
     docs: {
       description: {
         story:
