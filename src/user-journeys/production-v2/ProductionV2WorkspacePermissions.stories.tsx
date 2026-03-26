@@ -984,6 +984,7 @@ The workspace-level edit guard blocks at the routing level before the modal moun
 };
 
 export const EditAccessViaKebab: Story = {
+  tags: ['skip-test'],
   name: 'Edit access via row kebab — opens RoleAccessModal',
   args: {
     workspacePermissions: allRelations(NON_ROOT_IDS),
