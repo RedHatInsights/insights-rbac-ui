@@ -155,24 +155,6 @@ objects:
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
-                - id: trusted-organizations
-                  title: Trusted Organizations
-                  href: /iam/organization-management/trusted-organizations
-                  permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
-                - id: authentication-factors
-                  title: Authentication Factors
-                  href: /iam/organization-management/authentication-factors
-                  permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
-                - id: identity-provider-integration
-                  title: Identity Provider Integration
-                  href: /iam/organization-management/identity-provider-integration
-                  permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
             # Legacy navigation structure (when new feature flag is off)
             - id: my-user-access
               title: My User Access
