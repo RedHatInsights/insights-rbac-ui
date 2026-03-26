@@ -41,9 +41,11 @@ if (fs.existsSync(envFile)) {
   // CI: map Konflux E2E_* vars to RBAC_* vars based on filename pattern
   const mappings = {
     'v1-admin': ['E2E_V1_ADMIN_USERNAME', 'E2E_V1_ADMIN_PASSWORD'],
+    'v1-orgadmin': ['E2E_V1_ADMIN_USERNAME', 'E2E_V1_ADMIN_PASSWORD'], // Alias for v1-admin
     'v1-readonly': ['E2E_V1_READONLY_USERNAME', 'E2E_V1_READONLY_PASSWORD'],
     'v1-userviewer': ['E2E_V1_USERVIEWER_USERNAME', 'E2E_V1_USERVIEWER_PASSWORD'],
     'v2-admin': ['E2E_V2_ADMIN_USERNAME', 'E2E_V2_ADMIN_PASSWORD'],
+    'v2-orgadmin': ['E2E_V2_ADMIN_USERNAME', 'E2E_V2_ADMIN_PASSWORD'], // Alias for v2-admin
     'v2-readonly': ['E2E_V2_READONLY_USERNAME', 'E2E_V2_READONLY_PASSWORD'],
     'v2-userviewer': ['E2E_V2_USERVIEWER_USERNAME', 'E2E_V2_USERVIEWER_PASSWORD'],
     'v2-rbacadmin': ['E2E_V2_RBACADMIN_USERNAME', 'E2E_V2_RBACADMIN_PASSWORD'],

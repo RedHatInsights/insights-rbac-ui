@@ -35,11 +35,14 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { AUTH_V2_ORGADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, getSeededWorkspaceName, iamUrl, setupPage, v2 } from '../../../utils';
+import { AUTH_V2_ORGADMIN, AUTH_V2_READONLY, AUTH_V2_USERVIEWER, getSeededChildGroupName, getSeededChildWorkspaceName, getSeededGroupName, getSeededWorkspaceName, iamUrl, setupPage, v2 } from '../../../utils';
 import { E2E_TIMEOUTS } from '../../../utils/timeouts';
 import { WorkspacesPage } from '../../../pages/v2/WorkspacesPage';
 
 const SEEDED_WORKSPACE_NAME = getSeededWorkspaceName('v2');
+const SEEDED_CHILD_WORKSPACE_NAME = getSeededChildWorkspaceName('v2');
+const SEEDED_GROUP_NAME = getSeededGroupName('v2');
+const CHILD_GROUP_NAME = getSeededChildGroupName('v2');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Tests
@@ -96,6 +99,31 @@ test.describe('Workspace Grant Access', () => {
 
       // Still on detail page after cancel
       await expect(page.getByRole('heading', { name: SEEDED_WORKSPACE_NAME! })).toBeVisible();
+    });
+
+    test('Can complete grant access workflow [OrgAdmin]', async ({ page }) => {
+      test.skip(!SEEDED_CHILD_WORKSPACE_NAME || !CHILD_GROUP_NAME, 'No child seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      // Navigate to child workspace
+      await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME!, SEEDED_CHILD_WORKSPACE_NAME!);
+
+      await workspacesPage.roleAssignmentsTab.click();
+      await expect(workspacesPage.currentRoleAssignmentsTable.or(page.getByRole('grid'))).toBeVisible({
+        timeout: E2E_TIMEOUTS.SLOW_DATA,
+      });
+
+      // Grant access to parent's group (Seeded Group) in child workspace
+      await workspacesPage.openGrantAccessWizard();
+      await workspacesPage.fillGrantAccessWizard({
+        groups: [SEEDED_GROUP_NAME!],
+        roles: ['Child Role'],
+      });
+
+      // Verify the role binding appears in the table
+      const groupRow = workspacesPage.currentRoleAssignmentsTable.getByRole('row').filter({ hasText: SEEDED_GROUP_NAME! });
+      await expect(groupRow).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     });
   });
 

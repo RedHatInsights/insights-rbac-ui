@@ -100,6 +100,35 @@ test.describe('Workspace Role Bindings', () => {
         await expect(page.getByRole('tab', { name: /members/i })).not.toBeVisible();
       }
     });
+
+    test('Can remove role-binding from workspace [OrgAdmin]', async ({ page }) => {
+      test.skip(!HAS_CHILD_DATA, 'No child workspace seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      // Navigate to child workspace which has "Child Group" as a direct binding
+      await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME!, SEEDED_CHILD_WORKSPACE_NAME!);
+
+      await workspacesPage.roleAssignmentsTab.click();
+      await expect(workspacesPage.currentRoleAssignmentsTable.or(page.getByRole('grid'))).toBeVisible({
+        timeout: E2E_TIMEOUTS.SLOW_DATA,
+      });
+
+      // Verify the group is present before removal
+      await expect(workspacesPage.currentRoleAssignmentsTable.getByRole('row').filter({ hasText: CHILD_GROUP_NAME! })).toBeVisible({
+        timeout: E2E_TIMEOUTS.SLOW_DATA,
+      });
+
+      // Open row actions and remove
+      await workspacesPage.openRoleBindingActions(CHILD_GROUP_NAME!);
+      await page.getByRole('menuitem', { name: /remove/i }).click();
+      await workspacesPage.confirmRemoveGroup();
+
+      // Verify the group is removed from the table
+      await expect(workspacesPage.currentRoleAssignmentsTable.getByRole('row').filter({ hasText: CHILD_GROUP_NAME! })).not.toBeVisible({
+        timeout: E2E_TIMEOUTS.TABLE_DATA,
+      });
+    });
   });
 
   test.describe('OrgAdmin — Inherited role bindings', () => {
@@ -169,6 +198,26 @@ test.describe('Workspace Role Bindings', () => {
       await workspacesPage.switchToInheritedTab();
 
       await workspacesPage.expectGroupNotInInheritedTab(CHILD_GROUP_NAME!);
+    });
+
+    test('Can redirect to parent workspace via "Inherited from" link [OrgAdmin]', async ({ page }) => {
+      test.skip(!HAS_CHILD_DATA, 'No child workspace seed data — run npm run e2e:seed:v2');
+      const workspacesPage = new WorkspacesPage(page);
+      await workspacesPage.goto();
+
+      await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME!, SEEDED_CHILD_WORKSPACE_NAME!);
+      await workspacesPage.switchToInheritedTab();
+
+      // Click the parent workspace link in "Inherited from" column
+      const row = workspacesPage.getInheritedGroupRow(SEEDED_GROUP_NAME!);
+      await row.getByRole('link', { name: SEEDED_WORKSPACE_NAME! }).click();
+
+      // Verify we're now on the parent workspace detail page
+      await expect(page.getByRole('heading', { name: SEEDED_WORKSPACE_NAME! })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+
+      // Verify the Grant Access button is available on parent workspace
+      await workspacesPage.roleAssignmentsTab.click();
+      await expect(workspacesPage.grantAccessButton).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     });
   });
 });
