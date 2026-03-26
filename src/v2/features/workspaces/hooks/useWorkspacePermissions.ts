@@ -1,6 +1,8 @@
 import { useCallback, useMemo } from 'react';
+import { useFlag } from '@unleash/proxy-client-react';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
 import { WORKSPACE_RELATIONS, type WorkspacePermissions, type WorkspaceRelation } from '../../../data/queries/workspaces';
+import { canCreateInType, canDeleteType, canEditType, canMoveType } from '../workspaceTypes';
 
 type WorkspaceResource = {
   id: string;
@@ -114,6 +116,10 @@ function buildAllowedSet(checks: unknown, hasRealResources: boolean): Set<string
  * ```
  */
 export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePermissionsResult {
+  // When ON, skip UI type constraints and trust Kessel as the sole authority.
+  // When OFF (default), apply defense-in-depth type constraints on top of Kessel results.
+  const trustKessel = useFlag('platform.rbac.workspaces.trust-kessel-permissions');
+
   // Build workspace IDs and find root
   const { workspaceIds, rootId } = useMemo(() => {
     const ids = workspaces.filter((ws) => ws.id).map((ws) => ws.id!);
@@ -141,17 +147,36 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
   const { data: createChecks, loading: createLoading } = useSelfAccessCheck({ relation: 'create', resources });
   const { data: moveChecks, loading: moveLoading } = useSelfAccessCheck({ relation: 'move', resources });
 
-  // Build Sets of allowed IDs for O(1) lookups per relation
-  const allowedIds = useMemo<Record<WorkspaceRelation, Set<string>>>(
-    () => ({
+  // Build Sets of allowed IDs for O(1) lookups per relation, then apply
+  // workspace-type constraints that Kessel doesn't model.
+  //
+  // Business rules — see https://redhat.atlassian.net/browse/RHCLOUD-39826
+  // Defense-in-depth until the backend enforces these:
+  //   root            → view only (no edit, create, move, delete)
+  //   default         → edit + create allowed, but not move or delete
+  //   ungrouped-hosts → view only (no edit, create, move, delete)
+  //   standard        → no type constraints
+  const allowedIds = useMemo<Record<WorkspaceRelation, Set<string>>>(() => {
+    const sets: Record<WorkspaceRelation, Set<string>> = {
       view: buildAllowedSet(viewChecks, hasRealResources),
       edit: buildAllowedSet(editChecks, hasRealResources),
       delete: buildAllowedSet(deleteChecks, hasRealResources),
       create: buildAllowedSet(createChecks, hasRealResources),
       move: buildAllowedSet(moveChecks, hasRealResources),
-    }),
-    [viewChecks, editChecks, deleteChecks, createChecks, moveChecks, hasRealResources],
-  );
+    };
+
+    if (!trustKessel) {
+      for (const ws of workspaces) {
+        if (!ws.id) continue;
+        if (!canEditType(ws.type)) sets.edit.delete(ws.id);
+        if (!canCreateInType(ws.type)) sets.create.delete(ws.id);
+        if (!canDeleteType(ws.type)) sets.delete.delete(ws.id);
+        if (!canMoveType(ws.type)) sets.move.delete(ws.id);
+      }
+    }
+
+    return sets;
+  }, [viewChecks, editChecks, deleteChecks, createChecks, moveChecks, hasRealResources, workspaces, trustKessel]);
 
   // Fingerprint of actual permission data — changes only when real permissions change,
   // not when useSelfAccessCheck returns new object references with identical content.

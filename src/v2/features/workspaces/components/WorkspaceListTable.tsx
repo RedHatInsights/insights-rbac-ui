@@ -42,7 +42,7 @@ interface WorkspaceListTableProps {
 
   /**
    * Generic Kessel permission check: (workspaceId, relation) → boolean.
-   * Used by canModify to map each action to its correct Kessel relation.
+   * Already includes workspace-type constraints (root → view-only, default → no move/delete).
    */
   hasPermission: (workspaceId: string, relation: WorkspaceRelation) => boolean;
 
@@ -54,11 +54,6 @@ interface WorkspaceListTableProps {
 
   children?: React.ReactNode;
 }
-
-const isValidType = (workspace: WorkspacesWorkspace, validTypes: string[]) => validTypes.includes(workspace.type ?? '');
-const isValidEditType = (workspace: WorkspacesWorkspace) => isValidType(workspace, ['default', 'standard']);
-const isValidMoveType = (workspace: WorkspacesWorkspace) => isValidType(workspace, ['standard']);
-const isValidDeleteType = (workspace: WorkspacesWorkspace) => isValidType(workspace, ['standard']);
 
 const mapWorkspacesToHierarchy = (workspaceData: WorkspacesWorkspace[]): WorkspaceWithChildren | undefined => {
   const idMap = new Map<string, WorkspaceWithChildren>();
@@ -157,27 +152,6 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  /**
-   * Check if user can perform an action on a workspace.
-   * Maps each UI action to its correct Kessel relation, then applies workspace type constraints.
-   */
-  const canModify = (workspace: WorkspacesWorkspace, action: 'edit' | 'move' | 'delete' | 'create') => {
-    const workspaceId = workspace.id ?? '';
-
-    switch (action) {
-      case 'create':
-        return hasPermission(workspaceId, 'create') && isValidEditType(workspace);
-      case 'edit':
-        return hasPermission(workspaceId, 'edit') && isValidEditType(workspace);
-      case 'move':
-        return hasPermission(workspaceId, 'move') && isValidMoveType(workspace);
-      case 'delete':
-        return hasPermission(workspaceId, 'delete') && isValidDeleteType(workspace);
-      default:
-        return false;
-    }
-  };
-
   const buildRows = React.useCallback(
     (workspacesData: WorkspaceWithChildren[]): DataViewTrTree[] =>
       workspacesData.map((workspace) => ({
@@ -210,24 +184,24 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
                     onClick: () => {
                       navigate(pathnames['edit-workspaces-list'].link(workspace.id ?? ''));
                     },
-                    isDisabled: !canModify(workspace, 'edit'),
+                    isDisabled: !hasPermission(workspace.id ?? '', 'edit'),
                   },
                   {
                     title: 'Create workspace',
                     onClick: () => navigate(pathnames['create-workspace'].link()),
-                    isDisabled: !canModify(workspace, 'create'),
+                    isDisabled: !hasPermission(workspace.id ?? '', 'create'),
                   },
                   {
                     title: 'Create subworkspace',
                     onClick: () => navigate(pathnames['create-workspace'].link()),
-                    isDisabled: !canModify(workspace, 'create'),
+                    isDisabled: !hasPermission(workspace.id ?? '', 'create'),
                   },
                   {
                     title: 'Move workspace',
                     onClick: () => {
                       onMoveWorkspace(workspace, '');
                     },
-                    isDisabled: !canModify(workspace, 'move'),
+                    isDisabled: !hasPermission(workspace.id ?? '', 'move'),
                   },
                   {
                     title: 'Manage integrations',
@@ -246,8 +220,8 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
                     onClick: () => {
                       handleModalToggle([workspace]);
                     },
-                    isDisabled: (workspace.children && workspace.children.length > 0) || !canModify(workspace, 'delete'),
-                    isDanger: !(workspace.children && workspace.children.length > 0) && canModify(workspace, 'delete'),
+                    isDisabled: (workspace.children && workspace.children.length > 0) || !hasPermission(workspace.id ?? '', 'delete'),
+                    isDanger: !(workspace.children && workspace.children.length > 0) && hasPermission(workspace.id ?? '', 'delete'),
                   },
                 ]}
               />

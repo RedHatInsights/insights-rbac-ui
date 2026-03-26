@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { Suspense, useCallback, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Content, ContentVariants, Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
 import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
@@ -23,6 +23,7 @@ import { useWorkspacesWithPermissions } from '../hooks/useWorkspacesWithPermissi
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { useWorkspaceGroups, useWorkspaceInheritedGroups } from '../../../data/queries/groupAssignments';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
+import { useAppLink } from '../../../../shared/hooks/useAppLink';
 import pathnames from '../../../utilities/pathnames';
 
 const WORKSPACE_TABS = {
@@ -42,6 +43,7 @@ export const WorkspaceDetail = () => {
   const enableRoles = useWorkspacesFlag('m3');
   const [isGrantAccessOpen, setIsGrantAccessOpen] = useState(false);
   const navigate = useAppNavigate();
+  const toAppLink = useAppLink();
   const activeTabString = (() => {
     const raw = searchParams.get('activeTab');
     if (!raw) return enableRoles ? 'roles' : 'assets';
@@ -264,7 +266,20 @@ export const WorkspaceDetail = () => {
           )
         )}
       </PageSection>
-      <Outlet />
+      <Suspense>
+        <Outlet
+          context={{
+            [pathnames['edit-workspace'].path]: {
+              afterSubmit: () => {
+                navigate(toAppLink(pathnames['workspace-detail'].link(workspaceId ?? '')));
+              },
+              onCancel: () => {
+                navigate(toAppLink(pathnames['workspace-detail'].link(workspaceId ?? '')));
+              },
+            },
+          }}
+        />
+      </Suspense>
     </>
   );
 };

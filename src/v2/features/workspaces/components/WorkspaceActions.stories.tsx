@@ -387,6 +387,57 @@ export const MenuNavigation: Story = {
 };
 
 /**
+ * Tests that workspace-type constraints disable actions even when Kessel grants
+ * full permissions. A root-type workspace should only allow viewing — edit,
+ * create subworkspace, move, and delete must all be disabled.
+ *
+ * In production the `useWorkspacePermissions` hook strips these permissions
+ * before they reach the component. This story validates that the component
+ * renders correctly when it receives the post-hook permissions.
+ */
+export const ItemsDisabledByWorkspaceType: Story = {
+  args: {
+    currentWorkspace: mockWorkspace,
+    hasAssets: false,
+    isDisabled: false,
+    permissions: { view: true, edit: false, delete: false, create: false, move: false },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Root workspace with Kessel grants stripped by `useWorkspacePermissions` type constraints. ' +
+          'Edit, Create subworkspace, Move, and Delete are all disabled despite the backend granting all relations.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify all mutating actions are disabled for a root workspace', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await userEvent.click(actionsButton);
+
+      const body = within(document.body);
+
+      const editItem = await body.findByText('Edit workspace');
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
+
+      const grantItem = await body.findByText('Grant access to workspace');
+      await expect(grantItem.closest('button')).toHaveAttribute('disabled');
+
+      const createSubItem = await body.findByText('Create subworkspace');
+      await expect(createSubItem.closest('button')).toHaveAttribute('disabled');
+
+      const moveItem = await body.findByText('Move workspace');
+      await expect(moveItem.closest('button')).toHaveAttribute('disabled');
+
+      const deleteItem = await body.findByText('Delete workspace');
+      await expect(deleteItem.closest('button')).toHaveAttribute('disabled');
+    });
+  },
+};
+
+/**
  * Tests that menu items respect per-relation permissions.
  *
  * Edit disabled (!edit), Grant Access disabled (!create), Delete disabled (!delete).

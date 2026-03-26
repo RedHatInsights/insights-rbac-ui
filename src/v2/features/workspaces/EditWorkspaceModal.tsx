@@ -2,12 +2,10 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import type FormTemplateRenderProps from '@data-driven-forms/react-form-renderer/common-types/form-template-render-props';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
-import { useAppLink } from '../../../shared/hooks/useAppLink';
-import { useWorkspacePermissions } from './hooks/useWorkspacePermissions';
 import messages from '../../../Messages';
 import {
   type WorkspacesWorkspace,
@@ -127,31 +125,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     return workspace ? { ...workspace } : {};
   }, [workspace]);
 
-  // Kessel edit-permission guard — must be called unconditionally (Rules of Hooks)
-  const { hasPermission, isLoading: isPermissionsLoading } = useWorkspacePermissions(workspace ? [workspace] : []);
-  const toAppLink = useAppLink();
-
-  // Only evaluate once both workspace data AND permission checks have settled
-  const lacksEditPermission = !!workspace && !isPermissionsLoading && !hasPermission(workspace.id ?? '', 'edit');
-
-  useEffect(() => {
-    if (lacksEditPermission) {
-      addNotification({
-        variant: 'danger',
-        title: intl.formatMessage(messages.editingWorkspaceTitle),
-        description: intl.formatMessage(messages.editingWorkspaceNoPermissionDescription),
-      });
-      navigate(toAppLink(paths.workspaces.link()));
-    }
-  }, [lacksEditPermission, addNotification, intl, navigate, toAppLink]);
-
-  // Show loading state while fetching workspace or resolving permissions
-  if (isWorkspaceLoading || isPermissionsLoading) {
-    return null;
-  }
-
-  // Redirect if user lacks edit permission on this workspace
-  if (lacksEditPermission) {
+  if (isWorkspaceLoading) {
     return null;
   }
 

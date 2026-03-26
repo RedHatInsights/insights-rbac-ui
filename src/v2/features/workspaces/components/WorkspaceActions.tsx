@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react';
+import React, { useState } from 'react';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
 import { DrilldownMenu } from '@patternfly/react-core';
 import { Menu } from '@patternfly/react-core';
@@ -12,9 +12,7 @@ import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
 import { EMPTY_PERMISSIONS, type WorkspacePermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
-import { Outlet } from 'react-router-dom';
 import pathnames from '../../../utilities/pathnames';
-import { useAppLink } from '../../../../shared/hooks/useAppLink';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
 import { DeleteWorkspaceModal } from './DeleteWorkspaceModal';
@@ -87,7 +85,6 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
 
   const intl = useIntl();
   const navigate = useAppNavigate();
-  const toAppLink = useAppLink();
 
   const toggle = (
     <MenuToggle ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen} isDisabled={isDisabled} variant="default">
@@ -273,20 +270,6 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
         toggleRef={toggleRef}
         popperProps={{ position: 'end' }}
       />
-      <Suspense>
-        <Outlet
-          context={{
-            [pathnames['edit-workspace'].path]: {
-              afterSubmit: () => {
-                navigate(toAppLink(pathnames['workspace-detail'].link(currentWorkspace.id ?? '')));
-              },
-              onCancel: () => {
-                navigate(toAppLink(pathnames['workspace-detail'].link(currentWorkspace.id ?? '')));
-              },
-            },
-          }}
-        />
-      </Suspense>
     </React.Fragment>
   );
 };

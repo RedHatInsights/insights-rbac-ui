@@ -47,11 +47,22 @@ permissionsFor(ws.id)           // → WorkspacePermissions record
 hasPermission(ws.id, 'delete')  // → boolean
 ```
 
+**Workspace-type constraints (RHCLOUD-39826):** `useWorkspacePermissions` applies workspace-type constraints on top of Kessel results before exposing permissions to consumers. Kessel doesn't model type-based constraints, so the hook acts as defense-in-depth:
+
+| Type | view | edit | create | move | delete |
+|------|------|------|--------|------|--------|
+| root | yes | **no** | **no** | **no** | **no** |
+| default | yes | yes | yes | **no** | **no** |
+| ungrouped-hosts | yes | **no** | **no** | **no** | **no** |
+| standard | yes | yes | yes | yes | yes |
+
+The rules are defined in `workspaceTypes.ts` (`canEditType`, `canMoveType`, `canDeleteType`, `canCreateInType`) and applied inside the hook's `allowedIds` memo. Consumers (list table, detail page, etc.) do not need their own type guards — `hasPermission()` and `permissionsFor()` already return the correct answer.
+
 **Propagation (PR1 — Kessel Permission Guards):** Permissions are now checked across all workspace surfaces:
 - **List table:** name link gated on `view`, row actions use correct per-action relations (`edit` for edit, `move` for move, `delete` for delete, `create` for sub-workspace)
 - **Create workspace:** parent selector passes `requiredPermission="create"` to `ManagedWorkspaceSelector`
 - **Detail page:** renders `<UnauthorizedAccess>` when `view` is denied; `WorkspaceActions` menu items disabled per relation; delete calls `useDeleteWorkspaceMutation` and navigates to list; move uses `MoveWorkspaceDialog` + `useMoveWorkspaceMutation`; create-subworkspace navigates to wizard with pre-selected parent; hierarchy breadcrumb gates links on `view` permission
-- **Edit modal:** redirects if `edit` permission is denied (direct URL guard)
+- **Edit modal:** protected by `v2WorkspaceGuard('edit')` route guard in Routing.tsx
 
 **Role binding permission mapping (MVP):**
 
