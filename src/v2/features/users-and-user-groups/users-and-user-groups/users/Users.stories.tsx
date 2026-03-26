@@ -173,17 +173,17 @@ const mockUserRolesV2 = [
 const storyRoleBindings: RoleBinding[] = [
   {
     role: { id: mockUserRolesV2[0].id, name: mockUserRolesV2[0].name },
-    subject: { id: 'john.doe', type: 'user', groupName: mockUserGroups[0].name },
+    subject: { id: mockUsers[0].username, type: 'user', groupName: mockUserGroups[0].name },
     resource: { id: 'ws-1', name: 'Production', type: 'workspace' },
   },
   {
     role: { id: mockUserRolesV2[1].id, name: mockUserRolesV2[1].name },
-    subject: { id: 'john.doe', type: 'user', groupName: mockUserGroups[1].name },
+    subject: { id: mockUsers[0].username, type: 'user', groupName: mockUserGroups[1].name },
     resource: { id: 'ws-2', name: 'Development', type: 'workspace' },
   },
   {
     role: { id: mockUserRolesV2[1].id, name: mockUserRolesV2[1].name },
-    subject: { id: 'jane.smith', type: 'user', groupName: mockUserGroups[0].name },
+    subject: { id: mockUsers[1].username, type: 'user', groupName: mockUserGroups[0].name },
     resource: { id: 'ws-1', name: 'Production', type: 'workspace' },
   },
 ];

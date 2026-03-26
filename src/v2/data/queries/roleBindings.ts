@@ -65,6 +65,7 @@ export function useGroupRoleBindingsQuery(groupId: string, options?: { enabled?:
       const response = await api.roleBindingsList({
         subjectType: 'group',
         subjectId: groupId,
+        resourceType: 'workspace',
         limit: 1000,
         fields: FIELDS,
       });
@@ -85,6 +86,7 @@ export function useUserRoleBindingsQuery(userId: string, options?: { enabled?: b
       const response = await api.roleBindingsList({
         subjectType: 'user',
         subjectId: userId,
+        resourceType: 'workspace',
         limit: 1000,
         fields: FIELDS,
       });
