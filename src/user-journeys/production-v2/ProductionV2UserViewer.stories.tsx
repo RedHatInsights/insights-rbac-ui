@@ -108,7 +108,7 @@ Entry point for manual testing of the V2 User Viewer persona.
 
 **Expected Sidebar:**
 - My Access
-- Access Management → Users and User Groups only (no Workspaces, no Roles)
+- Access Management → Users and User Groups + Workspaces (no Roles)
         `,
       },
     },
@@ -152,7 +152,7 @@ Validates that V2 User Viewer sees the correct sidebar items.
 - ✅ "My Access" link IS present (V2 label)
 - ✅ "Access Management" expandable section IS present
 - ✅ "Users and Groups" link IS present (has rbac:principal:read)
-- ❌ "Workspaces" link is NOT present (no inventory:groups:read)
+- ✅ "Workspaces" link IS present (no permission check)
 - ❌ "Roles" link is NOT present (no rbac:role:read)
         `,
       },
@@ -179,8 +179,8 @@ Validates that V2 User Viewer sees the correct sidebar items.
       const usersLink = await canvas.findByRole('link', { name: /users and groups/i });
       expect(usersLink).toBeInTheDocument();
 
-      const workspacesLink = canvas.queryByRole('link', { name: /workspaces/i });
-      expect(workspacesLink).not.toBeInTheDocument();
+      const workspacesLink = await canvas.findByRole('link', { name: /^workspaces$/i });
+      expect(workspacesLink).toBeInTheDocument();
 
       const rolesLink = canvas.queryByRole('link', { name: /roles/i });
       expect(rolesLink).not.toBeInTheDocument();
@@ -323,12 +323,12 @@ Tests that:
 };
 
 /**
- * Workspaces Page / Access Denied
+ * Workspaces Page / Accessible
  *
- * Tests that User Viewer gets access denied for Workspaces page via direct URL.
+ * Tests that User Viewer can access the Workspaces page (view is public).
  */
-export const WorkspacesPageDenied: Story = {
-  name: 'Direct URL - Unauthorized (Workspaces)',
+export const WorkspacesPageAccessible: Story = {
+  name: 'Direct URL - Authorized (Workspaces)',
   args: {
     initialRoute: '/iam/access-management/workspaces',
   },
@@ -337,8 +337,8 @@ export const WorkspacesPageDenied: Story = {
       description: {
         story: `
 Tests that:
-1. Workspaces link is NOT in sidebar (no inventory:groups:read)
-2. Direct URL navigation shows access denied
+1. Workspaces link IS in sidebar (no permission check)
+2. Direct URL navigation shows the workspace list
         `,
       },
     },
@@ -354,15 +354,11 @@ Tests that:
       await waitForContentReady(canvasElement);
     });
 
-    await step('Verify Workspaces link absent and access denied shown', async () => {
-      const accessDenied = await canvas.findByText(/you don't have permission to view this page|unauthorized|access denied/i);
-      expect(accessDenied).toBeInTheDocument();
+    await step('Verify Workspaces page loads with data', async () => {
+      const workspacesLink = await canvas.findByRole('link', { name: /^workspaces$/i });
+      expect(workspacesLink).toBeInTheDocument();
 
-      const workspacesLink = canvas.queryByRole('link', { name: /workspaces/i });
-      expect(workspacesLink).not.toBeInTheDocument();
-
-      const workspaceName = canvas.queryByText('Root Workspace');
-      expect(workspaceName).not.toBeInTheDocument();
+      await expect(canvas.findByText('Default Workspace')).resolves.toBeInTheDocument();
     });
   },
 };

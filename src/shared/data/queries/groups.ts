@@ -891,6 +891,7 @@ export function useAddServiceAccountsToGroupMutation(options?: MutationOptions) 
 
   return useMutation({
     mutationFn: async ({ groupId, serviceAccounts }: AddServiceAccountsToGroupParams) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- GroupPrincipalInPrincipalsInner requires username but service accounts only have clientId
       const response = await (groupsApi.addPrincipalToGroup as any)({
         uuid: groupId,
         groupPrincipalIn: {
@@ -934,7 +935,7 @@ export function useRemoveServiceAccountsFromGroupMutation(options?: MutationOpti
 
   return useMutation({
     mutationFn: async ({ groupId, serviceAccounts }: RemoveServiceAccountsFromGroupParams) => {
-      await (groupsApi.deletePrincipalFromGroup as any)({
+      await groupsApi.deletePrincipalFromGroup({
         uuid: groupId,
         serviceAccounts: serviceAccounts.join(','),
       });

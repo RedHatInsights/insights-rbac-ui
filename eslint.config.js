@@ -70,7 +70,7 @@ module.exports = defineConfig(
       'react/prop-types': 'off',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 1,
+      '@typescript-eslint/no-explicit-any': 'error',
       // Ban TableView used without useTableState to prevent hand-rolled state bugs
       'rbac-local/require-use-table-state': 'error',
       'rbac-local/no-direct-get-user': 'error',
@@ -293,7 +293,7 @@ module.exports = defineConfig(
       'react/prop-types': 'off',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 1,
+      '@typescript-eslint/no-explicit-any': 'error',
       'no-restricted-imports': [
         'error',
         {
@@ -376,7 +376,7 @@ module.exports = defineConfig(
     rules: {
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 1,
+      '@typescript-eslint/no-explicit-any': 'error',
       'no-restricted-imports': [
         'error',
         {
@@ -424,7 +424,7 @@ module.exports = defineConfig(
       'react/prop-types': 'off',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 1,
+      '@typescript-eslint/no-explicit-any': 'error',
       'no-restricted-imports': [
         'error',
         {
@@ -500,7 +500,7 @@ module.exports = defineConfig(
     rules: {
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 1,
+      '@typescript-eslint/no-explicit-any': 'error',
     },
   },
   {
@@ -515,7 +515,7 @@ module.exports = defineConfig(
     rules: {
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 1,
+      '@typescript-eslint/no-explicit-any': 'error',
       // Ban magic numbers in timeouts - use E2E_TIMEOUTS constants instead
       'no-restricted-syntax': [
         'error',
