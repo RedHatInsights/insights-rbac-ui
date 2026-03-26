@@ -6,6 +6,7 @@ import { WorkspaceListTable } from './WorkspaceListTable';
 import { BrowserRouter } from 'react-router-dom';
 // Import shared test functions and mock data from helper file
 import { type WorkspaceRelation } from '../../../data/queries/workspaces';
+import { canCreateInType, canDeleteType, canEditType, canMoveType } from '../workspaceTypes';
 import {
   mockWorkspaces,
   testDefaultWorkspaceDisplay,
@@ -257,13 +258,29 @@ export const RestrictedPermissions: Story = {
 export const RootWorkspaceRestrictions: Story = {
   args: {
     ...defaultProps,
-    hasPermission: () => true, // User has full permissions
+    hasPermission: (id: string, relation: WorkspaceRelation) => {
+      if (relation === 'view') return true;
+      const ws = mockWorkspaces.find((w) => w.id === id);
+      const type = ws?.type;
+      switch (relation) {
+        case 'edit':
+          return canEditType(type);
+        case 'create':
+          return canCreateInType(type);
+        case 'move':
+          return canMoveType(type);
+        case 'delete':
+          return canDeleteType(type);
+        default:
+          return true;
+      }
+    },
   },
   parameters: {
     docs: {
       description: {
         story:
-          'Tests workspace type restrictions where root workspaces cannot be modified regardless of user permissions. Users should see all actions disabled for the "Root Workspace" even with full permissions, demonstrating that business rules based on workspace type override user permissions.',
+          'Tests workspace type restrictions where root workspaces cannot be modified regardless of user permissions. The `hasPermission` prop simulates post-hook behavior where `useWorkspacePermissions` has already applied type constraints — root workspace actions are denied despite the user having Kessel grants.',
       },
     },
   },

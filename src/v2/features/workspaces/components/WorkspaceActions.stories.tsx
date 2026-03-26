@@ -425,7 +425,7 @@ export const ItemsDisabledByWorkspaceType: Story = {
       const grantItem = await body.findByText('Grant access to workspace');
       await expect(grantItem.closest('button')).toHaveAttribute('disabled');
 
-      const createSubItem = await body.findByText('Create subworkspace');
+      const createSubItem = await body.findByText('Create sub-workspace');
       await expect(createSubItem.closest('button')).toHaveAttribute('disabled');
 
       const moveItem = await body.findByText('Move workspace');
