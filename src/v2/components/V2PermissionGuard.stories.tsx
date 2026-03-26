@@ -3,7 +3,7 @@ import React from 'react';
 import { expect, within } from 'storybook/test';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { TenantPermissionsMap } from '../../../.storybook/contexts/StorybookMockContext';
-import { V2PermissionGuard, roles, workspaces } from './V2PermissionGuard';
+import { V2PermissionGuard, groups, roles } from './V2PermissionGuard';
 
 const ProtectedContent = () => <div data-testid="protected-content">Protected route content</div>;
 
@@ -176,7 +176,7 @@ export const PartialPermissionsOrLogic: Story = {
     },
   },
   render: () => (
-    <V2PermissionGuard permissions={[roles.canView, workspaces.canView]} checkAll={false}>
+    <V2PermissionGuard permissions={[roles.canView, groups.canView]} checkAll={false}>
       <ProtectedContent />
     </V2PermissionGuard>
   ),
@@ -199,7 +199,7 @@ export const PartialPermissionsAndLogic: Story = {
     },
   },
   render: () => (
-    <V2PermissionGuard permissions={[roles.canView, workspaces.canView]} checkAll={true}>
+    <V2PermissionGuard permissions={[roles.canView, groups.canView]} checkAll={true}>
       <ProtectedContent />
     </V2PermissionGuard>
   ),

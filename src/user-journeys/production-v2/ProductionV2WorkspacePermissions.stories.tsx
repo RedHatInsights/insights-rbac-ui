@@ -936,7 +936,7 @@ Production (ws-1) has full access; siblings (ws-2, ws-3) and parents are view-on
 // ---------------------------------------------------------------------------
 
 export const RoleAccessModalDirectUrlDenied: Story = {
-  name: 'Direct URL to role-access modal — denied without create permission',
+  name: 'Direct URL to role-access modal — denied without edit permission',
   args: {
     workspacePermissions: { view: NON_ROOT_IDS, edit: [], delete: [], create: [], move: [] },
     initialRoute: `/iam/access-management/workspaces/detail/${WS_PRODUCTION.id}/role-access/${KESSEL_GROUP_PROD_ADMINS.uuid}`,
@@ -947,19 +947,17 @@ export const RoleAccessModalDirectUrlDenied: Story = {
         story: `
 ## Direct-URL Defense — RoleAccessModal
 
-User navigates directly to the role-access modal URL without \`create\` permission.
+User navigates directly to the role-access modal URL without \`edit\` permission.
+The workspace-level edit guard blocks at the routing level before the modal mounts.
 
 ### Checks
-- The modal does NOT render (returns null + redirects)
-- A danger notification appears ("You do not have permission to edit this workspace")
-- The URL falls back to the workspace detail page
+- The modal does NOT render
+- The route-level guard shows "unauthorized access" instead
         `,
       },
     },
   },
   play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
-
     await step('Reset state', async () => {
       await resetStoryState(db);
     });
@@ -968,21 +966,16 @@ User navigates directly to the role-access modal URL without \`create\` permissi
       await waitForContentReady(canvasElement);
     });
 
-    await step('Verify modal is not rendered and notification appears', async () => {
+    await step('Verify route-level guard blocks access', async () => {
       const body = within(document.body);
 
       await waitFor(
         () => {
-          const notifications = body.queryAllByText(/you do not have permission to edit this workspace/i);
-          expect(notifications.length).toBeGreaterThan(0);
+          const unauthorized = body.queryAllByText(/you don.t have permission to view this page/i);
+          expect(unauthorized.length).toBeGreaterThan(0);
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
-
-      await waitFor(() => {
-        const addressBar = canvas.queryByTestId('fake-address-bar');
-        expect(addressBar).not.toHaveTextContent(/role-access/i);
-      });
 
       const modal = body.queryByRole('dialog');
       await expect(modal).toBeNull();

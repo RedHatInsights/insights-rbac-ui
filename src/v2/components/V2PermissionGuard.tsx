@@ -27,23 +27,11 @@ export const groups = {
   canDelete: 'groups.canDelete',
 } as const;
 
-export const workspaces = {
-  canView: 'workspaces.canView',
-  canCreate: 'workspaces.canCreate',
-  canUpdate: 'workspaces.canUpdate',
-  canDelete: 'workspaces.canDelete',
-  canMove: 'workspaces.canMove',
-} as const;
-
 export const principals = {
   canList: 'principals.canList',
 } as const;
 
-export type V2Permission =
-  | (typeof roles)[keyof typeof roles]
-  | (typeof groups)[keyof typeof groups]
-  | (typeof workspaces)[keyof typeof workspaces]
-  | (typeof principals)[keyof typeof principals];
+export type V2Permission = (typeof roles)[keyof typeof roles] | (typeof groups)[keyof typeof groups] | (typeof principals)[keyof typeof principals];
 
 // ============================================================================
 // Internal Kessel mapping — never exported
@@ -51,17 +39,7 @@ export type V2Permission =
 
 const RBAC_REPORTER = { type: 'rbac' } as const;
 
-type RbacTenantRelation =
-  | 'rbac_roles_read'
-  | 'rbac_roles_write'
-  | 'rbac_groups_read'
-  | 'rbac_groups_write'
-  | 'rbac_principal_read'
-  | 'rbac_workspace_view'
-  | 'rbac_workspace_edit'
-  | 'rbac_workspace_create'
-  | 'rbac_workspace_delete'
-  | 'rbac_workspace_move';
+type RbacTenantRelation = 'rbac_roles_read' | 'rbac_roles_write' | 'rbac_groups_read' | 'rbac_groups_write' | 'rbac_principal_read';
 
 const KESSEL_MAP: Record<V2Permission, RbacTenantRelation> = {
   'roles.canView': 'rbac_roles_read',
@@ -72,11 +50,6 @@ const KESSEL_MAP: Record<V2Permission, RbacTenantRelation> = {
   'groups.canCreate': 'rbac_groups_write',
   'groups.canUpdate': 'rbac_groups_write',
   'groups.canDelete': 'rbac_groups_write',
-  'workspaces.canView': 'rbac_workspace_view',
-  'workspaces.canCreate': 'rbac_workspace_create',
-  'workspaces.canUpdate': 'rbac_workspace_edit',
-  'workspaces.canDelete': 'rbac_workspace_delete',
-  'workspaces.canMove': 'rbac_workspace_move',
   'principals.canList': 'rbac_principal_read',
 };
 
