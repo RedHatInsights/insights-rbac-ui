@@ -107,15 +107,13 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
   // Derive write capability from permissions (has any :write or :* permission)
   const hasWritePermissions = permissions.some((p) => p.includes(':write') || p.includes(':*') || p === 'rbac:*:*');
 
-  // Default workspace IDs from the fixtures - used by useSelfAccessCheck mock.
-  // Includes all IDs in defaultWorkspaces: root-1, default-1, ws-1, ws-2, ws-3.
-  const DEFAULT_WORKSPACE_IDS = ['root-1', 'default-1', 'ws-1', 'ws-2', 'ws-3'];
+  // '*' wildcard grants all workspace IDs (including dynamically created ones).
   const allGranted = {
-    view: DEFAULT_WORKSPACE_IDS,
-    edit: DEFAULT_WORKSPACE_IDS,
-    delete: DEFAULT_WORKSPACE_IDS,
-    create: DEFAULT_WORKSPACE_IDS,
-    move: DEFAULT_WORKSPACE_IDS,
+    view: ['*'],
+    edit: ['*'],
+    delete: ['*'],
+    create: ['*'],
+    move: ['*'],
   };
   const allDenied = { view: [], edit: [], delete: [], create: [], move: [] };
   // Use explicit override if provided; otherwise derive from write permissions.

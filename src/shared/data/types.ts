@@ -18,4 +18,7 @@ export interface QueryOptions {
 export interface MutationOptions {
   /** Pass explicit QueryClient to bypass context (for CLI) */
   queryClient?: QueryClient;
+  /** When true, the mutation's onSuccess skips notification and cache invalidation.
+   *  The caller is responsible for handling both (e.g. after a post-submit progress step). */
+  deferSuccessSideEffects?: boolean;
 }

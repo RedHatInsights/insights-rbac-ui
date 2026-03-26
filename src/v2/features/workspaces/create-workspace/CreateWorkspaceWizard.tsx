@@ -4,15 +4,17 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import type { FormApi } from 'final-form';
 import { useFlag } from '@unleash/proxy-client-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../../Messages';
-import { useCreateWorkspaceMutation, useWorkspacesQuery } from '../../../data/queries/workspaces';
+import { useCreateWorkspaceMutation, useWorkspacesQuery, workspacesKeys } from '../../../data/queries/workspaces';
 import { ReviewStep as Review } from './components/Review';
+import { WaitForWorkspaceReady } from './components/WaitForWorkspaceReady';
 import { WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT, schemaBuilder } from './schema';
 import { SetDetails } from './components/SetDetails';
 import { SetEarMark } from './components/SetEarMark';
@@ -33,18 +35,37 @@ export const mapperExtension = {
 export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = ({ afterSubmit, onCancel }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
+  const queryClient = useQueryClient();
   const enableFeatures = useFlag('platform.rbac.workspaces-billing-features');
   const addNotification = useAddNotification();
 
-  // React Query hooks
+  const [createdWorkspace, setCreatedWorkspace] = useState<{ id: string; name: string } | null>(null);
+
+  // React Query hooks — defer side-effects so the progress step controls cache + notification timing
   const { data: workspacesData } = useWorkspacesQuery();
   const existingWorkspaceNames = (workspacesData?.data ?? []).map((w) => w.name).filter((n): n is string => !!n);
-  const createWorkspaceMutation = useCreateWorkspaceMutation();
+  const createWorkspaceMutation = useCreateWorkspaceMutation({ deferSuccessSideEffects: true });
 
-  // Default handlers for when component is used as a route element
-  const defaultAfterSubmit = () => {
-    // Cache is automatically invalidated by the mutation
-    navigate(pathnames.workspaces.link());
+  const handleFinish = () => {
+    queryClient.invalidateQueries({ queryKey: workspacesKeys.all });
+    addNotification({
+      variant: 'success',
+      title: intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: createdWorkspace?.name }),
+    });
+    if (afterSubmit) {
+      afterSubmit();
+    } else {
+      navigate(pathnames.workspaces.link());
+    }
+  };
+
+  const handleClose = () => {
+    queryClient.invalidateQueries({ queryKey: workspacesKeys.all });
+    if (afterSubmit) {
+      afterSubmit();
+    } else {
+      navigate(pathnames.workspaces.link());
+    }
   };
 
   const defaultOnCancel = () => {
@@ -58,16 +79,17 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
 
   const onSubmit = async (_v: Record<string, unknown>, form: FormApi) => {
     const values = form.getState().values;
-    // Note: parent_id uses optional chaining as defensive coding. In practice,
-    // SetDetails.tsx always sets a default parent via useEffect, and the form
-    // requires a parent selection. If parent_id is undefined, the API will reject it.
-    await createWorkspaceMutation.mutateAsync({
+    const result = await createWorkspaceMutation.mutateAsync({
       name: values[WORKSPACE_NAME],
       description: values[WORKSPACE_DESCRIPTION],
       parent_id: values[WORKSPACE_PARENT]?.id,
     });
-    (afterSubmit || defaultAfterSubmit)();
+    setCreatedWorkspace({ id: result.id, name: result.name ?? values[WORKSPACE_NAME] });
   };
+
+  if (createdWorkspace) {
+    return <WaitForWorkspaceReady workspace={createdWorkspace} onFinish={handleFinish} onClose={handleClose} />;
+  }
 
   return (
     <FormRenderer

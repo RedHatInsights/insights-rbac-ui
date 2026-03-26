@@ -152,6 +152,83 @@ export function workspacesErrorHandlers(status: number = 500) {
   ];
 }
 
+// ============================================================================
+// Kessel ready-check handlers (post-create permission polling)
+// ============================================================================
+
+export interface WorkspaceReadyCheckOptions {
+  /** Milliseconds after handler creation before permissions become allowed. Default: 3000 */
+  readyAfterMs?: number;
+}
+
+/**
+ * MSW handler that simulates the Kessel /checkselfbulk endpoint for workspace
+ * permission polling. All relations flip to allowed: true after readyAfterMs.
+ */
+export function workspaceReadyCheckHandler(workspaceId: string, options: WorkspaceReadyCheckOptions = {}) {
+  const readyAfter = options.readyAfterMs ?? 3000;
+  const startTime = Date.now();
+
+  return http.post('*/api/kessel/v1beta2/checkselfbulk', async ({ request }) => {
+    const body = (await request.json()) as {
+      items?: Array<{ object?: { resourceId?: string; resourceType?: string }; relation?: string }>;
+    };
+    const items = body.items ?? [];
+    const isForWorkspace = items.some((item) => item.object?.resourceId === workspaceId);
+
+    if (isForWorkspace) {
+      const allowed = Date.now() - startTime >= readyAfter;
+      return HttpResponse.json({
+        results: items.map((item) => ({
+          allowed,
+          resource: { id: item.object?.resourceId, type: item.object?.resourceType },
+          relation: item.relation,
+        })),
+      });
+    }
+
+    return HttpResponse.json({ results: [] });
+  });
+}
+
+/**
+ * Kessel handler where permissions never become allowed (timeout testing).
+ */
+export function workspaceReadyCheckNeverHandler() {
+  return http.post('*/api/kessel/v1beta2/checkselfbulk', async ({ request }) => {
+    const body = (await request.json()) as {
+      items?: Array<{ object?: { resourceId?: string; resourceType?: string }; relation?: string }>;
+    };
+    const items = body.items ?? [];
+    return HttpResponse.json({
+      results: items.map((item) => ({
+        allowed: false,
+        resource: { id: item.object?.resourceId, type: item.object?.resourceType },
+        relation: item.relation,
+      })),
+    });
+  });
+}
+
+/**
+ * Kessel handler where permissions are immediately allowed (instant success testing).
+ */
+export function workspaceReadyCheckInstantHandler() {
+  return http.post('*/api/kessel/v1beta2/checkselfbulk', async ({ request }) => {
+    const body = (await request.json()) as {
+      items?: Array<{ object?: { resourceId?: string; resourceType?: string }; relation?: string }>;
+    };
+    const items = body.items ?? [];
+    return HttpResponse.json({
+      results: items.map((item) => ({
+        allowed: true,
+        resource: { id: item.object?.resourceId, type: item.object?.resourceType },
+        relation: item.relation,
+      })),
+    });
+  });
+}
+
 /** All workspace endpoints delay forever (loading state) */
 export function workspacesLoadingHandlers() {
   const handler = async () => {

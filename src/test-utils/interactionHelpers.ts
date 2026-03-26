@@ -211,6 +211,22 @@ export async function waitForModalClose(options?: { timeout?: number }): Promise
 }
 
 /**
+ * Wait for the "Workspace ready" modal to appear after workspace creation,
+ * then click the "Close" button to dismiss it.
+ */
+export async function dismissWorkspaceReadyModal(user: UserEvent, options?: { timeout?: number }): Promise<void> {
+  const timeout = options?.timeout ?? TEST_TIMEOUTS.ELEMENT_WAIT;
+  const modal = await waitForModal({
+    timeout,
+    waitUntil: (dlg) => expect(dlg.queryByText('Workspace ready')).toBeInTheDocument(),
+  });
+  const buttons = await modal.findAllByRole('button', { name: /close/i });
+  const closeButton = buttons.find((btn) => btn.textContent?.trim().toLowerCase() === 'close') ?? buttons[0];
+  await user.click(closeButton);
+  await waitForModalClose({ timeout });
+}
+
+/**
  * Switch the active filter column in a DataView toolbar.
  *
  * The DataViewFilters attribute selector toggle displays the name of the

@@ -1,5 +1,5 @@
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { clearAndType, waitForContentReady } from '../../test-utils/interactionHelpers';
+import { clearAndType, dismissWorkspaceReadyModal, waitForContentReady } from '../../test-utils/interactionHelpers';
 import {
   Story,
   TEST_TIMEOUTS,
@@ -85,6 +85,10 @@ Tests basic workspace creation where the parent is fixed to "Root Workspace".
       await clickWizardNext(user, wizard, { buttonText: /submit/i });
     });
 
+    await step('Dismiss workspace ready modal', async () => {
+      await dismissWorkspaceReadyModal(user);
+    });
+
     await step('Verify QA Environment in workspace list', async () => {
       await waitForPageToLoad(canvas, WS_ROOT.name);
 
@@ -152,6 +156,10 @@ Tests that admins can create a workspace and choose a parent via the tree select
       await selectParentWorkspace(user, wizard, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
       await clickWizardNext(user, wizard);
       await clickWizardNext(user, wizard, { buttonText: /submit/i });
+    });
+
+    await step('Dismiss workspace ready modal', async () => {
+      await dismissWorkspaceReadyModal(user);
     });
 
     await step('Verify Test Workspace M2 under Production', async () => {
@@ -235,6 +243,10 @@ Tests creating a child workspace from a parent's action menu.
 
       await clickWizardNext(user, wizardScope);
       await clickWizardNext(user, wizardScope, { buttonText: /submit/i });
+    });
+
+    await step('Dismiss workspace ready modal', async () => {
+      await dismissWorkspaceReadyModal(user);
     });
 
     await step('Verify Test Subworkspace under Production', async () => {

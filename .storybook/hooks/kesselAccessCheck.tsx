@@ -43,7 +43,8 @@ function checkWorkspacePermission(relation: string, resourceId: string, wsPerms:
   };
   const key = wsRelMap[relation];
   if (!key) return false;
-  return wsPerms[key]?.includes(resourceId) ?? false;
+  const ids = wsPerms[key] ?? [];
+  return ids.includes('*') || ids.includes(resourceId);
 }
 
 export const useSelfAccessCheck = (params: UseSelfAccessCheckOptions) => {

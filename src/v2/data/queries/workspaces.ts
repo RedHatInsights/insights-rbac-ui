@@ -178,6 +178,7 @@ export function useCreateWorkspaceMutation(options?: MutationOptions) {
         return response.data;
       },
       onSuccess: (_, variables) => {
+        if (options?.deferSuccessSideEffects) return;
         qc.invalidateQueries({ queryKey: workspacesKeys.all });
         notify('success', intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: variables.name }));
       },

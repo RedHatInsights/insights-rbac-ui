@@ -1205,6 +1205,36 @@ export default defineMessages({
     description: 'Create workspace error notification description',
     defaultMessage: 'The workspace was not created successfuly.',
   },
+  createWorkspaceProgressTitle: {
+    id: 'createWorkspaceProgressTitle',
+    description: 'Title shown while waiting for workspace permissions to propagate',
+    defaultMessage: 'Setting up your workspace',
+  },
+  createWorkspaceProgressBody: {
+    id: 'createWorkspaceProgressBody',
+    description: 'Body text shown while waiting for workspace permissions to propagate',
+    defaultMessage: 'Configuring permissions for {name}. This usually takes a few seconds.',
+  },
+  createWorkspaceReadyTitle: {
+    id: 'createWorkspaceReadyTitle',
+    description: 'Title shown when workspace permissions are fully propagated',
+    defaultMessage: 'Workspace ready',
+  },
+  createWorkspaceReadyBody: {
+    id: 'createWorkspaceReadyBody',
+    description: 'Body text shown when workspace permissions are fully propagated',
+    defaultMessage: '{name} has been created and is ready to use.',
+  },
+  createWorkspaceTimeoutTitle: {
+    id: 'createWorkspaceTimeoutTitle',
+    description: 'Title shown when workspace permission propagation takes too long',
+    defaultMessage: 'Taking longer than expected',
+  },
+  createWorkspaceTimeoutBody: {
+    id: 'createWorkspaceTimeoutBody',
+    description: 'Body text shown when workspace permission propagation takes too long',
+    defaultMessage: '{name} was created, but permissions are still being set up. You can close this dialog and check back shortly.',
+  },
   editWorkspaceSuccessTitle: {
     id: 'editWorkspaceSuccessTitle',
     description: 'Update workspace success notification title',
