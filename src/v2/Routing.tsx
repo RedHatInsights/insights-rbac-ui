@@ -111,6 +111,8 @@ export const V2Routing = () => {
         <Route path={pathnames['workspace-detail'].path} element={<WorkspaceDetail />}>
           <Route {...v2WorkspaceGuard('edit')}>
             <Route path={pathnames['edit-workspace'].path} element={outletElement(EditWorkspaceModal, pathnames['edit-workspace'].path)} />
+          </Route>
+          <Route {...v2WorkspaceGuard('create')}>
             <Route path={pathnames['workspace-role-access'].path} element={outletElement(RoleAccessModal, pathnames['workspace-role-access'].path)} />
           </Route>
         </Route>
