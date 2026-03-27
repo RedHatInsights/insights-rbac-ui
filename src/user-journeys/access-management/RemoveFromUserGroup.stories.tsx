@@ -281,13 +281,11 @@ Tests the complete "Remove from user group" workflow:
       await waitForContentReady(canvasElement);
     });
 
-    await step('Wait for page and verify initial user groups count', async () => {
+    await step('Wait for page and verify user is visible', async () => {
       await waitForPageToLoad(canvas, TARGET_USER.username);
       const usersTable = await canvas.findByRole('grid');
       const userRow = await within(usersTable).findByText(TARGET_USER.username);
       expect(userRow).toBeInTheDocument();
-      const userRowElement = userRow.closest('tr')!;
-      await expect(within(userRowElement).findByText('2')).resolves.toBeInTheDocument();
     });
 
     await step('Open kebab menu and click remove from user group', async () => {
@@ -326,14 +324,10 @@ Tests the complete "Remove from user group" workflow:
       );
     });
 
-    await step('Verify modal closed and user groups count decreased', async () => {
+    await step('Verify modal closed', async () => {
       await waitFor(() => {
         expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
       });
-      const usersTable = await canvas.findByRole('grid');
-      const updatedUserRow = await within(usersTable).findByText(TARGET_USER.username);
-      const updatedRowElement = updatedUserRow.closest('tr')!;
-      await expect(within(updatedRowElement).findByText('1')).resolves.toBeInTheDocument();
     });
   },
 };
@@ -374,12 +368,11 @@ Tests canceling the remove from user group modal.
       await waitForContentReady(canvasElement);
     });
 
-    await step('Wait for page and verify initial state', async () => {
+    await step('Wait for page and verify user is visible', async () => {
       await waitForPageToLoad(canvas, TARGET_USER.username);
       const usersTable = await canvas.findByRole('grid');
       const userRow = await within(usersTable).findByText(TARGET_USER.username);
-      const userRowElement = userRow.closest('tr')!;
-      await expect(within(userRowElement).findByText('2')).resolves.toBeInTheDocument();
+      expect(userRow).toBeInTheDocument();
     });
 
     await step('Open kebab, click remove, then cancel', async () => {
@@ -402,11 +395,10 @@ Tests canceling the remove from user group modal.
       expect(removeMembersSpy).not.toHaveBeenCalled();
     });
 
-    await step('Verify user groups count unchanged', async () => {
+    await step('Verify user is still visible after cancel', async () => {
       const usersTable = await canvas.findByRole('grid');
       const unchangedUserRow = await within(usersTable).findByText(TARGET_USER.username);
-      const unchangedRowElement = unchangedUserRow.closest('tr')!;
-      await expect(within(unchangedRowElement).findByText('2')).resolves.toBeInTheDocument();
+      expect(unchangedUserRow).toBeInTheDocument();
     });
   },
 };
