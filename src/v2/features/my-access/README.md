@@ -19,7 +19,7 @@ Two route-based tabs (following the `UsersAndUserGroups` pattern):
 - Lists workspaces the user has edit access to via `useWorkspacesWithPermissions()`, filtered to `permissions.edit === true`.
 - Columns: Workspace name (links to workspace detail), Admin/Viewer role badge.
 - Admin/Viewer is derived from Kessel permissions: `delete` or `create` = Admin, otherwise Viewer.
-- Row click opens `MyWorkspaceDrawer` showing role bindings for the user in that workspace (via `useRoleBindingsQuery`).
+- Row click opens `MyWorkspaceDrawer` showing role bindings for the user in that workspace (via `useUserRoleBindingsQuery` with `resourceId`).
 
 ## Components
 
@@ -42,7 +42,7 @@ Two route-based tabs (following the `UsersAndUserGroups` pattern):
 - `GET /api/rbac/v1/groups/?username=<current>` — user's groups
 - `GET /api/rbac/v2/role-bindings/?subject_type=group&subject_id=<id>` — group's role bindings
 - `GET /api/rbac/v2/workspaces/` — all visible workspaces
-- `POST /api/rbac/v2/role-bindings/list-by-subject` — role bindings per workspace for current user
+- `GET /api/rbac/v2/role-bindings/?subject_type=user&subject_id=<id>&resource_id=<workspace_id>` — user's role bindings in a workspace
 - Kessel `/checkselfbulk` — workspace permission checks (view, edit, delete, create, move)
 
 ## Constraints

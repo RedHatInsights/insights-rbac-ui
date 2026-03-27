@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { RoleBindingsRoleBinding } from '../api/workspaces';
 import { createWorkspacesApi } from '../api/workspaces';
 import { useAppServices } from '../../../shared/contexts/ServiceContext';
+import useIdentity from '../../../shared/hooks/useIdentity';
 import { roleBindingsKeys } from './workspaces';
 
 // =============================================================================
@@ -75,18 +76,19 @@ export function useGroupRoleBindingsQuery(groupId: string, options?: { enabled?:
   });
 }
 
-/** Fetch all role bindings for a user (through group memberships). */
-export function useUserRoleBindingsQuery(userId: string | undefined, options?: { enabled?: boolean }) {
+/** Fetch role bindings for a user, scoped to workspaces. Optionally filtered to a single workspace via `resourceId`. */
+export function useUserRoleBindingsQuery(userId: string | undefined, options?: { enabled?: boolean; resourceId?: string }) {
   const { axios } = useAppServices();
   const api = createWorkspacesApi(axios);
 
   return useQuery({
-    queryKey: [...roleBindingsKeys.all, 'user', userId],
+    queryKey: [...roleBindingsKeys.all, 'user', userId, options?.resourceId],
     queryFn: async (): Promise<RoleBinding[]> => {
       const response = await api.roleBindingsList({
         subjectType: 'user',
         subjectId: userId!,
         resourceType: 'workspace',
+        resourceId: options?.resourceId,
         limit: 1000,
         fields: FIELDS,
       });
@@ -94,4 +96,11 @@ export function useUserRoleBindingsQuery(userId: string | undefined, options?: {
     },
     enabled: (options?.enabled ?? true) && !!userId,
   });
+}
+
+/** Fetch role bindings for the current authenticated user. Resolves identity internally so consumers don't need to. */
+export function useCurrentUserRoleBindingsQuery(options?: { enabled?: boolean; resourceId?: string }) {
+  const { identity } = useIdentity();
+  const userId = identity?.internal?.account_id;
+  return useUserRoleBindingsQuery(userId, options);
 }

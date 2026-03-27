@@ -14,8 +14,7 @@ import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
-import { useRoleBindingsQuery } from '../../../data/queries/workspaces';
-import useIdentity from '../../../../shared/hooks/useIdentity';
+import { useCurrentUserRoleBindingsQuery } from '../../../data/queries/roleBindings';
 import { extractErrorMessage } from '../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../shared/components/table-view/types';
@@ -42,8 +41,6 @@ interface RoleData {
 
 const WorkspaceRolesPanel: React.FC<{ workspaceId: string }> = ({ workspaceId }) => {
   const intl = useIntl();
-  const { identity } = useIdentity();
-  const userId = identity?.internal?.account_id;
 
   const columnConfig: ColumnConfigMap<typeof roleColumns> = useMemo(
     () => ({
@@ -68,31 +65,19 @@ const WorkspaceRolesPanel: React.FC<{ workspaceId: string }> = ({ workspaceId })
     syncWithUrl: false,
   });
 
-  const { data, isLoading, error } = useRoleBindingsQuery(
-    {
-      resourceId: workspaceId,
-      resourceType: 'workspace',
-      subjectType: 'user',
-      subjectId: userId,
-      limit: 1000,
-    },
-    { enabled: !!userId },
-  );
+  const { data: bindings = [], isLoading, error } = useCurrentUserRoleBindingsQuery({ resourceId: workspaceId });
 
   const roleData: RoleData[] = useMemo(() => {
-    if (!data?.data) return [];
     const seen = new Set<string>();
-    return data.data.flatMap((binding) =>
-      (binding.roles ?? []).reduce<RoleData[]>((acc, role) => {
-        const id = role.id ?? '';
-        if (!seen.has(id)) {
-          seen.add(id);
-          acc.push({ id, name: role.name ?? role.id ?? '—', description: '' });
-        }
-        return acc;
-      }, []),
-    );
-  }, [data]);
+    return bindings.reduce<RoleData[]>((acc, binding) => {
+      const id = binding.role.id;
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        acc.push({ id, name: binding.role.name || id, description: '' });
+      }
+      return acc;
+    }, []);
+  }, [bindings]);
 
   if (error) {
     return (
