@@ -53,7 +53,11 @@ export function findDefaultParentWorkspace<T extends { type?: string }>(workspac
 // ---------------------------------------------------------------------------
 
 const EDITABLE_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Default, WorkspacesWorkspaceTypes.Standard]);
-const CREATABLE_IN_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Root, WorkspacesWorkspaceTypes.Default, WorkspacesWorkspaceTypes.Standard]);
+const CREATABLE_IN_TYPES: ReadonlySet<string> = new Set([
+  WorkspacesWorkspaceTypes.Root,
+  WorkspacesWorkspaceTypes.Default,
+  WorkspacesWorkspaceTypes.Standard,
+]);
 const MOVABLE_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Standard]);
 const DELETABLE_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Standard]);
 
