@@ -6,11 +6,10 @@ import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../..
 import type { User } from '../../../../../../shared/data/queries/users';
 import messages from '../../../../../../Messages';
 
-// Standard columns (authModel=false): username, email, first_name, last_name, is_active, user_groups_count, is_org_admin
-export const standardColumns = ['username', 'email', 'first_name', 'last_name', 'is_active', 'user_groups_count', 'is_org_admin'] as const;
+export const standardColumns = ['username', 'email', 'first_name', 'last_name', 'is_active', 'is_org_admin'] as const;
 
-// Auth model columns (authModel=true): is_org_admin, username, email, first_name, last_name, is_active, user_groups_count
-export const authModelColumns = ['is_org_admin', 'username', 'email', 'first_name', 'last_name', 'is_active', 'user_groups_count'] as const;
+// Auth model columns (authModel=true): org admin column moves first
+export const authModelColumns = ['is_org_admin', 'username', 'email', 'first_name', 'last_name', 'is_active'] as const;
 
 export const sortableColumns = ['username'] as const;
 
@@ -51,7 +50,6 @@ export function useUsersTableConfig({
       first_name: { label: intl.formatMessage(messages.firstName) },
       last_name: { label: intl.formatMessage(messages.lastName) },
       is_active: { label: intl.formatMessage(messages.status) },
-      user_groups_count: { label: intl.formatMessage(messages.userGroups) },
       is_org_admin: { label: intl.formatMessage(messages.orgAdmin) },
     }),
     [intl],
@@ -65,7 +63,6 @@ export function useUsersTableConfig({
       first_name: { label: intl.formatMessage(messages.firstName) },
       last_name: { label: intl.formatMessage(messages.lastName) },
       is_active: { label: intl.formatMessage(messages.status) },
-      user_groups_count: { label: intl.formatMessage(messages.userGroups) },
     }),
     [intl],
   );
@@ -89,7 +86,6 @@ export function useUsersTableConfig({
           />
         </span>
       ),
-      user_groups_count: (user) => (user.user_groups_count as number) ?? 0,
       is_org_admin: (user) => (
         <span onClick={(e) => e.stopPropagation()} role="presentation">
           <Switch
@@ -136,7 +132,6 @@ export function useUsersTableConfig({
           />
         </span>
       ),
-      user_groups_count: (user) => (user.user_groups_count as number) ?? 0,
     }),
     [focusedUser, orgAdmin, ouiaId, onToggleUserStatus, onToggleOrgAdmin],
   );

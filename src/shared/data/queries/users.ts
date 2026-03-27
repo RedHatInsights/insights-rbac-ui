@@ -70,7 +70,6 @@ export interface UsersQueryResult {
     is_active?: boolean;
     is_org_admin?: boolean;
     external_source_id?: number | string;
-    user_groups_count?: number;
   }>;
   totalCount: number;
 }
@@ -137,11 +136,8 @@ export function useUsersQuery(params: UseUsersQueryParams = {}, options?: QueryO
 
         // Transform API response to clean typed structure
         // Use type assertion for fields that might be in the response but not in the strict type
-        type PrincipalWithExtras = (typeof data.data)[number] & {
-          user_groups_count?: number;
-        };
         const users = (data?.data ?? []).map((principal) => {
-          const p = principal as PrincipalWithExtras;
+          const p = principal as (typeof data.data)[number];
           return {
             username: p.username,
             email: 'email' in p ? (p.email as string) : '',
@@ -150,7 +146,6 @@ export function useUsersQuery(params: UseUsersQueryParams = {}, options?: QueryO
             is_active: 'is_active' in p ? p.is_active : undefined,
             is_org_admin: 'is_org_admin' in p ? p.is_org_admin : undefined,
             external_source_id: 'external_source_id' in p ? p.external_source_id : undefined,
-            user_groups_count: p.user_groups_count,
           };
         });
 

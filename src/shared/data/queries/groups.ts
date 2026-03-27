@@ -754,7 +754,6 @@ export function useAddMembersToGroupMutation(options?: MutationOptions) {
       onSuccess: (_, variables) => {
         qc.invalidateQueries({ queryKey: groupsKeys.members(variables.groupId) });
         qc.invalidateQueries({ queryKey: groupsKeys.lists() });
-        // Also invalidate users query since user_groups_count changes
         qc.invalidateQueries({ queryKey: ['users'] });
         const multiple = variables.usernames.length > 1;
         notify('success', intl.formatMessage(multiple ? messages.addGroupMembersSuccessTitle : messages.addGroupMemberSuccessTitle));
@@ -796,7 +795,6 @@ export function useRemoveMembersFromGroupMutation(options?: MutationOptions) {
       onSuccess: (_, variables) => {
         qc.invalidateQueries({ queryKey: groupsKeys.members(variables.groupId) });
         qc.invalidateQueries({ queryKey: groupsKeys.lists() });
-        // Also invalidate users query since user_groups_count changes
         qc.invalidateQueries({ queryKey: ['users'] });
         // Always use plural form
         notify(
