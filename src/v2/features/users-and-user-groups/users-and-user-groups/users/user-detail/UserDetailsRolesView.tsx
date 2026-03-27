@@ -10,7 +10,7 @@ import { TableView, useTableState } from '../../../../../../shared/components/ta
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
 
 interface UserRolesViewProps {
-  userId: string;
+  userId?: string;
   ouiaId: string;
 }
 

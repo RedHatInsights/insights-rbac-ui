@@ -28,7 +28,7 @@ interface UserDetailsDrawerContentProps {
   onClose: () => void;
   ouiaId: string;
   renderGroupsTab: (userId: string, ouiaId: string) => React.ReactNode;
-  renderRolesTab: (userId: string, ouiaId: string) => React.ReactNode;
+  renderRolesTab: (userId: string | undefined, ouiaId: string) => React.ReactNode;
 }
 
 const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
@@ -79,7 +79,11 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
             </TabTitleText>
           }
         >
-          {focusedUser && renderRolesTab(focusedUser.username, `${ouiaId}-assigned-users-view`)}
+          {focusedUser &&
+            renderRolesTab(
+              focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
+              `${ouiaId}-assigned-users-view`,
+            )}
         </Tab>
       </Tabs>
     </DrawerPanelContent>
@@ -107,7 +111,7 @@ const UserDetailsDrawer: React.FunctionComponent<DetailDrawerProps> = ({ focused
 
   const renderGroupsTab = (userId: string, tabOuiaId: string) => <UserDetailsGroupsView ouiaId={tabOuiaId} userId={userId} />;
 
-  const renderRolesTab = (userId: string, tabOuiaId: string) => <UserDetailsRolesView userId={userId} ouiaId={tabOuiaId} />;
+  const renderRolesTab = (userId: string | undefined, tabOuiaId: string) => <UserDetailsRolesView userId={userId} ouiaId={tabOuiaId} />;
 
   useEffect(() => {
     if (focusedUser) {

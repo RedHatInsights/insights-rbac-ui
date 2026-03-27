@@ -27,7 +27,7 @@ const mockUser: User = {
 const storyRoleBindings: RoleBinding[] = [
   {
     role: { id: '1', name: 'Red Hat Insights Viewer' },
-    subject: { id: 'john.doe', type: 'user', groupName: 'Administrators' },
+    subject: { id: String(mockUser.external_source_id), type: 'user', groupName: 'Administrators' },
     resource: { id: 'ws-1', name: 'Production', type: 'workspace' },
   },
 ];

@@ -149,6 +149,9 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
     userIdentity: {
       org_id: '12510751',
       account_number: '123456',
+      internal: {
+        account_id: '123456',
+      },
       user: {
         username: 'test-user',
         email: 'test@redhat.com',

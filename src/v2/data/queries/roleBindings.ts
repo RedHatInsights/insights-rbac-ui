@@ -76,7 +76,7 @@ export function useGroupRoleBindingsQuery(groupId: string, options?: { enabled?:
 }
 
 /** Fetch all role bindings for a user (through group memberships). */
-export function useUserRoleBindingsQuery(userId: string, options?: { enabled?: boolean }) {
+export function useUserRoleBindingsQuery(userId: string | undefined, options?: { enabled?: boolean }) {
   const { axios } = useAppServices();
   const api = createWorkspacesApi(axios);
 
@@ -85,7 +85,7 @@ export function useUserRoleBindingsQuery(userId: string, options?: { enabled?: b
     queryFn: async (): Promise<RoleBinding[]> => {
       const response = await api.roleBindingsList({
         subjectType: 'user',
-        subjectId: userId,
+        subjectId: userId!,
         resourceType: 'workspace',
         limit: 1000,
         fields: FIELDS,

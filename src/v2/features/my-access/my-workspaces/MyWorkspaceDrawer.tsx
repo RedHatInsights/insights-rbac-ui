@@ -43,8 +43,7 @@ interface RoleData {
 const WorkspaceRolesPanel: React.FC<{ workspaceId: string }> = ({ workspaceId }) => {
   const intl = useIntl();
   const { identity } = useIdentity();
-  // The V2 role-bindings API expects the account number, not the username string
-  const userId = identity?.account_number;
+  const userId = identity?.internal?.account_id;
 
   const columnConfig: ColumnConfigMap<typeof roleColumns> = useMemo(
     () => ({

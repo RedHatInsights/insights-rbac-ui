@@ -356,12 +356,15 @@ const journeyRoleBindings: RoleBinding[] = mockRoleBindings.map((b) => ({
   resource: { id: b.workspaceId, name: b.workspaceName, type: 'workspace' },
 }));
 
-/** Expand group bindings into per-user bindings so subject_type=user queries match. */
-const journeyUserRoleBindings: RoleBinding[] = Object.entries(userGroupsMembership).flatMap(([username, groupIds]) =>
-  groupIds.flatMap((groupId) =>
-    journeyRoleBindings.filter((b) => b.subject.id === groupId).map((b) => ({ ...b, subject: { ...b.subject, id: username, type: 'user' } })),
-  ),
-);
+/** Expand group bindings into per-user bindings so subject_type=user queries match.
+ * Uses external_source_id as the subject ID — matches what the drawer passes to the API. */
+const journeyUserRoleBindings: RoleBinding[] = Object.entries(userGroupsMembership).flatMap(([username, groupIds]) => {
+  const user = mockUsers.find((u) => u.username === username);
+  const subjectId = user?.external_source_id ?? username;
+  return groupIds.flatMap((groupId) =>
+    journeyRoleBindings.filter((b) => b.subject.id === groupId).map((b) => ({ ...b, subject: { ...b.subject, id: subjectId, type: 'user' } })),
+  );
+});
 
 const allJourneyBindings = [...journeyRoleBindings, ...journeyUserRoleBindings];
 

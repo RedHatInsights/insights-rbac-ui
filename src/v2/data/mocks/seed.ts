@@ -173,12 +173,12 @@ export const DEFAULT_ROLE_BINDINGS: RoleBinding[] = [
   },
   {
     role: { id: V2_ROLE_TENANT_ADMIN.id!, name: V2_ROLE_TENANT_ADMIN.name! },
-    subject: { id: USER_JOHN.username, type: 'user', groupName: GROUP_PLATFORM_ADMINS.name },
+    subject: { id: String(USER_JOHN.external_source_id), type: 'user', groupName: GROUP_PLATFORM_ADMINS.name },
     resource: { id: WS_PRODUCTION.id!, name: WS_PRODUCTION.name!, type: 'workspace' },
   },
   {
     role: { id: V2_ROLE_INVENTORY_VIEWER.id!, name: V2_ROLE_INVENTORY_VIEWER.name! },
-    subject: { id: USER_JANE.username, type: 'user', groupName: GROUP_SUPPORT_TEAM.name },
+    subject: { id: String(USER_JANE.external_source_id), type: 'user', groupName: GROUP_SUPPORT_TEAM.name },
     resource: { id: WS_DEVELOPMENT.id!, name: WS_DEVELOPMENT.name!, type: 'workspace' },
   },
 ];

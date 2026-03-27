@@ -48,7 +48,7 @@ type Story = StoryObj<typeof UserDetailsRolesView>;
 export const Default: Story = {
   tags: ['autodocs'],
   args: {
-    userId: USER_JOHN.username,
+    userId: String(USER_JOHN.external_source_id),
     ouiaId: 'user-roles-view',
   },
   parameters: {
