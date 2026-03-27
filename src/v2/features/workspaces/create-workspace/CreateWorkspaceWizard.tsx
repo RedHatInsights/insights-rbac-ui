@@ -17,6 +17,7 @@ import { type WorkspacesWorkspace, useCreateWorkspaceMutation, useWorkspacesQuer
 import { ReviewStep as Review } from './components/Review';
 import { WaitForWorkspaceReady } from './components/WaitForWorkspaceReady';
 import { WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT, schemaBuilder } from './schema';
+import { SelectParentWorkspace } from './components/SelectParentWorkspace';
 import { SetDetails } from './components/SetDetails';
 import { SetEarMark } from './components/SetEarMark';
 
@@ -28,6 +29,7 @@ export interface CreateWorkspaceWizardProps {
 const FormTemplate = (props: FormTemplateCommonProps) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
 export const mapperExtension = {
+  SelectParentWorkspace,
   SetDetails,
   SetEarMark,
   Review,

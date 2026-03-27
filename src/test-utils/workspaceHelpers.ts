@@ -13,7 +13,7 @@
  */
 
 import { expect, waitFor, within } from 'storybook/test';
-import { type ScopedQueries, clearAndType } from './interactionHelpers';
+import { type ScopedQueries, clearAndType, clickWizardNext } from './interactionHelpers';
 import { TEST_TIMEOUTS, type UserEvent } from './testUtils';
 
 /**
@@ -60,26 +60,17 @@ export async function fillWorkspaceForm(user: UserEvent, wizardScope: ScopedQuer
 }
 
 /**
- * Opens the parent workspace selector tree panel
- *
- * Returns the tree panel scope for further interactions
+ * Navigates from the details step to the "Select parent workspace" step
+ * by clicking "Next" and waiting for the search input to appear.
  *
  * Usage:
  * ```ts
- * const treePanel = await openParentWorkspaceSelector(user, wizard);
+ * await navigateToParentStep(user, wizard);
  * ```
  */
-export async function openParentWorkspaceSelector(user: UserEvent, wizardScope: ScopedQueries) {
-  // Click the parent selector button
-  const parentSelector = await wizardScope.findByRole('button', { name: /select workspaces/i });
-  expect(parentSelector).toBeInTheDocument();
-  await user.click(parentSelector);
-
-  // Wait for the tree view panel to open
-  const treePanel = await within(document.body).findByTestId('workspace-selector-menu', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-  expect(treePanel).toBeInTheDocument();
-
-  return within(treePanel);
+export async function navigateToParentStep(user: UserEvent, wizardScope: ScopedQueries) {
+  await clickWizardNext(user, wizardScope);
+  await wizardScope.findByLabelText(/search workspaces/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
 }
 
 /**
@@ -104,56 +95,40 @@ export async function expandWorkspaceInTree(user: UserEvent, treePanelScope: Sco
 }
 
 /**
- * Selects a workspace from the tree and confirms the selection
+ * Selects a workspace node from a PatternFly TreeView by clicking its text.
+ *
+ * Matches the proven pattern used in WorkspaceTreeView.stories.tsx and
+ * ManagedWorkspaceSelector.stories.tsx: findByText → click.
+ *
+ * Works in both the wizard's inline tree and the dropdown panel tree.
+ * When used with the dropdown `ManagedWorkspaceSelector`, the caller must
+ * also click the confirmation button separately.
  *
  * Usage:
  * ```ts
- * await selectWorkspaceFromTree(user, treePanel, 'Production');
+ * await selectWorkspaceFromTree(user, treeScope, 'Production');
  * ```
  */
-export async function selectWorkspaceFromTree(user: UserEvent, treePanelScope: ScopedQueries, workspaceName: string) {
-  const workspaceButton = await treePanelScope.findByRole('button', { name: workspaceName });
-  expect(workspaceButton).toBeInTheDocument();
-  await user.click(workspaceButton);
-
-  const body = within(document.body);
-  const selectButton = await body.findByRole('button', { name: /select workspace/i }).catch(async () => {
-    const buttonByText = await body.findByText(/select workspace/i);
-    const button = buttonByText.closest('button');
-    return button;
-  });
-
-  expect(selectButton).toBeInTheDocument();
-  if (selectButton) {
-    await user.click(selectButton);
-  }
+export async function selectWorkspaceFromTree(user: UserEvent, treeScope: ScopedQueries, workspaceName: string) {
+  const workspaceText = await treeScope.findByText(workspaceName, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+  expect(workspaceText).toBeInTheDocument();
+  await user.click(workspaceText);
 }
 
 /**
- * Complete combo: Expand parent workspace(s) in tree and select a child
+ * Navigates to the parent step and selects a workspace from the inline tree.
+ * The tree starts fully expanded, so no manual expansion is needed for
+ * typical hierarchies.
  *
  * Usage:
  * ```ts
- * // Single level expansion
- * await selectParentWorkspace(user, wizard, 'Root Workspace', 'Default Workspace');
- * // Multi-level expansion (expand Root, then Default, then select Production)
- * await selectParentWorkspace(user, wizard, ['Root Workspace', 'Default Workspace'], 'Production');
+ * await selectParentWorkspace(user, wizard, 'Production');
  * ```
  */
-export async function selectParentWorkspace(
-  user: UserEvent,
-  wizardScope: ScopedQueries,
-  parentsToExpand: string | string[],
-  workspaceToSelect: string,
-) {
-  const treePanel = await openParentWorkspaceSelector(user, wizardScope);
-
-  const parents = Array.isArray(parentsToExpand) ? parentsToExpand : [parentsToExpand];
-  for (const parent of parents) {
-    await expandWorkspaceInTree(user, treePanel, parent);
-  }
-
-  await selectWorkspaceFromTree(user, treePanel, workspaceToSelect);
+export async function selectParentWorkspace(user: UserEvent, wizardScope: ScopedQueries, workspaceToSelect: string) {
+  await navigateToParentStep(user, wizardScope);
+  const tree = await wizardScope.findByRole('tree', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+  await selectWorkspaceFromTree(user, within(tree), workspaceToSelect);
 }
 
 /**

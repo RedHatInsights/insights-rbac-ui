@@ -8,10 +8,10 @@ import {
   createDynamicEnvironment,
 } from '../_shared/components/KesselAppEntryWithRouter';
 import { navigateToPage, resetStoryState } from '../_shared/helpers';
-import { waitForContentReady, waitForDrawer } from '../../test-utils/interactionHelpers';
+import { clearAndType, waitForContentReady, waitForDrawer } from '../../test-utils/interactionHelpers';
 import { TEST_TIMEOUTS } from '../../test-utils/testUtils';
 import { expandWorkspaceRow, waitForPageToLoad } from '../../test-utils/tableHelpers';
-import { expandWorkspaceInTree, openWorkspaceKebabMenu, openWorkspaceWizard } from '../../test-utils/workspaceHelpers';
+import { navigateToParentStep, openWorkspaceKebabMenu, openWorkspaceWizard } from '../../test-utils/workspaceHelpers';
 import { createV2MockDb } from '../../v2/data/mocks/db';
 import { createV2Handlers } from '../../v2/data/mocks/handlers';
 import { DEFAULT_GROUPS, DEFAULT_USERS } from '../../shared/data/mocks/seed';
@@ -240,12 +240,12 @@ export const RootWorkspaceNotSelectableAsParent: Story = {
         story: `
 ## Root Workspace Not Selectable as Parent
 
-In the Create Workspace wizard, Root should be disabled/unselectable in the parent tree
-because the user has no create permission on Root.
+In the Create Workspace wizard's parent selection step, Root should be
+disabled/unselectable because the user has no create permission on Root.
 
 ### Checks
-- Root Workspace is visually disabled (opacity styling)
-- Clicking Root does not change the parent selection
+- Root Workspace is visually disabled (opacity styling) in the inline tree
+- Next button remains disabled after clicking Root
         `,
       },
     },
@@ -262,28 +262,22 @@ because the user has no create permission on Root.
       await waitForContentReady(canvasElement);
     });
 
-    await step('Open Create workspace wizard and verify Root disabled', async () => {
+    await step('Open Create workspace wizard and navigate to parent step', async () => {
       await navigateToPage(user, canvas, 'Workspaces');
       await waitForPageToLoad(canvas, WS_ROOT.name);
 
       const wizard = await openWorkspaceWizard(user, canvas);
-      const treePanel = await (async () => {
-        const parentSelector = await wizard.findByRole('button', { name: /select workspaces/i });
-        await user.click(parentSelector);
-        // Async popover content
-        const panel = await within(document.body).findByTestId('workspace-selector-menu', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-        return within(panel);
-      })();
+      await clearAndType(user, () => wizard.getByRole('textbox', { name: /workspace name/i }) as HTMLInputElement, 'Test Root Disabled');
+      await navigateToParentStep(user, wizard);
 
-      const rootItem = await treePanel.findByText(WS_ROOT.name);
+      const rootItem = await wizard.findByText(WS_ROOT.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
       const disabledSpan = rootItem.closest('span[style*="opacity"]');
       await expect(disabledSpan).toBeInTheDocument();
 
-      const toggleBefore = await wizard.findByRole('button', { name: /select workspaces/i });
-      await expect(toggleBefore).toBeInTheDocument();
       await user.click(rootItem);
-      const toggleAfter = await wizard.findByRole('button', { name: /select workspaces/i });
-      await expect(toggleAfter).toBeInTheDocument();
+
+      const nextButton = wizard.getByRole('button', { name: /next/i });
+      await expect(nextButton).toBeDisabled();
     });
   },
 };
@@ -310,7 +304,7 @@ User has create permission on ws-1 only.
 
 ### Checks
 - Toolbar "Create workspace" button is **enabled**
-- In parent selector tree: Production is selectable, others disabled
+- In parent step tree: Production is selectable, others disabled
         `,
       },
     },
@@ -335,27 +329,19 @@ User has create permission on ws-1 only.
       await expect(createButton).toBeEnabled();
 
       const wizard = await openWorkspaceWizard(user, canvas);
-      const treePanel = await (async () => {
-        const parentSelector = await wizard.findByRole('button', { name: /select workspaces/i });
-        await user.click(parentSelector);
-        // Async popover content
-        const panel = await within(document.body).findByTestId('workspace-selector-menu', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-        return within(panel);
-      })();
+      await clearAndType(user, () => wizard.getByRole('textbox', { name: /workspace name/i }) as HTMLInputElement, 'Test Single Create');
+      await navigateToParentStep(user, wizard);
 
-      const rootItem = await treePanel.findByText(WS_ROOT.name);
+      const rootItem = await wizard.findByText(WS_ROOT.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
       const disabledSpan = rootItem.closest('span[style*="opacity"]');
       await expect(disabledSpan).toBeInTheDocument();
 
-      await expandWorkspaceInTree(user, treePanel, WS_ROOT.name);
-      await expandWorkspaceInTree(user, treePanel, WS_DEFAULT.name);
-
-      const productionItem = await treePanel.findByText(WS_PRODUCTION.name);
+      const productionItem = await wizard.findByText(WS_PRODUCTION.name);
       await expect(productionItem.closest('span[style*="opacity"]')).toBeNull();
 
-      const developmentItem = await treePanel.findByText(WS_DEVELOPMENT.name);
+      const developmentItem = await wizard.findByText(WS_DEVELOPMENT.name);
       await expect(developmentItem.closest('span[style*="opacity"]')).toBeInTheDocument();
-      const stagingItem = await treePanel.findByText(WS_STAGING.name);
+      const stagingItem = await wizard.findByText(WS_STAGING.name);
       await expect(stagingItem.closest('span[style*="opacity"]')).toBeInTheDocument();
     });
   },
@@ -382,7 +368,7 @@ export const CanCreateInMultipleWorkspaces: Story = {
 User has create permission on Production and Development.
 
 ### Checks
-- Root and Staging are disabled in parent selector
+- Root and Staging are disabled in parent step tree
 - Production and Development are selectable
         `,
       },
@@ -400,32 +386,24 @@ User has create permission on Production and Development.
       await waitForContentReady(canvasElement);
     });
 
-    await step('Open Create wizard and verify parent selector states', async () => {
+    await step('Open Create wizard and verify parent step tree states', async () => {
       await navigateToPage(user, canvas, 'Workspaces');
       await waitForPageToLoad(canvas, WS_ROOT.name);
 
       const wizard = await openWorkspaceWizard(user, canvas);
-      const treePanel = await (async () => {
-        const parentSelector = await wizard.findByRole('button', { name: /select workspaces/i });
-        await user.click(parentSelector);
-        // Async popover content
-        const panel = await within(document.body).findByTestId('workspace-selector-menu', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-        return within(panel);
-      })();
+      await clearAndType(user, () => wizard.getByRole('textbox', { name: /workspace name/i }) as HTMLInputElement, 'Test Multi Create');
+      await navigateToParentStep(user, wizard);
 
-      const rootItem = await treePanel.findByText(WS_ROOT.name);
+      const rootItem = await wizard.findByText(WS_ROOT.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
       const disabledSpan = rootItem.closest('span[style*="opacity"]');
       await expect(disabledSpan).toBeInTheDocument();
 
-      await expandWorkspaceInTree(user, treePanel, WS_ROOT.name);
-      await expandWorkspaceInTree(user, treePanel, WS_DEFAULT.name);
-
-      const productionItem = await treePanel.findByText(WS_PRODUCTION.name);
+      const productionItem = await wizard.findByText(WS_PRODUCTION.name);
       await expect(productionItem.closest('span[style*="opacity"]')).toBeNull();
-      const developmentItem = await treePanel.findByText(WS_DEVELOPMENT.name);
+      const developmentItem = await wizard.findByText(WS_DEVELOPMENT.name);
       await expect(developmentItem.closest('span[style*="opacity"]')).toBeNull();
 
-      const stagingItem = await treePanel.findByText(WS_STAGING.name);
+      const stagingItem = await wizard.findByText(WS_STAGING.name);
       await expect(stagingItem.closest('span[style*="opacity"]')).toBeInTheDocument();
     });
   },

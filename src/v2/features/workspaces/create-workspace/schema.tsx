@@ -11,7 +11,11 @@ import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
 import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 
-// hardcoded for now
+/**
+ * Placeholder bundle options for the billing features flow.
+ * Gated behind `platform.rbac.workspaces-billing-features`.
+ * Real implementation depends on Kessel integration — see CRCPLAN-274, CRCPLAN-367.
+ */
 export const BUNDLES = [
   {
     label: 'OpenShift',
@@ -68,7 +72,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
             showTitle: false,
             name: 'details',
             buttons: WizardButtons,
-            nextStep: () => (enableBillingFeatures ? 'select-features' : 'review'),
+            nextStep: 'select-parent',
             fields: [
               {
                 name: 'details-title',
@@ -113,7 +117,6 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                     type: validatorTypes.MAX_LENGTH,
                     threshold: 150,
                   },
-                  // Custom validator for duplicate workspace names
                   (value: string) => {
                     if (!value) return undefined;
                     const isDuplicate = existingWorkspaceNames.some((name) => name.toLowerCase() === value.toLowerCase());
@@ -121,34 +124,27 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                   },
                 ],
               },
-              {
-                name: WORKSPACE_PARENT,
-                component: componentTypes.TEXT_FIELD,
-                isRequired: true,
-                hideField: true,
-                validate: [
-                  {
-                    type: validatorTypes.REQUIRED,
-                  },
-                ],
-              },
-              {
-                name: 'workspace-details',
-                component: 'SetDetails',
-                fields: [
-                  {
-                    name: WORKSPACE_ACCOUNT,
-                    component: componentTypes.TEXT_FIELD,
-                    isRequired: true,
-                    hideField: true,
-                    validate: [
-                      {
-                        type: validatorTypes.REQUIRED,
-                      },
-                    ],
-                  },
-                ],
-              },
+              ...(enableBillingFeatures
+                ? [
+                    {
+                      name: 'workspace-details',
+                      component: 'SetDetails',
+                      fields: [
+                        {
+                          name: WORKSPACE_ACCOUNT,
+                          component: componentTypes.TEXT_FIELD,
+                          isRequired: true,
+                          hideField: true,
+                          validate: [
+                            {
+                              type: validatorTypes.REQUIRED,
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ]
+                : []),
               {
                 name: 'workspace-description',
                 component: componentTypes.TEXTAREA,
@@ -167,6 +163,30 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                     threshold: 255,
                   },
                 ],
+              },
+            ],
+          },
+          {
+            title: intl.formatMessage(messages.selectParentWorkspace),
+            showTitle: false,
+            name: 'select-parent',
+            buttons: WizardButtons,
+            nextStep: () => (enableBillingFeatures ? 'select-features' : 'review'),
+            fields: [
+              {
+                name: WORKSPACE_PARENT,
+                component: componentTypes.TEXT_FIELD,
+                isRequired: true,
+                hideField: true,
+                validate: [
+                  {
+                    type: validatorTypes.REQUIRED,
+                  },
+                ],
+              },
+              {
+                name: 'select-parent-workspace',
+                component: 'SelectParentWorkspace',
               },
             ],
           },

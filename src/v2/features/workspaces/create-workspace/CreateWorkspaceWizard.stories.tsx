@@ -1,35 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { clearAndType, getSkeletonCount, queryNotificationPortal } from '../../../../test-utils/interactionHelpers';
+import { clearAndType } from '../../../../test-utils/interactionHelpers';
+import { TEST_TIMEOUTS } from '../../../../test-utils/testUtils';
 import { CreateWorkspaceWizard } from './CreateWorkspaceWizard';
 import { MemoryRouter } from 'react-router-dom';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { workspacesHandlers, workspacesLoadingHandlers } from '../../../data/mocks/workspaces.handlers';
+import { DEFAULT_WORKSPACES, WS_PRODUCTION } from '../../../data/mocks/seed';
 
-// Mock workspace data for factory (WorkspacesWorkspace format)
-const mockWorkspaces = [
-  {
-    id: 'workspace-1',
-    name: 'Production Environment',
-    description: 'Main production workspace',
-    type: 'root' as const,
-    parent_id: undefined,
-    created: '2024-01-01T00:00:00Z',
-    modified: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: 'workspace-2',
-    name: 'Development Environment',
-    description: 'Development workspace',
-    type: 'root' as const,
-    parent_id: undefined,
-    created: '2024-01-02T00:00:00Z',
-    modified: '2024-01-02T00:00:00Z',
-  },
-];
-
-// Modal wizard wrapper component - uses global React Query from preview.tsx
 const WizardWrapper = ({ storyArgs }: { storyArgs: React.ComponentProps<typeof CreateWorkspaceWizard> }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -57,10 +36,19 @@ const WizardWrapper = ({ storyArgs }: { storyArgs: React.ComponentProps<typeof C
   );
 };
 
-// API spy for tracking workspace creation
-// TODO: Add a story that tests full wizard submission flow
-// Example: Fill form → Click Next → Review → Submit → Verify createWorkspaceSpy was called
 const createWorkspaceSpy = fn();
+
+async function findWizardDialog() {
+  const body = within(document.body);
+  const dialogs = await body.findAllByRole('dialog', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+  return within(dialogs[dialogs.length - 1]);
+}
+
+async function openWizardDialog(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>) {
+  const openButton = await canvas.findByTestId('open-wizard-button');
+  await user.click(openButton);
+  return findWizardDialog();
+}
 
 const meta: Meta<typeof CreateWorkspaceWizard> = {
   component: CreateWorkspaceWizard,
@@ -77,12 +65,13 @@ This component demonstrates:
 - **Data Integration**: Uses createWorkspace mutation
 - **Feature Flag Integration**: Conditional steps for billing features
 - **Form Validation**: Required fields and workspace naming guidelines
-- **Custom Components**: SetDetails, SetEarMark, Review steps
+- **Custom Components**: SetDetails, SelectParentWorkspace, SetEarMark, Review steps
 
 ### Wizard Steps
-1. **Details**: Workspace name, description, parent selection
-2. **Features** (conditional): Feature selection when billing enabled  
-3. **Review**: Summary of selections before creation
+1. **Details**: Workspace name and description
+2. **Select parent**: Full-width tree for parent workspace selection
+3. **Features** (conditional): Feature selection when billing enabled  
+4. **Review**: Summary of selections before creation
 
 ### Testing Note
 Since this is a modal wizard, these stories use a button wrapper pattern where you click a button to open the wizard for testing. Modal content is tested in document.body following project guidelines.
@@ -109,7 +98,7 @@ export const Default: Story = {
     docs: {
       description: {
         story:
-          'Default create workspace wizard with standard flow (details → review). Tests the basic wizard functionality without billing features enabled.',
+          'Default create workspace wizard with standard flow (details → select parent → review). Tests the basic wizard functionality without billing features enabled.',
       },
     },
     featureFlags: {
@@ -118,7 +107,7 @@ export const Default: Story = {
       'platform.rbac.workspaces': true,
     },
     msw: {
-      handlers: [...workspacesHandlers(mockWorkspaces, { onCreate: createWorkspaceSpy })],
+      handlers: [...workspacesHandlers(DEFAULT_WORKSPACES, { onCreate: createWorkspaceSpy })],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -126,26 +115,28 @@ export const Default: Story = {
     const user = userEvent.setup();
 
     await step('Open wizard and verify details step', async () => {
-      const openButton = await canvas.findByTestId('open-wizard-button');
-      await expect(openButton).toBeInTheDocument();
-      await user.click(openButton);
+      const wizard = await openWizardDialog(user, canvas);
 
-      const body = within(document.body);
-      await expect(body.findByText('Create new workspace')).resolves.toBeInTheDocument();
-
-      const workspaceDetailsElements = await body.findAllByText('Workspace details');
-      await expect(workspaceDetailsElements.length).toBeGreaterThanOrEqual(1);
-
-      const nameField = await body.findByRole('textbox', { name: /workspace name/i });
+      const nameField = await wizard.findByRole('textbox', { name: /workspace name/i });
       await expect(nameField).toBeInTheDocument();
 
-      const descriptionField = await body.findByRole('textbox', { name: /workspace description/i });
+      const descriptionField = await wizard.findByRole('textbox', { name: /workspace description/i });
       await expect(descriptionField).toBeInTheDocument();
+    });
 
-      const nextButton = body.queryByRole('button', { name: /next/i });
-      const cancelButton = body.queryByRole('button', { name: /cancel/i });
+    await step('Fill details and navigate to parent selection step', async () => {
+      const wizard = await findWizardDialog();
+      await clearAndType(user, () => wizard.getByRole('textbox', { name: /workspace name/i }), 'Test Workspace');
 
-      await expect(nextButton || cancelButton).toBeTruthy();
+      const nextButton = await wizard.findByRole('button', { name: /next/i });
+      await user.click(nextButton);
+
+      await expect(wizard.findByLabelText(/search workspaces/i)).resolves.toBeInTheDocument();
+    });
+
+    await step('Verify tree is visible with workspaces', async () => {
+      const wizard = await findWizardDialog();
+      await expect(wizard.findByText(WS_PRODUCTION.name, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT })).resolves.toBeInTheDocument();
     });
   },
 };
@@ -159,7 +150,10 @@ export const WithBillingFeatures: Story = {
     docs: {
       description: {
         story:
-          'Create workspace wizard with billing features enabled. Shows the extended flow: details → select features → review. Tests the conditional step behavior.',
+          'Create workspace wizard with billing features enabled (`platform.rbac.workspaces-billing-features`). ' +
+          'Shows the extended flow: details → select parent → select features → review. ' +
+          'Billing account selection is placeholder UI — real implementation depends on Kessel integration ' +
+          'for per-workspace billing (CRCPLAN-274, CRCPLAN-367). Currently the Org itself is the billing account for all workspaces.',
       },
     },
     featureFlags: {
@@ -168,7 +162,7 @@ export const WithBillingFeatures: Story = {
       'platform.rbac.workspaces': true,
     },
     msw: {
-      handlers: [...workspacesHandlers(mockWorkspaces, { onCreate: createWorkspaceSpy })],
+      handlers: [...workspacesHandlers(DEFAULT_WORKSPACES, { onCreate: createWorkspaceSpy })],
     },
   },
   play: async ({ canvasElement, step }) => {
@@ -176,16 +170,9 @@ export const WithBillingFeatures: Story = {
     const user = userEvent.setup();
 
     await step('Open wizard and verify details with billing', async () => {
-      const openButton = await canvas.findByTestId('open-wizard-button');
-      await user.click(openButton);
+      const wizard = await openWizardDialog(user, canvas);
 
-      const body = within(document.body);
-      await expect(body.findByText('Create new workspace')).resolves.toBeInTheDocument();
-
-      const workspaceDetailsElements = await body.findAllByText('Workspace details');
-      await expect(workspaceDetailsElements.length).toBeGreaterThanOrEqual(1);
-
-      const nameField = await body.findByRole('textbox', { name: /workspace name/i });
+      const nameField = await wizard.findByRole('textbox', { name: /workspace name/i });
       await expect(nameField).toBeInTheDocument();
     });
   },
@@ -199,7 +186,7 @@ export const LoadingWorkspaces: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests the wizard behavior when workspace data is loading. Shows loading states and skeleton components.',
+        story: 'Tests the wizard behavior when workspace data is loading. Shows loading states and skeleton components on the parent selection step.',
       },
     },
     featureFlags: {
@@ -215,18 +202,20 @@ export const LoadingWorkspaces: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    await step('Open wizard and verify loading state', async () => {
-      const openButton = await canvas.findByTestId('open-wizard-button');
-      await user.click(openButton);
+    await step('Open wizard and fill details', async () => {
+      await openWizardDialog(user, canvas);
+      const wizard = await findWizardDialog();
 
-      const body = within(document.body);
-      await expect(body.findByText('Create new workspace')).resolves.toBeInTheDocument();
+      await clearAndType(user, () => wizard.getByRole('textbox', { name: /workspace name/i }), 'Loading Test');
 
-      const loadingElements = body.queryAllByText(/loading/i);
+      const nextButton = await wizard.findByRole('button', { name: /next/i });
+      await user.click(nextButton);
+    });
 
-      const skeletonCount = getSkeletonCount(document.body);
-
-      await expect(loadingElements.length > 0 || skeletonCount > 0).toBe(true);
+    await step('Verify loading state on parent selection step', async () => {
+      const wizard = await findWizardDialog();
+      const loadingSpinner = await wizard.findByTestId('workspace-loading', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await expect(loadingSpinner).toBeInTheDocument();
     });
   },
 };
@@ -248,7 +237,7 @@ export const CancelOperation: Story = {
       'platform.rbac.workspaces': true,
     },
     msw: {
-      handlers: [...workspacesHandlers(mockWorkspaces)],
+      handlers: [...workspacesHandlers(DEFAULT_WORKSPACES)],
     },
   },
   play: async ({ canvasElement, args, step }) => {
@@ -256,13 +245,10 @@ export const CancelOperation: Story = {
     const user = userEvent.setup();
 
     await step('Open wizard and cancel', async () => {
-      const openButton = await canvas.findByTestId('open-wizard-button');
-      await user.click(openButton);
+      await openWizardDialog(user, canvas);
+      const wizard = await findWizardDialog();
 
-      const body = within(document.body);
-      await expect(body.findByText('Create new workspace')).resolves.toBeInTheDocument();
-
-      const cancelButton = await body.findByRole('button', { name: /cancel/i });
+      const cancelButton = await wizard.findByRole('button', { name: /cancel/i });
       await expect(cancelButton).toBeInTheDocument();
 
       await user.click(cancelButton);
@@ -281,7 +267,7 @@ export const FormValidation: Story = {
     docs: {
       description: {
         story:
-          'Tests form validation behavior. Verifies the wizard blocks advancement when no parent workspace is selected, even if the workspace name is filled.',
+          'Tests form validation behavior. Verifies the wizard blocks advancement on the parent selection step when no parent workspace is selected.',
       },
     },
     featureFlags: {
@@ -290,30 +276,31 @@ export const FormValidation: Story = {
       'platform.rbac.workspaces': true,
     },
     msw: {
-      handlers: [...workspacesHandlers(mockWorkspaces)],
+      handlers: [...workspacesHandlers(DEFAULT_WORKSPACES)],
     },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    await step('Wait for content ready', async () => {
-      await canvas.findByTestId('open-wizard-button');
+    await step('Open wizard and fill workspace name', async () => {
+      await openWizardDialog(user, canvas);
+      const wizard = await findWizardDialog();
+
+      await clearAndType(user, () => wizard.getByRole('textbox', { name: /workspace name/i }), 'My New Workspace');
     });
 
-    await step('Open wizard and fill only workspace name', async () => {
-      const openButton = await canvas.findByTestId('open-wizard-button');
-      await user.click(openButton);
+    await step('Navigate to parent selection step', async () => {
+      const wizard = await findWizardDialog();
+      const nextButton = await wizard.findByRole('button', { name: /next/i });
+      await user.click(nextButton);
 
-      const body = within(document.body);
-      await expect(body.findByText('Create new workspace')).resolves.toBeInTheDocument();
-
-      await clearAndType(user, () => body.getByRole('textbox', { name: /workspace name/i }), 'My New Workspace');
+      await expect(wizard.findByLabelText(/search workspaces/i)).resolves.toBeInTheDocument();
     });
 
-    await step('Verify Next is disabled without parent workspace', async () => {
-      const body = within(document.body);
-      const nextButton = await body.findByRole('button', { name: /next/i });
+    await step('Verify Next is disabled without parent workspace selected', async () => {
+      const wizard = await findWizardDialog();
+      const nextButton = await wizard.findByRole('button', { name: /next/i });
       await expect(nextButton).toBeDisabled();
     });
   },
@@ -336,7 +323,7 @@ export const CancelNotification: Story = {
       'platform.rbac.workspaces': true,
     },
     msw: {
-      handlers: [...workspacesHandlers(mockWorkspaces)],
+      handlers: [...workspacesHandlers(DEFAULT_WORKSPACES)],
     },
   },
   play: async ({ canvasElement, args, step }) => {
@@ -344,28 +331,13 @@ export const CancelNotification: Story = {
     const user = userEvent.setup();
 
     await step('Open wizard, cancel, and verify callback', async () => {
-      const openButton = await canvas.findByTestId('open-wizard-button');
-      await user.click(openButton);
+      await openWizardDialog(user, canvas);
+      const wizard = await findWizardDialog();
 
-      const body = within(document.body);
-      await expect(body.findByText('Create new workspace')).resolves.toBeInTheDocument();
+      const cancelButton = await wizard.findByRole('button', { name: /^cancel$/i });
+      await user.click(cancelButton);
 
-      const cancelButton = body.queryByRole('button', { name: /^cancel$/i });
-      if (cancelButton) {
-        await user.click(cancelButton);
-
-        await expect(args.onCancel).toHaveBeenCalled();
-
-        const notificationPortal = queryNotificationPortal();
-        if (notificationPortal) {
-          const warningAlert = notificationPortal.querySelector('.pf-v6-c-alert.pf-m-warning');
-          if (warningAlert) {
-            expect(warningAlert).toBeInTheDocument();
-          }
-        }
-      } else {
-        await expect(body.findByText('Create new workspace')).resolves.toBeInTheDocument();
-      }
+      await expect(args.onCancel).toHaveBeenCalled();
     });
   },
 };

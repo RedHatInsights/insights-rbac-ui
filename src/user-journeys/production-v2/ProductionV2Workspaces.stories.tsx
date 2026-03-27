@@ -38,16 +38,16 @@ export const CreateWorkspaceBasic: Story = {
     docs: {
       description: {
         story: `
-## Create Workspace (Basic — No Parent Selection)
+## Create Workspace (Basic)
 
-Tests basic workspace creation where the parent is fixed to "Root Workspace".
+Tests basic workspace creation with parent selection on a dedicated step.
 
 ### Journey Flow
 1. Navigate to **Workspaces** page
 2. Click **Create workspace** button
-3. Fill in name ("QA Environment") and description
-4. Parent workspace selector is present but shows "Root Workspace" (disabled in M1 mode)
-5. Click **Next** to review, then **Submit**
+3. Fill in name ("QA Environment") and description, click **Next**
+4. Select **Production** as parent from the fully expanded tree, click **Next**
+5. Review, then **Submit**
 6. Verify wizard closes and "QA Environment" appears in the workspace list
 
 ### Design References
@@ -78,9 +78,7 @@ Tests basic workspace creation where the parent is fixed to "Root Workspace".
     await step('Create workspace via wizard', async () => {
       const wizard = await openWorkspaceWizard(user, canvas);
       await fillWorkspaceForm(user, wizard, 'QA Environment', 'Quality Assurance testing workspace');
-      const parentLabel = await wizard.findByText(/parent workspace/i);
-      expect(parentLabel).toBeInTheDocument();
-      await selectParentWorkspace(user, wizard, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
+      await selectParentWorkspace(user, wizard, WS_PRODUCTION.name);
       await clickWizardNext(user, wizard);
       await clickWizardNext(user, wizard, { buttonText: /submit/i });
     });
@@ -113,14 +111,14 @@ export const CreateWorkspaceWithParent: Story = {
         story: `
 ## Create Workspace with Parent Selection
 
-Tests that admins can create a workspace and choose a parent via the tree selector.
+Tests that admins can create a workspace and choose a parent via the full-width tree step.
 
 ### Journey Flow
 1. Navigate to **Workspaces**
 2. Click **Create workspace**
-3. Fill in name ("Test Workspace M2") and description
-4. Open parent selector tree — expand **Root Workspace** > **Default Workspace** — select **Production**
-5. Click **Next** then **Submit**
+3. Fill in name ("Test Workspace M2") and description, click **Next**
+4. Select **Production** from the workspace tree, click **Next**
+5. Review, then **Submit**
 6. Expand hierarchy and verify "Test Workspace M2" appears under Production at level 4
 
 ### Design References
@@ -151,9 +149,7 @@ Tests that admins can create a workspace and choose a parent via the tree select
     await step('Create workspace with parent selection', async () => {
       const wizard = await openWorkspaceWizard(user, canvas);
       await fillWorkspaceForm(user, wizard, 'Test Workspace M2', 'A test workspace with parent selection');
-      const parentLabel = await wizard.findByText(/parent workspace/i);
-      expect(parentLabel).toBeInTheDocument();
-      await selectParentWorkspace(user, wizard, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
+      await selectParentWorkspace(user, wizard, WS_PRODUCTION.name);
       await clickWizardNext(user, wizard);
       await clickWizardNext(user, wizard, { buttonText: /submit/i });
     });
@@ -194,9 +190,9 @@ Tests creating a child workspace from a parent's action menu.
 ### Journey Flow
 1. Navigate to **Workspaces**, expand **Root Workspace** > **Default Workspace**
 2. Open **Production** kebab menu and click **Create subworkspace**
-3. Wizard opens — fill name ("Test Subworkspace")
-4. Select **Production** as parent in tree
-5. **Next** then **Submit**
+3. Wizard opens — fill name ("Test Subworkspace"), click **Next**
+4. Parent step shows tree with **Production** pre-selected, click **Next**
+5. Review, then **Submit**
 6. Verify "Test Subworkspace" appears under Production at level 4
 
 ### Design References
@@ -235,11 +231,7 @@ Tests creating a child workspace from a parent's action menu.
       const wizardScope = await waitForModal();
 
       await fillWorkspaceForm(user, wizardScope, 'Test Subworkspace');
-
-      const parentLabel = await wizardScope.findByText(/parent workspace/i);
-      expect(parentLabel).toBeInTheDocument();
-
-      await selectParentWorkspace(user, wizardScope, [WS_ROOT.name, WS_DEFAULT.name], WS_PRODUCTION.name);
+      await selectParentWorkspace(user, wizardScope, WS_PRODUCTION.name);
 
       await clickWizardNext(user, wizardScope);
       await clickWizardNext(user, wizardScope, { buttonText: /submit/i });
@@ -333,6 +325,9 @@ Tests moving a workspace to a new parent in the hierarchy.
       await expandWorkspaceInTree(user, treePanelScope, WS_ROOT.name);
       await expandWorkspaceInTree(user, treePanelScope, WS_DEFAULT.name);
       await selectWorkspaceFromTree(user, treePanelScope, WS_PRODUCTION.name);
+
+      const selectButton = await body.findByTestId('workspace-selector-confirm', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await user.click(selectButton);
 
       const submitButton = await body.findByRole('button', { name: /^submit$/i });
       expect(submitButton).toBeInTheDocument();

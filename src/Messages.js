@@ -1467,6 +1467,22 @@ export default defineMessages({
     description: 'Workspace description max length helper text',
     defaultMessage: 'The first {count} characters will appear in the description field.',
   },
+  selectParentWorkspace: {
+    id: 'selectParentWorkspace',
+    description: 'Select parent workspace wizard step title',
+    defaultMessage: 'Select parent workspace',
+  },
+  selectParentWorkspaceDescription: {
+    id: 'selectParentWorkspaceDescription',
+    description: 'Select parent workspace wizard step description',
+    defaultMessage:
+      'Choose a parent workspace. The new workspace will inherit access control settings, such as user groups and associated roles, from the selected parent.',
+  },
+  searchWorkspaces: {
+    id: 'searchWorkspaces',
+    description: 'Search workspaces placeholder text',
+    defaultMessage: 'Search workspaces by name',
+  },
   workspaceParentHelperText: {
     id: 'workspaceParentHelperText',
     description: 'Workspace parent field helper text',

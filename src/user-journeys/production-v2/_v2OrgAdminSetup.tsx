@@ -216,6 +216,7 @@ export { expandWorkspaceRow, verifySuccessNotification, waitForPageToLoad } from
 export {
   expandWorkspaceInTree,
   fillWorkspaceForm,
+  navigateToParentStep,
   openWorkspaceKebabMenu,
   openWorkspaceWizard,
   selectParentWorkspace,
