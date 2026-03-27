@@ -46,14 +46,14 @@ export function findDefaultParentWorkspace<T extends { type?: string }>(workspac
 // on top of Kessel results. They exist here for documentation and for any
 // edge case where a component needs the rule without going through the hook.
 //
-//   root            → view only (no edit, create, move, delete)
+//   root            → view + create (no edit, move, delete)
 //   default         → edit + create allowed, but not move or delete
 //   ungrouped-hosts → view only (no edit, create, move, delete)
 //   standard        → no type constraints (full CRUD)
 // ---------------------------------------------------------------------------
 
 const EDITABLE_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Default, WorkspacesWorkspaceTypes.Standard]);
-const CREATABLE_IN_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Default, WorkspacesWorkspaceTypes.Standard]);
+const CREATABLE_IN_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Root, WorkspacesWorkspaceTypes.Default, WorkspacesWorkspaceTypes.Standard]);
 const MOVABLE_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Standard]);
 const DELETABLE_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Standard]);
 
@@ -62,7 +62,7 @@ export function canEditType(type: string | undefined): boolean {
   return EDITABLE_TYPES.has(type ?? '');
 }
 
-/** Whether the workspace type allows creating children (default, standard). */
+/** Whether the workspace type allows creating children (root, default, standard). */
 export function canCreateInType(type: string | undefined): boolean {
   return CREATABLE_IN_TYPES.has(type ?? '');
 }

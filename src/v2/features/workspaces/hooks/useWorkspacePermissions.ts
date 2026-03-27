@@ -152,7 +152,7 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
   //
   // Business rules — see https://redhat.atlassian.net/browse/RHCLOUD-39826
   // Defense-in-depth until the backend enforces these:
-  //   root            → view only (no edit, create, move, delete)
+  //   root            → view + create (no edit, move, delete)
   //   default         → edit + create allowed, but not move or delete
   //   ungrouped-hosts → view only (no edit, create, move, delete)
   //   standard        → no type constraints

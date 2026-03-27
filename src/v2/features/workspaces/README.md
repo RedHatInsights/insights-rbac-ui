@@ -51,7 +51,7 @@ hasPermission(ws.id, 'delete')  // → boolean
 
 | Type | view | edit | create | move | delete |
 |------|------|------|--------|------|--------|
-| root | yes | **no** | **no** | **no** | **no** |
+| root | yes | **no** | yes | **no** | **no** |
 | default | yes | yes | yes | **no** | **no** |
 | ungrouped-hosts | yes | **no** | **no** | **no** | **no** |
 | standard | yes | yes | yes | yes | yes |
