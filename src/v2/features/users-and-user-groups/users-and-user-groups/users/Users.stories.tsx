@@ -414,6 +414,136 @@ export const AddToGroupModalIntegration: Story = {
   },
 };
 
+// API spy for status toggle
+const toggleStatusSpy = fn();
+
+// Container status toggle integration — org admin deactivates an active user
+export const StatusToggleIntegration: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tests the full status toggle mutation flow for an org-admin user. Clicking an active user\'s status switch calls the IT API status endpoint with `{ status: "disabled" }` and shows a success notification.',
+      },
+    },
+    msw: {
+      handlers: [
+        ...usersHandlers(
+          mockUsers.map((u) => ({
+            username: u.username,
+            email: u.email,
+            first_name: u.first_name,
+            last_name: u.last_name,
+            is_active: u.is_active,
+            is_org_admin: u.is_org_admin,
+            external_source_id: String(u.external_source_id),
+          })),
+        ),
+        ...accountManagementHandlers({
+          onToggleStatus: (accountId, userId, body) => {
+            toggleStatusSpy({ accountId, userId, body });
+          },
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Reset spy', async () => {
+      toggleStatusSpy.mockClear();
+    });
+
+    await step('Deactivate an active user', async () => {
+      const canvas = within(canvasElement);
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+
+      const statusSwitch = await canvas.findByLabelText(/Toggle status for john.doe/i);
+      await expect(statusSwitch).toBeChecked();
+      await expect(statusSwitch).not.toBeDisabled();
+      await userEvent.click(statusSwitch);
+    });
+
+    await step('Verify API call and success notification', async () => {
+      await waitFor(
+        async () => {
+          await expect(toggleStatusSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              userId: String(mockUsers[0].external_source_id),
+              body: { status: 'disabled' },
+            }),
+          );
+        },
+        { timeout: 5000 },
+      );
+
+      await waitFor(
+        async () => {
+          const notification = within(document.body).queryByText(/Success updating user/i);
+          await expect(notification).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
+  },
+};
+
+// Container status toggle — non-admin persona
+export const NonAdminStatusToggle: Story = {
+  parameters: {
+    permissions: {
+      orgAdmin: false,
+    },
+    docs: {
+      description: {
+        story:
+          'Tests toggle states for a non-admin viewer at the container level with React Query integration. Inactive user status switches are disabled because only org admins can reactivate.',
+      },
+    },
+    msw: {
+      handlers: [
+        ...usersHandlers(
+          mockUsers.map((u) => ({
+            username: u.username,
+            email: u.email,
+            first_name: u.first_name,
+            last_name: u.last_name,
+            is_active: u.is_active,
+            is_org_admin: u.is_org_admin,
+            external_source_id: String(u.external_source_id),
+          })),
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Wait for data to load', async () => {
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('bob.johnson')).resolves.toBeInTheDocument();
+    });
+
+    await step('Active user status switch is enabled', async () => {
+      const activeSwitch = await canvas.findByLabelText(/Toggle status for john.doe/i);
+      await expect(activeSwitch).toBeChecked();
+      await expect(activeSwitch).not.toBeDisabled();
+    });
+
+    await step('Inactive user status switch is disabled for non-admin', async () => {
+      const inactiveSwitch = await canvas.findByLabelText(/Toggle status for bob.johnson/i);
+      await expect(inactiveSwitch).not.toBeChecked();
+      await expect(inactiveSwitch).toBeDisabled();
+    });
+
+    await step('Org admin switches are all disabled for non-admin', async () => {
+      const johnOrgAdmin = await canvas.findByLabelText(/Toggle org admin for john.doe/i);
+      const janeOrgAdmin = await canvas.findByLabelText(/Toggle org admin for jane.smith/i);
+
+      await expect(johnOrgAdmin).toBeDisabled();
+      await expect(janeOrgAdmin).toBeDisabled();
+    });
+  },
+};
+
 // API spy for org admin toggle
 const toggleOrgAdminSpy = fn();
 

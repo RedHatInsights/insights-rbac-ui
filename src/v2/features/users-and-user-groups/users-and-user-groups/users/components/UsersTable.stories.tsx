@@ -532,28 +532,108 @@ export const NonAdminUser: Story = {
   args: {
     ...defaultArgs,
     orgAdmin: false,
+    users: [
+      createMockUser('active.user', { is_active: true, is_org_admin: false }),
+      createMockUser('admin.user', { is_active: true, is_org_admin: true }),
+      createMockUser('inactive.user', { is_active: false, is_org_admin: false }),
+    ],
   },
   parameters: {
     docs: {
       description: {
         story:
-          'Tests the user interface when viewed by a non-administrator user. Validates that administrative controls like org admin toggles are properly disabled for users without sufficient privileges. Essential for proper access control and preventing unauthorized privilege escalation.',
+          'Tests toggle enabled/disabled states for a non-admin viewer. Active user status switches remain enabled (anyone can deactivate), but inactive user status switches are disabled (only org admins can reactivate). All org admin switches are disabled for non-admin viewers.',
       },
     },
   },
   play: async ({ canvasElement, step }) => {
-    await step('Verify', async () => {
-      const canvas = within(canvasElement);
+    const canvas = within(canvasElement);
 
-      // Org admin switches should be disabled for non-admin users - switches render as checkboxes
-      const firstUserOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for john.doe/i);
+    await step('Active user status switch is enabled (non-admins can deactivate)', async () => {
+      const activeStatusSwitch = await canvas.findByLabelText(/Toggle status for active.user/i);
+      await expect(activeStatusSwitch).toBeChecked();
+      await expect(activeStatusSwitch).not.toBeDisabled();
+    });
 
-      await expect(firstUserOrgAdminSwitch).toBeDisabled();
+    await step('Inactive user status switch is disabled (only org admins can reactivate)', async () => {
+      const inactiveStatusSwitch = await canvas.findByLabelText(/Toggle status for inactive.user/i);
+      await expect(inactiveStatusSwitch).not.toBeChecked();
+      await expect(inactiveStatusSwitch).toBeDisabled();
+    });
+
+    await step('All org admin switches are disabled for non-admin viewer', async () => {
+      const activeOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for active.user/i);
+      const adminOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for admin.user/i);
+      const inactiveOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for inactive.user/i);
+
+      await expect(activeOrgAdminSwitch).toBeDisabled();
+      await expect(adminOrgAdminSwitch).toBeDisabled();
+      await expect(inactiveOrgAdminSwitch).toBeDisabled();
     });
   },
 };
 
-// Mixed user states (active, inactive, org admin)
+// Org admin persona — verifies toggle enabled/disabled states when orgAdmin=true
+export const OrgAdminToggles: Story = {
+  args: {
+    ...defaultArgs,
+    orgAdmin: true,
+    users: [
+      createMockUser('active.user', { is_active: true, is_org_admin: false }),
+      createMockUser('admin.user', { is_active: true, is_org_admin: true }),
+      createMockUser('inactive.user', { is_active: false, is_org_admin: false }),
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tests toggle enabled/disabled states for an org-admin viewer. All status switches are enabled (org admins can both deactivate and reactivate). Org admin switches are enabled only for active users; they are disabled for inactive users.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('All status switches are enabled for org admin', async () => {
+      const activeStatusSwitch = await canvas.findByLabelText(/Toggle status for active.user/i);
+      const adminStatusSwitch = await canvas.findByLabelText(/Toggle status for admin.user/i);
+      const inactiveStatusSwitch = await canvas.findByLabelText(/Toggle status for inactive.user/i);
+
+      await expect(activeStatusSwitch).not.toBeDisabled();
+      await expect(adminStatusSwitch).not.toBeDisabled();
+      await expect(inactiveStatusSwitch).not.toBeDisabled();
+    });
+
+    await step('Org admin switches are enabled for active users, disabled for inactive', async () => {
+      const activeOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for active.user/i);
+      const adminOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for admin.user/i);
+      const inactiveOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for inactive.user/i);
+
+      await expect(activeOrgAdminSwitch).not.toBeDisabled();
+      await expect(adminOrgAdminSwitch).not.toBeDisabled();
+      await expect(inactiveOrgAdminSwitch).toBeDisabled();
+    });
+
+    await step('Status switches reflect correct checked state', async () => {
+      const activeStatusSwitch = await canvas.findByLabelText(/Toggle status for active.user/i);
+      const inactiveStatusSwitch = await canvas.findByLabelText(/Toggle status for inactive.user/i);
+
+      await expect(activeStatusSwitch).toBeChecked();
+      await expect(inactiveStatusSwitch).not.toBeChecked();
+    });
+
+    await step('Org admin switches reflect correct checked state', async () => {
+      const activeOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for active.user/i);
+      const adminOrgAdminSwitch = await canvas.findByLabelText(/Toggle org admin for admin.user/i);
+
+      await expect(activeOrgAdminSwitch).not.toBeChecked();
+      await expect(adminOrgAdminSwitch).toBeChecked();
+    });
+  },
+};
+
+// Mixed user states (active, inactive, org admin) — basic state display
 export const MixedUserStates: Story = {
   args: {
     ...defaultArgs,
@@ -567,20 +647,20 @@ export const MixedUserStates: Story = {
     docs: {
       description: {
         story:
-          'Tests the table display with users in various states: active standard user, active admin user, and inactive user. Validates that status and admin switches reflect the correct state for each user type. Important for verifying that different user configurations display properly in a mixed list.',
+          'Tests the table display with users in various states: active standard user, active admin user, and inactive user. Validates that status and admin switches reflect the correct state for each user type.',
       },
     },
   },
   play: async ({ canvasElement, step }) => {
-    await step('Verify', async () => {
-      const canvas = within(canvasElement);
+    const canvas = within(canvasElement);
 
-      // Verify different user states are displayed correctly
+    await step('Verify users render', async () => {
       await expect(canvas.findByText('active.user')).resolves.toBeInTheDocument();
       await expect(canvas.findByText('admin.user')).resolves.toBeInTheDocument();
       await expect(canvas.findByText('inactive.user')).resolves.toBeInTheDocument();
+    });
 
-      // Check status switches reflect user states - switches render as checkboxes
+    await step('Status switches reflect user active state', async () => {
       const activeUserSwitch = await canvas.findByLabelText(/Toggle status for active.user/i);
       const inactiveUserSwitch = await canvas.findByLabelText(/Toggle status for inactive.user/i);
 
