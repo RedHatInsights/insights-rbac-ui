@@ -71,7 +71,7 @@ export const useUsers = (options: UseUsersOptions = {}): UseUsersReturn => {
     orderBy: tableState.sort?.column || 'username',
     username: (tableState.apiParams.filters.username as string) || undefined,
     email: (tableState.apiParams.filters.email as string) || undefined,
-    status: (tableState.apiParams.filters.status as 'enabled' | 'disabled' | 'all') || undefined,
+    status: (tableState.apiParams.filters.status as 'enabled' | 'disabled' | 'all') || 'all',
     sortOrder: tableState.sort?.direction || 'asc',
   });
 

@@ -64,7 +64,7 @@ const User: React.FC = () => {
   });
 
   // Fetch user data via React Query
-  const { data: usersData, isLoading: isLoadingUsers } = useUsersQuery({ username, limit: 1 }, { enabled: !!username });
+  const { data: usersData, isLoading: isLoadingUsers } = useUsersQuery({ username, limit: 1, status: 'all' }, { enabled: !!username });
   const user = usersData?.users?.[0];
   const userExists = !!user || isLoadingUsers; // Assume exists while loading
 
