@@ -76,7 +76,7 @@ export function useGroupRoleBindingsQuery(groupId: string, options?: { enabled?:
   });
 }
 
-/** Fetch role bindings for a user, scoped to workspaces. Optionally filtered to a single workspace via `resourceId`. */
+/** Fetch role bindings granted to a user, scoped to workspaces. Optionally filtered to a single workspace via `resourceId`. */
 export function useUserRoleBindingsQuery(userId: string | undefined, options?: { enabled?: boolean; resourceId?: string }) {
   const { axios } = useAppServices();
   const api = createWorkspacesApi(axios);
@@ -84,13 +84,18 @@ export function useUserRoleBindingsQuery(userId: string | undefined, options?: {
   return useQuery({
     queryKey: [...roleBindingsKeys.all, 'user', userId, options?.resourceId],
     queryFn: async (): Promise<RoleBinding[]> => {
+      // TODO: replace with typed params once @redhat-cloud-services/rbac-client supports granted_subject_*
       const response = await api.roleBindingsList({
-        subjectType: 'user',
-        subjectId: userId!,
         resourceType: 'workspace',
         resourceId: options?.resourceId,
         limit: 1000,
         fields: FIELDS,
+        options: {
+          params: {
+            granted_subject_type: 'user',
+            granted_subject_id: userId!,
+          },
+        },
       });
       return parseBindings(response.data?.data ?? []);
     },

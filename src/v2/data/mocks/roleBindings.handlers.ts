@@ -134,6 +134,8 @@ export function createRoleBindingsListHandlers(bindings: RoleBinding[], options:
       const roleId = url.searchParams.get('role_id');
       const subjectType = url.searchParams.get('subject_type');
       const subjectId = url.searchParams.get('subject_id');
+      const grantedSubjectType = url.searchParams.get('granted_subject_type');
+      const grantedSubjectId = url.searchParams.get('granted_subject_id');
       const resourceId = url.searchParams.get('resource_id');
       const limit = parseInt(url.searchParams.get('limit') || '1000', 10);
 
@@ -147,6 +149,12 @@ export function createRoleBindingsListHandlers(bindings: RoleBinding[], options:
       }
       if (subjectId) {
         filtered = filtered.filter((b) => b.subject.id === subjectId);
+      }
+      if (grantedSubjectType) {
+        filtered = filtered.filter((b) => b.subject.type === grantedSubjectType);
+      }
+      if (grantedSubjectId) {
+        filtered = filtered.filter((b) => b.subject.id === grantedSubjectId);
       }
       if (resourceId) {
         filtered = filtered.filter((b) => b.resource.id === resourceId);

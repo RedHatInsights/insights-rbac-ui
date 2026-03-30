@@ -7,16 +7,22 @@ import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { MyWorkspaces } from './MyWorkspaces';
 import { workspacesHandlers } from '../../../data/mocks/workspaces.handlers';
-import { DEFAULT_WORKSPACES, WS_DEFAULT, WS_STAGING } from '../../../data/mocks/seed';
+import { roleBindingsHandlers } from '../../../data/mocks/roleBindings.handlers';
+import { BINDING_TENANT_ADMIN_JOHN_PROD, DEFAULT_WORKSPACES, WS_DEFAULT, WS_PRODUCTION, WS_STAGING } from '../../../data/mocks/seed';
+import { USER_JOHN } from '../../../../shared/data/mocks/seed';
 
 const ALL_WORKSPACE_IDS = DEFAULT_WORKSPACES.map((ws) => ws.id);
+const MOCK_ACCOUNT_ID = String(USER_JOHN.external_source_id);
 
 const meta: Meta<typeof MyWorkspaces> = {
   component: MyWorkspaces,
   tags: ['autodocs'],
   parameters: {
     msw: {
-      handlers: [...workspacesHandlers()],
+      handlers: [...workspacesHandlers(), ...roleBindingsHandlers()],
+    },
+    userIdentity: {
+      internal: { account_id: MOCK_ACCOUNT_ID },
     },
     workspacePermissions: {
       view: ALL_WORKSPACE_IDS,
@@ -99,6 +105,38 @@ export const SortByName: Story = {
           expect(rows[1]).toHaveTextContent(new RegExp(WS_DEFAULT.name, 'i'));
         },
         { timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH },
+      );
+    });
+  },
+};
+
+/**
+ * Tests the workspace detail drawer. Clicking a workspace row opens a drawer
+ * showing the current user's role assignments (via granted_subject_type/granted_subject_id).
+ */
+export const DrawerShowsUserRoles: Story = {
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup();
+
+    await step('Wait for data to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Click Production workspace row to open drawer', async () => {
+      const link = await canvas.findByText(WS_PRODUCTION.name);
+      const row = link.closest('tr')!;
+      await user.click(row);
+    });
+
+    await step('Verify drawer shows role assigned to this user', async () => {
+      await waitFor(
+        () => {
+          const panel = canvas.queryByTestId('detail-drawer-panel');
+          expect(panel).toBeInTheDocument();
+          expect(panel).toHaveTextContent(BINDING_TENANT_ADMIN_JOHN_PROD.role.name);
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
     });
   },
