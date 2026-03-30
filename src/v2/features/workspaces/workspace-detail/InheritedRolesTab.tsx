@@ -16,7 +16,7 @@ export const InheritedRolesTab: React.FC = () => {
   const enableRoles = useWorkspacesFlag('m3');
 
   const { data: parentGroups, isLoading: parentGroupsIsLoading } = useWorkspaceInheritedGroups(workspaceId, {
-    enabled: !!workspaceId && !!workspace?.parent_id,
+    enabled: !!workspaceId && !!workspace?.parent_id && rbAccess.canView,
   });
 
   const currentWorkspace = workspace ? { id: workspace.id ?? '', name: workspace.name ?? '' } : undefined;

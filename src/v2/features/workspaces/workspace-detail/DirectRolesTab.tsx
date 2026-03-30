@@ -23,7 +23,7 @@ export const DirectRolesTab: React.FC<DirectRolesTabProps> = ({ groupId }) => {
   const navigate = useAppNavigate();
 
   const { data: roleBindings, isLoading: roleBindingsIsLoading } = useWorkspaceGroups(workspaceId, {
-    enabled: !!workspaceId,
+    enabled: !!workspaceId && rbAccess.canView,
   });
 
   const currentWorkspace = workspace ? { id: workspace.id ?? '', name: workspace.name ?? '', type: 'workspace' as const } : undefined;

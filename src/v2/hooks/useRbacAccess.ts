@@ -88,7 +88,7 @@ function useBulkTenantCheck<R extends RbacTenantRelation>(relations: readonly R[
 // Workspace-scoped bulk check helper
 // ============================================================================
 
-const _RBAC_WORKSPACE_RELATIONS = ['role_binding_view', 'role_binding_grant', 'role_binding_revoke', 'role_binding_update'] as const;
+const _RBAC_WORKSPACE_RELATIONS = ['role_binding_view', 'role_binding_grant', 'role_binding_revoke'] as const;
 
 type RbacWorkspaceRelation = (typeof _RBAC_WORKSPACE_RELATIONS)[number];
 
@@ -167,7 +167,7 @@ export function useGroupsAccess() {
   };
 }
 
-const ROLE_BINDINGS_RELATIONS = ['role_binding_view', 'role_binding_grant', 'role_binding_revoke', 'role_binding_update'] as const;
+const ROLE_BINDINGS_RELATIONS = ['role_binding_view', 'role_binding_grant', 'role_binding_revoke'] as const;
 
 export function useRoleBindingsAccess(workspaceId: string) {
   const { result, isLoading } = useBulkWorkspaceCheck(workspaceId, ROLE_BINDINGS_RELATIONS);
@@ -176,7 +176,8 @@ export function useRoleBindingsAccess(workspaceId: string) {
     canCreate: result.role_binding_grant,
     canView: result.role_binding_view,
     canList: result.role_binding_view,
-    canUpdate: result.role_binding_update,
+    /** Maps to `role_binding_grant` — BE uses same permission for grant and update (RHCLOUD-46392). */
+    canUpdate: result.role_binding_grant,
     canRevoke: result.role_binding_revoke,
     isLoading,
   };

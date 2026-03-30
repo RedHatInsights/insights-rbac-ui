@@ -44,7 +44,6 @@ const wsFallbackMap: Record<string, keyof WorkspacePermissionsMap> = {
   role_binding_view: 'view',
   role_binding_grant: 'create',
   role_binding_revoke: 'delete',
-  role_binding_update: 'create',
   view: 'view',
   edit: 'edit',
   create: 'create',
