@@ -17,8 +17,7 @@ import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
 import { DeleteWorkspaceModal } from './DeleteWorkspaceModal';
 import { MoveWorkspaceDialog } from './MoveWorkspaceDialog';
-import { type TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
-import { WorkspacesWorkspaceTypes } from '../../../data/api/workspaces';
+import { instanceOfTreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
 
 enum ActionType {
   EDIT_WORKSPACE = 'EDIT_WORKSPACE',
@@ -30,20 +29,6 @@ enum ActionType {
   DELETE_WORKSPACE = 'DELETE_WORKSPACE',
   DUMMY_ACTION = 'DUMMY_ACTION',
 }
-
-/** Convert a WorkspacesWorkspace to a TreeViewWorkspaceItem for the move dialog. */
-const toTreeViewItem = (ws: WorkspacesWorkspace): TreeViewWorkspaceItem => ({
-  name: ws.name ?? '',
-  id: ws.id ?? '',
-  workspace: {
-    id: ws.id ?? '',
-    name: ws.name ?? '',
-    description: ws.description,
-    type: (ws.type as WorkspacesWorkspaceTypes) ?? WorkspacesWorkspaceTypes.Standard,
-    parent_id: ws.parent_id ?? '',
-  },
-  children: [],
-});
 
 interface WorkspaceActionsProps {
   isDisabled?: boolean;
@@ -132,9 +117,6 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
       setIsMoveModalOpen(true);
     }
   };
-
-  const currentParent = allWorkspaces.find((ws) => ws.id === currentWorkspace.parent_id);
-  const moveInitialSelection = currentParent ?? allWorkspaces.find((ws) => ws.type === 'root') ?? allWorkspaces[0];
 
   const menu = (
     <Menu
@@ -245,7 +227,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
         workspaces={[currentWorkspace]}
         hasAssets={hasAssets}
       />
-      {isMoveModalOpen && moveInitialSelection && (
+      {isMoveModalOpen && (
         <MoveWorkspaceDialog
           isOpen={isMoveModalOpen}
           onClose={() => setIsMoveModalOpen(false)}
@@ -256,9 +238,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({
             }
           }}
           workspaceToMove={currentWorkspace}
-          availableWorkspaces={allWorkspaces}
-          initialSelectedWorkspace={toTreeViewItem(moveInitialSelection)}
-          sourceWorkspace={toTreeViewItem(currentWorkspace)}
+          allWorkspaces={allWorkspaces}
         />
       )}
       <MenuContainer

@@ -278,51 +278,26 @@ export const MoveWorkspaceModal: Story = {
       await user.click(actionsButton);
 
       await expect(within(document.body).findByText('Move workspace')).resolves.toBeInTheDocument();
-
-      const moveAction = await within(document.body).findByText('Move workspace');
-      await user.click(moveAction);
+      await user.click(await within(document.body).findByText('Move workspace'));
     });
 
-    await step('Select destination and submit', async () => {
-      const modalCanvas = within(document.body);
-      await expect(
-        await modalCanvas.findByText((content) => {
-          return content.includes('Move') && content.includes(mockWorkspaces[1].name);
-        }),
-      ).toBeInTheDocument();
-      await expect(modalCanvas.getByText('Parent workspace')).toBeInTheDocument();
+    await step('Select destination from inline tree and submit', async () => {
+      const body = within(document.body);
+      await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
 
-      const buttons = await modalCanvas.findAllByRole('button');
-      const menuToggleButton = buttons.find((button) => {
-        const menuToggleText = button.querySelector('.pf-v6-c-menu-toggle__text');
-        return menuToggleText?.textContent === mockWorkspaces[0].name;
-      });
-      await expect(menuToggleButton).toBeTruthy();
-      const selectButton = menuToggleButton as HTMLElement;
-      await expect(selectButton).not.toBeDisabled();
+      // Inline tree renders directly — no dropdown toggle needed
+      const tree = await body.findByRole('tree');
+      const treeScope = within(tree);
 
-      await user.click(selectButton!);
+      const target = await treeScope.findByText(mockWorkspaces[2].name);
+      await user.click(target);
 
-      await expect(modalCanvas.findByRole('tree')).resolves.toBeInTheDocument();
-
-      const treeViewElement = await modalCanvas.findByRole('tree');
-      const expandButton = treeViewElement.querySelector('.pf-v6-c-tree-view__node-toggle') as HTMLElement;
-      await user.click(expandButton);
-
-      const treeViewScope = within(treeViewElement);
-      await expect(treeViewScope.findByText(mockWorkspaces[2].name)).resolves.toBeInTheDocument();
-
-      const devWorkspaceButton = await treeViewScope.findByText(mockWorkspaces[2].name);
-      await user.click(devWorkspaceButton);
-
-      const submitButton = await modalCanvas.findByRole('button', { name: /submit/i });
+      const submitButton = await body.findByRole('button', { name: /submit/i });
       await expect(submitButton).toBeEnabled();
-
       await user.click(submitButton);
     });
 
     await step('Verify move API called and modal closed', async () => {
-      const modalCanvas = within(document.body);
       await waitFor(async () => {
         await expect(moveWorkspaceSpy).toHaveBeenCalledWith(mockWorkspaces[1].id, {
           parent_id: mockWorkspaces[2].id,
@@ -330,11 +305,7 @@ export const MoveWorkspaceModal: Story = {
       });
 
       await waitFor(async () => {
-        await expect(
-          modalCanvas.queryByText((content) => {
-            return content.includes('Move') && content.includes(mockWorkspaces[1].name);
-          }),
-        ).not.toBeInTheDocument();
+        await expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
       });
     });
   },

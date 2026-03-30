@@ -9,7 +9,6 @@ import {
   WS_STAGING,
   clickWizardNext,
   db,
-  expandWorkspaceInTree,
   expandWorkspaceRow,
   fillWorkspaceForm,
   meta,
@@ -268,13 +267,13 @@ export const MoveWorkspace: Story = {
         story: `
 ## Move Workspace
 
-Tests moving a workspace to a new parent in the hierarchy.
+Tests moving a workspace to a new parent via the inline tree picker.
 
 ### Journey Flow
 1. Navigate to **Workspaces**, expand **Root Workspace** > **Default Workspace**
 2. Open **Staging** kebab menu → **Move workspace**
-3. Modal opens showing current parent ("Default Workspace")
-4. Open tree selector — expand **Root Workspace** > **Default Workspace** — select **Production**
+3. Modal opens with a full-width inline tree (starts fully expanded)
+4. Select **Production** from the tree
 5. Click **Submit**
 6. Verify **Staging** now appears under **Production** at level 4 (moved from level 3)
 
@@ -313,21 +312,9 @@ Tests moving a workspace to a new parent in the hierarchy.
       const modalHeading = await body.findByRole('heading', { name: /move.*staging/i });
       expect(modalHeading).toBeInTheDocument();
 
-      const parentSelector = await body.findByRole('button', { name: /default workspace/i });
-      expect(parentSelector).toBeInTheDocument();
-
-      await user.click(parentSelector);
-
-      // Async popover content
-      const treePanel = await within(document.body).findByTestId('workspace-selector-menu', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-      const treePanelScope = within(treePanel);
-
-      await expandWorkspaceInTree(user, treePanelScope, WS_ROOT.name);
-      await expandWorkspaceInTree(user, treePanelScope, WS_DEFAULT.name);
-      await selectWorkspaceFromTree(user, treePanelScope, WS_PRODUCTION.name);
-
-      const selectButton = await body.findByTestId('workspace-selector-confirm', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-      await user.click(selectButton);
+      // Inline tree is rendered directly — select Production
+      const tree = await body.findByRole('tree', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await selectWorkspaceFromTree(user, within(tree), WS_PRODUCTION.name);
 
       const submitButton = await body.findByRole('button', { name: /^submit$/i });
       expect(submitButton).toBeInTheDocument();

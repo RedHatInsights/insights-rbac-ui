@@ -5,23 +5,8 @@ import { WorkspaceListTable } from './components/WorkspaceListTable';
 import { type WorkspacesWorkspace, useDeleteWorkspaceMutation, useMoveWorkspaceMutation } from '../../data/queries/workspaces';
 import { useWorkspacesWithPermissions } from './hooks/useWorkspacesWithPermissions';
 import { MoveWorkspaceDialog } from './components/MoveWorkspaceDialog';
-import { TreeViewWorkspaceItem } from './components/managed-selector/TreeViewWorkspaceItem';
-import { WorkspacesWorkspaceTypes } from '../../data/api/workspaces';
+import { type TreeViewWorkspaceItem } from './components/managed-selector/TreeViewWorkspaceItem';
 import messages from '../../../Messages';
-
-// Convert workspace to TreeViewWorkspaceItem
-const convertToTreeViewItem = (workspace: WorkspacesWorkspace): TreeViewWorkspaceItem => ({
-  name: workspace.name ?? '',
-  id: workspace.id ?? '',
-  workspace: {
-    id: workspace.id ?? '',
-    name: workspace.name ?? '',
-    description: workspace.description,
-    type: (workspace.type as WorkspacesWorkspaceTypes) ?? WorkspacesWorkspaceTypes.Standard,
-    parent_id: workspace.parent_id ?? '',
-  },
-  children: [],
-});
 
 export const WorkspaceList = () => {
   const intl = useIntl();
@@ -120,30 +105,16 @@ export const WorkspaceList = () => {
       hasPermission={hasPermission}
       canCreateAny={canCreateAny}
     >
-      {/* Move workspace modal - only render when there's a workspace to move */}
-      {currentMoveWorkspace &&
-        (() => {
-          // Find the current parent workspace to pre-select
-          const currentParentWorkspace = workspaces.find((ws) => ws.id === currentMoveWorkspace.parent_id);
-
-          // We should always have a parent workspace, but fallback to root if not found
-          const initialSelectedWorkspace = currentParentWorkspace || workspaces.find((ws) => ws.type === 'root') || workspaces[0];
-
-          return (
-            <MoveWorkspaceDialog
-              isOpen={isMoveModalOpen}
-              onClose={() => {
-                setCurrentMoveWorkspace(null);
-              }}
-              onSubmit={handleMoveWorkspaceConfirm}
-              workspaceToMove={currentMoveWorkspace}
-              availableWorkspaces={workspaces}
-              isSubmitting={isMoveSubmitting}
-              initialSelectedWorkspace={convertToTreeViewItem(initialSelectedWorkspace)}
-              sourceWorkspace={convertToTreeViewItem(currentMoveWorkspace)}
-            />
-          );
-        })()}
+      {currentMoveWorkspace && (
+        <MoveWorkspaceDialog
+          isOpen={isMoveModalOpen}
+          onClose={() => setCurrentMoveWorkspace(null)}
+          onSubmit={handleMoveWorkspaceConfirm}
+          workspaceToMove={currentMoveWorkspace}
+          allWorkspaces={workspaces}
+          isSubmitting={isMoveSubmitting}
+        />
+      )}
     </WorkspaceListTable>
   );
 };

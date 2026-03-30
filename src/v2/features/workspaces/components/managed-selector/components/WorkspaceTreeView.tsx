@@ -31,8 +31,10 @@ interface WorkspaceTreeViewProps {
   isError: boolean;
   /** Set of workspace IDs that should be rendered as disabled (non-selectable) */
   disabledIds?: Set<string>;
-  /** Tooltip text shown on hover over disabled tree items (explains why the item is disabled) */
+  /** Default tooltip text shown on hover over disabled tree items */
   disabledTooltip?: string;
+  /** Per-ID tooltip overrides — takes precedence over disabledTooltip */
+  disabledTooltipOverrides?: Map<string, string>;
 }
 
 /**
@@ -40,15 +42,23 @@ interface WorkspaceTreeViewProps {
  * Disabled items get reduced opacity, a `not-allowed` cursor, and – when a tooltip
  * message is provided – a PatternFly Tooltip that explains why the item is disabled.
  */
-function annotateDisabledItems(items: TreeViewWorkspaceItem[], disabledIds: Set<string>, tooltip?: string): TreeViewWorkspaceItem[] {
+function annotateDisabledItems(
+  items: TreeViewWorkspaceItem[],
+  disabledIds: Set<string>,
+  defaultTooltip?: string,
+  tooltipOverrides?: Map<string, string>,
+): TreeViewWorkspaceItem[] {
   return items.map((item) => {
     const isDisabled = !!(item.id && disabledIds.has(item.id));
-    const annotatedChildren = item.children ? annotateDisabledItems(item.children as TreeViewWorkspaceItem[], disabledIds, tooltip) : undefined;
+    const annotatedChildren = item.children
+      ? annotateDisabledItems(item.children as TreeViewWorkspaceItem[], disabledIds, defaultTooltip, tooltipOverrides)
+      : undefined;
 
     if (!isDisabled && !annotatedChildren) return item;
 
     const disabledName = isDisabled
       ? (() => {
+          const tooltip = (item.id && tooltipOverrides?.get(item.id)) || defaultTooltip;
           const inner = React.createElement('span', { style: { opacity: 0.5, cursor: 'not-allowed' } }, item.name);
           return tooltip ? React.createElement(Tooltip, { content: tooltip }, inner) : inner;
         })()
@@ -71,14 +81,14 @@ export const WorkspaceTreeView: React.FC<WorkspaceTreeViewProps> = ({
   isError,
   disabledIds,
   disabledTooltip,
+  disabledTooltipOverrides,
 }) => {
   const intl = useIntl();
 
-  // Annotate tree items with disabled styling + tooltip when disabledIds is provided
   const displayElements = React.useMemo(() => {
     if (!disabledIds || disabledIds.size === 0) return treeElements;
-    return annotateDisabledItems(treeElements, disabledIds, disabledTooltip);
-  }, [treeElements, disabledIds, disabledTooltip]);
+    return annotateDisabledItems(treeElements, disabledIds, disabledTooltip, disabledTooltipOverrides);
+  }, [treeElements, disabledIds, disabledTooltip, disabledTooltipOverrides]);
 
   if (isError) {
     return (

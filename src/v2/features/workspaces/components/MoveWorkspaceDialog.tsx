@@ -1,32 +1,25 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { useIntl } from 'react-intl';
-import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
-import { ManagedWorkspaceSelector } from './managed-selector/ManagedWorkspaceSelector';
-import { TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
-import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import messages from '../../../../Messages';
+import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { InlineWorkspacePicker } from './managed-selector/InlineWorkspacePicker';
+import { type TreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
+import { getWorkspaceDescendantIds } from './managed-selector/WorkspaceTreeBuilder';
 
 export interface MoveWorkspaceDialogProps {
-  /** Whether the modal is open */
   isOpen: boolean;
-  /** Callback when modal is closed */
   onClose: () => void;
-  /** Callback when form is submitted with selected destination workspace */
   onSubmit: (destinationWorkspace: TreeViewWorkspaceItem) => void;
-  /** The workspace to be moved */
-  workspaceToMove: WorkspacesWorkspace | null;
-  /** Available workspaces for selection */
-  availableWorkspaces: WorkspacesWorkspace[];
-  /** Whether submission is in progress */
+  /** The workspace being moved */
+  workspaceToMove: WorkspacesWorkspace;
+  /** All workspaces (used to compute descendant IDs for disabling) */
+  allWorkspaces: WorkspacesWorkspace[];
   isSubmitting?: boolean;
-  /** Initial selected workspace (typically the current parent) */
-  initialSelectedWorkspace: TreeViewWorkspaceItem;
-  /** Source workspace being moved (for exclusion from selector) */
-  sourceWorkspace?: TreeViewWorkspaceItem;
 }
 
 export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
@@ -34,93 +27,90 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
   onClose,
   onSubmit,
   workspaceToMove,
-  availableWorkspaces,
+  allWorkspaces,
   isSubmitting = false,
-  initialSelectedWorkspace,
-  sourceWorkspace,
 }) => {
   const intl = useIntl();
+  const [selectedDestination, setSelectedDestination] = useState<TreeViewWorkspaceItem | null>(null);
 
-  // Modal manages its own internal selection state
-  const [selectedDestination, setSelectedDestination] = React.useState<TreeViewWorkspaceItem | null>(initialSelectedWorkspace || null);
-
-  // Reset selection when modal opens/closes or workspace changes
   React.useEffect(() => {
-    if (isOpen && initialSelectedWorkspace) {
-      setSelectedDestination(initialSelectedWorkspace);
-    } else if (!isOpen) {
-      // Reset to initial when closed
-      setSelectedDestination(initialSelectedWorkspace || null);
+    if (!isOpen) {
+      setSelectedDestination(null);
     }
-  }, [isOpen, initialSelectedWorkspace]);
+  }, [isOpen]);
 
   const handleSubmit = () => {
-    if (selectedDestination && workspaceToMove) {
+    if (selectedDestination) {
       onSubmit(selectedDestination);
     }
   };
 
-  const handleDestinationChange = (workspace: TreeViewWorkspaceItem | null) => {
+  // Compute the set of workspace IDs to disable: the source + all its descendants
+  const sourceDisabledIds = useMemo<Set<string>>(() => {
+    const ids = new Set<string>();
+    if (!workspaceToMove.id) return ids;
+    ids.add(workspaceToMove.id);
+    const simpleWorkspaces = allWorkspaces.map((ws) => ({
+      id: ws.id ?? '',
+      parent_id: ws.parent_id ?? undefined,
+      type: ws.type ?? '',
+      name: ws.name ?? '',
+    }));
+    for (const descendantId of getWorkspaceDescendantIds(workspaceToMove.id, simpleWorkspaces)) {
+      ids.add(descendantId);
+    }
+    return ids;
+  }, [workspaceToMove.id, allWorkspaces]);
+
+  // Per-ID tooltip overrides for the source workspace and its descendants
+  const tooltipOverrides = useMemo<Map<string, string>>(() => {
+    const map = new Map<string, string>();
+    if (!workspaceToMove.id) return map;
+    const selfTooltip = intl.formatMessage(messages.moveWorkspaceDisabledSelf);
+    const descendantTooltip = intl.formatMessage(messages.moveWorkspaceDisabledDescendant);
+    map.set(workspaceToMove.id, selfTooltip);
+    for (const id of sourceDisabledIds) {
+      if (id !== workspaceToMove.id) {
+        map.set(id, descendantTooltip);
+      }
+    }
+    return map;
+  }, [workspaceToMove.id, sourceDisabledIds, intl]);
+
+  const handleSelect = useCallback((workspace: TreeViewWorkspaceItem | null) => {
     setSelectedDestination(workspace);
-  };
+  }, []);
 
-  // Don't render if no workspace to move
-  if (!workspaceToMove) {
-    return null;
-  }
-
-  // Find the current parent workspace for comparison
-  const currentParentWorkspace = availableWorkspaces.find((ws) => ws.id === workspaceToMove.parent_id);
-
-  // Check if the selected destination is different from current parent
-  const isDestinationChanged = selectedDestination && initialSelectedWorkspace && selectedDestination.id !== initialSelectedWorkspace.id;
+  const isSubmitDisabled = !selectedDestination || isSubmitting || selectedDestination.id === workspaceToMove.parent_id;
 
   return (
     <Modal
       appendTo={getModalContainer()}
-      ouiaId={'move-workspace-modal'}
+      ouiaId="move-workspace-modal"
       isOpen={isOpen}
       variant={ModalVariant.medium}
-      title={`Move "${workspaceToMove.name}"`}
+      title={intl.formatMessage(messages.moveWorkspaceTitle, { name: workspaceToMove.name })}
       onClose={onClose}
       actions={[
-        <Button key="submit" variant="primary" onClick={handleSubmit} isDisabled={!selectedDestination || isSubmitting} isLoading={isSubmitting}>
-          Submit
+        <Button key="submit" variant="primary" onClick={handleSubmit} isDisabled={isSubmitDisabled} isLoading={isSubmitting}>
+          {intl.formatMessage(messages.submit)}
         </Button>,
         <Button key="cancel" variant="link" onClick={onClose} isDisabled={isSubmitting}>
           {intl.formatMessage(messages.cancel)}
         </Button>,
       ]}
     >
-      <div>
-        <p>
-          Moving a workspace may change who is able to access it and their permissions. Make sure you review the differences between each
-          workspaces&apos; user groups and roles before clicking Submit.
-        </p>
-
-        <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-          <h4 style={{ marginBottom: '0.5rem' }}>Parent workspace</h4>
-          <ManagedWorkspaceSelector
-            onSelect={(workspace: TreeViewDataItem) => {
-              // Convert TreeViewDataItem to TreeViewWorkspaceItem if possible
-              if (instanceOfTreeViewWorkspaceItem(workspace)) {
-                handleDestinationChange(workspace);
-              } else {
-                handleDestinationChange(null);
-              }
-            }}
-            initialSelectedWorkspace={initialSelectedWorkspace}
-            sourceWorkspace={sourceWorkspace}
-          />
-        </div>
-
-        {isDestinationChanged && currentParentWorkspace && (
-          <p>
-            This will move {workspaceToMove.name} from under <strong>{currentParentWorkspace.name}</strong> to under{' '}
-            <strong>{selectedDestination?.name}</strong>.
-          </p>
-        )}
-      </div>
+      <Content component="p" className="pf-v6-u-mb-md">
+        {intl.formatMessage(messages.moveWorkspaceSelectDestination)}
+      </Content>
+      <InlineWorkspacePicker
+        requiredPermission="move"
+        extraDisabledIds={sourceDisabledIds}
+        extraDisabledTooltipOverrides={tooltipOverrides}
+        selectedWorkspace={selectedDestination ?? undefined}
+        onSelect={handleSelect}
+        allExpanded
+      />
     </Modal>
   );
 };

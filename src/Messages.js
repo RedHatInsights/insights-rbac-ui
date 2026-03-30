@@ -275,6 +275,11 @@ export default defineMessages({
     description: 'Cancel button text',
     defaultMessage: 'Cancel',
   },
+  submit: {
+    id: 'submit',
+    description: 'Submit button text',
+    defaultMessage: 'Submit',
+  },
   close: {
     id: 'close',
     description: 'Close button text',
@@ -1482,6 +1487,26 @@ export default defineMessages({
     id: 'searchWorkspaces',
     description: 'Search workspaces placeholder text',
     defaultMessage: 'Search workspaces by name',
+  },
+  moveWorkspaceDisabledSelf: {
+    id: 'moveWorkspaceDisabledSelf',
+    description: 'Tooltip on the workspace being moved in the destination tree',
+    defaultMessage: 'This is the workspace being moved',
+  },
+  moveWorkspaceDisabledDescendant: {
+    id: 'moveWorkspaceDisabledDescendant',
+    description: 'Tooltip on descendants of the workspace being moved',
+    defaultMessage: 'Cannot move a workspace under itself',
+  },
+  moveWorkspaceSelectDestination: {
+    id: 'moveWorkspaceSelectDestination',
+    description: 'Instructions shown above the tree in the move workspace dialog',
+    defaultMessage: 'Select a new parent workspace. The workspace will inherit access control settings from the selected destination.',
+  },
+  moveWorkspaceTitle: {
+    id: 'moveWorkspaceTitle',
+    description: 'Title for the move workspace dialog',
+    defaultMessage: 'Move "{name}"',
   },
   workspaceParentHelperText: {
     id: 'workspaceParentHelperText',
