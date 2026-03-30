@@ -28,11 +28,11 @@ export interface BaseGroupAssignmentsTableProps {
   isLoading: boolean;
   currentWorkspace?: { id: string; name: string; type: 'workspace' | 'tenant' };
   ouiaId?: string;
-  /** Whether the user has permission to grant access (Kessel `create` relation). Defaults to `false`. */
+  /** Whether the user has permission to grant access (Kessel `role_binding_grant`). Defaults to `false`. */
   canGrantAccess?: boolean;
-  /** Whether the user has permission to edit role bindings (Kessel `create` relation, MVP proxy). Defaults to `false`. */
+  /** Whether the user has permission to edit role bindings (Kessel `role_binding_grant` — BE uses same permission as grant, see RHCLOUD-46392). Defaults to `false`. */
   canEditAccess?: boolean;
-  /** Whether the user has permission to revoke role bindings (Kessel `delete` relation, MVP proxy). Defaults to `false`. */
+  /** Whether the user has permission to revoke role bindings (Kessel `role_binding_revoke`). Defaults to `false`. */
   canRevokeAccess?: boolean;
   /** Whether to sync table state (sort, filters, pagination) with URL params. Defaults to `true`. */
   syncWithUrl?: boolean;

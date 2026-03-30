@@ -1,18 +1,24 @@
 import React, { useCallback } from 'react';
+import { useIntl } from 'react-intl';
+import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { useWorkspaceGroups } from '../../../data/queries/groupAssignments';
 import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
+import { useRoleBindingsAccess } from '../../../hooks/useRbacAccess';
 import { WorkspaceDetailLayout } from './WorkspaceDetailLayout';
 import { BaseGroupAssignmentsTable } from './components/BaseGroupAssignmentsTable';
 import { useWorkspaceDetailData } from './useWorkspaceDetailData';
+import messages from '../../../../Messages';
 
 interface DirectRolesTabProps {
   groupId?: string;
 }
 
 export const DirectRolesTab: React.FC<DirectRolesTabProps> = ({ groupId }) => {
+  const intl = useIntl();
   const { workspaceId, workspace, workspaceHierarchy, permissions, isLoading, status } = useWorkspaceDetailData();
+  const rbAccess = useRoleBindingsAccess(workspaceId);
   const enableRoles = useWorkspacesFlag('m3');
   const navigate = useAppNavigate();
 
@@ -37,6 +43,8 @@ export const DirectRolesTab: React.FC<DirectRolesTabProps> = ({ groupId }) => {
     navigate(pathnames['workspace-detail-grant-access'].link(workspaceId));
   }, [navigate, workspaceId]);
 
+  const roleBindingDenied = !rbAccess.isLoading && !rbAccess.canView;
+
   return (
     <WorkspaceDetailLayout
       workspaceId={workspaceId}
@@ -48,20 +56,27 @@ export const DirectRolesTab: React.FC<DirectRolesTabProps> = ({ groupId }) => {
       status={status}
       enableRoles={enableRoles}
     >
-      <BaseGroupAssignmentsTable
-        key="current-workspace-roles"
-        groups={roleBindings}
-        isLoading={roleBindingsIsLoading}
-        currentWorkspace={currentWorkspace}
-        canGrantAccess={permissions.create}
-        canEditAccess={permissions.create}
-        canRevokeAccess={permissions.delete}
-        ouiaId="current-role-assignments-table"
-        focusedGroupId={groupId}
-        onGroupSelect={handleGroupSelect}
-        onGroupDeselect={handleGroupDeselect}
-        onGrantAccess={handleGrantAccess}
-      />
+      {roleBindingDenied ? (
+        <UnauthorizedAccess
+          serviceName={intl.formatMessage(messages.unauthorizedAccessServiceName)}
+          bodyText={intl.formatMessage(messages.unauthorizedAccessBodyText)}
+        />
+      ) : (
+        <BaseGroupAssignmentsTable
+          key="current-workspace-roles"
+          groups={roleBindings}
+          isLoading={roleBindingsIsLoading || rbAccess.isLoading}
+          currentWorkspace={currentWorkspace}
+          canGrantAccess={rbAccess.canCreate}
+          canEditAccess={rbAccess.canCreate}
+          canRevokeAccess={rbAccess.canRevoke}
+          ouiaId="current-role-assignments-table"
+          focusedGroupId={groupId}
+          onGroupSelect={handleGroupSelect}
+          onGroupDeselect={handleGroupDeselect}
+          onGrantAccess={handleGrantAccess}
+        />
+      )}
     </WorkspaceDetailLayout>
   );
 };

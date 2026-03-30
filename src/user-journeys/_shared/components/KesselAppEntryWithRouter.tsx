@@ -32,6 +32,9 @@ export interface WorkspacePermissionsOverride {
   delete: string[];
   create: string[];
   move: string[];
+  role_binding_view?: string[];
+  role_binding_grant?: string[];
+  role_binding_revoke?: string[];
 }
 
 interface KesselAppEntryWithRouterProps {

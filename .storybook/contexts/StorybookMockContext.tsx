@@ -42,6 +42,9 @@ export interface MockUserIdentity {
  * Kessel workspace permissions shape.
  * Each key is a workspace relation; the value is an array of workspace IDs
  * for which the mocked user has that permission.
+ *
+ * Role binding keys are optional — when omitted, `checkWorkspacePermission`
+ * falls back to the coarse workspace relation (see `kesselAccessCheck.tsx`).
  */
 export interface WorkspacePermissionsMap {
   view: string[];
@@ -49,6 +52,9 @@ export interface WorkspacePermissionsMap {
   delete: string[];
   create: string[];
   move: string[];
+  role_binding_view?: string[];
+  role_binding_grant?: string[];
+  role_binding_revoke?: string[];
 }
 
 /** Default empty workspace permissions (all denied) */

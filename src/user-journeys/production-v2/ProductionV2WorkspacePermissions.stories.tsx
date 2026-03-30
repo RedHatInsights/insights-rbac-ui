@@ -1099,9 +1099,16 @@ workspace. It calls onCancel, which navigates back to the workspace list.
 // ---------------------------------------------------------------------------
 
 export const RoleAccessModalDirectUrlDenied: Story = {
-  name: 'Direct URL to edit-access modal — denied without edit permission',
+  name: 'Direct URL to edit-access modal — denied without role_binding_grant',
   args: {
-    workspacePermissions: { view: NON_ROOT_IDS, edit: [], delete: [], create: [], move: [] },
+    workspacePermissions: {
+      view: NON_ROOT_IDS,
+      edit: NON_ROOT_IDS,
+      delete: NON_ROOT_IDS,
+      create: NON_ROOT_IDS,
+      move: NON_ROOT_IDS,
+      role_binding_grant: [],
+    },
     initialRoute: `/iam/access-management/workspaces/detail/${WS_PRODUCTION.id}/direct-roles/${KESSEL_GROUP_PROD_ADMINS.uuid}/edit-access`,
   },
   parameters: {
@@ -1110,8 +1117,8 @@ export const RoleAccessModalDirectUrlDenied: Story = {
         story: `
 ## Direct-URL Defense — RoleAccessModal
 
-User navigates directly to the edit-access modal URL without \`edit\` permission.
-The workspace-level create guard blocks at the routing level before the modal mounts.
+User navigates directly to the edit-access modal URL without \`role_binding_grant\` permission.
+The role-binding route guard blocks at the routing level before the modal mounts.
 
 ### Checks
 - The modal does NOT render
@@ -1219,6 +1226,83 @@ verifies the RoleAccessModal opens.
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
+    });
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Role binding view denied — tab content replaced with UnauthorizedAccess
+// ---------------------------------------------------------------------------
+
+export const RoleBindingViewDenied: Story = {
+  name: 'Workspace detail — role_binding_view denied shows unauthorized',
+  args: {
+    workspacePermissions: {
+      view: NON_ROOT_IDS,
+      edit: NON_ROOT_IDS,
+      delete: NON_ROOT_IDS,
+      create: NON_ROOT_IDS,
+      move: NON_ROOT_IDS,
+      role_binding_view: [],
+    },
+    initialRoute: '/iam/access-management/users-and-user-groups',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Role Binding View Denied
+
+User has full workspace-level permissions but lacks \`role_binding_view\`.
+The workspace detail page renders the layout chrome (header, tabs) but
+replaces the tab content with \`<UnauthorizedAccess />\`.
+
+### Checks
+- Workspace detail layout renders (header visible)
+- Tab content shows "You don't have permission to view this page"
+- Role assignments table is NOT rendered
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Navigate to workspace list and click Production', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+      const link = await canvas.findByRole('link', {
+        name: new RegExp(`^${WS_PRODUCTION.name}$`, 'i'),
+      });
+      await user.click(link);
+      await waitFor(() => {
+        const addressBar = canvas.queryByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
+      });
+    });
+
+    await step('Verify tab content shows unauthorized instead of table', async () => {
+      await waitFor(
+        () => {
+          const unauthorized = canvas.queryAllByText(/you don.t have permission to view this page/i);
+          expect(unauthorized.length).toBeGreaterThan(0);
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+
+      const table = canvas.queryByLabelText('Role Assignments Table');
+      await expect(table).toBeNull();
     });
   },
 };

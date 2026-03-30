@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useCallback, useMemo } from 'react';
 import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { v2WorkspaceGuard } from '../../../components/V2WorkspacePermissionGuard';
+import { v2RoleBindingGuard } from '../../../components/V2RoleBindingPermissionGuard';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
 
@@ -65,7 +66,7 @@ export const WorkspaceDetailShell: React.FC = () => {
           <Route {...v2WorkspaceGuard('delete')}>
             <Route path="delete" element={<RoutedDeleteModal afterSubmit={goToList} onCancel={goToDirectRoles} />} />
           </Route>
-          <Route {...v2WorkspaceGuard('create')}>
+          <Route {...v2RoleBindingGuard('grant')}>
             <Route path="grant-access" element={<RoutedGrantAccessWizard />} />
             <Route path="direct-roles/:groupId/edit-access" element={<RoleAccessModal />} />
           </Route>

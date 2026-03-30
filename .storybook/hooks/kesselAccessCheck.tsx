@@ -24,26 +24,46 @@ function checkTenantPermission(relation: string, tenantPerms: TenantPermissionsM
   return tenantPerms[relation as keyof TenantPermissionsMap] ?? false;
 }
 
+/**
+ * Role binding relations that have optional granular keys in WorkspacePermissionsMap.
+ * When the granular key is set, it takes priority; otherwise we fall back to the
+ * coarse workspace relation via `wsFallbackMap`.
+ */
+const rbGranularKey: Record<string, keyof WorkspacePermissionsMap> = {
+  role_binding_view: 'role_binding_view',
+  role_binding_grant: 'role_binding_grant',
+  role_binding_revoke: 'role_binding_revoke',
+};
+
+const wsFallbackMap: Record<string, keyof WorkspacePermissionsMap> = {
+  rbac_workspace_view: 'view',
+  rbac_workspace_edit: 'edit',
+  rbac_workspace_create: 'create',
+  rbac_workspace_delete: 'delete',
+  rbac_workspace_move: 'move',
+  role_binding_view: 'view',
+  role_binding_grant: 'create',
+  role_binding_revoke: 'delete',
+  role_binding_update: 'create',
+  view: 'view',
+  edit: 'edit',
+  create: 'create',
+  delete: 'delete',
+  move: 'move',
+};
+
 function checkWorkspacePermission(relation: string, resourceId: string, wsPerms: WorkspacePermissionsMap): boolean {
-  const wsRelMap: Record<string, keyof WorkspacePermissionsMap> = {
-    rbac_workspace_view: 'view',
-    rbac_workspace_edit: 'edit',
-    rbac_workspace_create: 'create',
-    rbac_workspace_delete: 'delete',
-    rbac_workspace_move: 'move',
-    rbac_workspaces_role_binding_view: 'view',
-    rbac_workspaces_role_binding_grant: 'edit',
-    rbac_workspaces_role_binding_revoke: 'edit',
-    rbac_workspaces_role_binding_update: 'edit',
-    view: 'view',
-    edit: 'edit',
-    create: 'create',
-    delete: 'delete',
-    move: 'move',
-  };
-  const key = wsRelMap[relation];
-  if (!key) return false;
-  const ids = wsPerms[key] ?? [];
+  const granular = rbGranularKey[relation];
+  if (granular) {
+    const granularIds = wsPerms[granular];
+    if (granularIds !== undefined) {
+      return granularIds.includes('*') || granularIds.includes(resourceId);
+    }
+  }
+
+  const fallback = wsFallbackMap[relation];
+  if (!fallback) return false;
+  const ids = wsPerms[fallback] ?? [];
   return ids.includes('*') || ids.includes(resourceId);
 }
 

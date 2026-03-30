@@ -88,12 +88,7 @@ function useBulkTenantCheck<R extends RbacTenantRelation>(relations: readonly R[
 // Workspace-scoped bulk check helper
 // ============================================================================
 
-const _RBAC_WORKSPACE_RELATIONS = [
-  'rbac_workspaces_role_binding_view',
-  'rbac_workspaces_role_binding_grant',
-  'rbac_workspaces_role_binding_revoke',
-  'rbac_workspaces_role_binding_update',
-] as const;
+const _RBAC_WORKSPACE_RELATIONS = ['role_binding_view', 'role_binding_grant', 'role_binding_revoke', 'role_binding_update'] as const;
 
 type RbacWorkspaceRelation = (typeof _RBAC_WORKSPACE_RELATIONS)[number];
 
@@ -172,22 +167,17 @@ export function useGroupsAccess() {
   };
 }
 
-const ROLE_BINDINGS_RELATIONS = [
-  'rbac_workspaces_role_binding_view',
-  'rbac_workspaces_role_binding_grant',
-  'rbac_workspaces_role_binding_revoke',
-  'rbac_workspaces_role_binding_update',
-] as const;
+const ROLE_BINDINGS_RELATIONS = ['role_binding_view', 'role_binding_grant', 'role_binding_revoke', 'role_binding_update'] as const;
 
 export function useRoleBindingsAccess(workspaceId: string) {
   const { result, isLoading } = useBulkWorkspaceCheck(workspaceId, ROLE_BINDINGS_RELATIONS);
 
   return {
-    canCreate: result.rbac_workspaces_role_binding_grant,
-    canView: result.rbac_workspaces_role_binding_view,
-    canList: result.rbac_workspaces_role_binding_view,
-    canUpdate: result.rbac_workspaces_role_binding_update,
-    canRevoke: result.rbac_workspaces_role_binding_revoke,
+    canCreate: result.role_binding_grant,
+    canView: result.role_binding_view,
+    canList: result.role_binding_view,
+    canUpdate: result.role_binding_update,
+    canRevoke: result.role_binding_revoke,
     isLoading,
   };
 }
