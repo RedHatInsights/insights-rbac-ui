@@ -58,21 +58,6 @@ objects:
             - method: loosePermissions
               args:
                 - - rbac:group:read
-        - section: iam
-          group: iam
-          id: workspaces
-          href: /iam/user-access/workspaces
-          title: Workspaces
-          description: ""
-          icon: PlaceholderIcon
-          permissions:
-            - method: featureFlag
-              args:
-                - platform.rbac.workspaces-list
-                - true
-            - method: loosePermissions
-              args:
-                - - inventory:groups:read
       bundleSegments:
         - segmentId: module-rbac-ui
           bundleId: iam
@@ -216,19 +201,6 @@ objects:
                       args:
                         - - rbac:group:read
                   icon: PlaceholderIcon
-                  product: Identity & Access Management
-                - id: workspaces
-                  title: Workspaces
-                  href: /iam/user-access/workspaces
-                  icon: PlaceholderIcon
-                  permissions:
-                    - method: featureFlag
-                      args:
-                        - platform.rbac.workspaces-list
-                        - true
-                    - method: loosePermissions
-                      args:
-                        - - 'inventory:groups:read'
                   product: Identity & Access Management
                 - id: audit-log
                   title: Audit Log

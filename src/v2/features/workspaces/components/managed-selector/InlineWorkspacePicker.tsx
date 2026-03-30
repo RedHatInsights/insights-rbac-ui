@@ -126,7 +126,7 @@ export const InlineWorkspacePicker: React.FC<InlineWorkspacePickerProps> = ({
           aria-label={intl.formatMessage(messages.searchWorkspaces)}
         />
       </StackItem>
-      <StackItem isFilled>
+      <StackItem isFilled style={{ maxHeight: '50vh', minHeight: '300px', overflowY: 'auto' }}>
         <WorkspaceTreeView
           treeElements={filteredTreeElements}
           areElementsFiltered={areElementsFiltered}

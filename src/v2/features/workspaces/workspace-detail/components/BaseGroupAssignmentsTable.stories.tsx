@@ -1,13 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { clearAndType, getSkeletonCount, queryDialog } from '../../../../../test-utils/interactionHelpers';
-import { MemoryRouter } from 'react-router-dom';
+import { clearAndType, getSkeletonCount } from '../../../../../test-utils/interactionHelpers';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { BaseGroupAssignmentsTable } from './BaseGroupAssignmentsTable';
 import type { WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import { createGroupMembersHandlers, groupMembersHandlers } from '../../../../../shared/data/mocks/groupMembers.handlers';
-import { groupsHandlers } from '../../../../../shared/data/mocks/groups.handlers';
-import { v2RolesHandlers } from '../../../../data/mocks/roles.handlers';
+
+const NOOP_CALLBACKS = {
+  onGroupSelect: () => {},
+  onGroupDeselect: () => {},
+  onGrantAccess: () => {},
+};
 
 const mockGroups: WorkspaceGroupRow[] = [
   {
@@ -56,8 +60,10 @@ const groupDetailsHandlers = [...groupMembersHandlers({}, {})];
 
 const withRouter = () => {
   const RouterWrapper = (Story: React.ComponentType) => (
-    <MemoryRouter initialEntries={['/']}>
-      <Story />
+    <MemoryRouter initialEntries={['/iam/access-management/workspaces/detail/ws-test/direct-roles']}>
+      <Routes>
+        <Route path="/iam/access-management/workspaces/detail/:workspaceId/*" element={<Story />} />
+      </Routes>
     </MemoryRouter>
   );
   RouterWrapper.displayName = 'RouterWrapper';
@@ -68,9 +74,7 @@ const meta: Meta<typeof BaseGroupAssignmentsTable> = {
   component: BaseGroupAssignmentsTable,
   tags: ['autodocs'],
   decorators: [withRouter()],
-  argTypes: {
-    onGrantAccessWizardToggle: { control: false, action: false },
-  },
+  argTypes: {},
   parameters: {
     msw: { handlers: groupDetailsHandlers },
     docs: {
@@ -102,6 +106,7 @@ export const Default: Story = {
     totalCount: mockGroups.length,
     isLoading: false,
     ouiaId: 'role-assignments-table',
+    ...NOOP_CALLBACKS,
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -132,6 +137,7 @@ export const LoadingState: Story = {
     totalCount: 0,
     isLoading: true,
     ouiaId: 'role-assignments-table-loading',
+    ...NOOP_CALLBACKS,
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -154,6 +160,7 @@ export const EmptyState: Story = {
     totalCount: 0,
     isLoading: false,
     ouiaId: 'role-assignments-table-empty',
+    ...NOOP_CALLBACKS,
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -163,13 +170,24 @@ export const EmptyState: Story = {
   },
 };
 
+const DrawerInteractionWrapper: React.FC = () => {
+  const [focusedGroupId, setFocusedGroupId] = React.useState<string | undefined>();
+  return (
+    <BaseGroupAssignmentsTable
+      groups={mockGroups}
+      totalCount={mockGroups.length}
+      isLoading={false}
+      ouiaId="role-assignments-drawer-test"
+      focusedGroupId={focusedGroupId}
+      onGroupSelect={(group) => setFocusedGroupId(group.id)}
+      onGroupDeselect={() => setFocusedGroupId(undefined)}
+      onGrantAccess={() => {}}
+    />
+  );
+};
+
 export const DrawerInteraction: Story = {
-  args: {
-    groups: mockGroups,
-    totalCount: mockGroups.length,
-    isLoading: false,
-    ouiaId: 'role-assignments-drawer-test',
-  },
+  render: () => <DrawerInteractionWrapper />,
   parameters: {
     msw: {
       handlers: [
@@ -266,8 +284,8 @@ const WORKSPACE_ARGS = {
   groups: mockGroups,
   totalCount: mockGroups.length,
   isLoading: false,
-  workspaceName: 'Test Workspace',
   currentWorkspace: { id: 'ws-test', name: 'Test Workspace', type: 'workspace' as const },
+  ...NOOP_CALLBACKS,
 } as const;
 
 export const RowActionsEnabled: Story = {
@@ -422,112 +440,6 @@ export const GrantAccessButtonDisabledByPermission: Story = {
   },
 };
 
-export const GrantAccessWizardTest: Story = {
-  tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
-  args: {
-    ...WORKSPACE_ARGS,
-    canGrantAccess: true,
-    canEditAccess: true,
-    canRevokeAccess: true,
-    ouiaId: 'role-assignments-grant-access-test',
-    onGrantAccessWizardToggle: undefined,
-  },
-  parameters: {
-    featureFlags: {
-      'platform.rbac.workspaces-role-bindings-write': true,
-    },
-    msw: {
-      handlers: [
-        ...groupDetailsHandlers,
-        ...groupsHandlers([
-          {
-            uuid: 'group-1',
-            name: 'Test Group 1',
-            description: 'Test group for wizard',
-            principalCount: 5,
-            roleCount: 2,
-            created: '2024-01-15T10:30:00Z',
-            modified: '2024-01-20T14:45:00Z',
-            admin_default: false,
-            platform_default: false,
-            system: false,
-          },
-        ]),
-        ...v2RolesHandlers([
-          {
-            id: 'role-1',
-            name: 'administrator',
-            description: 'Full administrative access',
-            permissions: [],
-            permissions_count: 5,
-            last_modified: '2024-01-20T14:45:00Z',
-          },
-        ]),
-      ],
-    },
-  },
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
-    await step('Verify grant access wizard', async () => {
-      const table = await canvas.findByRole('grid');
-      await expect(table).toBeInTheDocument();
-
-      let grantAccessButton: HTMLElement | null = null;
-      await waitFor(
-        async () => {
-          grantAccessButton = canvas.queryByRole('button', { name: /grant access/i });
-          await expect(grantAccessButton).toBeInTheDocument();
-          await expect(grantAccessButton).toBeEnabled();
-        },
-        { timeout: 10000 },
-      );
-
-      await userEvent.click(grantAccessButton!);
-
-      await waitFor(
-        async () => {
-          const wizardModal = queryDialog();
-          expect(wizardModal).toBeInTheDocument();
-          const modalContent = within(wizardModal!);
-          await expect(modalContent.queryByText(/grant access in workspace test workspace/i)).toBeInTheDocument();
-        },
-        { timeout: 5000 },
-      );
-
-      // Cancel the wizard
-      await waitFor(
-        async () => {
-          const wizardModal = queryDialog();
-          expect(wizardModal).toBeInTheDocument();
-          const allButtons = wizardModal!.querySelectorAll('button');
-          let cancelButton: HTMLButtonElement | null = null;
-          for (const button of allButtons) {
-            const buttonText = button.textContent?.toLowerCase() || '';
-            if (buttonText.includes('cancel')) {
-              cancelButton = button as HTMLButtonElement;
-              break;
-            }
-          }
-          if (cancelButton) {
-            await userEvent.click(cancelButton);
-          }
-        },
-        { timeout: 2000 },
-      );
-
-      await waitFor(
-        async () => {
-          const wizardModal = queryDialog();
-          expect(wizardModal).not.toBeInTheDocument();
-        },
-        { timeout: 3000 },
-      );
-
-      await expect(canvas.findByRole('button', { name: /grant access/i })).resolves.toBeInTheDocument();
-    });
-  },
-};
-
 const GROUP_PLATFORM = mockGroups[0];
 const GROUP_DEV = mockGroups[1];
 const GROUP_QA = mockGroups[2];
@@ -541,6 +453,7 @@ export const FilterByGroupName: Story = {
     totalCount: mockGroups.length,
     isLoading: false,
     ouiaId: 'role-assignments-table',
+    ...NOOP_CALLBACKS,
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);

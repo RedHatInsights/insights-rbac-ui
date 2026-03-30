@@ -8,7 +8,6 @@ import type { WorkspaceGroupRow } from '../../../../data/queries/groupAssignment
 import messages from '../../../../../Messages';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { RemoveGroupFromWorkspaceModal } from './RemoveGroupFromWorkspaceModal';
-import { GrantAccessWizard } from '../../grant-access/GrantAccessWizard';
 import { useWorkspacesFlag } from '../../../../../shared/hooks/useWorkspacesFlag';
 import { ActionDropdown, type ActionDropdownItem } from '../../../../../shared/components/ActionDropdown/ActionDropdown';
 import { TableView } from '../../../../../shared/components/table-view/TableView';
@@ -27,7 +26,6 @@ export interface BaseGroupAssignmentsTableProps {
   /** Total count of items. When omitted, PF Pagination renders in indeterminate mode. */
   totalCount?: number;
   isLoading: boolean;
-  workspaceName?: string;
   currentWorkspace?: { id: string; name: string; type: 'workspace' | 'tenant' };
   ouiaId?: string;
   /** Whether the user has permission to grant access (Kessel `create` relation). Defaults to `false`. */
@@ -38,34 +36,36 @@ export interface BaseGroupAssignmentsTableProps {
   canRevokeAccess?: boolean;
   /** Whether to sync table state (sort, filters, pagination) with URL params. Defaults to `true`. */
   syncWithUrl?: boolean;
-  /** Controlled state: whether the grant access wizard is open */
-  isGrantAccessWizardOpen?: boolean;
-  /** Controlled callback: toggle the grant access wizard */
-  onGrantAccessWizardToggle?: (open: boolean) => void;
+  /** URL-driven focused group: when set and found in groups data, the drawer opens */
+  focusedGroupId?: string;
+  /** Navigate to group drawer route */
+  onGroupSelect: (group: WorkspaceGroupRow) => void;
+  /** Navigate away from group drawer route */
+  onGroupDeselect: () => void;
+  /** Navigate to grant access route */
+  onGrantAccess: () => void;
 }
 
 export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps> = ({
   groups,
   totalCount,
   isLoading,
-  workspaceName,
   currentWorkspace,
   ouiaId = 'iam-role-assignments-table',
   canGrantAccess = false,
   canEditAccess = false,
   canRevokeAccess = false,
   syncWithUrl = true,
-  isGrantAccessWizardOpen: externalWizardOpen,
-  onGrantAccessWizardToggle,
+  focusedGroupId,
+  onGroupSelect,
+  onGroupDeselect,
+  onGrantAccess,
 }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const grantAccessEnabled = useWorkspacesFlag('m4');
 
-  const [focusedGroup, setFocusedGroup] = useState<WorkspaceGroupRow | undefined>();
-  const [internalWizardOpen, setInternalWizardOpen] = useState(false);
-  const isGrantAccessWizardOpen = externalWizardOpen ?? internalWizardOpen;
-  const setIsGrantAccessWizardOpen = onGrantAccessWizardToggle ?? setInternalWizardOpen;
+  const focusedGroup = useMemo(() => (focusedGroupId ? groups.find((g) => g.id === focusedGroupId) : undefined), [focusedGroupId, groups]);
   const [groupToRemove, setGroupToRemove] = useState<WorkspaceGroupRow | undefined>();
 
   const tableState = useTableState<typeof columns, WorkspaceGroupRow, SortableColumn>({
@@ -132,7 +132,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
           label: intl.formatMessage(messages.editAccess),
           onClick: () => {
             if (currentWorkspace) {
-              navigate(pathnames['workspace-role-access'].link(currentWorkspace.id, group.id));
+              navigate(pathnames['workspace-detail-edit-access'].link(currentWorkspace.id, group.id));
             }
           },
           isDisabled: !currentWorkspace || !canEditAccess,
@@ -152,14 +152,14 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
 
   const handleRowClick = useCallback(
     (group: WorkspaceGroupRow) => {
-      setFocusedGroup(focusedGroup?.id === group.id ? undefined : group);
+      if (focusedGroup?.id === group.id) {
+        onGroupDeselect();
+      } else {
+        onGroupSelect(group);
+      }
     },
-    [focusedGroup],
+    [focusedGroup, onGroupSelect, onGroupDeselect],
   );
-
-  const onCloseDrawer = useCallback(() => {
-    setFocusedGroup(undefined);
-  }, []);
 
   const toolbarActions = useMemo(
     () =>
@@ -167,20 +167,20 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
         <Button
           variant="primary"
           isDisabled={!grantAccessEnabled || !canGrantAccess}
-          onClick={() => setIsGrantAccessWizardOpen(true)}
+          onClick={onGrantAccess}
           ouiaId={`${ouiaId}-grant-access-button`}
         >
           {intl.formatMessage(messages.grantAccess)}
         </Button>
       ) : undefined,
-    [grantAccessEnabled, canGrantAccess, ouiaId, intl, currentWorkspace],
+    [grantAccessEnabled, canGrantAccess, ouiaId, intl, currentWorkspace, onGrantAccess],
   );
 
   return (
     <GroupDetailsDrawer
       isOpen={!!focusedGroup}
       group={focusedGroup}
-      onClose={onCloseDrawer}
+      onClose={onGroupDeselect}
       ouiaId={ouiaId}
       currentWorkspace={currentWorkspace}
       canEditAccess={canEditAccess}
@@ -217,15 +217,6 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
           <DefaultEmptyStateNoResults title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} onClearFilters={tableState.clearAllFilters} />
         }
       />
-      {isGrantAccessWizardOpen && workspaceName && currentWorkspace && (
-        <GrantAccessWizard
-          workspaceName={workspaceName}
-          workspaceId={currentWorkspace.id}
-          resourceType={currentWorkspace.type}
-          afterSubmit={() => setIsGrantAccessWizardOpen(false)}
-          onCancel={() => setIsGrantAccessWizardOpen(false)}
-        />
-      )}
       {groupToRemove && currentWorkspace && (
         <RemoveGroupFromWorkspaceModal
           isOpen={!!groupToRemove}

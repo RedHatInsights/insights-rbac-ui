@@ -6,8 +6,16 @@ import { WorkspaceHeader } from './WorkspaceHeader';
 import { IntlProvider } from 'react-intl';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import type { WorkspaceActionCallbacks } from './useWorkspaceActionItems';
 import messages from '../../../../locales/data.json';
 import { locale } from '../../../../locales/locale';
+
+const NOOP_CALLBACKS: WorkspaceActionCallbacks = {
+  onEdit: () => {},
+  onGrantAccess: () => {},
+  onMove: () => {},
+  onDelete: () => {},
+};
 
 // Mock workspace data
 const mockWorkspace: WorkspacesWorkspace = {
@@ -94,10 +102,6 @@ This component demonstrates:
       description: 'Array of workspace objects representing the breadcrumb path',
       control: { type: 'object' },
     },
-    hasAssets: {
-      description: 'Whether the workspace has child assets/workspaces',
-      control: { type: 'boolean' },
-    },
   },
 };
 
@@ -109,7 +113,7 @@ export const Default: Story = {
     workspace: mockWorkspace,
     isLoading: false,
     workspaceHierarchy: mockSingleWorkspaceHierarchy,
-    hasAssets: true,
+    actionCallbacks: NOOP_CALLBACKS,
   },
   parameters: {
     docs: {
@@ -137,7 +141,7 @@ export const WithHierarchy: Story = {
     workspace: mockChildWorkspace,
     isLoading: false,
     workspaceHierarchy: mockHierarchy,
-    hasAssets: false,
+    actionCallbacks: NOOP_CALLBACKS,
   },
   parameters: {
     docs: {
@@ -165,7 +169,7 @@ export const LoadingState: Story = {
     workspace: null,
     isLoading: true,
     workspaceHierarchy: [],
-    hasAssets: false,
+    actionCallbacks: NOOP_CALLBACKS,
   },
   parameters: {
     docs: {
@@ -200,7 +204,7 @@ export const NoAssets: Story = {
     },
     isLoading: false,
     workspaceHierarchy: [{ name: 'Empty Workspace', id: 'workspace-empty', canView: true }],
-    hasAssets: false,
+    actionCallbacks: NOOP_CALLBACKS,
   },
   parameters: {
     docs: {
@@ -239,7 +243,7 @@ export const LongContent: Story = {
       { name: 'Level 2 Parent', id: 'level-2', canView: true },
       { name: 'Very Long Workspace Name That Should Test Text Wrapping Behavior', id: 'current', canView: true },
     ],
-    hasAssets: true,
+    actionCallbacks: NOOP_CALLBACKS,
   },
   parameters: {
     docs: {
@@ -295,7 +299,7 @@ export const WithChildContextAlert: Story = {
     workspace: mockWorkspace,
     isLoading: false,
     workspaceHierarchy: mockSingleWorkspaceHierarchy,
-    hasAssets: true,
+    actionCallbacks: NOOP_CALLBACKS,
   },
   parameters: {
     route: '/iam/access-management/workspaces/detail/workspace-1?fromChildId=workspace-2&fromChildName=Web%20Services',
@@ -333,7 +337,7 @@ export const BreadcrumbPermissionGating: Story = {
       { name: 'Production Environment', id: 'workspace-1', canView: false },
       { name: 'Web Services', id: 'workspace-2', canView: true },
     ],
-    hasAssets: false,
+    actionCallbacks: NOOP_CALLBACKS,
   },
   parameters: {
     docs: {
@@ -358,7 +362,7 @@ export const WithoutChildContext: Story = {
     workspace: mockWorkspace,
     isLoading: false,
     workspaceHierarchy: mockSingleWorkspaceHierarchy,
-    hasAssets: true,
+    actionCallbacks: NOOP_CALLBACKS,
   },
   parameters: {
     route: '/iam/access-management/workspaces/detail/workspace-1',

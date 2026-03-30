@@ -49,8 +49,9 @@ export interface CreateWorkspaceFormValues {
  * Schema builder for the create workspace wizard.
  * @param enableBillingFeatures - Whether to show billing features step
  * @param existingWorkspaceNames - List of existing workspace names for duplicate validation
+ * @param skipParentStep - When true, omits the parent selection step (parent is pre-set by caller)
  */
-export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceNames: string[] = []) => {
+export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceNames: string[] = [], skipParentStep = false) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
 
@@ -72,7 +73,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
             showTitle: false,
             name: 'details',
             buttons: WizardButtons,
-            nextStep: 'select-parent',
+            nextStep: skipParentStep ? () => (enableBillingFeatures ? 'select-features' : 'review') : 'select-parent',
             fields: [
               {
                 name: 'details-title',
@@ -164,32 +165,43 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                   },
                 ],
               },
+              ...(skipParentStep
+                ? [
+                    {
+                      name: WORKSPACE_PARENT,
+                      component: componentTypes.TEXT_FIELD,
+                      isRequired: true,
+                      hideField: true,
+                      validate: [{ type: validatorTypes.REQUIRED }],
+                    },
+                  ]
+                : []),
             ],
           },
-          {
-            title: intl.formatMessage(messages.selectParentWorkspace),
-            showTitle: false,
-            name: 'select-parent',
-            buttons: WizardButtons,
-            nextStep: () => (enableBillingFeatures ? 'select-features' : 'review'),
-            fields: [
-              {
-                name: WORKSPACE_PARENT,
-                component: componentTypes.TEXT_FIELD,
-                isRequired: true,
-                hideField: true,
-                validate: [
-                  {
-                    type: validatorTypes.REQUIRED,
-                  },
-                ],
-              },
-              {
-                name: 'select-parent-workspace',
-                component: 'SelectParentWorkspace',
-              },
-            ],
-          },
+          ...(skipParentStep
+            ? []
+            : [
+                {
+                  title: intl.formatMessage(messages.selectParentWorkspace),
+                  showTitle: false,
+                  name: 'select-parent',
+                  buttons: WizardButtons,
+                  nextStep: () => (enableBillingFeatures ? 'select-features' : 'review'),
+                  fields: [
+                    {
+                      name: WORKSPACE_PARENT,
+                      component: componentTypes.TEXT_FIELD,
+                      isRequired: true,
+                      hideField: true,
+                      validate: [{ type: validatorTypes.REQUIRED }],
+                    },
+                    {
+                      name: 'select-parent-workspace',
+                      component: 'SelectParentWorkspace',
+                    },
+                  ],
+                },
+              ]),
           {
             title: intl.formatMessage(messages.selectFeatures),
             name: 'select-features',

@@ -80,7 +80,6 @@ export const testDefaultWorkspaceDisplay = async (canvasElement: HTMLElement) =>
   await expect(within(document.body).getByText('Edit workspace')).toBeInTheDocument();
   await expect(within(document.body).getByText('Delete workspace')).toBeInTheDocument();
   await expect(within(document.body).getByText('Move workspace')).toBeInTheDocument();
-  await expect(within(document.body).getByText('Manage integrations')).toBeInTheDocument();
 
   // Verify primary toolbar button exists and is functional
   const primaryButton = canvas.getByRole('button', { name: /create workspace/i });

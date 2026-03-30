@@ -440,7 +440,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                           label: intl.formatMessage(messages.editAccess),
                           onClick: () => {
                             if (currentWorkspace) {
-                              navigate(pathnames['workspace-role-access'].link(currentWorkspace.id, group.id));
+                              navigate(pathnames['workspace-detail-edit-access'].link(currentWorkspace.id, group.id));
                             }
                           },
                         },
@@ -486,7 +486,9 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                   <Button
                     variant="secondary"
                     isDisabled={!canEditAccess}
-                    onClick={() => group && currentWorkspace && navigate(pathnames['workspace-role-access'].link(currentWorkspace.id, group.id))}
+                    onClick={() =>
+                      group && currentWorkspace && navigate(pathnames['workspace-detail-edit-access'].link(currentWorkspace.id, group.id))
+                    }
                   >
                     {intl.formatMessage(messages.editAccessForThisWorkspace)}
                   </Button>

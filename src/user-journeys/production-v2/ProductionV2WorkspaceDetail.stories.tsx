@@ -788,7 +788,10 @@ Tests the workspace detail page Assets tab.
     await step('Click Assets tab and verify content', async () => {
       const assetsTab = await canvas.findByRole('tab', { name: /assets/i });
       await user.click(assetsTab);
-      await waitFor(() => expect(assetsTab).toHaveAttribute('aria-selected', 'true'));
+      await waitFor(() => {
+        const freshTab = canvas.queryByRole('tab', { name: /assets/i });
+        expect(freshTab).toHaveAttribute('aria-selected', 'true');
+      });
 
       await waitFor(
         () => {

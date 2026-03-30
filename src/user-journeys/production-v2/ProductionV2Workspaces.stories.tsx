@@ -4,6 +4,7 @@ import {
   Story,
   TEST_TIMEOUTS,
   WS_DEFAULT,
+  WS_DEVELOPMENT,
   WS_PRODUCTION,
   WS_ROOT,
   WS_STAGING,
@@ -174,7 +175,7 @@ Tests that admins can create a workspace and choose a parent via the full-width 
 };
 
 export const CreateSubworkspace: Story = {
-  name: 'Create subworkspace from kebab menu',
+  name: 'Create sub-workspace from kebab menu',
   args: {
     initialRoute: '/iam/access-management/users-and-user-groups',
   },
@@ -182,17 +183,17 @@ export const CreateSubworkspace: Story = {
     docs: {
       description: {
         story: `
-## Create Subworkspace from Kebab Menu
+## Create Sub-workspace from Kebab Menu
 
 Tests creating a child workspace from a parent's action menu.
+The parent selection step is skipped because the parent is implicit (the workspace whose kebab was clicked).
 
 ### Journey Flow
 1. Navigate to **Workspaces**, expand **Root Workspace** > **Default Workspace**
-2. Open **Production** kebab menu and click **Create subworkspace**
-3. Wizard opens — fill name ("Test Subworkspace"), click **Next**
-4. Parent step shows tree with **Production** pre-selected, click **Next**
-5. Review, then **Submit**
-6. Verify "Test Subworkspace" appears under Production at level 4
+2. Open **Production** kebab menu and click **Create sub-workspace**
+3. Wizard opens with parent pre-set — fill name ("Test Subworkspace"), click **Next**
+4. Review (parent step is skipped), then **Submit**
+5. Verify "Test Subworkspace" appears under Production at level 4
 
 ### Design References
 
@@ -214,7 +215,7 @@ Tests creating a child workspace from a parent's action menu.
       await waitForContentReady(canvasElement);
     });
 
-    await step('Open Create subworkspace from Production kebab', async () => {
+    await step('Open Create sub-workspace from Production kebab', async () => {
       await navigateToPage(user, canvas, 'Workspaces');
       await waitForPageToLoad(canvas, WS_ROOT.name);
 
@@ -222,7 +223,7 @@ Tests creating a child workspace from a parent's action menu.
       await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
 
       const body = await openWorkspaceKebabMenu(user, canvas, WS_PRODUCTION.name);
-      const createSubworkspaceButton = await body.findByText(/create subworkspace/i);
+      const createSubworkspaceButton = await body.findByText(/create sub-workspace/i);
       expect(createSubworkspaceButton).toBeInTheDocument();
       await user.click(createSubworkspaceButton);
 
@@ -230,7 +231,6 @@ Tests creating a child workspace from a parent's action menu.
       const wizardScope = await waitForModal();
 
       await fillWorkspaceForm(user, wizardScope, 'Test Subworkspace');
-      await selectParentWorkspace(user, wizardScope, WS_PRODUCTION.name);
 
       await clickWizardNext(user, wizardScope);
       await clickWizardNext(user, wizardScope, { buttonText: /submit/i });
@@ -492,6 +492,267 @@ Tests deleting a leaf workspace via the kebab menu with confirmation.
         expect(canvas.queryByText(WS_STAGING.name)).not.toBeInTheDocument();
       });
       expect(await canvas.findByText(WS_PRODUCTION.name)).toBeInTheDocument();
+    });
+  },
+};
+
+export const CreateSiblingWorkspace: Story = {
+  name: 'Create sibling workspace from kebab menu',
+  args: {
+    initialRoute: '/iam/access-management/users-and-user-groups',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Create Sibling Workspace from Kebab Menu
+
+Tests creating a sibling workspace via the kebab menu. The parent selection step
+is skipped because the parent is implicitly set to the target workspace's own parent.
+
+### Journey Flow
+1. Navigate to **Workspaces**, expand **Root Workspace** > **Default Workspace**
+2. Open **Production** kebab menu and click **Create sibling workspace**
+3. Wizard opens with parent pre-set to **Default Workspace** — fill name ("Sibling Workspace"), click **Next**
+4. Review (parent step is skipped), then **Submit**
+5. Verify "Sibling Workspace" appears at the same level as Production (level 3)
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Open Create sibling workspace from Production kebab', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+
+      const body = await openWorkspaceKebabMenu(user, canvas, WS_PRODUCTION.name);
+      const createSiblingButton = await body.findByText(/create sibling workspace/i);
+      expect(createSiblingButton).toBeInTheDocument();
+      await user.click(createSiblingButton);
+
+      await body.findByText(/create new workspace/i);
+      const wizardScope = await waitForModal();
+
+      await fillWorkspaceForm(user, wizardScope, 'Sibling Workspace');
+
+      await clickWizardNext(user, wizardScope);
+      await clickWizardNext(user, wizardScope, { buttonText: /submit/i });
+    });
+
+    await step('Dismiss workspace ready modal', async () => {
+      await dismissWorkspaceReadyModal(user);
+    });
+
+    await step('Verify Sibling Workspace at same level as Production', async () => {
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+
+      const siblingWorkspace = await canvas.findByText('Sibling Workspace');
+      expect(siblingWorkspace).toBeInTheDocument();
+
+      const siblingRow = siblingWorkspace.closest('tr') as HTMLElement;
+      expect(siblingRow.getAttribute('aria-level')).toBe('3');
+    });
+  },
+};
+
+export const DeleteWorkspaceFromDetail: Story = {
+  name: 'Delete workspace from detail page',
+  args: {
+    initialRoute: `/iam/access-management/workspaces/detail/${WS_DEVELOPMENT.id}`,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Delete Workspace from Detail Page
+
+Tests deleting a workspace via the detail page header kebab. This exercises
+the route-based \`RoutedDeleteModal\` rendered through the detail page outlet.
+
+### Journey Flow
+1. Start at **Development** detail page
+2. Open header **Actions** kebab → **Delete workspace**
+3. Delete confirmation modal opens (routed at \`/detail/${WS_DEVELOPMENT.id}/delete\`)
+4. Check the "I understand" checkbox, click **Delete**
+5. Verify redirect to workspace list and Development is gone
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify detail page loaded', async () => {
+      await canvas.findByRole('heading', { name: new RegExp(`^${WS_DEVELOPMENT.name}$`, 'i') }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
+
+    await step('Open Actions kebab and click Delete workspace', async () => {
+      const actionsButtons = await canvas.findAllByRole('button', { name: /^actions$/i });
+      await user.click(actionsButtons[0]);
+
+      const body = within(document.body);
+      const deleteButton = await body.findByText(/^delete workspace$/i, {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      expect(deleteButton).toBeInTheDocument();
+      await user.click(deleteButton);
+    });
+
+    await step('Confirm deletion', async () => {
+      const body = within(document.body);
+      const modalHeading = await body.findByRole('heading', { name: /delete.*workspace/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      expect(modalHeading).toBeInTheDocument();
+
+      const checkbox = await body.findByRole('checkbox', { name: /understand.*cannot be undone/i });
+      expect(checkbox).not.toBeChecked();
+      await user.click(checkbox);
+
+      const confirmButton = await body.findByRole('button', { name: /^delete$/i });
+      expect(confirmButton).toBeEnabled();
+      await user.click(confirmButton);
+    });
+
+    await step('Verify redirect to list and Development is gone', async () => {
+      await waitFor(
+        () => {
+          const addressBar = canvas.queryByTestId('fake-address-bar');
+          expect(addressBar).not.toHaveTextContent(/detail/i);
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+
+      await waitFor(() => {
+        expect(canvas.queryByText(WS_DEVELOPMENT.name)).not.toBeInTheDocument();
+      });
+      expect(await canvas.findByText(WS_PRODUCTION.name)).toBeInTheDocument();
+    });
+  },
+};
+
+export const MoveWorkspaceFromDetail: Story = {
+  name: 'Move workspace from detail page',
+  args: {
+    initialRoute: '/iam/access-management/users-and-user-groups',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Move Workspace from Detail Page
+
+Tests moving a workspace via the detail page header kebab. This exercises
+the route-based \`RoutedMoveDialog\` rendered through the detail page outlet.
+
+### Journey Flow
+1. Navigate to **Workspaces**, expand tree, click **Staging** link to open detail
+2. Open header **Actions** kebab → **Move workspace**
+3. Move dialog opens (routed at \`/detail/ws-3/move\`)
+4. Select **Production** as new parent, click **Submit**
+5. Verify redirect back to detail and Staging now under Production (level 4)
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Navigate to Staging detail page', async () => {
+      await navigateToPage(user, canvas, 'Workspaces');
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+
+      const stagingLink = await canvas.findByRole('link', { name: /^Staging$/i });
+      await user.click(stagingLink);
+
+      await waitFor(() => {
+        const addressBar = canvas.queryByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
+      });
+
+      await canvas.findByRole('heading', { name: /^Staging$/i }, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+    });
+
+    await step('Open Actions kebab and click Move workspace', async () => {
+      const actionsButtons = await canvas.findAllByRole('button', { name: /^actions$/i });
+      await user.click(actionsButtons[0]);
+
+      const body = within(document.body);
+      const moveButton = await body.findByText(/^move workspace$/i);
+      expect(moveButton).toBeInTheDocument();
+      await user.click(moveButton);
+    });
+
+    await step('Select new parent and submit', async () => {
+      const body = within(document.body);
+      const modalHeading = await body.findByRole('heading', { name: /move.*staging/i });
+      expect(modalHeading).toBeInTheDocument();
+
+      const tree = await body.findByRole('tree', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
+      await selectWorkspaceFromTree(user, within(tree), WS_PRODUCTION.name);
+
+      const submitButton = await body.findByRole('button', { name: /^submit$/i });
+      expect(submitButton).toBeEnabled();
+      await user.click(submitButton);
+    });
+
+    await step('Verify Staging moved under Production', async () => {
+      await waitFor(() => {
+        const addressBar = canvas.queryByTestId('fake-address-bar');
+        expect(addressBar).toHaveTextContent(/workspaces\/detail/i);
+      });
+
+      const workspacesLinks = await canvas.findAllByRole('link', { name: /workspaces/i });
+      await user.click(workspacesLinks[workspacesLinks.length - 1]);
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+
+      await expandWorkspaceRow(user, canvas, WS_ROOT.name);
+      await expandWorkspaceRow(user, canvas, WS_DEFAULT.name);
+      await expandWorkspaceRow(user, canvas, WS_PRODUCTION.name);
+
+      const stagingWorkspace = await canvas.findByText(WS_STAGING.name);
+      expect(stagingWorkspace).toBeInTheDocument();
+
+      const stagingRow = stagingWorkspace.closest('tr') as HTMLElement;
+      expect(stagingRow.getAttribute('aria-level')).toBe('4');
     });
   },
 };

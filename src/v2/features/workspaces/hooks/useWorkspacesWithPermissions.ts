@@ -49,6 +49,8 @@ export function useWorkspacesWithPermissions(params: WorkspacesListParams = {}, 
     canCreateIn,
     canEditAny,
     canCreateAny,
+    canMoveAny,
+    canDeleteAny,
     isLoading: permissionsLoading,
   } = useWorkspacePermissions(workspaces);
 
@@ -75,6 +77,8 @@ export function useWorkspacesWithPermissions(params: WorkspacesListParams = {}, 
     /** Aggregate flags */
     canEditAny,
     canCreateAny,
+    canMoveAny,
+    canDeleteAny,
     /** Three-phase loading status: 'loading' → 'settling' → 'ready' */
     status,
   };

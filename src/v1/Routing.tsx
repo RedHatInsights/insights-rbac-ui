@@ -1,9 +1,7 @@
 import { useFlag } from '@unleash/proxy-client-react';
 import React, { Suspense, lazy, useEffect } from 'react';
-import { Navigate, Outlet, Route, Routes, matchPath, useLocation, useParams } from 'react-router-dom';
-import { AccessCheck } from '@project-kessel/react-kessel-access-check';
+import { Navigate, Route, Routes, matchPath, useLocation, useParams } from 'react-router-dom';
 import { mergeToBasename, useAppLink } from '../shared/hooks/useAppLink';
-import { useWorkspacesFlag } from '../shared/hooks/useWorkspacesFlag';
 import { usePlatformTracking } from '../shared/hooks/usePlatformTracking';
 import { AppPlaceholder } from '../shared/components/ui-states/LoaderPlaceholders';
 import ElementWrapper from '../shared/components/ElementWrapper';
@@ -19,12 +17,6 @@ const outletElement = (Component: React.ComponentType<any>, path?: string) => (
 );
 
 const Overview = lazy(() => import('./features/overview/overview'));
-
-const WorkspacesOverview = lazy(() => import('../v2/features/workspaces/overview/WorkspacesOverview'));
-const WorkspaceList = lazy(() => import('../v2/features/workspaces/WorkspaceList'));
-const CreateWorkspaceWizard = lazy(() => import('../v2/features/workspaces/create-workspace/CreateWorkspaceWizard'));
-const WorkspaceDetail = lazy(() => import('../v2/features/workspaces/workspace-detail/WorkspaceDetail'));
-const EditWorkspaceModal = lazy(() => import('../v2/features/workspaces/EditWorkspaceModal'));
 const Users = lazy(() => import('./features/users/users'));
 const UserDetail = lazy(() => import('./features/users/User'));
 const AddUserToGroup = lazy(() => import('./features/users/add-user-to-group/AddUserToGroup'));
@@ -55,20 +47,6 @@ const RemoveServiceAccountFromGroup = lazy(() => import('./features/groups/group
 const QuickstartsTest = lazy(() => import('./features/quickstarts/QuickstartsTest'));
 const MyUserAccessPage = lazy(() => import('./features/myUserAccess/MyUserAccess'));
 
-/**
- * Layout route that provides the Kessel AccessCheck context for V2 workspace
- * components rendered inside V1 routing. Without this, useSelfAccessCheck
- * crashes because IamV1 does not wrap with AccessCheck.Provider.
- */
-const KesselProviderLayout: React.FC = () => {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  return (
-    <AccessCheck.Provider baseUrl={baseUrl} apiPath="/api/kessel/v1beta2">
-      <Outlet />
-    </AccessCheck.Provider>
-  );
-};
-
 const GroupDetailRedirect = () => {
   const { groupId = '' } = useParams();
   return <Navigate to={mergeToBasename(pathnames['group-detail-roles'].link(groupId)) as string} />;
@@ -80,9 +58,6 @@ export const V1Routing = () => {
   const isITLess = useFlag('platform.rbac.itless');
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
   const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts.stable');
-  const hasRbacDetailPages = useWorkspacesFlag('m3');
-  const hasWorkspacesList = useWorkspacesFlag('m1');
-  const hideWorkspaceDetails = hasWorkspacesList && !hasRbacDetailPages;
   const toAppLink = useAppLink();
 
   useEffect(() => {
@@ -96,31 +71,7 @@ export const V1Routing = () => {
       <Routes>
         {/* Overview */}
         <Route {...guard(['rbac:*:read'])}>
-          <Route path={pathnames.overview.path} element={hasWorkspacesList ? <WorkspacesOverview /> : <Overview />} />
-        </Route>
-
-        {/* Workspaces — wrapped with KesselProviderLayout because these are V2 components that need AccessCheck.Provider */}
-        <Route {...guard(['inventory:groups:read'])}>
-          <Route element={<KesselProviderLayout />}>
-            <Route path={pathnames.workspaces.path} element={<WorkspaceList />}>
-              <Route {...guard(['inventory:groups:write'])}>
-                <Route path={pathnames['create-workspace'].path} element={<CreateWorkspaceWizard />} />
-                <Route
-                  path={pathnames['edit-workspaces-list'].path}
-                  element={outletElement(EditWorkspaceModal, pathnames['edit-workspaces-list'].path)}
-                />
-              </Route>
-            </Route>
-
-            {/* Workspace Detail */}
-            {!hideWorkspaceDetails && (
-              <Route path={pathnames['workspace-detail'].path} element={<WorkspaceDetail />}>
-                <Route {...guard(['inventory:groups:write'])}>
-                  <Route path={pathnames['edit-workspace'].path} element={outletElement(EditWorkspaceModal, pathnames['edit-workspace'].path)} />
-                </Route>
-              </Route>
-            )}
-          </Route>
+          <Route path={pathnames.overview.path} element={<Overview />} />
         </Route>
 
         {/* Users */}

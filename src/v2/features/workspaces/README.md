@@ -63,7 +63,7 @@ The rules are defined in `workspaceTypes.ts` (`canEditType`, `canMoveType`, `can
 **Propagation (PR1 — Kessel Permission Guards):** Permissions are now checked across all workspace surfaces:
 - **List table:** name link gated on `view`, row actions use correct per-action relations (`edit` for edit, `move` for move, `delete` for delete, `create` for sub-workspace)
 - **Create workspace:** parent selector passes `requiredPermission="create"` to `ManagedWorkspaceSelector`
-- **Detail page:** renders `<UnauthorizedAccess>` when `view` is denied; `WorkspaceActions` menu items disabled per relation; delete calls `useDeleteWorkspaceMutation` and navigates to list; move uses `MoveWorkspaceDialog` + `useMoveWorkspaceMutation`; create-subworkspace navigates to wizard with pre-selected parent; hierarchy breadcrumb gates links on `view` permission
+- **Detail page:** renders `<UnauthorizedAccess>` when `view` is denied; `WorkspaceActions` menu items disabled per relation; delete calls `useDeleteWorkspaceMutation` and navigates to list; move uses `MoveWorkspaceDialog` + `useMoveWorkspaceMutation` (action gated on `move` relation on the source workspace; destination picker gated on `create` relation via `InlineWorkspacePicker requiredPermission="create"`); create-subworkspace navigates to wizard with pre-selected parent; hierarchy breadcrumb gates links on `view` permission
 - **Edit modal:** protected by `v2WorkspaceGuard('edit')` route guard in Routing.tsx
 - **Role access modal (Edit access):** protected by `v2WorkspaceGuard('create')` route guard in Routing.tsx (separate from the edit-workspace guard)
 

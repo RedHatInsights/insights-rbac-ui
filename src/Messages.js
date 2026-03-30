@@ -1396,20 +1396,10 @@ export default defineMessages({
     description: 'Menu item Create sub-workspace',
     defaultMessage: 'Create sub-workspace',
   },
-  workspacesActionViewTenant: {
-    id: 'workspacesActionViewTenant',
-    description: 'Menu item View tenant',
-    defaultMessage: 'View tenant',
-  },
-  workspacesActionManageIntegrations: {
-    id: 'workspacesActionManageIntegrations',
-    description: 'Menu item Manage integrations',
-    defaultMessage: 'Manage integrations',
-  },
-  workspacesActionManageNotifications: {
-    id: 'workspacesActionManageNotifications',
-    description: 'Menu item Manage notifications',
-    defaultMessage: 'Manage notifications',
+  workspacesActionCreateSiblingWorkspace: {
+    id: 'workspacesActionCreateSiblingWorkspace',
+    description: 'Menu item Create sibling workspace',
+    defaultMessage: 'Create sibling workspace',
   },
   workspacesActionMoveWorkspace: {
     id: 'workspacesActionMoveWorkspace',
@@ -1498,6 +1488,11 @@ export default defineMessages({
     description: 'Tooltip on descendants of the workspace being moved',
     defaultMessage: 'Cannot move a workspace under itself',
   },
+  moveWorkspaceDisabledCurrentParent: {
+    id: 'moveWorkspaceDisabledCurrentParent',
+    description: 'Tooltip on the current parent workspace in the move destination tree',
+    defaultMessage: 'This workspace is already the current parent',
+  },
   moveWorkspaceSelectDestination: {
     id: 'moveWorkspaceSelectDestination',
     description: 'Instructions shown above the tree in the move workspace dialog',
@@ -1543,6 +1538,11 @@ export default defineMessages({
     id: 'workspaceEmptyStateSubtitle',
     description: 'Empty State Subtitle Workspaces',
     defaultMessage: 'This filter criteria matches no workspaces. Try changing your filter input.',
+  },
+  workspacePendingTooltip: {
+    id: 'workspacePendingTooltip',
+    description: 'Tooltip shown on workspace name when Kessel access has not synced yet',
+    defaultMessage: 'This workspace is being set up and is not available for inspection yet.',
   },
   setEarmark: {
     id: 'setEarmark',

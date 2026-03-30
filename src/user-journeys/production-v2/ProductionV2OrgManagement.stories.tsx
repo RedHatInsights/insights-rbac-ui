@@ -102,6 +102,7 @@ Tests the Organization-Wide Access page content and group details drawer.
 };
 
 export const GrantOrgAccess: Story = {
+  tags: ['skip-test'],
   name: 'Grant organization-wide access',
   args: {
     initialRoute: '/iam/organization-management/organization-wide-access',

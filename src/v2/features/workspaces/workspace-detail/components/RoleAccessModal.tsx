@@ -38,7 +38,7 @@ const sortableColumns: readonly SortableColumn[] = ['name', 'lastModified'];
 
 /**
  * Route-driven modal for editing which roles a group has in a workspace.
- * Rendered via `<Outlet />` inside WorkspaceDetail at path `role-access/:groupId`.
+ * Rendered via WorkspaceDetailShell modal routes at path `direct-roles/:groupId/edit-access`.
  *
  * Owns the single `<Modal>` shell so the toolbar context stays mounted across
  * the loading → loaded transition (avoids a PatternFly ToolbarFilter ref bug).
@@ -51,10 +51,12 @@ export const RoleAccessModal: React.FC = () => {
   const { workspaceId, groupId } = useParams<{ workspaceId: string; groupId: string }>();
 
   const handleClose = useCallback(() => {
-    if (workspaceId) {
-      navigate(pathnames['workspace-detail'].link(workspaceId));
+    if (workspaceId && groupId) {
+      navigate(pathnames['workspace-detail-direct-roles-group'].link(workspaceId, groupId));
+    } else if (workspaceId) {
+      navigate(pathnames['workspace-detail-direct-roles'].link(workspaceId));
     }
-  }, [navigate, workspaceId]);
+  }, [navigate, workspaceId, groupId]);
 
   // --- Queries (permission is enforced by v2WorkspaceGuard('create') in Routing.tsx) ---
   const { data: group, isLoading: groupLoading } = useGroupQuery(groupId ?? '', {

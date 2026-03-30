@@ -67,6 +67,12 @@ export interface UseWorkspacePermissionsResult {
    */
   canCreateAny: boolean;
 
+  /** Whether the user can move at least one workspace. */
+  canMoveAny: boolean;
+
+  /** Whether the user can delete at least one workspace. */
+  canDeleteAny: boolean;
+
   /**
    * Whether the user can create top-level workspaces (under root).
    * @deprecated Use canCreateAny for the toolbar button. This is kept for
@@ -212,8 +218,21 @@ export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePe
 
   const canEditAny = allowedIds.edit.size > 0;
   const canCreateAny = allowedIds.create.size > 0;
+  const canMoveAny = allowedIds.move.size > 0;
+  const canDeleteAny = allowedIds.delete.size > 0;
   const canCreateTopLevel = rootId !== '' && allowedIds.create.has(rootId);
   const isLoading = hasRealResources && (viewLoading || editLoading || deleteLoading || createLoading || moveLoading);
 
-  return { hasPermission, permissionsFor, canEdit, canCreateIn, canEditAny, canCreateAny, canCreateTopLevel, isLoading };
+  return {
+    hasPermission,
+    permissionsFor,
+    canEdit,
+    canCreateIn,
+    canEditAny,
+    canCreateAny,
+    canMoveAny,
+    canDeleteAny,
+    canCreateTopLevel,
+    isLoading,
+  };
 }

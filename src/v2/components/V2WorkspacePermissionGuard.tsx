@@ -36,7 +36,7 @@ const V2WorkspacePermissionGuard: React.FC<V2WorkspacePermissionGuardProps> = ({
   const intl = useIntl();
   const parentContext = useOutletContext();
   const { workspaceId } = useParams<{ workspaceId: string }>();
-  const { workspaces, hasPermission, canCreateAny, canEditAny, status } = useWorkspacesWithPermissions(params);
+  const { workspaces, hasPermission, canCreateAny, canEditAny, canMoveAny, canDeleteAny, status } = useWorkspacesWithPermissions(params);
 
   if (status !== 'ready') {
     return <AppPlaceholder />;
@@ -45,6 +45,8 @@ const V2WorkspacePermissionGuard: React.FC<V2WorkspacePermissionGuardProps> = ({
   const aggregateCheck: Partial<Record<WorkspaceRelation, boolean>> = {
     create: canCreateAny,
     edit: canEditAny,
+    move: canMoveAny,
+    delete: canDeleteAny,
     view: workspaces.length > 0,
   };
 

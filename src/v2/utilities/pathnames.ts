@@ -156,6 +156,94 @@ const roleDetail: PathnameConfig<(roleId: string) => string> = {
 };
 
 // ===========================================
+// Workspace actions — list-level (children of WorkspaceList outlet)
+// ===========================================
+
+const createSubWorkspace: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/${workspaceId}/create-sub-workspace`,
+  path: ':workspaceId/create-sub-workspace',
+  title: 'Create sub-workspace',
+};
+
+const createSiblingWorkspace: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/${workspaceId}/create-sibling-workspace`,
+  path: ':workspaceId/create-sibling-workspace',
+  title: 'Create sibling workspace',
+};
+
+const moveWorkspace: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/${workspaceId}/move`,
+  path: ':workspaceId/move',
+  title: 'Move workspace',
+};
+
+const deleteWorkspace: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/${workspaceId}/delete`,
+  path: ':workspaceId/delete',
+  title: 'Delete workspace',
+};
+
+// ===========================================
+// Workspace detail tabs (parallel Routes inside WorkspaceDetailShell)
+// ===========================================
+
+const workspaceDetailDirectRoles: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/detail/${workspaceId}/direct-roles`,
+  path: 'direct-roles',
+  title: 'Workspace detail - Direct role assignments',
+};
+
+const workspaceDetailDirectRolesGroup: PathnameConfig<(workspaceId: string, groupId: string) => string> = {
+  link: (workspaceId, groupId) => `/access-management/workspaces/detail/${workspaceId}/direct-roles/${groupId}`,
+  path: 'direct-roles/:groupId/*',
+  title: 'Workspace detail - Group drawer',
+};
+
+const workspaceDetailInheritedRoles: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/detail/${workspaceId}/inherited-roles`,
+  path: 'inherited-roles',
+  title: 'Workspace detail - Inherited roles',
+};
+
+const workspaceDetailAssets: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/detail/${workspaceId}/assets`,
+  path: 'assets',
+  title: 'Workspace detail - Assets',
+};
+
+// ===========================================
+// Workspace detail modal overlays (parallel Routes inside WorkspaceDetailShell)
+// ===========================================
+
+const workspaceDetailGrantAccess: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/detail/${workspaceId}/grant-access`,
+  path: 'grant-access',
+  title: 'Grant access to workspace',
+};
+
+const workspaceDetailEditAccess: PathnameConfig<(workspaceId: string, groupId: string) => string> = {
+  link: (workspaceId, groupId) => `/access-management/workspaces/detail/${workspaceId}/direct-roles/${groupId}/edit-access`,
+  path: 'direct-roles/:groupId/edit-access',
+  title: 'Edit access',
+};
+
+// ===========================================
+// Workspace actions — detail-level (children of WorkspaceDetail outlet)
+// ===========================================
+
+const moveWorkspaceDetail: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/detail/${workspaceId}/move`,
+  path: 'move',
+  title: 'Move workspace',
+};
+
+const deleteWorkspaceDetail: PathnameConfig<(workspaceId: string) => string> = {
+  link: (workspaceId) => `/access-management/workspaces/detail/${workspaceId}/delete`,
+  path: 'delete',
+  title: 'Delete workspace',
+};
+
+// ===========================================
 // Role Access Modal
 // ===========================================
 
@@ -163,6 +251,22 @@ const workspaceRoleAccess: PathnameConfig<(workspaceId: string, groupId: string)
   link: (workspaceId, groupId) => `/access-management/workspaces/detail/${workspaceId}/role-access/${groupId}`,
   path: 'role-access/:groupId',
   title: 'Edit access',
+};
+
+// ===========================================
+// Organization Management modal overlays
+// ===========================================
+
+const orgManagementGrantAccess: PathnameConfig = {
+  link: () => '/organization-management/organization-wide-access/grant-access',
+  path: 'grant-access',
+  title: 'Grant organization-wide access',
+};
+
+const orgManagementGroup: PathnameConfig<(groupId: string) => string> = {
+  link: (groupId) => `/organization-management/organization-wide-access/${groupId}`,
+  path: ':groupId',
+  title: 'Organization Management - Group drawer',
 };
 
 // ===========================================
@@ -204,6 +308,20 @@ const pathnames = {
   'role-detail': roleDetail,
   'workspace-role-access': workspaceRoleAccess,
   'access-management-audit-log': accessManagementAuditLog,
+  'create-sub-workspace': createSubWorkspace,
+  'create-sibling-workspace': createSiblingWorkspace,
+  'move-workspace': moveWorkspace,
+  'delete-workspace': deleteWorkspace,
+  'move-workspace-detail': moveWorkspaceDetail,
+  'delete-workspace-detail': deleteWorkspaceDetail,
+  'workspace-detail-direct-roles': workspaceDetailDirectRoles,
+  'workspace-detail-direct-roles-group': workspaceDetailDirectRolesGroup,
+  'workspace-detail-inherited-roles': workspaceDetailInheritedRoles,
+  'workspace-detail-assets': workspaceDetailAssets,
+  'workspace-detail-grant-access': workspaceDetailGrantAccess,
+  'workspace-detail-edit-access': workspaceDetailEditAccess,
+  'org-management-grant-access': orgManagementGrantAccess,
+  'org-management-group': orgManagementGroup,
 } as const;
 
 export default pathnames;
@@ -232,6 +350,20 @@ export {
   roleDetail,
   workspaceRoleAccess,
   accessManagementAuditLog,
+  createSubWorkspace,
+  createSiblingWorkspace,
+  moveWorkspace,
+  deleteWorkspace,
+  moveWorkspaceDetail,
+  deleteWorkspaceDetail,
+  workspaceDetailDirectRoles,
+  workspaceDetailDirectRolesGroup,
+  workspaceDetailInheritedRoles,
+  workspaceDetailAssets,
+  workspaceDetailGrantAccess,
+  workspaceDetailEditAccess,
+  orgManagementGrantAccess,
+  orgManagementGroup,
 };
 
 export type { PathnameConfig };

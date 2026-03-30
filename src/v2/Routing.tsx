@@ -26,9 +26,12 @@ const AddRoleWizard = lazy(() => import('./features/roles/add-role/AddRoleWizard
 const EditRole = lazy(() => import('./features/roles/edit-role/EditRole'));
 
 const WorkspaceList = lazy(() => import('./features/workspaces/WorkspaceList'));
-const WorkspaceDetail = lazy(() => import('./features/workspaces/workspace-detail/WorkspaceDetail'));
+const WorkspaceDetailShell = lazy(() => import('./features/workspaces/workspace-detail/WorkspaceDetailShell'));
 const CreateWorkspaceWizard = lazy(() => import('./features/workspaces/create-workspace/CreateWorkspaceWizard'));
 const EditWorkspaceModal = lazy(() => import('./features/workspaces/EditWorkspaceModal'));
+const RoutedMoveDialog = lazy(() => import('./features/workspaces/components/RoutedMoveDialog'));
+const RoutedDeleteModal = lazy(() => import('./features/workspaces/components/RoutedDeleteModal'));
+const RoutedCreateWorkspace = lazy(() => import('./features/workspaces/create-workspace/RoutedCreateWorkspace'));
 
 const InviteUsersModalCommonAuth = lazy(() => import('../v1/features/users/invite-users/invite-users-modal-common-auth'));
 
@@ -39,12 +42,12 @@ const MyGroups = lazy(() => import('./features/my-access/my-groups/MyGroups'));
 const MyWorkspaces = lazy(() => import('./features/my-access/my-workspaces/MyWorkspaces'));
 
 const OrganizationManagement = lazy(() => import('./features/organization-management/OrganizationManagement'));
+const RoutedOrgGrantAccessWizard = lazy(() => import('./features/organization-management/RoutedOrgGrantAccessWizard'));
 const AuditLog = lazy(() => import('./features/audit-log/AuditLog'));
-const RoleAccessModal = lazy(() =>
-  import('./features/workspaces/workspace-detail/components/RoleAccessModal').then((m) => ({ default: m.RoleAccessModal })),
-);
 
 const CreateUserGroup = () => <EditUserGroup createNewGroup />;
+const RoutedCreateSubWorkspace = (props: Record<string, unknown>) => <RoutedCreateWorkspace mode="sub" {...props} />;
+const RoutedCreateSiblingWorkspace = (props: Record<string, unknown>) => <RoutedCreateWorkspace mode="sibling" {...props} />;
 
 export const V2Routing = () => {
   const location = useLocation();
@@ -107,24 +110,31 @@ export const V2Routing = () => {
           <Route path={`${pathnames['access-management-roles'].link()}/${pathnames['access-management-edit-role'].path}`} element={<EditRole />} />
         </Route>
 
-        {/* Workspaces — view gate disabled (new orgs may have zero standard workspaces) */}
-        <Route path={pathnames['workspace-detail'].path} element={<WorkspaceDetail />}>
-          <Route {...v2WorkspaceGuard('edit')}>
-            <Route path={pathnames['edit-workspace'].path} element={outletElement(EditWorkspaceModal, pathnames['edit-workspace'].path)} />
-          </Route>
-          <Route {...v2WorkspaceGuard('create')}>
-            <Route path={pathnames['workspace-role-access'].path} element={outletElement(RoleAccessModal, pathnames['workspace-role-access'].path)} />
-          </Route>
-        </Route>
+        {/* Workspaces — detail page uses parallel Routes inside the shell */}
+        <Route path={pathnames['workspace-detail'].path} element={<WorkspaceDetailShell />} />
         <Route path={pathnames['access-management-workspaces'].path} element={<WorkspaceList />}>
           <Route {...v2WorkspaceGuard('create')}>
             <Route path={pathnames['create-workspace'].path} element={<CreateWorkspaceWizard />} />
+            <Route
+              path={pathnames['create-sub-workspace'].path}
+              element={outletElement(RoutedCreateSubWorkspace, pathnames['create-sub-workspace'].path)}
+            />
+            <Route
+              path={pathnames['create-sibling-workspace'].path}
+              element={outletElement(RoutedCreateSiblingWorkspace, pathnames['create-sibling-workspace'].path)}
+            />
           </Route>
           <Route {...v2WorkspaceGuard('edit')}>
             <Route
               path={pathnames['edit-workspaces-list'].path}
               element={outletElement(EditWorkspaceModal, pathnames['edit-workspaces-list'].path)}
             />
+          </Route>
+          <Route {...v2WorkspaceGuard('move')}>
+            <Route path={pathnames['move-workspace'].path} element={outletElement(RoutedMoveDialog, pathnames['move-workspace'].path)} />
+          </Route>
+          <Route {...v2WorkspaceGuard('delete')}>
+            <Route path={pathnames['delete-workspace'].path} element={outletElement(RoutedDeleteModal, pathnames['delete-workspace'].path)} />
           </Route>
         </Route>
 
@@ -135,7 +145,9 @@ export const V2Routing = () => {
 
         {/* Organization Management — requires orgAdmin */}
         <Route {...v2GuardOrgAdmin()}>
-          <Route path={pathnames['organization-management'].path} element={<OrganizationManagement />} />
+          <Route path={pathnames['organization-management'].path} element={<OrganizationManagement />}>
+            <Route path={pathnames['org-management-grant-access'].path} element={<RoutedOrgGrantAccessWizard />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<Navigate to={toAppLink(pathnames['my-access'].link())} />} />

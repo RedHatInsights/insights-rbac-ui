@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 import { queryByOuiaId, queryTreeViewToggle } from '../../../../test-utils/interactionHelpers';
 import { WorkspaceListTable } from './WorkspaceListTable';
 import { BrowserRouter } from 'react-router-dom';
@@ -20,9 +20,6 @@ const defaultProps = {
   workspaces: mockWorkspaces,
   isLoading: false,
   error: null as string | null,
-  onDeleteWorkspaces: fn(),
-  onMoveWorkspace: fn(),
-  // Default: user has all permissions
   hasPermission: () => true,
   canCreateAny: true,
 };
@@ -305,26 +302,60 @@ export const RootWorkspaceRestrictions: Story = {
   },
 };
 
-export const RootWorkspaceNameIsNotALink: Story = {
-  args: defaultProps,
+export const PendingViewPermission: Story = {
+  args: {
+    ...defaultProps,
+    hasPermission: (id: string, relation: WorkspaceRelation) => {
+      if (id === '1' && relation === 'view') return false;
+      return true;
+    },
+  },
   parameters: {
     docs: {
       description: {
         story:
-          'Tests that workspace names are only rendered as links when the user has view permission. Root workspace (type "root") renders as plain text because the access SDK reports no view permission for root.',
+          'Tests the Kessel latency gap UX: when the access SDK has not synced yet, the workspace name renders as a disabled link with a tooltip, and all kebab actions are disabled. Other workspaces with view permission render normally.',
       },
     },
   },
   play: async ({ canvasElement, step }) => {
-    await step('Verify root name not a link, standard workspaces are links', async () => {
+    await step('Verify pending workspace is a disabled inline link, active workspace is a normal link', async () => {
       await waitForSkeletonToDisappear(canvasElement);
       const canvas = within(canvasElement);
 
-      const rootText = await canvas.findByText('Root Workspace');
-      await expect(rootText.closest('a')).toBeNull();
+      const pendingText = await canvas.findByText('Production Environment');
+      const pendingButton = pendingText.closest('button');
+      await expect(pendingButton).not.toBeNull();
+      await expect(pendingButton).toHaveAttribute('aria-disabled', 'true');
+      await expect(pendingText.closest('a')).toBeNull();
 
-      const productionLink = await canvas.findByRole('link', { name: 'Production Environment' });
-      await expect(productionLink).toBeInTheDocument();
+      const rootLink = await canvas.findByRole('link', { name: 'Root Workspace' });
+      await expect(rootLink).toBeInTheDocument();
+    });
+
+    await step('Verify pending workspace has tooltip', async () => {
+      const canvas = within(canvasElement);
+      const pendingText = await canvas.findByText('Production Environment');
+      await userEvent.hover(pendingText);
+      const tooltip = await within(document.body).findByText('This workspace is being set up and is not available for inspection yet.');
+      await expect(tooltip).toBeInTheDocument();
+      await userEvent.unhover(pendingText);
+    });
+
+    await step('Verify pending workspace kebab actions are all disabled', async () => {
+      const productionRow = queryByOuiaId(canvasElement, 'workspaces-list-tr-1');
+      const productionRowScope = within(productionRow!);
+      const productionKebab = productionRowScope.getByLabelText('Kebab toggle');
+
+      await userEvent.click(productionKebab);
+
+      const editButton = await within(document.body).findByText('Edit workspace');
+      const deleteButton = await within(document.body).findByText('Delete workspace');
+      const moveButton = await within(document.body).findByText('Move workspace');
+
+      await expect(editButton.closest('button')).toHaveAttribute('disabled');
+      await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
+      await expect(moveButton.closest('button')).toHaveAttribute('disabled');
     });
   },
 };

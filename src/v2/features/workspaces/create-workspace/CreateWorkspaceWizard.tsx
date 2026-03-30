@@ -24,6 +24,10 @@ import { SetEarMark } from './components/SetEarMark';
 export interface CreateWorkspaceWizardProps {
   afterSubmit?: () => void;
   onCancel?: () => void;
+  /** When true, the parent selection step is skipped (parent must be provided via parentWorkspace). */
+  skipParentStep?: boolean;
+  /** Pre-selected parent workspace. Used with skipParentStep for routed sub/sibling creation. */
+  parentWorkspace?: WorkspacesWorkspace;
 }
 
 const FormTemplate = (props: FormTemplateCommonProps) => <Pf4FormTemplate {...props} showFormControls={false} />;
@@ -35,7 +39,12 @@ export const mapperExtension = {
   Review,
 };
 
-export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = ({ afterSubmit, onCancel }) => {
+export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = ({
+  afterSubmit,
+  onCancel,
+  skipParentStep = false,
+  parentWorkspace: parentWorkspaceProp,
+}) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const location = useLocation();
@@ -43,7 +52,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   const enableFeatures = useFlag('platform.rbac.workspaces-billing-features');
   const addNotification = useAddNotification();
 
-  const parentWorkspace = (location.state as { parentWorkspace?: WorkspacesWorkspace } | null)?.parentWorkspace;
+  const parentWorkspace = parentWorkspaceProp ?? (location.state as { parentWorkspace?: WorkspacesWorkspace } | null)?.parentWorkspace;
 
   const [createdWorkspace, setCreatedWorkspace] = useState<{ id: string; name: string } | null>(null);
 
@@ -99,7 +108,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
 
   return (
     <FormRenderer
-      schema={schemaBuilder(enableFeatures, existingWorkspaceNames)}
+      schema={schemaBuilder(enableFeatures, existingWorkspaceNames, skipParentStep)}
       componentMapper={{ ...componentMapper, ...mapperExtension }}
       FormTemplate={FormTemplate}
       onSubmit={onSubmit}

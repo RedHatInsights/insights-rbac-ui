@@ -596,7 +596,7 @@ User has \`view\` and \`create\` but no \`edit\`, \`delete\`, or \`move\`.
 ### Checks
 - "Grant access" toolbar button: enabled
 - Row kebab "Edit access": enabled; "Remove access": disabled
-- Header menu "Grant access" and "Create subworkspace": enabled; "Edit workspace", "Delete workspace": disabled
+- Header menu "Grant access": enabled; "Edit workspace", "Delete workspace": disabled
         `,
       },
     },
@@ -651,9 +651,6 @@ User has \`view\` and \`create\` but no \`edit\`, \`delete\`, or \`move\`.
       const body = within(document.body);
       const grantAccess = await body.findByText(/grant access to workspace/i);
       await expect(grantAccess.closest('button')).not.toHaveAttribute('disabled');
-
-      const createSub = await body.findByText(/create sub-workspace/i);
-      await expect(createSub.closest('button')).not.toHaveAttribute('disabled');
 
       const editWs = await body.findByText(/edit workspace/i);
       await expect(editWs.closest('button')).toHaveAttribute('disabled');
@@ -910,14 +907,202 @@ Production (ws-1) has full access; siblings (ws-2, ws-3) and parents are view-on
 };
 
 // ---------------------------------------------------------------------------
-// Direct-URL defense & kebab-driven edit access
+// Direct-URL defense: route-based workspace actions
+// ---------------------------------------------------------------------------
+
+export const DirectUrlMoveWorkspaceDenied: Story = {
+  name: 'Direct URL to move — denied without move permission',
+  args: {
+    workspacePermissions: { view: NON_ROOT_IDS, edit: NON_ROOT_IDS, delete: NON_ROOT_IDS, create: NON_ROOT_IDS, move: [] },
+    initialRoute: `/iam/access-management/workspaces/${WS_PRODUCTION.id}/move`,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Direct-URL Defense — Move Workspace
+
+User navigates directly to the move workspace URL without \`move\` permission.
+The route-level guard blocks before the modal mounts.
+
+### Checks
+- No modal renders
+- Guard shows "unauthorized access"
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify route-level guard blocks access', async () => {
+      const body = within(document.body);
+
+      await waitFor(
+        () => {
+          const unauthorized = body.queryAllByText(/you don.t have permission to view this page/i);
+          expect(unauthorized.length).toBeGreaterThan(0);
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+
+      const modal = body.queryByRole('dialog');
+      await expect(modal).toBeNull();
+    });
+  },
+};
+
+export const DirectUrlDeleteWorkspaceDenied: Story = {
+  name: 'Direct URL to delete — denied without delete permission',
+  args: {
+    workspacePermissions: { view: NON_ROOT_IDS, edit: NON_ROOT_IDS, delete: [], create: NON_ROOT_IDS, move: NON_ROOT_IDS },
+    initialRoute: `/iam/access-management/workspaces/${WS_STAGING.id}/delete`,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Direct-URL Defense — Delete Workspace
+
+User navigates directly to the delete workspace URL without \`delete\` permission.
+The route-level guard blocks before the modal mounts.
+
+### Checks
+- No modal renders
+- Guard shows "unauthorized access"
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify route-level guard blocks access', async () => {
+      const body = within(document.body);
+
+      await waitFor(
+        () => {
+          const unauthorized = body.queryAllByText(/you don.t have permission to view this page/i);
+          expect(unauthorized.length).toBeGreaterThan(0);
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+
+      const modal = body.queryByRole('dialog');
+      await expect(modal).toBeNull();
+    });
+  },
+};
+
+export const DirectUrlNonExistentWorkspaceMove: Story = {
+  name: 'Direct URL to move non-existent workspace — 404 redirect',
+  args: {
+    workspacePermissions: allRelations(NON_ROOT_IDS),
+    initialRoute: '/iam/access-management/workspaces/nonexistent-ws-id/move',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## 404 Handling — Move Non-Existent Workspace
+
+User navigates to a move URL with an invalid workspace ID. The route guard
+passes (aggregate canMoveAny is true), but RoutedMoveDialog cannot resolve the
+workspace. It calls onCancel, which navigates back to the workspace list.
+
+### Checks
+- No modal renders
+- The workspace list page loads normally
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify redirect to workspace list', async () => {
+      const canvas = within(canvasElement);
+
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+
+      const body = within(document.body);
+      const modal = body.queryByRole('dialog');
+      await expect(modal).toBeNull();
+    });
+  },
+};
+
+export const DirectUrlNonExistentWorkspaceDelete: Story = {
+  name: 'Direct URL to delete non-existent workspace — 404 redirect',
+  args: {
+    workspacePermissions: allRelations(NON_ROOT_IDS),
+    initialRoute: '/iam/access-management/workspaces/nonexistent-ws-id/delete',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## 404 Handling — Delete Non-Existent Workspace
+
+User navigates to a delete URL with an invalid workspace ID. The route guard
+passes (aggregate canDeleteAny is true), but RoutedDeleteModal cannot resolve the
+workspace. It calls onCancel, which navigates back to the workspace list.
+
+### Checks
+- No modal renders
+- The workspace list page loads normally
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Reset state', async () => {
+      await resetStoryState(db);
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Verify redirect to workspace list', async () => {
+      const canvas = within(canvasElement);
+
+      await waitForPageToLoad(canvas, WS_ROOT.name);
+
+      const body = within(document.body);
+      const modal = body.queryByRole('dialog');
+      await expect(modal).toBeNull();
+    });
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Direct-URL defense: edit-access modal & kebab-driven edit access
 // ---------------------------------------------------------------------------
 
 export const RoleAccessModalDirectUrlDenied: Story = {
-  name: 'Direct URL to role-access modal — denied without edit permission',
+  name: 'Direct URL to edit-access modal — denied without edit permission',
   args: {
     workspacePermissions: { view: NON_ROOT_IDS, edit: [], delete: [], create: [], move: [] },
-    initialRoute: `/iam/access-management/workspaces/detail/${WS_PRODUCTION.id}/role-access/${KESSEL_GROUP_PROD_ADMINS.uuid}`,
+    initialRoute: `/iam/access-management/workspaces/detail/${WS_PRODUCTION.id}/direct-roles/${KESSEL_GROUP_PROD_ADMINS.uuid}/edit-access`,
   },
   parameters: {
     docs: {
@@ -925,8 +1110,8 @@ export const RoleAccessModalDirectUrlDenied: Story = {
         story: `
 ## Direct-URL Defense — RoleAccessModal
 
-User navigates directly to the role-access modal URL without \`edit\` permission.
-The workspace-level edit guard blocks at the routing level before the modal mounts.
+User navigates directly to the edit-access modal URL without \`edit\` permission.
+The workspace-level create guard blocks at the routing level before the modal mounts.
 
 ### Checks
 - The modal does NOT render
@@ -962,7 +1147,6 @@ The workspace-level edit guard blocks at the routing level before the modal moun
 };
 
 export const EditAccessViaKebab: Story = {
-  tags: ['skip-test'],
   name: 'Edit access via row kebab — opens RoleAccessModal',
   args: {
     workspacePermissions: allRelations(NON_ROOT_IDS),
@@ -980,7 +1164,7 @@ verifies the RoleAccessModal opens.
 
 ### Checks
 - Row kebab "Edit access" is enabled and clickable
-- After clicking, the URL changes to the role-access route
+- After clicking, the URL changes to the edit-access route
 - The RoleAccessModal renders with the roles selection table
         `,
       },
@@ -1024,7 +1208,7 @@ verifies the RoleAccessModal opens.
     await step('Verify RoleAccessModal opens', async () => {
       await waitFor(() => {
         const addressBar = canvas.queryByTestId('fake-address-bar');
-        expect(addressBar).toHaveTextContent(/role-access/i);
+        expect(addressBar).toHaveTextContent(/edit-access/i);
       });
 
       const body = within(document.body);

@@ -45,11 +45,14 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
     }
   };
 
-  // Compute the set of workspace IDs to disable: the source + all its descendants
+  // Compute the set of workspace IDs to disable: the source, its descendants, and the current parent
   const sourceDisabledIds = useMemo<Set<string>>(() => {
     const ids = new Set<string>();
     if (!workspaceToMove.id) return ids;
     ids.add(workspaceToMove.id);
+    if (workspaceToMove.parent_id) {
+      ids.add(workspaceToMove.parent_id);
+    }
     const simpleWorkspaces = allWorkspaces.map((ws) => ({
       id: ws.id ?? '',
       parent_id: ws.parent_id ?? undefined,
@@ -60,28 +63,32 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
       ids.add(descendantId);
     }
     return ids;
-  }, [workspaceToMove.id, allWorkspaces]);
+  }, [workspaceToMove.id, workspaceToMove.parent_id, allWorkspaces]);
 
-  // Per-ID tooltip overrides for the source workspace and its descendants
+  // Per-ID tooltip overrides for the source workspace, its descendants, and current parent
   const tooltipOverrides = useMemo<Map<string, string>>(() => {
     const map = new Map<string, string>();
     if (!workspaceToMove.id) return map;
     const selfTooltip = intl.formatMessage(messages.moveWorkspaceDisabledSelf);
     const descendantTooltip = intl.formatMessage(messages.moveWorkspaceDisabledDescendant);
+    const currentParentTooltip = intl.formatMessage(messages.moveWorkspaceDisabledCurrentParent);
     map.set(workspaceToMove.id, selfTooltip);
+    if (workspaceToMove.parent_id) {
+      map.set(workspaceToMove.parent_id, currentParentTooltip);
+    }
     for (const id of sourceDisabledIds) {
-      if (id !== workspaceToMove.id) {
+      if (id !== workspaceToMove.id && id !== workspaceToMove.parent_id) {
         map.set(id, descendantTooltip);
       }
     }
     return map;
-  }, [workspaceToMove.id, sourceDisabledIds, intl]);
+  }, [workspaceToMove.id, workspaceToMove.parent_id, sourceDisabledIds, intl]);
 
   const handleSelect = useCallback((workspace: TreeViewWorkspaceItem | null) => {
     setSelectedDestination(workspace);
   }, []);
 
-  const isSubmitDisabled = !selectedDestination || isSubmitting || selectedDestination.id === workspaceToMove.parent_id;
+  const isSubmitDisabled = !selectedDestination || isSubmitting;
 
   return (
     <Modal
@@ -104,7 +111,7 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
         {intl.formatMessage(messages.moveWorkspaceSelectDestination)}
       </Content>
       <InlineWorkspacePicker
-        requiredPermission="move"
+        requiredPermission="create"
         extraDisabledIds={sourceDisabledIds}
         extraDisabledTooltipOverrides={tooltipOverrides}
         selectedWorkspace={selectedDestination ?? undefined}

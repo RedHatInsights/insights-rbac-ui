@@ -1,6 +1,6 @@
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceList } from './WorkspaceList';
 
 // Import shared test functions and mock data from helper file
@@ -237,36 +237,27 @@ export const PermissionIntegration: Story = {
   },
 };
 
-// Create spy for move workspace API calls
-const moveWorkspaceSpy = fn();
-
-export const MoveWorkspaceModal: Story = {
-  tags: ['env:stage', 'perm:org-admin'],
+/**
+ * Move workspace is now route-based. This story verifies the kebab "Move workspace"
+ * action is available and clickable. Full move flow is tested in RoutedMoveDialog
+ * and user-journey stories.
+ */
+export const MoveWorkspaceAction: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Tests the complete move workspace flow through the container. Users can open the move modal from table actions, select a destination workspace, and submit the move request. Validates that container properly handles modal state, calls the correct moveWorkspace API with proper parameters, and refreshes data after successful operation.',
+        story: 'Verifies the "Move workspace" kebab action is enabled for workspaces with move permission.',
       },
     },
-    chrome: {
-      environment: 'stage', // Change to stage to enable move functionality
-    },
     msw: {
-      handlers: [
-        ...workspacesHandlers(workspaceDataForHandlers, {
-          onMove: (workspaceId, parentId) => moveWorkspaceSpy(workspaceId, { parent_id: parentId }),
-        }),
-      ],
+      handlers: [...workspacesHandlers(workspaceDataForHandlers)],
     },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    moveWorkspaceSpy.mockClear();
-
-    await step('Open move modal from kebab menu', async () => {
+    await step('Verify move action available in kebab', async () => {
       await expect(canvas.findByText('Workspaces')).resolves.toBeInTheDocument();
       await expect(canvas.findByText(mockWorkspaces[1].name)).resolves.toBeInTheDocument();
 
@@ -277,36 +268,8 @@ export const MoveWorkspaceModal: Story = {
       const actionsButton = productionRowScope.getByLabelText('Kebab toggle');
       await user.click(actionsButton);
 
-      await expect(within(document.body).findByText('Move workspace')).resolves.toBeInTheDocument();
-      await user.click(await within(document.body).findByText('Move workspace'));
-    });
-
-    await step('Select destination from inline tree and submit', async () => {
-      const body = within(document.body);
-      await expect(body.findByRole('dialog')).resolves.toBeInTheDocument();
-
-      // Inline tree renders directly — no dropdown toggle needed
-      const tree = await body.findByRole('tree');
-      const treeScope = within(tree);
-
-      const target = await treeScope.findByText(mockWorkspaces[2].name);
-      await user.click(target);
-
-      const submitButton = await body.findByRole('button', { name: /submit/i });
-      await expect(submitButton).toBeEnabled();
-      await user.click(submitButton);
-    });
-
-    await step('Verify move API called and modal closed', async () => {
-      await waitFor(async () => {
-        await expect(moveWorkspaceSpy).toHaveBeenCalledWith(mockWorkspaces[1].id, {
-          parent_id: mockWorkspaces[2].id,
-        });
-      });
-
-      await waitFor(async () => {
-        await expect(within(document.body).queryByRole('dialog')).not.toBeInTheDocument();
-      });
+      const moveItem = await within(document.body).findByText('Move workspace');
+      await expect(moveItem.closest('button')).not.toHaveAttribute('disabled');
     });
   },
 };
@@ -458,13 +421,10 @@ export const M2_WithWritePermission: Story = {
 
     // Verify M2 CRUD actions exist in the kebab menu
     await within(document.body).findByText('Edit workspace');
-    await within(document.body).findByText('Create subworkspace');
+    await within(document.body).findByText('Create sibling workspace');
+    await within(document.body).findByText('Create sub-workspace');
     await within(document.body).findByText('Move workspace');
     await within(document.body).findByText('Delete workspace');
-
-    // Verify the kebab menu has its own "Create workspace" option
-    const createWorkspaceMenuItem = await within(document.body).findByRole('menuitem', { name: /create workspace/i });
-    expect(createWorkspaceMenuItem).toBeInTheDocument();
   },
 };
 

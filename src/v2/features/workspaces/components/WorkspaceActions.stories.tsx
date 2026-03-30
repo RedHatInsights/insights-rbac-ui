@@ -1,12 +1,12 @@
 import type { Meta, StoryFn, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceActions } from './WorkspaceActions';
+import { type WorkspaceActionCallbacks, useWorkspaceActionItems } from './useWorkspaceActionItems';
 import { BrowserRouter } from 'react-router-dom';
 import { IntlProvider } from 'react-intl';
-import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import type { WorkspacePermissions, WorkspacesWorkspace } from '../../../data/queries/workspaces';
 
-// Mock workspace data
 const mockWorkspace: WorkspacesWorkspace = {
   id: 'workspace-1',
   name: 'Production Environment',
@@ -27,7 +27,32 @@ const mockSubWorkspace: WorkspacesWorkspace = {
   modified: '2024-01-02T00:00:00Z',
 };
 
-// Story decorator to provide necessary context
+const ALL_PERMS: WorkspacePermissions = { view: true, edit: true, delete: true, create: true, move: true };
+const NO_PERMS: WorkspacePermissions = { view: true, edit: false, delete: false, create: false, move: false };
+const NOOP_CALLBACKS: WorkspaceActionCallbacks = {
+  onEdit: () => {},
+  onGrantAccess: () => {},
+  onCreateSibling: () => {},
+  onCreateSub: () => {},
+  onMove: () => {},
+  onDelete: () => {},
+};
+
+/**
+ * Wrapper that uses the hook to produce items, then passes them to WorkspaceActions.
+ * This lets stories specify workspace/permissions/callbacks props instead of raw items.
+ */
+const WorkspaceActionsWithHook: React.FC<{
+  workspace: WorkspacesWorkspace;
+  permissions?: WorkspacePermissions;
+  callbacks?: WorkspaceActionCallbacks;
+  isDisabled?: boolean;
+  hasChildren?: boolean;
+}> = ({ workspace, permissions, callbacks = NOOP_CALLBACKS, isDisabled, hasChildren }) => {
+  const items = useWorkspaceActionItems({ workspace, permissions, callbacks, hasChildren });
+  return <WorkspaceActions items={items} isDisabled={isDisabled} />;
+};
+
 const withProviders = (Story: StoryFn) => {
   return (
     <BrowserRouter>
@@ -40,50 +65,34 @@ const withProviders = (Story: StoryFn) => {
   );
 };
 
-const meta: Meta<typeof WorkspaceActions> = {
-  component: WorkspaceActions,
+const meta: Meta<typeof WorkspaceActionsWithHook> = {
+  component: WorkspaceActionsWithHook,
   tags: ['autodocs'],
   decorators: [withProviders],
   parameters: {
     docs: {
       description: {
         component: `
-The WorkspaceActions component provides a comprehensive dropdown menu for workspace management actions.
+The WorkspaceActions component provides a dropdown menu for workspace management actions.
 
 ## Key Features
 - **Contextual Actions**: Different actions available based on workspace type and permissions
-- **Hierarchical Menus**: Drill-down menus for organizing related actions
-- **Delete Protection**: Smart delete confirmation with asset checks
-- **External Links**: Actions that open external services with visual indicators
 - **Permission Awareness**: Actions adapt based on user permissions
-- **Modal Confirmations**: Critical actions like delete require confirmation
 
 ## Actions Available
 - **Edit Workspace**: Modify workspace properties and settings
 - **Grant Access**: Manage user and group access to the workspace
-- **Create Sub-workspace**: Add child workspaces for organization
-- **View Tenant**: Open tenant management interface
-- **Manage Integrations**: Configure workspace integrations (drill-down menu)
-- **Manage Notifications**: Set up alerts and notifications (external link)
-- **Delete Workspace**: Remove workspace with confirmation
-
-## Safety Features
-- Disabled state prevents accidental actions
-- Asset checks before deletion
-- Confirmation modals for destructive actions
-- Clear visual feedback for external actions
+- **Create Sibling/Sub-workspace**: Add workspaces (list page only)
+- **Move Workspace**: Relocate a workspace under a different parent
+- **Delete Workspace**: Remove workspace (navigates to confirmation route)
         `,
       },
     },
   },
   argTypes: {
-    currentWorkspace: {
+    workspace: {
       description: 'The workspace object for which actions are being provided',
       control: { type: 'object' },
-    },
-    hasAssets: {
-      description: 'Whether the workspace contains assets that prevent deletion',
-      control: { type: 'boolean' },
     },
     isDisabled: {
       description: 'Whether the actions menu should be disabled',
@@ -93,20 +102,13 @@ The WorkspaceActions component provides a comprehensive dropdown menu for worksp
 };
 
 export default meta;
-type Story = StoryObj<typeof WorkspaceActions>;
+type Story = StoryObj<typeof WorkspaceActionsWithHook>;
 
 export const Default: Story = {
   args: {
-    currentWorkspace: mockWorkspace,
-    hasAssets: false,
+    workspace: mockWorkspace,
+    callbacks: NOOP_CALLBACKS,
     isDisabled: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Default workspace actions menu showing all available actions for a standard workspace.',
-      },
-    },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -125,16 +127,9 @@ export const Default: Story = {
 
 export const DisabledState: Story = {
   args: {
-    currentWorkspace: mockWorkspace,
-    hasAssets: false,
+    workspace: mockWorkspace,
+    callbacks: NOOP_CALLBACKS,
     isDisabled: true,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Disabled state where the actions menu cannot be opened, typically due to insufficient permissions.',
-      },
-    },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -148,17 +143,9 @@ export const DisabledState: Story = {
 
 export const WithAssets: Story = {
   args: {
-    currentWorkspace: mockWorkspace,
-    hasAssets: true,
+    workspace: mockWorkspace,
+    callbacks: NOOP_CALLBACKS,
     isDisabled: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Workspace with assets - showing how the component behaves when assets exist. Note: Modal functionality requires additional context in actual usage.',
-      },
-    },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -171,140 +158,30 @@ export const WithAssets: Story = {
   },
 };
 
-/**
- * Tests the delete confirmation modal interaction.
- * Verifies the modal opens, shows confirmation checkbox, and calls onDelete on confirm.
- */
-export const DeleteConfirmation: Story = {
+export const DeleteActionEnabled: Story = {
   args: {
-    currentWorkspace: mockSubWorkspace,
-    hasAssets: false,
+    workspace: mockSubWorkspace,
+    permissions: ALL_PERMS,
+    callbacks: NOOP_CALLBACKS,
     isDisabled: false,
-    permissions: { view: true, edit: true, delete: true, create: true, move: true },
-    onDelete: fn(),
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Delete confirmation modal — opens on click, requires checkbox, calls onDelete callback.',
-      },
-    },
-  },
-  play: async ({ canvasElement, step, args }) => {
-    const canvas = within(canvasElement);
-    await step('Open menu and click delete', async () => {
-      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-      await userEvent.click(actionsButton);
-
-      const deleteItem = await within(document.body).findByText('Delete workspace');
-      await userEvent.click(deleteItem);
-    });
-
-    await step('Verify modal and confirm', async () => {
-      const body = within(document.body);
-      await expect(body.findByText(/Delete workspace/i)).resolves.toBeInTheDocument();
-
-      const checkbox = await body.findByRole('checkbox');
-      await userEvent.click(checkbox);
-
-      const confirmButton = await body.findByRole('button', { name: /delete/i });
-      await userEvent.click(confirmButton);
-
-      await waitFor(() => {
-        expect(args.onDelete).toHaveBeenCalledWith(mockSubWorkspace);
-      });
-    });
-  },
-};
-
-/**
- * Tests the delete modal in "has assets" informational mode.
- * The modal shows a "Got it" button instead of a danger "Delete" button.
- */
-export const DeleteBlockedByAssets: Story = {
-  args: {
-    currentWorkspace: mockSubWorkspace,
-    hasAssets: true,
-    isDisabled: false,
-    permissions: { view: true, edit: true, delete: true, create: true, move: true },
-    onDelete: fn(),
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Delete blocked when workspace has child assets — shows informational "Got it" modal.',
-      },
-    },
-  },
-  play: async ({ canvasElement, step, args }) => {
-    const canvas = within(canvasElement);
-    await step('Open menu and click delete', async () => {
-      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-      await userEvent.click(actionsButton);
-
-      const deleteItem = await within(document.body).findByText('Delete workspace');
-      await userEvent.click(deleteItem);
-    });
-
-    await step('Verify informational modal with "Got it" button', async () => {
-      const body = within(document.body);
-      const gotItButton = await body.findByRole('button', { name: /got it/i });
-      await expect(gotItButton).toBeInTheDocument();
-
-      await expect(body.queryByRole('checkbox')).not.toBeInTheDocument();
-
-      await userEvent.click(gotItButton);
-      expect(args.onDelete).not.toHaveBeenCalled();
-    });
-  },
-};
-
-export const DrilldownMenuInteraction: Story = {
-  args: {
-    currentWorkspace: mockWorkspace,
-    hasAssets: false,
-    isDisabled: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Demonstrates the drill-down menu functionality for managing integrations.',
-      },
-    },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await step('Verify drilldown menu', async () => {
+    await step('Open menu and verify delete item is enabled', async () => {
       const actionsButton = await canvas.findByRole('button', { name: /actions/i });
       await userEvent.click(actionsButton);
 
-      const menuItems = within(document.body).getAllByText('Manage integrations');
-      const manageIntegrationsMenuItem =
-        menuItems.find(
-          (el) => el.closest('[role="menuitem"]') && !el.closest('[role="menuitem"]')?.getAttribute('aria-label')?.includes('breadcrumb'),
-        ) || menuItems[0];
-
-      await userEvent.click(manageIntegrationsMenuItem);
-
-      const body = within(document.body);
-      await expect(body.findByText('Menu Item 1')).resolves.toBeInTheDocument();
-      await expect(body.findByText('Menu Item 2')).resolves.toBeInTheDocument();
+      const deleteItem = await within(document.body).findByText('Delete workspace');
+      await expect(deleteItem.closest('button')).not.toHaveAttribute('disabled');
     });
   },
 };
 
 export const SubWorkspace: Story = {
   args: {
-    currentWorkspace: mockSubWorkspace,
-    hasAssets: false,
+    workspace: mockSubWorkspace,
+    callbacks: NOOP_CALLBACKS,
     isDisabled: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Actions available for a sub-workspace, which may have different available actions than root workspaces.',
-      },
-    },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -320,49 +197,11 @@ export const SubWorkspace: Story = {
   },
 };
 
-export const ExternalLinkAction: Story = {
-  args: {
-    currentWorkspace: mockWorkspace,
-    hasAssets: false,
-    isDisabled: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Shows the external link action with visual indicator for actions that open external services.',
-      },
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Open the menu
-    const actionsButton = await canvas.findByRole('button', { name: /actions/i });
-    await userEvent.click(actionsButton);
-
-    // Look for the manage notifications item with external link icon (rendered in portal)
-    const body = within(document.body);
-    const manageNotifications = await body.findByText('Manage notifications');
-    await expect(manageNotifications).toBeInTheDocument();
-
-    // The external link icon should be in the menu (document.body, not canvas)
-    const externalIcon = await body.findByLabelText('Manage Notifications');
-    await expect(externalIcon).toBeInTheDocument();
-  },
-};
-
 export const MenuNavigation: Story = {
   args: {
-    currentWorkspace: mockWorkspace,
-    hasAssets: false,
+    workspace: mockWorkspace,
+    callbacks: NOOP_CALLBACKS,
     isDisabled: false,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Comprehensive test of menu opening, closing, and navigation behavior.',
-      },
-    },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -387,30 +226,18 @@ export const MenuNavigation: Story = {
 };
 
 /**
- * Tests that workspace-type constraints disable actions even when Kessel grants
- * full permissions. A root-type workspace should only allow viewing — edit,
- * create subworkspace, move, and delete must all be disabled.
- *
- * In production the `useWorkspacePermissions` hook strips these permissions
- * before they reach the component. This story validates that the component
- * renders correctly when it receives the post-hook permissions.
+ * Root workspace with Kessel grants stripped by type constraints.
+ * Edit, Grant Access, Create sub-workspace, Move, and Delete are all disabled.
  */
 export const ItemsDisabledByWorkspaceType: Story = {
   args: {
-    currentWorkspace: mockWorkspace,
-    hasAssets: false,
+    workspace: mockWorkspace,
+    permissions: NO_PERMS,
+    callbacks: NOOP_CALLBACKS,
     isDisabled: false,
-    permissions: { view: true, edit: false, delete: false, create: false, move: false },
   },
   parameters: {
     featureFlags: { 'platform.rbac.workspaces': true },
-    docs: {
-      description: {
-        story:
-          'Root workspace with Kessel grants stripped by `useWorkspacePermissions` type constraints. ' +
-          'Edit, Create subworkspace, Move, and Delete are all disabled despite the backend granting all relations.',
-      },
-    },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -438,30 +265,12 @@ export const ItemsDisabledByWorkspaceType: Story = {
   },
 };
 
-/**
- * Tests that menu items respect per-relation permissions.
- *
- * Edit disabled (!edit), Grant Access disabled (!create), Delete disabled (!delete).
- */
 export const ItemsDisabledByPermissions: Story = {
   args: {
-    currentWorkspace: mockSubWorkspace,
-    hasAssets: false,
+    workspace: mockSubWorkspace,
+    permissions: NO_PERMS,
+    callbacks: NOOP_CALLBACKS,
     isDisabled: false,
-    permissions: {
-      view: true,
-      edit: false,
-      delete: false,
-      create: false,
-      move: false,
-    },
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Tests that menu items are disabled when the user lacks the corresponding Kessel relation.',
-      },
-    },
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);

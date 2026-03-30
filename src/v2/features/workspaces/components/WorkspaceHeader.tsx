@@ -7,6 +7,7 @@ import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Bread
 import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import { WorkspaceActions } from './WorkspaceActions';
+import { type WorkspaceActionCallbacks, useWorkspaceActionItems } from './useWorkspaceActionItems';
 import { type WorkspacePermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import messages from '../../../../Messages';
 import { RbacBreadcrumbs } from '../../../../shared/components/navigation/Breadcrumbs';
@@ -20,49 +21,26 @@ export interface WorkspaceHierarchyItem {
 }
 
 export interface WorkspaceHeaderProps {
-  /** The current workspace being displayed */
   workspace: WorkspacesWorkspace | null;
-  /** Whether workspace data is loading */
   isLoading: boolean;
-  /** Array of workspaces representing the hierarchy path (from root to current) */
   workspaceHierarchy: WorkspaceHierarchyItem[];
-  /** Whether the workspace has child assets/workspaces */
-  hasAssets: boolean;
-  /** Per-workspace Kessel permissions forwarded to WorkspaceActions */
   permissions?: WorkspacePermissions;
-  /** All workspaces, forwarded to WorkspaceActions for the move dialog */
-  allWorkspaces?: WorkspacesWorkspace[];
-  /** Callback fired when "Grant access" is selected from the workspace actions menu */
-  onGrantAccess?: () => void;
-  /** Callback fired when delete is confirmed in WorkspaceActions */
-  onDelete?: (workspace: WorkspacesWorkspace) => void;
-  /** Callback fired when move is confirmed in WorkspaceActions */
-  onMove?: (workspace: WorkspacesWorkspace, targetParentId: string) => void;
+  actionCallbacks: WorkspaceActionCallbacks;
 }
 
-/**
- * WorkspaceHeader - Presentational component for workspace detail header
- *
- * Displays workspace title, description, breadcrumb hierarchy, and action menu.
- * Handles loading states with skeleton components.
- */
-export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
-  workspace,
-  isLoading,
-  workspaceHierarchy,
-  hasAssets,
-  permissions,
-  allWorkspaces,
-  onGrantAccess,
-  onDelete,
-  onMove,
-}) => {
+export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isLoading, workspaceHierarchy, permissions, actionCallbacks }) => {
   const intl = useIntl();
   const [searchParams] = useSearchParams();
 
   const fromChildId = searchParams.get('fromChildId');
   const fromChildName = searchParams.get('fromChildName');
   const showChildContextAlert = fromChildId && fromChildName;
+
+  const actionItems = useWorkspaceActionItems({
+    workspace: workspace ?? ({ id: '', name: '' } as WorkspacesWorkspace),
+    permissions,
+    callbacks: actionCallbacks,
+  });
 
   const pageBreadcrumbs = useMemo(
     () => [
@@ -79,19 +57,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
         title={isLoading ? <Skeleton width="170px" /> : workspace?.name}
         subtitle={isLoading ? <Skeleton width="250px" /> : workspace?.description}
         breadcrumbs={isLoading ? undefined : <RbacBreadcrumbs breadcrumbs={pageBreadcrumbs} />}
-        actionMenu={
-          workspace ? (
-            <WorkspaceActions
-              currentWorkspace={workspace}
-              hasAssets={hasAssets}
-              permissions={permissions}
-              allWorkspaces={allWorkspaces}
-              onGrantAccess={onGrantAccess}
-              onDelete={onDelete}
-              onMove={onMove}
-            />
-          ) : undefined
-        }
+        actionMenu={workspace ? <WorkspaceActions items={actionItems} /> : undefined}
       >
         <div className="pf-v6-u-mt-md">
           <span className="pf-v6-u-font-weight-bold pf-v6-u-mr-sm">{intl.formatMessage(messages.workspacesDetailBreadcrumbTitle)}</span>

@@ -4,8 +4,9 @@ import type { ScopedQueries } from '../../../test-utils/interactionHelpers';
 import { waitForModal } from '../../../test-utils/interactionHelpers';
 import { TEST_TIMEOUTS } from '../../../test-utils/testUtils';
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { OrganizationManagement } from './OrganizationManagement';
+import { RoutedOrgGrantAccessWizard } from './RoutedOrgGrantAccessWizard';
 import type { MockUserIdentity } from '../../../../.storybook/contexts/StorybookMockContext';
 import { roleBindingsBySubjectResponseHandlers } from '../../data/mocks/roleBindings.handlers';
 import { groupsHandlers } from '../../../shared/data/mocks/groups.handlers';
@@ -243,11 +244,18 @@ The OrganizationManagement component provides the organization-wide access page.
     },
   },
   decorators: [
-    (Story) => (
-      <MemoryRouter>
-        <Story />
-      </MemoryRouter>
-    ),
+    (Story, context) => {
+      const route = context.parameters?.route || '/iam/organization-management/organization-wide-access';
+      return (
+        <MemoryRouter initialEntries={[route]}>
+          <Routes>
+            <Route path="/iam/organization-management/organization-wide-access/*" element={<Story />}>
+              <Route path="grant-access" element={<RoutedOrgGrantAccessWizard />} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      );
+    },
   ],
 };
 
@@ -623,12 +631,12 @@ export const GrantAccessWizard: Story = {
       );
     });
 
-    await step('Open grant access wizard', async () => {
+    await step('Open grant access wizard via route navigation', async () => {
       const grantBtn = canvas.getByRole('button', { name: /grant access/i });
       await user.click(grantBtn);
 
       const modal = await waitForModal();
-      await expect(modal.findByText(/grant organization-wide access/i)).resolves.toBeInTheDocument();
+      await expect(modal.findByText(/grant.*access/i)).resolves.toBeInTheDocument();
     });
 
     await step('Select a group and advance to roles step', async () => {

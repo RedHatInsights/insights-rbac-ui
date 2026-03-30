@@ -21,7 +21,6 @@ Validates that Org Admin sees all sidebar items.
 - ✅ "Users" link IS present
 - ✅ "Groups" link IS present
 - ✅ "Roles" link IS present
-- ✅ "Workspaces" link IS present (requires inventory:groups:read + workspaces flag)
         `,
       },
     },
@@ -56,9 +55,6 @@ Validates that Org Admin sees all sidebar items.
 
       const rolesLink = await canvas.findByRole('link', { name: /^roles$/i });
       expect(rolesLink).toBeInTheDocument();
-
-      const workspacesLink = await canvas.findByRole('link', { name: /workspaces/i });
-      expect(workspacesLink).toBeInTheDocument();
     });
   },
 };

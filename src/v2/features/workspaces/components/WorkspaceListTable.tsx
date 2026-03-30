@@ -1,7 +1,7 @@
 import { ErrorState, PageHeader, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
-import { DeleteWorkspaceModal } from './DeleteWorkspaceModal';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 
@@ -19,26 +19,21 @@ import {
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import { FormattedMessage } from 'react-intl';
 import { ActionsColumn } from '@patternfly/react-table';
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { Outlet, useSearchParams } from 'react-router-dom';
-import { ExternalLink } from '../../../../shared/components/navigation/ExternalLink';
+import { useSearchParams } from 'react-router-dom';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import useExternalLink from '../../../../shared/hooks/useExternalLink';
-import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
 import messages from '../../../../Messages';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
+import { type WorkspaceActionCallbacks, useWorkspaceActionItems } from './useWorkspaceActionItems';
 import type { WorkspaceFilters, WorkspaceWithChildren, WorkspacesWorkspace } from '../types';
-import type { WorkspaceRelation, WorkspaceWithPermissions } from '../../../data/queries/workspaces';
+import type { WorkspacePermissions, WorkspaceRelation, WorkspaceWithPermissions } from '../../../data/queries/workspaces';
 
 interface WorkspaceListTableProps {
   workspaces: WorkspaceWithPermissions[];
   isLoading: boolean;
   error: string | null;
-
-  onDeleteWorkspaces: (workspaces: WorkspacesWorkspace[]) => Promise<void>;
-  onMoveWorkspace: (workspace: WorkspacesWorkspace, targetParentId: string) => Promise<void>;
 
   /**
    * Generic Kessel permission check: (workspaceId, relation) → boolean.
@@ -51,8 +46,6 @@ interface WorkspaceListTableProps {
    * Used for the main "Create workspace" toolbar button.
    */
   canCreateAny: boolean;
-
-  children?: React.ReactNode;
 }
 
 const mapWorkspacesToHierarchy = (workspaceData: WorkspacesWorkspace[]): WorkspaceWithChildren | undefined => {
@@ -127,115 +120,92 @@ const search = (workspaceTree: WorkspaceWithChildren[], filter: string): Workspa
   return matches;
 };
 
-export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
-  workspaces,
-  isLoading,
-  error,
-  onDeleteWorkspaces,
-  onMoveWorkspace,
-  hasPermission,
-  canCreateAny,
-  children,
-}) => {
+/**
+ * Per-row actions component that consumes the shared action items hook.
+ * Rendered inside each tree row to map WorkspaceActionItem[] → ActionsColumn items.
+ */
+const WorkspaceRowActions: React.FC<{
+  workspace: WorkspaceWithChildren;
+  permissions: WorkspacePermissions;
+  callbacks: WorkspaceActionCallbacks;
+}> = ({ workspace, permissions, callbacks }) => {
+  const items = useWorkspaceActionItems({
+    workspace,
+    permissions,
+    callbacks,
+    hasChildren: !!(workspace.children && workspace.children.length > 0),
+  });
+
+  return (
+    <ActionsColumn
+      items={items.map((item) =>
+        item.isSeparator
+          ? { title: <Divider component="li" key={item.key} />, isSeparator: true }
+          : {
+              title: item.label,
+              onClick: item.onClick,
+              isDisabled: item.isDisabled,
+              isDanger: item.isDanger,
+            },
+      )}
+    />
+  );
+};
+
+export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({ workspaces, isLoading, error, hasPermission, canCreateAny }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
-  const externalLink = useExternalLink();
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [currentWorkspaces, setCurrentWorkspaces] = useState<WorkspacesWorkspace[]>([]);
-
-  // Feature flags via custom hook (see WORKSPACE_FEATURE_FLAGS.md for complete documentation)
-  // M3: RBAC detail pages with read-only role bindings
-  const hasRbacDetailPages = useWorkspacesFlag('m3'); // M3+ or master flag
-
-  const handleModalToggle = (workspacesToDelete: WorkspacesWorkspace[]) => {
-    setCurrentWorkspaces(workspacesToDelete);
-    setIsDeleteModalOpen(!isDeleteModalOpen);
-  };
 
   const buildRows = React.useCallback(
     (workspacesData: WorkspaceWithChildren[]): DataViewTrTree[] =>
-      workspacesData.map((workspace) => ({
-        id: workspace.id ?? '',
-        row: Object.values({
-          name:
-            hasRbacDetailPages && hasPermission(workspace.id ?? '', 'view') ? (
-              <AppLink to={pathnames['workspace-detail'].link(workspace.id ?? '')} key={`${workspace.id}-detail`} className="rbac-m-hide-on-sm">
+      workspacesData.map((workspace) => {
+        const wsId = workspace.id ?? '';
+        const canView = hasPermission(wsId, 'view');
+        const permissions: WorkspacePermissions = canView
+          ? {
+              view: true,
+              edit: hasPermission(wsId, 'edit'),
+              delete: hasPermission(wsId, 'delete'),
+              create: hasPermission(wsId, 'create'),
+              move: hasPermission(wsId, 'move'),
+            }
+          : { view: false, edit: false, delete: false, create: false, move: false };
+        const callbacks: WorkspaceActionCallbacks = {
+          onEdit: () => navigate(pathnames['edit-workspaces-list'].link(wsId)),
+          onCreateSibling: () => navigate(pathnames['create-sibling-workspace'].link(wsId)),
+          onCreateSub: () => navigate(pathnames['create-sub-workspace'].link(wsId)),
+          onMove: () => navigate(pathnames['move-workspace'].link(wsId)),
+          onDelete: () => navigate(pathnames['delete-workspace'].link(wsId)),
+        };
+
+        return {
+          id: wsId,
+          row: Object.values({
+            name: canView ? (
+              <AppLink to={pathnames['workspace-detail'].link(wsId)} key={`${wsId}-detail`} className="rbac-m-hide-on-sm">
                 {workspace.name}
               </AppLink>
-            ) : !hasRbacDetailPages && ['standard', 'ungrouped-hosts'].includes(workspace?.type ?? '') ? (
-              <ExternalLink
-                replace
-                to={`/insights/inventory/workspaces/${workspace.id}`}
-                key={`${workspace.id}-inventory-link`}
-                className="rbac-m-hide-on-sm"
-              >
-                {workspace.name}
-              </ExternalLink>
             ) : (
-              workspace.name
+              <Tooltip content={intl.formatMessage(messages.workspacePendingTooltip)} key={`${wsId}-pending`}>
+                <Button variant="link" isInline isAriaDisabled className="rbac-m-hide-on-sm">
+                  {workspace.name}
+                </Button>
+              </Tooltip>
             ),
-          description: workspace.description,
-          rowActions: {
-            cell: (
-              <ActionsColumn
-                items={[
-                  {
-                    title: 'Edit workspace',
-                    onClick: () => {
-                      navigate(pathnames['edit-workspaces-list'].link(workspace.id ?? ''));
-                    },
-                    isDisabled: !hasPermission(workspace.id ?? '', 'edit'),
-                  },
-                  {
-                    title: 'Create workspace',
-                    onClick: () => navigate(pathnames['create-workspace'].link()),
-                    isDisabled: !hasPermission(workspace.id ?? '', 'create'),
-                  },
-                  {
-                    title: 'Create subworkspace',
-                    onClick: () => navigate(pathnames['create-workspace'].link()),
-                    isDisabled: !hasPermission(workspace.id ?? '', 'create'),
-                  },
-                  {
-                    title: 'Move workspace',
-                    onClick: () => {
-                      onMoveWorkspace(workspace, '');
-                    },
-                    isDisabled: !hasPermission(workspace.id ?? '', 'move'),
-                  },
-                  {
-                    title: 'Manage integrations',
-                    onClick: () => externalLink.navigate('/settings/integrations'),
-                  },
-                  {
-                    title: 'Manage notifications',
-                    onClick: () => externalLink.navigate('/settings/notifications'),
-                  },
-                  {
-                    title: <Divider component="li" key="divider" />,
-                    isSeparator: true,
-                  },
-                  {
-                    title: 'Delete workspace',
-                    onClick: () => {
-                      handleModalToggle([workspace]);
-                    },
-                    isDisabled: (workspace.children && workspace.children.length > 0) || !hasPermission(workspace.id ?? '', 'delete'),
-                    isDanger: !(workspace.children && workspace.children.length > 0) && hasPermission(workspace.id ?? '', 'delete'),
-                  },
-                ]}
-              />
-            ),
-            props: { isActionCell: true },
-          },
-        }),
-        ...(workspace.children && workspace.children.length > 0
-          ? {
-              children: buildRows(workspace.children),
-            }
-          : {}),
-      })),
-    [hasRbacDetailPages, hasPermission, navigate, onMoveWorkspace, externalLink],
+            description: workspace.description,
+            rowActions: {
+              cell: <WorkspaceRowActions workspace={workspace} permissions={permissions} callbacks={callbacks} />,
+              props: { isActionCell: true },
+            },
+          }),
+          ...(workspace.children && workspace.children.length > 0
+            ? {
+                children: buildRows(workspace.children),
+              }
+            : {}),
+        };
+      }),
+    [hasPermission, navigate],
   );
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -250,7 +220,6 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   const rows = useMemo(() => (filteredTree ? buildRows(filteredTree) : []), [filteredTree, buildRows]);
   const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
 
-  // Derived: Calculate active state directly from props (no useEffect sync needed)
   const activeState: DataViewState | undefined = isLoading
     ? DataViewState.loading
     : error
@@ -272,17 +241,6 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
         }}
       />
       <PageSection hasBodyWrapper={false}>
-        {isDeleteModalOpen && (
-          <DeleteWorkspaceModal
-            isOpen={isDeleteModalOpen}
-            onClose={() => setIsDeleteModalOpen(false)}
-            onConfirm={async () => {
-              await onDeleteWorkspaces(currentWorkspaces);
-              setIsDeleteModalOpen(false);
-            }}
-            workspaces={currentWorkspaces}
-          />
-        )}
         <DataView activeState={activeState}>
           <DataViewToolbar
             clearAllFilters={clearAllFilters}
@@ -319,10 +277,6 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             }}
           />
         </DataView>
-        {children}
-        <Suspense>
-          <Outlet />
-        </Suspense>
       </PageSection>
     </React.Fragment>
   );
