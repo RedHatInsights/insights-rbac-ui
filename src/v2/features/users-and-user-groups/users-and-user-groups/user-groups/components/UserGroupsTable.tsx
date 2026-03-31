@@ -10,6 +10,7 @@ import {
 } from '../../../../../../shared/components/table-view';
 import { ActionDropdown } from '../../../../../../shared/components/ActionDropdown';
 import type { Group } from '../../../../../../v2/data/queries/groups';
+import { isGroupSelectable } from '../useUserGroups';
 import messages from '../../../../../../Messages';
 import useAppNavigate from '../../../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../../../utilities/pathnames';
@@ -122,7 +123,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
         cellRenderers={cellRenderers}
         // Selection
         selectable={canModifyGroups}
-        isRowSelectable={(group) => !group.platform_default && !group.admin_default}
+        isRowSelectable={isGroupSelectable}
         // Row click
         isRowClickable={() => !!onRowClick}
         onRowClick={handleRowClick}

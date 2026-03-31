@@ -7,6 +7,7 @@ import { expectLoadingVisible } from '../../../../../../test-utils/interactionHe
 import { UserGroupsTable } from './UserGroupsTable';
 import { useTableState } from '../../../../../../shared/components/table-view/hooks/useTableState';
 import type { Group } from '../../../../../../v2/data/queries/groups';
+import { isGroupSelectable } from '../useUserGroups';
 import { GROUP_ADMIN_DEFAULT, GROUP_SYSTEM_DEFAULT } from '../../../../../../shared/data/mocks/seed';
 import messages from '../../../../../../Messages';
 import { type SortableColumnId, columns as userGroupsColumns } from './useUserGroupsTableConfig';
@@ -72,7 +73,7 @@ const UserGroupsTableWithState: React.FC<Omit<React.ComponentProps<typeof UserGr
     initialPerPage: 20,
     initialFilters: { name: '' },
     getRowId: (group) => group.uuid,
-    isRowSelectable: (group) => !group.platform_default && !group.admin_default,
+    isRowSelectable: isGroupSelectable,
     syncWithUrl: false,
   });
 
@@ -401,6 +402,33 @@ export const BulkSelection: Story = {
 
       // Deselect for clean state
       await userEvent.click(systemGroupCheckbox);
+    });
+
+    await step('Kebab delete action shows zero-count label with no selection', async () => {
+      const canvas = within(canvasElement);
+      const kebabButton = await canvas.findByLabelText('Actions overflow menu');
+      await userEvent.click(kebabButton);
+
+      const deleteItem = await within(document.body).findByText('Delete user group');
+      await expect(deleteItem).toBeInTheDocument();
+
+      await userEvent.keyboard('{Escape}');
+    });
+
+    await step('Kebab delete action is enabled after selecting rows', async () => {
+      const canvas = within(canvasElement);
+      const developersRow = (await canvas.findByText('Developers')).closest('tr');
+      const developersCheckbox = await within(developersRow!).findByRole('checkbox');
+      await userEvent.click(developersCheckbox);
+
+      const kebabButton = await canvas.findByLabelText('Actions overflow menu');
+      await userEvent.click(kebabButton);
+
+      const deleteItem = await within(document.body).findByText(/delete user group \(1\)/i);
+      await userEvent.click(deleteItem);
+      await expect(defaultArgs.onDeleteGroups).toHaveBeenCalledTimes(1);
+
+      await userEvent.click(developersCheckbox);
     });
 
     await step('Bulk select selects only selectable rows', async () => {
