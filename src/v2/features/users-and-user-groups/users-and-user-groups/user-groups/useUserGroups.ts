@@ -62,7 +62,8 @@ export const useUserGroups = (options: UseUserGroupsOptions = {}): UseUserGroups
     initialPerPage: defaultSettings.limit,
     initialFilters: { name: '' },
     getRowId: (group) => group.uuid,
-    syncWithUrl: true, // Page-level tables sync with URL
+    isRowSelectable: (group) => !group.platform_default && !group.admin_default,
+    syncWithUrl: true,
   });
 
   // Use React Query for data fetching - using apiParams from tableState

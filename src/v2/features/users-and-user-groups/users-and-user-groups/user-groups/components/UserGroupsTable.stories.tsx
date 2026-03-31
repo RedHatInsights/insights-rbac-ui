@@ -72,6 +72,7 @@ const UserGroupsTableWithState: React.FC<Omit<React.ComponentProps<typeof UserGr
     initialPerPage: 20,
     initialFilters: { name: '' },
     getRowId: (group) => group.uuid,
+    isRowSelectable: (group) => !group.platform_default && !group.admin_default,
     syncWithUrl: false,
   });
 
@@ -91,6 +92,7 @@ const defaultArgs = {
   onRowClick: fn(),
   onEditGroup: fn(),
   onDeleteGroup: fn(),
+  onDeleteGroups: fn(),
 };
 
 const meta: Meta<typeof UserGroupsTableWithState> = {
@@ -364,70 +366,57 @@ export const BulkSelection: Story = {
     docs: {
       description: {
         story:
-          'Demonstrates bulk selection functionality for performing operations on multiple groups. Tests the selection state management and bulk action capabilities.',
+          'Demonstrates bulk selection functionality. Canned groups (platform_default / admin_default) are excluded from selection. Tests individual, bulk-select, and deselect flows.',
       },
     },
   },
   play: async ({ canvasElement, step }) => {
-    await step('Verify', async () => {
+    await step('Verify canned groups have no checkbox', async () => {
       const canvas = within(canvasElement);
+      const defaultGroupRow = (await canvas.findByText(GROUP_SYSTEM_DEFAULT.name)).closest('tr');
+      await expect(defaultGroupRow).toBeInTheDocument();
+      await expect(within(defaultGroupRow!).queryByRole('checkbox')).not.toBeInTheDocument();
+    });
 
-      // Test that individual row checkboxes are present
-      const checkboxes = await canvas.findAllByRole('checkbox');
-      await expect(checkboxes.length).toBeGreaterThan(0); // Should have individual row checkboxes
-
-      // Select multiple groups for bulk operations
+    await step('Select and deselect individual rows', async () => {
+      const canvas = within(canvasElement);
       const developersRow = (await canvas.findByText('Developers')).closest('tr');
       const systemGroupRow = (await canvas.findByText('System Group')).closest('tr');
-
-      await expect(developersRow).toBeInTheDocument();
-      await expect(systemGroupRow).toBeInTheDocument();
 
       const developersCheckbox = await within(developersRow!).findByRole('checkbox');
       const systemGroupCheckbox = await within(systemGroupRow!).findByRole('checkbox');
 
-      // Initially, no checkboxes should be checked
       await expect(developersCheckbox).not.toBeChecked();
       await expect(systemGroupCheckbox).not.toBeChecked();
 
-      // Select the "Developers" row
       await userEvent.click(developersCheckbox);
       await expect(developersCheckbox).toBeChecked();
 
-      // Select the "System Group" row
       await userEvent.click(systemGroupCheckbox);
       await expect(systemGroupCheckbox).toBeChecked();
 
-      // Both should now be selected
-      await expect(developersCheckbox).toBeChecked();
-      await expect(systemGroupCheckbox).toBeChecked();
-
-      // Deselect the "Developers" row to test unchecking
       await userEvent.click(developersCheckbox);
       await expect(developersCheckbox).not.toBeChecked();
-      // "System Group" should still be checked
       await expect(systemGroupCheckbox).toBeChecked();
 
-      // Test bulk select functionality
+      // Deselect for clean state
+      await userEvent.click(systemGroupCheckbox);
+    });
+
+    await step('Bulk select selects only selectable rows', async () => {
+      const canvas = within(canvasElement);
       const bulkSelectButton = await canvas.findByLabelText('Select page');
-      await expect(bulkSelectButton).toBeInTheDocument();
-
-      // Click bulk select to select all
       await userEvent.click(bulkSelectButton);
 
-      // After clicking bulk select, all individual checkboxes should be checked
       const allCheckboxes = await canvas.findAllByRole('checkbox');
-      allCheckboxes.forEach(async (checkbox) => {
+      for (const checkbox of allCheckboxes) {
         await expect(checkbox).toBeChecked();
-      });
+      }
 
-      // TEST DESELECT: Click bulk select again to deselect all
       await userEvent.click(bulkSelectButton);
-
-      // After clicking bulk select again, all checkboxes should be unchecked
-      allCheckboxes.forEach(async (checkbox) => {
+      for (const checkbox of allCheckboxes) {
         await expect(checkbox).not.toBeChecked();
-      });
+      }
     });
   },
 };

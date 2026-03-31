@@ -1,8 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { ResponsiveAction, ResponsiveActions } from '@patternfly/react-component-groups';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-
 // eslint-disable-next-line rbac-local/require-use-table-state -- tableState received as prop from parent container
 import {
   DefaultEmptyStateNoData,
@@ -93,9 +91,16 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
           <ResponsiveAction ouiaId="add-usergroup-button" isPinned onClick={() => navigate(pathnames['users-and-user-groups-create-group'].link())}>
             {intl.formatMessage(messages.createUserGroup)}
           </ResponsiveAction>
+          <ResponsiveAction
+            ouiaId="delete-usergroup-button"
+            isDisabled={tableState.selectedRows.length === 0}
+            onClick={() => onDeleteGroups?.(tableState.selectedRows)}
+          >
+            {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup)}
+          </ResponsiveAction>
         </ResponsiveActions>
       ) : undefined,
-    [intl, navigate, ouiaId, canModifyGroups],
+    [intl, navigate, ouiaId, canModifyGroups, tableState.selectedRows, onDeleteGroups],
   );
 
   return (
@@ -113,7 +118,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
         cellRenderers={cellRenderers}
         // Selection
         selectable={canModifyGroups}
-        isRowSelectable={() => true}
+        isRowSelectable={(group) => !group.platform_default && !group.admin_default}
         // Row click
         isRowClickable={() => !!onRowClick}
         onRowClick={handleRowClick}
@@ -146,13 +151,6 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
         filterConfig={filterConfig}
         // Toolbar
         toolbarActions={toolbarActions}
-        bulkActions={
-          onDeleteGroups && tableState.selectedRows.length > 0 ? (
-            <Button variant="secondary" isDanger onClick={() => onDeleteGroups(tableState.selectedRows)}>
-              {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup)} ({tableState.selectedRows.length})
-            </Button>
-          ) : undefined
-        }
         // Empty states
         emptyStateNoData={
           <DefaultEmptyStateNoData
