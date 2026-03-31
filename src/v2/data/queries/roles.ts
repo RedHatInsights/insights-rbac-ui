@@ -98,6 +98,7 @@ export function useAllRolesV2Query(options?: { enabled?: boolean; name?: string;
 
   const params: RolesListParams = {
     limit: -1,
+    fields: 'id,name,description,permissions_count,last_modified,org_id',
     ...(options?.name && { name: options.name }),
     ...(hasExtra && { options: { params: extraParams } }),
   };
@@ -126,7 +127,10 @@ export function useRoleQuery(id: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: rolesV2Keys.detail(id),
     queryFn: async (): Promise<Role> => {
-      const response = await rolesV2Api.rolesRead({ id });
+      const response = await rolesV2Api.rolesRead({
+        id,
+        fields: 'id,name,description,permissions,permissions_count,last_modified',
+      });
       return response.data;
     },
     enabled: (options?.enabled ?? true) && !!id,

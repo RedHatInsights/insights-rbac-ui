@@ -18,6 +18,29 @@ export async function findSortButton(scope: ScopedQueries, columnName: string | 
 }
 
 /**
+ * Find the compound expand button inside a table row for a given column.
+ *
+ * PatternFly compound-expandable cells render a `<button>` inside a `<td>`
+ * whose `data-label` matches the column header text.
+ *
+ * @param scope - Scoped query handle (e.g. from `within(canvasElement)`)
+ * @param rowText - Text visible in the row to locate it (e.g. role name)
+ * @param columnLabel - The column header label (matches `data-label` on `<td>`)
+ */
+export function findCompoundExpandButton(scope: ScopedQueries, rowText: string, columnLabel: string): HTMLElement {
+  const cell = scope.getByText(rowText);
+  const row = cell.closest('tr') as HTMLElement;
+  expect(row).toBeTruthy();
+  const buttons = within(row).getAllByRole('button');
+  const button = buttons.find((btn) => {
+    const td = btn.closest('td');
+    return td?.getAttribute('data-label') === columnLabel;
+  });
+  expect(button).toBeTruthy();
+  return button!;
+}
+
+/**
  * Expands a workspace row in the hierarchical table if it's collapsed.
  *
  * Uses async findByText to wait for the row to appear (critical after mutations)

@@ -312,6 +312,7 @@ export function TableView<
                 return (
                   <Th
                     key={col}
+                    width={config?.width}
                     sort={
                       isSortable && onSortChange
                         ? {

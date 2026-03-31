@@ -73,7 +73,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
     () => ({
       name: { label: intl.formatMessage(messages.name), sortable: true },
       description: { label: intl.formatMessage(messages.description) },
-      permissions: { label: intl.formatMessage(messages.permissions) },
+      permissions: { label: intl.formatMessage(messages.permissions), width: 20 },
       last_modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
     }),
     [intl],

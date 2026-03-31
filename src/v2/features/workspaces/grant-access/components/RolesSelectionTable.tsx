@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { SimpleList } from '@patternfly/react-core/dist/dynamic/components/SimpleList';
+import { SimpleListItem } from '@patternfly/react-core/dist/dynamic/components/SimpleList';
 import { TableView } from '../../../../../shared/components/table-view/TableView';
 import { useTableState } from '../../../../../shared/components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../shared/components/table-view/components/TableViewEmptyState';
@@ -8,14 +10,25 @@ import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConf
 import messages from '../../../../../Messages';
 
 import type { Role } from '../../../../data/queries/roles';
+import { useRoleQuery } from '../../../../data/queries/roles';
 
 type RoleRow = Role;
 
-// List of permissions for expanded view with each permission on its own line
-const PermissionsList: React.FC<{ role: RoleRow }> = ({ role }) => {
+// Fetches permissions on demand when the row is expanded
+const PermissionsList: React.FC<{ roleId: string }> = ({ roleId }) => {
   const intl = useIntl();
+  const { data: role, isLoading } = useRoleQuery(roleId, { enabled: !!roleId });
+  const permissions = role?.permissions ?? [];
 
-  if (!role.permissions || role.permissions.length === 0) {
+  if (isLoading) {
+    return (
+      <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
+        {intl.formatMessage(messages.loading)}
+      </Content>
+    );
+  }
+
+  if (permissions.length === 0) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
         {intl.formatMessage(messages.noPermissions)}
@@ -24,13 +37,13 @@ const PermissionsList: React.FC<{ role: RoleRow }> = ({ role }) => {
   }
 
   return (
-    <div className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-      {role.permissions.map((perm, index) => (
-        <Content key={index} component="p" className="pf-v6-u-mb-xs">
+    <SimpleList aria-label="Role permissions" className="pf-v6-u-mx-lg pf-v6-u-my-sm" isControlled={false}>
+      {permissions.map((perm) => (
+        <SimpleListItem key={`${perm.application}:${perm.resource_type}:${perm.operation}`}>
           {`${perm.application}:${perm.resource_type}:${perm.operation}`}
-        </Content>
+        </SimpleListItem>
       ))}
-    </div>
+    </SimpleList>
   );
 };
 
@@ -64,7 +77,7 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
     () => ({
       name: { label: intl.formatMessage(messages.name), sortable: true },
       description: { label: intl.formatMessage(messages.description), sortable: true },
-      permissions: { label: intl.formatMessage(messages.permissions), sortable: true, isCompound: true },
+      permissions: { label: intl.formatMessage(messages.permissions), sortable: true, isCompound: true, width: 20 },
     }),
     [intl],
   );
@@ -80,7 +93,7 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
 
   const expansionRenderers: ExpansionRendererMap<CompoundColumn, RoleRow> = useMemo(
     () => ({
-      permissions: (role) => <PermissionsList role={role} />,
+      permissions: (role) => <PermissionsList roleId={role.id ?? ''} />,
     }),
     [],
   );

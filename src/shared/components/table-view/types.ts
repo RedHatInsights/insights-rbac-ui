@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import type { BaseCellProps } from '@patternfly/react-table/dist/dynamic/components/Table';
 import type { CursorLinks } from './hooks/useCursorPaginationState';
 
 /**
@@ -37,8 +38,8 @@ export interface ColumnConfig {
   sortable?: boolean;
   /** Whether this column supports compound expansion (clicking opens expanded content) */
   isCompound?: boolean;
-  /** Column width - number (pixels) or string (CSS value like '20%') */
-  width?: number | string;
+  /** Width percentage modifier — matches PatternFly Th width prop */
+  width?: BaseCellProps['width'];
 }
 
 /**

@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { SimpleList } from '@patternfly/react-core/dist/dynamic/components/SimpleList';
+import { SimpleListItem } from '@patternfly/react-core/dist/dynamic/components/SimpleList';
 import { TableView } from '../../../../../shared/components/table-view/TableView';
 import { useTableState } from '../../../../../shared/components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../shared/components/table-view/components/TableViewEmptyState';
@@ -27,7 +29,7 @@ const MembersList: React.FC<{ groupId: string }> = ({ groupId }) => {
   if (isLoading) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-        Loading members...
+        {intl.formatMessage(messages.loading)}
       </Content>
     );
   }
@@ -40,17 +42,14 @@ const MembersList: React.FC<{ groupId: string }> = ({ groupId }) => {
     );
   }
 
-  const memberNames = members.map((member: { first_name?: string; last_name?: string; username?: string; email?: string }) => {
-    if (member.first_name && member.last_name) {
-      return `${member.first_name} ${member.last_name}`;
-    }
-    return member.username || member.email || 'Unknown';
-  });
-
   return (
-    <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-      {memberNames.join(', ')}
-    </Content>
+    <SimpleList aria-label="Group members" className="pf-v6-u-mx-lg pf-v6-u-my-sm" isControlled={false}>
+      {members.map((member: { first_name?: string; last_name?: string; username?: string; email?: string }) => {
+        const name =
+          member.first_name && member.last_name ? `${member.first_name} ${member.last_name}` : member.username || member.email || 'Unknown';
+        return <SimpleListItem key={member.username || member.email || name}>{name}</SimpleListItem>;
+      })}
+    </SimpleList>
   );
 };
 
@@ -89,7 +88,7 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
       name: { label: intl.formatMessage(messages.name), sortable: true },
-      members: { label: intl.formatMessage(messages.members), sortable: true, isCompound: true },
+      members: { label: intl.formatMessage(messages.members), sortable: true, isCompound: true, width: 20 },
     }),
     [intl],
   );
