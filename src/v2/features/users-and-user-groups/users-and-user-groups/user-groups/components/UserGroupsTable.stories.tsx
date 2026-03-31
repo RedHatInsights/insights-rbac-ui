@@ -54,6 +54,10 @@ const mockGroups: Group[] = [
     principalCount: ALL_USERS_LABEL,
   },
   {
+    ...GROUP_ADMIN_DEFAULT,
+    principalCount: ALL_ORG_ADMINS_LABEL,
+  },
+  {
     ...createMockGroup('4'),
     name: 'System Group',
     description: null as unknown as string, // Test null description
@@ -271,7 +275,7 @@ export const FocusedGroup: Story = {
 // Actions disabled for system groups
 export const SystemGroupActions: Story = {
   args: {
-    groups: [mockGroups[3]], // System group
+    groups: [mockGroups[4]], // System group
   },
   parameters: {
     docs: {
@@ -374,9 +378,14 @@ export const BulkSelection: Story = {
   play: async ({ canvasElement, step }) => {
     await step('Verify canned groups have no checkbox', async () => {
       const canvas = within(canvasElement);
-      const defaultGroupRow = (await canvas.findByText(GROUP_SYSTEM_DEFAULT.name)).closest('tr');
-      await expect(defaultGroupRow).toBeInTheDocument();
-      await expect(within(defaultGroupRow!).queryByRole('checkbox')).not.toBeInTheDocument();
+
+      const platformDefaultRow = (await canvas.findByText(GROUP_SYSTEM_DEFAULT.name)).closest('tr');
+      await expect(platformDefaultRow).toBeInTheDocument();
+      await expect(within(platformDefaultRow!).queryByRole('checkbox')).not.toBeInTheDocument();
+
+      const adminDefaultRow = (await canvas.findByText(GROUP_ADMIN_DEFAULT.name)).closest('tr');
+      await expect(adminDefaultRow).toBeInTheDocument();
+      await expect(within(adminDefaultRow!).queryByRole('checkbox')).not.toBeInTheDocument();
     });
 
     await step('Select and deselect individual rows', async () => {
