@@ -2880,6 +2880,11 @@ export default defineMessages({
     description: 'Delete user group label',
     defaultMessage: 'Delete user group',
   },
+  usersAndUserGroupsDeleteUserGroupCount: {
+    id: 'usersAndUserGroupsDeleteUserGroupCount',
+    description: 'Delete user group action label with selected count',
+    defaultMessage: 'Delete {count, plural, =0 {user group} one {user group (#)} other {user groups (#)}}',
+  },
   usersAndUserGroupsRemoveFromGroup: {
     id: 'usersAndUserGroupsRemoveFromGroup',
     description: 'Remove from user group label',

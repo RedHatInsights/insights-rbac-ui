@@ -96,7 +96,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
             isDisabled={tableState.selectedRows.length === 0}
             onClick={() => onDeleteGroups?.(tableState.selectedRows)}
           >
-            {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup)}
+            {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroupCount, { count: tableState.selectedRows.length })}
           </ResponsiveAction>
         </ResponsiveActions>
       ) : undefined,
