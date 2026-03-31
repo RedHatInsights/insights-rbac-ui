@@ -83,6 +83,8 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
     [onRowClick, focusedGroup],
   );
 
+  const deletableSelectedRows = useMemo(() => tableState.selectedRows.filter(isGroupDeletable), [tableState.selectedRows, isGroupDeletable]);
+
   // Toolbar actions (only visible with write permission)
   const toolbarActions = useMemo(
     () =>
@@ -91,16 +93,18 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
           <ResponsiveAction ouiaId="add-usergroup-button" isPinned onClick={() => navigate(pathnames['users-and-user-groups-create-group'].link())}>
             {intl.formatMessage(messages.createUserGroup)}
           </ResponsiveAction>
-          <ResponsiveAction
-            ouiaId="delete-usergroup-button"
-            isDisabled={tableState.selectedRows.length === 0}
-            onClick={() => onDeleteGroups?.(tableState.selectedRows)}
-          >
-            {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroupCount, { count: tableState.selectedRows.length })}
-          </ResponsiveAction>
+          {onDeleteGroups && (
+            <ResponsiveAction
+              ouiaId="delete-usergroup-button"
+              isDisabled={deletableSelectedRows.length === 0}
+              onClick={() => onDeleteGroups(deletableSelectedRows)}
+            >
+              {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroupCount, { count: deletableSelectedRows.length })}
+            </ResponsiveAction>
+          )}
         </ResponsiveActions>
       ) : undefined,
-    [intl, navigate, ouiaId, canModifyGroups, tableState.selectedRows, onDeleteGroups],
+    [intl, navigate, ouiaId, canModifyGroups, deletableSelectedRows, onDeleteGroups],
   );
 
   return (
