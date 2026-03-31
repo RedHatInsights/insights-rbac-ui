@@ -135,14 +135,14 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
               navigate(pathnames['workspace-detail-edit-access'].link(currentWorkspace.id, group.id));
             }
           },
-          isDisabled: !currentWorkspace || !canEditAccess,
+          isDisabled: !currentWorkspace || !canEditAccess || group.isDefaultGroup,
         },
         {
           key: 'remove-access',
           label: intl.formatMessage(messages.removeAccess),
-          isDanger: true,
+          isDanger: canRevokeAccess && !group.isDefaultGroup,
           onClick: () => setGroupToRemove(group),
-          isDisabled: !canRevokeAccess,
+          isDisabled: !canRevokeAccess || group.isDefaultGroup,
         },
       ];
       return <ActionDropdown items={items} ariaLabel={`Actions for ${group.name}`} ouiaId={`${ouiaId}-row-actions-${group.id}`} />;

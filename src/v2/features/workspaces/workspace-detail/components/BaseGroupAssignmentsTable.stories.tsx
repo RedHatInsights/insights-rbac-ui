@@ -351,6 +351,7 @@ export const RowActionsDisabledByPermission: Story = {
 
       const removeItem = await body.findByText(/^remove access$/i);
       await expect(removeItem.closest('button')).toHaveAttribute('disabled');
+      await expect(removeItem.closest('li')).not.toHaveClass('pf-m-danger');
     });
   },
 };
@@ -488,6 +489,53 @@ export const FilterByGroupName: Story = {
     await step('No-match shows empty state', async () => {
       await clearAndType(user, () => canvas.getByPlaceholderText(/filter by user group/i) as HTMLInputElement, 'zzz-nonexistent');
       await expect(canvas.findByText('No user group found')).resolves.toBeInTheDocument();
+    });
+  },
+};
+
+const mockDefaultGroup: WorkspaceGroupRow = {
+  id: 'default-access',
+  name: 'Default access',
+  description: 'System-managed group — all org users',
+  userCount: 'All users',
+  isDefaultGroup: true,
+  isAdminDefault: false,
+  roleCount: 1,
+  roles: [{ id: 'role-viewer', name: 'Viewer' }],
+  lastModified: '2024-01-01T00:00:00Z',
+};
+
+const groupsWithDefault: WorkspaceGroupRow[] = [mockDefaultGroup, ...mockGroups];
+
+export const DefaultGroupActionsDisabled: Story = {
+  tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
+  args: {
+    ...WORKSPACE_ARGS,
+    groups: groupsWithDefault,
+    totalCount: groupsWithDefault.length,
+    canGrantAccess: true,
+    canEditAccess: true,
+    canRevokeAccess: true,
+    ouiaId: 'role-assignments-default-group',
+  },
+  parameters: {
+    featureFlags: { 'platform.rbac.workspaces-role-bindings-write': true },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify both actions disabled for default group row', async () => {
+      const defaultGroupRow = await canvas.findByText(mockDefaultGroup.name);
+      const row = defaultGroupRow.closest('tr') as HTMLElement;
+      const kebab = within(row).getByLabelText(new RegExp(`actions for ${mockDefaultGroup.name}`, 'i'));
+      await userEvent.click(kebab);
+
+      const body = within(document.body);
+      const editItem = await body.findByText(/^edit access$/i);
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
+
+      const removeItem = await body.findByText(/^remove access$/i);
+      await expect(removeItem.closest('button')).toHaveAttribute('disabled');
+      await expect(removeItem.closest('li')).not.toHaveClass('pf-m-danger');
     });
   },
 };

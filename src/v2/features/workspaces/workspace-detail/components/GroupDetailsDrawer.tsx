@@ -89,7 +89,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   showInheritance = false,
   currentWorkspace,
   canEditAccess = false,
-  canRevokeAccess: _canRevokeAccess = false,
+  canRevokeAccess = false,
   onRemoveFromWorkspace,
 }) => {
   const intl = useIntl();
@@ -443,12 +443,14 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                               navigate(pathnames['workspace-detail-edit-access'].link(currentWorkspace.id, group.id));
                             }
                           },
+                          isDisabled: !canEditAccess || group.isDefaultGroup,
                         },
                         {
                           key: 'remove-access',
                           label: intl.formatMessage(messages.removeAccess),
-                          isDanger: true,
+                          isDanger: canRevokeAccess && !group.isDefaultGroup,
                           onClick: () => onRemoveFromWorkspace?.(group),
+                          isDisabled: !canRevokeAccess || group.isDefaultGroup,
                         },
                       ];
                       return <ActionDropdown items={items} ariaLabel={`Actions for ${group.name}`} ouiaId={`${ouiaId}-drawer-actions`} />;
@@ -485,7 +487,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                 <Flex className="pf-v6-u-px-md pf-v6-u-pt-md pf-v6-u-pb-md" gap={{ default: 'gapSm' }}>
                   <Button
                     variant="secondary"
-                    isDisabled={!canEditAccess}
+                    isDisabled={!canEditAccess || group?.isDefaultGroup}
                     onClick={() =>
                       group && currentWorkspace && navigate(pathnames['workspace-detail-edit-access'].link(currentWorkspace.id, group.id))
                     }

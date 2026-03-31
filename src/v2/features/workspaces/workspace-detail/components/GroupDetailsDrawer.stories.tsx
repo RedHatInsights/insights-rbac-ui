@@ -638,3 +638,120 @@ export const AdminDefaultUsersTab: Story = {
     });
   },
 };
+
+/** Default group: both actions disabled even with full permissions. */
+export const DefaultGroupActionsDisabled: Story = {
+  render: (args) => <DrawerExample {...args} />,
+  args: {
+    isOpen: true,
+    group: defaultAccessWorkspaceGroup,
+    onClose: fn(),
+    ouiaId: 'group-details-drawer-default-group-disabled',
+    canEditAccess: true,
+    canRevokeAccess: true,
+    onRemoveFromWorkspace: fn(),
+  },
+  parameters: {
+    msw: {
+      handlers: [...createGroupMembersHandlers({}, {})],
+    },
+    docs: {
+      description: {
+        story:
+          'Default access group with full permissions granted. Both kebab actions and the bottom "Edit access" button are disabled because system-managed default groups cannot have their bindings edited.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify kebab actions disabled for default group', async () => {
+      const kebab = await canvas.findByLabelText(`Actions for ${GROUP_SYSTEM_DEFAULT.name}`);
+      await userEvent.click(kebab);
+
+      const body = within(document.body);
+      const editItem = await body.findByText(/^edit access$/i);
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
+
+      const removeItem = await body.findByText(/^remove access$/i);
+      await expect(removeItem.closest('button')).toHaveAttribute('disabled');
+      await expect(removeItem.closest('li')).not.toHaveClass('pf-m-danger');
+    });
+
+    await step('Verify bottom edit button disabled for default group', async () => {
+      const editButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
+      await expect(editButton).toBeDisabled();
+    });
+  },
+};
+
+/** Kebab dropdown: both items enabled when permissions are granted. */
+export const KebabActionsEnabled: Story = {
+  render: (args) => <DrawerExample {...args} />,
+  args: {
+    isOpen: true,
+    group: mockGroup,
+    onClose: fn(),
+    ouiaId: 'group-details-drawer-kebab-enabled',
+    canEditAccess: true,
+    canRevokeAccess: true,
+    onRemoveFromWorkspace: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Drawer kebab dropdown with both edit and revoke permissions granted. Both items should be enabled.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Open kebab and verify both items enabled', async () => {
+      const kebab = await canvas.findByLabelText(`Actions for ${mockGroup.name}`);
+      await userEvent.click(kebab);
+
+      const body = within(document.body);
+      const editItem = await body.findByText(/^edit access$/i);
+      await expect(editItem.closest('button')).not.toHaveAttribute('disabled');
+
+      const removeItem = await body.findByText(/^remove access$/i);
+      await expect(removeItem.closest('button')).not.toHaveAttribute('disabled');
+      await expect(removeItem.closest('li')).toHaveClass('pf-m-danger');
+    });
+  },
+};
+
+/** Kebab dropdown: both items disabled when permissions are denied. */
+export const KebabActionsDisabled: Story = {
+  render: (args) => <DrawerExample {...args} />,
+  args: {
+    isOpen: true,
+    group: mockGroup,
+    onClose: fn(),
+    ouiaId: 'group-details-drawer-kebab-disabled',
+    canEditAccess: false,
+    canRevokeAccess: false,
+    onRemoveFromWorkspace: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Drawer kebab dropdown with both edit and revoke permissions denied. Both items should be disabled.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Open kebab and verify both items disabled', async () => {
+      const kebab = await canvas.findByLabelText(`Actions for ${mockGroup.name}`);
+      await userEvent.click(kebab);
+
+      const body = within(document.body);
+      const editItem = await body.findByText(/^edit access$/i);
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
+
+      const removeItem = await body.findByText(/^remove access$/i);
+      await expect(removeItem.closest('button')).toHaveAttribute('disabled');
+      await expect(removeItem.closest('li')).not.toHaveClass('pf-m-danger');
+    });
+  },
+};

@@ -106,7 +106,7 @@ export const DEFAULT_WORKSPACES: WorkspacesWorkspace[] = [
     name: 'Default Workspace',
     description: 'Default workspace for the organization',
     parent_id: 'root-1',
-    type: 'standard',
+    type: 'default',
     created: '2024-01-01T12:00:00Z',
     modified: '2024-01-01T12:00:00Z',
   },

@@ -81,10 +81,14 @@ Role binding operations use dedicated Kessel permissions from `useRoleBindingsAc
 **Enforcement points:**
 - **Tab content** (`DirectRolesTab`, `InheritedRolesTab`): `useRoleBindingsAccess(workspaceId).canView` — when denied, renders `<UnauthorizedAccess>` inside the `WorkspaceDetailLayout` (header and tabs chrome remain visible)
 - **Toolbar "Grant access" button** (`BaseGroupAssignmentsTable`): `canGrantAccess` prop, gated on `role_binding_grant` + M4 flag
-- **Row kebab "Edit access"** (`BaseGroupAssignmentsTable`): `canEditAccess` prop, gated on `role_binding_grant`
-- **Row kebab "Remove from workspace"** (`BaseGroupAssignmentsTable`): `canRevokeAccess` prop, gated on `role_binding_revoke`
-- **Drawer "Edit access" / "Remove from workspace" buttons** (`GroupDetailsDrawer`): same props, passed through
+- **Row kebab "Edit access"** (`BaseGroupAssignmentsTable`): `canEditAccess` prop, gated on `role_binding_grant`; also disabled for default groups (`isDefaultGroup`)
+- **Row kebab "Remove from workspace"** (`BaseGroupAssignmentsTable`): `canRevokeAccess` prop, gated on `role_binding_revoke`; also disabled for default groups (`isDefaultGroup`)
+- **Drawer kebab "Edit access"** (`GroupDetailsDrawer`): `canEditAccess` prop, gated on `role_binding_grant`; also disabled for default groups
+- **Drawer kebab "Remove access"** (`GroupDetailsDrawer`): `canRevokeAccess` prop, gated on `role_binding_revoke`; also disabled for default groups
+- **Drawer bottom "Edit access for this workspace" button** (`GroupDetailsDrawer`): `canEditAccess` prop; also disabled for default groups
 - **Route guard for grant-access wizard and edit-access modal**: `v2RoleBindingGuard('grant')` in `WorkspaceDetailShell` — renders `<UnauthorizedAccess>` on direct URL navigation without `role_binding_grant`
+
+**Default groups** (`Default access`, `Default admin access`): These system-managed groups are identified by `isDefaultGroup: true` on `WorkspaceGroupRow`. Their role bindings cannot be edited or removed — all action items are unconditionally disabled regardless of the user's Kessel permissions.
 
 ## Federated modules
 
