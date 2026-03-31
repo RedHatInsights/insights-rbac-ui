@@ -131,12 +131,12 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
 
   const resourceTypes = useMemo(() => (resourceTypesData?.data ?? []) as ResourceType[], [resourceTypesData]);
 
-  // Get unique resource paths needed for permissions
+  // Get unique resource paths needed for permissions (use full path from API response)
   const resourcePaths = useMemo(() => {
     if (isLoading) return [];
-    return [
-      ...new Set(permissions.map((permission) => resourceTypes.find((r) => r.value === permission.uuid.split(':')?.[1])?.path?.split('/')?.[5])),
-    ].filter((path): path is string => Boolean(path));
+    return [...new Set(permissions.map((permission) => resourceTypes.find((r) => r.value === permission.uuid.split(':')?.[1])?.path))].filter(
+      (path): path is string => Boolean(path),
+    );
   }, [permissions, resourceTypes, isLoading]);
 
   // Fetch resources for all unique paths in parallel using useQueries
@@ -184,7 +184,7 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
   const onSelect = (selection: string, selectAll: boolean, key: string) =>
     selectAll ? dispatchLocaly({ type: 'selectAll', selection, key }) : dispatchLocaly({ type: 'select', selection, key });
 
-  const permissionToResource = (permission: string) => resourceTypes.find((r) => r.value === permission.split(':')?.[1])?.path?.split('/')?.[5];
+  const permissionToResource = (permission: string) => resourceTypes.find((r) => r.value === permission.split(':')?.[1])?.path;
 
   // Initialize form and load saved resource definitions
   useEffect(() => {
@@ -257,6 +257,7 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
         <GridItem md={8} sm={12}>
           <Select
             className="rbac-m-resource-type-select"
+            maxMenuHeight="300px"
             isOpen={isOpen}
             onSelect={(_event, value) => {
               if (value === selectAllLabel) {

@@ -8,7 +8,6 @@ import { TableView } from '../../../../shared/components/table-view/TableView';
 import { useTableState } from '../../../../shared/components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../shared/components/table-view/components/TableViewEmptyState';
 import { useExpandSplatsQuery, usePermissionOptionsQuery, usePermissionsQuery } from '../../../../shared/data/queries/permissions';
-import { useResourceTypesQuery } from '../../../../shared/data/queries/cost';
 import { useRoleQuery } from '../../../data/queries/roles';
 import messages from '../../../../Messages';
 import type { ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
@@ -25,11 +24,6 @@ interface SelectedPermission {
   uuid: string;
   requires?: string[];
   application?: string;
-}
-
-interface ResourceType {
-  value: string;
-  count?: number;
 }
 
 interface AddPermissionsTableProps {
@@ -87,11 +81,10 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
     allowedOnly: true,
   });
 
-  // Filter options queries
+  // Filter options queries — each dimension excludes its own filter to avoid self-narrowing
   const { data: applicationOptionsData } = usePermissionOptionsQuery({
     field: 'application',
     limit: 50,
-    application: filters.applications.join(',') || undefined,
     resourceType: filters.resources.join(',') || undefined,
     verb: filters.operations.join(',') || undefined,
     allowedOnly: true,
@@ -101,7 +94,6 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
     field: 'resource_type',
     limit: 50,
     application: filters.applications.join(',') || undefined,
-    resourceType: filters.resources.join(',') || undefined,
     verb: filters.operations.join(',') || undefined,
     allowedOnly: true,
   });
@@ -111,12 +103,8 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
     limit: 50,
     application: filters.applications.join(',') || undefined,
     resourceType: filters.resources.join(',') || undefined,
-    verb: filters.operations.join(',') || undefined,
     allowedOnly: true,
   });
-
-  // Cost resource types query (for checking if cost permissions are available)
-  const { data: resourceTypesData } = useResourceTypesQuery({ enabled: hasCostAccess ?? false });
 
   // Base role query (for copy mode)
   const { data: baseRole, isLoading: isLoadingBaseRole } = useRoleQuery(copyBaseRole?.uuid ?? '', {
@@ -162,13 +150,9 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
 
   const operationOptions = useMemo(() => (operationOptionsData?.data || []).filter((op) => op !== '*'), [operationOptionsData]);
 
-  const resourceTypes: ResourceType[] = useMemo(() => (resourceTypesData?.data || []) as ResourceType[], [resourceTypesData]);
-
   const expandedPermissions = useMemo(() => (expandSplatsData?.data || []).map(({ permission }) => permission), [expandSplatsData]);
 
   const isLoading = isLoadingPermissions || isLoadingBaseRole;
-
-  const getResourceType = (permission: string) => resourceTypes.find((r) => r.value === permission.split(':')?.[1]);
 
   // ============================================================================
   // Copy Mode: Auto-select base role permissions
@@ -206,7 +190,7 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
       const patterns = basePermissionsList.map(({ permission }) => permission.replace('*', '.*'));
       setSelectedPermissions(() =>
         expandedPermissions
-          .filter((p) => p.split(':')[0] !== 'cost-management' || (getResourceType(p)?.count || 0) !== 0)
+          .filter((p) => p.split(':')[0] !== 'cost-management' || hasCostAccess)
           .filter((p) => patterns.some((f) => p.match(f)))
           .map((permission) => ({ uuid: permission })),
       );
@@ -223,7 +207,6 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
     isLoading,
     expandedPermissions,
     applicationOptions,
-    resourceTypes,
   ]);
 
   // Sync selected permissions to form
@@ -238,9 +221,7 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
 
   const handleSelectRow = (row: Permission, selected: boolean) => {
     const application = row.application;
-    const isDisabled =
-      (application === 'cost-management' && ((getResourceType(row.uuid)?.count || 0) === 0 || !hasCostAccess)) ||
-      (application === 'inventory' && !inventoryAccess);
+    const isDisabled = (application === 'cost-management' && !hasCostAccess) || (application === 'inventory' && !inventoryAccess);
 
     if (isDisabled) return;
 
@@ -256,9 +237,7 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
       const newSelected = rows
         .filter((row) => {
           const application = row.application;
-          const isDisabled =
-            (application === 'cost-management' && ((getResourceType(row.uuid)?.count || 0) === 0 || !hasCostAccess)) ||
-            (application === 'inventory' && !inventoryAccess);
+          const isDisabled = (application === 'cost-management' && !hasCostAccess) || (application === 'inventory' && !inventoryAccess);
           return !isDisabled;
         })
         .map((row) => ({ uuid: row.uuid, requires: row.requires }));
@@ -276,10 +255,7 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
 
   const isRowSelectable = (row: Permission) => {
     const application = row.application;
-    return !(
-      (application === 'cost-management' && ((getResourceType(row.uuid)?.count || 0) === 0 || !hasCostAccess)) ||
-      (application === 'inventory' && !inventoryAccess)
-    );
+    return !((application === 'cost-management' && !hasCostAccess) || (application === 'inventory' && !inventoryAccess));
   };
 
   // ============================================================================

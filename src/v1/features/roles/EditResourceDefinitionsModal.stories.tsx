@@ -6,7 +6,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EditResourceDefinitionsModal } from './EditResourceDefinitionsModal';
 import { v1RolesHandlers } from '../../data/mocks/roles.handlers';
 import type { RoleOutDynamic } from '../../data/mocks/db';
-import { inventoryHandlers, inventoryLoadingHandlers } from '../../data/mocks/inventory.handlers';
+import { inventoryHandlers, inventoryLoadingHandlers } from '../../../shared/data/mocks/inventory.handlers';
 
 // API Spies
 const updateRoleSpy = fn();

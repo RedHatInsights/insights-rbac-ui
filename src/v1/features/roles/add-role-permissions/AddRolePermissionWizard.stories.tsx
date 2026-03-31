@@ -7,7 +7,7 @@ import { AddRolePermissionWizard } from './AddRolePermissionWizard';
 import { v1RolesHandlers } from '../../../data/mocks/roles.handlers';
 import type { RoleOutDynamic } from '../../../data/mocks/db';
 import { permissionsHandlers } from '../../../../shared/data/mocks/permissions.handlers';
-import { inventoryHandlers } from '../../../data/mocks/inventory.handlers';
+import { inventoryHandlers } from '../../../../shared/data/mocks/inventory.handlers';
 
 // API Spies
 const updateRoleSpy = fn();

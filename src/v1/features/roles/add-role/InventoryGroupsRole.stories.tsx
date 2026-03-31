@@ -5,8 +5,8 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import InventoryGroupsRole from './InventoryGroupsRole';
-import { createInventoryHandlers } from '../../../data/mocks/inventory.handlers';
-import { type MockInventoryGroup, defaultInventoryGroups } from '../../../data/mocks/inventory.fixtures';
+import { createInventoryHandlers } from '../../../../shared/data/mocks/inventory.handlers';
+import { type MockInventoryGroup, defaultInventoryGroups } from '../../../../shared/data/mocks/inventory.fixtures';
 
 const FIXTURE_GROUP_1 = defaultInventoryGroups[0];
 const FIXTURE_GROUP_2 = defaultInventoryGroups[1];

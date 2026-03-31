@@ -8,8 +8,8 @@ import { expandRoleGroups, expectAddRoleLinkHidden, expectAddRoleLinkVisible, ge
 import { clickWizardNext, waitForContentReady, waitForModal } from '../../test-utils/interactionHelpers';
 import { createV1MockDb } from '../../v1/data/mocks/db';
 import { createV1Handlers } from '../../v1/data/mocks/handlers';
-import { createInventoryHandlers } from '../../v1/data/mocks/inventory.handlers';
-import { defaultInventoryGroups } from '../../v1/data/mocks/inventory.fixtures';
+import { createInventoryHandlers } from '../../shared/data/mocks/inventory.handlers';
+import { defaultInventoryGroups } from '../../shared/data/mocks/inventory.fixtures';
 import { ENVIRONMENTS } from '../_shared/environments';
 import {
   DEFAULT_GROUPS,

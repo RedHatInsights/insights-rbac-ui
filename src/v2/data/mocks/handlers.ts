@@ -21,6 +21,7 @@ import { createPermissionsHandlers } from '../../../shared/data/mocks/permission
 import { createServiceAccountsHandlers } from '../../../shared/data/mocks/serviceAccounts.handlers';
 import { type AccountManagementHandlerOptions, createAccountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
 import { staticAssetsHandlers } from '../../../shared/data/mocks/staticAssets.handlers';
+import { createCostHandlers } from '../../../shared/data/mocks/cost.handlers';
 
 export interface V2HandlerSpies {
   groups?: Partial<GroupsHandlerOptions>;
@@ -57,6 +58,7 @@ export function createV2Handlers(db: V2MockDb, spies: V2HandlerSpies = {}) {
     ...createServiceAccountsHandlers(db.serviceAccounts.all()),
     ...createAccountManagementHandlers(spies.accountManagement),
     ...auditHandlers(),
+    ...createCostHandlers(),
     ...staticAssetsHandlers(),
   ];
 }

@@ -10,8 +10,8 @@ interface NonRbacPermissionsResult {
  * Permission check for non-RBAC domains (cost-management, inventory, etc.)
  * that have no V2/Kessel equivalent.
  *
- * Uses Chrome's getUserPermissions API (V1 /access/ endpoint) which still
- * works for non-RBAC apps on V2-only orgs.
+ * Uses Chrome's getUserPermissions API (V1 /access/ endpoint) which the
+ * backend keeps enabled for services not yet onboarded to V2.
  *
  * V2 RBAC permission checks must use Kessel domain hooks — this hook is
  * strictly for domains outside RBAC's scope.

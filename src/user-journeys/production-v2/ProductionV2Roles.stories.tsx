@@ -2,7 +2,7 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { waitForContentReady } from '../../test-utils/interactionHelpers';
 import { fillCopyRoleWizard } from '../../v1/features/roles/CopyRole.helpers';
 import { fillCreateRoleWizard } from '../../v1/features/roles/CreateRole.helpers';
-import { createInventoryHandlers } from '../../v1/data/mocks/inventory.handlers';
+import { createInventoryHandlers } from '../../shared/data/mocks/inventory.handlers';
 import {
   KESSEL_GROUP_PROD_ADMINS,
   KESSEL_GROUP_VIEWERS,

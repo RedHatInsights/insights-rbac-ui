@@ -51,7 +51,7 @@ export {
   accountManagementLoadingHandlers,
 } from '../../../shared/data/mocks/accountManagement.handlers';
 export { accessHandlers, accessErrorHandlers, accessLoadingHandlers } from '../../../v1/data/mocks/access.handlers';
-export { inventoryHandlers, inventoryErrorHandlers, inventoryLoadingHandlers } from '../../../v1/data/mocks/inventory.handlers';
+export { inventoryHandlers, inventoryErrorHandlers, inventoryLoadingHandlers } from '../../../shared/data/mocks/inventory.handlers';
 export { auditHandlers, auditErrorHandlers, auditLoadingHandlers } from '../../../v2/data/mocks/audit.handlers';
 
 import { usersHandlers } from '../../../shared/data/mocks/users.handlers';

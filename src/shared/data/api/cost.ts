@@ -47,9 +47,14 @@ export async function getResourceTypes(): Promise<ResourceTypesResponse> {
 }
 
 /**
- * Get a specific resource
+ * Get a specific resource by path.
+ * Accepts the full path from the resource-types API response
+ * (e.g. "/api/cost-management/v1/resource-types/aws-accounts/")
+ * or a bare slug for backward compatibility (e.g. "aws-accounts").
  */
 export async function getResource(params: GetResourceParams): Promise<ResourceResponse> {
-  const response = await apiClient.get<ResourceResponse>(`${params.path}?limit=20000`);
+  const fullPath = params.path.includes('/') ? params.path : `${COST_API_BASE}/resource-types/${params.path}/`;
+  const separator = fullPath.includes('?') ? '&' : '?';
+  const response = await apiClient.get<ResourceResponse>(`${fullPath}${separator}limit=20000`);
   return response.data;
 }

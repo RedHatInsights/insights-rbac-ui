@@ -1,7 +1,7 @@
 import { createV1MockDb } from '../../v1/data/mocks/db';
 import { defaultV1Seed } from '../../v1/data/mocks/seed';
 import { createV1Handlers } from '../../v1/data/mocks/handlers';
-import { createInventoryHandlers } from '../../v1/data/mocks/inventory.handlers';
+import { createInventoryHandlers } from '../../shared/data/mocks/inventory.handlers';
 import type { StoryParameters } from '../../../.storybook/contexts/StorybookMockContext';
 
 /**

@@ -136,11 +136,11 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
   // Cost management queries (for non-inventory permissions)
   const { data: resourceTypesData, isLoading: isLoadingResourceTypes } = useResourceTypesQuery({ enabled: !isInventory });
 
-  // Find the resource path for this permission
+  // Find the resource path for this permission (use full path from API response)
   const resourcesPath = useMemo(() => {
     if (isInventory || !resourceTypesData?.data) return undefined;
     const resourceType = resourceTypesData.data.find((r) => r.value === permissionId?.split(':')?.[1]);
-    return resourceType?.path?.split('/')[5];
+    return resourceType?.path;
   }, [resourceTypesData, permissionId, isInventory]);
 
   // Fetch specific resource data for cost management

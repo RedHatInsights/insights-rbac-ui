@@ -1,5 +1,13 @@
 import { HttpResponse, delay, http } from 'msw';
-import { type MockCostResourceType, type MockInventoryGroup, defaultCostResourceTypes, defaultInventoryGroups } from './inventory.fixtures';
+import {
+  type MockCostResource,
+  type MockCostResourceType,
+  type MockInventoryGroup,
+  defaultCostResourceTypes,
+  defaultCostResources,
+  defaultInventoryGroups,
+} from './inventory.fixtures';
+import { createCostHandlers } from './cost.handlers';
 
 const MOCK_DELAY = 200;
 
@@ -12,6 +20,7 @@ export function createInventoryHandlers(
   inventoryGroups: MockInventoryGroup[] = defaultInventoryGroups,
   costResourceTypes: MockCostResourceType[] = defaultCostResourceTypes,
   options: InventoryHandlerOptions = {},
+  costResources: Record<string, MockCostResource[]> = defaultCostResources,
 ) {
   const networkDelay = options.networkDelay ?? MOCK_DELAY;
 
@@ -57,10 +66,7 @@ export function createInventoryHandlers(
       return HttpResponse.json({ results: matched, total: matched.length });
     }),
 
-    http.get('*/api/cost-management/v1/resource-types/', async () => {
-      await delay(networkDelay);
-      return HttpResponse.json({ data: costResourceTypes });
-    }),
+    ...createCostHandlers(costResourceTypes, costResources, { networkDelay }),
   ];
 }
 
@@ -81,6 +87,7 @@ export function inventoryErrorHandlers(status: number = 500) {
     http.get('*/api/inventory/v1/resource-types/inventory-groups', () => HttpResponse.json(body, { status })),
     http.get('*/api/inventory/v1/groups/:groupIds', () => HttpResponse.json(body, { status })),
     http.get('*/api/cost-management/v1/resource-types/', () => HttpResponse.json(body, { status })),
+    http.get('*/api/cost-management/v1/resource-types/:resourceTypeSlug/', () => HttpResponse.json(body, { status })),
   ];
 }
 
@@ -95,5 +102,6 @@ export function inventoryLoadingHandlers() {
     http.get('*/api/inventory/v1/resource-types/inventory-groups', handler),
     http.get('*/api/inventory/v1/groups/:groupIds', handler),
     http.get('*/api/cost-management/v1/resource-types/', handler),
+    http.get('*/api/cost-management/v1/resource-types/:resourceTypeSlug/', handler),
   ];
 }
