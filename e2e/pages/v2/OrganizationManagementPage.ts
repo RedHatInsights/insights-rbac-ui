@@ -65,6 +65,8 @@ export class OrganizationManagementPage {
   }
 
   get grantAccessWizard(): Locator {
-    return this.page.getByRole('dialog');
+    // The wizard renders two role=dialog elements (PF modal wrapper + inner wizard).
+    // Target the inner wizard directly by its stable OUIA ID to avoid strict mode violations.
+    return this.page.locator('[data-ouia-component-id="grant-access-wizard"]');
   }
 }

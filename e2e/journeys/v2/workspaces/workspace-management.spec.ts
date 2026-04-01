@@ -162,7 +162,8 @@ test.describe('Workspace Management', () => {
       await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME!);
 
       await page.getByRole('button', { name: /actions/i }).click();
-      await expect(page.getByRole('menuitem', { name: /delete/i })).toHaveAttribute('aria-disabled', 'true', {
+      // PatternFly uses HTML `disabled` attribute (not aria-disabled) on the menu button
+      await expect(page.getByRole('menuitem', { name: /delete/i })).toBeDisabled({
         timeout: E2E_TIMEOUTS.MENU_ANIMATION,
       });
     });

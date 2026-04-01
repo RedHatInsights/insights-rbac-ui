@@ -122,8 +122,19 @@ export class WorkspacesPage {
       timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
     });
 
-    // Select parent workspace — the tree is now always inline (no toggle to open).
-    // This step is absent when creating via kebab (parent pre-selected, wizard starts at details step).
+    // Step 1: Details — always the first step. Fill name and description.
+    await this.page.getByRole('textbox', { name: /workspace name/i }).fill(name);
+    const descInput = this.page.getByRole('textbox', { name: /workspace description/i });
+    if (await descInput.isVisible()) {
+      await descInput.fill(description);
+    }
+
+    // Advance past the details step
+    await this.page.getByRole('button', { name: /^next$/i }).click();
+
+    // Step 2 (optional): Select parent workspace.
+    // This step appears when creating from the list page (skipParentStep=false).
+    // It is absent when creating via kebab (parent is pre-selected, skipParentStep=true).
     const tree = this.page.getByRole('tree');
     const isParentStepVisible = await tree.isVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT }).catch(() => false);
     if (isParentStepVisible && parentWorkspace) {
@@ -138,30 +149,16 @@ export class WorkspacesPage {
 
       await targetItem.getByRole('button', { name: parentWorkspace }).last().click();
 
-      // Advance to the details step
+      // Advance to the review step
       await this.page.getByRole('button', { name: /^next$/i }).click();
     }
 
-    // Fill name and description
-    await this.page.getByRole('textbox', { name: /workspace name/i }).fill(name);
-    const descInput = this.page.getByRole('textbox', { name: /workspace description/i });
-    if (await descInput.isVisible()) {
-      await descInput.fill(description);
-    }
-
-    // Click Next to proceed to review step, then submit
-    const nextButton = this.page.getByRole('button', { name: /^next$/i });
-    if (await nextButton.isEnabled({ timeout: E2E_TIMEOUTS.BUTTON_STATE }).catch(() => false)) {
-      await nextButton.click();
-      // Wait for review step — use the heading to avoid matching "Preview mode" banner text
-      await expect(this.page.getByRole('heading', { name: /review new workspace/i })).toBeVisible({
-        timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
-      });
-      // Submit — use exact match to avoid hitting "Create workspace" button on the main page
-      await this.page.getByRole('button', { name: 'Submit' }).click();
-    } else {
-      await this.page.getByRole('button', { name: /^submit$/i }).click();
-    }
+    // Wait for review step — use the heading to avoid matching "Preview mode" banner text
+    await expect(this.page.getByRole('heading', { name: /review new workspace/i })).toBeVisible({
+      timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
+    });
+    // Submit — use exact match to avoid hitting "Create workspace" button on the main page
+    await this.page.getByRole('button', { name: 'Submit' }).click();
 
     // Wait for the modal to close (success) — workspace creation API can be slow on stage
     await expect(this.page.getByRole('heading', { name: /create new workspace/i })).not.toBeVisible({

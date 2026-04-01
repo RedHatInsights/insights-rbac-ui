@@ -166,7 +166,8 @@ test.describe('User Group Management', () => {
       await groupsPage.goto();
 
       await page.getByRole('button', { name: 'Actions for group Default access' }).click();
-      await expect(page.getByRole('menuitem', { name: /delete user group/i })).toHaveAttribute('aria-disabled', 'true', {
+      // PatternFly uses HTML `disabled` attribute (not aria-disabled) on the menu button
+      await expect(page.getByRole('menuitem', { name: /delete user group/i })).toBeDisabled({
         timeout: E2E_TIMEOUTS.MENU_ANIMATION,
       });
     });
@@ -176,7 +177,8 @@ test.describe('User Group Management', () => {
       await groupsPage.goto();
 
       await page.getByRole('button', { name: 'Actions for group Default admin access' }).click();
-      await expect(page.getByRole('menuitem', { name: /delete user group/i })).toHaveAttribute('aria-disabled', 'true', {
+      // PatternFly uses HTML `disabled` attribute (not aria-disabled) on the menu button
+      await expect(page.getByRole('menuitem', { name: /delete user group/i })).toBeDisabled({
         timeout: E2E_TIMEOUTS.MENU_ANIMATION,
       });
     });
