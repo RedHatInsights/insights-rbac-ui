@@ -167,7 +167,8 @@ export class GroupsPage {
     const modal = this.page.getByRole('dialog', { name: /add members/i });
     await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
-    const modalTable = new TableComponent(this.page, modal.getByRole('grid', { name: /users/i }));
+    // Scope to modal so grid getter finds the single grid inside it
+    const modalTable = new TableComponent(this.page, modal);
     await expect(modalTable.grid).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     for (let i = 0; i < count; i++) {
@@ -192,7 +193,8 @@ export class GroupsPage {
   }
 
   async selectMemberRows(count: number): Promise<void> {
-    const membersTableComponent = new TableComponent(this.page, this.page.getByRole('grid').first());
+    // Use page-scoped TableComponent — container must be a parent, not the grid itself
+    const membersTableComponent = new TableComponent(this.page);
     for (let i = 0; i < count; i++) {
       await membersTableComponent.selectRowByIndex(i);
       await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
@@ -232,7 +234,8 @@ export class GroupsPage {
     const modal = this.page.getByRole('dialog', { name: /add roles/i });
     await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
-    const modalTable = new TableComponent(this.page, modal.getByRole('grid', { name: /roles/i }));
+    // Scope to modal so grid getter finds the single grid inside it
+    const modalTable = new TableComponent(this.page, modal);
     await expect(modalTable.grid).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
     for (let i = 0; i < count; i++) {
@@ -257,8 +260,9 @@ export class GroupsPage {
   }
 
   async selectRoleRows(count: number): Promise<void> {
-    await expect(this.page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-    const rolesTableComponent = new TableComponent(this.page, this.page.getByRole('grid'));
+    // Use page-scoped TableComponent — container must be a parent, not the grid itself
+    const rolesTableComponent = new TableComponent(this.page);
+    await expect(rolesTableComponent.grid).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     for (let i = 0; i < count; i++) {
       await rolesTableComponent.selectRowByIndex(i);
     }
@@ -311,14 +315,14 @@ export class GroupsPage {
 
     await clickWizardNext();
 
-    // Step 2: Roles
-    const wizardRolesTable = new TableComponent(this.page, wizard.getByRole('grid', { name: /roles/i }));
+    // Step 2: Roles — scope to wizard (container must be parent, not the grid itself)
+    const wizardRolesTable = new TableComponent(this.page, wizard);
     await expect(wizardRolesTable.grid).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await wizardRolesTable.selectRowByIndex(0);
     await clickWizardNext();
 
-    // Step 3: Members
-    const wizardMembersTable = new TableComponent(this.page, wizard.getByRole('grid', { name: /users|members/i }));
+    // Step 3: Members — scope to wizard (container must be parent, not the grid itself)
+    const wizardMembersTable = new TableComponent(this.page, wizard);
     await expect(wizardMembersTable.grid).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     await wizardMembersTable.selectRowByIndex(0);
     await clickWizardNext();

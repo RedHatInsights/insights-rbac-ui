@@ -207,11 +207,6 @@ export class UserGroupsPage {
     return this.page.getByRole('grid', { name: /edit group service accounts/i });
   }
 
-  /** TableComponent scoped to the edit-page service accounts table. */
-  get editSATableComponent(): TableComponent {
-    return new TableComponent(this.page, this.editPageServiceAccountsTable);
-  }
-
   // ═══════════════════════════════════════════════════════════════════════════
   // Edit Page Actions
   // ═══════════════════════════════════════════════════════════════════════════
@@ -306,7 +301,7 @@ export class UserGroupsPage {
    * Get the checkbox for a specific service account row in the edit page SA table.
    */
   getSARowCheckbox(clientId: string): Locator {
-    return this.editSATableComponent.getRowByText(clientId).getByRole('checkbox');
+    return this.editPageServiceAccountsTable.getByRole('row').filter({ hasText: clientId }).getByRole('checkbox');
   }
 
   async selectSAInEditPage(clientId: string): Promise<void> {
