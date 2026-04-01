@@ -24,7 +24,7 @@
       "display_name": "Child Role",
       "description": "Role for child workspace testing",
       "permissions": [
-        "vulnerability:vulnerability.report:read"
+        "vulnerability:report_and_export:read"
       ]
     }
   ],

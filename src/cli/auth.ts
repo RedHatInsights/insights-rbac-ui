@@ -16,7 +16,14 @@ import * as os from 'os';
 // Configuration
 // ============================================================================
 
-const TOKEN_CACHE_FILE = path.join(os.homedir(), '.rbac-cli-token');
+const TOKEN_CACHE_DIR = path.join(os.homedir(), '.rbac-cli');
+
+function getTokenCacheFile(): string {
+  const env = getCurrentEnv();
+  const username = process.env.RBAC_USERNAME ?? 'default';
+  const safeUsername = username.replace(/[^a-zA-Z0-9_-]/g, '_');
+  return path.join(TOKEN_CACHE_DIR, `token-${env}-${safeUsername}.json`);
+}
 const TOKEN_EXPIRY_BUFFER_MS = 5 * 60 * 1000; // Consider token expired 5 mins before actual expiry
 const LOGGED_IN_INDICATOR = 'Welcome to your Hybrid Cloud Console'; // Text indicating successful login
 
@@ -97,7 +104,7 @@ interface CachedToken {
  */
 async function readCachedToken(): Promise<CachedToken | null> {
   try {
-    const content = await fs.readFile(TOKEN_CACHE_FILE, 'utf-8');
+    const content = await fs.readFile(getTokenCacheFile(), 'utf-8');
     const cached = JSON.parse(content) as CachedToken;
     return cached;
   } catch {
@@ -109,9 +116,11 @@ async function readCachedToken(): Promise<CachedToken | null> {
  * Write token to cache file
  */
 async function writeCachedToken(cached: CachedToken): Promise<void> {
-  await fs.writeFile(TOKEN_CACHE_FILE, JSON.stringify(cached, null, 2), 'utf-8');
+  const cacheFile = getTokenCacheFile();
+  await fs.mkdir(TOKEN_CACHE_DIR, { recursive: true });
+  await fs.writeFile(cacheFile, JSON.stringify(cached, null, 2), 'utf-8');
   // Set restrictive permissions (owner read/write only)
-  await fs.chmod(TOKEN_CACHE_FILE, 0o600);
+  await fs.chmod(cacheFile, 0o600);
 }
 
 /**
@@ -278,7 +287,7 @@ export async function getToken(options?: { skipCache?: boolean }): Promise<strin
  */
 export async function clearToken(): Promise<void> {
   try {
-    await fs.unlink(TOKEN_CACHE_FILE);
+    await fs.unlink(getTokenCacheFile());
     console.error('✓ Cached token cleared');
   } catch {
     // File might not exist, that's fine

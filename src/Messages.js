@@ -531,20 +531,10 @@ export default defineMessages({
     description: 'Add group member error notification description',
     defaultMessage: 'The member was not added successfully.',
   },
-  addGroupServiceAccountsSuccessTitle: {
-    id: 'addGroupServiceAccountsSuccessTitle',
-    description: 'Add group service accounts success notification title',
-    defaultMessage: 'Success adding service accounts to group',
-  },
   addGroupServiceAccountSuccessTitle: {
     id: 'addGroupServiceAccountSuccessTitle',
     description: 'Add group service account success notification title',
     defaultMessage: 'Success adding service account to group',
-  },
-  addGroupServiceAccountsErrorTitle: {
-    id: 'addGroupServiceAccountsErrorTitle',
-    description: 'Add group service accounts error notification title',
-    defaultMessage: 'Failed adding service accounts to group',
   },
   addGroupServiceAccountErrorTitle: {
     id: 'addGroupServiceAccountErrorTitle',
@@ -2839,11 +2829,6 @@ export default defineMessages({
     id: 'usersAndUserGroupsDescription',
     description: 'Users and user groups description',
     defaultMessage: 'These are all of the users in your Red Hat organization. Create User Groups to define access across your workspaces.',
-  },
-  createUserGroup: {
-    id: 'createUserGroup',
-    description: 'Create user group',
-    defaultMessage: 'Create User Group',
   },
   usersAndUserGroupsAdd: {
     id: 'usersAndUserGroupsAdd',

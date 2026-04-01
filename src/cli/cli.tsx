@@ -270,12 +270,7 @@ import { ErrorBoundary, HeadlessCleanup, HeadlessSeeder, InteractiveDashboard } 
 import { type SeedPayload, SeedPayloadSchema } from './types.js';
 import { clearToken, getApiBaseUrl, getToken, getTokenInfo } from './auth.js';
 import { createCliServices, getApiClient, getCurrentToken, initializeApiClient } from './api-client.js';
-// Use file URL for ESM compatibility with tsx on Node 22
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const { ServiceProvider } = await import(resolve(__dirname, '../shared/contexts/ServiceContext.js'));
+import { ServiceProvider } from '../shared/contexts/ServiceContext.js';
 import type { AppServices } from '../shared/contexts/ServiceContext.js';
 import { useGroupsQuery, useRolesQuery, useWorkspacesQuery } from './queries.js';
 

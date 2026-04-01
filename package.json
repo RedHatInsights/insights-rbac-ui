@@ -125,6 +125,7 @@
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.3.0",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.17",
@@ -192,7 +193,10 @@
     "test-storybook": "test-storybook --excludeTags skip-test --testTimeout=30000",
     "test-storybook:fast": "CI=true test-storybook --excludeTags skip-test --testTimeout=30000",
     "test-storybook:ci": "test-storybook --ci --excludeTags skip-test --testTimeout=60000",
-    "cli": "node --import tsx src/cli/cli.tsx"
+    "cli": "node dist-cli/cli.mjs",
+    "build:cli": "tsup --config tsup.config.cli.ts",
+    "precli": "npm run build:cli",
+    "cli:dev": "node --conditions=node,import --import tsx src/cli/cli.tsx"
   },
   "insights": {
     "appname": "rbac"
