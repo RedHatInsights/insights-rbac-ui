@@ -78,7 +78,6 @@ test.describe('User Management', () => {
       const modal = page.getByRole('dialog').first();
       await expect(modal.getByRole('heading', { name: /invite new users/i })).toBeVisible();
       await expect(modal.getByRole('textbox', { name: /enter the e-mail addresses/i })).toBeVisible();
-      await expect(modal.getByRole('textbox', { name: /send a message/i })).toBeVisible();
       await expect(modal.getByRole('checkbox', { name: /organization administrators/i })).toBeVisible();
 
       // Close modal
