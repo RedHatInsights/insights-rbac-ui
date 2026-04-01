@@ -135,27 +135,44 @@ export class WorkspacesPage {
     // Step 2 (optional): Select parent workspace.
     // This step appears when creating from the list page (skipParentStep=false).
     // It is absent when creating via kebab (parent is pre-selected, skipParentStep=true).
-    const tree = this.page.getByRole('tree');
-    const isParentStepVisible = await tree.isVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT }).catch(() => false);
+    //
+    // Detection: Use the step heading (appears immediately on step render) rather than
+    // the tree element (which is hidden behind a spinner while Kessel permissions load).
+    const selectParentHeading = this.page.getByRole('heading', { name: /select parent workspace/i });
+    const isParentStepVisible = await selectParentHeading.isVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT }).catch(() => false);
     if (isParentStepVisible && parentWorkspace) {
+      // Wait for the tree to finish loading (status='ready' in useWorkspacesWithPermissions).
+      // The tree renders a spinner until Kessel permissions settle, then shows treeitems.
+      const tree = this.page.getByRole('tree');
+      await expect(tree).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
       await expect(tree.getByRole('treeitem').first()).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
-      const targetItem = tree.getByRole('treeitem').filter({ hasText: parentWorkspace }).first();
-      if (!(await targetItem.isVisible().catch(() => false))) {
-        const rootExpandBtn = tree.getByRole('treeitem').first().getByRole('button').first();
-        await rootExpandBtn.click();
-        await expect(targetItem).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
-      }
+      // Find the target workspace treeitem by its accessible name.
+      // No search filter — avoids race conditions with filtered tree re-renders.
+      const targetItem = tree.getByRole('treeitem', { name: parentWorkspace }).first();
+      await expect(targetItem).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
-      await targetItem.getByRole('button', { name: parentWorkspace }).last().click();
+      // Click the node-text button (the select button, not the expand toggle).
+      // PF6 TreeView with hasSelectableNodes: clicking node-text bubbles to the parent
+      // div's onClick which calls onSelect, updating the DDF form field WORKSPACE_PARENT.
+      // Use .first() because child treeitems' node-text buttons are also descendants of this
+      // treeitem element; the first match is always this treeitem's own button.
+      await targetItem.locator('.pf-v6-c-tree-view__node-text').first().click();
+
+      // Wait for aria-selected="true" to confirm the selection registered in the DDF form.
+      // This is more reliable than waiting for Next to be enabled, as it confirms the
+      // full round-trip: click → onSelect → handleSelect → formOptions.change → re-render.
+      await expect(targetItem).toHaveAttribute('aria-selected', 'true', { timeout: E2E_TIMEOUTS.SLOW_DATA });
 
       // Advance to the review step
-      await this.page.getByRole('button', { name: /^next$/i }).click();
+      const nextButton = this.page.getByRole('button', { name: /^next$/i });
+      await expect(nextButton).toBeEnabled({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+      await nextButton.click();
     }
 
-    // Wait for review step — use the heading to avoid matching "Preview mode" banner text
+    // Wait for review step — use SLOW_DATA to tolerate any DDF/React render delay
     await expect(this.page.getByRole('heading', { name: /review new workspace/i })).toBeVisible({
-      timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
+      timeout: E2E_TIMEOUTS.SLOW_DATA,
     });
     // Submit — use exact match to avoid hitting "Create workspace" button on the main page
     await this.page.getByRole('button', { name: 'Submit' }).click();
@@ -167,8 +184,14 @@ export class WorkspacesPage {
   }
 
   async fillEditForm(newDescription: string, newName?: string): Promise<void> {
-    // Wait for the edit modal to fully render (workspace data + permissions loading)
-    const nameInput = this.page.getByRole('textbox', { name: /name/i });
+    // Wait for the edit modal to fully render (workspace data + permissions loading).
+    // Scope to the dialog to avoid matching other page elements.
+    // Use the HTML `name` attribute (set by DDF) rather than accessible name — the Name
+    // TextInput's label association isn't reflected as an ARIA accessible name.
+    const dialog = this.page.getByRole('dialog', { name: /edit workspace/i });
+    await expect(dialog).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+
+    const nameInput = dialog.locator('[name="name"]');
     await expect(nameInput).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
     if (newName) {
@@ -179,7 +202,7 @@ export class WorkspacesPage {
     }
 
     // Wait for description field to render — the modal loads async
-    const descInput = this.page.getByRole('textbox', { name: /description/i });
+    const descInput = dialog.locator('[name="description"]');
     await expect(descInput).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     await descInput.click();
     await descInput.selectText();
@@ -421,14 +444,19 @@ export class WorkspacesPage {
     const tree = this.page.getByRole('tree');
     await expect(tree.getByRole('treeitem').first()).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
-    const targetItem = tree.getByRole('treeitem').filter({ hasText: newParentName }).first();
-    if (!(await targetItem.isVisible().catch(() => false))) {
-      const rootExpandBtn = tree.getByRole('treeitem').first().getByRole('button').first();
-      await rootExpandBtn.click();
-      await expect(targetItem).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    // Search for the workspace to isolate it, then click the selection button
+    const searchInput = this.page.getByRole('searchbox', { name: /search workspaces/i });
+    if (await searchInput.isVisible({ timeout: E2E_TIMEOUTS.QUICK_SETTLE }).catch(() => false)) {
+      await searchInput.fill(newParentName);
+      await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
     }
 
-    await targetItem.getByRole('button', { name: newParentName }).last().click();
+    const targetItem = tree.getByRole('treeitem', { name: newParentName }).first();
+    await expect(targetItem).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+
+    // Use .first() because child treeitems' node-text buttons are also descendants of this
+    // treeitem when the tree is unfiltered; first() always picks the target treeitem's own button.
+    await targetItem.locator('.pf-v6-c-tree-view__node-text').first().click();
 
     await modal.getByRole('button', { name: /^submit$/i }).click();
     await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });

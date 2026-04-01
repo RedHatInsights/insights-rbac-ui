@@ -228,7 +228,7 @@ test.describe('Workspace Management', () => {
       await workspacesPage.goto();
 
       await workspacesPage.openRowKebab('Default Workspace');
-      await page.getByRole('menuitem', { name: /create subworkspace/i }).click();
+      await page.getByRole('menuitem', { name: /create sub-?workspace/i }).click();
 
       await workspacesPage.fillCreateModal(subworkspaceName, subworkspaceDescription, 'Default Workspace');
     });
