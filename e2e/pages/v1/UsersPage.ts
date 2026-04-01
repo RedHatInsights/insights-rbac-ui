@@ -9,16 +9,19 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { iamUrl, setupPage, v1, waitForTableUpdate } from '../../utils';
+import { iamUrl, setupPage, v1 } from '../../utils';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
+import { TableComponent } from '../components/TableComponent';
 
 const USERS_URL = iamUrl(v1.users.link());
 
 export class UsersPage {
   readonly page: Page;
+  readonly tableComponent: TableComponent;
 
   constructor(page: Page) {
     this.page = page;
+    this.tableComponent = new TableComponent(page);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -42,11 +45,7 @@ export class UsersPage {
   }
 
   get table(): Locator {
-    return this.page.getByRole('grid');
-  }
-
-  get searchInput(): Locator {
-    return this.page.getByRole('searchbox').or(this.page.getByPlaceholder(/filter|search/i));
+    return this.tableComponent.grid;
   }
 
   get inviteButton(): Locator {
@@ -71,18 +70,15 @@ export class UsersPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async searchFor(username: string): Promise<void> {
-    await this.searchInput.clear();
-    await this.searchInput.fill(username);
-    await waitForTableUpdate(this.page);
+    await this.tableComponent.search(username);
   }
 
   async clearSearch(): Promise<void> {
-    await this.searchInput.clear();
-    await waitForTableUpdate(this.page);
+    await this.tableComponent.clearSearch();
   }
 
   getUserLink(username: string): Locator {
-    return this.table.getByRole('link', { name: username, exact: true });
+    return this.tableComponent.grid.getByRole('link', { name: username, exact: true });
   }
 
   async navigateToDetail(username: string): Promise<void> {
@@ -112,52 +108,47 @@ export class UsersPage {
   // User Management (Activate/Deactivate)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  get bulkActionsButton(): Locator {
-    return this.page.getByRole('button', { name: /kebab dropdown toggle/i });
+  get bulkActionsButton(): import('@playwright/test').Locator {
+    return this.tableComponent.bulkActionsButton;
   }
 
   async selectUserRows(count: number): Promise<void> {
     for (let i = 0; i < count; i++) {
-      await this.page.getByRole('checkbox', { name: new RegExp(`select row ${i}`, 'i') }).click();
+      await this.tableComponent.selectRowByIndex(i);
       await this.page.waitForTimeout(E2E_TIMEOUTS.QUICK_SETTLE);
     }
   }
 
   async openBulkActions(): Promise<void> {
-    await this.bulkActionsButton.click();
-    await this.page.waitForTimeout(E2E_TIMEOUTS.MENU_ANIMATION);
+    await this.tableComponent.openBulkActions();
   }
 
   async deactivateSelectedUsers(): Promise<void> {
-    await this.openBulkActions();
-    await this.page.getByRole('menuitem', { name: /deactivate/i }).click();
+    await this.tableComponent.openBulkActions();
+    await this.tableComponent.clickBulkAction(/deactivate/i);
 
     // Confirm in modal
     const modal = this.page.getByRole('dialog').first();
     await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
-    // Check the confirmation checkbox
     const confirmCheckbox = modal.getByRole('checkbox', { name: /yes, i confirm/i });
     await confirmCheckbox.click();
 
-    // Click deactivate button
     await modal.getByRole('button', { name: /deactivate/i }).click();
     await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
   async activateSelectedUsers(): Promise<void> {
-    await this.openBulkActions();
-    await this.page.getByRole('menuitem', { name: /activate/i }).click();
+    await this.tableComponent.openBulkActions();
+    await this.tableComponent.clickBulkAction(/activate/i);
 
     // Confirm in modal
     const modal = this.page.getByRole('dialog').first();
     await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
-    // Check the confirmation checkbox
     const confirmCheckbox = modal.getByRole('checkbox', { name: /yes, i confirm/i });
     await confirmCheckbox.click();
 
-    // Click activate button
     await modal.getByRole('button', { name: /activate/i }).click();
     await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }

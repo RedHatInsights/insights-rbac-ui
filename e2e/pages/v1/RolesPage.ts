@@ -14,18 +14,20 @@ import {
   setupPage,
   v1,
   verifySuccessNotification,
-  waitForTableUpdate,
 } from '../../utils';
 import { fillCreateRoleWizard, fillCreateRoleWizardAsCopy, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
+import { TableComponent } from '../components/TableComponent';
 
 const ROLES_URL = iamUrl(v1.roles.link());
 
 export class RolesPage {
   readonly page: Page;
+  readonly tableComponent: TableComponent;
 
   constructor(page: Page) {
     this.page = page;
+    this.tableComponent = new TableComponent(page);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -49,11 +51,7 @@ export class RolesPage {
   }
 
   get table(): Locator {
-    return this.page.getByRole('grid');
-  }
-
-  get searchInput(): Locator {
-    return this.page.getByRole('searchbox').or(this.page.getByPlaceholder(/filter|search/i));
+    return this.tableComponent.grid;
   }
 
   get createButton(): Locator {
@@ -73,16 +71,15 @@ export class RolesPage {
   }
 
   async clearSearch(): Promise<void> {
-    await this.searchInput.clear();
-    await waitForTableUpdate(this.page);
+    await this.tableComponent.clearSearch();
   }
 
   getRoleRow(name: string): Locator {
-    return this.table.getByRole('row', { name: new RegExp(name, 'i') });
+    return this.tableComponent.getRow(name);
   }
 
   getRoleLink(name: string): Locator {
-    return this.table.getByRole('link', { name });
+    return this.tableComponent.grid.getByRole('link', { name });
   }
 
   async verifyRoleInTable(name: string): Promise<void> {

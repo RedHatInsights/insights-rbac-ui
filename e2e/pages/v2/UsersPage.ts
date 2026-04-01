@@ -11,16 +11,19 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { iamUrl, setupPage, v2, waitForTableUpdate } from '../../utils';
+import { iamUrl, setupPage, v2 } from '../../utils';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
+import { TableComponent } from '../components/TableComponent';
 
 const USERS_URL = iamUrl(v2.usersNew.link());
 
 export class UsersPage {
   readonly page: Page;
+  readonly tableComponent: TableComponent;
 
   constructor(page: Page) {
     this.page = page;
+    this.tableComponent = new TableComponent(page);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -47,11 +50,7 @@ export class UsersPage {
   }
 
   get table(): Locator {
-    return this.page.getByRole('grid');
-  }
-
-  get searchInput(): Locator {
-    return this.page.getByRole('searchbox').or(this.page.getByPlaceholder(/filter|search/i));
+    return this.tableComponent.grid;
   }
 
   get actionsMenu(): Locator {
@@ -102,30 +101,28 @@ export class UsersPage {
    * Filter users by username
    */
   async filterByUsername(username: string): Promise<void> {
-    await this.searchInput.fill(username);
-    await waitForTableUpdate(this.page);
+    await this.tableComponent.search(username);
   }
 
   /**
    * Clear the search filter
    */
   async clearFilter(): Promise<void> {
-    await this.searchInput.clear();
-    await waitForTableUpdate(this.page);
+    await this.tableComponent.clearSearch();
   }
 
   /**
    * Get a user row by username (exact match)
    */
   getUserRow(username: string): Locator {
-    return this.table.getByRole('row').filter({ hasText: username });
+    return this.tableComponent.getRowByText(username);
   }
 
   /**
    * Get the username cell/text in a row (for clicking to open drawer)
    */
   getUsernameCell(username: string): Locator {
-    return this.table.getByRole('gridcell', { name: username, exact: true });
+    return this.tableComponent.grid.getByRole('gridcell', { name: username, exact: true });
   }
 
   /**
@@ -133,8 +130,7 @@ export class UsersPage {
    * Waits for drawer content to appear (the "Assigned roles" tab is unique to the drawer).
    */
   async openUserDrawer(username: string): Promise<void> {
-    const userRow = this.getUserRow(username);
-    await userRow.click();
+    await this.getUserRow(username).click();
     await expect(this.page.getByRole('tab', { name: /assigned roles/i })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 

@@ -77,11 +77,38 @@ export class TableComponent {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Filter column switching (DataViewFilters type selector)
+  //
+  // DataViewFilters wraps all filters under a single column-type selector.
+  // The selector button shows the currently active filter name (e.g. "Requester").
+  // To use a different filter, click the current name → pick the target from the menu.
+  //
+  // Example:
+  //   Switch from "Requester" to "Resource":
+  //     await table.switchFilterColumn(/^requester$/i, /^resource$/i);
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Switch the active filter column by clicking the current type selector button
+   * and selecting the target filter type from the dropdown.
+   * @param currentColumn - accessible name of the currently active filter button
+   * @param targetColumn  - menu item name to switch to
+   */
+  async switchFilterColumn(currentColumn: string | RegExp, targetColumn: string | RegExp): Promise<void> {
+    await this.container.getByRole('button', { name: currentColumn }).click();
+    await expect(this.page.getByRole('menuitem', { name: targetColumn })).toBeVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+    await this.page.getByRole('menuitem', { name: targetColumn }).click();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Checkbox filters (DataViewCheckboxFilter)
   //
   // DataViewCheckboxFilter renders a MenuToggle whose accessible name is the
   // filter's `placeholder` prop, which defaults to "Filter by <label>...".
   // The dropdown options are role=menuitem (not role=option).
+  //
+  // IMPORTANT: The checkbox filter toggle only appears after switchFilterColumn
+  // has been used to make that filter the active one.
   //
   // Examples:
   //   Resource filter toggle → /filter by resource/i

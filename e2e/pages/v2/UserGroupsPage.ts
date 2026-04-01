@@ -18,17 +18,20 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { iamUrl, setupPage, v2, waitForTableUpdate } from '../../utils';
+import { iamUrl, setupPage, v2 } from '../../utils';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
+import { TableComponent } from '../components/TableComponent';
 
 const GROUPS_URL = iamUrl(v2.userGroups.link());
 const EDIT_GROUP_URL_PATTERN = /\/edit-group\/[\w-]+/;
 
 export class UserGroupsPage {
   readonly page: Page;
+  readonly tableComponent: TableComponent;
 
   constructor(page: Page) {
     this.page = page;
+    this.tableComponent = new TableComponent(page);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -61,11 +64,7 @@ export class UserGroupsPage {
   }
 
   get table(): Locator {
-    return this.page.getByRole('grid');
-  }
-
-  get searchInput(): Locator {
-    return this.page.getByRole('searchbox').or(this.page.getByPlaceholder(/filter|search/i));
+    return this.tableComponent.grid;
   }
 
   get createButton(): Locator {
@@ -81,21 +80,19 @@ export class UserGroupsPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async searchFor(name: string): Promise<void> {
-    await this.searchInput.clear();
-    await this.searchInput.fill(name);
-    await waitForTableUpdate(this.page);
+    await this.tableComponent.search(name);
   }
 
   getGroupRow(name: string): Locator {
-    return this.table.getByRole('row', { name: new RegExp(name, 'i') });
+    return this.tableComponent.getRow(name);
   }
 
   async verifyGroupInTable(name: string): Promise<void> {
-    await expect(this.getGroupRow(name)).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await this.tableComponent.expectRowVisible(name);
   }
 
   async verifyGroupNotInTable(name: string): Promise<void> {
-    await expect(this.getGroupRow(name)).not.toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+    await this.tableComponent.expectRowNotVisible(name);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -115,13 +112,13 @@ export class UserGroupsPage {
   }
 
   async openDrawer(name: string): Promise<void> {
-    await this.table.getByText(name).click();
+    await this.tableComponent.clickRow(name);
     await expect(this.drawer).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
     await expect(this.drawer.getByRole('heading', { name })).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
   }
 
   async closeDrawer(name: string): Promise<void> {
-    await this.table.getByText(name).click();
+    await this.tableComponent.clickRow(name);
     await expect(this.drawer.getByRole('heading', { name })).not.toBeVisible({ timeout: E2E_TIMEOUTS.DRAWER_ANIMATION });
   }
 
@@ -157,12 +154,11 @@ export class UserGroupsPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async openRowActions(name: string): Promise<void> {
-    const row = this.page.locator('tbody tr', { has: this.page.getByText(name) });
-    await row.getByRole('button', { name: /actions/i }).click();
+    await this.tableComponent.openRowActions(name);
   }
 
   async clickRowAction(action: string): Promise<void> {
-    await this.page.getByRole('menuitem', { name: new RegExp(action, 'i') }).click();
+    await this.tableComponent.clickRowAction(new RegExp(action, 'i'));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -202,8 +198,18 @@ export class UserGroupsPage {
     return this.editPageUsersWrapper.getByRole('grid');
   }
 
+  /** TableComponent scoped to the edit-page users table wrapper (for pagination + row interactions). */
+  get editUsersTableComponent(): TableComponent {
+    return new TableComponent(this.page, this.editPageUsersWrapper);
+  }
+
   get editPageServiceAccountsTable(): Locator {
     return this.page.getByRole('grid', { name: /edit group service accounts/i });
+  }
+
+  /** TableComponent scoped to the edit-page service accounts table. */
+  get editSATableComponent(): TableComponent {
+    return new TableComponent(this.page, this.editPageServiceAccountsTable);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -218,11 +224,9 @@ export class UserGroupsPage {
 
   /**
    * Get the checkbox for a specific user row in the edit page users table.
-   * The table uses username as the row identifier.
    */
   getUserRowCheckbox(username: string): Locator {
-    const row = this.editPageUsersTable.getByRole('row', { name: new RegExp(username, 'i') });
-    return row.getByRole('checkbox');
+    return this.editUsersTableComponent.getRow(username).getByRole('checkbox');
   }
 
   /**
@@ -267,15 +271,11 @@ export class UserGroupsPage {
       await nextButton.click();
 
       // Wait for the NEW page's data to fully load.
-      // After clicking next, the table transitions: old data → skeleton → new data.
-      // Skeleton rows have empty gridcells, so checking "text changed" isn't enough
-      // (empty string is also "different"). We use a polling assertion to wait until
-      // the first username cell is BOTH non-empty AND different from the previous page.
       await expect(async () => {
         const newText = await firstUsernameCell.textContent();
-        expect(newText).toBeTruthy(); // not null/empty (rules out skeleton rows)
+        expect(newText).toBeTruthy();
         if (currentFirstUsername) {
-          expect(newText).not.toBe(currentFirstUsername); // different page
+          expect(newText).not.toBe(currentFirstUsername);
         }
       }).toPass({ timeout: E2E_TIMEOUTS.TABLE_DATA });
     }
@@ -306,7 +306,7 @@ export class UserGroupsPage {
    * Get the checkbox for a specific service account row in the edit page SA table.
    */
   getSARowCheckbox(clientId: string): Locator {
-    return this.editPageServiceAccountsTable.getByRole('row').filter({ hasText: clientId }).getByRole('checkbox');
+    return this.editSATableComponent.getRowByText(clientId).getByRole('checkbox');
   }
 
   async selectSAInEditPage(clientId: string): Promise<void> {

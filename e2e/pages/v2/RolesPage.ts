@@ -10,17 +10,20 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import { iamUrl, setupPage, v2, waitForTableUpdate } from '../../utils';
+import { iamUrl, setupPage, v2 } from '../../utils';
 import { fillCreateRoleWizard, fillCreateRoleWizardAsCopy, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
+import { TableComponent } from '../components/TableComponent';
 
 const ROLES_URL = iamUrl(v2.accessManagementRoles.link());
 
 export class RolesPage {
   readonly page: Page;
+  readonly tableComponent: TableComponent;
 
   constructor(page: Page) {
     this.page = page;
+    this.tableComponent = new TableComponent(page);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -44,11 +47,7 @@ export class RolesPage {
   }
 
   get table(): Locator {
-    return this.page.getByRole('grid');
-  }
-
-  get searchInput(): Locator {
-    return this.page.getByRole('searchbox').or(this.page.getByPlaceholder(/filter|search/i));
+    return this.tableComponent.grid;
   }
 
   get createButton(): Locator {
@@ -68,8 +67,7 @@ export class RolesPage {
   }
 
   async clearSearch(): Promise<void> {
-    await this.searchInput.clear();
-    await waitForTableUpdate(this.page);
+    await this.tableComponent.clearSearch();
   }
 
   async verifyRoleInTable(name: string): Promise<void> {
@@ -81,7 +79,7 @@ export class RolesPage {
   }
 
   getRoleRow(name: string): Locator {
-    return this.table.getByRole('row', { name: new RegExp(name, 'i') });
+    return this.tableComponent.getRow(name);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -89,7 +87,7 @@ export class RolesPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async openDrawer(name: string): Promise<void> {
-    await this.table.getByText(name).click();
+    await this.tableComponent.clickRow(name);
     await expect(this.page.getByRole('heading', { name, level: 2 })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
   }
 
@@ -104,12 +102,11 @@ export class RolesPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async openRowActions(name: string): Promise<void> {
-    const row = this.page.locator('tbody tr', { has: this.page.getByText(name) });
-    await row.getByRole('button', { name: /actions/i }).click();
+    await this.tableComponent.openRowActions(name);
   }
 
   async clickRowAction(action: string): Promise<void> {
-    await this.page.getByRole('menuitem', { name: new RegExp(action, 'i') }).click();
+    await this.tableComponent.clickRowAction(new RegExp(action, 'i'));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

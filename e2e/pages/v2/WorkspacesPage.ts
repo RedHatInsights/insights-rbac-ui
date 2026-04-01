@@ -7,6 +7,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import { iamUrl, setupPage, v2, waitForTableUpdate } from '../../utils';
 import { ManagedWorkspaceSelectorComponent } from '../components/ManagedWorkspaceSelectorComponent';
+import { TableComponent } from '../components/TableComponent';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 
 const WORKSPACES_URL = iamUrl(v2.accessManagementWorkspaces.link());
@@ -14,10 +15,12 @@ const WORKSPACES_URL = iamUrl(v2.accessManagementWorkspaces.link());
 export class WorkspacesPage {
   readonly page: Page;
   readonly workspaceSelector: ManagedWorkspaceSelectorComponent;
+  readonly tableComponent: TableComponent;
 
   constructor(page: Page) {
     this.page = page;
     this.workspaceSelector = new ManagedWorkspaceSelectorComponent(page);
+    this.tableComponent = new TableComponent(page);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -63,7 +66,7 @@ export class WorkspacesPage {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async searchFor(name: string): Promise<void> {
-    await this.searchInput.fill(name);
+    await this.tableComponent.search(name);
     await waitForTableUpdate(this.page, { timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
