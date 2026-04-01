@@ -89,12 +89,13 @@ test.describe('Workspace List', () => {
   test.describe('UserViewer', () => {
     test.use({ storageState: AUTH_V2_USERVIEWER });
 
-    test(`Workspaces page shows unauthorized access [UserViewer]`, async ({ page }) => {
+    test(`Workspaces page is accessible but read-only [UserViewer]`, async ({ page }) => {
       await setupPage(page);
       await expect(async () => {
         await page.goto(WORKSPACES_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
-        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+        await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
+      await expect(page.getByText(/You do not have access to/i)).not.toBeVisible();
     });
   });
 
@@ -105,12 +106,13 @@ test.describe('Workspace List', () => {
   test.describe('ReadOnlyUser', () => {
     test.use({ storageState: AUTH_V2_READONLY });
 
-    test(`Workspaces page shows unauthorized access [ReadOnlyUser]`, async ({ page }) => {
+    test(`Workspaces page is accessible but read-only [ReadOnlyUser]`, async ({ page }) => {
       await setupPage(page);
       await expect(async () => {
         await page.goto(WORKSPACES_URL, { timeout: E2E_TIMEOUTS.SLOW_DATA });
-        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+        await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
+      await expect(page.getByText(/You do not have access to/i)).not.toBeVisible();
     });
   });
 

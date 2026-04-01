@@ -119,11 +119,11 @@ export class WorkspacesPage {
       timeout: E2E_TIMEOUTS.DIALOG_CONTENT,
     });
 
-    // Select parent workspace — click the dropdown, expand tree, pick, confirm
-    if (parentWorkspace) {
-      await this.page.getByRole('button', { name: /select workspaces/i }).click();
-
-      const tree = this.page.getByRole('tree');
+    // Select parent workspace — the tree is now always inline (no toggle to open).
+    // This step is absent when creating via kebab (parent pre-selected, wizard starts at details step).
+    const tree = this.page.getByRole('tree');
+    const isParentStepVisible = await tree.isVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT }).catch(() => false);
+    if (isParentStepVisible && parentWorkspace) {
       await expect(tree.getByRole('treeitem').first()).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
       const targetItem = tree.getByRole('treeitem').filter({ hasText: parentWorkspace }).first();
@@ -133,12 +133,10 @@ export class WorkspacesPage {
         await expect(targetItem).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
       }
 
-      // Click the workspace name to select it
       await targetItem.getByRole('button', { name: parentWorkspace }).last().click();
 
-      // Confirm the selection
-      const confirmBtn = this.page.getByTestId('workspace-selector-confirm').or(this.page.getByRole('button', { name: /select workspace/i }));
-      await confirmBtn.click();
+      // Advance to the details step
+      await this.page.getByRole('button', { name: /^next$/i }).click();
     }
 
     // Fill name and description
@@ -419,10 +417,7 @@ export class WorkspacesPage {
     const modal = this.page.locator('[role="dialog"]');
     await expect(modal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
 
-    // Open parent selector — toggle shows current parent name when selected
-    const selectorToggle = modal.getByTestId('workspace-selector-toggle').or(modal.getByRole('button', { name: /select workspaces/i }));
-    await selectorToggle.click();
-
+    // Tree is always inline — no toggle to open
     const tree = this.page.getByRole('tree');
     await expect(tree.getByRole('treeitem').first()).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
 
@@ -434,9 +429,6 @@ export class WorkspacesPage {
     }
 
     await targetItem.getByRole('button', { name: newParentName }).last().click();
-
-    const confirmBtn = this.page.getByTestId('workspace-selector-confirm').or(this.page.getByRole('button', { name: /select workspace/i }));
-    await confirmBtn.click();
 
     await modal.getByRole('button', { name: /^submit$/i }).click();
     await expect(modal).not.toBeVisible({ timeout: E2E_TIMEOUTS.MUTATION_COMPLETE });

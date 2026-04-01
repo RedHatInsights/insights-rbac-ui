@@ -212,7 +212,7 @@ test.describe('UserViewer — Full Nav', () => {
 
     await expect(navSidebar.getNavLink(NAV_USERS_AND_GROUPS)).toBeVisible();
     expect(await navSidebar.isNavItemVisible(NAV_ROLES)).toBe(false);
-    expect(await navSidebar.isNavItemVisible(NAV_WORKSPACES)).toBe(false);
+    // Workspaces is visible to all personas as a gap-stopper for Kessel access checks
     expect(await navSidebar.isNavItemVisible(NAV_ORGANIZATION_MANAGEMENT)).toBe(false);
   });
 });
@@ -220,13 +220,15 @@ test.describe('UserViewer — Full Nav', () => {
 test.describe('ReadOnlyUser — Full Nav', () => {
   test.use({ storageState: AUTH_V2_READONLY });
 
-  test('V2 navigation shows My Access only [ReadOnlyUser]', async ({ page }) => {
+  test('V2 navigation shows My Access and Workspaces [ReadOnlyUser]', async ({ page }) => {
     const navSidebar = new NavigationSidebar(page);
     await navSidebar.gotoMyAccess();
 
     await expect(navSidebar.getNavLink(NAV_MY_ACCESS)).toBeVisible();
     expect(await navSidebar.isNavItemVisible(NAV_OVERVIEW)).toBe(false);
-    expect(await navSidebar.isNavItemVisible(NAV_ACCESS_MANAGEMENT)).toBe(false);
+    // Workspaces sits under Access Management and is visible to all personas (Kessel gap-stopper),
+    // so the Access Management section header is visible for ReadOnly users too
+    expect(await navSidebar.isNavItemVisible(NAV_ACCESS_MANAGEMENT)).toBe(true);
     expect(await navSidebar.isNavItemVisible(NAV_ORGANIZATION_MANAGEMENT)).toBe(false);
   });
 });

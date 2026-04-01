@@ -186,8 +186,11 @@ test.describe('Workspace Grant Access', () => {
       await setupPage(page);
       await expect(async () => {
         await page.goto(iamUrl(v2.accessManagementWorkspaces.link()), { timeout: E2E_TIMEOUTS.SLOW_DATA });
-        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+        // All personas can now see the workspace list (gap-stopper for Kessel access check)
+        await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
+      // Grant Access wizard not accessible without permissions
+      await expect(page.getByRole('button', { name: /grant access/i })).not.toBeVisible();
     });
   });
 
@@ -198,8 +201,11 @@ test.describe('Workspace Grant Access', () => {
       await setupPage(page);
       await expect(async () => {
         await page.goto(iamUrl(v2.accessManagementWorkspaces.link()), { timeout: E2E_TIMEOUTS.SLOW_DATA });
-        await expect(page.getByText(/You do not have access to/i)).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+        // All personas can now see the workspace list (gap-stopper for Kessel access check)
+        await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
+      // Grant Access wizard not accessible without permissions
+      await expect(page.getByRole('button', { name: /grant access/i })).not.toBeVisible();
     });
   });
 });
