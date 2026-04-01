@@ -66,16 +66,12 @@ test.describe('Audit Log', () => {
       await page.goto(iamUrl(v2.accessManagementAuditLog.link()));
       await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
-      await page.getByRole('button', { name: /Resource/i }).click();
-      await expect(page.getByRole('option', { name: /group/i }).or(page.getByText(/group/i)).first()).toBeVisible({
+      // DataViewCheckboxFilter toggle uses the placeholder as its accessible name
+      await page.getByRole('button', { name: /filter by resource/i }).click();
+      await expect(page.getByRole('menuitem', { name: /group/i })).toBeVisible({
         timeout: E2E_TIMEOUTS.MENU_ANIMATION,
       });
-      await expect(
-        page
-          .getByRole('option', { name: /role/i })
-          .or(page.getByText(/^role$/i))
-          .first(),
-      ).toBeVisible();
+      await expect(page.getByRole('menuitem', { name: /^role$/i })).toBeVisible();
     });
 
     test('Action checkbox filter shows options [OrgAdmin]', async ({ page }) => {
@@ -83,21 +79,11 @@ test.describe('Audit Log', () => {
       await page.goto(iamUrl(v2.accessManagementAuditLog.link()));
       await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
-      await page.getByRole('button', { name: /Action/i }).click();
-      await expect(
-        page
-          .getByRole('option', { name: /create/i })
-          .or(page.getByText(/^create$/i))
-          .first(),
-      ).toBeVisible({
+      await page.getByRole('button', { name: /filter by action/i }).click();
+      await expect(page.getByRole('menuitem', { name: /create/i })).toBeVisible({
         timeout: E2E_TIMEOUTS.MENU_ANIMATION,
       });
-      await expect(
-        page
-          .getByRole('option', { name: /delete/i })
-          .or(page.getByText(/^delete$/i))
-          .first(),
-      ).toBeVisible();
+      await expect(page.getByRole('menuitem', { name: /delete/i })).toBeVisible();
     });
 
     test('Pagination controls are present [OrgAdmin]', async ({ page }) => {
