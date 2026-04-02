@@ -278,16 +278,22 @@ export class WorkspacesPage {
   }
 
   get currentRoleAssignmentsTable(): Locator {
-    // Prefix match: staging (master) renders "current-role-assignments-table-table"
-    // (ouiaId prop already included -table, then BaseGroupAssignmentsTable appends another);
-    // our branch corrected the prop to "current-role-assignments" so the final id is
-    // "current-role-assignments-table". Prefix match covers both.
-    return this.page.locator('[data-ouia-component-id^="current-role-assignments-table"]');
+    // Staging (master) renders "current-role-assignments-table-table" — ouiaId prop already
+    // had -table, then BaseGroupAssignmentsTable appends another. Our branch corrected the
+    // prop to drop the suffix, so the final id is "current-role-assignments-table".
+    // Both the wrapper div and inner <table> share the same OUIA id, so .first() picks the div.
+    return this.page
+      .locator('[data-ouia-component-id="current-role-assignments-table"]')
+      .or(this.page.locator('[data-ouia-component-id="current-role-assignments-table-table"]'))
+      .first();
   }
 
   get parentRoleAssignmentsTable(): Locator {
     // Same reasoning as currentRoleAssignmentsTable above.
-    return this.page.locator('[data-ouia-component-id^="parent-role-assignments-table"]');
+    return this.page
+      .locator('[data-ouia-component-id="parent-role-assignments-table"]')
+      .or(this.page.locator('[data-ouia-component-id="parent-role-assignments-table-table"]'))
+      .first();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -340,12 +346,12 @@ export class WorkspacesPage {
     await expect(row).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     await row.click();
     // Wait for the drawer slide-in animation and data load
-    await expect(this.page.getByRole('tab', { name: /members/i })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
+    await expect(this.page.getByRole('tab', { name: /^users$/i })).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
   }
 
   async closeGroupDrawer(): Promise<void> {
     await this.page.getByRole('button', { name: /close drawer panel/i }).click();
-    await expect(this.page.getByRole('tab', { name: /members/i })).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(this.page.getByRole('tab', { name: /^users$/i })).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
   }
 
   async openRoleBindingActions(groupName: string): Promise<void> {
@@ -398,7 +404,7 @@ export class WorkspacesPage {
       timeout: E2E_TIMEOUTS.SLOW_DATA,
     });
     // The inherited table is conditionally rendered — wait for it to mount and load data
-    await expect(this.parentRoleAssignmentsTable.or(this.page.getByRole('grid'))).toBeVisible({
+    await expect(this.parentRoleAssignmentsTable).toBeVisible({
       timeout: E2E_TIMEOUTS.SLOW_DATA,
     });
     await waitForTableUpdate(this.page, { timeout: E2E_TIMEOUTS.SLOW_DATA });

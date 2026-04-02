@@ -99,8 +99,8 @@ test.describe('Workspace Role Bindings', () => {
 
       await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME);
 
-      await expect(page.getByRole('tab', { name: /members/i })).toBeVisible();
-      await expect(page.getByRole('tab', { name: /roles/i })).toBeVisible();
+      await expect(page.getByRole('tab', { name: /^users$/i })).toBeVisible();
+      await expect(page.getByRole('tab', { name: /^roles$/i })).toBeVisible();
     });
 
     test('Can close group details drawer [OrgAdmin]', async ({ page }) => {
@@ -116,7 +116,7 @@ test.describe('Workspace Role Bindings', () => {
       await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME);
       await workspacesPage.closeGroupDrawer();
 
-      await expect(page.getByRole('tab', { name: /members/i })).not.toBeVisible();
+      await expect(page.getByRole('tab', { name: /^users$/i })).not.toBeVisible();
     });
   });
 
@@ -152,11 +152,11 @@ test.describe('Workspace Role Bindings', () => {
 
       await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME);
 
-      await expect(page.getByRole('tab', { name: /members/i })).toBeVisible();
-      await expect(page.getByRole('tab', { name: /roles/i })).toBeVisible();
+      await expect(page.getByRole('tab', { name: /^users$/i })).toBeVisible();
+      await expect(page.getByRole('tab', { name: /^roles$/i })).toBeVisible();
     });
 
-    test('Drawer roles tab shows "Inherited from" column [OrgAdmin]', async ({ page }) => {
+    test('Drawer roles tab shows parent workspace in "Inherited from" cell [OrgAdmin]', async ({ page }) => {
       const workspacesPage = new WorkspacesPage(page);
       await workspacesPage.goto();
 
@@ -165,11 +165,13 @@ test.describe('Workspace Role Bindings', () => {
 
       await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME);
 
-      const rolesTab = page.getByRole('tab', { name: /roles/i });
+      const rolesTab = page.getByRole('tab', { name: /^roles$/i });
       await rolesTab.click();
       await expect(rolesTab).toHaveAttribute('aria-selected', 'true', { timeout: E2E_TIMEOUTS.SLOW_DATA });
 
-      await expect(page.getByRole('columnheader', { name: /inherited from/i })).toBeVisible({
+      // Check the parent workspace name appears in the drawer's Roles table
+      // (the "Inherited from" column should link back to the workspace where the role was assigned)
+      await expect(page.getByTestId('detail-drawer-panel').getByText(SEEDED_WORKSPACE_NAME)).toBeVisible({
         timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
     });
