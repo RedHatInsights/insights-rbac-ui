@@ -6,15 +6,7 @@
  */
 
 import { type Locator, type Page, expect } from '@playwright/test';
-import {
-  clickMenuItem,
-  iamUrl,
-  openDetailPageActionsMenu,
-  openRoleActionsMenu,
-  setupPage,
-  v1,
-  verifySuccessNotification,
-} from '../../utils';
+import { clickMenuItem, iamUrl, openDetailPageActionsMenu, openRoleActionsMenu, setupPage, v1, verifySuccessNotification } from '../../utils';
 import { fillCreateRoleWizard, fillCreateRoleWizardAsCopy, searchForRole, verifyRoleInTable, verifyRoleNotInTable } from '../../utils/roleHelpers';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
 import { TableComponent } from '../components/TableComponent';

@@ -313,7 +313,10 @@ export class WorkspacesPage {
 
   async fillGrantAccessWizard(options: { groups: string[]; roles: string[] }): Promise<void> {
     const wizard = this.grantAccessWizard;
-    const searchInput = wizard.getByRole('searchbox').or(wizard.getByPlaceholder(/filter|search/i)).first();
+    const searchInput = wizard
+      .getByRole('searchbox')
+      .or(wizard.getByPlaceholder(/filter|search/i))
+      .first();
 
     // Step 1: Select user groups — search for each to avoid pagination issues
     for (const groupName of options.groups) {
