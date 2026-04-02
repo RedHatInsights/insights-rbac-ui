@@ -70,7 +70,7 @@ test.describe('Workspace Grant Access', () => {
       await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME);
 
       await workspacesPage.roleAssignmentsTab.click();
-      await expect(workspacesPage.currentRoleAssignmentsTable.or(page.getByRole('grid'))).toBeVisible({
+      await expect(workspacesPage.currentRoleAssignmentsTable).toBeVisible({
         timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
 
@@ -97,7 +97,7 @@ test.describe('Workspace Grant Access', () => {
       await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME);
 
       await workspacesPage.roleAssignmentsTab.click();
-      await expect(workspacesPage.currentRoleAssignmentsTable.or(page.getByRole('grid'))).toBeVisible({
+      await expect(workspacesPage.currentRoleAssignmentsTable).toBeVisible({
         timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
 
@@ -125,7 +125,7 @@ test.describe('Workspace Grant Access', () => {
       await workspacesPage.navigateToDetail(SEEDED_WORKSPACE_NAME);
 
       await workspacesPage.roleAssignmentsTab.click();
-      await expect(workspacesPage.currentRoleAssignmentsTable.or(page.getByRole('grid'))).toBeVisible({
+      await expect(workspacesPage.currentRoleAssignmentsTable).toBeVisible({
         timeout: E2E_TIMEOUTS.SLOW_DATA,
       });
 

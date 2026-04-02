@@ -140,11 +140,13 @@ test.describe('My Access — Workspaces tab', () => {
       await page.getByRole('tab', { name: /workspaces/i }).click();
       await expect(page.getByRole('grid')).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
 
-      // Click the Admin/Viewer role label (not the workspace name link) to open the drawer
-      // without navigating away. The link has stopPropagation; the label triggers the row click.
-      const roleLabel = page.getByRole('grid').getByText('Admin').or(page.getByRole('grid').getByText('Viewer')).first();
-      await expect(roleLabel).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
-      await roleLabel.click();
+      // Click the "Admin or Viewer role" cell (not the workspace name link) to open the drawer
+      // without navigating away. The workspace name is a link with stopPropagation;
+      // clicking the role cell triggers the row click handler.
+      // Use the <td data-label> to click the cell itself, not the inner label span.
+      const roleCell = page.getByRole('grid').locator('[data-label="Admin or Viewer role"]').first();
+      await expect(roleCell).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+      await roleCell.click();
 
       await expect(page.getByTestId('detail-drawer-panel')).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
     });

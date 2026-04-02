@@ -312,16 +312,27 @@ export class WorkspacesPage {
   }
 
   async fillGrantAccessWizard(options: { groups: string[]; roles: string[] }): Promise<void> {
-    // Step 1: Select user groups
+    const wizard = this.grantAccessWizard;
+    const searchInput = wizard.getByRole('searchbox').or(wizard.getByPlaceholder(/filter|search/i)).first();
+
+    // Step 1: Select user groups — search for each to avoid pagination issues
     for (const groupName of options.groups) {
-      const row = this.grantAccessWizard.getByRole('row').filter({ hasText: groupName });
+      if (await searchInput.isVisible({ timeout: E2E_TIMEOUTS.QUICK_SETTLE }).catch(() => false)) {
+        await searchInput.fill(groupName);
+        await waitForTableUpdate(this.page, { timeout: E2E_TIMEOUTS.TABLE_DATA });
+      }
+      const row = wizard.getByRole('row').filter({ hasText: groupName });
       await row.getByRole('checkbox').check();
     }
     await this.page.getByRole('button', { name: /^next$/i }).click();
 
-    // Step 2: Select roles
+    // Step 2: Select roles — search for each to avoid pagination issues
     for (const roleName of options.roles) {
-      const row = this.grantAccessWizard.getByRole('row').filter({ hasText: roleName });
+      if (await searchInput.isVisible({ timeout: E2E_TIMEOUTS.QUICK_SETTLE }).catch(() => false)) {
+        await searchInput.fill(roleName);
+        await waitForTableUpdate(this.page, { timeout: E2E_TIMEOUTS.TABLE_DATA });
+      }
+      const row = wizard.getByRole('row').filter({ hasText: roleName });
       await row.getByRole('checkbox').check();
     }
     await this.page.getByRole('button', { name: /^next$/i }).click();
