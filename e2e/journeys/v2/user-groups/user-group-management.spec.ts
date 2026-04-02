@@ -242,14 +242,8 @@ test.describe('User Group Management', () => {
       }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [3_000] });
 
       // Check both row checkboxes
-      await groupsPage.table
-        .getByRole('row', { name: new RegExp(bulkGroup1, 'i') })
-        .getByRole('checkbox')
-        .click();
-      await groupsPage.table
-        .getByRole('row', { name: new RegExp(bulkGroup2, 'i') })
-        .getByRole('checkbox')
-        .click();
+      await groupsPage.tableComponent.selectRow(new RegExp(bulkGroup1, 'i'));
+      await groupsPage.tableComponent.selectRow(new RegExp(bulkGroup2, 'i'));
 
       // Click the overflow kebab and select bulk delete
       await page.getByRole('button', { name: 'Actions overflow menu' }).click();
