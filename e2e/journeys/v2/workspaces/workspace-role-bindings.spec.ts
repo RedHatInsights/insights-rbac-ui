@@ -150,7 +150,7 @@ test.describe('Workspace Role Bindings', () => {
       await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME, SEEDED_CHILD_WORKSPACE_NAME);
       await workspacesPage.switchToInheritedTab();
 
-      await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME);
+      await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME, workspacesPage.parentRoleAssignmentsTable);
 
       await expect(page.getByRole('tab', { name: /^users$/i })).toBeVisible();
       await expect(page.getByRole('tab', { name: /^roles$/i })).toBeVisible();
@@ -163,7 +163,7 @@ test.describe('Workspace Role Bindings', () => {
       await workspacesPage.navigateToChildWorkspace(SEEDED_WORKSPACE_NAME, SEEDED_CHILD_WORKSPACE_NAME);
       await workspacesPage.switchToInheritedTab();
 
-      await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME);
+      await workspacesPage.openGroupDrawer(SEEDED_GROUP_NAME, workspacesPage.parentRoleAssignmentsTable);
 
       const rolesTab = page.getByRole('tab', { name: /^roles$/i });
       await rolesTab.click();

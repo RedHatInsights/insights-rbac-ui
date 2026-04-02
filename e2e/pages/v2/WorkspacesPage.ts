@@ -351,9 +351,9 @@ export class WorkspacesPage {
   // Group Details Drawer
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async openGroupDrawer(groupName: string): Promise<void> {
-    const table = this.currentRoleAssignmentsTable.or(this.parentRoleAssignmentsTable);
-    const row = table.getByRole('row').filter({ hasText: groupName });
+  async openGroupDrawer(groupName: string, table?: Locator): Promise<void> {
+    const scope = table ?? this.currentRoleAssignmentsTable;
+    const row = scope.getByRole('row').filter({ hasText: groupName });
     await expect(row).toBeVisible({ timeout: E2E_TIMEOUTS.SLOW_DATA });
     await row.click();
     // Wait for the drawer slide-in animation and data load
