@@ -230,16 +230,16 @@ test.describe('User Group Management', () => {
       const groupsPage = new UserGroupsPage(page);
       await groupsPage.goto();
 
-      // Filter to show only bulk groups from this run (unique timestamp in name)
-      await groupsPage.searchFor(`${TEST_PREFIX}__Bulk`);
-
-      // Wait for both rows to appear before checking
-      await expect(groupsPage.table.getByRole('row', { name: new RegExp(bulkGroup1, 'i') })).toBeVisible({
-        timeout: E2E_TIMEOUTS.TABLE_DATA,
-      });
-      await expect(groupsPage.table.getByRole('row', { name: new RegExp(bulkGroup2, 'i') })).toBeVisible({
-        timeout: E2E_TIMEOUTS.TABLE_DATA,
-      });
+      // Search by the run-unique timestamp to avoid pagination issues from accumulated test data.
+      // Many previous test runs leave Bulk1_*/Bulk2_* groups, pushing the current run's groups
+      // onto page 2 when searching the broad prefix. The timestamp is unique per run (only 2 matches).
+      // Server-side caching can also delay newly-created groups — poll with reloads until visible.
+      await expect(async () => {
+        await groupsPage.goto();
+        await groupsPage.searchFor(String(bulkTimestamp));
+        await expect(groupsPage.table.getByRole('row', { name: new RegExp(bulkGroup1, 'i') })).toBeVisible();
+        await expect(groupsPage.table.getByRole('row', { name: new RegExp(bulkGroup2, 'i') })).toBeVisible();
+      }).toPass({ timeout: E2E_TIMEOUTS.SLOW_DATA, intervals: [3_000] });
 
       // Check both row checkboxes
       await groupsPage.table
@@ -253,7 +253,7 @@ test.describe('User Group Management', () => {
 
       // Click the overflow kebab and select bulk delete
       await page.getByRole('button', { name: 'Actions overflow menu' }).click();
-      await page.getByText(/delete user group \(\d+\)/i).click();
+      await page.getByText(/delete user groups? \(\d+\)/i).click();
       await groupsPage.confirmDelete();
     });
 

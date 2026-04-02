@@ -68,6 +68,8 @@ test.describe('Audit Log', () => {
 
       // DataViewFilters shows a type-selector button (default: "Requester").
       // Switch to Resource, then open the checkbox filter toggle.
+      // The filter toolbar renders after the grid — wait for the button to appear.
+      await expect(page.getByRole('button', { name: /^requester$/i })).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
       await page.getByRole('button', { name: /^requester$/i }).click();
       await expect(page.getByRole('menuitem', { name: /^resource$/i })).toBeVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
       await page.getByRole('menuitem', { name: /^resource$/i }).click();
