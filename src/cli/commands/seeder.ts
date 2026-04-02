@@ -182,8 +182,6 @@ export function applyPrefix(payload: SeedPayload, prefix: string): SeedPayload {
   const separator = '__';
 
   return {
-    // Personas are real usernames - do NOT prefix
-    personas: payload.personas,
     roles: payload.roles?.map((role) => ({
       ...role,
       name: `${prefix}${separator}${role.name}`,
@@ -281,7 +279,7 @@ async function createRoleV2(rolesV2Api: RolesV2ApiClient, role: RoleInput, mappi
  *
  * Uses the typed GroupsApiClient from src/shared/data/api/groups.ts.
  * If roles_list is provided, resolves role names to UUIDs and attaches them.
- * If personas are provided, adds all persona usernames as members.
+ * If user_list is provided, adds those users as members.
  *
  * @throws Error if creation fails (caller should handle)
  */
@@ -290,7 +288,6 @@ async function createGroup(
   group: GroupInput,
   mapping: ResourceMapping,
   roleMapping: ResourceMapping,
-  personas?: Record<string, { username: string }>,
   options?: { attachRoles?: boolean },
 ): Promise<void> {
   const attachRoles = options?.attachRoles ?? true;
@@ -328,20 +325,20 @@ async function createGroup(
       }
     }
 
-    // Add all personas as members to enable testing group membership
-    if (personas && Object.keys(personas).length > 0) {
-      const usernames = Object.values(personas).map((p) => p.username);
+    // Add explicit user_list members (defined per-group in the seed fixture)
+    if (group.user_list && group.user_list.length > 0) {
+      const usernames = group.user_list.map((u) => u.username);
       const principalData = { principals: usernames.map((username) => ({ username })) };
-      logCurl('POST', `/api/rbac/v1/groups/${uuid}/principals/`, principalData, `Add ${usernames.length} persona(s) to group`);
+      logCurl('POST', `/api/rbac/v1/groups/${uuid}/principals/`, principalData, `Add ${usernames.length} member(s) to group`);
       try {
         await groupsApi.addPrincipalToGroup({
           uuid,
           groupPrincipalIn: principalData as GroupPrincipalIn,
         });
-        console.error(`    ✓ Added ${usernames.length} persona(s) to group: ${usernames.join(', ')}`);
+        console.error(`    ✓ Added ${usernames.length} member(s) to group: ${usernames.join(', ')}`);
       } catch (error) {
         // Don't fail if users are already in group or other non-critical error
-        console.error(`    ⚠ Could not add personas to group: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(`    ⚠ Could not add members to group: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
   }
@@ -657,12 +654,10 @@ async function executeSeed(payload: SeedPayload, client: AxiosInstance, options:
   }
 
   // Create custom groups (sequentially, bail on first error)
-  // Pass roleMapping so groups can reference roles by name
-  // Pass personas so all test users get added to each group
   if (customGroups.length > 0) {
     console.error(`\n📦 Creating ${customGroups.length} group(s)...`);
     for (const group of customGroups) {
-      await createGroup(groupsApi, group, result.groups, result.roles, payload.personas, { attachRoles: !isV2 });
+      await createGroup(groupsApi, group, result.groups, result.roles, { attachRoles: !isV2 });
     }
   }
 

@@ -1,11 +1,6 @@
 {
   "$schema": "./seed-schema.json",
   "description": "V2 seed data: roles, groups, and workspaces (full Access Management support)",
-  "personas": {
-    "admin": { "username": "iqe_rbac_v2_admin" },
-    "userviewer": { "username": "iqe_rbac_v2_viewer" },
-    "readonly": { "username": "iqe_rbac_v2_normal" }
-  },
   "seededUsers": [
     { "username": "iqe_rbac_v2_normal" }
   ],
@@ -32,12 +27,14 @@
     {
       "name": "Seeded Group",
       "description": "Controlled test group for search and view tests",
-      "roles_list": ["Seeded Role"]
+      "roles_list": ["Seeded Role"],
+      "user_list": [{ "username": "iqe_rbac_v2_normal" }]
     },
     {
       "name": "Child Group",
       "description": "Group for child workspace testing",
-      "roles_list": ["Child Role"]
+      "roles_list": ["Child Role"],
+      "user_list": [{ "username": "iqe_rbac_v2_normal" }]
     }
   ],
   "workspaces": [
