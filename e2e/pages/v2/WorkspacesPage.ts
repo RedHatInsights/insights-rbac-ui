@@ -278,11 +278,16 @@ export class WorkspacesPage {
   }
 
   get currentRoleAssignmentsTable(): Locator {
-    return this.page.locator('[data-ouia-component-id="current-role-assignments-table"]');
+    // Prefix match: staging (master) renders "current-role-assignments-table-table"
+    // (ouiaId prop already included -table, then BaseGroupAssignmentsTable appends another);
+    // our branch corrected the prop to "current-role-assignments" so the final id is
+    // "current-role-assignments-table". Prefix match covers both.
+    return this.page.locator('[data-ouia-component-id^="current-role-assignments-table"]');
   }
 
   get parentRoleAssignmentsTable(): Locator {
-    return this.page.locator('[data-ouia-component-id="parent-role-assignments-table"]');
+    // Same reasoning as currentRoleAssignmentsTable above.
+    return this.page.locator('[data-ouia-component-id^="parent-role-assignments-table"]');
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
