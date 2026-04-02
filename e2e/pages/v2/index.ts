@@ -2,6 +2,7 @@
  * V2 Page Objects
  */
 
+export { AuditLogPage } from './AuditLogPage';
 export { MyUserAccessPage } from './MyUserAccessPage';
 export { NavigationSidebar } from './NavigationSidebar';
 export { OrganizationManagementPage } from './OrganizationManagementPage';
