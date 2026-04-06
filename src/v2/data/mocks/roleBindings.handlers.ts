@@ -153,7 +153,8 @@ export function createRoleBindingsListHandlers(bindings: RoleBinding[], options:
         filtered = filtered.filter((b) => b.subject.id === subjectId);
       }
       if (grantedSubjectType) {
-        filtered = filtered.filter((b) => b.subject.type === grantedSubjectType);
+        const subjectTypeToMatch = grantedSubjectType === 'principal' ? 'user' : grantedSubjectType;
+        filtered = filtered.filter((b) => b.subject.type === subjectTypeToMatch);
       }
       if (grantedSubjectUserId) {
         filtered = filtered.filter((b) => b.subject.id === grantedSubjectUserId);
