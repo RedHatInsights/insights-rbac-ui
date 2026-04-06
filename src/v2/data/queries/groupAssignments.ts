@@ -172,7 +172,7 @@ export function useOrgGroups(organizationId: string, options?: { enabled?: boole
   const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
 
   const query = useQuery({
-    queryKey: [...roleBindingsKeys.all, 'org', organizationId],
+    queryKey: roleBindingsKeys.orgGroups(organizationId),
     queryFn: async () => {
       // TODO: remove cast once @redhat-cloud-services/rbac-client supports resource.tenant.org_id
       // Note: resourceId is required for the generated client's object-params detection to work.

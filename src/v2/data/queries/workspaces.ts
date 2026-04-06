@@ -29,6 +29,7 @@ export const roleBindingsKeys = {
   bySubject: () => [...roleBindingsKeys.all, 'bySubject'] as const,
   bySubjectParams: (params: RoleBindingsListBySubjectParams) => [...roleBindingsKeys.bySubject(), params] as const,
   forWorkspace: (workspaceId: string) => [...roleBindingsKeys.all, 'workspace', workspaceId] as const,
+  orgGroups: (orgId: string) => [...roleBindingsKeys.all, 'org', orgId] as const,
 };
 
 // ============================================================================
