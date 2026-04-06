@@ -74,7 +74,8 @@ export function createRoleBindingsHandlers(bindings: RoleBinding[], options: Rol
       let filtered = bindings;
 
       if (resourceId) {
-        filtered = filtered.filter((b) => b.resource.id === resourceId);
+        // When resource.tenant.org_id is used, also match "redhat/{orgId}" resource IDs in fixtures
+        filtered = filtered.filter((b) => b.resource.id === resourceId || (tenantOrgId && b.resource.id === `redhat/${tenantOrgId}`));
       }
       if (excludeSources === 'direct') {
         filtered = [];
@@ -269,7 +270,9 @@ export function createStatefulRoleBindingsHandlers(
           return HttpResponse.json({ data: [], meta: { count: 0, limit, offset } });
         }
 
-        const directBindings = bindingsMap.get(resourceId) || [];
+        // When resource.tenant.org_id is used, the value is the plain org ID (e.g. "12510751")
+        // but fixtures may key tenant bindings as "redhat/{orgId}". Try both.
+        const directBindings = bindingsMap.get(resourceId) || (tenantOrgId ? bindingsMap.get(`redhat/${tenantOrgId}`) : undefined) || [];
         let inheritedBindings: RoleBindingsRoleBindingBySubject[] = [];
         if (options.workspaces) {
           const getParentChain = (wsId: string): string[] => {
