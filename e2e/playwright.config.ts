@@ -17,6 +17,7 @@
  *
  * Environment Variables:
  *   E2E_BASE_URL - Override the base URL (default: https://console.stage.redhat.com)
+ *   E2E_PROXY - Optional proxy server URL (e.g., http://proxy.example.com:port)
  *   TEST_PREFIX_V1 - Prefix for V1 test data isolation (required for V1 CRUD tests)
  *   TEST_PREFIX_V2 - Prefix for V2 test data isolation (required for V2 CRUD tests)
  *   TEST_VERSION - Set by npm scripts to indicate which version is running (v1 or v2)
@@ -64,6 +65,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
+    // Optional proxy support via environment variable
+    ...(process.env.E2E_PROXY && { proxy: { server: process.env.E2E_PROXY } }),
   },
 
   /* Global timeout for each test */
