@@ -24,7 +24,7 @@
       "display_name": "Child Role",
       "description": "Role for child workspace testing",
       "permissions": [
-        "cost-management:cost_model:read"
+        "inventory:hosts:write"
       ]
     }
   ],

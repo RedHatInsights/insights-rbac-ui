@@ -64,6 +64,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
+    // Red Hat internal proxy for VPN access
+    proxy: {
+      server: 'http://squid.corp.redhat.com:3128',
+    },
   },
 
   /* Global timeout for each test */

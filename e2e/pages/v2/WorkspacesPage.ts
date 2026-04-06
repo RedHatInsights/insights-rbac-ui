@@ -231,11 +231,11 @@ export class WorkspacesPage {
   }
 
   get currentRoleAssignmentsTable(): Locator {
-    return this.page.locator('[data-ouia-component-id="current-role-assignments-table"]');
+    return this.page.getByRole('grid', { name: 'Role Assignments Table' });
   }
 
   get parentRoleAssignmentsTable(): Locator {
-    return this.page.locator('[data-ouia-component-id="parent-role-assignments-table"]');
+    return this.page.getByRole('grid', { name: 'Parent Role Assignments Table' });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
