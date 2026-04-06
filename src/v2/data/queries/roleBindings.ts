@@ -91,8 +91,8 @@ export function useUserRoleBindingsQuery(userId: string | undefined, options?: {
         fields: FIELDS,
         options: {
           params: {
-            granted_subject_type: 'user',
-            granted_subject_id: userId!,
+            granted_subject_type: 'principal',
+            'granted_subject.principal.user_id': userId!,
           },
         },
       });
