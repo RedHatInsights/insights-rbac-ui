@@ -30,7 +30,12 @@ interface ServiceAccountData {
 
 const columns = ['name', 'clientId', 'owner'] as const;
 
-const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServiceAccountsViewProps> = ({ groupId, ouiaId, isDefaultGroup, isPlatformDefault }) => {
+const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServiceAccountsViewProps> = ({
+  groupId,
+  ouiaId,
+  isDefaultGroup,
+  isPlatformDefault,
+}) => {
   const intl = useIntl();
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(

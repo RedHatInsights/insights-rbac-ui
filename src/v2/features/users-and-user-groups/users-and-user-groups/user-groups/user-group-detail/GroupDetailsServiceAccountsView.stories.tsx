@@ -280,7 +280,7 @@ export const DefaultPlatformGroup: Story = {
                 clientId: 'service-account-12345',
               },
             ],
-          }
+          },
         ),
       ],
     },
@@ -327,7 +327,7 @@ export const DefaultAdminGroup: Story = {
                 clientId: 'service-account-67890',
               },
             ],
-          }
+          },
         ),
       ],
     },

@@ -9,9 +9,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import Messages from '../../../../../../Messages';
-import { FormRenderer, componentTypes, validatorTypes, useFormApi } from '@data-driven-forms/react-form-renderer';
+import { FormRenderer, componentTypes, useFormApi, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import { FormTemplate as Pf4FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import type FormTemplateCommonProps from '@data-driven-forms/common/form-template';
 import {
   type Group,
@@ -223,26 +222,31 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   }, [navigate]);
 
   // Helper function to check if form values have changed from initial data
-  const checkFormHasChanges = useCallback((values: Record<string, unknown>) => {
-    if (!initialFormData) {
-      return false;
-    }
+  const checkFormHasChanges = useCallback(
+    (values: Record<string, unknown>) => {
+      if (!initialFormData) {
+        return false;
+      }
 
-    const nameChanged = values.name !== initialFormData.name;
-    const descriptionChanged = values.description !== initialFormData.description;
+      const nameChanged = values.name !== initialFormData.name;
+      const descriptionChanged = values.description !== initialFormData.description;
 
-    // For users and service accounts, compare the 'updated' arrays
-    const usersAndSA = values['users-and-service-accounts'] as { users?: { updated?: string[] }; serviceAccounts?: { updated?: string[] } } | undefined;
-    const currentUsers = usersAndSA?.users?.updated || [];
-    const currentServiceAccounts = usersAndSA?.serviceAccounts?.updated || [];
-    const initialUsers = initialFormData.users || [];
-    const initialServiceAccounts = initialFormData.serviceAccounts || [];
+      // For users and service accounts, compare the 'updated' arrays
+      const usersAndSA = values['users-and-service-accounts'] as
+        | { users?: { updated?: string[] }; serviceAccounts?: { updated?: string[] } }
+        | undefined;
+      const currentUsers = usersAndSA?.users?.updated || [];
+      const currentServiceAccounts = usersAndSA?.serviceAccounts?.updated || [];
+      const initialUsers = initialFormData.users || [];
+      const initialServiceAccounts = initialFormData.serviceAccounts || [];
 
-    const usersChanged = JSON.stringify([...currentUsers].sort()) !== JSON.stringify([...initialUsers].sort());
-    const serviceAccountsChanged = JSON.stringify([...currentServiceAccounts].sort()) !== JSON.stringify([...initialServiceAccounts].sort());
+      const usersChanged = JSON.stringify([...currentUsers].sort()) !== JSON.stringify([...initialUsers].sort());
+      const serviceAccountsChanged = JSON.stringify([...currentServiceAccounts].sort()) !== JSON.stringify([...initialServiceAccounts].sort());
 
-    return nameChanged || descriptionChanged || usersChanged || serviceAccountsChanged;
-  }, [initialFormData]);
+      return nameChanged || descriptionChanged || usersChanged || serviceAccountsChanged;
+    },
+    [initialFormData],
+  );
 
   // Custom FormTemplate that includes the acknowledgement checkbox above the submit button
   const CustomFormTemplate = useCallback(
@@ -278,11 +282,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
             </div>
           )}
           <ActionGroup>
-            <Button
-              variant="primary"
-              type="submit"
-              isDisabled={shouldDisable}
-            >
+            <Button variant="primary" type="submit" isDisabled={shouldDisable}>
               Submit
             </Button>
             <Button variant="link" onClick={onCancel}>
@@ -426,15 +426,10 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
           <>
             {/* Alert for unmodified platform_default group */}
             {isUnmodifiedPlatformDefault && (
-              <Alert
-                variant="danger"
-                isInline
-                isExpandable={false}
-                title="You are editing the Default access group"
-                className="pf-v6-u-mb-md"
-              >
+              <Alert variant="danger" isInline isExpandable={false} title="You are editing the Default access group" className="pf-v6-u-mb-md">
                 <p>
-                  Once saved, the system will no longer manage this group automatically and it will be renamed to <strong>Custom default access</strong>.
+                  Once saved, the system will no longer manage this group automatically and it will be renamed to{' '}
+                  <strong>Custom default access</strong>.
                 </p>
               </Alert>
             )}
@@ -471,11 +466,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
       </PageSection>
 
       {/* Restore warning modal */}
-      <GroupResetWarningModal
-        isOpen={isRestoreModalOpen}
-        onClose={() => setIsRestoreModalOpen(false)}
-        onConfirm={handleRestoreConfirm}
-      />
+      <GroupResetWarningModal isOpen={isRestoreModalOpen} onClose={() => setIsRestoreModalOpen(false)} onConfirm={handleRestoreConfirm} />
     </React.Fragment>
   );
 };

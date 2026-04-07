@@ -14,11 +14,5 @@ interface DefaultMembersAlertProps {
 export const DefaultMembersAlert: React.FC<DefaultMembersAlertProps> = ({ isAdminDefault }) => {
   const intl = useIntl();
 
-  return (
-    <Alert
-      variant="info"
-      isInline
-      title={intl.formatMessage(isAdminDefault ? messages.allOrgAdminsAreMembers : messages.allUsersAreMembers)}
-    />
-  );
+  return <Alert variant="info" isInline title={intl.formatMessage(isAdminDefault ? messages.allOrgAdminsAreMembers : messages.allUsersAreMembers)} />;
 };

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { DefaultGroupChangedIcon } from './DefaultGroupChangedIcon';
 
 const meta = {
@@ -8,7 +8,8 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: 'Displays a group name with an info icon for customized default groups. The popover explains that the group has been customized and is no longer system-managed.',
+        component:
+          'Displays a group name with an info icon for customized default groups. The popover explains that the group has been customized and is no longer system-managed.',
       },
     },
   },

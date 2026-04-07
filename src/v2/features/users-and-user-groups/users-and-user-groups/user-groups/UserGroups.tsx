@@ -1,13 +1,8 @@
 import React, { Fragment, Suspense, useCallback, useEffect, useState } from 'react';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { useIntl } from 'react-intl';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
-import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
-import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { useGroupsAccess } from '../../../../hooks/useRbacAccess';
-import messages from '../../../../../Messages';
 
 import { useDeleteGroupMutation } from '../../../../../v2/data/queries/groups';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
@@ -28,7 +23,6 @@ interface UserGroupsProps {
 
 export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPage = 20, ouiaId = 'iam-user-groups-table' }) => {
   const navigate = useAppNavigate();
-  const intl = useIntl();
   const [searchParams] = useSearchParams();
 
   // React Query mutation for deleting groups

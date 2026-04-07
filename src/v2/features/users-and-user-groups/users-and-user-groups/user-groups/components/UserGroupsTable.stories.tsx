@@ -722,7 +722,8 @@ export const DefaultGroupsWithPopovers: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Default groups (platform_default and admin_default) display info popovers next to their names explaining inherited roles. Popovers appear on hover.',
+        story:
+          'Default groups (platform_default and admin_default) display info popovers next to their names explaining inherited roles. Popovers appear on hover.',
       },
     },
   },

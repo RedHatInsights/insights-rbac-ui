@@ -12,7 +12,7 @@ import type { RoleBindingsGroupSubject, RoleBindingsRoleBindingBySubject } from 
 import messages from '../../../Messages';
 import { useRoleAssignmentsQuery } from './roles';
 import { useRoleBindingsQuery } from './workspaces';
-import { useSystemGroupQuery, useAdminGroupQuery } from '../../../shared/data/queries/groups';
+import { useAdminGroupQuery, useSystemGroupQuery } from '../../../shared/data/queries/groups';
 
 // =============================================================================
 // Raw API narrowing (rbac-client → typed binding)

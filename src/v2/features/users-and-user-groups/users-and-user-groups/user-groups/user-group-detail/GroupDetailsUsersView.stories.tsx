@@ -260,21 +260,19 @@ export const DefaultPlatformGroup: Story = {
     },
     msw: {
       handlers: [
-        ...createGroupMembersHandlers(
-          {
-            'default-platform-group': [
-              {
-                username: 'john.doe',
-                email: 'john.doe@example.com',
-                first_name: 'John',
-                last_name: 'Doe',
-                is_active: true,
-                is_org_admin: false,
-                external_source_id: '1',
-              },
-            ],
-          }
-        ),
+        ...createGroupMembersHandlers({
+          'default-platform-group': [
+            {
+              username: 'john.doe',
+              email: 'john.doe@example.com',
+              first_name: 'John',
+              last_name: 'Doe',
+              is_active: true,
+              is_org_admin: false,
+              external_source_id: '1',
+            },
+          ],
+        }),
       ],
     },
   },
@@ -310,21 +308,19 @@ export const DefaultAdminGroup: Story = {
     },
     msw: {
       handlers: [
-        ...createGroupMembersHandlers(
-          {
-            'default-admin-group': [
-              {
-                username: 'admin.user',
-                email: 'admin.user@example.com',
-                first_name: 'Admin',
-                last_name: 'User',
-                is_active: true,
-                is_org_admin: true,
-                external_source_id: '2',
-              },
-            ],
-          }
-        ),
+        ...createGroupMembersHandlers({
+          'default-admin-group': [
+            {
+              username: 'admin.user',
+              email: 'admin.user@example.com',
+              first_name: 'Admin',
+              last_name: 'User',
+              is_active: true,
+              is_org_admin: true,
+              external_source_id: '2',
+            },
+          ],
+        }),
       ],
     },
   },

@@ -1,7 +1,6 @@
 import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
-import classNames from 'classnames';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 
 interface DefaultInfoPopoverProps {
   id: string;
@@ -19,13 +18,7 @@ export const DefaultInfoPopover: React.FC<DefaultInfoPopoverProps> = ({ id, uuid
 
   return (
     <span ref={popoverRootRef} key={`${uuid}-popover`} id={id}>
-      <Popover
-        zIndex={110}
-        position="right"
-        bodyContent={bodyContent}
-        appendTo={popoverRootRef.current || undefined}
-        triggerAction="hover"
-      >
+      <Popover zIndex={110} position="right" bodyContent={bodyContent} appendTo={popoverRootRef.current || undefined} triggerAction="hover">
         <OutlinedQuestionCircleIcon className="pf-v6-c-question-circle-icon" />
       </Popover>
     </span>
