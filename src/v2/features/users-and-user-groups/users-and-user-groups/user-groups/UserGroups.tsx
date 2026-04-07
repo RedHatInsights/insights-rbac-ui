@@ -129,27 +129,32 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
   // Individual render functions for each tab
   const renderUsersTab = () => {
     if (!focusedGroup) return null;
-    if (focusedGroup.platform_default || focusedGroup.admin_default) {
-      const isAdmin = !!focusedGroup.admin_default;
-      return (
-        <div className="pf-v6-u-pt-md">
-          <EmptyState
-            variant="sm"
-            headingLevel="h4"
-            icon={UsersIcon}
-            titleText={intl.formatMessage(isAdmin ? messages.allOrgAdmins : messages.allUsers)}
-          >
-            <EmptyStateBody>{intl.formatMessage(isAdmin ? messages.allOrgAdminsAreMembers : messages.allUsersAreMembers)}</EmptyStateBody>
-          </EmptyState>
-        </div>
-      );
-    }
-    return <GroupDetailsUsersView groupId={focusedGroup.uuid} ouiaId={`${ouiaId}-users-view`} />;
+    const isDefaultGroup = !!(focusedGroup.platform_default || focusedGroup.admin_default);
+    const isAdminDefault = !!focusedGroup.admin_default;
+
+    return (
+      <GroupDetailsUsersView
+        groupId={focusedGroup.uuid}
+        ouiaId={`${ouiaId}-users-view`}
+        isDefaultGroup={isDefaultGroup}
+        isAdminDefault={isAdminDefault}
+      />
+    );
   };
 
   const renderServiceAccountsTab = () => {
     if (!focusedGroup) return null;
-    return <GroupDetailsServiceAccountsView groupId={focusedGroup.uuid} ouiaId={`${ouiaId}-service-accounts-view`} />;
+    const isDefaultGroup = !!(focusedGroup.platform_default || focusedGroup.admin_default);
+    const isPlatformDefault = !!focusedGroup.platform_default && !focusedGroup.admin_default;
+
+    return (
+      <GroupDetailsServiceAccountsView
+        groupId={focusedGroup.uuid}
+        ouiaId={`${ouiaId}-service-accounts-view`}
+        isDefaultGroup={isDefaultGroup}
+        isPlatformDefault={isPlatformDefault}
+      />
+    );
   };
 
   const renderRolesTab = () => {

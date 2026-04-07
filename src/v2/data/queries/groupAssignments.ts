@@ -12,6 +12,7 @@ import type { RoleBindingsGroupSubject, RoleBindingsRoleBindingBySubject } from 
 import messages from '../../../Messages';
 import { useRoleAssignmentsQuery } from './roles';
 import { useRoleBindingsQuery } from './workspaces';
+import { useSystemGroupQuery, useAdminGroupQuery } from '../../../shared/data/queries/groups';
 
 // =============================================================================
 // Raw API narrowing (rbac-client → typed binding)
@@ -56,26 +57,33 @@ export interface InheritedWorkspaceGroupRow extends WorkspaceGroupRow {
 // Private transformer (rbac-client type IN → UI model OUT)
 // =============================================================================
 
-/** V2 API does not expose platform_default/admin_default — detect by well-known names only */
-const DEFAULT_GROUP_NAMES = new Set(['default access', 'default admin access']);
-const ADMIN_DEFAULT_NAME = 'default admin access';
-
-function isDefaultGroupName(name: string): boolean {
-  return DEFAULT_GROUP_NAMES.has(name.toLowerCase());
+/**
+ * UUID-based detection for default groups.
+ * Checks subject.id against known default group UUIDs.
+ * This is more reliable than name-based detection, which breaks when
+ * "Default access" is customized and renamed to "Custom default access".
+ */
+interface DefaultGroupUUIDs {
+  systemGroupUuid?: string;
+  adminGroupUuid?: string;
 }
 
-function isAdminDefaultGroupName(name: string): boolean {
-  return name.toLowerCase() === ADMIN_DEFAULT_NAME;
-}
-
-function toWorkspaceGroupRow(binding: WorkspaceGroupBinding, labels: { allUsers: string; allOrgAdmins: string }): WorkspaceGroupRow {
+function toWorkspaceGroupRow(
+  binding: WorkspaceGroupBinding,
+  labels: { allUsers: string; allOrgAdmins: string },
+  defaultGroupUuids: DefaultGroupUUIDs = {},
+): WorkspaceGroupRow {
   const { subject } = binding;
+  const subjectId = subject?.id ?? '';
   const name = subject?.group?.name ?? '';
-  const isDefault = isDefaultGroupName(name);
-  const isAdmin = isAdminDefaultGroupName(name);
+
+  // UUID-based detection (preferred)
+  const isDefault = subjectId === defaultGroupUuids.systemGroupUuid || subjectId === defaultGroupUuids.adminGroupUuid;
+  const isAdmin = subjectId === defaultGroupUuids.adminGroupUuid;
+
   const roles: WorkspaceGroupRole[] = (binding.roles ?? []).map((r) => ({ id: r.id ?? '', name: r.name ?? '' }));
   return {
-    id: subject?.id ?? name,
+    id: subjectId || name,
     name,
     description: subject?.group?.description ?? '',
     userCount: isDefault ? (isAdmin ? labels.allOrgAdmins : labels.allUsers) : (subject?.group?.user_count ?? 0),
@@ -87,8 +95,12 @@ function toWorkspaceGroupRow(binding: WorkspaceGroupBinding, labels: { allUsers:
   };
 }
 
-function transformBindings(data: WorkspaceGroupBinding[], labels: { allUsers: string; allOrgAdmins: string }): WorkspaceGroupRow[] {
-  return data.map((b) => toWorkspaceGroupRow(b, labels)).filter((row) => row.roleCount > 0);
+function transformBindings(
+  data: WorkspaceGroupBinding[],
+  labels: { allUsers: string; allOrgAdmins: string },
+  defaultGroupUuids: DefaultGroupUUIDs = {},
+): WorkspaceGroupRow[] {
+  return data.map((b) => toWorkspaceGroupRow(b, labels, defaultGroupUuids)).filter((row) => row.roleCount > 0);
 }
 
 // =============================================================================
@@ -105,6 +117,10 @@ export function useWorkspaceGroups(workspaceId: string, options?: { enabled?: bo
   const intl = useIntl();
   const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
 
+  // Fetch default group UUIDs for reliable detection
+  const { data: systemGroup } = useSystemGroupQuery({ enabled: options?.enabled ?? true });
+  const { data: adminGroup } = useAdminGroupQuery({ enabled: options?.enabled ?? true });
+
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
     limit: ROLE_BINDINGS_LIMIT,
@@ -112,8 +128,14 @@ export function useWorkspaceGroups(workspaceId: string, options?: { enabled?: bo
   });
 
   const data = useMemo(
-    () => (query.data?.data ? transformBindings(query.data.data as WorkspaceGroupBinding[], labels) : []),
-    [query.data, labels.allUsers, labels.allOrgAdmins],
+    () =>
+      query.data?.data
+        ? transformBindings(query.data.data as WorkspaceGroupBinding[], labels, {
+            systemGroupUuid: systemGroup?.uuid,
+            adminGroupUuid: adminGroup?.uuid,
+          })
+        : [],
+    [query.data, labels.allUsers, labels.allOrgAdmins, systemGroup?.uuid, adminGroup?.uuid],
   );
 
   return { data, isLoading: query.isLoading };
@@ -128,6 +150,10 @@ export function useWorkspaceInheritedGroups(workspaceId: string, options?: { ena
   const intl = useIntl();
   const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
 
+  // Fetch default group UUIDs for reliable detection
+  const { data: systemGroup } = useSystemGroupQuery({ enabled: options?.enabled ?? true });
+  const { data: adminGroup } = useAdminGroupQuery({ enabled: options?.enabled ?? true });
+
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
     limit: ROLE_BINDINGS_LIMIT,
@@ -137,10 +163,14 @@ export function useWorkspaceInheritedGroups(workspaceId: string, options?: { ena
   const data: InheritedWorkspaceGroupRow[] = useMemo(() => {
     if (!query.data?.data) return [];
     const bindings = query.data.data as WorkspaceGroupBinding[];
+    const defaultGroupUuids = {
+      systemGroupUuid: systemGroup?.uuid,
+      adminGroupUuid: adminGroup?.uuid,
+    };
     const seen = new Set<string>();
     return bindings
       .map((binding): InheritedWorkspaceGroupRow => {
-        const row = toWorkspaceGroupRow(binding, labels);
+        const row = toWorkspaceGroupRow(binding, labels, defaultGroupUuids);
         const source = binding.sources?.[0];
         return {
           ...row,
@@ -153,7 +183,7 @@ export function useWorkspaceInheritedGroups(workspaceId: string, options?: { ena
         seen.add(row.id);
         return true;
       });
-  }, [query.data, labels.allUsers, labels.allOrgAdmins]);
+  }, [query.data, labels.allUsers, labels.allOrgAdmins, systemGroup?.uuid, adminGroup?.uuid]);
 
   return { data, isLoading: query.isLoading };
 }
@@ -166,6 +196,10 @@ export function useOrgGroups(organizationId: string, options?: { enabled?: boole
   const intl = useIntl();
   const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
 
+  // Fetch default group UUIDs for reliable detection
+  const { data: systemGroup } = useSystemGroupQuery({ enabled: options?.enabled ?? true });
+  const { data: adminGroup } = useAdminGroupQuery({ enabled: options?.enabled ?? true });
+
   const query = useRoleBindingsQuery(
     {
       resourceId: `redhat/${organizationId}`,
@@ -177,8 +211,14 @@ export function useOrgGroups(organizationId: string, options?: { enabled?: boole
   );
 
   const data = useMemo(
-    () => (query.data?.data ? transformBindings(query.data.data as WorkspaceGroupBinding[], labels) : []),
-    [query.data, labels.allUsers, labels.allOrgAdmins],
+    () =>
+      query.data?.data
+        ? transformBindings(query.data.data as WorkspaceGroupBinding[], labels, {
+            systemGroupUuid: systemGroup?.uuid,
+            adminGroupUuid: adminGroup?.uuid,
+          })
+        : [],
+    [query.data, labels.allUsers, labels.allOrgAdmins, systemGroup?.uuid, adminGroup?.uuid],
   );
 
   return { data, isLoading: query.isLoading };

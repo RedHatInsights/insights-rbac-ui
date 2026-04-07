@@ -240,3 +240,103 @@ export const NetworkFailure: Story = {
     });
   },
 };
+
+/**
+ * Default group with DefaultMembersAlert
+ * Shows alert for platform_default group
+ */
+export const DefaultPlatformGroup: Story = {
+  args: {
+    groupId: 'default-platform-group',
+    ouiaId: 'group-users-view-default',
+    isDefaultGroup: true,
+    isAdminDefault: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Platform default group shows DefaultMembersAlert explaining that all users are automatically members.',
+      },
+    },
+    msw: {
+      handlers: [
+        ...createGroupMembersHandlers(
+          {
+            'default-platform-group': [
+              {
+                username: 'john.doe',
+                email: 'john.doe@example.com',
+                first_name: 'John',
+                last_name: 'Doe',
+                is_active: true,
+                is_org_admin: false,
+                external_source_id: '1',
+              },
+            ],
+          }
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify DefaultMembersAlert for platform default group', async () => {
+      // Should show alert about all users being members
+      await expect(canvas.findByText(/all users in this organization/i)).resolves.toBeInTheDocument();
+
+      // Should still show the users table
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Admin default group with DefaultMembersAlert
+ * Shows alert for admin_default group
+ */
+export const DefaultAdminGroup: Story = {
+  args: {
+    groupId: 'default-admin-group',
+    ouiaId: 'group-users-view-admin-default',
+    isDefaultGroup: true,
+    isAdminDefault: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Admin default group shows DefaultMembersAlert explaining that all org admins are automatically members.',
+      },
+    },
+    msw: {
+      handlers: [
+        ...createGroupMembersHandlers(
+          {
+            'default-admin-group': [
+              {
+                username: 'admin.user',
+                email: 'admin.user@example.com',
+                first_name: 'Admin',
+                last_name: 'User',
+                is_active: true,
+                is_org_admin: true,
+                external_source_id: '2',
+              },
+            ],
+          }
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify DefaultMembersAlert for admin default group', async () => {
+      // Should show alert about all org admins being members
+      await expect(canvas.findByText(/all org admins in this organization/i)).resolves.toBeInTheDocument();
+
+      // Should still show the users table
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+    });
+  },
+};

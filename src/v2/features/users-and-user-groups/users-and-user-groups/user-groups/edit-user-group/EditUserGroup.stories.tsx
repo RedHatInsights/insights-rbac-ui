@@ -594,3 +594,154 @@ export const ValidationErrors: Story = {
     });
   },
 };
+
+/**
+ * Editing an unmodified platform_default group (system=true)
+ * Shows danger alert, requires checkbox acknowledgment, disables name/description updates
+ */
+export const EditUnmodifiedDefaultGroup: Story = {
+  args: {
+    createNewGroup: false,
+  },
+  parameters: {
+    route: {
+      path: '/access-management/user-groups/:groupId/edit',
+      initialEntries: ['/access-management/user-groups/default-access/edit'],
+    },
+    docs: {
+      description: {
+        story: `
+**Unmodified Default Group**: Editing the unmodified "Default access" group (platform_default=true, system=true).
+
+Shows:
+- Danger alert warning about customization
+- Acknowledgment checkbox required before save
+- Name and description fields are editable but changes won't be saved
+- Only member/service account changes trigger backend cloning
+        `,
+      },
+    },
+    msw: {
+      handlers: [
+        ...groupsHandlers([
+          ...mockGroups,
+          {
+            uuid: 'default-access',
+            name: 'Default access',
+            description: 'All users inherit roles from this group',
+            principalCount: 'All users',
+            roleCount: 5,
+            system: true,
+            platform_default: true,
+            admin_default: false,
+            created: '2024-01-01T00:00:00Z',
+            modified: '2024-01-01T00:00:00Z',
+          },
+        ]),
+        ...usersHandlers(editUsers),
+        ...serviceAccountsHandlers(editServiceAccountsForList),
+        ...createGroupMembersHandlers({ 'default-access': [] }, { 'default-access': [] }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Verify default group safeguards', async () => {
+      const canvas = within(canvasElement);
+
+      // Wait for form to load
+      await expect(canvas.findByDisplayValue('Default access')).resolves.toBeInTheDocument();
+
+      // Should show danger alert
+      await expect(canvas.findByText(/you are editing the default access group/i)).resolves.toBeInTheDocument();
+
+      // Should show acknowledgment checkbox
+      const checkbox = await canvas.findByRole('checkbox', { name: /i understand that saving will customize/i });
+      await expect(checkbox).toBeInTheDocument();
+      await expect(checkbox).not.toBeChecked();
+
+      // Submit button should be disabled until checkbox is checked
+      const buttons = await canvas.findAllByRole('button');
+      const submitButton = buttons.find((button) => button.textContent?.includes('Submit'));
+      await expect(submitButton).toBeDisabled();
+
+      // Check the acknowledgment checkbox
+      await userEvent.click(checkbox);
+      await expect(checkbox).toBeChecked();
+
+      // Submit should now be enabled (assuming form has changes)
+      // Note: may still be disabled if form is pristine
+    });
+  },
+};
+
+/**
+ * Editing a customized platform_default group (system=false)
+ * Shows info alert with restore button, allows normal editing
+ */
+export const EditCustomizedDefaultGroup: Story = {
+  args: {
+    createNewGroup: false,
+  },
+  parameters: {
+    route: {
+      path: '/access-management/user-groups/:groupId/edit',
+      initialEntries: ['/access-management/user-groups/custom-default-access/edit'],
+    },
+    docs: {
+      description: {
+        story: `
+**Customized Default Group**: Editing a customized default group (platform_default=true, system=false).
+
+Shows:
+- Info alert about customization
+- "Restore to default" button in alert
+- Normal editing allowed (no checkbox required)
+- GroupResetWarningModal when restore is clicked
+        `,
+      },
+    },
+    msw: {
+      handlers: [
+        ...groupsHandlers([
+          ...mockGroups,
+          {
+            uuid: 'custom-default-access',
+            name: 'Custom default access',
+            description: 'Customized default access group',
+            principalCount: 10,
+            roleCount: 5,
+            system: false,
+            platform_default: true,
+            admin_default: false,
+            created: '2024-01-01T00:00:00Z',
+            modified: '2024-02-01T00:00:00Z',
+          },
+        ]),
+        ...usersHandlers(editUsers),
+        ...serviceAccountsHandlers(editServiceAccountsForList),
+        ...createGroupMembersHandlers({ 'custom-default-access': [editUsers[0]] }, { 'custom-default-access': [] }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Verify customized group UI', async () => {
+      const canvas = within(canvasElement);
+
+      // Wait for form to load
+      await expect(canvas.findByDisplayValue('Custom default access')).resolves.toBeInTheDocument();
+
+      // Should show info alert (not danger)
+      await expect(canvas.findByText(/this group has been customized/i)).resolves.toBeInTheDocument();
+
+      // Should show restore button
+      const restoreButton = await canvas.findByRole('button', { name: /restore to default/i });
+      await expect(restoreButton).toBeInTheDocument();
+
+      // Click restore button to open modal
+      await userEvent.click(restoreButton);
+
+      // Should show warning modal
+      await expect(canvas.findByText(/restore default access group\?/i)).resolves.toBeInTheDocument();
+    });
+  },
+};

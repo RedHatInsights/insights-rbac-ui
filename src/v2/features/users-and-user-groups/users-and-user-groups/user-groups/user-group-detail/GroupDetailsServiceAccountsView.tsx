@@ -10,10 +10,15 @@ import { type ServiceAccount, useGroupServiceAccountsQuery } from '../../../../.
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '../../../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
+import { DefaultServiceAccountsAlert } from '../../../components/DefaultServiceAccountsAlert';
 
 interface GroupDetailsServiceAccountsViewProps {
   groupId: string;
   ouiaId: string;
+  /** If true, shows security compliance alert about service accounts */
+  isDefaultGroup?: boolean;
+  /** If false, this is the admin default group; otherwise platform default */
+  isPlatformDefault?: boolean;
 }
 
 interface ServiceAccountData {
@@ -25,7 +30,7 @@ interface ServiceAccountData {
 
 const columns = ['name', 'clientId', 'owner'] as const;
 
-const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServiceAccountsViewProps> = ({ groupId, ouiaId }) => {
+const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServiceAccountsViewProps> = ({ groupId, ouiaId, isDefaultGroup, isPlatformDefault }) => {
   const intl = useIntl();
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
@@ -90,6 +95,7 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
 
   return (
     <div className="pf-v6-u-pt-md">
+      {isDefaultGroup && <DefaultServiceAccountsAlert isPlatformDefault={!!isPlatformDefault} />}
       <TableView<typeof columns, ServiceAccountData>
         columns={columns}
         columnConfig={columnConfig}

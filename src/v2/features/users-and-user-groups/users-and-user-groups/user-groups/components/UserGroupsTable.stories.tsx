@@ -713,3 +713,31 @@ export const DefaultGroupsCounts: Story = {
     });
   },
 };
+
+/**
+ * Default groups with DefaultInfoPopover icons
+ * Shows info popovers next to default group names
+ */
+export const DefaultGroupsWithPopovers: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Default groups (platform_default and admin_default) display info popovers next to their names explaining inherited roles. Popovers appear on hover.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Verify info popovers for default groups', async () => {
+      const canvas = within(canvasElement);
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+
+      // Find the default groups
+      await expect(canvas.findByText(GROUP_SYSTEM_DEFAULT.name)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(GROUP_ADMIN_DEFAULT.name)).resolves.toBeInTheDocument();
+
+      // Verify info icons are present (question circle icons)
+      const questionIcons = canvas.getAllByRole('img', { hidden: true }).filter((icon) => icon.classList.contains('pf-v6-c-question-circle-icon'));
+      await expect(questionIcons.length).toBeGreaterThanOrEqual(2); // At least 2 for the default groups
+    });
+  },
+};

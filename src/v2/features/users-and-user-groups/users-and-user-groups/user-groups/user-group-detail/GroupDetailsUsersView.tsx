@@ -10,10 +10,15 @@ import { useGroupMembersQuery } from '../../../../../../v2/data/queries/groups';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '../../../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
+import { DefaultMembersAlert } from '../../../components/DefaultMembersAlert';
 
 interface GroupDetailsUsersViewProps {
   groupId: string;
   ouiaId: string;
+  /** If true, shows alert indicating all users are automatic members */
+  isDefaultGroup?: boolean;
+  /** If true, shows "all org admins" message; otherwise "all users" */
+  isAdminDefault?: boolean;
 }
 
 interface MemberData {
@@ -24,7 +29,7 @@ interface MemberData {
 
 const columns = ['username', 'firstName', 'lastName'] as const;
 
-const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps> = ({ groupId, ouiaId }) => {
+const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps> = ({ groupId, ouiaId, isDefaultGroup, isAdminDefault }) => {
   const intl = useIntl();
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
@@ -86,6 +91,7 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
 
   return (
     <div className="pf-v6-u-pt-md">
+      {isDefaultGroup && <DefaultMembersAlert isAdminDefault={!!isAdminDefault} />}
       <TableView<typeof columns, MemberData>
         columns={columns}
         columnConfig={columnConfig}

@@ -250,3 +250,97 @@ export const NetworkFailure: Story = {
     });
   },
 };
+
+/**
+ * Platform default group with DefaultServiceAccountsAlert
+ * Shows security compliance alert
+ */
+export const DefaultPlatformGroup: Story = {
+  args: {
+    groupId: 'default-platform-group',
+    ouiaId: 'group-service-accounts-view-default',
+    isDefaultGroup: true,
+    isPlatformDefault: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Platform default group shows DefaultServiceAccountsAlert explaining service accounts are not included in Default access group.',
+      },
+    },
+    msw: {
+      handlers: [
+        ...createGroupMembersHandlers(
+          {},
+          {
+            'default-platform-group': [
+              {
+                username: 'service-account-12345',
+                type: 'service-account' as const,
+                clientId: 'service-account-12345',
+              },
+            ],
+          }
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify DefaultServiceAccountsAlert for platform default group', async () => {
+      // Should show alert about service accounts not being included
+      await expect(canvas.findByText(/service accounts are not included in the default access group/i)).resolves.toBeInTheDocument();
+
+      // Should still show the service accounts table
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Admin default group with DefaultServiceAccountsAlert
+ * Shows security compliance alert
+ */
+export const DefaultAdminGroup: Story = {
+  args: {
+    groupId: 'default-admin-group',
+    ouiaId: 'group-service-accounts-view-admin-default',
+    isDefaultGroup: true,
+    isPlatformDefault: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Admin default group shows DefaultServiceAccountsAlert explaining service accounts are not included in Default admin access group.',
+      },
+    },
+    msw: {
+      handlers: [
+        ...createGroupMembersHandlers(
+          {},
+          {
+            'default-admin-group': [
+              {
+                username: 'service-account-67890',
+                type: 'service-account' as const,
+                clientId: 'service-account-67890',
+              },
+            ],
+          }
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify DefaultServiceAccountsAlert for admin default group', async () => {
+      // Should show alert about service accounts not being included
+      await expect(canvas.findByText(/service accounts are not included in the default admin access group/i)).resolves.toBeInTheDocument();
+
+      // Should still show the service accounts table
+      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+    });
+  },
+};

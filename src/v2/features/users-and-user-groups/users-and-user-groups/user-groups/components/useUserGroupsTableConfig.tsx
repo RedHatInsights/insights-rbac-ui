@@ -6,6 +6,8 @@ import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip'
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../../shared/components/table-view';
 import type { Group } from '../../../../../../v2/data/queries/groups';
 import messages from '../../../../../../Messages';
+import { DefaultInfoPopover } from '../../../components/DefaultInfoPopover';
+import { DefaultGroupChangedIcon } from '../../../components/DefaultGroupChangedIcon';
 
 // NOTE: Per V2 designs, only name/description/users/lastModified are shown.
 // Roles, workspaces, and service accounts columns were removed from the table.
@@ -38,7 +40,26 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
 
   const cellRenderers: CellRendererMap<typeof columns, Group> = useMemo(
     () => ({
-      name: (group) => group.name,
+      name: (group) => {
+        const isDefaultGroup = group.platform_default || group.admin_default;
+        const isCustomizedDefault = group.platform_default && !group.system;
+
+        return (
+          <>
+            {isCustomizedDefault ? <DefaultGroupChangedIcon name={group.name} /> : group.name}
+            {isDefaultGroup && (
+              <>
+                {' '}
+                <DefaultInfoPopover
+                  id={`default${group.admin_default ? '-admin' : ''}-group-popover`}
+                  uuid={group.uuid}
+                  bodyContent={intl.formatMessage(group.admin_default ? messages.orgAdminInheritedRoles : messages.usersInheritedRoles)}
+                />
+              </>
+            )}
+          </>
+        );
+      },
       description: (group) =>
         group.description ? (
           <Tooltip isContentLeftAligned content={group.description}>
