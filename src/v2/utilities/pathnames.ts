@@ -269,6 +269,12 @@ const orgManagementGroup: PathnameConfig<(groupId: string) => string> = {
   title: 'Organization Management - Group drawer',
 };
 
+const orgManagementEditAccess: PathnameConfig<(groupId: string) => string> = {
+  link: (groupId) => `/organization-management/organization-wide-access/${groupId}/edit-access`,
+  path: ':groupId/edit-access',
+  title: 'Organization Management - Edit access',
+};
+
 // ===========================================
 // Audit Log
 // ===========================================
@@ -322,6 +328,7 @@ const pathnames = {
   'workspace-detail-edit-access': workspaceDetailEditAccess,
   'org-management-grant-access': orgManagementGrantAccess,
   'org-management-group': orgManagementGroup,
+  'org-management-edit-access': orgManagementEditAccess,
 } as const;
 
 export default pathnames;

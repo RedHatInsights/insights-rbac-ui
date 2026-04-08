@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -7,15 +7,12 @@ import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip'
 import type { WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import messages from '../../../../../Messages';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
-import { RemoveGroupFromWorkspaceModal } from './RemoveGroupFromWorkspaceModal';
 import { useWorkspacesFlag } from '../../../../../shared/hooks/useWorkspacesFlag';
 import { ActionDropdown, type ActionDropdownItem } from '../../../../../shared/components/ActionDropdown/ActionDropdown';
 import { TableView } from '../../../../../shared/components/table-view/TableView';
 import { useTableState } from '../../../../../shared/components/table-view/hooks/useTableState';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../shared/components/table-view/components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../shared/components/table-view/types';
-import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
-import pathnames from '../../../../utilities/pathnames';
 
 const columns = ['name', 'description', 'userCount', 'roleCount', 'lastModified'] as const;
 type SortableColumn = 'name' | 'userCount' | 'roleCount' | 'lastModified';
@@ -44,6 +41,10 @@ export interface BaseGroupAssignmentsTableProps {
   onGroupDeselect: () => void;
   /** Navigate to grant access route */
   onGrantAccess: () => void;
+  /** Called when the user triggers the edit-access row action for a group */
+  onEditAccess: (group: WorkspaceGroupRow) => void;
+  /** Called when the user triggers the remove-access row action for a group */
+  onRemoveAccess: (group: WorkspaceGroupRow) => void;
 }
 
 export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps> = ({
@@ -60,13 +61,13 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
   onGroupSelect,
   onGroupDeselect,
   onGrantAccess,
+  onEditAccess,
+  onRemoveAccess,
 }) => {
   const intl = useIntl();
-  const navigate = useAppNavigate();
   const grantAccessEnabled = useWorkspacesFlag('m4');
 
   const focusedGroup = useMemo(() => (focusedGroupId ? groups.find((g) => g.id === focusedGroupId) : undefined), [focusedGroupId, groups]);
-  const [groupToRemove, setGroupToRemove] = useState<WorkspaceGroupRow | undefined>();
 
   const tableState = useTableState<typeof columns, WorkspaceGroupRow, SortableColumn>({
     columns,
@@ -130,24 +131,20 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
         {
           key: 'edit-access',
           label: intl.formatMessage(messages.editAccess),
-          onClick: () => {
-            if (currentWorkspace) {
-              navigate(pathnames['workspace-detail-edit-access'].link(currentWorkspace.id, group.id));
-            }
-          },
-          isDisabled: !currentWorkspace || !canEditAccess || group.isDefaultGroup,
+          onClick: () => onEditAccess(group),
+          isDisabled: !canEditAccess || group.isDefaultGroup,
         },
         {
           key: 'remove-access',
           label: intl.formatMessage(messages.removeAccess),
           isDanger: canRevokeAccess && !group.isDefaultGroup,
-          onClick: () => setGroupToRemove(group),
+          onClick: () => onRemoveAccess(group),
           isDisabled: !canRevokeAccess || group.isDefaultGroup,
         },
       ];
       return <ActionDropdown items={items} ariaLabel={`Actions for ${group.name}`} ouiaId={`${ouiaId}-row-actions-${group.id}`} />;
     },
-    [intl, currentWorkspace, navigate, ouiaId, canEditAccess, canRevokeAccess],
+    [intl, ouiaId, canEditAccess, canRevokeAccess, onEditAccess, onRemoveAccess],
   );
 
   const handleRowClick = useCallback(
@@ -185,7 +182,8 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
       currentWorkspace={currentWorkspace}
       canEditAccess={canEditAccess}
       canRevokeAccess={canRevokeAccess}
-      onRemoveFromWorkspace={currentWorkspace ? (group) => setGroupToRemove(group) : undefined}
+      onEditAccess={onEditAccess}
+      onRemoveFromWorkspace={currentWorkspace ? onRemoveAccess : undefined}
     >
       <TableView<typeof columns, WorkspaceGroupRow, SortableColumn>
         columns={columns}
@@ -217,16 +215,6 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
           <DefaultEmptyStateNoResults title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} onClearFilters={tableState.clearAllFilters} />
         }
       />
-      {groupToRemove && currentWorkspace && (
-        <RemoveGroupFromWorkspaceModal
-          isOpen={!!groupToRemove}
-          groupId={groupToRemove.id}
-          groupName={groupToRemove.name}
-          workspaceId={currentWorkspace.id}
-          workspaceName={currentWorkspace.name}
-          onClose={() => setGroupToRemove(undefined)}
-        />
-      )}
     </GroupDetailsDrawer>
   );
 };

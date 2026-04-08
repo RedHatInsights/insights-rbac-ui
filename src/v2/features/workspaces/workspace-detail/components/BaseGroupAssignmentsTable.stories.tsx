@@ -11,6 +11,8 @@ const NOOP_CALLBACKS = {
   onGroupSelect: () => {},
   onGroupDeselect: () => {},
   onGrantAccess: () => {},
+  onEditAccess: () => {},
+  onRemoveAccess: () => {},
 };
 
 const mockGroups: WorkspaceGroupRow[] = [
@@ -183,6 +185,8 @@ const DrawerInteractionWrapper: React.FC = () => {
       onGroupSelect={(group) => setFocusedGroupId(group.id)}
       onGroupDeselect={() => setFocusedGroupId(undefined)}
       onGrantAccess={() => {}}
+      onEditAccess={() => {}}
+      onRemoveAccess={() => {}}
     />
   );
 };
@@ -438,6 +442,80 @@ export const GrantAccessButtonDisabledByPermission: Story = {
       const grantAccessButton = await canvas.findByRole('button', { name: /grant access/i });
       await expect(grantAccessButton).toBeInTheDocument();
       await expect(grantAccessButton).toBeDisabled();
+    });
+  },
+};
+
+export const OrgAdminView: Story = {
+  tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    currentWorkspace: { id: 'redhat/org-123', name: 'My Organization', type: 'tenant' as const },
+    canGrantAccess: true,
+    canEditAccess: true,
+    canRevokeAccess: true,
+    ouiaId: 'org-admin-role-assignments-table',
+    ...NOOP_CALLBACKS,
+  },
+  parameters: {
+    featureFlags: { 'platform.rbac.workspaces-role-bindings-write': true },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Org admin sees all three actions enabled', async () => {
+      const grantAccessButton = await canvas.findByRole('button', { name: /grant access/i });
+      await expect(grantAccessButton).not.toBeDisabled();
+
+      const firstGroupRow = await canvas.findByText(mockGroups[0].name);
+      const row = firstGroupRow.closest('tr') as HTMLElement;
+      const kebab = within(row).getByLabelText(new RegExp(`actions for ${mockGroups[0].name}`, 'i'));
+      await userEvent.click(kebab);
+
+      const body = within(document.body);
+      const editItem = await body.findByText(/^edit access$/i);
+      await expect(editItem.closest('button')).not.toHaveAttribute('disabled');
+
+      const removeItem = await body.findByText(/^remove access$/i);
+      await expect(removeItem.closest('button')).not.toHaveAttribute('disabled');
+    });
+  },
+};
+
+export const OrgAdminReadOnly: Story = {
+  tags: ['ff:platform.rbac.workspaces-role-bindings-write'],
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    currentWorkspace: { id: 'redhat/org-123', name: 'My Organization', type: 'tenant' as const },
+    canGrantAccess: false,
+    canEditAccess: false,
+    canRevokeAccess: false,
+    ouiaId: 'org-readonly-role-assignments-table',
+    ...NOOP_CALLBACKS,
+  },
+  parameters: {
+    featureFlags: { 'platform.rbac.workspaces-role-bindings-write': true },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Non-org-admin sees all actions disabled', async () => {
+      const grantAccessButton = await canvas.findByRole('button', { name: /grant access/i });
+      await expect(grantAccessButton).toBeDisabled();
+
+      const firstGroupRow = await canvas.findByText(mockGroups[0].name);
+      const row = firstGroupRow.closest('tr') as HTMLElement;
+      const kebab = within(row).getByLabelText(new RegExp(`actions for ${mockGroups[0].name}`, 'i'));
+      await userEvent.click(kebab);
+
+      const body = within(document.body);
+      const editItem = await body.findByText(/^edit access$/i);
+      await expect(editItem.closest('button')).toHaveAttribute('disabled');
+
+      const removeItem = await body.findByText(/^remove access$/i);
+      await expect(removeItem.closest('button')).toHaveAttribute('disabled');
     });
   },
 };

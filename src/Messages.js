@@ -3408,10 +3408,20 @@ export default defineMessages({
     description: 'Remove group from workspace action label',
     defaultMessage: 'Remove from workspace',
   },
+  removeGroupFromOrganization: {
+    id: 'removeGroupFromOrganization',
+    description: 'Remove group from organization action label',
+    defaultMessage: 'Remove from organization',
+  },
   removeGroupFromWorkspaceConfirmTitle: {
     id: 'removeGroupFromWorkspaceConfirmTitle',
     description: 'Confirmation modal title when removing a group from a workspace',
     defaultMessage: 'Remove {groupName} from workspace?',
+  },
+  removeGroupFromOrganizationConfirmTitle: {
+    id: 'removeGroupFromOrganizationConfirmTitle',
+    description: 'Confirmation modal title when removing a group from an organization',
+    defaultMessage: 'Remove {groupName} from organization?',
   },
   removeGroupFromWorkspaceConfirmBody: {
     id: 'removeGroupFromWorkspaceConfirmBody',

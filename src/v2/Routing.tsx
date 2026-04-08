@@ -43,6 +43,7 @@ const MyWorkspaces = lazy(() => import('./features/my-access/my-workspaces/MyWor
 
 const OrganizationManagement = lazy(() => import('./features/organization-management/OrganizationManagement'));
 const RoutedOrgGrantAccessWizard = lazy(() => import('./features/organization-management/RoutedOrgGrantAccessWizard'));
+const RoutedOrgRoleAccessModal = lazy(() => import('./features/organization-management/RoutedOrgRoleAccessModal'));
 const AuditLog = lazy(() => import('./features/audit-log/AuditLog'));
 
 const CreateUserGroup = () => <EditUserGroup createNewGroup />;
@@ -147,6 +148,7 @@ export const V2Routing = () => {
         <Route {...v2GuardOrgAdmin()}>
           <Route path={pathnames['organization-management'].path} element={<OrganizationManagement />}>
             <Route path={pathnames['org-management-grant-access'].path} element={<RoutedOrgGrantAccessWizard />} />
+            <Route path={pathnames['org-management-edit-access'].path} element={<RoutedOrgRoleAccessModal />} />
           </Route>
         </Route>
 
