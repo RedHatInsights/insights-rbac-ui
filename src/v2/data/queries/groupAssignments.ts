@@ -174,24 +174,12 @@ export function useOrgGroups(organizationId: string, options?: { enabled?: boole
   const query = useQuery({
     queryKey: roleBindingsKeys.orgGroups(organizationId),
     queryFn: async () => {
-      // TODO: remove cast once @redhat-cloud-services/rbac-client supports resource.tenant.org_id
-      // Note: resourceId is required for the generated client's object-params detection to work.
-      // Without it, the client falls back to positional-params mode and serializes the whole
-      // object under resource_id.* query params. The real API ignores resource_id when
-      // resource.tenant.org_id is present.
-      const response = await (api.roleBindingsListBySubject as (params: Record<string, unknown>) => ReturnType<typeof api.roleBindingsListBySubject>)(
-        {
-          resourceId: organizationId,
-          resourceType: 'tenant',
-          fields: 'subject(id,group.name,group.user_count,group.description),roles(id,name),last_modified',
-          limit: ROLE_BINDINGS_LIMIT,
-          options: {
-            params: {
-              'resource.tenant.org_id': organizationId,
-            },
-          },
-        },
-      );
+      const response = await api.roleBindingsListBySubject({
+        resourceId: `redhat/${organizationId}`,
+        resourceType: 'tenant',
+        fields: 'subject(id,group.name,group.user_count,group.description),roles(id,name),last_modified',
+        limit: ROLE_BINDINGS_LIMIT,
+      });
       return response.data;
     },
     enabled: (options?.enabled ?? true) && !!organizationId,
