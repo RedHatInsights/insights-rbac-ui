@@ -1,9 +1,7 @@
 import React, { useCallback } from 'react';
-import { useIntl } from 'react-intl';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import { useOrganizationData } from '../../hooks/useOrganizationData';
 import pathnames from '../../utilities/pathnames';
-import messages from '../../../Messages';
 import { GrantAccessWizard } from '../workspaces/grant-access/GrantAccessWizard';
 import { AppPlaceholder } from '../../../shared/components/ui-states/LoaderPlaceholders';
 
@@ -13,7 +11,6 @@ import { AppPlaceholder } from '../../../shared/components/ui-states/LoaderPlace
  * and is fully self-contained from a cold URL.
  */
 export const RoutedOrgGrantAccessWizard: React.FC = () => {
-  const intl = useIntl();
   const navigate = useAppNavigate();
   const { organizationId, organizationName, isLoading } = useOrganizationData();
 
@@ -27,7 +24,7 @@ export const RoutedOrgGrantAccessWizard: React.FC = () => {
 
   return (
     <GrantAccessWizard
-      workspaceName={organizationName || intl.formatMessage(messages.organizationWideAccessTitle)}
+      workspaceName={organizationName ?? ''}
       workspaceId={tenantResourceId}
       resourceType="tenant"
       afterSubmit={goBack}

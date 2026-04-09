@@ -7,7 +7,7 @@
  *
  * Depends on auth-v1-orgadmin (just needs any valid session).
  */
-import { chromium, expect, test as setup } from '@playwright/test';
+import { type BrowserContextOptions, chromium, expect, test as setup } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 import { blockAnalytics } from '../utils/fixtures';
@@ -55,10 +55,17 @@ setup('warm asset cache', async () => {
 
   const baseURL = process.env.E2E_BASE_URL || 'https://console.stage.redhat.com';
   const browser = await chromium.launch();
-  const context = await browser.newContext({
+  const contextOptions: BrowserContextOptions = {
     storageState: AUTH_FILE,
     ignoreHTTPSErrors: true,
-  });
+  };
+
+  // Optional proxy support via environment variable
+  if (process.env.E2E_PROXY) {
+    contextOptions.proxy = { server: process.env.E2E_PROXY };
+  }
+
+  const context = await browser.newContext(contextOptions);
   const page = await context.newPage();
 
   try {

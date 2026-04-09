@@ -935,6 +935,14 @@
     "defaultMessage": "Grant access in Workspace {workspaceName}",
     "description": "Grant access in workspace wizard title"
   },
+  "grantAccessInOrganization": {
+    "defaultMessage": "Grant organization-wide access",
+    "description": "Grant access in organization wizard title"
+  },
+  "grantAccessInOrganizationWithName": {
+    "defaultMessage": "Grant access in {organizationName}",
+    "description": "Grant access in organization wizard title with organization name"
+  },
   "granularPermissionsWillBeCopied": {
     "defaultMessage": "Only granular permissions will be copied into a custom role (for example, approval:requests:read). Wildcard permissions will not be copied into a custom role (for example, approval:*:read).",
     "description": "Granular permissions will be copied message"
@@ -1874,8 +1882,12 @@
     "defaultMessage": "Select user group(s)",
     "description": "Select user groups step title"
   },
+  "selectUserGroupsContentTitle": {
+    "defaultMessage": "Select user group(s) you want to grant access to",
+    "description": "Select user groups content header title"
+  },
   "selectUserGroupsDescription": {
-    "defaultMessage": "This step is currently blank and ready for implementation.",
+    "defaultMessage": "Select the user group(s) you wish to grant access to. If you don't see the group you wish to select, you must create a new group in <link>Users and Groups</link>.",
     "description": "Select user groups step description"
   },
   "selectUsersAndOrServiceAccounts": {

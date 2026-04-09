@@ -12,6 +12,7 @@ export interface RemoveGroupFromWorkspaceModalProps {
   groupName: string;
   workspaceId: string;
   workspaceName: string;
+  resourceType?: 'workspace' | 'tenant';
   onClose: () => void;
   onSuccess?: () => void;
 }
@@ -22,6 +23,7 @@ export const RemoveGroupFromWorkspaceModal: React.FC<RemoveGroupFromWorkspaceMod
   groupName,
   workspaceId,
   workspaceName,
+  resourceType = 'workspace',
   onClose,
   onSuccess,
 }) => {
@@ -32,7 +34,7 @@ export const RemoveGroupFromWorkspaceModal: React.FC<RemoveGroupFromWorkspaceMod
     updateBindings.mutate(
       {
         resourceId: workspaceId,
-        resourceType: 'workspace',
+        resourceType,
         subjectId: groupId,
         subjectType: 'group',
         roleIds: [],
@@ -46,12 +48,16 @@ export const RemoveGroupFromWorkspaceModal: React.FC<RemoveGroupFromWorkspaceMod
     );
   };
 
+  const isTenant = resourceType === 'tenant';
+
   return (
     <WarningModal
       ouiaId="remove-group-from-workspace-modal"
       isOpen={isOpen}
-      title={intl.formatMessage(messages.removeGroupFromWorkspaceConfirmTitle, { groupName })}
-      confirmButtonLabel={intl.formatMessage(messages.removeGroupFromWorkspace)}
+      title={intl.formatMessage(isTenant ? messages.removeGroupFromOrganizationConfirmTitle : messages.removeGroupFromWorkspaceConfirmTitle, {
+        groupName,
+      })}
+      confirmButtonLabel={intl.formatMessage(isTenant ? messages.removeGroupFromOrganization : messages.removeGroupFromWorkspace)}
       confirmButtonVariant={ButtonVariant.danger}
       onClose={onClose}
       onConfirm={handleConfirm}

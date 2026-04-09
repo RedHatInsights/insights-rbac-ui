@@ -324,7 +324,7 @@ export const TenantScoped: Story = {
 
     await step('Wizard title shows org-level grant', async () => {
       const modal = await waitForModal();
-      await expect(modal.findByText(/grant organization-wide access/i)).resolves.toBeInTheDocument();
+      await expect(modal.findByText(/grant access in organization/i)).resolves.toBeInTheDocument();
     });
 
     await step('Select a group and advance to roles step', async () => {

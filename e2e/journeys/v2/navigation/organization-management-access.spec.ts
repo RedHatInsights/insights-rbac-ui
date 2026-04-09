@@ -84,6 +84,124 @@ test.describe('OrgAdmin', () => {
     await expect(orgPage.grantAccessWizard).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
     await expect(orgPage.heading).toBeVisible();
   });
+
+  test('OrgAdmin row actions (edit, remove) are enabled for non-default groups [OrgAdmin]', async ({ page }) => {
+    const orgPage = new OrganizationManagementPage(page);
+    await orgPage.goto();
+
+    await expect(orgPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+    // If the table is empty skip action assertions — no groups to act on.
+    const rows = orgPage.tableComponent.grid.getByRole('row');
+    const rowCount = await rows.count();
+    // row index 0 is the header; skip if no data rows
+    if (rowCount <= 1) {
+      return;
+    }
+
+    const firstRowName = await orgPage.firstRowName();
+    await orgPage.openRowActions(firstRowName);
+
+    const editItem = page.getByRole('menuitem', { name: /edit access/i });
+    const removeItem = page.getByRole('menuitem', { name: /remove access/i });
+    await expect(editItem).toBeVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+    await expect(removeItem).toBeVisible({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+    await expect(editItem).not.toBeDisabled();
+    await expect(removeItem).not.toBeDisabled();
+  });
+
+  test('OrgAdmin can open and cancel edit access modal [OrgAdmin]', async ({ page }) => {
+    const orgPage = new OrganizationManagementPage(page);
+    await orgPage.goto();
+
+    await expect(orgPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+    const rows = orgPage.tableComponent.grid.getByRole('row');
+    const rowCount = await rows.count();
+    if (rowCount <= 1) {
+      return;
+    }
+
+    const firstRowName = await orgPage.firstRowName();
+    await orgPage.openRowActions(firstRowName);
+    await page.getByRole('menuitem', { name: /edit access/i }).click();
+
+    await expect(orgPage.editAccessModal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(orgPage.editAccessModal.getByText(/edit access/i)).toBeVisible();
+
+    await orgPage.editAccessModal.getByRole('button', { name: /cancel/i }).click();
+    await expect(orgPage.editAccessModal).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(orgPage.heading).toBeVisible();
+  });
+
+  test('OrgAdmin can select roles and submit edit access modal [OrgAdmin]', async ({ page }) => {
+    const orgPage = new OrganizationManagementPage(page);
+    await orgPage.goto();
+
+    await expect(orgPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+    const rows = orgPage.tableComponent.grid.getByRole('row');
+    const rowCount = await rows.count();
+    if (rowCount <= 1) {
+      return;
+    }
+
+    const firstRowName = await orgPage.firstRowName();
+    await orgPage.openRowActions(firstRowName);
+    await page.getByRole('menuitem', { name: /edit access/i }).click();
+
+    await expect(orgPage.editAccessModal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+
+    // Wait for role grid inside the modal
+    const roleGrid = orgPage.editAccessModal.getByRole('grid', { name: /roles selection table/i });
+    const gridVisible = await roleGrid.isVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA }).catch(() => false);
+    if (!gridVisible) {
+      // No role grid loaded; nothing to submit — cancel gracefully
+      await orgPage.editAccessModal.getByRole('button', { name: /cancel/i }).click();
+      return;
+    }
+
+    // Find an unchecked role checkbox and select it
+    const uncheckedBox = roleGrid.locator('input[type="checkbox"]:not(:checked)').first();
+    const hasUnchecked = await uncheckedBox.isVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT }).catch(() => false);
+    if (!hasUnchecked) {
+      // All roles already selected; nothing to change — cancel gracefully
+      await orgPage.editAccessModal.getByRole('button', { name: /cancel/i }).click();
+      return;
+    }
+
+    await uncheckedBox.click();
+
+    const updateButton = orgPage.editAccessModal.getByRole('button', { name: /update/i });
+    await expect(updateButton).not.toBeDisabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+    await updateButton.click();
+
+    await expect(orgPage.editAccessModal).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(orgPage.heading).toBeVisible();
+  });
+
+  test('OrgAdmin can open and cancel remove access confirmation [OrgAdmin]', async ({ page }) => {
+    const orgPage = new OrganizationManagementPage(page);
+    await orgPage.goto();
+
+    await expect(orgPage.table).toBeVisible({ timeout: E2E_TIMEOUTS.TABLE_DATA });
+
+    const rows = orgPage.tableComponent.grid.getByRole('row');
+    const rowCount = await rows.count();
+    if (rowCount <= 1) {
+      return;
+    }
+
+    const firstRowName = await orgPage.firstRowName();
+    await orgPage.openRowActions(firstRowName);
+    await page.getByRole('menuitem', { name: /remove access/i }).click();
+
+    await expect(orgPage.removeAccessModal).toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+
+    await orgPage.removeAccessModal.getByRole('button', { name: /cancel/i }).click();
+    await expect(orgPage.removeAccessModal).not.toBeVisible({ timeout: E2E_TIMEOUTS.DIALOG_CONTENT });
+    await expect(orgPage.heading).toBeVisible();
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

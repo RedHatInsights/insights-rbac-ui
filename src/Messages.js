@@ -3200,10 +3200,20 @@ export default defineMessages({
     description: 'Grant access in organization wizard title',
     defaultMessage: 'Grant organization-wide access',
   },
+  grantAccessInOrganizationWithName: {
+    id: 'grantAccessInOrganizationWithName',
+    description: 'Grant access in organization wizard title with organization name',
+    defaultMessage: 'Grant access in {organizationName}',
+  },
   selectUserGroups: {
     id: 'selectUserGroups',
     description: 'Select user groups step title',
     defaultMessage: 'Select user group(s)',
+  },
+  selectUserGroupsContentTitle: {
+    id: 'selectUserGroupsContentTitle',
+    description: 'Select user groups content header title',
+    defaultMessage: 'Select user group(s) you want to grant access to',
   },
   selectRoles: {
     id: 'selectRoles',
@@ -3214,7 +3224,7 @@ export default defineMessages({
     id: 'selectUserGroupsDescription',
     description: 'Select user groups step description',
     defaultMessage:
-      "Select the user group(s) you wish to grant access to. If you don't see the group you wish to select, you must create a new group in Users and Groups.",
+      "Select the user group(s) you wish to grant access to. If you don't see the group you wish to select, you must create a new group in <link>Users and Groups</link>.",
   },
   selectRolesDescription: {
     id: 'selectRolesDescription',
@@ -3408,10 +3418,20 @@ export default defineMessages({
     description: 'Remove group from workspace action label',
     defaultMessage: 'Remove from workspace',
   },
+  removeGroupFromOrganization: {
+    id: 'removeGroupFromOrganization',
+    description: 'Remove group from organization action label',
+    defaultMessage: 'Remove from organization',
+  },
   removeGroupFromWorkspaceConfirmTitle: {
     id: 'removeGroupFromWorkspaceConfirmTitle',
     description: 'Confirmation modal title when removing a group from a workspace',
     defaultMessage: 'Remove {groupName} from workspace?',
+  },
+  removeGroupFromOrganizationConfirmTitle: {
+    id: 'removeGroupFromOrganizationConfirmTitle',
+    description: 'Confirmation modal title when removing a group from an organization',
+    defaultMessage: 'Remove {groupName} from organization?',
   },
   removeGroupFromWorkspaceConfirmBody: {
     id: 'removeGroupFromWorkspaceConfirmBody',

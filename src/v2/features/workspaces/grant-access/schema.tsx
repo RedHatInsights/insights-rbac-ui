@@ -23,12 +23,14 @@ export const schemaBuilder = (workspaceName: string, workspaceId?: string, resou
         isDynamic: true,
         'data-ouia-component-id': 'grant-access-wizard',
         inModal: true,
-        showTitles: true,
+        showTitles: false,
         disableForwardJumping: true,
         container: getModalContainer(),
         title:
           resourceType === 'tenant'
-            ? intl.formatMessage(messages.grantAccessInOrganization)
+            ? workspaceName
+              ? intl.formatMessage(messages.grantAccessInOrganizationWithName, { organizationName: workspaceName })
+              : intl.formatMessage(messages.grantAccessInOrganization)
             : intl.formatMessage(messages.grantAccessInWorkspace, { workspaceName }),
         fields: [
           {

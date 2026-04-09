@@ -4,6 +4,7 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import type { UseFieldApiConfig } from '@data-driven-forms/react-form-renderer/use-field-api/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useAllRolesV2Query } from '../../../../data/queries/roles';
 import { RolesSelectionTable } from './RolesSelectionTable';
 import messages from '../../../../../Messages';
@@ -32,6 +33,11 @@ const RolesSelectionField: React.FC<UseFieldApiConfig & { workspaceId?: string; 
     <Fragment>
       <Form>
         <Stack>
+          <StackItem>
+            <Title headingLevel="h2" size="xl" className="pf-v6-u-mb-sm">
+              {intl.formatMessage(messages.selectRoles)}
+            </Title>
+          </StackItem>
           <StackItem>
             <Content component="p" className="pf-v6-u-mb-md">
               {intl.formatMessage(messages.selectRolesDescription)}

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
 import { PageHeader } from '@patternfly/react-component-groups';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
@@ -12,7 +12,9 @@ import pathnames from '../../utilities/pathnames';
 import messages from '../../../Messages';
 import { useIntl } from 'react-intl';
 import { useOrgGroups } from '../../data/queries/groupAssignments';
+import type { WorkspaceGroupRow } from '../../data/queries/groupAssignments';
 import { BaseGroupAssignmentsTable } from '../workspaces/workspace-detail/components';
+import { RemoveGroupFromWorkspaceModal } from '../workspaces/workspace-detail/components/RemoveGroupFromWorkspaceModal';
 
 const PLACEHOLDER = '--';
 
@@ -22,6 +24,8 @@ export const OrganizationManagement = () => {
   const { '*': splat = '' } = useParams<{ '*': string }>();
   const { accountNumber, organizationId, organizationName, isLoading } = useOrganizationData();
   const { orgAdmin } = useIdentity();
+
+  const [groupToRemove, setGroupToRemove] = useState<WorkspaceGroupRow | undefined>();
 
   const { data: roleBindings, isLoading: roleBindingsIsLoading } = useOrgGroups(organizationId!, {
     enabled: !isLoading && !!organizationId,
@@ -46,6 +50,13 @@ export const OrganizationManagement = () => {
   const handleGrantAccess = useCallback(() => {
     navigate(pathnames['org-management-grant-access'].link());
   }, [navigate]);
+
+  const handleEditAccess = useCallback(
+    (group: WorkspaceGroupRow) => {
+      navigate(pathnames['org-management-edit-access'].link(group.id));
+    },
+    [navigate],
+  );
 
   const handleGroupSelect = useCallback(
     (group: { id: string }) => {
@@ -91,13 +102,28 @@ export const OrganizationManagement = () => {
           isLoading={roleBindingsIsLoading}
           currentWorkspace={currentWorkspace}
           canGrantAccess={orgAdmin}
+          canEditAccess={orgAdmin}
+          canRevokeAccess={orgAdmin}
           ouiaId="organization-role-assignments-table"
           syncWithUrl={false}
           onGrantAccess={handleGrantAccess}
+          onEditAccess={handleEditAccess}
+          onRemoveAccess={setGroupToRemove}
           focusedGroupId={groupId}
           onGroupSelect={handleGroupSelect}
           onGroupDeselect={handleGroupDeselect}
         />
+        {groupToRemove && currentWorkspace && (
+          <RemoveGroupFromWorkspaceModal
+            isOpen
+            groupId={groupToRemove.id}
+            groupName={groupToRemove.name}
+            workspaceId={currentWorkspace.id}
+            workspaceName={currentWorkspace.name}
+            resourceType="tenant"
+            onClose={() => setGroupToRemove(undefined)}
+          />
+        )}
       </PageSection>
       <Outlet />
     </>

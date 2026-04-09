@@ -33,7 +33,6 @@ import { AppLink } from '../../../../../shared/components/navigation/AppLink';
 // eslint-disable-next-line rbac-local/require-use-table-state -- display-only drawer, fetches all data with high limit
 import { TableView } from '../../../../../shared/components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '../../../../../shared/components/table-view/types';
-import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
 import { ActionDropdown, type ActionDropdownItem } from '../../../../../shared/components/ActionDropdown/ActionDropdown';
 
@@ -63,6 +62,8 @@ interface GroupDetailsDrawerProps {
   canRevokeAccess?: boolean;
   /** Callback to trigger the remove-from-workspace modal for the focused group */
   onRemoveFromWorkspace?: (group: WorkspaceGroupRow) => void;
+  /** Callback to trigger edit-access navigation for the focused group */
+  onEditAccess?: (group: WorkspaceGroupRow) => void;
 }
 
 // Column definitions for users tables
@@ -91,9 +92,9 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   canEditAccess = false,
   canRevokeAccess = false,
   onRemoveFromWorkspace,
+  onEditAccess,
 }) => {
   const intl = useIntl();
-  const navigate = useAppNavigate();
   const [activeTab, setActiveTab] = useState<string | number>(0);
   const [isAlertDismissed, setIsAlertDismissed] = useState(false);
 
@@ -438,11 +439,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                         {
                           key: 'edit-access',
                           label: intl.formatMessage(messages.editAccess),
-                          onClick: () => {
-                            if (currentWorkspace) {
-                              navigate(pathnames['workspace-detail-edit-access'].link(currentWorkspace.id, group.id));
-                            }
-                          },
+                          onClick: () => onEditAccess?.(group),
                           isDisabled: !canEditAccess || group.isDefaultGroup,
                         },
                         {
@@ -485,14 +482,8 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
               </Tabs>
               {currentWorkspace && !showInheritance && (
                 <Flex className="pf-v6-u-px-md pf-v6-u-pt-md pf-v6-u-pb-md" gap={{ default: 'gapSm' }}>
-                  <Button
-                    variant="secondary"
-                    isDisabled={!canEditAccess || group?.isDefaultGroup}
-                    onClick={() =>
-                      group && currentWorkspace && navigate(pathnames['workspace-detail-edit-access'].link(currentWorkspace.id, group.id))
-                    }
-                  >
-                    {intl.formatMessage(messages.editAccessForThisWorkspace)}
+                  <Button variant="secondary" isDisabled={!canEditAccess || group?.isDefaultGroup} onClick={() => group && onEditAccess?.(group)}>
+                    {intl.formatMessage(currentWorkspace.type === 'tenant' ? messages.editAccess : messages.editAccessForThisWorkspace)}
                   </Button>
                   {/* TODO: re-enable when removal flow is confirmed
                   {onRemoveFromWorkspace && (

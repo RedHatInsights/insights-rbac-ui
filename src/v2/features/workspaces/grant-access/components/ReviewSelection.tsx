@@ -3,6 +3,7 @@ import { useIntl } from 'react-intl';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { List, ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { useGroupsQuery } from '../../../../../v2/data/queries/groups';
 import { useAllRolesV2Query } from '../../../../data/queries/roles';
@@ -29,6 +30,11 @@ const ReviewSelection: React.FC<{ workspaceId?: string; resourceType?: string }>
 
   return (
     <Stack hasGutter>
+      <StackItem>
+        <Title headingLevel="h2" size="xl" className="pf-v6-u-mb-md">
+          {intl.formatMessage(messages.review)}
+        </Title>
+      </StackItem>
       <StackItem>
         <Content>
           <Content component={ContentVariants.h3}>{intl.formatMessage(messages.selectedUserGroups)}</Content>

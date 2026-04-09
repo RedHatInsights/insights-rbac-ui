@@ -636,7 +636,7 @@ export const GrantAccessWizard: Story = {
       await user.click(grantBtn);
 
       const modal = await waitForModal();
-      await expect(modal.findByText(/grant.*access/i)).resolves.toBeInTheDocument();
+      await expect(modal.findByRole('heading', { name: /grant access in/i })).resolves.toBeInTheDocument();
     });
 
     await step('Select a group and advance to roles step', async () => {

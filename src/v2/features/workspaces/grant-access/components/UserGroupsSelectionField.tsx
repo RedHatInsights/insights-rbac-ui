@@ -4,11 +4,14 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import type { UseFieldApiConfig } from '@data-driven-forms/react-form-renderer/use-field-api/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useGroupsQuery } from '../../../../../v2/data/queries/groups';
 import { UserGroupsSelectionTable } from './UserGroupsSelectionTable';
 import messages from '../../../../../Messages';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup, Stack, StackItem } from '@patternfly/react-core';
+import { AppLink } from '../../../../../shared/components/navigation/AppLink';
+import pathnames from '../../../../utilities/pathnames';
 
 const UserGroupsSelectionField: React.FC<UseFieldApiConfig> = (props) => {
   const intl = useIntl();
@@ -34,8 +37,15 @@ const UserGroupsSelectionField: React.FC<UseFieldApiConfig> = (props) => {
       <Form>
         <Stack>
           <StackItem>
+            <Title headingLevel="h2" size="xl" className="pf-v6-u-mb-sm">
+              {intl.formatMessage(messages.selectUserGroupsContentTitle)}
+            </Title>
+          </StackItem>
+          <StackItem>
             <Content component="p" className="pf-v6-u-mb-md">
-              {intl.formatMessage(messages.selectUserGroupsDescription)}
+              {intl.formatMessage(messages.selectUserGroupsDescription, {
+                link: (chunks) => <AppLink to={pathnames['user-groups'].link()}>{chunks}</AppLink>,
+              })}
             </Content>
           </StackItem>
           <StackItem>

@@ -10,14 +10,17 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import { iamUrl, setupPage, v2 } from '../../utils';
 import { E2E_TIMEOUTS } from '../../utils/timeouts';
+import { TableComponent } from '../components/TableComponent';
 
 const ORG_MANAGEMENT_URL = iamUrl(v2.organizationManagement.link());
 
 export class OrganizationManagementPage {
   readonly page: Page;
+  readonly tableComponent: TableComponent;
 
   constructor(page: Page) {
     this.page = page;
+    this.tableComponent = new TableComponent(page, page.locator('[data-ouia-component-id="organization-role-assignments-table"]'));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -68,5 +71,24 @@ export class OrganizationManagementPage {
     // The wizard renders two role=dialog elements (PF modal wrapper + inner wizard).
     // Target the inner wizard directly by its stable OUIA ID to avoid strict mode violations.
     return this.page.locator('[data-ouia-component-id="grant-access-wizard"]');
+  }
+
+  get editAccessModal(): Locator {
+    return this.page.locator('[data-ouia-component-id="org-role-access-modal"]');
+  }
+
+  get removeAccessModal(): Locator {
+    return this.page.getByRole('dialog', { name: /remove/i });
+  }
+
+  async openRowActions(groupName: string | RegExp): Promise<void> {
+    const escapedName = typeof groupName === 'string' ? groupName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : groupName.source;
+    await this.tableComponent.openRowActions(groupName, new RegExp(`actions for ${escapedName}`, 'i'));
+  }
+
+  async firstRowName(): Promise<string> {
+    const rows = this.tableComponent.grid.getByRole('row');
+    if ((await rows.count()) < 2) return '';
+    return (await rows.nth(1).getByRole('cell').first().textContent())?.trim() ?? '';
   }
 }
