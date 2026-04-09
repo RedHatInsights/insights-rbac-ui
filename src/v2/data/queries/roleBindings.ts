@@ -83,18 +83,13 @@ export function useUserRoleBindingsQuery(userId: string | undefined, options?: {
   return useQuery({
     queryKey: [...roleBindingsKeys.all, 'user', userId, options?.resourceId],
     queryFn: async (): Promise<RoleBinding[]> => {
-      // TODO: replace with typed params once @redhat-cloud-services/rbac-client supports granted_subject_*
       const response = await api.roleBindingsList({
         resourceType: 'workspace',
         resourceId: options?.resourceId,
+        grantedSubjectType: 'principal',
+        grantedSubjectPrincipalUserId: userId!,
         limit: 1000,
         fields: FIELDS,
-        options: {
-          params: {
-            granted_subject_type: 'principal',
-            'granted_subject.principal.user_id': userId!,
-          },
-        },
       });
       return parseBindings(response.data?.data ?? []);
     },

@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import {
+  type RoleBindingsBindingSubjectType,
   type RoleBindingsListBySubjectParams,
   type WorkspacesListParams,
   type WorkspacesPatchParams,
@@ -315,7 +316,7 @@ interface UpdateGroupRolesParams {
   resourceId: string;
   resourceType: 'workspace' | 'tenant';
   subjectId: string;
-  subjectType: string;
+  subjectType: RoleBindingsBindingSubjectType;
   roleIds: string[];
 }
 
