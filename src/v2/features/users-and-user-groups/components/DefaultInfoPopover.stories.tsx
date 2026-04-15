@@ -8,7 +8,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: 'Info popover displayed next to default group names in the table. Appears on hover (V2) instead of click (V1).',
+        component: 'Keyboard-accessible info popover displayed next to default group names in the table. Opens on click or keyboard activation.',
       },
     },
   },
@@ -26,6 +26,7 @@ export const PlatformDefaultGroup: Story = {
     id: 'default-group-popover',
     uuid: 'platform-default-uuid',
     bodyContent: 'All users in this organization inherit roles assigned to this group.',
+    ariaLabel: 'Default group information',
   },
 };
 
@@ -38,5 +39,6 @@ export const AdminDefaultGroup: Story = {
     id: 'default-admin-group-popover',
     uuid: 'admin-default-uuid',
     bodyContent: 'All org admins in this organization inherit roles assigned to this group.',
+    ariaLabel: 'Admin default group information',
   },
 };

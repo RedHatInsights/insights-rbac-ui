@@ -614,9 +614,9 @@ export const EditUnmodifiedDefaultGroup: Story = {
 **Unmodified Default Group**: Editing the unmodified "Default access" group (platform_default=true, system=true).
 
 Shows:
-- Danger alert warning about customization
+- Warning alert explaining customization consequences
 - Acknowledgment checkbox required before save
-- Name and description fields are editable but changes won't be saved
+- Name and description fields are disabled with helper text explaining they'll be editable after customization
 - Only member/service account changes trigger backend cloning
         `,
       },
@@ -649,10 +649,15 @@ Shows:
       const canvas = within(canvasElement);
 
       // Wait for form to load
-      await expect(canvas.findByDisplayValue('Default access')).resolves.toBeInTheDocument();
+      const nameField = await canvas.findByDisplayValue('Default access');
+      await expect(nameField).toBeInTheDocument();
 
       // Should show danger alert
       await expect(canvas.findByText(/you are editing the default access group/i)).resolves.toBeInTheDocument();
+
+      // Name and description fields should be disabled
+      await expect(nameField).toBeDisabled();
+      await expect(canvas.findByText(/this field will be editable after the group is customized/i)).resolves.toBeInTheDocument();
 
       // Should show acknowledgment checkbox
       const checkbox = await canvas.findByRole('checkbox', { name: /i understand that saving will customize/i });

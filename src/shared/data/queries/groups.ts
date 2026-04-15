@@ -711,8 +711,10 @@ export function useDeleteGroupMutation(options?: MutationOptions) {
         await groupsApi.deleteGroup({ uuid });
       },
       onSuccess: () => {
-        qc.invalidateQueries({ queryKey: groupsKeys.all });
-        notify('success', intl.formatMessage(messages.removeGroupSuccess));
+        if (!options?.deferSuccessSideEffects) {
+          qc.invalidateQueries({ queryKey: groupsKeys.all });
+          notify('success', intl.formatMessage(messages.removeGroupSuccess));
+        }
       },
       onError: () => {
         notify('danger', intl.formatMessage(messages.removeGroupError));

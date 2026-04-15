@@ -1981,6 +1981,16 @@ export default defineMessages({
     description: 'Users inherited roles message',
     defaultMessage: 'This group contains the roles that all users in your organization inherit by default.',
   },
+  defaultGroupInfoAriaLabel: {
+    id: 'defaultGroupInfoAriaLabel',
+    description: 'Aria label for default group info popover button',
+    defaultMessage: 'Default group information',
+  },
+  adminDefaultGroupInfoAriaLabel: {
+    id: 'adminDefaultGroupInfoAriaLabel',
+    description: 'Aria label for admin default group info popover button',
+    defaultMessage: 'Admin default group information',
+  },
   invalidGroup: {
     id: 'invalidGroup',
     description: 'Invalid group message',
@@ -2741,6 +2751,61 @@ export default defineMessages({
     description: 'Restore Custom Default Access group description',
     defaultMessage:
       'Restoring <b>Default access</b> group will remove <b>Custom default access</b> group. <b>Custom default access</b> configurations cannot be recovered. Are you sure?',
+  },
+  restoreDefaultAccessSuccess: {
+    id: 'restoreDefaultAccessSuccess',
+    description: 'Success message when Default access group is restored',
+    defaultMessage: 'The Default access group has been restored to system defaults.',
+  },
+  restoreGroupError: {
+    id: 'restoreGroupError',
+    description: 'Error message when restoring group fails',
+    defaultMessage: 'There was an error restoring the Default access group.',
+  },
+  cannotEditAdminDefaultGroup: {
+    id: 'cannotEditAdminDefaultGroup',
+    description: 'Error message when trying to edit Default admin access group',
+    defaultMessage: 'Cannot edit Default admin access group',
+  },
+  cannotEditAdminDefaultGroupDescription: {
+    id: 'cannotEditAdminDefaultGroupDescription',
+    description: 'Description for error when trying to edit Default admin access group',
+    defaultMessage: 'The Default admin access group cannot be edited. This is a system-managed group.',
+  },
+  groupCreatedSuccess: {
+    id: 'groupCreatedSuccess',
+    description: 'Success message when group is created',
+    defaultMessage: 'Group created successfully',
+  },
+  groupCreatedDescription: {
+    id: 'groupCreatedDescription',
+    description: 'Description for group creation success',
+    defaultMessage: 'The group has been created.',
+  },
+  defaultAccessGroupCustomized: {
+    id: 'defaultAccessGroupCustomized',
+    description: 'Success message when Default access group is customized',
+    defaultMessage: 'Default access group customized',
+  },
+  defaultAccessGroupCustomizedDescription: {
+    id: 'defaultAccessGroupCustomizedDescription',
+    description: 'Description when Default access group is customized',
+    defaultMessage: 'The group has been customized and is no longer managed by the system.',
+  },
+  editDefaultAccessGroupWarningTitle: {
+    id: 'editDefaultAccessGroupWarningTitle',
+    description: 'Warning title when editing unmodified Default access group',
+    defaultMessage: 'You are editing the Default access group',
+  },
+  fieldEditableAfterCustomization: {
+    id: 'fieldEditableAfterCustomization',
+    description: 'Helper text explaining field will be editable after customization',
+    defaultMessage: 'This field will be editable after the group is customized by adding or removing members or service accounts.',
+  },
+  acknowledgeDefaultGroupCustomization: {
+    id: 'acknowledgeDefaultGroupCustomization',
+    description: 'Checkbox label to acknowledge customizing Default access group',
+    defaultMessage: 'I understand that saving will customize the Default access group.',
   },
   noGroups: {
     id: 'noGroups',

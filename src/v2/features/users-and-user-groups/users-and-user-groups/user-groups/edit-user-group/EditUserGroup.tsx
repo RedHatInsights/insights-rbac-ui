@@ -7,6 +7,7 @@ import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import Messages from '../../../../../../Messages';
 import { FormRenderer, componentTypes, useFormApi, validatorTypes } from '@data-driven-forms/react-form-renderer';
@@ -14,6 +15,7 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import type FormTemplateCommonProps from '@data-driven-forms/common/form-template';
 import {
   type Group,
+  groupsKeys,
   useAddMembersToGroupMutation,
   useAddServiceAccountsToGroupMutation,
   useCreateGroupMutation,
@@ -51,6 +53,65 @@ interface EditUserGroupFormValues {
   };
 }
 
+/**
+ * Props for CustomFormTemplate component
+ */
+interface CustomFormTemplateProps extends FormTemplateCommonProps {
+  isUnmodifiedPlatformDefault: boolean;
+  checkFormHasChanges: (values: Record<string, unknown>) => boolean;
+}
+
+/**
+ * Custom form template that includes acknowledgement checkbox for unmodified default groups.
+ * Extracted as a named component to ensure React Hook rules are followed correctly.
+ */
+function CustomFormTemplate(props: CustomFormTemplateProps) {
+  const { formFields, isUnmodifiedPlatformDefault, checkFormHasChanges } = props;
+  const intl = useIntl();
+
+  // Local state for checkbox - only re-renders this component, not the entire page
+  const [defaultGroupAcknowledged, setDefaultGroupAcknowledged] = useState(false);
+
+  // Use the DDF useFormApi hook to access form state
+  const { getState, handleSubmit, onCancel } = useFormApi();
+  const formState = getState();
+  const values = formState?.values || {};
+  const isFormInvalid = formState?.invalid ?? false;
+
+  // Check if form has actual changes (calculated directly, not in useEffect)
+  const hasFormChanges = checkFormHasChanges(values);
+
+  // For platform_default groups: disabled if no changes OR invalid OR checkbox not checked
+  // For other groups: disabled if no changes OR invalid
+  const shouldDisable = isUnmodifiedPlatformDefault
+    ? !hasFormChanges || isFormInvalid || !defaultGroupAcknowledged
+    : !hasFormChanges || isFormInvalid;
+
+  return (
+    <Form onSubmit={handleSubmit}>
+      {formFields as React.ReactNode}
+      {isUnmodifiedPlatformDefault && (
+        <div className="pf-v6-u-mb-md">
+          <Checkbox
+            id="default-group-acknowledgement"
+            label={intl.formatMessage(Messages.acknowledgeDefaultGroupCustomization)}
+            isChecked={defaultGroupAcknowledged}
+            onChange={(_event, checked) => setDefaultGroupAcknowledged(checked)}
+          />
+        </div>
+      )}
+      <ActionGroup>
+        <Button variant="primary" type="submit" isDisabled={shouldDisable}>
+          Submit
+        </Button>
+        <Button variant="link" onClick={onCancel}>
+          Cancel
+        </Button>
+      </ActionGroup>
+    </Form>
+  );
+}
+
 export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ createNewGroup }) => {
   const intl = useIntl();
   const addNotification = useAddNotification();
@@ -69,11 +130,11 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     serviceAccounts?: string[];
   } | null>(null);
 
-  // State for default group safeguard
-  const [defaultGroupAcknowledged, setDefaultGroupAcknowledged] = useState(false);
-
   // State for restore modal
   const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
+
+  // Query client for manual cache invalidation
+  const queryClient = useQueryClient();
 
   // Use React Query for data fetching
   const { data: allGroupsData, isLoading: isGroupsLoading } = useGroupsQuery({ limit: 1000, offset: 0, orderBy: 'name' }, { enabled: true });
@@ -88,7 +149,8 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   // Use React Query mutations
   const createGroupMutation = useCreateGroupMutation();
   const updateGroupMutation = useUpdateGroupMutation();
-  const deleteGroupMutation = useDeleteGroupMutation();
+  // Suppress default notification for delete - we handle it manually in handleRestoreConfirm
+  const deleteGroupMutation = useDeleteGroupMutation({ deferSuccessSideEffects: true });
   const addMembersMutation = useAddMembersToGroupMutation();
   const removeMembersMutation = useRemoveMembersFromGroupMutation();
   const addServiceAccountsMutation = useAddServiceAccountsToGroupMutation();
@@ -117,16 +179,17 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   );
 
   // Hard block: Redirect away if trying to edit admin_default group
-  useEffect(() => {
-    if (group?.admin_default && !createNewGroup) {
-      addNotification({
-        variant: 'warning',
-        title: 'Cannot edit Default admin access group',
-        description: 'The Default admin access group cannot be edited. This is a system-managed group.',
-      });
-      navigate(pathnames['user-groups'].link());
-    }
-  }, [group?.admin_default, createNewGroup, addNotification, navigate]);
+  // Handle this synchronously during render to avoid flash of content
+  const [hasShownAdminDefaultError, setHasShownAdminDefaultError] = React.useState(false);
+  if (group?.admin_default && !createNewGroup && !hasShownAdminDefaultError) {
+    setHasShownAdminDefaultError(true);
+    addNotification({
+      variant: 'warning',
+      title: intl.formatMessage(Messages.cannotEditAdminDefaultGroup),
+      description: intl.formatMessage(Messages.cannotEditAdminDefaultGroupDescription),
+    });
+    navigate(pathnames['user-groups'].link());
+  }
 
   // Update form data when group data changes
   useEffect(() => {
@@ -188,12 +251,16 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
           ],
           initialValue: initialFormData?.name,
           isRequired: true,
+          isDisabled: isUnmodifiedPlatformDefault,
+          helperText: isUnmodifiedPlatformDefault ? intl.formatMessage(Messages.fieldEditableAfterCustomization) : undefined,
         },
         {
           name: 'description',
           label: intl.formatMessage(Messages.description),
           component: componentTypes.TEXTAREA,
           initialValue: initialFormData?.description,
+          isDisabled: isUnmodifiedPlatformDefault,
+          helperText: isUnmodifiedPlatformDefault ? intl.formatMessage(Messages.fieldEditableAfterCustomization) : undefined,
         },
         {
           name: 'users-and-service-accounts',
@@ -248,51 +315,12 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     [initialFormData],
   );
 
-  // Custom FormTemplate that includes the acknowledgement checkbox above the submit button
-  const CustomFormTemplate = useCallback(
-    (props: FormTemplateCommonProps) => {
-      const { formFields } = props;
-
-      // Use the DDF useFormApi hook to access form state
-      const { getState, handleSubmit, onCancel } = useFormApi();
-      const formState = getState();
-      const values = formState?.values || {};
-      const isFormInvalid = formState?.invalid ?? false;
-
-      // Check if form has actual changes (calculated directly, not in useEffect)
-      const hasFormChanges = checkFormHasChanges(values);
-
-      // For platform_default groups: disabled if no changes OR invalid OR checkbox not checked
-      // For other groups: disabled if no changes OR invalid
-      const shouldDisable = isUnmodifiedPlatformDefault
-        ? !hasFormChanges || isFormInvalid || !defaultGroupAcknowledged
-        : !hasFormChanges || isFormInvalid;
-
-      return (
-        <Form onSubmit={handleSubmit}>
-          {formFields as React.ReactNode}
-          {isUnmodifiedPlatformDefault && (
-            <div className="pf-v6-u-mb-md">
-              <Checkbox
-                id="default-group-acknowledgement"
-                label="I understand that saving will customize the Default access group."
-                isChecked={defaultGroupAcknowledged}
-                onChange={(_event, checked) => setDefaultGroupAcknowledged(checked)}
-              />
-            </div>
-          )}
-          <ActionGroup>
-            <Button variant="primary" type="submit" isDisabled={shouldDisable}>
-              Submit
-            </Button>
-            <Button variant="link" onClick={onCancel}>
-              Cancel
-            </Button>
-          </ActionGroup>
-        </Form>
-      );
-    },
-    [isUnmodifiedPlatformDefault, defaultGroupAcknowledged, checkFormHasChanges],
+  // Wrapper component that passes additional props to CustomFormTemplate
+  const FormTemplateWithProps = useCallback(
+    (props: FormTemplateCommonProps) => (
+      <CustomFormTemplate {...props} isUnmodifiedPlatformDefault={!!isUnmodifiedPlatformDefault} checkFormHasChanges={checkFormHasChanges} />
+    ),
+    [isUnmodifiedPlatformDefault, checkFormHasChanges],
   );
 
   const handleSubmit = async (values: EditUserGroupFormValues) => {
@@ -305,8 +333,8 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         targetGroupId = newGroup?.uuid;
         addNotification({
           variant: 'success',
-          title: 'Group created successfully',
-          description: 'The group has been created.',
+          title: intl.formatMessage(Messages.groupCreatedSuccess),
+          description: intl.formatMessage(Messages.groupCreatedDescription),
         });
       } else if (groupId && (values.name !== group?.name || values.description !== group?.description)) {
         // Skip name/description update for unmodified default groups (system=true)
@@ -374,8 +402,8 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
       if (isUnmodifiedPlatformDefault && !createNewGroup) {
         addNotification({
           variant: 'success',
-          title: 'Default access group customized',
-          description: 'The group has been customized and is no longer managed by the system.',
+          title: intl.formatMessage(Messages.defaultAccessGroupCustomized),
+          description: intl.formatMessage(Messages.defaultAccessGroupCustomizedDescription),
         });
       }
 
@@ -396,10 +424,14 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     try {
       await deleteGroupMutation.mutateAsync(groupId);
 
+      // Manually invalidate cache (since we deferred automatic side effects)
+      queryClient.invalidateQueries({ queryKey: groupsKeys.all });
+
+      // Show custom notification for restore operation
       addNotification({
         variant: 'success',
         title: intl.formatMessage(Messages.restoreToDefault),
-        description: 'The Default access group has been restored to system defaults.',
+        description: intl.formatMessage(Messages.restoreDefaultAccessSuccess),
       });
 
       setIsRestoreModalOpen(false);
@@ -408,8 +440,8 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
       console.error('Failed to restore group:', error);
       addNotification({
         variant: 'danger',
-        title: 'Error restoring group',
-        description: 'There was an error restoring the Default access group.',
+        title: intl.formatMessage(Messages.restoreGroupError),
+        description: intl.formatMessage(Messages.restoreGroupError),
       });
     }
   };
@@ -418,7 +450,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     <React.Fragment>
       <PageHeader title={pageTitle} breadcrumbs={<RbacBreadcrumbs breadcrumbs={breadcrumbsList} />} />
       <PageSection hasBodyWrapper data-ouia-component-id="edit-user-group-form" className="pf-v6-u-m-lg-on-lg" isWidthLimited>
-        {isLoading || !initialFormData ? (
+        {isLoading || !initialFormData || (group?.admin_default && !createNewGroup) ? (
           <div style={{ textAlign: 'center' }}>
             <Spinner />
           </div>
@@ -426,7 +458,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
           <>
             {/* Alert for unmodified platform_default group */}
             {isUnmodifiedPlatformDefault && (
-              <Alert variant="danger" isInline isExpandable={false} title="You are editing the Default access group" className="pf-v6-u-mb-md">
+              <Alert variant="warning" isInline isExpandable={false} title={intl.formatMessage(Messages.editDefaultAccessGroupWarningTitle)} className="pf-v6-u-mb-md">
                 <p>
                   Once saved, the system will no longer manage this group automatically and it will be renamed to{' '}
                   <strong>Custom default access</strong>.
@@ -459,7 +491,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
               }}
               onSubmit={handleSubmit}
               onCancel={returnToPreviousPage}
-              FormTemplate={CustomFormTemplate}
+              FormTemplate={FormTemplateWithProps}
             />
           </>
         )}

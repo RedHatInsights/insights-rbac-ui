@@ -118,8 +118,8 @@ export function useWorkspaceGroups(workspaceId: string, options?: { enabled?: bo
   const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
 
   // Fetch default group UUIDs for reliable detection
-  const { data: systemGroup } = useSystemGroupQuery({ enabled: options?.enabled ?? true });
-  const { data: adminGroup } = useAdminGroupQuery({ enabled: options?.enabled ?? true });
+  const { data: systemGroup, isLoading: systemGroupLoading } = useSystemGroupQuery({ enabled: options?.enabled ?? true });
+  const { data: adminGroup, isLoading: adminGroupLoading } = useAdminGroupQuery({ enabled: options?.enabled ?? true });
 
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
@@ -138,7 +138,7 @@ export function useWorkspaceGroups(workspaceId: string, options?: { enabled?: bo
     [query.data, labels.allUsers, labels.allOrgAdmins, systemGroup?.uuid, adminGroup?.uuid],
   );
 
-  return { data, isLoading: query.isLoading };
+  return { data, isLoading: query.isLoading || systemGroupLoading || adminGroupLoading };
 }
 
 /**
@@ -151,8 +151,8 @@ export function useWorkspaceInheritedGroups(workspaceId: string, options?: { ena
   const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
 
   // Fetch default group UUIDs for reliable detection
-  const { data: systemGroup } = useSystemGroupQuery({ enabled: options?.enabled ?? true });
-  const { data: adminGroup } = useAdminGroupQuery({ enabled: options?.enabled ?? true });
+  const { data: systemGroup, isLoading: systemGroupLoading } = useSystemGroupQuery({ enabled: options?.enabled ?? true });
+  const { data: adminGroup, isLoading: adminGroupLoading } = useAdminGroupQuery({ enabled: options?.enabled ?? true });
 
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
@@ -185,7 +185,7 @@ export function useWorkspaceInheritedGroups(workspaceId: string, options?: { ena
       });
   }, [query.data, labels.allUsers, labels.allOrgAdmins, systemGroup?.uuid, adminGroup?.uuid]);
 
-  return { data, isLoading: query.isLoading };
+  return { data, isLoading: query.isLoading || systemGroupLoading || adminGroupLoading };
 }
 
 /**
@@ -197,8 +197,8 @@ export function useOrgGroups(organizationId: string, options?: { enabled?: boole
   const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
 
   // Fetch default group UUIDs for reliable detection
-  const { data: systemGroup } = useSystemGroupQuery({ enabled: options?.enabled ?? true });
-  const { data: adminGroup } = useAdminGroupQuery({ enabled: options?.enabled ?? true });
+  const { data: systemGroup, isLoading: systemGroupLoading } = useSystemGroupQuery({ enabled: options?.enabled ?? true });
+  const { data: adminGroup, isLoading: adminGroupLoading } = useAdminGroupQuery({ enabled: options?.enabled ?? true });
 
   const query = useRoleBindingsQuery(
     {
@@ -221,5 +221,5 @@ export function useOrgGroups(organizationId: string, options?: { enabled?: boole
     [query.data, labels.allUsers, labels.allOrgAdmins, systemGroup?.uuid, adminGroup?.uuid],
   );
 
-  return { data, isLoading: query.isLoading };
+  return { data, isLoading: query.isLoading || systemGroupLoading || adminGroupLoading };
 }

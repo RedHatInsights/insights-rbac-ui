@@ -51,9 +51,10 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
               <>
                 {' '}
                 <DefaultInfoPopover
-                  id={`default${group.admin_default ? '-admin' : ''}-group-popover`}
+                  id={`default${group.admin_default ? '-admin' : ''}-group-popover-${group.uuid}`}
                   uuid={group.uuid}
                   bodyContent={intl.formatMessage(group.admin_default ? messages.orgAdminInheritedRoles : messages.usersInheritedRoles)}
+                  ariaLabel={intl.formatMessage(group.admin_default ? messages.adminDefaultGroupInfoAriaLabel : messages.defaultGroupInfoAriaLabel)}
                 />
               </>
             )}
