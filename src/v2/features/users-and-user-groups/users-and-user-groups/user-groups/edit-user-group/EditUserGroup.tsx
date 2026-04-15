@@ -458,7 +458,13 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
           <>
             {/* Alert for unmodified platform_default group */}
             {isUnmodifiedPlatformDefault && (
-              <Alert variant="warning" isInline isExpandable={false} title={intl.formatMessage(Messages.editDefaultAccessGroupWarningTitle)} className="pf-v6-u-mb-md">
+              <Alert
+                variant="warning"
+                isInline
+                isExpandable={false}
+                title={intl.formatMessage(Messages.editDefaultAccessGroupWarningTitle)}
+                className="pf-v6-u-mb-md"
+              >
                 <p>
                   Once saved, the system will no longer manage this group automatically and it will be renamed to{' '}
                   <strong>Custom default access</strong>.
