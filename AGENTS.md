@@ -96,7 +96,22 @@ All detailed documentation is in `src/docs/`. Read the relevant doc before writi
 
 ## Docs index
 
-All docs are in `src/docs/`. Read the relevant file before writing or reviewing code.
+### Domain guidelines (`docs/`)
+
+Agent-targeted rules for cross-cutting concerns. Read the relevant file before working in that domain.
+
+```text
+root: docs/
+
+security:       security-guidelines.md       # Auth, RBAC permissions, V1/V2 boundary, API restrictions
+testing:        testing-guidelines.md        # Storybook-first testing, MSW mocking, Vitest, Playwright E2E
+error-handling: error-handling-guidelines.md  # API errors, notifications, permission denied, form validation
+integration:    integration-guidelines.md    # Module federation, Chrome API, DI, feature flags, i18n
+```
+
+### Detailed docs (`src/docs/`)
+
+In-depth reference documentation (MDX, rendered in Storybook). Read the relevant file before writing or reviewing code.
 
 ```text
 root: src/docs/

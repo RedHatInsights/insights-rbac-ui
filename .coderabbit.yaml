@@ -1,10 +1,16 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# See https://docs.coderabbit.ai/reference/configuration for all fields and default values
 #
 # CodeRabbit review configuration.
 #
 # AGENTS.md (auto-detected) covers rules for agents WRITING code.
 # This file covers rules for CodeRabbit REVIEWING code.
 # They are complementary: AGENTS.md = coding standards, this file = PR hygiene checks.
+
+knowledge_base:
+  code_guidelines:
+    filePatterns:
+      - "docs/*-guidelines.md"
 
 reviews:
   path_instructions:
