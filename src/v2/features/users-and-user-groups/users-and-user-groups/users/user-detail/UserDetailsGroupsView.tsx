@@ -3,7 +3,9 @@ import { useIntl } from 'react-intl';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 
+import type { AxiosError } from 'axios';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
+import LockIcon from '@patternfly/react-icons/dist/js/icons/lock-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { type Group, useGroupsQuery } from '../../../../../../v2/data/queries/groups';
 import messages from '../../../../../../Messages';
@@ -51,23 +53,36 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
     syncWithUrl: false, // Drawer tables shouldn't sync with URL
   });
 
-  // Use React Query to fetch groups filtered by this user's username
-  // The V1 API supports filtering groups by username parameter
-  const { data, isLoading, error } = useGroupsQuery({
-    limit: tableState.apiParams.limit,
-    offset: tableState.apiParams.offset,
-    username: userId, // Filter to only groups this user belongs to
-  });
+  // Use React Query to fetch groups filtered by this user's username.
+  // The V1 API supports filtering groups by username parameter.
+  // skipGlobalErrorHandler: UserViewer personas get 403 when querying groups
+  // for other users — handle locally instead of triggering the full-page error boundary.
+  const { data, isLoading, error } = useGroupsQuery(
+    {
+      limit: tableState.apiParams.limit,
+      offset: tableState.apiParams.offset,
+      username: userId,
+    },
+    { meta: { skipGlobalErrorHandler: true } },
+  );
 
   // Extract groups from typed response
   const groups: Group[] = data?.data ?? [];
 
-  // Show error state
+  // Show error state — distinguish permission errors from other failures
   if (error) {
+    const isPermissionError = (error as AxiosError)?.response?.status === 403;
     return (
       <div className="pf-v6-u-pt-md">
-        <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load groups" variant="sm">
-          <EmptyStateBody>{extractErrorMessage(error)}</EmptyStateBody>
+        <EmptyState
+          headingLevel="h4"
+          icon={isPermissionError ? LockIcon : ExclamationCircleIcon}
+          titleText={isPermissionError ? 'Permission needed' : 'Unable to load groups'}
+          variant="sm"
+        >
+          <EmptyStateBody>
+            {isPermissionError ? "You don't have permission to view this user's group membership." : extractErrorMessage(error)}
+          </EmptyStateBody>
         </EmptyState>
       </div>
     );

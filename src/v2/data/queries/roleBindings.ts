@@ -81,7 +81,10 @@ export function useGroupRoleBindingsQuery(groupId: string, options?: { enabled?:
 }
 
 /** Fetch role bindings granted to a user, scoped to workspaces. Optionally filtered to a single workspace via `resourceId`. */
-export function useUserRoleBindingsQuery(userId: string | undefined, options?: { enabled?: boolean; resourceId?: string }) {
+export function useUserRoleBindingsQuery(
+  userId: string | undefined,
+  options?: { enabled?: boolean; resourceId?: string; meta?: Record<string, unknown> },
+) {
   const { axios } = useAppServices();
   const api = createWorkspacesApi(axios);
 
@@ -107,6 +110,7 @@ export function useUserRoleBindingsQuery(userId: string | undefined, options?: {
       return parseBindings(response.data?.data ?? []);
     },
     enabled: (options?.enabled ?? true) && !!userId,
+    meta: options?.meta,
   });
 }
 

@@ -250,6 +250,36 @@ export const NetworkFailure: Story = {
   },
 };
 
+export const PermissionDenied: Story = {
+  args: {
+    userId: 'other.user',
+    ouiaId: 'user-groups-view-permission-denied',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Permission Denied (403)**: Simulates a UserViewer persona opening the drawer for another user. The groups API returns 403 because the current user lacks permission to view other users' groups. The component shows a friendly "Permission needed" message instead of crashing the entire page.
+        `,
+      },
+    },
+    msw: {
+      handlers: [...groupsErrorHandlers(403)],
+    },
+    test: {
+      dangerouslyIgnoreUnhandledErrors: true,
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify permission denied state', async () => {
+      await expect(canvas.findByText('Permission needed', {}, { timeout: 3000 })).resolves.toBeInTheDocument();
+      await expect(canvas.findByText("You don't have permission to view this user's group membership.")).resolves.toBeInTheDocument();
+    });
+  },
+};
+
 export const DefaultGroupCounts: Story = {
   args: {
     userId: 'john.doe',

@@ -245,6 +245,7 @@ export function useGroupsQuery(params: UseGroupsQueryParams = {}, options?: Quer
         return normalizeGroupList(response.data as GroupsListResponse);
       },
       enabled: options?.enabled ?? true,
+      meta: options?.meta,
     },
     options?.queryClient,
   );

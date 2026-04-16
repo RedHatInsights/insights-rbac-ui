@@ -64,10 +64,17 @@ const PRODUCTION_QUERY_OPTIONS = {
 
 /**
  * Creates a QueryClient with production settings and error handling.
+ * Queries with `meta.skipGlobalErrorHandler = true` bypass the global error handler,
+ * allowing components to handle errors locally (e.g., 403 in a drawer panel).
  */
 function createQueryClient(onError: (error: unknown) => void): QueryClient {
   return new QueryClient({
-    queryCache: new QueryCache({ onError }),
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        if (query.meta?.skipGlobalErrorHandler) return;
+        onError(error);
+      },
+    }),
     mutationCache: new MutationCache({ onError }),
     defaultOptions: PRODUCTION_QUERY_OPTIONS,
   });
@@ -78,7 +85,12 @@ function createQueryClient(onError: (error: unknown) => void): QueryClient {
  */
 function createTestQueryClient(onError: (error: unknown) => void): QueryClient {
   return new QueryClient({
-    queryCache: new QueryCache({ onError }),
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        if (query.meta?.skipGlobalErrorHandler) return;
+        onError(error);
+      },
+    }),
     mutationCache: new MutationCache({ onError }),
     defaultOptions: TEST_QUERY_OPTIONS,
   });

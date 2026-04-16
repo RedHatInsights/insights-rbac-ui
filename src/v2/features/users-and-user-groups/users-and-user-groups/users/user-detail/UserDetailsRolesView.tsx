@@ -2,7 +2,9 @@ import React, { useMemo } from 'react';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 
+import type { AxiosError } from 'axios';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
+import LockIcon from '@patternfly/react-icons/dist/js/icons/lock-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import { type RoleBinding, useUserRoleBindingsQuery } from '../../../../../../v2/data/queries/roleBindings';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
@@ -42,13 +44,30 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     syncWithUrl: false,
   });
 
-  const { data: bindings = [], isLoading, error } = useUserRoleBindingsQuery(userId);
+  // skipGlobalErrorHandler: lower-privilege personas may get 403 when querying
+  // role bindings for other users — handle locally in the drawer instead of
+  // triggering the full-page error boundary.
+  const {
+    data: bindings = [],
+    isLoading,
+    error,
+  } = useUserRoleBindingsQuery(userId, {
+    meta: { skipGlobalErrorHandler: true },
+  });
 
   if (error) {
+    const isPermissionError = (error as AxiosError)?.response?.status === 403;
     return (
       <div className="pf-v6-u-pt-md">
-        <EmptyState headingLevel="h4" icon={ExclamationCircleIcon} titleText="Unable to load roles" variant="sm">
-          <EmptyStateBody>{extractErrorMessage(error)}</EmptyStateBody>
+        <EmptyState
+          headingLevel="h4"
+          icon={isPermissionError ? LockIcon : ExclamationCircleIcon}
+          titleText={isPermissionError ? 'Permission needed' : 'Unable to load roles'}
+          variant="sm"
+        >
+          <EmptyStateBody>
+            {isPermissionError ? "You don't have permission to view this user's assigned roles." : extractErrorMessage(error)}
+          </EmptyStateBody>
         </EmptyState>
       </div>
     );
