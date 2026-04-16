@@ -15,4 +15,4 @@ npm run verify       # full CI check: lint + build + test + test:storybook
 
 # Git
 
-Use conventional commits (`type(scope): description`). Enforced by commitlint + husky pre-commit hook.
+Use conventional commits (`type(scope): description`). Enforced by commitlint + husky commit-msg hook.
