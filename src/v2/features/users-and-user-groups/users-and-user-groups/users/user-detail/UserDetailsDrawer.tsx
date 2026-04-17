@@ -111,7 +111,7 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
               {focusedUser &&
                 renderRolesTab(
                   focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
-                  `${ouiaId}-assigned-users-view`,
+                  `${ouiaId}-assigned-roles-view`,
                 )}
             </Tab>
           )}
