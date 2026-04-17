@@ -113,36 +113,6 @@ export const EmptyUserRoles: Story = {
   },
 };
 
-export const PermissionDenied: Story = {
-  args: {
-    userId: 'other.user',
-    ouiaId: 'user-roles-view-permission-denied',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: `
-**Permission Denied (403)**: Simulates a lower-privilege persona viewing another user's roles. The API returns 403 and the component shows a friendly "Permission needed" message instead of triggering the full-page error boundary.
-        `,
-      },
-    },
-    msw: {
-      handlers: [...roleBindingsErrorHandlers(403)],
-    },
-    test: {
-      dangerouslyIgnoreUnhandledErrors: true,
-    },
-  },
-  play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
-
-    await step('Verify permission denied state', async () => {
-      await expect(canvas.findByText('Permission needed', {}, { timeout: 3000 })).resolves.toBeInTheDocument();
-      await expect(canvas.findByText("You don't have permission to view this user's assigned roles.")).resolves.toBeInTheDocument();
-    });
-  },
-};
-
 export const APIError: Story = {
   args: {
     userId: 'error.user',

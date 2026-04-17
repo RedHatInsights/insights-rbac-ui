@@ -9,16 +9,20 @@ import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Dr
 import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerHead } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerPanelContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
 import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { TabTitleText } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import LockIcon from '@patternfly/react-icons/dist/js/icons/lock-icon';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 
 import type { User } from '../../../../../../shared/data/queries/users';
 import messages from '../../../../../../Messages';
+import { useGroupsAccess, useRolesAccess } from '../../../../../hooks/useRbacAccess';
 import { UserDetailsGroupsView } from './UserDetailsGroupsView';
 import { UserDetailsRolesView } from './UserDetailsRolesView';
 
@@ -42,49 +46,89 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
   const intl = useIntl();
 
+  // Check permissions upfront — hide tabs the user cannot access so that
+  // the underlying queries never fire and 403 errors are avoided entirely.
+  const { canList: canListGroups, isLoading: groupsAccessLoading } = useGroupsAccess();
+  const { canList: canListRoles, isLoading: rolesAccessLoading } = useRolesAccess();
+
+  const accessLoading = groupsAccessLoading || rolesAccessLoading;
+  const hasTabs = canListGroups || canListRoles;
+
+  // When only the roles tab is visible, switch to it
+  React.useEffect(() => {
+    if (!canListGroups && canListRoles) {
+      setActiveTabKey(1);
+    }
+  }, [canListGroups, canListRoles]);
+
+  const drawerHeader = (
+    <DrawerHead>
+      <Title headingLevel="h2">
+        <span tabIndex={focusedUser ? 0 : -1} ref={drawerRef}>
+          {`${focusedUser?.first_name} ${focusedUser?.last_name}`}
+        </span>
+      </Title>
+      <Content>
+        <Content component="p">{focusedUser?.email}</Content>
+      </Content>
+      <DrawerActions>
+        <DrawerCloseButton onClick={onClose} />
+      </DrawerActions>
+    </DrawerHead>
+  );
+
+  // While permissions are loading, show only the header
+  if (accessLoading) {
+    return <DrawerPanelContent data-testid="detail-drawer-panel">{drawerHeader}</DrawerPanelContent>;
+  }
+
+  // No tabs visible — user lacks both groups and roles read permissions
+  if (!hasTabs) {
+    return (
+      <DrawerPanelContent data-testid="detail-drawer-panel">
+        {drawerHeader}
+        <EmptyState headingLevel="h4" icon={LockIcon} titleText="Permission needed" variant="sm">
+          <EmptyStateBody>You don&apos;t have permission to view this user&apos;s details.</EmptyStateBody>
+        </EmptyState>
+      </DrawerPanelContent>
+    );
+  }
+
   return (
     <DrawerPanelContent data-testid="detail-drawer-panel">
-      <DrawerHead>
-        <Title headingLevel="h2">
-          <span tabIndex={focusedUser ? 0 : -1} ref={drawerRef}>
-            {`${focusedUser?.first_name} ${focusedUser?.last_name}`}
-          </span>
-        </Title>
-        <Content>
-          <Content component="p">{focusedUser?.email}</Content>
-        </Content>
-        <DrawerActions>
-          <DrawerCloseButton onClick={onClose} />
-        </DrawerActions>
-      </DrawerHead>
+      {drawerHeader}
       <Tabs isFilled activeKey={activeTabKey} onSelect={(_, tabIndex) => setActiveTabKey(tabIndex)}>
-        <Tab eventKey={0} title={intl.formatMessage(messages.userGroups)}>
-          {focusedUser && renderGroupsTab(focusedUser.username, `${ouiaId}-user-groups-view`)}
-        </Tab>
-        <Tab
-          eventKey={1}
-          title={
-            <TabTitleText>
-              {intl.formatMessage(messages.assignedRoles)}
-              <Popover
-                triggerAction="hover"
-                position="top-end"
-                headerContent={intl.formatMessage(messages.assignedRoles)}
-                bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
-              >
-                <Icon className="pf-v6-u-pl-sm" isInline>
-                  <OutlinedQuestionCircleIcon />
-                </Icon>
-              </Popover>
-            </TabTitleText>
-          }
-        >
-          {focusedUser &&
-            renderRolesTab(
-              focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
-              `${ouiaId}-assigned-users-view`,
-            )}
-        </Tab>
+        {canListGroups && (
+          <Tab eventKey={0} title={intl.formatMessage(messages.userGroups)}>
+            {focusedUser && renderGroupsTab(focusedUser.username, `${ouiaId}-user-groups-view`)}
+          </Tab>
+        )}
+        {canListRoles && (
+          <Tab
+            eventKey={1}
+            title={
+              <TabTitleText>
+                {intl.formatMessage(messages.assignedRoles)}
+                <Popover
+                  triggerAction="hover"
+                  position="top-end"
+                  headerContent={intl.formatMessage(messages.assignedRoles)}
+                  bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
+                >
+                  <Icon className="pf-v6-u-pl-sm" isInline>
+                    <OutlinedQuestionCircleIcon />
+                  </Icon>
+                </Popover>
+              </TabTitleText>
+            }
+          >
+            {focusedUser &&
+              renderRolesTab(
+                focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
+                `${ouiaId}-assigned-users-view`,
+              )}
+          </Tab>
+        )}
       </Tabs>
     </DrawerPanelContent>
   );

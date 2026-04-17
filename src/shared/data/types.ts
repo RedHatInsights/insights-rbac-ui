@@ -9,10 +9,6 @@ export interface QueryOptions {
   enabled?: boolean;
   /** Pass explicit QueryClient to bypass context (for CLI) */
   queryClient?: QueryClient;
-  /** Query metadata passed to React Query. Use `{ skipGlobalErrorHandler: true }` to
-   *  prevent 403/500 errors from triggering the full-page ApiErrorBoundary, allowing
-   *  the component to handle the error locally via the query's `error` state. */
-  meta?: Record<string, unknown>;
 }
 
 /**

@@ -66,6 +66,10 @@ const meta: Meta<typeof UserDetailsDrawer> = {
     ),
   ],
   parameters: {
+    tenantPermissions: {
+      rbac_groups_read: true,
+      rbac_roles_read: true,
+    },
     docs: {
       description: {
         component: `
@@ -392,6 +396,157 @@ export const DataViewIntegration: Story = {
       await userEvent.click(groupsTab);
 
       await expect(canvas.findByText('User groups')).resolves.toBeInTheDocument();
+    });
+  },
+};
+
+export const PermissionDenied: Story = {
+  args: {
+    focusedUser: mockUser,
+    setFocusedUser: fn(),
+    ouiaId: 'user-details-drawer-permission-denied',
+  },
+  parameters: {
+    tenantPermissions: {
+      rbac_groups_read: false,
+      rbac_roles_read: false,
+    },
+    msw: {
+      handlers: [...groupsHandlers([]), ...createRoleBindingsListHandlers([])],
+    },
+    docs: {
+      description: {
+        story: `
+**Permission Denied**: The current user lacks both \`rbac_groups_read\` and \`rbac_roles_read\` permissions. The drawer hides both tabs and shows a "Permission needed" message instead of triggering 403 errors.
+        `,
+      },
+    },
+  },
+  render: (args) => {
+    const [focusedUser, setFocusedUser] = useState<User | undefined>(args.focusedUser);
+
+    return (
+      <UserDetailsDrawer {...args} focusedUser={focusedUser} setFocusedUser={setFocusedUser}>
+        <div style={{ padding: '1rem' }}>
+          <h2>Main Content Area</h2>
+          <p>The drawer should show a permission denied message.</p>
+        </div>
+      </UserDetailsDrawer>
+    );
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify permission denied state', async () => {
+      await expect(canvas.findByText('Permission needed')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText("You don't have permission to view this user's details.")).resolves.toBeInTheDocument();
+    });
+
+    await step('Verify tabs are hidden', async () => {
+      await expect(canvas.queryByText('User groups')).not.toBeInTheDocument();
+      await expect(canvas.queryByText('Assigned roles')).not.toBeInTheDocument();
+    });
+  },
+};
+
+export const GroupsOnlyPermission: Story = {
+  args: {
+    focusedUser: mockUser,
+    setFocusedUser: fn(),
+    ouiaId: 'user-details-drawer-groups-only',
+  },
+  parameters: {
+    tenantPermissions: {
+      rbac_groups_read: true,
+      rbac_roles_read: false,
+    },
+    msw: {
+      handlers: [
+        ...groupsHandlers([
+          {
+            uuid: '1',
+            name: 'Administrators',
+            description: 'System administrators',
+            principalCount: 5,
+            roleCount: 3,
+            created: '2023-01-01T00:00:00Z',
+            modified: '2023-06-15T10:30:00Z',
+            platform_default: false,
+            admin_default: false,
+            system: false,
+          },
+        ]),
+        ...createRoleBindingsListHandlers([]),
+      ],
+    },
+    docs: {
+      description: {
+        story: `
+**Groups Only**: User has \`rbac_groups_read\` but not \`rbac_roles_read\`. Only the Groups tab is visible.
+        `,
+      },
+    },
+  },
+  render: (args) => {
+    const [focusedUser, setFocusedUser] = useState<User | undefined>(args.focusedUser);
+
+    return (
+      <UserDetailsDrawer {...args} focusedUser={focusedUser} setFocusedUser={setFocusedUser}>
+        <div style={{ padding: '1rem' }}>
+          <h2>Main Content Area</h2>
+        </div>
+      </UserDetailsDrawer>
+    );
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify only groups tab visible', async () => {
+      await expect(canvas.findByText('User groups')).resolves.toBeInTheDocument();
+      await expect(canvas.queryByText('Assigned roles')).not.toBeInTheDocument();
+    });
+  },
+};
+
+export const RolesOnlyPermission: Story = {
+  args: {
+    focusedUser: mockUser,
+    setFocusedUser: fn(),
+    ouiaId: 'user-details-drawer-roles-only',
+  },
+  parameters: {
+    tenantPermissions: {
+      rbac_groups_read: false,
+      rbac_roles_read: true,
+    },
+    msw: {
+      handlers: [...groupsHandlers([]), ...createRoleBindingsListHandlers(storyRoleBindings)],
+    },
+    docs: {
+      description: {
+        story: `
+**Roles Only**: User has \`rbac_roles_read\` but not \`rbac_groups_read\`. Only the Assigned Roles tab is visible.
+        `,
+      },
+    },
+  },
+  render: (args) => {
+    const [focusedUser, setFocusedUser] = useState<User | undefined>(args.focusedUser);
+
+    return (
+      <UserDetailsDrawer {...args} focusedUser={focusedUser} setFocusedUser={setFocusedUser}>
+        <div style={{ padding: '1rem' }}>
+          <h2>Main Content Area</h2>
+        </div>
+      </UserDetailsDrawer>
+    );
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify only roles tab visible', async () => {
+      await expect(canvas.queryByText('User groups')).not.toBeInTheDocument();
+      await expect(canvas.findByText('Assigned roles')).resolves.toBeInTheDocument();
     });
   },
 };
