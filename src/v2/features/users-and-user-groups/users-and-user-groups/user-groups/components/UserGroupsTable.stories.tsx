@@ -458,6 +458,54 @@ export const BulkSelection: Story = {
   },
 };
 
+// Date format switching: relative for recent (<3 months), full date for older
+export const DateFormatSwitching: Story = {
+  args: {
+    groups: [
+      {
+        ...createMockGroup('recent'),
+        name: 'Recently Modified',
+        modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+      },
+      {
+        ...createMockGroup('old'),
+        name: 'Old Group',
+        modified: new Date('2025-06-15T12:00:00Z').toISOString(), // >3 months ago
+      },
+      {
+        ...createMockGroup('no-date'),
+        name: 'No Date Group',
+        modified: '',
+      },
+    ],
+    totalCount: 3,
+    enableActions: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Verifies that "Last Modified" dates use relative format ("2 days ago") for groups modified within the last 3 months and full date format ("15 Jun 2025") for older groups. Groups with no date show an empty cell.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Verify recent date shows relative format', async () => {
+      const canvas = within(canvasElement);
+      const recentRow = (await canvas.findByText('Recently Modified')).closest('tr');
+      // Relative format contains "ago" suffix
+      await expect(within(recentRow!).findByText(/ago$/)).resolves.toBeInTheDocument();
+    });
+
+    await step('Verify old date shows full date format', async () => {
+      const canvas = within(canvasElement);
+      const oldRow = (await canvas.findByText('Old Group')).closest('tr');
+      // Full date format: "15 Jun 2025"
+      await expect(within(oldRow!).findByText(/\d{2}\s\w{3}\s\d{4}/)).resolves.toBeInTheDocument();
+    });
+  },
+};
+
 // No actions mode
 export const NoActionsMode: Story = {
   args: {

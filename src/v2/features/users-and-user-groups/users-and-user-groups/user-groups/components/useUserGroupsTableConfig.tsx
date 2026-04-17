@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import type { IntlShape } from 'react-intl';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../../shared/components/table-view';
 import type { Group } from '../../../../../../v2/data/queries/groups';
+import { getDateFormat } from '../../../../../../shared/helpers/stringUtilities';
 import messages from '../../../../../../Messages';
 
 // NOTE: Per V2 designs, only name/description/users/lastModified are shown.
@@ -48,7 +49,11 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
           <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
         ),
       principalCount: (group) => group.principalCount ?? 0,
-      modified: (group) => (group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : ''),
+      modified: (group) => {
+        if (!group.modified) return '';
+        const date = new Date(group.modified);
+        return getDateFormat(group.modified) === 'onlyDate' ? format(date, 'dd MMM yyyy') : formatDistanceToNow(date, { addSuffix: true });
+      },
     }),
     [intl],
   );
