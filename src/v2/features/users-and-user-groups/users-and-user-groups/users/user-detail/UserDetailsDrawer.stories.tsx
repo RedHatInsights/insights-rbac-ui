@@ -214,6 +214,10 @@ export const WithSelectedUser: Story = {
     ouiaId: 'user-details-drawer-selected',
   },
   parameters: {
+    tenantPermissions: {
+      rbac_groups_read: true,
+      rbac_roles_read: true,
+    },
     msw: {
       handlers: [
         ...groupsHandlers([
@@ -274,10 +278,12 @@ export const WithSelectedUser: Story = {
         return element?.textContent === 'Selected User: John Doe';
       });
 
-      await expect(canvas.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
+      await canvas.findByText('john.doe@example.com');
 
-      await expect(canvas.findByText('User groups')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText('Assigned roles')).resolves.toBeInTheDocument();
+      // Permission hooks resolve asynchronously — use findByRole for tabs
+      // to ensure we wait for the permission-gated render cycle to complete
+      await canvas.findByRole('tab', { name: /user groups/i });
+      await canvas.findByRole('tab', { name: /assigned roles/i });
     });
 
     await step('Close drawer', async () => {
@@ -294,6 +300,10 @@ export const DataViewIntegration: Story = {
     ouiaId: 'user-details-drawer-integration',
   },
   parameters: {
+    tenantPermissions: {
+      rbac_groups_read: true,
+      rbac_roles_read: true,
+    },
     msw: {
       handlers: [
         ...groupsHandlers([
@@ -400,11 +410,11 @@ export const DataViewIntegration: Story = {
   },
 };
 
-export const PermissionDenied: Story = {
+export const NoPermissions: Story = {
   args: {
     focusedUser: mockUser,
     setFocusedUser: fn(),
-    ouiaId: 'user-details-drawer-permission-denied',
+    ouiaId: 'user-details-drawer-no-permissions',
   },
   parameters: {
     tenantPermissions: {
@@ -417,7 +427,7 @@ export const PermissionDenied: Story = {
     docs: {
       description: {
         story: `
-**Permission Denied**: The current user lacks both \`rbac_groups_read\` and \`rbac_roles_read\` permissions. The drawer hides both tabs and shows a "Permission needed" message instead of triggering 403 errors.
+**No Permissions**: The current user lacks both \`rbac_groups_read\` and \`rbac_roles_read\` permissions. The drawer hides both tabs — no error screen is shown, just the user header.
         `,
       },
     },
@@ -429,7 +439,7 @@ export const PermissionDenied: Story = {
       <UserDetailsDrawer {...args} focusedUser={focusedUser} setFocusedUser={setFocusedUser}>
         <div style={{ padding: '1rem' }}>
           <h2>Main Content Area</h2>
-          <p>The drawer should show a permission denied message.</p>
+          <p>The drawer should show the user header with no tabs.</p>
         </div>
       </UserDetailsDrawer>
     );
@@ -437,14 +447,11 @@ export const PermissionDenied: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
 
-    await step('Verify permission denied state', async () => {
-      await expect(canvas.findByText('Permission needed')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText("You don't have permission to view this user's details.")).resolves.toBeInTheDocument();
-    });
-
-    await step('Verify tabs are hidden', async () => {
+    await step('Verify header shows without tabs or error screen', async () => {
+      await expect(canvas.findByText('john.doe@example.com')).resolves.toBeInTheDocument();
       await expect(canvas.queryByText('User groups')).not.toBeInTheDocument();
       await expect(canvas.queryByText('Assigned roles')).not.toBeInTheDocument();
+      await expect(canvas.queryByText('Permission needed')).not.toBeInTheDocument();
     });
   },
 };

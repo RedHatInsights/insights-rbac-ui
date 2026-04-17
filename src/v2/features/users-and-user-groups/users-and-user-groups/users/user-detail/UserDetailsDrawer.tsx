@@ -9,15 +9,12 @@ import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Dr
 import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerHead } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerPanelContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
-import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
 import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { TabTitleText } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import LockIcon from '@patternfly/react-icons/dist/js/icons/lock-icon';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 
 import type { User } from '../../../../../../shared/data/queries/users';
@@ -82,54 +79,44 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
     return <DrawerPanelContent data-testid="detail-drawer-panel">{drawerHeader}</DrawerPanelContent>;
   }
 
-  // No tabs visible — user lacks both groups and roles read permissions
-  if (!hasTabs) {
-    return (
-      <DrawerPanelContent data-testid="detail-drawer-panel">
-        {drawerHeader}
-        <EmptyState headingLevel="h4" icon={LockIcon} titleText="Permission needed" variant="sm">
-          <EmptyStateBody>You don&apos;t have permission to view this user&apos;s details.</EmptyStateBody>
-        </EmptyState>
-      </DrawerPanelContent>
-    );
-  }
-
   return (
     <DrawerPanelContent data-testid="detail-drawer-panel">
       {drawerHeader}
-      <Tabs isFilled activeKey={activeTabKey} onSelect={(_, tabIndex) => setActiveTabKey(tabIndex)}>
-        {canListGroups && (
-          <Tab eventKey={0} title={intl.formatMessage(messages.userGroups)}>
-            {focusedUser && renderGroupsTab(focusedUser.username, `${ouiaId}-user-groups-view`)}
-          </Tab>
-        )}
-        {canListRoles && (
-          <Tab
-            eventKey={1}
-            title={
-              <TabTitleText>
-                {intl.formatMessage(messages.assignedRoles)}
-                <Popover
-                  triggerAction="hover"
-                  position="top-end"
-                  headerContent={intl.formatMessage(messages.assignedRoles)}
-                  bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
-                >
-                  <Icon className="pf-v6-u-pl-sm" isInline>
-                    <OutlinedQuestionCircleIcon />
-                  </Icon>
-                </Popover>
-              </TabTitleText>
-            }
-          >
-            {focusedUser &&
-              renderRolesTab(
-                focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
-                `${ouiaId}-assigned-users-view`,
-              )}
-          </Tab>
-        )}
-      </Tabs>
+      {hasTabs && (
+        <Tabs isFilled activeKey={activeTabKey} onSelect={(_, tabIndex) => setActiveTabKey(tabIndex)}>
+          {canListGroups && (
+            <Tab eventKey={0} title={intl.formatMessage(messages.userGroups)}>
+              {focusedUser && renderGroupsTab(focusedUser.username, `${ouiaId}-user-groups-view`)}
+            </Tab>
+          )}
+          {canListRoles && (
+            <Tab
+              eventKey={1}
+              title={
+                <TabTitleText>
+                  {intl.formatMessage(messages.assignedRoles)}
+                  <Popover
+                    triggerAction="hover"
+                    position="top-end"
+                    headerContent={intl.formatMessage(messages.assignedRoles)}
+                    bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
+                  >
+                    <Icon className="pf-v6-u-pl-sm" isInline>
+                      <OutlinedQuestionCircleIcon />
+                    </Icon>
+                  </Popover>
+                </TabTitleText>
+              }
+            >
+              {focusedUser &&
+                renderRolesTab(
+                  focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
+                  `${ouiaId}-assigned-users-view`,
+                )}
+            </Tab>
+          )}
+        </Tabs>
+      )}
     </DrawerPanelContent>
   );
 };
