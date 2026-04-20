@@ -2965,7 +2965,7 @@ export default defineMessages({
   workspaceAssignment: {
     id: 'workspaceAssignment',
     description: 'column header for assigned user groups table',
-    defaultMessage: 'Workspace assignment (TBD)',
+    defaultMessage: 'Workspace assignment',
   },
   deleteUserGroupModalTitle: {
     id: 'deleteUserGroupModalTitle',

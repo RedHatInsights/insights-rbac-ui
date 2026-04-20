@@ -2139,7 +2139,7 @@
     "description": "Workspace singular label"
   },
   "workspaceAssignment": {
-    "defaultMessage": "Workspace assignment (TBD)",
+    "defaultMessage": "Workspace assignment",
     "description": "column header for assigned user groups table"
   },
   "workspaceBillingAccountHelperText": {

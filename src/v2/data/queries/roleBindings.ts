@@ -68,6 +68,11 @@ export function useGroupRoleBindingsQuery(groupId: string, options?: { enabled?:
         resourceType: 'workspace',
         limit: 1000,
         fields: FIELDS,
+        options: {
+          params: {
+            exclude_sources: 'indirect',
+          },
+        },
       });
       return parseBindings(response.data?.data ?? []);
     },
@@ -90,6 +95,15 @@ export function useUserRoleBindingsQuery(userId: string | undefined, options?: {
         grantedSubjectPrincipalUserId: userId!,
         limit: 1000,
         fields: FIELDS,
+        options: {
+          params: {
+            granted_subject_type: 'user',
+            granted_subject_id: userId!,
+            // Only exclude indirect bindings when no workspace context is given.
+            // When resourceId is present the API can resolve inherited bindings for that workspace.
+            ...(options?.resourceId ? {} : { exclude_sources: 'indirect' }),
+          },
+        },
       });
       return parseBindings(response.data?.data ?? []);
     },

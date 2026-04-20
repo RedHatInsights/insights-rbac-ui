@@ -536,7 +536,7 @@
   "warning": "Warning",
   "whyNotSeeingAllPermissions": "Why am I not seeing all of my permissions?",
   "workspace": "Workspace",
-  "workspaceAssignment": "Workspace assignment (TBD)",
+  "workspaceAssignment": "Workspace assignment",
   "workspaceBillingAccountHelperText": "The default billing account is based on the parent workspace's billing account. You can switch to a different billing account as needed. This change is independent of the workspace hierarchy.",
   "workspaceDescription": "Workspace description",
   "workspaceDescriptionMaxLength": "The first {count} characters will appear in the description field.",

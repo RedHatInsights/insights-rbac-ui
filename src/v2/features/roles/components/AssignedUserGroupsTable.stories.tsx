@@ -26,7 +26,7 @@ export const WithGroups: Story = {
 
       // Column headers (match intl defaultMessage)
       await expect(canvas.findByText('User group')).resolves.toBeInTheDocument();
-      await expect(canvas.findByText('Workspace assignment (TBD)')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Workspace assignment')).resolves.toBeInTheDocument();
 
       // Verify cell data
       await expect(canvas.findByText('Administrators')).resolves.toBeInTheDocument();
