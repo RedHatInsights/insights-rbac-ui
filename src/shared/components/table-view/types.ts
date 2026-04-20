@@ -40,6 +40,15 @@ export interface ColumnConfig {
   isCompound?: boolean;
   /** Width percentage modifier — matches PatternFly Th width prop */
   width?: BaseCellProps['width'];
+  /**
+   * Column display format.
+   * - `'date'`: Automatically formats the cell renderer's return value as a date.
+   *   The cell renderer should return a date string (ISO 8601) or empty string.
+   *   Dates within 3 months show relative format ("2 days ago"), older dates show
+   *   full format ("15 Jun 2025"). Uses the shared `DateFormat` component and
+   *   `getDateFormat` utility for consistent date handling across the app.
+   */
+  format?: 'date';
 }
 
 /**

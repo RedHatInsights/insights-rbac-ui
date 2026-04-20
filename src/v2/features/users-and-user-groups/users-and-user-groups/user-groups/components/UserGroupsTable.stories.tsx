@@ -503,6 +503,13 @@ export const DateFormatSwitching: Story = {
       // Full date format: "15 Jun 2025"
       await expect(within(oldRow!).findByText(/\d{2}\s\w{3}\s\d{4}/)).resolves.toBeInTheDocument();
     });
+
+    await step('Verify empty date stays empty', async () => {
+      const canvas = within(canvasElement);
+      const noDateRow = (await canvas.findByText('No Date Group')).closest('tr');
+      await expect(within(noDateRow!).queryByText(/ago$/i)).not.toBeInTheDocument();
+      await expect(within(noDateRow!).queryByText(/\d{2}\s\w{3}\s\d{4}/)).not.toBeInTheDocument();
+    });
   },
 };
 
