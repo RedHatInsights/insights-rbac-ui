@@ -24,7 +24,7 @@ import { UserDetailsGroupsView } from './UserDetailsGroupsView';
 import { UserDetailsRolesView } from './UserDetailsRolesView';
 
 interface UserDetailsDrawerContentProps {
-  focusedUser?: User;
+  focusedUser: User;
   drawerRef: React.RefObject<HTMLDivElement>;
   onClose: () => void;
   ouiaId: string;
@@ -61,12 +61,12 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
   const drawerHeader = (
     <DrawerHead>
       <Title headingLevel="h2">
-        <span tabIndex={focusedUser ? 0 : -1} ref={drawerRef}>
-          {`${focusedUser?.first_name} ${focusedUser?.last_name}`}
+        <span tabIndex={0} ref={drawerRef}>
+          {`${focusedUser.first_name} ${focusedUser.last_name}`}
         </span>
       </Title>
       <Content>
-        <Content component="p">{focusedUser?.email}</Content>
+        <Content component="p">{focusedUser.email}</Content>
       </Content>
       <DrawerActions>
         <DrawerCloseButton onClick={onClose} />
@@ -86,7 +86,7 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
         <Tabs isFilled activeKey={activeTabKey} onSelect={(_, tabIndex) => setActiveTabKey(tabIndex)}>
           {canListGroups && (
             <Tab eventKey={0} title={intl.formatMessage(messages.userGroups)}>
-              {focusedUser && renderGroupsTab(focusedUser.username, `${ouiaId}-user-groups-view`)}
+              {renderGroupsTab(focusedUser.username, `${ouiaId}-user-groups-view`)}
             </Tab>
           )}
           {canListRoles && (
@@ -108,11 +108,10 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
                 </TabTitleText>
               }
             >
-              {focusedUser &&
-                renderRolesTab(
-                  focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
-                  `${ouiaId}-assigned-roles-view`,
-                )}
+              {renderRolesTab(
+                focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
+                `${ouiaId}-assigned-roles-view`,
+              )}
             </Tab>
           )}
         </Tabs>
@@ -154,14 +153,18 @@ const UserDetailsDrawer: React.FunctionComponent<DetailDrawerProps> = ({ focused
     <Drawer isExpanded={Boolean(focusedUser)} data-ouia-component-id={ouiaId}>
       <DrawerContent
         panelContent={
-          <UserDetailsDrawerContent
-            ouiaId={`${ouiaId}-panel-content`}
-            drawerRef={drawerRef}
-            focusedUser={focusedUser}
-            onClose={() => setFocusedUser(undefined)}
-            renderGroupsTab={renderGroupsTab}
-            renderRolesTab={renderRolesTab}
-          />
+          focusedUser ? (
+            <UserDetailsDrawerContent
+              ouiaId={`${ouiaId}-panel-content`}
+              drawerRef={drawerRef}
+              focusedUser={focusedUser}
+              onClose={() => setFocusedUser(undefined)}
+              renderGroupsTab={renderGroupsTab}
+              renderRolesTab={renderRolesTab}
+            />
+          ) : (
+            <DrawerPanelContent />
+          )
         }
       >
         <DrawerContentBody hasPadding>{children}</DrawerContentBody>
