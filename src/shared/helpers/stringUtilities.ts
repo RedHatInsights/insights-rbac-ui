@@ -1,7 +1,9 @@
+import { subMonths } from 'date-fns';
+
 export const firstUpperCase = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
 
 export const getDateFormat = (date: string): 'onlyDate' | 'relative' => {
-  const threeMonthsAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const threeMonthsAgo = subMonths(new Date(), 3);
   return Date.parse(date) < threeMonthsAgo.getTime() ? 'onlyDate' : 'relative';
 };
 
