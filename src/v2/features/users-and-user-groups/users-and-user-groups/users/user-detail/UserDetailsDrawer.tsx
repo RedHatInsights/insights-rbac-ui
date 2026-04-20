@@ -23,7 +23,7 @@ import { useGroupsAccess, useRolesAccess } from '../../../../../hooks/useRbacAcc
 import { UserDetailsGroupsView } from './UserDetailsGroupsView';
 import { UserDetailsRolesView } from './UserDetailsRolesView';
 
-interface UserDetailsDrawerContentProps {
+interface UserDetailsDrawerInnerProps {
   focusedUser: User;
   drawerRef: React.RefObject<HTMLDivElement>;
   onClose: () => void;
@@ -32,7 +32,16 @@ interface UserDetailsDrawerContentProps {
   renderRolesTab: (userId: string | undefined, ouiaId: string) => React.ReactNode;
 }
 
-const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
+/**
+ * Inner content rendered only when a user is focused. Separated so that
+ * useGroupsAccess / useRolesAccess hooks are NOT invoked while the drawer
+ * is closed, avoiding unnecessary RBAC API calls on every page load.
+ *
+ * The outer DrawerPanelContent (with data-testid) is always mounted by
+ * UserDetailsDrawer so existing Storybook interaction tests that call
+ * waitForDrawer() before a row click continue to find the element.
+ */
+const UserDetailsDrawerInner: React.FC<UserDetailsDrawerInnerProps> = ({
   focusedUser,
   drawerRef,
   onClose,
@@ -76,11 +85,11 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
 
   // While permissions are loading, show only the header
   if (accessLoading) {
-    return <DrawerPanelContent data-testid="detail-drawer-panel">{drawerHeader}</DrawerPanelContent>;
+    return <>{drawerHeader}</>;
   }
 
   return (
-    <DrawerPanelContent data-testid="detail-drawer-panel">
+    <>
       {drawerHeader}
       {hasTabs && (
         <Tabs isFilled activeKey={activeTabKey} onSelect={(_, tabIndex) => setActiveTabKey(tabIndex)}>
@@ -116,7 +125,7 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
           )}
         </Tabs>
       )}
-    </DrawerPanelContent>
+    </>
   );
 };
 
@@ -153,18 +162,18 @@ const UserDetailsDrawer: React.FunctionComponent<DetailDrawerProps> = ({ focused
     <Drawer isExpanded={Boolean(focusedUser)} data-ouia-component-id={ouiaId}>
       <DrawerContent
         panelContent={
-          focusedUser ? (
-            <UserDetailsDrawerContent
-              ouiaId={`${ouiaId}-panel-content`}
-              drawerRef={drawerRef}
-              focusedUser={focusedUser}
-              onClose={() => setFocusedUser(undefined)}
-              renderGroupsTab={renderGroupsTab}
-              renderRolesTab={renderRolesTab}
-            />
-          ) : (
-            <DrawerPanelContent />
-          )
+          <DrawerPanelContent data-testid="detail-drawer-panel">
+            {focusedUser && (
+              <UserDetailsDrawerInner
+                ouiaId={`${ouiaId}-panel-content`}
+                drawerRef={drawerRef}
+                focusedUser={focusedUser}
+                onClose={() => setFocusedUser(undefined)}
+                renderGroupsTab={renderGroupsTab}
+                renderRolesTab={renderRolesTab}
+              />
+            )}
+          </DrawerPanelContent>
         }
       >
         <DrawerContentBody hasPadding>{children}</DrawerContentBody>
