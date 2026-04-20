@@ -35,7 +35,8 @@ export function roleBindingsBySubjectDynamicHandlers(
     const { value: excludeSources, error } = parseExcludeSources(url);
     if (error) return error;
     const tenantOrgId = url.searchParams.get('resource.tenant.org_id');
-    const resourceId = tenantOrgId || url.searchParams.get('resource_id') || url.searchParams.get('resourceId') || undefined;
+    // Normalize tenant resource IDs to "redhat/{orgId}" format to match fixtures
+    const resourceId = tenantOrgId ? `redhat/${tenantOrgId}` : url.searchParams.get('resource_id') || url.searchParams.get('resourceId') || undefined;
     return HttpResponse.json(getResponse({ resourceId, excludeSources }));
   };
   return [http.get('*/api/rbac/v2/role-bindings/by-subject/', handler), http.get('*/api/rbac/v2/role-bindings/by-subject', handler)];
@@ -69,13 +70,13 @@ export function createRoleBindingsHandlers(bindings: RoleBinding[], options: Rol
       const { value: excludeSources, error } = parseExcludeSources(url);
       if (error) return error;
       const tenantOrgId = url.searchParams.get('resource.tenant.org_id');
-      const resourceId = tenantOrgId || url.searchParams.get('resource_id');
+      // Normalize tenant resource IDs to "redhat/{orgId}" format to match fixtures
+      const resourceId = tenantOrgId ? `redhat/${tenantOrgId}` : url.searchParams.get('resource_id');
 
       let filtered = bindings;
 
       if (resourceId) {
-        // When resource.tenant.org_id is used, also match "redhat/{orgId}" resource IDs in fixtures
-        filtered = filtered.filter((b) => b.resource.id === resourceId || (tenantOrgId && b.resource.id === `redhat/${tenantOrgId}`));
+        filtered = filtered.filter((b) => b.resource.id === resourceId);
       }
       if (excludeSources === 'direct') {
         filtered = [];
@@ -262,7 +263,8 @@ export function createStatefulRoleBindingsHandlers(
         const { value: excludeSources, error } = parseExcludeSources(url);
         if (error) return error;
         const tenantOrgId = url.searchParams.get('resource.tenant.org_id');
-        const resourceId = tenantOrgId || url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
+        // Normalize tenant resource IDs to "redhat/{orgId}" format to match fixtures
+        const resourceId = tenantOrgId ? `redhat/${tenantOrgId}` : url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
         const limit = parseInt(url.searchParams.get('limit') || '10000', 10);
         const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
@@ -270,9 +272,7 @@ export function createStatefulRoleBindingsHandlers(
           return HttpResponse.json({ data: [], meta: { count: 0, limit, offset } });
         }
 
-        // When resource.tenant.org_id is used, the value is the plain org ID (e.g. "12510751")
-        // but fixtures may key tenant bindings as "redhat/{orgId}". Try both.
-        const directBindings = bindingsMap.get(resourceId) || (tenantOrgId ? bindingsMap.get(`redhat/${tenantOrgId}`) : undefined) || [];
+        const directBindings = bindingsMap.get(resourceId) || [];
         let inheritedBindings: RoleBindingsRoleBindingBySubject[] = [];
         if (options.workspaces) {
           const getParentChain = (wsId: string): string[] => {
