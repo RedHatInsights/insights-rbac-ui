@@ -103,6 +103,7 @@ Tests bundle switching on My User Access — clicking a different bundle card re
   play: async ({ canvasElement, step, args }) => {
     const canvas = within(canvasElement);
     const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+    let beforeSwitchSnapshot = '';
 
     await step('Reset state', async () => {
       await resetStoryState(v1Db);
@@ -120,6 +121,7 @@ Tests bundle switching on My User Access — clicking a different bundle card re
       await canvas.findByTestId('entitle-section', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
       const rolesTable = await canvas.findByRole('grid', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
       expect(rolesTable).toBeInTheDocument();
+      beforeSwitchSnapshot = rolesTable.textContent ?? '';
 
       await waitFor(
         () => {
@@ -161,10 +163,11 @@ Tests bundle switching on My User Access — clicking a different bundle card re
     });
 
     await step('Verify Settings roles appear', async () => {
-      // Settings bundle shows roles with rbac/sources applications — Administrator has rbac
+      // Settings bundle filters roles to rbac/sources applications — table content must differ
+      const updatedRolesTable = await canvas.findByRole('grid', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
       await waitFor(
         () => {
-          expect(canvas.queryByText(V1_ROLE_ADMIN.display_name)).toBeInTheDocument();
+          expect(updatedRolesTable.textContent ?? '').not.toEqual(beforeSwitchSnapshot);
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
@@ -213,7 +216,14 @@ Verifies content re-renders correctly after navigating away and returning.
 
     await step('Navigate to Groups', async () => {
       await navigateToPage(user, canvas, 'Groups');
-      // Wait for the groups table to render
+      // Verify we left My User Access — entitle-section must be gone before asserting the grid
+      await waitFor(
+        () => {
+          expect(canvas.queryByTestId('entitle-section')).not.toBeInTheDocument();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+      // Now the grid belongs to the Groups page — no ambiguity
       await canvas.findByRole('grid', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
     });
 
