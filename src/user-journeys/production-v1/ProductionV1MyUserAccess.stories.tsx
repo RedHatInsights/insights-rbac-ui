@@ -69,7 +69,7 @@ Navigates to My User Access via sidebar and verifies the default bundle experien
       // Org admin sees roles — verify seed roles with RHEL-related applications appear
       await waitFor(
         () => {
-          expect(canvas.queryByText(V1_ROLE_ADMIN.display_name)).toBeInTheDocument();
+          expect(canvas.queryByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
@@ -125,7 +125,7 @@ Tests bundle switching on My User Access — clicking a different bundle card re
 
       await waitFor(
         () => {
-          expect(canvas.queryByText(V1_ROLE_ADMIN.display_name)).toBeInTheDocument();
+          expect(canvas.queryByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
@@ -241,7 +241,7 @@ Verifies content re-renders correctly after navigating away and returning.
 
       await waitFor(
         () => {
-          expect(canvas.queryByText(V1_ROLE_ADMIN.display_name)).toBeInTheDocument();
+          expect(canvas.queryByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
@@ -292,7 +292,7 @@ expands the row to show a nested permissions table.
       await canvas.findByRole('grid', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
       await waitFor(
         () => {
-          expect(canvas.queryByText(V1_ROLE_ADMIN.display_name)).toBeInTheDocument();
+          expect(canvas.queryByText(V1_ROLE_ADMIN.name)).toBeInTheDocument();
         },
         { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
       );
