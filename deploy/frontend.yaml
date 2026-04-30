@@ -176,6 +176,7 @@ objects:
         - segmentId: module-rbac-ui
           bundleId: iam
           navItems:
+            # New navigation structure with platform.rbac.workspaces feature flag
             - id: overview
               title: Overview
               href: /iam/overview
@@ -253,6 +254,7 @@ objects:
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
+            # Legacy navigation structure (when new feature flag is off)
             - id: my-user-access
               title: My User Access
               href: /iam/my-user-access
