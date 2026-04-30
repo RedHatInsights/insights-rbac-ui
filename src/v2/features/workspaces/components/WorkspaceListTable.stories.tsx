@@ -313,6 +313,9 @@ export const RootWorkspaceRestrictions: Story = {
       await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
       await expect(moveButton.closest('button')).toHaveAttribute('disabled');
     });
+    await step('Verify Create sibling workspace is not rendered for root', async () => {
+      await expect(within(document.body).queryByText('Create sibling workspace')).toBeNull();
+    });
   },
 };
 

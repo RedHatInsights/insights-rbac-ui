@@ -155,10 +155,12 @@ test.describe('Workspace List', () => {
       const editItem = page.getByRole('menuitem', { name: /edit workspace/i });
       const deleteItem = page.getByRole('menuitem', { name: /delete workspace/i });
       const moveItem = page.getByRole('menuitem', { name: /move workspace/i });
+      const createSiblingItem = page.getByRole('menuitem', { name: /create sibling workspace/i });
 
       await expect(editItem).toBeDisabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
       await expect(deleteItem).toBeDisabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
       await expect(moveItem).toBeDisabled({ timeout: E2E_TIMEOUTS.MENU_ANIMATION });
+      await expect(createSiblingItem).not.toBeVisible();
     });
 
     // Root Workspace selection: backend does not yet support creating workspaces

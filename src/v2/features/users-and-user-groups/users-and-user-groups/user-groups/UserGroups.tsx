@@ -165,7 +165,11 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
           groupName={focusedGroup?.name}
           groupId={focusedGroup?.uuid}
           onClose={() => setFocusedGroup(undefined)}
-          onEditGroup={focusedGroup ? () => handleEditGroup(focusedGroup) : undefined}
+          onEditGroup={
+            focusedGroup && !focusedGroup.platform_default && !focusedGroup.admin_default && !focusedGroup.system
+              ? () => handleEditGroup(focusedGroup)
+              : undefined
+          }
           drawerRef={drawerRef}
           ouiaId="groups-details-drawer"
           activeTabKey={activeTabKey}

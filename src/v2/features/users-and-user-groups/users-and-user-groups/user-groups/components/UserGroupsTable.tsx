@@ -67,8 +67,8 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
   // Permission flag for modifying groups
   const canModifyGroups = enableActions && orgAdmin;
 
-  // Check if group can be edited
-  const isGroupEditable = useCallback((group: Group) => !group.platform_default && !group.system, []);
+  // Check if group can be edited (default access groups and system groups cannot be edited)
+  const isGroupEditable = useCallback((group: Group) => !group.platform_default && !group.admin_default && !group.system, []);
 
   // Check if group can be deleted (platform_default and system groups cannot be deleted)
   const isGroupDeletable = useCallback((group: Group) => !group.platform_default && !group.system && orgAdmin, [orgAdmin]);
@@ -135,12 +135,15 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
                   ariaLabel={`Actions for group ${group.name}`}
                   ouiaId={`${ouiaId}-${group.uuid}-actions`}
                   items={[
-                    {
-                      key: 'edit',
-                      label: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']),
-                      onClick: () => onEditGroup?.(group),
-                      isDisabled: !isGroupEditable(group),
-                    },
+                    ...(isGroupEditable(group)
+                      ? [
+                          {
+                            key: 'edit',
+                            label: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']),
+                            onClick: () => onEditGroup?.(group),
+                          },
+                        ]
+                      : []),
                     {
                       key: 'delete',
                       label: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']),

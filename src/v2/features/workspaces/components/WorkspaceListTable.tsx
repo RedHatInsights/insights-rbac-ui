@@ -28,6 +28,7 @@ import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
 import { type WorkspaceActionCallbacks, useWorkspaceActionItems } from './useWorkspaceActionItems';
 import type { WorkspaceFilters, WorkspaceWithChildren, WorkspacesWorkspace } from '../types';
+import { canCreateSiblingInType } from '../workspaceTypes';
 import type { WorkspacePermissions, WorkspaceRelation, WorkspaceWithPermissions } from '../../../data/queries/workspaces';
 
 interface WorkspaceListTableProps {
@@ -171,7 +172,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({ workspac
           : { view: false, edit: false, delete: false, create: false, move: false };
         const callbacks: WorkspaceActionCallbacks = {
           onEdit: () => navigate(pathnames['edit-workspaces-list'].link(wsId)),
-          onCreateSibling: () => navigate(pathnames['create-sibling-workspace'].link(wsId)),
+          ...(canCreateSiblingInType(workspace.type) ? { onCreateSibling: () => navigate(pathnames['create-sibling-workspace'].link(wsId)) } : {}),
           onCreateSub: () => navigate(pathnames['create-sub-workspace'].link(wsId)),
           onMove: () => navigate(pathnames['move-workspace'].link(wsId)),
           onDelete: () => navigate(pathnames['delete-workspace'].link(wsId)),

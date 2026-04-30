@@ -384,11 +384,12 @@ export const M2_WithWritePermission: Story = {
 **Expected Behavior:**
 - ✅ "Create workspace" button: **enabled** (with parent selection)
 - ✅ Kebab "Edit workspace": **enabled**
-- ✅ Kebab "Create workspace": **enabled**
+- ✅ Kebab "Create workspace": **enabled** (standard workspaces only)
 - ✅ Kebab "Create subworkspace": **enabled**
 - ✅ Kebab "Move workspace": **enabled**
 - ✅ Kebab "Delete workspace": **enabled** (for leaf workspaces)
 - ✅ Workspace links: **link to Inventory** (standard/ungrouped-hosts types)
+- ❌ Kebab "Create sibling workspace": **hidden** for Root and Default workspaces
         `,
       },
     },
@@ -415,11 +416,11 @@ export const M2_WithWritePermission: Story = {
     const createButton = await canvas.findByRole('button', { name: /create workspace/i });
     await waitFor(() => expect(createButton).not.toBeDisabled(), { timeout: 5000 });
 
-    // Open kebab menu and verify M2 actions are enabled
+    // Open kebab menu on a standard workspace (Production Environment) and verify M2 actions
     const kebabButtons = canvas.getAllByLabelText('Kebab toggle');
-    await user.click(kebabButtons[0]);
+    await user.click(kebabButtons[1]);
 
-    // Verify M2 CRUD actions exist in the kebab menu
+    // Verify M2 CRUD actions exist in the kebab menu for standard workspaces
     await within(document.body).findByText('Edit workspace');
     await within(document.body).findByText('Create sibling workspace');
     await within(document.body).findByText('Create sub-workspace');

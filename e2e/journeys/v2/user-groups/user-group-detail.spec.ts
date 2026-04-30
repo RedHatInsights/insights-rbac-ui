@@ -119,6 +119,28 @@ test.describe('User Group Detail', () => {
       await expect(groupsPage.editPageNameInput).toHaveValue(new RegExp(SEEDED_GROUP_NAME!.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     });
 
+    test(`Drawer Edit button is not visible for Default access group [OrgAdmin]`, async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.openDrawer('Default access');
+      await expect(groupsPage.drawer.getByRole('heading', { name: 'Default access' })).toBeVisible();
+      await expect(groupsPage.drawerEditButton).not.toBeVisible();
+
+      await groupsPage.closeDrawerViaButton();
+    });
+
+    test(`Drawer Edit button is not visible for Default admin access group [OrgAdmin]`, async ({ page }) => {
+      const groupsPage = new UserGroupsPage(page);
+      await groupsPage.goto();
+
+      await groupsPage.openDrawer('Default admin access');
+      await expect(groupsPage.drawer.getByRole('heading', { name: 'Default admin access' })).toBeVisible();
+      await expect(groupsPage.drawerEditButton).not.toBeVisible();
+
+      await groupsPage.closeDrawerViaButton();
+    });
+
     test(`Drawer close button works [OrgAdmin]`, async ({ page }) => {
       test.skip(!SEEDED_GROUP_NAME, 'No seed data — run npm run e2e:seed:v2');
       const groupsPage = new UserGroupsPage(page);

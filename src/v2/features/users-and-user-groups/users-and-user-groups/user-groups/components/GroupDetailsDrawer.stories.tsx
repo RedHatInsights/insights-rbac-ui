@@ -96,6 +96,67 @@ const DrawerExample = () => {
   );
 };
 
+// Drawer with no Edit button (simulates default access group)
+const DrawerNoEditExample = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <GroupDetailsDrawer
+      isOpen={isOpen}
+      groupName="Default access"
+      onClose={() => setIsOpen(false)}
+      drawerRef={drawerRef}
+      ouiaId="group-details-drawer-no-edit"
+      activeTabKey={activeTabKey}
+      onTabSelect={setActiveTabKey}
+      renderUsersTab={() => <div style={{ padding: '1rem' }}>Users tab content</div>}
+      renderServiceAccountsTab={() => <div style={{ padding: '1rem' }}>Service accounts tab content</div>}
+      renderRolesTab={() => <div style={{ padding: '1rem' }}>Assigned roles tab content</div>}
+    >
+      <Card>
+        <CardBody>
+          <h2>User Groups Table</h2>
+          <p>Click the button below to open the group details drawer without an Edit button.</p>
+          <Button onClick={() => setIsOpen(true)} disabled={isOpen}>
+            View Default Group Details
+          </Button>
+        </CardBody>
+      </Card>
+    </GroupDetailsDrawer>
+  );
+};
+
+export const DefaultGroupNoEdit: Story = {
+  render: () => <DrawerNoEditExample />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Default access groups do not show the Edit button in the drawer. The `onEditGroup` prop is omitted, hiding the pencil icon.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Open drawer and verify no Edit button', async () => {
+      const openButton = await canvas.findByRole('button', { name: /view default group details/i });
+      await userEvent.click(openButton);
+
+      await expect(canvas.findByText('Default access')).resolves.toBeInTheDocument();
+
+      // Edit button should NOT be visible
+      await expect(canvas.queryByRole('button', { name: /edit user group/i })).not.toBeInTheDocument();
+
+      // Tabs should still be present
+      await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('tab', { name: /service accounts/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('tab', { name: /assigned roles/i })).resolves.toBeInTheDocument();
+    });
+  },
+};
+
 export const Default: Story = {
   render: () => <DrawerExample />,
   play: async ({ canvasElement, step }) => {
