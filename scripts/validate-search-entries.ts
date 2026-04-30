@@ -27,6 +27,8 @@ const V1_V2_PAIRS: [string, string][] = [
   ['rbac-my-access', 'rbac-my-access-v2'],
 ];
 
+const V2_ONLY_IDS = ['rbac-workspaces-v2', 'rbac-access-management'];
+
 const WORKSPACES_FLAG = 'platform.rbac.workspaces';
 const IAM_ALT_TITLE_TERMS = ['IAM', 'RBAC', 'user access', 'roles', 'workspaces'];
 
@@ -84,6 +86,14 @@ function main(): void {
   for (const expectedId of EXPECTED_IAM_IDS) {
     if (!ids.has(expectedId)) {
       console.error(`❌ Missing expected search entry id: ${expectedId}`);
+      failed = true;
+    }
+  }
+
+  for (const v2OnlyId of V2_ONLY_IDS) {
+    const flag = byId.get(v2OnlyId) ? getFeatureFlagValue(byId.get(v2OnlyId)!, WORKSPACES_FLAG) : undefined;
+    if (flag !== true) {
+      console.error(`❌ V2 entry id="${v2OnlyId}" must have ${WORKSPACES_FLAG}=true (found: ${flag ?? 'missing'})`);
       failed = true;
     }
   }

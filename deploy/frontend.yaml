@@ -31,11 +31,9 @@ objects:
           description: Manage your organization's administrator users (Identity & Access Management).
           alt_title: [org administrator, IAM, user access]
           permissions:
-            - &featureFlagV1
-              method: featureFlag
+            - method: featureFlag
               args: [platform.rbac.workspaces, false]
-            - &loosePrincipalRead
-              method: loosePermissions
+            - method: loosePermissions
               args: [[rbac:principal:read]]
         - id: rbac-org-admin-v2
           title: Org Admins
@@ -43,19 +41,19 @@ objects:
           description: Manage your organization's administrator users (Identity & Access Management).
           alt_title: [org administrator, IAM, user access]
           permissions:
-            - &featureFlagV2
-              method: featureFlag
+            - method: featureFlag
               args: [platform.rbac.workspaces, true]
-            - *loosePrincipalRead
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
         - id: rbac-roles
           title: Roles
           href: /iam/user-access/roles
           description: View and manage custom roles for your organization (Identity & Access Management).
           alt_title: [role, roles, RBAC, IAM, user access]
           permissions:
-            - *featureFlagV1
-            - &looseRoleRead
-              method: loosePermissions
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
               args: [[rbac:role:read]]
         - id: rbac-roles-v2
           title: Roles
@@ -63,33 +61,39 @@ objects:
           description: View and manage custom roles for your organization (Identity & Access Management).
           alt_title: [role, roles, RBAC, IAM, user access]
           permissions:
-            - *featureFlagV2
-            - *looseRoleRead
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:role:read]]
         - id: rbac-users
           title: Users
           href: /iam/user-access/users
           description: Manage users and their role-based access (Identity & Access Management).
           alt_title: [user, users, IAM, user access, RBAC]
           permissions:
-            - *featureFlagV1
-            - *loosePrincipalRead
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
         - id: rbac-users-v2
           title: Users
           href: /iam/access-management/users-and-user-groups
           description: Manage users and their role-based access (Identity & Access Management).
           alt_title: [user, users, IAM, user access, RBAC]
           permissions:
-            - *featureFlagV2
-            - *loosePrincipalRead
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
         - id: rbac-groups
           title: Groups
           href: /iam/user-access/groups
           description: Manage groups and their role assignments (Identity & Access Management).
           alt_title: [group, groups, IAM, user access, RBAC]
           permissions:
-            - *featureFlagV1
-            - &looseGroupRead
-              method: loosePermissions
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
               args: [[rbac:group:read]]
         - id: rbac-groups-v2
           title: Groups
@@ -97,36 +101,42 @@ objects:
           description: Manage groups and their role assignments (Identity & Access Management).
           alt_title: [group, groups, IAM, user access, RBAC]
           permissions:
-            - *featureFlagV2
-            - *looseGroupRead
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:group:read]]
         - id: rbac-my-access
           title: My User Access
           href: /iam/my-user-access
           description: View your current permissions and access (Identity & Access Management).
           alt_title: [my access, my permissions, IAM, RBAC, user access]
           permissions:
-            - *featureFlagV1
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
         - id: rbac-my-access-v2
           title: My Access
           href: /iam/my-access
           description: View your current permissions and access (Identity & Access Management).
           alt_title: [my access, my permissions, IAM, RBAC, user access]
           permissions:
-            - *featureFlagV2
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
         - id: rbac-workspaces-v2
           title: Workspaces
           href: /iam/access-management/workspaces
           description: Organize systems with workspaces for granular user access (Identity & Access Management).
           alt_title: [workspace, workspaces, IAM, user access, RBAC]
           permissions:
-            - *featureFlagV2
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
         - id: rbac-access-management
           title: Access Management
           href: /iam/access-management/users-and-user-groups
           description: Manage users, groups, roles, and workspaces (Identity & Access Management).
           alt_title: [access management, IAM, user access, RBAC, roles, workspaces]
           permissions:
-            - *featureFlagV2
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
             - method: loosePermissions
               args:
                 - - rbac:principal:read
@@ -140,8 +150,10 @@ objects:
           description: Manage your organization's role-based access control (RBAC) to services.
           icon: PlaceholderIcon
           permissions:
-            - *featureFlagV1
-            - *loosePrincipalRead
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
         - section: iam
           group: iam
           id: users-v2
@@ -150,8 +162,10 @@ objects:
           description: Manage your organization's role-based access control (RBAC) to services.
           icon: PlaceholderIcon
           permissions:
-            - *featureFlagV2
-            - *loosePrincipalRead
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:principal:read]]
         - section: iam
           group: iam
           id: groups
@@ -160,8 +174,10 @@ objects:
           description: ""
           icon: PlaceholderIcon
           permissions:
-            - *featureFlagV1
-            - *looseGroupRead
+            - method: featureFlag
+              args: [platform.rbac.workspaces, false]
+            - method: loosePermissions
+              args: [[rbac:group:read]]
         - section: iam
           group: iam
           id: groups-v2
@@ -170,8 +186,10 @@ objects:
           description: ""
           icon: PlaceholderIcon
           permissions:
-            - *featureFlagV2
-            - *looseGroupRead
+            - method: featureFlag
+              args: [platform.rbac.workspaces, true]
+            - method: loosePermissions
+              args: [[rbac:group:read]]
       bundleSegments:
         - segmentId: module-rbac-ui
           bundleId: iam
