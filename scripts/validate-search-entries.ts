@@ -80,7 +80,17 @@ function main(): void {
     }
   }
 
-  const ids = new Set(entries.map((e) => e.id).filter(Boolean));
+  const allIds = entries.map((e) => e.id).filter(Boolean) as string[];
+  const seen = new Set<string>();
+  for (const id of allIds) {
+    if (seen.has(id)) {
+      console.error(`❌ Duplicate search entry id: ${id}`);
+      failed = true;
+    }
+    seen.add(id);
+  }
+
+  const ids = new Set(allIds);
   const byId = new Map(entries.filter((e) => e.id).map((e) => [e.id!, e]));
 
   for (const expectedId of EXPECTED_IAM_IDS) {
