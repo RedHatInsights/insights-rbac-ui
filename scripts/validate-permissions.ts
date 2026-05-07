@@ -27,12 +27,13 @@ interface YamlPermission {
 }
 
 interface YamlNavItem {
-  id: string;
+  id?: string;
   title?: string;
   href?: string;
   permissions?: YamlPermission[];
   routes?: YamlNavItem[];
   expandable?: boolean;
+  segmentRef?: { frontendName: string; segmentId: string };
 }
 
 interface FrontendYaml {
@@ -142,6 +143,7 @@ function collectYamlNavItems(
   result: Map<string, { rbacPermissions: string[]; requireOrgAdmin: boolean; checkAll: boolean }>,
 ): void {
   for (const item of items) {
+    if (item.segmentRef) continue;
     if (item.href && item.permissions) {
       const normalizedPath = normalizePath(item.href);
       const { rbacPermissions, requireOrgAdmin, hasFeatureFlagOnly, checkAll } = extractYamlPermissions(item.permissions);
