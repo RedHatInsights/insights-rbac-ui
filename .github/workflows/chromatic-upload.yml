@@ -47,7 +47,7 @@ jobs:
       - name: Find PR number
         id: find-pr
         if: github.event.workflow_run.event == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             // workflow_run.pull_requests works for same-repo PRs
