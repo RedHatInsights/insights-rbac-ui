@@ -20,7 +20,7 @@ jobs:
       # the baseline commit. We always check out the default branch (not the PR
       # branch) so that no untrusted code from forks is ever executed.
       - name: Checkout Base Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0
