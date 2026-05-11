@@ -82,4 +82,6 @@ export {
   WorkspacesWorkspaceTypesQueryParam,
   ExcludeSources,
   ResourceType,
+  RoleBindingsBindingSubjectType,
+  RoleBindingsGrantedSubjectFilterType,
 } from '@redhat-cloud-services/rbac-client/v2/types';

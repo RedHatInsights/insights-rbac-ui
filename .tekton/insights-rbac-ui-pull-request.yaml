@@ -39,10 +39,6 @@ spec:
       npm ci
       npm run lint
       NODE_OPTIONS="--max-old-space-size=1536" npm test
-  - name: unit-tests-memory-request
-    value: "8Gi"
-  - name: unit-tests-memory-limit
-    value: "8Gi"
 
   pipelineRef:
     resolver: git

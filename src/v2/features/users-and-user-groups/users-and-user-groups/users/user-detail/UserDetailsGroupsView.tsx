@@ -51,18 +51,19 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
     syncWithUrl: false, // Drawer tables shouldn't sync with URL
   });
 
-  // Use React Query to fetch groups filtered by this user's username
-  // The V1 API supports filtering groups by username parameter
+  // Use React Query to fetch groups filtered by this user's username.
+  // The V1 API supports filtering groups by username parameter.
+  // Permission gating is handled by the parent UserDetailsDrawer — this tab
+  // is only rendered when the user has rbac_groups_read permission.
   const { data, isLoading, error } = useGroupsQuery({
     limit: tableState.apiParams.limit,
     offset: tableState.apiParams.offset,
-    username: userId, // Filter to only groups this user belongs to
+    username: userId,
   });
 
   // Extract groups from typed response
   const groups: Group[] = data?.data ?? [];
 
-  // Show error state
   if (error) {
     return (
       <div className="pf-v6-u-pt-md">

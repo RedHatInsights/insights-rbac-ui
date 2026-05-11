@@ -7,7 +7,7 @@ Displays role bindings assigned at the **organization level** — the root resou
 ## Behavior
 
 - Fetches the current organization's ID via `useOrganizationData()`.
-- Queries role bindings with `resourceType: 'tenant'` and `subjectType: 'group'` using `useOrgGroups`.
+- Queries role bindings with `resourceType: 'tenant'` and `resource.tenant.org_id` using `useOrgGroups`.
 - Renders results in `BaseGroupAssignmentsTable` (shared with workspace detail).
 - Passes `currentWorkspace` with `type: 'tenant'` and `id: redhat/<orgId>` to enable grant/edit/revoke access actions.
 - The **Grant access** wizard filters available roles via `resource_type=tenant` so only tenant-level roles appear.

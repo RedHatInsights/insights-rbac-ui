@@ -211,10 +211,8 @@ const meta: Meta<typeof MyUserAccess> = {
   tags: ['custom-css'], // NO autodocs on meta
   parameters: {
     userIdentity: standardUser,
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: false,
+    permissions: [],
     msw: {
       handlers: [...accessHandlers(muaAccessPermissions), ...v1RolesHandlers(muaRoles)],
     },
@@ -608,10 +606,8 @@ export const OrgAdminView: Story = {
   parameters: {
     viewport: { defaultViewport: 'desktop' },
     userIdentity: adminUser,
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [...accessHandlers(muaAccessPermissions), ...v1RolesHandlers(muaRoles, { returnAllForUsername: true })],
     },
@@ -707,10 +703,8 @@ export const ResponsiveNavigation: Story = {
   },
   parameters: {
     userIdentity: adminUser,
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     docs: {
       description: {
         story: `

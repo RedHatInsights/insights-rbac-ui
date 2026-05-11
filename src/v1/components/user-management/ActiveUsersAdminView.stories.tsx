@@ -28,10 +28,8 @@ This component is used to provide users with information about user management a
       },
     },
     // Set default permissions for this component's stories
-    permissions: {
-      userAccessAdministrator: false,
-      orgAdmin: true, // Admin view typically needs orgAdmin
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
   },
   decorators: [
     (Story) => (
@@ -142,10 +140,8 @@ export const FullyCustomized: Story = {
 export const UserAccessAdmin: Story = {
   tags: ['perm:user-access-admin'],
   parameters: {
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
   },
   args: {
     prefix: '',

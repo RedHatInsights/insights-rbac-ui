@@ -113,10 +113,8 @@ export const Default: Story = {
         `,
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: createDefaultHandlers(),
     },
@@ -148,10 +146,8 @@ export const Default: Story = {
 export const SelectGroupAndSave: Story = {
   tags: ['perm:org-admin'],
   parameters: {
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: createDefaultHandlers(),
     },
@@ -185,10 +181,8 @@ export const SelectGroupAndSave: Story = {
 export const CancelWithChangesShowsWarning: Story = {
   tags: ['perm:org-admin'],
   parameters: {
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: createDefaultHandlers(),
     },
@@ -222,10 +216,8 @@ export const CancelWithChangesShowsWarning: Story = {
 
 export const Loading: Story = {
   parameters: {
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: groupsLoadingHandlers(),
     },
@@ -242,10 +234,8 @@ export const Loading: Story = {
 
 export const EmptyGroups: Story = {
   parameters: {
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: groupsHandlers([]),
     },

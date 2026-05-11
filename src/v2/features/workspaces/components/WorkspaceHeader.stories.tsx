@@ -9,6 +9,7 @@ import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import type { WorkspaceActionCallbacks } from './useWorkspaceActionItems';
 import messages from '../../../../locales/data.json';
 import { locale } from '../../../../locales/locale';
+import { workspacesHandlers } from '../../../data/mocks/workspaces.handlers';
 
 const NOOP_CALLBACKS: WorkspaceActionCallbacks = {
   onEdit: () => {},
@@ -68,6 +69,9 @@ const meta: Meta<typeof WorkspaceHeader> = {
   tags: ['autodocs'],
   decorators: [withProviders],
   parameters: {
+    msw: {
+      handlers: [...workspacesHandlers([mockWorkspace, mockChildWorkspace])],
+    },
     docs: {
       description: {
         component: `
@@ -385,5 +389,73 @@ export const WithoutChildContext: Story = {
     // Verify alert is NOT displayed when there are no child context parameters
     const alert = canvas.queryByRole('alert');
     await expect(alert).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * When the workspace has children, the "Delete workspace" action should be disabled.
+ * Only leaf workspaces (no children) can be deleted.
+ */
+export const DeleteDisabledWithChildren: Story = {
+  args: {
+    workspace: mockWorkspace,
+    isLoading: false,
+    workspaceHierarchy: mockSingleWorkspaceHierarchy,
+    permissions: { view: true, edit: true, delete: true, create: true, move: true },
+    actionCallbacks: NOOP_CALLBACKS,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Workspace with children — delete action is disabled even when the user has delete permission. The hook internally queries the workspace list and detects that mockChildWorkspace has parent_id matching this workspace.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Open actions and verify delete is disabled', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await userEvent.click(actionsButton);
+      const deleteItem = await within(document.body).findByText('Delete workspace');
+      const menuItem = deleteItem.closest('button');
+      await expect(menuItem).toHaveAttribute('disabled');
+    });
+  },
+};
+
+/**
+ * When the workspace has no children (leaf workspace), the "Delete workspace"
+ * action should be enabled if the user has delete permission.
+ */
+export const DeleteEnabledLeafWorkspace: Story = {
+  args: {
+    workspace: mockChildWorkspace,
+    isLoading: false,
+    workspaceHierarchy: mockHierarchy,
+    permissions: { view: true, edit: true, delete: true, create: true, move: true },
+    actionCallbacks: NOOP_CALLBACKS,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Leaf workspace (no children) — delete action is enabled when the user has delete permission. The hook queries the workspace list and finds no workspace with parent_id matching this workspace.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Open actions and verify delete is enabled', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await userEvent.click(actionsButton);
+      const deleteItem = await within(document.body).findByText('Delete workspace');
+      await waitFor(
+        async () => {
+          await expect(deleteItem.closest('button')).not.toHaveAttribute('disabled');
+        },
+        { timeout: 5000 },
+      );
+    });
   },
 };

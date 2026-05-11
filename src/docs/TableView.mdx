@@ -57,7 +57,7 @@ export const MyFeatureTable: React.FC = () => {
       columnConfig={{
         name:    { label: 'Name', sortable: true },
         status:  { label: 'Status' },
-        created: { label: 'Created', sortable: true },
+        created: { label: 'Created', sortable: true, format: 'date' },
       }}
       data={data ?? []}
       totalCount={totalCount ?? 0}
@@ -82,7 +82,7 @@ export const MyFeatureTable: React.FC = () => {
       cellRenderers={{
         name:    (row) => <strong>{row.name}</strong>,
         status:  (row) => <StatusBadge status={row.status} />,
-        created: (row) => formatDate(row.created),
+        created: (row) => row.created,  // format: 'date' handles DateFormat wrapping
       }}
     />
   );

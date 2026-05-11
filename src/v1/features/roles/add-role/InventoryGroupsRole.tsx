@@ -238,6 +238,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
         innerRef={toggleRef as React.Ref<HTMLButtonElement>}
         isExpanded={state[permissionID]?.isOpen || false}
         isFullWidth
+        data-ouia-component-id={`inventory-group-toggle-${permissionID}`}
       >
         <TextInputGroup isPlain>
           <TextInputGroupMain
@@ -307,6 +308,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
               toggle={(toggleRef) => toggle(toggleRef, permissionID)}
               isScrollable
               maxMenuHeight="300px"
+              ouiaId={`inventory-group-select-${permissionID}`}
             >
               <SelectList>
                 {isLoading ? (

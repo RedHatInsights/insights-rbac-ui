@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import {
+  type RoleBindingsBindingSubjectType,
   type RoleBindingsListBySubjectParams,
   type WorkspacesListParams,
   type WorkspacesPatchParams,
@@ -29,6 +30,7 @@ export const roleBindingsKeys = {
   bySubject: () => [...roleBindingsKeys.all, 'bySubject'] as const,
   bySubjectParams: (params: RoleBindingsListBySubjectParams) => [...roleBindingsKeys.bySubject(), params] as const,
   forWorkspace: (workspaceId: string) => [...roleBindingsKeys.all, 'workspace', workspaceId] as const,
+  orgGroups: (orgId: string) => [...roleBindingsKeys.all, 'org', orgId] as const,
 };
 
 // ============================================================================
@@ -314,7 +316,7 @@ interface UpdateGroupRolesParams {
   resourceId: string;
   resourceType: 'workspace' | 'tenant';
   subjectId: string;
-  subjectType: string;
+  subjectType: RoleBindingsBindingSubjectType;
   roleIds: string[];
 }
 

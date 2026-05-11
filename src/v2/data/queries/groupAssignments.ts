@@ -10,8 +10,11 @@ import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import type { RoleBindingsGroupSubject, RoleBindingsRoleBindingBySubject } from '../api/workspaces';
 import messages from '../../../Messages';
+import { useQuery } from '@tanstack/react-query';
+import { createWorkspacesApi } from '../api/workspaces';
+import { useAppServices } from '../../../shared/contexts/ServiceContext';
 import { useRoleAssignmentsQuery } from './roles';
-import { useRoleBindingsQuery } from './workspaces';
+import { roleBindingsKeys } from './workspaces';
 
 // =============================================================================
 // Raw API narrowing (rbac-client → typed binding)
@@ -164,17 +167,23 @@ export function useWorkspaceInheritedGroups(workspaceId: string, options?: { ena
  */
 export function useOrgGroups(organizationId: string, options?: { enabled?: boolean }) {
   const intl = useIntl();
+  const { axios } = useAppServices();
+  const api = createWorkspacesApi(axios);
   const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
 
-  const query = useRoleBindingsQuery(
-    {
-      resourceId: `redhat/${organizationId}`,
-      resourceType: 'tenant',
-      fields: 'subject(id,group.name,group.user_count,group.description),roles(id,name),last_modified',
-      limit: ROLE_BINDINGS_LIMIT,
+  const query = useQuery({
+    queryKey: roleBindingsKeys.orgGroups(organizationId),
+    queryFn: async () => {
+      const response = await api.roleBindingsListBySubject({
+        resourceId: `redhat/${organizationId}`,
+        resourceType: 'tenant',
+        fields: 'subject(id,group.name,group.user_count,group.description),roles(id,name),last_modified',
+        limit: ROLE_BINDINGS_LIMIT,
+      });
+      return response.data;
     },
-    { enabled: options?.enabled ?? true },
-  );
+    enabled: (options?.enabled ?? true) && !!organizationId,
+  });
 
   const data = useMemo(
     () => (query.data?.data ? transformBindings(query.data.data as WorkspaceGroupBinding[], labels) : []),

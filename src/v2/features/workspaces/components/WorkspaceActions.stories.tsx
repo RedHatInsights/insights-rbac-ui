@@ -6,6 +6,7 @@ import { type WorkspaceActionCallbacks, useWorkspaceActionItems } from './useWor
 import { BrowserRouter } from 'react-router-dom';
 import { IntlProvider } from 'react-intl';
 import type { WorkspacePermissions, WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import { workspacesHandlers } from '../../../data/mocks/workspaces.handlers';
 
 const mockWorkspace: WorkspacesWorkspace = {
   id: 'workspace-1',
@@ -47,9 +48,8 @@ const WorkspaceActionsWithHook: React.FC<{
   permissions?: WorkspacePermissions;
   callbacks?: WorkspaceActionCallbacks;
   isDisabled?: boolean;
-  hasChildren?: boolean;
-}> = ({ workspace, permissions, callbacks = NOOP_CALLBACKS, isDisabled, hasChildren }) => {
-  const items = useWorkspaceActionItems({ workspace, permissions, callbacks, hasChildren });
+}> = ({ workspace, permissions, callbacks = NOOP_CALLBACKS, isDisabled }) => {
+  const items = useWorkspaceActionItems({ workspaceId: workspace.id, permissions, callbacks });
   return <WorkspaceActions items={items} isDisabled={isDisabled} />;
 };
 
@@ -70,6 +70,9 @@ const meta: Meta<typeof WorkspaceActionsWithHook> = {
   tags: ['autodocs'],
   decorators: [withProviders],
   parameters: {
+    msw: {
+      handlers: [...workspacesHandlers([mockWorkspace, mockSubWorkspace])],
+    },
     docs: {
       description: {
         component: `
@@ -172,7 +175,12 @@ export const DeleteActionEnabled: Story = {
       await userEvent.click(actionsButton);
 
       const deleteItem = await within(document.body).findByText('Delete workspace');
-      await expect(deleteItem.closest('button')).not.toHaveAttribute('disabled');
+      await waitFor(
+        async () => {
+          await expect(deleteItem.closest('button')).not.toHaveAttribute('disabled');
+        },
+        { timeout: 5000 },
+      );
     });
   },
 };
@@ -228,12 +236,13 @@ export const MenuNavigation: Story = {
 /**
  * Root workspace with Kessel grants stripped by type constraints.
  * Edit, Grant Access, Create sub-workspace, Move, and Delete are all disabled.
+ * Create sibling is hidden (not rendered) because root has no parent.
  */
 export const ItemsDisabledByWorkspaceType: Story = {
   args: {
     workspace: mockWorkspace,
     permissions: NO_PERMS,
-    callbacks: NOOP_CALLBACKS,
+    callbacks: { ...NOOP_CALLBACKS, onCreateSibling: undefined },
     isDisabled: false,
   },
   parameters: {
@@ -261,6 +270,46 @@ export const ItemsDisabledByWorkspaceType: Story = {
 
       const deleteItem = await body.findByText('Delete workspace');
       await expect(deleteItem.closest('button')).toHaveAttribute('disabled');
+    });
+    await step('Verify Create sibling workspace is not rendered', async () => {
+      await expect(within(document.body).queryByText('Create sibling workspace')).toBeNull();
+    });
+  },
+};
+
+/**
+ * Default workspace type restrictions.
+ * Create sibling is hidden because default's parent is root where creation is restricted.
+ */
+export const DefaultWorkspaceTypeRestrictions: Story = {
+  args: {
+    workspace: { ...mockWorkspace, id: 'default-1', name: 'Default Workspace', type: 'default', parent_id: 'root-1' },
+    permissions: { view: true, edit: true, delete: false, create: true, move: false },
+    callbacks: { ...NOOP_CALLBACKS, onCreateSibling: undefined },
+    isDisabled: false,
+  },
+  parameters: {
+    msw: {
+      handlers: [
+        ...workspacesHandlers([
+          mockWorkspace,
+          { ...mockWorkspace, id: 'default-1', name: 'Default Workspace', type: 'default', parent_id: 'root-1' },
+          mockSubWorkspace,
+        ]),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    await step('Verify Create sibling workspace is not rendered for default workspace', async () => {
+      const actionsButton = await canvas.findByRole('button', { name: /actions/i });
+      await userEvent.click(actionsButton);
+
+      const body = within(document.body);
+      await expect(body.queryByText('Create sibling workspace')).toBeNull();
+
+      const editItem = await body.findByText('Edit workspace');
+      await expect(editItem.closest('button')).not.toHaveAttribute('disabled');
     });
   },
 };

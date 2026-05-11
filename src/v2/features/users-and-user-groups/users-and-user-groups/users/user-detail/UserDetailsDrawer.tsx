@@ -19,11 +19,12 @@ import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/ou
 
 import type { User } from '../../../../../../shared/data/queries/users';
 import messages from '../../../../../../Messages';
+import { useGroupsAccess, useRolesAccess } from '../../../../../hooks/useRbacAccess';
 import { UserDetailsGroupsView } from './UserDetailsGroupsView';
 import { UserDetailsRolesView } from './UserDetailsRolesView';
 
-interface UserDetailsDrawerContentProps {
-  focusedUser?: User;
+interface UserDetailsDrawerInnerProps {
+  focusedUser: User;
   drawerRef: React.RefObject<HTMLDivElement>;
   onClose: () => void;
   ouiaId: string;
@@ -31,7 +32,16 @@ interface UserDetailsDrawerContentProps {
   renderRolesTab: (userId: string | undefined, ouiaId: string) => React.ReactNode;
 }
 
-const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
+/**
+ * Inner content rendered only when a user is focused. Separated so that
+ * useGroupsAccess / useRolesAccess hooks are NOT invoked while the drawer
+ * is closed, avoiding unnecessary RBAC API calls on every page load.
+ *
+ * The outer DrawerPanelContent (with data-testid) is always mounted by
+ * UserDetailsDrawer so existing Storybook interaction tests that call
+ * waitForDrawer() before a row click continue to find the element.
+ */
+const UserDetailsDrawerInner: React.FC<UserDetailsDrawerInnerProps> = ({
   focusedUser,
   drawerRef,
   onClose,
@@ -42,51 +52,80 @@ const UserDetailsDrawerContent: React.FC<UserDetailsDrawerContentProps> = ({
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
   const intl = useIntl();
 
+  // Check permissions upfront — hide tabs the user cannot access so that
+  // the underlying queries never fire and 403 errors are avoided entirely.
+  const { canList: canListGroups, isLoading: groupsAccessLoading } = useGroupsAccess();
+  const { canList: canListRoles, isLoading: rolesAccessLoading } = useRolesAccess();
+
+  const accessLoading = groupsAccessLoading || rolesAccessLoading;
+  const hasTabs = canListGroups || canListRoles;
+
+  // When only the roles tab is visible, switch to it
+  React.useEffect(() => {
+    if (!canListGroups && canListRoles) {
+      setActiveTabKey(1);
+    }
+  }, [canListGroups, canListRoles]);
+
+  const drawerHeader = (
+    <DrawerHead>
+      <Title headingLevel="h2">
+        <span tabIndex={0} ref={drawerRef}>
+          {`${focusedUser.first_name} ${focusedUser.last_name}`}
+        </span>
+      </Title>
+      <Content>
+        <Content component="p">{focusedUser.email}</Content>
+      </Content>
+      <DrawerActions>
+        <DrawerCloseButton onClick={onClose} />
+      </DrawerActions>
+    </DrawerHead>
+  );
+
+  // While permissions are loading, show only the header
+  if (accessLoading) {
+    return <>{drawerHeader}</>;
+  }
+
   return (
-    <DrawerPanelContent data-testid="detail-drawer-panel">
-      <DrawerHead>
-        <Title headingLevel="h2">
-          <span tabIndex={focusedUser ? 0 : -1} ref={drawerRef}>
-            {`${focusedUser?.first_name} ${focusedUser?.last_name}`}
-          </span>
-        </Title>
-        <Content>
-          <Content component="p">{focusedUser?.email}</Content>
-        </Content>
-        <DrawerActions>
-          <DrawerCloseButton onClick={onClose} />
-        </DrawerActions>
-      </DrawerHead>
-      <Tabs isFilled activeKey={activeTabKey} onSelect={(_, tabIndex) => setActiveTabKey(tabIndex)}>
-        <Tab eventKey={0} title={intl.formatMessage(messages.userGroups)}>
-          {focusedUser && renderGroupsTab(focusedUser.username, `${ouiaId}-user-groups-view`)}
-        </Tab>
-        <Tab
-          eventKey={1}
-          title={
-            <TabTitleText>
-              {intl.formatMessage(messages.assignedRoles)}
-              <Popover
-                triggerAction="hover"
-                position="top-end"
-                headerContent={intl.formatMessage(messages.assignedRoles)}
-                bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
-              >
-                <Icon className="pf-v6-u-pl-sm" isInline>
-                  <OutlinedQuestionCircleIcon />
-                </Icon>
-              </Popover>
-            </TabTitleText>
-          }
-        >
-          {focusedUser &&
-            renderRolesTab(
-              focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
-              `${ouiaId}-assigned-users-view`,
-            )}
-        </Tab>
-      </Tabs>
-    </DrawerPanelContent>
+    <>
+      {drawerHeader}
+      {hasTabs && (
+        <Tabs isFilled activeKey={activeTabKey} onSelect={(_, tabIndex) => setActiveTabKey(tabIndex)}>
+          {canListGroups && (
+            <Tab eventKey={0} title={intl.formatMessage(messages.userGroups)}>
+              {renderGroupsTab(focusedUser.username, `${ouiaId}-user-groups-view`)}
+            </Tab>
+          )}
+          {canListRoles && (
+            <Tab
+              eventKey={1}
+              title={
+                <TabTitleText>
+                  {intl.formatMessage(messages.assignedRoles)}
+                  <Popover
+                    triggerAction="hover"
+                    position="top-end"
+                    headerContent={intl.formatMessage(messages.assignedRoles)}
+                    bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
+                  >
+                    <Icon className="pf-v6-u-pl-sm" isInline>
+                      <OutlinedQuestionCircleIcon />
+                    </Icon>
+                  </Popover>
+                </TabTitleText>
+              }
+            >
+              {renderRolesTab(
+                focusedUser.external_source_id != null ? String(focusedUser.external_source_id) : undefined,
+                `${ouiaId}-assigned-roles-view`,
+              )}
+            </Tab>
+          )}
+        </Tabs>
+      )}
+    </>
   );
 };
 
@@ -123,14 +162,18 @@ const UserDetailsDrawer: React.FunctionComponent<DetailDrawerProps> = ({ focused
     <Drawer isExpanded={Boolean(focusedUser)} data-ouia-component-id={ouiaId}>
       <DrawerContent
         panelContent={
-          <UserDetailsDrawerContent
-            ouiaId={`${ouiaId}-panel-content`}
-            drawerRef={drawerRef}
-            focusedUser={focusedUser}
-            onClose={() => setFocusedUser(undefined)}
-            renderGroupsTab={renderGroupsTab}
-            renderRolesTab={renderRolesTab}
-          />
+          <DrawerPanelContent data-testid="detail-drawer-panel">
+            {focusedUser && (
+              <UserDetailsDrawerInner
+                ouiaId={`${ouiaId}-panel-content`}
+                drawerRef={drawerRef}
+                focusedUser={focusedUser}
+                onClose={() => setFocusedUser(undefined)}
+                renderGroupsTab={renderGroupsTab}
+                renderRolesTab={renderRolesTab}
+              />
+            )}
+          </DrawerPanelContent>
         }
       >
         <DrawerContentBody hasPadding>{children}</DrawerContentBody>

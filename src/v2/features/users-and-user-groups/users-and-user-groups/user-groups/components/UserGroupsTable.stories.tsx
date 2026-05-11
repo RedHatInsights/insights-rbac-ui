@@ -272,7 +272,7 @@ export const FocusedGroup: Story = {
   },
 };
 
-// Actions disabled for system groups
+// Actions hidden/disabled for system groups
 export const SystemGroupActions: Story = {
   args: {
     groups: [mockGroups[4]], // System group
@@ -281,7 +281,7 @@ export const SystemGroupActions: Story = {
     docs: {
       description: {
         story:
-          'System groups have disabled actions to prevent accidental modification. Tests the permission logic that protects critical system groups from user modification.',
+          'System groups have the Edit action hidden and the Delete action disabled. Tests the permission logic that protects critical system groups from user modification.',
       },
     },
   },
@@ -289,14 +289,65 @@ export const SystemGroupActions: Story = {
     await step('Verify', async () => {
       const canvas = within(canvasElement);
 
-      // Test kebab menu functionality for system group (should show both edit and delete)
+      // Test kebab menu functionality for system group (edit should be hidden, delete should be disabled)
       const kebabButton = await canvas.findByLabelText('Actions for group System Group');
       await userEvent.click(kebabButton);
 
-      const editAction = await within(document.body).findByText(/edit/i);
-      const deleteAction = await within(document.body).findByText(/delete/i);
-      await expect(editAction).toBeInTheDocument();
-      await expect(deleteAction).toBeInTheDocument();
+      const editAction = within(document.body).queryByText(/edit user group/i);
+      await expect(editAction).not.toBeInTheDocument();
+
+      const deleteAction = await within(document.body).findByRole('menuitem', { name: /delete user group/i });
+      await expect(deleteAction).toBeDisabled();
+    });
+  },
+};
+
+// Default access groups have Edit hidden and Delete disabled
+export const DefaultGroupActions: Story = {
+  args: {
+    groups: [
+      { ...GROUP_SYSTEM_DEFAULT, principalCount: ALL_USERS_LABEL },
+      { ...GROUP_ADMIN_DEFAULT, principalCount: ALL_ORG_ADMINS_LABEL },
+    ],
+    totalCount: 2,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Default access groups (platform_default and admin_default) have the Edit action hidden from the kebab menu and the Delete action disabled. Users must manage default access via Workspace role-bindings instead.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Verify Default access group has no Edit action', async () => {
+      const canvas = within(canvasElement);
+
+      const kebabButton = await canvas.findByLabelText(`Actions for group ${GROUP_SYSTEM_DEFAULT.name}`);
+      await userEvent.click(kebabButton);
+
+      const editAction = within(document.body).queryByText(/edit user group/i);
+      await expect(editAction).not.toBeInTheDocument();
+
+      const deleteAction = await within(document.body).findByRole('menuitem', { name: /delete user group/i });
+      await expect(deleteAction).toBeDisabled();
+
+      await userEvent.keyboard('{Escape}');
+    });
+
+    await step('Verify Default admin access group has no Edit action', async () => {
+      const canvas = within(canvasElement);
+
+      const kebabButton = await canvas.findByLabelText(`Actions for group ${GROUP_ADMIN_DEFAULT.name}`);
+      await userEvent.click(kebabButton);
+
+      const editAction = within(document.body).queryByText(/edit user group/i);
+      await expect(editAction).not.toBeInTheDocument();
+
+      const deleteAction = await within(document.body).findByRole('menuitem', { name: /delete user group/i });
+      await expect(deleteAction).toBeDisabled();
+
+      await userEvent.keyboard('{Escape}');
     });
   },
 };
@@ -454,6 +505,61 @@ export const BulkSelection: Story = {
       for (const checkbox of allCheckboxes) {
         await expect(checkbox).not.toBeChecked();
       }
+    });
+  },
+};
+
+// Date format switching: relative for recent (<3 months), full date for older
+export const DateFormatSwitching: Story = {
+  args: {
+    groups: [
+      {
+        ...createMockGroup('recent'),
+        name: 'Recently Modified',
+        modified: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+      },
+      {
+        ...createMockGroup('old'),
+        name: 'Old Group',
+        modified: new Date('2025-06-15T12:00:00Z').toISOString(), // >3 months ago
+      },
+      {
+        ...createMockGroup('no-date'),
+        name: 'No Date Group',
+        modified: '',
+      },
+    ],
+    totalCount: 3,
+    enableActions: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Verifies that "Last Modified" dates use relative format ("2 days ago") for groups modified within the last 3 months and full date format ("15 Jun 2025") for older groups. Groups with no date show an empty cell.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    await step('Verify recent date shows relative format', async () => {
+      const canvas = within(canvasElement);
+      const recentRow = (await canvas.findByText('Recently Modified')).closest('tr');
+      // Relative format contains "ago" suffix
+      await expect(within(recentRow!).findByText(/ago$/)).resolves.toBeInTheDocument();
+    });
+
+    await step('Verify old date shows full date format', async () => {
+      const canvas = within(canvasElement);
+      const oldRow = (await canvas.findByText('Old Group')).closest('tr');
+      // Full date format: "15 Jun 2025"
+      await expect(within(oldRow!).findByText(/\d{2}\s\w{3}\s\d{4}/)).resolves.toBeInTheDocument();
+    });
+
+    await step('Verify empty date stays empty', async () => {
+      const canvas = within(canvasElement);
+      const noDateRow = (await canvas.findByText('No Date Group')).closest('tr');
+      await expect(within(noDateRow!).queryByText(/ago$/i)).not.toBeInTheDocument();
+      await expect(within(noDateRow!).queryByText(/\d{2}\s\w{3}\s\d{4}/)).not.toBeInTheDocument();
     });
   },
 };

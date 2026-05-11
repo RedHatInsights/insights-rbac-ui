@@ -11,7 +11,9 @@
 import React from 'react';
 import { Tbody, Td, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { ExpandableRowContent } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap } from '../types';
+import { getDateFormat } from '../../../helpers/stringUtilities';
 
 export interface TableViewRowProps<TColumns extends readonly string[], TRow, TCompound extends string> {
   /** Row data */
@@ -132,8 +134,17 @@ export function TableViewRow<TColumns extends readonly string[], TRow, TCompound
         const isCompound = compoundColumnSet.has(col);
         const canExpand = isCompound && isCellExpandable(row, col as TCompound);
         const cellExpanded = isCellExpanded(col);
-        const rawLabel = columnConfig[col as keyof typeof columnConfig]?.label;
+        const colConfig = columnConfig[col as keyof typeof columnConfig];
+        const rawLabel = colConfig?.label;
         const dataLabel = typeof rawLabel === 'string' ? rawLabel : col;
+
+        const cellContent = cellRenderers[col as keyof typeof cellRenderers](row);
+        const formattedContent =
+          colConfig?.format === 'date' && typeof cellContent === 'string' && cellContent ? (
+            <DateFormat date={cellContent} type={getDateFormat(cellContent)} />
+          ) : (
+            cellContent
+          );
 
         return (
           <Td
@@ -148,7 +159,7 @@ export function TableViewRow<TColumns extends readonly string[], TRow, TCompound
                 : undefined
             }
           >
-            {cellRenderers[col as keyof typeof cellRenderers](row)}
+            {formattedContent}
           </Td>
         );
       })}

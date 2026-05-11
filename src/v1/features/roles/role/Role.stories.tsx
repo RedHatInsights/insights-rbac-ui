@@ -229,10 +229,8 @@ For testing specific scenarios, see these additional stories:
         `,
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -268,10 +266,8 @@ export const SystemRole: Story = {
         story: 'System roles should NOT display edit/delete action dropdown since they cannot be modified.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'system-role-456',
     },
@@ -301,10 +297,8 @@ export const PlatformDefaultRole: Story = {
         story: 'Platform default roles can be edited but have restricted permission additions.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'platform-role-789',
     },
@@ -342,10 +336,8 @@ export const AdminDefaultRole: Story = {
         story: 'Admin default roles can be edited but have restricted permission additions for admin users.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'admin-role-101',
     },
@@ -383,10 +375,8 @@ export const LoadingState: Story = {
         story: 'Loading state should show skeleton placeholder while role data is being fetched.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -424,10 +414,8 @@ export const DefaultAccessGroup: Story = {
           'Role accessed via Default Access Group uses DEFAULT_ACCESS_GROUP_ID constant to handle system group. This story tests the basic functionality.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
       groupId: 'default-access',
@@ -481,10 +469,8 @@ export const ActionDropdown: Story = {
         story: 'Test action dropdown interactions for custom roles (Edit, Delete).',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -526,10 +512,8 @@ export const UserAccessAdministrator: Story = {
         story: 'User Access Administrators should also have full access to role details.',
       },
     },
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: true,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -562,10 +546,8 @@ export const PermissionsTableRendering: Story = {
         story: 'Verify permissions table renders with all 6 permissions visible',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -604,10 +586,8 @@ export const FilterByApplicationApplied: Story = {
         story: 'Test filtering permissions by application and clearing filters with "Clear filters" link',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -665,10 +645,8 @@ export const FilterByResourceApplied: Story = {
         story: 'Switch to resource filter and apply a resource filter',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -717,10 +695,8 @@ export const FilterByOperationApplied: Story = {
         story: 'Switch to operation filter and apply an operation filter (read)',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -769,10 +745,8 @@ export const BulkSelectPermissions: Story = {
         story: 'Test bulk select checkbox to select all visible permissions. Verifies that clicking "Select all" checks all row checkboxes.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -822,10 +796,8 @@ export const SingleRowSelect: Story = {
         story: 'Test selecting individual permission rows',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },
@@ -863,10 +835,8 @@ export const PaginationWithMultiplePages: Story = {
         story: 'Test pagination with 25 permissions across multiple pages (default 20 per page)',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routeParams: {
       roleId: 'role-123',
     },

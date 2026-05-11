@@ -190,7 +190,8 @@ export const Default: Story = {
   tags: ['autodocs', 'env:stage', 'perm:org-admin', 'perm:user-access-admin'], // ONLY story with autodocs
   parameters: {
     chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: true },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -218,7 +219,8 @@ export const NonAdminUserView: Story = {
   tags: ['env:stage'],
   parameters: {
     chrome: { environment: 'stage' },
-    permissions: { orgAdmin: false, userAccessAdministrator: false }, // Non-admin user
+    orgAdmin: false,
+    permissions: [], // Non-admin user
     msw: {
       handlers: [
         ...groupsHandlers(mockGroups, {
@@ -268,7 +270,8 @@ export const AdminUserView: Story = {
   tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
   parameters: {
     chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: true },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -303,7 +306,8 @@ export const RolesExpansion: Story = {
   tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
   parameters: {
     chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: true },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -345,7 +349,8 @@ export const MembersExpansion: Story = {
   tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
   parameters: {
     chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: true },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -389,7 +394,8 @@ export const DefaultGroupsBehavior: Story = {
   parameters: {
     // ✅ Group data now provided by MSW handlers
     chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -483,7 +489,6 @@ export const ProductionBugReproduction: Story = {
     // 🎯 User needs rbac:group:read to reach Groups route; API returns 403 (simulates org with 573 groups, no access)
     permissions: ['rbac:group:read'],
     orgAdmin: false,
-    userAccessAdministrator: false,
     test: {
       dangerouslyIgnoreUnhandledErrors: true,
     },
@@ -553,7 +558,8 @@ export const PaginationUrlSync: Story = {
   tags: ['perm:org-admin', 'sbtest:groups-pagination'],
   parameters: {
     chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    orgAdmin: true,
+    permissions: [],
     routerInitialEntries: [`/user-access/groups?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
     msw: {
       handlers: [

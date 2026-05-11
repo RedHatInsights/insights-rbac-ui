@@ -70,6 +70,14 @@ const mockDefaultPlatformGroup: GroupOut = {
   system: true,
 };
 
+const mockChangedDefaultPlatformGroup: GroupOut = {
+  ...mockGroup,
+  uuid: 'changed-platform-group-123',
+  name: 'Custom Default Access',
+  platform_default: true,
+  system: false,
+};
+
 // Track API calls for parameter verification
 const getMembersSpy = fn();
 const getGroupSpy = fn();
@@ -78,10 +86,11 @@ const membersByGroupId: Record<string, Principal[]> = {
   'group-123': mockMembers,
   'admin-group-123': [],
   'platform-group-123': [],
+  'changed-platform-group-123': [],
 };
 
 const createMockHandlers = () => [
-  ...groupsHandlers([mockGroup, mockDefaultAdminGroup, mockDefaultPlatformGroup], {
+  ...groupsHandlers([mockGroup, mockDefaultAdminGroup, mockDefaultPlatformGroup, mockChangedDefaultPlatformGroup], {
     onList: () => {},
   }),
   ...groupMembersHandlers(
@@ -191,10 +200,8 @@ For testing specific scenarios, see these additional stories:
     msw: {
       handlers: createMockHandlers(),
     },
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: false,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -219,10 +226,8 @@ export const WithPermissions: Story = {
     msw: {
       handlers: createMockHandlers(),
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -324,7 +329,7 @@ export const DefaultPlatformGroup: Story = {
     await step('Verify platform default group card', async () => {
       expect(await canvas.findByText('All users in this organization are members of this group.')).toBeInTheDocument();
 
-      const table = canvas.queryByRole('table');
+      const table = canvas.queryByRole('grid');
       expect(table).not.toBeInTheDocument();
       const addButton = canvas.queryByRole('button', { name: /add member/i });
       expect(addButton).not.toBeInTheDocument();
@@ -356,10 +361,8 @@ export const FilterMembers: Story = {
         ),
       ],
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -426,10 +429,8 @@ export const AddMemberButton: Story = {
     msw: {
       handlers: createMockHandlers(),
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -460,10 +461,8 @@ export const BulkSelection: Story = {
   tags: ['perm:org-admin'],
   parameters: {
     msw: { handlers: createMockHandlers() },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -514,10 +513,8 @@ export const ToolbarActionsState: Story = {
     msw: {
       handlers: createMockHandlers(),
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -571,10 +568,8 @@ export const RowActions: Story = {
     msw: {
       handlers: createMockHandlers(),
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -622,10 +617,8 @@ Perfect for code review and UX validation.
     msw: {
       handlers: createMockHandlers(),
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -657,6 +650,31 @@ Perfect for code review and UX validation.
   },
 };
 
+// Custom (changed) platform default group - should still show "all users are members" alert
+export const ChangedDefaultPlatformGroup: Story = {
+  parameters: {
+    groupId: 'changed-platform-group-123',
+    msw: {
+      handlers: [
+        ...groupsHandlers([mockChangedDefaultPlatformGroup]),
+        ...groupMembersHandlers({ 'changed-platform-group-123': [] }, {}, { onListMembers: (groupId) => getMembersSpy({ groupId }) }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify changed platform default group shows all-users alert', async () => {
+      expect(await canvas.findByText('All users in this organization are members of this group.')).toBeInTheDocument();
+
+      const table = canvas.queryByRole('grid');
+      expect(table).not.toBeInTheDocument();
+      const addButton = canvas.queryByRole('button', { name: /add member/i });
+      expect(addButton).not.toBeInTheDocument();
+    });
+  },
+};
+
 export const BulkRemoveMembersFlow: Story = {
   tags: ['perm:org-admin'],
   parameters: {
@@ -678,10 +696,8 @@ Perfect for testing bulk operations and proper pluralization.
     msw: {
       handlers: createMockHandlers(),
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);

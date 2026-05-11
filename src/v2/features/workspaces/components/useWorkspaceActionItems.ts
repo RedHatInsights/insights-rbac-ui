@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
-import { EMPTY_PERMISSIONS, type WorkspacePermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import { EMPTY_PERMISSIONS, type WorkspacePermissions, useWorkspacesQuery } from '../../../data/queries/workspaces';
 import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
 
 export interface WorkspaceActionCallbacks {
@@ -23,21 +23,22 @@ export interface WorkspaceActionItem {
 }
 
 interface UseWorkspaceActionItemsParams {
-  workspace: WorkspacesWorkspace;
+  workspaceId: string | undefined;
   permissions?: WorkspacePermissions;
   callbacks: WorkspaceActionCallbacks;
-  hasChildren?: boolean;
 }
 
-export function useWorkspaceActionItems({
-  workspace: _workspace,
-  permissions,
-  callbacks,
-  hasChildren = false,
-}: UseWorkspaceActionItemsParams): WorkspaceActionItem[] {
+export function useWorkspaceActionItems({ workspaceId, permissions, callbacks }: UseWorkspaceActionItemsParams): WorkspaceActionItem[] {
   const intl = useIntl();
   const hasM4Flag = useWorkspacesFlag('m4');
   const perms = permissions ?? EMPTY_PERMISSIONS;
+
+  // Children check is computed internally — callers cannot bypass it.
+  // Fail-closed: disable delete when workspace data is unavailable.
+  // Query is disabled when workspaceId is undefined to avoid API calls without a valid ID.
+  const { data: workspaceList, isLoading, isError } = useWorkspacesQuery({}, { enabled: !!workspaceId });
+  const allWorkspaces = workspaceList?.data ?? [];
+  const hasChildren = isLoading || isError || !workspaceId || allWorkspaces.some((ws) => ws.parent_id === workspaceId);
 
   return useMemo(() => {
     const items: WorkspaceActionItem[] = [];

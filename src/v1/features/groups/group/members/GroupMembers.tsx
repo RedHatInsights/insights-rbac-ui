@@ -64,8 +64,10 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   const isChanged = platformDefault && !isSystemGroup;
   const group = groupData;
 
-  // Show default cards for default groups that haven't been modified
-  const showDefaultCard = (adminDefault || platformDefault) && isSystemGroup;
+  // Show default info for default groups
+  // A customized platform default group still implicitly includes all org members,
+  // so always show the alert for platform default groups (regardless of system status)
+  const showDefaultCard = (adminDefault && isSystemGroup) || platformDefault;
 
   // useTableState for all state management - provides apiParams for queries
   const tableState = useTableState<typeof columns, Member>({

@@ -112,7 +112,7 @@ export const SortByName: Story = {
 
 /**
  * Tests the workspace detail drawer. Clicking a workspace row opens a drawer
- * showing the current user's role assignments (via granted_subject_type/granted_subject_id).
+ * showing the current user's role assignments (via granted_subject_type/granted_subject.principal.user_id).
  */
 export const DrawerShowsUserRoles: Story = {
   play: async ({ canvasElement, step }) => {

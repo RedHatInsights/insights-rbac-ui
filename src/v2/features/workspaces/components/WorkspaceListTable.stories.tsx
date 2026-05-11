@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { queryByOuiaId, queryTreeViewToggle } from '../../../../test-utils/interactionHelpers';
 import { WorkspaceListTable } from './WorkspaceListTable';
 import { BrowserRouter } from 'react-router-dom';
@@ -15,6 +15,7 @@ import {
   testLoadingState,
   waitForSkeletonToDisappear,
 } from '../workspaceTestHelpers';
+import { workspacesHandlers } from '../../../data/mocks/workspaces.handlers';
 
 const defaultProps = {
   workspaces: mockWorkspaces,
@@ -28,6 +29,14 @@ const meta: Meta<typeof WorkspaceListTable> = {
   component: WorkspaceListTable,
   tags: ['autodocs'],
   parameters: {
+    msw: {
+      handlers: [
+        ...workspacesHandlers(
+          mockWorkspaces.map(({ permissions: _p, ...ws }) => ws),
+          { networkDelay: 0 },
+        ),
+      ],
+    },
     docs: {
       description: {
         component: `
@@ -229,7 +238,12 @@ export const RestrictedPermissions: Story = {
       const moveButton = await within(document.body).findByText('Move workspace');
 
       await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
-      await expect(deleteButton.closest('button')).not.toHaveAttribute('disabled');
+      await waitFor(
+        async () => {
+          await expect(deleteButton.closest('button')).not.toHaveAttribute('disabled');
+        },
+        { timeout: 5000 },
+      );
       await expect(moveButton.closest('button')).not.toHaveAttribute('disabled');
 
       await userEvent.click(productionKebab);
@@ -298,6 +312,9 @@ export const RootWorkspaceRestrictions: Story = {
       await expect(editButton.closest('button')).toHaveAttribute('disabled');
       await expect(deleteButton.closest('button')).toHaveAttribute('disabled');
       await expect(moveButton.closest('button')).toHaveAttribute('disabled');
+    });
+    await step('Verify Create sibling workspace is not rendered for root', async () => {
+      await expect(within(document.body).queryByText('Create sibling workspace')).toBeNull();
     });
   },
 };
@@ -421,7 +438,12 @@ export const FullPermissions: Story = {
       const moveButton = await within(document.body).findByText('Move workspace');
 
       await expect(editButton.closest('button')).not.toHaveAttribute('disabled');
-      await expect(deleteButton.closest('button')).not.toHaveAttribute('disabled');
+      await waitFor(
+        async () => {
+          await expect(deleteButton.closest('button')).not.toHaveAttribute('disabled');
+        },
+        { timeout: 5000 },
+      );
       await expect(moveButton.closest('button')).not.toHaveAttribute('disabled');
     });
   },

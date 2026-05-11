@@ -27,10 +27,8 @@ This component is typically shown to users who don't have administrative privile
       },
     },
     // Non-admin view uses default permissions (both false)
-    permissions: {
-      userAccessAdministrator: false,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: [],
   },
   decorators: [
     (Story) => (

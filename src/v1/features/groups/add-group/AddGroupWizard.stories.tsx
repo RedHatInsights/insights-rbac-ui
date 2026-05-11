@@ -132,10 +132,8 @@ const meta: Meta<typeof AddGroupWizardWithRouter> = {
       'platform.rbac.itless': true, // Use simpler data loading path
     },
     // Ensure proper permissions for data loading
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: true,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
   },
 };
 

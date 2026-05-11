@@ -34,7 +34,9 @@ export function roleBindingsBySubjectDynamicHandlers(
     const url = new URL(request.url);
     const { value: excludeSources, error } = parseExcludeSources(url);
     if (error) return error;
-    const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId') || undefined;
+    const tenantOrgId = url.searchParams.get('resource.tenant.org_id');
+    // Normalize tenant resource IDs to "redhat/{orgId}" format to match fixtures
+    const resourceId = tenantOrgId ? `redhat/${tenantOrgId}` : url.searchParams.get('resource_id') || url.searchParams.get('resourceId') || undefined;
     return HttpResponse.json(getResponse({ resourceId, excludeSources }));
   };
   return [http.get('*/api/rbac/v2/role-bindings/by-subject/', handler), http.get('*/api/rbac/v2/role-bindings/by-subject', handler)];
@@ -67,7 +69,9 @@ export function createRoleBindingsHandlers(bindings: RoleBinding[], options: Rol
       const url = new URL(request.url);
       const { value: excludeSources, error } = parseExcludeSources(url);
       if (error) return error;
-      const resourceId = url.searchParams.get('resource_id');
+      const tenantOrgId = url.searchParams.get('resource.tenant.org_id');
+      // Normalize tenant resource IDs to "redhat/{orgId}" format to match fixtures
+      const resourceId = tenantOrgId ? `redhat/${tenantOrgId}` : url.searchParams.get('resource_id');
 
       let filtered = bindings;
 
@@ -135,7 +139,7 @@ export function createRoleBindingsListHandlers(bindings: RoleBinding[], options:
       const subjectType = url.searchParams.get('subject_type');
       const subjectId = url.searchParams.get('subject_id');
       const grantedSubjectType = url.searchParams.get('granted_subject_type');
-      const grantedSubjectId = url.searchParams.get('granted_subject_id');
+      const grantedSubjectUserId = url.searchParams.get('granted_subject.principal.user_id');
       const resourceId = url.searchParams.get('resource_id');
       const limit = parseInt(url.searchParams.get('limit') || '1000', 10);
 
@@ -151,10 +155,11 @@ export function createRoleBindingsListHandlers(bindings: RoleBinding[], options:
         filtered = filtered.filter((b) => b.subject.id === subjectId);
       }
       if (grantedSubjectType) {
-        filtered = filtered.filter((b) => b.subject.type === grantedSubjectType);
+        const subjectTypeToMatch = grantedSubjectType === 'principal' ? 'user' : grantedSubjectType;
+        filtered = filtered.filter((b) => b.subject.type === subjectTypeToMatch);
       }
-      if (grantedSubjectId) {
-        filtered = filtered.filter((b) => b.subject.id === grantedSubjectId);
+      if (grantedSubjectUserId) {
+        filtered = filtered.filter((b) => b.subject.id === grantedSubjectUserId);
       }
       if (resourceId) {
         filtered = filtered.filter((b) => b.resource.id === resourceId);
@@ -257,7 +262,9 @@ export function createStatefulRoleBindingsHandlers(
         const url = new URL(request.url);
         const { value: excludeSources, error } = parseExcludeSources(url);
         if (error) return error;
-        const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
+        const tenantOrgId = url.searchParams.get('resource.tenant.org_id');
+        // Normalize tenant resource IDs to "redhat/{orgId}" format to match fixtures
+        const resourceId = tenantOrgId ? `redhat/${tenantOrgId}` : url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
         const limit = parseInt(url.searchParams.get('limit') || '10000', 10);
         const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 

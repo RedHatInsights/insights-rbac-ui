@@ -161,10 +161,8 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
         `,
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     // Uses default MSW handlers from meta
   },
   play: async ({ canvasElement, step }) => {
@@ -205,10 +203,8 @@ export const LoadingState: Story = {
         story: 'Tests container behavior during API loading via React Query state management.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: usersLoadingHandlers(),
     },
@@ -232,10 +228,8 @@ export const EmptyUsers: Story = {
         story: 'Tests container handling of empty user data from React Query.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: usersHandlers([]),
     },
@@ -257,10 +251,8 @@ export const AdminUserWithUsersFiltering: Story = {
         story: 'Tests username filtering functionality with spy verification.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     // Uses default MSW handlers from meta (includes filtering and sorting)
   },
   play: async ({ canvasElement, step }) => {
@@ -314,10 +306,8 @@ export const AdminUserWithUsersSorting: Story = {
         story: 'Tests Username column sorting functionality - verifies data is sorted correctly.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     // Uses default MSW handlers from meta (includes sorting)
   },
   play: async ({ canvasElement, step }) => {
@@ -398,10 +388,8 @@ export const AdminUserWithUsersTableContent: Story = {
         story: 'Tests table content rendering including org admin indicators and status labels.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     // Uses default MSW handlers from meta - default filter is Active, so only active users shown
   },
   play: async ({ canvasElement, step }) => {
@@ -450,7 +438,8 @@ export const PaginationUrlSync: Story = {
   tags: ['perm:org-admin', 'sbtest:users-pagination'],
   args: defaultArgs,
   parameters: {
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     routerInitialEntries: [`/iam/user-access/users?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
     msw: {
       handlers: usersHandlers(mockUsersLarge as unknown as Parameters<typeof usersHandlers>[0], {

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { formatDistanceToNow } from 'date-fns';
 import type { IntlShape } from 'react-intl';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 
@@ -31,7 +30,7 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
       name: { label: intl.formatMessage(messages.name), sortable: true },
       description: { label: intl.formatMessage(messages.description) },
       principalCount: { label: intl.formatMessage(messages.users) },
-      modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+      modified: { label: intl.formatMessage(messages.lastModified), sortable: true, format: 'date' },
     }),
     [intl],
   );
@@ -48,7 +47,7 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
           <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
         ),
       principalCount: (group) => group.principalCount ?? 0,
-      modified: (group) => (group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : ''),
+      modified: (group) => group.modified ?? '',
     }),
     [intl],
   );

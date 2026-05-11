@@ -255,10 +255,8 @@ export const AdminView: Story = {
   tags: ['perm:org-admin'],
   parameters: {
     routeUsername: 'john.doe',
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: createDefaultHandlers(),
     },
@@ -281,10 +279,8 @@ export const AdminView: Story = {
 export const NonAdminView: Story = {
   parameters: {
     routeUsername: 'john.doe',
-    permissions: {
-      orgAdmin: false,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: false,
+    permissions: [],
     msw: {
       handlers: createDefaultHandlers(),
     },
@@ -303,10 +299,8 @@ export const ExpandGroups: Story = {
   tags: ['perm:org-admin'],
   parameters: {
     routeUsername: 'john.doe',
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: createDefaultHandlers(),
     },
@@ -664,10 +658,8 @@ export const GroupLinkInExpandedRow: Story = {
   tags: ['perm:org-admin'],
   parameters: {
     routeUsername: 'john.doe',
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: createDefaultHandlers(),
     },

@@ -225,7 +225,14 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
     const textInputRef = useRef<HTMLInputElement>(null);
 
     const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-      <MenuToggle ref={toggleRef} variant="typeahead" onClick={() => onToggle(permission)} isExpanded={isOpen} isFullWidth>
+      <MenuToggle
+        ref={toggleRef}
+        variant="typeahead"
+        onClick={() => onToggle(permission)}
+        isExpanded={isOpen}
+        isFullWidth
+        data-ouia-component-id={`cost-resource-toggle-${permission}`}
+      >
         <TextInputGroup isPlain>
           <TextInputGroupMain
             value={filterValue}
@@ -261,6 +268,7 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
             className="rbac-m-resource-type-select"
             maxMenuHeight="300px"
             isOpen={isOpen}
+            ouiaId={`cost-resource-select-${permission}`}
             onSelect={(_event, value) => {
               if (value === selectAllLabel) {
                 onSelect(value as string, true, permission);

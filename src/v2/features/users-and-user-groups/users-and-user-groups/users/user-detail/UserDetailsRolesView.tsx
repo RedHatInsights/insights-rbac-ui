@@ -42,6 +42,8 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     syncWithUrl: false,
   });
 
+  // Permission gating is handled by the parent UserDetailsDrawer — this tab
+  // is only rendered when the user has rbac_roles_read permission.
   const { data: bindings = [], isLoading, error } = useUserRoleBindingsQuery(userId);
 
   if (error) {

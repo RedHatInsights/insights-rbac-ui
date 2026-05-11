@@ -3,6 +3,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import { IntlProvider } from 'react-intl';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+import { createStore } from '@redhat-cloud-services/frontend-components-notifications/state';
 
 import messages from './locales/data.json';
 import { locale } from './locales/locale';
@@ -16,6 +17,8 @@ import { usePlatformEnvironment } from './shared/hooks/usePlatformEnvironment';
 import { useIdentity } from './shared/hooks/useIdentity';
 import { IamV1 } from './v1/IamV1';
 import { IamV2 } from './v2/IamV2';
+
+const NOTIFICATION_DISMISS_DELAY = 3000;
 
 export interface IamProps {
   testMode?: boolean;
@@ -71,9 +74,16 @@ const VersionRouter: React.FC = () => {
  * - VersionRouter → IamV1 or IamV2
  */
 export const Iam: React.FC<IamProps> = ({ testMode = false }) => {
+  const notificationStore = React.useMemo(() => {
+    const store = createStore();
+    const originalAdd = store.addNotification.bind(store);
+    store.addNotification = (config) => originalAdd({ dismissDelay: NOTIFICATION_DISMISS_DELAY, ...config } as typeof config);
+    return store;
+  }, []);
+
   return (
     <IntlProvider locale={locale} messages={messages[locale]}>
-      <NotificationsProvider>
+      <NotificationsProvider store={notificationStore}>
         <SharedProviders testMode={testMode}>
           <VersionRouter />
         </SharedProviders>

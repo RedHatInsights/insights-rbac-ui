@@ -264,10 +264,8 @@ export const AdminDefault: Story = {
 export const WithSelection: Story = {
   tags: ['perm:org-admin'],
   parameters: {
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
@@ -289,10 +287,8 @@ export const WithSelection: Story = {
 export const ServiceAccountWorkflows: Story = {
   tags: ['perm:org-admin'],
   parameters: {
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
     msw: {
       handlers: [...groupsHandlers([testGroup]), ...groupMembersHandlers({}, { 'test-group-id': storyServiceAccounts })],
     },
@@ -343,10 +339,8 @@ export const ServiceAccountWorkflows: Story = {
 export const ServiceAccountsFilteringWithData: Story = {
   tags: ['perm:org-admin'],
   parameters: {
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: [],
     msw: {
       handlers: [...groupsHandlers([testGroup]), ...groupMembersHandlers({}, { 'test-group-id': storyServiceAccounts })],
     },
@@ -444,10 +438,8 @@ export const AddServiceAccountLinkTest: Story = {
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true },
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...groupsHandlers([
@@ -479,10 +471,8 @@ export const BulkActionsTest: Story = {
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true },
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...groupsHandlers([
@@ -546,10 +536,8 @@ export const SelectAllTest: Story = {
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true },
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...groupsHandlers([
@@ -624,10 +612,8 @@ export const ActionsTest: Story = {
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true },
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...groupsHandlers([

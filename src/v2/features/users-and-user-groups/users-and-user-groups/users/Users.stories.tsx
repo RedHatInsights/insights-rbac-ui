@@ -78,9 +78,8 @@ const meta: Meta<typeof Users> = {
   tags: ['ff:platform.rbac.common-auth-model', 'env:prod', 'perm:org-admin'],
   decorators: [withRouter],
   parameters: {
-    permissions: {
-      orgAdmin: true,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     userIdentity: standardUser,
     featureFlags: {
       'platform.rbac.common-auth-model': false,
@@ -489,9 +488,8 @@ export const StatusToggleIntegration: Story = {
 // Container status toggle — non-admin persona
 export const NonAdminStatusToggle: Story = {
   parameters: {
-    permissions: {
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: [],
     docs: {
       description: {
         story:

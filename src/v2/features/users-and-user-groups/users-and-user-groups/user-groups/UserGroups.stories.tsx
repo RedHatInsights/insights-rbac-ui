@@ -625,16 +625,13 @@ export const SystemGroupProtection: StoryObj<typeof meta> = {
       const systemKebabButton = await canvas.findByLabelText(`Actions for group ${mockGroups[2].name}`);
       await userEvent.click(systemKebabButton);
 
-      // Actions should be disabled for system groups
-      const editAction = await within(document.body).findByText('Edit user group');
-      const deleteAction = await within(document.body).findByText('Delete user group');
+      // Edit action should be hidden for system groups
+      const editAction = within(document.body).queryByText('Edit user group');
+      await expect(editAction).not.toBeInTheDocument();
 
-      // Verify actions exist but are disabled (implementation verified by other passing tests)
-      await expect(editAction).toBeInTheDocument();
-      await expect(deleteAction).toBeInTheDocument();
-
-      // System groups should show edit and delete options but they should be disabled
-      // The exact disabled state implementation is verified by the functional behavior
+      // Delete action should still be present but disabled
+      const deleteAction = await within(document.body).findByRole('menuitem', { name: /delete user group/i });
+      await expect(deleteAction).toBeDisabled();
     });
   },
 };

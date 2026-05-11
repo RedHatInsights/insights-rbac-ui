@@ -153,10 +153,8 @@ For testing specific scenarios, see these additional stories:
         `,
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...v1RolesHandlers(mockRoles as unknown as Parameters<typeof v1RolesHandlers>[0], { onList: () => fetchRolesSpy({}) }),
@@ -203,10 +201,8 @@ export const LoadingState: Story = {
         story: 'Tests container behavior during API loading via React Query state management.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [...v1RolesLoadingHandlers(), ...groupsLoadingHandlers()],
     },
@@ -232,10 +228,8 @@ export const EmptyRoles: Story = {
         story: 'Tests container handling of empty role data from React Query.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [...v1RolesHandlers([]), ...groupsHandlers()],
     },
@@ -262,10 +256,8 @@ export const AdminUserWithRolesFiltering: Story = {
         story: 'Tests role filtering functionality with spy verification for admin users.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...v1RolesHandlers(mockRoles as unknown as Parameters<typeof v1RolesHandlers>[0], {
@@ -352,10 +344,8 @@ export const AdminUserWithRolesExpandableContent: Story = {
         story: 'Tests expandable row functionality for groups and permissions nested tables.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...v1RolesHandlers(mockRoles as unknown as Parameters<typeof v1RolesHandlers>[0], { onList: () => fetchRolesSpy({}) }),
@@ -435,10 +425,8 @@ export const AdminUserWithRolesSorting: Story = {
         story: 'Tests column sorting functionality with spy verification for sortable columns (Name, Last Modified).',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...v1RolesHandlers(mockRoles as unknown as Parameters<typeof v1RolesHandlers>[0], {
@@ -533,10 +521,8 @@ export const AdminUserWithRolesPrimaryActions: Story = {
         story: 'Tests primary toolbar actions like Create Role button availability and functionality.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...v1RolesHandlers(mockRoles as unknown as Parameters<typeof v1RolesHandlers>[0], { onList: () => fetchRolesSpy({}) }),
@@ -576,10 +562,8 @@ export const PaginationUrlSync: Story = {
           'Interaction test: verifies Roles pagination updates URL search params (`page`, `perPage`) when changing page size and navigating to next page.',
       },
     },
-    permissions: {
-      orgAdmin: true,
-      userAccessAdministrator: false,
-    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
     // Use MemoryRouter so we can assert location.search deterministically
     routerInitialEntries: [`/iam/user-access/roles?perPage=${PAGINATION_TEST_DEFAULT_PER_PAGE}`],
     msw: {

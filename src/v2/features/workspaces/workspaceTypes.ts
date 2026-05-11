@@ -58,6 +58,7 @@ const CREATABLE_IN_TYPES: ReadonlySet<string> = new Set([
   WorkspacesWorkspaceTypes.Default,
   WorkspacesWorkspaceTypes.Standard,
 ]);
+const SIBLING_CREATABLE_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Standard]);
 const MOVABLE_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Standard]);
 const DELETABLE_TYPES: ReadonlySet<string> = new Set([WorkspacesWorkspaceTypes.Standard]);
 
@@ -69,6 +70,11 @@ export function canEditType(type: string | undefined): boolean {
 /** Whether the workspace type allows creating children (root, default, standard). */
 export function canCreateInType(type: string | undefined): boolean {
   return CREATABLE_IN_TYPES.has(type ?? '');
+}
+
+/** Whether the workspace type allows creating a sibling (standard only — root has no parent, default's parent is root where creation is restricted). */
+export function canCreateSiblingInType(type: string | undefined): boolean {
+  return SIBLING_CREATABLE_TYPES.has(type ?? '');
 }
 
 /** Whether the workspace type allows moving (standard only). */

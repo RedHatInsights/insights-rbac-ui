@@ -202,10 +202,11 @@ export function TableView<
 
   function handleBulkSelect(value: BulkSelectValue) {
     const currentRows = data || [];
+    const selectableRows = currentRows.filter(isRowSelectable);
     if (value === BulkSelectValue.none || value === BulkSelectValue.nonePage) {
-      onSelectAll?.(false, currentRows);
+      onSelectAll?.(false, selectableRows);
     } else if (value === BulkSelectValue.page || value === BulkSelectValue.all) {
-      onSelectAll?.(true, currentRows);
+      onSelectAll?.(true, selectableRows);
     }
   }
 

@@ -231,10 +231,8 @@ For testing specific scenarios, see these additional stories:
         `,
       },
     },
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...groupsHandlers([mockGroup]),
@@ -292,10 +290,8 @@ export const WithoutPermissions: Story = {
         `,
       },
     },
-    permissions: {
-      userAccessAdministrator: false,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: [],
     msw: {
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers(rolesByGroupId)],
     },
@@ -341,10 +337,8 @@ Although the UI looks the same as WithoutPermissions, the code path is different
       },
     },
     groupId: 'default-group-id',
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [...groupsHandlers([mockDefaultGroup]), ...groupRolesHandlers({ ...rolesByGroupId, 'default-group-id': mockDefaultGroupRoles })],
     },
@@ -378,10 +372,8 @@ Although the UI looks the same as WithoutPermissions, the code path is different
 export const BulkSelection: Story = {
   tags: ['perm:user-access-admin'],
   parameters: {
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...groupsHandlers([mockGroup]),
@@ -438,10 +430,8 @@ const manyRoles: RoleOut[] = Array.from({ length: 25 }, (_, i) => ({
 export const BulkSelectionPaginated: Story = {
   tags: ['perm:user-access-admin'],
   parameters: {
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers({ 'test-group-id': manyRoles })],
     },
@@ -507,10 +497,8 @@ export const LoadingState: Story = {
 export const EmptyState: Story = {
   tags: ['perm:user-access-admin'],
   parameters: {
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers({ 'test-group-id': [] })],
     },
@@ -545,10 +533,8 @@ Perfect for code review and UX validation.
         `,
       },
     },
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers(rolesByGroupId)],
     },
@@ -602,10 +588,8 @@ Perfect for testing bulk operations and proper pluralization.
         `,
       },
     },
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [...groupsHandlers([mockGroup]), ...groupRolesHandlers(rolesByGroupId)],
     },
@@ -660,10 +644,8 @@ Perfect for testing filter state management and API integration.
         `,
       },
     },
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
+    orgAdmin: false,
+    permissions: ['rbac:*:*'],
     msw: {
       handlers: [
         ...groupsHandlers([mockGroup]),
