@@ -29,8 +29,8 @@ AssetsCards component that displays two predefined asset management cards for In
           style={{
             marginBottom: '20px',
             padding: '10px',
-            backgroundColor: '#fff3cd',
-            border: '1px solid #ffeaa7',
+            backgroundColor: 'var(--pf-t--global--background--color--status--warning--default)',
+            border: '1px solid var(--pf-t--global--color--status--warning--default)',
             borderRadius: '4px',
             fontSize: '14px',
           }}

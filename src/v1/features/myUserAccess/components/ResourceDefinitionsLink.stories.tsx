@@ -71,18 +71,18 @@ export const StateComparison: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>No Resource Definitions</div>
+        <div style={{ marginBottom: '8px', fontSize: '14px', color: 'var(--pf-t--global--text--color--subtle)' }}>No Resource Definitions</div>
         <ResourceDefinitionsLink onClick={action('no-resources-clicked')} access={{ resourceDefinitions: [] }} />
       </div>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>1 Resource Definition</div>
+        <div style={{ marginBottom: '8px', fontSize: '14px', color: 'var(--pf-t--global--text--color--subtle)' }}>1 Resource Definition</div>
         <ResourceDefinitionsLink
           onClick={action('single-resource-clicked')}
           access={{ resourceDefinitions: [{ attributeFilter: { value: 'account' } }] }}
         />
       </div>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ marginBottom: '8px', fontSize: '14px', color: '#666' }}>Multiple Resource Definitions</div>
+        <div style={{ marginBottom: '8px', fontSize: '14px', color: 'var(--pf-t--global--text--color--subtle)' }}>Multiple Resource Definitions</div>
         <ResourceDefinitionsLink
           onClick={action('multiple-resources-clicked')}
           access={{ resourceDefinitions: Array(12).fill({ attributeFilter: { value: 'account' } }) }}

@@ -162,7 +162,7 @@ export const UsageExamples: Story = {
         <h3>Loading States in Different Contexts:</h3>
       </div>
 
-      <div style={{ marginBottom: '24px', padding: '16px', border: '1px solid #d2d2d2', borderRadius: '4px' }}>
+      <div style={{ marginBottom: '24px', padding: '16px', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: '4px' }}>
         <h4 style={{ marginTop: '0', marginBottom: '16px' }}>Page Header Loading</h4>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <BreadcrumbPlaceholder />
@@ -171,12 +171,12 @@ export const UsageExamples: Story = {
         </div>
       </div>
 
-      <div style={{ marginBottom: '24px', padding: '16px', border: '1px solid #d2d2d2', borderRadius: '4px' }}>
+      <div style={{ marginBottom: '24px', padding: '16px', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: '4px' }}>
         <h4 style={{ marginTop: '0', marginBottom: '16px' }}>Form Loading State</h4>
         <PolicyRolesLoader />
       </div>
 
-      <div style={{ marginBottom: '24px', padding: '16px', border: '1px solid #d2d2d2', borderRadius: '4px' }}>
+      <div style={{ marginBottom: '24px', padding: '16px', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: '4px' }}>
         <h4 style={{ marginTop: '0', marginBottom: '16px' }}>Multiple Form Items</h4>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <FormItemLoader />
@@ -185,7 +185,7 @@ export const UsageExamples: Story = {
         </div>
       </div>
 
-      <div style={{ padding: '16px', border: '1px solid #d2d2d2', borderRadius: '4px' }}>
+      <div style={{ padding: '16px', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: '4px' }}>
         <h4 style={{ marginTop: '0', marginBottom: '16px' }}>Full App Loading</h4>
         <AppPlaceholder />
       </div>

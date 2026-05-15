@@ -13,8 +13,8 @@ const RemoveGroupMembersWrapper: React.FC<React.ComponentProps<typeof RemoveGrou
         onClick={() => setIsOpen(true)}
         style={{
           padding: '8px 16px',
-          backgroundColor: '#c9190b',
-          color: 'white',
+          backgroundColor: 'var(--pf-t--global--background--color--action--danger--default)',
+          color: 'var(--pf-t--global--color--nonstatus--white--default)',
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer',

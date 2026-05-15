@@ -105,7 +105,7 @@ export const Styled: Story = {
     to: '/styled-page',
     className: 'custom-link-class',
     style: {
-      color: '#0066cc',
+      color: 'var(--pf-t--global--color--brand--default)',
       textDecoration: 'underline',
       fontWeight: 'bold',
     },
@@ -122,15 +122,15 @@ export const PathMerging: Story = {
       <ul style={{ listStyle: 'none', padding: 0 }}>
         <li style={{ marginBottom: '8px' }}>
           <AppLink to="/simple-path">Simple Path</AppLink>
-          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /iam/simple-path</span>
+          <span style={{ marginLeft: '10px', color: 'var(--pf-t--global--text--color--subtle)', fontSize: '12px' }}>→ /iam/simple-path</span>
         </li>
         <li style={{ marginBottom: '8px' }}>
           <AppLink to="nested/deep/path">Nested Path (no leading slash)</AppLink>
-          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /iam/nested/deep/path</span>
+          <span style={{ marginLeft: '10px', color: 'var(--pf-t--global--text--color--subtle)', fontSize: '12px' }}>→ /iam/nested/deep/path</span>
         </li>
         <li style={{ marginBottom: '8px' }}>
           <AppLink to="/with//double//slashes">Double Slashes Cleanup</AppLink>
-          <span style={{ marginLeft: '10px', color: '#666', fontSize: '12px' }}>→ /iam/with/double/slashes</span>
+          <span style={{ marginLeft: '10px', color: 'var(--pf-t--global--text--color--subtle)', fontSize: '12px' }}>→ /iam/with/double/slashes</span>
         </li>
       </ul>
     </div>

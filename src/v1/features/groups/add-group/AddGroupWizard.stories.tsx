@@ -47,8 +47,8 @@ const GroupsPage: React.FC = () => {
       <button
         style={{
           padding: '10px 20px',
-          backgroundColor: '#0066cc',
-          color: 'white',
+          backgroundColor: 'var(--pf-t--global--color--brand--default)',
+          color: 'var(--pf-t--global--text--color--on-brand--default)',
           border: 'none',
           borderRadius: '4px',
           cursor: 'pointer',

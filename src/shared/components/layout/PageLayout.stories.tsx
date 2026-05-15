@@ -147,7 +147,9 @@ export const ComplexDescription: Story = {
         <>
           <span>Service accounts provide programmatic access to Red Hat services.</span>
           <br />
-          <span style={{ marginTop: '8px', fontSize: '14px', color: '#666' }}>Create and manage service accounts for automated integrations.</span>
+          <span style={{ marginTop: '8px', fontSize: '14px', color: 'var(--pf-t--global--text--color--subtle)' }}>
+            Create and manage service accounts for automated integrations.
+          </span>
         </>
       ),
     },
@@ -213,7 +215,7 @@ export const WithContent: Story = {
       { title: 'Settings', isActive: true },
     ],
     children: (
-      <div style={{ padding: '16px', background: '#f0f0f0', borderRadius: '4px' }}>
+      <div style={{ padding: '16px', background: 'var(--pf-t--global--background--color--secondary--default)', borderRadius: '4px' }}>
         Page content goes here. The spacing between the title and this content is handled automatically by PageLayout.
       </div>
     ),

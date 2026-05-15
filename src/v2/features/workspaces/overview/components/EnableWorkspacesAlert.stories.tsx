@@ -105,7 +105,14 @@ const FeatureFlagTestComponent: React.FC<{ showEligibleUser: boolean; workspaces
 
   return (
     <div data-testid="feature-flag-test-container">
-      <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+      <div
+        style={{
+          marginBottom: '1rem',
+          padding: '1rem',
+          backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+          borderRadius: '4px',
+        }}
+      >
         <h4>🚩 Feature Flag Test</h4>
         <p>
           <strong>platform.rbac.workspaces-eligible:</strong> {showEligibleUser ? '✅ true' : '❌ false'}
@@ -120,7 +127,10 @@ const FeatureFlagTestComponent: React.FC<{ showEligibleUser: boolean; workspaces
       {shouldShowComponent ? (
         <EnableWorkspacesAlert />
       ) : (
-        <div data-testid="component-hidden-message" style={{ padding: '2rem', textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
+        <div
+          data-testid="component-hidden-message"
+          style={{ padding: '2rem', textAlign: 'center', color: 'var(--pf-t--global--text--color--subtle)', fontStyle: 'italic' }}
+        >
           EnableWorkspacesAlert is hidden (correct behavior)
         </div>
       )}
@@ -268,7 +278,9 @@ export const ModalOpen: Story = {
     return (
       <div>
         <EnableWorkspacesAlert />
-        <p style={{ marginTop: '16px', fontSize: '14px', color: '#666' }}>💡 Click the switch in the alert above to see the confirmation modal</p>
+        <p style={{ marginTop: '16px', fontSize: '14px', color: 'var(--pf-t--global--text--color--subtle)' }}>
+          💡 Click the switch in the alert above to see the confirmation modal
+        </p>
       </div>
     );
   },

@@ -215,7 +215,7 @@ const DrawerExample = ({
             Open Group Details Drawer
           </Button>
           {isOpen && (
-            <p style={{ marginTop: '1rem', color: '#6a6e73' }}>
+            <p style={{ marginTop: '1rem', color: 'var(--pf-t--global--text--color--subtle)' }}>
               Drawer is open - click on the drawer panel to see group details with Users and Roles tabs.
             </p>
           )}

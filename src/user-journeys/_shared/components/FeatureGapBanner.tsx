@@ -41,9 +41,10 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
     zIndex: 9999,
     width: isExpanded ? '420px' : '200px',
     maxHeight: isExpanded ? '80vh' : 'auto',
-    backgroundColor: '#fff9c4', // Yellow PostIt color
+    backgroundColor:
+      'color-mix(in srgb, var(--pf-t--global--color--status--warning--default) 20%, var(--pf-t--global--background--color--primary--default))',
     borderRadius: '2px',
-    boxShadow: '4px 4px 12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
+    boxShadow: 'var(--pf-t--global--box-shadow--lg)',
     fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive, sans-serif",
     transform: 'rotate(-1deg)',
     transition: 'all 0.2s ease',
@@ -54,7 +55,7 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
 
   const headerStyle: React.CSSProperties = {
     padding: '12px 16px',
-    borderBottom: isExpanded ? '1px dashed #e0d654' : 'none',
+    borderBottom: isExpanded ? '1px dashed var(--pf-t--global--border--color--default)' : 'none',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
@@ -67,14 +68,14 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
     margin: 0,
     fontSize: '14px',
     fontWeight: 'bold',
-    color: '#5d4037',
+    color: 'var(--pf-t--global--text--color--regular)',
     lineHeight: 1.3,
   };
 
   const contentStyle: React.CSSProperties = {
     padding: '12px 16px',
     fontSize: '12px',
-    color: '#5d4037',
+    color: 'var(--pf-t--global--text--color--regular)',
     overflowY: 'auto',
     flex: 1,
   };
@@ -87,7 +88,7 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
     fontWeight: 'bold',
     fontSize: '11px',
     textTransform: 'uppercase',
-    color: '#8d6e63',
+    color: 'var(--pf-t--global--text--color--subtle)',
     marginBottom: '4px',
   };
 
@@ -97,7 +98,7 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
   };
 
   const codeStyle: React.CSSProperties = {
-    backgroundColor: 'rgba(0,0,0,0.08)',
+    backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
     padding: '1px 4px',
     borderRadius: '2px',
     fontFamily: 'monospace',
@@ -109,14 +110,14 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
     border: 'none',
     cursor: 'pointer',
     padding: '4px',
-    color: '#8d6e63',
+    color: 'var(--pf-t--global--text--color--subtle)',
     fontSize: '16px',
     lineHeight: 1,
   };
 
   const imageContainerStyle: React.CSSProperties = {
     marginTop: '8px',
-    border: '1px solid #e0d654',
+    border: '1px solid var(--pf-t--global--border--color--default)',
     borderRadius: '4px',
     overflow: 'hidden',
     position: 'relative',
@@ -133,8 +134,8 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
     position: 'absolute',
     bottom: '4px',
     right: '4px',
-    background: 'rgba(0,0,0,0.6)',
-    color: 'white',
+    background: 'var(--pf-t--global--background--color--floating--default)',
+    color: 'var(--pf-t--global--text--color--on-floating)',
     padding: '2px 8px',
     borderRadius: '3px',
     fontSize: '10px',
@@ -148,7 +149,7 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: 'var(--pf-t--global--background--color--backdrop--default)',
     zIndex: 10000,
     display: 'flex',
     alignItems: 'center',
@@ -160,7 +161,7 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
     maxWidth: '90vw',
     maxHeight: '90vh',
     objectFit: 'contain',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+    boxShadow: 'var(--pf-t--global--box-shadow--xl)',
   };
 
   const openInNewTab = (e: React.MouseEvent) => {
@@ -288,7 +289,8 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
           >
             <button
               style={{
-                background: 'rgba(255,255,255,0.9)',
+                background: 'var(--pf-t--global--background--color--floating--default)',
+                color: 'var(--pf-t--global--text--color--on-floating)',
                 border: 'none',
                 borderRadius: '4px',
                 padding: '8px 16px',
@@ -301,7 +303,8 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
             </button>
             <button
               style={{
-                background: 'rgba(255,255,255,0.9)',
+                background: 'var(--pf-t--global--background--color--floating--default)',
+                color: 'var(--pf-t--global--text--color--on-floating)',
                 border: 'none',
                 borderRadius: '4px',
                 padding: '8px 16px',

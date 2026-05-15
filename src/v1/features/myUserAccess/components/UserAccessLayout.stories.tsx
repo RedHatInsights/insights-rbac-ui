@@ -31,7 +31,7 @@ export const Default: Story = {
     title: 'Your permissions in Red Hat Enterprise Linux',
     currentBundle: 'rhel',
     children: (
-      <div style={{ padding: '20px', background: '#f5f5f5', borderRadius: '4px' }}>
+      <div style={{ padding: '20px', background: 'var(--pf-t--global--background--color--secondary--default)', borderRadius: '4px' }}>
         <p>Table content would go here (AccessTable or RolesTable)</p>
       </div>
     ),

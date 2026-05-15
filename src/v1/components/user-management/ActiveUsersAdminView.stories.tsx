@@ -158,23 +158,23 @@ export const EnvironmentComparison: Story = {
     <div>
       <h3>Environment Configurations:</h3>
       <div style={{ marginBottom: '24px' }}>
-        <h4 style={{ marginBottom: '8px', color: '#151515' }}>Production:</h4>
+        <h4 style={{ marginBottom: '8px', color: 'var(--pf-t--global--text--color--regular)' }}>Production:</h4>
         <ActiveUsersAdminView prefix="" />
-        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+        <div style={{ fontSize: '12px', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '4px' }}>
           → Links to: https://www.redhat.com/wapps/ugc/protected/usermgt/userList.html
         </div>
       </div>
 
       <div style={{ marginBottom: '24px' }}>
-        <h4 style={{ marginBottom: '8px', color: '#151515' }}>Staging:</h4>
+        <h4 style={{ marginBottom: '8px', color: 'var(--pf-t--global--text--color--regular)' }}>Staging:</h4>
         <ActiveUsersAdminView prefix="access." />
-        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+        <div style={{ fontSize: '12px', color: 'var(--pf-t--global--text--color--subtle)', marginTop: '4px' }}>
           → Links to: https://www.access.redhat.com/wapps/ugc/protected/usermgt/userList.html
         </div>
       </div>
 
       <div>
-        <h4 style={{ marginBottom: '8px', color: '#151515' }}>With Custom Description:</h4>
+        <h4 style={{ marginBottom: '8px', color: 'var(--pf-t--global--text--color--regular)' }}>With Custom Description:</h4>
         <ActiveUsersAdminView
           prefix=""
           linkDescription="For advanced user management capabilities, navigate to the "

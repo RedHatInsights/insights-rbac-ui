@@ -548,7 +548,15 @@ const OutOfRangePageTable: React.FC = () => {
 
   return (
     <div>
-      <div data-testid="url-params" style={{ marginBottom: '16px', padding: '8px', background: '#f0f0f0', fontFamily: 'monospace' }}>
+      <div
+        data-testid="url-params"
+        style={{
+          marginBottom: '16px',
+          padding: '8px',
+          background: 'var(--pf-t--global--background--color--secondary--default)',
+          fontFamily: 'monospace',
+        }}
+      >
         URL: ?{searchParams.toString() || '(empty)'}
       </div>
       <TableView
@@ -627,7 +635,15 @@ const UrlSyncTable: React.FC<UrlSyncTableProps> = ({ ouiaId = 'url-sync-table' }
   return (
     <div>
       {/* Debug: Show current URL params */}
-      <div data-testid="url-params" style={{ marginBottom: '16px', padding: '8px', background: '#f0f0f0', fontFamily: 'monospace' }}>
+      <div
+        data-testid="url-params"
+        style={{
+          marginBottom: '16px',
+          padding: '8px',
+          background: 'var(--pf-t--global--background--color--secondary--default)',
+          fontFamily: 'monospace',
+        }}
+      >
         URL: ?{searchParams.toString() || '(empty)'}
       </div>
       <TableView

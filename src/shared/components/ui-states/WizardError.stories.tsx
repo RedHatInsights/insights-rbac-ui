@@ -53,8 +53,8 @@ const WizardErrorWrapper: React.FC<{
             style={{
               marginBottom: '16px',
               padding: '12px',
-              backgroundColor: '#f0f8f0',
-              border: '1px solid #4caf50',
+              backgroundColor: 'var(--pf-t--global--background--color--status--success--default)',
+              border: '1px solid var(--pf-t--global--color--status--success--default)',
               borderRadius: '4px',
             }}
           >
@@ -67,8 +67,8 @@ const WizardErrorWrapper: React.FC<{
             style={{
               marginBottom: '16px',
               padding: '12px',
-              backgroundColor: '#e3f2fd',
-              border: '1px solid #2196f3',
+              backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+              border: '1px solid var(--pf-t--global--color--brand--default)',
               borderRadius: '4px',
             }}
           >

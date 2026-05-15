@@ -55,7 +55,7 @@ export const Default: Story = {
       <p>
         <strong>Applied CSS Classes:</strong>
       </p>
-      <table style={{ width: '100%', border: '1px solid #ccc' }}>
+      <table style={{ width: '100%', border: '1px solid var(--pf-t--global--border--color--default)' }}>
         <tbody>
           <GroupRowWrapper {...args}>
             <td style={{ padding: '8px' }}>Sample row content - inspect element to see applied classes</td>
@@ -87,10 +87,10 @@ export const PlatformDefault: Story = {
       <p>
         <strong>Applied CSS Classes (should include &apos;rbac-c-group-default&apos;):</strong>
       </p>
-      <table style={{ width: '100%', border: '1px solid #ccc' }}>
+      <table style={{ width: '100%', border: '1px solid var(--pf-t--global--border--color--default)' }}>
         <tbody>
           <GroupRowWrapper {...args}>
-            <td style={{ padding: '8px', backgroundColor: '#f0f8ff' }}>
+            <td style={{ padding: '8px', backgroundColor: 'var(--pf-t--global--background--color--secondary--default)' }}>
               Platform default group - inspect element to see &apos;rbac-c-group-default&apos; class
             </td>
           </GroupRowWrapper>
@@ -121,10 +121,10 @@ export const AdminDefault: Story = {
       <p>
         <strong>Applied CSS Classes (should include &apos;rbac-c-group-default&apos;):</strong>
       </p>
-      <table style={{ width: '100%', border: '1px solid #ccc' }}>
+      <table style={{ width: '100%', border: '1px solid var(--pf-t--global--border--color--default)' }}>
         <tbody>
           <GroupRowWrapper {...args}>
-            <td style={{ padding: '8px', backgroundColor: '#fff0f5' }}>
+            <td style={{ padding: '8px', backgroundColor: 'var(--pf-t--global--background--color--secondary--default)' }}>
               Admin default group - inspect element to see &apos;rbac-c-group-default&apos; class
             </td>
           </GroupRowWrapper>
@@ -156,10 +156,10 @@ export const WithCustomClassName: Story = {
       <p>
         <strong>Applied CSS Classes (should include custom class):</strong>
       </p>
-      <table style={{ width: '100%', border: '1px solid #ccc' }}>
+      <table style={{ width: '100%', border: '1px solid var(--pf-t--global--border--color--default)' }}>
         <tbody>
           <GroupRowWrapper {...args}>
-            <td style={{ padding: '8px', backgroundColor: '#f5f5f5' }}>
+            <td style={{ padding: '8px', backgroundColor: 'var(--pf-t--global--background--color--secondary--default)' }}>
               Custom className example - inspect element to see &apos;custom-row-class&apos;
             </td>
           </GroupRowWrapper>
@@ -183,14 +183,14 @@ export const InteractiveTest: Story = {
       <p>
         <strong>Interactive Test:</strong> Click the element below to test onClick handler
       </p>
-      <table style={{ width: '100%', border: '2px solid #007bff' }}>
+      <table style={{ width: '100%', border: '2px solid var(--pf-t--global--color--brand--default)' }}>
         <tbody>
           <GroupRowWrapper {...args}>
             <td
               style={{
                 padding: '12px',
                 cursor: 'pointer',
-                backgroundColor: '#e3f2fd',
+                backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
               }}
             >
               Click me to test interaction
