@@ -177,12 +177,12 @@
 /* Blockquote styling */
 .sbdocs-content blockquote {
   border-left: 4px solid var(--pf-t--global--color--brand--default);
-  padding-left: 1rem;
   margin: 1.5rem 0;
   color: var(--pf-t--global--text--color--subtle);
   font-style: italic;
   background: var(--pf-t--global--background--color--secondary--default);
   padding: 1rem;
+  padding-left: 1rem;
   border-radius: 0 4px 4px 0;
 }
 

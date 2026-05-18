@@ -135,7 +135,7 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
     bottom: '4px',
     right: '4px',
     background: 'var(--pf-t--global--background--color--floating--default)',
-    color: 'var(--pf-t--global--text--color--on-floating)',
+    color: 'var(--pf-t--global--text--color--on-brand--default)',
     padding: '2px 8px',
     borderRadius: '3px',
     fontSize: '10px',
@@ -290,7 +290,7 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
             <button
               style={{
                 background: 'var(--pf-t--global--background--color--floating--default)',
-                color: 'var(--pf-t--global--text--color--on-floating)',
+                color: 'var(--pf-t--global--text--color--on-brand--default)',
                 border: 'none',
                 borderRadius: '4px',
                 padding: '8px 16px',
@@ -304,7 +304,7 @@ export const FeatureGapBanner: React.FC<FeatureGapBannerProps> = ({ gap, default
             <button
               style={{
                 background: 'var(--pf-t--global--background--color--floating--default)',
-                color: 'var(--pf-t--global--text--color--on-floating)',
+                color: 'var(--pf-t--global--text--color--on-brand--default)',
                 border: 'none',
                 borderRadius: '4px',
                 padding: '8px 16px',

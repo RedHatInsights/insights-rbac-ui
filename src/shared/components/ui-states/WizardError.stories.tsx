@@ -68,7 +68,7 @@ const WizardErrorWrapper: React.FC<{
               marginBottom: '16px',
               padding: '12px',
               backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
-              border: '1px solid var(--pf-t--global--color--brand--default)',
+              border: '1px solid var(--pf-t--global--color--status--info--default)',
               borderRadius: '4px',
             }}
           >
