@@ -27,7 +27,7 @@ export const Default: Story = {
   args: {
     silentErrorString: 'Network error',
     children: (
-      <div style={{ padding: '16px', border: '1px solid #ccc', borderRadius: '4px' }}>
+      <div style={{ padding: '16px', border: '1px solid var(--pf-t--global--border--color--default)', borderRadius: '4px' }}>
         <h3>Protected Content</h3>
         <p>This content is protected by a SilentErrorBoundary that will silently catch errors containing &quot;Network error&quot;.</p>
         <Button variant="primary">Interactive Button</Button>
@@ -50,10 +50,10 @@ export const FocusTrapSuppression: Story = {
       <SilentErrorBoundary silentErrorString="focus-trap">
         <div
           style={{
-            border: '2px dashed #06c',
+            border: '2px dashed var(--pf-t--global--color--brand--default)',
             padding: '16px',
             borderRadius: '4px',
-            background: '#f8f9fa',
+            background: 'var(--pf-t--global--background--color--secondary--default)',
           }}
         >
           <h4>Modal Content Protected by SilentErrorBoundary</h4>
@@ -84,11 +84,11 @@ export const MultipleErrorBoundaries: Story = {
       <SilentErrorBoundary silentErrorString="outer-error">
         <div
           style={{
-            border: '2px solid blue',
+            border: '2px solid var(--pf-t--global--color--brand--default)',
             padding: '16px',
             margin: '8px',
             borderRadius: '4px',
-            background: '#f0f8ff',
+            background: 'var(--pf-t--global--background--color--secondary--default)',
           }}
         >
           <h4>Outer Boundary (catches &quot;outer-error&quot;)</h4>
@@ -97,11 +97,11 @@ export const MultipleErrorBoundaries: Story = {
           <SilentErrorBoundary silentErrorString="validation">
             <div
               style={{
-                border: '2px solid green',
+                border: '2px solid var(--pf-t--global--color--status--success--default)',
                 padding: '16px',
                 margin: '8px',
                 borderRadius: '4px',
-                background: '#f0fff0',
+                background: 'var(--pf-t--global--background--color--secondary--default)',
               }}
             >
               <h4>Inner Boundary (catches &quot;validation&quot;)</h4>
@@ -125,19 +125,19 @@ export const ConfigurationExamples: Story = {
       <p>Different configurations for common error patterns:</p>
 
       <div style={{ display: 'grid', gap: '16px', marginTop: '16px' }}>
-        <div style={{ border: '1px solid #ccc', padding: '12px', borderRadius: '4px' }}>
+        <div style={{ border: '1px solid var(--pf-t--global--border--color--default)', padding: '12px', borderRadius: '4px' }}>
           <h4>Focus Trap Errors</h4>
           <code>{'<SilentErrorBoundary silentErrorString="focus-trap">'}</code>
           <p>Catches: &quot;focus-trap: your focus-trap must have at least one tabbable element&quot;</p>
         </div>
 
-        <div style={{ border: '1px solid #ccc', padding: '12px', borderRadius: '4px' }}>
+        <div style={{ border: '1px solid var(--pf-t--global--border--color--default)', padding: '12px', borderRadius: '4px' }}>
           <h4>Network Errors</h4>
           <code>{'<SilentErrorBoundary silentErrorString="Network">'}</code>
           <p>Catches: &quot;Network request failed&quot;, &quot;NetworkError&quot;</p>
         </div>
 
-        <div style={{ border: '1px solid #ccc', padding: '12px', borderRadius: '4px' }}>
+        <div style={{ border: '1px solid var(--pf-t--global--border--color--default)', padding: '12px', borderRadius: '4px' }}>
           <h4>Validation Errors</h4>
           <code>{'<SilentErrorBoundary silentErrorString="validation">'}</code>
           <p>Catches: &quot;validation failed&quot;, &quot;Validation error occurred&quot;</p>
@@ -156,9 +156,9 @@ export const NoErrors: Story = {
       <div
         style={{
           padding: '20px',
-          border: '2px solid #28a745',
+          border: '2px solid var(--pf-t--global--color--status--success--default)',
           borderRadius: '4px',
-          background: '#d4edda',
+          background: 'var(--pf-t--global--background--color--status--success--default)',
         }}
       >
         <h3>✅ Normal Operation</h3>

@@ -22,18 +22,19 @@ export const FakeAddressBar: React.FC = () => {
           right: 0,
           height: ADDRESS_BAR_HEIGHT,
           zIndex: 9999,
-          background: '#f5f5f5',
-          borderBottom: '1px solid #ccc',
+          background: 'var(--pf-t--global--background--color--secondary--default)',
+          borderBottom: '1px solid var(--pf-t--global--border--color--default)',
           padding: '8px 16px',
           fontFamily: 'monospace',
           fontSize: '14px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          boxShadow: 'var(--pf-t--global--box-shadow--sm)',
           boxSizing: 'border-box',
         }}
       >
-        <span style={{ color: '#666', marginRight: '8px' }}>🌐</span>
-        <span style={{ fontWeight: 'bold' }}>URL:</span> <span style={{ color: '#0066cc' }}>{location.pathname}</span>
-        {location.search && <span style={{ color: '#666' }}>{location.search}</span>}
+        <span style={{ color: 'var(--pf-t--global--text--color--subtle)', marginRight: '8px' }}>🌐</span>
+        <span style={{ fontWeight: 'bold' }}>URL:</span>{' '}
+        <span style={{ color: 'var(--pf-t--global--color--brand--default)' }}>{location.pathname}</span>
+        {location.search && <span style={{ color: 'var(--pf-t--global--text--color--subtle)' }}>{location.search}</span>}
       </div>
       {/* Spacer to push page content below the fixed bar */}
       <div style={{ height: ADDRESS_BAR_HEIGHT }} />

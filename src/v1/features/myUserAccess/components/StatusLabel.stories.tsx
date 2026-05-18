@@ -93,7 +93,7 @@ export const NoAdminRoles: Story = {
   render: (args) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
       <StatusLabel {...args} />
-      <span style={{ fontSize: '14px', color: '#6a6e73', fontStyle: 'italic' }}>
+      <span style={{ fontSize: '14px', color: 'var(--pf-t--global--text--color--subtle)', fontStyle: 'italic' }}>
         ← Component correctly renders nothing when user has no admin roles
       </span>
     </div>

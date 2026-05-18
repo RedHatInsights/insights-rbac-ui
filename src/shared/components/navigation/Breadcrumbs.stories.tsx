@@ -167,7 +167,7 @@ export const Interactive: Story = {
       <h3>Different Breadcrumb Configurations:</h3>
 
       <div style={{ marginBottom: '24px' }}>
-        <h4 style={{ marginBottom: '8px', color: '#151515' }}>Standard Navigation:</h4>
+        <h4 style={{ marginBottom: '8px', color: 'var(--pf-t--global--text--color--regular)' }}>Standard Navigation:</h4>
         <RbacBreadcrumbs
           breadcrumbs={[
             { title: 'Home', to: '/', isActive: false },
@@ -178,7 +178,7 @@ export const Interactive: Story = {
       </div>
 
       <div style={{ marginBottom: '24px' }}>
-        <h4 style={{ marginBottom: '8px', color: '#151515' }}>With Loading State:</h4>
+        <h4 style={{ marginBottom: '8px', color: 'var(--pf-t--global--text--color--regular)' }}>With Loading State:</h4>
         <RbacBreadcrumbs
           breadcrumbs={[
             { title: 'Home', to: '/', isActive: false },
@@ -189,7 +189,7 @@ export const Interactive: Story = {
       </div>
 
       <div>
-        <h4 style={{ marginBottom: '8px', color: '#151515' }}>Single Active Item:</h4>
+        <h4 style={{ marginBottom: '8px', color: 'var(--pf-t--global--text--color--regular)' }}>Single Active Item:</h4>
         <RbacBreadcrumbs breadcrumbs={[{ title: 'Dashboard', isActive: true }]} />
       </div>
     </div>

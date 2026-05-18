@@ -101,7 +101,7 @@ export const InitiallyExpanded: Story = {
     expandableContent: (
       <div>
         <p>Server configuration details and settings.</p>
-        <div style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '4px' }}>
+        <div style={{ backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', padding: '10px', borderRadius: '4px' }}>
           <strong>Configuration:</strong>
           <ul>
             <li>CPU: 8 cores</li>
@@ -155,7 +155,14 @@ export const ComplexContent: Story = {
           </div>
         </div>
 
-        <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#e7f3ff', borderRadius: '4px' }}>
+        <div
+          style={{
+            marginTop: '15px',
+            padding: '10px',
+            backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+            borderRadius: '4px',
+          }}
+        >
           <strong>Note:</strong> This component can handle any level of complexity in the expandable content.
         </div>
       </div>

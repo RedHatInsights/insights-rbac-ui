@@ -42,7 +42,7 @@ const TestDataViewTable: React.FC<{ onUserSelect: (user: User) => void }> = ({ o
   };
 
   return (
-    <div style={{ padding: '1rem', backgroundColor: '#f0f0f0', marginBottom: '1rem' }}>
+    <div style={{ padding: '1rem', backgroundColor: 'var(--pf-t--global--background--color--secondary--default)', marginBottom: '1rem' }}>
       <h3>Mock DataView Table</h3>
       <p>Click the button below to simulate a table row click event:</p>
       <Button onClick={handleRowClick}>
@@ -368,8 +368,10 @@ export const DataViewIntegration: Story = {
             style={{
               marginTop: '1rem',
               padding: '0.5rem',
-              backgroundColor: focusedUser ? '#d4edda' : '#f8d7da',
-              border: `1px solid ${focusedUser ? '#c3e6cb' : '#f5c6cb'}`,
+              backgroundColor: focusedUser
+                ? 'var(--pf-t--global--background--color--status--success--default)'
+                : 'var(--pf-t--global--background--color--status--danger--default)',
+              border: `1px solid ${focusedUser ? 'var(--pf-t--global--color--status--success--default)' : 'var(--pf-t--global--color--status--danger--default)'}`,
               borderRadius: '4px',
             }}
           >

@@ -93,7 +93,15 @@ const UsersListWrapper: React.FC<{ onSelect?: (users: User[]) => void; initialSe
     <div style={{ padding: '20px' }}>
       <UsersList usesMetaInURL={false} displayNarrow={false} initialSelectedUsers={selectedUsers} onSelect={handleSelect} />
       {selectedUsers.length > 0 && (
-        <div data-testid="selected-users" style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+        <div
+          data-testid="selected-users"
+          style={{
+            marginTop: '16px',
+            padding: '12px',
+            backgroundColor: 'var(--pf-t--global--background--color--secondary--default)',
+            borderRadius: '4px',
+          }}
+        >
           <strong>Selected ({selectedUsers.length}):</strong> {selectedUsers.map((u) => u.username).join(', ')}
         </div>
       )}

@@ -133,7 +133,7 @@ The component is designed to work with data-driven-forms and automatically recei
         The InlineError component is designed to be used within data-driven-forms and automatically receives validation error data through the
         useFieldApi hook.
       </p>
-      <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '4px' }}>
+      <div style={{ border: '1px solid var(--pf-t--global--border--color--default)', padding: '20px', borderRadius: '4px' }}>
         <h4>Form Field Example</h4>
         <div style={{ marginBottom: '10px' }}>
           <label htmlFor="email">Email Address:</label>
@@ -143,7 +143,7 @@ The component is designed to work with data-driven-forms and automatically recei
             style={{
               width: '100%',
               padding: '8px',
-              border: '1px solid #ccc',
+              border: '1px solid var(--pf-t--global--border--color--default)',
               borderRadius: '4px',
               marginTop: '5px',
             }}
