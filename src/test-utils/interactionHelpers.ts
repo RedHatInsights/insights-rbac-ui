@@ -204,7 +204,7 @@ export async function selectNthCheckbox(
 export async function waitForModalClose(options?: { timeout?: number }): Promise<void> {
   await waitFor(
     () => {
-      expect(body().queryByRole('dialog')).not.toBeInTheDocument();
+      expect(body().queryAllByRole('dialog')).toHaveLength(0);
     },
     { timeout: options?.timeout ?? TEST_TIMEOUTS.ELEMENT_WAIT },
   );
