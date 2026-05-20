@@ -126,7 +126,7 @@
     "wait-on": "^7.2.0",
     "webpack": "^5.104.1",
     "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-dev-server": "^5.2.3",
+    "webpack-dev-server": "^5.2.4",
     "yaml": "^2.8.2",
     "zod": "^3.25.76"
   },
