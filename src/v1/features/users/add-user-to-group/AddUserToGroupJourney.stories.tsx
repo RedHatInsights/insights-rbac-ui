@@ -9,51 +9,18 @@ import { usersHandlers } from '../../../../shared/data/mocks/users.handlers';
 import { groupsHandlers } from '../../../../shared/data/mocks/groups.handlers';
 import { groupMembersHandlers } from '../../../../shared/data/mocks/groupMembers.handlers';
 import { v1RolesHandlers } from '../../../data/mocks/roles.handlers';
+import { DEFAULT_GROUPS, DEFAULT_USERS } from '../../../../shared/data/mocks/seed';
 import type { GroupOut, Principal } from '../../../../shared/data/mocks/db';
+import { selectTableRow } from '../../../../test-utils/interactionHelpers';
 
 const addMembersToGroupSpy = fn();
 
-const mockUser = {
-  username: 'john.doe',
-  email: 'john.doe@redhat.com',
-  first_name: 'John',
-  last_name: 'Doe',
-  is_active: true,
-  is_org_admin: false,
-};
-
-const mockAdminGroup = {
-  uuid: 'admin-group-uuid',
-  name: 'Default admin access',
-  description: 'Default admin group',
-  admin_default: true,
-  platform_default: false,
-  system: true,
-};
-
-const mockAvailableGroups = [
-  {
-    uuid: 'available-group-1',
-    name: 'Engineering',
-    description: 'Engineering team',
-    platform_default: false,
-    admin_default: false,
-    roleCount: 2,
-    principalCount: 4,
-  },
-  {
-    uuid: 'available-group-2',
-    name: 'QA Team',
-    description: 'Quality assurance',
-    platform_default: false,
-    admin_default: false,
-    roleCount: 1,
-    principalCount: 3,
-  },
-];
+const seedUser = DEFAULT_USERS[0];
+const seedAdminGroup = DEFAULT_GROUPS.find((g) => g.admin_default)!;
+const seedAvailableGroups = DEFAULT_GROUPS.filter((g) => !g.admin_default && !g.platform_default);
 
 const withRouter = (Story: React.ComponentType) => (
-  <MemoryRouter initialEntries={['/iam/user-access/users/detail/john.doe/add-to-group']}>
+  <MemoryRouter initialEntries={[`/iam/user-access/users/detail/${seedUser.username}/add-to-group`]}>
     <Routes>
       <Route
         path="/iam/user-access/users/detail/:username/*"
@@ -96,9 +63,9 @@ export const Default: Story = {
     permissions: ['rbac:*:*'],
     msw: {
       handlers: [
-        ...usersHandlers([mockUser as unknown as Principal]),
+        ...usersHandlers([seedUser as unknown as Principal]),
         ...v1RolesHandlers([]),
-        ...groupsHandlers([mockAdminGroup, ...mockAvailableGroups] as unknown as GroupOut[]),
+        ...groupsHandlers([seedAdminGroup, ...seedAvailableGroups] as unknown as GroupOut[]),
         ...groupMembersHandlers({}, {}, { onAddMembers: addMembersToGroupSpy }),
       ],
     },
@@ -107,32 +74,33 @@ export const Default: Story = {
     addMembersToGroupSpy.mockClear();
   },
   play: async ({ step }) => {
+    const user = userEvent.setup();
     const body = within(document.body);
+    const targetGroup = seedAvailableGroups[0];
 
     await step('Verify modal appears via outlet context', async () => {
       await body.findByRole('dialog', {}, { timeout: 5000 });
-      await body.findByText('Engineering', {}, { timeout: 5000 });
+      await body.findByText(targetGroup.name, {}, { timeout: 5000 });
     });
 
     await step('Select a group and submit', async () => {
-      const dialog = await body.findByRole('dialog');
-      const checkboxes = within(dialog).getAllByRole('checkbox');
-      await userEvent.click(checkboxes[1]);
+      const dialog = within(await body.findByRole('dialog'));
+      await selectTableRow(user, dialog, targetGroup.name);
 
-      const saveButton = within(dialog).getByRole('button', { name: /save/i });
+      const saveButton = dialog.getByRole('button', { name: /save/i });
       await waitFor(() => {
         expect(saveButton).not.toBeDisabled();
       });
-      await userEvent.click(saveButton);
+      await user.click(saveButton);
     });
 
     await step('Verify API called with correct username from outlet context', async () => {
       await waitFor(
         () => {
           expect(addMembersToGroupSpy).toHaveBeenCalledWith(
-            'available-group-1',
+            targetGroup.uuid,
             expect.objectContaining({
-              principals: [{ username: 'john.doe' }],
+              principals: [{ username: seedUser.username }],
             }),
           );
         },
