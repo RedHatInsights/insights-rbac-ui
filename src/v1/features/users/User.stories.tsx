@@ -698,4 +698,3 @@ export const GroupLinkInExpandedRow: Story = {
     });
   },
 };
-
