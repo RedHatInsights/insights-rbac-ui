@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { Content, ContentVariants, Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
+import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
-import { TabTitleText } from '@patternfly/react-core/dist/dynamic/components/Tabs';
+import { Tab, TabTitleText, Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import messages from '../../../../Messages';
@@ -91,7 +92,6 @@ export const WorkspaceDetailLayout: React.FC<WorkspaceDetailLayoutProps> = ({
         permissions={permissions}
         actionCallbacks={actionCallbacks}
       />
-      <Divider />
       <Tabs
         className="pf-v6-u-background-color-100"
         activeKey={topLevelTabKey}
