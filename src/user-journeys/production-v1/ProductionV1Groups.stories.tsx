@@ -137,7 +137,7 @@ export const CreateGroupJourney: Story = {
 
     await step('Wait for modal to close', async () => {
       await waitFor(() => {
-        expect(within(document.body).queryAllByRole('dialog')).toHaveLength(0);
+        expect(within(document.body).queryByRole('dialog')).toBeNull();
       });
     });
 
