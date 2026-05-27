@@ -59,7 +59,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
         breadcrumbs={isLoading ? undefined : <RbacBreadcrumbs breadcrumbs={pageBreadcrumbs} />}
         actionMenu={workspace ? <WorkspaceActions items={actionItems} /> : undefined}
       >
-        <div className="pf-v6-u-mt-md">
+        <div>
           <span className="pf-v6-u-font-weight-bold pf-v6-u-mr-sm">{intl.formatMessage(messages.workspacesDetailBreadcrumbTitle)}</span>
           <Breadcrumb>
             {workspaceHierarchy.map((workspaceItem, index) => {
