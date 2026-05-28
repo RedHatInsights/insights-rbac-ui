@@ -90,7 +90,7 @@ export const V1Routing = () => {
           {/* User Detail */}
           <Route path={pathnames['user-detail'].path} element={<UserDetail />}>
             <Route {...guard(['rbac:principal:write'])}>
-              <Route path={pathnames['add-user-to-group'].path} element={<AddUserToGroup />} />
+              <Route path={pathnames['add-user-to-group'].path} element={outletElement(AddUserToGroup)} />
             </Route>
             <Route {...guard(['rbac:group:write'])}>
               <Route path={pathnames['user-add-group-roles'].path} element={<AddGroupRoles />} />
