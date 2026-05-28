@@ -5,7 +5,7 @@ import { groupsErrorHandlers, groupsHandlers } from '../../data/mocks/groups.han
 import { groupMembersHandlers } from '../../../shared/data/mocks/groupMembers.handlers';
 import { groupRolesHandlers } from '../../../shared/data/mocks/groupRoles.handlers';
 import type { GroupOut } from '../../../shared/data/mocks/db';
-import { chromeAppNavClickSpy } from '../../../../.storybook/hooks/useChrome';
+import { chromeAppNavClickSpy } from '@redhat-cloud-services/hcc-storybook-hub';
 import { withRouter } from '../../../../.storybook/helpers/router-test-utils';
 import {
   PAGINATION_TEST_DEFAULT_PER_PAGE,

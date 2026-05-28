@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { ActiveUsers } from './ActiveUsers';
-import { DECORATOR_ARG_TYPES, DEFAULT_DECORATOR_ARGS, StoryArgs } from '../../../../.storybook/types';
+import { DECORATOR_ARG_TYPES, DEFAULT_DECORATOR_ARGS, StoryArgs } from '@redhat-cloud-services/hcc-storybook-hub';
 import React from 'react';
 
 /**

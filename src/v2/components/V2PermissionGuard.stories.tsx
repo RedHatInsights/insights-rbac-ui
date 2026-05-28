@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, within } from 'storybook/test';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import type { TenantPermissionsMap } from '../../../.storybook/contexts/StorybookMockContext';
+import type { TenantPermissionsMap } from '@redhat-cloud-services/hcc-storybook-hub';
 import { V2PermissionGuard, groups, roles } from './V2PermissionGuard';
 
 const ProtectedContent = () => <div data-testid="protected-content">Protected route content</div>;

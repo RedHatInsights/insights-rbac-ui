@@ -2,8 +2,8 @@ import React, { useContext, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Nav, NavExpandable, NavItem, NavList } from '@patternfly/react-core';
 import yaml from 'yaml';
-import { type TenantPermissionsMap, useMockState } from '../../../../.storybook/contexts/StorybookMockContext';
-import { FeatureFlagsContext } from '../../../../.storybook/context-providers';
+import { type TenantPermissionsMap, useMockState } from '@redhat-cloud-services/hcc-storybook-hub';
+import { FeatureFlagsContext } from '@redhat-cloud-services/hcc-storybook-hub';
 
 // Import frontend.yaml as raw text
 
