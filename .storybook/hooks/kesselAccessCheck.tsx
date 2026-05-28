@@ -73,6 +73,7 @@ export const useSelfAccessCheck = (params: UseSelfAccessCheckOptions) => {
 
   const resolvePermission = (relation: string, resource: Resource): boolean => {
     if (resource.type === 'tenant') return checkTenantPermission(relation, mockRef.current.tenantPermissions);
+    if (resource.type === 'role') return checkTenantPermission(relation, mockRef.current.tenantPermissions);
     return checkWorkspacePermission(relation, resource.id, mockRef.current.workspacePermissions);
   };
 
