@@ -76,7 +76,7 @@ jobs:
     steps:
       - name: Check repository access
         id: check-access
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
