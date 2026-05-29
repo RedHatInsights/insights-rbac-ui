@@ -13,7 +13,7 @@ runs:
         which node && node --version || echo "No default Node.js found"
         echo "=== .nvmrc content ==="
         cat .nvmrc 2>/dev/null || echo "No .nvmrc file found"
-    - uses: actions/setup-node@v5
+    - uses: actions/setup-node@v6
       with:
         node-version-file: '.nvmrc'
     - name: Show final Node.js version
