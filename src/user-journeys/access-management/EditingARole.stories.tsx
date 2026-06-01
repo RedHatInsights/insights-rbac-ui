@@ -65,6 +65,7 @@ const meta = {
     orgAdmin: true,
     'platform.rbac.common-auth-model': true,
     'platform.rbac.workspaces': true, // M5 flag - enables V2 roles view with kebab menus
+    writableRoleIds: ['role-rhel-devops', 'role-inventory-viewer'],
   },
   parameters: {
     ...createDynamicEnvironment({
@@ -72,6 +73,7 @@ const meta = {
       orgAdmin: true,
       'platform.rbac.common-auth-model': true,
       'platform.rbac.workspaces': true,
+      writableRoleIds: ['role-rhel-devops', 'role-inventory-viewer'],
     }),
     msw: {
       handlers: [
