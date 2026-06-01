@@ -150,14 +150,16 @@ function useBulkRoleCheck(roleIds: string[]): { writableIds: Set<string>; isLoad
 
   const { data, loading } = useSelfAccessCheck({ resources });
 
+  const roleIdSet = useMemo(() => new Set(roleIds), [roleIds]);
+
   const writableIds = useMemo(() => {
     const out = new Set<string>();
     if (!hasIds || !Array.isArray(data)) return out;
     for (const check of data) {
-      if (check.allowed) out.add(check.resource.id);
+      if (check.allowed && roleIdSet.has(check.resource.id)) out.add(check.resource.id);
     }
     return out;
-  }, [data, hasIds]);
+  }, [data, hasIds, roleIdSet]);
 
   return { writableIds, isLoading: hasIds && loading };
 }
