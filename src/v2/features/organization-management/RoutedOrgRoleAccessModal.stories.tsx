@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { expect, waitFor, within } from 'storybook/test';
 import { userEvent } from 'storybook/test';
 import { RoutedOrgRoleAccessModal } from './RoutedOrgRoleAccessModal';
-import type { MockUserIdentity } from '../../../../.storybook/contexts/StorybookMockContext';
+import type { MockUserIdentity } from '@redhat-cloud-services/hcc-storybook-hub';
 import { groupsHandlers } from '../../../shared/data/mocks/groups.handlers';
 import { v2RolesHandlers } from '../../data/mocks/roles.handlers';
 import { roleBindingsHandlers, roleBindingsLoadingHandlers } from '../../data/mocks/roleBindings.handlers';

@@ -62,6 +62,7 @@
     "@playwright/test": "^1.57.0",
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^3.0.12",
     "@redhat-cloud-services/frontend-components-config": "^6.7.51",
+    "@redhat-cloud-services/hcc-storybook-hub": "^0.1.0",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.37",
     "@storybook/addon-docs": "^10.2.19",
     "@storybook/addon-webpack5-compiler-swc": "^4.0.2",

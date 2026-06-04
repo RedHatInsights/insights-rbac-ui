@@ -5,14 +5,20 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { IntlProvider } from 'react-intl';
 import { QueryClientSetup } from '../src/shared/components/QueryClientSetup';
-import { deriveTenantPermissions } from './helpers/derive-tenant-permissions';
+import {
+  type Environment,
+  type FeatureFlagsConfig,
+  FeatureFlagsProvider,
+  StorybookMockProvider,
+  deriveTenantPermissions,
+  useMockState,
+} from '@redhat-cloud-services/hcc-storybook-hub';
+import { useFlag } from '@unleash/proxy-client-react';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
-import { type FeatureFlagsConfig, FeatureFlagsProvider, useFlag } from './context-providers';
-import { type Environment, StorybookMockProvider, useMockState } from './contexts/StorybookMockContext';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 import { ServiceProvider, createBrowserServices } from '../src/shared/services';
 import type { AddNotificationFn } from '../src/shared/entry/browser';
