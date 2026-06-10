@@ -11,9 +11,9 @@ const meta: Meta<typeof Overview> = {
     docs: {
       description: {
         component: `
-V2 Overview page — thin wrapper that passes V2 pathnames to the shared Overview component.
+V2 Overview page — thin wrapper that renders \`WorkspacesOverview\` (Access Management landing page).
 
-Links point to V2 routes: \`/access-management/users-and-user-groups/user-groups\`, \`/access-management/roles\`.
+Service cards link to V2 routes: \`/access-management/workspaces\`, \`/access-management/users-and-user-groups\`, \`/access-management/roles\`.
 `,
       },
     },
@@ -34,10 +34,11 @@ export const Default: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
     await step('Verify default overview', async () => {
-      await expect(canvas.findByLabelText('Get started card')).resolves.toBeInTheDocument();
-      await expect(canvas.findByLabelText('Supporting features list')).resolves.toBeInTheDocument();
-      await expect(canvas.findByLabelText('Recommended content table')).resolves.toBeInTheDocument();
-      await expect(canvas.findByRole('heading', { level: 1 })).resolves.toBeInTheDocument();
+      await expect(await canvas.findByRole('heading', { level: 1 })).toHaveTextContent('Access Management');
+      await expect(canvas.findByText('Understanding access')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Recommended content')).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('link', { name: 'View groups' })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('link', { name: 'View roles' })).resolves.toBeInTheDocument();
     });
   },
 };
