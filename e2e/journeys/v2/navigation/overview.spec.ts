@@ -35,7 +35,9 @@ test.describe('Overview', () => {
       await setupPage(page);
       await expect(async () => {
         await page.goto(overviewUrl, { timeout: E2E_TIMEOUTS.SLOW_DATA });
-        await expect(page.getByRole('heading', { name: /access management/i, level: 1 }).first()).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+        await expect(page.getByRole('heading', { name: /access management/i, level: 1 }).first()).toBeVisible({
+          timeout: E2E_TIMEOUTS.DETAIL_CONTENT,
+        });
       }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
 
       await expect(page.getByText('Understanding access')).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
