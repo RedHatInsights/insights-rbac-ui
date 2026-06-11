@@ -12,7 +12,7 @@ import { List } from '@patternfly/react-core/dist/dynamic/components/List';
 import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useIntl } from 'react-intl';
-import { AppLink } from '../../navigation/AppLink';
+import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import messages from '../../../../Messages';
 
 interface GetStartedCardProps {

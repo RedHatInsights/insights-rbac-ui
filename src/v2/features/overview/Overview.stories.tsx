@@ -11,7 +11,7 @@ const meta: Meta<typeof Overview> = {
     docs: {
       description: {
         component: `
-V2 Overview page — thin wrapper that renders \`WorkspacesOverview\` (Access Management landing page).
+V2 Overview page — Access Management landing page for workspaces-enabled users.
 
 Service cards link to V2 routes: \`/access-management/workspaces\`, \`/access-management/users-and-user-groups\`, \`/access-management/roles\`.
 `,
