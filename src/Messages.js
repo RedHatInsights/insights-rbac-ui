@@ -2820,6 +2820,175 @@ export default defineMessages({
     defaultMessage:
       "Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they're allowed to perform.",
   },
+  workspacesServiceCardTitle: {
+    id: 'workspacesServiceCardTitle',
+    description: 'Workspaces service card title',
+    defaultMessage: 'Workspaces',
+  },
+  groupsServiceCardTitle: {
+    id: 'groupsServiceCardTitle',
+    description: 'Groups service card title',
+    defaultMessage: 'Groups',
+  },
+  roleServiceCardTitle: {
+    id: 'roleServiceCardTitle',
+    description: 'Role service card title',
+    defaultMessage: 'Role',
+  },
+  bindingsServiceCardTitle: {
+    id: 'bindingsServiceCardTitle',
+    description: 'Bindings service card title',
+    defaultMessage: 'Bindings',
+  },
+  workspacesButton: {
+    id: 'workspacesButton',
+    description: 'Workspaces button label',
+    defaultMessage: 'Workspaces',
+  },
+  viewGroupsButton: {
+    id: 'viewGroupsButton',
+    description: 'View groups button label',
+    defaultMessage: 'View groups',
+  },
+  viewRolesButton: {
+    id: 'viewRolesButton',
+    description: 'View roles button label',
+    defaultMessage: 'View roles',
+  },
+  viewAccessRequestsButton: {
+    id: 'viewAccessRequestsButton',
+    description: 'View access requests button label',
+    defaultMessage: 'View access requests',
+  },
+  understandingAccessTitle: {
+    id: 'understandingAccessTitle',
+    description: 'Understanding access section title',
+    defaultMessage: 'Understanding access',
+  },
+  defaultGroupsHeading: {
+    id: 'defaultGroupsHeading',
+    description: 'Default groups heading',
+    defaultMessage: 'Default groups',
+  },
+  viewYourDefaultGroups: {
+    id: 'viewYourDefaultGroups',
+    description: 'View your default groups link text',
+    defaultMessage: 'View your default groups',
+  },
+  allUsersGroupDescription: {
+    id: 'allUsersGroupDescription',
+    description: 'All Users group description',
+    defaultMessage: 'The {bold} contains all authenticated users in your organization.',
+  },
+  allUsersGroupBold: {
+    id: 'allUsersGroupBold',
+    description: 'All Users group bold text',
+    defaultMessage: 'All Users group',
+  },
+  adminUsersGroupDescription: {
+    id: 'adminUsersGroupDescription',
+    description: 'Admin Users group description',
+    defaultMessage:
+      'The {bold} should contain any users within your organization who require key admin privileges (like workspace administrator, or user access administrator) so they can be applied to roles and workspaces.',
+  },
+  adminUsersGroupBold: {
+    id: 'adminUsersGroupBold',
+    description: 'Admin Users group bold text',
+    defaultMessage: 'Admin Users group',
+  },
+  grantingAccessInWorkspacesHeading: {
+    id: 'grantingAccessInWorkspacesHeading',
+    description: 'Granting access in workspaces heading',
+    defaultMessage: 'Granting access in workspaces',
+  },
+  grantAccessLink: {
+    id: 'grantAccessLink',
+    description: 'Grant access link text',
+    defaultMessage: 'Grant access',
+  },
+  userGroupsDescription: {
+    id: 'userGroupsDescription',
+    description: 'User Groups description in granting access section',
+    defaultMessage:
+      "{bold}: group your organization's end users and service accounts based on common functions (e.g., Developers, Security, Ops, etc.) to help streamline permission management.",
+  },
+  userGroupsBold: {
+    id: 'userGroupsBold',
+    description: 'User Groups bold text',
+    defaultMessage: 'User Groups',
+  },
+  rolesDescription: {
+    id: 'rolesDescription',
+    description: 'Roles description in granting access section',
+    defaultMessage:
+      '{bold}: predefined roles (e.g., Viewer, Editor, Admin) provide distinct levels of access tailored to the needs of each user group.',
+  },
+  rolesBold: {
+    id: 'rolesBold',
+    description: 'Roles bold text',
+    defaultMessage: 'Roles',
+  },
+  grantingAccessDescription: {
+    id: 'grantingAccessDescription',
+    description: 'Granting access description',
+    defaultMessage:
+      '{bold}: assigning user groups and specific roles to a workspace grants all members of that group the corresponding permissions within the role for the services and assets within the workspace.',
+  },
+  grantingAccessBold: {
+    id: 'grantingAccessBold',
+    description: 'Granting access bold text',
+    defaultMessage: 'Granting access',
+  },
+  recommendedContentTitle: {
+    id: 'recommendedContentTitle',
+    description: 'Recommended content section title',
+    defaultMessage: 'Recommended content',
+  },
+  createWorkspaceQuickStart: {
+    id: 'createWorkspaceQuickStart',
+    description: 'Create a workspace and grant access quick start title',
+    defaultMessage: 'Create a workspace and grant access',
+  },
+  quickStartLabel: {
+    id: 'quickStartLabel',
+    description: 'Quick start label',
+    defaultMessage: 'Quick start',
+  },
+  beginQuickStart: {
+    id: 'beginQuickStart',
+    description: 'Begin Quick start link text',
+    defaultMessage: 'Begin Quick start',
+  },
+  structuringWorkspacesDoc: {
+    id: 'structuringWorkspacesDoc',
+    description: 'Structuring your workspaces documentation title',
+    defaultMessage: 'Structuring your workspaces to fit your organizational use cases',
+  },
+  documentationLabel: {
+    id: 'documentationLabel',
+    description: 'Documentation label',
+    defaultMessage: 'Documentation',
+  },
+  viewDocumentation: {
+    id: 'viewDocumentation',
+    description: 'View documentation link text',
+    defaultMessage: 'View documentation',
+  },
+  workspaceHierarchyDoc: {
+    id: 'workspaceHierarchyDoc',
+    description: 'Understanding Workspace hierarchy and inheritance documentation title',
+    defaultMessage: 'Understanding Workspace hierarchy and inheritance',
+  },
+  accessManagementDoc: {
+    id: 'accessManagementDoc',
+    description: 'Understanding access management documentation title',
+    defaultMessage: 'Understanding access management',
+  },
+  viewAllIAMLearningResources: {
+    id: 'viewAllIAMLearningResources',
+    description: 'View all IAM Learning resources link text',
+    defaultMessage: 'View all Identity and Access Management Learning resources',
+  },
   usersAndUserGroups: {
     id: 'usersAndUserGroups',
     description: 'Users and user groups label',
