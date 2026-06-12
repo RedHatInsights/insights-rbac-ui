@@ -1,10 +1,8 @@
 import React from 'react';
 import { PageHeader, ServiceCard } from '@patternfly/react-component-groups';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ButtonVariant } from '@patternfly/react-core';
+import { Button, ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { DataList } from '@patternfly/react-core/dist/dynamic/components/DataList';
-import { Gallery } from '@patternfly/react-core';
-import { GalleryItem } from '@patternfly/react-core';
+import { Gallery, GalleryItem } from '@patternfly/react-core/dist/dynamic/layouts/Gallery';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { List } from '@patternfly/react-core/dist/dynamic/components/List';
 import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
@@ -12,7 +10,6 @@ import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import {} from '@patternfly/react-core';
 import messages from '../../../Messages';
 import CustomDataListItem from '../../../shared/components/data-display/CustomDataListItem';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-link-alt-icon';
@@ -38,7 +35,6 @@ const GRANT_ACCESS = '';
 const workspacesIcon = '/apps/frontend-assets/technology-icons/iam.svg';
 
 const V2Overview: React.FC = () => {
-  // const [isExpanded, setIsExpanded] = React.useState(false);
   const intl = useIntl();
   const navigate = useAppNavigate();
   const toAppLink = useAppLink();
@@ -62,16 +58,15 @@ const V2Overview: React.FC = () => {
         <Title headingLevel="h2" className="pf-v6-u-mb-md" data-ouia-component-id="header-title">
           {intl.formatMessage(messages.workspacesOverviewTitle)}
         </Title>
-        <Content component={ContentVariants.p}>{intl.formatMessage(messages.workspacesPageSubtitle)} </Content>
-        <br></br>
-
-        <br />
+        <Content component={ContentVariants.p} className="pf-v6-u-mb-lg">
+          {intl.formatMessage(messages.workspacesPageSubtitle)}{' '}
+        </Content>
 
         <Gallery hasGutter minWidths={{ default: '330px' }}>
           <GalleryItem>
             <ServiceCard
               isFullHeight
-              title="Workspaces"
+              title={intl.formatMessage(messages.workspacesServiceCardTitle)}
               subtitle=""
               description={intl.formatMessage(messages.workspacesServiceCardDescription)}
               icon={<InfrastructureIcon className="pf-v6-u-primary-color-100 pf-v6-c-icon pf-m-lg" />}
@@ -86,7 +81,7 @@ const V2Overview: React.FC = () => {
                     navigate(pathnames['access-management-workspaces'].link());
                   }}
                 >
-                  Workspaces
+                  {intl.formatMessage(messages.workspacesButton)}
                 </Button>
               }
               ouiaId="workspaces-service-card"
@@ -95,7 +90,7 @@ const V2Overview: React.FC = () => {
           <GalleryItem>
             <ServiceCard
               isFullHeight
-              title="Groups"
+              title={intl.formatMessage(messages.groupsServiceCardTitle)}
               subtitle=""
               description={intl.formatMessage(messages.groupsServiceCardDescription)}
               icon={<UsersIcon className="pf-v6-u-primary-color-100 pf-v6-c-icon pf-m-lg" />}
@@ -110,7 +105,7 @@ const V2Overview: React.FC = () => {
                     navigate({ pathname: pathnames['users-and-user-groups'].link(), search: '?activeTab=user-groups' });
                   }}
                 >
-                  View groups
+                  {intl.formatMessage(messages.viewGroupsButton)}
                 </Button>
               }
               ouiaId="groups-service-card"
@@ -119,7 +114,7 @@ const V2Overview: React.FC = () => {
           <GalleryItem>
             <ServiceCard
               isFullHeight
-              title="Role"
+              title={intl.formatMessage(messages.roleServiceCardTitle)}
               subtitle=""
               description={intl.formatMessage(messages.roleServiceCardDescription)}
               icon={<IdBadgeIcon className="pf-v6-u-primary-color-100 pf-v6-c-icon pf-m-lg" />}
@@ -134,7 +129,7 @@ const V2Overview: React.FC = () => {
                     navigate(pathnames['access-management-roles'].link());
                   }}
                 >
-                  View roles
+                  {intl.formatMessage(messages.viewRolesButton)}
                 </Button>
               }
               ouiaId="role-service-card"
@@ -143,13 +138,13 @@ const V2Overview: React.FC = () => {
           <GalleryItem>
             <ServiceCard
               isFullHeight
-              title="Bindings"
+              title={intl.formatMessage(messages.bindingsServiceCardTitle)}
               subtitle=""
               description={intl.formatMessage(messages.bindingsServiceCardDescription)}
               icon={<LinkIcon className="pf-v6-u-primary-color-100 pf-v6-c-icon pf-m-lg" />}
               footer={
                 <Button variant={ButtonVariant.secondary} isInline onClick={() => externalLink.navigate('/iam/access-management/access-requests')}>
-                  View access requests
+                  {intl.formatMessage(messages.viewAccessRequestsButton)}
                 </Button>
               }
               ouiaId="bindings-service-card"
@@ -157,49 +152,53 @@ const V2Overview: React.FC = () => {
           </GalleryItem>
         </Gallery>
 
-        <br></br>
-
-        <Title headingLevel="h2" className="pf-v6-u-mb-md" data-ouia-component-id="understanding-access-title">
-          Understanding access
+        <Title headingLevel="h2" className="pf-v6-u-mb-md pf-v6-u-mt-lg" data-ouia-component-id="understanding-access-title">
+          {intl.formatMessage(messages.understandingAccessTitle)}
         </Title>
 
         <DataList aria-label="understanding access" className="pf-v6-u-mb-md">
           <CustomDataListItem
             icon={<UsersIcon className="pf-v6-u-primary-color-100" />}
             isExpanded
-            heading="Default groups"
-            linkTitle="View your default groups"
+            heading={intl.formatMessage(messages.defaultGroupsHeading)}
+            linkTitle={intl.formatMessage(messages.viewYourDefaultGroups)}
             linkTarget={VIEW_DEFAULT_GROUPS}
             expandableContent={
               <List>
                 <ListItem>
-                  The <b>All Users group</b> contains all authenticated users in your organization.
+                  {intl.formatMessage(messages.allUsersGroupDescription, {
+                    bold: <b>{intl.formatMessage(messages.allUsersGroupBold)}</b>,
+                  })}
                 </ListItem>
                 <ListItem>
-                  The <b>Admin Users group</b> should contain any users within your organization who require key admin privileges (like workspace
-                  administrator, or user access administrator) so they can be applied to roles and workspaces.
+                  {intl.formatMessage(messages.adminUsersGroupDescription, {
+                    bold: <b>{intl.formatMessage(messages.adminUsersGroupBold)}</b>,
+                  })}
                 </ListItem>
               </List>
             }
           />
           <CustomDataListItem
             icon={<KeyIcon className="pf-v6-u-primary-color-100" />}
-            heading="Granting access in workspaces"
-            linkTitle="Grant access"
+            heading={intl.formatMessage(messages.grantingAccessInWorkspacesHeading)}
+            linkTitle={intl.formatMessage(messages.grantAccessLink)}
             linkTarget={GRANT_ACCESS}
             expandableContent={
               <List>
                 <ListItem>
-                  <b>User Groups</b>: group your organization&apos;s end users and service accounts based on common functions (e.g., Developers,
-                  Security, Ops, etc.) to help streamline permission management.{' '}
+                  {intl.formatMessage(messages.userGroupsDescription, {
+                    bold: <b>{intl.formatMessage(messages.userGroupsBold)}</b>,
+                  })}{' '}
                 </ListItem>
                 <ListItem>
-                  <b>Roles</b>: predefined roles (e.g., Viewer, Editor, Admin) provide distinct levels of access tailored to the needs of each user
-                  group.
+                  {intl.formatMessage(messages.rolesDescription, {
+                    bold: <b>{intl.formatMessage(messages.rolesBold)}</b>,
+                  })}
                 </ListItem>
                 <ListItem>
-                  <b>Granting access</b>: assigning user groups and specific roles to a workspace grants all members of that group the corresponding
-                  permissions within the role for the services and assets within the workspace.
+                  {intl.formatMessage(messages.grantingAccessDescription, {
+                    bold: <b>{intl.formatMessage(messages.grantingAccessBold)}</b>,
+                  })}
                 </ListItem>
               </List>
             }
@@ -207,64 +206,64 @@ const V2Overview: React.FC = () => {
         </DataList>
 
         <Title headingLevel="h2" className="pf-v6-u-mb-md" data-ouia-component-id="recommended-content-title">
-          Recommended content
+          {intl.formatMessage(messages.recommendedContentTitle)}
         </Title>
 
         <Table aria-label="Recommended content" className="pf-v6-u-mb-lg">
           <Tbody>
             <Tr className="noti-c-table-border-top">
-              <Td>Create a workspace and grant access</Td>
+              <Td>{intl.formatMessage(messages.createWorkspaceQuickStart)}</Td>
               <Td>
-                <Label color="green">Quick start</Label>
+                <Label color="green">{intl.formatMessage(messages.quickStartLabel)}</Label>
               </Td>
               <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
-                <ExternalLink to="#">
-                  Begin Quick start <ExternalLinkAltIcon />
-                </ExternalLink>
+                <span className="pf-v6-u-color-200" aria-disabled="true">
+                  {intl.formatMessage(messages.beginQuickStart)} <ExternalLinkAltIcon />
+                </span>
               </Td>
             </Tr>
             <Tr>
-              <Td>Structuring your workspaces to fit your organizational use cases</Td>
+              <Td>{intl.formatMessage(messages.structuringWorkspacesDoc)}</Td>
               <Td>
-                <Label color="orange">Documentation</Label>
+                <Label color="orange">{intl.formatMessage(messages.documentationLabel)}</Label>
               </Td>
               <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
-                <ExternalLink to="#">
-                  View documentation <ExternalLinkAltIcon />
-                </ExternalLink>
+                <span className="pf-v6-u-color-200" aria-disabled="true">
+                  {intl.formatMessage(messages.viewDocumentation)} <ExternalLinkAltIcon />
+                </span>
               </Td>
             </Tr>
             <Tr>
-              <Td>Understanding Workspace hierarchy and inheritance</Td>
+              <Td>{intl.formatMessage(messages.workspaceHierarchyDoc)}</Td>
               <Td>
-                <Label color="orange">Documentation</Label>
+                <Label color="orange">{intl.formatMessage(messages.documentationLabel)}</Label>
               </Td>
               <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
-                <ExternalLink to="#">
-                  View documentation <ExternalLinkAltIcon />
-                </ExternalLink>
+                <span className="pf-v6-u-color-200" aria-disabled="true">
+                  {intl.formatMessage(messages.viewDocumentation)} <ExternalLinkAltIcon />
+                </span>
               </Td>
             </Tr>
             <Tr>
-              <Td>Understanding access management</Td>
+              <Td>{intl.formatMessage(messages.accessManagementDoc)}</Td>
               <Td>
-                <Label color="orange">Documentation</Label>
+                <Label color="orange">{intl.formatMessage(messages.documentationLabel)}</Label>
               </Td>
               <Td className="pf-v6-u-text-align-right">
                 {/* to do - add link when available */}
-                <ExternalLink to="#">
-                  View documentation <ExternalLinkAltIcon />
-                </ExternalLink>
+                <span className="pf-v6-u-color-200" aria-disabled="true">
+                  {intl.formatMessage(messages.viewDocumentation)} <ExternalLinkAltIcon />
+                </span>
               </Td>
             </Tr>
           </Tbody>
         </Table>
 
         <ExternalLink to="/settings/learning-resources" className="pf-v6-u-mb-lg">
-          View all Identity and Access Management Learning resources
+          {intl.formatMessage(messages.viewAllIAMLearningResources)}
         </ExternalLink>
       </PageSection>
     </>
