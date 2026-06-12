@@ -106,6 +106,8 @@ export interface MockState {
   tenantPermissions: TenantPermissionsMap;
   /** Optional custom user identity for auth.getUser() */
   userIdentity?: MockUserIdentity;
+  /** Role IDs the mocked user can write; undefined falls back to tenant-level rbac_roles_write */
+  writableRoleIds?: string[];
 }
 
 /**
@@ -152,6 +154,8 @@ export interface StoryParameters {
    * ```
    */
   tenantPermissions?: Partial<TenantPermissionsMap>;
+  /** Role IDs the mocked user can write; undefined falls back to tenant-level rbac_roles_write */
+  writableRoleIds?: string[];
   /** User identity for auth.getUser() */
   userIdentity?: MockUserIdentity;
   /** Feature flags */
@@ -185,6 +189,7 @@ export const StorybookMockProvider: React.FC<ProviderProps> = ({
   permissions = EMPTY_PERMISSIONS,
   workspacePermissions = EMPTY_WORKSPACE_PERMISSIONS,
   tenantPermissions = EMPTY_TENANT_PERMISSIONS,
+  writableRoleIds,
   userIdentity,
 }) => {
   const value = useMemo<MockState>(
@@ -194,9 +199,10 @@ export const StorybookMockProvider: React.FC<ProviderProps> = ({
       permissions,
       workspacePermissions: { ...EMPTY_WORKSPACE_PERMISSIONS, ...workspacePermissions },
       tenantPermissions: { ...EMPTY_TENANT_PERMISSIONS, ...tenantPermissions },
+      writableRoleIds,
       userIdentity,
     }),
-    [environment, isOrgAdmin, permissions, workspacePermissions, tenantPermissions, userIdentity],
+    [environment, isOrgAdmin, permissions, workspacePermissions, tenantPermissions, writableRoleIds, userIdentity],
   );
   return <StorybookMockContext.Provider value={value}>{children}</StorybookMockContext.Provider>;
 };

@@ -61,6 +61,8 @@ interface KesselAppEntryWithRouterProps {
   'platform.rbac.group-service-accounts'?: boolean;
   'platform.rbac.group-service-accounts.stable'?: boolean;
   'platform.rbac.common-auth-model'?: boolean;
+  /** Role IDs the mocked user can write; undefined falls back to tenant-level rbac_roles_write */
+  writableRoleIds?: string[];
 }
 
 /**
@@ -148,6 +150,8 @@ export const createDynamicEnvironment = (args: KesselAppEntryWithRouterProps) =>
     workspacePermissions,
     // Tenant permissions for V2 domain hooks (useRolesAccess, useGroupsAccess, etc.)
     tenantPermissions,
+    // Per-role write allowlist (undefined = fall back to tenant rbac_roles_write flag)
+    writableRoleIds: args.writableRoleIds,
     // User identity for auth.getUser() - used by StorybookMockContext
     userIdentity: {
       org_id: '12510751',

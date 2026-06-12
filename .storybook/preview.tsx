@@ -127,6 +127,8 @@ const preview: Preview = {
       const explicitTenantPermissions = args.tenantPermissions ?? parameters.tenantPermissions;
       const tenantPermissions = explicitTenantPermissions ?? deriveTenantPermissions(permissions);
 
+      const writableRoleIds: string[] | undefined = args.writableRoleIds ?? parameters.writableRoleIds;
+
       // User identity for auth.getUser() - use userIdentity parameter
       const userIdentity = parameters.userIdentity;
 
@@ -168,6 +170,7 @@ const preview: Preview = {
             permissions={permissions}
             workspacePermissions={workspacePermissions}
             tenantPermissions={tenantPermissions}
+            writableRoleIds={writableRoleIds}
             userIdentity={userIdentity}
           >
             <FeatureFlagsProvider value={featureFlags}>
@@ -185,6 +188,7 @@ const preview: Preview = {
           permissions={permissions}
           workspacePermissions={workspacePermissions}
           tenantPermissions={tenantPermissions}
+          writableRoleIds={writableRoleIds}
           userIdentity={userIdentity}
         >
           <FeatureFlagsProvider value={featureFlags}>

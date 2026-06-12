@@ -111,7 +111,7 @@ export function useAllRolesV2Query(options?: { enabled?: boolean; name?: string;
       do {
         const response = await rolesApi.rolesList({
           limit: 100,
-          fields: 'id,name,description,permissions_count,last_modified,org_id',
+          fields: 'id,name,description,permissions_count,last_modified',
           ...(cursor && { cursor }),
           ...(options?.name && { name: options.name }),
           ...(hasExtra && { options: { params: extraParams } }),

@@ -64,7 +64,7 @@ export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
     limit: tableState.apiParams.limit,
     cursor: tableState.apiParams.cursor,
     name: nameFilter ? `*${nameFilter}*` : undefined,
-    fields: 'id,name,description,permissions_count,last_modified,org_id',
+    fields: 'id,name,description,permissions_count,last_modified',
     orderBy: tableState.apiParams.orderBy,
   };
 
