@@ -35,12 +35,14 @@ test.describe('Overview', () => {
       await setupPage(page);
       await expect(async () => {
         await page.goto(overviewUrl, { timeout: E2E_TIMEOUTS.SLOW_DATA });
-        await expect(page.getByRole('heading', { name: /user access/i, level: 1 }).first()).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+        await expect(page.getByRole('heading', { name: /access management/i, level: 1 }).first()).toBeVisible({
+          timeout: E2E_TIMEOUTS.DETAIL_CONTENT,
+        });
       }).toPass({ timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD, intervals: [1_000, 2_000, 5_000] });
 
-      await expect(page.getByLabel('Get started card')).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
-      await expect(page.getByRole('button', { name: /view groups/i })).toBeVisible();
-      await expect(page.getByRole('button', { name: /view roles/i })).toBeVisible();
+      await expect(page.getByText('Understanding access')).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+      await expect(page.getByRole('link', { name: /view groups/i })).toBeVisible();
+      await expect(page.getByRole('link', { name: /view roles/i })).toBeVisible();
     });
   });
 
@@ -83,7 +85,7 @@ async function navigateToIamAndExpectOverview(page: Page) {
   await setupPage(page);
   await page.goto(iamBaseUrl, { timeout: E2E_TIMEOUTS.SLOW_DATA });
   await page.waitForURL(/\/overview/, { timeout: E2E_TIMEOUTS.SETUP_PAGE_LOAD });
-  await expect(page.getByRole('heading', { name: /user access/i, level: 1 }).first()).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
+  await expect(page.getByRole('heading', { name: /access management/i, level: 1 }).first()).toBeVisible({ timeout: E2E_TIMEOUTS.DETAIL_CONTENT });
 }
 
 test.describe('Default Navigation', () => {
