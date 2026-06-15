@@ -129,6 +129,8 @@ objects:
           permissions:
             - method: featureFlag
               args: [platform.rbac.workspaces, true]
+            - method: featureFlag
+              args: [platform.rbac.workspaces-list, true]
         - id: rbac-access-management
           title: Access Management
           href: /iam/access-management/users-and-user-groups
@@ -250,6 +252,15 @@ objects:
                   href: /iam/access-management/workspaces
                   icon: PlaceholderIcon
                   product: Identity & Access Management
+                  permissions:
+                    - method: featureFlag
+                      args:
+                        - platform.rbac.workspaces
+                        - true
+                    - method: featureFlag
+                      args:
+                        - platform.rbac.workspaces-list
+                        - true
                 - id: audit-log
                   title: Audit Log
                   href: /iam/access-management/audit-log
