@@ -16,8 +16,8 @@ export const OverviewLinkNavigation: Story = {
 Tests the Overview page content and link navigation.
 
 **Journey Flow:**
-1. Wait for overview page to load (heading + Get Started card)
-2. Verify "View roles" button is present
+1. Wait for overview page to load (Access Management heading + service cards)
+2. Verify "View roles" link is present
 3. Click "View roles" → verify navigation to roles page
         `,
       },
@@ -36,19 +36,19 @@ Tests the Overview page content and link navigation.
     });
 
     await step('Verify overview page content', async () => {
-      const headings = await canvas.findAllByRole('heading', { name: /user access/i });
+      const headings = await canvas.findAllByRole('heading', { name: /access management/i });
       expect(headings.length).toBeGreaterThan(0);
 
-      const viewRolesButton = await canvas.findByRole('button', { name: /view roles/i });
-      expect(viewRolesButton).toBeInTheDocument();
+      const viewRolesLink = await canvas.findByRole('link', { name: /view roles/i });
+      expect(viewRolesLink).toBeInTheDocument();
 
-      const viewGroupsButton = await canvas.findByRole('button', { name: /view groups/i });
-      expect(viewGroupsButton).toBeInTheDocument();
+      const viewGroupsLink = await canvas.findByRole('link', { name: /view groups/i });
+      expect(viewGroupsLink).toBeInTheDocument();
     });
 
     await step('Click View roles and verify navigation', async () => {
-      const viewRolesButton = await canvas.findByRole('button', { name: /view roles/i });
-      await user.click(viewRolesButton);
+      const viewRolesLink = await canvas.findByRole('link', { name: /view roles/i });
+      await user.click(viewRolesLink);
 
       await waitFor(() => {
         const addressBar = canvas.queryByTestId('fake-address-bar');

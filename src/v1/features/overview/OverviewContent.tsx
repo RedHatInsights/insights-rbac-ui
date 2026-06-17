@@ -3,9 +3,9 @@ import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { useIntl } from 'react-intl';
 import { useFlag } from '@unleash/proxy-client-react';
-import { useWorkspacesFlag } from '../../hooks/useWorkspacesFlag';
+import { useWorkspacesFlag } from '../../../shared/hooks/useWorkspacesFlag';
 import messages from '../../../Messages';
-import { EnableWorkspacesAlert } from '../workspaces/EnableWorkspacesAlert';
+import { EnableWorkspacesAlert } from '../../../shared/components/workspaces/EnableWorkspacesAlert';
 import { GetStartedCard } from './components/GetStartedCard';
 import { SupportingFeaturesSection } from './components/SupportingFeaturesSection';
 import { RecommendedContentTable } from './components/RecommendedContentTable';

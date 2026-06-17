@@ -127,6 +127,48 @@ function useBulkWorkspaceCheck<R extends RbacWorkspaceRelation>(workspaceId: str
 }
 
 // ============================================================================
+// Role-scoped bulk check helper
+// ============================================================================
+
+/**
+ * Per-role write check. Sends one /checkselfbulk item per role ID against
+ * the role resource directly. Canned roles return false from the backend
+ * without any frontend org_id guard needed.
+ */
+function useBulkRoleCheck(roleIds: string[]): { writableIds: Set<string>; isLoading: boolean } {
+  const hasIds = roleIds.length > 0;
+
+  const resources = useMemo<NotEmptyArray<SelfAccessCheckResourceWithRelation>>(() => {
+    if (!hasIds) return [] as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+    return roleIds.map((id) => ({
+      id,
+      type: 'role' as const,
+      reporter: RBAC_REPORTER,
+      relation: 'rbac_roles_write',
+    })) as unknown as NotEmptyArray<SelfAccessCheckResourceWithRelation>;
+  }, [roleIds, hasIds]);
+
+  const { data, loading } = useSelfAccessCheck({ resources });
+
+  const roleIdSet = useMemo(() => new Set(roleIds), [roleIds]);
+
+  const writableIds = useMemo(() => {
+    const out = new Set<string>();
+    if (!hasIds || !Array.isArray(data)) return out;
+    for (const check of data) {
+      if (check.allowed && roleIdSet.has(check.resource.id)) out.add(check.resource.id);
+    }
+    return out;
+  }, [data, hasIds, roleIdSet]);
+
+  return { writableIds, isLoading: hasIds && loading };
+}
+
+export function useRoleWriteAccess(roleIds: string[]): { writableIds: Set<string>; isLoading: boolean } {
+  return useBulkRoleCheck(roleIds);
+}
+
+// ============================================================================
 // Domain Hooks — public API (UI action language)
 // ============================================================================
 

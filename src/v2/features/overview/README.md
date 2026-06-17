@@ -1,19 +1,19 @@
 # overview (V2)
 
-**API generation:** none (static content + feature flags)
+**API generation:** none (static content)
 
-The V2 landing/overview page. Thin wrapper around the shared `Overview` component at `src/shared/components/overview/Overview.tsx`.
+The V2 landing/overview page. Thin wrapper around `WorkspacesOverview` at `src/v2/features/workspaces/overview/WorkspacesOverview.tsx`.
 
 ## Behavior
 
-- Passes V2 pathnames (`/access-management/users-and-user-groups/user-groups`, `/access-management/roles`) to the shared Overview component.
-- The shared component checks feature flags and conditionally shows workspace alerts.
+- Renders the Access Management landing page with service cards (Workspaces, Groups, Roles, Bindings), an "Understanding access" section, and recommended content links.
+- Navigation targets V2 routes (`/access-management/workspaces`, `/access-management/users-and-user-groups`, `/access-management/roles`).
 
 ## Route
 
-`/overview` — V2 route (the YAML nav defines `href: /iam/overview`). V1 uses `/user-access/overview`.
+`/overview` — V2 route (the YAML nav defines `href: /iam/overview`). V1 uses `/user-access/overview` and renders the shared V1-style `Overview` component instead.
 
 ## Constraints
 
 - No data fetching, no mutations.
-- V1 and V2 share the same Overview UI — only the navigation links differ.
+- V1 and V2 overview pages are different: V1 uses the shared `Overview` component ("User Access"); V2 uses `WorkspacesOverview` ("Access Management").

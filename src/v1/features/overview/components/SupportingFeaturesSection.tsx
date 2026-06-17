@@ -14,7 +14,7 @@ import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import CubesIcon from '@patternfly/react-icons/dist/js/icons/cubes-icon';
 import { useIntl } from 'react-intl';
-import { AppLink } from '../../navigation/AppLink';
+import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import messages from '../../../../Messages';
 
 interface SupportingFeaturesSectionProps {
