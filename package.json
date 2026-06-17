@@ -51,7 +51,7 @@
     "tmp": "^0.2.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.6",
+    "@babel/core": "^7.29.6",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-decorators": "^7.28.6",
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
