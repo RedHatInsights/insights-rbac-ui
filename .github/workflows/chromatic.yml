@@ -26,7 +26,7 @@ jobs:
       buildUrl: ${{ steps.chromatic-deployment.outputs.buildUrl }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -50,7 +50,7 @@ jobs:
     needs: [chromatic-deployment-push]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -113,7 +113,7 @@ jobs:
       buildUrl: ${{ steps.chromatic-deployment.outputs.buildUrl }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # For pull_request_target, checkout the PR head
           ref: ${{ github.event.pull_request.head.sha }}
@@ -139,7 +139,7 @@ jobs:
     needs: [chromatic-deployment-pr]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # For pull_request_target, checkout the PR head
           ref: ${{ github.event.pull_request.head.sha }}
