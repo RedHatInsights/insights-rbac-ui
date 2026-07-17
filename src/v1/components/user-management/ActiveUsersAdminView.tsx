@@ -13,7 +13,7 @@ type ActiveUserAdminProps = {
 
 export const ActiveUsersAdminView: FunctionComponent<ActiveUserAdminProps> = ({
   linkDescription = '',
-  linkTitle = ' user management list ',
+  linkTitle = ' Red Hat User Management page ',
   prefix,
   children,
 }) => {

@@ -15,7 +15,7 @@ const meta: Meta<AdminViewStoryArgs> = {
     docs: {
       description: {
         component: `
-ActiveUsersAdminView displays a descriptive text with a link to the Red Hat user management list.
+ActiveUsersAdminView displays a descriptive text with a link to the Red Hat User Management page.
 This component is used to provide users with information about user management and directs them to the external user management interface.
 
 ## Features
@@ -40,7 +40,7 @@ This component is used to provide users with information about user management a
   ],
   args: {
     prefix: '',
-    linkTitle: ' user management list ',
+    linkTitle: ' Red Hat User Management page ',
     linkDescription: '',
     // Default decorator values
     ...DEFAULT_DECORATOR_ARGS,
@@ -60,7 +60,7 @@ This component is used to provide users with information about user management a
       control: 'text',
       table: {
         type: { summary: 'string' },
-        defaultValue: { summary: '" user management list "' },
+        defaultValue: { summary: '" Red Hat User Management page "' },
       },
     },
     linkDescription: {
@@ -85,7 +85,7 @@ type Story = StoryObj<AdminViewStoryArgs>;
 export const Production: Story = {
   args: {
     prefix: '',
-    linkTitle: ' user management list ',
+    linkTitle: ' Red Hat User Management page ',
     linkDescription: '',
   },
 };
@@ -96,7 +96,7 @@ export const Production: Story = {
 export const Staging: Story = {
   args: {
     prefix: 'access.',
-    linkTitle: ' user management list ',
+    linkTitle: ' Red Hat User Management page ',
     linkDescription: '',
   },
 };
@@ -145,7 +145,7 @@ export const UserAccessAdmin: Story = {
   },
   args: {
     prefix: '',
-    linkTitle: ' user management list ',
+    linkTitle: ' Red Hat User Management page ',
     linkDescription: '',
   },
 };
