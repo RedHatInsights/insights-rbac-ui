@@ -223,7 +223,7 @@ export default defineMessages({
   usersDescription: {
     id: 'usersDescription',
     description: 'Description text for user list',
-    defaultMessage: 'These are all of the users in your Red Hat organization.',
+    defaultMessage: "Manage your organization's users. From here, you can invite new users, manage their status, and set 'Organization Administration' privileges.",
   },
   rbacUsers: {
     id: 'rbacUsers',
@@ -2708,7 +2708,7 @@ export default defineMessages({
   addNewUsersText: {
     id: 'addNewUsersText',
     description: 'Add new users text',
-    defaultMessage: 'To add new users or manage existing users, go to your',
+    defaultMessage: 'For more advanced user management, including adding users directly, editing details (like job title and language), and managing Customer Portal access, visit the',
   },
   triggerMyQuickstart: {
     id: 'triggerMyQuickstart',
