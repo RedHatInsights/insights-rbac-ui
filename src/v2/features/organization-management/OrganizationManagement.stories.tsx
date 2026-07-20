@@ -7,7 +7,7 @@ import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { OrganizationManagement } from './OrganizationManagement';
 import { RoutedOrgGrantAccessWizard } from './RoutedOrgGrantAccessWizard';
-import type { MockUserIdentity } from '../../../../.storybook/contexts/StorybookMockContext';
+import type { MockUserIdentity } from '@redhat-cloud-services/hcc-storybook-hub';
 import { roleBindingsBySubjectResponseHandlers } from '../../data/mocks/roleBindings.handlers';
 import { groupsHandlers } from '../../../shared/data/mocks/groups.handlers';
 import { groupMembersHandlers } from '../../../shared/data/mocks/groupMembers.handlers';

@@ -4,7 +4,7 @@ import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { expectLoadingVisible, waitForDrawer } from '../../../../../test-utils/interactionHelpers';
 import { Users } from './Users';
 import { BrowserRouter } from 'react-router-dom';
-import type { MockUserIdentity } from '../../../../../../.storybook/contexts/StorybookMockContext';
+import type { MockUserIdentity } from '@redhat-cloud-services/hcc-storybook-hub';
 import { usersHandlers, usersLoadingHandlers } from '../../../../../shared/data/mocks/users.handlers';
 import { groupsHandlers } from '../../../../../shared/data/mocks/groups.handlers';
 import { v2RolesHandlers } from '../../../../data/mocks/roles.handlers';

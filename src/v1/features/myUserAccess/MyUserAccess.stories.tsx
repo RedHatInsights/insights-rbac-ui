@@ -8,7 +8,7 @@ import { MyUserAccess } from './MyUserAccess';
 import { accessHandlers } from '../../data/mocks/access.handlers';
 import { v1RolesHandlers } from '../../data/mocks/roles.handlers';
 import type { Access, RoleOutDynamic } from '../../data/api/roles';
-import type { MockUserIdentity } from '../../../../.storybook/contexts/StorybookMockContext';
+import type { MockUserIdentity } from '@redhat-cloud-services/hcc-storybook-hub';
 
 // ===== MOCK USER IDENTITIES =====
 // Reusable identity configurations for different test scenarios
