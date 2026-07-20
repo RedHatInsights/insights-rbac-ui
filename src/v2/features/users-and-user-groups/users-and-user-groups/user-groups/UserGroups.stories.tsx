@@ -15,7 +15,7 @@ import { groupRolesHandlers } from '../../../../../shared/data/mocks/groupRoles.
 import { createRoleBindingsListHandlers } from '../../../../data/mocks/roleBindings.handlers';
 import type { RoleBinding } from '../../../../data/queries/roleBindings';
 import type { Group } from '../../../../../v2/data/queries/groups';
-import type { MockUserIdentity } from '../../../../../../.storybook/contexts/StorybookMockContext';
+import type { MockUserIdentity } from '@redhat-cloud-services/hcc-storybook-hub';
 
 // Mock user identity for stories
 const standardUser: MockUserIdentity = {

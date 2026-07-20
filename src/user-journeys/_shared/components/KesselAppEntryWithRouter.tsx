@@ -1,6 +1,6 @@
 import React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { deriveTenantPermissions } from '../../../../.storybook/helpers/derive-tenant-permissions';
+import { deriveTenantPermissions } from '@redhat-cloud-services/hcc-storybook-hub';
 import { Iam } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
 import { FrontendYamlNavigation } from './FrontendYamlNavigation';

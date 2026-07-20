@@ -1,19 +1,26 @@
 import type { Preview } from '@storybook/react-webpack5';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/patternfly/patternfly-addons.css';
-import React from 'react';
+import '@redhat-cloud-services/hcc-storybook-hub/css/storybook.css';
+import React, { useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { IntlProvider } from 'react-intl';
 import { QueryClientSetup } from '../src/shared/components/QueryClientSetup';
-import { deriveTenantPermissions } from './helpers/derive-tenant-permissions';
+import {
+  type FeatureFlagsConfig,
+  FeatureFlagsContext,
+  FeatureFlagsProvider,
+  StorybookMockProvider,
+  deriveTenantPermissions,
+  hccPreviewDefaults,
+  useMockState,
+} from '@redhat-cloud-services/hcc-storybook-hub';
+import type { Environment } from '@redhat-cloud-services/hcc-storybook-hub';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
-import { type FeatureFlagsConfig, FeatureFlagsProvider, useFlag } from './context-providers';
-import { type Environment, StorybookMockProvider, useMockState } from './contexts/StorybookMockContext';
-import { initialize, mswLoader } from 'msw-storybook-addon';
 import { ServiceProvider, createBrowserServices } from '../src/shared/services';
 import type { AddNotificationFn } from '../src/shared/entry/browser';
 import { ApiErrorProvider } from '../src/shared/contexts/ApiErrorContext';
@@ -24,7 +31,8 @@ import { ApiErrorProvider } from '../src/shared/contexts/ApiErrorContext';
 const ComponentProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const addNotification = useAddNotification() as AddNotificationFn;
   const { environment, userIdentity } = useMockState();
-  const isITLess = useFlag('platform.rbac.itless');
+  const featureFlags = useContext(FeatureFlagsContext);
+  const isITLess = featureFlags['platform.rbac.itless'] ?? false;
 
   const services = createBrowserServices({
     addNotification,
@@ -50,29 +58,20 @@ const ComponentProviders: React.FC<{ children: React.ReactNode }> = ({ children 
 };
 
 const preview: Preview = {
-  beforeAll: async () => {
-    initialize({ onUnhandledRequest: 'error' });
-  },
-  loaders: [mswLoader],
+  ...hccPreviewDefaults,
   parameters: {
+    ...hccPreviewDefaults.parameters,
     options: {
       storySort: {
         method: 'alphabetical',
         order: ['Documentation', 'Federated Modules', 'User Journeys', 'Features', 'Components', '*'],
       },
     },
-    layout: 'fullscreen',
     parameters: {
       // Sets the delay (in milliseconds) at the component level for all stories.
       chromatic: { delay: 300 },
     },
     actions: { argTypesRegex: '^on.*' },
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/i,
-      },
-    },
     // Default permission flags (can be overridden per story)
     // Note: for explicit permission arrays, use parameters.permissions = ['rbac:*:*'] etc.
     orgAdmin: false,
