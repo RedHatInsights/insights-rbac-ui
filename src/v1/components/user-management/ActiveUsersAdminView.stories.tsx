@@ -40,7 +40,7 @@ This component is used to provide users with information about user management a
   ],
   args: {
     prefix: '',
-    linkTitle: ' Red Hat User Management page ',
+    linkTitle: 'Red Hat User Management page',
     linkDescription: '',
     // Default decorator values
     ...DEFAULT_DECORATOR_ARGS,
@@ -60,7 +60,7 @@ This component is used to provide users with information about user management a
       control: 'text',
       table: {
         type: { summary: 'string' },
-        defaultValue: { summary: '" Red Hat User Management page "' },
+        defaultValue: { summary: '"Red Hat User Management page"' },
       },
     },
     linkDescription: {
@@ -85,7 +85,7 @@ type Story = StoryObj<AdminViewStoryArgs>;
 export const Production: Story = {
   args: {
     prefix: '',
-    linkTitle: ' Red Hat User Management page ',
+    linkTitle: 'Red Hat User Management page',
     linkDescription: '',
   },
 };
@@ -96,7 +96,7 @@ export const Production: Story = {
 export const Staging: Story = {
   args: {
     prefix: 'access.',
-    linkTitle: ' Red Hat User Management page ',
+    linkTitle: 'Red Hat User Management page',
     linkDescription: '',
   },
 };
@@ -107,7 +107,7 @@ export const Staging: Story = {
 export const CustomLinkTitle: Story = {
   args: {
     prefix: '',
-    linkTitle: ' Red Hat Account Management ',
+    linkTitle: 'Red Hat Account Management',
     linkDescription: '',
   },
 };
@@ -118,7 +118,7 @@ export const CustomLinkTitle: Story = {
 export const WithDescription: Story = {
   args: {
     prefix: '',
-    linkTitle: ' user management interface ',
+    linkTitle: 'user management interface',
     linkDescription: 'For detailed user administration, visit the ',
   },
 };
@@ -129,7 +129,7 @@ export const WithDescription: Story = {
 export const FullyCustomized: Story = {
   args: {
     prefix: 'access.',
-    linkTitle: ' comprehensive user administration portal ',
+    linkTitle: 'comprehensive user administration portal',
     linkDescription: 'To manage users across your organization, access the ',
   },
 };
@@ -145,7 +145,7 @@ export const UserAccessAdmin: Story = {
   },
   args: {
     prefix: '',
-    linkTitle: ' Red Hat User Management page ',
+    linkTitle: 'Red Hat User Management page',
     linkDescription: '',
   },
 };
@@ -178,7 +178,7 @@ export const EnvironmentComparison: Story = {
         <ActiveUsersAdminView
           prefix=""
           linkDescription="For advanced user management capabilities, navigate to the "
-          linkTitle=" Red Hat User Management Console "
+          linkTitle="Red Hat User Management Console"
         />
       </div>
     </div>
