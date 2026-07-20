@@ -13,7 +13,7 @@ type ActiveUserAdminProps = {
 
 export const ActiveUsersAdminView: FunctionComponent<ActiveUserAdminProps> = ({
   linkDescription = '',
-  linkTitle = ' Red Hat User Management page ',
+  linkTitle = 'Red Hat User Management page',
   prefix,
   children,
 }) => {
@@ -22,15 +22,14 @@ export const ActiveUsersAdminView: FunctionComponent<ActiveUserAdminProps> = ({
     <>
       <span>
         {`${intl.formatMessage(messages.usersDescription)} `}
-        {linkDescription}
+        {linkDescription}{' '}
         <Content
           component="a"
           href={`https://www.${prefix}redhat.com/wapps/ugc/protected/usermgt/userList.html`}
           target="_blank"
           rel="noopener noreferrer"
         >
-          {linkTitle}
-          <ExternalLinkAltIcon />
+          {linkTitle} <ExternalLinkAltIcon />
         </Content>
         .
       </span>
