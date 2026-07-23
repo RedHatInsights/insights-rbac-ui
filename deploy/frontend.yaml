@@ -256,6 +256,9 @@ objects:
                   permissions:
                     - method: isOrgAdmin
                   product: Identity & Access Management
+                - segmentRef:
+                    frontendName: service-accounts
+                    segmentId: iam-access-management-service-accounts
             - id: organization-management
               title: Organization Management
               expandable: true
