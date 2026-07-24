@@ -521,7 +521,7 @@
   "usersAndUserGroupsNoDescription": "No description",
   "usersAndUserGroupsRemoveFromGroup": "Remove from user group",
   "usersAndUserGroupsYes": "Yes",
-  "usersDescription": "These are all of the users in your organization.",
+  "usersDescription": "These are all of the users in your Red Hat organization.",
   "usersDescriptionAdmin": "Manage your organization's users. From here, you can invite new users, manage their status, and set 'Organization Administration' privileges.",
   "usersEmptyStateSubtitle": "This filter criteria matches no users. Try changing your filter input.",
   "usersEmptyStateTitle": "No users found",
