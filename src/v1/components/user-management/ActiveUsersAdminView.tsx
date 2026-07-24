@@ -21,7 +21,7 @@ export const ActiveUsersAdminView: FunctionComponent<ActiveUserAdminProps> = ({
   return (
     <>
       <span>
-        {`${intl.formatMessage(messages.usersDescription)} `}
+        {`${intl.formatMessage(messages.usersDescriptionAdmin)} `}
         {linkDescription}{' '}
         <Content
           component="a"

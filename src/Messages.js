@@ -223,6 +223,11 @@ export default defineMessages({
   usersDescription: {
     id: 'usersDescription',
     description: 'Description text for user list',
+    defaultMessage: 'These are all of the users in your organization.',
+  },
+  usersDescriptionAdmin: {
+    id: 'usersDescriptionAdmin',
+    description: 'Description text for user list shown to org admins',
     defaultMessage:
       "Manage your organization's users. From here, you can invite new users, manage their status, and set 'Organization Administration' privileges.",
   },
