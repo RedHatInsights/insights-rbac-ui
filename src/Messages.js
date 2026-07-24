@@ -223,7 +223,7 @@ export default defineMessages({
   usersDescription: {
     id: 'usersDescription',
     description: 'Description text for user list',
-    defaultMessage: 'These are all of the users in your organization.',
+    defaultMessage: 'These are all of the users in your Red Hat organization.',
   },
   usersDescriptionAdmin: {
     id: 'usersDescriptionAdmin',
