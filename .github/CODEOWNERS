@@ -1,7 +1,37 @@
-# This is a comment.
-# Each line is a file pattern followed by one or more owners.
+# Default — team reviews all feature code
+*                               @RedHatInsights/experience-ui-committers
 
-# These owners will be the default owners for everything in
-# the repo. Unless a later match takes precedence.
-*       @RedHatInsights/experience-ui-committers
-*       @RedHatInsights/experience-ui-admins
+# Structural / architectural gatekeeping — broad blast radius
+/.github/                       @riccardo-forina @jjaquish
+/.storybook/                    @riccardo-forina @jjaquish
+/.husky/                        @riccardo-forina @jjaquish
+/.tekton/                       @riccardo-forina @jjaquish
+/.travis/                       @riccardo-forina @jjaquish
+/.travis.yml                    @riccardo-forina @jjaquish
+/.coderabbit.yaml               @riccardo-forina @jjaquish
+/.commitlintrc.js               @riccardo-forina @jjaquish
+/.gitignore                     @riccardo-forina @jjaquish
+/.prettierrc.json               @riccardo-forina @jjaquish
+/.node-version                  @riccardo-forina @jjaquish
+/.nvmrc                         @riccardo-forina @jjaquish
+/config/                        @riccardo-forina @jjaquish
+/babel.config.js                @riccardo-forina @jjaquish
+/package.json                   @riccardo-forina @jjaquish
+/package-lock.json              @riccardo-forina @jjaquish
+/tsconfig.json                  @riccardo-forina @jjaquish
+
+# E2E
+/e2e/                           @riccardo-forina @jjaquish
+
+# ESLint rules — architectural boundary enforcement
+/eslint-rules/                  @riccardo-forina @jjaquish
+
+# App shell and routes
+/src/Iam.tsx                    @riccardo-forina @jjaquish
+/src/v1/Routing.tsx             @riccardo-forina @jjaquish
+/src/v2/Routing.tsx             @riccardo-forina @jjaquish
+
+# Data layer — API contracts, queries, mocks
+/src/v1/data/                   @riccardo-forina @jjaquish
+/src/v2/data/                   @riccardo-forina @jjaquish
+/src/shared/data/               @riccardo-forina @jjaquish
