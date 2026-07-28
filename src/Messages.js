@@ -419,7 +419,7 @@ export default defineMessages({
   editGroupErrorDescription: {
     id: 'editGroupErrorDescription',
     description: 'Edit group error notification description',
-    defaultMessage: 'The group was not updated successfuly.',
+    defaultMessage: 'The group was not updated successfully.',
   },
   deleteWorkspaceErrorTitle: {
     id: 'deleteWorkspaceErrorTitle',

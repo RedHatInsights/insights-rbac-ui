@@ -181,7 +181,7 @@
     "editAccessForThisWorkspace": "Edit access for this workspace",
     "editCustomRole": "Edit custom role",
     "editGroupCanceledDescription": "Edit group was canceled by the user.",
-    "editGroupErrorDescription": "The group was not updated successfuly.",
+    "editGroupErrorDescription": "The group was not updated successfully.",
     "editGroupErrorTitle": "Failed updating group",
     "editGroupInfo": "Edit group's information",
     "editGroupSuccessDescription": "The group was updated successfully.",

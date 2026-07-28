@@ -416,7 +416,7 @@ export const ErrorNotification: Story = {
       // Notification may take time to render after form submission failure
       const body = within(document.body);
       await body.findByText('Failed updating group', {}, { timeout: 5000 });
-      await body.findByText('The group was not updated successfuly.', {}, { timeout: 2000 });
+      await body.findByText('The group was not updated successfully.', {}, { timeout: 2000 });
 
       // ✅ Error handling completed - the EditGroupModal handles its own error logic
     });
