@@ -498,7 +498,7 @@ async function runInteractiveCli(): Promise<void> {
     await ensureAuthenticated();
 
     console.log('✅ Login successful!');
-    console.log(`   Token: ${getCurrentToken()}`);
+    console.log(`   Token: ${getCurrentToken()} (masked)`);
     console.log(`   API: ${getApiBaseUrl()}\n`);
     process.exit(0);
   }

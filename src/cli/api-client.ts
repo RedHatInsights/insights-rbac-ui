@@ -184,7 +184,7 @@ export function isApiClientInitialized(): boolean {
  */
 export function getCurrentToken(): string {
   if (!currentToken) return '(not set)';
-  return currentToken;
+  return currentToken.length > 8 ? `${currentToken.slice(0, 8)}…` : '***';
 }
 
 // ============================================================================
