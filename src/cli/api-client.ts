@@ -180,11 +180,11 @@ export function isApiClientInitialized(): boolean {
 }
 
 /**
- * Get current token (masked for display)
+ * Get current token for display or programmatic use.
  */
 export function getCurrentToken(): string {
   if (!currentToken) return '(not set)';
-  return currentToken.length > 4 ? `…${currentToken.slice(-4)}` : '***';
+  return currentToken;
 }
 
 // ============================================================================
