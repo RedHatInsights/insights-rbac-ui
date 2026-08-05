@@ -3,6 +3,7 @@ import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { useIntl } from 'react-intl';
 import { useFlag } from '@unleash/proxy-client-react';
+import { useIdentity } from '../../../shared/hooks/useIdentity';
 import { useWorkspacesFlag } from '../../../shared/hooks/useWorkspacesFlag';
 import messages from '../../../Messages';
 import { EnableWorkspacesAlert } from '../../../shared/components/workspaces/EnableWorkspacesAlert';
@@ -24,6 +25,8 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
   const intl = useIntl();
   const isWorkspacesFlag = useWorkspacesFlag('m5');
   const isWorkspacesEligible = useFlag('platform.rbac.workspaces-eligible');
+  const isConversionOptInEnabled = useFlag('platform-conversion.opt-in-banner');
+  const { orgAdmin } = useIdentity();
 
   return (
     <React.Fragment>
@@ -37,13 +40,15 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
           href: 'https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index',
         }}
       />
-      {/* Workspace v2 conversion opt-in banner */}
-      <PageSection hasBodyWrapper={false}>
-        <ConversionOptInBanner
-          onGetStarted={() => console.log('Get started clicked')}
-          learnMoreUrl="https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=6"
-        />
-      </PageSection>
+      {isConversionOptInEnabled && (
+        <PageSection hasBodyWrapper={false}>
+          <ConversionOptInBanner
+            isOrgAdmin={orgAdmin}
+            onGetStarted={() => console.log('Get started clicked')}
+            learnMoreUrl="https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=6"
+          />
+        </PageSection>
+      )}
       <PageSection hasBodyWrapper={false}>
         <GetStartedCard className="pf-v6-u-mb-lg" groupsLink={links.groups} rolesLink={links.roles} />
         <SupportingFeaturesSection className="pf-v6-u-mb-lg" groupsLink={links.groups} />

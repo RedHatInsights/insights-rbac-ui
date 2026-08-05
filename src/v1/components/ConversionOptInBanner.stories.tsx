@@ -1,34 +1,32 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import { ConversionOptInBanner, type ConversionOptInBannerProps } from './ConversionOptInBanner';
-import { DECORATOR_ARG_TYPES, DEFAULT_DECORATOR_ARGS, type StoryArgs } from '../../../.storybook/types';
 import messages from '../../Messages';
 
-type BannerStoryArgs = StoryArgs<ConversionOptInBannerProps>;
-
-const meta: Meta<BannerStoryArgs> = {
+const meta: Meta<ConversionOptInBannerProps> = {
   component: ConversionOptInBanner,
-  tags: ['autodocs', 'ff:platform-conversion.opt-in-banner', 'perm:org-admin'],
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {
         component: `
-Prompts org admins to opt-in to Workspace v2. Only visible when the
-\`platform-conversion.opt-in-banner\` feature flag is enabled, the user's
-identity has loaded, and the user is an org admin.
+Prompts org admins to opt-in to Workspace v2. Renders the admin banner when
+\`isOrgAdmin\` is true, nothing otherwise. Feature flag and identity gating
+live in the parent (OverviewContent), not in this component.
         `,
       },
     },
-    orgAdmin: true,
-    featureFlags: { 'platform-conversion.opt-in-banner': true },
   },
   args: {
+    isOrgAdmin: true,
     onGetStarted: fn(),
     learnMoreUrl: '#',
-    ...DEFAULT_DECORATOR_ARGS,
-    orgAdmin: true,
   },
   argTypes: {
+    isOrgAdmin: {
+      control: 'boolean',
+      description: 'Whether the current user is an org admin',
+    },
     onGetStarted: {
       description: 'Callback when "Get started now" is clicked',
       table: { category: 'Events' },
@@ -38,12 +36,11 @@ identity has loaded, and the user is an org admin.
       description: 'URL for the "Learn more" link',
       table: { type: { summary: 'string' }, defaultValue: { summary: '"#"' } },
     },
-    ...DECORATOR_ARG_TYPES,
   },
 };
 
 export default meta;
-type Story = StoryObj<BannerStoryArgs>;
+type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   play: async ({ canvasElement }) => {
@@ -77,24 +74,9 @@ export const CustomLearnMoreUrl: Story = {
   },
 };
 
-export const HiddenWhenFlagDisabled: Story = {
-  tags: ['ff:platform-conversion.opt-in-banner'],
-  parameters: {
-    featureFlags: { 'platform-conversion.opt-in-banner': false },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.queryByRole('alert')).not.toBeInTheDocument();
-  },
-};
-
 export const HiddenForNonAdmin: Story = {
-  tags: ['perm:org-admin'],
-  parameters: {
-    orgAdmin: false,
-  },
   args: {
-    orgAdmin: false,
+    isOrgAdmin: false,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
