@@ -6,6 +6,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import { useWorkspacesFlag } from '../../../shared/hooks/useWorkspacesFlag';
 import messages from '../../../Messages';
 import { EnableWorkspacesAlert } from '../../../shared/components/workspaces/EnableWorkspacesAlert';
+import { ConversionOptInBanner } from '../../components/ConversionOptInBanner';
 import { GetStartedCard } from './components/GetStartedCard';
 import { SupportingFeaturesSection } from './components/SupportingFeaturesSection';
 import { RecommendedContentTable } from './components/RecommendedContentTable';
@@ -36,6 +37,13 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
           href: 'https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index',
         }}
       />
+      {/* Workspace v2 conversion opt-in banner */}
+      <PageSection hasBodyWrapper={false}>
+        <ConversionOptInBanner
+          onGetStarted={() => console.log('Get started clicked')}
+          learnMoreUrl="https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=6"
+        />
+      </PageSection>
       <PageSection hasBodyWrapper={false}>
         <GetStartedCard className="pf-v6-u-mb-lg" groupsLink={links.groups} rolesLink={links.roles} />
         <SupportingFeaturesSection className="pf-v6-u-mb-lg" groupsLink={links.groups} />
