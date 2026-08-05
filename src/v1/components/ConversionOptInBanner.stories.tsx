@@ -48,24 +48,16 @@ type Story = StoryObj<BannerStoryArgs>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(
-      canvas.findByText(messages.conversionBannerAdminTitle.defaultMessage)
-    ).resolves.toBeInTheDocument();
-    await expect(
-      canvas.findByText(messages.conversionBannerAdminGetStarted.defaultMessage)
-    ).resolves.toBeInTheDocument();
-    await expect(
-      canvas.findByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false })
-    ).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(messages.conversionBannerAdminTitle.defaultMessage)).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(messages.conversionBannerAdminGetStarted.defaultMessage)).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false })).resolves.toBeInTheDocument();
   },
 };
 
 export const OnGetStartedCallback: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    const getStartedLink = await canvas.findByText(
-      messages.conversionBannerAdminGetStarted.defaultMessage
-    );
+    const getStartedLink = await canvas.findByText(messages.conversionBannerAdminGetStarted.defaultMessage);
     await userEvent.click(getStartedLink);
     await expect(args.onGetStarted).toHaveBeenCalledTimes(1);
   },
@@ -77,9 +69,7 @@ export const CustomLearnMoreUrl: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const learnMoreLink = await canvas.findByText(
-      messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false }
-    );
+    const learnMoreLink = await canvas.findByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false });
     const anchor = learnMoreLink.closest('a');
     await expect(anchor).toHaveAttribute('href', 'https://example.com/benefits');
     await expect(anchor).toHaveAttribute('target', '_blank');
