@@ -54,6 +54,13 @@ reviews:
         Export rule: shared components must use named exports only. No default exports.
         Flag any `export default` in `**/components/` as a blocking issue.
 
+        Separation of concerns: components must be presentational. They must NOT directly import
+        or call feature flags (`useFlag`, `useFeatureFlag`), identity/auth hooks (`useIdentity`,
+        `useChrome`), or permission hooks (`usePermissions`). These concerns belong in the
+        consuming feature (`**/features/`), which passes the resolved values as props or
+        conditionally renders the component. If a component in `**/components/` imports any of
+        these hooks, flag it as a blocking issue.
+
     - path: "**/components/table-view/**"
       instructions: |
         Changes here are shared infrastructure with wide blast radius.
