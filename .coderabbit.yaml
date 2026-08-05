@@ -51,7 +51,8 @@ reviews:
 
     - path: "**/components/**/*.tsx"
       instructions: |
-        Export rule: shared components must use named exports only. No default exports.
+        Export rule (skip `*.stories.tsx` — Storybook CSF requires a default meta export):
+        shared components must use named exports only. No default exports.
         Flag any `export default` in `**/components/` as a blocking issue.
 
         Separation of concerns: components must not import raw infrastructure hooks — i.e.
