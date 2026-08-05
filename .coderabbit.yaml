@@ -45,14 +45,14 @@ reviews:
     - path: "**/features/**/*.tsx"
       instructions: |
         Export rule: components must use named exports only. Features (route/page containers, i.e. files
-        directly under `src/features/<island>/`) may additionally export a default, but must always have
+        directly under `**/features/<island>/`) may additionally export a default, but must always have
         a named export too. Flag `export default function` or `export default` as the only export on a
         component file as a blocking issue.
 
     - path: "**/components/**/*.tsx"
       instructions: |
         Export rule: shared components must use named exports only. No default exports.
-        Flag any `export default` in `src/components/` as a blocking issue.
+        Flag any `export default` in `**/components/` as a blocking issue.
 
     - path: "**/components/table-view/**"
       instructions: |
