@@ -6,8 +6,6 @@
 /.storybook/                    @riccardo-forina @jjaquish
 /.husky/                        @riccardo-forina @jjaquish
 /.tekton/                       @riccardo-forina @jjaquish
-/.travis/                       @riccardo-forina @jjaquish
-/.travis.yml                    @riccardo-forina @jjaquish
 /.coderabbit.yaml               @riccardo-forina @jjaquish
 /.commitlintrc.js               @riccardo-forina @jjaquish
 /.gitignore                     @riccardo-forina @jjaquish
