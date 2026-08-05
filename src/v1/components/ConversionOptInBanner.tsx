@@ -1,6 +1,6 @@
 import React from 'react';
 import { Alert, AlertActionLink } from '@patternfly/react-core';
-import ExternalLinkAltIcon from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
+import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-link-alt-icon';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useIntl } from 'react-intl';
 import { useIdentity } from '../../shared/hooks/useIdentity';
@@ -60,5 +60,3 @@ export const ConversionOptInBanner: React.FC<ConversionOptInBannerProps> = ({ on
     </Alert>
   );
 };
-
-export default ConversionOptInBanner;
