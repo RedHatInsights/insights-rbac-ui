@@ -54,12 +54,14 @@ reviews:
         Export rule: shared components must use named exports only. No default exports.
         Flag any `export default` in `**/components/` as a blocking issue.
 
-        Separation of concerns: components must be presentational. They must NOT directly import
-        or call feature flags (`useFlag`, `useFeatureFlag`), identity/auth hooks (`useIdentity`,
-        `useChrome`), or permission hooks (`usePermissions`). These concerns belong in the
-        consuming feature (`**/features/`), which passes the resolved values as props or
-        conditionally renders the component. If a component in `**/components/` imports any of
-        these hooks, flag it as a blocking issue.
+        Separation of concerns: components must not import raw infrastructure hooks — i.e.
+        low-level primitives that expose platform internals the component shouldn't know about.
+        Banned: `useFlag` (raw Unleash primitive — the component shouldn't know flag names),
+        `useIdentity` (raw identity context), `useChrome` (platform kitchen-sink API),
+        `usePermissions` (raw RBAC check). Semantic/domain hooks that encapsulate a decision
+        (e.g. `useWorkspacesFlag`) are fine — the distinction is whether the component is
+        interpreting raw infrastructure or consuming a resolved domain concept. If a component
+        imports a banned hook, flag it as a blocking issue.
 
     - path: "**/components/table-view/**"
       instructions: |
