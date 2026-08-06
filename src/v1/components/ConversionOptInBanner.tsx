@@ -4,16 +4,17 @@ import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 
+const LEARN_MORE_URL =
+  'https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=6';
+
 export interface ConversionOptInBannerProps {
   /** Whether the current user is an org admin */
   isOrgAdmin: boolean;
   /** Callback when "Get started now" is clicked (admin only) */
   onGetStarted?: () => void;
-  /** URL for "Learn more about the benefits" link (admin only). Defaults to "#" */
-  learnMoreUrl?: string;
 }
 
-export const ConversionOptInBanner: React.FC<ConversionOptInBannerProps> = ({ isOrgAdmin, onGetStarted, learnMoreUrl = '#' }) => {
+export const ConversionOptInBanner: React.FC<ConversionOptInBannerProps> = ({ isOrgAdmin, onGetStarted }) => {
   const intl = useIntl();
 
   if (!isOrgAdmin) {
@@ -28,7 +29,7 @@ export const ConversionOptInBanner: React.FC<ConversionOptInBannerProps> = ({ is
       actionLinks={
         <>
           <AlertActionLink onClick={onGetStarted}>{intl.formatMessage(messages.conversionBannerAdminGetStarted)}</AlertActionLink>
-          <AlertActionLink component="a" href={learnMoreUrl} target="_blank" rel="noopener noreferrer">
+          <AlertActionLink component="a" href={LEARN_MORE_URL} target="_blank" rel="noopener noreferrer">
             {intl.formatMessage(messages.conversionBannerAdminLearnMore)} <ExternalLinkAltIcon />
           </AlertActionLink>
         </>

@@ -42,11 +42,7 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
       />
       {isConversionOptInEnabled && (
         <PageSection hasBodyWrapper={false}>
-          <ConversionOptInBanner
-            isOrgAdmin={orgAdmin}
-            onGetStarted={() => console.log('Get started clicked')}
-            learnMoreUrl="https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=6"
-          />
+          <ConversionOptInBanner isOrgAdmin={orgAdmin} onGetStarted={() => console.log('Get started clicked')} />
         </PageSection>
       )}
       <PageSection hasBodyWrapper={false}>

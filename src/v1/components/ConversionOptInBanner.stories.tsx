@@ -20,7 +20,6 @@ live in the parent (OverviewContent), not in this component.
   args: {
     isOrgAdmin: true,
     onGetStarted: fn(),
-    learnMoreUrl: '#',
   },
   argTypes: {
     isOrgAdmin: {
@@ -30,11 +29,6 @@ live in the parent (OverviewContent), not in this component.
     onGetStarted: {
       description: 'Callback when "Get started now" is clicked',
       table: { category: 'Events' },
-    },
-    learnMoreUrl: {
-      control: 'text',
-      description: 'URL for the "Learn more" link',
-      table: { type: { summary: 'string' }, defaultValue: { summary: '"#"' } },
     },
   },
 };
@@ -60,15 +54,15 @@ export const OnGetStartedCallback: Story = {
   },
 };
 
-export const CustomLearnMoreUrl: Story = {
-  args: {
-    learnMoreUrl: 'https://example.com/benefits',
-  },
+export const LearnMoreLink: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const learnMoreLink = await canvas.findByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false });
     const anchor = learnMoreLink.closest('a');
-    await expect(anchor).toHaveAttribute('href', 'https://example.com/benefits');
+    await expect(anchor).toHaveAttribute(
+      'href',
+      'https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=6',
+    );
     await expect(anchor).toHaveAttribute('target', '_blank');
     await expect(anchor).toHaveAttribute('rel', 'noopener noreferrer');
   },
