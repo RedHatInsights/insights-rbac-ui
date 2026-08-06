@@ -1,7 +1,7 @@
 import { expect, within } from 'storybook/test';
 import { waitForContentReady } from '../../test-utils/interactionHelpers';
 import messages from '../../Messages';
-import { Story, meta, resetStoryState, v1Db } from './_v1OrgAdminSetup';
+import { Story, meta } from './_v1OrgAdminSetup';
 
 export default {
   ...meta,
@@ -22,10 +22,6 @@ export const BannerVisibleForOrgAdmin: Story = {
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    await step('Reset state', async () => {
-      await resetStoryState(v1Db);
-    });
 
     await step('Wait for content to load', async () => {
       await waitForContentReady(canvasElement);
@@ -59,10 +55,6 @@ export const BannerHiddenWhenFlagDisabled: Story = {
   },
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-
-    await step('Reset state', async () => {
-      await resetStoryState(v1Db);
-    });
 
     await step('Wait for content to load', async () => {
       await waitForContentReady(canvasElement);
