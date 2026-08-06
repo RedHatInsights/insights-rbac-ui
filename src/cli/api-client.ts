@@ -180,7 +180,8 @@ export function isApiClientInitialized(): boolean {
 }
 
 /**
- * Get current token (masked for display)
+ * Get the current token for display or programmatic use.
+ * Returns `'(not set)'` when no token is available.
  */
 export function getCurrentToken(): string {
   if (!currentToken) return '(not set)';
