@@ -1,41 +1,38 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 #
-# CodeRabbit review configuration.
+# CodeRabbit review configuration for insights-rbac-ui.
 #
-# AGENTS.md (auto-detected) covers rules for agents WRITING code.
-# This file covers rules for CodeRabbit REVIEWING code.
-# They are complementary: AGENTS.md = coding standards, this file = PR hygiene checks.
+# General team rules are sourced from experience-ui-governance/templates/coderabbit.yml.
+# This file adds rbac-specific rules on top.
 
 reviews:
   path_instructions:
-    # Catch-all: general PR hygiene checks applied to every changed file
+    # ──────────────────────────────────────────────────────────────────────
+    # TEAM RULES (from experience-ui-governance template)
+    # Keep in sync with: https://github.com/RedHatInsights/experience-ui-governance/blob/main/templates/coderabbit.yml
+    # ──────────────────────────────────────────────────────────────────────
+
     - path: "**"
       instructions: |
         ## PR hygiene checks
 
         ### Routes
-        If the PR adds or modifies a route (check `src/utilities/pathnames.ts`, routing config,
-        or any component that introduces a new URL-tied modal/page):
-        - There must be a Storybook user-journey story covering the happy path (create/edit/delete).
-        - If it is a page or modal tied to a real URL, there must also be a Playwright E2E spec
-          in `e2e/journeys/` or a concrete plan to add one.
+        If the PR adds or modifies a route (check routing config or any component
+        that introduces a new URL-tied modal/page):
+        - There must be a Storybook user-journey story covering the happy path.
+        - If it is a page or modal tied to a real URL, there must also be a Playwright
+          E2E spec or a concrete plan to add one.
         - Flag the absence of either as a blocking issue.
 
         ### Components
-        If the PR adds a new component in `**/features/` or `**/components`:
+        If the PR adds a new component in `**/features/` or `**/components/`:
         - There must be a `.stories.tsx` file alongside it.
         - The story must have at least one `play` function testing an interaction.
         - Flag missing stories as a blocking issue. Flag stories with no `play` function as a warning.
 
         ### TableView usage
         If the PR introduces a `TableView` import without a corresponding `useTableState` import
-        in the same file, flag it as a blocking issue. The ESLint rule `rbac-local/require-use-table-state`
-        enforces this, but CodeRabbit should flag it explicitly in the review comment too.
-
-        ### API calls
-        If the PR adds direct calls to `@redhat-cloud-services/rbac-client` methods WITHOUT
-        the `(api.method as any)` cast pattern, flag it. The client types are broken and direct
-        usage causes silent runtime failures. See `src/docs/APIClientPatterns.mdx`.
+        in the same file, flag it as a blocking issue.
 
         ### Feature island READMEs
         If the PR modifies files inside `**/features/<island>/` and introduces a new sub-feature,
@@ -64,6 +61,22 @@ reviews:
         interpreting raw infrastructure or consuming a resolved domain concept. If a component
         imports a banned hook, flag it as a blocking issue.
 
+    - path: ".github/CODEOWNERS"
+      instructions: |
+        Each owner entry must be on its own line for independent approval enforcement.
+        A single line with multiple teams means only one approval is required total — flag this.
+
+    # ──────────────────────────────────────────────────────────────────────
+    # RBAC-SPECIFIC RULES (only apply to this repo)
+    # ──────────────────────────────────────────────────────────────────────
+
+    - path: "**"
+      instructions: |
+        ### API calls (rbac-specific)
+        If the PR adds direct calls to `@redhat-cloud-services/rbac-client` methods WITHOUT
+        the `(api.method as any)` cast pattern, flag it. The client types are broken and direct
+        usage causes silent runtime failures. See `src/docs/APIClientPatterns.mdx`.
+
     - path: "**/components/table-view/**"
       instructions: |
         Changes here are shared infrastructure with wide blast radius.
@@ -73,14 +86,6 @@ reviews:
 
     - path: "src/docs/**"
       instructions: |
-        Docs must not duplicate TypeScript type definitions from source — they reference source file paths instead.
-        Flag code blocks that contain `interface Foo { ... }` or `type Foo = ...` declarations — these are
-        definitions that will drift from source.
-        Do NOT flag: inline shape descriptions with comments (e.g. `{ offset: number; limit: number }`),
-        usage snippets showing how to call a function, or option tables describing behaviour. Those are
-        illustrative, not definitions.
-
-    - path: ".github/CODEOWNERS"
-      instructions: |
-        Each owner entry must be on its own line for independent approval enforcement.
-        A single line with multiple teams means only one approval is required total — flag this.
+        Docs must not duplicate TypeScript type definitions from source — they reference
+        source file paths instead. Flag code blocks that contain `interface Foo { ... }` or
+        `type Foo = ...` declarations — these are definitions that will drift from source.
