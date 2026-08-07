@@ -1,5 +1,4 @@
 import React from 'react';
-import { useFlag } from '@unleash/proxy-client-react';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { DescriptionList } from '@patternfly/react-core/dist/dynamic/components/DescriptionList';
 import { DescriptionListDescription } from '@patternfly/react-core/dist/dynamic/components/DescriptionList';
@@ -8,6 +7,7 @@ import { DescriptionListTerm } from '@patternfly/react-core/dist/dynamic/compone
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useIntl } from 'react-intl';
+import { useWorkspacesBillingFeatures } from '../../../../../capabilities/useWorkspacesFlag';
 import { BUNDLES, WORKSPACE_ACCOUNT, WORKSPACE_DESCRIPTION, WORKSPACE_FEATURES, WORKSPACE_NAME, WORKSPACE_PARENT } from '../schema';
 import messages from '../../../../../Messages';
 
@@ -15,7 +15,7 @@ export const ReviewStep = () => {
   const intl = useIntl();
   const formOptions = useFormApi();
   const values = formOptions.getState().values;
-  const enableBillingFeatures = useFlag('platform.rbac.workspaces-billing-features');
+  const enableBillingFeatures = useWorkspacesBillingFeatures();
 
   return (
     <div className="rbac">

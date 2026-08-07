@@ -10,7 +10,6 @@ import { createQueryParams } from '../../../../shared/helpers/navigation';
 import { schemaBuilder } from './schema';
 import { useCreateRoleMutation } from '../../../data/queries/roles';
 import type { Permission, RolesCreateOrUpdateRoleRequest } from '../../../data/queries/roles';
-import { useFlag } from '@unleash/proxy-client-react';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { RoleCreationSuccess } from '../components/RoleCreationSuccess';
 import BaseRoleTable from './BaseRoleTable';
@@ -20,6 +19,7 @@ import CostResources from './CostResources';
 import TypeSelector from './TypeSelector';
 import SetName from './SetName';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
+import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import { SilentErrorBoundary } from '../../../../shared/components/ui-states/SilentErrorBoundary';
 import messages from '../../../../Messages';
 import paths from '../../../utilities/pathnames';
@@ -82,7 +82,7 @@ export const mapperExtension = {
 const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination = {}, filters = {}, cancelRoute }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
-  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const enableWorkspacesNameChange = useWorkspacesRenameFlag();
   const addNotification = useAddNotification();
   const createRoleMutation = useCreateRoleMutation();
 

@@ -6,7 +6,7 @@ import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../sh
 import paths from '../../utilities/pathnames';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useCommonAuthModel } from '../../../capabilities/useCommonAuthModel';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import useUserData from '../../hooks/useUserData';
 import { WarningModal } from '@patternfly/react-component-groups';
@@ -52,7 +52,7 @@ const columns = ['org_admin', 'username', 'email', 'first_name', 'last_name', 's
 const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLinks, props, usesMetaInURL }) => {
   const intl = useIntl();
   const { orgAdmin } = useUserData();
-  const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
+  const { isEnabled: isCommonAuthModel } = useCommonAuthModel();
   const userData = useUserData();
   const appNavigate = useAppNavigate();
 

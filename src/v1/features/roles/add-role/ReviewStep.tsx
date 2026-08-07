@@ -4,7 +4,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 
 interface Row {
   cells: string[];
@@ -33,7 +33,7 @@ const PermissionsTable: React.FC<{ columns: string[]; rows: Row[]; label: string
 
 const ReviewStep: React.FC = () => {
   const intl = useIntl();
-  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const enableWorkspacesNameChange = useWorkspacesRenameFlag();
   const formOptions = useFormApi();
   const {
     'role-name': name,

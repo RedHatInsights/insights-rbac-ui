@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { useFlag } from '@unleash/proxy-client-react';
 
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
@@ -14,7 +13,8 @@ import SetServiceAccounts from './components/stepServiceAccounts/SetServiceAccou
 import { SummaryContent } from './components/stepReview/SummaryContent';
 import { AddGroupSuccess } from './AddGroupSuccess';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
+import { useServiceAccountsFlag } from '../../../../capabilities/useServiceAccountsFlag';
+import { useWorkspacesFlag } from '../../../../capabilities/useWorkspacesFlag';
 import pathnames from '../../../utilities/pathnames';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
@@ -44,7 +44,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
   const addServiceAccountsMutation = useAddServiceAccountsToGroupMutation();
 
   // Feature flags for wizard configuration
-  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts.stable');
+  const enableServiceAccounts = useServiceAccountsFlag();
 
   const enableWorkspaces = useWorkspacesFlag('m5'); // Master flag
 

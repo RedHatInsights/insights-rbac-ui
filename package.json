@@ -52,7 +52,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.28.6",
-    "@redhat-cloud-services/hcc-storybook-hub": "^0.2.2",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-decorators": "^7.28.6",
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
@@ -69,6 +68,7 @@
     "@playwright/test": "^1.57.0",
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^3.0.12",
     "@redhat-cloud-services/frontend-components-config": "^6.7.51",
+    "@redhat-cloud-services/hcc-storybook-hub": "^0.2.2",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.37",
     "@storybook/addon-docs": "^10.2.19",
     "@storybook/addon-webpack5-compiler-swc": "^4.0.2",
@@ -100,6 +100,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-storybook": "^10.2.8",
     "eslint-plugin-testing-library": "^7.15.4",
+    "experience-ui-governance": "github:RedHatInsights/experience-ui-governance",
     "happy-dom": "^20.10.2",
     "http-server": "^14.1.1",
     "https-proxy-agent": "^7.0.6",
