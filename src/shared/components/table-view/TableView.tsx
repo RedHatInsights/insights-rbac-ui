@@ -40,7 +40,7 @@ import { DefaultEmptyStateError, DefaultEmptyStateNoData, DefaultEmptyStateNoRes
  *
  * Exceptions: display-only tables rendering small, fully-local datasets (e.g., from props)
  * where no server-side state management is needed. Suppress the ESLint warning with:
- * `// eslint-disable-next-line rbac-local/require-use-table-state -- <reason>`
+ * `// eslint-disable-next-line experience-ui/require-use-table-state -- <reason>`
  *
  * @template TColumns - Const tuple of column IDs
  * @template TRow - Row data type

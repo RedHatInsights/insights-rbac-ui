@@ -2,8 +2,7 @@ import React from 'react';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { useIntl } from 'react-intl';
-import { useFlag } from '@unleash/proxy-client-react';
-import { useWorkspacesFlag } from '../../../shared/hooks/useWorkspacesFlag';
+import { useWorkspacesEligibility, useWorkspacesFlag } from '../../../capabilities/useWorkspacesFlag';
 import messages from '../../../Messages';
 import { EnableWorkspacesAlert } from '../../../shared/components/workspaces/EnableWorkspacesAlert';
 import { GetStartedCard } from './components/GetStartedCard';
@@ -22,7 +21,7 @@ interface OverviewProps {
 const Overview: React.FC<OverviewProps> = ({ links }) => {
   const intl = useIntl();
   const isWorkspacesFlag = useWorkspacesFlag('m5');
-  const isWorkspacesEligible = useFlag('platform.rbac.workspaces-eligible');
+  const isWorkspacesEligible = useWorkspacesEligibility();
 
   return (
     <React.Fragment>

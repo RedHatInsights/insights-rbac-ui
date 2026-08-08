@@ -3,7 +3,7 @@ import { useIntl } from 'react-intl';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { useWorkspaceGroups } from '../../../data/queries/groupAssignments';
 import type { WorkspaceGroupRow } from '../../../data/queries/groupAssignments';
-import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
+import { useWorkspacesFlag } from '../../../../capabilities/useWorkspacesFlag';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
 import { useRoleBindingsAccess } from '../../../hooks/useRbacAccess';

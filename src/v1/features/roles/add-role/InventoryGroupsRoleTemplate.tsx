@@ -2,7 +2,7 @@ import React from 'react';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 
 interface InventoryGroupsRoleTemplateProps {
   formFields: React.ReactNode[];
@@ -10,7 +10,7 @@ interface InventoryGroupsRoleTemplateProps {
 
 const InventoryGroupsRoleTemplate: React.FC<InventoryGroupsRoleTemplateProps> = ({ formFields }) => {
   const intl = useIntl();
-  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const enableWorkspacesNameChange = useWorkspacesRenameFlag();
 
   return (
     <div className="rbac">

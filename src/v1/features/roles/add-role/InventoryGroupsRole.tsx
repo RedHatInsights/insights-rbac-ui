@@ -22,7 +22,7 @@ import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import { useInventoryGroupsQuery } from '../../../../shared/data/queries/inventory';
 import messages from '../../../../Messages';
 
@@ -144,7 +144,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const isHosts = (permissionID: string) => permissionID.includes('hosts:');
-  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const enableWorkspacesNameChange = useWorkspacesRenameFlag();
 
   const permissions =
     (formOptions.getState().values['add-permissions-table'] as { uuid: string }[])

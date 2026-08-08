@@ -1,8 +1,10 @@
-import { useFlag } from '@unleash/proxy-client-react';
 import React, { Suspense, lazy, useEffect } from 'react';
 import { Navigate, Route, Routes, matchPath, useLocation, useParams } from 'react-router-dom';
 import { mergeToBasename, useAppLink } from '../shared/hooks/useAppLink';
+import { useCommonAuthModel } from '../capabilities/useCommonAuthModel';
+import { useFedRAMPMode } from '../capabilities/useFedRAMPMode';
 import { usePlatformTracking } from '../shared/hooks/usePlatformTracking';
+import { useServiceAccountsFlag } from '../capabilities/useServiceAccountsFlag';
 import { AppPlaceholder } from '../shared/components/ui-states/LoaderPlaceholders';
 import ElementWrapper from '../shared/components/ElementWrapper';
 import { guard } from './components/PermissionGuard';
@@ -55,9 +57,9 @@ const GroupDetailRedirect = () => {
 export const V1Routing = () => {
   const location = useLocation();
   const { setDocumentTitle } = usePlatformTracking();
-  const isITLess = useFlag('platform.rbac.itless');
-  const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
-  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts.stable');
+  const isITLess = useFedRAMPMode();
+  const { isEnabled: isCommonAuthModel } = useCommonAuthModel();
+  const enableServiceAccounts = useServiceAccountsFlag();
   const toAppLink = useAppLink();
 
   useEffect(() => {

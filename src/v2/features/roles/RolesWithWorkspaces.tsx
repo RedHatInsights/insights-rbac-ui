@@ -20,7 +20,7 @@ import { type Role, useRoles } from './useRolesWithWorkspaces';
 import { useBatchDeleteRolesV2Mutation } from '../../data/queries/roles';
 import { useRolePermissions } from './hooks/useRolePermissions';
 import { RolesEmptyState } from './components/RolesEmptyState';
-// eslint-disable-next-line rbac-local/require-use-table-state -- tableState received from useRolesWithWorkspaces hook
+// eslint-disable-next-line experience-ui/require-use-table-state -- tableState received from useRolesWithWorkspaces hook
 import { TableView } from '../../../shared/components/table-view/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../shared/components/table-view/types';
 import { getDateFormat } from '../../../shared/helpers/stringUtilities';

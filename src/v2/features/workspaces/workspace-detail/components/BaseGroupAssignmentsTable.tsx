@@ -7,7 +7,7 @@ import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip'
 import type { WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import messages from '../../../../../Messages';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
-import { useWorkspacesFlag } from '../../../../../shared/hooks/useWorkspacesFlag';
+import { useWorkspacesFlag } from '../../../../../capabilities/useWorkspacesFlag';
 import { ActionDropdown, type ActionDropdownItem } from '../../../../../shared/components/ActionDropdown/ActionDropdown';
 import { TableView } from '../../../../../shared/components/table-view/TableView';
 import { useTableState } from '../../../../../shared/components/table-view/hooks/useTableState';

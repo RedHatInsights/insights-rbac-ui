@@ -2,7 +2,7 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { useWorkspaceInheritedGroups } from '../../../data/queries/groupAssignments';
-import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
+import { useWorkspacesFlag } from '../../../../capabilities/useWorkspacesFlag';
 import { useRoleBindingsAccess } from '../../../hooks/useRbacAccess';
 import { WorkspaceDetailLayout } from './WorkspaceDetailLayout';
 import { InheritedGroupAssignmentsTable } from './components/InheritedGroupAssignmentsTable';
