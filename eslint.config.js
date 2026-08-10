@@ -259,6 +259,7 @@ module.exports = defineConfig(
       'src/capabilities/useServiceAccountsFlag.ts',
       'src/capabilities/useWorkspacesRenameFlag.ts',
       'src/capabilities/useLightspeedRebrand.ts',
+      'src/capabilities/useConversionOptIn.ts',
     ],
     rules: {
       'no-restricted-imports': 'off',
