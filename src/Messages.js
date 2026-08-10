@@ -3642,7 +3642,7 @@ export default defineMessages({
     description: 'Title for workspace v2 conversion opt-in banner shown to non-admin users',
     defaultMessage: 'Ready for a smarter way to organize your work?',
   },
-  conversionBannerNonAdminBody: {
+  conversionBannerBody: {
     id: 'conversionBannerNonAdminBody',
     description: 'Body text for workspace v2 conversion opt-in banner shown to non-admin users',
     defaultMessage:

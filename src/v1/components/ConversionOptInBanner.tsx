@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, AlertActionLink } from '@patternfly/react-core';
+import { Alert, AlertActionLink } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-link-alt-icon';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
@@ -35,7 +35,7 @@ export const ConversionOptInBanner: React.FC<ConversionOptInBannerProps> = ({ is
         </>
       }
     >
-      {intl.formatMessage(messages.conversionBannerNonAdminBody)}
+      {intl.formatMessage(messages.conversionBannerBody)}
     </Alert>
   );
 };

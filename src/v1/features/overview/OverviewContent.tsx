@@ -40,9 +40,9 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
           href: 'https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index',
         }}
       />
-      {isConversionOptInEnabled && (
+      {isConversionOptInEnabled && orgAdmin && (
         <PageSection hasBodyWrapper={false}>
-          <ConversionOptInBanner isOrgAdmin={orgAdmin} onGetStarted={() => console.log('Get started clicked')} />
+          <ConversionOptInBanner isOrgAdmin={orgAdmin} onGetStarted={() => {}} />
         </PageSection>
       )}
       <PageSection hasBodyWrapper={false}>
