@@ -3622,4 +3622,35 @@ export default defineMessages({
     description: 'Remove access action label',
     defaultMessage: 'Remove access',
   },
+  conversionBannerAdminTitle: {
+    id: 'conversionBannerAdminTitle',
+    description: 'Title for workspace v2 conversion opt-in banner shown to org admins',
+    defaultMessage: 'Elevate your infrastructure with workspace-based access management',
+  },
+  conversionBannerAdminGetStarted: {
+    id: 'conversionBannerAdminGetStarted',
+    description: 'Get started button text for admin conversion banner',
+    defaultMessage: 'Get started now',
+  },
+  conversionBannerAdminLearnMore: {
+    id: 'conversionBannerAdminLearnMore',
+    description: 'Learn more link text for admin conversion banner',
+    defaultMessage: 'Learn more about the benefits',
+  },
+  conversionBannerNonAdminTitle: {
+    id: 'conversionBannerNonAdminTitle',
+    description: 'Title for workspace v2 conversion opt-in banner shown to non-admin users',
+    defaultMessage: 'Ready for a smarter way to organize your work?',
+  },
+  conversionBannerBody: {
+    id: 'conversionBannerNonAdminBody',
+    description: 'Body text for workspace v2 conversion opt-in banner shown to non-admin users',
+    defaultMessage:
+      'Your organization is eligible for new workspace-based access management. Organize your RHEL systems into workspaces with hierarchical permission control. The new access management model introduces workspace organization, permission inheritance, and improved collaboration, all while preserving your existing permissions and access.',
+  },
+  conversionBannerNonAdminRequest: {
+    id: 'conversionBannerNonAdminRequest',
+    description: 'Request from admin link text for non-admin conversion banner',
+    defaultMessage: 'Request from your admin',
+  },
 });
