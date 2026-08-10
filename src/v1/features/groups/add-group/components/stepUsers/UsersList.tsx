@@ -3,8 +3,8 @@ import { useIntl } from 'react-intl';
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 
-import { TableView, useTableState } from '../../../../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { useUsersQuery } from '../../../../../../shared/data/queries/users';
 import messages from '../../../../../../Messages';
 import { UsersListEmptyState } from './UsersListEmptyState';

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
-import { ButtonVariant } from '@patternfly/react-core';
+import { ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
 
 interface RemoveGroupRolesProps {

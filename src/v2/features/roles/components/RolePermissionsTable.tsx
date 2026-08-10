@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import Messages from '../../../../Messages';
 // eslint-disable-next-line experience-ui/require-use-table-state -- display-only table from props, no server state
-import { TableView } from '../../../../shared/components/table-view/TableView';
-import type { CellRendererMap, ColumnConfigMap } from '../../../../shared/components/table-view/types';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
 
 export interface PermissionRow {
   permission: string;

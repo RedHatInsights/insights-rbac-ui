@@ -4,8 +4,8 @@ import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
 import { TreeView, TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { AlertVariant } from '@patternfly/react-core';
-import { Bullseye } from '@patternfly/react-core';
+import { AlertVariant } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
 
 export interface Workspace {
   id: string;

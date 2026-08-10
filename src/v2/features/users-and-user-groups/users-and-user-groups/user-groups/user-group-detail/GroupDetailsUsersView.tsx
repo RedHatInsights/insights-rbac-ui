@@ -8,8 +8,8 @@ import messages from '../../../../../../Messages';
 import { useIntl } from 'react-intl';
 import { useGroupMembersQuery } from '../../../../../../v2/data/queries/groups';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
-import { TableView, useTableState } from '../../../../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
 
 interface GroupDetailsUsersViewProps {
   groupId: string;

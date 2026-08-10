@@ -5,8 +5,7 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
-import { Stack } from '@patternfly/react-core';
-import { StackItem } from '@patternfly/react-core';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 
 import { useFedRAMPMode } from '../../../../../capabilities/useFedRAMPMode';

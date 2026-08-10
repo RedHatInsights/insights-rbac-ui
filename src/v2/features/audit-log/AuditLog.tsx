@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { PageHeader } from '@patternfly/react-component-groups';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
-import { TableView, useTableState } from '../../../shared/components/table-view';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../shared/components/table-view/components/TableViewEmptyState';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { GetAuditlogsActionEnum as ActionEnum, GetAuditlogsResourceTypeEnum as ResourceTypeEnum, useAuditLogsQuery } from '../../data/queries/audit';
 import type { AuditLog as ApiAuditLog } from '../../data/queries/audit';
 import { getDateFormat } from '../../../shared/helpers/stringUtilities';

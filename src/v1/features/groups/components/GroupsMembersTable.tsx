@@ -1,7 +1,7 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { SkeletonTableBody } from '@patternfly/react-component-groups';
+import SkeletonTableBody from '@patternfly/react-component-groups/dist/dynamic/SkeletonTableBody';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';

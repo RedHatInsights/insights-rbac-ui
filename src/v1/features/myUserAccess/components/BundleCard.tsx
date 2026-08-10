@@ -7,8 +7,7 @@ import { CardHeader } from '@patternfly/react-core/dist/dynamic/components/Card'
 import { CardTitle } from '@patternfly/react-core/dist/dynamic/components/Card';
 import { List } from '@patternfly/react-core/dist/dynamic/components/List';
 import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
-import { Stack } from '@patternfly/react-core';
-import { StackItem } from '@patternfly/react-core';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useFedRAMPMode } from '../../../../capabilities/useFedRAMPMode';
 import { useLightspeedRebrand } from '../../../../capabilities/useLightspeedRebrand';

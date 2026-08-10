@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { TableView, useTableState } from '../../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { type Group, useGroupsQuery } from '../../../../shared/data/queries/groups';
 import { useIdentity } from '../../../../shared/hooks/useIdentity';
 import messages from '../../../../Messages';

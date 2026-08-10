@@ -9,14 +9,14 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import { TableView } from '../../../../shared/components/table-view/TableView';
-import { useTableState } from '../../../../shared/components/table-view/hooks/useTableState';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../shared/components/table-view/components/TableViewEmptyState';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import { useAddMembersToGroupMutation, useGroupsQuery } from '../../../../shared/data/queries/groups';
 import messages from '../../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
-import type { ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
+import type { ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 
 interface AddUserToGroupProps {
   username?: string;

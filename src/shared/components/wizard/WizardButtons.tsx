@@ -5,7 +5,8 @@
  * for proper button layout. This component provides that structure.
  */
 import React from 'react';
-import { ActionList, ActionListGroup, ActionListItem, Button } from '@patternfly/react-core';
+import { ActionList, ActionListGroup, ActionListItem } from '@patternfly/react-core/dist/dynamic/components/ActionList';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 
 interface WizardButtonLabels {

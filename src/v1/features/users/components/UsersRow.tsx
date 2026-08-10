@@ -1,6 +1,6 @@
 import React from 'react';
-import { RowWrapper } from '@patternfly/react-table';
-import { RowWrapperProps } from '@patternfly/react-table';
+import { RowWrapper } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { RowWrapperProps } from '@patternfly/react-table/dist/dynamic/components/Table';
 import classNames from 'classnames';
 
 const UsersRow = ({ row, ...props }: RowWrapperProps) => {

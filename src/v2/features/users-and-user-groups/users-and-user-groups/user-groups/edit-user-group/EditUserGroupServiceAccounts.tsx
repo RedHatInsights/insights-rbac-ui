@@ -3,10 +3,10 @@ import { useIntl } from 'react-intl';
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core/dist/dynamic/components/ToggleGroup';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import Messages from '../../../../../../Messages';
-import { TableView } from '../../../../../../shared/components/table-view/TableView';
-import { useTableState } from '../../../../../../shared/components/table-view/hooks/useTableState';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../../shared/components/table-view/components/TableViewEmptyState';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../../shared/components/table-view/types';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { type ServiceAccount, useServiceAccountsQuery } from '../../../../../../shared/data/queries/serviceAccounts';
 import type { TableState } from './EditUserGroupTableState';
 

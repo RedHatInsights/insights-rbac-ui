@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
-import { PageHeader } from '@patternfly/react-component-groups';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Flex } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';

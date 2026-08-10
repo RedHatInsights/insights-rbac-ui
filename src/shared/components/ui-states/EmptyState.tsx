@@ -3,7 +3,7 @@ import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/Empty
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateFooter } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 
-import { EmptyStateVariant } from '@patternfly/react-core';
+import { EmptyStateVariant } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 
 interface EmptyWithActionProps {

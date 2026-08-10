@@ -5,8 +5,8 @@ import { useIntl } from 'react-intl';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 
-import { TableView, useTableState } from '../../../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { ActionDropdown } from '../../../../../shared/components/ActionDropdown';
 import { getBackRoute } from '../../../../../shared/helpers/navigation';
 import { useGroupMembersQuery, useGroupQuery, useGroupsQuery, useRemoveMembersFromGroupMutation } from '../../../../../shared/data/queries/groups';

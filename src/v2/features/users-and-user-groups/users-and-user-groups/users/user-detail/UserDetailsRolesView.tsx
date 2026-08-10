@@ -6,8 +6,8 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclama
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import { type RoleBinding, useUserRoleBindingsQuery } from '../../../../../../v2/data/queries/roleBindings';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
-import { TableView, useTableState } from '../../../../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
 
 interface UserRolesViewProps {
   userId?: string;

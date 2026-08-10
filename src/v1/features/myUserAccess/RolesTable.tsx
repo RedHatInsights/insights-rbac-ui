@@ -6,12 +6,12 @@
 
 import React, { Fragment, Suspense, lazy, useCallback, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { TableVariant } from '@patternfly/react-table';
-import { SkeletonTableBody } from '@patternfly/react-component-groups';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { TableVariant } from '@patternfly/react-table/dist/dynamic/components/Table';
+import SkeletonTableBody from '@patternfly/react-component-groups/dist/dynamic/SkeletonTableBody';
 
-import { TableView, useTableState } from '../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { useRoleForPrincipalQuery, useRolesQuery } from '../../data/queries/roles';
 import type { ResourceDefinition, RoleOutDynamic, RoleWithAccess } from '../../data/api/roles';
 import messages from '../../../Messages';

@@ -2,7 +2,7 @@ import React from 'react';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Skeleton as PFSkeleton } from '@patternfly/react-core';
+import { Skeleton as PFSkeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import { Skeleton } from '@redhat-cloud-services/frontend-components/Skeleton';
 
 export const AppPlaceholder: React.FC = () => (

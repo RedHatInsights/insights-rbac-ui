@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { TableVariant } from '@patternfly/react-table';
+import { TableVariant } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Thead } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
