@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { useFlag } from '@unleash/proxy-client-react';
 import { usePlatformTracking } from '../../../../shared/hooks/usePlatformTracking';
+import { useServiceAccountsFlag } from '../../../../capabilities/useServiceAccountsFlag';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../shared/utilities/constants';
 import pathnames from '../../../utilities/pathnames';
 import { type Group, useGroupQuery, useGroupsQuery } from '../../../../shared/data/queries/groups';
@@ -26,7 +26,7 @@ export const useGroupData = () => {
   const isPlatformDefault = groupId === DEFAULT_ACCESS_GROUP_ID;
 
   // Feature flag for service accounts
-  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts.stable');
+  const enableServiceAccounts = useServiceAccountsFlag();
 
   // Fetch system group (platform default) to get its UUID
   const { data: systemGroupData } = useGroupsQuery({ platformDefault: true, limit: 1 }, { enabled: true });

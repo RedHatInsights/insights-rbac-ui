@@ -4,7 +4,7 @@ import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHead
 import { useIntl } from 'react-intl';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useIdentity } from '../../../shared/hooks/useIdentity';
-import { useWorkspacesFlag } from '../../../shared/hooks/useWorkspacesFlag';
+import { useWorkspacesEligibility, useWorkspacesFlag } from '../../../capabilities/useWorkspacesFlag';
 import messages from '../../../Messages';
 import { EnableWorkspacesAlert } from '../../../shared/components/workspaces/EnableWorkspacesAlert';
 import { ConversionOptInBanner } from '../../components/ConversionOptInBanner';
@@ -24,9 +24,9 @@ interface OverviewProps {
 const Overview: React.FC<OverviewProps> = ({ links }) => {
   const intl = useIntl();
   const isWorkspacesFlag = useWorkspacesFlag('m5');
-  const isWorkspacesEligible = useFlag('platform.rbac.workspaces-eligible');
   const isConversionOptInEnabled = useFlag('platform-conversion.opt-in-banner');
   const { orgAdmin } = useIdentity();
+  const isWorkspacesEligible = useWorkspacesEligibility();
 
   return (
     <React.Fragment>

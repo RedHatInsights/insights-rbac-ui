@@ -3,6 +3,7 @@ import { useIntl } from 'react-intl';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { TableView, useTableState } from '../../../../shared/components/table-view';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
+// eslint-disable-next-line experience-ui/no-boundary-violations -- TODO: move shared workspace components to src/shared/
 import { useWorkspacesWithPermissions } from '../../workspaces/hooks/useWorkspacesWithPermissions';
 import type { WorkspaceWithPermissions } from '../../../data/queries/workspaces';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';

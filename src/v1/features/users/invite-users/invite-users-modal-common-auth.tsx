@@ -7,8 +7,8 @@ import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-re
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import AccordionCheckbox from '../../../../shared/components/expandable-checkbox';
 import InlineError from '../../../../shared/components/ui-states/InlineError';
+import { useCommonAuthModel } from '../../../../capabilities/useCommonAuthModel';
 import { useInviteUsersMutation } from '../../../../shared/data/queries/users';
-import { useFlag } from '@unleash/proxy-client-react';
 import { useOutletContext } from 'react-router-dom';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 
@@ -36,7 +36,7 @@ type SubmitValues = {
 
 const InviteUsers = () => {
   const { fetchData } = useOutletContext<{ fetchData: (isSubmit: boolean) => void }>();
-  const advancedPermissions = useFlag('platform.rbac.common-auth-model_advanced-permissions');
+  const { advancedPermissions } = useCommonAuthModel();
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
   const addNotification = useAddNotification();
 

@@ -5,8 +5,8 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { useFlag } from '@unleash/proxy-client-react';
 import { type Access, type ResourceDefinition, type RoleWithAccess, useUpdateRoleMutation } from '../../../data/queries/roles';
+import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import AddPermissionsTable from '../add-role/AddPermissions';
 import AddRolePermissionSummaryContent from './AddRolePermissionSummaryContent';
 import AddRolePermissionSuccess from './AddRolePermissionSuccess';
@@ -74,7 +74,7 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
   const [currentRoleID, setCurrentRoleID] = useState('');
   const navigate = useAppNavigate();
   const updateRoleMutation = useUpdateRoleMutation();
-  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const enableWorkspacesNameChange = useWorkspacesRenameFlag();
   const [wizardContextValue, setWizardContextValue] = useState<WizardContextValue>({
     success: false,
     submitting: false,

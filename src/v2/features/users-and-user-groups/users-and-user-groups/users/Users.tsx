@@ -1,6 +1,6 @@
 import React, { Suspense, useCallback, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useCommonAuthModel } from '../../../../../capabilities/useCommonAuthModel';
 import { usePrincipalsAccess } from '../../../../hooks/useRbacAccess';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
@@ -21,7 +21,7 @@ interface UsersProps {
 }
 
 export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, ouiaId = 'iam-users-table' }) => {
-  const authModel = useFlag('platform.rbac.common-auth-model');
+  const { isEnabled: authModel } = useCommonAuthModel();
   const appNavigate = useAppNavigate();
 
   // Mutations handle auth, environment, and notifications internally

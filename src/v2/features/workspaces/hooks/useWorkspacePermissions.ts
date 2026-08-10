@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
-import { useFlag } from '@unleash/proxy-client-react';
 import { useSelfAccessCheck } from '@project-kessel/react-kessel-access-check';
+import { useTrustKesselPermissions } from '../../../../capabilities/useWorkspacesFlag';
 import { WORKSPACE_RELATIONS, type WorkspacePermissions, type WorkspaceRelation } from '../../../data/queries/workspaces';
 import { canCreateInType, canDeleteType, canEditType, canMoveType } from '../workspaceTypes';
 
@@ -117,7 +117,7 @@ function buildAllowedSet(checks: unknown, hasRealResources: boolean): Set<string
 export function useWorkspacePermissions(workspaces: Workspace[]): UseWorkspacePermissionsResult {
   // When ON, skip UI type constraints and trust Kessel as the sole authority.
   // When OFF (default), apply defense-in-depth type constraints on top of Kessel results.
-  const trustKessel = useFlag('platform.rbac.workspaces.trust-kessel-permissions');
+  const trustKessel = useTrustKesselPermissions();
 
   // Build workspace IDs
   const workspaceIds = useMemo(() => workspaces.filter((ws) => ws.id).map((ws) => ws.id!), [workspaces]);

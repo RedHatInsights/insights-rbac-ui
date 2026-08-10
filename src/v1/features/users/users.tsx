@@ -3,7 +3,8 @@ import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { usePlatformTracking } from '../../../shared/hooks/usePlatformTracking';
 import { PageLayout } from '../../../shared/components/layout/PageLayout';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useCommonAuthModel } from '../../../capabilities/useCommonAuthModel';
+import { useFedRAMPMode } from '../../../capabilities/useFedRAMPMode';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import UsersListNotSelectable from './UsersListNotSelectable';
 import { ActiveUsers } from '../../components/user-management/ActiveUsers';
@@ -16,8 +17,8 @@ const Users: React.FC = () => {
   const location = useLocation();
   const activeUserPermissions = useUserData();
   const { trackNavigation } = usePlatformTracking();
-  const isITLess = useFlag('platform.rbac.itless');
-  const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
+  const isITLess = useFedRAMPMode();
+  const { isEnabled: isCommonAuthModel } = useCommonAuthModel();
 
   const description = <ActiveUsers linkDescription={intl.formatMessage(messages.addNewUsersText)} />;
 

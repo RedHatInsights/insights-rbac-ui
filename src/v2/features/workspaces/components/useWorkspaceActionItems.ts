@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
 import { EMPTY_PERMISSIONS, type WorkspacePermissions, useWorkspacesQuery } from '../../../data/queries/workspaces';
-import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
+import { useWorkspacesFlag } from '../../../../capabilities/useWorkspacesFlag';
 
 export interface WorkspaceActionCallbacks {
   onEdit?: () => void;

@@ -10,7 +10,8 @@ import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useFedRAMPMode } from '../../../../capabilities/useFedRAMPMode';
+import { useLightspeedRebrand } from '../../../../capabilities/useLightspeedRebrand';
 import { bundleData } from '../bundleData';
 
 export type EntitlementTuple = [string, { is_entitled: boolean; is_trial?: boolean }];
@@ -27,8 +28,8 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
   const [, setIsChecked] = useState('');
   const location = useLocation();
 
-  const isITLess = useFlag('platform.rbac.itless');
-  const lightSpeedRebrand = useFlag('platform.lightspeed-rebrand');
+  const isITLess = useFedRAMPMode();
+  const lightSpeedRebrand = useLightspeedRebrand();
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.id);

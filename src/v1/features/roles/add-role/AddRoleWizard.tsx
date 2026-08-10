@@ -9,7 +9,7 @@ import { Wizard } from '@patternfly/react-core/deprecated';
 import { createQueryParams } from '../../../../shared/helpers/navigation';
 import { schemaBuilder } from './schema';
 import { useCreateRoleMutation } from '../../../data/queries/roles';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { RoleCreationSuccess } from '../components/RoleCreationSuccess';
 import BaseRoleTable from './BaseRoleTable';
@@ -106,7 +106,7 @@ export const mapperExtension = {
 const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination = {}, filters = {}, cancelRoute }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
-  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const enableWorkspacesNameChange = useWorkspacesRenameFlag();
   const addNotification = useAddNotification();
   const createRoleMutation = useCreateRoleMutation();
 

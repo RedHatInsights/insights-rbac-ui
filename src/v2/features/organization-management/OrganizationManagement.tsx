@@ -13,7 +13,9 @@ import messages from '../../../Messages';
 import { useIntl } from 'react-intl';
 import { useOrgGroups } from '../../data/queries/groupAssignments';
 import type { WorkspaceGroupRow } from '../../data/queries/groupAssignments';
+// eslint-disable-next-line experience-ui/no-boundary-violations -- TODO: move shared workspace components to src/shared/
 import { BaseGroupAssignmentsTable } from '../workspaces/workspace-detail/components';
+// eslint-disable-next-line experience-ui/no-boundary-violations -- TODO: move shared workspace components to src/shared/
 import { RemoveGroupFromWorkspaceModal } from '../workspaces/workspace-detail/components/RemoveGroupFromWorkspaceModal';
 
 const PLACEHOLDER = '--';
