@@ -1,10 +1,6 @@
 import React, { useId, useState } from 'react';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
-import { Menu } from '@patternfly/react-core';
-import { MenuContainer } from '@patternfly/react-core';
-import { MenuContent } from '@patternfly/react-core';
-import { MenuItem } from '@patternfly/react-core';
-import { MenuList } from '@patternfly/react-core';
+import { Menu, MenuContainer, MenuContent, MenuItem, MenuList } from '@patternfly/react-core/dist/dynamic/components/Menu';
 import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import type { WorkspaceActionItem } from './useWorkspaceActionItems';
 

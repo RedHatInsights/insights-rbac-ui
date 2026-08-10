@@ -1,5 +1,7 @@
 import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
-import { ButtonVariant, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
+import { ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
@@ -13,7 +15,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import { Outlet } from 'react-router-dom';
 import RolesDetails from './RolesWithWorkspacesDetails';
-import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/react-component-groups';
+import ResponsiveAction from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
+import ResponsiveActions from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import pathnames from '../../utilities/pathnames';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import { type Role, useRoles } from './useRolesWithWorkspaces';
@@ -21,8 +25,8 @@ import { useBatchDeleteRolesV2Mutation } from '../../data/queries/roles';
 import { useRolePermissions } from './hooks/useRolePermissions';
 import { RolesEmptyState } from './components/RolesEmptyState';
 // eslint-disable-next-line experience-ui/require-use-table-state -- tableState received from useRolesWithWorkspaces hook
-import { TableView } from '../../../shared/components/table-view/TableView';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../shared/components/table-view/types';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { getDateFormat } from '../../../shared/helpers/stringUtilities';
 
 const ouiaId = 'RolesTable';

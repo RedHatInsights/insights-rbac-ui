@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { ButtonVariant } from '@patternfly/react-core';
+import { ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';

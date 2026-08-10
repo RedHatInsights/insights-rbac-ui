@@ -9,7 +9,8 @@ import { useAllRolesV2Query } from '../../../../data/queries/roles';
 import { RolesSelectionTable } from './RolesSelectionTable';
 import messages from '../../../../../Messages';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { FormGroup, Stack, StackItem } from '@patternfly/react-core';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 
 const RolesSelectionField: React.FC<UseFieldApiConfig & { workspaceId?: string; resourceType?: string }> = (props) => {
   const intl = useIntl();

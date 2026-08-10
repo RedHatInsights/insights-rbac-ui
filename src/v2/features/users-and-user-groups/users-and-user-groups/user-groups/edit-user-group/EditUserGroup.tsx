@@ -1,5 +1,5 @@
 import PageHeader from '@patternfly/react-component-groups/dist/esm/PageHeader';
-import { PageSection } from '@patternfly/react-core';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';

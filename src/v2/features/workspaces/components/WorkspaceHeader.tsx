@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
-import { PageHeader } from '@patternfly/react-component-groups';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
 import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';

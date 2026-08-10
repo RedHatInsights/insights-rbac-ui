@@ -1,23 +1,14 @@
 import React, { useEffect, useMemo, useReducer, useRef } from 'react';
-import {
-  Badge,
-  Button,
-  Content,
-  ContentVariants,
-  FormGroup,
-  Grid,
-  GridItem,
-  MenuToggle,
-  MenuToggleElement,
-  Select,
-  SelectList,
-  SelectOption,
-  TextInputGroup,
-  TextInputGroupMain,
-  TextInputGroupUtilities,
-  Tooltip,
-} from '@patternfly/react-core';
-import { TimesIcon } from '@patternfly/react-icons';
+import { Badge } from '@patternfly/react-core/dist/dynamic/components/Badge';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Content, ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { Select, SelectList, SelectOption } from '@patternfly/react-core/dist/dynamic/components/Select';
+import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/dynamic/components/TextInputGroup';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
+import { Grid, GridItem } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
+import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';

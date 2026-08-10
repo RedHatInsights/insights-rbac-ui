@@ -9,7 +9,7 @@ import React, { useCallback, useMemo } from 'react';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import type { IntlShape } from 'react-intl';
 
-import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../../shared/components/table-view';
+import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { AppLink } from '../../../shared/components/navigation/AppLink';
 import { DefaultInfoPopover } from './components/DefaultInfoPopover';
 import { GroupsRolesTable } from './components/GroupsRolesTable';

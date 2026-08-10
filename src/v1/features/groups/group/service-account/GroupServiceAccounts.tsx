@@ -7,7 +7,7 @@ import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, useTableState } from '../../../../../shared/components/table-view';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { ActionDropdown } from '../../../../../shared/components/ActionDropdown';
 import { ExternalLink } from '../../../../../shared/components/navigation/ExternalLink';
 import { DefaultServiceAccountsAlert } from '../../components/DefaultServiceAccountsAlert';

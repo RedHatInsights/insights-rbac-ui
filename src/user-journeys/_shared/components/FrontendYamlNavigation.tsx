@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Nav, NavExpandable, NavItem, NavList } from '@patternfly/react-core';
+import { Nav, NavExpandable, NavItem, NavList } from '@patternfly/react-core/dist/dynamic/components/Nav';
 import yaml from 'yaml';
 import { FeatureFlagsContext, type TenantPermissionsMap, useMockState } from '@redhat-cloud-services/hcc-storybook-hub';
 

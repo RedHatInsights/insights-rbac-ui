@@ -1,4 +1,4 @@
-import { Content } from '@patternfly/react-core';
+import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
 import React, { FunctionComponent } from 'react';
 import { useIntl } from 'react-intl';

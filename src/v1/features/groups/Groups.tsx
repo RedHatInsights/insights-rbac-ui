@@ -23,7 +23,7 @@ import { usePlatformTracking } from '../../../shared/hooks/usePlatformTracking';
 
 // Internal components
 import { PageLayout } from '../../../shared/components/layout/PageLayout';
-import { TableView, useTableState } from '../../../shared/components/table-view';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { ActionDropdown } from '../../../shared/components/ActionDropdown';
 import { GroupsEmptyState } from './components/GroupsEmptyState';
 import { AppLink } from '../../../shared/components/navigation/AppLink';

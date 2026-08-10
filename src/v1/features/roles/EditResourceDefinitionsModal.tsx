@@ -5,7 +5,7 @@ import ReactFormRender from '@data-driven-forms/react-form-renderer/form-rendere
 import FixedDualListSelect from '../../../shared/components/forms/FixedDualListSelect';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
-import { Bullseye } from '@patternfly/react-core';
+import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';

@@ -5,9 +5,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../../Messages';
 import type { ResourceDefinition } from '../types';
 // eslint-disable-next-line experience-ui/require-use-table-state -- static local data, no server pagination/sort
-import { TableView } from '../../../../shared/components/table-view/TableView';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../shared/components/table-view/components/TableViewEmptyState';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
 
 interface ResourceDefinitionsModalProps {

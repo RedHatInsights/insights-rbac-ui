@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExpandableRowContent } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { TableVariant } from '@patternfly/react-table';
+import { TableVariant } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Td } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Th } from '@patternfly/react-table/dist/dynamic/components/Table';
@@ -15,7 +15,8 @@ import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuT
 import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import SkeletonTableBody from '@patternfly/react-component-groups/dist/dynamic/SkeletonTableBody';
+import SkeletonTableHead from '@patternfly/react-component-groups/dist/dynamic/SkeletonTableHead';
 import { useIntl } from 'react-intl';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import { getDateFormat } from '../../../../shared/helpers/stringUtilities';

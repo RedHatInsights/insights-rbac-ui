@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import type { IntlShape } from 'react-intl';
 import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../../shared/components/table-view';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import type { User } from '../../../../../../shared/data/queries/users';
 import messages from '../../../../../../Messages';
 

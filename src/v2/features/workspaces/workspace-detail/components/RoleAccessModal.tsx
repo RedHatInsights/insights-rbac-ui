@@ -9,9 +9,9 @@ import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/St
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core/dist/dynamic/components/ToggleGroup';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import { formatDistanceToNow } from 'date-fns';
-import { TableView, useTableState } from '../../../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../shared/components/table-view/types';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../shared/components/table-view/components/TableViewEmptyState';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { Role } from '../../../../data/api/roles';
 import { useAllRolesV2Query } from '../../../../data/queries/roles';
 import { useGroupQuery } from '../../../../data/queries/groups';

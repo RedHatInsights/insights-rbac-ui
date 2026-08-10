@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Nav, NavExpandable, NavItem, NavList } from '@patternfly/react-core';
+import { Nav, NavExpandable, NavItem, NavList } from '@patternfly/react-core/dist/dynamic/components/Nav';
 
 /**
  * Left navigation panel component for Storybook journeys

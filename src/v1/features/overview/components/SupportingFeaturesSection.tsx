@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { DataList } from '@patternfly/react-core/dist/dynamic/components/DataList';
-import { DataListCell } from '@patternfly/react-core';
-import { DataListContent } from '@patternfly/react-core';
-import { DataListItem } from '@patternfly/react-core';
-import { DataListItemCells } from '@patternfly/react-core';
-import { DataListItemRow } from '@patternfly/react-core';
-import { DataListToggle } from '@patternfly/react-core';
+import {
+  DataListCell,
+  DataListContent,
+  DataListItemCells,
+  DataListItemRow,
+  DataListToggle,
+} from '@patternfly/react-core/dist/dynamic/components/DataList';
+import { Flex, FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
-import { Flex } from '@patternfly/react-core';
-import { FlexItem } from '@patternfly/react-core';
 import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { DataListItem } from '@patternfly/react-core/dist/dynamic/components/DataList';
 import CubesIcon from '@patternfly/react-icons/dist/js/icons/cubes-icon';
 import { useIntl } from 'react-intl';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
