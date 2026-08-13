@@ -1,7 +1,7 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { TableVariant } from '@patternfly/react-table';
+import { TableVariant } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import messages from '../../../../Messages';

@@ -9,11 +9,12 @@ const fecPlugin = require('@redhat-cloud-services/eslint-config-redhat-cloud-ser
 const tsParser = require('@typescript-eslint/parser');
 const tseslint = require('@typescript-eslint/eslint-plugin');
 const testingLibrary = require('eslint-plugin-testing-library');
-const requireUseTableState = require('./eslint-rules/require-use-table-state');
+const experienceUiPlugin = require('experience-ui-governance/eslint-plugin');
+const { restrictedImportPaths: governancePaths } = experienceUiPlugin.configs.recommended;
+const { restrictedImportPaths: storyPaths } = experienceUiPlugin.configs.stories;
+const { restrictedImportPaths: dataLayerPaths, restrictedImportPatterns: dataLayerPatterns } = experienceUiPlugin.configs['data-layer'];
 const noDirectGetUser = require('./eslint-rules/no-direct-get-user');
 const noCrossVersionImports = require('./eslint-rules/no-cross-version-imports');
-const noDirectUserType = require('./eslint-rules/no-direct-user-type');
-const enforceStoryPatterns = require('./eslint-rules/enforce-story-patterns');
 
 module.exports = defineConfig(
   fecPlugin,
@@ -46,13 +47,11 @@ module.exports = defineConfig(
     files: ['src/**/*.ts', 'src/**/*.tsx'],
     ignores: ['src/test/**'],
     plugins: {
+      'experience-ui': experienceUiPlugin,
       'rbac-local': {
         rules: {
-          'require-use-table-state': requireUseTableState,
           'no-direct-get-user': noDirectGetUser,
           'no-cross-version-imports': noCrossVersionImports,
-          'no-direct-user-type': noDirectUserType,
-          'enforce-story-patterns': enforceStoryPatterns,
         },
       },
     },
@@ -72,25 +71,15 @@ module.exports = defineConfig(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'error',
       // Ban TableView used without useTableState to prevent hand-rolled state bugs
-      'rbac-local/require-use-table-state': 'error',
+      'experience-ui/require-use-table-state': 'error',
+      'experience-ui/no-boundary-violations': 'error',
       'rbac-local/no-direct-get-user': 'error',
       'rbac-local/no-cross-version-imports': 'error',
-      // Ban direct use of Link from react-router-dom - use AppLink or ExternalLink instead
-      // Ban direct use of platform hooks - use semantic wrappers instead
       'no-restricted-imports': [
         'error',
         {
           paths: [
-            {
-              name: 'react-router-dom',
-              importNames: ['Link', 'useNavigate'],
-              message:
-                'Import AppLink from src/components/navigation/AppLink for links. Use useAppNavigate from src/shared/hooks/useAppNavigate for programmatic navigation.',
-            },
-            {
-              name: '@redhat-cloud-services/frontend-components/useChrome',
-              message: 'Use usePlatformEnvironment, usePlatformAuth, or usePlatformTracking from src/hooks/ instead.',
-            },
+            ...governancePaths,
             {
               name: '@redhat-cloud-services/frontend-components-utilities/RBACHook',
               message: 'Use useAccessPermissions from src/hooks/ instead.',
@@ -172,16 +161,7 @@ module.exports = defineConfig(
         'error',
         {
           paths: [
-            {
-              name: 'react-router-dom',
-              importNames: ['Link', 'useNavigate'],
-              message:
-                'Import AppLink from src/components/navigation/AppLink for links. Use useAppNavigate from src/shared/hooks/useAppNavigate for programmatic navigation.',
-            },
-            {
-              name: '@redhat-cloud-services/frontend-components/useChrome',
-              message: 'Use usePlatformEnvironment, usePlatformAuth, or usePlatformTracking from src/hooks/ instead.',
-            },
+            ...governancePaths,
             {
               name: '@redhat-cloud-services/frontend-components-utilities/RBACHook',
               message: 'Use useAccessPermissions from src/hooks/ instead.',
@@ -218,16 +198,7 @@ module.exports = defineConfig(
         'error',
         {
           paths: [
-            {
-              name: 'react-router-dom',
-              importNames: ['Link', 'useNavigate'],
-              message:
-                'Import AppLink from src/components/navigation/AppLink for links. Use useAppNavigate from src/shared/hooks/useAppNavigate for programmatic navigation.',
-            },
-            {
-              name: '@redhat-cloud-services/frontend-components/useChrome',
-              message: 'Use usePlatformEnvironment, usePlatformAuth, or usePlatformTracking from src/hooks/ instead.',
-            },
+            ...governancePaths,
             {
               name: '@redhat-cloud-services/frontend-components-utilities/RBACHook',
               message: 'Use useAccessPermissions from src/hooks/ instead.',
@@ -280,6 +251,21 @@ module.exports = defineConfig(
     },
   },
   {
+    // Semantic feature flag hooks are the ONLY files that may import from @unleash/proxy-client-react
+    files: [
+      'src/capabilities/useWorkspacesFlag.ts',
+      'src/capabilities/useFedRAMPMode.ts',
+      'src/capabilities/useCommonAuthModel.ts',
+      'src/capabilities/useServiceAccountsFlag.ts',
+      'src/capabilities/useWorkspacesRenameFlag.ts',
+      'src/capabilities/useLightspeedRebrand.ts',
+      'src/capabilities/useConversionOptIn.ts',
+    ],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
+  {
     // Story files need TypeScript parser but don't need the strict navigation rules
     files: ['src/**/*.stories.tsx'],
     ignores: ['src/user-journeys/**'],
@@ -298,18 +284,8 @@ module.exports = defineConfig(
         'error',
         {
           paths: [
-            {
-              name: 'msw',
-              importNames: ['http'],
-              message:
-                'Do not define inline MSW handlers in stories. Import handler factories from src/*/data/mocks/ instead. See AGENTS.md rule 15.',
-            },
-            {
-              name: 'msw',
-              importNames: ['delay'],
-              message:
-                'Do not import delay from msw in feature stories. Use findBy* queries or waitFor with assertions instead. See AGENTS.md rule 19.',
-            },
+            ...governancePaths,
+            ...storyPaths,
           ],
           patterns: [
             {
@@ -498,28 +474,10 @@ module.exports = defineConfig(
         'error',
         {
           paths: [
-            {
-              name: '@redhat-cloud-services/frontend-components/useChrome',
-              message: 'Data layer hooks must not import Chrome directly. Use useAppServices() from ServiceContext instead.',
-            },
-            {
-              name: '@redhat-cloud-services/frontend-components-utilities/RBACHook',
-              message: 'Data layer hooks must not import platform utilities directly. Use useAppServices() from ServiceContext instead.',
-            },
-            {
-              name: '@unleash/proxy-client-react',
-              message: 'Data layer hooks must not import feature flag hooks directly. Use useAppServices().isITLess from ServiceContext instead.',
-            },
+            ...dataLayerPaths,
           ],
           patterns: [
-            {
-              group: [
-                '@redhat-cloud-services/frontend-components-notifications',
-                '@redhat-cloud-services/frontend-components-notifications/*',
-              ],
-              message:
-                'Data layer hooks must not import notification packages directly (pulls in PatternFly CSS, crashes CLI). Use useAppServices().notify from ServiceContext instead.',
-            },
+            ...dataLayerPatterns,
             {
               group: ['**/hooks/usePlatformAuth', '**/hooks/usePlatformEnvironment', '**/hooks/useIdentity'],
               message: 'Data layer hooks must not import platform hooks directly. Use useAppServices() fields (getToken, environment, identity) from ServiceContext instead.',
@@ -597,14 +555,24 @@ module.exports = defineConfig(
     // Ban direct user.type() in stories and test helpers — use clearAndType instead
     files: ['**/*.stories.@(js|jsx|ts|tsx)', 'src/**/*.helpers.@(ts|tsx)', 'src/test-utils/**/*.@(ts|tsx)'],
     rules: {
-      'rbac-local/no-direct-user-type': 'error',
+      'experience-ui/no-direct-user-type': 'error',
     },
   },
   {
     // Discouraged patterns in play functions — canvasElement.querySelector, getBy* inside waitFor
     files: ['**/*.stories.@(js|jsx|ts|tsx)'],
     rules: {
-      'rbac-local/enforce-story-patterns': 'error',
+      'experience-ui/enforce-story-patterns': 'error',
+    },
+  },
+  {
+    files: ['src/**/*.test.@(ts|tsx)', 'src/**/*.spec.@(ts|tsx)'],
+    ignores: ['src/test/**'],
+    plugins: {
+      'experience-ui': experienceUiPlugin,
+    },
+    rules: {
+      'experience-ui/no-jest-snapshot': 'error',
     },
   },
   storybook.configs['flat/recommended'],

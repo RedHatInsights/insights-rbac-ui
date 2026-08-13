@@ -1,5 +1,6 @@
 import React from 'react';
-import { PageHeader, ServiceCard } from '@patternfly/react-component-groups';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
+import ServiceCard from '@patternfly/react-component-groups/dist/dynamic/ServiceCard';
 import { Button, ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { DataList } from '@patternfly/react-core/dist/dynamic/components/DataList';
 import { Gallery, GalleryItem } from '@patternfly/react-core/dist/dynamic/layouts/Gallery';

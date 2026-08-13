@@ -2,8 +2,8 @@ import React, { Fragment, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 
-import { TableView, useTableState } from '../../../../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
 import { useServiceAccountsQuery } from '../../../../../../shared/data/queries/serviceAccounts';
 import type { ServiceAccount as ApiServiceAccount } from '../../../../../../shared/data/api/serviceAccounts';
 import { getDateFormat } from '../../../../../../shared/helpers/stringUtilities';

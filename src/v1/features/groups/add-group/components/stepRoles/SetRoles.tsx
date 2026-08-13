@@ -2,8 +2,7 @@ import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Stack } from '@patternfly/react-core';
-import { StackItem } from '@patternfly/react-core';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 
 import { RolesList } from './RolesList';

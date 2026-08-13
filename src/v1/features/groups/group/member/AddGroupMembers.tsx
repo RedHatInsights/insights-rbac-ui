@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import { useFlag } from '@unleash/proxy-client-react';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
-import { Stack } from '@patternfly/react-core';
-import { StackItem } from '@patternfly/react-core';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 
+import { useFedRAMPMode } from '../../../../../capabilities/useFedRAMPMode';
 import { useAddMembersToGroupMutation, useGroupQuery } from '../../../../../shared/data/queries/groups';
 import { UsersList } from '../../add-group/components/stepUsers/UsersList';
 import { ActiveUsers } from '../../../../components/user-management/ActiveUsers';
@@ -30,7 +29,7 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
   const intl = useIntl();
   const navigate = useAppNavigate();
   const { groupId: uuid } = useParams<{ groupId: string }>();
-  const isITLess = useFlag('platform.rbac.itless');
+  const isITLess = useFedRAMPMode();
   const addNotification = useAddNotification();
 
   const [selectedUsers, setSelectedUsers] = useState<Array<{ username: string; uuid?: string }>>([]);

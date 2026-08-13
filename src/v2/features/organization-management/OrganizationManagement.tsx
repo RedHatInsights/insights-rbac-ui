@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
-import { PageHeader } from '@patternfly/react-component-groups';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Flex } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
 import { FlexItem } from '@patternfly/react-core/dist/dynamic/layouts/Flex';
@@ -13,7 +13,9 @@ import messages from '../../../Messages';
 import { useIntl } from 'react-intl';
 import { useOrgGroups } from '../../data/queries/groupAssignments';
 import type { WorkspaceGroupRow } from '../../data/queries/groupAssignments';
+// eslint-disable-next-line experience-ui/no-boundary-violations -- TODO: move shared workspace components to src/shared/
 import { BaseGroupAssignmentsTable } from '../workspaces/workspace-detail/components';
+// eslint-disable-next-line experience-ui/no-boundary-violations -- TODO: move shared workspace components to src/shared/
 import { RemoveGroupFromWorkspaceModal } from '../workspaces/workspace-detail/components/RemoveGroupFromWorkspaceModal';
 
 const PLACEHOLDER = '--';

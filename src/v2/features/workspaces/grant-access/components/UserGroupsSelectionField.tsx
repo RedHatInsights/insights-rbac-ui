@@ -9,7 +9,8 @@ import { useGroupsQuery } from '../../../../../v2/data/queries/groups';
 import { UserGroupsSelectionTable } from './UserGroupsSelectionTable';
 import messages from '../../../../../Messages';
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { FormGroup, Stack, StackItem } from '@patternfly/react-core';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
 import pathnames from '../../../../utilities/pathnames';
 

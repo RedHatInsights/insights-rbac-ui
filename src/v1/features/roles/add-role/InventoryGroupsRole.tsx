@@ -1,28 +1,23 @@
 import React, { useEffect, useMemo, useReducer } from 'react';
-import { Badge } from '@patternfly/react-core';
+import { Badge } from '@patternfly/react-core/dist/dynamic/components/Badge';
+import { Select, SelectList, SelectOption } from '@patternfly/react-core/dist/dynamic/components/Select';
+import { TextInputGroup, TextInputGroupMain, TextInputGroupUtilities } from '@patternfly/react-core/dist/dynamic/components/TextInputGroup';
+import { Grid, GridItem } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Chip } from '@patternfly/react-core/dist/dynamic/deprecated/components/Chip';
 import { ChipGroup } from '@patternfly/react-core/dist/dynamic/deprecated/components/Chip';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
-import { Grid } from '@patternfly/react-core';
-import { GridItem } from '@patternfly/react-core';
 import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { Select } from '@patternfly/react-core';
-import { SelectList } from '@patternfly/react-core';
-import { SelectOption } from '@patternfly/react-core';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
-import { TextInputGroup } from '@patternfly/react-core';
-import { TextInputGroupMain } from '@patternfly/react-core';
-import { TextInputGroupUtilities } from '@patternfly/react-core';
 import { ContentVariants } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import { useInventoryGroupsQuery } from '../../../../shared/data/queries/inventory';
 import messages from '../../../../Messages';
 
@@ -144,7 +139,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const isHosts = (permissionID: string) => permissionID.includes('hosts:');
-  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const enableWorkspacesNameChange = useWorkspacesRenameFlag();
 
   const permissions =
     (formOptions.getState().values['add-permissions-table'] as { uuid: string }[])

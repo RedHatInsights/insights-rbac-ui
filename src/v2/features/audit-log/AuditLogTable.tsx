@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { TableView, useTableState } from '../../../shared/components/table-view';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../shared/components/table-view/components/TableViewEmptyState';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import messages from '../../../Messages';
 
 // ----------------------------------------------------------------------------

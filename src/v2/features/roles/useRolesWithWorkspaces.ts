@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useTableState } from '../../../shared/components/table-view/hooks/useTableState';
-import type { UseTableStateReturn } from '../../../shared/components/table-view/types';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { UseTableStateReturn } from '@redhat-cloud-services/frontend-components/TableView';
 import { type Role, type RolesListParams, extractRolesV2Links, useRolesV2Query } from '../../data/queries/roles';
 import { PER_PAGE_OPTIONS } from '../../../shared/helpers/pagination';
 

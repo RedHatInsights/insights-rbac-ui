@@ -1,5 +1,5 @@
 import useUserData from '../../hooks/useUserData';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useFedRAMPMode } from '../../../capabilities/useFedRAMPMode';
 import React, { FunctionComponent } from 'react';
 import { usePlatformEnvironment } from '../../../shared/hooks/usePlatformEnvironment';
 import { ActiveUsersAdminView } from './ActiveUsersAdminView';
@@ -15,7 +15,7 @@ export const ActiveUsers: FunctionComponent<ActiveUserProps> = ({ linkDescriptio
   const { environment } = usePlatformEnvironment();
   const prefix = environment === 'production' ? '' : `${environment}.`;
   const { orgAdmin } = useUserData();
-  const isITLess = useFlag('platform.rbac.itless');
+  const isITLess = useFedRAMPMode();
   return !isITLess && orgAdmin ? (
     <ActiveUsersAdminView linkDescription={linkDescription} linkTitle={linkTitle} prefix={prefix}>
       {children}

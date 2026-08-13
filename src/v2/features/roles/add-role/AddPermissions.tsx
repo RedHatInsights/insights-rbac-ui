@@ -4,13 +4,13 @@ import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import { useIdentity } from '../../../../shared/hooks/useIdentity';
 import { useNonRbacPermissions } from '../../../../shared/hooks/useNonRbacPermissions';
-import { TableView } from '../../../../shared/components/table-view/TableView';
-import { useTableState } from '../../../../shared/components/table-view/hooks/useTableState';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../shared/components/table-view/components/TableViewEmptyState';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import { useExpandSplatsQuery, usePermissionOptionsQuery, usePermissionsQuery } from '../../../../shared/data/queries/permissions';
 import { useRoleQuery } from '../../../data/queries/roles';
 import messages from '../../../../Messages';
-import type { ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
+import type { ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 
 interface Permission {
   application: string;

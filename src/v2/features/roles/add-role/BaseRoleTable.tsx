@@ -1,16 +1,16 @@
 import React, { useMemo } from 'react';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Radio } from '@patternfly/react-core/dist/dynamic/components/Radio';
-import { TableView } from '../../../../shared/components/table-view/TableView';
-import { useTableState } from '../../../../shared/components/table-view/hooks/useTableState';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../shared/components/table-view/components/TableViewEmptyState';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import { useAllRolesV2Query } from '../../../data/queries/roles';
 import type { Role } from '../../../data/queries/roles';
 import messages from '../../../../Messages';
-import type { ColumnConfigMap, FilterConfig } from '../../../../shared/components/table-view/types';
+import type { ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 
 const COLUMNS = ['radio', 'name', 'description'] as const;
 const SORTABLE_COLUMNS = ['name'] as const;

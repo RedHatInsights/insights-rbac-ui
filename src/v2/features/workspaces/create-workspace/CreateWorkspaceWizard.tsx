@@ -3,7 +3,6 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import type { FormApi } from 'final-form';
-import { useFlag } from '@unleash/proxy-client-react';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useQueryClient } from '@tanstack/react-query';
@@ -11,6 +10,7 @@ import { useAddNotification } from '@redhat-cloud-services/frontend-components-n
 
 import { useLocation } from 'react-router-dom';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
+import { useWorkspacesBillingFeatures } from '../../../../capabilities/useWorkspacesFlag';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../../Messages';
 import { type WorkspacesWorkspace, useCreateWorkspaceMutation, useWorkspacesQuery, workspacesKeys } from '../../../data/queries/workspaces';
@@ -49,7 +49,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   const navigate = useAppNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const enableFeatures = useFlag('platform.rbac.workspaces-billing-features');
+  const enableFeatures = useWorkspacesBillingFeatures();
   const addNotification = useAddNotification();
 
   const parentWorkspace = parentWorkspaceProp ?? (location.state as { parentWorkspace?: WorkspacesWorkspace } | null)?.parentWorkspace;

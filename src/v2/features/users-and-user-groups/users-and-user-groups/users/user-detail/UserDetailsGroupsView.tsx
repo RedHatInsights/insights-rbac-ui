@@ -8,8 +8,8 @@ import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { type Group, useGroupsQuery } from '../../../../../../v2/data/queries/groups';
 import messages from '../../../../../../Messages';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
-import { TableView, useTableState } from '../../../../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap } from '../../../../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
 
 interface UserGroupsViewProps {
   userId: string;

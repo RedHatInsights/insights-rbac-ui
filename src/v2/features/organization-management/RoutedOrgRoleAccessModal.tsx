@@ -10,6 +10,7 @@ import messages from '../../../Messages';
 import { useGroupQuery } from '../../data/queries/groups';
 import { useRoleBindingsQuery, useUpdateGroupRolesMutation } from '../../data/queries/workspaces';
 import { useAllRolesV2Query } from '../../data/queries/roles';
+// eslint-disable-next-line experience-ui/no-boundary-violations -- TODO: move shared workspace components to src/shared/
 import { RoleAccessModalContent } from '../workspaces/workspace-detail/components/RoleAccessModal';
 import { getModalContainer } from '../../../shared/helpers/modal-container';
 

@@ -2,10 +2,12 @@ import React from 'react';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { useIntl } from 'react-intl';
-import { useFlag } from '@unleash/proxy-client-react';
-import { useWorkspacesFlag } from '../../../shared/hooks/useWorkspacesFlag';
+import { useIdentity } from '../../../shared/hooks/useIdentity';
+import { useConversionOptIn } from '../../../capabilities/useConversionOptIn';
+import { useWorkspacesEligibility, useWorkspacesFlag } from '../../../capabilities/useWorkspacesFlag';
 import messages from '../../../Messages';
 import { EnableWorkspacesAlert } from '../../../shared/components/workspaces/EnableWorkspacesAlert';
+import { ConversionOptInBanner } from '../../components/ConversionOptInBanner';
 import { GetStartedCard } from './components/GetStartedCard';
 import { SupportingFeaturesSection } from './components/SupportingFeaturesSection';
 import { RecommendedContentTable } from './components/RecommendedContentTable';
@@ -22,7 +24,9 @@ interface OverviewProps {
 const Overview: React.FC<OverviewProps> = ({ links }) => {
   const intl = useIntl();
   const isWorkspacesFlag = useWorkspacesFlag('m5');
-  const isWorkspacesEligible = useFlag('platform.rbac.workspaces-eligible');
+  const isConversionOptInEnabled = useConversionOptIn();
+  const { orgAdmin } = useIdentity();
+  const isWorkspacesEligible = useWorkspacesEligibility();
 
   return (
     <React.Fragment>
@@ -36,6 +40,11 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
           href: 'https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index',
         }}
       />
+      {isConversionOptInEnabled && orgAdmin && (
+        <PageSection hasBodyWrapper={false}>
+          <ConversionOptInBanner isOrgAdmin={orgAdmin} onGetStarted={() => {}} />
+        </PageSection>
+      )}
       <PageSection hasBodyWrapper={false}>
         <GetStartedCard className="pf-v6-u-mb-lg" groupsLink={links.groups} rolesLink={links.roles} />
         <SupportingFeaturesSection className="pf-v6-u-mb-lg" groupsLink={links.groups} />

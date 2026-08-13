@@ -4,7 +4,7 @@ import messages from '../../../../Messages';
 
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
-import { TooltipPosition } from '@patternfly/react-core';
+import { TooltipPosition } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 
 interface StatusLabelProps {
   isOrgAdmin?: boolean;

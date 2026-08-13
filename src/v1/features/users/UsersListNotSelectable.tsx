@@ -1,18 +1,20 @@
 import React, { Fragment, Suspense, useCallback, useMemo, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView } from '../../../shared/components/table-view';
-import { useTableState } from '../../../shared/components/table-view/hooks/useTableState';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../shared/components/table-view/types';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import paths from '../../utilities/pathnames';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useCommonAuthModel } from '../../../capabilities/useCommonAuthModel';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import useUserData from '../../hooks/useUserData';
-import { WarningModal } from '@patternfly/react-component-groups';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { AppLink } from '../../../shared/components/navigation/AppLink';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { ButtonVariant, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
+import { ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { List } from '@patternfly/react-core/dist/dynamic/components/List';
 import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
@@ -52,7 +54,7 @@ const columns = ['org_admin', 'username', 'email', 'first_name', 'last_name', 's
 const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLinks, props, usesMetaInURL }) => {
   const intl = useIntl();
   const { orgAdmin } = useUserData();
-  const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
+  const { isEnabled: isCommonAuthModel } = useCommonAuthModel();
   const userData = useUserData();
   const appNavigate = useAppNavigate();
 

@@ -1,10 +1,11 @@
 import React, { Suspense, useMemo } from 'react';
-import { Button, PageSection } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
-import { TableView } from '../../../shared/components/table-view/TableView';
-import { useTableState } from '../../../shared/components/table-view/hooks/useTableState';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../shared/components/table-view/components/TableViewEmptyState';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import { isInventoryHostsPermission, isInventoryPermission } from './roleResourceDefinitionsTableHelpers';
 import { PageLayout } from '../../../shared/components/layout/PageLayout';
 import paths from '../../utilities/pathnames';
@@ -14,7 +15,7 @@ import { getBackRoute } from '../../../shared/helpers/navigation';
 import { useRoleQuery } from '../../data/queries/roles';
 import { processResourceDefinitions, useInventoryGroupsDetailsQuery } from '../../../shared/data/queries/inventory';
 import messages from '../../../Messages';
-import type { ColumnConfigMap, FilterConfig } from '../../../shared/components/table-view/types';
+import type { ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 
 interface ResourceDefinitionRow {
   id: string;

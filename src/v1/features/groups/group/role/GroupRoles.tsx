@@ -16,7 +16,7 @@ import { Outlet, useParams } from 'react-router-dom';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, useTableState } from '../../../../../shared/components/table-view';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { ActionDropdown } from '../../../../../shared/components/ActionDropdown';
 import { RemoveGroupRoles } from './RemoveGroupRoles';
 

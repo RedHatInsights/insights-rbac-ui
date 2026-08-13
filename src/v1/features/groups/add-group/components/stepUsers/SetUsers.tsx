@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useFlag } from '@unleash/proxy-client-react';
-import { Stack } from '@patternfly/react-core';
-import { StackItem } from '@patternfly/react-core';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { useFedRAMPMode } from '../../../../../../capabilities/useFedRAMPMode';
 import { UsersList } from './UsersList';
 import { ActiveUsers } from '../../../../../components/user-management/ActiveUsers';
 import type { User } from './types';
@@ -20,7 +19,7 @@ export const SetUsers: React.FC<SetUsersProps> = (props) => {
   const formOptions = useFormApi();
   const [selectedUsers, setSelectedUsers] = useState<User[]>(formOptions.getState().values['users-list'] || []);
   const { input } = useFieldApi(props);
-  const isITLess = useFlag('platform.rbac.itless');
+  const isITLess = useFedRAMPMode();
 
   useEffect(() => {
     input.onChange(selectedUsers);

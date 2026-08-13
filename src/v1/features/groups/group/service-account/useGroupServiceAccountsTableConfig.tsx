@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import type { IntlShape } from 'react-intl';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../shared/components/table-view';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import messages from '../../../../../Messages';
 import type { ServiceAccount } from './types';
 import { getDateFormat } from '../../../../../shared/helpers/stringUtilities';

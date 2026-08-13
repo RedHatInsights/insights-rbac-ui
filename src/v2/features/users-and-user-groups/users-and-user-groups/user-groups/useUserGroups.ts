@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { useTableState } from '../../../../../shared/components/table-view/hooks/useTableState';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { type Group, useGroupsQuery } from '../../../../../v2/data/queries/groups';
 import { defaultSettings } from '../../../../../shared/helpers/pagination';
 import { type SortableColumnId, columns as userGroupsColumns } from './components/useUserGroupsTableConfig';

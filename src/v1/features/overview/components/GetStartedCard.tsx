@@ -1,13 +1,11 @@
 import React from 'react';
-import { ActionList } from '@patternfly/react-core';
-import { ActionListItem } from '@patternfly/react-core';
+import { ActionList, ActionListItem } from '@patternfly/react-core/dist/dynamic/components/ActionList';
+import { Grid, GridItem } from '@patternfly/react-core/dist/dynamic/layouts/Grid';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Card } from '@patternfly/react-core/dist/dynamic/components/Card';
 import { CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
 import { CardFooter } from '@patternfly/react-core/dist/dynamic/components/Card';
 import { CardTitle } from '@patternfly/react-core/dist/dynamic/components/Card';
-import { Grid } from '@patternfly/react-core';
-import { GridItem } from '@patternfly/react-core';
 import { List } from '@patternfly/react-core/dist/dynamic/components/List';
 import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';

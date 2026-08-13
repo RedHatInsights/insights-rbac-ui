@@ -1,13 +1,14 @@
 import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { ResponsiveAction, ResponsiveActions } from '@patternfly/react-component-groups';
-// eslint-disable-next-line rbac-local/require-use-table-state -- tableState received as prop from parent container
+import ResponsiveAction from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
+import ResponsiveActions from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
+// eslint-disable-next-line experience-ui/require-use-table-state -- tableState received as prop from parent container
 import {
   DefaultEmptyStateNoData,
   DefaultEmptyStateNoResults,
   TableView,
   type UseTableStateReturn,
-} from '../../../../../../shared/components/table-view';
+} from '@redhat-cloud-services/frontend-components/TableView';
 import { ActionDropdown } from '../../../../../../shared/components/ActionDropdown';
 import type { Group } from '../../../../../../v2/data/queries/groups';
 import { isGroupSelectable } from '../useUserGroups';

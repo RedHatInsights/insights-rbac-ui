@@ -1,6 +1,6 @@
 import React from 'react';
-import { ButtonVariant } from '@patternfly/react-core';
-import { WarningModal } from '@patternfly/react-component-groups';
+import { ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../../Messages';
 import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
