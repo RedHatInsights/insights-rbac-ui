@@ -482,13 +482,12 @@ const EXPECTED_INVITE_URL_PATTERN = /^https:\/\/api\.access\.(stage\.)?redhat\.c
  *
  * Journey:
  * 1. Start on Access Management Users tab
- * 2. Open the Actions overflow menu
- * 3. Click "Invite users"
- * 4. Fill in email addresses
- * 5. Optionally add a message and check org admin checkbox
- * 6. Submit the invitation
- * 7. Verify success notification
- * 8. Verify API was called with exact expected URL format
+ * 2. Click the "Invite users" toolbar button
+ * 3. Fill in email addresses
+ * 4. Optionally add a message and check org admin checkbox
+ * 5. Submit the invitation
+ * 6. Verify success notification
+ * 7. Verify API was called with exact expected URL format
  */
 export const InviteUsersJourney: Story = {
   name: 'Invite Users',
@@ -499,8 +498,7 @@ export const InviteUsersJourney: Story = {
 Tests inviting new users to the organization from the Access Management Users tab.
 
 **What this tests:**
-- Opening the Actions overflow menu
-- Clicking "Invite users" menu item to navigate to the invite route
+- Clicking the "Invite users" toolbar button to navigate to the invite route
 - Invite modal renders as a child route (via \`<Outlet>\`)
 - Email input validation (required field)
 - Optional message field
@@ -535,7 +533,6 @@ Tests inviting new users to the organization from the Access Management Users ta
   },
   play: async ({ canvasElement, step, args }) => {
     const canvas = within(canvasElement);
-    const body = within(document.body);
     const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
     await step('Reset state', async () => {
@@ -551,10 +548,8 @@ Tests inviting new users to the organization from the Access Management Users ta
       await waitForPageToLoad(canvas, 'adumble');
       const usersTab = await canvas.findByRole('tab', { name: /users/i });
       expect(usersTab).toHaveAttribute('aria-selected', 'true');
-      const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
-      await user.click(actionsMenu);
-      const inviteMenuItem = await body.findByRole('menuitem', { name: /invite users/i });
-      await user.click(inviteMenuItem);
+      const inviteButton = await canvas.findByRole('button', { name: /invite users/i });
+      await user.click(inviteButton);
     });
 
     await step('Wait for invite modal', async () => {
