@@ -445,14 +445,7 @@ export const AddUsersToGroup: Story = {
       // Wait until selection state updates and button becomes enabled
       let addToGroupButton: HTMLElement | null = null;
       await waitFor(async () => {
-        addToGroupButton = canvas.queryByText(/Add to user group/i);
-        if (!addToGroupButton) {
-          const kebabButton = canvas.queryByLabelText('Actions overflow menu');
-          if (kebabButton) {
-            userEvent.click(kebabButton);
-            addToGroupButton = canvas.queryByText(/Add to user group/i);
-          }
-        }
+        addToGroupButton = canvas.queryByRole('button', { name: /Add to user group/i });
         await expect(addToGroupButton).not.toBeNull();
         await expect(addToGroupButton!).not.toBeDisabled();
       });
@@ -472,7 +465,7 @@ export const InviteUsers: Story = {
     docs: {
       description: {
         story:
-          'Tests the invite users functionality through the ResponsiveActions overflow menu (kebab menu). First opens the actions menu, then clicks "Invite users" option. Validates that responsive menu behavior works correctly and the invite callback is triggered. Critical for user onboarding workflows.',
+          'Tests the invite users functionality via the primary "Invite users" toolbar button. Validates that the button is always visible and enabled (no row selection required) and that the invite callback is triggered on click. Critical for user onboarding workflows.',
       },
     },
   },
@@ -480,15 +473,10 @@ export const InviteUsers: Story = {
     await step('Verify', async () => {
       const canvas = within(canvasElement);
 
-      // Find and click the kebab menu (actions overflow menu)
-      const kebabButton = await canvas.findByLabelText('Actions overflow menu');
-      await expect(kebabButton).toBeInTheDocument();
-
-      await userEvent.click(kebabButton);
-
-      // Now find and click "Invite users" in the opened dropdown
-      const inviteButton = await within(document.body).findByText(/Invite users/i);
+      // "Invite users" is now a primary toolbar button — always enabled, no selection needed
+      const inviteButton = await canvas.findByRole('button', { name: /Invite users/i });
       await expect(inviteButton).toBeInTheDocument();
+      await expect(inviteButton).not.toBeDisabled();
 
       await userEvent.click(inviteButton);
 

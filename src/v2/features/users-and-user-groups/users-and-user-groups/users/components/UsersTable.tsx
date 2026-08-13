@@ -92,14 +92,19 @@ export const UsersTable: React.FC<UsersTableProps> = ({
     [onRowClick, focusedUser],
   );
 
-  // Toolbar actions: "Add to user group" button + overflow kebab (only visible with write permission)
+  // Toolbar actions: "Invite users" + "Add to user group" buttons + overflow kebab (only visible with write permission)
   const toolbarActions = useMemo(
     () =>
       orgAdmin ? (
         <Split hasGutter>
           <SplitItem>
+            <Button variant="primary" onClick={onInviteUsersClick} ouiaId={`${ouiaId}-invite-users-button`}>
+              {intl.formatMessage(messages.inviteUsers)}
+            </Button>
+          </SplitItem>
+          <SplitItem>
             <Button
-              variant="primary"
+              variant="secondary"
               isDisabled={selectedRows.length === 0}
               onClick={() => onAddUserToGroup(selectedRows)}
               ouiaId={`${ouiaId}-add-user-button`}
@@ -134,16 +139,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   label: intl.formatMessage(messages.removeFromUserGroup),
                   onClick: () => onRemoveUserFromGroup(selectedRows),
                   isDisabled: selectedRows.length === 0,
-                },
-                {
-                  key: 'divider-2',
-                  label: '',
-                  isDivider: true,
-                },
-                {
-                  key: 'invite',
-                  label: intl.formatMessage(messages.inviteUsers),
-                  onClick: onInviteUsersClick,
                 },
               ]}
             />
