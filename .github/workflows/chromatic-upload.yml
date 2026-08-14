@@ -16,6 +16,6 @@ permissions:
 
 jobs:
   chromatic:
-    uses: RedHatInsights/experience-ui-governance/.github/workflows/reusable-chromatic.yml@9225c3b62440c8624c333f55ec16573fd605ede1 # main
+    uses: RedHatInsights/experience-ui-governance/.github/workflows/reusable-chromatic.yml@1ea4c3f042b92cb3a0ea0eb2d31773998b600489 # main
     secrets:
       chromatic-project-token: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
