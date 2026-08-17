@@ -98,7 +98,7 @@ export const InviteUsersJourney: Story = {
 Tests inviting new users to the organization from the V2 interface.
 
 **What this tests:**
-- Navigating to invite users modal from V2 Users tab
+- Clicking the "Invite users" toolbar button from V2 Users tab
 - Email input validation (required field)
 - Optional message field
 - Optional org admin checkbox
@@ -117,7 +117,6 @@ Tests inviting new users to the organization from the V2 interface.
   },
   play: async ({ canvasElement, step, args }) => {
     const canvas = within(canvasElement);
-    const body = within(document.body);
     const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
 
     await step('Reset state', async () => {
@@ -135,11 +134,8 @@ Tests inviting new users to the organization from the V2 interface.
 
       await waitForPageToLoad(canvas, USER_JOHN.username);
 
-      const actionsMenu = await canvas.findByRole('button', { name: /actions overflow menu/i });
-      await user.click(actionsMenu);
-
-      const inviteMenuItem = await body.findByRole('menuitem', { name: /invite users/i });
-      await user.click(inviteMenuItem);
+      const inviteButton = await canvas.findByRole('button', { name: /invite users/i });
+      await user.click(inviteButton);
 
       const modalContent = await waitForModal();
       await modalContent.findByRole('heading', { name: /invite new users/i });
