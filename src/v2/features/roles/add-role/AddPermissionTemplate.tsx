@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
-import { Button } from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { Chip, ChipGroup } from '@patternfly/react-core/deprecated';
-import { Popover } from '@patternfly/react-core';
-import { Stack, StackItem, Title } from '@patternfly/react-core';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import { useIntl } from 'react-intl';

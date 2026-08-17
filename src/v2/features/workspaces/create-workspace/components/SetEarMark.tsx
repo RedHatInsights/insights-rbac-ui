@@ -1,8 +1,7 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { NumberInput } from '@patternfly/react-core/dist/dynamic/components/NumberInput';
-import { Stack } from '@patternfly/react-core';
-import { StackItem } from '@patternfly/react-core';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';

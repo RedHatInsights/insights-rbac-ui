@@ -1,5 +1,6 @@
 import React from 'react';
-import { Stack, StackItem, Title } from '@patternfly/react-core';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
 

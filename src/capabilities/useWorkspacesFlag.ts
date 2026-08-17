@@ -119,3 +119,15 @@ export function useWorkspacesFeatures() {
     m5: globalWs,
   };
 }
+
+export function useWorkspacesEligibility(): boolean {
+  return useFlag('platform.rbac.workspaces-eligible');
+}
+
+export function useWorkspacesBillingFeatures(): boolean {
+  return useFlag('platform.rbac.workspaces-billing-features');
+}
+
+export function useTrustKesselPermissions(): boolean {
+  return useFlag('platform.rbac.workspaces.trust-kessel-permissions');
+}

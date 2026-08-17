@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWorkspacesFlag } from '../../../../shared/hooks/useWorkspacesFlag';
+import { useWorkspacesFlag } from '../../../../capabilities/useWorkspacesFlag';
 import { WorkspaceDetailLayout } from './WorkspaceDetailLayout';
 import AssetsCards from './components/AssetsCards';
 import { useWorkspaceDetailData } from './useWorkspaceDetailData';

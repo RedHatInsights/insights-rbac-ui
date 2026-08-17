@@ -1,7 +1,7 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
-import { ButtonVariant } from '@patternfly/react-core';
-import { WarningModal } from '@patternfly/react-component-groups';
+import { ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 
 import messages from '../../../../../Messages';
 import { useUpdateGroupRolesMutation } from '../../../../data/queries/workspaces';

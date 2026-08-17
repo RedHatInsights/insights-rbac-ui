@@ -1,4 +1,7 @@
-import { ErrorState, PageHeader, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import ErrorState from '@patternfly/react-component-groups/dist/dynamic/ErrorState';
+import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
+import SkeletonTableBody from '@patternfly/react-component-groups/dist/dynamic/SkeletonTableBody';
+import SkeletonTableHead from '@patternfly/react-component-groups/dist/dynamic/SkeletonTableHead';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
@@ -18,7 +21,7 @@ import {
 } from '@patternfly/react-data-view';
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import { FormattedMessage } from 'react-intl';
-import { ActionsColumn } from '@patternfly/react-table';
+import { ActionsColumn } from '@patternfly/react-table/dist/dynamic/components/Table';
 import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';

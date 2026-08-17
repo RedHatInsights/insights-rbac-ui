@@ -490,7 +490,6 @@ export const PaginationUrlSync: Story = {
 
 // NOTE: PaginationOutOfRangeClampsToLastPage test was REMOVED from here.
 // Page clamping is now handled centrally by TableView and tested in:
-// src/components/table-view/TableView.stories.tsx -> PageClampingOutOfRange
 //
 // This avoids duplicating the same test across Roles, Users, and Groups stories.
 // All tables using TableView automatically get page clamping behavior.

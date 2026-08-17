@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ActionList, ActionListGroup, ActionListItem } from '@patternfly/react-core';
+import { ActionList, ActionListGroup, ActionListItem } from '@patternfly/react-core/dist/dynamic/components/ActionList';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 

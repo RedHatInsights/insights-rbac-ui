@@ -1,15 +1,15 @@
 import React, { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Split, SplitItem } from '@patternfly/react-core';
+import { Split, SplitItem } from '@patternfly/react-core/dist/dynamic/layouts/Split';
 
-// eslint-disable-next-line rbac-local/require-use-table-state -- tableState received as prop from parent container
+// eslint-disable-next-line experience-ui/require-use-table-state -- tableState received as prop from parent container
 import {
   DefaultEmptyStateNoData,
   DefaultEmptyStateNoResults,
   TableView,
   type UseTableStateReturn,
-} from '../../../../../../shared/components/table-view';
+} from '@redhat-cloud-services/frontend-components/TableView';
 import { ActionDropdown } from '../../../../../../shared/components/ActionDropdown';
 import type { User } from '../../../../../../shared/data/queries/users';
 import messages from '../../../../../../Messages';

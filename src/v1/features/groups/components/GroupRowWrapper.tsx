@@ -1,5 +1,5 @@
 import React from 'react';
-import { RowWrapper } from '@patternfly/react-table';
+import { RowWrapper } from '@patternfly/react-table/dist/dynamic/components/Table';
 import classnames from 'classnames';
 
 interface GroupRowWrapperProps {

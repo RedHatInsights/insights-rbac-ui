@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
-import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
-import { EllipsisVIcon } from '@patternfly/react-icons';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
 import { DefaultGroupChangedIcon } from './DefaultGroupChangedIcon';

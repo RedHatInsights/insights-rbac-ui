@@ -6,7 +6,7 @@ import { FakeAddressBar } from './FakeAddressBar';
 import { FrontendYamlNavigation } from './FrontendYamlNavigation';
 import { ProductionHeader } from './ProductionHeader';
 import { GlobalBreadcrumb } from './GlobalBreadcrumb';
-import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
+import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
 
 /**
  * Common permission presets for Kessel journey stories.

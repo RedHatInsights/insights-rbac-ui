@@ -8,7 +8,7 @@ import { type Group, useAddMembersToGroupMutation, useGroupsQuery } from '../../
 import messages from '../../../../../../Messages';
 import { getModalContainer } from '../../../../../../shared/helpers/modal-container';
 import type { User } from '../../../../../../shared/data/queries/users';
-import { useTableState } from '../../../../../../shared/components/table-view/hooks/useTableState';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { type SortableColumnId, columns as userGroupsColumns } from '../../user-groups/components/useUserGroupsTableConfig';
 
 interface AddUserToGroupModalProps {

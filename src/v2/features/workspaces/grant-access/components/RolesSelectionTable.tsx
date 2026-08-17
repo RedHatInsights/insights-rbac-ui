@@ -3,10 +3,10 @@ import { useIntl } from 'react-intl';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { SimpleList } from '@patternfly/react-core/dist/dynamic/components/SimpleList';
 import { SimpleListItem } from '@patternfly/react-core/dist/dynamic/components/SimpleList';
-import { TableView } from '../../../../../shared/components/table-view/TableView';
-import { useTableState } from '../../../../../shared/components/table-view/hooks/useTableState';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../../shared/components/table-view/components/TableViewEmptyState';
-import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '../../../../../shared/components/table-view/types';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import messages from '../../../../../Messages';
 
 import type { Role } from '../../../../data/queries/roles';

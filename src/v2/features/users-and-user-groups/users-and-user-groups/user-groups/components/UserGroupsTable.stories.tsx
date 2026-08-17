@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { expectLoadingVisible } from '../../../../../../test-utils/interactionHelpers';
 import { UserGroupsTable } from './UserGroupsTable';
-import { useTableState } from '../../../../../../shared/components/table-view/hooks/useTableState';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import type { Group } from '../../../../../../v2/data/queries/groups';
 import { isGroupSelectable } from '../useUserGroups';
 import { GROUP_ADMIN_DEFAULT, GROUP_SYSTEM_DEFAULT } from '../../../../../../shared/data/mocks/seed';

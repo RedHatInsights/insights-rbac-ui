@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import { useOrganizationData } from '../../hooks/useOrganizationData';
 import pathnames from '../../utilities/pathnames';
+// eslint-disable-next-line experience-ui/no-boundary-violations -- TODO: move shared workspace components to src/shared/
 import { GrantAccessWizard } from '../workspaces/grant-access/GrantAccessWizard';
 import { AppPlaceholder } from '../../../shared/components/ui-states/LoaderPlaceholders';
 

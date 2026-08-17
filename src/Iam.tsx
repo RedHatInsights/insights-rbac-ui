@@ -1,5 +1,4 @@
 import React from 'react';
-import { useFlag } from '@unleash/proxy-client-react';
 import { IntlProvider } from 'react-intl';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
@@ -12,9 +11,11 @@ import { QueryClientSetup } from './shared/components/QueryClientSetup';
 import ApiErrorBoundary from './shared/components/ui-states/ApiErrorBoundary';
 import { ServiceProvider } from './shared/contexts/ServiceContext';
 import { type AddNotificationFn, createBrowserServices } from './shared/entry/browser';
+import { useFedRAMPMode } from './capabilities/useFedRAMPMode';
 import { usePlatformAuth } from './shared/hooks/usePlatformAuth';
 import { usePlatformEnvironment } from './shared/hooks/usePlatformEnvironment';
 import { useIdentity } from './shared/hooks/useIdentity';
+import { useWorkspacesFlag } from './capabilities/useWorkspacesFlag';
 import { IamV1 } from './v1/IamV1';
 import { IamV2 } from './v2/IamV2';
 
@@ -34,7 +35,7 @@ const SharedProviders: React.FC<IamProps & { children: React.ReactNode }> = ({ t
   const { getToken } = usePlatformAuth();
   const { environment, ssoUrl } = usePlatformEnvironment();
   const { identity } = useIdentity();
-  const isITLess = useFlag('platform.rbac.itless');
+  const isITLess = useFedRAMPMode();
 
   const services = createBrowserServices({
     addNotification,
@@ -60,7 +61,7 @@ const SharedProviders: React.FC<IamProps & { children: React.ReactNode }> = ({ t
  * Version router: reads the access-management flag and renders V1 or V2.
  */
 const VersionRouter: React.FC = () => {
-  const hasAccessManagement = useFlag('platform.rbac.workspaces');
+  const hasAccessManagement = useWorkspacesFlag('m5');
   return hasAccessManagement ? <IamV2 /> : <IamV1 />;
 };
 

@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useMemo } from 'react';
 
-import { TableView, useTableState } from '../../../../../../shared/components/table-view';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '../../../../../../shared/components/table-view/types';
+import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { defaultSettings } from '../../../../../../shared/helpers/pagination';
 import { useAvailableRolesListQuery } from '../../../../../../shared/data/queries/groups';
 import { useRolesQuery } from '../../../../../data/queries/roles';

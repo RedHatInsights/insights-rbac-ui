@@ -6,10 +6,10 @@ import { useSearchParams } from 'react-router-dom';
 import messages from '../../../../Messages';
 import { PER_PAGE_OPTIONS } from '../../../../shared/helpers/pagination';
 import { usePermissionsQuery } from '../../../../shared/data/queries/permissions';
-import { TableView } from '../../../../shared/components/table-view/TableView';
-import { useTableState } from '../../../../shared/components/table-view/hooks/useTableState';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '../../../../shared/components/table-view/components/TableViewEmptyState';
-import type { CellRendererMap, ColumnConfigMap, FilterConfig, FilterState } from '../../../../shared/components/table-view/types';
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
+import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap, FilterConfig, FilterState } from '@redhat-cloud-services/frontend-components/TableView';
 
 interface ExtendedUseFieldApiConfig extends UseFieldApiConfig {
   roleId?: string;

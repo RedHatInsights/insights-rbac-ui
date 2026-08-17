@@ -30,9 +30,9 @@ import type { InheritedWorkspaceGroupRow, WorkspaceGroupRow } from '../../../../
 import { extractErrorMessage } from '../../../../../shared/utilities/errorUtils';
 import messages from '../../../../../Messages';
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
-// eslint-disable-next-line rbac-local/require-use-table-state -- display-only drawer, fetches all data with high limit
-import { TableView } from '../../../../../shared/components/table-view/TableView';
-import type { CellRendererMap, ColumnConfigMap } from '../../../../../shared/components/table-view/types';
+// eslint-disable-next-line experience-ui/require-use-table-state -- display-only drawer, fetches all data with high limit
+import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
+import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
 import pathnames from '../../../../utilities/pathnames';
 import { ActionDropdown, type ActionDropdownItem } from '../../../../../shared/components/ActionDropdown/ActionDropdown';
 

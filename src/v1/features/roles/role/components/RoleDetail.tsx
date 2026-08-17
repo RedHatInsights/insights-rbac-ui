@@ -1,6 +1,8 @@
 import React, { Fragment, ReactNode } from 'react';
-import { Button, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
-import { EllipsisVIcon } from '@patternfly/react-icons';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { PageLayout } from '../../../../../shared/components/layout/PageLayout';

@@ -3,7 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Iam } from '../../../Iam';
 import { FakeAddressBar } from './FakeAddressBar';
 import { FrontendYamlNavigation } from './FrontendYamlNavigation';
-import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
+import { Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { ProductionHeader } from './ProductionHeader';
 import { GlobalBreadcrumb } from './GlobalBreadcrumb';
 

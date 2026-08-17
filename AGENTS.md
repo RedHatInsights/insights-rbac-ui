@@ -6,7 +6,7 @@ React application for Red Hat's Role-Based Access Control system. Built on Patte
 
 - **`src/v1/`** — User Access (V1). Uses Chrome-based permission checks (`useAccessPermissions`), `useUserData()` for identity flags. Routes defined in `src/v1/Routing.tsx`.
 - **`src/v2/`** — Access Management (V2). Uses Kessel SDK domain hooks (`src/v2/hooks/useRbacAccess.ts`) for permissions. Routes defined in `src/v2/Routing.tsx`.
-- **`src/shared/`** — Code shared between V1 and V2: platform hooks, UI components, table-view, contexts, and utilities.
+- **`src/shared/`** — Code shared between V1 and V2: platform hooks, UI components, contexts, and utilities.
 
 `src/Iam.tsx` is the shell that conditionally renders `IamV1` or `IamV2` based on the `platform.rbac.workspaces` feature flag.
 
@@ -35,7 +35,7 @@ All detailed documentation is in `src/docs/`. Read the relevant doc before writi
 ## Non-negotiables (apply without reading further)
 
 1. When modifying files inside `src/{v1,v2}/features/<island>/`, check the island's `README.md`. If your change adds a sub-feature, changes the data layer, alters the permission model, or introduces a new constraint — update the README as part of the same PR.
-2. `TableView` always requires `useTableState` — enforced by ESLint rule `rbac-local/require-use-table-state`. Suppress only for display-only tables with `// eslint-disable-next-line rbac-local/require-use-table-state -- <reason>`.
+2. `TableView` (from `@redhat-cloud-services/frontend-components/TableView`) always requires `useTableState` — enforced by ESLint rule `experience-ui/require-use-table-state`. Suppress only for display-only tables with `// eslint-disable-next-line experience-ui/require-use-table-state -- <reason>`.
 3. Every added/modified file in `src/{v1,v2}/features/` or `src/shared/components/` requires a `.stories.tsx` update.
 4. Route-level features (modals tied to routes, new pages) require user-journey Storybook stories with `fn()` spies on real API endpoints.
 5. No hand-rolled pagination, sort, filter, or selection state. Use `useTableState`.
@@ -81,7 +81,7 @@ All detailed documentation is in `src/docs/`. Read the relevant doc before writi
     // In play: groupsCollection.all(), groupsCollection.findFirst(...)
     ```
 
-    **Exceptions:** Only truly stateful journey stories (those tracking mutations across `play` steps) may retain minimal inline handlers. The shared `TableView.stories.tsx` is also exempt due to its complex testing needs. All other stories must use factory calls exclusively.
+    **Exceptions:** Only truly stateful journey stories (those tracking mutations across `play` steps) may retain minimal inline handlers. All other stories must use factory calls exclusively.
 
 17. **No hardcoded mock data strings in stories.** Play functions must reference seed constants (`DEFAULT_USERS[0].username`, `DEFAULT_WORKSPACES[0].name`, etc.) — never hardcode entity names, usernames, or workspace names as string literals. Define descriptive aliases at module scope (e.g. `const FIRST_USER = DEFAULT_USERS[0]`). See `StorybookMandatoryRules.mdx` §11.
 18. **No custom/inline types in MSW handlers.** Handler factories must use types from `src/*/data/api/` (re-exports from `@redhat-cloud-services/rbac-client`). Never define inline `Array<{ role: ...; subject: ... }>` shapes — import `RoleBindingsRoleBinding`, `RoleBindingsGroupSubject`, `Role`, etc. and use casts (`as RoleBindingsGroupSubject`) when the API sparse-field response extends the base type.
@@ -106,7 +106,7 @@ writing-a-story:           StorybookMandatoryRules.mdx
 story-patterns:            StorybookPatterns.mdx
 msw-handler-patterns:      StorybookPatterns.mdx  # @msw/data patterns documented in §MSW Handler Factories
 user-journey-story:        UserJourneys.mdx
-table-component:           TableView.mdx
+table-component:           (see @redhat-cloud-services/frontend-components/TableView)
 patternfly-imports:        PatternFlyPatterns.mdx
 icons-i18n-empty-states:   PatternFlyPatterns.mdx
 component-organization:    ComponentGuidelines.mdx
@@ -170,11 +170,7 @@ src/
 │   └── utilities/
 │       └── pathnames.ts              # V2-specific URL paths
 ├── shared/                           # Code shared between V1 and V2
-│   ├── components/
-│   │   └── table-view/
-│   │       ├── TableView.tsx         # Canonical table component
-│   │       ├── hooks/useTableState.ts
-│   │       └── types.ts
+│   ├── components/                   # TableView is from @redhat-cloud-services/frontend-components/TableView
 │   ├── hooks/
 │   │   ├── useIdentity.ts            # Chrome-only identity (orgAdmin, identity, ready) — shared primitive
 │   │   ├── useNonRbacPermissions.ts  # Non-RBAC domain permissions (cost-management, inventory)
@@ -200,7 +196,7 @@ src/
 └── Messages.js                       # i18n message definitions
 
 eslint-rules/
-├── require-use-table-state.js        # Enforce useTableState with TableView
+├── (in experience-ui-governance)      # require-use-table-state rule
 ├── no-direct-get-user.js             # Ban direct getUser() from usePlatformAuth
 ├── no-cross-version-imports.js       # Enforce V1/V2/shared boundaries
 └── enforce-story-patterns.js          # Error: canvasElement.querySelector, getBy* inside waitFor

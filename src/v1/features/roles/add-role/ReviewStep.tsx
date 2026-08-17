@@ -1,10 +1,16 @@
 import React from 'react';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm, Stack, StackItem } from '@patternfly/react-core';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import {
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+} from '@patternfly/react-core/dist/dynamic/components/DescriptionList';
+import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 
 interface Row {
   cells: string[];
@@ -33,7 +39,7 @@ const PermissionsTable: React.FC<{ columns: string[]; rows: Row[]; label: string
 
 const ReviewStep: React.FC = () => {
   const intl = useIntl();
-  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+  const enableWorkspacesNameChange = useWorkspacesRenameFlag();
   const formOptions = useFormApi();
   const {
     'role-name': name,
