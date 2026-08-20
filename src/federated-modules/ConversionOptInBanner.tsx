@@ -21,10 +21,7 @@
 import React from 'react';
 import { IntlProvider } from 'react-intl';
 import messages from '../locales/data.json';
-import {
-  ConversionOptInBanner as ConversionOptInBannerInner,
-  ConversionOptInBannerProps,
-} from '../v1/components/ConversionOptInBanner';
+import { ConversionOptInBanner as ConversionOptInBannerInner, ConversionOptInBannerProps } from '../v1/components/ConversionOptInBanner';
 
 export const locale = 'en';
 
