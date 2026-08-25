@@ -21,7 +21,7 @@ import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
-import OrgAdminDropdown from './OrgAdminDropdown';
+import { OrgAdminToggle } from './OrgAdminToggle';
 import { ActivateToggle } from './components/ActivateToggle';
 import pathnames from '../../utilities/pathnames';
 import { useChangeUserStatusMutation, useUsersQuery } from '../../../shared/data/queries/users';
@@ -151,19 +151,16 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   const cellRenderers: CellRendererMap<typeof columns, User> = useMemo(
     () => ({
       org_admin: (user) => {
-        if (isCommonAuthModel && orgAdmin) {
-          // external_source_id may be string or number, convert to number for OrgAdminDropdown
+        if (isCommonAuthModel) {
+          // external_source_id may be string or number, convert to number for OrgAdminToggle
           const userId = typeof user.external_source_id === 'string' ? Number(user.external_source_id) : user.external_source_id;
           return (
-            <OrgAdminDropdown
-              key={`dropdown-${user.username}`}
+            <OrgAdminToggle
+              key={`org-admin-${user.username}`}
               isOrgAdmin={user.is_org_admin ?? false}
               username={user.username}
-              intl={intl}
               userId={userId}
-              fetchData={() => {
-                /* React Query will refetch via cache invalidation */
-              }}
+              isActive={user.is_active ?? false}
             />
           );
         }
