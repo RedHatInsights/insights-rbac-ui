@@ -3,7 +3,6 @@ import WizardButtons from '../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../shared/helpers/modal-container';
 
 export const schemaBuilder = () => {
-
   return {
     fields: [
       {

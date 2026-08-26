@@ -33,15 +33,7 @@ export const ConversionWizard: React.FC<ConversionWizardProps> = ({ onCancel, on
     return null;
   }
 
-  return (
-    <FormRenderer
-      schema={schema}
-      FormTemplate={FormTemplate}
-      componentMapper={componentMapper}
-      onSubmit={onSubmit}
-      onCancel={onCancel}
-    />
-  );
+  return <FormRenderer schema={schema} FormTemplate={FormTemplate} componentMapper={componentMapper} onSubmit={onSubmit} onCancel={onCancel} />;
 };
 
 export default ConversionWizard;
