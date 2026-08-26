@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent } from 'storybook/test';
-import { waitForModal, waitForModalClose, clickWizardNext, queryWizardStepTitle } from '../../../test-utils/interactionHelpers';
+import { clickWizardNext, queryWizardStepTitle, waitForModal, waitForModalClose } from '../../../test-utils/interactionHelpers';
 import { ConversionWizard } from './ConversionWizard';
 
 const meta = {
