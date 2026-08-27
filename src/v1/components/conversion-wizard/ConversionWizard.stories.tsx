@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { clickWizardNext, waitForModalClose } from '../../../test-utils/interactionHelpers';
+import { clickWizardNext, waitForModal, waitForModalClose } from '../../../test-utils/interactionHelpers';
 import { ConversionWizard } from './ConversionWizard';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { TEST_TIMEOUTS } from '../../../test-utils/testUtils';
 
 const WizardWrapper = ({ storyArgs }: { storyArgs: React.ComponentProps<typeof ConversionWizard> }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,16 +30,10 @@ const WizardWrapper = ({ storyArgs }: { storyArgs: React.ComponentProps<typeof C
   );
 };
 
-async function findWizardDialog() {
-  const body = within(document.body);
-  const dialogs = await body.findAllByRole('dialog', {}, { timeout: TEST_TIMEOUTS.ELEMENT_WAIT });
-  return within(dialogs[dialogs.length - 1]);
-}
-
 async function openWizardDialog(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>) {
   const openButton = await canvas.findByTestId('open-wizard-button');
   await user.click(openButton);
-  return findWizardDialog();
+  return waitForModal();
 }
 
 const meta = {
@@ -84,25 +77,25 @@ export const Default: Story = {
     });
 
     await step('Navigate to step 2: Post-conversion requirements', async () => {
-      const wizard = await findWizardDialog();
+      const wizard = await waitForModal();
       await clickWizardNext(user, wizard);
       await expect(wizard.findByText('Post-conversion requirements step content placeholder')).resolves.toBeInTheDocument();
     });
 
     await step('Navigate to step 3: Pre-conversion checklist', async () => {
-      const wizard = await findWizardDialog();
+      const wizard = await waitForModal();
       await clickWizardNext(user, wizard);
       await expect(wizard.findByText('Pre-conversion checklist step content placeholder')).resolves.toBeInTheDocument();
     });
 
     await step('Navigate to step 4: Confirm conversion', async () => {
-      const wizard = await findWizardDialog();
+      const wizard = await waitForModal();
       await clickWizardNext(user, wizard);
       await expect(wizard.findByText('Confirm conversion step content placeholder')).resolves.toBeInTheDocument();
     });
 
     await step('Cancel wizard and verify close', async () => {
-      const wizard = await findWizardDialog();
+      const wizard = await waitForModal();
       const cancelButton = await wizard.findByRole('button', { name: /cancel/i });
       await user.click(cancelButton);
 
