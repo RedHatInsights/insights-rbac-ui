@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, fn, userEvent } from 'storybook/test';
+import { expect, fn, userEvent, waitFor } from 'storybook/test';
 import { clickWizardNext, queryWizardStepTitle, waitForModal, waitForModalClose } from '../../../test-utils/interactionHelpers';
 import { ConversionWizard } from './ConversionWizard';
 
@@ -35,23 +35,31 @@ export const Default: Story = {
     const wizard = await waitForModal();
 
     // Verify we're on step 1: Introduction
-    let stepTitle = queryWizardStepTitle();
-    expect(stepTitle).toHaveTextContent('Introduction');
+    await waitFor(() => {
+      const stepTitle = queryWizardStepTitle();
+      expect(stepTitle).toHaveTextContent('Introduction');
+    });
 
     // Navigate to step 2: Post-conversion requirements
     await clickWizardNext(user, wizard);
-    stepTitle = queryWizardStepTitle();
-    expect(stepTitle).toHaveTextContent('Post-conversion requirements');
+    await waitFor(() => {
+      const stepTitle = queryWizardStepTitle();
+      expect(stepTitle).toHaveTextContent('Post-conversion requirements');
+    });
 
     // Navigate to step 3: Pre-conversion checklist
     await clickWizardNext(user, wizard);
-    stepTitle = queryWizardStepTitle();
-    expect(stepTitle).toHaveTextContent('Pre-conversion checklist');
+    await waitFor(() => {
+      const stepTitle = queryWizardStepTitle();
+      expect(stepTitle).toHaveTextContent('Pre-conversion checklist');
+    });
 
     // Navigate to step 4: Confirm conversion
     await clickWizardNext(user, wizard);
-    stepTitle = queryWizardStepTitle();
-    expect(stepTitle).toHaveTextContent('Confirm conversion');
+    await waitFor(() => {
+      const stepTitle = queryWizardStepTitle();
+      expect(stepTitle).toHaveTextContent('Confirm conversion');
+    });
 
     // Click Cancel button to close wizard
     const cancelButton = await wizard.findByRole('button', { name: /cancel/i });
