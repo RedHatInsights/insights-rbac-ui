@@ -35,25 +35,21 @@ export const Default: Story = {
     const wizard = await waitForModal();
 
     // Verify we're on step 1: Introduction
-    await expect(wizard.findByText('Introduction')).resolves.toBeInTheDocument();
     let stepTitle = queryWizardStepTitle();
     expect(stepTitle).toHaveTextContent('Introduction');
 
     // Navigate to step 2: Post-conversion requirements
     await clickWizardNext(user, wizard);
-    await expect(wizard.findByText('Post-conversion requirements')).resolves.toBeInTheDocument();
     stepTitle = queryWizardStepTitle();
     expect(stepTitle).toHaveTextContent('Post-conversion requirements');
 
     // Navigate to step 3: Pre-conversion checklist
     await clickWizardNext(user, wizard);
-    await expect(wizard.findByText('Pre-conversion checklist')).resolves.toBeInTheDocument();
     stepTitle = queryWizardStepTitle();
     expect(stepTitle).toHaveTextContent('Pre-conversion checklist');
 
     // Navigate to step 4: Confirm conversion
     await clickWizardNext(user, wizard);
-    await expect(wizard.findByText('Confirm conversion')).resolves.toBeInTheDocument();
     stepTitle = queryWizardStepTitle();
     expect(stepTitle).toHaveTextContent('Confirm conversion');
 
