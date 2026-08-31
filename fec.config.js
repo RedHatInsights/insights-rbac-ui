@@ -27,7 +27,6 @@ module.exports = {
       './modules/WorkspaceSelector': path.resolve(__dirname, './src/federated-modules/WorkspaceSelector.tsx'),
       './modules/ConversionOptInBanner': path.resolve(__dirname, './src/federated-modules/ConversionOptInBanner.tsx'),
     },
-    exclude: ['react-router-dom'],
-    shared: [{ 'react-router-dom': { singleton: true, version: '^6.18.0', requiredVersion: '*' } }],
+    shared: []
   },
 };
