@@ -21,6 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
   commitlint:
+    if: github.event_name == 'pull_request'
     needs: [install]
     runs-on: ubuntu-24.04
     steps:
@@ -32,11 +33,6 @@ jobs:
       - name: install
         shell: bash
         run: npm ci
-      - name: Validate current commit on push
-        shell: bash
-        if: github.event_name == 'push'
-        run: npx commitlint --last --verbose
       - name: Validate PR commits
         shell: bash
-        if: github.event_name == 'pull_request'
         run: npx commitlint --from ${{ github.event.pull_request.head.sha }}~${{ github.event.pull_request.commits }} --to ${{ github.event.pull_request.head.sha }} --verbose
