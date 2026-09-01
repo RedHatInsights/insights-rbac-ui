@@ -49,6 +49,8 @@ export interface ManagedWorkspaceSelectorProps {
   initialSelectedWorkspace?: TreeViewWorkspaceItem;
   /** Workspace to exclude from the tree (useful for move operations) */
   sourceWorkspace?: TreeViewWorkspaceItem;
+  /** Custom width for the dropdown menu. Falls back to matching the toggle width when omitted. */
+  menuWidth?: string;
   /**
    * When set, only workspaces where the user has this permission are selectable.
    * Non-permitted workspaces are still shown in the tree (to preserve hierarchy)
@@ -78,6 +80,7 @@ export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> =
   onSelect,
   initialSelectedWorkspace,
   sourceWorkspace,
+  menuWidth,
   requiredPermission,
 }) => {
   const intl = useIntl();
@@ -232,6 +235,7 @@ export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> =
       )}
       searchPlaceholder="Find a workspace by name"
       buttonText="Select Workspace"
+      menuWidth={menuWidth}
     />
   );
 };

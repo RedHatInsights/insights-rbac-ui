@@ -43,3 +43,9 @@ playwright-report/
 
 # E2E asset cache (regenerated each run)
 e2e/cache/*.har
+
+# Local environment file
+/.env
+
+# Project tmp folder
+/tmp

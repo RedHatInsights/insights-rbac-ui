@@ -453,6 +453,36 @@ export const SelectionCallback: Story = {
   },
 };
 
+export const CustomMenuWidth: Story = {
+  tags: ['managed-workspace-selector-custom-menu-width'],
+  args: {
+    ...defaultArgs,
+    menuWidth: '37rem',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Verifies that the managed wrapper forwards the custom menuWidth prop to the dropdown menu.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Open the selector', async () => {
+      await expect(canvas.findByText('Select workspaces')).resolves.toBeInTheDocument();
+      const toggle = await canvas.findByText('Select workspaces');
+      await userEvent.click(toggle);
+    });
+
+    await step('Verify the custom width is applied to the menu', async () => {
+      const menu = await within(document.body).findByTestId('workspace-selector-menu');
+      expect(menu.getAttribute('style')).toContain('width: 37rem');
+      expect(menu.getAttribute('style')).toContain('max-width: 37rem');
+    });
+  },
+};
+
 export const SearchIntegration: Story = {
   args: defaultArgs,
   parameters: {

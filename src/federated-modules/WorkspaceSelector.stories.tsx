@@ -176,6 +176,7 @@ import { AsyncComponent } from '@redhat-cloud-services/frontend-components';
 | \`onSelect\` | \`(workspace) => void\` | – | Callback when a workspace is selected |
 | \`initialSelectedWorkspace\` | \`TreeViewWorkspaceItem\` | – | Pre-selected workspace on mount |
 | \`sourceWorkspace\` | \`TreeViewWorkspaceItem\` | – | Workspace to exclude from tree |
+| \`menuWidth\` | \`string\` | – | Custom width for the dropdown menu |
 | \`requiredPermission\` | \`WorkspaceRelation\` | – | Limits selectable workspaces to those with this permission |
 
 ### Kessel Workspace Permissions
