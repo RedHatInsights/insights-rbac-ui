@@ -1,19 +1,19 @@
 import React from 'react';
-import type { IntlShape } from 'react-intl';
 import useUserData from '../../hooks/useUserData';
-import { OrgAdminDropdown as PresentationalOrgAdminDropdown } from './components/OrgAdminDropdown';
+import { OrgAdminToggle as PresentationalOrgAdminToggle } from './components/OrgAdminToggle';
 import { useUpdateUserOrgAdminMutation } from '../../../shared/data/queries/users';
 
-const OrgAdminDropdown: React.FC<{
+export const OrgAdminToggle: React.FC<{
   isOrgAdmin: boolean;
   username: string;
-  intl: IntlShape; // Keep for backward compatibility, not used internally
   userId: number | undefined;
+  isActive: boolean;
   fetchData?: () => void;
-}> = ({ isOrgAdmin, username, userId, fetchData }) => {
+}> = ({ isOrgAdmin, username, userId, isActive, fetchData }) => {
   const user = useUserData();
   const accountUsername = user.identity?.user?.username ?? null;
-  const isDisabled = accountUsername === username;
+  const isSelf = accountUsername === username;
+  const isDisabled = isSelf || !user.orgAdmin || !isActive;
 
   const updateOrgAdminMutation = useUpdateUserOrgAdminMutation();
 
@@ -30,7 +30,7 @@ const OrgAdminDropdown: React.FC<{
   };
 
   return (
-    <PresentationalOrgAdminDropdown
+    <PresentationalOrgAdminToggle
       isOrgAdmin={isOrgAdmin}
       username={username}
       isDisabled={isDisabled}
@@ -39,5 +39,3 @@ const OrgAdminDropdown: React.FC<{
     />
   );
 };
-
-export default OrgAdminDropdown;

@@ -319,3 +319,96 @@ export const InviteUsersJourney: Story = {
     });
   },
 };
+
+const orgAdminSpy = fn();
+
+export const ToggleOrgAdminJourney: Story = {
+  name: 'Toggle org admin',
+  tags: ['sbtest:org-admin-toggle'],
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+Tests toggling a user's org admin status via the switch in the users table.
+
+**Expected behavior:**
+1. Find a non-admin user row's org admin toggle switch
+2. Click the toggle to grant org admin
+3. Verify the IT API was called with role: organization_administrator
+4. Verify success notification appears
+5. Verify the switch visually reflects the new state
+        `,
+      },
+    },
+    msw: {
+      handlers: [
+        ...accountManagementHandlers({
+          users: v1Db.users,
+          onToggleOrgAdmin: (accountId, userId, body) => {
+            orgAdminSpy({ accountId, userId, body });
+          },
+        }),
+        ...createV1Handlers(v1Db),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+      orgAdminSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for users table and toggle org admin switch', async () => {
+      await navigateToPage(user, canvas, 'Users');
+      await waitForPageToLoad(canvas, USER_JOHN.username);
+
+      const orgAdminSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${USER_JOHN.username}`, 'i'),
+      });
+      await expect(orgAdminSwitch).not.toBeChecked();
+      await expect(orgAdminSwitch).not.toBeDisabled();
+      await user.click(orgAdminSwitch);
+    });
+
+    await step('Verify API call', async () => {
+      await waitFor(
+        () => {
+          expect(orgAdminSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              userId: String(USER_JOHN.external_source_id),
+              body: { role: 'organization_administrator' },
+            }),
+          );
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+    });
+
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
+
+    await step('Verify switch reflects org admin state', async () => {
+      await waitFor(
+        () => {
+          const updatedSwitch = canvas.queryByRole('switch', {
+            name: new RegExp(`toggle org admin for ${USER_JOHN.username}`, 'i'),
+          });
+          expect(updatedSwitch).toBeInTheDocument();
+          expect(updatedSwitch).toBeChecked();
+        },
+        { timeout: TEST_TIMEOUTS.ELEMENT_WAIT },
+      );
+    });
+  },
+};

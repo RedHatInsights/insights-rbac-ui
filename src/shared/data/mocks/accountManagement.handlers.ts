@@ -1,4 +1,5 @@
 import { HttpResponse, delay, http } from 'msw';
+import type { MockCollection, Principal } from './db';
 
 const MOCK_DELAY = 200;
 
@@ -8,6 +9,20 @@ export interface AccountManagementHandlerOptions {
   onInvite?: (request: Request, body: unknown) => void;
   onToggleStatus?: (...args: unknown[]) => void;
   onToggleOrgAdmin?: (...args: unknown[]) => void;
+  /** When provided, org admin POST/DELETE updates `is_org_admin` so the next principals refetch reflects the toggle */
+  users?: MockCollection<Principal>;
+}
+
+async function applyOrgAdminUpdate(users: MockCollection<Principal> | undefined, userId: string | readonly string[] | undefined, isOrgAdmin: boolean) {
+  if (!users || userId == null) return;
+  const id = String(userId);
+  const match = users.all().find((u) => String(u.external_source_id) === id);
+  if (!match) return;
+  await users.update((q) => q.where({ username: match.username }), {
+    data(u) {
+      u.is_org_admin = isOrgAdmin;
+    },
+  });
 }
 
 export function createAccountManagementHandlers(options: AccountManagementHandlerOptions = {}) {
@@ -54,12 +69,14 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
       http.post(`${baseUrl}/account/v1/accounts/:accountId/users/:userId/roles`, async ({ params, request }) => {
         await delay(networkDelay);
         const body = await request.json();
+        await applyOrgAdminUpdate(options.users, params.userId, true);
         options.onToggleOrgAdmin?.(params.accountId, params.userId, body);
         return HttpResponse.json({ success: true });
       }),
       http.delete(`${baseUrl}/account/v1/accounts/:accountId/users/:userId/roles`, async ({ params, request }) => {
         await delay(networkDelay);
         const body = await request.json();
+        await applyOrgAdminUpdate(options.users, params.userId, false);
         options.onToggleOrgAdmin?.(params.accountId, params.userId, body);
         return HttpResponse.json({ success: true });
       }),
@@ -69,12 +86,16 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/roles/, async ({ request }) => {
       await delay(networkDelay);
       const body = await request.json();
+      const userId = new URL(request.url).pathname.split('/').at(-2);
+      await applyOrgAdminUpdate(options.users, userId, true);
       options.onToggleOrgAdmin?.('', '', body);
       return HttpResponse.json({ success: true });
     }),
     http.delete(/account\/v1\/accounts\/.+\/users\/.+\/roles/, async ({ request }) => {
       await delay(networkDelay);
       const body = await request.json();
+      const userId = new URL(request.url).pathname.split('/').at(-2);
+      await applyOrgAdminUpdate(options.users, userId, false);
       options.onToggleOrgAdmin?.('', '', body);
       return HttpResponse.json({ success: true });
     }),

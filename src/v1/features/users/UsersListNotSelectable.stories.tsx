@@ -4,6 +4,7 @@ import { expectLoadingVisible } from '../../../test-utils/interactionHelpers';
 import { findSortButton } from '../../../test-utils/tableHelpers';
 import UsersListNotSelectable from './UsersListNotSelectable';
 import { usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
+import { accountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
 import { withRouter as withRouterDecorator } from '../../../../.storybook/helpers/router-test-utils';
 import {
   PAGINATION_TEST_DEFAULT_PER_PAGE,
@@ -64,6 +65,9 @@ const mockUsers = [
     external_source_id: 456789,
   },
 ];
+
+const FIRST_USER = mockUsers[0];
+const ORG_ADMIN_USER = mockUsers[1];
 
 const mockUsersLarge = Array.from({ length: PAGINATION_TEST_TOTAL_ITEMS }, (_v, idx) => {
   const i = idx + 1;
@@ -421,7 +425,7 @@ export const AdminUserWithUsersTableContent: Story = {
       expect(await canvas.findByText('Admin')).toBeInTheDocument();
       expect(await canvas.findByText('Smith')).toBeInTheDocument();
 
-      // Test org admin indicators (Yes/No) - only 3 active users shown
+      // Test org admin indicators (Yes/No icons — common-auth-model is off in this story)
       const yesTexts = await canvas.findAllByText('Yes');
       const noTexts = await canvas.findAllByText('No');
       expect(yesTexts).toHaveLength(1); // jane.admin is org admin
@@ -430,6 +434,114 @@ export const AdminUserWithUsersTableContent: Story = {
       // Test status labels - all shown users are Active
       const activeLabels = await canvas.findAllByText('Active');
       expect(activeLabels.length).toBeGreaterThanOrEqual(3); // john.doe, jane.admin, bob.smith + filter checkbox
+    });
+  },
+};
+
+const toggleOrgAdminSpy = fn();
+
+export const OrgAdminToggleIntegration: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model', 'sbtest:org-admin-toggle'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'With common-auth-model enabled, org admin status is a Switch. Clicking it calls the IT API roles endpoint and shows a success notification.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+    },
+    msw: {
+      handlers: [
+        ...usersHandlers(mockUsers as unknown as Parameters<typeof usersHandlers>[0], { onList: () => fetchUsersSpy({}) }),
+        ...accountManagementHandlers({
+          onToggleOrgAdmin: (accountId, userId, body) => {
+            toggleOrgAdminSpy({ accountId, userId, body });
+          },
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Reset spy', async () => {
+      toggleOrgAdminSpy.mockClear();
+    });
+
+    await step('Grant org admin to a non-admin user', async () => {
+      await expect(canvas.findByText(FIRST_USER.username)).resolves.toBeInTheDocument();
+
+      const orgAdminSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${FIRST_USER.username}`, 'i'),
+      });
+      await expect(orgAdminSwitch).not.toBeChecked();
+      await expect(orgAdminSwitch).not.toBeDisabled();
+      await userEvent.click(orgAdminSwitch);
+    });
+
+    await step('Verify API call and success notification', async () => {
+      await waitFor(async () => {
+        await expect(toggleOrgAdminSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            userId: String(FIRST_USER.external_source_id),
+            body: { role: 'organization_administrator' },
+          }),
+        );
+      });
+
+      await waitFor(async () => {
+        const notification = within(document.body).queryByText(/Success updating user/i);
+        await expect(notification).toBeInTheDocument();
+      });
+    });
+
+    await step('Existing org admin switch is on', async () => {
+      const adminSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${ORG_ADMIN_USER.username}`, 'i'),
+      });
+      await expect(adminSwitch).toBeChecked();
+      await expect(adminSwitch).not.toBeDisabled();
+    });
+  },
+};
+
+export const NonAdminOrgAdminTogglesDisabled: Story = {
+  tags: ['ff:platform.rbac.common-auth-model', 'sbtest:org-admin-toggle'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Non-org-admin viewers still see org admin switches, but every switch is disabled.',
+      },
+    },
+    orgAdmin: false,
+    permissions: [],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Wait for users to load', async () => {
+      await expect(canvas.findByText(FIRST_USER.username)).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(ORG_ADMIN_USER.username)).resolves.toBeInTheDocument();
+    });
+
+    await step('Org admin switches are disabled for a non-admin viewer', async () => {
+      const firstSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${FIRST_USER.username}`, 'i'),
+      });
+      const adminSwitch = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle org admin for ${ORG_ADMIN_USER.username}`, 'i'),
+      });
+      await expect(firstSwitch).toBeDisabled();
+      await expect(adminSwitch).toBeDisabled();
     });
   },
 };
