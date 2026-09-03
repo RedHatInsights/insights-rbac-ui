@@ -81,7 +81,7 @@ describe('IntroductionStep', () => {
     const gettingStartedLink = screen.getByText('Getting Started with Access Management');
     expect(gettingStartedLink).toHaveAttribute(
       'href',
-      'https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=1'
+      'https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=1',
     );
     expect(gettingStartedLink).toHaveAttribute('target', '_blank');
     expect(gettingStartedLink).toHaveAttribute('rel', 'noopener noreferrer');
@@ -89,7 +89,7 @@ describe('IntroductionStep', () => {
     const roleBindingsLink = screen.getByText('How role bindings work');
     expect(roleBindingsLink).toHaveAttribute(
       'href',
-      'https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=21'
+      'https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=21',
     );
     expect(roleBindingsLink).toHaveAttribute('target', '_blank');
     expect(roleBindingsLink).toHaveAttribute('rel', 'noopener noreferrer');
@@ -98,9 +98,7 @@ describe('IntroductionStep', () => {
   it('renders introduction text with workspaces in bold', () => {
     renderWithIntl(<IntroductionStep />);
 
-    expect(
-      screen.getByText(/new access management model replaces the legacy User Access feature/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/new access management model replaces the legacy User Access feature/i)).toBeInTheDocument();
 
     const workspacesText = screen.getByText('workspaces');
     expect(workspacesText.tagName).toBe('STRONG');
