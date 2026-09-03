@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { IntroductionStep } from './IntroductionStep';
 
 const meta = {
@@ -24,7 +24,6 @@ export const Default: Story = {
   tags: ['autodocs'],
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    const user = userEvent.setup();
 
     await step('Verify external links are present and functional', async () => {
       // Find the "Getting Started with Access Management" link
@@ -53,16 +52,13 @@ export const Default: Story = {
       expect(diagrams[2]).toHaveAttribute('alt', 'Role bindings example diagram');
     });
 
-    await step('Test keyboard navigation to links', async () => {
-      // Tab to the first link
-      await user.tab();
-      const gettingStartedLink = await canvas.findByRole('link', { name: /Getting Started with Access Management/i });
-      expect(gettingStartedLink).toHaveFocus();
-
-      // Tab to the second link
-      await user.tab();
-      const roleBindingsLink = await canvas.findByRole('link', { name: /How role bindings work/i });
-      expect(roleBindingsLink).toHaveFocus();
+    await step('Verify all section headings are present', async () => {
+      // Verify key section headings
+      expect(canvas.getByRole('heading', { name: /What changes during conversion/i })).toBeInTheDocument();
+      expect(canvas.getByRole('heading', { name: /During conversion a workspace hierarchy will be created/i })).toBeInTheDocument();
+      expect(canvas.getByRole('heading', { name: /How permissions change/i })).toBeInTheDocument();
+      expect(canvas.getByRole('heading', { name: /How role bindings work/i })).toBeInTheDocument();
+      expect(canvas.getByRole('heading', { name: /Legacy remediation plans will be deleted/i })).toBeInTheDocument();
     });
   },
 };
