@@ -13,11 +13,11 @@ describe('IntroductionStep', () => {
   it('renders all section titles', () => {
     renderWithIntl(<IntroductionStep />);
 
-    expect(screen.getByText('What changes during conversion')).toBeInTheDocument();
-    expect(screen.getByText('During conversion a workspace hierarchy will be created')).toBeInTheDocument();
-    expect(screen.getByText('How permissions change')).toBeInTheDocument();
-    expect(screen.getByText('How role bindings work')).toBeInTheDocument();
-    expect(screen.getByText('Legacy remediation plans will be deleted')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'What changes during conversion' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'During conversion a workspace hierarchy will be created' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'How permissions change' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'How role bindings work' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Legacy remediation plans will be deleted' })).toBeInTheDocument();
   });
 
   it('renders workspace hierarchy description list items', () => {
