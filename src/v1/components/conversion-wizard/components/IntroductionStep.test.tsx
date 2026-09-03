@@ -78,7 +78,7 @@ describe('IntroductionStep', () => {
   it('renders links with correct hrefs', () => {
     renderWithIntl(<IntroductionStep />);
 
-    const gettingStartedLink = screen.getByText('Getting Started with Access Management');
+    const gettingStartedLink = screen.getByRole('link', { name: 'Getting Started with Access Management' });
     expect(gettingStartedLink).toHaveAttribute(
       'href',
       'https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=1',
@@ -86,7 +86,7 @@ describe('IntroductionStep', () => {
     expect(gettingStartedLink).toHaveAttribute('target', '_blank');
     expect(gettingStartedLink).toHaveAttribute('rel', 'noopener noreferrer');
 
-    const roleBindingsLink = screen.getByText('How role bindings work');
+    const roleBindingsLink = screen.getByRole('link', { name: 'How role bindings work' });
     expect(roleBindingsLink).toHaveAttribute(
       'href',
       'https://access.redhat.com/system/files/private_announcement_files/Hybrid-Cloud-Console-Access-Management-with-Workspaces.pdf#page=21',
