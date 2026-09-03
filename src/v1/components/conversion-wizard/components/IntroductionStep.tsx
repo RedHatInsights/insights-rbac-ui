@@ -72,7 +72,7 @@ export const IntroductionStep: React.FC = () => {
       </DescriptionList>
 
       <div className="pf-v6-u-mt-md">
-        <img src={WorkspaceHierarchyDiagram} alt="Workspace hierarchy diagram" />
+        <img src={WorkspaceHierarchyDiagram} alt={intl.formatMessage(messages.conversionWizardWorkspaceHierarchyDiagramAlt)} />
       </div>
 
       {/* How permissions change */}
@@ -100,7 +100,7 @@ export const IntroductionStep: React.FC = () => {
       </Content>
 
       <div className="pf-v6-u-mt-md">
-        <img src={PermissionsDiagram} alt="Permissions and workspace hierarchy diagram" />
+        <img src={PermissionsDiagram} alt={intl.formatMessage(messages.conversionWizardPermissionsDiagramAlt)} />
       </div>
 
       {/* How role bindings work */}
@@ -136,7 +136,7 @@ export const IntroductionStep: React.FC = () => {
       </Content>
 
       <div className="pf-v6-u-mt-md">
-        <img src={RoleBindingsDiagram} alt="Role bindings example diagram" />
+        <img src={RoleBindingsDiagram} alt={intl.formatMessage(messages.conversionWizardRoleBindingsDiagramAlt)} />
       </div>
 
       <Content component="p" className="pf-v6-u-mt-md">

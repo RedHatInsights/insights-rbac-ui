@@ -64,12 +64,13 @@ describe('IntroductionStep', () => {
     expect(screen.getByText('Workspace')).toBeInTheDocument();
   });
 
-  it('renders all three diagrams with correct alt text', () => {
+  it('renders all three diagrams with localized alt text', () => {
     renderWithIntl(<IntroductionStep />);
 
     const diagrams = screen.getAllByRole('img');
     expect(diagrams).toHaveLength(3);
 
+    // Verify diagrams have alt text (exact text from Messages.js)
     expect(diagrams[0]).toHaveAttribute('alt', 'Workspace hierarchy diagram');
     expect(diagrams[1]).toHaveAttribute('alt', 'Permissions and workspace hierarchy diagram');
     expect(diagrams[2]).toHaveAttribute('alt', 'Role bindings example diagram');

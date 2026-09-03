@@ -3823,7 +3823,7 @@ export default defineMessages({
     id: 'conversionWizardRoleBindingExample',
     description: 'Role binding example paragraph',
     defaultMessage:
-      'The following example demonstrates how role bindings provide administrative access to Ethan from the engineering team for RHE systems in the Project Alpha workspace:',
+      'The following example demonstrates how role bindings provide administrative access to Ethan from the engineering team for RHEL systems in the Project Alpha workspace:',
   },
   conversionWizardRoleBindingsLinkText: {
     id: 'conversionWizardRoleBindingsLinkText',
@@ -3851,5 +3851,20 @@ export default defineMessages({
     description: 'New remediation plans features paragraph',
     defaultMessage:
       'Remediation plans created after this conversion will be tied to your workspaces rather than individual users, enabling authorized team members to seamlessly collaborate, update, and execute them.',
+  },
+  conversionWizardWorkspaceHierarchyDiagramAlt: {
+    id: 'conversionWizardWorkspaceHierarchyDiagramAlt',
+    description: 'Alt text for workspace hierarchy diagram',
+    defaultMessage: 'Workspace hierarchy diagram',
+  },
+  conversionWizardPermissionsDiagramAlt: {
+    id: 'conversionWizardPermissionsDiagramAlt',
+    description: 'Alt text for permissions and workspace hierarchy diagram',
+    defaultMessage: 'Permissions and workspace hierarchy diagram',
+  },
+  conversionWizardRoleBindingsDiagramAlt: {
+    id: 'conversionWizardRoleBindingsDiagramAlt',
+    description: 'Alt text for role bindings example diagram',
+    defaultMessage: 'Role bindings example diagram',
   },
 });
