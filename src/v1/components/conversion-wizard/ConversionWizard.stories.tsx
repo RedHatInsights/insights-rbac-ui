@@ -73,7 +73,27 @@ export const Default: Story = {
 
     await step('Open wizard and verify step 1: Introduction', async () => {
       const wizard = await openWizardDialog(user, canvas);
-      await expect(wizard.findByText('Introduction step content placeholder')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('What changes during conversion')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/new access management model replaces the legacy User Access feature/)).resolves.toBeInTheDocument();
+
+      // Verify key sections are present
+      await expect(wizard.findByText('During conversion a workspace hierarchy will be created')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('How permissions change')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('How role bindings work')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Legacy remediation plans will be deleted')).resolves.toBeInTheDocument();
+
+      // Verify workspace hierarchy terms
+      await expect(wizard.findByText('Root workspace')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Default workspace')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Existing workspaces')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Ungrouped hosts workspace')).resolves.toBeInTheDocument();
+
+      // Verify diagrams are present
+      const diagrams = wizard.getAllByRole('img');
+      expect(diagrams).toHaveLength(3);
+      expect(diagrams[0]).toHaveAttribute('alt', 'Workspace hierarchy diagram');
+      expect(diagrams[1]).toHaveAttribute('alt', 'Permissions and workspace hierarchy diagram');
+      expect(diagrams[2]).toHaveAttribute('alt', 'Role bindings example diagram');
     });
 
     await step('Navigate to step 2: Post-conversion requirements', async () => {
