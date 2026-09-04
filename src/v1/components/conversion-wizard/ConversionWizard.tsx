@@ -3,8 +3,13 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { schemaBuilder } from './schema';
+import { IntroductionStep } from './components/IntroductionStep';
 
 const FormTemplate = (props: React.ComponentProps<typeof Pf4FormTemplate>) => <Pf4FormTemplate {...props} showFormControls={false} />;
+
+const mapperExtension = {
+  IntroductionStep,
+};
 
 export interface ConversionWizardProps {
   /** Callback when wizard is cancelled */
@@ -33,5 +38,13 @@ export const ConversionWizard: React.FC<ConversionWizardProps> = ({ onCancel, on
     return null;
   }
 
-  return <FormRenderer schema={schema} FormTemplate={FormTemplate} componentMapper={componentMapper} onSubmit={onSubmit} onCancel={onCancel} />;
+  return (
+    <FormRenderer
+      schema={schema}
+      FormTemplate={FormTemplate}
+      componentMapper={{ ...componentMapper, ...mapperExtension }}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+    />
+  );
 };

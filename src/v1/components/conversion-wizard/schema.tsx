@@ -23,16 +23,8 @@ export const schemaBuilder = () => {
             nextStep: 'post-conversion-requirements',
             fields: [
               {
-                name: 'introduction-title',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-c-title pf-m-xl',
-                label: 'Introduction',
-              },
-              {
-                name: 'introduction-description',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-u-my-md',
-                label: 'Introduction step content placeholder',
+                name: 'introduction-step',
+                component: 'IntroductionStep',
               },
             ],
           },

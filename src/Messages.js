@@ -3660,4 +3660,211 @@ export default defineMessages({
     description: 'Request from admin link text for non-admin conversion banner',
     defaultMessage: 'Request from your admin',
   },
+  conversionWizardWhatChangesTitle: {
+    id: 'conversionWizardWhatChangesTitle',
+    description: 'Title for What changes during conversion section',
+    defaultMessage: 'What changes during conversion',
+  },
+  conversionWizardWorkspacesIntro: {
+    id: 'conversionWizardWorkspacesIntro',
+    description: 'Introduction paragraph about workspaces',
+    defaultMessage:
+      "The Red Hat Hybrid Cloud Console's new access management model replaces the legacy User Access feature. It introduces <strong>workspaces</strong>—a hierarchical structure that allows you to organize assets and control who can access them in your organization.",
+  },
+  conversionWizardPermissionsCascade: {
+    id: 'conversionWizardPermissionsCascade',
+    description: 'Paragraph about permissions cascading',
+    defaultMessage:
+      'Instead of managing permissions for each system individually, you can organize systems into workspaces and grant permissions that automatically cascade down through your organizational structure.',
+  },
+  conversionWizardLearnMoreGuide: {
+    id: 'conversionWizardLearnMoreGuide',
+    description: 'Learn more in our guide text',
+    defaultMessage: 'Learn more in our {link} Guide',
+  },
+  conversionWizardGetStartedLink: {
+    id: 'conversionWizardGetStartedLink',
+    description: 'Getting Started with Access Management link text',
+    defaultMessage: 'Getting Started with Access Management',
+  },
+  conversionWizardHierarchyTitle: {
+    id: 'conversionWizardHierarchyTitle',
+    description: 'During conversion a workspace hierarchy will be created title',
+    defaultMessage: 'During conversion a workspace hierarchy will be created',
+  },
+  conversionWizardRootWorkspace: {
+    id: 'conversionWizardRootWorkspace',
+    description: 'Root workspace term',
+    defaultMessage: 'Root workspace',
+  },
+  conversionWizardRootWorkspaceDesc: {
+    id: 'conversionWizardRootWorkspaceDesc',
+    description: 'Root workspace description',
+    defaultMessage: 'Created at the top level for organization access',
+  },
+  conversionWizardDefaultWorkspace: {
+    id: 'conversionWizardDefaultWorkspace',
+    description: 'Default workspace term',
+    defaultMessage: 'Default workspace',
+  },
+  conversionWizardDefaultWorkspaceDesc: {
+    id: 'conversionWizardDefaultWorkspaceDesc',
+    description: 'Default workspace description',
+    defaultMessage: 'Created under Root, existing workspaces move here as sub workspaces',
+  },
+  conversionWizardExistingWorkspaces: {
+    id: 'conversionWizardExistingWorkspaces',
+    description: 'Existing workspaces term',
+    defaultMessage: 'Existing workspaces',
+  },
+  conversionWizardExistingWorkspacesDesc: {
+    id: 'conversionWizardExistingWorkspacesDesc',
+    description: 'Existing workspaces description',
+    defaultMessage: 'Moved under the default workspace. Configured permissions are preserved.',
+  },
+  conversionWizardUngroupedHosts: {
+    id: 'conversionWizardUngroupedHosts',
+    description: 'Ungrouped hosts workspace term',
+    defaultMessage: 'Ungrouped hosts workspace',
+  },
+  conversionWizardUngroupedHostsDesc: {
+    id: 'conversionWizardUngroupedHostsDesc',
+    description: 'Ungrouped hosts workspace description',
+    defaultMessage: 'Created under Default for existing systems not yet in a workspace',
+  },
+  conversionWizardPermissionsChangeTitle: {
+    id: 'conversionWizardPermissionsChangeTitle',
+    description: 'How permissions change section title',
+    defaultMessage: 'How permissions change',
+  },
+  conversionWizardDefaultAdminAccess: {
+    id: 'conversionWizardDefaultAdminAccess',
+    description: 'Default Admin access term',
+    defaultMessage: 'Default Admin access',
+  },
+  conversionWizardDefaultAdminAccessDesc: {
+    id: 'conversionWizardDefaultAdminAccessDesc',
+    description: 'Default Admin access description',
+    defaultMessage: 'Scoped to root workspace (all workspaces)',
+  },
+  conversionWizardDefaultAccess: {
+    id: 'conversionWizardDefaultAccess',
+    description: 'Default Access term',
+    defaultMessage: 'Default Access',
+  },
+  conversionWizardDefaultAccessDesc: {
+    id: 'conversionWizardDefaultAccessDesc',
+    description: 'Default Access description',
+    defaultMessage: 'Scoped to default workspace and sub workspaces only',
+  },
+  conversionWizardCustomGroups: {
+    id: 'conversionWizardCustomGroups',
+    description: 'Custom groups term',
+    defaultMessage: 'Custom groups',
+  },
+  conversionWizardCustomGroupsDesc: {
+    id: 'conversionWizardCustomGroupsDesc',
+    description: 'Custom groups description',
+    defaultMessage: 'Preserved with all memberships intact',
+  },
+  conversionWizardIsolatedEnvironments: {
+    id: 'conversionWizardIsolatedEnvironments',
+    description: 'Creating isolated environments paragraph',
+    defaultMessage:
+      'To create isolated environments, remove unnecessary permissions in the default workspace and create peer workspaces directly under the default workspace so they will not inherit additional permissions from the default workspace. In this example, the Project Alpha workspace is created to allow for fewer permissions for that workspace:',
+  },
+  conversionWizardRoleBindingsTitle: {
+    id: 'conversionWizardRoleBindingsTitle',
+    description: 'How role bindings work section title',
+    defaultMessage: 'How role bindings work',
+  },
+  conversionWizardRoleBindingsIntro: {
+    id: 'conversionWizardRoleBindingsIntro',
+    description: 'Role bindings introduction paragraph',
+    defaultMessage:
+      'Role bindings are the mechanism that link subjects (users, groups, service accounts) and roles to a workspace. While workspace access management is the "what", role bindings are the "how".',
+  },
+  conversionWizardRoleBindingConnectsTitle: {
+    id: 'conversionWizardRoleBindingConnectsTitle',
+    description: 'A role binding connects title',
+    defaultMessage: 'A role binding connects:',
+  },
+  conversionWizardRoleBindingWho: {
+    id: 'conversionWizardRoleBindingWho',
+    description: 'Role binding Who term',
+    defaultMessage: 'Who',
+  },
+  conversionWizardRoleBindingWhoDesc: {
+    id: 'conversionWizardRoleBindingWhoDesc',
+    description: 'Role binding Who description',
+    defaultMessage: 'User group',
+  },
+  conversionWizardRoleBindingWhat: {
+    id: 'conversionWizardRoleBindingWhat',
+    description: 'Role binding What term',
+    defaultMessage: 'What',
+  },
+  conversionWizardRoleBindingWhatDesc: {
+    id: 'conversionWizardRoleBindingWhatDesc',
+    description: 'Role binding What description',
+    defaultMessage: 'Role (permissions)',
+  },
+  conversionWizardRoleBindingWhere: {
+    id: 'conversionWizardRoleBindingWhere',
+    description: 'Role binding Where term',
+    defaultMessage: 'Where',
+  },
+  conversionWizardRoleBindingWhereDesc: {
+    id: 'conversionWizardRoleBindingWhereDesc',
+    description: 'Role binding Where description',
+    defaultMessage: 'Workspace',
+  },
+  conversionWizardRoleBindingExample: {
+    id: 'conversionWizardRoleBindingExample',
+    description: 'Role binding example paragraph',
+    defaultMessage:
+      'The following example demonstrates how role bindings provide administrative access to Ethan from the engineering team for RHEL systems in the Project Alpha workspace:',
+  },
+  conversionWizardRoleBindingsLinkText: {
+    id: 'conversionWizardRoleBindingsLinkText',
+    description: 'How role bindings work link text',
+    defaultMessage: 'How role bindings work',
+  },
+  conversionWizardRoleBindingsLinkContext: {
+    id: 'conversionWizardRoleBindingsLinkContext',
+    description: 'Context text around role bindings link',
+    defaultMessage: 'See {link} for more information.',
+  },
+  conversionWizardRemediationPlansTitle: {
+    id: 'conversionWizardRemediationPlansTitle',
+    description: 'Legacy remediation plans will be deleted section title',
+    defaultMessage: 'Legacy remediation plans will be deleted',
+  },
+  conversionWizardRemediationPlansWarning: {
+    id: 'conversionWizardRemediationPlansWarning',
+    description: 'Remediation plans warning paragraph',
+    defaultMessage:
+      'Once you proceed with this conversion, all existing remediation plans across your organization will be deleted. Please ensure your teams have executed or downloaded any active plans before continuing.',
+  },
+  conversionWizardRemediationPlansNew: {
+    id: 'conversionWizardRemediationPlansNew',
+    description: 'New remediation plans features paragraph',
+    defaultMessage:
+      'Remediation plans created after this conversion will be tied to your workspaces rather than individual users, enabling authorized team members to seamlessly collaborate, update, and execute them.',
+  },
+  conversionWizardWorkspaceHierarchyDiagramAlt: {
+    id: 'conversionWizardWorkspaceHierarchyDiagramAlt',
+    description: 'Alt text for workspace hierarchy diagram',
+    defaultMessage: 'Workspace hierarchy diagram',
+  },
+  conversionWizardPermissionsDiagramAlt: {
+    id: 'conversionWizardPermissionsDiagramAlt',
+    description: 'Alt text for permissions and workspace hierarchy diagram',
+    defaultMessage: 'Permissions and workspace hierarchy diagram',
+  },
+  conversionWizardRoleBindingsDiagramAlt: {
+    id: 'conversionWizardRoleBindingsDiagramAlt',
+    description: 'Alt text for role bindings example diagram',
+    defaultMessage: 'Role bindings example diagram',
+  },
 });
