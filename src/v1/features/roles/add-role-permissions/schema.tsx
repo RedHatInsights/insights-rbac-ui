@@ -82,12 +82,6 @@ export const schemaBuilder = (featureFlag: boolean) => {
               {
                 component: 'cost-resources',
                 name: 'cost-resources',
-                validate: [
-                  (value: { resources: unknown[] }[] = []) =>
-                    value.every(({ resources }) => resources && resources.length > 0)
-                      ? undefined
-                      : intl.formatMessage(messages.assignAtLeastOneResource),
-                ],
               },
             ],
           },

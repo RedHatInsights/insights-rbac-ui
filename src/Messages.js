@@ -2550,6 +2550,21 @@ export default defineMessages({
     description: 'Assign at least one resource message',
     defaultMessage: 'You need to assign at least one resource to each permission.',
   },
+  allResources: {
+    id: 'allResources',
+    description: 'All resources label for cost management permission definitions',
+    defaultMessage: 'All resources',
+  },
+  noResourcesAvailableAll: {
+    id: 'noResourcesAvailableAll',
+    description: 'No resources available text in dropdown when permission applies to all',
+    defaultMessage: 'No resources available (applies to all)',
+  },
+  selectResourcesOptional: {
+    id: 'selectResourcesOptional',
+    description: 'Placeholder when selecting resources is optional',
+    defaultMessage: 'Select resources (optional - default all)',
+  },
   assignAtLeastOneInventoryGroup: {
     id: 'assignAtLeastOneGroup',
     description: 'Assign at least one inventory group message',

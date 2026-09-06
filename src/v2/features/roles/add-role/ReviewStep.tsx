@@ -56,7 +56,7 @@ const ReviewStep: React.FC = () => {
   }));
 
   const resourceDefinitionsRows = ((resourceDefinitions as { permission: string; resources: string[] }[]) || []).map(({ permission, resources }) => ({
-    cells: [permission, resources.join(', ')],
+    cells: [permission, resources.length > 0 ? resources.join(', ') : intl.formatMessage(messages.allResources)],
   }));
 
   return (

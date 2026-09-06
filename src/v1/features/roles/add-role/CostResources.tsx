@@ -214,24 +214,27 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
     const isOpen = state[permission]?.isOpen || false;
     const selectAllLabel = intl.formatMessage(messages.selectAll, { length: options.length });
     const textInputRef = useRef<HTMLInputElement>(null);
+    const hasOptions = options.length > 0;
+    const placeholder = hasOptions ? intl.formatMessage(messages.selectResourcesOptional) : intl.formatMessage(messages.noResourcesAvailableAll);
 
     const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
       <MenuToggle
         ref={toggleRef}
         variant="typeahead"
-        onClick={() => onToggle(permission)}
+        onClick={() => hasOptions && onToggle(permission)}
         isExpanded={isOpen}
+        isDisabled={!hasOptions}
         isFullWidth
         data-ouia-component-id={`cost-resource-toggle-${permission}`}
       >
         <TextInputGroup isPlain>
           <TextInputGroupMain
             value={filterValue}
-            onClick={() => onToggle(permission, true)}
+            onClick={() => hasOptions && onToggle(permission, true)}
             onChange={(_event, value) => dispatchLocaly({ type: 'setFilter', key: permission, filtervalue: value })}
             autoComplete="off"
             innerRef={textInputRef}
-            placeholder={intl.formatMessage(messages.selectResources)}
+            placeholder={placeholder}
             aria-labelledby={permission}
           >
             {selected.length > 0 && <Badge isRead>{selected.length}</Badge>}
@@ -251,7 +254,7 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
       <React.Fragment key={permission}>
         <GridItem md={4} sm={12}>
           <Tooltip content={<div>{permission}</div>}>
-            <FormGroup label={permission.replace(/^cost-management:/, '')} isRequired></FormGroup>
+            <FormGroup label={permission.replace(/^cost-management:/, '')}></FormGroup>
           </Tooltip>
         </GridItem>
         <GridItem md={8} sm={12}>
