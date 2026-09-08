@@ -926,11 +926,21 @@ export function useAddServiceAccountsToGroupMutation(options?: MutationOptions) 
       queryClient.invalidateQueries({ queryKey: groupsKeys.serviceAccounts(variables.groupId) });
       queryClient.invalidateQueries({ queryKey: groupsKeys.lists() });
       const multiple = variables.serviceAccounts.length > 1;
-      notify('success', intl.formatMessage(multiple ? messages.addGroupServiceAccountsSuccessTitle : messages.addGroupServiceAccountSuccessTitle));
+      notify(
+        'success',
+        intl.formatMessage(multiple ? messages.addGroupServiceAccountsSuccessTitle : messages.addGroupServiceAccountSuccessTitle, {
+          count: variables.serviceAccounts.length,
+        }),
+      );
     },
     onError: (_, variables) => {
       const multiple = variables.serviceAccounts.length > 1;
-      notify('danger', intl.formatMessage(multiple ? messages.addGroupServiceAccountsErrorTitle : messages.addGroupServiceAccountErrorTitle));
+      notify(
+        'danger',
+        intl.formatMessage(multiple ? messages.addGroupServiceAccountsErrorTitle : messages.addGroupServiceAccountErrorTitle, {
+          count: variables.serviceAccounts.length,
+        }),
+      );
     },
   });
 }
