@@ -4,7 +4,7 @@
   "private": false,
   "engines": {
     "node": ">=22.0.0",
-    "npm": ">=7.0.0"
+    "npm": ">=7.24.2"
   },
   "dependencies": {
     "@babel/compat-data": "^7.23.3",
