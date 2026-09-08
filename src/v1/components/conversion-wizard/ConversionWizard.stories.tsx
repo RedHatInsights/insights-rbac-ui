@@ -95,7 +95,17 @@ export const Default: Story = {
     await step('Navigate to step 2: Post-conversion requirements', async () => {
       const wizard = await waitForModal();
       await clickWizardNext(user, wizard);
-      await expect(wizard.findByText('Post-conversion requirements step content placeholder')).resolves.toBeInTheDocument();
+
+      // Verify main title and introduction
+      await expect(wizard.findByRole('heading', { name: 'Post-conversion requirements' })).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/After converting to access management, it is critical to review/i)).resolves.toBeInTheDocument();
+
+      // Verify all 5 main action items are present
+      await expect(wizard.findByText('Understand default workspace scope')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Review Ungrouped hosts workspace')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Verify critical user access')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Review root workspace permissions')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Plan workspace structure')).resolves.toBeInTheDocument();
     });
 
     await step('Navigate to step 3: Pre-conversion checklist', async () => {
