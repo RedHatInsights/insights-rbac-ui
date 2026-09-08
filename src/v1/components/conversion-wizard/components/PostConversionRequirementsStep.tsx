@@ -21,16 +21,12 @@ export const PostConversionRequirementsStep: React.FC = () => {
       <List className="pf-v6-u-mt-sm" component="ol">
         <ListItem>
           <strong>{intl.formatMessage(messages.conversionWizardDefaultWorkspaceScopeTitle)}</strong>
-          <Content component="p">
-            {intl.formatMessage(messages.conversionWizardDefaultWorkspaceScopeDesc)}
-          </Content>
+          <Content component="p">{intl.formatMessage(messages.conversionWizardDefaultWorkspaceScopeDesc)}</Content>
         </ListItem>
 
         <ListItem className="pf-v6-u-mt-sm">
           <strong>{intl.formatMessage(messages.conversionWizardReviewUngroupedHostsTitle)}</strong>
-          <Content component="p">
-            {intl.formatMessage(messages.conversionWizardReviewUngroupedHostsDesc)}
-          </Content>
+          <Content component="p">{intl.formatMessage(messages.conversionWizardReviewUngroupedHostsDesc)}</Content>
         </ListItem>
 
         <ListItem className="pf-v6-u-mt-sm">
@@ -43,9 +39,7 @@ export const PostConversionRequirementsStep: React.FC = () => {
 
         <ListItem className="pf-v6-u-mt-sm">
           <strong>{intl.formatMessage(messages.conversionWizardReviewRootPermissionsTitle)}</strong>
-          <Content component="p">
-            {intl.formatMessage(messages.conversionWizardReviewRootPermissionsDesc)}
-          </Content>
+          <Content component="p">{intl.formatMessage(messages.conversionWizardReviewRootPermissionsDesc)}</Content>
         </ListItem>
 
         <ListItem className="pf-v6-u-mt-sm">
