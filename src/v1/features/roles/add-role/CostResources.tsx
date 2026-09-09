@@ -65,14 +65,18 @@ const reducer = (state: State, action: Action): State => {
             : [...prevState.selected, action.selection],
         },
       };
-    case 'selectAll':
+    case 'selectAll': {
+      const allSelected = prevState.filteredOptions.length > 0 && prevState.filteredOptions.every((opt) => prevState.selected.includes(opt.value));
       return {
         ...state,
         [action.key]: {
           ...prevState,
-          selected: prevState.options.map((option) => option.value),
+          selected: allSelected
+            ? prevState.selected.filter((item) => !prevState.filteredOptions.some((opt) => opt.value === item))
+            : [...new Set([...prevState.selected, ...prevState.filteredOptions.map((opt) => opt.value)])],
         },
       };
+    }
     case 'clear':
       return {
         ...state,
@@ -82,15 +86,21 @@ const reducer = (state: State, action: Action): State => {
           filterValue: '',
         },
       };
-    case 'setOptions':
+    case 'setOptions': {
+      if (prevState.options.length === action.options.length && prevState.options.every((opt, i) => opt.value === action.options[i]?.value)) {
+        return state;
+      }
       return {
         ...state,
         [action.key]: {
           ...prevState,
           options: action.options,
-          filteredOptions: action.options,
+          filteredOptions: prevState.filterValue
+            ? action.options.filter(({ value }) => value.toLowerCase().includes(prevState.filterValue.toLowerCase()))
+            : action.options,
         },
       };
+    }
     case 'setFilter':
       return {
         ...state,
@@ -153,7 +163,7 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
     return resources;
   }, [resourceQueries, resourcePaths]);
 
-  const isLoadingResources = resourceQueries.some((q) => q.isLoading);
+  const isLoadingResources = isLoading || resourceQueries.some((q) => q.isLoading);
 
   const [state, dispatchLocaly] = useReducer(
     reducer,
@@ -208,30 +218,38 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
   }, [state]);
 
   const makeRow = ({ uuid: permission }: { uuid: string }) => {
-    const options = state[permission]?.filteredOptions || [];
+    const allOptions = state[permission]?.options || [];
+    const filteredOptions = state[permission]?.filteredOptions || [];
     const selected = state[permission]?.selected || [];
     const filterValue = state[permission]?.filterValue || '';
     const isOpen = state[permission]?.isOpen || false;
-    const selectAllLabel = intl.formatMessage(messages.selectAll, { length: options.length });
+    const selectAllLabel = intl.formatMessage(messages.selectAll, { length: filteredOptions.length });
     const textInputRef = useRef<HTMLInputElement>(null);
+    const hasOptions = allOptions.length > 0;
+    const placeholder = isLoadingResources
+      ? intl.formatMessage(messages.loading)
+      : hasOptions
+        ? intl.formatMessage(messages.selectResourcesOptional)
+        : intl.formatMessage(messages.noResourcesAvailableAll);
 
     const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
       <MenuToggle
         ref={toggleRef}
         variant="typeahead"
-        onClick={() => onToggle(permission)}
+        onClick={() => !isLoadingResources && hasOptions && onToggle(permission)}
         isExpanded={isOpen}
+        isDisabled={isLoadingResources || !hasOptions}
         isFullWidth
         data-ouia-component-id={`cost-resource-toggle-${permission}`}
       >
         <TextInputGroup isPlain>
           <TextInputGroupMain
             value={filterValue}
-            onClick={() => onToggle(permission, true)}
+            onClick={() => !isLoadingResources && hasOptions && onToggle(permission, true)}
             onChange={(_event, value) => dispatchLocaly({ type: 'setFilter', key: permission, filtervalue: value })}
             autoComplete="off"
             innerRef={textInputRef}
-            placeholder={intl.formatMessage(messages.selectResources)}
+            placeholder={placeholder}
             aria-labelledby={permission}
           >
             {selected.length > 0 && <Badge isRead>{selected.length}</Badge>}
@@ -251,7 +269,7 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
       <React.Fragment key={permission}>
         <GridItem md={4} sm={12}>
           <Tooltip content={<div>{permission}</div>}>
-            <FormGroup label={permission.replace(/^cost-management:/, '')} isRequired></FormGroup>
+            <FormGroup label={permission.replace(/^cost-management:/, '')}></FormGroup>
           </Tooltip>
         </GridItem>
         <GridItem md={8} sm={12}>
@@ -261,6 +279,9 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
             isOpen={isOpen}
             ouiaId={`cost-resource-select-${permission}`}
             onSelect={(_event, value) => {
+              if (value === 'no-results') {
+                return;
+              }
               if (value === selectAllLabel) {
                 onSelect(value as string, true, permission);
               } else {
@@ -271,14 +292,26 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
             toggle={toggle}
           >
             <SelectList>
-              <SelectOption hasCheckbox value={selectAllLabel} isSelected={selected.length === options.length && options.length > 0}>
-                {selectAllLabel}
-              </SelectOption>
-              {options.map((option) => (
-                <SelectOption key={option.value} hasCheckbox value={option.value} isSelected={selected.includes(option.value)}>
-                  {option.value}
+              {filteredOptions.length === 0 ? (
+                <SelectOption isDisabled value="no-results">
+                  {intl.formatMessage(messages.noResultsFound)}
                 </SelectOption>
-              ))}
+              ) : (
+                <>
+                  <SelectOption
+                    hasCheckbox
+                    value={selectAllLabel}
+                    isSelected={filteredOptions.length > 0 && filteredOptions.every((opt) => selected.includes(opt.value))}
+                  >
+                    {selectAllLabel}
+                  </SelectOption>
+                  {filteredOptions.map((option) => (
+                    <SelectOption key={option.value} hasCheckbox value={option.value} isSelected={selected.includes(option.value)}>
+                      {option.value}
+                    </SelectOption>
+                  ))}
+                </>
+              )}
             </SelectList>
           </Select>
         </GridItem>

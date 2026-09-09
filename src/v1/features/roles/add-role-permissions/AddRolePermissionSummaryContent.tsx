@@ -74,8 +74,12 @@ const AddRolePermissionSummaryContent: React.FC = () => {
               <DescriptionListTerm>{intl.formatMessage(messages.resourceDefinitions)}</DescriptionListTerm>
               <DescriptionListDescription>
                 <ul style={{ margin: 0, paddingLeft: '1rem' }}>
-                  {(resourceDefinitions as ResourceDefinition[]).map(({ resources }) =>
-                    resources.map((resource, index) => <li key={index}>{resource}</li>),
+                  {(resourceDefinitions as ResourceDefinition[]).map(({ resources }, idx) =>
+                    resources.length > 0 ? (
+                      resources.map((resource, index) => <li key={`${idx}-${index}`}>{resource}</li>)
+                    ) : (
+                      <li key={`all-${idx}`}>{intl.formatMessage(messages.allResources)}</li>
+                    ),
                   )}
                 </ul>
               </DescriptionListDescription>

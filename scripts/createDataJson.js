@@ -1,4 +1,4 @@
-const program = require('commander');
+const { program } = require('commander');
 const fs = require('fs');
 const { sync: globSync } = require('glob');
 const last = require('lodash/last');
