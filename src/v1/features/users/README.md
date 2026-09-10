@@ -16,6 +16,7 @@ Fetching uses `useUsersQuery` from `src/shared/data/queries/users.ts`. Mutations
 - `useChangeUserStatusMutation` — activate/deactivate
 - `useInviteUsersMutation` — invite by email
 - `useUpdateUserOrgAdminMutation` — toggle org admin flag
+- `useUpdateUserManageCasesMutation` — toggle portal_manage_cases permission (hidden in ITLess)
 
 ## Constraints
 

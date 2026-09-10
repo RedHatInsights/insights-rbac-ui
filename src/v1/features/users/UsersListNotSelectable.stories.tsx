@@ -31,6 +31,7 @@ const mockUsers = [
     last_name: 'Doe',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: 123456,
   },
   {
@@ -41,6 +42,7 @@ const mockUsers = [
     last_name: 'Admin',
     is_active: true,
     is_org_admin: true,
+    portal_manage_cases: true,
     external_source_id: 789012,
   },
   {
@@ -51,6 +53,7 @@ const mockUsers = [
     last_name: 'Smith',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: 345678,
   },
   {
@@ -61,6 +64,7 @@ const mockUsers = [
     last_name: 'Inactive',
     is_active: false,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: 456789,
   },
 ];
@@ -75,6 +79,7 @@ const mockUsersLarge = Array.from({ length: PAGINATION_TEST_TOTAL_ITEMS }, (_v, 
     last_name: `Last${i}`,
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: i,
   };
 });
@@ -421,11 +426,13 @@ export const AdminUserWithUsersTableContent: Story = {
       expect(await canvas.findByText('Admin')).toBeInTheDocument();
       expect(await canvas.findByText('Smith')).toBeInTheDocument();
 
-      // Test org admin indicators (Yes/No) - only 3 active users shown
+      // Test org admin + manage cases indicators (Yes/No) - only 3 active users shown
+      // Org admin: jane.admin=Yes; john.doe, bob.smith=No
+      // Manage cases: jane.admin=Yes; john.doe, bob.smith=No
       const yesTexts = await canvas.findAllByText('Yes');
       const noTexts = await canvas.findAllByText('No');
-      expect(yesTexts).toHaveLength(1); // jane.admin is org admin
-      expect(noTexts).toHaveLength(2); // john.doe and bob.smith are not
+      expect(yesTexts).toHaveLength(2); // jane.admin: org admin + manage cases
+      expect(noTexts).toHaveLength(4); // john.doe + bob.smith: org admin No + manage cases No
 
       // Test status labels - all shown users are Active
       const activeLabels = await canvas.findAllByText('Active');

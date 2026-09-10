@@ -16,6 +16,7 @@ export const mockUsers = [
     last_name: 'Dumbledore',
     is_active: true,
     is_org_admin: true,
+    portal_manage_cases: true,
     external_source_id: '101',
   },
   {
@@ -25,6 +26,7 @@ export const mockUsers = [
     last_name: 'Bunny',
     is_active: true,
     is_org_admin: true,
+    portal_manage_cases: true,
     external_source_id: '102',
   },
   {
@@ -34,6 +36,7 @@ export const mockUsers = [
     last_name: 'Halliwell',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: '103',
   },
   {
@@ -43,6 +46,7 @@ export const mockUsers = [
     last_name: 'Beckham',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: true,
     external_source_id: '104',
   },
   {
@@ -52,6 +56,7 @@ export const mockUsers = [
     last_name: 'B',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: '105',
   },
   {
@@ -61,6 +66,7 @@ export const mockUsers = [
     last_name: 'C',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: '106',
   },
   {
@@ -70,6 +76,7 @@ export const mockUsers = [
     last_name: 'Bunton',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: '107',
   },
   {
@@ -79,6 +86,7 @@ export const mockUsers = [
     last_name: 'White',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: '108',
   },
   {
@@ -88,6 +96,7 @@ export const mockUsers = [
     last_name: 'Zbornak',
     is_active: true,
     is_org_admin: true,
+    portal_manage_cases: true,
     external_source_id: '109',
   },
   {
@@ -97,6 +106,7 @@ export const mockUsers = [
     last_name: 'Petrillo',
     is_active: true,
     is_org_admin: true,
+    portal_manage_cases: false,
     external_source_id: '110',
   },
   {
@@ -106,6 +116,7 @@ export const mockUsers = [
     last_name: 'Devereaux',
     is_active: true,
     is_org_admin: true,
+    portal_manage_cases: true,
     external_source_id: '111',
   },
 ];
