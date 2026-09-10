@@ -65,6 +65,7 @@ export interface UsersQueryResult {
     last_name?: string;
     is_active?: boolean;
     is_org_admin?: boolean;
+    portal_manage_cases?: boolean;
     external_source_id?: number | string;
   }>;
   totalCount: number;
@@ -141,6 +142,7 @@ export function useUsersQuery(params: UseUsersQueryParams = {}, options?: QueryO
             last_name: 'last_name' in p ? p.last_name : undefined,
             is_active: 'is_active' in p ? p.is_active : undefined,
             is_org_admin: 'is_org_admin' in p ? p.is_org_admin : undefined,
+            portal_manage_cases: 'portal_manage_cases' in p ? (p.portal_manage_cases as boolean) : undefined,
             external_source_id: 'external_source_id' in p ? p.external_source_id : undefined,
           };
         });
@@ -320,6 +322,58 @@ export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
           user_id: userId,
           is_org_admin: isOrgAdmin,
         }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: usersKeys.all });
+      notify('success', intl.formatMessage(messages.editUserSuccessTitle), intl.formatMessage(messages.editUserSuccessDescription));
+    },
+    onError: () => {
+      notify('danger', intl.formatMessage(messages.editUserErrorTitle), intl.formatMessage(messages.editUserErrorDescription));
+    },
+  });
+}
+
+// ============================================================================
+// Update User Manage Support Cases Permission Mutation
+// ============================================================================
+
+interface UpdateUserManageCasesParams {
+  userId: string;
+  enabled: boolean;
+}
+
+/**
+ * Update user's portal_manage_cases permission.
+ * Uses external IT API to grant/revoke the permission.
+ * Not available in ITLess environments — the column should be hidden there.
+ *
+ * @tag api-v1-external - Uses external IT identity provider API
+ */
+export function useUpdateUserManageCasesMutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
+  const { notify, getToken, environment, identity } = useAppServices();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async ({ userId, enabled }: UpdateUserManageCasesParams) => {
+      const token = await getToken();
+      const accountId = identity?.org_id ?? null;
+
+      if (!accountId) {
+        throw new Error('Organization ID is required to update user permissions.');
+      }
+
+      const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/${userId}`;
+      return fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({
+          portal_manage_cases: enabled,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
     },
     onSuccess: () => {

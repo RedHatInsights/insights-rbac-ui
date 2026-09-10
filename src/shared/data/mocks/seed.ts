@@ -5,7 +5,11 @@
  * Version-specific data lives in src/{v1,v2}/data/mocks/seed.ts.
  */
 
-import type { Group, Principal, ServiceAccount } from './db';
+import type { Group, ServiceAccount } from './db';
+import type { Principal as BasePrincipal } from './db';
+
+/** Extended Principal with account API fields not yet in rbac-client */
+type Principal = BasePrincipal & { portal_manage_cases?: boolean };
 import type { Permission } from '../api/permissions';
 import type { MockServiceAccount } from './db';
 import type { RoleOut } from '../api/groups';
@@ -89,6 +93,7 @@ export const DEFAULT_USERS: Principal[] = [
     last_name: 'Doe',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: 12345,
   },
   {
@@ -98,6 +103,7 @@ export const DEFAULT_USERS: Principal[] = [
     last_name: 'Smith',
     is_active: true,
     is_org_admin: true,
+    portal_manage_cases: true,
     external_source_id: 67890,
   },
   {
@@ -107,6 +113,7 @@ export const DEFAULT_USERS: Principal[] = [
     last_name: 'Johnson',
     is_active: false,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: 11111,
   },
 ];
@@ -305,6 +312,7 @@ export function generateUsers(count: number): Principal[] {
     last_name: `${i + 1}`,
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: String(200 + i),
   }));
 }

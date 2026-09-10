@@ -5,7 +5,13 @@ import { usePrincipalsAccess } from '../../../../hooks/useRbacAccess';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
-import { type User, useChangeUserStatusMutation, useUpdateUserOrgAdminMutation } from '../../../../../shared/data/queries/users';
+import {
+  type User,
+  useChangeUserStatusMutation,
+  useUpdateUserManageCasesMutation,
+  useUpdateUserOrgAdminMutation,
+} from '../../../../../shared/data/queries/users';
+import { useFedRAMPMode } from '../../../../../capabilities/useFedRAMPMode';
 import paths from '../../../../utilities/pathnames';
 import { useUsers } from './useUsers';
 import { UsersTable } from './components/UsersTable';
@@ -22,11 +28,13 @@ interface UsersProps {
 
 export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, ouiaId = 'iam-users-table' }) => {
   const { isEnabled: authModel } = useCommonAuthModel();
+  const isITLess = useFedRAMPMode();
   const appNavigate = useAppNavigate();
 
   // Mutations handle auth, environment, and notifications internally
   const changeUserStatusMutation = useChangeUserStatusMutation();
   const updateOrgAdminMutation = useUpdateUserOrgAdminMutation();
+  const updateManageCasesMutation = useUpdateUserManageCasesMutation();
 
   // Use the custom hook for all Users business logic
   const { users, isLoading, totalCount, tableState, setFocusedUser, handleRowClick: hookHandleRowClick } = useUsers({ enableAdminFeatures: true });
@@ -68,6 +76,17 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
       });
     },
     [updateOrgAdminMutation],
+  );
+
+  const handleToggleManageCases = useCallback(
+    async (user: User, enabled: boolean) => {
+      if (user.external_source_id == null) return;
+      await updateManageCasesMutation.mutateAsync({
+        userId: String(user.external_source_id),
+        enabled,
+      });
+    },
+    [updateManageCasesMutation],
   );
 
   const handleBulkActivate = useCallback(
@@ -176,6 +195,8 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
               onInviteUsersClick={handleInviteUsers}
               onToggleUserStatus={handleToggleUserStatus}
               onToggleOrgAdmin={handleToggleOrgAdmin}
+              onToggleManageCases={handleToggleManageCases}
+              isITLess={isITLess}
               onBulkActivate={handleBulkActivate}
               onBulkDeactivate={handleBulkDeactivate}
               onRowClick={handleRowClick}

@@ -5,6 +5,8 @@ import { Split, SplitItem } from '@patternfly/react-core/dist/dynamic/layouts/Sp
 
 // eslint-disable-next-line experience-ui/require-use-table-state -- tableState received as prop from parent container
 import {
+  type CellRendererMap,
+  type ColumnConfigMap,
   DefaultEmptyStateNoData,
   DefaultEmptyStateNoResults,
   TableView,
@@ -36,6 +38,8 @@ interface UsersTableProps {
   onInviteUsersClick: () => void;
   onToggleUserStatus: (user: User, isActive: boolean) => void;
   onToggleOrgAdmin: (user: User, isOrgAdmin: boolean) => void;
+  onToggleManageCases: (user: User, enabled: boolean) => void;
+  isITLess: boolean;
   onBulkActivate: (users: User[]) => void;
   onBulkDeactivate: (users: User[]) => void;
   onRowClick?: (user: User | undefined) => void;
@@ -60,6 +64,8 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   onInviteUsersClick,
   onToggleUserStatus,
   onToggleOrgAdmin,
+  onToggleManageCases,
+  isITLess,
   onBulkActivate,
   onBulkDeactivate,
   onRowClick,
@@ -68,8 +74,9 @@ export const UsersTable: React.FC<UsersTableProps> = ({
 }) => {
   const intl = useIntl();
 
-  // Table configuration from hook - columns derived from authModel internally
-  const { columns, columnConfig, cellRenderers, filterConfig } = useUsersTableConfig({
+  // Table configuration from hook - columns derived from authModel + isITLess internally.
+  // The hook returns a discriminated union; columns/config/renderers are always consistent.
+  const tableConfig = useUsersTableConfig({
     intl,
     authModel,
     orgAdmin,
@@ -77,7 +84,10 @@ export const UsersTable: React.FC<UsersTableProps> = ({
     ouiaId,
     onToggleUserStatus,
     onToggleOrgAdmin,
+    onToggleManageCases,
+    isITLess,
   });
+  const { columns, columnConfig, cellRenderers, filterConfig } = tableConfig;
 
   // Use selectedRows from tableState
   const { selectedRows } = tableState;
@@ -151,17 +161,19 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   return (
     <>
       {children}
-      <TableView<typeof columns, User, SortableColumnId>
-        // Columns from hook (derived based on authModel)
-        columns={columns}
-        columnConfig={columnConfig}
+      <TableView<typeof standardColumns, User, SortableColumnId>
+        // Columns from hook (derived based on authModel + isITLess).
+        // Cast needed because hook returns a union of column tuple types;
+        // all three (columns, columnConfig, cellRenderers) are always consistent.
+        columns={columns as unknown as typeof standardColumns}
+        columnConfig={columnConfig as ColumnConfigMap<typeof standardColumns>}
         sortableColumns={sortableColumns}
         // Data
         data={isLoading ? undefined : users}
         totalCount={totalCount}
         getRowId={(user) => user.username}
         // Renderers
-        cellRenderers={cellRenderers}
+        cellRenderers={cellRenderers as CellRendererMap<typeof standardColumns, User>}
         // Selection (only with write permission)
         selectable={orgAdmin}
         isRowSelectable={() => true}
