@@ -39,7 +39,7 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
         icon={<img src="/apps/frontend-assets/technology-icons/iam.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />}
         linkProps={{
           label: intl.formatMessage(messages.learnMore),
-          href: 'https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index',
+          href: 'https://docs.redhat.com/en/documentation/red_hat_hybrid_cloud_console/1-latest/administer-manage_user_permissions_rbac_models',
         }}
       />
       {isConversionOptInEnabled && orgAdmin && (
