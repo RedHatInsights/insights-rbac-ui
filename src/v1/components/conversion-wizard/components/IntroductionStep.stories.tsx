@@ -15,6 +15,8 @@ type Story = StoryObj<typeof meta>;
 /**
  * The IntroductionStep is the first step of the conversion wizard.
  * It explains what changes during conversion, including:
+ * - Product availability warnings
+ * - API integration notices
  * - Workspace hierarchy creation
  * - How permissions change
  * - How role bindings work
@@ -24,6 +26,20 @@ export const Default: Story = {
   tags: ['autodocs'],
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
+
+    await step('Verify dismissable alerts are present', async () => {
+      // Verify product availability warning alert
+      const productAlert = canvas.getByRole('heading', { name: /Not all products are available yet/i });
+      expect(productAlert).toBeInTheDocument();
+
+      // Verify API integration info alert
+      const apiAlert = canvas.getByRole('heading', { name: /Custom API Integrations Will Need to be Updated/i });
+      expect(apiAlert).toBeInTheDocument();
+
+      // Verify close buttons are present
+      const closeButtons = canvas.getAllByRole('button', { name: /Close/i });
+      expect(closeButtons.length).toBeGreaterThanOrEqual(2);
+    });
 
     await step('Verify external links are present and functional', async () => {
       // Find the "Getting Started with Access Management" link
