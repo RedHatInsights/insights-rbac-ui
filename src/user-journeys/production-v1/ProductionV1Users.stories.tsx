@@ -232,11 +232,12 @@ export const InviteUsersJourney: Story = {
       handlers: [
         ...accountManagementHandlers({
           onInvite: (request: Request, body: unknown) => {
-            const b = body as { emails?: string[]; roles?: string[] };
+            const b = body as { emails?: string[]; roles?: string[]; portal_manage_cases?: boolean };
             inviteUsersSpy({
               url: request.url,
               emails: b.emails,
               roles: b.roles,
+              portal_manage_cases: b.portal_manage_cases,
             });
           },
         }),
@@ -316,6 +317,105 @@ export const InviteUsersJourney: Story = {
       expect(spyCall.emails).toContain('newuser1@example.com');
       expect(spyCall.emails).toContain('newuser2@example.com');
       expect(spyCall.roles).toContain('organization_administrator');
+    });
+  },
+};
+
+const inviteWithSupportCasesSpy = fn();
+
+export const InviteUsersWithSupportCases: Story = {
+  name: 'Invite users with manage support cases',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: [
+        ...accountManagementHandlers({
+          onInvite: (request: Request, body: unknown) => {
+            const b = body as { emails?: string[]; roles?: string[]; portal_manage_cases?: boolean };
+            inviteWithSupportCasesSpy({
+              url: request.url,
+              emails: b.emails,
+              portal_manage_cases: b.portal_manage_cases,
+            });
+          },
+        }),
+        ...createV1Handlers(v1Db),
+      ],
+    },
+  },
+  play: async ({ canvasElement, step, args }) => {
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ delay: args.typingDelay ?? 30 });
+
+    await step('Reset state', async () => {
+      await resetStoryState(v1Db);
+      inviteWithSupportCasesSpy.mockClear();
+    });
+
+    await step('Wait for content to load', async () => {
+      await waitForContentReady(canvasElement);
+    });
+
+    await step('Wait for users table', async () => {
+      await navigateToPage(user, canvas, 'Users');
+      await waitForPageToLoad(canvas, USER_JOHN.username);
+    });
+
+    await step('Open invite modal', async () => {
+      const inviteButton = await canvas.findByRole('button', { name: /invite users/i });
+      await user.click(inviteButton);
+      await waitForModal();
+    });
+
+    await step('Wait for invite modal', async () => {
+      await waitForModal({
+        timeout: TEST_TIMEOUTS.POST_MUTATION_REFRESH,
+        waitUntil: (dlg) => {
+          expect(dlg.queryByRole('textbox', { name: /enter the e-mail addresses/i })).toBeInTheDocument();
+        },
+      });
+    });
+
+    await step('Fill email addresses', async () => {
+      const modal = await waitForModal();
+      await clearAndType(
+        user,
+        () => modal.getByRole('textbox', { name: /enter the e-mail addresses/i }) as HTMLInputElement,
+        'support-user@example.com',
+      );
+    });
+
+    await step('Check manage support cases and submit', async () => {
+      const modal = await waitForModal();
+      await waitFor(() => {
+        expect(modal.queryByRole('checkbox', { name: /manage support cases/i })).toBeInTheDocument();
+      });
+      const supportCasesCheckbox = modal.getByRole('checkbox', { name: /manage support cases/i });
+      await user.click(supportCasesCheckbox);
+      const submitButton = await modal.findByRole('button', { name: /invite new users/i });
+      await waitFor(() => expect(submitButton).toBeEnabled());
+      await user.click(submitButton);
+    });
+
+    await step('Verify success notification', async () => {
+      await verifySuccessNotification();
+    });
+
+    await step('Verify invite API called with portal_manage_cases', async () => {
+      await waitFor(
+        () => {
+          expect(inviteWithSupportCasesSpy).toHaveBeenCalled();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
+
+      const spyCall = inviteWithSupportCasesSpy.mock.calls[0][0];
+      expect(spyCall).toBeDefined();
+      expect(spyCall.url).toMatch(EXPECTED_INVITE_URL_PATTERN);
+      expect(spyCall.emails).toContain('support-user@example.com');
+      expect(spyCall.portal_manage_cases).toBe(true);
     });
   },
 };
