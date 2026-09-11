@@ -15,6 +15,7 @@ import { useInviteUsersMutation } from '../../../../shared/data/queries/users';
 import paths from '../../../utilities/pathnames';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { useFedRAMPMode } from '../../../../capabilities/useFedRAMPMode';
 
 interface InviteUsersModalProps {
   fetchData: () => void;
@@ -24,9 +25,12 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const addNotification = useAddNotification();
+  const isITLess = useFedRAMPMode();
 
   const [isCheckboxLabelExpanded, setIsCheckboxLabelExpanded] = useState(false);
+  const [isSupportCasesLabelExpanded, setIsSupportCasesLabelExpanded] = useState(false);
   const [areNewUsersAdmins, setAreNewUsersAdmins] = useState(false);
+  const [manageSupportCases, setManageSupportCases] = useState(false);
   const [rawEmails, setRawEmails] = useState('');
   const [userEmailList, setUserEmailList] = useState<string[]>([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
@@ -38,6 +42,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
       await inviteUsersMutation.mutateAsync({
         emails: userEmailList,
         isAdmin: areNewUsersAdmins,
+        ...(manageSupportCases && { portal_manage_cases: true }),
       });
       addNotification({
         variant: 'success',
@@ -145,6 +150,24 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
               {intl.formatMessage(messages.inviteUsersFormIsAdminFieldDescription)}
             </ExpandableSection>
           </div>
+
+          {!isITLess && (
+            <div id="invite-users-manage-support-cases-field" style={{ display: 'flex', alignItems: 'baseline' }}>
+              <Checkbox
+                isChecked={manageSupportCases}
+                onChange={() => setManageSupportCases(!manageSupportCases)}
+                label=""
+                id="invite-users-manage-support-cases"
+              />
+              <ExpandableSection
+                toggleText={intl.formatMessage(messages.inviteUsersFormManageSupportCasesFieldTitle)}
+                onToggle={(_event, isExpanded) => setIsSupportCasesLabelExpanded(isExpanded)}
+                isExpanded={isSupportCasesLabelExpanded}
+              >
+                {intl.formatMessage(messages.inviteUsersFormManageSupportCasesFieldDescription)}
+              </ExpandableSection>
+            </div>
+          )}
         </Form>
       </Modal>
     </Fragment>
