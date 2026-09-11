@@ -48,6 +48,7 @@ export interface User {
   last_name?: string;
   is_active?: boolean;
   is_org_admin?: boolean;
+  portal_manage_cases?: boolean;
   external_source_id?: number | string;
   // Allow additional properties from API responses
   [key: string]: unknown;

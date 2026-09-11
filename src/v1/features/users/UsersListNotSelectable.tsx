@@ -24,7 +24,9 @@ import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon
 import OrgAdminDropdown from './OrgAdminDropdown';
 import { ActivateToggle } from './components/ActivateToggle';
 import pathnames from '../../utilities/pathnames';
-import { useChangeUserStatusMutation, useUsersQuery } from '../../../shared/data/queries/users';
+import { useChangeUserStatusMutation, useUpdateUserManageCasesMutation, useUsersQuery } from '../../../shared/data/queries/users';
+import { useFedRAMPMode } from '../../../capabilities/useFedRAMPMode';
+import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 
 interface UsersListNotSelectableProps {
   userLinks: boolean;
@@ -44,17 +46,22 @@ interface User {
   last_name?: string;
   is_active?: boolean;
   is_org_admin?: boolean;
+  portal_manage_cases?: boolean;
   uuid: string;
   external_source_id?: number | string;
 }
 
-// Column definitions
+// Column definitions — base and extended (with Manage Support Cases, hidden in ITLess)
 const columns = ['org_admin', 'username', 'email', 'first_name', 'last_name', 'status'] as const;
+const columnsWithCases = ['org_admin', 'portal_manage_cases', 'username', 'email', 'first_name', 'last_name', 'status'] as const;
 
 const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLinks, props, usesMetaInURL }) => {
   const intl = useIntl();
   const { orgAdmin } = useUserData();
   const { isEnabled: isCommonAuthModel } = useCommonAuthModel();
+  const isITLess = useFedRAMPMode();
+  const showManageCases = !isITLess;
+  const activeColumns = showManageCases ? columnsWithCases : columns;
   const userData = useUserData();
   const appNavigate = useAppNavigate();
 
@@ -67,8 +74,8 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   const getUserId = useCallback((user: User) => user.username, []);
 
   // Table state management - defined early so we can derive queryParams from it
-  const tableState = useTableState<typeof columns, User, 'username'>({
-    columns,
+  const tableState = useTableState<typeof activeColumns, User, 'username'>({
+    columns: activeColumns,
     sortableColumns: ['username'] as const,
     getRowId: getUserId,
     initialPerPage: 20,
@@ -115,14 +122,27 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         last_name: u.last_name,
         is_active: u.is_active,
         is_org_admin: u.is_org_admin,
+        portal_manage_cases: u.portal_manage_cases,
         external_source_id: u.external_source_id,
       })),
     [usersData],
   );
   const totalCount = usersData?.totalCount ?? 0;
 
-  // React Query mutation for changing user status
+  // React Query mutations
   const changeUserStatusMutation = useChangeUserStatusMutation();
+  const updateManageCasesMutation = useUpdateUserManageCasesMutation();
+
+  const handleToggleManageCases = useCallback(
+    async (enabled: boolean, user: User) => {
+      if (user.external_source_id == null) return;
+      await updateManageCasesMutation.mutateAsync({
+        userId: String(user.external_source_id),
+        enabled,
+      });
+    },
+    [updateManageCasesMutation],
+  );
 
   const handleToggle = useCallback(
     async (isActive: boolean, updatedUser: User) => {
@@ -135,75 +155,107 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   );
 
   // Column configuration
-  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
-    () => ({
-      org_admin: { label: intl.formatMessage(messages.orgAdministrator) },
-      username: { label: intl.formatMessage(messages.username), sortable: true },
-      email: { label: intl.formatMessage(messages.email) },
-      first_name: { label: intl.formatMessage(messages.firstName) },
-      last_name: { label: intl.formatMessage(messages.lastName) },
-      status: { label: intl.formatMessage(messages.status) },
-    }),
-    [intl],
+  const columnConfig: ColumnConfigMap<typeof activeColumns> = useMemo(
+    () =>
+      ({
+        org_admin: { label: intl.formatMessage(messages.orgAdministrator) },
+        ...(showManageCases && { portal_manage_cases: { label: intl.formatMessage(messages.manageSupportCases) } }),
+        username: { label: intl.formatMessage(messages.username), sortable: true },
+        email: { label: intl.formatMessage(messages.email) },
+        first_name: { label: intl.formatMessage(messages.firstName) },
+        last_name: { label: intl.formatMessage(messages.lastName) },
+        status: { label: intl.formatMessage(messages.status) },
+      }) as ColumnConfigMap<typeof activeColumns>,
+    [intl, showManageCases],
   );
 
   // Cell renderers
-  const cellRenderers: CellRendererMap<typeof columns, User> = useMemo(
-    () => ({
-      org_admin: (user) => {
-        if (isCommonAuthModel && orgAdmin) {
-          // external_source_id may be string or number, convert to number for OrgAdminDropdown
-          const userId = typeof user.external_source_id === 'string' ? Number(user.external_source_id) : user.external_source_id;
-          return (
-            <OrgAdminDropdown
-              key={`dropdown-${user.username}`}
-              isOrgAdmin={user.is_org_admin ?? false}
-              username={user.username}
-              intl={intl}
-              userId={userId}
-              fetchData={() => {
-                /* React Query will refetch via cache invalidation */
-              }}
-            />
+  const cellRenderers: CellRendererMap<typeof activeColumns, User> = useMemo(
+    () =>
+      ({
+        org_admin: (user: User) => {
+          if (isCommonAuthModel && orgAdmin) {
+            // external_source_id may be string or number, convert to number for OrgAdminDropdown
+            const userId = typeof user.external_source_id === 'string' ? Number(user.external_source_id) : user.external_source_id;
+            return (
+              <OrgAdminDropdown
+                key={`dropdown-${user.username}`}
+                isOrgAdmin={user.is_org_admin ?? false}
+                username={user.username}
+                intl={intl}
+                userId={userId}
+                fetchData={() => {
+                  /* React Query will refetch via cache invalidation */
+                }}
+              />
+            );
+          }
+          return user.is_org_admin ? (
+            <Fragment>
+              <CheckIcon key="yes-icon" className="pf-v6-u-mr-sm" />
+              <span key="yes">{intl.formatMessage(messages.yes)}</span>
+            </Fragment>
+          ) : (
+            <Fragment>
+              <CloseIcon key="no-icon" className="pf-v6-u-mr-sm" />
+              <span key="no">{intl.formatMessage(messages.no)}</span>
+            </Fragment>
           );
-        }
-        return user.is_org_admin ? (
-          <Fragment>
-            <CheckIcon key="yes-icon" className="pf-v6-u-mr-sm" />
-            <span key="yes">{intl.formatMessage(messages.yes)}</span>
-          </Fragment>
-        ) : (
-          <Fragment>
-            <CloseIcon key="no-icon" className="pf-v6-u-mr-sm" />
-            <span key="no">{intl.formatMessage(messages.no)}</span>
-          </Fragment>
-        );
-      },
-      username: (user) => (userLinks ? <AppLink to={pathnames['user-detail'].link(user.username)}>{user.username}</AppLink> : user.username),
-      email: (user) => user.email,
-      first_name: (user) => user.first_name ?? '',
-      last_name: (user) => user.last_name ?? '',
-      status: (user) => {
-        if (isCommonAuthModel && orgAdmin) {
-          // Convert external_source_id to number for ActivateToggle
-          const extId = typeof user.external_source_id === 'string' ? Number(user.external_source_id) : user.external_source_id;
+        },
+        ...(showManageCases && {
+          portal_manage_cases: (user: User) => {
+            if (isCommonAuthModel && orgAdmin) {
+              return (
+                <span onClick={(e) => e.stopPropagation()} role="presentation">
+                  <Switch
+                    id={`${user.username}-manage-cases-switch`}
+                    aria-label={`Toggle manage support cases for ${user.username}`}
+                    isChecked={user.portal_manage_cases || false}
+                    isDisabled={!orgAdmin || !user.is_active}
+                    onChange={(_, checked) => handleToggleManageCases(checked, user)}
+                    ouiaId={`users-table-${user.username}-manage-cases-switch`}
+                  />
+                </span>
+              );
+            }
+            return user.portal_manage_cases ? (
+              <Fragment>
+                <CheckIcon key="yes-icon" className="pf-v6-u-mr-sm" />
+                <span key="yes">{intl.formatMessage(messages.yes)}</span>
+              </Fragment>
+            ) : (
+              <Fragment>
+                <CloseIcon key="no-icon" className="pf-v6-u-mr-sm" />
+                <span key="no">{intl.formatMessage(messages.no)}</span>
+              </Fragment>
+            );
+          },
+        }),
+        username: (user: User) => (userLinks ? <AppLink to={pathnames['user-detail'].link(user.username)}>{user.username}</AppLink> : user.username),
+        email: (user: User) => user.email,
+        first_name: (user: User) => user.first_name ?? '',
+        last_name: (user: User) => user.last_name ?? '',
+        status: (user: User) => {
+          if (isCommonAuthModel && orgAdmin) {
+            // Convert external_source_id to number for ActivateToggle
+            const extId = typeof user.external_source_id === 'string' ? Number(user.external_source_id) : user.external_source_id;
+            return (
+              <ActivateToggle
+                key="active-toggle"
+                user={{ ...user, is_active: user.is_active ?? false, external_source_id: extId }}
+                onToggle={(isActive) => handleToggle(isActive, user)}
+                accountId={currAccountId}
+              />
+            );
+          }
           return (
-            <ActivateToggle
-              key="active-toggle"
-              user={{ ...user, is_active: user.is_active ?? false, external_source_id: extId }}
-              onToggle={(isActive) => handleToggle(isActive, user)}
-              accountId={currAccountId}
-            />
+            <Label key="status" color={user.is_active ? 'green' : 'grey'}>
+              {intl.formatMessage(user.is_active ? messages.active : messages.inactive)}
+            </Label>
           );
-        }
-        return (
-          <Label key="status" color={user.is_active ? 'green' : 'grey'}>
-            {intl.formatMessage(user.is_active ? messages.active : messages.inactive)}
-          </Label>
-        );
-      },
-    }),
-    [intl, isCommonAuthModel, orgAdmin, userLinks, currAccountId, handleToggle],
+        },
+      }) as CellRendererMap<typeof activeColumns, User>,
+    [intl, isCommonAuthModel, orgAdmin, userLinks, currAccountId, handleToggle, handleToggleManageCases, showManageCases],
   );
 
   // Filter configuration
@@ -342,8 +394,8 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
           </List>
         </WarningModal>
       )}
-      <TableView<typeof columns, User, 'username'>
-        columns={columns}
+      <TableView<typeof activeColumns, User, 'username'>
+        columns={activeColumns}
         columnConfig={columnConfig}
         sortableColumns={['username'] as const}
         data={isLoading ? undefined : users}

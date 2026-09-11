@@ -49,6 +49,7 @@ export {
   accountManagementHandlers,
   accountManagementErrorHandlers,
   accountManagementLoadingHandlers,
+  type AccountManagementHandlerOptions,
 } from '../../../shared/data/mocks/accountManagement.handlers';
 export { accessHandlers, accessErrorHandlers, accessLoadingHandlers } from '../../../v1/data/mocks/access.handlers';
 export { inventoryHandlers, inventoryErrorHandlers, inventoryLoadingHandlers } from '../../../shared/data/mocks/inventory.handlers';
@@ -520,6 +521,65 @@ export function createStatefulOrgAdminHandlers({ onToggleOrgAdmin }: StatefulOrg
       http.delete(`${baseUrl}/account/v1/accounts/:accountId/users/:userId/roles`, ({ params, request }) =>
         handleOrgAdminToggle('DELETE', params as Record<string, string | readonly string[]>, request),
       ),
+    ]),
+  ];
+}
+
+// =============================================================================
+// STATEFUL MANAGE SUPPORT CASES TOGGLE HANDLERS
+// For stories that test portal_manage_cases mutations.
+// =============================================================================
+
+interface StatefulManageCasesOptions {
+  onToggleManageCases?: (...args: unknown[]) => void;
+}
+
+/**
+ * Returns handlers where the IT API user endpoint mutates a local users
+ * snapshot, so the next principals refetch returns the flipped manage cases state.
+ * Place these BEFORE v2DefaultHandlers — MSW first-match ensures they win.
+ */
+export function createStatefulManageCasesHandlers({ onToggleManageCases }: StatefulManageCasesOptions = {}) {
+  const usersSnapshot = mockUsers.map((u) => ({ ...u }));
+
+  return [
+    http.get('/api/rbac/v1/principals/', async ({ request }) => {
+      await delay(NETWORK_DELAY);
+      const url = new URL(request.url);
+      const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+      const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+      const usernameFilter = url.searchParams.get('usernames');
+
+      let filtered = [...usersSnapshot];
+      if (usernameFilter) {
+        filtered = filtered.filter((u) => u.username.toLowerCase().includes(usernameFilter.toLowerCase()));
+      }
+
+      const withGroups = filtered.map((user) => ({
+        ...user,
+        user_groups_count: userGroupsMembership[user.username]?.length || 0,
+      }));
+
+      return HttpResponse.json({
+        data: withGroups.slice(offset, offset + limit),
+        meta: { count: filtered.length, limit, offset },
+      });
+    }),
+
+    // Manage cases toggle (POST to user endpoint)
+    ...['https://api.access.stage.redhat.com', 'https://api.access.redhat.com'].flatMap((baseUrl) => [
+      http.post(`${baseUrl}/account/v1/accounts/:accountId/users/:userId`, async ({ params, request }) => {
+        await delay(NETWORK_DELAY);
+        const body = (await request.json()) as { portal_manage_cases: boolean };
+
+        const user = usersSnapshot.find((u) => String(u.external_source_id) === String(params.userId));
+        if (user) {
+          user.portal_manage_cases = body.portal_manage_cases;
+        }
+
+        onToggleManageCases?.(params.accountId, params.userId, body);
+        return HttpResponse.json({ success: true });
+      }),
     ]),
   ];
 }

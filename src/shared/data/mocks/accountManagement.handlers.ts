@@ -8,6 +8,7 @@ export interface AccountManagementHandlerOptions {
   onInvite?: (request: Request, body: unknown) => void;
   onToggleStatus?: (...args: unknown[]) => void;
   onToggleOrgAdmin?: (...args: unknown[]) => void;
+  onToggleManageCases?: (...args: unknown[]) => void;
 }
 
 export function createAccountManagementHandlers(options: AccountManagementHandlerOptions = {}) {
@@ -65,6 +66,16 @@ export function createAccountManagementHandlers(options: AccountManagementHandle
       }),
     ]),
 
+    // Manage Support Cases permission toggle — POST to user endpoint
+    ...['https://api.access.stage.redhat.com', 'https://api.access.redhat.com'].flatMap((baseUrl) => [
+      http.post(`${baseUrl}/account/v1/accounts/:accountId/users/:userId`, async ({ params, request }) => {
+        await delay(networkDelay);
+        const body = await request.json();
+        options.onToggleManageCases?.(params.accountId, params.userId, body);
+        return HttpResponse.json({ success: true });
+      }),
+    ]),
+
     // Fallback regex variants
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/roles/, async ({ request }) => {
       await delay(networkDelay);
@@ -94,6 +105,7 @@ export function accountManagementErrorHandlers(status: number = 500) {
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/status/, () => HttpResponse.json(body, { status })),
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/roles/, () => HttpResponse.json(body, { status })),
     http.delete(/account\/v1\/accounts\/.+\/users\/.+\/roles/, () => HttpResponse.json(body, { status })),
+    http.post(/account\/v1\/accounts\/.+\/users\/[^/]+$/, () => HttpResponse.json(body, { status })),
   ];
 }
 
@@ -108,5 +120,6 @@ export function accountManagementLoadingHandlers() {
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/status/, handler),
     http.post(/account\/v1\/accounts\/.+\/users\/.+\/roles/, handler),
     http.delete(/account\/v1\/accounts\/.+\/users\/.+\/roles/, handler),
+    http.post(/account\/v1\/accounts\/.+\/users\/[^/]+$/, handler),
   ];
 }
