@@ -3,7 +3,7 @@ import { IntlShape } from 'react-intl';
 import messages from '../../../Messages';
 import pathnames from '../../utilities/pathnames';
 import { AppLink } from '../../../shared/components/navigation/AppLink';
-import OrgAdminDropdown from './OrgAdminDropdown';
+import OrgAdminToggle from './OrgAdminToggle';
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import { ActivateToggle } from './components/ActivateToggle';
@@ -88,8 +88,8 @@ export const createRows = (
               ]
             : []),
           authModel && orgAdmin ? (
-            <OrgAdminDropdown
-              key={`dropdown-${username}`}
+            <OrgAdminToggle
+              key={`toggle-${username}`}
               isOrgAdmin={isOrgAdmin}
               username={username}
               intl={intl}
