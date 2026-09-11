@@ -36,16 +36,8 @@ export const schemaBuilder = () => {
             nextStep: 'pre-conversion-checklist',
             fields: [
               {
-                name: 'post-conversion-title',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-c-title pf-m-xl',
-                label: 'Post-conversion requirements',
-              },
-              {
-                name: 'post-conversion-description',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-u-my-md',
-                label: 'Post-conversion requirements step content placeholder',
+                name: 'post-conversion-requirements-step',
+                component: 'PostConversionRequirementsStep',
               },
             ],
           },

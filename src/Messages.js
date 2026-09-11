@@ -3909,4 +3909,92 @@ export default defineMessages({
     description: 'Alt text for role bindings example diagram',
     defaultMessage: 'Role bindings example diagram',
   },
+  // Step 2: Post-conversion requirements
+  conversionWizardPostConversionTitle: {
+    id: 'conversionWizardPostConversionTitle',
+    description: 'Post-conversion requirements step title',
+    defaultMessage: 'Post-conversion requirements',
+  },
+  conversionWizardPostConversionIntro: {
+    id: 'conversionWizardPostConversionIntro',
+    description: 'Post-conversion requirements introduction paragraph',
+    defaultMessage:
+      'After converting to access management, it is critical to review your organizational structure and permissions, and edit access. Red Hat recommends completing the following steps within one week after conversion.',
+  },
+  conversionWizardDefaultWorkspaceScopeTitle: {
+    id: 'conversionWizardDefaultWorkspaceScopeTitle',
+    description: 'Understand default workspace scope title',
+    defaultMessage: 'Understand default workspace scope',
+  },
+  conversionWizardDefaultWorkspaceScopeDesc: {
+    id: 'conversionWizardDefaultWorkspaceScopeDesc',
+    description: 'Understand default workspace scope description',
+    defaultMessage:
+      'Default access and any custom default access groups now only applies to the default workspace and its subworkspaces. Go to Users and Groups and review who is in the Default access and Custom default access groups. Do they need such broad access?',
+  },
+  conversionWizardReviewUngroupedHostsTitle: {
+    id: 'conversionWizardReviewUngroupedHostsTitle',
+    description: 'Review Ungrouped hosts workspace title',
+    defaultMessage: 'Review Ungrouped hosts workspace',
+  },
+  conversionWizardReviewUngroupedHostsDesc: {
+    id: 'conversionWizardReviewUngroupedHostsDesc',
+    description: 'Review Ungrouped hosts workspace description',
+    defaultMessage: 'Systems here inherit Default access permissions. Review if these permissions are needed and adjust as needed.',
+  },
+  conversionWizardVerifyCriticalAccessTitle: {
+    id: 'conversionWizardVerifyCriticalAccessTitle',
+    description: 'Verify critical user access title',
+    defaultMessage: 'Verify critical user access',
+  },
+  conversionWizardVerifyCriticalAccessItem1: {
+    id: 'conversionWizardVerifyCriticalAccessItem1',
+    description: 'Verify critical user access bullet point 1',
+    defaultMessage: 'Confirm that key users in your organization can access their systems',
+  },
+  conversionWizardVerifyCriticalAccessItem2: {
+    id: 'conversionWizardVerifyCriticalAccessItem2',
+    description: 'Verify critical user access bullet point 2',
+    defaultMessage: 'Focus on users in Default Admin Access, Default Access, and custom groups',
+  },
+  conversionWizardReviewRootPermissionsTitle: {
+    id: 'conversionWizardReviewRootPermissionsTitle',
+    description: 'Review root workspace permissions title',
+    defaultMessage: 'Review root workspace permissions',
+  },
+  conversionWizardReviewRootPermissionsDesc: {
+    id: 'conversionWizardReviewRootPermissionsDesc',
+    description: 'Review root workspace permissions description',
+    defaultMessage: 'Typically, only Organization Administrators should have access to the root workspace.',
+  },
+  conversionWizardPlanStructureTitle: {
+    id: 'conversionWizardPlanStructureTitle',
+    description: 'Plan workspace structure title',
+    defaultMessage: 'Plan workspace structure',
+  },
+  conversionWizardPlanStructureIntro: {
+    id: 'conversionWizardPlanStructureIntro',
+    description: 'Plan workspace structure introduction',
+    defaultMessage: 'Consider creating subworkspaces to the default workspace for:',
+  },
+  conversionWizardPlanStructureItem1: {
+    id: 'conversionWizardPlanStructureItem1',
+    description: 'Plan workspace structure bullet point 1',
+    defaultMessage: 'High-security production environments',
+  },
+  conversionWizardPlanStructureItem2: {
+    id: 'conversionWizardPlanStructureItem2',
+    description: 'Plan workspace structure bullet point 2',
+    defaultMessage: 'Compliance-required isolated systems',
+  },
+  conversionWizardPlanStructureItem3: {
+    id: 'conversionWizardPlanStructureItem3',
+    description: 'Plan workspace structure bullet point 3',
+    defaultMessage: 'Environments where Default Admin Access should NOT have access',
+  },
+  conversionWizardPlanStructureClosing: {
+    id: 'conversionWizardPlanStructureClosing',
+    description: 'Plan workspace structure closing statement',
+    defaultMessage: 'Sketch your ideal structure before implementing',
+  },
 });
