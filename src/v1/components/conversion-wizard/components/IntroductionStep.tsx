@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import {
@@ -15,9 +16,51 @@ import RoleBindingsDiagram from '../assets/role-bindings-diagram.svg';
 
 export const IntroductionStep: React.FC = () => {
   const intl = useIntl();
+  const [showProductAvailabilityAlert, setShowProductAvailabilityAlert] = useState(true);
+  const [showApiIntegrationAlert, setShowApiIntegrationAlert] = useState(true);
 
   return (
     <div>
+      {/* Product availability warning alert */}
+      {showProductAvailabilityAlert && (
+        <Alert
+          variant="warning"
+          title={intl.formatMessage(messages.conversionWizardProductAvailabilityAlertTitle)}
+          isInline
+          actionClose={<AlertActionCloseButton onClose={() => setShowProductAvailabilityAlert(false)} />}
+          className="pf-v6-u-mb-md"
+        >
+          {intl.formatMessage(messages.conversionWizardProductAvailabilityAlertDescription)}
+        </Alert>
+      )}
+
+      {/* API integration info alert */}
+      {showApiIntegrationAlert && (
+        <Alert
+          variant="info"
+          title={intl.formatMessage(messages.conversionWizardApiIntegrationAlertTitle)}
+          isInline
+          actionClose={<AlertActionCloseButton onClose={() => setShowApiIntegrationAlert(false)} />}
+          className="pf-v6-u-mb-md"
+        >
+          <FormattedMessage
+            {...messages.conversionWizardApiIntegrationAlertDescription}
+            values={{
+              rbacApiLink: (
+                <a href="https://developers.redhat.com/api-catalog/api/rbac" target="_blank" rel="noopener noreferrer">
+                  RBAC API
+                </a>
+              ),
+              kbLink: (
+                <a href="https://access.redhat.com/articles/7147677" target="_blank" rel="noopener noreferrer">
+                  {intl.formatMessage(messages.conversionWizardApiIntegrationKbLinkText)}
+                </a>
+              ),
+            }}
+          />
+        </Alert>
+      )}
+
       {/* What changes during conversion */}
       <Title headingLevel="h2" size="xl">
         {intl.formatMessage(messages.conversionWizardWhatChangesTitle)}

@@ -3680,6 +3680,33 @@ export default defineMessages({
     description: 'Title for What changes during conversion section',
     defaultMessage: 'What changes during conversion',
   },
+  conversionWizardProductAvailabilityAlertTitle: {
+    id: 'conversionWizardProductAvailabilityAlertTitle',
+    description: 'Title for product availability warning alert',
+    defaultMessage: 'Not all products are available yet',
+  },
+  conversionWizardProductAvailabilityAlertDescription: {
+    id: 'conversionWizardProductAvailabilityAlertDescription',
+    description: 'Description for product availability warning alert',
+    defaultMessage:
+      "Not every Red Hat product is available in this new experience yet. If your organization uses OpenShift Cluster Manager, Ansible Automation Platform, or Cost Management we recommend postponing conversion. Check back soon; we'll update this notice as each product completes integration.",
+  },
+  conversionWizardApiIntegrationAlertTitle: {
+    id: 'conversionWizardApiIntegrationAlertTitle',
+    description: 'Title for API integration info alert',
+    defaultMessage: 'Custom API Integrations Will Need to be Updated',
+  },
+  conversionWizardApiIntegrationAlertDescription: {
+    id: 'conversionWizardApiIntegrationAlertDescription',
+    description: 'Description for API integration info alert',
+    defaultMessage:
+      "If your organization has built custom integrations, scripts, or automation using Red Hat's {rbacApiLink}, these connections will need to be updated to use the new v2 RBAC API after this conversion. See {kbLink} for migration guidance.",
+  },
+  conversionWizardApiIntegrationKbLinkText: {
+    id: 'conversionWizardApiIntegrationKbLinkText',
+    description: 'Link text for KB article in API integration alert',
+    defaultMessage: 'KB migration article',
+  },
   conversionWizardWorkspacesIntro: {
     id: 'conversionWizardWorkspacesIntro',
     description: 'Introduction paragraph about workspaces',
