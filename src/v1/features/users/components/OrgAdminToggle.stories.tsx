@@ -53,7 +53,7 @@ export const OrgAdminUser: Story = {
     const canvas = within(canvasElement);
 
     await step('Toggle off to demote org admin', async () => {
-      const toggle = await canvas.findByRole('checkbox', { name: `Toggle org admin for ${mockUsername}` });
+      const toggle = await canvas.findByRole('switch', { name: `Toggle org admin for ${mockUsername}` });
       await expect(toggle).toBeChecked();
       await expect(toggle).not.toBeDisabled();
 
@@ -83,7 +83,7 @@ export const RegularUser: Story = {
     const canvas = within(canvasElement);
 
     await step('Toggle on to promote to org admin', async () => {
-      const toggle = await canvas.findByRole('checkbox', { name: `Toggle org admin for ${mockUsername}` });
+      const toggle = await canvas.findByRole('switch', { name: `Toggle org admin for ${mockUsername}` });
       await expect(toggle).not.toBeChecked();
       await expect(toggle).not.toBeDisabled();
 
@@ -113,7 +113,7 @@ export const DisabledState: Story = {
     const canvas = within(canvasElement);
 
     await step('Verify disabled state', async () => {
-      const toggle = await canvas.findByRole('checkbox', { name: 'Toggle org admin for current.user' });
+      const toggle = await canvas.findByRole('switch', { name: 'Toggle org admin for current.user' });
       await expect(toggle).toBeDisabled();
       await expect(args.onToggle).not.toHaveBeenCalled();
     });
@@ -139,7 +139,7 @@ export const LoadingState: Story = {
     const canvas = within(canvasElement);
 
     await step('Verify loading state disables toggle', async () => {
-      const toggle = await canvas.findByRole('checkbox', { name: `Toggle org admin for ${mockUsername}` });
+      const toggle = await canvas.findByRole('switch', { name: `Toggle org admin for ${mockUsername}` });
       await expect(toggle).toBeDisabled();
     });
   },

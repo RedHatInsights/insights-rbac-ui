@@ -4,7 +4,7 @@ import useUserData from '../../hooks/useUserData';
 import { OrgAdminToggle as PresentationalOrgAdminToggle } from './components/OrgAdminToggle';
 import { useUpdateUserOrgAdminMutation } from '../../../shared/data/queries/users';
 
-const OrgAdminToggle: React.FC<{
+export const OrgAdminToggle: React.FC<{
   isOrgAdmin: boolean;
   username: string;
   intl: IntlShape; // Keep for backward compatibility, not used internally
