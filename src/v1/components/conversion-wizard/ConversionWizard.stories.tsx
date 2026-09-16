@@ -85,7 +85,7 @@ export const Default: Story = {
       await expect(wizard.findByText(/new access management model replaces the legacy User Access feature/)).resolves.toBeInTheDocument();
 
       // Verify diagrams are present with correct alt text
-      const diagrams = wizard.getAllByRole('img');
+      const diagrams = await wizard.findAllByRole('img');
       expect(diagrams).toHaveLength(3);
       expect(diagrams[0]).toHaveAttribute('alt', 'Workspace hierarchy diagram');
       expect(diagrams[1]).toHaveAttribute('alt', 'Permissions and workspace hierarchy diagram');
@@ -98,13 +98,14 @@ export const Default: Story = {
 
       // Verify main title and introduction
       await expect(wizard.findByRole('heading', { name: 'Post-conversion requirements' })).resolves.toBeInTheDocument();
-      await expect(wizard.findByText(/After converting to access management, it is critical to review/i)).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/Review your access structure within one week of conversion/i)).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/Default Admin Access and Default Access are fixed by design/i)).resolves.toBeInTheDocument();
 
       // Verify all 5 main action items are present
-      await expect(wizard.findByText('Understand default workspace scope')).resolves.toBeInTheDocument();
-      await expect(wizard.findByText('Review Ungrouped hosts workspace')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/Know what's fixed/i)).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Adjust default access roles')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Review the Ungrouped hosts workspace')).resolves.toBeInTheDocument();
       await expect(wizard.findByText('Verify critical user access')).resolves.toBeInTheDocument();
-      await expect(wizard.findByText('Review root workspace permissions')).resolves.toBeInTheDocument();
       await expect(wizard.findByText('Plan workspace structure')).resolves.toBeInTheDocument();
     });
 
