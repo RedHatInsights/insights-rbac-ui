@@ -25,6 +25,11 @@ export const PostConversionRequirementsStep: React.FC = () => {
         </ListItem>
 
         <ListItem className="pf-v6-u-mt-sm">
+          <strong>{intl.formatMessage(messages.conversionWizardAdjustDefaultAccessTitle)}</strong>
+          <Content component="p">{intl.formatMessage(messages.conversionWizardAdjustDefaultAccessDesc)}</Content>
+        </ListItem>
+
+        <ListItem className="pf-v6-u-mt-sm">
           <strong>{intl.formatMessage(messages.conversionWizardReviewUngroupedHostsTitle)}</strong>
           <Content component="p">{intl.formatMessage(messages.conversionWizardReviewUngroupedHostsDesc)}</Content>
         </ListItem>
@@ -38,11 +43,6 @@ export const PostConversionRequirementsStep: React.FC = () => {
         </ListItem>
 
         <ListItem className="pf-v6-u-mt-sm">
-          <strong>{intl.formatMessage(messages.conversionWizardReviewRootPermissionsTitle)}</strong>
-          <Content component="p">{intl.formatMessage(messages.conversionWizardReviewRootPermissionsDesc)}</Content>
-        </ListItem>
-
-        <ListItem className="pf-v6-u-mt-sm">
           <strong>{intl.formatMessage(messages.conversionWizardPlanStructureTitle)}</strong>
           <List>
             <ListItem>
@@ -50,7 +50,6 @@ export const PostConversionRequirementsStep: React.FC = () => {
               <List>
                 <ListItem>{intl.formatMessage(messages.conversionWizardPlanStructureItem1)}</ListItem>
                 <ListItem>{intl.formatMessage(messages.conversionWizardPlanStructureItem2)}</ListItem>
-                <ListItem>{intl.formatMessage(messages.conversionWizardPlanStructureItem3)}</ListItem>
               </List>
             </ListItem>
             <ListItem>{intl.formatMessage(messages.conversionWizardPlanStructureClosing)}</ListItem>

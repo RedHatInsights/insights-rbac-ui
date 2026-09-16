@@ -3919,28 +3919,39 @@ export default defineMessages({
     id: 'conversionWizardPostConversionIntro',
     description: 'Post-conversion requirements introduction paragraph',
     defaultMessage:
-      'After converting to access management, it is critical to review your organizational structure and permissions, and edit access. Red Hat recommends completing the following steps within one week after conversion.',
+      'Review your access structure within one week of conversion. Default Admin Access and Default Access are fixed by design and drive everything below.',
   },
   conversionWizardDefaultWorkspaceScopeTitle: {
     id: 'conversionWizardDefaultWorkspaceScopeTitle',
-    description: 'Understand default workspace scope title',
-    defaultMessage: 'Understand default workspace scope',
+    description: 'Know what is fixed title',
+    defaultMessage: 'Know what\'s fixed',
   },
   conversionWizardDefaultWorkspaceScopeDesc: {
     id: 'conversionWizardDefaultWorkspaceScopeDesc',
-    description: 'Understand default workspace scope description',
+    description: 'Know what is fixed description',
     defaultMessage:
-      'Default access and any custom default access groups now only applies to the default workspace and its subworkspaces. Go to Users and Groups and review who is in the Default access and Custom default access groups. Do they need such broad access?',
+      'Default Admin Access binds at the root workspace to every Organization Administrator with every admin role, and cascades everywhere below. Default Access binds at the Default workspace to every user in your organization. Neither group\'s membership can change; only Default Access\'s roles can.',
+  },
+  conversionWizardAdjustDefaultAccessTitle: {
+    id: 'conversionWizardAdjustDefaultAccessTitle',
+    description: 'Adjust default access roles title',
+    defaultMessage: 'Adjust default access roles',
+  },
+  conversionWizardAdjustDefaultAccessDesc: {
+    id: 'conversionWizardAdjustDefaultAccessDesc',
+    description: 'Adjust default access roles description',
+    defaultMessage:
+      'Default Access carries over whatever roles you had configured before conversion, including any customizations. In Users and Groups, review what\'s bound at the Default workspace and remove anything granting more access than needed.',
   },
   conversionWizardReviewUngroupedHostsTitle: {
     id: 'conversionWizardReviewUngroupedHostsTitle',
     description: 'Review Ungrouped hosts workspace title',
-    defaultMessage: 'Review Ungrouped hosts workspace',
+    defaultMessage: 'Review the Ungrouped hosts workspace',
   },
   conversionWizardReviewUngroupedHostsDesc: {
     id: 'conversionWizardReviewUngroupedHostsDesc',
     description: 'Review Ungrouped hosts workspace description',
-    defaultMessage: 'Systems here inherit Default access permissions. Review if these permissions are needed and adjust as needed.',
+    defaultMessage: 'Systems here inherit Default Access\'s bound roles. Confirm that access still matches your changes in step 2.',
   },
   conversionWizardVerifyCriticalAccessTitle: {
     id: 'conversionWizardVerifyCriticalAccessTitle',
@@ -3950,22 +3961,12 @@ export default defineMessages({
   conversionWizardVerifyCriticalAccessItem1: {
     id: 'conversionWizardVerifyCriticalAccessItem1',
     description: 'Verify critical user access bullet point 1',
-    defaultMessage: 'Confirm that key users in your organization can access their systems',
+    defaultMessage: 'Confirm 3-5 users across your org can reach their systems',
   },
   conversionWizardVerifyCriticalAccessItem2: {
     id: 'conversionWizardVerifyCriticalAccessItem2',
     description: 'Verify critical user access bullet point 2',
-    defaultMessage: 'Focus on users in Default Admin Access, Default Access, and custom groups',
-  },
-  conversionWizardReviewRootPermissionsTitle: {
-    id: 'conversionWizardReviewRootPermissionsTitle',
-    description: 'Review root workspace permissions title',
-    defaultMessage: 'Review root workspace permissions',
-  },
-  conversionWizardReviewRootPermissionsDesc: {
-    id: 'conversionWizardReviewRootPermissionsDesc',
-    description: 'Review root workspace permissions description',
-    defaultMessage: 'Typically, only Organization Administrators should have access to the root workspace.',
+    defaultMessage: 'Covers Default Admin Access, Default Access, and custom groups',
   },
   conversionWizardPlanStructureTitle: {
     id: 'conversionWizardPlanStructureTitle',
@@ -3975,7 +3976,7 @@ export default defineMessages({
   conversionWizardPlanStructureIntro: {
     id: 'conversionWizardPlanStructureIntro',
     description: 'Plan workspace structure introduction',
-    defaultMessage: 'Consider creating subworkspaces to the default workspace for:',
+    defaultMessage: 'Create subworkspaces under the Default workspace for:',
   },
   conversionWizardPlanStructureItem1: {
     id: 'conversionWizardPlanStructureItem1',
@@ -3987,14 +3988,9 @@ export default defineMessages({
     description: 'Plan workspace structure bullet point 2',
     defaultMessage: 'Compliance-required isolated systems',
   },
-  conversionWizardPlanStructureItem3: {
-    id: 'conversionWizardPlanStructureItem3',
-    description: 'Plan workspace structure bullet point 3',
-    defaultMessage: 'Environments where Default Admin Access should NOT have access',
-  },
   conversionWizardPlanStructureClosing: {
     id: 'conversionWizardPlanStructureClosing',
     description: 'Plan workspace structure closing statement',
-    defaultMessage: 'Sketch your ideal structure before implementing',
+    defaultMessage: 'Organization Administrators keep access everywhere via Default Admin Access, so subworkspaces isolate other users, not admins.',
   },
 });
