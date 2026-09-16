@@ -3924,13 +3924,13 @@ export default defineMessages({
   conversionWizardDefaultWorkspaceScopeTitle: {
     id: 'conversionWizardDefaultWorkspaceScopeTitle',
     description: 'Know what is fixed title',
-    defaultMessage: 'Know what\'s fixed',
+    defaultMessage: "Know what's fixed",
   },
   conversionWizardDefaultWorkspaceScopeDesc: {
     id: 'conversionWizardDefaultWorkspaceScopeDesc',
     description: 'Know what is fixed description',
     defaultMessage:
-      'Default Admin Access binds at the root workspace to every Organization Administrator with every admin role, and cascades everywhere below. Default Access binds at the Default workspace to every user in your organization. Neither group\'s membership can change; only Default Access\'s roles can.',
+      "Default Admin Access binds at the root workspace to every Organization Administrator with every admin role, and cascades everywhere below. Default Access binds at the Default workspace to every user in your organization. Neither group's membership can change; only Default Access's roles can.",
   },
   conversionWizardAdjustDefaultAccessTitle: {
     id: 'conversionWizardAdjustDefaultAccessTitle',
@@ -3941,7 +3941,7 @@ export default defineMessages({
     id: 'conversionWizardAdjustDefaultAccessDesc',
     description: 'Adjust default access roles description',
     defaultMessage:
-      'Default Access carries over whatever roles you had configured before conversion, including any customizations. In Users and Groups, review what\'s bound at the Default workspace and remove anything granting more access than needed.',
+      "Default Access carries over whatever roles you had configured before conversion, including any customizations. In Users and Groups, review what's bound at the Default workspace and remove anything granting more access than needed.",
   },
   conversionWizardReviewUngroupedHostsTitle: {
     id: 'conversionWizardReviewUngroupedHostsTitle',
@@ -3951,7 +3951,7 @@ export default defineMessages({
   conversionWizardReviewUngroupedHostsDesc: {
     id: 'conversionWizardReviewUngroupedHostsDesc',
     description: 'Review Ungrouped hosts workspace description',
-    defaultMessage: 'Systems here inherit Default Access\'s bound roles. Confirm that access still matches your changes in step 2.',
+    defaultMessage: "Systems here inherit Default Access's bound roles. Confirm that access still matches your changes in step 2.",
   },
   conversionWizardVerifyCriticalAccessTitle: {
     id: 'conversionWizardVerifyCriticalAccessTitle',
