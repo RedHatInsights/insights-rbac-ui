@@ -4,11 +4,13 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { schemaBuilder } from './schema';
 import { IntroductionStep } from './components/IntroductionStep';
+import { PostConversionRequirementsStep } from './components/PostConversionRequirementsStep';
 
 const FormTemplate = (props: React.ComponentProps<typeof Pf4FormTemplate>) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
 const mapperExtension = {
   IntroductionStep,
+  PostConversionRequirementsStep,
 };
 
 export interface ConversionWizardProps {
