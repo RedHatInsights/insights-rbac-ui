@@ -37,6 +37,7 @@ V2 uses **Kessel domain hooks** from `src/v2/hooks/useRbacAccess.ts`, not V1 pat
 - **`useGroupsAccess()`** — groups tab: create/edit/delete, add/remove members (`rbac_groups_read`, `rbac_groups_write`)
 - **`useRolesAccess()`** — roles tab in user detail drawer: list/view roles (`rbac_roles_read`), create/edit/delete (`rbac_roles_write`)
 - **`usePrincipalsAccess()`** — users tab: list users; `canInvite`, `canDelete`, `canToggleOrgAdmin` come from `useIdentity().orgAdmin` in `src/shared/hooks/useIdentity.ts`
+- **Manage Support Cases** — toggle column visible only when the environment is not ITLess (`!isITLess`). Org admins see an interactive `Switch`; non-admins see a read-only yes/no indicator. The toggle is disabled when the user lacks `external_source_id` (required for the IT API call). Mutation calls the IT account management API via `useUpdateUserManageCases` from `src/shared/data/queries/users.ts`.
 
 **Tab gating in `UserDetailsDrawer`:** The user detail drawer conditionally renders tabs based on permissions — the groups tab requires `useGroupsAccess().canList` and the roles tab requires `useRolesAccess().canList`. Tabs the user cannot access are hidden entirely so the underlying queries never fire, avoiding 403 errors.
 

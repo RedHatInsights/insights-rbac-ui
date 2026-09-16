@@ -365,7 +365,7 @@ export function useUpdateUserManageCasesMutation(options?: MutationOptions) {
       }
 
       const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/${userId}`;
-      return fetch(url, {
+      const response = await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
           portal_manage_cases: enabled,
@@ -375,6 +375,10 @@ export function useUpdateUserManageCasesMutation(options?: MutationOptions) {
           Authorization: `Bearer ${token}`,
         },
       });
+      if (!response.ok) {
+        throw new Error(`Failed to update user permissions: ${response.status}`);
+      }
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: usersKeys.all });

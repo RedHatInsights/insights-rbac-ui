@@ -212,7 +212,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
                     id={`${user.username}-manage-cases-switch`}
                     aria-label={`Toggle manage support cases for ${user.username}`}
                     isChecked={user.portal_manage_cases || false}
-                    isDisabled={!orgAdmin || !user.is_active}
+                    isDisabled={!orgAdmin || !user.is_active || user.external_source_id == null}
                     onChange={(_, checked) => handleToggleManageCases(checked, user)}
                     ouiaId={`users-table-${user.username}-manage-cases-switch`}
                   />

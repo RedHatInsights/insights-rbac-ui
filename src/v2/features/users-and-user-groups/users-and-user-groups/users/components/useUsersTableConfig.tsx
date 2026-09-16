@@ -104,7 +104,7 @@ export function useUsersTableConfig({
         id={`${user.username}-manage-cases-switch`}
         aria-label={`Toggle manage support cases for ${user.username}`}
         isChecked={user.portal_manage_cases || false}
-        isDisabled={!orgAdmin || !user.is_active}
+        isDisabled={!orgAdmin || !user.is_active || user.external_source_id == null}
         onChange={(_, checked) => onToggleManageCases(user, checked)}
         ouiaId={`${ouiaId}-${user.username}-manage-cases-switch`}
       />
