@@ -42,7 +42,7 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
           href: 'https://docs.redhat.com/en/documentation/red_hat_hybrid_cloud_console/1-latest/administer-manage_user_permissions_rbac_models',
         }}
       />
-      {!isConversionOptInEnabled && orgAdmin && (
+      {isConversionOptInEnabled && orgAdmin && (
         <PageSection hasBodyWrapper={false}>
           <ConversionOptInBanner isOrgAdmin={orgAdmin} onGetStarted={() => setIsWizardOpen(true)} />
         </PageSection>
