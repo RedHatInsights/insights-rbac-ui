@@ -114,6 +114,12 @@ export const Default: Story = {
       await clickWizardNext(user, wizard);
       await expect(wizard.findByRole('heading', { name: /Pre-conversion checklist/i })).resolves.toBeInTheDocument();
       await expect(wizard.findByText(/Please complete the checklist to confirm you understand/i)).resolves.toBeInTheDocument();
+
+      // Check all 4 checkboxes to enable the Next button
+      const checkboxes = wizard.getAllByRole('checkbox');
+      for (const checkbox of checkboxes) {
+        await user.click(checkbox);
+      }
     });
 
     await step('Navigate to step 4: Confirm conversion', async () => {
@@ -122,6 +128,10 @@ export const Default: Story = {
       await expect(wizard.findByRole('heading', { name: /Confirm conversion/i })).resolves.toBeInTheDocument();
       await expect(wizard.findByRole('heading', { name: /Warning alert: Conversion is permanent/i })).resolves.toBeInTheDocument();
       await expect(wizard.findByText(/You are about to convert your organization/i)).resolves.toBeInTheDocument();
+
+      // Check the confirmation checkbox to enable the Submit button
+      const confirmCheckbox = wizard.getByRole('checkbox');
+      await user.click(confirmCheckbox);
     });
 
     await step('Cancel wizard and verify close', async () => {

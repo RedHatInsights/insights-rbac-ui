@@ -19,10 +19,6 @@ const mapperExtension = {
   ConfirmConversionStep,
 };
 
-const validatorMapper = {
-  'required-checkbox': requiredCheckboxValidator,
-};
-
 export interface ConversionWizardProps {
   /** Callback when wizard is cancelled */
   onCancel: () => void;
@@ -35,6 +31,10 @@ export const ConversionWizard: React.FC<ConversionWizardProps> = ({ onCancel, on
   const intl = useIntl();
 
   const schema = schemaBuilder(intl);
+
+  const validatorMapper = {
+    'required-checkbox': requiredCheckboxValidator(intl),
+  };
 
   const onSubmit = async () => {
     // No-op for now - just show success state

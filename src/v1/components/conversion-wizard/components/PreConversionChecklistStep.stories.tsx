@@ -1,21 +1,75 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, screen, userEvent, within } from 'storybook/test';
+import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import { useIntl } from 'react-intl';
 import { PreConversionChecklistStep } from './PreConversionChecklistStep';
+import { requiredCheckboxValidator } from '../validators';
+import messages from '../../../../Messages';
 
 const mapperExtension = {
   PreConversionChecklistStep,
 };
 
 const WrapperComponent = () => {
+  const intl = useIntl();
+
+  const validatorMapper = {
+    'required-checkbox': requiredCheckboxValidator(intl),
+  };
+
   const schema = {
     fields: [
       {
         component: 'PreConversionChecklistStep',
         name: 'checklist',
+      },
+      {
+        name: 'checkbox-reviewed-config',
+        component: componentTypes.CHECKBOX,
+        label: intl.formatMessage(messages.conversionWizardChecklistReviewedConfig),
+        validate: [
+          {
+            type: 'required-checkbox',
+          },
+        ],
+        validateOnMount: false,
+      },
+      {
+        name: 'checkbox-understand-permanent',
+        component: componentTypes.CHECKBOX,
+        label: intl.formatMessage(messages.conversionWizardChecklistUnderstandPermanent),
+        validate: [
+          {
+            type: 'required-checkbox',
+          },
+        ],
+        validateOnMount: false,
+      },
+      {
+        name: 'checkbox-complete-post-conversion',
+        component: componentTypes.CHECKBOX,
+        label: intl.formatMessage(messages.conversionWizardChecklistCompletePostConversion),
+        validate: [
+          {
+            type: 'required-checkbox',
+          },
+        ],
+        validateOnMount: false,
+      },
+      {
+        name: 'checkbox-understand-remediation',
+        component: componentTypes.CHECKBOX,
+        label: intl.formatMessage(messages.conversionWizardChecklistUnderstandRemediation),
+        validate: [
+          {
+            type: 'required-checkbox',
+          },
+        ],
+        validateOnMount: false,
       },
     ],
   };
@@ -24,6 +78,7 @@ const WrapperComponent = () => {
     <FormRenderer
       schema={schema}
       componentMapper={{ ...componentMapper, ...mapperExtension }}
+      validatorMapper={validatorMapper}
       FormTemplate={Pf4FormTemplate}
       onSubmit={() => Promise.resolve()}
     />
@@ -119,7 +174,8 @@ export const PopoverInteraction: Story = {
 
     await step('Verify popover content is visible', async () => {
       // Wait for popover to appear
-      const popoverContent = await canvas.findByText(/These items must be acknowledged before proceeding/i);
+      // Note: Popover content is rendered outside the canvas element in PatternFly
+      const popoverContent = await screen.findByText(/These items must be acknowledged before proceeding with conversion/i);
       expect(popoverContent).toBeInTheDocument();
     });
   },

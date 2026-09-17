@@ -21,10 +21,13 @@ export const PreConversionChecklistStep: React.FC = () => {
 
       <Content component="p" className="pf-v6-u-mt-md pf-v6-u-mb-md">
         {intl.formatMessage(messages.conversionWizardPreConversionChecklistDescription)}
-        <Popover aria-label="Checklist information" bodyContent={intl.formatMessage(messages.conversionWizardPreConversionChecklistPopover)}>
+        <Popover
+          aria-label={intl.formatMessage(messages.conversionWizardChecklistPopoverAriaLabel)}
+          bodyContent={intl.formatMessage(messages.conversionWizardPreConversionChecklistPopover)}
+        >
           <button
             type="button"
-            aria-label="More info for checklist"
+            aria-label={intl.formatMessage(messages.conversionWizardChecklistPopoverButtonAriaLabel)}
             onClick={(e) => e.preventDefault()}
             className="pf-v6-c-button pf-m-plain pf-v6-u-pl-sm"
           >

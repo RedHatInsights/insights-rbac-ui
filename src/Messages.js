@@ -4080,4 +4080,19 @@ export default defineMessages({
     description: 'Confirm conversion checkbox label',
     defaultMessage: 'Yes, convert to workspace-based access management.',
   },
+  conversionWizardCheckboxValidationError: {
+    id: 'conversionWizardCheckboxValidationError',
+    description: 'Error message when required checkbox is not checked',
+    defaultMessage: 'This item must be acknowledged',
+  },
+  conversionWizardChecklistPopoverAriaLabel: {
+    id: 'conversionWizardChecklistPopoverAriaLabel',
+    description: 'Aria label for checklist information popover',
+    defaultMessage: 'Checklist information',
+  },
+  conversionWizardChecklistPopoverButtonAriaLabel: {
+    id: 'conversionWizardChecklistPopoverButtonAriaLabel',
+    description: 'Aria label for checklist information button',
+    defaultMessage: 'More info for checklist',
+  },
 });
