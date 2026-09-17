@@ -2,15 +2,21 @@ import React, { useState } from 'react';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import { useIntl } from 'react-intl';
 import { schemaBuilder } from './schema';
 import { IntroductionStep } from './components/IntroductionStep';
 import { PostConversionRequirementsStep } from './components/PostConversionRequirementsStep';
+import { PreConversionChecklistStep } from './components/PreConversionChecklistStep';
+import { ConfirmConversionStep } from './components/ConfirmConversionStep';
+import { requiredCheckboxValidator } from './validators';
 
 const FormTemplate = (props: React.ComponentProps<typeof Pf4FormTemplate>) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
 const mapperExtension = {
   IntroductionStep,
   PostConversionRequirementsStep,
+  PreConversionChecklistStep,
+  ConfirmConversionStep,
 };
 
 export interface ConversionWizardProps {
@@ -22,8 +28,13 @@ export interface ConversionWizardProps {
 
 export const ConversionWizard: React.FC<ConversionWizardProps> = ({ onCancel, onSuccess }) => {
   const [showSuccess, setShowSuccess] = useState(false);
+  const intl = useIntl();
 
-  const schema = schemaBuilder();
+  const schema = schemaBuilder(intl);
+
+  const validatorMapper = {
+    'required-checkbox': requiredCheckboxValidator(intl),
+  };
 
   const onSubmit = async () => {
     // No-op for now - just show success state
@@ -45,6 +56,7 @@ export const ConversionWizard: React.FC<ConversionWizardProps> = ({ onCancel, on
       schema={schema}
       FormTemplate={FormTemplate}
       componentMapper={{ ...componentMapper, ...mapperExtension }}
+      validatorMapper={validatorMapper}
       onSubmit={onSubmit}
       onCancel={onCancel}
     />
