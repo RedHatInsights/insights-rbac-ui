@@ -112,13 +112,16 @@ export const Default: Story = {
     await step('Navigate to step 3: Pre-conversion checklist', async () => {
       const wizard = await waitForModal();
       await clickWizardNext(user, wizard);
-      await expect(wizard.findByText('Pre-conversion checklist step content placeholder')).resolves.toBeInTheDocument();
+      await expect(wizard.findByRole('heading', { name: /Pre-conversion checklist/i })).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/Please complete the checklist to confirm you understand/i)).resolves.toBeInTheDocument();
     });
 
     await step('Navigate to step 4: Confirm conversion', async () => {
       const wizard = await waitForModal();
       await clickWizardNext(user, wizard);
-      await expect(wizard.findByText('Confirm conversion step content placeholder')).resolves.toBeInTheDocument();
+      await expect(wizard.findByRole('heading', { name: /Confirm conversion/i })).resolves.toBeInTheDocument();
+      await expect(wizard.findByRole('heading', { name: /Warning alert: Conversion is permanent/i })).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/You are about to convert your organization/i)).resolves.toBeInTheDocument();
     });
 
     await step('Cancel wizard and verify close', async () => {
