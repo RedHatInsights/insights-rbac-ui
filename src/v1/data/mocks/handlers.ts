@@ -46,7 +46,7 @@ export function createV1Handlers(db: V1MockDb, spies: V1HandlerSpies = {}) {
     ...createV1RolesHandlers(db.roles, spies.roles),
     ...createPermissionsHandlers(db.permissions.all()),
     ...createServiceAccountsHandlers(db.serviceAccounts.all()),
-    ...createAccountManagementHandlers(spies.accountManagement),
+    ...createAccountManagementHandlers({ ...spies.accountManagement, users: db.users }),
     ...accessHandlers(),
     ...staticAssetsHandlers(),
   ];
