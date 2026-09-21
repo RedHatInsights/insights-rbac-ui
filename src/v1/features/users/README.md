@@ -20,6 +20,6 @@ Fetching uses `useUsersQuery` from `src/shared/data/queries/users.ts`. Mutations
 ## Constraints
 
 - v1 API types are broken — use `(api.method as any)`. See [API Client Patterns](../../docs/APIClientPatterns.mdx).
-- Permission model: `orgAdmin` gates all mutations.
+- Permission model: `orgAdmin` gates all mutations. With common-auth-model enabled, the org admin column is a PatternFly Switch (disabled when the viewer is not an org admin or the target user is inactive). Without the flag, the column shows Yes/No icons.
 - The invite flow uses a different base URL derived from `fetchEnvBaseUrl()`. Do not hardcode `/api/rbac/v1/` for this endpoint — the URL resolves to an empty prefix in test environments.
 - `accountId` type varies by action: some endpoints use `org_id` (number), others use `internal.account_id` (string). Preserve the original source per action — do not standardize.
