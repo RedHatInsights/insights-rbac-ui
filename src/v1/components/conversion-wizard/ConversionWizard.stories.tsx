@@ -85,7 +85,7 @@ export const Default: Story = {
       await expect(wizard.findByText(/new access management model replaces the legacy User Access feature/)).resolves.toBeInTheDocument();
 
       // Verify diagrams are present with correct alt text
-      const diagrams = wizard.getAllByRole('img');
+      const diagrams = await wizard.findAllByRole('img');
       expect(diagrams).toHaveLength(3);
       expect(diagrams[0]).toHaveAttribute('alt', 'Workspace hierarchy diagram');
       expect(diagrams[1]).toHaveAttribute('alt', 'Permissions and workspace hierarchy diagram');
@@ -95,19 +95,43 @@ export const Default: Story = {
     await step('Navigate to step 2: Post-conversion requirements', async () => {
       const wizard = await waitForModal();
       await clickWizardNext(user, wizard);
-      await expect(wizard.findByText('Post-conversion requirements step content placeholder')).resolves.toBeInTheDocument();
+
+      // Verify main title and introduction
+      await expect(wizard.findByRole('heading', { name: 'Post-conversion requirements' })).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/Review your access structure within one week of conversion/i)).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/Default Admin Access and Default Access are fixed by design/i)).resolves.toBeInTheDocument();
+
+      // Verify all 5 main action items are present
+      await expect(wizard.findByText(/Know what's fixed/i)).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Adjust default access roles')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Review the Ungrouped hosts workspace')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Verify critical user access')).resolves.toBeInTheDocument();
+      await expect(wizard.findByText('Plan workspace structure')).resolves.toBeInTheDocument();
     });
 
     await step('Navigate to step 3: Pre-conversion checklist', async () => {
       const wizard = await waitForModal();
       await clickWizardNext(user, wizard);
-      await expect(wizard.findByText('Pre-conversion checklist step content placeholder')).resolves.toBeInTheDocument();
+      await expect(wizard.findByRole('heading', { name: /Pre-conversion checklist/i })).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/Please complete the checklist to confirm you understand/i)).resolves.toBeInTheDocument();
+
+      // Check all 4 checkboxes to enable the Next button
+      const checkboxes = wizard.getAllByRole('checkbox');
+      for (const checkbox of checkboxes) {
+        await user.click(checkbox);
+      }
     });
 
     await step('Navigate to step 4: Confirm conversion', async () => {
       const wizard = await waitForModal();
       await clickWizardNext(user, wizard);
-      await expect(wizard.findByText('Confirm conversion step content placeholder')).resolves.toBeInTheDocument();
+      await expect(wizard.findByRole('heading', { name: /Confirm conversion/i })).resolves.toBeInTheDocument();
+      await expect(wizard.findByRole('heading', { name: /Warning alert: Conversion is permanent/i })).resolves.toBeInTheDocument();
+      await expect(wizard.findByText(/You are about to convert your organization/i)).resolves.toBeInTheDocument();
+
+      // Check the confirmation checkbox to enable the Submit button
+      const confirmCheckbox = wizard.getByRole('checkbox');
+      await user.click(confirmCheckbox);
     });
 
     await step('Cancel wizard and verify close', async () => {

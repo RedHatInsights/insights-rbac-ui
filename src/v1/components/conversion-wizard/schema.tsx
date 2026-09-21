@@ -1,8 +1,10 @@
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
+import { IntlShape } from 'react-intl';
 import WizardButtons from '../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../shared/helpers/modal-container';
+import messages from '../../../Messages';
 
-export const schemaBuilder = () => {
+export const schemaBuilder = (intl: IntlShape) => {
   return {
     fields: [
       {
@@ -36,16 +38,8 @@ export const schemaBuilder = () => {
             nextStep: 'pre-conversion-checklist',
             fields: [
               {
-                name: 'post-conversion-title',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-c-title pf-m-xl',
-                label: 'Post-conversion requirements',
-              },
-              {
-                name: 'post-conversion-description',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-u-my-md',
-                label: 'Post-conversion requirements step content placeholder',
+                name: 'post-conversion-requirements-step',
+                component: 'PostConversionRequirementsStep',
               },
             ],
           },
@@ -57,16 +51,52 @@ export const schemaBuilder = () => {
             nextStep: 'confirm-conversion',
             fields: [
               {
-                name: 'pre-conversion-title',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-c-title pf-m-xl',
-                label: 'Pre-conversion checklist',
+                name: 'pre-conversion-checklist-step',
+                component: 'PreConversionChecklistStep',
               },
               {
-                name: 'pre-conversion-description',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-u-my-md',
-                label: 'Pre-conversion checklist step content placeholder',
+                name: 'checkbox-reviewed-config',
+                component: componentTypes.CHECKBOX,
+                label: intl.formatMessage(messages.conversionWizardChecklistReviewedConfig),
+                validate: [
+                  {
+                    type: 'required-checkbox',
+                  },
+                ],
+                validateOnMount: false,
+              },
+              {
+                name: 'checkbox-understand-permanent',
+                component: componentTypes.CHECKBOX,
+                label: intl.formatMessage(messages.conversionWizardChecklistUnderstandPermanent),
+                validate: [
+                  {
+                    type: 'required-checkbox',
+                  },
+                ],
+                validateOnMount: false,
+              },
+              {
+                name: 'checkbox-complete-post-conversion',
+                component: componentTypes.CHECKBOX,
+                label: intl.formatMessage(messages.conversionWizardChecklistCompletePostConversion),
+                validate: [
+                  {
+                    type: 'required-checkbox',
+                  },
+                ],
+                validateOnMount: false,
+              },
+              {
+                name: 'checkbox-understand-remediation',
+                component: componentTypes.CHECKBOX,
+                label: intl.formatMessage(messages.conversionWizardChecklistUnderstandRemediation),
+                validate: [
+                  {
+                    type: 'required-checkbox',
+                  },
+                ],
+                validateOnMount: false,
               },
             ],
           },
@@ -77,16 +107,19 @@ export const schemaBuilder = () => {
             buttons: WizardButtons,
             fields: [
               {
-                name: 'confirm-conversion-title',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-c-title pf-m-xl',
-                label: 'Confirm conversion',
+                name: 'confirm-conversion-step',
+                component: 'ConfirmConversionStep',
               },
               {
-                name: 'confirm-conversion-description',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v6-u-my-md',
-                label: 'Confirm conversion step content placeholder',
+                name: 'checkbox-confirm-conversion',
+                component: componentTypes.CHECKBOX,
+                label: intl.formatMessage(messages.conversionWizardConfirmCheckbox),
+                validate: [
+                  {
+                    type: 'required-checkbox',
+                  },
+                ],
+                validateOnMount: false,
               },
             ],
           },
