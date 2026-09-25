@@ -13,8 +13,8 @@ import { UserAccessLayout } from './components/UserAccessLayout';
 import type { Entitlements } from './components/BundleCard';
 import { AccessTable } from './AccessTable';
 import { RolesTable } from './RolesTable';
+import { resolveMuaBundle } from './resolveMuaBundle';
 import { useBundleApps } from './useBundleApps';
-import { DEFAULT_MUA_BUNDLE } from '../../../shared/utilities/constants';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import useUserData from '../../hooks/useUserData';
@@ -28,23 +28,24 @@ export const MyUserAccess: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const bundle = searchParams.get('bundle');
   const { userAccessAdministrator } = useUserData();
+  const displayBundle = user.ready ? resolveMuaBundle(bundle, user.entitlements) : undefined;
 
   useEffect(() => {
-    // Only set default bundle if bundle is falsy and we haven't already set it
-    if (!bundle) {
-      setSearchParams({ bundle: DEFAULT_MUA_BUNDLE });
+    if (!displayBundle || displayBundle === bundle) {
+      return;
     }
-  }, [bundle, setSearchParams]);
+    setSearchParams({ bundle: displayBundle }, { replace: true });
+  }, [displayBundle, bundle, setSearchParams]);
 
   const entitledBundles: Entitlements = Object.entries(user.entitlements || {}).filter(([, { is_entitled }]) => is_entitled);
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   // Bundle and filter logic moved from BundleView
-  const apps = useBundleApps(bundle || undefined);
+  const apps = useBundleApps(displayBundle);
   const hasAdminAccess = user.orgAdmin || userAccessAdministrator;
 
-  if (!user.ready) {
+  if (!user.ready || !displayBundle) {
     return (
       <PageSection>
         <Spinner />
@@ -79,9 +80,7 @@ export const MyUserAccess: React.FC = () => {
                 data-ouia-component-id="mua-bundle-dropdown"
                 isFullWidth
               >
-                {bundle
-                  ? bundleData.find(({ entitlement }) => entitlement === bundle)?.title
-                  : intl.formatMessage(messages.chooseSubscriptionEllipsis)}
+                {bundleData.find(({ entitlement }) => entitlement === displayBundle)?.title}
               </MenuToggle>
             )}
             isOpen={isDropdownOpen}
@@ -101,14 +100,14 @@ export const MyUserAccess: React.FC = () => {
         <UserAccessLayout
           entitledBundles={entitledBundles}
           title={intl.formatMessage(user.orgAdmin || userAccessAdministrator ? messages.yourRoles : messages.yourPermissions, {
-            name: bundleData.find(({ entitlement }) => entitlement === (bundle || DEFAULT_MUA_BUNDLE))?.title,
+            name: bundleData.find(({ entitlement }) => entitlement === displayBundle)?.title,
           })}
-          currentBundle={bundle || DEFAULT_MUA_BUNDLE}
+          currentBundle={displayBundle}
         >
           {hasAdminAccess ? (
-            <RolesTable key={bundle} apps={apps} showResourceDefinitions={hasAdminAccess} />
+            <RolesTable key={displayBundle} apps={apps} showResourceDefinitions={hasAdminAccess} />
           ) : (
-            <AccessTable key={bundle} apps={apps} showResourceDefinitions={hasAdminAccess} />
+            <AccessTable key={displayBundle} apps={apps} showResourceDefinitions={hasAdminAccess} />
           )}
         </UserAccessLayout>
       </PageSection>
