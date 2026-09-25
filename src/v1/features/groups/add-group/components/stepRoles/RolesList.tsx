@@ -36,7 +36,10 @@ export const RolesList: React.FC<RolesListProps> = ({ initialSelectedRoles, onSe
   );
 
   // Filter configuration
-  const filterConfig: FilterConfig[] = useMemo(() => [{ id: 'display_name', label: 'Role name', type: 'text', placeholder: 'Filter by role name' }], []);
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [{ id: 'display_name', label: 'Role name', type: 'text', placeholder: 'Filter by role name' }],
+    [],
+  );
 
   // useTableState for all state management
   const tableState = useTableState<typeof columns, Role>({
