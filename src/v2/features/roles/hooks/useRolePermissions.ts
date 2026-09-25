@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useRoleWriteAccess } from '../../../hooks/useRbacAccess';
+import { useRolesAccess } from '../../../hooks/useRbacAccess';
 
 export interface RolePermissions {
   edit: boolean;
@@ -8,29 +8,37 @@ export interface RolePermissions {
 
 interface Role {
   id?: string;
+  org_id?: string | null;
 }
 
 /**
  * Per-role permission check.
  *
- * Checks `rbac_roles_write` against each role resource directly via Kessel.
- * Canned roles return false from the backend — no frontend org_id guard needed.
+ * Uses org_id to distinguish custom roles (editable) from system/canned roles
+ * (immutable), combined with tenant-scoped Kessel permission checks.
+ *
+ * - org_id: null or undefined -> system/canned role, never editable/deletable
+ * - org_id: string -> custom role, editable/deletable if tenant-level permission allows
  */
 export function useRolePermissions(roles: Role[]) {
-  const roleIds = useMemo(() => roles.map((r) => r.id).filter((id): id is string => id != null), [roles]);
-  const { writableIds, isLoading } = useRoleWriteAccess(roleIds);
+  const { canUpdate, canDelete: tenantCanDelete, isLoading } = useRolesAccess();
+
+  const customRoleIds = useMemo(
+    () => new Set(roles.filter((r) => r.org_id != null).map((r) => r.id).filter((id): id is string => id != null)),
+    [roles],
+  );
 
   const permissionsFor = useCallback(
     (roleId: string): RolePermissions => ({
-      edit: writableIds.has(roleId),
-      delete: writableIds.has(roleId),
+      edit: customRoleIds.has(roleId) && canUpdate,
+      delete: customRoleIds.has(roleId) && tenantCanDelete,
     }),
-    [writableIds],
+    [customRoleIds, canUpdate, tenantCanDelete],
   );
 
-  const canEdit = useCallback((roleId: string): boolean => writableIds.has(roleId), [writableIds]);
-  const canDelete = useCallback((roleId: string): boolean => writableIds.has(roleId), [writableIds]);
-  const canWriteAny = writableIds.size > 0;
+  const canEdit = useCallback((roleId: string): boolean => customRoleIds.has(roleId) && canUpdate, [customRoleIds, canUpdate]);
+  const canDelete = useCallback((roleId: string): boolean => customRoleIds.has(roleId) && tenantCanDelete, [customRoleIds, tenantCanDelete]);
+  const canWriteAny = customRoleIds.size > 0 && (canUpdate || tenantCanDelete);
 
   return { permissionsFor, canEdit, canDelete, canWriteAny, isLoading };
 }
