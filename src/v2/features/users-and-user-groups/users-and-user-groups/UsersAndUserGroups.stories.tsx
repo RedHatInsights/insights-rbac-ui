@@ -18,6 +18,7 @@ const mockUsers = [
     last_name: 'Doe',
     is_active: true,
     is_org_admin: false,
+    portal_manage_cases: false,
     external_source_id: '123',
   },
   {
@@ -27,6 +28,7 @@ const mockUsers = [
     last_name: 'Smith',
     is_active: true,
     is_org_admin: true,
+    portal_manage_cases: true,
     external_source_id: '456',
   },
 ];
