@@ -34,6 +34,13 @@ const limitedEntitlements = {
   settings: { is_entitled: true, is_trial: false },
 };
 
+const onPremEntitlements = {
+  rhel: { is_entitled: false, is_trial: false },
+  openshift: { is_entitled: true, is_trial: false },
+  ansible: { is_entitled: false, is_trial: false },
+  settings: { is_entitled: true, is_trial: false },
+};
+
 const standardUser: MockUserIdentity = {
   account_number: '12345',
   org_id: '67890',
@@ -74,6 +81,20 @@ const limitedUser: MockUserIdentity = {
     username: 'limiteduser',
   },
   entitlements: limitedEntitlements,
+};
+
+const onPremUser: MockUserIdentity = {
+  account_number: '12345',
+  org_id: '67890',
+  user: {
+    email: 'onprem@example.com',
+    first_name: 'Onprem',
+    last_name: 'User',
+    is_active: true,
+    is_org_admin: false,
+    username: 'onpremuser',
+  },
+  entitlements: onPremEntitlements,
 };
 
 // Composite access permissions for all bundles (filtered by application param)
@@ -689,6 +710,57 @@ export const LimitedEntitlements: Story = {
     const table = await canvas.findByRole('grid', {}, { timeout: 15000 });
     expect(table).toBeInTheDocument();
     expect(await canvas.findByText(/advisor/i, {}, { timeout: 15000 })).toBeInTheDocument();
+  },
+};
+
+const verifyOnPremOpenShiftDefault = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+  await TestHelpers.delay(700);
+
+  expect(await canvas.findByTestId('entitle-section')).toBeInTheDocument();
+  await TestHelpers.verifyBundleSelected(canvas, 'OpenShift');
+  expect(await canvas.findByText('Your OpenShift permissions')).toBeInTheDocument();
+  expect(canvas.queryByText('Red Hat Enterprise Linux')).not.toBeInTheDocument();
+  await TestHelpers.verifyTablePermissions(canvas, ['cost-management', 'subscriptions']);
+};
+
+export const OnPremMissingBundle: Story = {
+  args: {
+    bundle: undefined,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+    userIdentity: onPremUser,
+    docs: {
+      description: {
+        story: `
+When no \`?bundle=\` is present and the user is not entitled to RHEL, My User Access selects the first entitled bundle in bundle order. This identity has OpenShift and Settings only, so the page lands on OpenShift.
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await verifyOnPremOpenShiftDefault(canvasElement);
+  },
+};
+
+export const OnPremUnentitledBundle: Story = {
+  args: {
+    bundle: 'rhel',
+  },
+  parameters: {
+    viewport: { defaultViewport: 'desktop' },
+    userIdentity: onPremUser,
+    docs: {
+      description: {
+        story: `
+When \`?bundle=rhel\` names a bundle the user is not entitled to, My User Access redirects to the first entitled bundle. This identity has OpenShift and Settings only, so the page lands on OpenShift.
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await verifyOnPremOpenShiftDefault(canvasElement);
   },
 };
 
