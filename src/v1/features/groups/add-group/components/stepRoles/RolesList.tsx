@@ -36,7 +36,10 @@ export const RolesList: React.FC<RolesListProps> = ({ initialSelectedRoles, onSe
   );
 
   // Filter configuration
-  const filterConfig: FilterConfig[] = useMemo(() => [{ id: 'name', label: 'Role name', type: 'text', placeholder: 'Filter by role name' }], []);
+  const filterConfig: FilterConfig[] = useMemo(
+    () => [{ id: 'display_name', label: 'Role name', type: 'text', placeholder: 'Filter by role name' }],
+    [],
+  );
 
   // useTableState for all state management
   const tableState = useTableState<typeof columns, Role>({
@@ -47,7 +50,7 @@ export const RolesList: React.FC<RolesListProps> = ({ initialSelectedRoles, onSe
     initialSelectedRows: initialSelectedRoles,
   });
 
-  const nameFilter = (tableState.filters.name as string) || undefined;
+  const nameFilter = (tableState.filters.display_name as string) || undefined;
 
   // Fetch roles via React Query - use different queries based on rolesExcluded flag
   const { data: availableRolesData, isLoading: isAvailableLoading } = useAvailableRolesListQuery(
@@ -55,7 +58,7 @@ export const RolesList: React.FC<RolesListProps> = ({ initialSelectedRoles, onSe
     {
       limit: tableState.apiParams.limit,
       offset: tableState.apiParams.offset,
-      name: nameFilter,
+      displayName: nameFilter,
     },
     { enabled: rolesExcluded && !!groupId },
   );
@@ -64,7 +67,8 @@ export const RolesList: React.FC<RolesListProps> = ({ initialSelectedRoles, onSe
     {
       limit: tableState.apiParams.limit,
       offset: tableState.apiParams.offset,
-      name: nameFilter, // Use 'name' param which searches both name and display_name
+      displayName: nameFilter,
+      nameMatch: 'partial',
     },
     { enabled: !rolesExcluded || !groupId },
   );

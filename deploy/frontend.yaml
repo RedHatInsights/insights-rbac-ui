@@ -337,12 +337,6 @@ objects:
                         - - rbac:group:read
                   icon: PlaceholderIcon
                   product: Identity & Access Management
-                - id: audit-log
-                  title: Audit Log
-                  href: /iam/user-access/audit-log
-                  permissions:
-                    - method: isOrgAdmin
-                  product: Identity & Access Management
                 - segmentRef:
                     frontendName: access-requests
                     segmentId: iam-access-requests
