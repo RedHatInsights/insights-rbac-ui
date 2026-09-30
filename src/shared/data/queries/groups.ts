@@ -467,6 +467,7 @@ export interface UseAvailableRolesListQueryParams {
   limit?: number;
   offset?: number;
   name?: string;
+  displayName?: string;
 }
 
 /**
@@ -482,10 +483,10 @@ export function useAvailableRolesListQuery(
 ): UseQueryResult<GroupRolesQueryResult> {
   const { axios } = useAppServices();
   const groupsApi = createGroupsApi(axios);
-  const { limit = 20, offset = 0, name } = params;
+  const { limit = 20, offset = 0, name, displayName } = params;
 
   return useQuery({
-    queryKey: [...groupsKeys.roles(groupId), 'available-list', { limit, offset, name }],
+    queryKey: [...groupsKeys.roles(groupId), 'available-list', { limit, offset, name, displayName }],
     queryFn: async (): Promise<GroupRolesQueryResult> => {
       const response = await groupsApi.listRolesForGroup({
         uuid: groupId,
@@ -493,6 +494,7 @@ export function useAvailableRolesListQuery(
         limit,
         offset,
         roleName: name,
+        roleDisplayName: displayName,
       });
       const data = response.data as GroupRolesPagination;
 

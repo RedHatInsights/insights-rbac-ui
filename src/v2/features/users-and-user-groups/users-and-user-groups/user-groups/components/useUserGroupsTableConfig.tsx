@@ -28,9 +28,9 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
       name: { label: intl.formatMessage(messages.name), sortable: true },
-      description: { label: intl.formatMessage(messages.description) },
-      principalCount: { label: intl.formatMessage(messages.users) },
-      modified: { label: intl.formatMessage(messages.lastModified), sortable: true, format: 'date' },
+      description: { label: intl.formatMessage(messages.description), width: 30 },
+      principalCount: { label: intl.formatMessage(messages.users), width: 10 },
+      modified: { label: intl.formatMessage(messages.lastModified), sortable: true, format: 'date', width: 15 },
     }),
     [intl],
   );
@@ -41,7 +41,9 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
       description: (group) =>
         group.description ? (
           <Tooltip isContentLeftAligned content={group.description}>
-            <span>{group.description.length > 40 ? `${group.description.slice(0, 37)}...` : group.description}</span>
+            <span style={{ wordBreak: 'break-word' }}>
+              {group.description.length > 40 ? `${group.description.slice(0, 37)}...` : group.description}
+            </span>
           </Tooltip>
         ) : (
           <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
