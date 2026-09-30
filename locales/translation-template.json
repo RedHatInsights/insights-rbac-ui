@@ -563,6 +563,94 @@
     "defaultMessage": "Ready for a smarter way to organize your work?",
     "description": "Title for workspace v2 conversion opt-in banner shown to non-admin users"
   },
+  "conversionWizardAdjustDefaultAccessDesc": {
+    "defaultMessage": "Default Access carries over whatever roles you had configured before conversion, including any customizations. In Users and Groups, review what's bound at the Default workspace and remove anything granting more access than needed.",
+    "description": "Adjust default access roles description"
+  },
+  "conversionWizardAdjustDefaultAccessTitle": {
+    "defaultMessage": "Adjust default access roles",
+    "description": "Adjust default access roles title"
+  },
+  "conversionWizardApiIntegrationAlertDescription": {
+    "defaultMessage": "If your organization has built custom integrations, scripts, or automation using Red Hat's {rbacApiLink}, these connections will need to be updated to use the new v2 RBAC API after this conversion. See {kbLink} for migration guidance.",
+    "description": "Description for API integration info alert"
+  },
+  "conversionWizardApiIntegrationAlertTitle": {
+    "defaultMessage": "Custom API Integrations Will Need to be Updated",
+    "description": "Title for API integration info alert"
+  },
+  "conversionWizardApiIntegrationKbLinkText": {
+    "defaultMessage": "KB migration article",
+    "description": "Link text for KB article in API integration alert"
+  },
+  "conversionWizardCheckboxValidationError": {
+    "defaultMessage": "This item must be acknowledged",
+    "description": "Error message when required checkbox is not checked"
+  },
+  "conversionWizardChecklistCompletePostConversion": {
+    "defaultMessage": "I will complete post-conversion organization tasks within one week",
+    "description": "Pre-conversion checklist item 3"
+  },
+  "conversionWizardChecklistPopoverAriaLabel": {
+    "defaultMessage": "Checklist information",
+    "description": "Aria label for checklist information popover"
+  },
+  "conversionWizardChecklistPopoverButtonAriaLabel": {
+    "defaultMessage": "More info for checklist",
+    "description": "Aria label for checklist information button"
+  },
+  "conversionWizardChecklistReviewedConfig": {
+    "defaultMessage": "I have reviewed the current user and group configuration and understand what will change",
+    "description": "Pre-conversion checklist item 1"
+  },
+  "conversionWizardChecklistUnderstandPermanent": {
+    "defaultMessage": "I understand that conversion is permanent and cannot be reversed",
+    "description": "Pre-conversion checklist item 2"
+  },
+  "conversionWizardChecklistUnderstandRemediation": {
+    "defaultMessage": "I understand that all existing legacy remediation plans will be deleted",
+    "description": "Pre-conversion checklist item 4"
+  },
+  "conversionWizardConfirmAction1": {
+    "defaultMessage": "Create a workspace hierarchy (root, default, and ungrouped assets workspaces)",
+    "description": "Confirm conversion action item 1"
+  },
+  "conversionWizardConfirmAction2": {
+    "defaultMessage": "Convert all existing permissions to role bindings",
+    "description": "Confirm conversion action item 2"
+  },
+  "conversionWizardConfirmAction3": {
+    "defaultMessage": "Preserve all user groups and role assignments",
+    "description": "Confirm conversion action item 3"
+  },
+  "conversionWizardConfirmAction4": {
+    "defaultMessage": "Change the scope of Default Admin Access and Default Access groups",
+    "description": "Confirm conversion action item 4"
+  },
+  "conversionWizardConfirmCheckbox": {
+    "defaultMessage": "Yes, convert to workspace-based access management.",
+    "description": "Confirm conversion checkbox label"
+  },
+  "conversionWizardConfirmConversionTitle": {
+    "defaultMessage": "Confirm conversion",
+    "description": "Confirm conversion step title"
+  },
+  "conversionWizardConfirmIntro": {
+    "defaultMessage": "You are about to convert your organization from User Access to workspace-based access management. This action will:",
+    "description": "Confirm conversion intro text"
+  },
+  "conversionWizardConfirmQuestion": {
+    "defaultMessage": "Are you sure you wish to move forward with this conversion?",
+    "description": "Confirm conversion question"
+  },
+  "conversionWizardConversionPermanentDesc": {
+    "defaultMessage": "Once you convert to workspace-based access management, you cannot revert to the previous experience. All existing permissions will be preserved, but the organizational structure will change.",
+    "description": "Warning banner description for confirm conversion step"
+  },
+  "conversionWizardConversionPermanentTitle": {
+    "defaultMessage": "Conversion is permanent",
+    "description": "Warning banner title for confirm conversion step"
+  },
   "conversionWizardCustomGroups": {
     "defaultMessage": "Custom groups",
     "description": "Custom groups term"
@@ -594,6 +682,14 @@
   "conversionWizardDefaultWorkspaceDesc": {
     "defaultMessage": "Created under Root, existing workspaces move here as sub workspaces",
     "description": "Default workspace description"
+  },
+  "conversionWizardDefaultWorkspaceScopeDesc": {
+    "defaultMessage": "Default Admin Access binds at the root workspace to every Organization Administrator with every admin role, and cascades everywhere below. Default Access binds at the Default workspace to every user in your organization. Neither group's membership can change; only Default Access's roles can.",
+    "description": "Know what is fixed description"
+  },
+  "conversionWizardDefaultWorkspaceScopeTitle": {
+    "defaultMessage": "Know what's fixed",
+    "description": "Know what is fixed title"
   },
   "conversionWizardExistingWorkspaces": {
     "defaultMessage": "Existing workspaces",
@@ -631,6 +727,54 @@
     "defaultMessage": "Permissions and workspace hierarchy diagram",
     "description": "Alt text for permissions and workspace hierarchy diagram"
   },
+  "conversionWizardPlanStructureClosing": {
+    "defaultMessage": "Organization Administrators keep access everywhere via Default Admin Access, so subworkspaces isolate other users, not admins.",
+    "description": "Plan workspace structure closing statement"
+  },
+  "conversionWizardPlanStructureIntro": {
+    "defaultMessage": "Create subworkspaces under the Default workspace for:",
+    "description": "Plan workspace structure introduction"
+  },
+  "conversionWizardPlanStructureItem1": {
+    "defaultMessage": "High-security production environments",
+    "description": "Plan workspace structure bullet point 1"
+  },
+  "conversionWizardPlanStructureItem2": {
+    "defaultMessage": "Compliance-required isolated systems",
+    "description": "Plan workspace structure bullet point 2"
+  },
+  "conversionWizardPlanStructureTitle": {
+    "defaultMessage": "Plan workspace structure",
+    "description": "Plan workspace structure title"
+  },
+  "conversionWizardPostConversionIntro": {
+    "defaultMessage": "Review your access structure within one week of conversion. Default Admin Access and Default Access are fixed by design and drive everything below.",
+    "description": "Post-conversion requirements introduction paragraph"
+  },
+  "conversionWizardPostConversionTitle": {
+    "defaultMessage": "Post-conversion requirements",
+    "description": "Post-conversion requirements step title"
+  },
+  "conversionWizardPreConversionChecklistDescription": {
+    "defaultMessage": "Please complete the checklist to confirm you understand the changes that will be made during conversion.",
+    "description": "Pre-conversion checklist step description"
+  },
+  "conversionWizardPreConversionChecklistPopover": {
+    "defaultMessage": "These items must be acknowledged before proceeding with conversion. This ensures you understand the impact and are prepared for the changes.",
+    "description": "Pre-conversion checklist popover content"
+  },
+  "conversionWizardPreConversionChecklistTitle": {
+    "defaultMessage": "Pre-conversion checklist",
+    "description": "Pre-conversion checklist step title"
+  },
+  "conversionWizardProductAvailabilityAlertDescription": {
+    "defaultMessage": "Not every Red Hat product is available in this new experience yet. If your organization uses OpenShift Cluster Manager, Ansible Automation Platform, or Cost Management we recommend postponing conversion. Check back soon; we'll update this notice as each product completes integration.",
+    "description": "Description for product availability warning alert"
+  },
+  "conversionWizardProductAvailabilityAlertTitle": {
+    "defaultMessage": "Not all products are available yet",
+    "description": "Title for product availability warning alert"
+  },
   "conversionWizardRemediationPlansNew": {
     "defaultMessage": "Remediation plans created after this conversion will be tied to your workspaces rather than individual users, enabling authorized team members to seamlessly collaborate, update, and execute them.",
     "description": "New remediation plans features paragraph"
@@ -642,6 +786,14 @@
   "conversionWizardRemediationPlansWarning": {
     "defaultMessage": "Once you proceed with this conversion, all existing remediation plans across your organization will be deleted. Please ensure your teams have executed or downloaded any active plans before continuing.",
     "description": "Remediation plans warning paragraph"
+  },
+  "conversionWizardReviewUngroupedHostsDesc": {
+    "defaultMessage": "Systems here inherit Default Access's bound roles. Confirm that access still matches your changes in step 2.",
+    "description": "Review Ungrouped hosts workspace description"
+  },
+  "conversionWizardReviewUngroupedHostsTitle": {
+    "defaultMessage": "Review the Ungrouped hosts workspace",
+    "description": "Review Ungrouped hosts workspace title"
   },
   "conversionWizardRoleBindingConnectsTitle": {
     "defaultMessage": "A role binding connects:",
@@ -710,6 +862,18 @@
   "conversionWizardUngroupedHostsDesc": {
     "defaultMessage": "Created under Default for existing systems not yet in a workspace",
     "description": "Ungrouped hosts workspace description"
+  },
+  "conversionWizardVerifyCriticalAccessItem1": {
+    "defaultMessage": "Confirm 3-5 users across your org can reach their systems",
+    "description": "Verify critical user access bullet point 1"
+  },
+  "conversionWizardVerifyCriticalAccessItem2": {
+    "defaultMessage": "Covers Default Admin Access, Default Access, and custom groups",
+    "description": "Verify critical user access bullet point 2"
+  },
+  "conversionWizardVerifyCriticalAccessTitle": {
+    "defaultMessage": "Verify critical user access",
+    "description": "Verify critical user access title"
   },
   "conversionWizardWhatChangesTitle": {
     "defaultMessage": "What changes during conversion",
