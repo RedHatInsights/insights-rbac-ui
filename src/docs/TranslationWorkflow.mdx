@@ -1,0 +1,57 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Translation Workflow" />
+
+# Translation Workflow
+
+RBAC UI owns its FormatJS source catalog and generated runtime catalogs. The shared [`i18n-tooling`](https://github.com/RedHatInsights/i18n-tooling) repository supplies source-catalog linting, ICU/catalog validation, and reusable Phrase TMS workflows; it does not own this app's Phrase project or credentials.
+
+## Developer workflow
+
+Message definitions live in `src/Messages.js`. After adding or changing a message, regenerate and validate the checked-in catalogs:
+
+```bash
+npm run translations
+npm run translations:validate
+```
+
+`npm run translations` runs extraction, compilation, and aggregation in that order. `npm run translations:validate` runs `frontend-i18n validate-project` with `.github/i18n/catalog-validation.json`. It is read-only: it re-runs each `translations:*` script into a temporary file and fails when a checked-in catalog differs, and it never overwrites catalogs itself.
+
+The catalogs have distinct roles:
+
+| Path                                | Role                                                                |
+| ----------------------------------- | ------------------------------------------------------------------- |
+| `locales/translation-template.json` | FormatJS English source descriptors and translation context         |
+| `src/locales/translations.json`     | Compiled English messages                                           |
+| `src/locales/<locale>.json`         | Phrase-managed target catalog, one flat ID-to-string map per locale |
+| `src/locales/data.json`             | Runtime aggregate keyed by locale; generated from the files above   |
+
+The validation plan checks that:
+
+- extraction matches `locales/translation-template.json`, compilation matches `src/locales/translations.json`, and aggregation matches `src/locales/data.json`;
+- every target locale in `.github/i18n/phrase-tms.json` whose file exists has the same message IDs and ICU arguments as the English source (locales not yet delivered are reported as pending);
+- `src/locales/` holds no JSON file that the plan does not declare.
+
+`npm start`, `npm run start:no-proxy`, and `npm run build` run `translations:prepare` first, compiling English and rebuilding the runtime aggregate. Tests import the checked-in `data.json`, so still commit the regenerated files.
+
+To run `translations:validate` locally, `frontend-i18n` must be on `PATH`. It is not published to npm: build `packages/i18n-pipeline` in an [`i18n-tooling`](https://github.com/RedHatInsights/i18n-tooling) checkout and add a wrapper such as `exec node <i18n-tooling>/packages/i18n-pipeline/dist/cli.js "$@"`. CI builds the CLI from the pinned reusable workflow source.
+
+## Pull-request validation
+
+`.github/workflows/i18n-validation.yml` calls the reusable validation workflow from `i18n-tooling` at an immutable commit and passes the same plan through `validation-config`. Its source-catalog lint is scoped to `src/Messages.js`, the canonical descriptor file used by FormatJS extraction; a broad scan currently flags existing imported/dynamic descriptors and inline messages. Keep new translatable messages in the central map. Expanding lint to all source files requires migrating those patterns first. Keep the workflow ref pinned to a reviewed SHA rather than a moving branch, and bump it when the plan needs a newer `validate-project` feature.
+
+## Phrase pilot setup
+
+`i18n-tooling` provides a generic schema and reusable workflows; the Phrase project and credentials belong to this consumer repository. `.github/i18n/phrase-tms.json` is configured for the RBAC UI project, its `eu` region, and the approved target-locale mappings. Keep Phrase and repository locale identifiers distinct: for example, Phrase `zh_cn` maps to repository locale `zh-CN`.
+
+1. Confirm the Phrase project's JSON import translates `defaultMessage`, retains `description` as context, and parses ICU MessageFormat. Use a verified import-settings UID only if the project needs one.
+2. Keep the project UID, region, locale mappings, and output paths in `.github/i18n/phrase-tms.json`; never put credentials there. Store Phrase credentials only in the protected `phrase-pilot` GitHub Actions environment. Prefer `PHRASE_SERVICE_ACCOUNT_CLIENT_ID` and `PHRASE_SERVICE_ACCOUNT_CLIENT_SECRET`; use `PHRASE_PLATFORM_API_TOKEN` only for an approved pilot. Do not use `secrets: inherit`.
+3. For the live pilot, allow the current test branch in the `phrase-pilot` environment. The Phrase submit/reconcile callers are temporarily guarded to that branch, and submit's `base-ref` targets it. After testing, restore both guards and `base-ref` to `master` (see workflow FIXME comments), then restrict the environment back to `master`.
+4. Once the config and environment are ready, run **Phrase submit** manually from the currently allowed pilot branch. It submits the checked-in source catalog; it does not run extraction. Run **Phrase reconcile** manually to collect completed jobs and open/update per-locale PRs. The callers intentionally have no schedule until the pilot is verified.
+5. Review locale PRs normally. They are not auto-merged. `GITHUB_TOKEN`-created PR checks may need maintainer approval. The PR build regenerates `src/locales/data.json` from the new locale file.
+
+All three callers pin `i18n-tooling` at `1cada7fb9308923845904fb31598a3f22ea1bd07`. The submit/reconcile branch guards and submit `base-ref` are temporary pilot settings; restore them to `master` after testing. Reconcile and locale PR validation use the consumer repository's normal permissions and checks.
+
+## Runtime locale support
+
+`src/locales/locale.ts` currently selects `en` unconditionally. The Phrase workflow can deliver and validate target catalogs, and the aggregate can contain them, but the UI will continue displaying English until the app selects a user's locale. Treat runtime locale selection and its tests as a separate product change; do not claim a locale is live based only on a translated catalog PR.

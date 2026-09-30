@@ -1,0 +1,18 @@
+name: Submit translations to Phrase
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  submit:
+    # FIXME: restore this branch guard and base-ref to master after testing.
+    if: github.ref == 'refs/heads/RHCLOUD-51618'
+    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-submit.yml@1cada7fb9308923845904fb31598a3f22ea1bd07
+    with:
+      config-path: .github/i18n/phrase-tms.json
+      environment: phrase-pilot
+      base-ref: RHCLOUD-51618
+    permissions:
+      contents: write

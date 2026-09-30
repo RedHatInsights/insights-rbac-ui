@@ -1,0 +1,42 @@
+{
+  "provider": "phrase",
+  "project": {
+    "uid": "LFsYhKphLpXQ0WWa47VZ19",
+    "region": "eu"
+  },
+  "state": {
+    "branch": "i18n-tms-state",
+    "directory": ".github/i18n-state/batches"
+  },
+  "sourceCatalog": {
+    "path": "locales/translation-template.json",
+    "adapter": "formatjs-json",
+    "locale": "en"
+  },
+  "targetAdapter": "formatjs-json",
+  "targetLocales": [
+    {
+      "phraseLocale": "fr",
+      "repositoryLocale": "fr",
+      "outputPath": "src/locales/fr.json"
+    },
+    {
+      "phraseLocale": "ja",
+      "repositoryLocale": "ja",
+      "outputPath": "src/locales/ja.json"
+    },
+    {
+      "phraseLocale": "ko",
+      "repositoryLocale": "ko",
+      "outputPath": "src/locales/ko.json"
+    },
+    {
+      "phraseLocale": "zh_cn",
+      "repositoryLocale": "zh-CN",
+      "outputPath": "src/locales/zh-CN.json"
+    }
+  ],
+  "completionPolicy": {
+    "default": "per-locale"
+  }
+}
