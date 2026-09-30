@@ -112,7 +112,6 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
         onClose={onCancel}
         actions={[
           <Button
-            aria-label="Save"
             className="pf-v6-u-mr-sm"
             ouiaId="primary-save-button"
             variant="primary"
@@ -128,7 +127,7 @@ const InviteUsersModal: React.FC<InviteUsersModalProps> = ({ fetchData }) => {
         ]}
       >
         <Form id="invite-users-form" className="rbac-c-user_invite-users-form">
-          <FormGroup label={intl.formatMessage(messages.inviteUsersFormEmailsFieldTitle)} isRequired fieldId="invite-users-email-list-field">
+          <FormGroup label={intl.formatMessage(messages.inviteUsersFormEmailsFieldTitle)} isRequired fieldId="invite-user-email-list">
             <TextArea
               isRequired
               type="text"
