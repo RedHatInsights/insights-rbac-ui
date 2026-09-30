@@ -237,9 +237,9 @@ export const GroupHeader: React.FC<{ count: number }> = ({ count }) => {
 <GroupHeader label={intl.formatMessage(messages.groups)} />
 ```
 
-Always check `locales/translation-template.json` before creating new messages. Add new messages to:
-1. `locales/translation-template.json` — source of truth
-2. `src/Messages.js` — React message definitions
+Always check `locales/translation-template.json` for existing IDs before adding a message to `src/Messages.js`. The message definitions in `src/Messages.js` are the source; `locales/translation-template.json` is generated from them.
+
+After changing messages, run `npm run translations` to regenerate the source, compiled, and runtime catalogs. See [Translation Workflow](?path=/docs/documentation-translation-workflow--docs) for details.
 
 Use specific, contextual messages — not generic ones:
 ```typescript

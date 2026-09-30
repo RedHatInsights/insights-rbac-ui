@@ -119,6 +119,7 @@ e2e-testing:               E2ETesting.mdx
 architecture:              Architecture.mdx
 data-fetching-migration:   ReduxToTanstackQuery.mdx
 v1-v2-boundary:            V1V2Boundary.mdx
+translation-workflow:      TranslationWorkflow.mdx
 module-federation:         ModuleFederation.mdx
 federated-module-spike:    FederatedModuleSpike.mdx
 data-layer-di:             DataLayerDI.mdx
