@@ -14,7 +14,7 @@ jobs:
   validate:
     permissions:
       contents: read
-    uses: RedHatInsights/i18n-tooling/.github/workflows/i18n-validate.yml@1cada7fb9308923845904fb31598a3f22ea1bd07
+    uses: RedHatInsights/i18n-tooling/.github/workflows/i18n-validate.yml@10bb01762e61252c916808f87b68fad077bc2cf1
     with:
       node-version: '22'
       package-manager: npm

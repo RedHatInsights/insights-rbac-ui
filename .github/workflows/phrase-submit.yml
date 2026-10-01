@@ -17,7 +17,7 @@ jobs:
   submit:
     # TEMPORARY POC GUARD — restore guard and base-ref to master before merge.
     if: github.ref == 'refs/heads/RHCLOUD-51618'
-    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-submit.yml@1cada7fb9308923845904fb31598a3f22ea1bd07
+    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-submit.yml@10bb01762e61252c916808f87b68fad077bc2cf1
     with:
       config-path: .github/i18n/phrase-tms.json
       environment: phrase-pilot
