@@ -12,8 +12,9 @@ import {
 } from '@redhat-cloud-services/frontend-components/TableView';
 import { ActionDropdown } from '../../../../../../shared/components/ActionDropdown';
 import type { User } from '../../../../../../shared/data/queries/users';
+import { useAppServices } from '../../../../../../shared/contexts/ServiceContext';
 import messages from '../../../../../../Messages';
-import { type SortableColumnId, sortableColumns, standardColumns, useUsersTableConfig } from './useUsersTableConfig';
+import { type SortableColumnId, sortableColumns, useUsersTableConfig } from './useUsersTableConfig';
 
 interface UsersTableProps {
   // Data props
@@ -41,7 +42,7 @@ interface UsersTableProps {
   onRowClick?: (user: User | undefined) => void;
 
   // Table state from useTableState - managed by container
-  tableState: UseTableStateReturn<typeof standardColumns, User, SortableColumnId, never>;
+  tableState: UseTableStateReturn<readonly string[], User, SortableColumnId, never>;
 
   // Children prop for modals and other container components
   children?: React.ReactNode;
@@ -67,12 +68,14 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   children,
 }) => {
   const intl = useIntl();
+  const { isITLess } = useAppServices();
 
   // Table configuration from hook - columns derived from authModel internally
   const { columns, columnConfig, cellRenderers, filterConfig } = useUsersTableConfig({
     intl,
     authModel,
     orgAdmin,
+    isITLess,
     focusedUser,
     ouiaId,
     onToggleUserStatus,
