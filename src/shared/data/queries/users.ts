@@ -407,3 +407,181 @@ export function useInviteUsersMutation(options?: MutationOptions) {
 
 // Re-export types (User already exported above)
 export type { ListPrincipalsParams, Principal, PrincipalPagination } from '../api/users';
+
+// ============================================================================
+// Account User Detail (IT Account API)
+// ============================================================================
+
+/**
+ * Response from GET /account/v1/accounts/{org_id}/users/{user_id}.
+ * Contains the user's portal-level permissions array.
+ */
+export interface AccountUserDetail {
+  id: string;
+  username: string;
+  roles?: string[];
+  permissions: string[];
+}
+
+/**
+ * The account API wraps user responses (GET detail and the update POST) in a `body`
+ * envelope; some mocks return the object unwrapped, so both forms are accepted.
+ */
+type AccountUserDetailEnvelope = { body?: AccountUserDetail } & Partial<AccountUserDetail>;
+
+/** The portal permission string for managing support cases */
+export const PORTAL_MANAGE_CASES = 'portal_manage_cases' as const;
+
+export const accountUserKeys = {
+  all: ['account-user'] as const,
+  details: () => [...accountUserKeys.all, 'detail'] as const,
+  detail: (userId: string) => [...accountUserKeys.details(), userId] as const,
+};
+
+/**
+ * Fetch a single user's account detail from the IT Account API.
+ * Returns the user's portal permissions array.
+ *
+ * Skipped in ITLess environments (API not available).
+ *
+ * @tag api-v1-external - Uses external IT identity provider API
+ */
+export function useAccountUserDetailQuery(userId: string | undefined, options?: QueryOptions) {
+  const { getToken, environment, identity, isITLess } = useAppServices();
+
+  return useQuery(
+    {
+      queryKey: accountUserKeys.detail(userId ?? ''),
+      queryFn: async (): Promise<AccountUserDetail> => {
+        const token = await getToken();
+        const accountId = identity?.org_id ?? null;
+
+        if (!accountId || !userId) {
+          throw new Error('Missing accountId or userId for account user detail query');
+        }
+
+        const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/${userId}`;
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Account user detail fetch failed: ${response.status}`);
+        }
+
+        // The account API wraps the user object in a `body` envelope; fall back to the
+        // raw payload for callers/mocks that return it unwrapped.
+        const json = (await response.json()) as AccountUserDetailEnvelope;
+        return json.body ?? (json as AccountUserDetail);
+      },
+      enabled: !isITLess && !!userId && !!identity?.org_id && (options?.enabled ?? true),
+      staleTime: 30_000,
+    },
+    options?.queryClient,
+  );
+}
+
+// ============================================================================
+// Toggle Manage Support Cases Permission Mutation
+// ============================================================================
+
+interface ToggleManageSupportCasesParams {
+  userId: string;
+  grant: boolean;
+}
+
+/**
+ * Toggle the portal_manage_cases permission for a user.
+ *
+ * The permission state is modeled as the presence/absence of the `portal_manage_cases`
+ * string in the user's `permissions` array (there is no boolean field). Toggling is a
+ * read-modify-write: take the current permissions array, add or remove the string, and
+ * POST the updated account user object back to the same account/v1 endpoint the GET uses.
+ *
+ * @tag api-v1-external - Uses external IT identity provider API
+ */
+export function useToggleManageSupportCasesMutation(options?: MutationOptions) {
+  const queryClient = useMutationQueryClient(options?.queryClient);
+  const { notify, getToken, environment, identity, isITLess } = useAppServices();
+  const intl = useIntl();
+
+  return useMutation({
+    mutationFn: async ({ userId, grant }: ToggleManageSupportCasesParams) => {
+      if (isITLess) {
+        throw new Error('Manage support cases is not available in ITLess environments');
+      }
+
+      const token = await getToken();
+      const accountId = identity?.org_id ?? null;
+
+      if (!accountId) {
+        throw new Error('Missing org_id for manage support cases toggle');
+      }
+
+      // Build the next permissions array from the cached GET (presence = granted).
+      const current = queryClient.getQueryData<AccountUserDetail>(accountUserKeys.detail(userId));
+      const basePermissions = current?.permissions ?? [];
+      const permissions = grant ? [...new Set([...basePermissions, PORTAL_MANAGE_CASES])] : basePermissions.filter((p) => p !== PORTAL_MANAGE_CASES);
+
+      // POST to the same account/v1 endpoint as the GET. The update-user-details DTO
+      // accepts ONLY the permissions array — including other user fields (id, username,
+      // roles) makes the server reject the body with 400 "Failed to read request".
+      const url = `${getITApiUrl(environment)}/account/v1/accounts/${accountId}/users/${userId}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({ permissions }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Toggle manage support cases failed: ${response.status}`);
+      }
+
+      // The POST echoes the updated user (wrapped in `body`). Use the server's
+      // authoritative permissions; fall back to what we sent if the body is empty.
+      const json = (await response.json().catch(() => ({}))) as AccountUserDetailEnvelope;
+      const updated = json.body ?? (json as Partial<AccountUserDetail>);
+      return updated.permissions ?? permissions;
+    },
+    onMutate: async ({ userId, grant }) => {
+      await queryClient.cancelQueries({ queryKey: accountUserKeys.detail(userId) });
+
+      const previous = queryClient.getQueryData<AccountUserDetail>(accountUserKeys.detail(userId));
+
+      if (previous) {
+        const currentPermissions = previous.permissions ?? [];
+        const updatedPermissions = grant
+          ? [...new Set([...currentPermissions, PORTAL_MANAGE_CASES])]
+          : currentPermissions.filter((p) => p !== PORTAL_MANAGE_CASES);
+
+        queryClient.setQueryData<AccountUserDetail>(accountUserKeys.detail(userId), {
+          ...previous,
+          permissions: updatedPermissions,
+        });
+      }
+
+      return { previous };
+    },
+    onSuccess: (updatedPermissions, { userId }) => {
+      // Reconcile the cache with the server's authoritative permissions from the POST
+      // response. We deliberately do NOT invalidate/refetch here: the account API is
+      // read-after-write eventually consistent, so an immediate GET can return the
+      // pre-update state and flip the toggle back. The query refetches naturally once
+      // stale (staleTime) on the next mount/focus.
+      queryClient.setQueryData<AccountUserDetail>(accountUserKeys.detail(userId), (old) => (old ? { ...old, permissions: updatedPermissions } : old));
+      notify('success', intl.formatMessage(messages.editUserSuccessTitle), intl.formatMessage(messages.editUserSuccessDescription));
+    },
+    onError: (_err, { userId }, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(accountUserKeys.detail(userId), context.previous);
+      }
+      notify('danger', intl.formatMessage(messages.editUserErrorTitle), intl.formatMessage(messages.editUserErrorDescription));
+    },
+  });
+}

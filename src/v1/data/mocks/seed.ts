@@ -8,6 +8,7 @@ import {
   DEFAULT_PERMISSIONS,
   DEFAULT_SERVICE_ACCOUNTS,
   DEFAULT_USERS,
+  DEFAULT_USER_PERMISSIONS,
 } from '../../../shared/data/mocks/seed';
 
 export const DEFAULT_V1_ROLES: RoleOutDynamic[] = [
@@ -141,5 +142,6 @@ export function defaultV1Seed(): V1Seed {
     groupMembers: Object.entries(DEFAULT_GROUP_MEMBERS),
     groupServiceAccounts: Object.entries(DEFAULT_GROUP_SERVICE_ACCOUNTS),
     groupRoles: Object.entries(DEFAULT_GROUP_ROLES),
+    userPermissions: Object.entries(DEFAULT_USER_PERMISSIONS),
   };
 }

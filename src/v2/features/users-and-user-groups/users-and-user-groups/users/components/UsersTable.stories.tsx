@@ -6,6 +6,8 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { expectLoadingVisible } from '../../../../../../test-utils/interactionHelpers';
 import { UsersTable } from './UsersTable';
 import type { User } from '../../../../../../shared/data/queries/users';
+import { accountManagementHandlers } from '../../../../../../shared/data/mocks/accountManagement.handlers';
+import { createResettableMap } from '../../../../../../shared/data/mocks/db';
 
 // Mock user data for testing - matches Principal type from rbac-client
 const createMockUser = (username: string, overrides: Partial<User> = {}): User => ({
@@ -240,10 +242,11 @@ export const AuthModelEnabled: Story = {
     await step('Verify', async () => {
       const canvas = within(canvasElement);
 
-      // With authModel, org admin column should be first
+      // With authModel + orgAdmin, column order is: select, Org. Admin, Manage Support Cases, Username, ...
       const headers = canvas.getAllByRole('columnheader');
-      await expect(headers[1]).toHaveTextContent('Org. Admin'); // First sortable column
-      await expect(headers[2]).toHaveTextContent('Username');
+      await expect(headers[1]).toHaveTextContent('Org. Admin');
+      await expect(headers[2]).toHaveTextContent('Manage Support Cases');
+      await expect(headers[3]).toHaveTextContent('Username');
     });
   },
 };
@@ -710,6 +713,153 @@ Perfect for testing filter state management and ensuring all filter controls wor
 
       // Verify filter input is cleared
       await waitFor(() => expect(filterInput).toHaveValue(''));
+    });
+  },
+};
+
+// Support cases toggle column with MSW handlers for account API
+const supportCasesToggleSpy = fn();
+const supportCasesUsers = [
+  createMockUser('john.doe', {
+    email: 'john.doe@redhat.com',
+    first_name: 'John',
+    last_name: 'Doe',
+    external_source_id: 12345,
+  }),
+  createMockUser('jane.smith', {
+    email: 'jane.smith@redhat.com',
+    first_name: 'Jane',
+    last_name: 'Smith',
+    is_org_admin: true,
+    external_source_id: 67890,
+  }),
+];
+
+// Resettable so the POST handler's mutation doesn't leak across play-function reruns.
+const supportCasesColumnPermissions = createResettableMap<string, string[]>([
+  ['12345', ['portal_download']],
+  ['67890', ['portal_manage_cases', 'portal_download']],
+]);
+
+export const SupportCasesColumn: Story = {
+  args: {
+    ...defaultArgs,
+    authModel: true,
+    orgAdmin: true,
+    users: supportCasesUsers,
+    totalCount: supportCasesUsers.length,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tests the Manage Support Cases column, visible only for org admins in non-ITLess environments. Each row fetches the permission state from the account API.',
+      },
+    },
+    msw: {
+      handlers: [
+        ...accountManagementHandlers({
+          userPermissions: supportCasesColumnPermissions,
+          onToggleSupportCases: (userId, grant) => {
+            supportCasesToggleSpy({ userId, grant });
+          },
+        }),
+      ],
+    },
+  },
+  // Reset before render so a prior rerun's granted permission doesn't leak into
+  // this run's initial GET (which fires on mount, before the play function).
+  beforeEach: () => {
+    supportCasesColumnPermissions.reset();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Reset spy', async () => {
+      supportCasesToggleSpy.mockClear();
+    });
+
+    await step('Verify Manage Support Cases column is visible', async () => {
+      const header = await canvas.findByText('Manage Support Cases');
+      await expect(header).toBeInTheDocument();
+    });
+
+    await step('Verify toggle states match permissions', async () => {
+      const johnToggle = await canvas.findByRole('switch', {
+        name: /toggle manage support cases for john\.doe/i,
+      });
+      await expect(johnToggle).not.toBeChecked();
+
+      const janeToggle = await canvas.findByRole('switch', {
+        name: /toggle manage support cases for jane\.smith/i,
+      });
+      await expect(janeToggle).toBeChecked();
+    });
+
+    await step('Toggle on for a user without the permission', async () => {
+      const johnToggle = await canvas.findByRole('switch', {
+        name: /toggle manage support cases for john\.doe/i,
+      });
+      await userEvent.click(johnToggle);
+
+      await waitFor(() => {
+        expect(supportCasesToggleSpy).toHaveBeenCalledWith(expect.objectContaining({ userId: '12345', grant: true }));
+      });
+    });
+  },
+};
+
+export const SupportCasesHiddenInITLess: Story = {
+  args: {
+    ...defaultArgs,
+    authModel: true,
+    orgAdmin: true,
+    users: supportCasesUsers,
+    totalCount: supportCasesUsers.length,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'In ITLess/FedRAMP environments, the Manage Support Cases column is not rendered.',
+      },
+    },
+    featureFlags: {
+      'platform.rbac.itless': true,
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify column is hidden in ITLess', async () => {
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+
+      expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
+    });
+  },
+};
+
+export const SupportCasesHiddenForNonAdmin: Story = {
+  args: {
+    ...defaultArgs,
+    authModel: true,
+    orgAdmin: false,
+    users: supportCasesUsers,
+    totalCount: supportCasesUsers.length,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Non-admin users do not see the Manage Support Cases column.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify column is hidden for non-admin', async () => {
+      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+
+      expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
     });
   },
 };

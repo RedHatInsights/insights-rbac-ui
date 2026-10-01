@@ -5,6 +5,7 @@ import { findSortButton } from '../../../test-utils/tableHelpers';
 import UsersListNotSelectable from './UsersListNotSelectable';
 import { usersHandlers, usersLoadingHandlers } from '../../../shared/data/mocks/users.handlers';
 import { accountManagementHandlers } from '../../../shared/data/mocks/accountManagement.handlers';
+import { createResettableMap } from '../../../shared/data/mocks/db';
 import { withRouter as withRouterDecorator } from '../../../../.storybook/helpers/router-test-utils';
 import {
   PAGINATION_TEST_DEFAULT_PER_PAGE,
@@ -602,6 +603,114 @@ export const NonAdminOrgAdminTogglesDisabled: Story = {
       });
       await expect(firstSwitch).toBeDisabled();
       await expect(adminSwitch).toBeDisabled();
+    });
+  },
+};
+
+const toggleSupportCasesSpy = fn();
+
+// Resettable so the POST handler's mutation doesn't leak across play-function reruns.
+const supportCasesPermissions = createResettableMap<string, string[]>([
+  [String(FIRST_USER.external_source_id), ['portal_download']],
+  [String(ORG_ADMIN_USER.external_source_id), ['portal_manage_cases', 'portal_download']],
+]);
+
+export const SupportCasesToggleIntegration: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model', 'sbtest:support-cases-toggle'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'With common-auth-model enabled, org admins see a "Manage Support Cases" Switch column. Clicking it toggles the portal_manage_cases permission via the IT Account API.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.itless': false,
+    },
+    msw: {
+      handlers: [
+        ...usersHandlers(mockUsers as unknown as Parameters<typeof usersHandlers>[0]),
+        ...accountManagementHandlers({
+          userPermissions: supportCasesPermissions,
+          onToggleSupportCases: (userId, grant) => {
+            toggleSupportCasesSpy({ userId, grant });
+          },
+        }),
+      ],
+    },
+  },
+  // Reset before render so a prior rerun's granted permission doesn't leak into
+  // this run's initial GET (which fires on mount, before the play function).
+  beforeEach: () => {
+    supportCasesPermissions.reset();
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Reset spy', async () => {
+      toggleSupportCasesSpy.mockClear();
+    });
+
+    await step('Verify Manage Support Cases column is visible', async () => {
+      await expect(canvas.findByText(FIRST_USER.username)).resolves.toBeInTheDocument();
+
+      const header = await canvas.findByText('Manage Support Cases');
+      await expect(header).toBeInTheDocument();
+    });
+
+    await step('Toggle on for a user without the permission', async () => {
+      const toggle = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle manage support cases for ${FIRST_USER.username}`, 'i'),
+      });
+      await expect(toggle).not.toBeChecked();
+      await userEvent.click(toggle);
+
+      await waitFor(() => {
+        expect(toggleSupportCasesSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            userId: String(FIRST_USER.external_source_id),
+            grant: true,
+          }),
+        );
+      });
+    });
+
+    await step('Existing permission user has toggle checked', async () => {
+      const adminToggle = await canvas.findByRole('switch', {
+        name: new RegExp(`toggle manage support cases for ${ORG_ADMIN_USER.username}`, 'i'),
+      });
+      await expect(adminToggle).toBeChecked();
+    });
+  },
+};
+
+export const SupportCasesHiddenInITLess: Story = {
+  tags: ['perm:org-admin', 'ff:platform.rbac.common-auth-model', 'sbtest:support-cases-itless'],
+  args: defaultArgs,
+  parameters: {
+    docs: {
+      description: {
+        story: 'In ITLess/FedRAMP environments, the Manage Support Cases column is not rendered.',
+      },
+    },
+    orgAdmin: true,
+    permissions: ['rbac:*:*'],
+    featureFlags: {
+      'platform.rbac.common-auth-model': true,
+      'platform.rbac.itless': true,
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Verify column is hidden in ITLess', async () => {
+      await expect(canvas.findByText(FIRST_USER.username)).resolves.toBeInTheDocument();
+
+      expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
     });
   },
 };

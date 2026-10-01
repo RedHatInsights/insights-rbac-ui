@@ -200,6 +200,11 @@ export default defineMessages({
     description: 'Org. Admin name',
     defaultMessage: 'Org. Admin',
   },
+  manageSupportCases: {
+    id: 'manageSupportCases',
+    description: 'Manage Support Cases column header',
+    defaultMessage: 'Manage Support Cases',
+  },
   userAccessAdmin: {
     id: 'userAccessAdmin',
     description: 'User Access Admin name',
