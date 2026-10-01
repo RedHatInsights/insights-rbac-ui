@@ -11,7 +11,8 @@
   "sourceCatalog": {
     "path": "locales/translation-template.json",
     "adapter": "formatjs-json",
-    "locale": "en"
+    "locale": "en",
+    "useProjectFileImportSettings": true
   },
   "targetAdapter": "formatjs-json",
   "targetLocales": [
