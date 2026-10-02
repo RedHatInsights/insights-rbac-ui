@@ -17,9 +17,9 @@
   "targetAdapter": "formatjs-json",
   "targetLocales": [
     {
-      "phraseLocale": "fr",
-      "repositoryLocale": "fr",
-      "outputPath": "src/locales/fr.json"
+      "phraseLocale": "zh_cn",
+      "repositoryLocale": "zh-CN",
+      "outputPath": "src/locales/zh-CN.json"
     }
   ],
   "completionPolicy": {
