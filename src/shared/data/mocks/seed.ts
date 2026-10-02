@@ -191,6 +191,20 @@ export const USER_JOHN = DEFAULT_USERS[0];
 export const USER_JANE = DEFAULT_USERS[1];
 export const USER_BOB = DEFAULT_USERS[2];
 
+// ---------------------------------------------------------------------------
+// User portal permissions (account API — keyed by external_source_id string)
+// ---------------------------------------------------------------------------
+
+/**
+ * Mapping from external_source_id → portal permissions array.
+ * Drives the GET /account/v1/accounts/{org_id}/users/{user_id} mock.
+ */
+export const DEFAULT_USER_PERMISSIONS: Record<string, string[]> = {
+  [String(USER_JOHN.external_source_id)]: ['portal_download'],
+  [String(USER_JANE.external_source_id)]: ['portal_manage_cases', 'portal_download', 'portal_manage_subscriptions'],
+  [String(USER_BOB.external_source_id)]: ['portal_manage_cases'],
+};
+
 export const GROUP_ADMIN_DEFAULT = DEFAULT_GROUPS[0];
 export const GROUP_SYSTEM_DEFAULT = DEFAULT_GROUPS[1];
 export const GROUP_PLATFORM_ADMINS = DEFAULT_GROUPS[2];

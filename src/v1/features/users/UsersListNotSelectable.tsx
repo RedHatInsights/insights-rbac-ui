@@ -7,6 +7,7 @@ import paths from '../../utilities/pathnames';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import { useCommonAuthModel } from '../../../capabilities/useCommonAuthModel';
+import { useFedRAMPMode } from '../../../capabilities/useFedRAMPMode';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import useUserData from '../../hooks/useUserData';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
@@ -23,6 +24,7 @@ import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { OrgAdminToggle } from './OrgAdminToggle';
 import { ActivateToggle } from './components/ActivateToggle';
+import { SupportCasesToggle } from '../../../shared/components/SupportCasesToggle';
 import pathnames from '../../utilities/pathnames';
 import { useChangeUserStatusMutation, useUsersQuery } from '../../../shared/data/queries/users';
 
@@ -48,13 +50,19 @@ interface User {
   external_source_id?: number | string;
 }
 
-// Column definitions
-const columns = ['org_admin', 'username', 'email', 'first_name', 'last_name', 'status'] as const;
+// Column definitions: base and with support cases
+const baseColumns = ['org_admin', 'username', 'email', 'first_name', 'last_name', 'status'] as const;
+const columnsWithSupportCases = ['org_admin', 'manage_support_cases', 'username', 'email', 'first_name', 'last_name', 'status'] as const;
+
+type BaseColumns = typeof baseColumns;
+type ColumnsWithSupportCases = typeof columnsWithSupportCases;
+type AllColumns = BaseColumns | ColumnsWithSupportCases;
 
 const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLinks, props, usesMetaInURL }) => {
   const intl = useIntl();
   const { orgAdmin } = useUserData();
   const { isEnabled: isCommonAuthModel } = useCommonAuthModel();
+  const isITLess = useFedRAMPMode();
   const userData = useUserData();
   const appNavigate = useAppNavigate();
 
@@ -63,11 +71,15 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
 
+  // Show support cases column only for non-ITLess org admins with common auth model enabled
+  const showSupportCases = isCommonAuthModel && orgAdmin && !isITLess;
+  const columns = showSupportCases ? columnsWithSupportCases : baseColumns;
+
   // Get user ID for row identification
   const getUserId = useCallback((user: User) => user.username, []);
 
   // Table state management - defined early so we can derive queryParams from it
-  const tableState = useTableState<typeof columns, User, 'username'>({
+  const tableState = useTableState<AllColumns, User, 'username'>({
     columns,
     sortableColumns: ['username'] as const,
     getRowId: getUserId,
@@ -79,11 +91,9 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   });
 
   // Derived: Query params calculated from tableState (no useState sync needed)
-  // Uses tableState.apiParams which already has properly formatted orderBy (e.g., '-username' for desc)
   const queryParams = useMemo(() => {
     const statusFilter = tableState.filters.status as string[] | undefined;
 
-    // Map status filter to API status param
     let status: 'enabled' | 'disabled' | 'all' = 'enabled';
     if (statusFilter?.includes('Active') && statusFilter?.includes('Inactive')) {
       status = 'all';
@@ -96,7 +106,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
     return {
       limit: tableState.apiParams.limit,
       offset: tableState.apiParams.offset,
-      orderBy: tableState.apiParams.orderBy, // Includes direction prefix (e.g., '-username')
+      orderBy: tableState.apiParams.orderBy,
       username: (tableState.filters.username as string) || undefined,
       email: (tableState.filters.email as string) || undefined,
       status,
@@ -135,9 +145,10 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   );
 
   // Column configuration
-  const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
+  const columnConfig: ColumnConfigMap<AllColumns> = useMemo(
     () => ({
       org_admin: { label: intl.formatMessage(messages.orgAdministrator) },
+      manage_support_cases: { label: intl.formatMessage(messages.manageSupportCases) },
       username: { label: intl.formatMessage(messages.username), sortable: true },
       email: { label: intl.formatMessage(messages.email) },
       first_name: { label: intl.formatMessage(messages.firstName) },
@@ -148,11 +159,10 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   );
 
   // Cell renderers
-  const cellRenderers: CellRendererMap<typeof columns, User> = useMemo(
+  const cellRenderers: CellRendererMap<AllColumns, User> = useMemo(
     () => ({
       org_admin: (user) => {
         if (isCommonAuthModel) {
-          // external_source_id may be string or number, convert to number for OrgAdminToggle
           const userId = typeof user.external_source_id === 'string' ? Number(user.external_source_id) : user.external_source_id;
           return (
             <OrgAdminToggle
@@ -180,13 +190,24 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
           </Fragment>
         );
       },
+      manage_support_cases: (user) => {
+        const userId = user.external_source_id != null ? String(user.external_source_id) : undefined;
+        return (
+          <SupportCasesToggle
+            key={`support-cases-${user.username}`}
+            userId={userId}
+            username={user.username}
+            isDisabled={!orgAdmin}
+            isActive={user.is_active ?? true}
+          />
+        );
+      },
       username: (user) => (userLinks ? <AppLink to={pathnames['user-detail'].link(user.username)}>{user.username}</AppLink> : user.username),
       email: (user) => user.email,
       first_name: (user) => user.first_name ?? '',
       last_name: (user) => user.last_name ?? '',
       status: (user) => {
         if (isCommonAuthModel && orgAdmin) {
-          // Convert external_source_id to number for ActivateToggle
           const extId = typeof user.external_source_id === 'string' ? Number(user.external_source_id) : user.external_source_id;
           return (
             <ActivateToggle
@@ -343,7 +364,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
           </List>
         </WarningModal>
       )}
-      <TableView<typeof columns, User, 'username'>
+      <TableView<AllColumns, User, 'username'>
         columns={columns}
         columnConfig={columnConfig}
         sortableColumns={['username'] as const}
@@ -377,7 +398,6 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
           context={{
             fetchData: () => {
               appNavigate(paths['users'].link());
-              // Refetch will happen automatically via URL change and onStaleData
             },
           }}
         />
