@@ -119,7 +119,7 @@ export const Default: Story = {
       const modal = await screen.findByRole('dialog');
       await expect(modal).toBeInTheDocument();
 
-      await expect(within(modal).findByText('Test Group')).resolves.toBeInTheDocument();
+      await expect(modal).toHaveTextContent(mockGroup.name);
 
       await expect(within(modal).findByRole('button', { name: /delete/i })).resolves.toBeInTheDocument();
       await expect(within(modal).findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
@@ -183,7 +183,7 @@ export const OpenModal: Story = {
       const modal = await screen.findByRole('dialog');
       await expect(modal).toBeInTheDocument();
 
-      await expect(within(modal).findByText('Test Group')).resolves.toBeInTheDocument();
+      await expect(modal).toHaveTextContent(mockGroup.name);
       await expect(within(modal).findByRole('button', { name: /delete/i })).resolves.toBeInTheDocument();
       await expect(within(modal).findByRole('button', { name: /cancel/i })).resolves.toBeInTheDocument();
     });
@@ -414,7 +414,7 @@ export const DifferentGroup: Story = {
 
     // Should show the different group name
     const modal = await screen.findByRole('dialog');
-    await expect(within(modal).findByText('Marketing Team')).resolves.toBeInTheDocument();
+    await expect(modal).toHaveTextContent('Marketing Team');
   },
 };
 
@@ -471,7 +471,7 @@ export const SpecialCharacters: Story = {
 
     // Should properly display special characters
     const modal = await screen.findByRole('dialog');
-    await expect(within(modal).findByText('Dev & QA Team (2024)')).resolves.toBeInTheDocument();
+    await expect(modal).toHaveTextContent('Dev & QA Team (2024)');
   },
 };
 

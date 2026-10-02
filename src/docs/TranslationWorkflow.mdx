@@ -1,0 +1,60 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Translation Workflow" />
+
+# Translation Workflow
+
+RBAC UI owns its FormatJS source catalog and generated runtime catalogs. The shared [`i18n-tooling`](https://github.com/RedHatInsights/i18n-tooling) repository supplies source-catalog linting, ICU/catalog validation, and reusable Phrase TMS workflows; it does not own this app's Phrase project or credentials.
+
+## Developer workflow
+
+Message definitions live in `src/Messages.js`. After adding or changing a message, regenerate and validate the checked-in catalogs:
+
+```bash
+npm run translations
+npm run translations:validate
+```
+
+`npm run translations` runs extraction, compilation, and aggregation in that order. `npm run translations:validate` runs `frontend-i18n validate-project` with `.github/i18n/catalog-validation.json`. It is read-only: it re-runs each `translations:*` script into a temporary file and fails when a checked-in catalog differs, and it never overwrites catalogs itself.
+
+The catalogs have distinct roles:
+
+| Path                                | Role                                                                |
+| ----------------------------------- | ------------------------------------------------------------------- |
+| `locales/translation-template.json` | FormatJS English source descriptors and translation context         |
+| `src/locales/translations.json`     | Compiled English messages                                           |
+| `src/locales/<locale>.json`         | Phrase-managed target catalog, one flat ID-to-string map per locale |
+| `src/locales/data.json`             | Runtime aggregate keyed by locale; generated from the files above   |
+
+The validation plan checks that:
+
+- extraction matches `locales/translation-template.json`, compilation matches `src/locales/translations.json`, and aggregation matches `src/locales/data.json`;
+- every target locale in `.github/i18n/phrase-tms.json` whose file exists has the same message IDs and ICU arguments as the English source (locales not yet delivered are reported as pending);
+- `src/locales/` holds no JSON file that the plan does not declare.
+
+`npm start`, `npm run start:no-proxy`, and `npm run build` run `translations:prepare` first, compiling English and rebuilding the runtime aggregate. Tests import the checked-in `data.json`, so still commit the regenerated files.
+
+To run `translations:validate` locally, `frontend-i18n` must be on `PATH`. It is not published to npm: build `packages/i18n-pipeline` in an [`i18n-tooling`](https://github.com/RedHatInsights/i18n-tooling) checkout and add a wrapper such as `exec node <i18n-tooling>/packages/i18n-pipeline/dist/cli.js "$@"`. CI builds the CLI from the pinned reusable workflow source.
+
+## Pull-request validation
+
+`.github/workflows/i18n-validation.yml` calls the reusable validation workflow from `i18n-tooling` at an immutable commit and passes the same plan through `validation-config`. Its source-catalog lint is scoped to `src/Messages.js`, the canonical descriptor file used by FormatJS extraction; a broad scan currently flags existing imported/dynamic descriptors and inline messages. Keep new translatable messages in the central map. Expanding lint to all source files requires migrating those patterns first. ICU syntax failures are aggregated with message IDs, pattern-relative line/column locations, and readable parser diagnostics. Keep the workflow ref pinned to a reviewed SHA rather than a moving branch, and bump it when the plan needs a newer `validate-project` feature.
+
+## Phrase pilot setup
+
+`i18n-tooling` provides a generic schema and reusable workflows; the Phrase project and credentials belong to this consumer repository. `.github/i18n/phrase-tms.json` is configured for the RBAC UI project, its `eu` region, and the approved target-locale mappings. Keep Phrase and repository locale identifiers distinct: for example, Phrase `zh_cn` maps to repository locale `zh-CN`.
+
+1. `.github/i18n/phrase-tms.json` sets `sourceCatalog.useProjectFileImportSettings: true`, so each job uses the Phrase project's existing file-import settings directly. Configure the project settings for `fileFormat: "json"` with **Parse ICU messages** (`json.icuSubFilter: true`), translation of FormatJS `defaultMessage`, and `description` retained as context. This avoids creating a separate import-settings record. The pilot targets only `zh_cn` first so ICU import can be verified before submitting the other locales. See [Phrase JSON TMS settings](https://support.phrase.com/hc/en-us/articles/5709604147100--JSON-JavaScript-Object-Notation-TMS) and the [Create Job API](https://developers.phrase.com/en/api/tms/v1/job/create-job).
+
+   **Inline-tag caveat:** Phrase TMS JSON skips ICU parsing for segments containing inline elements. Five messages previously combined ICU plural syntax with FormatJS `<b>`/`<strong>` tags; they now omit those tags to allow ICU parsing. Test `removeServiceAccountsText` with the selected settings; HTML subfilter or regex-to-tag conversion may protect tags but does not guarantee ICU parsing for any messages that still combine ICU syntax and inline elements. The Phrase Strings Connector CDATA option does not apply to this direct JSON upload.
+2. Keep the project UID, region, locale mappings, and output paths in `.github/i18n/phrase-tms.json`; never put credentials there. Store Phrase credentials only in the protected `phrase-pilot` GitHub Actions environment. Prefer `PHRASE_SERVICE_ACCOUNT_CLIENT_ID` and `PHRASE_SERVICE_ACCOUNT_CLIENT_SECRET`; use `PHRASE_PLATFORM_API_TOKEN` only for an approved pilot. Do not use `secrets: inherit`.
+3. Before pushing a pilot marker, configure the protected `phrase-pilot` environment with credentials, allow the test branch, and require approval for live runs. The Phrase submit/reconcile callers are temporarily guarded to that branch, and submit's `base-ref` targets it.
+4. GitHub only permits `workflow_dispatch` when the caller exists on the default branch. During this pilot, the callers have temporary branch-scoped `push` triggers for distinct markers: `.github/i18n/phrase-submit.pilot` and `.github/i18n/phrase-reconcile.pilot`. Change a marker's content to a unique value and push on the pilot branch to trigger its corresponding workflow; the markers are separate so submitting cannot accidentally trigger reconciliation. No schedule is configured. Once a catalog-validation failure is stored as `validation-failed`, correct the segment in the existing Phrase job and rerun reconciliation; it re-exports and validates the same job without creating a new batch. Older completed batches store validation failures as `failed` and need a one-time state migration to `validation-failed` before in-place retry. Use `retry-failed: true` on submit for a failed Phrase job/import or when you explicitly want a fresh attempt; only failed locales are resubmitted and successful locale PRs are preserved.
+5. Review locale PRs normally. They are not auto-merged. `GITHUB_TOKEN`-created PR checks may need maintainer approval. The PR build regenerates `src/locales/data.json` from the new locale file.
+6. Before merging, remove both pilot push triggers and marker files in the same change, restore both guards and submit's `base-ref` to `master` (see workflow FIXME comments), and restrict the environment back to `master`. Once the callers are on the default branch, use manual dispatch instead.
+
+All three callers pin `i18n-tooling` at `42ea8130bdaa694a0302d071ca2336533e12a95d`, which includes detailed ICU syntax diagnostics and in-place retries for completed batches with catalog-validation failures. The submit/reconcile branch guards and submit `base-ref` are temporary pilot settings; restore them to `master` after testing. Reconcile and locale PR validation use the consumer repository's normal permissions and checks.
+
+## Runtime locale support
+
+`src/locales/locale.ts` currently selects `en` unconditionally. The Phrase workflow can deliver and validate target catalogs, and the aggregate can contain them, but the UI will continue displaying English until the app selects a user's locale. Treat runtime locale selection and its tests as a separate product change; do not claim a locale is live based only on a translated catalog PR.

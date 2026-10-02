@@ -1,0 +1,32 @@
+name: Submit translations to Phrase
+
+on:
+  workflow_dispatch:
+  # TEMPORARY POC TRIGGER — DROP THIS COMMIT BEFORE MERGE. workflow_dispatch needs
+  # this caller on the default branch; changing this marker explicitly tests submit
+  # from either allowlisted pilot branch without running it on ordinary pushes.
+  push:
+    branches:
+      - RHCLOUD-51618
+      - RHCLOUD-51618-remove-icu-html-tags
+    paths:
+      - .github/i18n/phrase-submit.pilot
+
+permissions: {}
+
+jobs:
+  submit:
+    # TEMPORARY POC GUARD — restore to master before merge.
+    if: >-
+      github.ref == 'refs/heads/RHCLOUD-51618' ||
+      github.ref == 'refs/heads/RHCLOUD-51618-remove-icu-html-tags'
+    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-submit.yml@42ea8130bdaa694a0302d071ca2336533e12a95d
+    with:
+      config-path: .github/i18n/phrase-tms.json
+      environment: phrase-pilot
+      base-ref: ${{ github.ref_name }}
+      retry-failed: true
+    secrets:
+      PHRASE_PLATFORM_API_TOKEN: ${{ secrets.PHRASE_PLATFORM_API_TOKEN }}
+    permissions:
+      contents: write

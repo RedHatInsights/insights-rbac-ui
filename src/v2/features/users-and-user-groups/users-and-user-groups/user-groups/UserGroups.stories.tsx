@@ -570,7 +570,7 @@ export const DeleteModalIntegration: StoryObj<typeof meta> = {
 
       // Wait for modal content to be fully loaded
       await expect(modalContent.findByText('Delete user group?')).resolves.toBeInTheDocument();
-      await expect(modalContent.findByText(mockGroups[1].name)).resolves.toBeInTheDocument();
+      await expect(modalContent.findByText((text) => text.includes(mockGroups[1].name))).resolves.toBeInTheDocument();
 
       // Check the confirmation checkbox (required by withCheckbox prop)
       const checkbox = await modalContent.findByRole('checkbox');

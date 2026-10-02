@@ -1602,11 +1602,6 @@ export default defineMessages({
     description: 'View Default Groups link',
     defaultMessage: 'View your default groups',
   },
-  recommendedContentTitle: {
-    id: 'recommendedContentTitle',
-    description: 'Recommended Content title',
-    defaultMessage: 'Recommended content',
-  },
   recommendedContentItem1: {
     id: 'recommendedContentItem1',
     description: 'Recommended content',
@@ -1755,8 +1750,7 @@ export default defineMessages({
   removeServiceAccountsText: {
     id: 'removeServiceAccountsText',
     description: 'Remove service accounts description',
-    defaultMessage:
-      '{count, plural, one {<b>{name}</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.',
+    defaultMessage: '{count, plural, one {{name} service account} other {# service accounts}} will be removed from {group} group.',
   },
   remove: {
     id: 'remove',
@@ -2634,7 +2628,7 @@ export default defineMessages({
     id: 'roleWilBeRemovedWithPermissions',
     description: 'Role will be removed with permissions message',
     defaultMessage:
-      "{count, plural, one {The} other {These}} <strong>{name}</strong> {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
+      "{count, plural, one {The} other {These}} {name} {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
   },
   defineAtLeastOneResource: {
     id: 'defineAtLeastOneResource',
@@ -3166,7 +3160,7 @@ export default defineMessages({
   deleteUserGroupModalBody: {
     id: 'deleteUserGroupModalBody',
     description: 'Modal body text for delete user group',
-    defaultMessage: 'Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.',
+    defaultMessage: 'Deleting {count, plural, one {the {name} user group} other {{count} user groups}} will impact user access configuration.',
   },
   addToUserGroup: {
     id: 'addToUserGroup',
@@ -3227,7 +3221,7 @@ export default defineMessages({
     id: 'deleteCustomRoleModalBody',
     description: 'Modal body text for deleting custom role',
     defaultMessage:
-      'Deleting the {count, plural, one {the <b>{name}</b> role} other {{count} roles}} may remove acess to certain user groups in your organization',
+      'Deleting the {count, plural, one {the {name} role} other {{count} roles}} may remove acess to certain user groups in your organization',
   },
   deleteRoleConfirm: {
     id: 'deleteRoleConfirm',
@@ -3268,7 +3262,7 @@ export default defineMessages({
     id: 'deleteWorkspaceModalBody',
     description: 'Modal body text for deleting a workspace',
     defaultMessage:
-      '{count, plural, one {<b>{name}</b> workspace and all its} other {<b>{count} workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.',
+      '{count, plural, one {{name} workspace and all its} other {{count} workspaces and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.',
   },
   workspaceNotEmptyWarning: {
     id: 'workspaceNotEmptyWarning',

@@ -1,5 +1,6 @@
 const { program } = require('commander');
 const fs = require('fs');
+const path = require('path');
 const { sync: globSync } = require('glob');
 const last = require('lodash/last');
 
@@ -11,21 +12,23 @@ program
   .option('-p, --pattern <value>', 'file pattern')
   .option('-I, --ignore-files <value>', 'array of ignored files')
   .option('-L, --lang-pattern <value>', 'pattern to look for files with languages')
-  .option('-l, --lang-dir <dir>', 'folder with languages');
+  .option('-l, --lang-dir <dir>', 'folder with languages')
+  .option('-o, --output <path>', 'output file (default: <lang-dir>/data.json)');
 
 const rootFolder = `${process.cwd()}/`;
 
 program.parse(process.argv);
-if (program.ignoreFiles) {
-  IGNORED = program.ignoreFiles.split(',');
+const options = program.opts();
+if (options.ignoreFiles) {
+  IGNORED = options.ignoreFiles.split(',');
 }
 
-if (program.langDir) {
-  LANG_DIR = program.langDir;
+if (options.langDir) {
+  LANG_DIR = options.langDir;
 }
 
-if (program.langPattern) {
-  LANG_PATTERN = `${LANG_DIR}${program.langPattern}`;
+if (options.langPattern) {
+  LANG_PATTERN = `${LANG_DIR}${options.langPattern}`;
 } else {
   LANG_PATTERN = `${LANG_DIR}/*.json`;
 }
@@ -50,4 +53,5 @@ const mergedTranslations = globSync(`${rootFolder}${LANG_PATTERN}`)
 
 // Merge aggregated default messages with the translated json files and
 // write the messages to this directory
-fs.writeFileSync(`${rootFolder}${LANG_DIR}data.json`, JSON.stringify({ ...mergedTranslations }, null, 2));
+const outputPath = options.output ? path.resolve(options.output) : `${rootFolder}${LANG_DIR}data.json`;
+fs.writeFileSync(outputPath, JSON.stringify({ ...mergedTranslations }, null, 2));

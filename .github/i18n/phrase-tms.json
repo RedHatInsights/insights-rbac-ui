@@ -1,0 +1,28 @@
+{
+  "provider": "phrase",
+  "project": {
+    "uid": "yWWEIEQgpNVK650YBQhGx6",
+    "region": "eu"
+  },
+  "state": {
+    "branch": "i18n-tms-state",
+    "directory": ".github/i18n-state/plain-smoke-batches"
+  },
+  "sourceCatalog": {
+    "path": ".github/i18n-test/phrase-plain-smoke.source.json",
+    "adapter": "formatjs-json",
+    "locale": "en",
+    "useProjectFileImportSettings": true
+  },
+  "targetAdapter": "formatjs-json",
+  "targetLocales": [
+    {
+      "phraseLocale": "fr",
+      "repositoryLocale": "fr",
+      "outputPath": ".github/i18n-test/phrase-plain-smoke.fr.json"
+    }
+  ],
+  "completionPolicy": {
+    "default": "per-locale"
+  }
+}

@@ -1,0 +1,26 @@
+name: Validate i18n catalogs
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+permissions: {}
+
+jobs:
+  validate:
+    permissions:
+      contents: read
+    uses: RedHatInsights/i18n-tooling/.github/workflows/i18n-validate.yml@42ea8130bdaa694a0302d071ca2336533e12a95d
+    with:
+      node-version: '22'
+      package-manager: npm
+      validation-config: .github/i18n/catalog-validation.json
+      catalog-adapter: formatjs-json
+      catalog-path: locales/translation-template.json
+      catalog-role: source
+      catalog-locale: en
+      source-glob: src/Messages.js

@@ -1,0 +1,14 @@
+{
+  "cancel": {
+    "defaultMessage": "Cancel",
+    "description": "Cancel button text"
+  },
+  "save": {
+    "defaultMessage": "Save",
+    "description": "Save button text"
+  },
+  "close": {
+    "defaultMessage": "Close",
+    "description": "Close button text"
+  }
+}

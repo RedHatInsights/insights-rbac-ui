@@ -156,7 +156,7 @@ const verifyDeleteModal = async (groupName: string): Promise<ScopedQueries> => {
 
   // Verify modal content shows group info
   await expect(modalScope.findByText(/delete.*user group/i)).resolves.toBeInTheDocument();
-  await expect(modalScope.findByText(groupName)).resolves.toBeInTheDocument();
+  await expect(modalScope.findByText((text) => text.includes(groupName))).resolves.toBeInTheDocument();
 
   return modalScope;
 };
@@ -242,7 +242,12 @@ Tests the complete "Delete user group" workflow:
       await waitFor(() => {
         expect(within(document.body).queryByRole('dialog')).toBeNull();
       });
-      expect(listGroupsSpy).toHaveBeenCalled();
+      await waitFor(
+        () => {
+          expect(listGroupsSpy).toHaveBeenCalled();
+        },
+        { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT },
+      );
       await waitFor(
         async () => {
           const tableAfter = await getUserGroupsTable(canvas);
