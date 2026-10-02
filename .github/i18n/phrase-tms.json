@@ -6,10 +6,10 @@
   },
   "state": {
     "branch": "i18n-tms-state",
-    "directory": ".github/i18n-state/batches"
+    "directory": ".github/i18n-state/plain-smoke-batches"
   },
   "sourceCatalog": {
-    "path": "locales/translation-template.json",
+    "path": ".github/i18n-test/phrase-plain-smoke.source.json",
     "adapter": "formatjs-json",
     "locale": "en",
     "useProjectFileImportSettings": true
@@ -17,9 +17,9 @@
   "targetAdapter": "formatjs-json",
   "targetLocales": [
     {
-      "phraseLocale": "zh_cn",
-      "repositoryLocale": "zh-CN",
-      "outputPath": "src/locales/zh-CN.json"
+      "phraseLocale": "fr",
+      "repositoryLocale": "fr",
+      "outputPath": ".github/i18n-test/phrase-plain-smoke.fr.json"
     }
   ],
   "completionPolicy": {
