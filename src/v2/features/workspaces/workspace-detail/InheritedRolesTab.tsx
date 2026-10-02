@@ -7,7 +7,7 @@ import { useRoleBindingsAccess } from '../../../hooks/useRbacAccess';
 import { WorkspaceDetailLayout } from './WorkspaceDetailLayout';
 import { InheritedGroupAssignmentsTable } from './components/InheritedGroupAssignmentsTable';
 import { useWorkspaceDetailData } from './useWorkspaceDetailData';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 export const InheritedRolesTab: React.FC = () => {
   const intl = useIntl();
@@ -36,8 +36,8 @@ export const InheritedRolesTab: React.FC = () => {
     >
       {roleBindingDenied ? (
         <UnauthorizedAccess
-          serviceName={intl.formatMessage(messages.unauthorizedAccessServiceName)}
-          bodyText={intl.formatMessage(messages.unauthorizedAccessBodyText)}
+          serviceName={intl.formatMessage(commonMessages.unauthorizedAccessServiceName)}
+          bodyText={intl.formatMessage(commonMessages.unauthorizedAccessBodyText)}
         />
       ) : (
         <InheritedGroupAssignmentsTable

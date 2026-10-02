@@ -21,10 +21,11 @@ import SetName from './SetName';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import { SilentErrorBoundary } from '../../../../shared/components/ui-states/SilentErrorBoundary';
-import messages from '../../../../Messages';
+
 import paths from '../../../utilities/pathnames';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import type Schema from '@data-driven-forms/react-form-renderer/common-types/schema';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface PaginationProps {
   limit: number;
@@ -118,7 +119,11 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
     if (!wizardContextValue.success) {
       addNotification({
         variant: 'warning',
-        title: intl.formatMessage(messages.creatingRoleCanceled),
+        title: intl.formatMessage({
+          id: 'creatingRoleCanceled',
+          defaultMessage: 'Creating role was canceled by the user',
+          description: 'Creating role canceled notification message',
+        }),
       });
     }
 
@@ -184,8 +189,18 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
       .catch((error: { errors?: Array<{ detail?: string }> }) => {
         addNotification({
           variant: 'danger',
-          title: intl.formatMessage(messages.createRoleErrorTitle),
-          description: error?.errors?.[0]?.detail ?? intl.formatMessage(messages.createRoleErrorDescription),
+          title: intl.formatMessage({
+            id: 'createRoleErrorTitle',
+            defaultMessage: 'Failed adding role',
+            description: 'Create role error notification title',
+          }),
+          description:
+            error?.errors?.[0]?.detail ??
+            intl.formatMessage({
+              id: 'createRoleErrorDescription',
+              defaultMessage: 'The role was not added successfuly.',
+              description: 'Create role error notification description',
+            }),
         });
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
         onClose();
@@ -200,19 +215,26 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
     <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
       <SilentErrorBoundary silentErrorString="focus-trap">
         <WarningModal
-          title={intl.formatMessage(messages.exitItemCreation, { item: intl.formatMessage(messages.role).toLocaleLowerCase() })}
-          confirmButtonLabel={intl.formatMessage(messages.discard)}
+          title={intl.formatMessage(
+            { id: 'exitItemCreation', defaultMessage: 'Exit {item} creation?', description: 'Exit item creation modal title' },
+            { item: intl.formatMessage(commonMessages.role).toLocaleLowerCase() },
+          )}
+          confirmButtonLabel={intl.formatMessage(commonMessages.discard)}
           isOpen={cancelWarningVisible}
           onClose={() => setCancelWarningVisible(false)}
           onConfirm={onCancel}
         >
-          {intl.formatMessage(messages.discardedInputsWarning)}
+          {intl.formatMessage({
+            id: 'discardedInputsWarning',
+            defaultMessage: 'All inputs will be discarded',
+            description: 'Warning saying that all inputs will be discarded',
+          })}
         </WarningModal>
       </SilentErrorBoundary>
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (
           <Wizard
-            title={intl.formatMessage(messages.createRole)}
+            title={intl.formatMessage(commonMessages.createRole)}
             isOpen
             onClose={onClose}
             steps={[

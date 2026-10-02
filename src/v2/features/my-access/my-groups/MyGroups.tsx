@@ -5,8 +5,9 @@ import { TableView, useTableState } from '@redhat-cloud-services/frontend-compon
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { type Group, useGroupsQuery } from '../../../../shared/data/queries/groups';
 import { useIdentity } from '../../../../shared/hooks/useIdentity';
-import messages from '../../../../Messages';
+
 import { MyGroupDrawer } from './MyGroupDrawer';
+import { commonMessages } from '../../../../shared/messages/common';
 
 const columns = ['name', 'description'] as const;
 type SortableColumnId = 'name';
@@ -21,8 +22,8 @@ const MyGroups: React.FunctionComponent = () => {
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.groupName), sortable: true },
-      description: { label: intl.formatMessage(messages.description) },
+      name: { label: intl.formatMessage({ id: 'groupName', defaultMessage: 'Group name', description: 'Group name label' }), sortable: true },
+      description: { label: intl.formatMessage(commonMessages.description) },
     }),
     [intl],
   );
@@ -44,8 +45,8 @@ const MyGroups: React.FunctionComponent = () => {
       {
         type: 'text' as const,
         id: 'name',
-        label: intl.formatMessage(messages.groupName),
-        placeholder: `Filter by ${intl.formatMessage(messages.groupName).toLowerCase()}`,
+        label: intl.formatMessage({ id: 'groupName', defaultMessage: 'Group name', description: 'Group name label' }),
+        placeholder: `Filter by ${intl.formatMessage({ id: 'groupName', defaultMessage: 'Group name', description: 'Group name label' }).toLowerCase()}`,
       },
     ],
     [intl],

@@ -3,7 +3,6 @@ import { EmptyState, EmptyStateActions, EmptyStateFooter, EmptyStateVariant } fr
 import CheckCircleIcon from '@patternfly/react-icons/dist/js/icons/check-circle-icon';
 import React from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
 
 interface RoleCreationSuccessProps {
   onClose: () => void;
@@ -17,23 +16,31 @@ export const RoleCreationSuccess: React.FC<RoleCreationSuccessProps> = ({ onClos
     <EmptyState
       headingLevel="h4"
       icon={CheckCircleIcon}
-      titleText={<>{intl.formatMessage(messages.roleCreatedSuccessfully)}</>}
+      titleText={
+        <>
+          {intl.formatMessage({
+            id: 'roleCreatedSuccessfully',
+            defaultMessage: 'You have successfully created a new role',
+            description: 'Role created successfully message',
+          })}
+        </>
+      }
       variant={EmptyStateVariant.lg}
     >
       <EmptyStateFooter>
         <Button onClick={onClose} variant="primary">
-          {intl.formatMessage(messages.exit)}
+          {intl.formatMessage({ id: 'exit', defaultMessage: 'Exit', description: 'Exit button text' })}
         </Button>
         {(onCreateAnother || onAddToGroup) && (
           <EmptyStateActions>
             {onCreateAnother && (
               <Button onClick={onCreateAnother} variant="link">
-                {intl.formatMessage(messages.createAnotherRole)}
+                {intl.formatMessage({ id: 'createAnotherRole', defaultMessage: 'Create another role', description: 'Create another role message' })}
               </Button>
             )}
             {onAddToGroup && (
               <Button onClick={onAddToGroup} variant="link">
-                {intl.formatMessage(messages.addRoleToGroup)}
+                {intl.formatMessage({ id: 'addRoleToGroup', defaultMessage: 'Add role to group', description: 'Add role to group label' })}
               </Button>
             )}
           </EmptyStateActions>

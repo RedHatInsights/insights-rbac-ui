@@ -4,12 +4,13 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+
 import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
 import { InlineWorkspacePicker } from './managed-selector/InlineWorkspacePicker';
 import { type TreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
 import { getWorkspaceDescendantIds } from './managed-selector/WorkspaceTreeBuilder';
+import { commonMessages } from '../../../../shared/messages/common';
 
 export interface MoveWorkspaceDialogProps {
   isOpen: boolean;
@@ -69,9 +70,21 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
   const tooltipOverrides = useMemo<Map<string, string>>(() => {
     const map = new Map<string, string>();
     if (!workspaceToMove.id) return map;
-    const selfTooltip = intl.formatMessage(messages.moveWorkspaceDisabledSelf);
-    const descendantTooltip = intl.formatMessage(messages.moveWorkspaceDisabledDescendant);
-    const currentParentTooltip = intl.formatMessage(messages.moveWorkspaceDisabledCurrentParent);
+    const selfTooltip = intl.formatMessage({
+      id: 'moveWorkspaceDisabledSelf',
+      defaultMessage: 'This is the workspace being moved',
+      description: 'Tooltip on the workspace being moved in the destination tree',
+    });
+    const descendantTooltip = intl.formatMessage({
+      id: 'moveWorkspaceDisabledDescendant',
+      defaultMessage: 'Cannot move a workspace under itself',
+      description: 'Tooltip on descendants of the workspace being moved',
+    });
+    const currentParentTooltip = intl.formatMessage({
+      id: 'moveWorkspaceDisabledCurrentParent',
+      defaultMessage: 'This workspace is already the current parent',
+      description: 'Tooltip on the current parent workspace in the move destination tree',
+    });
     map.set(workspaceToMove.id, selfTooltip);
     if (workspaceToMove.parent_id) {
       map.set(workspaceToMove.parent_id, currentParentTooltip);
@@ -96,19 +109,26 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
       ouiaId="move-workspace-modal"
       isOpen={isOpen}
       variant={ModalVariant.medium}
-      title={intl.formatMessage(messages.moveWorkspaceTitle, { name: workspaceToMove.name })}
+      title={intl.formatMessage(
+        { id: 'moveWorkspaceTitle', defaultMessage: 'Move "{name}"', description: 'Title for the move workspace dialog' },
+        { name: workspaceToMove.name },
+      )}
       onClose={onClose}
       actions={[
         <Button key="submit" variant="primary" onClick={handleSubmit} isDisabled={isSubmitDisabled} isLoading={isSubmitting}>
-          {intl.formatMessage(messages.submit)}
+          {intl.formatMessage({ id: 'submit', defaultMessage: 'Submit', description: 'Submit button text' })}
         </Button>,
         <Button key="cancel" variant="link" onClick={onClose} isDisabled={isSubmitting}>
-          {intl.formatMessage(messages.cancel)}
+          {intl.formatMessage(commonMessages.cancel)}
         </Button>,
       ]}
     >
       <Content component="p" className="pf-v6-u-mb-md">
-        {intl.formatMessage(messages.moveWorkspaceSelectDestination)}
+        {intl.formatMessage({
+          id: 'moveWorkspaceSelectDestination',
+          defaultMessage: 'Select a new parent workspace. The workspace will inherit access control settings from the selected destination.',
+          description: 'Instructions shown above the tree in the move workspace dialog',
+        })}
       </Content>
       <InlineWorkspacePicker
         requiredPermission="create"

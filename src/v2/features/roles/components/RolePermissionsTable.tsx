@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import Messages from '../../../../Messages';
+
 // eslint-disable-next-line experience-ui/require-use-table-state -- display-only table from props, no server state
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../shared/messages/common';
 
 export interface PermissionRow {
   permission: string;
@@ -24,9 +25,9 @@ export const RolePermissionsTable: React.FunctionComponent<RolePermissionsTableP
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      application: { label: intl.formatMessage(Messages.application) },
-      resource: { label: intl.formatMessage(Messages.resourceType) },
-      operation: { label: intl.formatMessage(Messages.operation) },
+      application: { label: intl.formatMessage(commonMessages.application) },
+      resource: { label: intl.formatMessage(commonMessages.resourceType) },
+      operation: { label: intl.formatMessage(commonMessages.operation) },
     }),
     [intl],
   );

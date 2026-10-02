@@ -3,9 +3,9 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React from 'react';
 import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
-import providerMessages from '../../../../locales/data.json';
+import providerMessages from '../../../../locales/translations.json';
 import { locale } from '../../../../locales/locale';
-import messages from '../../../../Messages';
+
 import InputHelpPopover from '../../../../shared/components/forms/InputHelpPopover';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
@@ -53,7 +53,7 @@ export interface CreateWorkspaceFormValues {
  */
 export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceNames: string[] = [], skipParentStep = false) => {
   const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
 
   return {
     fields: [
@@ -66,10 +66,14 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
         inModal: true,
         showTitles: true,
         container: getModalContainer(),
-        title: intl.formatMessage(messages.createNewWorkspace),
+        title: intl.formatMessage({
+          id: 'createNewWorkspace',
+          defaultMessage: 'Create new workspace',
+          description: 'Create newworkspace action label',
+        }),
         fields: [
           {
-            title: intl.formatMessage(messages.workspaceDetails),
+            title: intl.formatMessage({ id: 'workspaceDetails', defaultMessage: 'Workspace details', description: 'Workspace details label' }),
             showTitle: false,
             name: 'details',
             buttons: WizardButtons,
@@ -79,18 +83,26 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                 name: 'details-title',
                 component: componentTypes.PLAIN_TEXT,
                 className: 'pf-v6-c-title pf-m-xl',
-                label: intl.formatMessage(messages.workspaceDetailsTitle),
+                label: intl.formatMessage({
+                  id: 'workspaceDetailsTitle',
+                  defaultMessage: 'Provide details for a workspace',
+                  description: 'Workspace details step title',
+                }),
               },
               {
                 name: 'details-description',
                 component: componentTypes.PLAIN_TEXT,
                 className: 'pf-v6-u-my-md',
-                label: intl.formatMessage(messages.workspaceDetailsDescription),
+                label: intl.formatMessage({
+                  id: 'workspaceDetailsDescription',
+                  defaultMessage: 'Complete the fields to create a workspace.',
+                  description: 'Workspace details step description',
+                }),
               },
               {
                 name: 'workspace-name',
                 component: componentTypes.TEXT_FIELD,
-                label: intl.formatMessage(messages.workspaceName),
+                label: intl.formatMessage({ id: 'workspaceName', defaultMessage: 'Workspace name', description: 'Workspace name label' }),
                 isRequired: true,
                 FormGroupProps: {
                   labelIcon: (
@@ -98,11 +110,14 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                       bodyContent={
                         <Content component="p">
                           <FormattedMessage
-                            id={messages.workspaceNamingGuidelines.id}
-                            defaultMessage={messages.workspaceNamingGuidelines.defaultMessage}
+                            id={'workspaceNamingGuidelines'}
+                            defaultMessage={
+                              'Use clear, descriptive workspace names like "Production North America" or "Project-X" to organize assets, control access, and simplify management.{link}'
+                            }
                             values={{
                               link: '', // RHCLOUD-40659: Temporarily hidden link until Learn More section is ready
                             }}
+                            description={'Workspace naming guidelines hint'}
                           />
                         </Content>
                       }
@@ -121,7 +136,13 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                   (value: string) => {
                     if (!value) return undefined;
                     const isDuplicate = existingWorkspaceNames.some((name) => name.toLowerCase() === value.toLowerCase());
-                    return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
+                    return isDuplicate
+                      ? intl.formatMessage({
+                          id: 'workspaceNameTaken',
+                          defaultMessage: 'Workspace name already taken',
+                          description: 'Workspace name taken error title',
+                        })
+                      : undefined;
                   },
                 ],
               },
@@ -149,11 +170,26 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
               {
                 name: 'workspace-description',
                 component: componentTypes.TEXTAREA,
-                label: intl.formatMessage(messages.workspaceDescription),
+                label: intl.formatMessage({
+                  id: 'workspaceDescription',
+                  defaultMessage: 'Workspace description',
+                  description: 'Create newworkspace action label',
+                }),
                 FormGroupProps: {
                   labelIcon: (
                     <InputHelpPopover
-                      bodyContent={<Content component="p">{intl.formatMessage(messages.workspaceDescriptionMaxLength, { count: 255 })}</Content>}
+                      bodyContent={
+                        <Content component="p">
+                          {intl.formatMessage(
+                            {
+                              id: 'workspaceDescriptionMaxLength',
+                              defaultMessage: 'The first {count} characters will appear in the description field.',
+                              description: 'Workspace description max length helper text',
+                            },
+                            { count: 255 },
+                          )}
+                        </Content>
+                      }
                       field="workspace description"
                     />
                   ),
@@ -182,7 +218,11 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
             ? []
             : [
                 {
-                  title: intl.formatMessage(messages.selectParentWorkspace),
+                  title: intl.formatMessage({
+                    id: 'selectParentWorkspace',
+                    defaultMessage: 'Select parent workspace',
+                    description: 'Select parent workspace wizard step title',
+                  }),
                   showTitle: false,
                   name: 'select-parent',
                   buttons: WizardButtons,
@@ -203,7 +243,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                 },
               ]),
           {
-            title: intl.formatMessage(messages.selectFeatures),
+            title: intl.formatMessage({ id: 'selectFeatures', defaultMessage: 'Select feature(s)', description: 'Select features label' }),
             name: 'select-features',
             buttons: WizardButtons,
             nextStep: ({ values }: { values: CreateWorkspaceFormValues }) => {
@@ -231,7 +271,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
             title: feature.label,
             showTitle: false,
             buttons: WizardButtons,
-            substepOf: intl.formatMessage(messages.earMark),
+            substepOf: intl.formatMessage({ id: 'earMark', defaultMessage: 'Ear mark', description: 'Ear mark label' }),
             nextStep: ({ values }: { values: CreateWorkspaceFormValues }) => {
               const currIndex = values['workspace-features'].indexOf(feature.value);
               return currIndex < values['workspace-features'].length - 1 ? `ear-mark-${values['workspace-features'][currIndex + 1]}` : 'review';
@@ -247,7 +287,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
           })),
           {
             name: 'review',
-            title: intl.formatMessage(messages.review),
+            title: intl.formatMessage({ id: 'review', defaultMessage: 'Review', description: 'Review label' }),
             showTitle: false,
             buttons: WizardButtons,
             fields: [

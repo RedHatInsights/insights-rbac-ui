@@ -4,12 +4,13 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import React, { useMemo } from 'react';
-import messages from '../../../../../../Messages';
+
 import { useIntl } from 'react-intl';
 import { type RoleBinding, useGroupRoleBindingsQuery } from '../../../../../../v2/data/queries/roleBindings';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface GroupRolesViewProps {
   groupId: string;
@@ -23,8 +24,8 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.roles) },
-      workspace: { label: intl.formatMessage(messages.workspace) },
+      name: { label: intl.formatMessage(commonMessages.roles) },
+      workspace: { label: intl.formatMessage({ id: 'workspace', defaultMessage: 'Workspace', description: 'Workspace singular label' }) },
     }),
     [intl],
   );
@@ -58,7 +59,13 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
 
   const emptyState = (
     <EmptyState headingLevel="h4" icon={KeyIcon} titleText="No roles found" variant="sm">
-      <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
+      <EmptyStateBody>
+        {intl.formatMessage({
+          id: 'groupNoRolesAssigned',
+          defaultMessage: 'This group currently has no roles assigned to it.',
+          description: 'Message when group has no roles assigned',
+        })}
+      </EmptyStateBody>
     </EmptyState>
   );
 

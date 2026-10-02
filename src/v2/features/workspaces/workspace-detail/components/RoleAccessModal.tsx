@@ -19,7 +19,7 @@ import { useRoleBindingsQuery, useUpdateGroupRolesMutation, useWorkspaceQuery } 
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
-import messages from '../../../../../Messages';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -123,7 +123,10 @@ export const RoleAccessModal: React.FC = () => {
       aria-labelledby="role-access-modal-title"
       aria-describedby="role-access-modal-body"
     >
-      <ModalHeader title={dataReady ? intl.formatMessage(messages.editAccess) : ''} labelId="role-access-modal-title" />
+      <ModalHeader
+        title={dataReady ? intl.formatMessage({ id: 'editAccess', defaultMessage: 'Edit access', description: 'Edit access action text' }) : ''}
+        labelId="role-access-modal-title"
+      />
       <ModalBody id="role-access-modal-body">
         {!dataReady && (
           <div className="pf-v6-u-text-align-center pf-v6-u-py-2xl">
@@ -187,10 +190,13 @@ export const RoleAccessModalContent: React.FC<RoleAccessModalContentProps> = ({
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.role), sortable: true },
-      description: { label: intl.formatMessage(messages.description) },
-      permissions: { label: intl.formatMessage(messages.permissions) },
-      lastModified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+      name: { label: intl.formatMessage(commonMessages.role), sortable: true },
+      description: { label: intl.formatMessage(commonMessages.description) },
+      permissions: { label: intl.formatMessage(commonMessages.permissions) },
+      lastModified: {
+        label: intl.formatMessage(commonMessages.lastModified),
+        sortable: true,
+      },
     }),
     [intl],
   );
@@ -200,7 +206,7 @@ export const RoleAccessModalContent: React.FC<RoleAccessModalContentProps> = ({
       {
         type: 'search',
         id: 'name',
-        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.role) }),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, { key: intl.formatMessage(commonMessages.role) }),
       },
     ],
     [intl],
@@ -297,7 +303,11 @@ export const RoleAccessModalContent: React.FC<RoleAccessModalContentProps> = ({
         <StackItem>
           <p className="pf-v6-u-color-200">
             <FormattedMessage
-              {...messages.grantOrRemoveAccess}
+              id={'grantOrRemoveAccess'}
+              defaultMessage={
+                'Grant or remove access to the <b>{groupName}</b> group within the <b>{workspaceName}</b> workspace by selecting or deselecting roles below.'
+              }
+              description={'Edit access modal instruction text'}
               values={{
                 b: (text: React.ReactNode) => <b>{text}</b>,
                 groupName: group.name,
@@ -317,9 +327,9 @@ export const RoleAccessModalContent: React.FC<RoleAccessModalContentProps> = ({
             cellRenderers={cellRenderers}
             filterConfig={filterConfig}
             selectable
-            emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noRolesFound)} />}
+            emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(commonMessages.noRolesFound)} />}
             emptyStateNoResults={
-              <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noRolesFound)} onClearFilters={tableState.clearAllFilters} />
+              <DefaultEmptyStateNoResults title={intl.formatMessage(commonMessages.noRolesFound)} onClearFilters={tableState.clearAllFilters} />
             }
             variant="compact"
             ariaLabel="Roles selection table"
@@ -328,7 +338,7 @@ export const RoleAccessModalContent: React.FC<RoleAccessModalContentProps> = ({
               <>
                 <ToggleGroup aria-label="Toggle group to switch between all / selected table rows">
                   <ToggleGroupItem
-                    text={intl.formatMessage(messages.all)}
+                    text={intl.formatMessage({ id: 'all', defaultMessage: 'All', description: 'All tab label' })}
                     buttonId={TOGGLE_ALL}
                     isSelected={selectedToggle === TOGGLE_ALL}
                     onChange={handleToggleClick}
@@ -336,7 +346,7 @@ export const RoleAccessModalContent: React.FC<RoleAccessModalContentProps> = ({
                   <span ref={selectedToggleRef}>
                     <ToggleGroupItem
                       id="selected-row-switch"
-                      text={`${intl.formatMessage(messages.selected)} (${selectedCount})`}
+                      text={`${intl.formatMessage({ id: 'selected', defaultMessage: 'Selected', description: 'Selected tab label' })} (${selectedCount})`}
                       buttonId={TOGGLE_SELECTED}
                       isSelected={selectedToggle === TOGGLE_SELECTED}
                       onChange={handleToggleClick}
@@ -347,7 +357,11 @@ export const RoleAccessModalContent: React.FC<RoleAccessModalContentProps> = ({
                 {selectedCount === 0 && (
                   <Tooltip
                     id="selected-row-switch-tooltip"
-                    content={intl.formatMessage(messages.selectAtLeastOneRowToFilter)}
+                    content={intl.formatMessage({
+                      id: 'selectAtLeastOneRowToFilter',
+                      defaultMessage: 'Select at least one row to enable this filter',
+                      description: 'Tooltip shown when selected toggle is disabled because no rows are selected',
+                    })}
                     triggerRef={selectedToggleRef}
                   />
                 )}
@@ -360,10 +374,10 @@ export const RoleAccessModalContent: React.FC<RoleAccessModalContentProps> = ({
       <ModalFooter>
         <ActionGroup>
           <Button variant="primary" onClick={handleUpdate} isDisabled={!hasChanges || selectedCount === 0} isLoading={isUpdating}>
-            {intl.formatMessage(messages.update)}
+            {intl.formatMessage({ id: 'update', defaultMessage: 'Update', description: 'Update button label' })}
           </Button>
           <Button variant="link" onClick={onClose}>
-            {intl.formatMessage(messages.cancel)}
+            {intl.formatMessage(commonMessages.cancel)}
           </Button>
         </ActionGroup>
       </ModalFooter>

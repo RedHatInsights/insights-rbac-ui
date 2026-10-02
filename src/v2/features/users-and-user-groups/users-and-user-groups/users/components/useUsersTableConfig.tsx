@@ -4,7 +4,7 @@ import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import type { User } from '../../../../../../shared/data/queries/users';
-import messages from '../../../../../../Messages';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 export const standardColumns = ['username', 'email', 'first_name', 'last_name', 'is_active', 'is_org_admin'] as const;
 
@@ -45,24 +45,24 @@ export function useUsersTableConfig({
 }: UseUsersTableConfigOptions): UseUsersTableConfigReturn<typeof standardColumns> | UseUsersTableConfigReturn<typeof authModelColumns> {
   const standardColumnConfig: ColumnConfigMap<typeof standardColumns> = useMemo(
     () => ({
-      username: { label: intl.formatMessage(messages.username), sortable: true },
-      email: { label: intl.formatMessage(messages.email) },
-      first_name: { label: intl.formatMessage(messages.firstName) },
-      last_name: { label: intl.formatMessage(messages.lastName) },
-      is_active: { label: intl.formatMessage(messages.status) },
-      is_org_admin: { label: intl.formatMessage(messages.orgAdmin) },
+      username: { label: intl.formatMessage(commonMessages.username), sortable: true },
+      email: { label: intl.formatMessage(commonMessages.email) },
+      first_name: { label: intl.formatMessage(commonMessages.firstName) },
+      last_name: { label: intl.formatMessage(commonMessages.lastName) },
+      is_active: { label: intl.formatMessage(commonMessages.status) },
+      is_org_admin: { label: intl.formatMessage({ id: 'orgAdmin', defaultMessage: 'Org. Admin', description: 'Org. Admin name' }) },
     }),
     [intl],
   );
 
   const authModelColumnConfig: ColumnConfigMap<typeof authModelColumns> = useMemo(
     () => ({
-      is_org_admin: { label: intl.formatMessage(messages.orgAdmin) },
-      username: { label: intl.formatMessage(messages.username), sortable: true },
-      email: { label: intl.formatMessage(messages.email) },
-      first_name: { label: intl.formatMessage(messages.firstName) },
-      last_name: { label: intl.formatMessage(messages.lastName) },
-      is_active: { label: intl.formatMessage(messages.status) },
+      is_org_admin: { label: intl.formatMessage({ id: 'orgAdmin', defaultMessage: 'Org. Admin', description: 'Org. Admin name' }) },
+      username: { label: intl.formatMessage(commonMessages.username), sortable: true },
+      email: { label: intl.formatMessage(commonMessages.email) },
+      first_name: { label: intl.formatMessage(commonMessages.firstName) },
+      last_name: { label: intl.formatMessage(commonMessages.lastName) },
+      is_active: { label: intl.formatMessage(commonMessages.status) },
     }),
     [intl],
   );
@@ -141,14 +141,14 @@ export function useUsersTableConfig({
       {
         type: 'text',
         id: 'username',
-        label: intl.formatMessage(messages.username),
-        placeholder: intl.formatMessage(messages.filterByUsername),
+        label: intl.formatMessage(commonMessages.username),
+        placeholder: intl.formatMessage({ id: 'filterByUsername', defaultMessage: 'Filter by username', description: 'Filter by username label' }),
       },
       {
         type: 'text',
         id: 'email',
-        label: intl.formatMessage(messages.email),
-        placeholder: intl.formatMessage(messages.filterByUsername), // Same placeholder as original
+        label: intl.formatMessage(commonMessages.email),
+        placeholder: intl.formatMessage({ id: 'filterByUsername', defaultMessage: 'Filter by username', description: 'Filter by username label' }), // Same placeholder as original
       },
     ],
     [intl],

@@ -17,7 +17,7 @@ import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/ou
 import PencilAltIcon from '@patternfly/react-icons/dist/js/icons/pencil-alt-icon';
 import { useIntl } from 'react-intl';
 import React from 'react';
-import messages from '../../../../../../Messages';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface GroupDetailsDrawerProps {
   isOpen: boolean;
@@ -73,7 +73,11 @@ const GroupDetailsDrawer: React.FunctionComponent<GroupDetailsDrawerProps> = ({
                 {onEditGroup && (
                   <FlexItem>
                     <Button variant="link" icon={<PencilAltIcon />} onClick={onEditGroup} data-ouia-component-id={`${ouiaId}-edit-button`}>
-                      {intl.formatMessage(messages.usersAndUserGroupsEditUserGroup)}
+                      {intl.formatMessage({
+                        id: 'usersAndUserGroupsEditUserGroup',
+                        defaultMessage: 'Edit user group',
+                        description: 'Edit user group label',
+                      })}
                     </Button>
                   </FlexItem>
                 )}
@@ -83,22 +87,34 @@ const GroupDetailsDrawer: React.FunctionComponent<GroupDetailsDrawerProps> = ({
               </DrawerActions>
             </DrawerHead>
             <Tabs isFilled activeKey={activeTabKey} onSelect={(_, tabIndex) => onTabSelect(tabIndex)}>
-              <Tab eventKey={0} title={intl.formatMessage(messages.users)}>
+              <Tab eventKey={0} title={intl.formatMessage(commonMessages.users)}>
                 {activeTabKey === 0 && renderUsersTab()}
               </Tab>
-              <Tab eventKey={1} title={intl.formatMessage(messages.serviceAccounts)}>
+              <Tab
+                eventKey={1}
+                title={intl.formatMessage({ id: 'serviceAccounts', defaultMessage: 'Service accounts', description: 'Service accounts plural' })}
+              >
                 {activeTabKey === 1 && renderServiceAccountsTab()}
               </Tab>
               <Tab
                 eventKey={2}
                 title={
                   <TabTitleText>
-                    {intl.formatMessage(messages.assignedRoles)}
+                    {intl.formatMessage({ id: 'assignedRoles', defaultMessage: 'Assigned roles', description: 'User details assigned roles label' })}
                     <Popover
                       triggerAction="hover"
                       position="top-end"
-                      headerContent={intl.formatMessage(messages.assignedRoles)}
-                      bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
+                      headerContent={intl.formatMessage({
+                        id: 'assignedRoles',
+                        defaultMessage: 'Assigned roles',
+                        description: 'User details assigned roles label',
+                      })}
+                      bodyContent={intl.formatMessage({
+                        id: 'assignedRolesDescription',
+                        defaultMessage:
+                          'User groups are granted roles that contain a set of permissions. Roles are limited to the workspace in which they were assigned.',
+                        description: 'User details roles info popover description',
+                      })}
                     >
                       <Icon className="pf-v6-u-pl-sm" isInline>
                         <OutlinedQuestionCircleIcon />

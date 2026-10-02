@@ -9,7 +9,7 @@ import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleto
 import { WorkspaceActions } from './WorkspaceActions';
 import { type WorkspaceActionCallbacks, useWorkspaceActionItems } from './useWorkspaceActionItems';
 import { type WorkspacePermissions, type WorkspacesWorkspace } from '../../../data/queries/workspaces';
-import messages from '../../../../Messages';
+
 import { RbacBreadcrumbs } from '../../../../shared/components/navigation/Breadcrumbs';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
@@ -44,7 +44,10 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
 
   const pageBreadcrumbs = useMemo(
     () => [
-      { title: intl.formatMessage(messages.workspaces), to: pathnames['access-management-workspaces'].link() },
+      {
+        title: intl.formatMessage({ id: 'workspaces', defaultMessage: 'Workspaces', description: 'Workspaces heading' }),
+        to: pathnames['access-management-workspaces'].link(),
+      },
       { title: workspace?.name, isActive: true },
     ],
     [workspace?.name, intl],
@@ -60,7 +63,13 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
         actionMenu={workspace ? <WorkspaceActions items={actionItems} /> : undefined}
       >
         <div>
-          <span className="pf-v6-u-font-weight-bold pf-v6-u-mr-sm">{intl.formatMessage(messages.workspacesDetailBreadcrumbTitle)}</span>
+          <span className="pf-v6-u-font-weight-bold pf-v6-u-mr-sm">
+            {intl.formatMessage({
+              id: 'workspacesDetailBreadcrumbTitle',
+              defaultMessage: 'Workspace hierarchy:',
+              description: 'Workspace detail breadcrumb title',
+            })}
+          </span>
           <Breadcrumb>
             {workspaceHierarchy.map((workspaceItem, index) => {
               const isActive = index === workspaceHierarchy.length - 1;
@@ -83,10 +92,17 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
         <Alert
           variant="info"
           isInline
-          title={intl.formatMessage(messages.workspaceInheritedFromChildAlert, {
-            childWorkspaceName: decodeURIComponent(fromChildName),
-            parentWorkspaceName: workspace?.name || '',
-          })}
+          title={intl.formatMessage(
+            {
+              id: 'workspaceInheritedFromChildAlert',
+              defaultMessage: 'You are viewing role bindings inherited by {childWorkspaceName} from {parentWorkspaceName}.',
+              description: 'Alert shown when navigating to parent workspace from child workspace role binding',
+            },
+            {
+              childWorkspaceName: decodeURIComponent(fromChildName),
+              parentWorkspaceName: workspace?.name || '',
+            },
+          )}
           className="pf-v6-u-mt-md"
           role="alert"
         />

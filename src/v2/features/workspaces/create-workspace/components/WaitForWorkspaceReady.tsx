@@ -6,7 +6,7 @@ import { Modal, ModalBody, ModalVariant } from '@patternfly/react-core/dist/dyna
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import CheckCircleIcon from '@patternfly/react-icons/dist/js/icons/check-circle-icon';
 import ExclamationTriangleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-triangle-icon';
-import messages from '../../../../../Messages';
+
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
 import { CONSECUTIVE_SUCCESS_THRESHOLD, useWorkspaceAccessSnapshot, useWorkspaceReadyPoll } from '../hooks/useWorkspaceReadyCheck';
 
@@ -76,7 +76,11 @@ export const WaitForWorkspaceReady: React.FC<WaitForWorkspaceReadyProps> = ({ wo
       isOpen
       onClose={modalCloseHandler}
       appendTo={getModalContainer()}
-      aria-label={intl.formatMessage(messages.createWorkspaceProgressTitle)}
+      aria-label={intl.formatMessage({
+        id: 'createWorkspaceProgressTitle',
+        defaultMessage: 'Setting up your workspace',
+        description: 'Title shown while waiting for workspace permissions to propagate',
+      })}
     >
       <ModalBody>
         {!isReady && !timedOut && (
@@ -84,18 +88,53 @@ export const WaitForWorkspaceReady: React.FC<WaitForWorkspaceReadyProps> = ({ wo
         )}
 
         {!isReady && !timedOut && (
-          <EmptyState headingLevel="h4" icon={Spinner} titleText={intl.formatMessage(messages.createWorkspaceProgressTitle)}>
-            <EmptyStateBody>{intl.formatMessage(messages.createWorkspaceProgressBody, { name: workspace.name })}</EmptyStateBody>
+          <EmptyState
+            headingLevel="h4"
+            icon={Spinner}
+            titleText={intl.formatMessage({
+              id: 'createWorkspaceProgressTitle',
+              defaultMessage: 'Setting up your workspace',
+              description: 'Title shown while waiting for workspace permissions to propagate',
+            })}
+          >
+            <EmptyStateBody>
+              {intl.formatMessage(
+                {
+                  id: 'createWorkspaceProgressBody',
+                  defaultMessage: 'Configuring permissions for {name}. This usually takes a few seconds.',
+                  description: 'Body text shown while waiting for workspace permissions to propagate',
+                },
+                { name: workspace.name },
+              )}
+            </EmptyStateBody>
           </EmptyState>
         )}
 
         {isReady && (
-          <EmptyState headingLevel="h4" icon={CheckCircleIcon} titleText={intl.formatMessage(messages.createWorkspaceReadyTitle)} status="success">
-            <EmptyStateBody>{intl.formatMessage(messages.createWorkspaceReadyBody, { name: workspace.name })}</EmptyStateBody>
+          <EmptyState
+            headingLevel="h4"
+            icon={CheckCircleIcon}
+            titleText={intl.formatMessage({
+              id: 'createWorkspaceReadyTitle',
+              defaultMessage: 'Workspace ready',
+              description: 'Title shown when workspace permissions are fully propagated',
+            })}
+            status="success"
+          >
+            <EmptyStateBody>
+              {intl.formatMessage(
+                {
+                  id: 'createWorkspaceReadyBody',
+                  defaultMessage: '{name} has been created and is ready to use.',
+                  description: 'Body text shown when workspace permissions are fully propagated',
+                },
+                { name: workspace.name },
+              )}
+            </EmptyStateBody>
             <EmptyStateFooter>
               <EmptyStateActions>
                 <Button variant="primary" onClick={onFinish}>
-                  {intl.formatMessage(messages.close)}
+                  {intl.formatMessage({ id: 'close', defaultMessage: 'Close', description: 'Close button text' })}
                 </Button>
               </EmptyStateActions>
             </EmptyStateFooter>
@@ -106,14 +145,27 @@ export const WaitForWorkspaceReady: React.FC<WaitForWorkspaceReadyProps> = ({ wo
           <EmptyState
             headingLevel="h4"
             icon={ExclamationTriangleIcon}
-            titleText={intl.formatMessage(messages.createWorkspaceTimeoutTitle)}
+            titleText={intl.formatMessage({
+              id: 'createWorkspaceTimeoutTitle',
+              defaultMessage: 'Taking longer than expected',
+              description: 'Title shown when workspace permission propagation takes too long',
+            })}
             status="warning"
           >
-            <EmptyStateBody>{intl.formatMessage(messages.createWorkspaceTimeoutBody, { name: workspace.name })}</EmptyStateBody>
+            <EmptyStateBody>
+              {intl.formatMessage(
+                {
+                  id: 'createWorkspaceTimeoutBody',
+                  defaultMessage: '{name} was created, but permissions are still being set up. You can close this dialog and check back shortly.',
+                  description: 'Body text shown when workspace permission propagation takes too long',
+                },
+                { name: workspace.name },
+              )}
+            </EmptyStateBody>
             <EmptyStateFooter>
               <EmptyStateActions>
                 <Button variant="primary" onClick={onClose}>
-                  {intl.formatMessage(messages.close)}
+                  {intl.formatMessage({ id: 'close', defaultMessage: 'Close', description: 'Close button text' })}
                 </Button>
               </EmptyStateActions>
             </EmptyStateFooter>

@@ -8,7 +8,7 @@ import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
-import Messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
@@ -34,8 +34,12 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
     <React.Fragment>
       <PageHeader
         data-codemods
-        title={intl.formatMessage(Messages.usersAndUserGroups)}
-        subtitle={intl.formatMessage(Messages.usersAndUserGroupsDescription)}
+        title={intl.formatMessage({ id: 'usersAndUserGroups', defaultMessage: 'Users and User Groups', description: 'Users and user groups label' })}
+        subtitle={intl.formatMessage({
+          id: 'usersAndUserGroupsDescription',
+          defaultMessage: 'These are all of the users in your Red Hat organization. Create User Groups to define access across your workspaces.',
+          description: 'Users and user groups description',
+        })}
       />
       <PageSection hasBodyWrapper type="tabs" isWidthLimited>
         <Tabs
@@ -48,10 +52,16 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
           }}
           role="region"
         >
-          <Tab eventKey={0} title={intl.formatMessage(Messages.users)} tabContentId="usersTab" tabContentRef={usersRef} ouiaId="users-tab-button" />
+          <Tab
+            eventKey={0}
+            title={intl.formatMessage(commonMessages.users)}
+            tabContentId="usersTab"
+            tabContentRef={usersRef}
+            ouiaId="users-tab-button"
+          />
           <Tab
             eventKey={1}
-            title={intl.formatMessage(Messages.userGroups)}
+            title={intl.formatMessage(commonMessages.userGroups)}
             tabContentId="groupsTab"
             tabContentRef={groupsRef}
             ouiaId="user-groups-tab-button"

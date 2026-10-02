@@ -7,7 +7,6 @@ import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import PageHeader from '@patternfly/react-component-groups/dist/dynamic/PageHeader';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import pathnames from '../../utilities/pathnames';
-import messages from '../../../Messages';
 
 const MyAccess: React.FunctionComponent = () => {
   const intl = useIntl();
@@ -34,7 +33,14 @@ const MyAccess: React.FunctionComponent = () => {
 
   return (
     <React.Fragment>
-      <PageHeader title={intl.formatMessage(messages.myAccess)} subtitle={intl.formatMessage(messages.myAccessDescription)} />
+      <PageHeader
+        title={intl.formatMessage({ id: 'myAccess', defaultMessage: 'My Access', description: 'My Access page title' })}
+        subtitle={intl.formatMessage({
+          id: 'myAccessDescription',
+          defaultMessage: 'View your permissions across all groups and workspaces within the Hybrid Cloud Console.',
+          description: 'My Access page subtitle',
+        })}
+      />
       <PageSection hasBodyWrapper type="tabs" isWidthLimited>
         <Tabs
           activeKey={activeTabIndex}
@@ -48,14 +54,14 @@ const MyAccess: React.FunctionComponent = () => {
         >
           <Tab
             eventKey={0}
-            title={intl.formatMessage(messages.myGroups)}
+            title={intl.formatMessage({ id: 'myGroups', defaultMessage: 'My groups', description: 'My groups tab label' })}
             tabContentId="myGroupsTab"
             tabContentRef={groupsRef}
             ouiaId="my-groups-tab-button"
           />
           <Tab
             eventKey={1}
-            title={intl.formatMessage(messages.myWorkspaces)}
+            title={intl.formatMessage({ id: 'myWorkspaces', defaultMessage: 'My workspaces', description: 'My workspaces tab label' })}
             tabContentId="myWorkspacesTab"
             tabContentRef={workspacesRef}
             ouiaId="my-workspaces-tab-button"

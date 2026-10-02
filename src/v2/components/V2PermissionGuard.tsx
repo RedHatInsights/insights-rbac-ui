@@ -7,7 +7,7 @@ import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/
 import { AppPlaceholder } from '../../shared/components/ui-states/LoaderPlaceholders';
 import { useIdentity } from '../../shared/hooks/useIdentity';
 import { useOrganizationData } from '../hooks/useOrganizationData';
-import messages from '../../Messages';
+import { commonMessages } from '../../shared/messages/common';
 
 // ============================================================================
 // Domain permission tokens — mirrors Kessel domain hook return shapes
@@ -111,8 +111,8 @@ export const V2PermissionGuard: React.FC<V2PermissionGuardProps> = ({ permission
 
   const unauthorizedPage = (
     <UnauthorizedAccess
-      serviceName={intl.formatMessage(messages.unauthorizedAccessServiceName)}
-      bodyText={intl.formatMessage(messages.unauthorizedAccessBodyText)}
+      serviceName={intl.formatMessage(commonMessages.unauthorizedAccessServiceName)}
+      bodyText={intl.formatMessage(commonMessages.unauthorizedAccessBodyText)}
     />
   );
 

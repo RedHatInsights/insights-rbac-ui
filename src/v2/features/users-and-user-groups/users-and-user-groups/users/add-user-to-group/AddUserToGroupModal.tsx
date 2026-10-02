@@ -5,7 +5,7 @@ import { ModalVariant } from '@patternfly/react-core/dist/dynamic/deprecated/com
 import { FormattedMessage, useIntl } from 'react-intl';
 import { UserGroupsTable } from '../../user-groups/components/UserGroupsTable';
 import { type Group, useAddMembersToGroupMutation, useGroupsQuery } from '../../../../../../v2/data/queries/groups';
-import messages from '../../../../../../Messages';
+
 import { getModalContainer } from '../../../../../../shared/helpers/modal-container';
 import type { User } from '../../../../../../shared/data/queries/users';
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
@@ -76,7 +76,11 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
     <Modal
       appendTo={getModalContainer()}
       variant={ModalVariant.medium}
-      title={intl.formatMessage(messages['addToUserGroup'])}
+      title={intl.formatMessage({
+        id: 'addToUserGroup',
+        defaultMessage: 'Add to user group',
+        description: 'Action column option to add user to group',
+      })}
       isOpen={isOpen}
       onClose={handleCloseModal}
       actions={[
@@ -87,16 +91,20 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
           isDisabled={tableState.selectedRows.length === 0}
           isLoading={addMembersMutation.isPending}
         >
-          {intl.formatMessage(messages['usersAndUserGroupsAdd'])}
+          {intl.formatMessage({ id: 'usersAndUserGroupsAdd', defaultMessage: 'Add', description: 'Add label' })}
         </Button>,
         <Button key="cancel" variant="link" onClick={handleCloseModal}>
-          {intl.formatMessage(messages['usersAndUserGroupsCancel'])}
+          {intl.formatMessage({ id: 'usersAndUserGroupsCancel', defaultMessage: 'Cancel', description: 'Cancel add user label' })}
         </Button>,
       ]}
       ouiaId="add-user-group-modal"
     >
       <FormattedMessage
-        {...messages['usersAndUserGroupsAddUserDescription']}
+        id={'usersAndUserGroupsAddUserDescription'}
+        defaultMessage={
+          'Select a user group to add <b>{numUsers} {plural}</b> to. These are all the user groups in your account. To manage user groups, go to user groups.'
+        }
+        description={'Description within add user to user group modal'}
         values={{
           b: (text) => <b>{text}</b>,
           numUsers: selectedUsers.length,

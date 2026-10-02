@@ -12,10 +12,11 @@ import {
 import { ActionDropdown } from '../../../../../../shared/components/ActionDropdown';
 import type { Group } from '../../../../../../v2/data/queries/groups';
 import { isGroupSelectable } from '../useUserGroups';
-import messages from '../../../../../../Messages';
+
 import useAppNavigate from '../../../../../../shared/hooks/useAppNavigate';
 import pathnames from '../../../../../utilities/pathnames';
 import { type SortableColumnId, columns, sortableColumns, useUserGroupsTableConfig } from './useUserGroupsTableConfig';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface UserGroupsTableProps {
   // Data props
@@ -93,7 +94,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
       canModifyGroups ? (
         <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
           <ResponsiveAction ouiaId="add-usergroup-button" isPinned onClick={() => navigate(pathnames['users-and-user-groups-create-group'].link())}>
-            {intl.formatMessage(messages.createUserGroup)}
+            {intl.formatMessage({ id: 'createUserGroup', defaultMessage: 'Create user group', description: 'create user group button label' })}
           </ResponsiveAction>
           {onDeleteGroups && (
             <ResponsiveAction
@@ -101,7 +102,14 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
               isDisabled={deletableSelectedRows.length === 0}
               onClick={() => onDeleteGroups(deletableSelectedRows)}
             >
-              {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroupCount, { count: deletableSelectedRows.length })}
+              {intl.formatMessage(
+                {
+                  id: 'usersAndUserGroupsDeleteUserGroupCount',
+                  defaultMessage: 'Delete {count, plural, =0 {user group} one {user group (#)} other {user groups (#)}}',
+                  description: 'Delete user group action label with selected count',
+                },
+                { count: deletableSelectedRows.length },
+              )}
             </ResponsiveAction>
           )}
         </ResponsiveActions>
@@ -140,14 +148,22 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
                       ? [
                           {
                             key: 'edit',
-                            label: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']),
+                            label: intl.formatMessage({
+                              id: 'usersAndUserGroupsEditUserGroup',
+                              defaultMessage: 'Edit user group',
+                              description: 'Edit user group label',
+                            }),
                             onClick: () => onEditGroup?.(group),
                           },
                         ]
                       : []),
                     {
                       key: 'delete',
-                      label: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']),
+                      label: intl.formatMessage({
+                        id: 'usersAndUserGroupsDeleteUserGroup',
+                        defaultMessage: 'Delete user group',
+                        description: 'Delete user group label',
+                      }),
                       onClick: () => onDeleteGroup?.(group),
                       isDisabled: !isGroupDeletable(group),
                     },
@@ -163,14 +179,22 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
         // Empty states
         emptyStateNoData={
           <DefaultEmptyStateNoData
-            title={intl.formatMessage(messages.userGroupsEmptyStateTitle)}
-            body={intl.formatMessage(messages.userGroupsEmptyStateSubtitle)}
+            title={intl.formatMessage({
+              id: 'userGroupsEmptyStateTitle',
+              defaultMessage: 'No user group found',
+              description: 'Empty state title User groups',
+            })}
+            body={intl.formatMessage({
+              id: 'userGroupsEmptyStateSubtitle',
+              defaultMessage: 'This filter criteria matches no user groups. Try changing your filter input.',
+              description: 'Empty state subtitle User groups',
+            })}
           />
         }
         emptyStateNoResults={
           <DefaultEmptyStateNoResults
-            title={intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.userGroups).toLowerCase() })}
-            body={`${intl.formatMessage(messages.filterMatchesNoItems, { items: intl.formatMessage(messages.userGroups).toLowerCase() })} ${intl.formatMessage(messages.tryChangingFilters)}`}
+            title={intl.formatMessage(commonMessages.noMatchingItemsFound, { items: intl.formatMessage(commonMessages.userGroups).toLowerCase() })}
+            body={`${intl.formatMessage(commonMessages.filterMatchesNoItems, { items: intl.formatMessage(commonMessages.userGroups).toLowerCase() })} ${intl.formatMessage(commonMessages.tryChangingFilters)}`}
           />
         }
         // Config

@@ -18,10 +18,11 @@ import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 
 import type { User } from '../../../../../../shared/data/queries/users';
-import messages from '../../../../../../Messages';
+
 import { useGroupsAccess, useRolesAccess } from '../../../../../hooks/useRbacAccess';
 import { UserDetailsGroupsView } from './UserDetailsGroupsView';
 import { UserDetailsRolesView } from './UserDetailsRolesView';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface UserDetailsDrawerInnerProps {
   focusedUser: User;
@@ -94,7 +95,7 @@ const UserDetailsDrawerInner: React.FC<UserDetailsDrawerInnerProps> = ({
       {hasTabs && (
         <Tabs isFilled activeKey={activeTabKey} onSelect={(_, tabIndex) => setActiveTabKey(tabIndex)}>
           {canListGroups && (
-            <Tab eventKey={0} title={intl.formatMessage(messages.userGroups)}>
+            <Tab eventKey={0} title={intl.formatMessage(commonMessages.userGroups)}>
               {renderGroupsTab(focusedUser.username, `${ouiaId}-user-groups-view`)}
             </Tab>
           )}
@@ -103,12 +104,21 @@ const UserDetailsDrawerInner: React.FC<UserDetailsDrawerInnerProps> = ({
               eventKey={1}
               title={
                 <TabTitleText>
-                  {intl.formatMessage(messages.assignedRoles)}
+                  {intl.formatMessage({ id: 'assignedRoles', defaultMessage: 'Assigned roles', description: 'User details assigned roles label' })}
                   <Popover
                     triggerAction="hover"
                     position="top-end"
-                    headerContent={intl.formatMessage(messages.assignedRoles)}
-                    bodyContent={intl.formatMessage(messages.assignedRolesDescription)}
+                    headerContent={intl.formatMessage({
+                      id: 'assignedRoles',
+                      defaultMessage: 'Assigned roles',
+                      description: 'User details assigned roles label',
+                    })}
+                    bodyContent={intl.formatMessage({
+                      id: 'assignedRolesDescription',
+                      defaultMessage:
+                        'User groups are granted roles that contain a set of permissions. Roles are limited to the workspace in which they were assigned.',
+                      description: 'User details roles info popover description',
+                    })}
                   >
                     <Icon className="pf-v6-u-pl-sm" isInline>
                       <OutlinedQuestionCircleIcon />

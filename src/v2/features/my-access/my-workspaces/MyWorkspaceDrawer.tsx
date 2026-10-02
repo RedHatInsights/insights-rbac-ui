@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerActions } from '@patternfly/react-core/dist/dynamic/components/Drawer';
 import { DrawerCloseButton } from '@patternfly/react-core/dist/dynamic/components/Drawer';
@@ -18,7 +18,12 @@ import { useCurrentUserRoleBindingsQuery } from '../../../data/queries/roleBindi
 import { extractErrorMessage } from '../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
+
+const messages = defineMessages({
+  adminRole: { id: 'adminRole', defaultMessage: 'Admin', description: 'Admin role label' },
+  viewerRole: { id: 'viewerRole', defaultMessage: 'Viewer', description: 'Viewer role label' },
+});
 
 interface MyWorkspaceDrawerProps {
   isOpen: boolean;
@@ -44,8 +49,8 @@ const WorkspaceRolesPanel: React.FC<{ workspaceId: string }> = ({ workspaceId })
 
   const columnConfig: ColumnConfigMap<typeof roleColumns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.roles) },
-      description: { label: intl.formatMessage(messages.description) },
+      name: { label: intl.formatMessage(commonMessages.roles) },
+      description: { label: intl.formatMessage(commonMessages.description) },
     }),
     [intl],
   );

@@ -1,13 +1,12 @@
 import React, { Fragment, Suspense, useCallback, useEffect, useState } from 'react';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { useGroupsAccess } from '../../../../hooks/useRbacAccess';
-import messages from '../../../../../Messages';
 
 import { useDeleteGroupMutation } from '../../../../../v2/data/queries/groups';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
@@ -19,6 +18,21 @@ import { GroupDetailsRolesView } from './user-group-detail/GroupDetailsRolesView
 import { GroupDetailsServiceAccountsView } from './user-group-detail/GroupDetailsServiceAccountsView';
 import { GroupDetailsUsersView } from './user-group-detail/GroupDetailsUsersView';
 import { DeleteGroupModal } from './components/DeleteGroupModal';
+
+const messages = defineMessages({
+  allOrgAdmins: { id: 'allOrgAdmins', defaultMessage: 'All org admins', description: 'All org admins label for admin default groups' },
+  allUsers: { id: 'allUsers', defaultMessage: 'All users', description: 'All users label for default groups' },
+  allOrgAdminsAreMembers: {
+    id: 'allOrgAdminsAreMembers',
+    defaultMessage: 'All organization administrators in this organization are members of this group.',
+    description: 'All org. admins are members of this group message',
+  },
+  allUsersAreMembers: {
+    id: 'allUsersAreMembers',
+    defaultMessage: 'All users in this organization are members of this group.',
+    description: 'All users are members of this group message',
+  },
+});
 
 interface UserGroupsProps {
   groupsRef?: React.RefObject<HTMLDivElement>;

@@ -9,7 +9,7 @@
 import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import type { RoleBindingsGroupSubject, RoleBindingsRoleBindingBySubject } from '../api/workspaces';
-import messages from '../../../Messages';
+
 import { useQuery } from '@tanstack/react-query';
 import { createWorkspacesApi } from '../api/workspaces';
 import { useAppServices } from '../../../shared/contexts/ServiceContext';
@@ -106,7 +106,14 @@ const ROLE_BINDINGS_LIMIT = 1000;
  */
 export function useWorkspaceGroups(workspaceId: string, options?: { enabled?: boolean }) {
   const intl = useIntl();
-  const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
+  const labels = {
+    allUsers: intl.formatMessage({ id: 'allUsers', defaultMessage: 'All users', description: 'All users label for default groups' }),
+    allOrgAdmins: intl.formatMessage({
+      id: 'allOrgAdmins',
+      defaultMessage: 'All org admins',
+      description: 'All org admins label for admin default groups',
+    }),
+  };
 
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
@@ -129,7 +136,14 @@ export function useWorkspaceGroups(workspaceId: string, options?: { enabled?: bo
  */
 export function useWorkspaceInheritedGroups(workspaceId: string, options?: { enabled?: boolean }) {
   const intl = useIntl();
-  const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
+  const labels = {
+    allUsers: intl.formatMessage({ id: 'allUsers', defaultMessage: 'All users', description: 'All users label for default groups' }),
+    allOrgAdmins: intl.formatMessage({
+      id: 'allOrgAdmins',
+      defaultMessage: 'All org admins',
+      description: 'All org admins label for admin default groups',
+    }),
+  };
 
   const query = useRoleAssignmentsQuery(workspaceId, {
     enabled: options?.enabled ?? true,
@@ -169,7 +183,14 @@ export function useOrgGroups(organizationId: string, options?: { enabled?: boole
   const intl = useIntl();
   const { axios } = useAppServices();
   const api = createWorkspacesApi(axios);
-  const labels = { allUsers: intl.formatMessage(messages.allUsers), allOrgAdmins: intl.formatMessage(messages.allOrgAdmins) };
+  const labels = {
+    allUsers: intl.formatMessage({ id: 'allUsers', defaultMessage: 'All users', description: 'All users label for default groups' }),
+    allOrgAdmins: intl.formatMessage({
+      id: 'allOrgAdmins',
+      defaultMessage: 'All org admins',
+      description: 'All org admins label for admin default groups',
+    }),
+  };
 
   const query = useQuery({
     queryKey: roleBindingsKeys.orgGroups(organizationId),

@@ -9,7 +9,7 @@ import { useOrganizationData } from '../../hooks/useOrganizationData';
 import { useIdentity } from '../../../shared/hooks/useIdentity';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import pathnames from '../../utilities/pathnames';
-import messages from '../../../Messages';
+
 import { useIntl } from 'react-intl';
 import { useOrgGroups } from '../../data/queries/groupAssignments';
 import type { WorkspaceGroupRow } from '../../data/queries/groupAssignments';
@@ -38,7 +38,17 @@ export const OrganizationManagement = () => {
   const currentWorkspace = useMemo(
     () =>
       organizationId
-        ? { id: tenantResourceId, name: organizationName || intl.formatMessage(messages.organizationWideAccessTitle), type: 'tenant' as const }
+        ? {
+            id: tenantResourceId,
+            name:
+              organizationName ||
+              intl.formatMessage({
+                id: 'organizationWideAccessTitle',
+                defaultMessage: 'Organization-Wide Access',
+                description: 'Organization-Wide Access page title',
+              }),
+            type: 'tenant' as const,
+          }
         : undefined,
     [organizationId, tenantResourceId, organizationName, intl],
   );
@@ -74,25 +84,51 @@ export const OrganizationManagement = () => {
   return (
     <>
       <PageHeader
-        title={intl.formatMessage(messages.organizationWideAccessTitle)}
-        subtitle={intl.formatMessage(messages.organizationWideAccessSubtitle)}
+        title={intl.formatMessage({
+          id: 'organizationWideAccessTitle',
+          defaultMessage: 'Organization-Wide Access',
+          description: 'Organization-Wide Access page title',
+        })}
+        subtitle={intl.formatMessage({
+          id: 'organizationWideAccessSubtitle',
+          defaultMessage: 'Grant organization-level access to users and groups.',
+          description: 'Organization-Wide Access page subtitle',
+        })}
       >
         <Flex spaceItems={{ default: 'spaceItemsLg' }} className="pf-v5-u-mt-md">
           <FlexItem>
             <p>
-              <strong>{intl.formatMessage(messages.organizationNameLabel)} </strong>
+              <strong>
+                {intl.formatMessage({
+                  id: 'organizationNameLabel',
+                  defaultMessage: 'Organization name:',
+                  description: 'Label for organization name field',
+                })}{' '}
+              </strong>
               {isLoading ? <Skeleton screenreaderText="Loading organization name" width="120px" /> : organizationName || PLACEHOLDER}
             </p>
           </FlexItem>
           <FlexItem>
             <p>
-              <strong>{intl.formatMessage(messages.accountNumberLabel)} </strong>
+              <strong>
+                {intl.formatMessage({
+                  id: 'accountNumberLabel',
+                  defaultMessage: 'Account number:',
+                  description: 'Label for account number field',
+                })}{' '}
+              </strong>
               {isLoading ? <Skeleton screenreaderText="Loading account number" width="80px" /> : accountNumber || PLACEHOLDER}
             </p>
           </FlexItem>
           <FlexItem>
             <p>
-              <strong>{intl.formatMessage(messages.organizationIdLabel)} </strong>
+              <strong>
+                {intl.formatMessage({
+                  id: 'organizationIdLabel',
+                  defaultMessage: 'Organization ID:',
+                  description: 'Label for organization ID field',
+                })}{' '}
+              </strong>
               {isLoading ? <Skeleton screenreaderText="Loading organization ID" width="80px" /> : organizationId || PLACEHOLDER}
             </p>
           </FlexItem>

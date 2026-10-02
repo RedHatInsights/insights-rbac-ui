@@ -29,7 +29,7 @@ import { createStandaloneQueryClient } from '../shared/components/QueryClientSet
 import { ServiceProvider } from '../shared/contexts/ServiceContext';
 import type { AppServices } from '../shared/services/types';
 import { browserApiClient } from '../shared/entry/browser';
-import messages from '../locales/data.json';
+import messages from '../locales/translations.json';
 import {
   CreateWorkspaceWizard as CreateWorkspaceWizardInner,
   CreateWorkspaceWizardProps,
@@ -54,7 +54,7 @@ const moduleServices: AppServices = {
 
 const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizardProps> = (props) => {
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
+    <IntlProvider locale={locale} messages={messages}>
       <ServiceProvider value={moduleServices}>
         <QueryClientProvider client={moduleQueryClient}>
           <CreateWorkspaceWizardInner {...props} />

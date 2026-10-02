@@ -3,13 +3,14 @@ import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
-import messages from '../../../../Messages';
+
 import { PER_PAGE_OPTIONS } from '../../../../shared/helpers/pagination';
 import { usePermissionsQuery } from '../../../../shared/data/queries/permissions';
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig, FilterState } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface ExtendedUseFieldApiConfig extends UseFieldApiConfig {
   roleId?: string;
@@ -50,9 +51,9 @@ export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      application: { label: intl.formatMessage(messages.application) },
-      resourceType: { label: intl.formatMessage(messages.resourceType) },
-      operation: { label: intl.formatMessage(messages.operation) },
+      application: { label: intl.formatMessage(commonMessages.application) },
+      resourceType: { label: intl.formatMessage(commonMessages.resourceType) },
+      operation: { label: intl.formatMessage(commonMessages.operation) },
     }),
     [intl],
   );
@@ -73,20 +74,32 @@ export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) 
       {
         type: 'text',
         id: 'application',
-        label: intl.formatMessage(messages.application),
-        placeholder: intl.formatMessage(messages.searchByApplicationPlaceholder),
+        label: intl.formatMessage(commonMessages.application),
+        placeholder: intl.formatMessage({
+          id: 'searchByApplicationPlaceholder',
+          defaultMessage: 'Search by application',
+          description: 'search by application placeholder',
+        }),
       },
       {
         type: 'text',
         id: 'resourceType',
-        label: intl.formatMessage(messages.resourceType),
-        placeholder: intl.formatMessage(messages.searchByResourceTypePlaceholder),
+        label: intl.formatMessage(commonMessages.resourceType),
+        placeholder: intl.formatMessage({
+          id: 'searchByResourceTypePlaceholder',
+          defaultMessage: 'Search by resource type',
+          description: 'search by resource type placeholder',
+        }),
       },
       {
         type: 'text',
         id: 'operation',
-        label: intl.formatMessage(messages.operation),
-        placeholder: intl.formatMessage(messages.searchByOperationPlaceholder),
+        label: intl.formatMessage(commonMessages.operation),
+        placeholder: intl.formatMessage({
+          id: 'searchByOperationPlaceholder',
+          defaultMessage: 'Search by operation',
+          description: 'search by operation placeholder',
+        }),
       },
     ],
     [intl],
@@ -208,9 +221,9 @@ export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) 
           variant="compact"
           ariaLabel="Permissions Table"
           ouiaId="edit-role-permissions"
-          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noPermissions)} />}
+          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(commonMessages.noPermissions)} />}
           emptyStateNoResults={
-            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noPermissions)} onClearFilters={handleClearAllFilters} />
+            <DefaultEmptyStateNoResults title={intl.formatMessage(commonMessages.noPermissions)} onClearFilters={handleClearAllFilters} />
           }
           selectable
           {...tableState}

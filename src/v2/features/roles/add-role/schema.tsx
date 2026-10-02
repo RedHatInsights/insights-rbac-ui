@@ -8,11 +8,12 @@ import { ValidatorReset } from './validators';
 import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { createIntl, createIntlCache } from 'react-intl';
-import messages from '../../../../Messages';
+
 import { locale } from '../../../../locales/locale';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
-import providerMessages from '../../../../locales/data.json';
+import providerMessages from '../../../../locales/translations.json';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface FormValues {
   'role-type'?: string;
@@ -36,7 +37,7 @@ const validateNextAddRolePermissionStep = (currentStep: string, values: FormValu
 
 export const schemaBuilder = (_featureFlag: boolean) => {
   const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
 
   return {
     fields: [
@@ -48,12 +49,12 @@ export const schemaBuilder = (_featureFlag: boolean) => {
         showTitles: true,
         crossroads: ['role-type'],
         'data-ouia-component-id': 'add-role-wizard',
-        title: intl.formatMessage(messages.createRole),
+        title: intl.formatMessage(commonMessages.createRole),
         style: { overflow: 'hidden' },
         container: getModalContainer(),
         fields: [
           {
-            title: intl.formatMessage(messages.createRole),
+            title: intl.formatMessage(commonMessages.createRole),
             name: 'step-1',
             StepTemplate: CreateRoleStepTemplate,
             buttons: WizardButtons,
@@ -101,7 +102,7 @@ export const schemaBuilder = (_featureFlag: boolean) => {
               {
                 component: 'base-role-table',
                 name: 'copy-base-role',
-                label: intl.formatMessage(messages.baseRole),
+                label: intl.formatMessage({ id: 'baseRole', defaultMessage: 'Base role', description: 'Base role label' }),
                 isRequired: true,
                 condition: {
                   when: 'role-type',
@@ -134,7 +135,11 @@ export const schemaBuilder = (_featureFlag: boolean) => {
             ],
           },
           {
-            title: intl.formatMessage(messages.nameAndDescription),
+            title: intl.formatMessage({
+              id: 'nameAndDescription',
+              defaultMessage: 'Name and description',
+              description: 'Name and description wizard step title',
+            }),
             name: 'name-and-description',
             buttons: WizardButtons,
             nextStep: 'add-permissions',
@@ -164,7 +169,7 @@ export const schemaBuilder = (_featureFlag: boolean) => {
           },
           {
             name: 'add-permissions',
-            title: intl.formatMessage(messages.addPermissions),
+            title: intl.formatMessage(commonMessages.addPermissions),
             StepTemplate: AddPermissionTemplate,
             buttons: WizardButtons,
             nextStep: ({ values }: { values: FormValues }) => validateNextAddRolePermissionStep('add-permissions', values),
@@ -177,7 +182,7 @@ export const schemaBuilder = (_featureFlag: boolean) => {
           },
           {
             name: 'cost-resources-definition',
-            title: intl.formatMessage(messages.defineCostResources),
+            title: intl.formatMessage(commonMessages.defineCostResources),
             buttons: WizardButtons,
             nextStep: 'review',
             StepTemplate: CostResourcesTemplate,
@@ -185,7 +190,16 @@ export const schemaBuilder = (_featureFlag: boolean) => {
               {
                 component: 'plain-text',
                 name: 'text-description',
-                label: <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.applyCostPermissionText)}</p>,
+                label: (
+                  <p className="pf-v6-u-mb-md">
+                    {intl.formatMessage({
+                      id: 'applyCostPermissionText',
+                      defaultMessage:
+                        'Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.',
+                      description: 'Apply Cost permission text',
+                    })}
+                  </p>
+                ),
               },
               {
                 component: 'cost-resources',
@@ -195,7 +209,7 @@ export const schemaBuilder = (_featureFlag: boolean) => {
           },
           {
             name: 'review',
-            title: intl.formatMessage(messages.reviewDetails),
+            title: intl.formatMessage(commonMessages.reviewDetails),
             buttons: (props: Omit<React.ComponentProps<typeof ReviewStepButtons>, 'context'>) => (
               <ReviewStepButtons {...props} context={AddRoleWizardContext as React.ComponentProps<typeof ReviewStepButtons>['context']} />
             ),

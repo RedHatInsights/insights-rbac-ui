@@ -5,11 +5,12 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclama
 import ServiceIcon from '@patternfly/react-icons/dist/js/icons/service-icon';
 import { useIntl } from 'react-intl';
 import React, { useMemo } from 'react';
-import messages from '../../../../../../Messages';
+
 import { type ServiceAccount, useGroupServiceAccountsQuery } from '../../../../../../v2/data/queries/groups';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface GroupDetailsServiceAccountsViewProps {
   groupId: string;
@@ -30,9 +31,9 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name) },
-      clientId: { label: intl.formatMessage(messages.clientId) },
-      owner: { label: intl.formatMessage(messages.owner) },
+      name: { label: intl.formatMessage(commonMessages.name) },
+      clientId: { label: intl.formatMessage({ id: 'clientId', defaultMessage: 'Client ID', description: 'Client ID column label' }) },
+      owner: { label: intl.formatMessage({ id: 'owner', defaultMessage: 'Owner', description: 'Owner column label' }) },
     }),
     [intl],
   );

@@ -12,7 +12,7 @@ import { useLocation } from 'react-router-dom';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useWorkspacesBillingFeatures } from '../../../../capabilities/useWorkspacesFlag';
 import pathnames from '../../../utilities/pathnames';
-import messages from '../../../../Messages';
+
 import { type WorkspacesWorkspace, useCreateWorkspaceMutation, useWorkspacesQuery, workspacesKeys } from '../../../data/queries/workspaces';
 import { ReviewStep as Review } from './components/Review';
 import { WaitForWorkspaceReady } from './components/WaitForWorkspaceReady';
@@ -65,7 +65,14 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
     queryClient.invalidateQueries({ queryKey: workspacesKeys.all });
     addNotification({
       variant: 'success',
-      title: intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: createdWorkspace?.name }),
+      title: intl.formatMessage(
+        {
+          id: 'createWorkspaceSuccessTitle',
+          defaultMessage: 'New {name} workspace has been successfully created',
+          description: 'Create workspace success notification title',
+        },
+        { name: createdWorkspace?.name },
+      ),
     });
     if (afterSubmit) {
       afterSubmit();
@@ -86,8 +93,12 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   const defaultOnCancel = () => {
     addNotification({
       variant: 'warning',
-      title: intl.formatMessage(messages.createWorkspace),
-      description: intl.formatMessage(messages.creatingWorkspaceCancel),
+      title: intl.formatMessage({ id: 'createWorkspace', defaultMessage: 'Create workspace', description: 'Create workspace action label' }),
+      description: intl.formatMessage({
+        id: 'creatingWorkspaceCancel',
+        defaultMessage: 'Workspace creation was canceled by the user.',
+        description: 'Create workspace canceled notification description',
+      }),
     });
     navigate(pathnames.workspaces.link());
   };

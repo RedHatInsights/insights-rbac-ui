@@ -1,7 +1,6 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import messages from '../../../../../../Messages';
 
 export interface WorkspaceMenuToggleProps {
   menuToggleRef: React.Ref<MenuToggleElement> | undefined;
@@ -22,11 +21,11 @@ export const WorkspaceMenuToggle: React.FC<WorkspaceMenuToggleProps> = ({
 
   let content = '';
   if (isDisabled) {
-    content = intl.formatMessage(messages.loadingWorkspaces);
+    content = intl.formatMessage({ id: 'loadingWorkspaces', defaultMessage: 'Loading workspaces...', description: 'Loading workspaces label' });
   } else if (selectedWorkspaceName) {
     content = selectedWorkspaceName;
   } else {
-    content = intl.formatMessage(messages.selectWorkspaces);
+    content = intl.formatMessage({ id: 'selectWorkspaces', defaultMessage: 'Select workspaces', description: 'Select workspaces label' });
   }
 
   return (

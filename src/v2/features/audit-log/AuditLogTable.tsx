@@ -3,7 +3,7 @@ import { useIntl } from 'react-intl';
 import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
-import messages from '../../../Messages';
+import { commonMessages } from '../../../shared/messages/common';
 
 // ----------------------------------------------------------------------------
 // Types (data shape provided by client)
@@ -60,25 +60,25 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ entries = [], tota
       {
         type: 'text',
         id: 'requester',
-        label: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }),
-        placeholder: intl.formatMessage(messages.filterByKey, {
-          key: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }),
+        label: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester', description: 'Audit log requester column header' }),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, {
+          key: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester', description: 'Audit log requester column header' }),
         }),
       },
       {
         type: 'text',
         id: 'resource',
-        label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }),
-        placeholder: intl.formatMessage(messages.filterByKey, {
-          key: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }),
+        label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource', description: 'Audit log resource column header' }),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, {
+          key: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource', description: 'Audit log resource column header' }),
         }),
       },
       {
         type: 'text',
         id: 'action',
-        label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }),
-        placeholder: intl.formatMessage(messages.filterByKey, {
-          key: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }),
+        label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action', description: 'Audit log action column header' }),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, {
+          key: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action', description: 'Audit log action column header' }),
         }),
       },
     ],
@@ -87,11 +87,21 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ entries = [], tota
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      date: { label: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date' }) },
-      requester: { label: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester' }) },
-      action: { label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }) },
-      resource: { label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }) },
-      description: { label: intl.formatMessage({ id: 'auditLogColumnDescription', defaultMessage: 'Description' }) },
+      date: { label: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date', description: 'Audit log date column header' }) },
+      requester: {
+        label: intl.formatMessage({ id: 'auditLogColumnRequester', defaultMessage: 'Requester', description: 'Audit log requester column header' }),
+      },
+      action: { label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action', description: 'Audit log action column header' }) },
+      resource: {
+        label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource', description: 'Audit log resource column header' }),
+      },
+      description: {
+        label: intl.formatMessage({
+          id: 'auditLogColumnDescription',
+          defaultMessage: 'Description',
+          description: 'Audit log description column header',
+        }),
+      },
     }),
     [intl],
   );
@@ -107,7 +117,18 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ entries = [], tota
     [],
   );
 
-  const emptyStateNoData = useMemo(() => <DefaultEmptyStateNoData title={intl.formatMessage(messages.auditLogNoResults)} />, [intl]);
+  const emptyStateNoData = useMemo(
+    () => (
+      <DefaultEmptyStateNoData
+        title={intl.formatMessage({
+          id: 'auditLogNoResults',
+          defaultMessage: 'No audit log entries found',
+          description: 'Audit log empty state when filters match no results',
+        })}
+      />
+    ),
+    [intl],
+  );
 
   // Filter (client-side when we have full list) and pagination.
   // Apply Requester, Resource, Action; then slice to current page.
@@ -146,7 +167,16 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ entries = [], tota
   const tableData = isLoading ? undefined : error ? [] : paginatedEntries;
 
   const emptyStateNoResults = useMemo(
-    () => <DefaultEmptyStateNoResults title={intl.formatMessage(messages.auditLogNoResults)} onClearFilters={tableState.clearAllFilters} />,
+    () => (
+      <DefaultEmptyStateNoResults
+        title={intl.formatMessage({
+          id: 'auditLogNoResults',
+          defaultMessage: 'No audit log entries found',
+          description: 'Audit log empty state when filters match no results',
+        })}
+        onClearFilters={tableState.clearAllFilters}
+      />
+    ),
     [intl, tableState.clearAllFilters],
   );
 
@@ -170,7 +200,11 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ entries = [], tota
       error={error ? new Error(error) : null}
       emptyStateNoData={emptyStateNoData}
       emptyStateNoResults={emptyStateNoResults}
-      ariaLabel={intl.formatMessage({ id: 'auditLogTableAriaLabel', defaultMessage: 'Audit log entries' })}
+      ariaLabel={intl.formatMessage({
+        id: 'auditLogTableAriaLabel',
+        defaultMessage: 'Audit log entries',
+        description: 'Accessible label for the audit log table',
+      })}
       ouiaId="audit-log-table"
     />
   );

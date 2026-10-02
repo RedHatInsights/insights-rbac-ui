@@ -7,7 +7,7 @@ import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip'
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 
 import type { InheritedWorkspaceGroupRow, WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
-import messages from '../../../../../Messages';
+
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
 import pathnames from '../../../../utilities/pathnames';
@@ -15,6 +15,7 @@ import { TableView } from '@redhat-cloud-services/frontend-components/TableView'
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 const columns = ['name', 'description', 'userCount', 'roleCount', 'inheritedFrom', 'lastModified'] as const;
 type SortableColumn = 'name' | 'userCount' | 'roleCount' | 'inheritedFrom' | 'lastModified';
@@ -51,19 +52,27 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.userGroup), sortable: true },
-      description: { label: intl.formatMessage(messages.description) },
-      userCount: { label: intl.formatMessage(messages.users), sortable: true },
-      roleCount: { label: intl.formatMessage(messages.roles), sortable: true },
+      name: { label: intl.formatMessage({ id: 'userGroup', defaultMessage: 'User group', description: 'User group singular' }), sortable: true },
+      description: { label: intl.formatMessage(commonMessages.description) },
+      userCount: { label: intl.formatMessage(commonMessages.users), sortable: true },
+      roleCount: { label: intl.formatMessage(commonMessages.roles), sortable: true },
       inheritedFrom: {
         label: (
           <>
-            {intl.formatMessage(messages.inheritedFrom)}
+            {intl.formatMessage({ id: 'inheritedFrom', defaultMessage: 'Inherited from', description: 'Inherited from column label' })}
             <Popover
               triggerAction="hover"
               position="top"
-              headerContent={intl.formatMessage(messages.inheritedFromPopoverHeader)}
-              bodyContent={intl.formatMessage(messages.inheritedFromPopoverBody)}
+              headerContent={intl.formatMessage({
+                id: 'inheritedFromPopoverHeader',
+                defaultMessage: 'What does Inherited from show?',
+                description: 'Popover header for the Inherited from column info icon',
+              })}
+              bodyContent={intl.formatMessage({
+                id: 'inheritedFromPopoverBody',
+                defaultMessage: 'This column shows the parent workspace where the role was originally assigned.',
+                description: 'Popover body for the Inherited from column info icon',
+              })}
             >
               <Icon className="pf-v6-u-pl-sm" isInline>
                 <OutlinedQuestionCircleIcon />
@@ -73,7 +82,10 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
         ),
         sortable: true,
       },
-      lastModified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+      lastModified: {
+        label: intl.formatMessage(commonMessages.lastModified),
+        sortable: true,
+      },
     }),
     [intl],
   );
@@ -87,7 +99,9 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
             <span>{row.description.length > 23 ? `${row.description.slice(0, 20)}...` : row.description}</span>
           </Tooltip>
         ) : (
-          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+          <div className="pf-v6-u-color-400">
+            {intl.formatMessage({ id: 'usersAndUserGroupsNoDescription', defaultMessage: 'No description', description: 'No description label' })}
+          </div>
         ),
       userCount: (row) => row.userCount,
       roleCount: (row) => row.roleCount,
@@ -111,13 +125,21 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
       {
         type: 'search',
         id: 'name',
-        placeholder: intl.formatMessage(messages.filterByUserGroup),
+        placeholder: intl.formatMessage({
+          id: 'filterByUserGroup',
+          defaultMessage: 'Filter by user group',
+          description: 'placeholder for user group filter',
+        }),
       },
       {
         type: 'text',
         id: 'inheritedFrom',
-        label: intl.formatMessage(messages.inheritedFrom),
-        placeholder: intl.formatMessage(messages.filterByInheritedFrom),
+        label: intl.formatMessage({ id: 'inheritedFrom', defaultMessage: 'Inherited from', description: 'Inherited from column label' }),
+        placeholder: intl.formatMessage({
+          id: 'filterByInheritedFrom',
+          defaultMessage: 'Filter by inherited from',
+          description: 'placeholder for inherited from filter',
+        }),
       },
     ],
     [intl],
@@ -166,9 +188,24 @@ export const InheritedGroupAssignmentsTable: React.FC<InheritedGroupAssignmentsT
         variant="compact"
         ariaLabel="Role Assignments Table"
         ouiaId={`${ouiaId}-table`}
-        emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} />}
+        emptyStateNoData={
+          <DefaultEmptyStateNoData
+            title={intl.formatMessage({
+              id: 'userGroupsEmptyStateTitle',
+              defaultMessage: 'No user group found',
+              description: 'Empty state title User groups',
+            })}
+          />
+        }
         emptyStateNoResults={
-          <DefaultEmptyStateNoResults title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} onClearFilters={tableState.clearAllFilters} />
+          <DefaultEmptyStateNoResults
+            title={intl.formatMessage({
+              id: 'userGroupsEmptyStateTitle',
+              defaultMessage: 'No user group found',
+              description: 'Empty state title User groups',
+            })}
+            onClearFilters={tableState.clearAllFilters}
+          />
         }
       />
     </GroupDetailsDrawer>

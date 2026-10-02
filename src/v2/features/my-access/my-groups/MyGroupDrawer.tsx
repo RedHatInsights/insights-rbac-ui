@@ -16,7 +16,7 @@ import { type RoleBinding, useGroupRoleBindingsQuery } from '../../../../v2/data
 import { extractErrorMessage } from '../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface MyGroupDrawerProps {
   isOpen: boolean;
@@ -35,8 +35,8 @@ const GroupRolesPanel: React.FC<{ groupId: string }> = ({ groupId }) => {
 
   const columnConfig: ColumnConfigMap<typeof roleColumns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.roles) },
-      workspace: { label: intl.formatMessage(messages.workspace) },
+      name: { label: intl.formatMessage(commonMessages.roles) },
+      workspace: { label: intl.formatMessage({ id: 'workspace', defaultMessage: 'Workspace', description: 'Workspace singular label' }) },
     }),
     [intl],
   );
@@ -70,7 +70,13 @@ const GroupRolesPanel: React.FC<{ groupId: string }> = ({ groupId }) => {
 
   const emptyState = (
     <EmptyState headingLevel="h4" icon={KeyIcon} titleText="No roles found" variant="sm">
-      <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
+      <EmptyStateBody>
+        {intl.formatMessage({
+          id: 'groupNoRolesAssigned',
+          defaultMessage: 'This group currently has no roles assigned to it.',
+          description: 'Message when group has no roles assigned',
+        })}
+      </EmptyStateBody>
     </EmptyState>
   );
 

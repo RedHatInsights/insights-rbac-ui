@@ -14,7 +14,7 @@ import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
-import Messages from '../../../Messages';
+
 import { RolePermissionsTable } from './components/RolePermissionsTable';
 import { AssignedUserGroupsTable } from './components/AssignedUserGroupsTable';
 import { useRoleQuery, useRoleUsageQuery } from '../../data/queries/roles';
@@ -72,8 +72,17 @@ const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole,
   const assignedUserGroupsPopover = (
     <Popover
       triggerAction="hover"
-      headerContent={intl.formatMessage(Messages.assignedUserGroupsTooltipHeader)}
-      bodyContent={intl.formatMessage(Messages.assignedUserGroupsTooltipBody)}
+      headerContent={intl.formatMessage({
+        id: 'assignedUserGroupsTooltipHeader',
+        defaultMessage: 'Assigned user groups',
+        description: 'header for assigned user groups tooltip',
+      })}
+      bodyContent={intl.formatMessage({
+        id: 'assignedUserGroupsTooltipBody',
+        defaultMessage:
+          'User groups are granted roles that contain a set of permissions. Roles are limited to the workspace in which they were assigned',
+        description: 'body for assigned user groups tooltip',
+      })}
     >
       <OutlinedQuestionCircleIcon />
     </Popover>

@@ -6,7 +6,7 @@ import { FormSelectOption } from '@patternfly/react-core/dist/dynamic/components
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../../../Messages';
+
 import InputHelpPopover from '../../../../../shared/components/forms/InputHelpPopover';
 import { WORKSPACE_ACCOUNT } from '../schema';
 
@@ -25,15 +25,22 @@ export const SetDetails = () => {
 
   return (
     <FormGroup
-      label={intl.formatMessage(messages.billingAccount)}
+      label={intl.formatMessage({ id: 'billingAccount', defaultMessage: 'Billing account', description: 'Billing account label' })}
       isRequired
       labelHelp={
         <InputHelpPopover
           bodyContent={
             <>
-              <Content component="p">{intl.formatMessage(messages.workspaceBillingAccountHelperText)}</Content>
+              <Content component="p">
+                {intl.formatMessage({
+                  id: 'workspaceBillingAccountHelperText',
+                  defaultMessage:
+                    "The default billing account is based on the parent workspace's billing account. You can switch to a different billing account as needed. This change is independent of the workspace hierarchy.",
+                  description: 'Workspace billing account field helper text',
+                })}
+              </Content>
               <Button className="pf-v6-u-mt-xs" variant="link" href="#" isInline>
-                {intl.formatMessage(messages.learnMore)}
+                {intl.formatMessage({ id: 'learnMore', defaultMessage: 'Learn more', description: 'learn more link' })}
               </Button>
             </>
           }

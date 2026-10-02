@@ -6,10 +6,11 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { type Group, useGroupsQuery } from '../../../../../../v2/data/queries/groups';
-import messages from '../../../../../../Messages';
+
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface UserGroupsViewProps {
   userId: string;
@@ -29,8 +30,8 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.userGroup) },
-      users: { label: intl.formatMessage(messages.users) },
+      name: { label: intl.formatMessage({ id: 'userGroup', defaultMessage: 'User group', description: 'User group singular' }) },
+      users: { label: intl.formatMessage(commonMessages.users) },
     }),
     [intl],
   );

@@ -12,7 +12,7 @@ import { useRolesAccess } from '../../hooks/useRbacAccess';
 
 import PageHeader from '@patternfly/react-component-groups/dist/esm/PageHeader';
 import { FormattedMessage, useIntl } from 'react-intl';
-import messages from '../../../Messages';
+
 import { Outlet } from 'react-router-dom';
 import RolesDetails from './RolesWithWorkspacesDetails';
 import ResponsiveAction from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
@@ -28,6 +28,7 @@ import { RolesEmptyState } from './components/RolesEmptyState';
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { getDateFormat } from '../../../shared/helpers/stringUtilities';
+import { commonMessages } from '../../../shared/messages/common';
 
 const ouiaId = 'RolesTable';
 
@@ -75,10 +76,13 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name), sortable: true },
-      description: { label: intl.formatMessage(messages.description) },
-      permissions: { label: intl.formatMessage(messages.permissions), width: 20 },
-      last_modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+      name: { label: intl.formatMessage(commonMessages.name), sortable: true },
+      description: { label: intl.formatMessage(commonMessages.description) },
+      permissions: { label: intl.formatMessage(commonMessages.permissions), width: 20 },
+      last_modified: {
+        label: intl.formatMessage(commonMessages.lastModified),
+        sortable: true,
+      },
     }),
     [intl],
   );
@@ -98,7 +102,11 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
       {
         type: 'search',
         id: 'name',
-        placeholder: intl.formatMessage(messages.nameFilterPlaceholder),
+        placeholder: intl.formatMessage({
+          id: 'nameFilterPlaceholder',
+          defaultMessage: 'Filter by name',
+          description: 'placeholder for name filter',
+        }),
       },
     ],
     [intl],
@@ -127,8 +135,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
           popperProps={{ position: 'right' }}
         >
           <DropdownList>
-            {editable && <DropdownItem onClick={() => handleEditRole(row)}>{intl.formatMessage(messages.edit)}</DropdownItem>}
-            {deletable && <DropdownItem onClick={() => handleModalToggle([row])}>{intl.formatMessage(messages.delete)}</DropdownItem>}
+            {editable && <DropdownItem onClick={() => handleEditRole(row)}>{intl.formatMessage(commonMessages.edit)}</DropdownItem>}
+            {deletable && <DropdownItem onClick={() => handleModalToggle([row])}>{intl.formatMessage(commonMessages.delete)}</DropdownItem>}
           </DropdownList>
         </Dropdown>
       );
@@ -146,7 +154,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
       canCreateRole ? (
         <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
           <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(pathnames['access-management-add-role'].link())} isPinned>
-            {intl.formatMessage(messages.createRole)}
+            {intl.formatMessage(commonMessages.createRole)}
           </ResponsiveAction>
           <ResponsiveAction
             ouiaId="edit-role-button"
@@ -156,10 +164,10 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
               if (role) handleEditRole(role);
             }}
           >
-            {intl.formatMessage(messages.editRole)}
+            {intl.formatMessage({ id: 'editRole', defaultMessage: 'Edit role', description: 'Edit role toolbar action' })}
           </ResponsiveAction>
           <ResponsiveAction ouiaId="delete-role-button" isDisabled={selectedCount === 0} onClick={() => handleModalToggle(tableState.selectedRows)}>
-            {intl.formatMessage(messages.deleteRole)}
+            {intl.formatMessage({ id: 'deleteRole', defaultMessage: 'Delete role', description: 'Delete role message' })}
           </ResponsiveAction>
         </ResponsiveActions>
       ) : undefined,
@@ -183,11 +191,23 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
           <WarningModal
             ouiaId={`${ouiaId}-remove-role-modal`}
             isOpen={isDeleteModalOpen}
-            title={intl.formatMessage(messages.deleteCustomRoleModalHeader)}
-            confirmButtonLabel={intl.formatMessage(messages.deleteRoleConfirm)}
+            title={intl.formatMessage({
+              id: 'deleteCustomRoleModalHeader',
+              defaultMessage: 'Delete role?',
+              description: 'Modal header text for deleting custom role',
+            })}
+            confirmButtonLabel={intl.formatMessage({
+              id: 'deleteRoleConfirm',
+              defaultMessage: 'Delete role',
+              description: 'confirm button for deleting role',
+            })}
             confirmButtonVariant={ButtonVariant.danger}
             withCheckbox
-            checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
+            checkboxLabel={intl.formatMessage({
+              id: 'understandActionIrreversible',
+              defaultMessage: 'I understand that this action cannot be undone',
+              description: 'Understand action cannot be undone message',
+            })}
             onClose={() => setIsDeleteModalOpen(false)}
             onConfirm={async () => {
               try {
@@ -200,11 +220,14 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
             }}
           >
             <FormattedMessage
-              {...messages.deleteCustomRoleModalBody}
+              id={'deleteCustomRoleModalBody'}
+              defaultMessage={
+                'Deleting the {count, plural, one {the <b>{name}</b> role} other {{count} roles}} may remove acess to certain user groups in your organization'
+              }
+              description={'Modal body text for deleting custom role'}
               values={{
                 b: (text) => <b>{text}</b>,
                 count: currentRoles.length,
-                plural: currentRoles.length > 1 ? intl.formatMessage(messages.roles) : intl.formatMessage(messages.role),
                 name: currentRoles[0]?.name,
               }}
             />
@@ -246,7 +269,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole, on
           onRowClick={handleRowClick}
           isRowClickable={() => true}
           variant="compact"
-          ariaLabel={intl.formatMessage(messages.roles)}
+          ariaLabel={intl.formatMessage(commonMessages.roles)}
           ouiaId={ouiaId}
           emptyStateNoData={<RolesEmptyState hasActiveFilters={false} addRoleLink={pathnames['access-management-add-role'].link()} />}
           emptyStateNoResults={<RolesEmptyState hasActiveFilters={true} addRoleLink={pathnames['access-management-add-role'].link()} />}

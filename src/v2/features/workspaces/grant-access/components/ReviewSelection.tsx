@@ -7,7 +7,6 @@ import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { List, ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { useGroupsQuery } from '../../../../../v2/data/queries/groups';
 import { useAllRolesV2Query } from '../../../../data/queries/roles';
-import messages from '../../../../../Messages';
 
 const ReviewSelection: React.FC<{ workspaceId?: string; resourceType?: string }> = ({ workspaceId, resourceType }) => {
   const intl = useIntl();
@@ -32,12 +31,18 @@ const ReviewSelection: React.FC<{ workspaceId?: string; resourceType?: string }>
     <Stack hasGutter>
       <StackItem>
         <Title headingLevel="h2" size="xl" className="pf-v6-u-mb-md">
-          {intl.formatMessage(messages.review)}
+          {intl.formatMessage({ id: 'review', defaultMessage: 'Review', description: 'Review label' })}
         </Title>
       </StackItem>
       <StackItem>
         <Content>
-          <Content component={ContentVariants.h3}>{intl.formatMessage(messages.selectedUserGroups)}</Content>
+          <Content component={ContentVariants.h3}>
+            {intl.formatMessage({
+              id: 'selectedUserGroups',
+              defaultMessage: 'Selected user groups',
+              description: 'Selected user groups section title',
+            })}
+          </Content>
           {selectedGroupObjects.length > 0 ? (
             <List>
               {selectedGroupObjects.map((group) => (
@@ -49,13 +54,21 @@ const ReviewSelection: React.FC<{ workspaceId?: string; resourceType?: string }>
               ))}
             </List>
           ) : (
-            <Content component={ContentVariants.p}>{intl.formatMessage(messages.noUserGroupsSelected)}</Content>
+            <Content component={ContentVariants.p}>
+              {intl.formatMessage({
+                id: 'noUserGroupsSelected',
+                defaultMessage: 'No user groups selected',
+                description: 'Message when no user groups are selected',
+              })}
+            </Content>
           )}
         </Content>
       </StackItem>
       <StackItem>
         <Content>
-          <Content component={ContentVariants.h3}>{intl.formatMessage(messages.selectedRoles)}</Content>
+          <Content component={ContentVariants.h3}>
+            {intl.formatMessage({ id: 'selectedRoles', defaultMessage: 'Selected roles', description: 'Selected roles section title' })}
+          </Content>
           {selectedRoleObjects.length > 0 ? (
             <List>
               {selectedRoleObjects.map((role) => (
@@ -68,7 +81,9 @@ const ReviewSelection: React.FC<{ workspaceId?: string; resourceType?: string }>
               ))}
             </List>
           ) : (
-            <Content component={ContentVariants.p}>{intl.formatMessage(messages.noRolesSelected)}</Content>
+            <Content component={ContentVariants.p}>
+              {intl.formatMessage({ id: 'noRolesSelected', defaultMessage: 'No roles selected', description: 'Message when no roles are selected' })}
+            </Content>
           )}
         </Content>
       </StackItem>

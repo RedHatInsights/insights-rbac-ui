@@ -12,7 +12,7 @@ import {
 } from '@redhat-cloud-services/frontend-components/TableView';
 import { ActionDropdown } from '../../../../../../shared/components/ActionDropdown';
 import type { User } from '../../../../../../shared/data/queries/users';
-import messages from '../../../../../../Messages';
+
 import { type SortableColumnId, sortableColumns, standardColumns, useUsersTableConfig } from './useUsersTableConfig';
 
 interface UsersTableProps {
@@ -99,7 +99,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         <Split hasGutter>
           <SplitItem>
             <Button variant="primary" onClick={onInviteUsersClick} ouiaId={`${ouiaId}-invite-users-button`}>
-              {intl.formatMessage(messages.inviteUsers)}
+              {intl.formatMessage({ id: 'inviteUsers', defaultMessage: 'Invite users', description: 'Invite users' })}
             </Button>
           </SplitItem>
           <SplitItem>
@@ -109,7 +109,11 @@ export const UsersTable: React.FC<UsersTableProps> = ({
               onClick={() => onAddUserToGroup(selectedRows)}
               ouiaId={`${ouiaId}-add-user-button`}
             >
-              {intl.formatMessage(messages['addToUserGroup'])}
+              {intl.formatMessage({
+                id: 'addToUserGroup',
+                defaultMessage: 'Add to user group',
+                description: 'Action column option to add user to group',
+              })}
             </Button>
           </SplitItem>
           <SplitItem>
@@ -119,13 +123,21 @@ export const UsersTable: React.FC<UsersTableProps> = ({
               items={[
                 {
                   key: 'activate',
-                  label: intl.formatMessage(messages.activateUsersButton),
+                  label: intl.formatMessage({
+                    id: 'activateUsersButton',
+                    defaultMessage: 'Activate users',
+                    description: 'activate users button text',
+                  }),
                   onClick: () => onBulkActivate(selectedRows),
                   isDisabled: selectedRows.length === 0,
                 },
                 {
                   key: 'deactivate',
-                  label: intl.formatMessage(messages.deactivateUsersButton),
+                  label: intl.formatMessage({
+                    id: 'deactivateUsersButton',
+                    defaultMessage: 'Deactivate users',
+                    description: 'deactivate users button text',
+                  }),
                   onClick: () => onBulkDeactivate(selectedRows),
                   isDisabled: selectedRows.length === 0,
                 },
@@ -136,7 +148,11 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                 },
                 {
                   key: 'remove-from-group',
-                  label: intl.formatMessage(messages.removeFromUserGroup),
+                  label: intl.formatMessage({
+                    id: 'removeFromUserGroup',
+                    defaultMessage: 'Remove from user groups',
+                    description: 'Action column option to remove user from group',
+                  }),
                   onClick: () => onRemoveUserFromGroup(selectedRows),
                   isDisabled: selectedRows.length === 0,
                 },
@@ -178,12 +194,20 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   items={[
                     {
                       key: 'add-to-group',
-                      label: intl.formatMessage(messages['addToUserGroup']),
+                      label: intl.formatMessage({
+                        id: 'addToUserGroup',
+                        defaultMessage: 'Add to user group',
+                        description: 'Action column option to add user to group',
+                      }),
                       onClick: () => onAddUserToGroup([user]),
                     },
                     {
                       key: 'remove-from-group',
-                      label: intl.formatMessage(messages.removeFromUserGroup),
+                      label: intl.formatMessage({
+                        id: 'removeFromUserGroup',
+                        defaultMessage: 'Remove from user groups',
+                        description: 'Action column option to remove user from group',
+                      }),
                       onClick: () => onRemoveUserFromGroup([user]),
                     },
                   ]}
@@ -198,14 +222,22 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         // Empty states
         emptyStateNoData={
           <DefaultEmptyStateNoData
-            title={intl.formatMessage(messages.usersEmptyStateTitle)}
-            body={intl.formatMessage(messages.usersEmptyStateSubtitle)}
+            title={intl.formatMessage({ id: 'usersEmptyStateTitle', defaultMessage: 'No users found', description: 'Empty state title Users' })}
+            body={intl.formatMessage({
+              id: 'usersEmptyStateSubtitle',
+              defaultMessage: 'This filter criteria matches no users. Try changing your filter input.',
+              description: 'Empty state subtitle Users',
+            })}
           />
         }
         emptyStateNoResults={
           <DefaultEmptyStateNoResults
-            title={intl.formatMessage(messages.usersEmptyStateTitle)}
-            body={intl.formatMessage(messages.usersEmptyStateSubtitle)}
+            title={intl.formatMessage({ id: 'usersEmptyStateTitle', defaultMessage: 'No users found', description: 'Empty state title Users' })}
+            body={intl.formatMessage({
+              id: 'usersEmptyStateSubtitle',
+              defaultMessage: 'This filter criteria matches no users. Try changing your filter input.',
+              description: 'Empty state subtitle Users',
+            })}
           />
         }
         // Config

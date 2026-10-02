@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+
 import { EMPTY_PERMISSIONS, type WorkspacePermissions, useWorkspacesQuery } from '../../../data/queries/workspaces';
 import { useWorkspacesFlag } from '../../../../capabilities/useWorkspacesFlag';
 
@@ -46,7 +46,7 @@ export function useWorkspaceActionItems({ workspaceId, permissions, callbacks }:
     if (callbacks.onEdit) {
       items.push({
         key: 'edit_workspace',
-        label: intl.formatMessage(messages.workspacesActionEditWorkspace),
+        label: intl.formatMessage({ id: 'workspacesActionEditWorkspace', defaultMessage: 'Edit workspace', description: 'Menu item Edit workspace' }),
         onClick: callbacks.onEdit,
         isDisabled: !perms.edit,
       });
@@ -55,7 +55,11 @@ export function useWorkspaceActionItems({ workspaceId, permissions, callbacks }:
     if (callbacks.onGrantAccess) {
       items.push({
         key: 'grant_access',
-        label: intl.formatMessage(messages.workspacesActionGrantAccessToWorkspace),
+        label: intl.formatMessage({
+          id: 'workspacesActionGrantAccessToWorkspace',
+          defaultMessage: 'Grant access to workspace',
+          description: 'Menu item Grant access to workspace',
+        }),
         onClick: callbacks.onGrantAccess,
         isDisabled: !perms.create || !hasM4Flag,
       });
@@ -64,7 +68,11 @@ export function useWorkspaceActionItems({ workspaceId, permissions, callbacks }:
     if (callbacks.onCreateSibling) {
       items.push({
         key: 'create_sibling_workspace',
-        label: intl.formatMessage(messages.workspacesActionCreateSiblingWorkspace),
+        label: intl.formatMessage({
+          id: 'workspacesActionCreateSiblingWorkspace',
+          defaultMessage: 'Create sibling workspace',
+          description: 'Menu item Create sibling workspace',
+        }),
         onClick: callbacks.onCreateSibling,
         isDisabled: !perms.create,
       });
@@ -73,7 +81,11 @@ export function useWorkspaceActionItems({ workspaceId, permissions, callbacks }:
     if (callbacks.onCreateSub) {
       items.push({
         key: 'create_subworkspace',
-        label: intl.formatMessage(messages.workspacesActionCreateSubWorkspace),
+        label: intl.formatMessage({
+          id: 'workspacesActionCreateSubWorkspace',
+          defaultMessage: 'Create sub-workspace',
+          description: 'Menu item Create sub-workspace',
+        }),
         onClick: callbacks.onCreateSub,
         isDisabled: !perms.create,
       });
@@ -82,7 +94,7 @@ export function useWorkspaceActionItems({ workspaceId, permissions, callbacks }:
     if (callbacks.onMove) {
       items.push({
         key: 'move_workspace',
-        label: intl.formatMessage(messages.workspacesActionMoveWorkspace),
+        label: intl.formatMessage({ id: 'workspacesActionMoveWorkspace', defaultMessage: 'Move workspace', description: 'Menu item Move workspace' }),
         onClick: callbacks.onMove,
         isDisabled: !perms.move,
       });
@@ -99,7 +111,11 @@ export function useWorkspaceActionItems({ workspaceId, permissions, callbacks }:
       });
       items.push({
         key: 'delete_workspace',
-        label: intl.formatMessage(messages.workspacesActionDeleteWorkspace),
+        label: intl.formatMessage({
+          id: 'workspacesActionDeleteWorkspace',
+          defaultMessage: 'Delete workspace',
+          description: 'Menu item Delete workspace',
+        }),
         onClick: callbacks.onDelete,
         isDisabled: deleteDisabled,
         isDanger: !deleteDisabled,

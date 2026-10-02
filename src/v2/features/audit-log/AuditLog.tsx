@@ -9,7 +9,7 @@ import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-clo
 import { GetAuditlogsActionEnum as ActionEnum, GetAuditlogsResourceTypeEnum as ResourceTypeEnum, useAuditLogsQuery } from '../../data/queries/audit';
 import type { AuditLog as ApiAuditLog } from '../../data/queries/audit';
 import { getDateFormat } from '../../../shared/helpers/stringUtilities';
-import messages from '../../../Messages';
+import { commonMessages } from '../../../shared/messages/common';
 
 const VALID_RESOURCE_TYPES = new Set<string>(Object.values(ResourceTypeEnum));
 const VALID_ACTIONS = new Set<string>(Object.values(ActionEnum));
@@ -81,11 +81,19 @@ export const AuditLog: React.FC = () => {
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      date: { label: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date' }) },
-      requester: { label: intl.formatMessage(messages.requester) },
-      action: { label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action' }) },
-      resource: { label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource' }) },
-      description: { label: intl.formatMessage({ id: 'auditLogColumnDescription', defaultMessage: 'Description' }) },
+      date: { label: intl.formatMessage({ id: 'auditLogColumnDate', defaultMessage: 'Date', description: 'Audit log date column header' }) },
+      requester: { label: intl.formatMessage({ id: 'requester', defaultMessage: 'Requester', description: 'Requester label' }) },
+      action: { label: intl.formatMessage({ id: 'auditLogColumnAction', defaultMessage: 'Action', description: 'Audit log action column header' }) },
+      resource: {
+        label: intl.formatMessage({ id: 'auditLogColumnResource', defaultMessage: 'Resource', description: 'Audit log resource column header' }),
+      },
+      description: {
+        label: intl.formatMessage({
+          id: 'auditLogColumnDescription',
+          defaultMessage: 'Description',
+          description: 'Audit log description column header',
+        }),
+      },
     }),
     [intl],
   );
@@ -95,29 +103,33 @@ export const AuditLog: React.FC = () => {
       {
         type: 'text',
         id: 'requester',
-        label: intl.formatMessage(messages.requester),
-        placeholder: intl.formatMessage(messages.filterByRequester),
+        label: intl.formatMessage({ id: 'requester', defaultMessage: 'Requester', description: 'Requester label' }),
+        placeholder: intl.formatMessage({
+          id: 'filterByRequester',
+          defaultMessage: 'Filter by requester',
+          description: 'Audit log filter placeholder for requester',
+        }),
       },
       {
         type: 'checkbox',
         id: 'resource',
-        label: intl.formatMessage(messages.resource),
+        label: intl.formatMessage({ id: 'resource', defaultMessage: 'Resource', description: 'Resource label' }),
         options: [
-          { id: 'group', label: intl.formatMessage(messages.group) },
-          { id: 'role', label: intl.formatMessage(messages.role) },
-          { id: 'user', label: intl.formatMessage(messages.userCapitalized) },
+          { id: 'group', label: intl.formatMessage({ id: 'group', defaultMessage: 'Group', description: 'Group singular' }) },
+          { id: 'role', label: intl.formatMessage(commonMessages.role) },
+          { id: 'user', label: intl.formatMessage({ id: 'userCapitalized', defaultMessage: 'User', description: 'User singular (capitalized)' }) },
         ],
       },
       {
         type: 'checkbox',
         id: 'action',
-        label: intl.formatMessage(messages.action),
+        label: intl.formatMessage({ id: 'action', defaultMessage: 'Action', description: 'Action label' }),
         options: [
-          { id: 'add', label: intl.formatMessage(messages.add) },
-          { id: 'create', label: intl.formatMessage(messages.create) },
-          { id: 'delete', label: intl.formatMessage(messages.delete) },
-          { id: 'edit', label: intl.formatMessage(messages.edit) },
-          { id: 'remove', label: intl.formatMessage(messages.remove) },
+          { id: 'add', label: intl.formatMessage({ id: 'add', defaultMessage: 'Add', description: 'Add label' }) },
+          { id: 'create', label: intl.formatMessage({ id: 'create', defaultMessage: 'Create', description: 'Create label' }) },
+          { id: 'delete', label: intl.formatMessage(commonMessages.delete) },
+          { id: 'edit', label: intl.formatMessage(commonMessages.edit) },
+          { id: 'remove', label: intl.formatMessage(commonMessages.remove) },
         ],
       },
     ],
@@ -135,15 +147,43 @@ export const AuditLog: React.FC = () => {
     [],
   );
 
-  const emptyStateNoData = useMemo(() => <DefaultEmptyStateNoData title={intl.formatMessage(messages.auditLogNoResults)} />, [intl]);
+  const emptyStateNoData = useMemo(
+    () => (
+      <DefaultEmptyStateNoData
+        title={intl.formatMessage({
+          id: 'auditLogNoResults',
+          defaultMessage: 'No audit log entries found',
+          description: 'Audit log empty state when filters match no results',
+        })}
+      />
+    ),
+    [intl],
+  );
   const emptyStateNoResults = useMemo(
-    () => <DefaultEmptyStateNoResults title={intl.formatMessage(messages.auditLogNoResults)} onClearFilters={tableState.clearAllFilters} />,
+    () => (
+      <DefaultEmptyStateNoResults
+        title={intl.formatMessage({
+          id: 'auditLogNoResults',
+          defaultMessage: 'No audit log entries found',
+          description: 'Audit log empty state when filters match no results',
+        })}
+        onClearFilters={tableState.clearAllFilters}
+      />
+    ),
     [intl, tableState.clearAllFilters],
   );
 
   return (
     <>
-      <PageHeader title={intl.formatMessage(messages.auditLog)} subtitle={intl.formatMessage(messages.auditLogSubtitle)} />
+      <PageHeader
+        title={intl.formatMessage({ id: 'auditLog', defaultMessage: 'Audit Log', description: 'Audit Log page title' })}
+        subtitle={intl.formatMessage({
+          id: 'auditLogSubtitle',
+          defaultMessage:
+            'The user access audit log tracks admin actions, such as adding/removing users from groups, adding/removing roles from groups, create/editing/deleting roles, or creating/editing/deleting groups. Logs can be filtered by requester, resource or action.',
+          description: 'Audit Log page subtitle',
+        })}
+      />
       <PageSection hasBodyWrapper={false}>
         <TableView<typeof columns, AuditLogRow>
           columns={columns}
@@ -156,7 +196,11 @@ export const AuditLog: React.FC = () => {
           error={errorMessage ? new Error(errorMessage) : null}
           emptyStateNoData={emptyStateNoData}
           emptyStateNoResults={emptyStateNoResults}
-          ariaLabel={intl.formatMessage({ id: 'auditLogTableAriaLabel', defaultMessage: 'Audit log entries' })}
+          ariaLabel={intl.formatMessage({
+            id: 'auditLogTableAriaLabel',
+            defaultMessage: 'Audit log entries',
+            description: 'Accessible label for the audit log table',
+          })}
           ouiaId="audit-log-table"
           {...tableState}
         />
