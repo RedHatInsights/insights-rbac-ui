@@ -5,8 +5,9 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+
 import type { EmptyGroupsStateProps } from '../types';
+import { commonMessages } from '../../../../shared/messages/common';
 
 export const EmptyGroupsState: React.FC<EmptyGroupsStateProps> = ({ hasActiveFilters }) => {
   const intl = useIntl();
@@ -24,9 +25,9 @@ export const EmptyGroupsState: React.FC<EmptyGroupsStateProps> = ({ hasActiveFil
   return (
     <EmptyState headingLevel="h4" icon={UsersIcon} titleText="Configure groups">
       <EmptyStateBody>
-        {intl.formatMessage(messages.toConfigureUserAccess)}{' '}
-        {intl.formatMessage(messages.createAtLeastOneItem, {
-          item: intl.formatMessage(messages.group).toLowerCase(),
+        {intl.formatMessage(commonMessages.toConfigureUserAccess)}{' '}
+        {intl.formatMessage(commonMessages.createAtLeastOneItem, {
+          item: intl.formatMessage({ id: 'group', defaultMessage: 'Group', description: 'Group singular' }).toLowerCase(),
         })}
         .
       </EmptyStateBody>

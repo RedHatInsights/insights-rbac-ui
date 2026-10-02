@@ -13,10 +13,11 @@ import useUserData from '../../../hooks/useUserData';
 import { useAppLink } from '../../../../shared/hooks/useAppLink';
 import { rolesKeys, useRoleQuery } from '../../../data/queries/roles';
 import pathnames from '../../../utilities/pathnames';
-import messages from '../../../../Messages';
+
 import { RoleDetail } from './components/RoleDetail';
 import { RolePermissions } from './components/RolePermissions';
 import { useRolePermissions } from './useRolePermissions';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface RoleProps {
   onDelete?: () => void;
@@ -116,13 +117,13 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
   const breadcrumbsList = (): Breadcrumb[] => [
     groupId
       ? {
-          title: intl.formatMessage(messages.groups),
+          title: intl.formatMessage(commonMessages.groups),
           to: routeToString(
             getBackRoute(toAppLink(pathnames.groups.link()) as string, groupsPagination as { limit: number; offset: number }, groupsFilters),
           ),
         }
       : {
-          title: intl.formatMessage(messages.roles),
+          title: intl.formatMessage(commonMessages.roles),
           to: routeToString(
             getBackRoute(toAppLink(pathnames.roles.link()) as string, rolesPagination as { limit: number; offset: number }, rolesFilters),
           ),
@@ -140,12 +141,21 @@ const Role: React.FC<RoleProps> = ({ onDelete }) => {
         : []
       : groupExists || !groupId
         ? []
-        : [{ title: intl.formatMessage(messages.invalidGroup), isActive: true }]),
+        : [
+            {
+              title: intl.formatMessage({ id: 'invalidGroup', defaultMessage: 'Invalid group', description: 'Invalid group message' }),
+              isActive: true,
+            },
+          ]),
 
     ...(groupExists || !groupId
       ? [
           {
-            title: isLoading ? undefined : roleExists ? role?.display_name || role?.name : intl.formatMessage(messages.invalidRole),
+            title: isLoading
+              ? undefined
+              : roleExists
+                ? role?.display_name || role?.name
+                : intl.formatMessage({ id: 'invalidRole', defaultMessage: 'Invalid role', description: 'Invalid role message' }),
             isActive: true,
           },
         ]

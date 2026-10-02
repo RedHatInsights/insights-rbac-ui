@@ -12,7 +12,7 @@ import {
   createRolesApi,
 } from '../api/roles';
 import { useAppServices } from '../../../shared/contexts/ServiceContext';
-import messages from '../../../Messages';
+
 import { useMutationQueryClient } from '../../../shared/data/utils';
 import { type MutationOptions, type QueryOptions } from '../../../shared/data/types';
 
@@ -151,7 +151,14 @@ export function useCreateRoleMutation(options?: MutationOptions) {
         qc.invalidateQueries({ queryKey: rolesKeys.all });
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.createRoleErrorTitle));
+        notify(
+          'danger',
+          intl.formatMessage({
+            id: 'createRoleErrorTitle',
+            defaultMessage: 'Failed adding role',
+            description: 'Create role error notification title',
+          }),
+        );
       },
     },
     options?.queryClient,
@@ -180,10 +187,20 @@ export function useUpdateRoleMutation(options?: MutationOptions) {
       mutationFn: ({ uuid, rolePut }: UpdateRoleMutationParams) => rolesApi.updateRole({ uuid, rolePut }),
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: rolesKeys.all });
-        notify('success', intl.formatMessage(messages.editRoleSuccessTitle));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'editRoleSuccessTitle',
+            defaultMessage: 'Success updating role',
+            description: 'Edit role success notification title',
+          }),
+        );
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.editRoleErrorTitle));
+        notify(
+          'danger',
+          intl.formatMessage({ id: 'editRoleErrorTitle', defaultMessage: 'Failed updating role', description: 'Edit role error notification title' }),
+        );
       },
     },
     options?.queryClient,
@@ -207,10 +224,24 @@ export function useDeleteRoleMutation(options?: MutationOptions) {
       mutationFn: (uuid: string) => rolesApi.deleteRole({ uuid }),
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: rolesKeys.all });
-        notify('success', intl.formatMessage(messages.removeRoleSuccessTitle));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'removeRoleSuccessTitle',
+            defaultMessage: 'Success removing role',
+            description: 'Remove role success notification title',
+          }),
+        );
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.removeRoleErrorTitle));
+        notify(
+          'danger',
+          intl.formatMessage({
+            id: 'removeRoleErrorTitle',
+            defaultMessage: 'Failed removing role',
+            description: 'Remove role error notification title',
+          }),
+        );
       },
     },
     options?.queryClient,
@@ -242,10 +273,20 @@ export function usePatchRoleMutation(options?: MutationOptions) {
       },
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: rolesKeys.all });
-        notify('success', intl.formatMessage(messages.editRoleSuccessTitle));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'editRoleSuccessTitle',
+            defaultMessage: 'Success updating role',
+            description: 'Edit role success notification title',
+          }),
+        );
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.editRoleErrorTitle));
+        notify(
+          'danger',
+          intl.formatMessage({ id: 'editRoleErrorTitle', defaultMessage: 'Failed updating role', description: 'Edit role error notification title' }),
+        );
       },
     },
     options?.queryClient,

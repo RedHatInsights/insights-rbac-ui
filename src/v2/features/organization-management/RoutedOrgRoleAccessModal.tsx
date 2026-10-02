@@ -6,7 +6,7 @@ import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
 import { useOrganizationData } from '../../hooks/useOrganizationData';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import pathnames from '../../utilities/pathnames';
-import messages from '../../../Messages';
+
 import { useGroupQuery } from '../../data/queries/groups';
 import { useRoleBindingsQuery, useUpdateGroupRolesMutation } from '../../data/queries/workspaces';
 import { useAllRolesV2Query } from '../../data/queries/roles';
@@ -87,7 +87,13 @@ export const RoutedOrgRoleAccessModal: React.FC = () => {
   }
 
   const isLoading = orgLoading || groupLoading || rolesLoading || bindingsLoading;
-  const workspaceName = organizationName || intl.formatMessage(messages.organizationWideAccessTitle);
+  const workspaceName =
+    organizationName ||
+    intl.formatMessage({
+      id: 'organizationWideAccessTitle',
+      defaultMessage: 'Organization-Wide Access',
+      description: 'Organization-Wide Access page title',
+    });
   const dataReady = !isLoading && !!group && !!allRoles;
 
   return (
@@ -100,7 +106,10 @@ export const RoutedOrgRoleAccessModal: React.FC = () => {
       aria-labelledby="org-role-access-modal-title"
       aria-describedby="org-role-access-modal-body"
     >
-      <ModalHeader title={dataReady ? intl.formatMessage(messages.editAccess) : ''} labelId="org-role-access-modal-title" />
+      <ModalHeader
+        title={dataReady ? intl.formatMessage({ id: 'editAccess', defaultMessage: 'Edit access', description: 'Edit access action text' }) : ''}
+        labelId="org-role-access-modal-title"
+      />
       <ModalBody id="org-role-access-modal-body">
         {isLoading && (
           <div className="pf-v6-u-text-align-center pf-v6-u-py-2xl">
@@ -108,7 +117,9 @@ export const RoutedOrgRoleAccessModal: React.FC = () => {
           </div>
         )}
         {!isLoading && !dataReady && (
-          <div className="pf-v6-u-text-align-center pf-v6-u-py-2xl pf-v6-u-color-200">{intl.formatMessage(messages.unableToLoadRoles)}</div>
+          <div className="pf-v6-u-text-align-center pf-v6-u-py-2xl pf-v6-u-color-200">
+            {intl.formatMessage({ id: 'unableToLoadRoles', defaultMessage: 'Unable to load roles', description: 'Unable to load roles error title' })}
+          </div>
         )}
         {dataReady && (
           <RoleAccessModalContent

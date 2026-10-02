@@ -5,11 +5,12 @@ import ReviewTemplate from './review-template';
 import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { createIntl, createIntlCache } from 'react-intl';
-import messages from '../../../../Messages';
-import providerMessages from '../../../../locales/data.json';
+
+import providerMessages from '../../../../locales/translations.json';
 import { locale } from '../../../../locales/locale';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { commonMessages } from '../../../../shared/messages/common';
 
 export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
   const cache = createIntlCache();
@@ -23,7 +24,7 @@ export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
         isDynamic: true,
         inModal: true,
         showTitles: true,
-        title: intl.formatMessage(messages.createGroup),
+        title: intl.formatMessage({ id: 'createGroup', defaultMessage: 'Create group', description: 'Create group wizard title' }),
         'data-ouia-component-id': 'add-group-wizard',
         container: getModalContainer(),
         fields: [
@@ -31,7 +32,11 @@ export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
             name: 'name-and-description',
             buttons: WizardButtons,
             nextStep: enableRoles ? 'add-roles' : 'add-users',
-            title: intl.formatMessage(messages.nameAndDescription),
+            title: intl.formatMessage({
+              id: 'nameAndDescription',
+              defaultMessage: 'Name and description',
+              description: 'Name and description wizard step title',
+            }),
             fields: [
               {
                 component: 'set-name',
@@ -61,7 +66,7 @@ export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
                   name: 'add-roles',
                   buttons: WizardButtons,
                   nextStep: 'add-users',
-                  title: intl.formatMessage(messages.addRoles),
+                  title: intl.formatMessage({ id: 'addRoles', defaultMessage: 'Add roles', description: 'Add roles wizard step title' }),
                   fields: [
                     {
                       component: 'set-roles',
@@ -75,7 +80,7 @@ export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
             name: 'add-users',
             buttons: WizardButtons,
             nextStep: enableServiceAccounts ? 'add-service-accounts' : 'review',
-            title: intl.formatMessage(messages.addMembers),
+            title: intl.formatMessage({ id: 'addMembers', defaultMessage: 'Add members', description: 'Add members wizard step title' }),
             fields: [
               {
                 component: 'set-users',
@@ -89,7 +94,11 @@ export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
                   name: 'add-service-accounts',
                   buttons: WizardButtons,
                   nextStep: 'review',
-                  title: intl.formatMessage(messages.addServiceAccounts),
+                  title: intl.formatMessage({
+                    id: 'addServiceAccounts',
+                    defaultMessage: 'Add service accounts',
+                    description: 'Add service accounts wizard step title',
+                  }),
                   fields: [
                     {
                       component: 'set-service-accounts',
@@ -101,7 +110,7 @@ export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
             : []),
           {
             name: 'review',
-            title: intl.formatMessage(messages.reviewDetails),
+            title: intl.formatMessage(commonMessages.reviewDetails),
             buttons: (props) => <ReviewStepButtons {...props} context={AddGroupWizardContext} />,
             StepTemplate: ReviewTemplate,
             fields: [

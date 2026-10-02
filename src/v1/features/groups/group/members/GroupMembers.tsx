@@ -13,13 +13,14 @@ import { useGroupMembersQuery, useGroupQuery, useGroupsQuery, useRemoveMembersFr
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
 import { useGroupRemoveModal } from '../../hooks/useGroupRemoveModal';
 import pathnames from '../../../../utilities/pathnames';
-import messages from '../../../../../Messages';
+
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../../shared/utilities/constants';
 import { DefaultMembersCard } from '../../components/DefaultMembersCard';
 import { RemoveGroupMembers } from './RemoveGroupMembers';
 import { GroupMembersEmptyState } from './components/GroupMembersEmptyState';
 import { MemberActionsMenu } from './components/MemberActionsMenu';
 import type { Member, MemberTableRow } from './types';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 interface GroupMembersProps {
   onDefaultGroupChanged?: (group: { uuid: string; name: string }) => void;
@@ -98,11 +99,11 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      status: { label: intl.formatMessage(messages.status) },
-      username: { label: intl.formatMessage(messages.username) },
-      email: { label: intl.formatMessage(messages.email) },
-      lastName: { label: intl.formatMessage(messages.lastName) },
-      firstName: { label: intl.formatMessage(messages.firstName) },
+      status: { label: intl.formatMessage(commonMessages.status) },
+      username: { label: intl.formatMessage(commonMessages.username) },
+      email: { label: intl.formatMessage(commonMessages.email) },
+      lastName: { label: intl.formatMessage(commonMessages.lastName) },
+      firstName: { label: intl.formatMessage(commonMessages.firstName) },
     }),
     [intl],
   );
@@ -112,9 +113,9 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
     () => [
       {
         id: 'name',
-        label: intl.formatMessage(messages.username),
+        label: intl.formatMessage(commonMessages.username),
         type: 'text',
-        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, { key: intl.formatMessage(commonMessages.username).toLowerCase() }),
       },
     ],
     [intl],
@@ -154,7 +155,9 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   const cellRenderers: CellRendererMap<typeof columns, Member> = useMemo(
     () => ({
       status: (member) => (
-        <Label color={member.is_active ? 'green' : 'grey'}>{intl.formatMessage(member.is_active ? messages.active : messages.inactive)}</Label>
+        <Label color={member.is_active ? 'green' : 'grey'}>
+          {intl.formatMessage(member.is_active ? commonMessages.active : commonMessages.inactive)}
+        </Label>
       ),
       username: (member) => member.username,
       email: (member) => member.email || '—',
@@ -178,7 +181,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
           items={[
             {
               key: 'remove',
-              label: intl.formatMessage(messages.remove),
+              label: intl.formatMessage(commonMessages.remove),
               onClick: () => handleOpenRemoveModal([member]),
               ouiaId: `member-actions-${member.username}-remove`,
             },
@@ -218,7 +221,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
           toolbarActions={
             isAdmin ? (
               <Button variant="primary" onClick={handleAddMembers}>
-                {intl.formatMessage(messages.addMember)}
+                {intl.formatMessage({ id: 'addMember', defaultMessage: 'Add member', description: 'Add member' })}
               </Button>
             ) : undefined
           }

@@ -17,7 +17,7 @@ import { useIntl } from 'react-intl';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import { getDateFormat } from '../../../../shared/helpers/stringUtilities';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 import type { Access, AdditionalGroup, RoleOutDynamic } from '../../../data/api/roles';
 import type { GroupOut } from '../../../../shared/data/queries/groups';
@@ -28,6 +28,7 @@ type RoleGroup = AdditionalGroup;
 type Group = GroupOut;
 import type { ExpandedCells, SortByState } from '../types';
 import { shouldShowAddRoleToGroupLink } from '../utils/roleVisibility';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface RolesTableProps {
   roles: Role[];
@@ -48,7 +49,10 @@ interface RolesTableProps {
 const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ role, adminGroup }) => {
   const intl = useIntl();
 
-  const groupColumns = [intl.formatMessage(messages.groupName), intl.formatMessage(messages.description)];
+  const groupColumns = [
+    intl.formatMessage({ id: 'groupName', defaultMessage: 'Group name', description: 'Group name label' }),
+    intl.formatMessage(commonMessages.description),
+  ];
 
   return (
     <Table aria-label={`Groups for role ${role.display_name}`} variant={TableVariant.compact} ouiaId={`compound-groups-${role.uuid}`}>
@@ -71,7 +75,11 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
               <Td className="pf-v6-u-text-align-right">
                 {shouldShowAddRoleToGroupLink(adminGroup, group) && group.uuid && (
                   <AppLink to={pathnames['roles-add-group-roles'].link(role.uuid, group.uuid)} state={{ name: group.name }}>
-                    {intl.formatMessage(messages.addRoleToThisGroup)}
+                    {intl.formatMessage({
+                      id: 'addRoleToThisGroup',
+                      defaultMessage: 'Add role to this group',
+                      description: 'Add role to this group label',
+                    })}
                   </AppLink>
                 )}
               </Td>
@@ -81,7 +89,7 @@ const GroupsTable: React.FC<{ role: Role; adminGroup: Group | undefined }> = ({ 
           <Tr>
             <Td colSpan={groupColumns.length}>
               <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-                {intl.formatMessage(messages.noGroups)}
+                {intl.formatMessage({ id: 'noGroups', defaultMessage: 'No groups', description: 'No groups label' })}
               </Content>
             </Td>
           </Tr>
@@ -96,10 +104,10 @@ const PermissionsTable: React.FC<{ role: Role }> = ({ role }) => {
   const intl = useIntl();
 
   const permissionColumns = [
-    intl.formatMessage(messages.application),
-    intl.formatMessage(messages.resourceType),
-    intl.formatMessage(messages.operation),
-    intl.formatMessage(messages.lastModified),
+    intl.formatMessage(commonMessages.application),
+    intl.formatMessage(commonMessages.resourceType),
+    intl.formatMessage(commonMessages.operation),
+    intl.formatMessage(commonMessages.lastModified),
   ];
 
   return (
@@ -130,7 +138,7 @@ const PermissionsTable: React.FC<{ role: Role }> = ({ role }) => {
           <Tr>
             <Td colSpan={permissionColumns.length}>
               <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-                {intl.formatMessage(messages.noPermissions)}
+                {intl.formatMessage(commonMessages.noPermissions)}
               </Content>
             </Td>
           </Tr>
@@ -160,8 +168,8 @@ const RoleRowActions: React.FC<{
       )}
     >
       <DropdownList>
-        <DropdownItem onClick={() => onEditRole(role.uuid)}>{intl.formatMessage(messages.edit)}</DropdownItem>
-        <DropdownItem onClick={() => onDeleteRole([role.uuid])}>{intl.formatMessage(messages.delete)}</DropdownItem>
+        <DropdownItem onClick={() => onEditRole(role.uuid)}>{intl.formatMessage(commonMessages.edit)}</DropdownItem>
+        <DropdownItem onClick={() => onDeleteRole([role.uuid])}>{intl.formatMessage(commonMessages.delete)}</DropdownItem>
       </DropdownList>
     </Dropdown>
   );
@@ -184,11 +192,14 @@ export const RolesTable: React.FC<RolesTableProps> = ({
   const intl = useIntl();
 
   const columns: Array<{ title: string; key: string }> = [
-    { title: intl.formatMessage(messages.name), key: 'display_name' },
-    { title: intl.formatMessage(messages.description), key: '' },
-    { title: intl.formatMessage(messages.groups), key: '' },
-    { title: intl.formatMessage(messages.permissions), key: '' },
-    { title: intl.formatMessage(messages.lastModified), key: 'modified' },
+    { title: intl.formatMessage(commonMessages.name), key: 'display_name' },
+    { title: intl.formatMessage(commonMessages.description), key: '' },
+    { title: intl.formatMessage(commonMessages.groups), key: '' },
+    { title: intl.formatMessage(commonMessages.permissions), key: '' },
+    {
+      title: intl.formatMessage(commonMessages.lastModified),
+      key: 'modified',
+    },
   ];
 
   // Add selection and actions columns for admin users
@@ -230,7 +241,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({
   });
 
   return (
-    <Table isExpandable aria-label={intl.formatMessage(messages.roles)}>
+    <Table isExpandable aria-label={intl.formatMessage(commonMessages.roles)}>
       <Thead>
         <Tr>
           {isAdmin && <Th screenReaderText="Row selection" />}

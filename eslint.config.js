@@ -15,6 +15,8 @@ const { restrictedImportPaths: storyPaths } = experienceUiPlugin.configs.stories
 const { restrictedImportPaths: dataLayerPaths, restrictedImportPatterns: dataLayerPatterns } = experienceUiPlugin.configs['data-layer'];
 const noDirectGetUser = require('./eslint-rules/no-direct-get-user');
 const noCrossVersionImports = require('./eslint-rules/no-cross-version-imports');
+const extractableMessageDescriptor = require('./eslint-rules/extractable-message-descriptor');
+const formatjs = require('eslint-plugin-formatjs').default;
 
 module.exports = defineConfig(
   fecPlugin,
@@ -573,6 +575,35 @@ module.exports = defineConfig(
     },
     rules: {
       'experience-ui/no-jest-snapshot': 'error',
+    },
+  },
+  {
+    // i18n: keep FormatJS descriptors extractable and complete.
+    files: ['src/**/*.@(js|jsx|ts|tsx)'],
+    ignores: ['src/**/*.d.ts', 'src/**/*.stories.*', 'src/**/*.test.*', 'src/**/*.spec.*'],
+    plugins: {
+      formatjs,
+      'rbac-i18n': {
+        rules: {
+          'extractable-message-descriptor': extractableMessageDescriptor,
+        },
+      },
+    },
+    rules: {
+      'rbac-i18n/extractable-message-descriptor': 'error',
+      'formatjs/enforce-description': ['error', 'literal'],
+      'formatjs/enforce-default-message': ['error', 'literal'],
+      'formatjs/enforce-placeholders': 'error',
+    },
+  },
+  {
+    // Warn on hardcoded JSX text in product UI, excluding CLI and user-journey scaffolding.
+    files: ['src/**/*.@(js|jsx|ts|tsx)'],
+    ignores: ['src/**/*.d.ts', 'src/**/*.stories.*', 'src/**/*.test.*', 'src/**/*.spec.*', 'src/cli/**', 'src/user-journeys/**'],
+    plugins: { formatjs },
+    rules: {
+      // Warn only: existing warnings are translation debt; translate them incrementally.
+      'formatjs/no-literal-string-in-jsx': 'warn',
     },
   },
   storybook.configs['flat/recommended'],

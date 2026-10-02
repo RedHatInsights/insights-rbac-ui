@@ -3,7 +3,6 @@ import { EmptyState, EmptyStateActions, EmptyStateFooter, EmptyStateVariant } fr
 import CheckCircleIcon from '@patternfly/react-icons/dist/js/icons/check-circle-icon';
 import React from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
 
 interface GroupCreationSuccessProps {
   onClose: () => void;
@@ -16,17 +15,25 @@ export const GroupCreationSuccess: React.FC<GroupCreationSuccessProps> = ({ onCl
     <EmptyState
       headingLevel="h4"
       icon={CheckCircleIcon}
-      titleText={<>{intl.formatMessage(messages.groupCreatedSuccessfully)}</>}
+      titleText={
+        <>
+          {intl.formatMessage({
+            id: 'groupCreatedSuccessfully',
+            defaultMessage: 'You have successfully created a new group',
+            description: 'Group created successfully message',
+          })}
+        </>
+      }
       variant={EmptyStateVariant.lg}
     >
       <EmptyStateFooter>
         <Button onClick={onClose} variant="primary">
-          {intl.formatMessage(messages.exit)}
+          {intl.formatMessage({ id: 'exit', defaultMessage: 'Exit', description: 'Exit button text' })}
         </Button>
         {onCreateAnother && (
           <EmptyStateActions>
             <Button onClick={onCreateAnother} variant="link">
-              {intl.formatMessage(messages.createAnotherGroup)}
+              {intl.formatMessage({ id: 'createAnotherGroup', defaultMessage: 'Create another group', description: 'Create another group message' })}
             </Button>
           </EmptyStateActions>
         )}

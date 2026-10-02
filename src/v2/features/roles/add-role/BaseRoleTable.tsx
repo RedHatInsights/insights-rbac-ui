@@ -9,8 +9,9 @@ import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import { useAllRolesV2Query } from '../../../data/queries/roles';
 import type { Role } from '../../../data/queries/roles';
-import messages from '../../../../Messages';
+
 import type { ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../shared/messages/common';
 
 const COLUMNS = ['radio', 'name', 'description'] as const;
 const SORTABLE_COLUMNS = ['name'] as const;
@@ -68,8 +69,8 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
   // Column config
   const columnConfig: ColumnConfigMap<typeof COLUMNS> = {
     radio: { label: ' ' },
-    name: { label: intl.formatMessage(messages.name), sortable: true },
-    description: { label: intl.formatMessage(messages.description) },
+    name: { label: intl.formatMessage(commonMessages.name), sortable: true },
+    description: { label: intl.formatMessage(commonMessages.description) },
   };
 
   // Cell renderers
@@ -103,13 +104,23 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
     {
       type: 'search',
       id: 'name',
-      placeholder: intl.formatMessage(messages.roleName).toLowerCase(),
+      placeholder: intl.formatMessage(commonMessages.roleName).toLowerCase(),
     },
   ];
 
   return (
     <div>
-      <Alert variant="info" isInline title={intl.formatMessage(messages.granularPermissionsWillBeCopied)} className="pf-v6-u-mb-md" />
+      <Alert
+        variant="info"
+        isInline
+        title={intl.formatMessage({
+          id: 'granularPermissionsWillBeCopied',
+          defaultMessage:
+            'Only granular permissions will be copied into a custom role (for example, approval:requests:read). Wildcard permissions will not be copied into a custom role (for example, approval:*:read).',
+          description: 'Granular permissions will be copied message',
+        })}
+        className="pf-v6-u-mb-md"
+      />
       <TableView
         columns={COLUMNS}
         columnConfig={columnConfig}
@@ -135,18 +146,18 @@ const BaseRoleTable: React.FC<BaseRoleTableProps> = (props) => {
         // Empty states
         emptyStateNoData={
           <DefaultEmptyStateNoData
-            title={intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.roles).toLowerCase() })}
+            title={intl.formatMessage(commonMessages.noMatchingItemsFound, { items: intl.formatMessage(commonMessages.roles).toLowerCase() })}
           />
         }
         emptyStateNoResults={
           <DefaultEmptyStateNoResults
-            title={intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.roles).toLowerCase() })}
-            body={intl.formatMessage(messages.tryChangingFilters)}
+            title={intl.formatMessage(commonMessages.noMatchingItemsFound, { items: intl.formatMessage(commonMessages.roles).toLowerCase() })}
+            body={intl.formatMessage(commonMessages.tryChangingFilters)}
             onClearFilters={tableState.clearAllFilters}
           />
         }
         ouiaId="roles-table"
-        ariaLabel={intl.formatMessage(messages.roles)}
+        ariaLabel={intl.formatMessage(commonMessages.roles)}
       />
     </div>
   );

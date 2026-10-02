@@ -2,13 +2,14 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+
 import type { ResourceDefinition } from '../types';
 // eslint-disable-next-line experience-ui/require-use-table-state -- static local data, no server pagination/sort
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface ResourceDefinitionsModalProps {
   isOpen?: boolean;
@@ -51,7 +52,9 @@ export const ResourceDefinitionsModal: React.FC<ResourceDefinitionsModalProps> =
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      value: { label: intl.formatMessage(messages.resourceDefinition) },
+      value: {
+        label: intl.formatMessage({ id: 'resourceDefinition', defaultMessage: 'Resource definition', description: 'Resource definition label' }),
+      },
     }),
     [intl],
   );
@@ -70,8 +73,10 @@ export const ResourceDefinitionsModal: React.FC<ResourceDefinitionsModalProps> =
       {
         type: 'search',
         id: 'value',
-        placeholder: intl.formatMessage(messages.filterByKey, {
-          key: intl.formatMessage(messages.resourceDefinition).toLowerCase(),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, {
+          key: intl
+            .formatMessage({ id: 'resourceDefinition', defaultMessage: 'Resource definition', description: 'Resource definition label' })
+            .toLowerCase(),
         }),
       },
     ],
@@ -93,16 +98,18 @@ export const ResourceDefinitionsModal: React.FC<ResourceDefinitionsModalProps> =
       appendTo={getModalContainer()}
       actions={[
         <Button key="close-action" variant="primary" onClick={handleClose}>
-          {intl.formatMessage(messages.close)}
+          {intl.formatMessage({ id: 'close', defaultMessage: 'Close', description: 'Close button text' })}
         </Button>,
       ]}
       variant="large"
       isOpen={isOpen}
       onClose={handleClose}
-      title={intl.formatMessage(messages.resourceDefinitions)}
+      title={intl.formatMessage(commonMessages.resourceDefinitions)}
       description={
         <FormattedMessage
-          {...messages.viewResourceDefinitions}
+          id={'viewResourceDefinitions'}
+          defaultMessage={'View resource definitions for the <strong>{permission}</strong> permission'}
+          description={'View resource definitions message'}
           values={{
             strong: (text: React.ReactNode) => <strong>{text}</strong>,
             permission,
@@ -126,14 +133,24 @@ export const ResourceDefinitionsModal: React.FC<ResourceDefinitionsModalProps> =
         onFiltersChange={handleFilterChange}
         clearAllFilters={handleClearFilter}
         variant="compact"
-        ariaLabel={intl.formatMessage(messages.resourceDefinitions)}
+        ariaLabel={intl.formatMessage(commonMessages.resourceDefinitions)}
         emptyStateNoData={
-          <DefaultEmptyStateNoData title="No resource definitions" body={intl.formatMessage(messages.noResourceDefinitions, { permission })} />
+          <DefaultEmptyStateNoData
+            title="No resource definitions"
+            body={intl.formatMessage(
+              {
+                id: 'noResourceDefinitions',
+                defaultMessage: 'There are no resource definitions for {permission} permission',
+                description: 'There are no resource definitions for permission message',
+              },
+              { permission },
+            )}
+          />
         }
         emptyStateNoResults={
           <DefaultEmptyStateNoResults
-            title={intl.formatMessage(messages.noResultsFound)}
-            body={`${intl.formatMessage(messages.filterMatchesNoItems, { items: 'resource definitions' })} ${intl.formatMessage(messages.tryChangingFilters)}`}
+            title={intl.formatMessage({ id: 'noResultsFound', defaultMessage: 'No results found', description: 'No results found message' })}
+            body={`${intl.formatMessage(commonMessages.filterMatchesNoItems, { items: 'resource definitions' })} ${intl.formatMessage(commonMessages.tryChangingFilters)}`}
             onClearFilters={handleClearFilter}
           />
         }

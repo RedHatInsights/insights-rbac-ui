@@ -1,5 +1,5 @@
 import React from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { Tbody, Td, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { ExpandableRowContent } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
@@ -12,9 +12,24 @@ import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { getDateFormat } from '../../../../shared/helpers/stringUtilities';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 import type { Group } from '../types';
+import { commonMessages } from '../../../../shared/messages/common';
+
+const messages = defineMessages({
+  orgAdminInheritedRoles: {
+    id: 'orgAdminInheritedRoles',
+    defaultMessage:
+      'This group contains the roles that all org admin users inherit by default. The roles within this group are managed and maintained by Red Hat and cannot be edited.',
+    description: 'Org. Admin inherited roles message',
+  },
+  usersInheritedRoles: {
+    id: 'usersInheritedRoles',
+    defaultMessage: 'This group contains the roles that all users in your organization inherit by default.',
+    description: 'Users inherited roles message',
+  },
+});
 
 interface GroupsTableRowProps {
   item: Group;
@@ -132,7 +147,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
                     navigate(pathnames['edit-group'].link(item.uuid));
                   }}
                 >
-                  {intl.formatMessage(messages.edit)}
+                  {intl.formatMessage(commonMessages.edit)}
                 </DropdownItem>
                 <DropdownItem
                   key="delete"
@@ -141,7 +156,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
                     navigate(pathnames['remove-group'].link(item.uuid));
                   }}
                 >
-                  {intl.formatMessage(messages.delete)}
+                  {intl.formatMessage(commonMessages.delete)}
                 </DropdownItem>
               </DropdownList>
             </Dropdown>

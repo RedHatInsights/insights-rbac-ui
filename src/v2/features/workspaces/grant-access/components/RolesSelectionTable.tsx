@@ -7,10 +7,10 @@ import { TableView } from '@redhat-cloud-services/frontend-components/TableView'
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
-import messages from '../../../../../Messages';
 
 import type { Role } from '../../../../data/queries/roles';
 import { useRoleQuery } from '../../../../data/queries/roles';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 type RoleRow = Role;
 
@@ -23,7 +23,7 @@ const PermissionsList: React.FC<{ roleId: string }> = ({ roleId }) => {
   if (isLoading) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-        {intl.formatMessage(messages.loading)}
+        {intl.formatMessage(commonMessages.loading)}
       </Content>
     );
   }
@@ -31,7 +31,7 @@ const PermissionsList: React.FC<{ roleId: string }> = ({ roleId }) => {
   if (permissions.length === 0) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-        {intl.formatMessage(messages.noPermissions)}
+        {intl.formatMessage(commonMessages.noPermissions)}
       </Content>
     );
   }
@@ -75,9 +75,17 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name), sortable: true },
-      description: { label: intl.formatMessage(messages.description), sortable: true },
-      permissions: { label: intl.formatMessage(messages.permissions), sortable: true, isCompound: true, width: 20 },
+      name: { label: intl.formatMessage(commonMessages.name), sortable: true },
+      description: {
+        label: intl.formatMessage(commonMessages.description),
+        sortable: true,
+      },
+      permissions: {
+        label: intl.formatMessage(commonMessages.permissions),
+        sortable: true,
+        isCompound: true,
+        width: 20,
+      },
     }),
     [intl],
   );
@@ -104,7 +112,7 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
         type: 'text',
         id: 'name',
         label: 'Role name',
-        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.name) }),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, { key: intl.formatMessage(commonMessages.name) }),
       },
     ],
     [intl],
@@ -195,13 +203,17 @@ export const RolesSelectionTable: React.FC<RolesSelectionTableProps> = ({ roles,
       onFiltersChange={tableState.onFiltersChange}
       clearAllFilters={tableState.clearAllFilters}
       variant="compact"
-      ariaLabel={intl.formatMessage(messages.selectRoles)}
+      ariaLabel={intl.formatMessage({ id: 'selectRoles', defaultMessage: 'Select role(s)', description: 'Select roles step title' })}
       ouiaId="roles-selection-table"
-      emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noRolesFound)} />}
+      emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(commonMessages.noRolesFound)} />}
       emptyStateNoResults={
         <DefaultEmptyStateNoResults
-          title={intl.formatMessage(messages.noRolesFound)}
-          body={intl.formatMessage(messages.noRolesFoundDescription)}
+          title={intl.formatMessage(commonMessages.noRolesFound)}
+          body={intl.formatMessage({
+            id: 'noRolesFoundDescription',
+            defaultMessage: 'No roles match your current search criteria.',
+            description: 'Empty state description when no roles match filters',
+          })}
           onClearFilters={tableState.clearAllFilters}
         />
       }

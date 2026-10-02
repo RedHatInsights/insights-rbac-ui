@@ -7,8 +7,9 @@ import { asyncValidator } from './validators';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { WizardError } from '../../../../shared/components/ui-states/WizardError';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+
 import { AddRoleWizardContext } from './AddRoleWizardContext';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface ReviewTemplateProps {
   formFields: React.ReactNode[][];
@@ -37,8 +38,16 @@ const ReviewTemplate: React.FC<ReviewTemplateProps> = ({ formFields }) => {
     return (
       <WizardError
         context={{ setWizardError: (e) => setWizardError?.(e as boolean | undefined) }}
-        title={intl.formatMessage(messages.roleNameTakenTitle)}
-        text={intl.formatMessage(messages.roleNameTakenText)}
+        title={intl.formatMessage({
+          id: 'roleNameTakenTitle',
+          defaultMessage: 'Role name already taken',
+          description: 'Role name taken error title',
+        })}
+        text={intl.formatMessage({
+          id: 'roleNameTakenText',
+          defaultMessage: 'Please return to Step 1: Create role and choose a unique role name for your custom role.',
+          description: 'Role name taken error text',
+        })}
       />
     );
   }
@@ -47,11 +56,17 @@ const ReviewTemplate: React.FC<ReviewTemplateProps> = ({ formFields }) => {
     <Stack hasGutter>
       <StackItem>
         <Title headingLevel="h1" size="xl">
-          {intl.formatMessage(messages.reviewDetails)}
+          {intl.formatMessage(commonMessages.reviewDetails)}
         </Title>
       </StackItem>
       <StackItem>
-        <p>{intl.formatMessage(messages.reviewRoleDetails)}</p>
+        <p>
+          {intl.formatMessage({
+            id: 'reviewRoleDetails',
+            defaultMessage: 'Review and confirm the details for your role, or click Back to revise.',
+            description: 'Review role details text',
+          })}
+        </p>
       </StackItem>
       <StackItem isFilled>{formFields?.[0]?.[0]}</StackItem>
     </Stack>

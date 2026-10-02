@@ -4,7 +4,7 @@ import NotificationsProvider from '@redhat-cloud-services/frontend-components-no
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { createStore } from '@redhat-cloud-services/frontend-components-notifications/state';
 
-import messages from './locales/data.json';
+import messages from './locales/translations.json';
 import { locale } from './locales/locale';
 import { ApiErrorProvider } from './shared/contexts/ApiErrorContext';
 import { QueryClientSetup } from './shared/components/QueryClientSetup';
@@ -83,7 +83,7 @@ export const Iam: React.FC<IamProps> = ({ testMode = false }) => {
   }, []);
 
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
+    <IntlProvider locale={locale} messages={messages}>
       <NotificationsProvider store={notificationStore}>
         <SharedProviders testMode={testMode}>
           <VersionRouter />

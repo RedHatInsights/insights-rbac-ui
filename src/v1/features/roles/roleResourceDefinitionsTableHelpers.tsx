@@ -1,5 +1,4 @@
 import type { IntlShape } from 'react-intl';
-import messages from '../../../Messages';
 
 const INVENTORY_PREFIX = 'inventory';
 const COST_MANAGEMENT_PREFIX = 'cost-management';
@@ -19,7 +18,9 @@ interface Row {
 export const createRows = (data: (string | null)[], permissionId: string, intl: IntlShape): Row[] => {
   const finalData = data.filter(Boolean) as string[];
   if (isInventoryHostsPermission(permissionId) && data.includes(null)) {
-    finalData.unshift(intl.formatMessage(messages.ungroupedSystems));
+    finalData.unshift(
+      intl.formatMessage({ id: 'ungroupedSystems', defaultMessage: 'Ungrouped systems', description: 'Ungrouped systems button label' }),
+    );
   }
   return finalData.reduce(
     (acc: Row[], value) => [

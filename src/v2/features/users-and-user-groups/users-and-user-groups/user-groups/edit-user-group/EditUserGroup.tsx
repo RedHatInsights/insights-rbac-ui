@@ -5,7 +5,7 @@ import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import Messages from '../../../../../../Messages';
+
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
@@ -28,6 +28,7 @@ import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndService
 import { RbacBreadcrumbs } from '../../../../../../shared/components/navigation/Breadcrumbs';
 import pathnames from '../../../../../utilities/pathnames';
 import useAppNavigate from '../../../../../../shared/hooks/useAppNavigate';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface EditUserGroupProps {
   createNewGroup?: boolean;
@@ -54,8 +55,8 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   const navigate = useAppNavigate();
 
   const pageTitle = createNewGroup
-    ? intl.formatMessage(Messages.usersAndUserGroupsCreateUserGroup)
-    : intl.formatMessage(Messages.usersAndUserGroupsEditUserGroup);
+    ? intl.formatMessage({ id: 'usersAndUserGroupsCreateUserGroup', defaultMessage: 'Create user group', description: 'Create user group label' })
+    : intl.formatMessage({ id: 'usersAndUserGroupsEditUserGroup', defaultMessage: 'Edit user group', description: 'Edit user group label' });
 
   const [initialFormData, setInitialFormData] = useState<{
     name?: string;
@@ -93,7 +94,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   const breadcrumbsList = useMemo(
     () => [
       {
-        title: intl.formatMessage(Messages.userGroups),
+        title: intl.formatMessage(commonMessages.userGroups),
         to: pathnames['users-and-user-groups'].link(),
       },
       {
@@ -142,7 +143,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
       fields: [
         {
           name: 'name',
-          label: intl.formatMessage(Messages.name),
+          label: intl.formatMessage(commonMessages.name),
           component: componentTypes.TEXT_FIELD,
           validate: [
             { type: validatorTypes.REQUIRED },
@@ -155,7 +156,13 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
                 (existingGroup: Group) => existingGroup.name.toLowerCase() === value?.toLowerCase() && existingGroup.uuid !== groupId,
               );
 
-              return isDuplicate ? intl.formatMessage(Messages.groupNameTakenTitle) : undefined;
+              return isDuplicate
+                ? intl.formatMessage({
+                    id: 'groupNameTakenTitle',
+                    defaultMessage: 'Group name already taken',
+                    description: 'Group name taken error title',
+                  })
+                : undefined;
             },
           ],
           initialValue: initialFormData?.name,
@@ -163,7 +170,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         },
         {
           name: 'description',
-          label: intl.formatMessage(Messages.description),
+          label: intl.formatMessage(commonMessages.description),
           component: componentTypes.TEXTAREA,
           initialValue: initialFormData?.description,
         },
@@ -210,8 +217,16 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         await updateGroupMutation.mutateAsync({ uuid: groupId, name: values.name, description: values.description });
         addNotification({
           variant: 'success',
-          title: intl.formatMessage(Messages.editGroupSuccessTitle),
-          description: intl.formatMessage(Messages.editGroupSuccessDescription),
+          title: intl.formatMessage({
+            id: 'editGroupSuccessTitle',
+            defaultMessage: 'Success updating group',
+            description: 'Edit group success notification title',
+          }),
+          description: intl.formatMessage({
+            id: 'editGroupSuccessDescription',
+            defaultMessage: 'The group was updated successfully.',
+            description: 'Edit group success notification description',
+          }),
         });
       }
 
@@ -269,8 +284,20 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
       console.error('Failed to save group:', error);
       addNotification({
         variant: 'danger',
-        title: createNewGroup ? 'Error creating group' : intl.formatMessage(Messages.editGroupErrorTitle),
-        description: createNewGroup ? 'There was an error creating the group.' : intl.formatMessage(Messages.editGroupErrorDescription),
+        title: createNewGroup
+          ? 'Error creating group'
+          : intl.formatMessage({
+              id: 'editGroupErrorTitle',
+              defaultMessage: 'Failed updating group',
+              description: 'Edit group error notification title',
+            }),
+        description: createNewGroup
+          ? 'There was an error creating the group.'
+          : intl.formatMessage({
+              id: 'editGroupErrorDescription',
+              defaultMessage: 'The group was not updated successfully.',
+              description: 'Edit group error notification description',
+            }),
       });
     }
   };

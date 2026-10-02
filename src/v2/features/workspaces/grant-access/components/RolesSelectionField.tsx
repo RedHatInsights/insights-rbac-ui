@@ -7,7 +7,7 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useAllRolesV2Query } from '../../../../data/queries/roles';
 import { RolesSelectionTable } from './RolesSelectionTable';
-import messages from '../../../../../Messages';
+
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
@@ -36,12 +36,16 @@ const RolesSelectionField: React.FC<UseFieldApiConfig & { workspaceId?: string; 
         <Stack>
           <StackItem>
             <Title headingLevel="h2" size="xl" className="pf-v6-u-mb-sm">
-              {intl.formatMessage(messages.selectRoles)}
+              {intl.formatMessage({ id: 'selectRoles', defaultMessage: 'Select role(s)', description: 'Select roles step title' })}
             </Title>
           </StackItem>
           <StackItem>
             <Content component="p" className="pf-v6-u-mb-md">
-              {intl.formatMessage(messages.selectRolesDescription)}
+              {intl.formatMessage({
+                id: 'selectRolesDescription',
+                defaultMessage: 'Select one or more roles to link to this group.',
+                description: 'Select roles step description',
+              })}
             </Content>
           </StackItem>
           <StackItem>

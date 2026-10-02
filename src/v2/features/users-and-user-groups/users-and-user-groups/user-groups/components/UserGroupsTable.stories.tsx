@@ -9,12 +9,12 @@ import { useTableState } from '@redhat-cloud-services/frontend-components/TableV
 import type { Group } from '../../../../../../v2/data/queries/groups';
 import { isGroupSelectable } from '../useUserGroups';
 import { GROUP_ADMIN_DEFAULT, GROUP_SYSTEM_DEFAULT } from '../../../../../../shared/data/mocks/seed';
-import messages from '../../../../../../Messages';
+
 import { type SortableColumnId, columns as userGroupsColumns } from './useUserGroupsTableConfig';
 
-/** Matches `useGroupsQuery` select normalization (`messages.allUsers` / `messages.allOrgAdmins`). */
-const ALL_USERS_LABEL = messages.allUsers.defaultMessage;
-const ALL_ORG_ADMINS_LABEL = messages.allOrgAdmins.defaultMessage;
+/** Matches `useGroupsQuery` default-group label normalization. */
+const ALL_USERS_LABEL = 'All users';
+const ALL_ORG_ADMINS_LABEL = 'All org admins';
 
 // Mock group data for testing
 const createMockGroup = (id: string): Group => ({

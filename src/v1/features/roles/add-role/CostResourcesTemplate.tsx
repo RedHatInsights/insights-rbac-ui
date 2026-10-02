@@ -1,7 +1,7 @@
 import React from 'react';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface CostResourcesTemplateProps {
   formFields: React.ReactNode[];
@@ -12,7 +12,7 @@ const CostResourcesTemplate: React.FC<CostResourcesTemplateProps> = ({ formField
   return (
     <div className="rbac">
       <Title headingLevel="h1" size="xl" className="pf-v6-u-mb-lg">
-        {intl.formatMessage(messages.defineCostResources)}
+        {intl.formatMessage(commonMessages.defineCostResources)}
       </Title>
       {formFields}
     </div>

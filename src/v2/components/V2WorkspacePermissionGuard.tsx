@@ -5,7 +5,7 @@ import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/
 import { AppPlaceholder } from '../../shared/components/ui-states/LoaderPlaceholders';
 import type { WorkspaceRelation, WorkspacesListParams } from '../data/queries/workspaces';
 import { useWorkspacesWithPermissions } from '../features/workspaces/hooks/useWorkspacesWithPermissions';
-import messages from '../../Messages';
+import { commonMessages } from '../../shared/messages/common';
 
 // ============================================================================
 // V2 Workspace Permission Guard
@@ -55,8 +55,8 @@ const V2WorkspacePermissionGuard: React.FC<V2WorkspacePermissionGuardProps> = ({
   if (!hasAccess) {
     return (
       <UnauthorizedAccess
-        serviceName={intl.formatMessage(messages.unauthorizedAccessServiceName)}
-        bodyText={intl.formatMessage(messages.unauthorizedAccessBodyText)}
+        serviceName={intl.formatMessage(commonMessages.unauthorizedAccessServiceName)}
+        bodyText={intl.formatMessage(commonMessages.unauthorizedAccessBodyText)}
       />
     );
   }

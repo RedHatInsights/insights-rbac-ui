@@ -4,12 +4,13 @@ import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/E
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import React, { useMemo } from 'react';
-import messages from '../../../../../../Messages';
+
 import { useIntl } from 'react-intl';
 import { useGroupMembersQuery } from '../../../../../../v2/data/queries/groups';
 import { extractErrorMessage } from '../../../../../../shared/utilities/errorUtils';
 import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface GroupDetailsUsersViewProps {
   groupId: string;
@@ -29,9 +30,9 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      username: { label: intl.formatMessage(messages.username) },
-      firstName: { label: intl.formatMessage(messages.firstName) },
-      lastName: { label: intl.formatMessage(messages.lastName) },
+      username: { label: intl.formatMessage(commonMessages.username) },
+      firstName: { label: intl.formatMessage(commonMessages.firstName) },
+      lastName: { label: intl.formatMessage(commonMessages.lastName) },
     }),
     [intl],
   );
@@ -74,7 +75,13 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
 
   const emptyState = (
     <EmptyState headingLevel="h4" icon={UsersIcon} titleText="No users found" variant="sm">
-      <EmptyStateBody>{intl.formatMessage(messages.groupNoUsersAssigned)}</EmptyStateBody>
+      <EmptyStateBody>
+        {intl.formatMessage({
+          id: 'groupNoUsersAssigned',
+          defaultMessage: 'This group currently has no users assigned to it.',
+          description: 'Message when group has no users assigned',
+        })}
+      </EmptyStateBody>
     </EmptyState>
   );
 

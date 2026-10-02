@@ -4,7 +4,6 @@ import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/St
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
 
 interface TypeSelectorProps {
   name: string;
@@ -31,7 +30,11 @@ const TypeSelector: React.FC<TypeSelectorProps> = (props) => {
           isChecked={checked === 'create'}
           name="role-type-create"
           onChange={() => handleChange('create')}
-          label={intl.formatMessage(messages.createRoleFromScratch)}
+          label={intl.formatMessage({
+            id: 'createRoleFromScratch',
+            defaultMessage: 'Create a role from scratch',
+            description: 'Create role from scratch option',
+          })}
           id="role-type-create"
           value="create"
         />
@@ -41,7 +44,11 @@ const TypeSelector: React.FC<TypeSelectorProps> = (props) => {
           isChecked={checked === 'copy'}
           name="role-type-copy"
           onChange={() => handleChange('copy')}
-          label={intl.formatMessage(messages.copyAnExistingRole)}
+          label={intl.formatMessage({
+            id: 'copyAnExistingRole',
+            defaultMessage: 'Copy an existing role',
+            description: 'Copy an existing role option',
+          })}
           id="role-type-copy"
           value="copy"
         />

@@ -7,10 +7,9 @@ import { DataViewEventsProvider } from '@patternfly/react-data-view';
 import { UserDetailsGroupsView } from './UserDetailsGroupsView';
 import { groupsErrorHandlers, groupsHandlers, groupsLoadingHandlers } from '../../../../../../shared/data/mocks/groups.handlers';
 import { GROUP_ADMIN_DEFAULT, GROUP_SYSTEM_DEFAULT } from '../../../../../../shared/data/mocks/seed';
-import messages from '../../../../../../Messages';
 
-const ALL_USERS_LABEL = messages.allUsers.defaultMessage;
-const ALL_ORG_ADMINS_LABEL = messages.allOrgAdmins.defaultMessage;
+const ALL_USERS_LABEL = 'All users';
+const ALL_ORG_ADMINS_LABEL = 'All org admins';
 
 const meta: Meta<typeof UserDetailsGroupsView> = {
   component: UserDetailsGroupsView,

@@ -226,23 +226,45 @@ Presentational components handle i18n internally. Smart components pass data, no
 ```typescript
 // ✅ Presentational — i18n internal
 import { useIntl } from 'react-intl';
-import messages from 'src/Messages';
 
-export const GroupHeader: React.FC<{ count: number }> = ({ count }) => {
+export const GroupHeader: React.FC = () => {
   const intl = useIntl();
-  return <h2>{intl.formatMessage(messages.groupsCount, { count })}</h2>;
+  return (
+    <h2>
+      {intl.formatMessage({
+        id: 'groups',
+        defaultMessage: 'Groups',
+        description: 'Groups plural',
+      })}
+    </h2>
+  );
 };
 
 // ❌ Don't pass translated strings as props
-<GroupHeader label={intl.formatMessage(messages.groups)} />
+<GroupHeader
+  label={intl.formatMessage({
+    id: 'groups',
+    defaultMessage: 'Groups',
+    description: 'Groups plural',
+  })}
+/>
 ```
 
-Always check `locales/translation-template.json` before creating new messages. Add new messages to:
-1. `locales/translation-template.json` — source of truth
-2. `src/Messages.js` — React message definitions
+Declare FormatJS descriptors beside their usage. Check `locales/translation-template.json` for existing IDs; it is generated from application source and provides translator context.
+
+After changing descriptors, run `npm run translations` to regenerate the source and compiled catalogs, then review and commit both generated files. See [Translation Workflow](?path=/docs/documentation-translation-workflow--docs) for details.
 
 Use specific, contextual messages — not generic ones:
 ```typescript
-intl.formatMessage(messages.loadingWorkspaces)  // ✅ "Loading workspaces..."
-intl.formatMessage(messages.loading)            // ❌ too generic
+intl.formatMessage({
+  id: 'loadingWorkspaces',
+  defaultMessage: 'Loading workspaces...',
+  description: 'Loading workspaces message',
+}) // ✅ specific
+
+intl.formatMessage({
+  id: 'loading',
+  defaultMessage: 'Loading...',
+  description: 'Loading status',
+}) // ❌ too generic
 ```

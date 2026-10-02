@@ -4,7 +4,7 @@ import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip'
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import type { Group } from '../../../../../../v2/data/queries/groups';
-import messages from '../../../../../../Messages';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 // NOTE: Per V2 designs, only name/description/users/lastModified are shown.
 // Roles, workspaces, and service accounts columns were removed from the table.
@@ -27,10 +27,18 @@ interface UseUserGroupsTableConfigReturn {
 export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptions): UseUserGroupsTableConfigReturn {
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name), sortable: true },
-      description: { label: intl.formatMessage(messages.description), width: 30 },
-      principalCount: { label: intl.formatMessage(messages.users), width: 10 },
-      modified: { label: intl.formatMessage(messages.lastModified), sortable: true, format: 'date', width: 15 },
+      name: { label: intl.formatMessage(commonMessages.name), sortable: true },
+      description: {
+        label: intl.formatMessage(commonMessages.description),
+        width: 30,
+      },
+      principalCount: { label: intl.formatMessage(commonMessages.users), width: 10 },
+      modified: {
+        label: intl.formatMessage(commonMessages.lastModified),
+        sortable: true,
+        format: 'date',
+        width: 15,
+      },
     }),
     [intl],
   );
@@ -46,7 +54,9 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
             </span>
           </Tooltip>
         ) : (
-          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+          <div className="pf-v6-u-color-400">
+            {intl.formatMessage({ id: 'usersAndUserGroupsNoDescription', defaultMessage: 'No description', description: 'No description label' })}
+          </div>
         ),
       principalCount: (group) => group.principalCount ?? 0,
       modified: (group) => group.modified ?? '',
@@ -59,8 +69,8 @@ export function useUserGroupsTableConfig({ intl }: UseUserGroupsTableConfigOptio
       {
         type: 'text',
         id: 'name',
-        label: intl.formatMessage(messages.name),
-        placeholder: `Filter by ${intl.formatMessage(messages.name).toLowerCase()}`,
+        label: intl.formatMessage(commonMessages.name),
+        placeholder: `Filter by ${intl.formatMessage(commonMessages.name).toLowerCase()}`,
       },
     ],
     [intl],

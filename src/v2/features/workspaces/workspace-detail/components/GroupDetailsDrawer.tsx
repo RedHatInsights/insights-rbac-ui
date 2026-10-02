@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { Alert, AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
@@ -28,13 +28,35 @@ import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { type GroupRole, useGroupMembersQuery } from '../../../../../v2/data/queries/groups';
 import type { InheritedWorkspaceGroupRow, WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
 import { extractErrorMessage } from '../../../../../shared/utilities/errorUtils';
-import messages from '../../../../../Messages';
+
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
 // eslint-disable-next-line experience-ui/require-use-table-state -- display-only drawer, fetches all data with high limit
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
 import pathnames from '../../../../utilities/pathnames';
 import { ActionDropdown, type ActionDropdownItem } from '../../../../../shared/components/ActionDropdown/ActionDropdown';
+import { commonMessages } from '../../../../../shared/messages/common';
+
+const messages = defineMessages({
+  allOrgAdmins: { id: 'allOrgAdmins', defaultMessage: 'All org admins', description: 'All org admins label for admin default groups' },
+  allUsers: { id: 'allUsers', defaultMessage: 'All users', description: 'All users label for default groups' },
+  allOrgAdminsAreMembers: {
+    id: 'allOrgAdminsAreMembers',
+    defaultMessage: 'All organization administrators in this organization are members of this group.',
+    description: 'All org. admins are members of this group message',
+  },
+  allUsersAreMembers: {
+    id: 'allUsersAreMembers',
+    defaultMessage: 'All users in this organization are members of this group.',
+    description: 'All users are members of this group message',
+  },
+  editAccess: { id: 'editAccess', defaultMessage: 'Edit access', description: 'Edit access action text' },
+  editAccessForThisWorkspace: {
+    id: 'editAccessForThisWorkspace',
+    defaultMessage: 'Edit access for this workspace',
+    description: 'Edit access for this workspace button text',
+  },
+});
 
 // Extended Role interface to include inheritedFrom data
 export interface RoleWithInheritance {
@@ -120,10 +142,10 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   // Column config for users with inheritance
   const userColumnConfigWithInheritance: ColumnConfigMap<typeof userColumnsWithInheritance> = useMemo(
     () => ({
-      username: { label: intl.formatMessage(messages.username) },
-      firstName: { label: intl.formatMessage(messages.firstName) },
-      lastName: { label: intl.formatMessage(messages.lastName) },
-      organization: { label: intl.formatMessage(messages.organization) },
+      username: { label: intl.formatMessage(commonMessages.username) },
+      firstName: { label: intl.formatMessage(commonMessages.firstName) },
+      lastName: { label: intl.formatMessage(commonMessages.lastName) },
+      organization: { label: intl.formatMessage({ id: 'organization', defaultMessage: 'Organization', description: 'Organization label' }) },
     }),
     [intl],
   );
@@ -131,9 +153,9 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   // Column config for users without inheritance
   const userColumnConfigWithoutInheritance: ColumnConfigMap<typeof userColumnsWithoutInheritance> = useMemo(
     () => ({
-      username: { label: intl.formatMessage(messages.username) },
-      firstName: { label: intl.formatMessage(messages.firstName) },
-      lastName: { label: intl.formatMessage(messages.lastName) },
+      username: { label: intl.formatMessage(commonMessages.username) },
+      firstName: { label: intl.formatMessage(commonMessages.firstName) },
+      lastName: { label: intl.formatMessage(commonMessages.lastName) },
     }),
     [intl],
   );
@@ -141,8 +163,10 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   // Column config for roles with inheritance
   const roleColumnConfigWithInheritance: ColumnConfigMap<typeof roleColumnsWithInheritance> = useMemo(
     () => ({
-      role: { label: intl.formatMessage(messages.roles) },
-      inheritedFrom: { label: intl.formatMessage(messages.inheritedFrom) },
+      role: { label: intl.formatMessage(commonMessages.roles) },
+      inheritedFrom: {
+        label: intl.formatMessage({ id: 'inheritedFrom', defaultMessage: 'Inherited from', description: 'Inherited from column label' }),
+      },
     }),
     [intl],
   );
@@ -150,7 +174,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   // Column config for roles without inheritance
   const roleColumnConfigWithoutInheritance: ColumnConfigMap<typeof roleColumnsWithoutInheritance> = useMemo(
     () => ({
-      role: { label: intl.formatMessage(messages.roles) },
+      role: { label: intl.formatMessage(commonMessages.roles) },
     }),
     [intl],
   );
@@ -166,9 +190,16 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         if (inherited?.inheritedFrom && currentWorkspace) {
           return (
             <Tooltip
-              content={intl.formatMessage(messages.workspaceNavigationTooltip, {
-                workspaceName: inherited.inheritedFrom.workspaceName,
-              })}
+              content={intl.formatMessage(
+                {
+                  id: 'workspaceNavigationTooltip',
+                  defaultMessage: 'You will be taken to {workspaceName}',
+                  description: 'Tooltip shown when hovering over workspace links in drawer',
+                },
+                {
+                  workspaceName: inherited.inheritedFrom.workspaceName,
+                },
+              )}
             >
               <AppLink to={pathnames['workspace-detail'].link(inherited.inheritedFrom.workspaceId)} className="pf-v6-c-button pf-m-link pf-m-inline">
                 {inherited.inheritedFrom.workspaceName}
@@ -182,9 +213,16 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         if (currentWorkspace) {
           return (
             <Tooltip
-              content={intl.formatMessage(messages.workspaceNavigationTooltip, {
-                workspaceName: currentWorkspace.name,
-              })}
+              content={intl.formatMessage(
+                {
+                  id: 'workspaceNavigationTooltip',
+                  defaultMessage: 'You will be taken to {workspaceName}',
+                  description: 'Tooltip shown when hovering over workspace links in drawer',
+                },
+                {
+                  workspaceName: currentWorkspace.name,
+                },
+              )}
             >
               <AppLink to={pathnames['workspace-detail'].link(currentWorkspace.id)} className="pf-v6-c-button pf-m-link pf-m-inline">
                 {currentWorkspace.name}
@@ -224,9 +262,16 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         if (inherited?.inheritedFrom) {
           return (
             <Tooltip
-              content={intl.formatMessage(messages.workspaceNavigationTooltip, {
-                workspaceName: inherited.inheritedFrom.workspaceName,
-              })}
+              content={intl.formatMessage(
+                {
+                  id: 'workspaceNavigationTooltip',
+                  defaultMessage: 'You will be taken to {workspaceName}',
+                  description: 'Tooltip shown when hovering over workspace links in drawer',
+                },
+                {
+                  workspaceName: inherited.inheritedFrom.workspaceName,
+                },
+              )}
             >
               <AppLink to={pathnames['workspace-detail'].link(inherited.inheritedFrom.workspaceId)} className="pf-v6-c-button pf-m-link pf-m-inline">
                 {inherited.inheritedFrom.workspaceName}
@@ -285,7 +330,16 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (membersError) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState variant="sm" headingLevel="h4" icon={ExclamationCircleIcon} titleText={intl.formatMessage(messages.unableToLoadUsers)}>
+          <EmptyState
+            variant="sm"
+            headingLevel="h4"
+            icon={ExclamationCircleIcon}
+            titleText={intl.formatMessage({
+              id: 'unableToLoadUsers',
+              defaultMessage: 'Unable to load users',
+              description: 'Unable to load users error title',
+            })}
+          >
             <EmptyStateBody>{extractErrorMessage(membersError)}</EmptyStateBody>
           </EmptyState>
         </div>
@@ -295,8 +349,19 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (members.length === 0) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState variant="sm" headingLevel="h4" icon={UsersIcon} titleText={intl.formatMessage(messages.usersEmptyStateTitle)}>
-            <EmptyStateBody>{intl.formatMessage(messages.groupNoUsersAssigned)}</EmptyStateBody>
+          <EmptyState
+            variant="sm"
+            headingLevel="h4"
+            icon={UsersIcon}
+            titleText={intl.formatMessage({ id: 'usersEmptyStateTitle', defaultMessage: 'No users found', description: 'Empty state title Users' })}
+          >
+            <EmptyStateBody>
+              {intl.formatMessage({
+                id: 'groupNoUsersAssigned',
+                defaultMessage: 'This group currently has no users assigned to it.',
+                description: 'Message when group has no users assigned',
+              })}
+            </EmptyStateBody>
           </EmptyState>
         </div>
       );
@@ -359,8 +424,19 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     if (roles.length === 0) {
       return (
         <div className="pf-v6-u-pt-md">
-          <EmptyState variant="sm" headingLevel="h4" icon={KeyIcon} titleText={intl.formatMessage(messages.rolesEmptyStateTitle)}>
-            <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
+          <EmptyState
+            variant="sm"
+            headingLevel="h4"
+            icon={KeyIcon}
+            titleText={intl.formatMessage({ id: 'rolesEmptyStateTitle', defaultMessage: 'No roles found', description: 'Empty state title Roles' })}
+          >
+            <EmptyStateBody>
+              {intl.formatMessage({
+                id: 'groupNoRolesAssigned',
+                defaultMessage: 'This group currently has no roles assigned to it.',
+                description: 'Message when group has no roles assigned',
+              })}
+            </EmptyStateBody>
           </EmptyState>
         </div>
       );
@@ -438,13 +514,17 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                       const items: ActionDropdownItem[] = [
                         {
                           key: 'edit-access',
-                          label: intl.formatMessage(messages.editAccess),
+                          label: intl.formatMessage({ id: 'editAccess', defaultMessage: 'Edit access', description: 'Edit access action text' }),
                           onClick: () => onEditAccess?.(group),
                           isDisabled: !canEditAccess || group.isDefaultGroup,
                         },
                         {
                           key: 'remove-access',
-                          label: intl.formatMessage(messages.removeAccess),
+                          label: intl.formatMessage({
+                            id: 'removeAccess',
+                            defaultMessage: 'Remove access',
+                            description: 'Remove access action label',
+                          }),
                           isDanger: canRevokeAccess && !group.isDefaultGroup,
                           onClick: () => onRemoveFromWorkspace?.(group),
                           isDisabled: !canRevokeAccess || group.isDefaultGroup,
@@ -458,7 +538,11 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
               {showInheritance && (
                 <div className="pf-v6-u-px-md pf-v6-u-pb-sm">
                   <Content component="p" className="pf-v6-u-color-200">
-                    {intl.formatMessage(messages.inheritedDrawerSubtitle)}
+                    {intl.formatMessage({
+                      id: 'inheritedDrawerSubtitle',
+                      defaultMessage: 'The roles listed here were granted in a parent workspace.',
+                      description: 'Subtitle in the drawer when showing inherited group roles',
+                    })}
                   </Content>
                 </div>
               )}
@@ -467,16 +551,20 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                   <Alert
                     variant="info"
                     isInline
-                    title={intl.formatMessage(messages.inheritedDrawerAlert)}
+                    title={intl.formatMessage({
+                      id: 'inheritedDrawerAlert',
+                      defaultMessage: 'Editing access to a parent workspace must be done within that workspace.',
+                      description: 'Warning alert in the drawer when showing inherited group roles',
+                    })}
                     actionClose={<AlertActionCloseButton onClose={() => setIsAlertDismissed(true)} />}
                   />
                 </div>
               )}
               <Tabs activeKey={activeTab} onSelect={(_, tabIndex) => setActiveTab(tabIndex)} isFilled>
-                <Tab eventKey={0} title={intl.formatMessage(messages.roles)}>
+                <Tab eventKey={0} title={intl.formatMessage(commonMessages.roles)}>
                   <div className="pf-v6-u-p-md">{activeTab === 0 && renderRolesTab()}</div>
                 </Tab>
-                <Tab eventKey={1} title={intl.formatMessage(messages.users)}>
+                <Tab eventKey={1} title={intl.formatMessage(commonMessages.users)}>
                   <div className="pf-v6-u-p-md">{activeTab === 1 && renderUsersTab()}</div>
                 </Tab>
               </Tabs>
@@ -488,7 +576,11 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                   {/* TODO: re-enable when removal flow is confirmed
                   {onRemoveFromWorkspace && (
                     <Button variant="secondary" isDanger isDisabled={!canRevokeAccess} onClick={() => group && onRemoveFromWorkspace?.(group)}>
-                      {intl.formatMessage(messages.removeGroupFromWorkspace)}
+                      {intl.formatMessage({
+                        id: 'removeGroupFromWorkspace',
+                        defaultMessage: 'Remove from workspace',
+                        description: 'Remove group from workspace action label',
+                      })}
                     </Button>
                   )} */}
                 </Flex>

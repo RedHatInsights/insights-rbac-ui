@@ -7,9 +7,39 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage, defineMessages, useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
+
+const messages = defineMessages({
+  removeRoleQuestion: { id: 'removeRoleQuestion', defaultMessage: 'Remove role?', description: 'Remove role question label' },
+  removeRolesQuestion: { id: 'removeRolesQuestion', defaultMessage: 'Remove roles?', description: 'Remove roles question label' },
+  removeRoleModalText: {
+    id: 'removeRoleModalText',
+    defaultMessage: 'Role <b>{role}</b> will be removed from the group <b>{name}</b>. This action cannot be undone.',
+    description: 'Remove role message warning about irreversible action',
+  },
+  removeRolesModalText: {
+    id: 'removeRolesModalText',
+    defaultMessage: '<b>{roles}</b> selected roles will be removed from the group <b>{name}</b>. This action cannot be undone.',
+    description: 'Remove roles message warning about irreversible action',
+  },
+  removeRole: { id: 'removeRole', defaultMessage: 'Remove role', description: 'Remove role label' },
+  removeRoles: { id: 'removeRoles', defaultMessage: 'Remove roles', description: 'Remove roles label' },
+  removeMemberQuestion: { id: 'removeMemberQuestion', defaultMessage: 'Remove member?', description: 'Remove member question' },
+  removeMembersQuestion: { id: 'removeMembersQuestion', defaultMessage: 'Remove members?', description: 'Remove members question' },
+  removeMemberText: {
+    id: 'removeMemberText',
+    defaultMessage: 'Member <b>{name}</b> will be removed from the group <b>{group}</b>. This action cannot be undone.',
+    description: 'Remove member text warning about irreversible action',
+  },
+  removeMembersText: {
+    id: 'removeMembersText',
+    defaultMessage: '<b>{name}</b> selected members will be removed from the group <b>{group}</b>. This action cannot be undone.',
+    description: 'Remove members plural text warning about irreversible action',
+  },
+  removeMember: { id: 'removeMember', defaultMessage: 'Remove member', description: 'Remove member' },
+});
 
 type ItemType = 'role' | 'member';
 
@@ -61,7 +91,7 @@ const messageConfig = {
     singularBody: messages.removeMemberText,
     pluralBody: messages.removeMembersText,
     singularConfirmLabel: messages.removeMember,
-    pluralConfirmLabel: messages.remove,
+    pluralConfirmLabel: commonMessages.remove,
     // Message value keys for this item type
     itemKey: 'name',
     countKey: 'name',
@@ -138,15 +168,31 @@ export function useGroupRemoveModal(config: UseGroupRemoveModalConfig): UseGroup
       if (isNotFoundError(error)) {
         addNotification({
           variant: 'warning',
-          title: intl.formatMessage(messages.itemAlreadyRemovedTitle),
-          description: intl.formatMessage(messages.itemAlreadyRemovedDescription),
+          title: intl.formatMessage({
+            id: 'itemAlreadyRemovedTitle',
+            defaultMessage: 'Item already removed',
+            description: 'Title for notification when item was already removed (race condition)',
+          }),
+          description: intl.formatMessage({
+            id: 'itemAlreadyRemovedDescription',
+            defaultMessage: 'One or more items were already removed by another user. The list has been refreshed.',
+            description: 'Description for notification when item was already removed (race condition)',
+          }),
           dismissable: true,
         });
       } else if (isForbiddenError(error)) {
         addNotification({
           variant: 'danger',
-          title: intl.formatMessage(messages.insufficientPermissionsTitle),
-          description: intl.formatMessage(messages.insufficientPermissionsDescription),
+          title: intl.formatMessage({
+            id: 'insufficientPermissionsTitle',
+            defaultMessage: 'Insufficient permissions',
+            description: 'Title for notification when user lacks permission',
+          }),
+          description: intl.formatMessage({
+            id: 'insufficientPermissionsDescription',
+            defaultMessage: 'You do not have permission to perform this action. Please contact your administrator.',
+            description: 'Description for notification when user lacks permission',
+          }),
           dismissable: true,
         });
       }

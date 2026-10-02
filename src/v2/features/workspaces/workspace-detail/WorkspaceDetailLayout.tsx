@@ -7,7 +7,7 @@ import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover'
 import { Tab, TabTitleText, Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
-import messages from '../../../../Messages';
+
 import { WorkspaceHeader, type WorkspaceHierarchyItem } from '../components/WorkspaceHeader';
 import type { WorkspaceActionCallbacks } from '../components/useWorkspaceActionItems';
 import type { WorkspacePermissions, WorkspaceWithPermissions } from '../../../data/queries/workspaces';
@@ -102,12 +102,17 @@ export const WorkspaceDetailLayout: React.FC<WorkspaceDetailLayoutProps> = ({
         {enableRoles && (
           <Tab
             eventKey={WORKSPACE_TABS.roles}
-            title={intl.formatMessage(messages.roleAssignments)}
+            title={intl.formatMessage({ id: 'roleAssignments', defaultMessage: 'Role assignments', description: 'Rola assignments label' })}
             tabContentId="rolesTab"
             ouiaId="roles-tab-button"
           />
         )}
-        <Tab eventKey={WORKSPACE_TABS.assets} title={intl.formatMessage(messages.assets)} tabContentId="assetsTab" ouiaId="assets-tab-button" />
+        <Tab
+          eventKey={WORKSPACE_TABS.assets}
+          title={intl.formatMessage({ id: 'assets', defaultMessage: 'Assets', description: 'Assets label' })}
+          tabContentId="assetsTab"
+          ouiaId="assets-tab-button"
+        />
       </Tabs>
       <PageSection hasBodyWrapper={false} isFilled={activeTab !== 'assets'}>
         {isRolesContext && enableRoles && (
@@ -120,19 +125,35 @@ export const WorkspaceDetailLayout: React.FC<WorkspaceDetailLayoutProps> = ({
             >
               <Tab
                 eventKey={ROLE_ASSIGNMENT_TABS.direct}
-                title={intl.formatMessage(messages.rolesAssignedInThisWorkspace)}
+                title={intl.formatMessage({
+                  id: 'rolesAssignedInThisWorkspace',
+                  defaultMessage: 'Roles assigned in this workspace',
+                  description: 'Tab title for roles assigned in current workspace',
+                })}
                 tabContentId="rolesAssignedInWorkspaceTab"
               />
               <Tab
                 eventKey={ROLE_ASSIGNMENT_TABS.inherited}
                 title={
                   <TabTitleText>
-                    {intl.formatMessage(messages.rolesAssignedInParentWorkspaces)}
+                    {intl.formatMessage({
+                      id: 'rolesAssignedInParentWorkspaces',
+                      defaultMessage: 'Roles assigned in parent workspaces',
+                      description: 'Tab title for roles assigned in parent workspaces',
+                    })}
                     <Popover
                       triggerAction="hover"
                       position="top-end"
-                      headerContent={intl.formatMessage(messages.parentWorkspacesPopoverHeader)}
-                      bodyContent={intl.formatMessage(messages.parentWorkspacesPopoverBody)}
+                      headerContent={intl.formatMessage({
+                        id: 'parentWorkspacesPopoverHeader',
+                        defaultMessage: 'Manage roles in their assigned workspace',
+                        description: 'Popover header for the parent workspaces tab info icon',
+                      })}
+                      bodyContent={intl.formatMessage({
+                        id: 'parentWorkspacesPopoverBody',
+                        defaultMessage: 'A child workspace inherits all roles assigned in the parent workspace.',
+                        description: 'Popover body for the parent workspaces tab info icon',
+                      })}
                     >
                       <Icon className="pf-v6-u-pl-sm" isInline>
                         <OutlinedQuestionCircleIcon />
@@ -145,9 +166,16 @@ export const WorkspaceDetailLayout: React.FC<WorkspaceDetailLayoutProps> = ({
             </Tabs>
             {activeTab === 'inherited-roles' && (
               <Content component={ContentVariants.p} className="pf-v6-u-py-md pf-v6-u-color-200">
-                {intl.formatMessage(messages.parentWorkspacesInstructionalText, {
-                  b: (chunks: React.ReactNode) => <strong>{chunks}</strong>,
-                })}
+                {intl.formatMessage(
+                  {
+                    id: 'parentWorkspacesInstructionalText',
+                    defaultMessage: 'To edit roles for these user groups, click the workspace name in the <b>Inherited from</b> column.',
+                    description: 'Instructional text shown above the inherited group assignments table',
+                  },
+                  {
+                    b: (chunks: React.ReactNode) => <strong>{chunks}</strong>,
+                  },
+                )}
               </Content>
             )}
           </>

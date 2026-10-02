@@ -6,7 +6,6 @@ import { isITLessProd, isInt, isStage } from '../../../itLessConfig';
 import { useMutationQueryClient } from '../utils';
 import { type MutationOptions, type QueryOptions } from '../types';
 import { useIntl } from 'react-intl';
-import messages from '../../../Messages';
 
 // ============================================================================
 // Environment URL Helpers
@@ -251,7 +250,19 @@ export function useChangeUserStatusMutation(options?: MutationOptions) {
       return { previousQueries };
     },
     onSuccess: () => {
-      notify('success', intl.formatMessage(messages.editUserSuccessTitle), intl.formatMessage(messages.editUserSuccessDescription));
+      notify(
+        'success',
+        intl.formatMessage({
+          id: 'editUserSuccessTitle',
+          defaultMessage: 'Success updating user',
+          description: 'Edit user success notification title',
+        }),
+        intl.formatMessage({
+          id: 'editUserSuccessDescription',
+          defaultMessage: 'The user was updated successfully.',
+          description: 'Edit user success notification description',
+        }),
+      );
     },
     onError: (_err, _vars, context) => {
       if (context?.previousQueries) {
@@ -259,7 +270,15 @@ export function useChangeUserStatusMutation(options?: MutationOptions) {
           queryClient.setQueryData(key, data);
         }
       }
-      notify('danger', intl.formatMessage(messages.editUserErrorTitle), intl.formatMessage(messages.editUserErrorDescription));
+      notify(
+        'danger',
+        intl.formatMessage({ id: 'editUserErrorTitle', defaultMessage: 'Failed updating user', description: 'Edit user error notification title' }),
+        intl.formatMessage({
+          id: 'editUserErrorDescription',
+          defaultMessage: 'The user was not updated successfuly.',
+          description: 'Edit user error notification description',
+        }),
+      );
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: usersKeys.all });
@@ -324,10 +343,30 @@ export function useUpdateUserOrgAdminMutation(options?: MutationOptions) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: usersKeys.all });
-      notify('success', intl.formatMessage(messages.editUserSuccessTitle), intl.formatMessage(messages.editUserSuccessDescription));
+      notify(
+        'success',
+        intl.formatMessage({
+          id: 'editUserSuccessTitle',
+          defaultMessage: 'Success updating user',
+          description: 'Edit user success notification title',
+        }),
+        intl.formatMessage({
+          id: 'editUserSuccessDescription',
+          defaultMessage: 'The user was updated successfully.',
+          description: 'Edit user success notification description',
+        }),
+      );
     },
     onError: () => {
-      notify('danger', intl.formatMessage(messages.editUserErrorTitle), intl.formatMessage(messages.editUserErrorDescription));
+      notify(
+        'danger',
+        intl.formatMessage({ id: 'editUserErrorTitle', defaultMessage: 'Failed updating user', description: 'Edit user error notification title' }),
+        intl.formatMessage({
+          id: 'editUserErrorDescription',
+          defaultMessage: 'The user was not updated successfuly.',
+          description: 'Edit user error notification description',
+        }),
+      );
     },
   });
 }

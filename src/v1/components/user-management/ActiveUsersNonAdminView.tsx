@@ -1,6 +1,5 @@
 import React, { FunctionComponent } from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../Messages';
 
 type ActiveUsersNonAdminViewProps = {
   children?: React.ReactNode;
@@ -10,7 +9,7 @@ export const ActiveUsersNonAdminView: FunctionComponent<ActiveUsersNonAdminViewP
   const intl = useIntl();
   return (
     <>
-      <span className="pf-v6-u-mt-0">{`${intl.formatMessage(messages.usersDescription)} `}</span>
+      <span className="pf-v6-u-mt-0">{`${intl.formatMessage({ id: 'usersDescription', defaultMessage: 'These are all of the users in your Red Hat organization.', description: 'Description text for user list' })} `}</span>
       {children}
     </>
   );

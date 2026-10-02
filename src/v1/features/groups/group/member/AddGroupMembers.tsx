@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Modal } from '@patternfly/react-core/dist/dynamic/deprecated/components/Modal';
@@ -15,8 +15,32 @@ import { ActiveUsers } from '../../../../components/user-management/ActiveUsers'
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
-import messages from '../../../../../Messages';
+
 import type { AddGroupMembersProps } from './types';
+import { commonMessages } from '../../../../../shared/messages/common';
+
+const messages = defineMessages({
+  addingGroupMembersTitle: {
+    id: 'addingGroupMembersTitle',
+    defaultMessage: 'Adding members to group',
+    description: 'Adding group members notification title',
+  },
+  addingGroupMemberTitle: {
+    id: 'addingGroupMemberTitle',
+    defaultMessage: 'Adding member to group',
+    description: 'Adding group member notification title',
+  },
+  addingGroupMembersDescription: {
+    id: 'addingGroupMembersDescription',
+    defaultMessage: 'Adding members to group initialized.',
+    description: 'Adding group members notification description',
+  },
+  addingGroupMemberDescription: {
+    id: 'addingGroupMemberDescription',
+    defaultMessage: 'Adding member to group initialized.',
+    description: 'Adding group member notification description',
+  },
+});
 
 export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
   cancelRoute,
@@ -86,7 +110,11 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: intl.formatMessage(messages.addingGroupMembersCancelled),
+      title: intl.formatMessage({
+        id: 'addingGroupMembersCancelled',
+        defaultMessage: 'Adding member to group was canceled by the user.',
+        description: 'Adding group members cancelled notification description',
+      }),
       description: 'Adding members to group has been cancelled.',
     });
     navigate(cancelRoute);
@@ -95,24 +123,32 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({
   return (
     <>
       <Modal
-        title={intl.formatMessage(messages.addMembers)}
+        title={intl.formatMessage({ id: 'addMembers', defaultMessage: 'Add members', description: 'Add members wizard step title' })}
         variant={ModalVariant.large}
         isOpen
         onClose={onCancel}
         appendTo={getModalContainer()}
         actions={[
           <Button ouiaId="add-members-confirm" key="confirm" variant="primary" onClick={onSubmit} isDisabled={selectedUsers.length === 0}>
-            {intl.formatMessage(messages.addToGroup)}
+            {intl.formatMessage({ id: 'addToGroup', defaultMessage: 'Add to group', description: 'Add to group label' })}
           </Button>,
           <Button ouiaId="add-members-cancel" key="cancel" variant="link" onClick={onCancel}>
-            {intl.formatMessage(messages.cancel)}
+            {intl.formatMessage(commonMessages.cancel)}
           </Button>,
         ]}
       >
         <Stack hasGutter>
           <StackItem>
             <Content>
-              <ActiveUsers {...(!isITLess && { linkDescription: intl.formatMessage(messages.toManageUsersText) })} />
+              <ActiveUsers
+                {...(!isITLess && {
+                  linkDescription: intl.formatMessage({
+                    id: 'toManageUsersText',
+                    defaultMessage: 'To manage users, go to your',
+                    description: 'To manage users text',
+                  }),
+                })}
+              />
             </Content>
           </StackItem>
           <StackItem isFilled>

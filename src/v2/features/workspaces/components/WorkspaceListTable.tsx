@@ -26,13 +26,14 @@ import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import messages from '../../../../Messages';
+
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
 import { type WorkspaceActionCallbacks, useWorkspaceActionItems } from './useWorkspaceActionItems';
 import type { WorkspaceFilters, WorkspaceWithChildren, WorkspacesWorkspace } from '../types';
 import { canCreateSiblingInType } from '../workspaceTypes';
 import type { WorkspacePermissions, WorkspaceRelation, WorkspaceWithPermissions } from '../../../data/queries/workspaces';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface WorkspaceListTableProps {
   workspaces: WorkspaceWithPermissions[];
@@ -80,10 +81,9 @@ const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ 
           <EmptyState headingLevel="h4" icon={SearchIcon} titleText={titleText}>
             <EmptyStateBody>
               <FormattedMessage
-                {...messages['workspaceEmptyStateSubtitle']}
-                values={{
-                  br: <br />,
-                }}
+                id={'workspaceEmptyStateSubtitle'}
+                defaultMessage={'This filter criteria matches no workspaces. Try changing your filter input.'}
+                description={'Empty State Subtitle Workspaces'}
               />
             </EmptyStateBody>
           </EmptyState>
@@ -189,7 +189,14 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({ workspac
                 {workspace.name}
               </AppLink>
             ) : (
-              <Tooltip content={intl.formatMessage(messages.workspacePendingTooltip)} key={`${wsId}-pending`}>
+              <Tooltip
+                content={intl.formatMessage({
+                  id: 'workspacePendingTooltip',
+                  defaultMessage: 'This workspace is being set up and is not available for inspection yet.',
+                  description: 'Tooltip shown on workspace name when Kessel access has not synced yet',
+                })}
+                key={`${wsId}-pending`}
+              >
                 <Button variant="link" isInline isAriaDisabled className="rbac-m-hide-on-sm">
                   {workspace.name}
                 </Button>
@@ -221,7 +228,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({ workspac
   const workspacesTree = useMemo(() => mapWorkspacesToHierarchy(workspaces), [workspaces]);
   const filteredTree = useMemo(() => (workspacesTree ? search([workspacesTree], filters.name) : []), [workspacesTree, filters]);
   const rows = useMemo(() => (filteredTree ? buildRows(filteredTree) : []), [filteredTree, buildRows]);
-  const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
+  const columns: DataViewTh[] = [intl.formatMessage(commonMessages.name), intl.formatMessage(commonMessages.description)];
 
   const activeState: DataViewState | undefined = isLoading
     ? DataViewState.loading
@@ -235,10 +242,15 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({ workspac
     <React.Fragment>
       <PageHeader
         data-codemods
-        title={intl.formatMessage(messages.workspaces)}
-        subtitle={intl.formatMessage(messages.workspacesSubtitle)}
+        title={intl.formatMessage({ id: 'workspaces', defaultMessage: 'Workspaces', description: 'Workspaces heading' })}
+        subtitle={intl.formatMessage({
+          id: 'workspacesSubtitle',
+          defaultMessage:
+            'Workspaces provide a flexible, hierarchical, approach to organizing your assets and streamlining access management. Configure workspaces to fit your organizational structure.',
+          description: 'Workspaces subtitle',
+        })}
         linkProps={{
-          label: intl.formatMessage(messages.workspacesLearnMore),
+          label: intl.formatMessage({ id: 'workspacesLearnMore', defaultMessage: 'Learn more about workspaces', description: 'learn more link' }),
           href: 'https://docs.redhat.com/en/documentation/red_hat_insights/1-latest/html/viewing_and_managing_system_inventory/deploying-insights-with-rhca_user-access',
           isExternal: true,
         }}
@@ -261,7 +273,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({ workspac
             }
             actions={
               <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link())} isDisabled={!canCreateAny}>
-                {intl.formatMessage(messages.createWorkspace)}
+                {intl.formatMessage({ id: 'createWorkspace', defaultMessage: 'Create workspace', description: 'Create workspace action label' })}
               </Button>
             }
           />
@@ -275,7 +287,15 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({ workspac
             headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
             bodyStates={{
               loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-              empty: <EmptyWorkspacesTable titleText={intl.formatMessage(messages.workspaceEmptyStateTitle)} />,
+              empty: (
+                <EmptyWorkspacesTable
+                  titleText={intl.formatMessage({
+                    id: 'workspaceEmptyStateTitle',
+                    defaultMessage: 'No workspaces found',
+                    description: 'Empty State Title Workspaces',
+                  })}
+                />
+              ),
               error: <ErrorStateTable errorTitle="Failed to load workspaces" errorDescription={error} />,
             }}
           />

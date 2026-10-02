@@ -15,7 +15,7 @@ import { useIntl } from 'react-intl';
 import { useQueries } from '@tanstack/react-query';
 import { costKeys, getResource, useResourceTypesQuery } from '../../../../shared/data/queries/cost';
 import { useAppServices } from '../../../../shared/contexts/ServiceContext';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface ResourceType {
   value: string;
@@ -224,14 +224,25 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
     const selected = state[permission]?.selected ?? [];
     const filterValue = state[permission]?.filterValue ?? '';
     const isOpen = state[permission]?.isOpen ?? false;
-    const selectAllLabel = intl.formatMessage(messages.selectAll, { length: filteredOptions.length });
+    const selectAllLabel = intl.formatMessage(
+      { id: 'selectAll', defaultMessage: 'Select all ({length})', description: 'Select all button label' },
+      { length: filteredOptions.length },
+    );
     const textInputRef = useRef<HTMLInputElement>(null);
     const hasOptions = allOptions.length > 0;
     const placeholder = isLoadingResources
-      ? intl.formatMessage(messages.loading)
+      ? intl.formatMessage(commonMessages.loading)
       : hasOptions
-        ? intl.formatMessage(messages.selectResourcesOptional)
-        : intl.formatMessage(messages.noResourcesAvailableAll);
+        ? intl.formatMessage({
+            id: 'selectResourcesOptional',
+            defaultMessage: 'Select resources (optional - default all)',
+            description: 'Placeholder when selecting resources is optional',
+          })
+        : intl.formatMessage({
+            id: 'noResourcesAvailableAll',
+            defaultMessage: 'No resources available (applies to all)',
+            description: 'No resources available text in dropdown when permission applies to all',
+          });
 
     const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
       <MenuToggle
@@ -293,7 +304,7 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
             <SelectList>
               {filteredOptions.length === 0 ? (
                 <SelectOption isDisabled value="no-results">
-                  {intl.formatMessage(messages.noResultsFound)}
+                  {intl.formatMessage({ id: 'noResultsFound', defaultMessage: 'No results found', description: 'No results found message' })}
                 </SelectOption>
               ) : (
                 <>
@@ -322,12 +333,12 @@ const CostResources: React.FC<CostResourcesProps> = (props) => {
     <Grid hasGutter>
       <GridItem md={4} className="rbac-m-hide-on-sm">
         <Content component={ContentVariants.h4} className="pf-v6-u-font-weight-bold">
-          {intl.formatMessage(messages.permissions)}
+          {intl.formatMessage(commonMessages.permissions)}
         </Content>
       </GridItem>
       <GridItem md={8} className="rbac-m-hide-on-sm">
         <Content component={ContentVariants.h4} className="pf-v6-u-font-weight-bold">
-          {intl.formatMessage(messages.resourceDefinitions)}
+          {intl.formatMessage(commonMessages.resourceDefinitions)}
         </Content>
       </GridItem>
       {permissions.map(makeRow)}

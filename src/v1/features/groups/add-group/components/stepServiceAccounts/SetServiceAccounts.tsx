@@ -7,7 +7,7 @@ import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/St
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../../../../Messages';
+
 import { ExternalLink } from '../../../../../../shared/components/navigation/ExternalLink';
 import ServiceAccountsList, { type ServiceAccount } from './ServiceAccountsList';
 
@@ -32,16 +32,36 @@ const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ n
         <Stack hasGutter>
           <StackItem>
             <Content>
-              {intl.formatMessage(messages.addServiceAccountsToGroupDescription)}
+              {intl.formatMessage({
+                id: 'addServiceAccountsToGroupDescription',
+                defaultMessage:
+                  'This list contains all service accounts associated with your Red Hat organization account. Select any service accounts you wish to associate with the User Access group.',
+                description: 'Add service accounts to group description',
+              })}
               <Alert
                 className="pf-v6-u-mt-sm rbac-service-accounts-alert"
                 variant="info"
                 component="span"
                 isInline
                 isPlain
-                title={intl.formatMessage(messages.visitServiceAccountsPage, {
-                  link: <ExternalLink to="/service-accounts">{intl.formatMessage(messages.serviceAccountsPage)}</ExternalLink>,
-                })}
+                title={intl.formatMessage(
+                  {
+                    id: 'visitServiceAccountsPage',
+                    defaultMessage: 'To add, reset credentials, or delete service accounts visit the {link}.',
+                    description: 'Visit service accounts page text',
+                  },
+                  {
+                    link: (
+                      <ExternalLink to="/service-accounts">
+                        {intl.formatMessage({
+                          id: 'serviceAccountsPage',
+                          defaultMessage: 'Service Accounts admin page',
+                          description: 'Service accounts page message',
+                        })}
+                      </ExternalLink>
+                    ),
+                  },
+                )}
               />
             </Content>
           </StackItem>

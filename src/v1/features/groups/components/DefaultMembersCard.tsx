@@ -1,7 +1,19 @@
 import React from 'react';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
-import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+import { defineMessages, useIntl } from 'react-intl';
+
+const messages = defineMessages({
+  allOrgAdminsAreMembers: {
+    id: 'allOrgAdminsAreMembers',
+    defaultMessage: 'All organization administrators in this organization are members of this group.',
+    description: 'All org. admins are members of this group message',
+  },
+  allUsersAreMembers: {
+    id: 'allUsersAreMembers',
+    defaultMessage: 'All users in this organization are members of this group.',
+    description: 'All users are members of this group message',
+  },
+});
 
 interface DefaultMembersAlertProps {
   isAdminDefault: boolean;

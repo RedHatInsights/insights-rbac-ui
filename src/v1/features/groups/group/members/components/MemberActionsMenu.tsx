@@ -1,9 +1,9 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { ActionDropdown } from '../../../../../../shared/components/ActionDropdown';
-import messages from '../../../../../../Messages';
 
 import type { Member, MemberTableRow } from '../types';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface MemberActionsMenuProps {
   selectedRows: MemberTableRow[];
@@ -20,7 +20,7 @@ export const MemberActionsMenu: React.FC<MemberActionsMenuProps> = ({ selectedRo
       items={[
         {
           key: 'remove-members',
-          label: intl.formatMessage(messages.remove),
+          label: intl.formatMessage(commonMessages.remove),
           onClick: () => {
             if (selectedRows.length > 0) {
               onRemoveMembers(selectedRows.map((row) => row.member));

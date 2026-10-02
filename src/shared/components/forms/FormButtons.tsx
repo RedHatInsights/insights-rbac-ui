@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import FormSpy from '@data-driven-forms/react-form-renderer/form-spy';
 import { useIntl } from 'react-intl';
-import messages from '../../../Messages';
+import { commonMessages } from '../../messages/common';
 
 interface FormButtonsProps {
   dirtyFieldsSinceLastSubmit?: Record<string, string | number | boolean>;
@@ -22,10 +22,10 @@ const FormButtons: React.FC<FormButtonsProps> = ({ dirtyFieldsSinceLastSubmit, s
   return (
     <ActionGroup className="pf-v6-u-mt-0">
       <Button ouiaId="primary-submit-button" type="submit" isDisabled={noChanges} variant="primary">
-        {intl.formatMessage(messages.save)}
+        {intl.formatMessage({ id: 'save', defaultMessage: 'Save', description: 'Save button text' })}
       </Button>
       <Button ouiaId="secondary-cancel-button" variant="link" onClick={(e) => onCancel?.(e)}>
-        {intl.formatMessage(messages.cancel)}
+        {intl.formatMessage(commonMessages.cancel)}
       </Button>
     </ActionGroup>
   );

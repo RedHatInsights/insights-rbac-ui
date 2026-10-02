@@ -9,8 +9,9 @@ import { useTableState } from '@redhat-cloud-services/frontend-components/TableV
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import { useExpandSplatsQuery, usePermissionOptionsQuery, usePermissionsQuery } from '../../../../shared/data/queries/permissions';
 import { useRoleQuery } from '../../../data/queries/roles';
-import messages from '../../../../Messages';
+
 import type { ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface Permission {
   application: string;
@@ -277,9 +278,9 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
   // ============================================================================
 
   const columnConfig: ColumnConfigMap<typeof COLUMNS> = {
-    application: { label: intl.formatMessage(messages.application) },
-    resourceType: { label: intl.formatMessage(messages.resourceType) },
-    operation: { label: intl.formatMessage(messages.operation) },
+    application: { label: intl.formatMessage(commonMessages.application) },
+    resourceType: { label: intl.formatMessage(commonMessages.resourceType) },
+    operation: { label: intl.formatMessage(commonMessages.operation) },
   };
 
   const cellRenderers = {
@@ -292,19 +293,19 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
     {
       type: 'checkbox',
       id: 'applications',
-      label: intl.formatMessage(messages.application),
+      label: intl.formatMessage(commonMessages.application),
       options: applicationOptions.map((app) => ({ id: app, label: app })),
     },
     {
       type: 'checkbox',
       id: 'resources',
-      label: intl.formatMessage(messages.resourceType),
+      label: intl.formatMessage(commonMessages.resourceType),
       options: resourceOptions.map((res) => ({ id: res, label: res })),
     },
     {
       type: 'checkbox',
       id: 'operations',
-      label: intl.formatMessage(messages.operation),
+      label: intl.formatMessage(commonMessages.operation),
       options: operationOptions.map((op) => ({ id: op, label: op })),
     },
   ];
@@ -346,19 +347,24 @@ const AddPermissionsTable: React.FC<AddPermissionsTableProps> = ({ selectedPermi
         // Empty states
         emptyStateNoData={
           <DefaultEmptyStateNoData
-            title={intl.formatMessage(messages.noPermissions)}
-            body={intl.formatMessage(messages.permissionNotDisplayedDescription)}
+            title={intl.formatMessage(commonMessages.noPermissions)}
+            body={intl.formatMessage({
+              id: 'permissionNotDisplayedDescription',
+              defaultMessage:
+                "The permission either does not exist or has already been added to this role. Adjust your filters and try again. Note: Applications that only have wildcard permissions (for example, compliance:*:*) aren't included in this table and can't be added to your custom role.",
+              description: 'Permission not displayed description message',
+            })}
           />
         }
         emptyStateNoResults={
           <DefaultEmptyStateNoResults
-            title={intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.permissions).toLowerCase() })}
-            body={intl.formatMessage(messages.tryChangingFilters)}
+            title={intl.formatMessage(commonMessages.noMatchingItemsFound, { items: intl.formatMessage(commonMessages.permissions).toLowerCase() })}
+            body={intl.formatMessage(commonMessages.tryChangingFilters)}
             onClearFilters={clearAllFilters}
           />
         }
         ouiaId="add-role-permissions"
-        ariaLabel={intl.formatMessage(messages.permissions)}
+        ariaLabel={intl.formatMessage(commonMessages.permissions)}
       />
     </div>
   );

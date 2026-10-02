@@ -7,7 +7,7 @@ import { StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../../../Messages';
+
 import { type WorkspacesWorkspace } from '../../../../data/queries/workspaces';
 import { WorkspacesWorkspaceTypes } from '../../../../data/api/workspaces';
 import { InlineWorkspacePicker } from '../../components/managed-selector/InlineWorkspacePicker';
@@ -77,11 +77,22 @@ export const SelectParentWorkspace: React.FC<UseFieldApiConfig> = (props) => {
     <Stack hasGutter>
       <StackItem>
         <Title headingLevel="h1" size="xl">
-          {intl.formatMessage(messages.selectParentWorkspace)}
+          {intl.formatMessage({
+            id: 'selectParentWorkspace',
+            defaultMessage: 'Select parent workspace',
+            description: 'Select parent workspace wizard step title',
+          })}
         </Title>
       </StackItem>
       <StackItem>
-        <Content component="p">{intl.formatMessage(messages.selectParentWorkspaceDescription)}</Content>
+        <Content component="p">
+          {intl.formatMessage({
+            id: 'selectParentWorkspaceDescription',
+            defaultMessage:
+              'Choose a parent workspace. The new workspace will inherit access control settings, such as user groups and associated roles, from the selected parent.',
+            description: 'Select parent workspace wizard step description',
+          })}
+        </Content>
       </StackItem>
       <StackItem isFilled>
         <InlineWorkspacePicker requiredPermission="create" selectedWorkspace={selectedWorkspace} onSelect={handleSelect} allExpanded />

@@ -9,7 +9,7 @@ import {
   createWorkspacesApi,
 } from '../api/workspaces';
 import { useAppServices } from '../../../shared/contexts/ServiceContext';
-import messages from '../../../Messages';
+
 import { useMutationQueryClient } from '../../../shared/data/utils';
 import { type MutationOptions, type QueryOptions } from '../../../shared/data/types';
 
@@ -183,13 +183,35 @@ export function useCreateWorkspaceMutation(options?: MutationOptions) {
       onSuccess: (_, variables) => {
         if (options?.deferSuccessSideEffects) return;
         qc.invalidateQueries({ queryKey: workspacesKeys.all });
-        notify('success', intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: variables.name }));
+        notify(
+          'success',
+          intl.formatMessage(
+            {
+              id: 'createWorkspaceSuccessTitle',
+              defaultMessage: 'New {name} workspace has been successfully created',
+              description: 'Create workspace success notification title',
+            },
+            { name: variables.name },
+          ),
+        );
       },
       onError: (error: Error, variables) => {
         notify(
           'danger',
-          intl.formatMessage(messages.createWorkspaceErrorTitle, { name: variables.name }),
-          error.message || intl.formatMessage(messages.createWorkspaceErrorDescription),
+          intl.formatMessage(
+            {
+              id: 'createWorkspaceErrorTitle',
+              defaultMessage: 'Failed creating {name} workspace',
+              description: 'Create workspace error notification title',
+            },
+            { name: variables.name },
+          ),
+          error.message ||
+            intl.formatMessage({
+              id: 'createWorkspaceErrorDescription',
+              defaultMessage: 'The workspace was not created successfuly.',
+              description: 'Create workspace error notification description',
+            }),
         );
       },
     },
@@ -220,10 +242,34 @@ export function useUpdateWorkspaceMutation(options?: MutationOptions) {
       },
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: workspacesKeys.all });
-        notify('success', intl.formatMessage(messages.editWorkspaceSuccessTitle), intl.formatMessage(messages.editWorkspaceSuccessDescription));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'editWorkspaceSuccessTitle',
+            defaultMessage: 'Success updating workspace',
+            description: 'Update workspace success notification title',
+          }),
+          intl.formatMessage({
+            id: 'editWorkspaceSuccessDescription',
+            defaultMessage: 'The workspace was updated successfully.',
+            description: 'Update workspace success notification description',
+          }),
+        );
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.editWorkspaceErrorTitle), intl.formatMessage(messages.editWorkspaceErrorDescription));
+        notify(
+          'danger',
+          intl.formatMessage({
+            id: 'editWorkspaceErrorTitle',
+            defaultMessage: 'Error updating workspace',
+            description: 'Update workspace error notification title',
+          }),
+          intl.formatMessage({
+            id: 'editWorkspaceErrorDescription',
+            defaultMessage: 'The workspace was not updated successfully.',
+            description: 'Update workspace error notification description',
+          }),
+        );
       },
     },
     options?.queryClient,
@@ -251,15 +297,41 @@ export function useDeleteWorkspaceMutation(options?: MutationOptions) {
         qc.invalidateQueries({ queryKey: workspacesKeys.all });
         notify(
           'success',
-          intl.formatMessage(messages.deleteWorkspaceSuccessTitle),
-          variables.name ? intl.formatMessage(messages.deleteWorkspaceSuccessDescription, { workspace: variables.name }) : undefined,
+          intl.formatMessage({
+            id: 'deleteWorkspaceSuccessTitle',
+            defaultMessage: 'Success deleting workspace',
+            description: 'Delete workspace success notification title',
+          }),
+          variables.name
+            ? intl.formatMessage(
+                {
+                  id: 'deleteWorkspaceSuccessDescription',
+                  defaultMessage: 'The workspace {workspace} was deleted successfully.',
+                  description: 'Delete workspace success notification description',
+                },
+                { workspace: variables.name },
+              )
+            : undefined,
         );
       },
       onError: (_, variables) => {
         notify(
           'danger',
-          intl.formatMessage(messages.deleteWorkspaceErrorTitle),
-          variables.name ? intl.formatMessage(messages.deleteWorkspaceErrorDescription, { workspace: variables.name }) : undefined,
+          intl.formatMessage({
+            id: 'deleteWorkspaceErrorTitle',
+            defaultMessage: 'Failed deleting workspace',
+            description: 'Delete workspace error notification title',
+          }),
+          variables.name
+            ? intl.formatMessage(
+                {
+                  id: 'deleteWorkspaceErrorDescription',
+                  defaultMessage: 'The workspace {workspace} was not deleted successfuly.',
+                  description: 'Delete workspace error notification description',
+                },
+                { workspace: variables.name },
+              )
+            : undefined,
         );
       },
     },
@@ -295,15 +367,40 @@ export function useMoveWorkspaceMutation(options?: MutationOptions) {
       queryClient.invalidateQueries({ queryKey: workspacesKeys.all });
       notify(
         'success',
-        intl.formatMessage(messages.moveWorkspaceSuccessTitle),
-        variables.name ? intl.formatMessage(messages.moveWorkspaceSuccessDescription, { name: variables.name }) : undefined,
+        intl.formatMessage({
+          id: 'moveWorkspaceSuccessTitle',
+          defaultMessage: 'Moving workspace',
+          description: 'Move workspace success notification title',
+        }),
+        variables.name
+          ? intl.formatMessage(
+              {
+                id: 'moveWorkspaceSuccessDescription',
+                defaultMessage: '{name} has been moved successfully.',
+                description: 'Move workspace success notification description',
+              },
+              { name: variables.name },
+            )
+          : undefined,
       );
     },
     onError: (_, variables) => {
       notify(
         'danger',
-        intl.formatMessage(messages.moveWorkspaceErrorTitle, { name: variables.name ?? '' }),
-        variables.name ? intl.formatMessage(messages.moveWorkspaceErrorDescription, { workspace: variables.name }) : undefined,
+        intl.formatMessage(
+          { id: 'moveWorkspaceErrorTitle', defaultMessage: 'Failed to move {name}', description: 'Move workspace error notification title' },
+          { name: variables.name ?? '' },
+        ),
+        variables.name
+          ? intl.formatMessage(
+              {
+                id: 'moveWorkspaceErrorDescription',
+                defaultMessage: '{workspace} was not moved successfully.',
+                description: 'Move workspace error notification description',
+              },
+              { workspace: variables.name },
+            )
+          : undefined,
       );
     },
   });
@@ -347,13 +444,29 @@ export function useUpdateGroupRolesMutation(options?: MutationOptions) {
       },
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: roleBindingsKeys.all });
-        notify('success', intl.formatMessage(messages.updateRoleBindingsSuccessTitle));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'updateRoleBindingsSuccessTitle',
+            defaultMessage: 'Access updated successfully',
+            description: 'Success notification title when role bindings are updated',
+          }),
+        );
       },
       onError: (error: Error) => {
         notify(
           'danger',
-          intl.formatMessage(messages.updateRoleBindingsErrorTitle),
-          error.message || intl.formatMessage(messages.updateRoleBindingsErrorDescription),
+          intl.formatMessage({
+            id: 'updateRoleBindingsErrorTitle',
+            defaultMessage: 'Failed to update access',
+            description: 'Error notification title when role bindings update fails',
+          }),
+          error.message ||
+            intl.formatMessage({
+              id: 'updateRoleBindingsErrorDescription',
+              defaultMessage: 'There was a problem saving the role changes. Please try again.',
+              description: 'Error notification description when role bindings update fails',
+            }),
         );
       },
     },
@@ -399,13 +512,34 @@ export function useGrantAccessMutation(options?: MutationOptions) {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: roleBindingsKeys.all });
         qc.invalidateQueries({ queryKey: workspacesKeys.all });
-        notify('success', intl.formatMessage(messages.grantAccessSuccessTitle), intl.formatMessage(messages.grantAccessSuccessDescription));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'grantAccessSuccessTitle',
+            defaultMessage: 'Access granted successfully',
+            description: 'Success notification title when access is granted',
+          }),
+          intl.formatMessage({
+            id: 'grantAccessSuccessDescription',
+            defaultMessage: 'Role bindings were created for the selected groups.',
+            description: 'Success notification description when access is granted',
+          }),
+        );
       },
       onError: (error: Error) => {
         notify(
           'danger',
-          intl.formatMessage(messages.grantAccessErrorTitle),
-          error.message || intl.formatMessage(messages.grantAccessErrorDescription),
+          intl.formatMessage({
+            id: 'grantAccessErrorTitle',
+            defaultMessage: 'Failed to grant access',
+            description: 'Error notification title when granting access fails',
+          }),
+          error.message ||
+            intl.formatMessage({
+              id: 'grantAccessErrorDescription',
+              defaultMessage: 'There was a problem granting access. Please try again.',
+              description: 'Error notification description when granting access fails',
+            }),
         );
       },
     },

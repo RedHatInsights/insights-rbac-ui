@@ -7,8 +7,9 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import { useGroupMembersQuery } from '../../../../shared/data/queries/groups';
-import messages from '../../../../Messages';
+
 import type { Group } from '../types';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface GroupsMembersTableProps {
   group: Group;
@@ -26,12 +27,12 @@ export const GroupsMembersTable: React.FC<GroupsMembersTableProps> = ({ group })
   const members = data?.members ?? [];
 
   const compoundMembersCells = [
-    intl.formatMessage(messages.orgAdmin),
-    intl.formatMessage(messages.firstName),
-    intl.formatMessage(messages.lastName),
-    intl.formatMessage(messages.username),
-    intl.formatMessage(messages.email),
-    intl.formatMessage(messages.status),
+    intl.formatMessage({ id: 'orgAdmin', defaultMessage: 'Org. Admin', description: 'Org. Admin name' }),
+    intl.formatMessage(commonMessages.firstName),
+    intl.formatMessage(commonMessages.lastName),
+    intl.formatMessage(commonMessages.username),
+    intl.formatMessage(commonMessages.email),
+    intl.formatMessage(commonMessages.status),
   ];
 
   if (isLoading) {
@@ -69,7 +70,7 @@ export const GroupsMembersTable: React.FC<GroupsMembersTableProps> = ({ group })
                   ) : (
                     <CloseIcon key="no-icon" className="pf-v6-u-mx-sm" />
                   )}
-                  {intl.formatMessage(member?.is_org_admin ? messages.yes : messages.no)}
+                  {intl.formatMessage(member?.is_org_admin ? commonMessages.yes : commonMessages.no)}
                 </Content>
               </Td>
               <Td dataLabel={compoundMembersCells[1]}>{member.first_name}</Td>
@@ -83,7 +84,11 @@ export const GroupsMembersTable: React.FC<GroupsMembersTableProps> = ({ group })
           <Tr>
             <Td colSpan={compoundMembersCells.length}>
               <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-                {intl.formatMessage(messages.noGroupMembers)}
+                {intl.formatMessage({
+                  id: 'noGroupMembers',
+                  defaultMessage: 'There are no members in this group',
+                  description: 'No members in a given group title',
+                })}
               </Content>
             </Td>
           </Tr>

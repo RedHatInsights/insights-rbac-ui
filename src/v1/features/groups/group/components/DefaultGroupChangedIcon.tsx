@@ -3,7 +3,6 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import { FormattedMessage } from 'react-intl';
-import messages from '../../../../../Messages';
 
 interface DefaultGroupChangedIconProps {
   name: string;
@@ -17,7 +16,11 @@ export const DefaultGroupChangedIcon: React.FC<DefaultGroupChangedIconProps> = (
         aria-label="default-group-icon"
         bodyContent={
           <FormattedMessage
-            {...messages.defaultAccessGroupNameChanged}
+            id={'defaultAccessGroupNameChanged'}
+            defaultMessage={
+              'Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group name has changed to <b>Custom default access</b>.'
+            }
+            description={'Default access group renamed message'}
             values={{
               b: (text) => <b>{text}</b>,
             }}

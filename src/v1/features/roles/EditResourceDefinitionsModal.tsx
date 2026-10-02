@@ -18,7 +18,7 @@ import { useRoleQuery, useUpdateRoleMutation } from '../../data/queries/roles';
 import { useResourceQuery, useResourceTypesQuery } from '../../../shared/data/queries/cost';
 import { useInventoryGroupsQuery } from '../../../shared/data/queries/inventory';
 import type { Access, ResourceDefinition } from '../../data/api/roles';
-import messages from '../../../Messages';
+import { commonMessages } from '../../../shared/messages/common';
 
 // Create a custom component mapper with our fixed DualListSelect
 const componentMapper = {
@@ -55,7 +55,17 @@ interface EditResourceDefinitionsModalProps {
 const createOptions = (resources: Record<string, InventoryGroup> | Resources | undefined, permissionId: string) =>
   isInventoryPermission(permissionId)
     ? [
-        ...(isInventoryHostsPermission(permissionId) ? [<FormattedMessage key="ungrouped" data-value="null" {...messages.ungroupedSystems} />] : []),
+        ...(isInventoryHostsPermission(permissionId)
+          ? [
+              <FormattedMessage
+                key="ungrouped"
+                data-value="null"
+                id={'ungroupedSystems'}
+                defaultMessage={'Ungrouped systems'}
+                description={'Ungrouped systems button label'}
+              />,
+            ]
+          : []),
         ...Object.values((resources as Record<string, InventoryGroup>) || {}).map((inventoryGroup) => (
           <span key={inventoryGroup.id} data-value={inventoryGroup.id}>
             {inventoryGroup.name}
@@ -104,10 +114,26 @@ const createEditResourceDefinitionsSchema = (
       {
         component: componentTypes.DUAL_LIST_SELECT,
         name: 'dual-list-select',
-        leftTitle: intl.formatMessage(messages.resourcesAvailable),
-        rightTitle: intl.formatMessage(messages.resourcesDefined),
-        filterOptionsTitle: intl.formatMessage(messages.filterByResource),
-        filterValueTitle: intl.formatMessage(messages.filterByResource),
+        leftTitle: intl.formatMessage({
+          id: 'resourcesAvailable',
+          defaultMessage: 'Resources available for the permission',
+          description: 'Resources available for permission message',
+        }),
+        rightTitle: intl.formatMessage({
+          id: 'resourcesDefined',
+          defaultMessage: 'Resources defined for the permission',
+          description: 'Resources defined for permission message',
+        }),
+        filterOptionsTitle: intl.formatMessage({
+          id: 'filterByResource',
+          defaultMessage: 'Filter by resource...',
+          description: 'Filter by resource label',
+        }),
+        filterValueTitle: intl.formatMessage({
+          id: 'filterByResource',
+          defaultMessage: 'Filter by resource...',
+          description: 'Filter by resource label',
+        }),
         options: [...((resourcesPath || isInventory) && resources ? options : [])],
         validate: [{ type: 'validate-resources' }],
         isSearchable: true,
@@ -267,14 +293,18 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
   return (
     <React.Fragment>
       <WarningModal
-        title={intl.formatMessage(messages.exitEditResourceDefinitions)}
+        title={intl.formatMessage({
+          id: 'exitEditResourceDefinitions',
+          defaultMessage: 'Exit edit resource definitions?',
+          description: 'Exit edit resource definitions question text',
+        })}
         isOpen={state.cancelWarningVisible}
         onClose={() => dispatchLocally({ type: 'update', payload: { cancelWarningVisible: false } })}
         onConfirm={onCancel}
         data-testid="warning-modal"
-        confirmButtonLabel={intl.formatMessage(messages.discard)}
+        confirmButtonLabel={intl.formatMessage(commonMessages.discard)}
       >
-        {intl.formatMessage(messages.changesWillBeLost)}
+        {intl.formatMessage({ id: 'changesWillBeLost', defaultMessage: 'All changes will be lost', description: 'All changes will be lost message' })}
       </WarningModal>
       {isLoading && state.loadingStateVisible ? (
         <Modal
@@ -282,7 +312,11 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
           variant={ModalVariant.large}
           className="rbac-m-resource-definitions"
           isOpen={true}
-          title={intl.formatMessage(messages.editResourceDefinitions)}
+          title={intl.formatMessage({
+            id: 'editResourceDefinitions',
+            defaultMessage: 'Edit resource definitions',
+            description: 'Edit resource definitions label',
+          })}
           onClose={() => {
             dispatchLocally({ type: 'update', payload: { loadingStateVisible: false } });
             onCancel();
@@ -307,8 +341,16 @@ const EditResourceDefinitionsModal: React.FC<EditResourceDefinitionsModalProps> 
                 onClose: handleCancel as (values: Record<string, unknown>) => void,
                 isOpen: !state.cancelWarningVisible,
                 variant: 'large',
-                title: intl.formatMessage(messages.editResourceDefinitions),
-                description: intl.formatMessage(messages.editPermissionsUsingArrows),
+                title: intl.formatMessage({
+                  id: 'editResourceDefinitions',
+                  defaultMessage: 'Edit resource definitions',
+                  description: 'Edit resource definitions label',
+                }),
+                description: intl.formatMessage({
+                  id: 'editPermissionsUsingArrows',
+                  defaultMessage: 'Give or remove permissions to specific resources using the arrows below.',
+                  description: 'Edit permissions using arrows label',
+                }),
               }}
             />
           )}

@@ -1,7 +1,6 @@
 import React, { Fragment, Suspense, useCallback, useMemo, useState } from 'react';
 import { defaultSettings } from '../../../shared/helpers/pagination';
 import { useIntl } from 'react-intl';
-import messages from '../../../Messages';
 
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
@@ -12,6 +11,7 @@ import { ResourceDefinitionsLink } from './components/ResourceDefinitionsLink';
 import { usePrincipalAccessQuery } from '../../data/queries/access';
 
 import type { ResourceDefinition, ResourceDefinitionsConfig } from './types';
+import { commonMessages } from '../../../shared/messages/common';
 
 // Local interface for permission items from API
 interface PermissionAccess {
@@ -59,10 +59,22 @@ export const AccessTable: React.FC<AccessTableProps> = ({ apps, showResourceDefi
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () =>
       ({
-        application: { label: intl.formatMessage(messages.application), sortable: true },
-        resourceType: { label: intl.formatMessage(messages.resourceType), sortable: true },
-        operation: { label: intl.formatMessage(messages.operation), sortable: true },
-        ...(showResourceDefinitions ? { resourceDefinitions: { label: intl.formatMessage(messages.resourceDefinitions) } } : {}),
+        application: {
+          label: intl.formatMessage(commonMessages.application),
+          sortable: true,
+        },
+        resourceType: {
+          label: intl.formatMessage(commonMessages.resourceType),
+          sortable: true,
+        },
+        operation: { label: intl.formatMessage(commonMessages.operation), sortable: true },
+        ...(showResourceDefinitions
+          ? {
+              resourceDefinitions: {
+                label: intl.formatMessage(commonMessages.resourceDefinitions),
+              },
+            }
+          : {}),
       }) as ColumnConfigMap<typeof columns>,
     [intl, showResourceDefinitions],
   );
@@ -116,7 +128,7 @@ export const AccessTable: React.FC<AccessTableProps> = ({ apps, showResourceDefi
       {
         type: 'checkbox',
         id: 'application',
-        label: intl.formatMessage(messages.application),
+        label: intl.formatMessage(commonMessages.application),
         options: apps.map((app: string) => ({ id: app, label: app })),
       },
     ],
@@ -153,7 +165,7 @@ export const AccessTable: React.FC<AccessTableProps> = ({ apps, showResourceDefi
         getRowId={(row) => row.permission}
         cellRenderers={cellRenderers}
         filterConfig={filterConfig}
-        ariaLabel={intl.formatMessage(messages.permissions)}
+        ariaLabel={intl.formatMessage(commonMessages.permissions)}
         ouiaId="access-table"
         emptyStateNoData={<DefaultEmptyStateNoData title="Configure permissions" body="To configure user access, create at least one permission." />}
         emptyStateNoResults={<DefaultEmptyStateNoResults title="No permissions found" onClearFilters={tableState.clearAllFilters} />}

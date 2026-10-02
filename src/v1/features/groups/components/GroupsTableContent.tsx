@@ -2,8 +2,9 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import { Table, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { GroupsTableRow } from './GroupsTableRow';
-import messages from '../../../../Messages';
+
 import type { Group } from '../types';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface GroupsTableContentProps {
   data: Group[];
@@ -35,7 +36,7 @@ export const GroupsTableContent: React.FC<GroupsTableContentProps> = ({
   const intl = useIntl();
 
   return (
-    <Table role="grid" aria-label={intl.formatMessage(messages.groups)}>
+    <Table role="grid" aria-label={intl.formatMessage(commonMessages.groups)}>
       <Thead>
         <Tr>
           {isAdmin && <Th screenReaderText="Row selection" />}
@@ -50,10 +51,10 @@ export const GroupsTableContent: React.FC<GroupsTableContentProps> = ({
               columnIndex: isAdmin ? 1 : 0,
             }}
           >
-            {intl.formatMessage(messages.name)}
+            {intl.formatMessage(commonMessages.name)}
           </Th>
-          <Th>{intl.formatMessage(messages.roles)}</Th>
-          <Th>{intl.formatMessage(messages.members)}</Th>
+          <Th>{intl.formatMessage(commonMessages.roles)}</Th>
+          <Th>{intl.formatMessage(commonMessages.members)}</Th>
           <Th
             sort={{
               sortBy: {
@@ -64,7 +65,7 @@ export const GroupsTableContent: React.FC<GroupsTableContentProps> = ({
               columnIndex: isAdmin ? 4 : 3,
             }}
           >
-            {intl.formatMessage(messages.lastModified)}
+            {intl.formatMessage(commonMessages.lastModified)}
           </Th>
           <Th screenReaderText="Actions" width={10} style={{ width: '1%' }} />
         </Tr>

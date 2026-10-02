@@ -4,8 +4,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
 import { groupsKeys, useDeleteGroupMutation } from '../../../../shared/data/queries/groups';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../shared/utilities/constants';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface UseGroupActionsProps {
   groupId?: string;
@@ -75,8 +76,8 @@ export const useGroupActions = ({
     // Action URLs and labels
     editUrl: getEditUrl(),
     deleteUrl: getDeleteUrl(),
-    editLabel: intl.formatMessage(messages.edit),
-    deleteLabel: intl.formatMessage(messages.delete),
+    editLabel: intl.formatMessage(commonMessages.edit),
+    deleteLabel: intl.formatMessage(commonMessages.delete),
 
     // Actions
     handleResetConfirm,

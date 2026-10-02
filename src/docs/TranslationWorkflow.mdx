@@ -1,0 +1,54 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Translation Workflow" />
+
+# Translation Workflow
+
+RBAC UI stores its FormatJS source catalog in `locales/translation-template.json` and compiled English runtime messages in `src/locales/translations.json`. Both catalogs are generated from application source; do not edit them by hand.
+
+## Author messages
+
+FormatJS descriptors live beside their usage in application source. Give each descriptor a stable `id`, English `defaultMessage`, and translator-facing `description`.
+
+Extraction reads descriptors passed directly to `intl.formatMessage()` or `defineMessage()`, declared inside `defineMessages({ ... })`, or written as `<FormattedMessage>` attributes. A descriptor elsewhere may still render its `defaultMessage` at runtime but will not be extracted into the source catalog. Declare conditional or config-object messages with `defineMessages` and reference them:
+
+```tsx
+const messages = defineMessages({
+  adminRole: { id: 'adminRole', defaultMessage: 'Admin', description: 'Admin role label' },
+  viewerRole: { id: 'viewerRole', defaultMessage: 'Viewer', description: 'Viewer role label' },
+});
+
+intl.formatMessage(isAdmin ? messages.adminRole : messages.viewerRole);
+```
+
+When branches differ only by count or a value, prefer one ICU message (`{count, plural, one {…} other {…}}`, `{kind, select, …}`) instead of a ternary. Never pass English words such as `'user'`/`'users'` as message values.
+
+Copy reused across features (for example `cancel`, `name`, and `roles`) lives in `src/shared/messages/common.ts` as `commonMessages`. Use it instead of repeating descriptors; keep feature-specific copy inline.
+
+## ESLint
+
+ESLint checks application JS/TS descriptors, excluding stories and tests:
+
+- `rbac-i18n/extractable-message-descriptor` (`eslint-rules/extractable-message-descriptor.js`) rejects descriptors FormatJS extraction cannot read.
+- `formatjs/enforce-description`, `formatjs/enforce-default-message`, and `formatjs/enforce-placeholders` require literal context and matching `values`.
+- `formatjs/no-literal-string-in-jsx` warns on hardcoded JSX text in product UI, excluding CLI and user-journey scaffolding. Existing warnings are translation debt; do not add new ones.
+
+## Generate catalogs
+
+After adding or changing descriptors:
+
+```bash
+npm run translations
+npm run lint
+```
+
+`npm run translations` extracts descriptors from application JS/TS into `locales/translation-template.json` and compiles `src/locales/translations.json`. Review both generated files and commit them with the source changes. `translations:prepare` compiles the checked-in source catalog before `npm start`, `npm run start:no-proxy`, and `npm run build`.
+
+| Path                                | Role                                                 |
+| ----------------------------------- | ---------------------------------------------------- |
+| `locales/translation-template.json` | Generated English descriptors and translator context |
+| `src/locales/translations.json`     | Compiled flat English runtime messages               |
+
+## Runtime locale support
+
+`src/locales/locale.ts` currently selects `en` unconditionally. The Storybook **Locale** toolbar demonstrates locale switching for component stories; journey stories continue using the app's English provider. The `zh-CN` demo catalog lives in `.storybook/locales/zh-CN.demo.json`, outside production catalogs. It exercises ICU messages and falls back to English for IDs it does not contain. Runtime locale selection remains a separate product change.

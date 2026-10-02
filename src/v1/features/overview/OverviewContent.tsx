@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl';
 import { useIdentity } from '../../../shared/hooks/useIdentity';
 import { useConversionOptIn } from '../../../capabilities/useConversionOptIn';
 import { useWorkspacesEligibility, useWorkspacesFlag } from '../../../capabilities/useWorkspacesFlag';
-import messages from '../../../Messages';
+
 import { EnableWorkspacesAlert } from '../../../shared/components/workspaces/EnableWorkspacesAlert';
 import { ConversionOptInBanner } from '../../components/ConversionOptInBanner';
 import { ConversionWizard } from '../../components/conversion-wizard/ConversionWizard';
@@ -34,11 +34,16 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
     <React.Fragment>
       {isWorkspacesEligible && !isWorkspacesFlag && <EnableWorkspacesAlert />}
       <PageHeader
-        title={intl.formatMessage(messages.overview)}
-        subtitle={intl.formatMessage(messages.overviewSubtitle)}
+        title={intl.formatMessage({ id: 'overview', defaultMessage: 'User Access', description: 'Overview label' })}
+        subtitle={intl.formatMessage({
+          id: 'overviewSubtitle',
+          defaultMessage:
+            'Streamline access management for your organization’s users and resources with the User Access to ensure secure and efficient control over permissions and authorization.',
+          description: 'Overview subtitle',
+        })}
         icon={<img src="/apps/frontend-assets/technology-icons/iam.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />}
         linkProps={{
-          label: intl.formatMessage(messages.learnMore),
+          label: intl.formatMessage({ id: 'learnMore', defaultMessage: 'Learn more', description: 'learn more link' }),
           href: 'https://docs.redhat.com/en/documentation/red_hat_hybrid_cloud_console/1-latest/administer-manage_user_permissions_rbac_models',
         }}
       />
@@ -57,7 +62,11 @@ const Overview: React.FC<OverviewProps> = ({ links }) => {
           className="pf-v6-u-mb-lg"
           data-ouia-component-id="overview-view-all-resources-button"
         >
-          {intl.formatMessage(messages.iamLearningResourcesLink)}
+          {intl.formatMessage({
+            id: 'iamLearningResourcesLink',
+            defaultMessage: 'View all Identity and Access Management Learning Resources.',
+            description: 'Identity and Access Management Learning Resources link',
+          })}
         </a>
       </PageSection>
     </React.Fragment>

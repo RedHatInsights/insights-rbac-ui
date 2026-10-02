@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import Messages from '../../../../Messages';
+
 // eslint-disable-next-line experience-ui/require-use-table-state -- display-only table from props, no server state
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/frontend-components/TableView';
@@ -24,8 +24,14 @@ export const AssignedUserGroupsTable: React.FunctionComponent<AssignedUserGroups
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      userGroup: { label: intl.formatMessage(Messages.userGroup) },
-      workspaceAssignment: { label: intl.formatMessage(Messages.workspaceAssignment) },
+      userGroup: { label: intl.formatMessage({ id: 'userGroup', defaultMessage: 'User group', description: 'User group singular' }) },
+      workspaceAssignment: {
+        label: intl.formatMessage({
+          id: 'workspaceAssignment',
+          defaultMessage: 'Workspace assignment',
+          description: 'column header for assigned user groups table',
+        }),
+      },
     }),
     [intl],
   );

@@ -8,7 +8,7 @@ import { useTableState } from '@redhat-cloud-services/frontend-components/TableV
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { useGroupMembersQuery } from '../../../../../v2/data/queries/groups';
-import messages from '../../../../../Messages';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 // Group type for the table - compatible with API response
 interface GroupRow {
@@ -29,7 +29,7 @@ const MembersList: React.FC<{ groupId: string }> = ({ groupId }) => {
   if (isLoading) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-        {intl.formatMessage(messages.loading)}
+        {intl.formatMessage(commonMessages.loading)}
       </Content>
     );
   }
@@ -37,7 +37,11 @@ const MembersList: React.FC<{ groupId: string }> = ({ groupId }) => {
   if (members.length === 0) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-        {intl.formatMessage(messages.noGroupMembers)}
+        {intl.formatMessage({
+          id: 'noGroupMembers',
+          defaultMessage: 'There are no members in this group',
+          description: 'No members in a given group title',
+        })}
       </Content>
     );
   }
@@ -87,8 +91,13 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name), sortable: true },
-      members: { label: intl.formatMessage(messages.members), sortable: true, isCompound: true, width: 20 },
+      name: { label: intl.formatMessage(commonMessages.name), sortable: true },
+      members: {
+        label: intl.formatMessage(commonMessages.members),
+        sortable: true,
+        isCompound: true,
+        width: 20,
+      },
     }),
     [intl],
   );
@@ -114,7 +123,7 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
         type: 'text',
         id: 'name',
         label: 'User group name',
-        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.name) }),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, { key: intl.formatMessage(commonMessages.name) }),
       },
     ],
     [intl],
@@ -212,13 +221,29 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
       onFiltersChange={tableState.onFiltersChange}
       clearAllFilters={tableState.clearAllFilters}
       variant="compact"
-      ariaLabel={intl.formatMessage(messages.selectUserGroups)}
+      ariaLabel={intl.formatMessage({ id: 'selectUserGroups', defaultMessage: 'Select user group(s)', description: 'Select user groups step title' })}
       ouiaId="user-groups-selection-table"
-      emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noGroupsAvailable)} />}
+      emptyStateNoData={
+        <DefaultEmptyStateNoData
+          title={intl.formatMessage({
+            id: 'noGroupsAvailable',
+            defaultMessage: 'No groups available',
+            description: 'Message when no groups are available for selection',
+          })}
+        />
+      }
       emptyStateNoResults={
         <DefaultEmptyStateNoResults
-          title={intl.formatMessage(messages.noGroupsFound)}
-          body={intl.formatMessage(messages.noGroupsFoundDescription)}
+          title={intl.formatMessage({
+            id: 'noGroupsFound',
+            defaultMessage: 'No groups found',
+            description: 'Empty state title when no groups match filters',
+          })}
+          body={intl.formatMessage({
+            id: 'noGroupsFoundDescription',
+            defaultMessage: 'No groups match your current search criteria.',
+            description: 'Empty state description when no groups match filters',
+          })}
           onClearFilters={tableState.clearAllFilters}
         />
       }

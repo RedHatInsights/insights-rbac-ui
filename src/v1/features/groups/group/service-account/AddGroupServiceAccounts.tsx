@@ -10,12 +10,13 @@ import { useParams } from 'react-router-dom';
 
 import type { ServiceAccount } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
 import { useAddServiceAccountsToGroupMutation, useGroupQuery, useGroupsQuery } from '../../../../../shared/data/queries/groups';
-import messages from '../../../../../Messages';
+
 import { ExternalLink } from '../../../../../shared/components/navigation/ExternalLink';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../../shared/utilities/constants';
 import { ServiceAccountsList } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 interface AddGroupServiceAccountsProps {
   postMethod: () => void;
@@ -107,14 +108,14 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
         isOpen
         className="rbac"
         variant={ModalVariant.medium}
-        title={intl.formatMessage(messages.addServiceAccount)}
+        title={intl.formatMessage({ id: 'addServiceAccount', defaultMessage: 'Add service account', description: 'Add service account label' })}
         appendTo={getModalContainer()}
         actions={[
           <Button key="confirm" ouiaId="primary-confirm-button" isDisabled={selectedAccounts.length === 0} variant="primary" onClick={onSubmit}>
-            {intl.formatMessage(messages.addToGroup)}
+            {intl.formatMessage({ id: 'addToGroup', defaultMessage: 'Add to group', description: 'Add to group label' })}
           </Button>,
           <Button ouiaId="secondary-cancel-button" key="cancel" variant="link" onClick={onCancel}>
-            {intl.formatMessage(messages.cancel)}
+            {intl.formatMessage(commonMessages.cancel)}
           </Button>,
         ]}
         onClose={onCancel}
@@ -122,16 +123,36 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
         <Stack hasGutter>
           <StackItem>
             <Content>
-              {intl.formatMessage(messages.addServiceAccountsToGroupDescription)}
+              {intl.formatMessage({
+                id: 'addServiceAccountsToGroupDescription',
+                defaultMessage:
+                  'This list contains all service accounts associated with your Red Hat organization account. Select any service accounts you wish to associate with the User Access group.',
+                description: 'Add service accounts to group description',
+              })}
               <Alert
                 className="pf-v6-u-mt-sm rbac-service-accounts-alert"
                 variant="info"
                 component="span"
                 isInline
                 isPlain
-                title={intl.formatMessage(messages.visitServiceAccountsPage, {
-                  link: <ExternalLink to="/service-accounts">{intl.formatMessage(messages.serviceAccountsPage)}</ExternalLink>,
-                })}
+                title={intl.formatMessage(
+                  {
+                    id: 'visitServiceAccountsPage',
+                    defaultMessage: 'To add, reset credentials, or delete service accounts visit the {link}.',
+                    description: 'Visit service accounts page text',
+                  },
+                  {
+                    link: (
+                      <ExternalLink to="/service-accounts">
+                        {intl.formatMessage({
+                          id: 'serviceAccountsPage',
+                          defaultMessage: 'Service Accounts admin page',
+                          description: 'Service accounts page message',
+                        })}
+                      </ExternalLink>
+                    ),
+                  },
+                )}
               />
             </Content>
           </StackItem>

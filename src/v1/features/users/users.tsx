@@ -8,9 +8,10 @@ import { useFedRAMPMode } from '../../../capabilities/useFedRAMPMode';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import UsersListNotSelectable from './UsersListNotSelectable';
 import { ActiveUsers } from '../../components/user-management/ActiveUsers';
-import messages from '../../../Messages';
+
 import paths from '../../utilities/pathnames';
 import { useLocation } from 'react-router-dom';
+import { commonMessages } from '../../../shared/messages/common';
 
 const Users: React.FC = () => {
   const intl = useIntl();
@@ -20,7 +21,16 @@ const Users: React.FC = () => {
   const isITLess = useFedRAMPMode();
   const { isEnabled: isCommonAuthModel } = useCommonAuthModel();
 
-  const description = <ActiveUsers linkDescription={intl.formatMessage(messages.addNewUsersText)} />;
+  const description = (
+    <ActiveUsers
+      linkDescription={intl.formatMessage({
+        id: 'addNewUsersText',
+        defaultMessage:
+          'For more advanced user management, including adding users directly, editing details (like job title and language), and managing Customer Portal access, visit the',
+        description: 'Add new users text',
+      })}
+    />
+  );
 
   useEffect(() => {
     trackNavigation('users', true);
@@ -36,7 +46,7 @@ const Users: React.FC = () => {
   };
 
   return (
-    <PageLayout title={{ title: intl.formatMessage(messages.users), description }}>
+    <PageLayout title={{ title: intl.formatMessage(commonMessages.users), description }}>
       <Section type="content" id="users">
         <UsersListNotSelectable {...usersListProps} />
       </Section>

@@ -1,9 +1,10 @@
 import { groupsApi } from '../../../shared/data/api/groups';
 import { debounce } from '../../../shared/utilities/debounce';
 import { createIntl, createIntlCache } from 'react-intl';
-import messages from '../../../Messages';
-import providerMessages from '../../../locales/data.json';
+
+import providerMessages from '../../../locales/translations.json';
 import { locale } from '../../../locales/locale';
+import { commonMessages } from '../../../shared/messages/common';
 
 export const asyncValidator = async (groupName: string, idKey: string, id?: string): Promise<void> => {
   const cache = createIntlCache();
@@ -14,7 +15,7 @@ export const asyncValidator = async (groupName: string, idKey: string, id?: stri
   }
 
   if (groupName.length > 150) {
-    throw intl.formatMessage(messages.maxCharactersWarning, { number: 150 });
+    throw intl.formatMessage(commonMessages.maxCharactersWarning, { number: 150 });
   }
 
   const response = await groupsApi
@@ -32,7 +33,11 @@ export const asyncValidator = async (groupName: string, idKey: string, id?: stri
   const groups = response?.data?.data ?? [];
 
   if (id ? groups.some((item) => item[idKey as keyof typeof item] !== id) : groups.length > 0) {
-    throw intl.formatMessage(messages.nameAlreadyTaken);
+    throw intl.formatMessage({
+      id: 'nameAlreadyTaken',
+      defaultMessage: 'Name has already been taken.',
+      description: 'Name has been already taken validation message',
+    });
   }
 
   return undefined;

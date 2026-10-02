@@ -7,7 +7,7 @@ import { EditGroupServiceAccountsTable } from './EditUserGroupServiceAccounts';
 import { EditGroupUsersTable } from './EditUserGroupUsers';
 import type { TableState } from './EditUserGroupTableState';
 import { useIntl } from 'react-intl';
-import Messages from '../../../../../../Messages';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface ExtendedUseFieldApiConfig extends UseFieldApiConfig {
   initialUsers?: string[];
@@ -60,12 +60,21 @@ export const EditGroupUsersAndServiceAccounts: React.FunctionComponent<ExtendedU
 
   return (
     <div data-testid="users-and-service-accounts-component">
-      <FormGroup label={intl.formatMessage(Messages.selectUsersAndOrServiceAccounts)}>
+      <FormGroup
+        label={intl.formatMessage({
+          id: 'selectUsersAndOrServiceAccounts',
+          defaultMessage: 'Select users and/or service accounts',
+          description: 'select users and/or service accounts label',
+        })}
+      >
         <Tabs activeKey={activeTabKey} onSelect={handleTabSelect}>
-          <Tab eventKey={0} title={intl.formatMessage(Messages.users)}>
+          <Tab eventKey={0} title={intl.formatMessage(commonMessages.users)}>
             {/* Empty tab content - actual content rendered below */}
           </Tab>
-          <Tab eventKey={1} title={intl.formatMessage(Messages.serviceAccounts)}>
+          <Tab
+            eventKey={1}
+            title={intl.formatMessage({ id: 'serviceAccounts', defaultMessage: 'Service accounts', description: 'Service accounts plural' })}
+          >
             {/* Empty tab content - actual content rendered below */}
           </Tab>
         </Tabs>

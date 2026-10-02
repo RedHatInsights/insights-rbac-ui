@@ -1,5 +1,4 @@
 import { IntlShape } from 'react-intl';
-import messages from '../../../Messages';
 
 /**
  * Custom validators for the conversion wizard
@@ -12,7 +11,11 @@ import messages from '../../../Messages';
  */
 export const requiredCheckboxValidator = (intl: IntlShape) => () => (value: boolean) => {
   if (!value) {
-    return intl.formatMessage(messages.conversionWizardCheckboxValidationError);
+    return intl.formatMessage({
+      id: 'conversionWizardCheckboxValidationError',
+      defaultMessage: 'This item must be acknowledged',
+      description: 'Error message when required checkbox is not checked',
+    });
   }
   return undefined;
 };

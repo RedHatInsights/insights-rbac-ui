@@ -2,7 +2,7 @@ import React from 'react';
 import { EmptyState, EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import { SearchIcon } from '@patternfly/react-icons/dist/dynamic/icons/search-icon';
 import { useIntl } from 'react-intl';
-import messages from '../../../../../../Messages';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 export interface UserGroupsEmptyStateProps {
   /** Whether there are active filters applied */
@@ -23,14 +23,23 @@ export const UserGroupsEmptyState: React.FC<UserGroupsEmptyStateProps> = ({ hasA
       icon={SearchIcon}
       titleText={
         hasActiveFilters
-          ? intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.userGroups).toLowerCase() })
-          : titleText || intl.formatMessage(messages.userGroupsEmptyStateTitle)
+          ? intl.formatMessage(commonMessages.noMatchingItemsFound, { items: intl.formatMessage(commonMessages.userGroups).toLowerCase() })
+          : titleText ||
+            intl.formatMessage({
+              id: 'userGroupsEmptyStateTitle',
+              defaultMessage: 'No user group found',
+              description: 'Empty state title User groups',
+            })
       }
     >
       <EmptyStateBody>
         {hasActiveFilters
-          ? `${intl.formatMessage(messages.filterMatchesNoItems, { items: intl.formatMessage(messages.userGroups).toLowerCase() })} ${intl.formatMessage(messages.tryChangingFilters)}`
-          : intl.formatMessage(messages.userGroupsEmptyStateSubtitle)}
+          ? `${intl.formatMessage(commonMessages.filterMatchesNoItems, { items: intl.formatMessage(commonMessages.userGroups).toLowerCase() })} ${intl.formatMessage(commonMessages.tryChangingFilters)}`
+          : intl.formatMessage({
+              id: 'userGroupsEmptyStateSubtitle',
+              defaultMessage: 'This filter criteria matches no user groups. Try changing your filter input.',
+              description: 'Empty state subtitle User groups',
+            })}
       </EmptyStateBody>
     </EmptyState>
   );

@@ -7,8 +7,9 @@ import type { CellRendererMap, ColumnConfigMap } from '@redhat-cloud-services/fr
 import { useServiceAccountsQuery } from '../../../../../../shared/data/queries/serviceAccounts';
 import type { ServiceAccount as ApiServiceAccount } from '../../../../../../shared/data/api/serviceAccounts';
 import { getDateFormat } from '../../../../../../shared/helpers/stringUtilities';
-import messages from '../../../../../../Messages';
+
 import { PER_PAGE_OPTIONS } from '../../../../../../shared/helpers/pagination';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 // Extended ServiceAccount with uuid for row ID and selection
 export type ServiceAccount = ApiServiceAccount & {
@@ -31,11 +32,11 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name) },
-      description: { label: intl.formatMessage(messages.description) },
-      clientId: { label: intl.formatMessage(messages.clientId) },
-      owner: { label: intl.formatMessage(messages.owner) },
-      timeCreated: { label: intl.formatMessage(messages.timeCreated) },
+      name: { label: intl.formatMessage(commonMessages.name) },
+      description: { label: intl.formatMessage(commonMessages.description) },
+      clientId: { label: intl.formatMessage({ id: 'clientId', defaultMessage: 'Client ID', description: 'Client ID column label' }) },
+      owner: { label: intl.formatMessage({ id: 'owner', defaultMessage: 'Owner', description: 'Owner column label' }) },
+      timeCreated: { label: intl.formatMessage({ id: 'timeCreated', defaultMessage: 'Time created', description: 'Time created column label' }) },
     }),
     [intl],
   );
@@ -101,8 +102,20 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
         emptyStateNoData={
           <Fragment>
             <div style={{ textAlign: 'center', padding: '2rem' }}>
-              <h4>{intl.formatMessage(messages.noServiceAccountsFound)}</h4>
-              <p>{intl.formatMessage(messages.groupServiceAccountEmptyStateBody)}</p>
+              <h4>
+                {intl.formatMessage({
+                  id: 'noServiceAccountsFound',
+                  defaultMessage: 'No service accounts found',
+                  description: 'No service accounts message',
+                })}
+              </h4>
+              <p>
+                {intl.formatMessage({
+                  id: 'groupServiceAccountEmptyStateBody',
+                  defaultMessage: 'No service accounts found for this group.',
+                  description: 'No service accounts for this group message',
+                })}
+              </p>
             </div>
           </Fragment>
         }

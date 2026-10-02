@@ -5,7 +5,7 @@ import { useAccessPermissions } from '../hooks/useAccessPermissions';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { AppPlaceholder } from '../../shared/components/ui-states/LoaderPlaceholders';
 import useUserData from '../hooks/useUserData';
-import messages from '../../Messages';
+import { commonMessages } from '../../shared/messages/common';
 
 interface PermissionGuardProps {
   permissions?: string[];
@@ -40,8 +40,8 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({ permissions = 
 
   const unauthorizedPage = (
     <UnauthorizedAccess
-      serviceName={intl.formatMessage(messages.unauthorizedAccessServiceName)}
-      bodyText={intl.formatMessage(messages.unauthorizedAccessBodyText)}
+      serviceName={intl.formatMessage(commonMessages.unauthorizedAccessServiceName)}
+      bodyText={intl.formatMessage(commonMessages.unauthorizedAccessBodyText)}
     />
   );
 

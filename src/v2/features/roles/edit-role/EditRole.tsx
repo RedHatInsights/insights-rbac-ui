@@ -4,7 +4,7 @@ import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import Messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 import { useParams } from 'react-router-dom';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
@@ -14,6 +14,7 @@ import { EditRolePermissions } from './EditRolePermissions';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useRoleQuery, useUpdateRoleMutation } from '../../../data/queries/roles';
 import type { Permission, Role } from '../../../data/queries/roles';
+import { commonMessages } from '../../../../shared/messages/common';
 
 function permissionToString(p: Permission): string {
   return `${p.application}:${p.resource_type}:${p.operation}`;
@@ -34,7 +35,7 @@ export const EditRole: FunctionComponent = () => {
   const intl = useIntl();
   const { roleId } = useParams();
   const navigate = useAppNavigate();
-  const pageTitle = intl.formatMessage(Messages.edit);
+  const pageTitle = intl.formatMessage(commonMessages.edit);
   const [initialFormData, setInitialFormData] = useState<Role | null>(null);
 
   const { data: selectedRole, isLoading: isRoleLoading } = useRoleQuery(roleId ?? '');
@@ -78,7 +79,7 @@ export const EditRole: FunctionComponent = () => {
       fields: [
         {
           name: 'name',
-          label: intl.formatMessage(Messages.name),
+          label: intl.formatMessage(commonMessages.name),
           component: componentTypes.TEXT_FIELD,
           validate: [
             { type: validatorTypes.REQUIRED },
@@ -93,7 +94,7 @@ export const EditRole: FunctionComponent = () => {
         },
         {
           name: 'description',
-          label: intl.formatMessage(Messages.description),
+          label: intl.formatMessage(commonMessages.description),
           component: componentTypes.TEXTAREA,
           initialValue: initialFormData?.description,
         },
@@ -128,7 +129,7 @@ export const EditRole: FunctionComponent = () => {
             FormTemplate={FormTemplate}
             FormTemplateProps={{
               disableSubmit: ['pristine', 'invalid'],
-              submitLabel: intl.formatMessage(Messages.saveChanges),
+              submitLabel: intl.formatMessage({ id: 'saveChanges', defaultMessage: 'Save changes', description: 'save changes button label' }),
             }}
           />
         )}

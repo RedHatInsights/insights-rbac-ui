@@ -10,7 +10,7 @@ import useUserData from '../../../../hooks/useUserData';
  */
 
 import React, { Fragment, Suspense, useCallback, useMemo, useRef } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
 
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -35,9 +35,19 @@ import { getBackRoute } from '../../../../../shared/helpers/navigation';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../../shared/utilities/constants';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
 import { useGroupRemoveModal } from '../../hooks/useGroupRemoveModal';
-import messages from '../../../../../Messages';
+
 import pathnames from '../../../../utilities/pathnames';
 import type { GroupRolesProps, Role } from './types';
+import { commonMessages } from '../../../../../shared/messages/common';
+
+const messages = defineMessages({
+  contactServiceTeamForRoles: {
+    id: 'contactServiceTeamForRoles',
+    defaultMessage: 'Contact your platform service team to add roles.',
+    description: 'Contact service team to add roles message',
+  },
+  addRoleToThisGroup: { id: 'addRoleToThisGroup', defaultMessage: 'Add role to this group', description: 'Add role to this group label' },
+});
 
 // =============================================================================
 // Helper Functions
@@ -161,7 +171,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
         isDisabled={disableAddRoles}
         onClick={() => navigate(pathnames['group-add-roles'].link(groupId!))}
       >
-        {intl.formatMessage(messages.addRole)}
+        {intl.formatMessage({ id: 'addRole', defaultMessage: 'Add role', description: 'Add role title' })}
       </Button>
     );
   }, [hasPermissions, isAdminDefault, group?.name, disableAddRoles, navigate, groupId, intl]);
@@ -178,7 +188,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
         items={[
           {
             key: 'remove',
-            label: intl.formatMessage(messages.remove),
+            label: intl.formatMessage(commonMessages.remove),
             onClick: () => handleOpenRemoveModal(tableState.selectedRows),
           },
         ]}
@@ -219,7 +229,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
                     items={[
                       {
                         key: 'remove',
-                        label: intl.formatMessage(messages.remove),
+                        label: intl.formatMessage(commonMessages.remove),
                         onClick: () => handleOpenRemoveModal([role]),
                       },
                     ]}
@@ -235,17 +245,28 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
           // Empty states
           emptyStateNoData={
             <DefaultEmptyStateNoData
-              title={intl.formatMessage(messages.noGroupRoles)}
+              title={intl.formatMessage({
+                id: 'noGroupRoles',
+                defaultMessage: 'There are no roles in this group',
+                description: 'No roles in a group message',
+              })}
               body={intl.formatMessage(isPlatformDefault ? messages.contactServiceTeamForRoles : messages.addRoleToThisGroup)}
             />
           }
           emptyStateNoResults={
-            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noRolesFound)} body={intl.formatMessage(messages.noFilteredRoles)} />
+            <DefaultEmptyStateNoResults
+              title={intl.formatMessage(commonMessages.noRolesFound)}
+              body={intl.formatMessage({
+                id: 'noFilteredRoles',
+                defaultMessage: 'No roles match the filter criteria. Remove all filters or clear all to show results.',
+                description: 'Empty state body when no roles match filters',
+              })}
+            />
           }
           // Config
           variant="default"
           ouiaId="group-roles-table"
-          ariaLabel={intl.formatMessage(messages.roles)}
+          ariaLabel={intl.formatMessage(commonMessages.roles)}
           // State from hook
           {...tableState}
         />

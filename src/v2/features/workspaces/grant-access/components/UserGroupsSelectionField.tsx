@@ -7,7 +7,7 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useGroupsQuery } from '../../../../../v2/data/queries/groups';
 import { UserGroupsSelectionTable } from './UserGroupsSelectionTable';
-import messages from '../../../../../Messages';
+
 import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
@@ -39,14 +39,26 @@ const UserGroupsSelectionField: React.FC<UseFieldApiConfig> = (props) => {
         <Stack>
           <StackItem>
             <Title headingLevel="h2" size="xl" className="pf-v6-u-mb-sm">
-              {intl.formatMessage(messages.selectUserGroupsContentTitle)}
+              {intl.formatMessage({
+                id: 'selectUserGroupsContentTitle',
+                defaultMessage: 'Select user group(s) you want to grant access to',
+                description: 'Select user groups content header title',
+              })}
             </Title>
           </StackItem>
           <StackItem>
             <Content component="p" className="pf-v6-u-mb-md">
-              {intl.formatMessage(messages.selectUserGroupsDescription, {
-                link: (chunks) => <AppLink to={pathnames['user-groups'].link()}>{chunks}</AppLink>,
-              })}
+              {intl.formatMessage(
+                {
+                  id: 'selectUserGroupsDescription',
+                  defaultMessage:
+                    "Select the user group(s) you wish to grant access to. If you don't see the group you wish to select, you must create a new group in <link>Users and Groups</link>.",
+                  description: 'Select user groups step description',
+                },
+                {
+                  link: (chunks) => <AppLink to={pathnames['user-groups'].link()}>{chunks}</AppLink>,
+                },
+              )}
             </Content>
           </StackItem>
           <StackItem>

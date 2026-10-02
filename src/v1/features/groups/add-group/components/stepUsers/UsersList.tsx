@@ -6,9 +6,10 @@ import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { useUsersQuery } from '../../../../../../shared/data/queries/users';
-import messages from '../../../../../../Messages';
+
 import { UsersListEmptyState } from './UsersListEmptyState';
 import type { User, UsersListProps } from './types';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 // Column definitions
 const columns = ['orgAdmin', 'username', 'email', 'firstName', 'lastName', 'status'] as const;
@@ -20,12 +21,14 @@ export const UsersList: React.FC<UsersListProps> = ({ displayNarrow = false, ini
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      orgAdmin: { label: intl.formatMessage(messages.orgAdministrator) },
-      username: { label: intl.formatMessage(messages.username), sortable: true },
-      email: { label: intl.formatMessage(messages.email) },
-      firstName: { label: intl.formatMessage(messages.firstName) },
-      lastName: { label: intl.formatMessage(messages.lastName) },
-      status: { label: intl.formatMessage(messages.status) },
+      orgAdmin: {
+        label: intl.formatMessage({ id: 'orgAdministrator', defaultMessage: 'Org. Administrator', description: 'Org. Administrator name' }),
+      },
+      username: { label: intl.formatMessage(commonMessages.username), sortable: true },
+      email: { label: intl.formatMessage(commonMessages.email) },
+      firstName: { label: intl.formatMessage(commonMessages.firstName) },
+      lastName: { label: intl.formatMessage(commonMessages.lastName) },
+      status: { label: intl.formatMessage(commonMessages.status) },
     }),
     [intl],
   );
@@ -111,7 +114,7 @@ export const UsersList: React.FC<UsersListProps> = ({ displayNarrow = false, ini
       email: (user) => user.email || '—',
       firstName: (user) => user.first_name || '—',
       lastName: (user) => user.last_name || '—',
-      status: (user) => intl.formatMessage(user.is_active ? messages.active : messages.inactive),
+      status: (user) => intl.formatMessage(user.is_active ? commonMessages.active : commonMessages.inactive),
     }),
     [intl],
   );

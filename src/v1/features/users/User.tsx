@@ -14,7 +14,7 @@ import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import { AppLink } from '../../../shared/components/navigation/AppLink';
 import { useAppLink } from '../../../shared/hooks/useAppLink';
 import { EmptyWithAction } from '../../../shared/components/ui-states/EmptyState';
-import messages from '../../../Messages';
+
 import pathnames from '../../utilities/pathnames';
 import { TableView } from '@redhat-cloud-services/frontend-components/TableView';
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
@@ -29,6 +29,7 @@ import { useAddRolesToGroupMutation } from '../../../shared/data/queries/groups'
 import { GroupsNestedTable } from './components/GroupsNestedTable';
 import { PermissionsNestedTable } from './components/PermissionsNestedTable';
 import type { Access, RoleOutDynamic } from '../../data/api/roles';
+import { commonMessages } from '../../../shared/messages/common';
 
 // RoleWithGroupsIn uses the RoleOutDynamic type from the API
 type RoleWithGroupsIn = RoleOutDynamic;
@@ -95,10 +96,13 @@ const User: React.FC = () => {
 
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = {
-    role: { label: intl.formatMessage(messages.roles) },
-    groups: { label: intl.formatMessage(messages.groups), isCompound: true },
-    permissions: { label: intl.formatMessage(messages.permissions), isCompound: true },
-    lastModified: { label: intl.formatMessage(messages.lastModified) },
+    role: { label: intl.formatMessage(commonMessages.roles) },
+    groups: { label: intl.formatMessage(commonMessages.groups), isCompound: true },
+    permissions: {
+      label: intl.formatMessage(commonMessages.permissions),
+      isCompound: true,
+    },
+    lastModified: { label: intl.formatMessage(commonMessages.lastModified) },
   };
 
   // Cell renderers for each column
@@ -147,22 +151,28 @@ const User: React.FC = () => {
   };
 
   const breadcrumbsList = [
-    { title: intl.formatMessage(messages.users), to: toAppLink(pathnames.users.link()) as string },
-    { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
+    {
+      title: intl.formatMessage(commonMessages.users),
+      to: toAppLink(pathnames.users.link()) as string,
+    },
+    {
+      title: userExists ? username : intl.formatMessage({ id: 'invalidUser', defaultMessage: 'Invalid user', description: 'Invalid user message' }),
+      isActive: true,
+    },
   ];
 
   const filterConfig: FilterConfig[] = [
     {
       type: 'search',
       id: 'name',
-      placeholder: intl.formatMessage(messages.roleName).toLowerCase(),
+      placeholder: intl.formatMessage(commonMessages.roleName).toLowerCase(),
     },
   ];
 
   const toolbarActions = isAdmin ? (
     <AppLink to={pathnames['add-user-to-group'].link(username!)} key="add-user-to-group">
       <Button ouiaId="add-user-to-group-button" variant="primary" aria-label="Add user to a group">
-        {intl.formatMessage(messages.addUserToGroup)}
+        {intl.formatMessage({ id: 'addUserToGroup', defaultMessage: 'Add user to a group', description: 'Add user to a group wizard title' })}
       </Button>
     </AppLink>
   ) : undefined;
@@ -177,22 +187,24 @@ const User: React.FC = () => {
             label: isLoadingUsers ? (
               <Skeleton size="xs" className="rbac-c-user__label-skeleton"></Skeleton>
             ) : (
-              <Label color={user?.is_active ? 'green' : undefined}>{intl.formatMessage(user?.is_active ? messages.active : messages.inactive)}</Label>
+              <Label color={user?.is_active ? 'green' : undefined}>
+                {intl.formatMessage(user?.is_active ? commonMessages.active : commonMessages.inactive)}
+              </Label>
             ),
             description:
               !isLoadingUsers && user ? (
                 <Fragment>
                   <span>
-                    {`${intl.formatMessage(messages.orgAdministrator)}: `}
+                    {`${intl.formatMessage({ id: 'orgAdministrator', defaultMessage: 'Org. Administrator', description: 'Org. Administrator name' })}: `}
                     {user?.is_org_admin ? (
                       <CheckIcon key="yes-icon" className="pf-v6-u-mx-sm" />
                     ) : (
                       <CloseIcon key="no-icon" className="pf-v6-u-mx-sm" />
                     )}
-                    {intl.formatMessage(user?.is_org_admin ? messages.yes : messages.no)}
+                    {intl.formatMessage(user?.is_org_admin ? commonMessages.yes : commonMessages.no)}
                   </span>
-                  {user?.email && <span>{` | ${intl.formatMessage(messages.email)}: ${user.email}`}</span>}
-                  {user?.username && <span>{` | ${intl.formatMessage(messages.username)}: ${user.username}`}</span>}
+                  {user?.email && <span>{` | ${intl.formatMessage(commonMessages.email)}: ${user.email}`}</span>}
+                  {user?.username && <span>{` | ${intl.formatMessage(commonMessages.username)}: ${user.username}`}</span>}
                 </Fragment>
               ) : undefined,
           }}
@@ -220,18 +232,26 @@ const User: React.FC = () => {
               onFiltersChange={tableState.onFiltersChange}
               clearAllFilters={tableState.clearAllFilters}
               toolbarActions={toolbarActions}
-              ariaLabel={intl.formatMessage(messages.roles)}
+              ariaLabel={intl.formatMessage(commonMessages.roles)}
               ouiaId="user-details-table"
               emptyStateNoData={
                 <DefaultEmptyStateNoData
-                  title={intl.formatMessage(messages.noRolesFound)}
-                  body={intl.formatMessage(messages.noRolesFoundDescription)}
+                  title={intl.formatMessage(commonMessages.noRolesFound)}
+                  body={intl.formatMessage({
+                    id: 'noRolesFoundDescription',
+                    defaultMessage: 'No roles match your current search criteria.',
+                    description: 'Empty state description when no roles match filters',
+                  })}
                 />
               }
               emptyStateNoResults={
                 <DefaultEmptyStateNoResults
-                  title={intl.formatMessage(messages.noResultsFound)}
-                  body={intl.formatMessage(messages.noRolesFoundDescription)}
+                  title={intl.formatMessage({ id: 'noResultsFound', defaultMessage: 'No results found', description: 'No results found message' })}
+                  body={intl.formatMessage({
+                    id: 'noRolesFoundDescription',
+                    defaultMessage: 'No roles match your current search criteria.',
+                    description: 'Empty state description when no roles match filters',
+                  })}
                 />
               }
             />
@@ -255,8 +275,17 @@ const User: React.FC = () => {
       ) : (
         <PageLayout breadcrumbs={breadcrumbsList}>
           <EmptyWithAction
-            title={intl.formatMessage(messages.userNotFound)}
-            description={[intl.formatMessage(messages.userNotFoundDescription, { username })]}
+            title={intl.formatMessage({ id: 'userNotFound', defaultMessage: 'User not found', description: 'User not found text' })}
+            description={[
+              intl.formatMessage(
+                {
+                  id: 'userNotFoundDescription',
+                  defaultMessage: 'User with username {username} does not exist.',
+                  description: 'User not found description text',
+                },
+                { username },
+              ),
+            ]}
             actions={[
               <Button
                 key="back-button"
@@ -266,7 +295,11 @@ const User: React.FC = () => {
                 aria-label="Back to previous page"
                 onClick={() => navigate(navigationType !== 'POP' ? (-1 as unknown as string) : pathnames.users.link())}
               >
-                {intl.formatMessage(messages.backToPreviousPage)}
+                {intl.formatMessage({
+                  id: 'backToPreviousPage',
+                  defaultMessage: 'Back to previous page',
+                  description: 'Back to previous page label',
+                })}
               </Button>,
             ]}
           />

@@ -1,10 +1,32 @@
 import React from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 
-import messages from '../../../../../Messages';
 import { useUpdateGroupRolesMutation } from '../../../../data/queries/workspaces';
+
+const messages = defineMessages({
+  removeGroupFromOrganizationConfirmTitle: {
+    id: 'removeGroupFromOrganizationConfirmTitle',
+    defaultMessage: 'Remove {groupName} from organization?',
+    description: 'Confirmation modal title when removing a group from an organization',
+  },
+  removeGroupFromWorkspaceConfirmTitle: {
+    id: 'removeGroupFromWorkspaceConfirmTitle',
+    defaultMessage: 'Remove {groupName} from workspace?',
+    description: 'Confirmation modal title when removing a group from a workspace',
+  },
+  removeGroupFromOrganization: {
+    id: 'removeGroupFromOrganization',
+    defaultMessage: 'Remove from organization',
+    description: 'Remove group from organization action label',
+  },
+  removeGroupFromWorkspace: {
+    id: 'removeGroupFromWorkspace',
+    defaultMessage: 'Remove from workspace',
+    description: 'Remove group from workspace action label',
+  },
+});
 
 export interface RemoveGroupFromWorkspaceModalProps {
   isOpen: boolean;
@@ -62,7 +84,14 @@ export const RemoveGroupFromWorkspaceModal: React.FC<RemoveGroupFromWorkspaceMod
       onClose={onClose}
       onConfirm={handleConfirm}
     >
-      {intl.formatMessage(messages.removeGroupFromWorkspaceConfirmBody, { workspaceName })}
+      {intl.formatMessage(
+        {
+          id: 'removeGroupFromWorkspaceConfirmBody',
+          defaultMessage: 'All role assignments for this group in {workspaceName} will be removed. This action cannot be undone.',
+          description: 'Confirmation modal body when removing a group from a workspace',
+        },
+        { workspaceName },
+      )}
     </WarningModal>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { TableView, useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
@@ -8,8 +8,13 @@ import { useWorkspacesWithPermissions } from '../../workspaces/hooks/useWorkspac
 import type { WorkspaceWithPermissions } from '../../../data/queries/workspaces';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
-import messages from '../../../../Messages';
+
 import { MyWorkspaceDrawer } from './MyWorkspaceDrawer';
+
+const messages = defineMessages({
+  adminRole: { id: 'adminRole', defaultMessage: 'Admin', description: 'Admin role label' },
+  viewerRole: { id: 'viewerRole', defaultMessage: 'Viewer', description: 'Viewer role label' },
+});
 
 const columns = ['name', 'role'] as const;
 type SortableColumnId = 'name';
@@ -21,8 +26,14 @@ const MyWorkspaces: React.FunctionComponent = () => {
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.workspace), sortable: true },
-      role: { label: intl.formatMessage(messages.adminOrViewerRole) },
+      name: { label: intl.formatMessage({ id: 'workspace', defaultMessage: 'Workspace', description: 'Workspace singular label' }), sortable: true },
+      role: {
+        label: intl.formatMessage({
+          id: 'adminOrViewerRole',
+          defaultMessage: 'Admin or Viewer role',
+          description: 'Admin or viewer role column label',
+        }),
+      },
     }),
     [intl],
   );
@@ -47,8 +58,8 @@ const MyWorkspaces: React.FunctionComponent = () => {
       {
         type: 'text' as const,
         id: 'name',
-        label: intl.formatMessage(messages.workspace),
-        placeholder: `Filter by ${intl.formatMessage(messages.workspace).toLowerCase()}`,
+        label: intl.formatMessage({ id: 'workspace', defaultMessage: 'Workspace', description: 'Workspace singular label' }),
+        placeholder: `Filter by ${intl.formatMessage({ id: 'workspace', defaultMessage: 'Workspace', description: 'Workspace singular label' }).toLowerCase()}`,
       },
     ],
     [intl],

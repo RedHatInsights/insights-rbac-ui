@@ -5,8 +5,9 @@ import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { useIntl } from 'react-intl';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface GroupsEmptyStateProps {
   hasActiveFilters: boolean;
@@ -26,11 +27,11 @@ export const GroupsEmptyState: React.FC<GroupsEmptyStateProps> = ({ hasActiveFil
   }
 
   return (
-    <EmptyState headingLevel="h4" icon={UsersIcon} titleText={titleText || `Configure ${intl.formatMessage(messages.groups).toLowerCase()}`}>
+    <EmptyState headingLevel="h4" icon={UsersIcon} titleText={titleText || `Configure ${intl.formatMessage(commonMessages.groups).toLowerCase()}`}>
       <EmptyStateBody>
-        {intl.formatMessage(messages.toConfigureUserAccess)}{' '}
-        {intl.formatMessage(messages.createAtLeastOneItem, {
-          item: intl.formatMessage(messages.group).toLowerCase(),
+        {intl.formatMessage(commonMessages.toConfigureUserAccess)}{' '}
+        {intl.formatMessage(commonMessages.createAtLeastOneItem, {
+          item: intl.formatMessage({ id: 'group', defaultMessage: 'Group', description: 'Group singular' }).toLowerCase(),
         })}
         .
       </EmptyStateBody>
@@ -38,7 +39,9 @@ export const GroupsEmptyState: React.FC<GroupsEmptyStateProps> = ({ hasActiveFil
         <EmptyStateFooter>
           <EmptyStateActions>
             <AppLink to={pathnames['add-group'].link()}>
-              <Button variant="primary">{intl.formatMessage(messages.createGroup)}</Button>
+              <Button variant="primary">
+                {intl.formatMessage({ id: 'createGroup', defaultMessage: 'Create group', description: 'Create group wizard title' })}
+              </Button>
             </AppLink>
           </EmptyStateActions>
         </EmptyStateFooter>

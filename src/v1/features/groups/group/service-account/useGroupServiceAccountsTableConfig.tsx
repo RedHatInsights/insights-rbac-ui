@@ -3,9 +3,10 @@ import type { IntlShape } from 'react-intl';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
-import messages from '../../../../../Messages';
+
 import type { ServiceAccount } from './types';
 import { getDateFormat } from '../../../../../shared/helpers/stringUtilities';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 export const columns = ['name', 'clientId', 'owner', 'timeCreated'] as const;
 
@@ -24,10 +25,10 @@ interface UseGroupServiceAccountsTableConfigReturn {
 export function useGroupServiceAccountsTableConfig({ intl }: UseGroupServiceAccountsTableConfigOptions): UseGroupServiceAccountsTableConfigReturn {
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name) },
-      clientId: { label: intl.formatMessage(messages.clientId) },
-      owner: { label: intl.formatMessage(messages.owner) },
-      timeCreated: { label: intl.formatMessage(messages.timeCreated) },
+      name: { label: intl.formatMessage(commonMessages.name) },
+      clientId: { label: intl.formatMessage({ id: 'clientId', defaultMessage: 'Client ID', description: 'Client ID column label' }) },
+      owner: { label: intl.formatMessage({ id: 'owner', defaultMessage: 'Owner', description: 'Owner column label' }) },
+      timeCreated: { label: intl.formatMessage({ id: 'timeCreated', defaultMessage: 'Time created', description: 'Time created column label' }) },
     }),
     [intl],
   );
@@ -47,8 +48,8 @@ export function useGroupServiceAccountsTableConfig({ intl }: UseGroupServiceAcco
   };
 
   const filterConfig: FilterConfig[] = useMemo(() => {
-    const clientIdLabel = intl.formatMessage(messages.clientId);
-    const nameLabel = intl.formatMessage(messages.name);
+    const clientIdLabel = intl.formatMessage({ id: 'clientId', defaultMessage: 'Client ID', description: 'Client ID column label' });
+    const nameLabel = intl.formatMessage(commonMessages.name);
     return [
       {
         type: 'text',

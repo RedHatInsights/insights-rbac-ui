@@ -11,7 +11,7 @@ import { WorkspaceDetailLayout } from './WorkspaceDetailLayout';
 import { BaseGroupAssignmentsTable } from './components/BaseGroupAssignmentsTable';
 import { RemoveGroupFromWorkspaceModal } from './components/RemoveGroupFromWorkspaceModal';
 import { useWorkspaceDetailData } from './useWorkspaceDetailData';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface DirectRolesTabProps {
   groupId?: string;
@@ -69,8 +69,8 @@ export const DirectRolesTab: React.FC<DirectRolesTabProps> = ({ groupId }) => {
     >
       {roleBindingDenied ? (
         <UnauthorizedAccess
-          serviceName={intl.formatMessage(messages.unauthorizedAccessServiceName)}
-          bodyText={intl.formatMessage(messages.unauthorizedAccessBodyText)}
+          serviceName={intl.formatMessage(commonMessages.unauthorizedAccessServiceName)}
+          bodyText={intl.formatMessage(commonMessages.unauthorizedAccessBodyText)}
         />
       ) : (
         <>

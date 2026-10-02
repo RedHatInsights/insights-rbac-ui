@@ -3,10 +3,6 @@
     "defaultMessage": "Understanding access management",
     "description": "Understanding access management documentation title"
   },
-  "accessOrigin": {
-    "defaultMessage": "Access origin",
-    "description": "Access origin modified column label"
-  },
   "accountNumberLabel": {
     "defaultMessage": "Account number:",
     "description": "Label for account number field"
@@ -14,10 +10,6 @@
   "action": {
     "defaultMessage": "Action",
     "description": "Action label"
-  },
-  "actionsOnClustersPermissions": {
-    "defaultMessage": "Only Org. Administrators and cluster owners can perform actions on clusters.",
-    "description": "Actions on clusters permissions message"
   },
   "activateUsersButton": {
     "defaultMessage": "Activate users",
@@ -55,49 +47,25 @@
     "defaultMessage": "Failed adding group",
     "description": "Add group error notification title"
   },
-  "addGroupMemberErrorDescription": {
-    "defaultMessage": "The member was not added successfully.",
-    "description": "Add group member error notification description"
-  },
   "addGroupMemberErrorTitle": {
     "defaultMessage": "Failed adding member to group",
     "description": "Add group member error notification title"
-  },
-  "addGroupMemberSuccessDescription": {
-    "defaultMessage": "The member was successfully added to the group.",
-    "description": "Add group member success notification description"
   },
   "addGroupMemberSuccessTitle": {
     "defaultMessage": "Success adding member to group",
     "description": "Add group member success notification title"
   },
-  "addGroupMembersErrorDescription": {
-    "defaultMessage": "The members were not added successfully.",
-    "description": "Add group members error notification description"
-  },
   "addGroupMembersErrorTitle": {
     "defaultMessage": "Failed adding members to group",
     "description": "Add group members error notification title"
-  },
-  "addGroupMembersSuccessDescription": {
-    "defaultMessage": "The members were successfully added to the group.",
-    "description": "Add group members success notification description"
   },
   "addGroupMembersSuccessTitle": {
     "defaultMessage": "Success adding members to group",
     "description": "Add group members success notification title"
   },
-  "addGroupRolesErrorDescription": {
-    "defaultMessage": "The roles were not added successfully.",
-    "description": "Add group roles error notification description"
-  },
   "addGroupRolesErrorTitle": {
     "defaultMessage": "Failed adding roles to group",
     "description": "Add group roles error notification title"
-  },
-  "addGroupRolesSuccessDescription": {
-    "defaultMessage": "The roles were successfully added to the group.",
-    "description": "Add group roles success notification description"
   },
   "addGroupServiceAccountErrorTitle": {
     "defaultMessage": "Failed adding service account to group",
@@ -107,25 +75,13 @@
     "defaultMessage": "Success adding service account to group",
     "description": "Add group service account success notification title"
   },
-  "addGroupServiceAccountsErrorDescription": {
-    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} not added successfully.",
-    "description": "Add group service accounts error notification description"
-  },
   "addGroupServiceAccountsErrorTitle": {
     "defaultMessage": "Failed adding service {count, plural, one {account} other {accounts}} to group",
     "description": "Add group service accounts error notification title"
   },
-  "addGroupServiceAccountsSuccessDescription": {
-    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} successfully added to the group.",
-    "description": "Add group service accounts success notification description"
-  },
   "addGroupServiceAccountsSuccessTitle": {
     "defaultMessage": "Success adding service {count, plural, one {account} other {accounts}} to group",
     "description": "Add group service accounts success notification title"
-  },
-  "addGroupSuccessDescription": {
-    "defaultMessage": "The group was added successfully.",
-    "description": "Add group success notification description"
   },
   "addGroupSuccessTitle": {
     "defaultMessage": "Success adding group",
@@ -151,37 +107,13 @@
     "defaultMessage": "For more advanced user management, including adding users directly, editing details (like job title and language), and managing Customer Portal access, visit the",
     "description": "Add new users text"
   },
-  "addPermission": {
-    "defaultMessage": "Add permission",
-    "description": "Add permission label"
-  },
   "addPermissions": {
     "defaultMessage": "Add permissions",
     "description": "Add permissions label"
   },
-  "addPolicyErrorDescription": {
-    "defaultMessage": "The policy was not added successfully.",
-    "description": "Add policy error notification description"
-  },
-  "addPolicyErrorTitle": {
-    "defaultMessage": "Failed adding policy",
-    "description": "Add policy error notification title"
-  },
-  "addPolicySuccessDescription": {
-    "defaultMessage": "The policy was added successfully.",
-    "description": "Add policy success notification description"
-  },
-  "addPolicySuccessTitle": {
-    "defaultMessage": "Success adding policy",
-    "description": "Add policy success notification title"
-  },
   "addRole": {
     "defaultMessage": "Add role",
     "description": "Add role title"
-  },
-  "addRoleToConfigureAccess": {
-    "defaultMessage": "Add a role to configure user access.",
-    "description": "Add role to configure user access message"
   },
   "addRoleToGroup": {
     "defaultMessage": "Add role to group",
@@ -215,10 +147,6 @@
     "defaultMessage": "Add {username} to a group",
     "description": "Add user to a group wizard title"
   },
-  "addToDefinitions": {
-    "defaultMessage": "Add to definitions",
-    "description": "Add to definitions message"
-  },
   "addToGroup": {
     "defaultMessage": "Add to group",
     "description": "Add to group label"
@@ -238,10 +166,6 @@
   "addedPermissions": {
     "defaultMessage": "Added permissions",
     "description": "Added permissions label"
-  },
-  "addingGroupCanceledDescription": {
-    "defaultMessage": "Adding group was canceled by the user.",
-    "description": "Adding group canceled notification description"
   },
   "addingGroupMemberCancelled": {
     "defaultMessage": "Adding member to group was canceled by the user.",
@@ -270,14 +194,6 @@
   "addingGroupRolesCancelled": {
     "defaultMessage": "Adding roles to group was canceled by the user.",
     "description": "Adding group roles cancelled notification description"
-  },
-  "addingGroupRolesTitle": {
-    "defaultMessage": "Adding roles to group",
-    "description": "Adding group roles notification title"
-  },
-  "addingGroupTitle": {
-    "defaultMessage": "Adding group",
-    "description": "Adding group notification title"
   },
   "adminOrViewerRole": {
     "defaultMessage": "Admin or Viewer role",
@@ -311,10 +227,6 @@
     "defaultMessage": "All resources",
     "description": "All resources label for cost management permission definitions"
   },
-  "allRolesAdded": {
-    "defaultMessage": "All available roles have already been added to the group",
-    "description": "All roles already to the group message"
-  },
   "allUsers": {
     "defaultMessage": "All users",
     "description": "All users label for default groups"
@@ -330,14 +242,6 @@
   "allUsersGroupDescription": {
     "defaultMessage": "The {bold} contains all authenticated users in your organization.",
     "description": "All Users group description"
-  },
-  "allUsersViewEverything": {
-    "defaultMessage": "All users in the organization may view everything.",
-    "description": "All users in the organization may view everything message"
-  },
-  "appServicesNotManaged": {
-    "defaultMessage": "Application Services permissions are not managed with User Access",
-    "description": "Application Services permissions are not managed with User Access message"
   },
   "application": {
     "defaultMessage": "Application",
@@ -367,18 +271,6 @@
     "defaultMessage": "Manage your RHEL Systems",
     "description": "manage your RHEL Systems"
   },
-  "assetManagementOpenShift": {
-    "defaultMessage": "Red Hat OpenShift",
-    "description": "Red Hat OpenShift"
-  },
-  "assetManagementOpenShiftNav": {
-    "defaultMessage": "Take me to Red Hat OpenShift",
-    "description": "take me to Red Hat OpenShift"
-  },
-  "assetManagementOpenShiftOverview": {
-    "defaultMessage": "Manage your Clusters",
-    "description": "manage your clusters"
-  },
   "assetManagementOverview": {
     "defaultMessage": "Navigate to a service to manage your assets",
     "description": "navigate to a service to manage your assets"
@@ -390,10 +282,6 @@
   "assignAtLeastOneGroup": {
     "defaultMessage": "You need to assign at least one inventory group to each permission.",
     "description": "Assign at least one inventory group message"
-  },
-  "assignAtLeastOneResource": {
-    "defaultMessage": "You need to assign at least one resource to each permission.",
-    "description": "Assign at least one resource message"
   },
   "assignedRoles": {
     "defaultMessage": "Assigned roles",
@@ -419,6 +307,26 @@
     "defaultMessage": "Audit Log",
     "description": "Audit Log page title"
   },
+  "auditLogColumnAction": {
+    "defaultMessage": "Action",
+    "description": "Audit log action column header"
+  },
+  "auditLogColumnDate": {
+    "defaultMessage": "Date",
+    "description": "Audit log date column header"
+  },
+  "auditLogColumnDescription": {
+    "defaultMessage": "Description",
+    "description": "Audit log description column header"
+  },
+  "auditLogColumnRequester": {
+    "defaultMessage": "Requester",
+    "description": "Audit log requester column header"
+  },
+  "auditLogColumnResource": {
+    "defaultMessage": "Resource",
+    "description": "Audit log resource column header"
+  },
   "auditLogNoResults": {
     "defaultMessage": "No audit log entries found",
     "description": "Audit log empty state when filters match no results"
@@ -426,6 +334,10 @@
   "auditLogSubtitle": {
     "defaultMessage": "The user access audit log tracks admin actions, such as adding/removing users from groups, adding/removing roles from groups, create/editing/deleting roles, or creating/editing/deleting groups. Logs can be filtered by requester, resource or action.",
     "description": "Audit Log page subtitle"
+  },
+  "auditLogTableAriaLabel": {
+    "defaultMessage": "Audit log entries",
+    "description": "Accessible label for the audit log table"
   },
   "availableFeatures": {
     "defaultMessage": "Available feature(s)",
@@ -467,14 +379,6 @@
     "defaultMessage": "All changes will be lost",
     "description": "All changes will be lost message"
   },
-  "checkFilterBeginning": {
-    "defaultMessage": "Make sure the beginning of your search input corresponds to the beginning of the value you are looking for, or try changing your filter settings.",
-    "description": "Message advising checking the filter value"
-  },
-  "chooseSubscriptionEllipsis": {
-    "defaultMessage": "Choose a subscription...",
-    "description": "Choose subscription message"
-  },
   "clearAllFilters": {
     "defaultMessage": "Clear all filters",
     "description": "Clear all filters message"
@@ -487,17 +391,9 @@
     "defaultMessage": "Close",
     "description": "Close button text"
   },
-  "configureCostSources": {
-    "defaultMessage": "Configure sources for Cost Management",
-    "description": "Configure resources for Cost management message"
-  },
   "configureItems": {
     "defaultMessage": "Configure {items}",
     "description": "Configure items message"
-  },
-  "configureResourcesForPermission": {
-    "defaultMessage": "To add this permission to your role and define specific resources for it, at least one data source must be connected.",
-    "description": "Configure resources for permission message"
   },
   "configureRoles": {
     "defaultMessage": "Configure roles",
@@ -511,21 +407,9 @@
     "defaultMessage": "I understand, and I want to continue",
     "description": "Confirm modal check message"
   },
-  "confirmDetails": {
-    "defaultMessage": "Confirm details",
-    "description": "Confirm details message"
-  },
-  "confirmDetailsDescription": {
-    "defaultMessage": "Confirm the details for your source, or click Back to revise",
-    "description": "Confirm details description message"
-  },
   "contactOrgAdmin": {
     "defaultMessage": "Contact your organization administrator(s) for more information or visit {link} to learn more about your permissions.",
     "description": "Contact organization administrator message for not authorized state"
-  },
-  "contactOrgAdministrator": {
-    "defaultMessage": "Contact your Org. Administrator for more information.",
-    "description": "Contact org. administrator for more info message"
   },
   "contactServiceTeamForAccounts": {
     "defaultMessage": "Contact your platform service team to add service accounts.",
@@ -555,13 +439,93 @@
     "defaultMessage": "Your organization is eligible for new workspace-based access management. Organize your RHEL systems into workspaces with hierarchical permission control. The new access management model introduces workspace organization, permission inheritance, and improved collaboration, all while preserving your existing permissions and access.",
     "description": "Body text for workspace v2 conversion opt-in banner shown to non-admin users"
   },
-  "conversionBannerNonAdminRequest": {
-    "defaultMessage": "Request from your admin",
-    "description": "Request from admin link text for non-admin conversion banner"
+  "conversionWizardAdjustDefaultAccessDesc": {
+    "defaultMessage": "Default Access carries over whatever roles you had configured before conversion, including any customizations. In Users and Groups, review what's bound at the Default workspace and remove anything granting more access than needed.",
+    "description": "Adjust default access roles description"
   },
-  "conversionBannerNonAdminTitle": {
-    "defaultMessage": "Ready for a smarter way to organize your work?",
-    "description": "Title for workspace v2 conversion opt-in banner shown to non-admin users"
+  "conversionWizardAdjustDefaultAccessTitle": {
+    "defaultMessage": "Adjust default access roles",
+    "description": "Adjust default access roles title"
+  },
+  "conversionWizardApiIntegrationAlertDescription": {
+    "defaultMessage": "If your organization has built custom integrations, scripts, or automation using Red Hat's {rbacApiLink}, these connections will need to be updated to use the new v2 RBAC API after this conversion. See {kbLink} for migration guidance.",
+    "description": "Description for API integration info alert"
+  },
+  "conversionWizardApiIntegrationAlertTitle": {
+    "defaultMessage": "Custom API Integrations Will Need to be Updated",
+    "description": "Title for API integration info alert"
+  },
+  "conversionWizardApiIntegrationKbLinkText": {
+    "defaultMessage": "KB migration article",
+    "description": "Link text for KB article in API integration alert"
+  },
+  "conversionWizardCheckboxValidationError": {
+    "defaultMessage": "This item must be acknowledged",
+    "description": "Error message when required checkbox is not checked"
+  },
+  "conversionWizardChecklistCompletePostConversion": {
+    "defaultMessage": "I will complete post-conversion organization tasks within one week",
+    "description": "Pre-conversion checklist item 3"
+  },
+  "conversionWizardChecklistPopoverAriaLabel": {
+    "defaultMessage": "Checklist information",
+    "description": "Aria label for checklist information popover"
+  },
+  "conversionWizardChecklistPopoverButtonAriaLabel": {
+    "defaultMessage": "More info for checklist",
+    "description": "Aria label for checklist information button"
+  },
+  "conversionWizardChecklistReviewedConfig": {
+    "defaultMessage": "I have reviewed the current user and group configuration and understand what will change",
+    "description": "Pre-conversion checklist item 1"
+  },
+  "conversionWizardChecklistUnderstandPermanent": {
+    "defaultMessage": "I understand that conversion is permanent and cannot be reversed",
+    "description": "Pre-conversion checklist item 2"
+  },
+  "conversionWizardChecklistUnderstandRemediation": {
+    "defaultMessage": "I understand that all existing legacy remediation plans will be deleted",
+    "description": "Pre-conversion checklist item 4"
+  },
+  "conversionWizardConfirmAction1": {
+    "defaultMessage": "Create a workspace hierarchy (root, default, and ungrouped assets workspaces)",
+    "description": "Confirm conversion action item 1"
+  },
+  "conversionWizardConfirmAction2": {
+    "defaultMessage": "Convert all existing permissions to role bindings",
+    "description": "Confirm conversion action item 2"
+  },
+  "conversionWizardConfirmAction3": {
+    "defaultMessage": "Preserve all user groups and role assignments",
+    "description": "Confirm conversion action item 3"
+  },
+  "conversionWizardConfirmAction4": {
+    "defaultMessage": "Change the scope of Default Admin Access and Default Access groups",
+    "description": "Confirm conversion action item 4"
+  },
+  "conversionWizardConfirmCheckbox": {
+    "defaultMessage": "Yes, convert to workspace-based access management.",
+    "description": "Confirm conversion checkbox label"
+  },
+  "conversionWizardConfirmConversionTitle": {
+    "defaultMessage": "Confirm conversion",
+    "description": "Confirm conversion step title"
+  },
+  "conversionWizardConfirmIntro": {
+    "defaultMessage": "You are about to convert your organization from User Access to workspace-based access management. This action will:",
+    "description": "Confirm conversion intro text"
+  },
+  "conversionWizardConfirmQuestion": {
+    "defaultMessage": "Are you sure you wish to move forward with this conversion?",
+    "description": "Confirm conversion question"
+  },
+  "conversionWizardConversionPermanentDesc": {
+    "defaultMessage": "Once you convert to workspace-based access management, you cannot revert to the previous experience. All existing permissions will be preserved, but the organizational structure will change.",
+    "description": "Warning banner description for confirm conversion step"
+  },
+  "conversionWizardConversionPermanentTitle": {
+    "defaultMessage": "Conversion is permanent",
+    "description": "Warning banner title for confirm conversion step"
   },
   "conversionWizardCustomGroups": {
     "defaultMessage": "Custom groups",
@@ -594,6 +558,14 @@
   "conversionWizardDefaultWorkspaceDesc": {
     "defaultMessage": "Created under Root, existing workspaces move here as sub workspaces",
     "description": "Default workspace description"
+  },
+  "conversionWizardDefaultWorkspaceScopeDesc": {
+    "defaultMessage": "Default Admin Access binds at the root workspace to every Organization Administrator with every admin role, and cascades everywhere below. Default Access binds at the Default workspace to every user in your organization. Neither group's membership can change; only Default Access's roles can.",
+    "description": "Know what is fixed description"
+  },
+  "conversionWizardDefaultWorkspaceScopeTitle": {
+    "defaultMessage": "Know what's fixed",
+    "description": "Know what is fixed title"
   },
   "conversionWizardExistingWorkspaces": {
     "defaultMessage": "Existing workspaces",
@@ -631,6 +603,54 @@
     "defaultMessage": "Permissions and workspace hierarchy diagram",
     "description": "Alt text for permissions and workspace hierarchy diagram"
   },
+  "conversionWizardPlanStructureClosing": {
+    "defaultMessage": "Organization Administrators keep access everywhere via Default Admin Access, so subworkspaces isolate other users, not admins.",
+    "description": "Plan workspace structure closing statement"
+  },
+  "conversionWizardPlanStructureIntro": {
+    "defaultMessage": "Create subworkspaces under the Default workspace for:",
+    "description": "Plan workspace structure introduction"
+  },
+  "conversionWizardPlanStructureItem1": {
+    "defaultMessage": "High-security production environments",
+    "description": "Plan workspace structure bullet point 1"
+  },
+  "conversionWizardPlanStructureItem2": {
+    "defaultMessage": "Compliance-required isolated systems",
+    "description": "Plan workspace structure bullet point 2"
+  },
+  "conversionWizardPlanStructureTitle": {
+    "defaultMessage": "Plan workspace structure",
+    "description": "Plan workspace structure title"
+  },
+  "conversionWizardPostConversionIntro": {
+    "defaultMessage": "Review your access structure within one week of conversion. Default Admin Access and Default Access are fixed by design and drive everything below.",
+    "description": "Post-conversion requirements introduction paragraph"
+  },
+  "conversionWizardPostConversionTitle": {
+    "defaultMessage": "Post-conversion requirements",
+    "description": "Post-conversion requirements step title"
+  },
+  "conversionWizardPreConversionChecklistDescription": {
+    "defaultMessage": "Please complete the checklist to confirm you understand the changes that will be made during conversion.",
+    "description": "Pre-conversion checklist step description"
+  },
+  "conversionWizardPreConversionChecklistPopover": {
+    "defaultMessage": "These items must be acknowledged before proceeding with conversion. This ensures you understand the impact and are prepared for the changes.",
+    "description": "Pre-conversion checklist popover content"
+  },
+  "conversionWizardPreConversionChecklistTitle": {
+    "defaultMessage": "Pre-conversion checklist",
+    "description": "Pre-conversion checklist step title"
+  },
+  "conversionWizardProductAvailabilityAlertDescription": {
+    "defaultMessage": "Not every Red Hat product is available in this new experience yet. If your organization uses OpenShift Cluster Manager, Ansible Automation Platform, or Cost Management we recommend postponing conversion. Check back soon; we'll update this notice as each product completes integration.",
+    "description": "Description for product availability warning alert"
+  },
+  "conversionWizardProductAvailabilityAlertTitle": {
+    "defaultMessage": "Not all products are available yet",
+    "description": "Title for product availability warning alert"
+  },
   "conversionWizardRemediationPlansNew": {
     "defaultMessage": "Remediation plans created after this conversion will be tied to your workspaces rather than individual users, enabling authorized team members to seamlessly collaborate, update, and execute them.",
     "description": "New remediation plans features paragraph"
@@ -642,6 +662,14 @@
   "conversionWizardRemediationPlansWarning": {
     "defaultMessage": "Once you proceed with this conversion, all existing remediation plans across your organization will be deleted. Please ensure your teams have executed or downloaded any active plans before continuing.",
     "description": "Remediation plans warning paragraph"
+  },
+  "conversionWizardReviewUngroupedHostsDesc": {
+    "defaultMessage": "Systems here inherit Default Access's bound roles. Confirm that access still matches your changes in step 2.",
+    "description": "Review Ungrouped hosts workspace description"
+  },
+  "conversionWizardReviewUngroupedHostsTitle": {
+    "defaultMessage": "Review the Ungrouped hosts workspace",
+    "description": "Review Ungrouped hosts workspace title"
   },
   "conversionWizardRoleBindingConnectsTitle": {
     "defaultMessage": "A role binding connects:",
@@ -710,6 +738,18 @@
   "conversionWizardUngroupedHostsDesc": {
     "defaultMessage": "Created under Default for existing systems not yet in a workspace",
     "description": "Ungrouped hosts workspace description"
+  },
+  "conversionWizardVerifyCriticalAccessItem1": {
+    "defaultMessage": "Confirm 3-5 users across your org can reach their systems",
+    "description": "Verify critical user access bullet point 1"
+  },
+  "conversionWizardVerifyCriticalAccessItem2": {
+    "defaultMessage": "Covers Default Admin Access, Default Access, and custom groups",
+    "description": "Verify critical user access bullet point 2"
+  },
+  "conversionWizardVerifyCriticalAccessTitle": {
+    "defaultMessage": "Verify critical user access",
+    "description": "Verify critical user access title"
   },
   "conversionWizardWhatChangesTitle": {
     "defaultMessage": "What changes during conversion",
@@ -835,10 +875,6 @@
     "defaultMessage": "Workspace creation was canceled by the user.",
     "description": "Create workspace canceled notification description"
   },
-  "date": {
-    "defaultMessage": "Date",
-    "description": "Date label"
-  },
   "deactivateUsersButton": {
     "defaultMessage": "Deactivate users",
     "description": "deactivate users button text"
@@ -871,10 +907,6 @@
     "defaultMessage": "Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group name has changed to <b>Custom default access</b>.",
     "description": "Default access group renamed message"
   },
-  "defaultGroupNotManually": {
-    "defaultMessage": "Default admin access group roles cannot be modified manually",
-    "description": "Message warning that default admin access group cannot be modified manually"
-  },
   "defaultGroupsHeading": {
     "defaultMessage": "Default groups",
     "description": "Default groups heading"
@@ -903,22 +935,6 @@
     "defaultMessage": "Delete role?",
     "description": "Modal header text for deleting custom role"
   },
-  "deleteGroup": {
-    "defaultMessage": "Delete group",
-    "description": "Delete group label"
-  },
-  "deleteGroupQuestion": {
-    "defaultMessage": "Delete group?",
-    "description": "Delete group question label"
-  },
-  "deleteGroups": {
-    "defaultMessage": "Delete groups",
-    "description": "Delete groups label"
-  },
-  "deleteGroupsQuestion": {
-    "defaultMessage": "Delete groups?",
-    "description": "Delete groups question label"
-  },
   "deleteRole": {
     "defaultMessage": "Delete role",
     "description": "Delete role message"
@@ -931,10 +947,6 @@
     "defaultMessage": "Delete role?",
     "description": "Delete role question message"
   },
-  "deleteRolesAction": {
-    "defaultMessage": "Delete Roles",
-    "description": "delete roles"
-  },
   "deleteUserGroupModalBody": {
     "defaultMessage": "Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.",
     "description": "Modal body text for delete user group"
@@ -942,10 +954,6 @@
   "deleteUserGroupModalTitle": {
     "defaultMessage": "Delete user {count, plural, one {group} other {groups}}?",
     "description": "Title for delete user group modal"
-  },
-  "deleteWorkspaceAction": {
-    "defaultMessage": "Delete Workspaces",
-    "description": "delete workspaces"
   },
   "deleteWorkspaceErrorDescription": {
     "defaultMessage": "The workspace {workspace} was not deleted successfuly.",
@@ -970,22 +978,6 @@
   "deleteWorkspaceSuccessTitle": {
     "defaultMessage": "Success deleting workspace",
     "description": "Delete workspace success notification title"
-  },
-  "deletingGroupRemovesRoles": {
-    "defaultMessage": "Deleting the <b>{name}</b> group removes all roles from the members inside the group.",
-    "description": "Delete group label"
-  },
-  "deletingGroupsRemovesRoles": {
-    "defaultMessage": "Deleting these <b>{count}</b> groups removes all roles from the members inside the groups.",
-    "description": "Delete groups label"
-  },
-  "deletingWorkspaceCanceledDescription": {
-    "defaultMessage": "Delete workspace was canceled by the user.",
-    "description": "Delete workspace canceled notification description"
-  },
-  "deletingWorkspaceTitle": {
-    "defaultMessage": "Deleting workspace",
-    "description": "Deleting workspace notification title"
   },
   "description": {
     "defaultMessage": "Description",
@@ -1023,14 +1015,6 @@
     "defaultMessage": "Edit access for this workspace",
     "description": "Edit access for this workspace button text"
   },
-  "editCustomRole": {
-    "defaultMessage": "Edit custom role",
-    "description": "Edit custom role label"
-  },
-  "editGroupCanceledDescription": {
-    "defaultMessage": "Edit group was canceled by the user.",
-    "description": "Edit group canceled notification description"
-  },
   "editGroupErrorDescription": {
     "defaultMessage": "The group was not updated successfully.",
     "description": "Edit group error notification description"
@@ -1038,10 +1022,6 @@
   "editGroupErrorTitle": {
     "defaultMessage": "Failed updating group",
     "description": "Edit group error notification title"
-  },
-  "editGroupInfo": {
-    "defaultMessage": "Edit group's information",
-    "description": "Edit group's information message"
   },
   "editGroupSuccessDescription": {
     "defaultMessage": "The group was updated successfully.",
@@ -1055,22 +1035,6 @@
     "defaultMessage": "Give or remove permissions to specific resources using the arrows below.",
     "description": "Edit permissions using arrows label"
   },
-  "editPolicyErrorDescription": {
-    "defaultMessage": "The policy was not updated successfully.",
-    "description": "Edit policy error notification description"
-  },
-  "editPolicyErrorTitle": {
-    "defaultMessage": "Failed updating policy",
-    "description": "Edit policy error notification title"
-  },
-  "editPolicySuccessDescription": {
-    "defaultMessage": "The policy was updated successfully.",
-    "description": "Edit policy success notification description"
-  },
-  "editPolicySuccessTitle": {
-    "defaultMessage": "Success updating policy",
-    "description": "Edit policy success notification title"
-  },
   "editResourceDefinitions": {
     "defaultMessage": "Edit resource definitions",
     "description": "Edit resource definitions label"
@@ -1079,17 +1043,9 @@
     "defaultMessage": "Edit role",
     "description": "Edit role toolbar action"
   },
-  "editRoleErrorDescription": {
-    "defaultMessage": "The role was not updated successfully.",
-    "description": "Edit role error notification description"
-  },
   "editRoleErrorTitle": {
     "defaultMessage": "Failed updating role",
     "description": "Edit role error notification title"
-  },
-  "editRoleSuccessDescription": {
-    "defaultMessage": "The role was updated successfully.",
-    "description": "Edit role success notification description"
   },
   "editRoleSuccessTitle": {
     "defaultMessage": "Success updating role",
@@ -1127,10 +1083,6 @@
     "defaultMessage": "Success updating workspace",
     "description": "Update workspace success notification title"
   },
-  "editingGroupTitle": {
-    "defaultMessage": "Editing group",
-    "description": "Editing group notification title"
-  },
   "editingRoleCanceledDescription": {
     "defaultMessage": "Edit role was canceled by the user.",
     "description": "Editing role canceled notification description"
@@ -1142,10 +1094,6 @@
   "editingWorkspaceCanceledDescription": {
     "defaultMessage": "Edit workspace was canceled by the user.",
     "description": "Edit workspace canceled notification description"
-  },
-  "editingWorkspaceNoPermissionDescription": {
-    "defaultMessage": "You do not have permission to edit this workspace.",
-    "description": "Edit workspace denied notification description"
   },
   "editingWorkspaceTitle": {
     "defaultMessage": "Editing workspace",
@@ -1203,18 +1151,6 @@
     "defaultMessage": "Exit {item} creation?",
     "description": "Exit item creation modal title"
   },
-  "featuresManagement": {
-    "defaultMessage": "Features management",
-    "description": "Features management label"
-  },
-  "filterByApplication": {
-    "defaultMessage": "Filter by application...",
-    "description": "Filter by application"
-  },
-  "filterByEmail": {
-    "defaultMessage": "Filter by email",
-    "description": "Filter by email label"
-  },
   "filterByInheritedFrom": {
     "defaultMessage": "Filter by inherited from",
     "description": "placeholder for inherited from filter"
@@ -1238,10 +1174,6 @@
   "filterByUsername": {
     "defaultMessage": "Filter by username",
     "description": "Filter by username label"
-  },
-  "filterMatchesNoFilters": {
-    "defaultMessage": "This filter criteria matches no {items}.",
-    "description": "No matching items for filter criteria message"
   },
   "filterMatchesNoItems": {
     "defaultMessage": "This filter criteria matches no {items}.",
@@ -1330,10 +1262,6 @@
   "groupDefinition": {
     "defaultMessage": "Group definition",
     "description": "Group definition label"
-  },
-  "groupDescription": {
-    "defaultMessage": "Group description",
-    "description": "Group description label"
   },
   "groupDoesNotExist": {
     "defaultMessage": "Group with ID {id} does not exist.",
@@ -1432,7 +1360,8 @@
     "description": "Invalid user message"
   },
   "inventoryGroupsAccessDescription": {
-    "defaultMessage": "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below."
+    "defaultMessage": "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below.",
+    "description": "Instructions for the role wizard access step"
   },
   "inventoryGroupsAccessTitle": {
     "defaultMessage": "Define Inventory group access",
@@ -1454,21 +1383,9 @@
     "defaultMessage": "Invite users process was canceled by the user.",
     "description": "Invite users cancelled notification description"
   },
-  "inviteUsersConflictDescription": {
-    "defaultMessage": "User email already exists.",
-    "description": "Invite users conflict notification description"
-  },
-  "inviteUsersCustomerPortalPermissions": {
-    "defaultMessage": "Customer Portal access permissions",
-    "description": "Customer portal permissions title"
-  },
   "inviteUsersDescription": {
     "defaultMessage": "Invite users to create a Red Hat login with your organization. Your name will be included in the invite as a point of reference.",
     "description": "Invite users modal description"
-  },
-  "inviteUsersErrorDescription": {
-    "defaultMessage": "Failed inviting users.",
-    "description": "Invite users error notification description"
   },
   "inviteUsersErrorTitle": {
     "defaultMessage": "Failed inviting all users",
@@ -1534,14 +1451,6 @@
     "defaultMessage": "View/Edit users only",
     "description": "Invite users form manage subscriptions field View edit Users only title"
   },
-  "inviteUsersFormManageSupportCasesFieldDescription": {
-    "defaultMessage": "The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.",
-    "description": "Invite users form manage support cases field description"
-  },
-  "inviteUsersFormManageSupportCasesFieldTitle": {
-    "defaultMessage": "Organization administrators",
-    "description": "Invite users form manage support cases field title"
-  },
   "inviteUsersTitle": {
     "defaultMessage": "Invite New Users",
     "description": "Invite users modal title"
@@ -1553,10 +1462,6 @@
   "itemAlreadyRemovedTitle": {
     "defaultMessage": "Item already removed",
     "description": "Title for notification when item was already removed (race condition)"
-  },
-  "key": {
-    "defaultMessage": "Key",
-    "description": "Key label"
   },
   "labelDocumentation": {
     "defaultMessage": "Documentation",
@@ -1593,10 +1498,6 @@
   "maxCharactersWarning": {
     "defaultMessage": "Can have maximum of {number} characters.",
     "description": "Maximum number of characters message"
-  },
-  "member": {
-    "defaultMessage": "member",
-    "description": "Member text"
   },
   "members": {
     "defaultMessage": "Members",
@@ -1686,10 +1587,6 @@
     "defaultMessage": "In adherence to security guidelines, service accounts are not automatically included in the default admin access group. To grant access, it is necessary to manually add them to the appropriate user access groups.",
     "description": "No service accounts for Default Admin Access group message"
   },
-  "noCostManagementPermissions": {
-    "defaultMessage": "You are not entitled to add cost-management permissions to your role.",
-    "description": "No Cost management permissions message"
-  },
   "noFilteredRoles": {
     "defaultMessage": "No roles match the filter criteria. Remove all filters or clear all to show results.",
     "description": "Empty state body when no roles match filters"
@@ -1729,14 +1626,6 @@
   "noPermissions": {
     "defaultMessage": "No permissions",
     "description": "No permissions label"
-  },
-  "noPermissionsForInsights": {
-    "defaultMessage": "You do not have individual permissions for Insights.",
-    "description": "No individual permissions for Insights message"
-  },
-  "noRbacPermissions": {
-    "defaultMessage": "You are missing RBAC permissions to add inventory permissions to your role.",
-    "description": "No Rbac permissions message"
   },
   "noResourceDefinitions": {
     "defaultMessage": "There are no resource definitions for {permission} permission",
@@ -1786,17 +1675,9 @@
     "defaultMessage": "N/A",
     "description": "Not applicable text for resource definitions"
   },
-  "notSubscribed": {
-    "defaultMessage": "Not subscribed",
-    "description": "Not subscribed label"
-  },
   "onlyGranularPermissions": {
     "defaultMessage": "Custom roles only support granular permissions",
     "description": "Only granular permissions message"
-  },
-  "onlyGroupRolesVisible": {
-    "defaultMessage": "This role list has been filtered to only show roles that are not currently in your group.",
-    "description": "Message warning that only roles in given role has been filtered"
   },
   "onlyNonUserGroupsVisible": {
     "defaultMessage": "This group list has been filtered to only show groups that the user is not currently a member of.",
@@ -1886,10 +1767,6 @@
     "defaultMessage": "Owner",
     "description": "Owner column label"
   },
-  "pageNotExists": {
-    "defaultMessage": "Page you are looking for does not exist.",
-    "description": "Placeholder text for non existing page"
-  },
   "parentWorkspace": {
     "defaultMessage": "Parent workspace",
     "description": "Parent workspace label"
@@ -1914,14 +1791,6 @@
     "defaultMessage": "The permission either does not exist or has already been added to this role. Adjust your filters and try again. Note: Applications that only have wildcard permissions (for example, compliance:*:*) aren't included in this table and can't be added to your custom role.",
     "description": "Permission not displayed description message"
   },
-  "permissionResourcesDetails": {
-    "defaultMessage": "If there needs to be more details on the resources the permission is to be used for, it would be detailed here.",
-    "description": "Permission resources details message"
-  },
-  "permissionStringDescription": {
-    "defaultMessage": "The permission string is made up of the following inputs where it denotes which application and the resource type the permission will be allowed for.",
-    "description": "Permission string description text"
-  },
   "permissionWillNotBeGrantedThroughRole": {
     "defaultMessage": "The <b>{permission}</b> permission will no longer be granted through the <b>{role}</b> role.",
     "description": "Permission will not be granted through role message"
@@ -1937,10 +1806,6 @@
   "permissionsWillNotBeGrantedThroughRole": {
     "defaultMessage": "The <b>{permissions}</b> permissions will no longer be granted through the <b>{role}</b> role.",
     "description": "Permissions will not be granted through role message"
-  },
-  "pleaseChoose": {
-    "defaultMessage": "Please choose",
-    "description": "Select placehoder"
   },
   "quickStartLabel": {
     "defaultMessage": "Quick start",
@@ -1990,10 +1855,6 @@
     "defaultMessage": "Recommended content",
     "description": "Recommended content section title"
   },
-  "redHatOrganizationPlaceholder": {
-    "defaultMessage": "Red Hat Organization",
-    "description": "Placeholder text for organization name"
-  },
   "remove": {
     "defaultMessage": "Remove",
     "description": "Remove button label"
@@ -2007,7 +1868,7 @@
     "description": "Action column option to remove user from group"
   },
   "removeFromUserGroupWarningDescription": {
-    "defaultMessage": "The selected {plural} will lose all access granted through the selected groups.",
+    "defaultMessage": "The selected {numUsers, plural, one {user} other {users}} will lose all access granted through the selected groups.",
     "description": "Warning description when removing user from groups"
   },
   "removeFromUserGroupWarningTitle": {
@@ -2038,30 +1899,6 @@
     "defaultMessage": "Remove {groupName} from workspace?",
     "description": "Confirmation modal title when removing a group from a workspace"
   },
-  "removeGroupFromWorkspaceErrorTitle": {
-    "defaultMessage": "Failed to remove group from workspace",
-    "description": "Error notification when removing group from workspace fails"
-  },
-  "removeGroupFromWorkspaceSuccessTitle": {
-    "defaultMessage": "Group removed from workspace",
-    "description": "Success notification when group is removed from workspace"
-  },
-  "removeGroupMemberErrorDescription": {
-    "defaultMessage": "An error occurred while removing the user from the group.",
-    "description": "Error notification description for single member removal"
-  },
-  "removeGroupMemberErrorTitle": {
-    "defaultMessage": "Failed to remove user",
-    "description": "Error notification title for single member removal"
-  },
-  "removeGroupMemberSuccessDescription": {
-    "defaultMessage": "The user was successfully removed from the group.",
-    "description": "Success notification description for single member removal"
-  },
-  "removeGroupMemberSuccessTitle": {
-    "defaultMessage": "User removed from group",
-    "description": "Success notification title for single member removal"
-  },
   "removeGroupMembersErrorDescription": {
     "defaultMessage": "The members were not removed successfully.",
     "description": "Remove group members error notification description"
@@ -2078,17 +1915,9 @@
     "defaultMessage": "Success removing members from group",
     "description": "Remove group members success notification title"
   },
-  "removeGroupRolesErrorDescription": {
-    "defaultMessage": "The roles were not removed successfully.",
-    "description": "Remove group roles error notification description"
-  },
   "removeGroupRolesErrorTitle": {
     "defaultMessage": "Failed removing roles from the group",
     "description": "Remove group roles error notification title"
-  },
-  "removeGroupRolesSuccessDescription": {
-    "defaultMessage": "The roles were successfully removed from the group.",
-    "description": "Remove group roles success notification description"
   },
   "removeGroupRolesSuccessTitle": {
     "defaultMessage": "Success removing roles from group",
@@ -2102,10 +1931,6 @@
     "defaultMessage": "Success removing service account from the group",
     "description": "Removal of group service account success notification title"
   },
-  "removeGroupServiceAccountsErrorDescription": {
-    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} NOT removed from the group because of error.",
-    "description": "Removal of  group service accounts error notification description"
-  },
   "removeGroupServiceAccountsErrorTitle": {
     "defaultMessage": "Failed removing service accounts from group",
     "description": "Removal of  group service accounts error notification title"
@@ -2114,10 +1939,6 @@
     "defaultMessage": "Remove service {count, plural, one {account} other {accounts}}?",
     "description": "Remove service accounts from group question label"
   },
-  "removeGroupServiceAccountsSuccessDescription": {
-    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} successfully removed from the group.",
-    "description": "Removal of  group service accounts success notification description"
-  },
   "removeGroupServiceAccountsSuccessTitle": {
     "defaultMessage": "Success removing service accounts from the group",
     "description": "Removal of group service accounts success notification title"
@@ -2125,14 +1946,6 @@
   "removeGroupSuccess": {
     "defaultMessage": "Group deleted successfully",
     "description": "Remove group success notification title"
-  },
-  "removeGroupsError": {
-    "defaultMessage": "There was an error deleting the groups. Please try again.",
-    "description": "Remove groups error notification title"
-  },
-  "removeGroupsSuccess": {
-    "defaultMessage": "Groups deleted successfully",
-    "description": "Remove groups success notification title"
   },
   "removeMember": {
     "defaultMessage": "Remove member",
@@ -2170,21 +1983,9 @@
     "defaultMessage": "Remove permissions?",
     "description": "Remove permissions question text"
   },
-  "removePolicySuccessDescription": {
-    "defaultMessage": "The policy was removed successfully.",
-    "description": "Remove policy success notification description"
-  },
-  "removePolicySuccessTitle": {
-    "defaultMessage": "Success removing policy",
-    "description": "Remove policy success notification title"
-  },
   "removeRole": {
     "defaultMessage": "Remove role",
     "description": "Remove role label"
-  },
-  "removeRoleErrorDescription": {
-    "defaultMessage": "The role was not removed successfully.",
-    "description": "Remove role error notification description"
   },
   "removeRoleErrorTitle": {
     "defaultMessage": "Failed removing role",
@@ -2197,10 +1998,6 @@
   "removeRoleQuestion": {
     "defaultMessage": "Remove role?",
     "description": "Remove role question label"
-  },
-  "removeRoleSuccessDescription": {
-    "defaultMessage": "The role was removed successfully.",
-    "description": "Remove role success notification description"
   },
   "removeRoleSuccessTitle": {
     "defaultMessage": "Success removing role",
@@ -2246,10 +2043,6 @@
     "defaultMessage": "Resource definitions",
     "description": "Resource definitions label"
   },
-  "resourceDefinitionsApplyToCostAndInventory": {
-    "defaultMessage": "Resource definitions only apply to Cost Management and Inventory permissions",
-    "description": "Resource definitions only apply to Cost Management and Inventory permissions message"
-  },
   "resourceType": {
     "defaultMessage": "Resource type",
     "description": "Resource type label"
@@ -2290,10 +2083,6 @@
     "defaultMessage": "Review",
     "description": "Review label"
   },
-  "reviewDescription": {
-    "defaultMessage": "This step is currently blank and ready for implementation.",
-    "description": "Review step description"
-  },
   "reviewDetails": {
     "defaultMessage": "Review details",
     "description": "Review details label"
@@ -2317,10 +2106,6 @@
   "roleAssignments": {
     "defaultMessage": "Role assignments",
     "description": "Rola assignments label"
-  },
-  "roleAssignmentsEmptyStateSubtitle": {
-    "defaultMessage": "This filter criteria matches no role assignments. Try changing your filter input.",
-    "description": "Empty state subtitle role bindings"
   },
   "roleCreatedSuccessfully": {
     "defaultMessage": "You have successfully created a new role",
@@ -2378,10 +2163,6 @@
     "defaultMessage": "{bold}: predefined roles (e.g., Viewer, Editor, Admin) provide distinct levels of access tailored to the needs of each user group.",
     "description": "Roles description in granting access section"
   },
-  "rolesEmptyStateSubtitle": {
-    "defaultMessage": "This filter criteria matches no roles. Try changing your filter input.",
-    "description": "Empty state subtitle Roles"
-  },
   "rolesEmptyStateTitle": {
     "defaultMessage": "No roles found",
     "description": "Empty state title Roles"
@@ -2410,21 +2191,9 @@
     "defaultMessage": "Search workspaces by name",
     "description": "Search workspaces placeholder text"
   },
-  "seeLess": {
-    "defaultMessage": "See less",
-    "description": "See less label"
-  },
-  "seeMore": {
-    "defaultMessage": "See more",
-    "description": "See more label"
-  },
   "selectAll": {
     "defaultMessage": "Select all ({length})",
     "description": "Select all button label"
-  },
-  "selectAppsToViewPermissions": {
-    "defaultMessage": "Select applications to view your personal permissions.",
-    "description": "Select applications to view your personal permissions message"
   },
   "selectAtLeastOneRole": {
     "defaultMessage": "Select at least one role",
@@ -2450,14 +2219,6 @@
     "defaultMessage": "Select groups to remove from",
     "description": "Label for group selection"
   },
-  "selectNone": {
-    "defaultMessage": "Select none (0)",
-    "description": "Select none button label"
-  },
-  "selectPage": {
-    "defaultMessage": "Select page ({length})",
-    "description": "Select page button label"
-  },
   "selectParentWorkspace": {
     "defaultMessage": "Select parent workspace",
     "description": "Select parent workspace wizard step title"
@@ -2470,10 +2231,6 @@
     "defaultMessage": "Select permissions to add to your role",
     "description": "Select permissions for role label"
   },
-  "selectResources": {
-    "defaultMessage": "Select resources",
-    "description": "Select resources label"
-  },
   "selectResourcesOptional": {
     "defaultMessage": "Select resources (optional - default all)",
     "description": "Placeholder when selecting resources is optional"
@@ -2485,14 +2242,6 @@
   "selectRolesDescription": {
     "defaultMessage": "Select one or more roles to link to this group.",
     "description": "Select roles step description"
-  },
-  "selectRolesForGroupText": {
-    "defaultMessage": "Select one or more roles to add to this group.",
-    "description": "Select roles to be added to a group text"
-  },
-  "selectState": {
-    "defaultMessage": "Select a state",
-    "description": "Select state label"
   },
   "selectUserGroups": {
     "defaultMessage": "Select user group(s)",
@@ -2530,10 +2279,6 @@
     "defaultMessage": "Selected user groups",
     "description": "Selected user groups section title"
   },
-  "serviceAccount": {
-    "defaultMessage": "Service account",
-    "description": "Service accounts singular"
-  },
   "serviceAccounts": {
     "defaultMessage": "Service accounts",
     "description": "Service accounts plural"
@@ -2549,10 +2294,6 @@
   "status": {
     "defaultMessage": "Status",
     "description": "Status label"
-  },
-  "stay": {
-    "defaultMessage": "Stay",
-    "description": "Stay button text"
   },
   "structuringWorkspacesDoc": {
     "defaultMessage": "Structuring your workspaces to fit your organizational use cases",
@@ -2626,10 +2367,6 @@
     "defaultMessage": "Ungrouped systems",
     "description": "Ungrouped systems button label"
   },
-  "unknownSubjectName": {
-    "defaultMessage": "Unknown",
-    "description": "Fallback text when subject name is not available"
-  },
   "update": {
     "defaultMessage": "Update",
     "description": "Update button label"
@@ -2661,10 +2398,6 @@
   "userCapitalized": {
     "defaultMessage": "User",
     "description": "User singular (capitalized)"
-  },
-  "userDescription": {
-    "defaultMessage": "{username}'s roles, groups and permissions.",
-    "description": "User description text"
   },
   "userGroup": {
     "defaultMessage": "User group",
@@ -2750,25 +2483,9 @@
     "defaultMessage": "Edit user group",
     "description": "Edit user group label"
   },
-  "usersAndUserGroupsInactive": {
-    "defaultMessage": "Inactive",
-    "description": "User is inactive label"
-  },
-  "usersAndUserGroupsNo": {
-    "defaultMessage": "No",
-    "description": "No isnt Org Admin label"
-  },
   "usersAndUserGroupsNoDescription": {
     "defaultMessage": "No description",
     "description": "No description label"
-  },
-  "usersAndUserGroupsRemoveFromGroup": {
-    "defaultMessage": "Remove from user group",
-    "description": "Remove from user group label"
-  },
-  "usersAndUserGroupsYes": {
-    "defaultMessage": "Yes",
-    "description": "Yes is Org Admin label"
   },
   "usersDescription": {
     "defaultMessage": "These are all of the users in your Red Hat organization.",
@@ -2793,10 +2510,6 @@
   "usersToRemove": {
     "defaultMessage": "Users to remove",
     "description": "Label for users to remove list"
-  },
-  "value": {
-    "defaultMessage": "Value",
-    "description": "Value label"
   },
   "viewAccessRequestsButton": {
     "defaultMessage": "View access requests",
@@ -2930,20 +2643,33 @@
     "defaultMessage": "{count, plural, one {Workspace} other {Workspaces}} must be empty to delete and must not have any children workspaces. You must move assets in {count, plural, one {this workspace} other {these workspaces}} to other workspaces in order to proceed.",
     "description": "Display text in delete modal when workspace is not empty"
   },
-  "workspaceParentHelperText": {
-    "defaultMessage": "This workspace will inherit access control settings, such as user groups and associated roles, from its parent workspace.",
-    "description": "Workspace parent field helper text"
-  },
   "workspacePendingTooltip": {
     "defaultMessage": "This workspace is being set up and is not available for inspection yet.",
     "description": "Tooltip shown on workspace name when Kessel access has not synced yet"
+  },
+  "workspaceSelectorDisabledTooltip": {
+    "defaultMessage": "You do not have {permission} permission on this workspace",
+    "description": "Tooltip shown on disabled workspace tree items when the user lacks the required permission"
+  },
+  "workspaceTreeViewError": {
+    "defaultMessage": "Failed to load workspaces",
+    "description": "Error loading workspaces in tree view"
+  },
+  "workspaceTreeViewNoSearchResults": {
+    "defaultMessage": "No workspaces match your search.",
+    "description": "Message when no workspaces match search"
+  },
+  "workspaceTreeViewNoWorkspaces": {
+    "defaultMessage": "No workspaces to show.",
+    "description": "Message when no workspaces are available"
   },
   "workspaces": {
     "defaultMessage": "Workspaces",
     "description": "Workspaces heading"
   },
   "workspacesAccessDescription": {
-    "defaultMessage": "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below."
+    "defaultMessage": "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below.",
+    "description": "Instructions for the role wizard access step"
   },
   "workspacesAccessTitle": {
     "defaultMessage": "Define Workspaces access",
@@ -3004,10 +2730,6 @@
   "workspacesOverviewPageSubtitle": {
     "defaultMessage": "Workspaces let's you group related assets together (such as RHEL hosts). This simplifies management and user access control.",
     "description": "workspaces page section subtitle"
-  },
-  "workspacesOverviewPageTitle": {
-    "defaultMessage": "Get started with workspaces",
-    "description": "workspaces page section title"
   },
   "workspacesOverviewSubtitle": {
     "defaultMessage": "Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.",

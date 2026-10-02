@@ -7,9 +7,10 @@ import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import { getDateFormat } from '../../../../shared/helpers/stringUtilities';
 import { useGroupRolesQuery } from '../../../../shared/data/queries/groups';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 import type { Group } from '../types';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface GroupsRolesTableProps {
   group: Group;
@@ -27,9 +28,9 @@ export const GroupsRolesTable: React.FC<GroupsRolesTableProps> = ({ group }) => 
   const roles = data?.roles ?? [];
 
   const compoundRolesCells = [
-    intl.formatMessage(messages.roleName),
-    intl.formatMessage(messages.description),
-    intl.formatMessage(messages.lastModified),
+    intl.formatMessage(commonMessages.roleName),
+    intl.formatMessage(commonMessages.description),
+    intl.formatMessage(commonMessages.lastModified),
   ];
 
   if (isLoading) {
@@ -73,7 +74,11 @@ export const GroupsRolesTable: React.FC<GroupsRolesTableProps> = ({ group }) => 
           <Tr>
             <Td colSpan={compoundRolesCells.length}>
               <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-                {intl.formatMessage(messages.noGroupRoles)}
+                {intl.formatMessage({
+                  id: 'noGroupRoles',
+                  defaultMessage: 'There are no roles in this group',
+                  description: 'No roles in a group message',
+                })}
               </Content>
             </Td>
           </Tr>

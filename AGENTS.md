@@ -40,7 +40,7 @@ All detailed documentation is in `src/docs/`. Read the relevant doc before writi
 4. Route-level features (modals tied to routes, new pages) require user-journey Storybook stories with `fn()` spies on real API endpoints.
 5. No hand-rolled pagination, sort, filter, or selection state. Use `useTableState`.
 6. Shared component changes (`src/shared/components/`) require blast-radius analysis of all consumers before merging.
-7. When modifying a message in `src/Messages.js`, grep for all consumers and verify the new copy is appropriate for each usage context. Messages are shared resources — a single key may be rendered in admin views, non-admin views, or different feature versions, each with different user capabilities.
+7. When changing an inline FormatJS descriptor, grep for every use of its ID and verify the copy fits each context. A shared ID may appear in admin and non-admin views or across V1 and V2; keep descriptors for the same ID consistent, and use distinct IDs when copy must differ. Widely reused copy lives in `src/shared/messages/common.ts` (`commonMessages`). Conditional or config-object messages must use `defineMessages` so extraction sees them (see `src/docs/TranslationWorkflow.mdx`).
 8. Use `clearAllFilters()` from `useTableState` — never manually reset individual filter keys.
 9. Storybook test imports: `import { userEvent, within, expect, fn, waitFor } from 'storybook/test'` (no `@` prefix).
 10. PatternFly imports: dynamic paths (`/dist/dynamic/`). Icons: absolute paths (`/dist/js/icons/`). Never global imports.
@@ -119,6 +119,7 @@ e2e-testing:               E2ETesting.mdx
 architecture:              Architecture.mdx
 data-fetching-migration:   ReduxToTanstackQuery.mdx
 v1-v2-boundary:            V1V2Boundary.mdx
+translation-workflow:      TranslationWorkflow.mdx
 module-federation:         ModuleFederation.mdx
 federated-module-spike:    FederatedModuleSpike.mdx
 data-layer-di:             DataLayerDI.mdx
@@ -193,7 +194,9 @@ src/
 │           └── accountManagement.handlers.ts # accountManagementHandlers(), etc.
 ├── docs/                             # Documentation (MDX)
 ├── user-journeys/                    # End-to-end journey stories
-└── Messages.js                       # i18n message definitions
+└── locales/
+    ├── locale.ts                    # Active locale (currently en)
+    └── translations.json             # Compiled English runtime catalog
 
 eslint-rules/
 ├── (in experience-ui-governance)      # require-use-table-state rule

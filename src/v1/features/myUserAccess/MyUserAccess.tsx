@@ -15,9 +15,14 @@ import { AccessTable } from './AccessTable';
 import { RolesTable } from './RolesTable';
 import { resolveMuaBundle } from './resolveMuaBundle';
 import { useBundleApps } from './useBundleApps';
-import { useIntl } from 'react-intl';
-import messages from '../../../Messages';
+import { defineMessages, useIntl } from 'react-intl';
+
 import useUserData from '../../hooks/useUserData';
+
+const messages = defineMessages({
+  yourRoles: { id: 'yourRoles', defaultMessage: 'Your {name} roles', description: 'Your bundle roles label' },
+  yourPermissions: { id: 'yourPermissions', defaultMessage: 'Your {name} permissions', description: 'Your bundle permissions label' },
+});
 
 // FilterState is now in shared types.ts file
 
@@ -59,7 +64,7 @@ export const MyUserAccess: React.FC = () => {
         <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'gapMd' }}>
           <FlexItem>
             <Title headingLevel="h1" size="2xl">
-              {intl.formatMessage(messages.myUserAccess)}
+              {intl.formatMessage({ id: 'myUserAccess', defaultMessage: 'My User Access', description: 'My User Access label' })}
             </Title>
           </FlexItem>
           <FlexItem>

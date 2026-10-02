@@ -4,7 +4,7 @@ import { StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../../../Messages';
+
 import { type WorkspaceRelation, type WorkspaceWithPermissions } from '../../../../data/queries/workspaces';
 import { useWorkspacesWithPermissions } from '../../hooks/useWorkspacesWithPermissions';
 import buildWorkspaceTree from './WorkspaceTreeBuilder';
@@ -119,11 +119,19 @@ export const InlineWorkspacePicker: React.FC<InlineWorkspacePickerProps> = ({
     <Stack hasGutter>
       <StackItem>
         <SearchInput
-          placeholder={intl.formatMessage(messages.searchWorkspaces)}
+          placeholder={intl.formatMessage({
+            id: 'searchWorkspaces',
+            defaultMessage: 'Search workspaces by name',
+            description: 'Search workspaces placeholder text',
+          })}
           value={searchInputValue}
           onChange={(_event, value) => setSearchInputValue(value)}
           onClear={() => setSearchInputValue('')}
-          aria-label={intl.formatMessage(messages.searchWorkspaces)}
+          aria-label={intl.formatMessage({
+            id: 'searchWorkspaces',
+            defaultMessage: 'Search workspaces by name',
+            description: 'Search workspaces placeholder text',
+          })}
         />
       </StackItem>
       <StackItem isFilled style={{ maxHeight: '50vh', minHeight: '300px', overflowY: 'auto' }}>

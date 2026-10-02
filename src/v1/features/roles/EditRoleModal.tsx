@@ -12,7 +12,7 @@ import { ModalFormTemplate } from '../../../shared/components/forms/ModalFormTem
 import { usePatchRoleMutation, useRoleQuery } from '../../data/queries/roles';
 import { rolesApi } from '../../data/api/roles';
 import { debounce } from '../../../shared/utilities/debounce';
-import messages from '../../../Messages';
+import { commonMessages } from '../../../shared/messages/common';
 
 type RouteLocation =
   | string
@@ -46,7 +46,7 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
 
   const validationPromise: ValidationPromiseFn = async (name, idKey, id) => {
     if (name.length >= 150) {
-      throw intl.formatMessage(messages.maxCharactersWarning, { number: 150 });
+      throw intl.formatMessage(commonMessages.maxCharactersWarning, { number: 150 });
     }
 
     const response = await rolesApi.listRoles({ displayName: name, limit: 10, offset: 0 });
@@ -59,7 +59,11 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
     // Check if any other role has the same display_name
     const taken = data.some((item) => item.uuid !== id && item.display_name === name);
     if (taken) {
-      throw intl.formatMessage(messages.roleWithNameExists);
+      throw intl.formatMessage({
+        id: 'roleWithNameExists',
+        defaultMessage: 'Role with this name already exists.',
+        description: 'Role with name exists message',
+      });
     }
     return undefined;
   };
@@ -70,14 +74,14 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
         {
           name: 'name',
           component: componentTypes.TEXT_FIELD,
-          label: intl.formatMessage(messages.name),
+          label: intl.formatMessage(commonMessages.name),
           isRequired: true,
           validate: [{ type: 'validate-role-name', id, idKey: 'uuid', validationPromise }],
         },
         {
           name: 'description',
           component: componentTypes.TEXTAREA,
-          label: intl.formatMessage(messages.description),
+          label: intl.formatMessage(commonMessages.description),
           validate: [
             {
               type: validatorTypes.MAX_LENGTH,
@@ -91,7 +95,9 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
 
   const uniqueNameValidator = debounce(
     (value: string, idKey: string, id: string, validationPromiseFn: ValidationPromiseFn) =>
-      !value || value.length === 0 ? Promise.reject(intl.formatMessage(messages.required)) : validationPromiseFn(value, idKey, id),
+      !value || value.length === 0
+        ? Promise.reject(intl.formatMessage({ id: 'required', defaultMessage: 'Required', description: 'Required input label' }))
+        : validationPromiseFn(value, idKey, id),
     250,
     { onlyResolvesLast: false },
   );
@@ -106,8 +112,12 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({ cancelRoute, submitRoute 
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: intl.formatMessage(messages.editingRoleTitle),
-      description: intl.formatMessage(messages.editingRoleCanceledDescription),
+      title: intl.formatMessage({ id: 'editingRoleTitle', defaultMessage: 'Editing role', description: 'Editing role notification title' }),
+      description: intl.formatMessage({
+        id: 'editingRoleCanceledDescription',
+        defaultMessage: 'Edit role was canceled by the user.',
+        description: 'Editing role canceled notification description',
+      }),
     });
     navigate(cancelRoute, { replace: true });
   };

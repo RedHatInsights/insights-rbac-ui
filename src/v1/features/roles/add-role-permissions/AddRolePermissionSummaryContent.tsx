@@ -9,7 +9,7 @@ import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface Permission {
   uuid: string;
@@ -34,13 +34,13 @@ const AddRolePermissionSummaryContent: React.FC = () => {
     <Stack hasGutter>
       <StackItem>
         <Title headingLevel="h1" size="xl">
-          {intl.formatMessage(messages.reviewDetails)}
+          {intl.formatMessage(commonMessages.reviewDetails)}
         </Title>
       </StackItem>
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.roleName)}</DescriptionListTerm>
+            <DescriptionListTerm>{intl.formatMessage(commonMessages.roleName)}</DescriptionListTerm>
             <DescriptionListDescription>{name as string}</DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
@@ -48,7 +48,9 @@ const AddRolePermissionSummaryContent: React.FC = () => {
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.roleDescription)}</DescriptionListTerm>
+            <DescriptionListTerm>
+              {intl.formatMessage({ id: 'roleDescription', defaultMessage: 'Role description', description: 'Role description label' })}
+            </DescriptionListTerm>
             <DescriptionListDescription>{(description as string) || <em>No description</em>}</DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
@@ -56,7 +58,9 @@ const AddRolePermissionSummaryContent: React.FC = () => {
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.addedPermissions)}</DescriptionListTerm>
+            <DescriptionListTerm>
+              {intl.formatMessage({ id: 'addedPermissions', defaultMessage: 'Added permissions', description: 'Added permissions label' })}
+            </DescriptionListTerm>
             <DescriptionListDescription>
               <ul style={{ margin: 0, paddingLeft: '1rem' }}>
                 {(selectedPermissions as Permission[]).map((permission, index) => (
@@ -71,14 +75,20 @@ const AddRolePermissionSummaryContent: React.FC = () => {
         <StackItem>
           <DescriptionList>
             <DescriptionListGroup>
-              <DescriptionListTerm>{intl.formatMessage(messages.resourceDefinitions)}</DescriptionListTerm>
+              <DescriptionListTerm>{intl.formatMessage(commonMessages.resourceDefinitions)}</DescriptionListTerm>
               <DescriptionListDescription>
                 <ul style={{ margin: 0, paddingLeft: '1rem' }}>
                   {(resourceDefinitions as ResourceDefinition[]).map(({ resources }, idx) =>
                     resources.length > 0 ? (
                       resources.map((resource, index) => <li key={`${idx}-${index}`}>{resource}</li>)
                     ) : (
-                      <li key={`all-${idx}`}>{intl.formatMessage(messages.allResources)}</li>
+                      <li key={`all-${idx}`}>
+                        {intl.formatMessage({
+                          id: 'allResources',
+                          defaultMessage: 'All resources',
+                          description: 'All resources label for cost management permission definitions',
+                        })}
+                      </li>
                     ),
                   )}
                 </ul>

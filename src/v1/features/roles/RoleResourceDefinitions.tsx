@@ -14,8 +14,9 @@ import { useAppLink } from '../../../shared/hooks/useAppLink';
 import { getBackRoute } from '../../../shared/helpers/navigation';
 import { useRoleQuery } from '../../data/queries/roles';
 import { processResourceDefinitions, useInventoryGroupsDetailsQuery } from '../../../shared/data/queries/inventory';
-import messages from '../../../Messages';
+
 import type { ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../shared/messages/common';
 
 interface ResourceDefinitionRow {
   id: string;
@@ -97,14 +98,14 @@ const RoleResourceDefinitions: React.FC = () => {
 
   // Column config
   const columnConfig: ColumnConfigMap<typeof COLUMNS> = {
-    resource: { label: intl.formatMessage(messages.resource) },
+    resource: { label: intl.formatMessage({ id: 'resource', defaultMessage: 'Resource', description: 'Resource label' }) },
   };
 
   // Cell renderers
   const cellRenderers = {
     resource: (row: ResourceDefinitionRow) => {
       if (row.value === null && isInventoryHosts) {
-        return intl.formatMessage(messages.ungroupedSystems);
+        return intl.formatMessage({ id: 'ungroupedSystems', defaultMessage: 'Ungrouped systems', description: 'Ungrouped systems button label' });
       }
       return row.value;
     },
@@ -115,7 +116,9 @@ const RoleResourceDefinitions: React.FC = () => {
     {
       type: 'search',
       id: 'name',
-      placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.resource).toLowerCase() }),
+      placeholder: intl.formatMessage(commonMessages.filterByKey, {
+        key: intl.formatMessage({ id: 'resource', defaultMessage: 'Resource', description: 'Resource label' }).toLowerCase(),
+      }),
     },
   ];
 
@@ -123,7 +126,7 @@ const RoleResourceDefinitions: React.FC = () => {
   const toolbarActions = !role?.system ? (
     <AppLink to={paths['role-detail-permission-edit'].link(roleId!, permissionId!)}>
       <Button variant="primary" aria-label="Edit">
-        {intl.formatMessage(messages.edit)}
+        {intl.formatMessage(commonMessages.edit)}
       </Button>
     </AppLink>
   ) : null;
@@ -132,7 +135,7 @@ const RoleResourceDefinitions: React.FC = () => {
     <PageLayout
       breadcrumbs={[
         {
-          title: intl.formatMessage(messages.roles),
+          title: intl.formatMessage(commonMessages.roles),
           // Construct URL string from getBackRoute's pathname and search
           to: (() => {
             const basePath = toAppLink(paths['roles'].link());
@@ -152,7 +155,10 @@ const RoleResourceDefinitions: React.FC = () => {
         },
         { title: permissionId, isActive: true },
       ]}
-      title={{ title: permissionId, description: intl.formatMessage(messages.definedResources) }}
+      title={{
+        title: permissionId,
+        description: intl.formatMessage({ id: 'definedResources', defaultMessage: 'Defined resources', description: 'Defined resources label' }),
+      }}
     >
       <PageSection hasBodyWrapper={false}>
         <TableView
@@ -178,18 +184,22 @@ const RoleResourceDefinitions: React.FC = () => {
           // Empty states
           emptyStateNoData={
             <DefaultEmptyStateNoData
-              title={intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.resources).toLowerCase() })}
+              title={intl.formatMessage(commonMessages.noMatchingItemsFound, {
+                items: intl.formatMessage({ id: 'resources', defaultMessage: 'Resources', description: 'Resources label' }).toLowerCase(),
+              })}
             />
           }
           emptyStateNoResults={
             <DefaultEmptyStateNoResults
-              title={intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.resources).toLowerCase() })}
-              body={intl.formatMessage(messages.tryChangingFilters)}
+              title={intl.formatMessage(commonMessages.noMatchingItemsFound, {
+                items: intl.formatMessage({ id: 'resources', defaultMessage: 'Resources', description: 'Resources label' }).toLowerCase(),
+              })}
+              body={intl.formatMessage(commonMessages.tryChangingFilters)}
               onClearFilters={tableState.clearAllFilters}
             />
           }
           ouiaId="role-resource-definitions-table"
-          ariaLabel={intl.formatMessage(messages.resourceDefinitions)}
+          ariaLabel={intl.formatMessage(commonMessages.resourceDefinitions)}
         />
         <Suspense>
           <Outlet

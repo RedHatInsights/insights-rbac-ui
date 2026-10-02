@@ -5,7 +5,7 @@ import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 
 import type { WorkspaceGroupRow } from '../../../../data/queries/groupAssignments';
-import messages from '../../../../../Messages';
+
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { useWorkspacesFlag } from '../../../../../capabilities/useWorkspacesFlag';
 import { ActionDropdown, type ActionDropdownItem } from '../../../../../shared/components/ActionDropdown/ActionDropdown';
@@ -13,6 +13,7 @@ import { TableView } from '@redhat-cloud-services/frontend-components/TableView'
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 const columns = ['name', 'description', 'userCount', 'roleCount', 'lastModified'] as const;
 type SortableColumn = 'name' | 'userCount' | 'roleCount' | 'lastModified';
@@ -81,11 +82,17 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.userGroupName), sortable: true },
-      description: { label: intl.formatMessage(messages.description) },
-      userCount: { label: intl.formatMessage(messages.users), sortable: true },
-      roleCount: { label: intl.formatMessage(messages.roles), sortable: true },
-      lastModified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+      name: {
+        label: intl.formatMessage({ id: 'userGroupName', defaultMessage: 'User group name', description: 'User group name column header' }),
+        sortable: true,
+      },
+      description: { label: intl.formatMessage(commonMessages.description) },
+      userCount: { label: intl.formatMessage(commonMessages.users), sortable: true },
+      roleCount: { label: intl.formatMessage(commonMessages.roles), sortable: true },
+      lastModified: {
+        label: intl.formatMessage(commonMessages.lastModified),
+        sortable: true,
+      },
     }),
     [intl],
   );
@@ -99,7 +106,9 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
             <span>{row.description.length > 23 ? `${row.description.slice(0, 20)}...` : row.description}</span>
           </Tooltip>
         ) : (
-          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+          <div className="pf-v6-u-color-400">
+            {intl.formatMessage({ id: 'usersAndUserGroupsNoDescription', defaultMessage: 'No description', description: 'No description label' })}
+          </div>
         ),
       userCount: (row) => row.userCount,
       roleCount: (row) => row.roleCount,
@@ -113,7 +122,11 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
       {
         type: 'search',
         id: 'name',
-        placeholder: intl.formatMessage(messages.filterByUserGroup),
+        placeholder: intl.formatMessage({
+          id: 'filterByUserGroup',
+          defaultMessage: 'Filter by user group',
+          description: 'placeholder for user group filter',
+        }),
       },
     ],
     [intl],
@@ -130,13 +143,13 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
       const items: ActionDropdownItem[] = [
         {
           key: 'edit-access',
-          label: intl.formatMessage(messages.editAccess),
+          label: intl.formatMessage({ id: 'editAccess', defaultMessage: 'Edit access', description: 'Edit access action text' }),
           onClick: () => onEditAccess(group),
           isDisabled: !canEditAccess || group.isDefaultGroup,
         },
         {
           key: 'remove-access',
-          label: intl.formatMessage(messages.removeAccess),
+          label: intl.formatMessage({ id: 'removeAccess', defaultMessage: 'Remove access', description: 'Remove access action label' }),
           isDanger: canRevokeAccess && !group.isDefaultGroup,
           onClick: () => onRemoveAccess(group),
           isDisabled: !canRevokeAccess || group.isDefaultGroup,
@@ -167,7 +180,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
           onClick={onGrantAccess}
           ouiaId={`${ouiaId}-grant-access-button`}
         >
-          {intl.formatMessage(messages.grantAccess)}
+          {intl.formatMessage({ id: 'grantAccess', defaultMessage: 'Grant access', description: 'Grant access button text' })}
         </Button>
       ) : undefined,
     [grantAccessEnabled, canGrantAccess, ouiaId, intl, currentWorkspace, onGrantAccess],
@@ -210,9 +223,24 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
         variant="compact"
         ariaLabel="Role Assignments Table"
         ouiaId={`${ouiaId}-table`}
-        emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} />}
+        emptyStateNoData={
+          <DefaultEmptyStateNoData
+            title={intl.formatMessage({
+              id: 'userGroupsEmptyStateTitle',
+              defaultMessage: 'No user group found',
+              description: 'Empty state title User groups',
+            })}
+          />
+        }
         emptyStateNoResults={
-          <DefaultEmptyStateNoResults title={intl.formatMessage(messages.userGroupsEmptyStateTitle)} onClearFilters={tableState.clearAllFilters} />
+          <DefaultEmptyStateNoResults
+            title={intl.formatMessage({
+              id: 'userGroupsEmptyStateTitle',
+              defaultMessage: 'No user group found',
+              description: 'Empty state title User groups',
+            })}
+            onClearFilters={tableState.clearAllFilters}
+          />
         }
       />
     </GroupDetailsDrawer>

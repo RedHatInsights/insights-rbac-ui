@@ -247,23 +247,9 @@ If a selector pattern is used in more than one story, add it to `tableHelpers.ts
 
 ## Localization
 
-Use distinct message keys for pluralization:
+Use distinct IDs for singular and plural variants, such as `addGroupMembersSuccessTitle` and `addGroupMemberSuccessTitle`, or `addGroupServiceAccountsSuccessTitle` and `addGroupServiceAccountSuccessTitle`.
 
-```typescript
-// Members
-messages.addGroupMembersSuccessTitle; // "Members added to group"
-messages.addGroupMemberSuccessTitle; // "Member added to group" (singular)
-
-// Service accounts
-messages.addGroupServiceAccountsSuccessTitle;
-messages.addGroupServiceAccountSuccessTitle;
-```
-
-When adding new messages, add to all three files:
-
-- `src/Messages.js`
-- `src/locales/translations.json`
-- `src/locales/data.json`
+Declare each FormatJS descriptor beside its usage. Do not edit generated catalogs by hand. After changing descriptors, run `npm run translations` and commit the regenerated `locales/translation-template.json` and `src/locales/translations.json`.
 
 ---
 

@@ -7,9 +7,10 @@ import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { List, ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { type Group, useGroupsQuery, useRemoveMembersFromGroupMutation } from '../../../../../../v2/data/queries/groups';
-import messages from '../../../../../../Messages';
+
 import { getModalContainer } from '../../../../../../shared/helpers/modal-container';
 import type { User } from '../../../../../../shared/data/queries/users';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface RemoveUserFromGroupModalProps {
   isOpen: boolean;
@@ -103,7 +104,11 @@ export const RemoveUserFromGroupModal: React.FunctionComponent<RemoveUserFromGro
     <Modal
       appendTo={getModalContainer()}
       variant={ModalVariant.medium}
-      title={intl.formatMessage(messages.removeFromUserGroup)}
+      title={intl.formatMessage({
+        id: 'removeFromUserGroup',
+        defaultMessage: 'Remove from user groups',
+        description: 'Action column option to remove user from group',
+      })}
       isOpen={isOpen}
       onClose={handleCloseModal}
       actions={[
@@ -114,27 +119,37 @@ export const RemoveUserFromGroupModal: React.FunctionComponent<RemoveUserFromGro
           isDisabled={!isConfirmed || selectedGroupIds.size === 0 || removeMembersMutation.isPending}
           isLoading={removeMembersMutation.isPending}
         >
-          {intl.formatMessage(messages.remove)}
+          {intl.formatMessage(commonMessages.remove)}
         </Button>,
         <Button key="cancel" variant="link" onClick={handleCloseModal} isDisabled={removeMembersMutation.isPending}>
-          {intl.formatMessage(messages.cancel)}
+          {intl.formatMessage(commonMessages.cancel)}
         </Button>,
       ]}
       ouiaId="remove-user-from-group-modal"
     >
-      <Alert variant="warning" isInline title={intl.formatMessage(messages.removeFromUserGroupWarningTitle)}>
+      <Alert
+        variant="warning"
+        isInline
+        title={intl.formatMessage({
+          id: 'removeFromUserGroupWarningTitle',
+          defaultMessage: 'This action will remove users from selected groups',
+          description: 'Warning title when removing user from groups',
+        })}
+      >
         <FormattedMessage
-          {...messages.removeFromUserGroupWarningDescription}
+          id={'removeFromUserGroupWarningDescription'}
+          defaultMessage={'The selected {numUsers, plural, one {user} other {users}} will lose all access granted through the selected groups.'}
+          description={'Warning description when removing user from groups'}
           values={{
-            b: (text) => <b>{text}</b>,
             numUsers: selectedUsers.length,
-            plural: selectedUsers.length > 1 ? 'users' : 'user',
           }}
         />
       </Alert>
 
       <div className="pf-v6-u-mt-md">
-        <strong>{intl.formatMessage(messages.usersToRemove)}:</strong>
+        <strong>
+          {intl.formatMessage({ id: 'usersToRemove', defaultMessage: 'Users to remove', description: 'Label for users to remove list' })}:
+        </strong>
         <List isPlain>
           {selectedUsers.map((user) => (
             <ListItem key={user.username}>{user.username}</ListItem>
@@ -144,7 +159,14 @@ export const RemoveUserFromGroupModal: React.FunctionComponent<RemoveUserFromGro
 
       {userGroups.length > 0 && (
         <div className="pf-v6-u-mt-md">
-          <strong>{intl.formatMessage(messages.selectGroupsToRemoveFrom)}:</strong>
+          <strong>
+            {intl.formatMessage({
+              id: 'selectGroupsToRemoveFrom',
+              defaultMessage: 'Select groups to remove from',
+              description: 'Label for group selection',
+            })}
+            :
+          </strong>
           <List isPlain className="pf-v6-u-mt-sm">
             {userGroups.map((group) => (
               <ListItem key={group.uuid}>
@@ -163,7 +185,11 @@ export const RemoveUserFromGroupModal: React.FunctionComponent<RemoveUserFromGro
       <div className="pf-v6-u-mt-lg">
         <Checkbox
           id="confirm-removal"
-          label={intl.formatMessage(messages.understandActionIrreversible)}
+          label={intl.formatMessage({
+            id: 'understandActionIrreversible',
+            defaultMessage: 'I understand that this action cannot be undone',
+            description: 'Understand action cannot be undone message',
+          })}
           isChecked={isConfirmed}
           onChange={(_, checked) => setIsConfirmed(checked)}
         />

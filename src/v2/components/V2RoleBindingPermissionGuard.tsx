@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl';
 import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess';
 import { AppPlaceholder } from '../../shared/components/ui-states/LoaderPlaceholders';
 import { useRoleBindingsAccess } from '../hooks/useRbacAccess';
-import messages from '../../Messages';
+import { commonMessages } from '../../shared/messages/common';
 
 // ============================================================================
 // Role Binding relation → hook field mapping
@@ -49,8 +49,8 @@ const V2RoleBindingPermissionGuard: React.FC<V2RoleBindingPermissionGuardProps> 
   if (!rbAccess[RELATION_TO_FIELD[relation]]) {
     return (
       <UnauthorizedAccess
-        serviceName={intl.formatMessage(messages.unauthorizedAccessServiceName)}
-        bodyText={intl.formatMessage(messages.unauthorizedAccessBodyText)}
+        serviceName={intl.formatMessage(commonMessages.unauthorizedAccessServiceName)}
+        bodyText={intl.formatMessage(commonMessages.unauthorizedAccessBodyText)}
       />
     );
   }

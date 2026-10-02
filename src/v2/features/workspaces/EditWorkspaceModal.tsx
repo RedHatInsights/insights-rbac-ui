@@ -6,7 +6,7 @@ import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
-import messages from '../../../Messages';
+
 import {
   type WorkspacesWorkspace,
   isWorkspace,
@@ -16,6 +16,7 @@ import {
 } from '../../data/queries/workspaces';
 import paths from '../../utilities/pathnames';
 import { ModalFormTemplate } from '../../../shared/components/forms/ModalFormTemplate';
+import { commonMessages } from '../../../shared/messages/common';
 
 interface EditWorkspaceModalProps {
   afterSubmit: () => void;
@@ -53,7 +54,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
       fields: [
         {
           name: 'name',
-          label: intl.formatMessage(messages.name),
+          label: intl.formatMessage(commonMessages.name),
           component: componentTypes.TEXT_FIELD,
           validate: [
             { type: validatorTypes.REQUIRED },
@@ -65,7 +66,13 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
                 const isDuplicate = allWorkspaces.some(
                   (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== currData.id,
                 );
-                return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
+                return isDuplicate
+                  ? intl.formatMessage({
+                      id: 'workspaceNameTaken',
+                      defaultMessage: 'Workspace name already taken',
+                      description: 'Workspace name taken error title',
+                    })
+                  : undefined;
               }
             },
           ],
@@ -74,7 +81,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
         },
         {
           name: 'description',
-          label: intl.formatMessage(messages.description),
+          label: intl.formatMessage(commonMessages.description),
           component: componentTypes.TEXTAREA,
           initialValue: initialFormData?.description,
         },
@@ -86,8 +93,16 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
   const handleCancel = () => {
     addNotification({
       variant: 'warning',
-      title: intl.formatMessage(messages.editingWorkspaceTitle),
-      description: intl.formatMessage(messages.editingWorkspaceCanceledDescription),
+      title: intl.formatMessage({
+        id: 'editingWorkspaceTitle',
+        defaultMessage: 'Editing workspace',
+        description: 'Editing workspace notification title',
+      }),
+      description: intl.formatMessage({
+        id: 'editingWorkspaceCanceledDescription',
+        defaultMessage: 'Edit workspace was canceled by the user.',
+        description: 'Edit workspace canceled notification description',
+      }),
     });
     if (onCancel) {
       onCancel();
