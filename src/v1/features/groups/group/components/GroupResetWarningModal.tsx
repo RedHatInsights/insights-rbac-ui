@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import messages from '../../../../../Messages';
+
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
 
 interface GroupResetWarningModalProps {
@@ -35,14 +35,22 @@ export const GroupResetWarningModal: React.FC<GroupResetWarningModalProps> = ({ 
   return (
     <WarningModal
       isOpen={isOpen}
-      title={intl.formatMessage(messages.restoreDefaultAccessQuestion)}
-      confirmButtonLabel={intl.formatMessage(messages.continue)}
+      title={intl.formatMessage({
+        id: 'restoreDefaultAccessQuestion',
+        defaultMessage: 'Restore Default access group?',
+        description: 'Restore Default access group question',
+      })}
+      confirmButtonLabel={intl.formatMessage({ id: 'continue', defaultMessage: 'Continue', description: 'Continue label' })}
       onClose={onClose}
       onConfirm={onConfirm}
       appendTo={getModalContainer()}
     >
       <FormattedMessage
-        {...messages.restoreDefaultAccessDescription}
+        id={'restoreDefaultAccessDescription'}
+        defaultMessage={
+          'Restoring <b>Default access</b> group will remove <b>Custom default access</b> group. <b>Custom default access</b> configurations cannot be recovered. Are you sure?'
+        }
+        description={'Restore Custom Default Access group description'}
         values={{
           b: (text: React.ReactNode) => <b>{text}</b>,
         }}

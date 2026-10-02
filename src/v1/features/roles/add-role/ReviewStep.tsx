@@ -8,9 +8,15 @@ import {
 } from '@patternfly/react-core/dist/dynamic/components/DescriptionList';
 import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
-import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+import { defineMessages, useIntl } from 'react-intl';
+
 import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
+import { commonMessages } from '../../../../shared/messages/common';
+
+const messages = defineMessages({
+  workspacesDefinition: { id: 'workspacesDefinition', defaultMessage: 'Workspaces definition', description: 'Group workspaces label' },
+  groupDefinition: { id: 'groupDefinition', defaultMessage: 'Group definition', description: 'Group definition label' },
+});
 
 interface Row {
   cells: string[];
@@ -53,20 +59,39 @@ const ReviewStep: React.FC = () => {
     'role-type': type,
   } = formOptions.getState().values;
 
-  const columns = [intl.formatMessage(messages.application), intl.formatMessage(messages.resourceType), intl.formatMessage(messages.operation)];
+  const columns = [
+    intl.formatMessage(commonMessages.application),
+    intl.formatMessage(commonMessages.resourceType),
+    intl.formatMessage(commonMessages.operation),
+  ];
   const rows = (permissions as { uuid: string }[]).map((permission) => ({
     cells: permission.uuid.split(':'),
   }));
 
   const resourceDefinitionsRows = ((resourceDefinitions as { permission: string; resources: string[] }[]) || []).map(({ permission, resources }) => ({
-    cells: [permission, resources.length > 0 ? resources.join(', ') : intl.formatMessage(messages.allResources)],
+    cells: [
+      permission,
+      resources.length > 0
+        ? resources.join(', ')
+        : intl.formatMessage({
+            id: 'allResources',
+            defaultMessage: 'All resources',
+            description: 'All resources label for cost management permission definitions',
+          }),
+    ],
   }));
 
   const groupPermissionsRows = ((inventoryGroupPermissions as { permission: string; groups?: { id: string | null; name?: string }[] }[]) || []).map(
     ({ permission, groups }) => ({
       cells: [
         permission,
-        groups?.map((group) => (group?.id === null ? intl.formatMessage(messages.ungroupedSystems) : group?.name)).join(', ') || '',
+        groups
+          ?.map((group) =>
+            group?.id === null
+              ? intl.formatMessage({ id: 'ungroupedSystems', defaultMessage: 'Ungrouped systems', description: 'Ungrouped systems button label' })
+              : group?.name,
+          )
+          .join(', ') || '',
       ],
     }),
   );
@@ -76,7 +101,7 @@ const ReviewStep: React.FC = () => {
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.name)}</DescriptionListTerm>
+            <DescriptionListTerm>{intl.formatMessage(commonMessages.name)}</DescriptionListTerm>
             <DescriptionListDescription>{type === 'create' ? name : copyName}</DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
@@ -84,7 +109,7 @@ const ReviewStep: React.FC = () => {
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.description)}</DescriptionListTerm>
+            <DescriptionListTerm>{intl.formatMessage(commonMessages.description)}</DescriptionListTerm>
             <DescriptionListDescription>{(type === 'create' ? description : copyDescription) || <em>No description</em>}</DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
@@ -92,7 +117,7 @@ const ReviewStep: React.FC = () => {
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.permissions)}</DescriptionListTerm>
+            <DescriptionListTerm>{intl.formatMessage(commonMessages.permissions)}</DescriptionListTerm>
             <DescriptionListDescription>
               <PermissionsTable columns={columns} rows={rows} label="Permissions" />
             </DescriptionListDescription>
@@ -103,11 +128,11 @@ const ReviewStep: React.FC = () => {
         <StackItem>
           <DescriptionList>
             <DescriptionListGroup>
-              <DescriptionListTerm>{intl.formatMessage(messages.resourceDefinitions)}</DescriptionListTerm>
+              <DescriptionListTerm>{intl.formatMessage(commonMessages.resourceDefinitions)}</DescriptionListTerm>
               <DescriptionListDescription>
                 <PermissionsTable
                   columns={[
-                    intl.formatMessage(messages.permission),
+                    intl.formatMessage({ id: 'permission', defaultMessage: 'Permission', description: 'Permission label' }),
                     intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesDefinition : messages.groupDefinition),
                   ]}
                   rows={groupPermissionsRows}
@@ -122,10 +147,13 @@ const ReviewStep: React.FC = () => {
         <StackItem>
           <DescriptionList>
             <DescriptionListGroup>
-              <DescriptionListTerm>{intl.formatMessage(messages.resourceDefinitions)}</DescriptionListTerm>
+              <DescriptionListTerm>{intl.formatMessage(commonMessages.resourceDefinitions)}</DescriptionListTerm>
               <DescriptionListDescription>
                 <PermissionsTable
-                  columns={[intl.formatMessage(messages.permission), intl.formatMessage(messages.resourceDefinitions)]}
+                  columns={[
+                    intl.formatMessage({ id: 'permission', defaultMessage: 'Permission', description: 'Permission label' }),
+                    intl.formatMessage(commonMessages.resourceDefinitions),
+                  ]}
                   rows={resourceDefinitionsRows}
                   label="Cost resource definitions"
                 />

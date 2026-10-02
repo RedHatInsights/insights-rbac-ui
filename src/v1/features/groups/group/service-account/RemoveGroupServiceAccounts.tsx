@@ -5,7 +5,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { useGroupQuery, useGroupServiceAccountsQuery, useRemoveServiceAccountsFromGroupMutation } from '../../../../../shared/data/queries/groups';
-import messages from '../../../../../Messages';
 
 type RemoveGroupServiceAccountsProps = {
   cancelRoute: string;
@@ -63,14 +62,32 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<RemoveGroupServiceA
     <WarningModal
       isOpen
       withCheckbox
-      title={intl.formatMessage(messages.removeGroupServiceAccountsQuestion, { count: accountsCount })}
-      confirmButtonLabel={intl.formatMessage(messages.removeServiceAccounts, { count: accountsCount })}
+      title={intl.formatMessage(
+        {
+          id: 'removeGroupServiceAccountsQuestion',
+          defaultMessage: 'Remove service {count, plural, one {account} other {accounts}}?',
+          description: 'Remove service accounts from group question label',
+        },
+        { count: accountsCount },
+      )}
+      confirmButtonLabel={intl.formatMessage(
+        {
+          id: 'removeServiceAccounts',
+          defaultMessage: 'Remove service {count, plural, one {account} other {accounts}}',
+          description: 'Remove service accounts button label',
+        },
+        { count: accountsCount },
+      )}
       confirmButtonVariant={ButtonVariant.danger}
       onClose={() => postMethod()}
       onConfirm={handleConfirm}
     >
       <FormattedMessage
-        {...messages.removeServiceAccountsText}
+        id={'removeServiceAccountsText'}
+        defaultMessage={
+          '{count, plural, one {<b>{name}</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.'
+        }
+        description={'Remove service accounts description'}
         values={{
           b: (text) => <b>{text}</b>,
           count: accountsCount,

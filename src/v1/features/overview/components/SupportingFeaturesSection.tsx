@@ -16,7 +16,6 @@ import { DataListItem } from '@patternfly/react-core/dist/dynamic/components/Dat
 import CubesIcon from '@patternfly/react-icons/dist/js/icons/cubes-icon';
 import { useIntl } from 'react-intl';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import messages from '../../../../Messages';
 
 interface SupportingFeaturesSectionProps {
   className?: string;
@@ -56,7 +55,11 @@ export const SupportingFeaturesSection: React.FC<SupportingFeaturesSectionProps>
                     />
                     <FlexItem className="pf-v6-u-align-self-center">
                       <Title headingLevel="h4" data-ouia-component-id="about-title">
-                        {intl.formatMessage(messages.overviewSupportingFeaturesTitle)}
+                        {intl.formatMessage({
+                          id: 'overviewSupportingFeaturesTitle',
+                          defaultMessage: 'About default groups',
+                          description: 'Overview Supporting Features title',
+                        })}
                       </Title>
                     </FlexItem>
                   </Flex>
@@ -73,11 +76,29 @@ export const SupportingFeaturesSection: React.FC<SupportingFeaturesSectionProps>
           data-ouia-component-id="about-view-default-group"
           isHidden={!expanded}
         >
-          <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle1)}</p>
-          <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle2)}</p>
+          <p className="pf-v6-u-mb-md">
+            {intl.formatMessage({
+              id: 'overviewSupportingFeaturesSubtitle1',
+              defaultMessage:
+                'The Default access group contains all authenticated users in your organization. These users automatically inherit a selection of predefined roles. The Default admin access group is limited to Organization Administrator users in your organization.',
+              description: 'Overview Supporting Features subtitle',
+            })}
+          </p>
+          <p className="pf-v6-u-mb-md">
+            {intl.formatMessage({
+              id: 'overviewSupportingFeaturesSubtitle2',
+              defaultMessage:
+                'If you need to modify the default access group to add or remove roles, this new group will change to a Custom default access group.',
+              description: 'Overview Supporting Features subtitle',
+            })}
+          </p>
           <AppLink to={groupsLink}>
             <Button variant="link" isInline>
-              {intl.formatMessage(messages.viewDefaultGroupsLink)}
+              {intl.formatMessage({
+                id: 'viewDefaultGroupsLink',
+                defaultMessage: 'View your default groups',
+                description: 'View Default Groups link',
+              })}
             </Button>
           </AppLink>
         </DataListContent>

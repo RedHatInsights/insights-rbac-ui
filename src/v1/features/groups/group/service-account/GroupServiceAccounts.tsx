@@ -1,7 +1,7 @@
 import useUserData from '../../../../hooks/useUserData';
 import React, { Fragment, Suspense, useCallback, useEffect, useMemo } from 'react';
 import { Outlet, createSearchParams, useParams } from 'react-router-dom';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -17,9 +17,23 @@ import { useGroupQuery, useGroupServiceAccountsQuery, useGroupsQuery } from '../
 
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../../shared/utilities/constants';
 import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
-import messages from '../../../../../Messages';
+
 import pathnames from '../../../../utilities/pathnames';
 import type { GroupServiceAccountsProps, ServiceAccount } from './types';
+import { commonMessages } from '../../../../../shared/messages/common';
+
+const messages = defineMessages({
+  contactServiceTeamForAccounts: {
+    id: 'contactServiceTeamForAccounts',
+    defaultMessage: 'Contact your platform service team to add service accounts.',
+    description: 'Contact service team to add accounts message',
+  },
+  addAccountsToThisGroup: {
+    id: 'addAccountsToThisGroup',
+    defaultMessage: 'Add service accounts you wish to associate with this User Access group',
+    description: 'Add service accounts message',
+  },
+});
 
 /**
  * GroupServiceAccounts - fetches its own data via React Query.
@@ -134,7 +148,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
         ouiaId="add-service-account-button"
         onClick={() => navigate(pathnames['group-add-service-account'].link(groupId!))}
       >
-        {intl.formatMessage(messages.addServiceAccount)}
+        {intl.formatMessage({ id: 'addServiceAccount', defaultMessage: 'Add service account', description: 'Add service account label' })}
       </Button>
     );
   }, [canModifyServiceAccounts, groupId, intl, navigate]);
@@ -149,7 +163,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
         items={[
           {
             key: 'remove',
-            label: intl.formatMessage(messages.remove),
+            label: intl.formatMessage(commonMessages.remove),
             onClick: handleRemoveSelectedServiceAccounts,
             isDisabled: tableState.selectedRows.length === 0,
           },
@@ -183,9 +197,24 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
           className="pf-v6-u-mb-md"
           variant="info"
           isInline
-          title={intl.formatMessage(messages.visitServiceAccountsPage, {
-            link: <ExternalLink to="/service-accounts">{intl.formatMessage(messages.serviceAccountsPage)}</ExternalLink>,
-          })}
+          title={intl.formatMessage(
+            {
+              id: 'visitServiceAccountsPage',
+              defaultMessage: 'To add, reset credentials, or delete service accounts visit the {link}.',
+              description: 'Visit service accounts page text',
+            },
+            {
+              link: (
+                <ExternalLink to="/service-accounts">
+                  {intl.formatMessage({
+                    id: 'serviceAccountsPage',
+                    defaultMessage: 'Service Accounts admin page',
+                    description: 'Service accounts page message',
+                  })}
+                </ExternalLink>
+              ),
+            },
+          )}
         />
 
         <TableView<typeof columns, ServiceAccount>
@@ -205,7 +234,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
                     items={[
                       {
                         key: 'remove',
-                        label: intl.formatMessage(messages.remove),
+                        label: intl.formatMessage(commonMessages.remove),
                         onClick: () => handleRemoveServiceAccount(account),
                       },
                     ]}
@@ -218,19 +247,31 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
           bulkActions={bulkActions}
           emptyStateNoData={
             <DefaultEmptyStateNoData
-              title={intl.formatMessage(messages.noGroupAccounts)}
+              title={intl.formatMessage({
+                id: 'noGroupAccounts',
+                defaultMessage: 'There are no service accounts in this group',
+                description: 'No service accounts in a group message',
+              })}
               body={intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup)}
             />
           }
           emptyStateNoResults={
             <DefaultEmptyStateNoResults
-              title={intl.formatMessage(messages.noServiceAccountsFound)}
-              body={intl.formatMessage(messages.noFilteredRoles)}
+              title={intl.formatMessage({
+                id: 'noServiceAccountsFound',
+                defaultMessage: 'No service accounts found',
+                description: 'No service accounts message',
+              })}
+              body={intl.formatMessage({
+                id: 'noFilteredRoles',
+                defaultMessage: 'No roles match the filter criteria. Remove all filters or clear all to show results.',
+                description: 'Empty state body when no roles match filters',
+              })}
             />
           }
           variant="default"
           ouiaId="group-service-accounts-table"
-          ariaLabel={intl.formatMessage(messages.serviceAccounts)}
+          ariaLabel={intl.formatMessage({ id: 'serviceAccounts', defaultMessage: 'Service accounts', description: 'Service accounts plural' })}
           {...tableState}
         />
       </Section>

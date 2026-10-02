@@ -24,11 +24,12 @@ import { getDateFormat } from '../../../shared/helpers/stringUtilities';
 import { defaultAdminSettings, defaultSettings } from '../../../shared/helpers/pagination';
 import { type ListRolesParams, useRolesQuery } from '../../data/queries/roles';
 import { useAdminGroupQuery } from '../../../shared/data/queries/groups';
-import messages from '../../../Messages';
+
 import { shouldShowAddRoleToGroupLink } from './utils/roleVisibility';
 import pathnames from '../../utilities/pathnames';
 import { RolesEmptyState } from './components/RolesEmptyState';
 import type { Access, RoleOutDynamic } from '../../data/api/roles';
+import { commonMessages } from '../../../shared/messages/common';
 
 // Extended role type for the list view (includes groups_in from addFields)
 interface RoleGroup {
@@ -58,7 +59,11 @@ interface AdminGroup {
 const GroupsTable: React.FC<{ role: RoleListItem; adminGroup: AdminGroup | null | undefined }> = ({ role, adminGroup }) => {
   const intl = useIntl();
 
-  const groupColumns = [intl.formatMessage(messages.groupName), intl.formatMessage(messages.description), ''];
+  const groupColumns = [
+    intl.formatMessage({ id: 'groupName', defaultMessage: 'Group name', description: 'Group name label' }),
+    intl.formatMessage(commonMessages.description),
+    '',
+  ];
 
   return (
     <Table aria-label={`Groups for role ${role.display_name}`} variant={TableVariant.compact} ouiaId={`compound-groups-${role.uuid}`}>
@@ -80,7 +85,11 @@ const GroupsTable: React.FC<{ role: RoleListItem; adminGroup: AdminGroup | null 
               <Td dataLabel={groupColumns[2]} className="pf-v6-u-text-align-right">
                 {shouldShowAddRoleToGroupLink(adminGroup, group) && (
                   <AppLink to={pathnames['roles-add-group-roles'].link(role.uuid, group.uuid)} state={{ name: group.name }}>
-                    {intl.formatMessage(messages.addRoleToThisGroup)}
+                    {intl.formatMessage({
+                      id: 'addRoleToThisGroup',
+                      defaultMessage: 'Add role to this group',
+                      description: 'Add role to this group label',
+                    })}
                   </AppLink>
                 )}
               </Td>
@@ -90,7 +99,7 @@ const GroupsTable: React.FC<{ role: RoleListItem; adminGroup: AdminGroup | null 
           <Tr>
             <Td colSpan={groupColumns.length}>
               <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-                {intl.formatMessage(messages.noGroups)}
+                {intl.formatMessage({ id: 'noGroups', defaultMessage: 'No groups', description: 'No groups label' })}
               </Content>
             </Td>
           </Tr>
@@ -105,10 +114,10 @@ const PermissionsTable: React.FC<{ role: RoleListItem }> = ({ role }) => {
   const intl = useIntl();
 
   const permissionColumns = [
-    intl.formatMessage(messages.application),
-    intl.formatMessage(messages.resourceType),
-    intl.formatMessage(messages.operation),
-    intl.formatMessage(messages.lastModified),
+    intl.formatMessage(commonMessages.application),
+    intl.formatMessage(commonMessages.resourceType),
+    intl.formatMessage(commonMessages.operation),
+    intl.formatMessage(commonMessages.lastModified),
   ];
 
   return (
@@ -139,7 +148,7 @@ const PermissionsTable: React.FC<{ role: RoleListItem }> = ({ role }) => {
           <Tr>
             <Td colSpan={permissionColumns.length}>
               <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-                {intl.formatMessage(messages.noPermissions)}
+                {intl.formatMessage(commonMessages.noPermissions)}
               </Content>
             </Td>
           </Tr>
@@ -169,8 +178,8 @@ const RoleRowActions: React.FC<{
       )}
     >
       <DropdownList>
-        <DropdownItem onClick={() => onEditRole(role.uuid)}>{intl.formatMessage(messages.edit)}</DropdownItem>
-        <DropdownItem onClick={() => onDeleteRole([role.uuid])}>{intl.formatMessage(messages.delete)}</DropdownItem>
+        <DropdownItem onClick={() => onEditRole(role.uuid)}>{intl.formatMessage(commonMessages.edit)}</DropdownItem>
+        <DropdownItem onClick={() => onDeleteRole([role.uuid])}>{intl.formatMessage(commonMessages.delete)}</DropdownItem>
       </DropdownList>
     </Dropdown>
   );
@@ -196,11 +205,17 @@ export const Roles: React.FC = () => {
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name), sortable: true },
-      description: { label: intl.formatMessage(messages.description) },
-      groups: { label: intl.formatMessage(messages.groups), isCompound: true },
-      permissions: { label: intl.formatMessage(messages.permissions), isCompound: true },
-      modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+      name: { label: intl.formatMessage(commonMessages.name), sortable: true },
+      description: { label: intl.formatMessage(commonMessages.description) },
+      groups: { label: intl.formatMessage(commonMessages.groups), isCompound: true },
+      permissions: {
+        label: intl.formatMessage(commonMessages.permissions),
+        isCompound: true,
+      },
+      modified: {
+        label: intl.formatMessage(commonMessages.lastModified),
+        sortable: true,
+      },
     }),
     [intl],
   );
@@ -307,7 +322,7 @@ export const Roles: React.FC = () => {
   const removingAllRows = totalCount === removeRolesList.length;
 
   return (
-    <PageLayout title={{ title: intl.formatMessage(messages.roles) }}>
+    <PageLayout title={{ title: intl.formatMessage(commonMessages.roles) }}>
       <Section type="content" id="tab-roles">
         <TableView<typeof columns, RoleListItem, SortableColumnId, CompoundColumnId>
           columns={columns}
@@ -326,7 +341,7 @@ export const Roles: React.FC = () => {
             isAdmin ? (
               <AppLink to={pathnames['add-role'].link()}>
                 <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
-                  {intl.formatMessage(messages.createRole)}
+                  {intl.formatMessage(commonMessages.createRole)}
                 </Button>
               </AppLink>
             ) : undefined
@@ -339,13 +354,13 @@ export const Roles: React.FC = () => {
                 items={[
                   {
                     key: 'edit',
-                    label: intl.formatMessage(messages.edit),
+                    label: intl.formatMessage(commonMessages.edit),
                     onClick: () => handleEditRole(tableState.selectedRows[0].uuid),
                     isDisabled: tableState.selectedRows.length !== 1,
                   },
                   {
                     key: 'delete',
-                    label: intl.formatMessage(messages.delete),
+                    label: intl.formatMessage(commonMessages.delete),
                     onClick: () => handleDeleteRole(tableState.selectedRows.map((row) => row.uuid)),
                   },
                 ]}

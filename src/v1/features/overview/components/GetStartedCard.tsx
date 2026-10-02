@@ -11,7 +11,6 @@ import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useIntl } from 'react-intl';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import messages from '../../../../Messages';
 
 interface GetStartedCardProps {
   className?: string;
@@ -28,15 +27,43 @@ export const GetStartedCard: React.FC<GetStartedCardProps> = ({ className, group
         <GridItem sm={12} md={6} lg={8}>
           <CardTitle>
             <Title headingLevel="h2" data-ouia-component-id="get-started-title">
-              {intl.formatMessage(messages.overviewHeroTitle)}
+              {intl.formatMessage({
+                id: 'overviewHeroTitle',
+                defaultMessage: 'Get started with User Access',
+                description: 'Overview Hero section title',
+              })}
             </Title>
           </CardTitle>
           <CardBody>
-            <p className="pf-v6-u-mb-sm">{intl.formatMessage(messages.overviewHeroSubtitle)}</p>
+            <p className="pf-v6-u-mb-sm">
+              {intl.formatMessage({
+                id: 'overviewHeroSubtitle',
+                defaultMessage: 'The Red Hat Hybrid Cloud Console uses role-based access control (RBAC).',
+                description: 'Overview Hero section subtitle',
+              })}
+            </p>
             <List>
-              <ListItem>{intl.formatMessage(messages.overviewHeroListItem1)}</ListItem>
-              <ListItem>{intl.formatMessage(messages.overviewHeroListItem2)}</ListItem>
-              <ListItem>{intl.formatMessage(messages.overviewHeroListItem3)}</ListItem>
+              <ListItem>
+                {intl.formatMessage({
+                  id: 'overviewHeroListItem1',
+                  defaultMessage: 'Control user access by organizing roles instead of assigning permissions individually to users',
+                  description: 'Overview Hero first list item',
+                })}
+              </ListItem>
+              <ListItem>
+                {intl.formatMessage({
+                  id: 'overviewHeroListItem2',
+                  defaultMessage: 'Create groups that include roles and their corresponding permissions',
+                  description: 'Overview Hero second list item',
+                })}
+              </ListItem>
+              <ListItem>
+                {intl.formatMessage({
+                  id: 'overviewHeroListItem3',
+                  defaultMessage: "Assign users to these groups, allowing them to inherit the permissions associated with their group's roles",
+                  description: 'Overview Hero third list item',
+                })}
+              </ListItem>
             </List>
           </CardBody>
           <CardFooter>
@@ -44,14 +71,14 @@ export const GetStartedCard: React.FC<GetStartedCardProps> = ({ className, group
               <ActionListItem>
                 <AppLink to={groupsLink}>
                   <Button variant="primary" size="lg" aria-label="View groups" ouiaId="getstarted-view-groups-button">
-                    {intl.formatMessage(messages.viewGroupsBtn)}
+                    {intl.formatMessage({ id: 'viewGroupsBtn', defaultMessage: 'View groups', description: 'View groups button' })}
                   </Button>
                 </AppLink>
               </ActionListItem>
               <ActionListItem>
                 <AppLink to={rolesLink}>
                   <Button variant="secondary" aria-label="View roles" size="lg" ouiaId="getstarted-view-roles-button">
-                    {intl.formatMessage(messages.viewRolesBtn)}
+                    {intl.formatMessage({ id: 'viewRolesBtn', defaultMessage: 'View roles', description: 'View roles button' })}
                   </Button>
                 </AppLink>
               </ActionListItem>

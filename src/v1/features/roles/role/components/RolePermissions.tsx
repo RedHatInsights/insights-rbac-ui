@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Button, ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage, defineMessages, useIntl } from 'react-intl';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import ResponsiveAction from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
 import ResponsiveActions from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
@@ -14,9 +14,31 @@ import { TableView } from '@redhat-cloud-services/frontend-components/TableView'
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
-import messages from '../../../../../Messages';
+
 import pathnames from '../../../../utilities/pathnames';
 import type { ResourceDefinition } from '../../../../data/api/roles';
+import { commonMessages } from '../../../../../shared/messages/common';
+
+const messages = defineMessages({
+  permissionsWillNotBeGrantedThroughRole: {
+    id: 'permissionsWillNotBeGrantedThroughRole',
+    defaultMessage: 'The <b>{permissions}</b> permissions will no longer be granted through the <b>{role}</b> role.',
+    description: 'Permissions will not be granted through role message',
+  },
+  permissionWillNotBeGrantedThroughRole: {
+    id: 'permissionWillNotBeGrantedThroughRole',
+    defaultMessage: 'The <b>{permission}</b> permission will no longer be granted through the <b>{role}</b> role.',
+    description: 'Permission will not be granted through role message',
+  },
+  removePermissionsQuestion: {
+    id: 'removePermissionsQuestion',
+    defaultMessage: 'Remove permissions?',
+    description: 'Remove permissions question text',
+  },
+  removePermissionQuestion: { id: 'removePermissionQuestion', defaultMessage: 'Remove permission?', description: 'Remove permission question text' },
+  removePermissions: { id: 'removePermissions', defaultMessage: 'Remove permissions', description: 'Remove permissions label' },
+  removePermission: { id: 'removePermission', defaultMessage: 'Remove permission', description: 'Remove permission label' },
+});
 
 interface FilteredPermission {
   uuid: string;
@@ -138,13 +160,17 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
 
       return [
         {
-          title: intl.formatMessage(messages.remove),
+          title: intl.formatMessage(commonMessages.remove),
           onClick: () => {
             initiateRemove(
               [permission],
-              intl.formatMessage(messages.removePermissionQuestion),
+              intl.formatMessage({
+                id: 'removePermissionQuestion',
+                defaultMessage: 'Remove permission?',
+                description: 'Remove permission question text',
+              }),
               removeModalText(permission.permission, roleName, false),
-              intl.formatMessage(messages.removePermission),
+              intl.formatMessage({ id: 'removePermission', defaultMessage: 'Remove permission', description: 'Remove permission label' }),
             );
           },
         } as IAction,
@@ -156,11 +182,13 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
   // Column configuration for columns with resource definitions
   const columnConfigWithResourceDefs: ColumnConfigMap<typeof columnsWithResourceDefs> = useMemo(
     () => ({
-      application: { label: intl.formatMessage(messages.application) },
-      resourceType: { label: intl.formatMessage(messages.resourceType) },
-      operation: { label: intl.formatMessage(messages.operation) },
-      resourceDefinitions: { label: intl.formatMessage(messages.resourceDefinitions) },
-      lastModified: { label: intl.formatMessage(messages.lastModified) },
+      application: { label: intl.formatMessage(commonMessages.application) },
+      resourceType: { label: intl.formatMessage(commonMessages.resourceType) },
+      operation: { label: intl.formatMessage(commonMessages.operation) },
+      resourceDefinitions: {
+        label: intl.formatMessage(commonMessages.resourceDefinitions),
+      },
+      lastModified: { label: intl.formatMessage(commonMessages.lastModified) },
     }),
     [intl],
   );
@@ -168,10 +196,10 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
   // Column configuration for columns without resource definitions
   const columnConfigWithoutResourceDefs: ColumnConfigMap<typeof columnsWithoutResourceDefs> = useMemo(
     () => ({
-      application: { label: intl.formatMessage(messages.application) },
-      resourceType: { label: intl.formatMessage(messages.resourceType) },
-      operation: { label: intl.formatMessage(messages.operation) },
-      lastModified: { label: intl.formatMessage(messages.lastModified) },
+      application: { label: intl.formatMessage(commonMessages.application) },
+      resourceType: { label: intl.formatMessage(commonMessages.resourceType) },
+      operation: { label: intl.formatMessage(commonMessages.operation) },
+      lastModified: { label: intl.formatMessage(commonMessages.lastModified) },
     }),
     [intl],
   );
@@ -190,7 +218,11 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
         if (hasResourceDefinitions) {
           return <AppLink to={pathnames['role-detail-permission'].link(roleUuid, row.permission)}>{resourceDefinitionsCount}</AppLink>;
         }
-        return <span className="rbac-c-text__disabled">{intl.formatMessage(messages.notApplicable)}</span>;
+        return (
+          <span className="rbac-c-text__disabled">
+            {intl.formatMessage({ id: 'notApplicable', defaultMessage: 'N/A', description: 'Not applicable text for resource definitions' })}
+          </span>
+        );
       },
       lastModified: (row) => <DateFormat date={row.modified} type={getDateFormat(row.modified)} />,
     }),
@@ -220,13 +252,13 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
       {
         type: 'checkbox',
         id: 'resources',
-        label: intl.formatMessage(messages.resourceType),
+        label: intl.formatMessage(commonMessages.resourceType),
         options: resources.map((r) => ({ id: r.value, label: r.label })),
       },
       {
         type: 'checkbox',
         id: 'operations',
-        label: intl.formatMessage(messages.operation),
+        label: intl.formatMessage(commonMessages.operation),
         options: operations.map((o) => ({ id: o.value, label: o.label })),
       },
     ],
@@ -257,14 +289,21 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
     return (
       <ResponsiveActions breakpoint="lg">
         {cantAddPermissions ? (
-          <Tooltip content={intl.formatMessage(messages.systemRolesCantBeModified)} key="role-add-permission">
+          <Tooltip
+            content={intl.formatMessage({
+              id: 'systemRolesCantBeModified',
+              defaultMessage: 'System roles can not be modified',
+              description: 'Tooltip message for disabled add permissions button on system roles',
+            })}
+            key="role-add-permission"
+          >
             <Button variant="primary" aria-label="Add Permission" isAriaDisabled={true} className="rbac-m-hide-on-sm">
-              {intl.formatMessage(messages.addPermissions)}
+              {intl.formatMessage(commonMessages.addPermissions)}
             </Button>
           </Tooltip>
         ) : (
           <ResponsiveAction isPinned onClick={onNavigateToAddPermissions} key="role-add-permission">
-            {intl.formatMessage(messages.addPermissions)}
+            {intl.formatMessage(commonMessages.addPermissions)}
           </ResponsiveAction>
         )}
       </ResponsiveActions>
@@ -290,7 +329,7 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
           );
         }}
       >
-        {intl.formatMessage(messages.remove)}
+        {intl.formatMessage(commonMessages.remove)}
       </ResponsiveAction>
     );
   }, [tableState.selectedRows, initiateRemove, intl, roleName]);
@@ -355,11 +394,27 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
           bulkActions={enableSelection ? bulkActions : undefined}
           renderActions={!isSystemRole ? renderActions : undefined}
           variant="compact"
-          ariaLabel={intl.formatMessage(messages.permissions)}
+          ariaLabel={intl.formatMessage(commonMessages.permissions)}
           ouiaId="role-permissions-table"
-          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noRolePermissions)} body={emptyPropsDescription} />}
+          emptyStateNoData={
+            <DefaultEmptyStateNoData
+              title={intl.formatMessage({
+                id: 'noRolePermissions',
+                defaultMessage: 'There are no permissions in this role',
+                description: 'No role permissions text',
+              })}
+              body={emptyPropsDescription}
+            />
+          }
           emptyStateNoResults={
-            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noRolePermissions)} onClearFilters={handleClearAllFilters} />
+            <DefaultEmptyStateNoResults
+              title={intl.formatMessage({
+                id: 'noRolePermissions',
+                defaultMessage: 'There are no permissions in this role',
+                description: 'No role permissions text',
+              })}
+              onClearFilters={handleClearAllFilters}
+            />
           }
         />
       ) : (
@@ -389,11 +444,27 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
           bulkActions={enableSelection ? bulkActions : undefined}
           renderActions={!isSystemRole ? renderActions : undefined}
           variant="compact"
-          ariaLabel={intl.formatMessage(messages.permissions)}
+          ariaLabel={intl.formatMessage(commonMessages.permissions)}
           ouiaId="role-permissions-table"
-          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noRolePermissions)} body={emptyPropsDescription} />}
+          emptyStateNoData={
+            <DefaultEmptyStateNoData
+              title={intl.formatMessage({
+                id: 'noRolePermissions',
+                defaultMessage: 'There are no permissions in this role',
+                description: 'No role permissions text',
+              })}
+              body={emptyPropsDescription}
+            />
+          }
           emptyStateNoResults={
-            <DefaultEmptyStateNoResults title={intl.formatMessage(messages.noRolePermissions)} onClearFilters={handleClearAllFilters} />
+            <DefaultEmptyStateNoResults
+              title={intl.formatMessage({
+                id: 'noRolePermissions',
+                defaultMessage: 'There are no permissions in this role',
+                description: 'No role permissions text',
+              })}
+              onClearFilters={handleClearAllFilters}
+            />
           }
         />
       )}

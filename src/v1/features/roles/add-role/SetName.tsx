@@ -10,7 +10,7 @@ import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { debouncedAsyncValidator } from './validators';
 import { trimAll } from '../../../../shared/helpers/stringUtilities';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 const roleNameValidated = (roleName: string | undefined, roleNameError: string | undefined): 'error' | 'default' =>
   roleName === undefined || roleNameError || (roleName?.length ?? 0) > 150 ? 'error' : 'default';
@@ -62,7 +62,7 @@ const SetName: React.FC<SetNameProps> = (props) => {
   return (
     <Stack hasGutter>
       <StackItem>
-        <FormGroup label={intl.formatMessage(messages.roleName)} isRequired>
+        <FormGroup label={intl.formatMessage(commonMessages.roleName)} isRequired>
           <TextInput
             id="role-name"
             value={roleName}
@@ -75,14 +75,16 @@ const SetName: React.FC<SetNameProps> = (props) => {
           {roleNameValid === 'error' && (
             <FormHelperText>
               <HelperText>
-                <HelperTextItem variant={roleNameValid}>{roleName ? roleNameError : intl.formatMessage(messages.required)}</HelperTextItem>
+                <HelperTextItem variant={roleNameValid}>
+                  {roleName ? roleNameError : intl.formatMessage({ id: 'required', defaultMessage: 'Required', description: 'Required input label' })}
+                </HelperTextItem>
               </HelperText>
             </FormHelperText>
           )}
         </FormGroup>
       </StackItem>
       <StackItem>
-        <FormGroup label={intl.formatMessage(messages.roleDescription)}>
+        <FormGroup label={intl.formatMessage({ id: 'roleDescription', defaultMessage: 'Role description', description: 'Role description label' })}>
           <TextArea
             id="role-description"
             value={roleDescription}
@@ -97,7 +99,9 @@ const SetName: React.FC<SetNameProps> = (props) => {
           {roleDescriptionValid === 'error' && (
             <FormHelperText>
               <HelperText>
-                <HelperTextItem variant={roleDescriptionValid}>{intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}</HelperTextItem>
+                <HelperTextItem variant={roleDescriptionValid}>
+                  {intl.formatMessage(commonMessages.maxCharactersWarning, { number: 150 })}
+                </HelperTextItem>
               </HelperText>
             </FormHelperText>
           )}

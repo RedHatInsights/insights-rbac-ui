@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Bullseye } from '@patternfly/react-core';
@@ -17,8 +17,18 @@ import { asyncValidator } from '../validators';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { WizardError } from '../../../../shared/components/ui-states/WizardError';
 import pathnames from '../../../utilities/pathnames';
-import messages from '../../../../Messages';
+
 import { AddGroupWizardContext } from './add-group-wizard-context';
+import { commonMessages } from '../../../../shared/messages/common';
+
+const messages = defineMessages({
+  creatingGroup: { id: 'creatingGroup', defaultMessage: 'Creating a group', description: 'Creating group label' },
+  associatingServiceAccounts: {
+    id: 'associatingServiceAccounts',
+    defaultMessage: 'Associating service accounts',
+    description: 'Adding service accounts label',
+  },
+});
 
 const ReviewTemplate = ({ formFields }) => {
   const intl = useIntl();
@@ -47,7 +57,11 @@ const ReviewTemplate = ({ formFields }) => {
       <EmptyState
         headingLevel="h4"
         icon={InProgressIcon}
-        titleText={intl.formatMessage(messages.groupBeingCreated)}
+        titleText={intl.formatMessage({
+          id: 'groupBeingCreated',
+          defaultMessage: 'The group is being created',
+          description: 'Creating group step title',
+        })}
         variant={EmptyStateVariant.lg}
         data-component-ouia-id="wizard-progress"
         className="rbac-add-group-progress"
@@ -70,18 +84,37 @@ const ReviewTemplate = ({ formFields }) => {
       context={AddGroupWizardContext}
       title={
         submittingGroup
-          ? intl.formatMessage(messages.groupNameTakenTitle)
-          : intl.formatMessage(messages.addGroupServiceAccountsErrorTitle, { count: getState().values['service-accounts-list'].length })
+          ? intl.formatMessage({ id: 'groupNameTakenTitle', defaultMessage: 'Group name already taken', description: 'Group name taken error title' })
+          : intl.formatMessage(
+              {
+                id: 'addGroupServiceAccountsErrorTitle',
+                defaultMessage: 'Failed adding service {count, plural, one {account} other {accounts}} to group',
+                description: 'Add group service accounts error notification title',
+              },
+              { count: getState().values['service-accounts-list'].length },
+            )
       }
       text={
         submittingGroup
-          ? intl.formatMessage(messages.groupNameTakenText)
-          : intl.formatMessage(messages.addNewGroupServiceAccountsErrorDescription, { count: getState().values['service-accounts-list'].length })
+          ? intl.formatMessage({
+              id: 'groupNameTakenText',
+              defaultMessage: 'Please return to Step 1: Group information and choose a unique group name for your group.',
+              description: 'Group name taken error text',
+            })
+          : intl.formatMessage(
+              {
+                id: 'addNewGroupServiceAccountsErrorDescription',
+                defaultMessage:
+                  'The group has been created, but the service {count, plural, one {account was} other {accounts were}} not associated successfully. Try adding the the service {count, plural, one {account} other {accounts}} later.',
+                description: 'Add group service accounts error notification description',
+              },
+              { count: getState().values['service-accounts-list'].length },
+            )
       }
       customFooter={
         submittingGroup ? undefined : (
           <Button variant={ButtonVariant.primary} onClick={() => navigate(pathnames.groups.link)}>
-            {intl.formatMessage(messages.close)}
+            {intl.formatMessage({ id: 'close', defaultMessage: 'Close', description: 'Close button text' })}
           </Button>
         )
       }
@@ -89,7 +122,7 @@ const ReviewTemplate = ({ formFields }) => {
   ) : (
     <React.Fragment>
       <Title headingLevel="h1" size="xl" className="pf-v6-u-mb-lg">
-        {intl.formatMessage(messages.reviewDetails)}
+        {intl.formatMessage(commonMessages.reviewDetails)}
       </Title>
       {[[{ ...formFields?.[0]?.[0] }]]}
     </React.Fragment>

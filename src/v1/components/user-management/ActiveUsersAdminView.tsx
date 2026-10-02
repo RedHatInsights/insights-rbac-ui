@@ -2,7 +2,6 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
 import React, { FunctionComponent } from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../Messages';
 
 type ActiveUserAdminProps = {
   linkDescription?: string;
@@ -21,7 +20,7 @@ export const ActiveUsersAdminView: FunctionComponent<ActiveUserAdminProps> = ({
   return (
     <>
       <span>
-        {`${intl.formatMessage(messages.usersDescriptionAdmin)} `}
+        {`${intl.formatMessage({ id: 'usersDescriptionAdmin', defaultMessage: "Manage your organization's users. From here, you can invite new users, manage their status, and set 'Organization Administration' privileges.", description: 'Description text for user list shown to org admins' })} `}
         {linkDescription}{' '}
         <Content
           component="a"

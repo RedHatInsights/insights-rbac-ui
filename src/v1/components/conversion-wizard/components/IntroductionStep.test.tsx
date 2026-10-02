@@ -70,7 +70,7 @@ describe('IntroductionStep', () => {
     const diagrams = screen.getAllByRole('img');
     expect(diagrams).toHaveLength(3);
 
-    // Verify diagrams have alt text (exact text from Messages.js)
+    // Verify diagrams have alt text (exact FormatJS defaultMessage text)
     expect(diagrams[0]).toHaveAttribute('alt', 'Workspace hierarchy diagram');
     expect(diagrams[1]).toHaveAttribute('alt', 'Permissions and workspace hierarchy diagram');
     expect(diagrams[2]).toHaveAttribute('alt', 'Role bindings example diagram');

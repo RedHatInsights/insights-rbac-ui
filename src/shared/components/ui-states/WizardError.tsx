@@ -4,7 +4,6 @@ import { ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Bu
 import WizardContext from '@data-driven-forms/react-form-renderer/wizard-context';
 import { useIntl } from 'react-intl';
 import ErrorState from '@patternfly/react-component-groups/dist/dynamic/ErrorState';
-import messages from '../../../Messages';
 
 interface WizardErrorProps {
   context: {
@@ -33,7 +32,10 @@ export const WizardError: React.FC<WizardErrorProps> = ({ context, title, text, 
             }}
             variant={ButtonVariant.primary}
           >
-            {intl.formatMessage(messages.returnToStepNumber, { number: 1 })}
+            {intl.formatMessage(
+              { id: 'returnToStepNumber', defaultMessage: 'Return to step {number}', description: 'Return to step wizard label' },
+              { number: 1 },
+            )}
           </Button>
         )
       }

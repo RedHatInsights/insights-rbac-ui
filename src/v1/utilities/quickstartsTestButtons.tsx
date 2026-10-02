@@ -7,7 +7,6 @@ import pathnames from './pathnames';
 import monitorSampleAppQuickStart from './sampleQuickstart';
 import { QuickStartContext } from '@patternfly/quickstarts';
 import { useIntl } from 'react-intl';
-import messages from '../../Messages';
 
 const QuickstartsTestButtons: React.FC = () => {
   const intl = useIntl();
@@ -57,10 +56,10 @@ const QuickstartsTestButtons: React.FC = () => {
       {isQuickstartEnabled && (
         <>
           <Button onClick={handleActivateQuickstart} variant="primary" style={btnStyle} isDisabled={openQuickstart}>
-            {intl.formatMessage(messages.triggerMyQuickstart)}
+            {intl.formatMessage({ id: 'triggerMyQuickstart', defaultMessage: 'Trigger my quickstart', description: 'Trigger my quickstart text' })}
           </Button>
           <Button onClick={handleOpenCatalog} variant="primary" style={btnStyle}>
-            {intl.formatMessage(messages.triggerMyCatalog)}
+            {intl.formatMessage({ id: 'triggerMyCatalog', defaultMessage: 'Trigger my catalog', description: 'Trigger my catalog text' })}
           </Button>
         </>
       )}

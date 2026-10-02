@@ -7,7 +7,7 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
-import type { IntlShape } from 'react-intl';
+import { type IntlShape, defineMessages } from 'react-intl';
 
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { AppLink } from '../../../shared/components/navigation/AppLink';
@@ -15,9 +15,24 @@ import { DefaultInfoPopover } from './components/DefaultInfoPopover';
 import { GroupsRolesTable } from './components/GroupsRolesTable';
 import { GroupsMembersTable } from './components/GroupsMembersTable';
 import { getDateFormat } from '../../../shared/helpers/stringUtilities';
-import messages from '../../../Messages';
+
 import pathnames from '../../utilities/pathnames';
 import type { Group } from './types';
+import { commonMessages } from '../../../shared/messages/common';
+
+const messages = defineMessages({
+  orgAdminInheritedRoles: {
+    id: 'orgAdminInheritedRoles',
+    defaultMessage:
+      'This group contains the roles that all org admin users inherit by default. The roles within this group are managed and maintained by Red Hat and cannot be edited.',
+    description: 'Org. Admin inherited roles message',
+  },
+  usersInheritedRoles: {
+    id: 'usersInheritedRoles',
+    defaultMessage: 'This group contains the roles that all users in your organization inherit by default.',
+    description: 'Users inherited roles message',
+  },
+});
 
 // =============================================================================
 // Column Definitions (exported for use in Groups component)
@@ -49,10 +64,13 @@ interface UseGroupsTableConfigReturn {
 export function useGroupsTableConfig({ intl }: UseGroupsTableConfigOptions): UseGroupsTableConfigReturn {
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name), sortable: true },
-      roles: { label: intl.formatMessage(messages.roles), isCompound: true },
-      members: { label: intl.formatMessage(messages.members), isCompound: true },
-      modified: { label: intl.formatMessage(messages.lastModified), sortable: true },
+      name: { label: intl.formatMessage(commonMessages.name), sortable: true },
+      roles: { label: intl.formatMessage(commonMessages.roles), isCompound: true },
+      members: { label: intl.formatMessage(commonMessages.members), isCompound: true },
+      modified: {
+        label: intl.formatMessage(commonMessages.lastModified),
+        sortable: true,
+      },
     }),
     [intl],
   );
@@ -91,8 +109,8 @@ export function useGroupsTableConfig({ intl }: UseGroupsTableConfigOptions): Use
       {
         type: 'text',
         id: 'name',
-        label: intl.formatMessage(messages.name),
-        placeholder: `Filter by ${intl.formatMessage(messages.name).toLowerCase()}`,
+        label: intl.formatMessage(commonMessages.name),
+        placeholder: `Filter by ${intl.formatMessage(commonMessages.name).toLowerCase()}`,
       },
     ],
     [intl],

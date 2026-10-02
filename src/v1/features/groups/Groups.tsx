@@ -44,9 +44,10 @@ import { useAdminGroupQuery, useGroupsQuery } from '../../../shared/data/queries
 
 // Helpers and utilities
 import { getBackRoute } from '../../../shared/helpers/navigation';
-import messages from '../../../Messages';
+
 import pathnames from '../../utilities/pathnames';
 import type { Group } from './types';
+import { commonMessages } from '../../../shared/messages/common';
 
 // =============================================================================
 // Groups Component
@@ -183,7 +184,7 @@ export const Groups: React.FC = () => {
   const toolbarActions = isAdmin ? (
     <AppLink to={pathnames['add-group'].link()}>
       <Button ouiaId="create-group-button" variant="primary">
-        {intl.formatMessage(messages.createGroup)}
+        {intl.formatMessage({ id: 'createGroup', defaultMessage: 'Create group', description: 'Create group wizard title' })}
       </Button>
     </AppLink>
   ) : undefined;
@@ -196,13 +197,13 @@ export const Groups: React.FC = () => {
         items={[
           {
             key: 'edit',
-            label: intl.formatMessage(messages.edit),
+            label: intl.formatMessage(commonMessages.edit),
             onClick: () => handleEdit(tableState.selectedRows[0].uuid),
             isDisabled: tableState.selectedRows.length !== 1,
           },
           {
             key: 'delete',
-            label: intl.formatMessage(messages.delete),
+            label: intl.formatMessage(commonMessages.delete),
             onClick: () => handleDelete(tableState.selectedRows),
           },
         ]}
@@ -214,7 +215,7 @@ export const Groups: React.FC = () => {
   // =============================================================================
 
   return (
-    <PageLayout title={{ title: intl.formatMessage(messages.groups) }}>
+    <PageLayout title={{ title: intl.formatMessage(commonMessages.groups) }}>
       <Section type="content" id="tab-groups">
         <TableView<typeof columns, Group, SortableColumnId, CompoundColumnId>
           // Columns
@@ -242,8 +243,16 @@ export const Groups: React.FC = () => {
                       ariaLabel={`${group.name} actions`}
                       ouiaId={`group-${group.uuid}-actions`}
                       items={[
-                        { key: 'edit', label: intl.formatMessage(messages.edit), onClick: () => handleEdit(group.uuid) },
-                        { key: 'delete', label: intl.formatMessage(messages.delete), onClick: () => handleDelete([group]) },
+                        {
+                          key: 'edit',
+                          label: intl.formatMessage(commonMessages.edit),
+                          onClick: () => handleEdit(group.uuid),
+                        },
+                        {
+                          key: 'delete',
+                          label: intl.formatMessage(commonMessages.delete),
+                          onClick: () => handleDelete([group]),
+                        },
                       ]}
                     />
                   ) : null
@@ -258,21 +267,21 @@ export const Groups: React.FC = () => {
           emptyStateNoData={
             <GroupsEmptyState
               hasActiveFilters={false}
-              titleText={`Configure ${intl.formatMessage(messages.groups).toLowerCase()}`}
+              titleText={`Configure ${intl.formatMessage(commonMessages.groups).toLowerCase()}`}
               isAdmin={isAdmin}
             />
           }
           emptyStateNoResults={
             <GroupsEmptyState
               hasActiveFilters={true}
-              titleText={`Configure ${intl.formatMessage(messages.groups).toLowerCase()}`}
+              titleText={`Configure ${intl.formatMessage(commonMessages.groups).toLowerCase()}`}
               isAdmin={isAdmin}
             />
           }
           // Config
           variant="default"
           ouiaId="groups-table"
-          ariaLabel={intl.formatMessage(messages.groups)}
+          ariaLabel={intl.formatMessage(commonMessages.groups)}
           // Spread all state from hook
           {...tableState}
         />

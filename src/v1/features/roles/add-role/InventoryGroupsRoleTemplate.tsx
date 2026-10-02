@@ -1,8 +1,21 @@
 import React from 'react';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
-import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+import { defineMessages, useIntl } from 'react-intl';
+
 import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
+
+const messages = defineMessages({
+  workspacesAccessTitle: {
+    id: 'workspacesAccessTitle',
+    defaultMessage: 'Define Workspaces access',
+    description: 'Step for adding correct workspaces permissions to role.',
+  },
+  inventoryGroupsAccessTitle: {
+    id: 'inventoryGroupsAccessTitle',
+    defaultMessage: 'Define Inventory group access',
+    description: 'Step for adding correct group permissions to role.',
+  },
+});
 
 interface InventoryGroupsRoleTemplateProps {
   formFields: React.ReactNode[];

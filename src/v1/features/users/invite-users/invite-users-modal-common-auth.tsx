@@ -2,7 +2,7 @@ import React from 'react';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import { ModalFormTemplate } from '../../../../shared/components/forms/ModalFormTemplate';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+
 import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import AccordionCheckbox from '../../../../shared/components/expandable-checkbox';
@@ -11,6 +11,7 @@ import { useCommonAuthModel } from '../../../../capabilities/useCommonAuthModel'
 import { useInviteUsersMutation } from '../../../../shared/data/queries/users';
 import { useOutletContext } from 'react-router-dom';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
+import { commonMessages } from '../../../../shared/messages/common';
 
 // Portal subscription permission levels (moved from React Query helper)
 const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view_edit_user';
@@ -91,7 +92,12 @@ const InviteUsers = () => {
   const intl = useIntl();
   const schema = React.useMemo(
     () => ({
-      description: intl.formatMessage(messages.inviteUsersDescription),
+      description: intl.formatMessage({
+        id: 'inviteUsersDescription',
+        defaultMessage:
+          'Invite users to create a Red Hat login with your organization. Your name will be included in the invite as a point of reference.',
+        description: 'Invite users modal description',
+      }),
       fields: [
         ...(responseError
           ? [
@@ -105,9 +111,17 @@ const InviteUsers = () => {
           : []),
         {
           component: componentTypes.TEXTAREA,
-          label: intl.formatMessage(messages.inviteUsersFormEmailsFieldTitle),
+          label: intl.formatMessage({
+            id: 'inviteUsersFormEmailsFieldTitle',
+            defaultMessage: 'Enter the e-mail addresses of the users you would like to invite',
+            description: 'Invite users form emails field title',
+          }),
           name: 'email-addresses',
-          placeholder: intl.formatMessage(messages.inviteUsersFormEmailsFieldDescription),
+          placeholder: intl.formatMessage({
+            id: 'inviteUsersFormEmailsFieldDescription',
+            defaultMessage: 'Enter up to 50 email addresses separated by commas or returns.',
+            description: 'Invite users form emails field description',
+          }),
           rows: 5,
           isRequired: true,
           validate: [
@@ -117,7 +131,11 @@ const InviteUsers = () => {
             (value: string) =>
               value.split(/[\s,]+/).every((email: string) => EMAIL_REGEXP.test(email))
                 ? undefined
-                : intl.formatMessage(messages.inviteUsersFormEmailsFieldError),
+                : intl.formatMessage({
+                    id: 'inviteUsersFormEmailsFieldError',
+                    defaultMessage: 'Some of the email addresses you provided are not valid',
+                    description: 'Invite users form emails field error message is one email address is not valid.',
+                  }),
           ],
         },
         {
@@ -125,40 +143,99 @@ const InviteUsers = () => {
           items: [
             {
               name: 'is-org-admin',
-              title: intl.formatMessage(messages.inviteUsersFormIsAdminFieldTitle),
-              description: intl.formatMessage(messages.inviteUsersFormIsAdminFieldDescription),
+              title: intl.formatMessage({
+                id: 'inviteUsersFormIsAdminFieldTitle',
+                defaultMessage: 'Organization Administrators',
+                description: 'Invite users form is admin field title',
+              }),
+              description: intl.formatMessage({
+                id: 'inviteUsersFormIsAdminFieldDescription',
+                defaultMessage:
+                  'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
+                description: 'Invite users form is admin field description',
+              }),
             },
             ...(advancedPermissions
               ? [
                   {
                     name: 'manage-support-cases',
-                    title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldTitle),
-                    description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldDescription),
+                    title: intl.formatMessage({
+                      id: 'inviteUsersFormManageSubscriptionsFieldTitle',
+                      defaultMessage: 'Manage your subscriptions',
+                      description: 'Invite users form manage subscriptions field title',
+                    }),
+                    description: intl.formatMessage({
+                      id: 'inviteUsersFormManageSubscriptionsFieldDescription',
+                      defaultMessage:
+                        'Grants user access to subscription management via Red Hat Subscription Management in the Red Hat Customer Portal.',
+                      description: 'Invite users form manage subscriptions field description',
+                    }),
                   },
                   {
                     name: 'download-software-updates',
-                    title: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldTitle),
-                    description: intl.formatMessage(messages.inviteUsersFormDownloadSoftwareUpdatesFieldDescription),
+                    title: intl.formatMessage({
+                      id: 'inviteUsersFormDownloadSoftwareUpdatesFieldTitle',
+                      defaultMessage: 'Download software and updates',
+                      description: 'Invite users form download software and updates field title',
+                    }),
+                    description: intl.formatMessage({
+                      id: 'inviteUsersFormDownloadSoftwareUpdatesFieldDescription',
+                      defaultMessage: 'User can download software and updates from the Red Hat Customer Portal.',
+                      description: 'Invite users form download software and updates field description',
+                    }),
                   },
                   {
                     name: 'manage-subscriptions',
-                    title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldTitle),
-                    description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsFieldDescription),
+                    title: intl.formatMessage({
+                      id: 'inviteUsersFormManageSubscriptionsFieldTitle',
+                      defaultMessage: 'Manage your subscriptions',
+                      description: 'Invite users form manage subscriptions field title',
+                    }),
+                    description: intl.formatMessage({
+                      id: 'inviteUsersFormManageSubscriptionsFieldDescription',
+                      defaultMessage:
+                        'Grants user access to subscription management via Red Hat Subscription Management in the Red Hat Customer Portal.',
+                      description: 'Invite users form manage subscriptions field description',
+                    }),
                     options: [
                       {
                         name: MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER,
-                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle),
-                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription),
+                        title: intl.formatMessage({
+                          id: 'inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle',
+                          defaultMessage: 'View/Edit users only',
+                          description: 'Invite users form manage subscriptions field View edit Users only title',
+                        }),
+                        description: intl.formatMessage({
+                          id: 'inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription',
+                          defaultMessage: 'User can view and edit only the systems that they have registered in the account.',
+                          description: 'Invite users form manage subscriptions field View edit Users only description',
+                        }),
                       },
                       {
                         name: MANAGE_SUBSCRIPTIONS_VIEW_ALL,
-                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewAllTitle),
-                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewAllDescription),
+                        title: intl.formatMessage({
+                          id: 'inviteUsersFormManageSubscriptionsViewAllTitle',
+                          defaultMessage: 'User can view and edit only the systems that they have registered in the account.',
+                          description: 'Invite users form manage subscriptions field view all option title',
+                        }),
+                        description: intl.formatMessage({
+                          id: 'inviteUsersFormManageSubscriptionsViewAllDescription',
+                          defaultMessage: 'User can view (but not edit) all systems and Subscription Management Applications in the account.',
+                          description: 'Invite users form manage subscriptions field view all option description',
+                        }),
                       },
                       {
                         name: MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL,
-                        title: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditAllTitle),
-                        description: intl.formatMessage(messages.inviteUsersFormManageSubscriptionsViewEditAllDescription),
+                        title: intl.formatMessage({
+                          id: 'inviteUsersFormManageSubscriptionsViewEditAllTitle',
+                          defaultMessage: 'View/Edit all',
+                          description: 'Invite users form manage subscriptions field View/Edit all option title',
+                        }),
+                        description: intl.formatMessage({
+                          id: 'inviteUsersFormManageSubscriptionsViewEditAllDescription',
+                          defaultMessage: 'User can view and edit all systems and Subscription Management Applications in the account.',
+                          description: 'Invite users form manage subscriptions field View/Edit all option description',
+                        }),
                       },
                     ],
                   },
@@ -183,11 +260,16 @@ const InviteUsers = () => {
       onSubmit={onSubmit}
       FormTemplate={(props) => (
         <ModalFormTemplate
-          saveLabel={intl.formatMessage(messages.inviteUsersTitle)}
-          cancelLabel={intl.formatMessage(messages.cancel)}
+          saveLabel={intl.formatMessage({ id: 'inviteUsersTitle', defaultMessage: 'Invite New Users', description: 'Invite users modal title' })}
+          cancelLabel={intl.formatMessage(commonMessages.cancel)}
           alert={undefined}
           {...props}
-          ModalProps={{ onClose: onCancel, isOpen: true, variant: 'medium', title: intl.formatMessage(messages.inviteUsersTitle) }}
+          ModalProps={{
+            onClose: onCancel,
+            isOpen: true,
+            variant: 'medium',
+            title: intl.formatMessage({ id: 'inviteUsersTitle', defaultMessage: 'Invite New Users', description: 'Invite users modal title' }),
+          }}
         />
       )}
     />

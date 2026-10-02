@@ -15,7 +15,6 @@ import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/
 import UnavailableContent from '@patternfly/react-component-groups/dist/dynamic/UnavailableContent';
 import { AppLink } from '../navigation/AppLink';
 
-import messages from '../../../Messages';
 import { useApiError } from '../../contexts/ApiErrorContext';
 
 // Re-export for backward compatibility
@@ -33,7 +32,9 @@ const errorStates: Record<number, React.FC<{ serviceName: string }>> = {
       serviceName={serviceName}
       bodyText={
         <FormattedMessage
-          {...messages.contactOrgAdmin}
+          id={'contactOrgAdmin'}
+          defaultMessage={'Contact your organization administrator(s) for more information or visit {link} to learn more about your permissions.'}
+          description={'Contact organization administrator message for not authorized state'}
           values={{
             // eslint-disable-next-line no-restricted-syntax -- app root link, version router handles redirect
             link: <AppLink to="/">My User Access</AppLink>,
@@ -91,8 +92,8 @@ export const ApiErrorBoundary: React.FC<ApiErrorBoundaryProps> = ({ children }) 
   }, [location?.pathname, clearError]);
 
   const sectionTitles: Record<string, string> = {
-    '/users': intl.formatMessage(messages.rbacUsers),
-    '/groups': intl.formatMessage(messages.rbacGroups),
+    '/users': intl.formatMessage({ id: 'rbacUsers', defaultMessage: 'RBAC Users', description: 'RBAC Users error cather title' }),
+    '/groups': intl.formatMessage({ id: 'rbacGroups', defaultMessage: 'RBAC Groups', description: 'RBAC Groups error cather title' }),
   };
 
   // Render error state if we have one

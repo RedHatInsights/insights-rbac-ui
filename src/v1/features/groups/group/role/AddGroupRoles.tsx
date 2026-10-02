@@ -13,8 +13,9 @@ import useAppNavigate from '../../../../../shared/hooks/useAppNavigate';
 import { RolesList } from '../../add-group/components/stepRoles/RolesList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import { getModalContainer } from '../../../../../shared/helpers/modal-container';
-import messages from '../../../../../Messages';
+
 import pathnames from '../../../../utilities/pathnames';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 interface Role {
   uuid: string;
@@ -66,7 +67,11 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({ afterSubmit, close
     setSelectedRoles([]);
     addNotification({
       variant: 'warning',
-      title: intl.formatMessage(messages.addingGroupRolesCancelled),
+      title: intl.formatMessage({
+        id: 'addingGroupRolesCancelled',
+        defaultMessage: 'Adding roles to group was canceled by the user.',
+        description: 'Adding group roles cancelled notification description',
+      }),
       description: 'Adding roles to group has been cancelled.',
     });
     navigate(closeUrl || pathnames['group-detail-roles'].link(groupId!));
@@ -108,17 +113,24 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({ afterSubmit, close
 
   return (
     <Modal
-      title={groupName ? intl.formatMessage(messages.addRolesToGroup, { name: groupName }) : intl.formatMessage(messages.addRoles)}
+      title={
+        groupName
+          ? intl.formatMessage(
+              { id: 'addRolesToGroup', defaultMessage: 'Add roles to the {name} group', description: 'Add roles to group label' },
+              { name: groupName },
+            )
+          : intl.formatMessage({ id: 'addRoles', defaultMessage: 'Add roles', description: 'Add roles wizard step title' })
+      }
       variant={ModalVariant.large}
       isOpen
       onClose={onCancel}
       appendTo={getModalContainer()}
       actions={[
         <Button key="confirm" variant="primary" onClick={handleAddClick} isDisabled={!selectedRoles || selectedRoles.length === 0}>
-          {intl.formatMessage(messages.addToGroup)}
+          {intl.formatMessage({ id: 'addToGroup', defaultMessage: 'Add to group', description: 'Add to group label' })}
         </Button>,
         <Button key="cancel" variant="link" onClick={onCancel}>
-          {intl.formatMessage(messages.cancel)}
+          {intl.formatMessage(commonMessages.cancel)}
         </Button>,
       ]}
     >

@@ -12,9 +12,10 @@ import { DateFormat } from '@redhat-cloud-services/frontend-components/DateForma
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { AppLink } from '../../../../../shared/components/navigation/AppLink';
 import { getDateFormat } from '../../../../../shared/helpers/stringUtilities';
-import messages from '../../../../../Messages';
+
 import pathnames from '../../../../utilities/pathnames';
 import type { Role } from './types';
+import { commonMessages } from '../../../../../shared/messages/common';
 
 // Column definitions
 export const columns = ['name', 'description', 'modified'] as const;
@@ -39,9 +40,9 @@ export function useGroupRolesTableConfig({ intl, groupId }: UseGroupRolesTableCo
   // Note: Sorting is not supported by the roles API
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      name: { label: intl.formatMessage(messages.name) },
-      description: { label: intl.formatMessage(messages.description) },
-      modified: { label: intl.formatMessage(messages.lastModified) },
+      name: { label: intl.formatMessage(commonMessages.name) },
+      description: { label: intl.formatMessage(commonMessages.description) },
+      modified: { label: intl.formatMessage(commonMessages.lastModified) },
     }),
     [intl],
   );
@@ -62,8 +63,8 @@ export function useGroupRolesTableConfig({ intl, groupId }: UseGroupRolesTableCo
       {
         type: 'text',
         id: 'name',
-        label: intl.formatMessage(messages.name),
-        placeholder: `Filter by ${intl.formatMessage(messages.name).toLowerCase()}`,
+        label: intl.formatMessage(commonMessages.name),
+        placeholder: `Filter by ${intl.formatMessage(commonMessages.name).toLowerCase()}`,
       },
     ],
     [intl],

@@ -2,7 +2,7 @@ import React from 'react';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface CreateRoleStepTemplateProps {
   formFields: React.ReactNode[][];
@@ -15,7 +15,7 @@ const CreateRoleStepTemplate: React.FC<CreateRoleStepTemplateProps> = ({ formFie
     <Stack hasGutter>
       <StackItem>
         <Title headingLevel="h1" size="xl">
-          {intl.formatMessage(messages.createRole)}
+          {intl.formatMessage(commonMessages.createRole)}
         </Title>
       </StackItem>
       {formFields?.map((fieldGroup, groupIndex) =>

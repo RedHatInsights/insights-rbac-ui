@@ -14,9 +14,10 @@ import { TableView, useTableState } from '@redhat-cloud-services/frontend-compon
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { useRoleForPrincipalQuery, useRolesQuery } from '../../data/queries/roles';
 import type { ResourceDefinition, RoleOutDynamic, RoleWithAccess } from '../../data/api/roles';
-import messages from '../../../Messages';
+
 import { ResourceDefinitionsLink } from './components/ResourceDefinitionsLink';
 import type { ResourceDefinitionsConfig } from './types';
+import { commonMessages } from '../../../shared/messages/common';
 
 const ResourceDefinitionsModal = lazy(() =>
   import('./components/ResourceDefinitionsModal').then((module) => ({ default: module.ResourceDefinitionsModal })),
@@ -76,9 +77,12 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      display_name: { label: intl.formatMessage(messages.roles), sortable: true },
-      description: { label: intl.formatMessage(messages.description) },
-      permissions: { label: intl.formatMessage(messages.permissions), isCompound: true },
+      display_name: { label: intl.formatMessage(commonMessages.roles), sortable: true },
+      description: { label: intl.formatMessage(commonMessages.description) },
+      permissions: {
+        label: intl.formatMessage(commonMessages.permissions),
+        isCompound: true,
+      },
     }),
     [intl],
   );
@@ -158,10 +162,10 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
   // Permission table column headers
   const permissionColumns = useMemo(
     () => [
-      intl.formatMessage(messages.application),
-      intl.formatMessage(messages.resourceType),
-      intl.formatMessage(messages.operation),
-      ...(showResourceDefinitions ? [intl.formatMessage(messages.resourceDefinitions)] : []),
+      intl.formatMessage(commonMessages.application),
+      intl.formatMessage(commonMessages.resourceType),
+      intl.formatMessage(commonMessages.operation),
+      ...(showResourceDefinitions ? [intl.formatMessage(commonMessages.resourceDefinitions)] : []),
     ],
     [intl, showResourceDefinitions],
   );
@@ -231,7 +235,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
         cellRenderers={cellRenderers}
         expansionRenderers={expansionRenderers}
         filterConfig={filterConfig}
-        ariaLabel={intl.formatMessage(messages.roles)}
+        ariaLabel={intl.formatMessage(commonMessages.roles)}
         ouiaId="my-user-access-roles-table"
         onExpand={handleExpand}
         emptyStateNoData="Configure roles"

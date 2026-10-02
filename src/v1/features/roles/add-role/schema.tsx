@@ -7,14 +7,38 @@ import CostResourcesTemplate from './CostResourcesTemplate';
 import { ValidatorReset } from './validators';
 import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
-import { createIntl, createIntlCache } from 'react-intl';
-import messages from '../../../../Messages';
-import providerMessages from '../../../../locales/data.json';
+import { createIntl, createIntlCache, defineMessages } from 'react-intl';
+
+import providerMessages from '../../../../locales/translations.json';
 import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
 import InventoryGroupsRoleTemplate from './InventoryGroupsRoleTemplate';
 import { locale } from '../../../../locales/locale';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import { commonMessages } from '../../../../shared/messages/common';
+
+const messages = defineMessages({
+  workspacesAccessTitle: {
+    id: 'workspacesAccessTitle',
+    defaultMessage: 'Define Workspaces access',
+    description: 'Step for adding correct workspaces permissions to role.',
+  },
+  inventoryGroupsAccessTitle: {
+    id: 'inventoryGroupsAccessTitle',
+    defaultMessage: 'Define Inventory group access',
+    description: 'Step for adding correct group permissions to role.',
+  },
+  applyWorkspacesRolePermission: {
+    id: 'applyWorkspacesRolePermission',
+    defaultMessage: "Specify which workspaces you'd like to give access for these permissions",
+    description: 'Permissions for Workspaces',
+  },
+  applyInventoryGroupsRolePermission: {
+    id: 'applyInventoryGroupsRolePermission',
+    defaultMessage: "Specify which inventory groups you'd like to give access for these permissions",
+    description: 'Permissions for Groups',
+  },
+});
 
 interface FormValues {
   'role-type'?: string;
@@ -24,7 +48,7 @@ interface FormValues {
 
 export const schemaBuilder = (featureFlag: boolean) => {
   const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
 
   return {
     fields: [
@@ -36,12 +60,12 @@ export const schemaBuilder = (featureFlag: boolean) => {
         showTitles: true,
         crossroads: ['role-type'],
         'data-ouia-component-id': 'add-role-wizard',
-        title: intl.formatMessage(messages.createRole),
+        title: intl.formatMessage(commonMessages.createRole),
         style: { overflow: 'hidden' },
         container: getModalContainer(),
         fields: [
           {
-            title: intl.formatMessage(messages.createRole),
+            title: intl.formatMessage(commonMessages.createRole),
             name: 'step-1',
             StepTemplate: CreateRoleStepTemplate,
             buttons: WizardButtons,
@@ -89,7 +113,7 @@ export const schemaBuilder = (featureFlag: boolean) => {
               {
                 component: 'base-role-table',
                 name: 'copy-base-role',
-                label: intl.formatMessage(messages.baseRole),
+                label: intl.formatMessage({ id: 'baseRole', defaultMessage: 'Base role', description: 'Base role label' }),
                 isRequired: true,
                 condition: {
                   when: 'role-type',
@@ -122,7 +146,11 @@ export const schemaBuilder = (featureFlag: boolean) => {
             ],
           },
           {
-            title: intl.formatMessage(messages.nameAndDescription),
+            title: intl.formatMessage({
+              id: 'nameAndDescription',
+              defaultMessage: 'Name and description',
+              description: 'Name and description wizard step title',
+            }),
             name: 'name-and-description',
             buttons: WizardButtons,
             nextStep: 'add-permissions',
@@ -152,7 +180,7 @@ export const schemaBuilder = (featureFlag: boolean) => {
           },
           {
             name: 'add-permissions',
-            title: intl.formatMessage(messages.addPermissions),
+            title: intl.formatMessage(commonMessages.addPermissions),
             StepTemplate: AddPermissionTemplate,
             buttons: WizardButtons,
             nextStep: ({ values }: { values: FormValues }) => validateNextAddRolePermissionStep('add-permissions', values),
@@ -186,14 +214,18 @@ export const schemaBuilder = (featureFlag: boolean) => {
                   (value: { groups: unknown[]; permission: string }[] = []) =>
                     value?.every(({ groups, permission }) => groups?.length > 0 && permission)
                       ? undefined
-                      : intl.formatMessage(messages.assignAtLeastOneInventoryGroup),
+                      : intl.formatMessage({
+                          id: 'assignAtLeastOneGroup',
+                          defaultMessage: 'You need to assign at least one inventory group to each permission.',
+                          description: 'Assign at least one inventory group message',
+                        }),
                 ],
               },
             ],
           },
           {
             name: 'cost-resources-definition',
-            title: intl.formatMessage(messages.defineCostResources),
+            title: intl.formatMessage(commonMessages.defineCostResources),
             buttons: WizardButtons,
             nextStep: 'review',
             StepTemplate: CostResourcesTemplate,
@@ -201,7 +233,16 @@ export const schemaBuilder = (featureFlag: boolean) => {
               {
                 component: 'plain-text',
                 name: 'text-description',
-                label: <p className="pf-v6-u-mb-md">{intl.formatMessage(messages.applyCostPermissionText)}</p>,
+                label: (
+                  <p className="pf-v6-u-mb-md">
+                    {intl.formatMessage({
+                      id: 'applyCostPermissionText',
+                      defaultMessage:
+                        'Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.',
+                      description: 'Apply Cost permission text',
+                    })}
+                  </p>
+                ),
               },
               {
                 component: 'cost-resources',
@@ -211,7 +252,7 @@ export const schemaBuilder = (featureFlag: boolean) => {
           },
           {
             name: 'review',
-            title: intl.formatMessage(messages.reviewDetails),
+            title: intl.formatMessage(commonMessages.reviewDetails),
             buttons: (props: Omit<React.ComponentProps<typeof ReviewStepButtons>, 'context'>) => (
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               <ReviewStepButtons {...props} context={AddRoleWizardContext as any} />

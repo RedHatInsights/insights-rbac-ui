@@ -10,9 +10,10 @@ import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import CubesIcon from '@patternfly/react-icons/dist/js/icons/cubes-icon';
 import { useIntl } from 'react-intl';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 import type { RolesEmptyStateProps } from '../types';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface RolesEmptyStateFullProps extends RolesEmptyStateProps {
   isAdmin?: boolean;
@@ -31,13 +32,19 @@ export const RolesEmptyState: React.FC<RolesEmptyStateFullProps> = ({
     // Empty state with active filters
     return (
       <Bullseye>
-        <EmptyState headingLevel="h4" icon={SearchIcon} titleText={intl.formatMessage(messages.noRolesFound)}>
-          <EmptyStateBody>{intl.formatMessage(messages.noFilteredRoles)}</EmptyStateBody>
+        <EmptyState headingLevel="h4" icon={SearchIcon} titleText={intl.formatMessage(commonMessages.noRolesFound)}>
+          <EmptyStateBody>
+            {intl.formatMessage({
+              id: 'noFilteredRoles',
+              defaultMessage: 'No roles match the filter criteria. Remove all filters or clear all to show results.',
+              description: 'Empty state body when no roles match filters',
+            })}
+          </EmptyStateBody>
           {onClearFilters && (
             <EmptyStateFooter>
               <EmptyStateActions>
                 <Button variant="link" onClick={onClearFilters}>
-                  {intl.formatMessage(messages.clearAllFilters)}
+                  {intl.formatMessage({ id: 'clearAllFilters', defaultMessage: 'Clear all filters', description: 'Clear all filters message' })}
                 </Button>
               </EmptyStateActions>
             </EmptyStateFooter>
@@ -50,11 +57,19 @@ export const RolesEmptyState: React.FC<RolesEmptyStateFullProps> = ({
   // Empty state with no data
   return (
     <Bullseye>
-      <EmptyState headingLevel="h4" icon={CubesIcon} titleText={intl.formatMessage(messages.configureRoles)}>
+      <EmptyState
+        headingLevel="h4"
+        icon={CubesIcon}
+        titleText={intl.formatMessage({
+          id: 'configureRoles',
+          defaultMessage: 'Configure roles',
+          description: 'Empty state title when no roles exist',
+        })}
+      >
         <EmptyStateBody>
-          {intl.formatMessage(messages.toConfigureUserAccess)}{' '}
-          {intl.formatMessage(messages.createAtLeastOneItem, {
-            item: intl.formatMessage(messages.role).toLowerCase(),
+          {intl.formatMessage(commonMessages.toConfigureUserAccess)}{' '}
+          {intl.formatMessage(commonMessages.createAtLeastOneItem, {
+            item: intl.formatMessage(commonMessages.role).toLowerCase(),
           })}
           .
         </EmptyStateBody>
@@ -62,8 +77,8 @@ export const RolesEmptyState: React.FC<RolesEmptyStateFullProps> = ({
           <EmptyStateFooter>
             <EmptyStateActions>
               <AppLink to={addRoleLink}>
-                <Button variant="primary" aria-label={intl.formatMessage(messages.createRole)}>
-                  {intl.formatMessage(messages.createRole)}
+                <Button variant="primary" aria-label={intl.formatMessage(commonMessages.createRole)}>
+                  {intl.formatMessage(commonMessages.createRole)}
                 </Button>
               </AppLink>
             </EmptyStateActions>

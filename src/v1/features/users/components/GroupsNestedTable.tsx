@@ -4,8 +4,9 @@ import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dy
 import { TableVariant } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface GroupIn {
   uuid?: string;
@@ -32,7 +33,7 @@ export const GroupsNestedTable: React.FC<GroupsNestedTableProps> = ({ groups, us
   if (isLoading) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-        {intl.formatMessage(messages.loading)}
+        {intl.formatMessage(commonMessages.loading)}
       </Content>
     );
   }
@@ -40,7 +41,7 @@ export const GroupsNestedTable: React.FC<GroupsNestedTableProps> = ({ groups, us
   if (!groups || groups.length === 0) {
     return (
       <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-        {intl.formatMessage(messages.noGroups)}
+        {intl.formatMessage({ id: 'noGroups', defaultMessage: 'No groups', description: 'No groups label' })}
       </Content>
     );
   }
@@ -49,8 +50,8 @@ export const GroupsNestedTable: React.FC<GroupsNestedTableProps> = ({ groups, us
     <Table aria-label="Groups table" ouiaId="groups-in-role-nested-table" variant={TableVariant.compact}>
       <Thead>
         <Tr>
-          <Th>{intl.formatMessage(messages.name)}</Th>
-          <Th>{intl.formatMessage(messages.description)}</Th>
+          <Th>{intl.formatMessage(commonMessages.name)}</Th>
+          <Th>{intl.formatMessage(commonMessages.description)}</Th>
           <Th screenReaderText="Actions" />
         </Tr>
       </Thead>
@@ -59,14 +60,18 @@ export const GroupsNestedTable: React.FC<GroupsNestedTableProps> = ({ groups, us
           .filter((group): group is GroupIn => Boolean(group) && Boolean(group.uuid))
           .map((group) => (
             <Tr key={group.uuid}>
-              <Td dataLabel={intl.formatMessage(messages.name)}>
+              <Td dataLabel={intl.formatMessage(commonMessages.name)}>
                 <AppLink to={pathnames['group-detail'].link(group.uuid ?? '')}>{group.name}</AppLink>
               </Td>
-              <Td dataLabel={intl.formatMessage(messages.description)}>{group.description}</Td>
+              <Td dataLabel={intl.formatMessage(commonMessages.description)}>{group.description}</Td>
               <Td className="pf-v6-u-text-align-right">
                 {!adminGroup || !group.uuid || adminGroup.uuid === group.uuid ? null : (
                   <AppLink to={pathnames['user-add-group-roles'].link(username, group.uuid ?? '')} state={{ name: group.name }}>
-                    {intl.formatMessage(messages.addRoleToThisGroup)}
+                    {intl.formatMessage({
+                      id: 'addRoleToThisGroup',
+                      defaultMessage: 'Add role to this group',
+                      description: 'Add role to this group label',
+                    })}
                   </AppLink>
                 )}
               </Td>

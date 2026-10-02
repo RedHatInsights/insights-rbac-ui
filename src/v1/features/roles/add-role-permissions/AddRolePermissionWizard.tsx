@@ -14,9 +14,10 @@ import CostResources from '../add-role/CostResources';
 import InventoryGroupsRole from '../add-role/InventoryGroupsRole';
 import { schemaBuilder } from './schema';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 import { AddRolePermissionWizardContext } from './AddRolePermissionWizardContext';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface AddRolePermissionWizardProps {
   role: RoleWithAccess;
@@ -177,18 +178,25 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
       value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm, rolePermissions: role.access }}
     >
       <WarningModal
-        title={intl.formatMessage(messages.exitItemAdding, { item: intl.formatMessage(messages.permissions).toLocaleLowerCase() })}
+        title={intl.formatMessage(
+          { id: 'exitItemAdding', defaultMessage: 'Exit {item} adding?', description: 'Exit item adding modal title' },
+          { item: intl.formatMessage(commonMessages.permissions).toLocaleLowerCase() },
+        )}
         isOpen={cancelWarningVisible}
         onClose={() => setCancelWarningVisible(false)}
-        confirmButtonLabel={intl.formatMessage(messages.discard)}
+        confirmButtonLabel={intl.formatMessage(commonMessages.discard)}
         onConfirm={handleConfirmCancel}
       >
-        {intl.formatMessage(messages.discardedInputsWarning)}
+        {intl.formatMessage({
+          id: 'discardedInputsWarning',
+          defaultMessage: 'All inputs will be discarded',
+          description: 'Warning saying that all inputs will be discarded',
+        })}
       </WarningModal>
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (
           <Wizard
-            title={intl.formatMessage(messages.addPermissions)}
+            title={intl.formatMessage(commonMessages.addPermissions)}
             isOpen
             steps={[
               {

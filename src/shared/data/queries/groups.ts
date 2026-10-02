@@ -1,5 +1,5 @@
 import { type UseQueryResult, useMutation, useQuery } from '@tanstack/react-query';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import {
   type AddPrincipalToGroupParams,
   type GetPrincipalsFromGroupParams,
@@ -11,9 +11,72 @@ import {
   createGroupsApi,
 } from '../api/groups';
 import { useAppServices } from '../../contexts/ServiceContext';
-import messages from '../../../Messages';
+
 import { useMutationQueryClient } from '../utils';
 import { type MutationOptions, type QueryOptions } from '../types';
+
+const messages = defineMessages({
+  addGroupMembersSuccessTitle: {
+    id: 'addGroupMembersSuccessTitle',
+    defaultMessage: 'Success adding members to group',
+    description: 'Add group members success notification title',
+  },
+  addGroupMemberSuccessTitle: {
+    id: 'addGroupMemberSuccessTitle',
+    defaultMessage: 'Success adding member to group',
+    description: 'Add group member success notification title',
+  },
+  addGroupMembersErrorTitle: {
+    id: 'addGroupMembersErrorTitle',
+    defaultMessage: 'Failed adding members to group',
+    description: 'Add group members error notification title',
+  },
+  addGroupMemberErrorTitle: {
+    id: 'addGroupMemberErrorTitle',
+    defaultMessage: 'Failed adding member to group',
+    description: 'Add group member error notification title',
+  },
+  addGroupServiceAccountsSuccessTitle: {
+    id: 'addGroupServiceAccountsSuccessTitle',
+    defaultMessage: 'Success adding service {count, plural, one {account} other {accounts}} to group',
+    description: 'Add group service accounts success notification title',
+  },
+  addGroupServiceAccountSuccessTitle: {
+    id: 'addGroupServiceAccountSuccessTitle',
+    defaultMessage: 'Success adding service account to group',
+    description: 'Add group service account success notification title',
+  },
+  addGroupServiceAccountsErrorTitle: {
+    id: 'addGroupServiceAccountsErrorTitle',
+    defaultMessage: 'Failed adding service {count, plural, one {account} other {accounts}} to group',
+    description: 'Add group service accounts error notification title',
+  },
+  addGroupServiceAccountErrorTitle: {
+    id: 'addGroupServiceAccountErrorTitle',
+    defaultMessage: 'Failed adding service account to group',
+    description: 'Add group service account error notification title',
+  },
+  removeGroupServiceAccountsSuccessTitle: {
+    id: 'removeGroupServiceAccountsSuccessTitle',
+    defaultMessage: 'Success removing service accounts from the group',
+    description: 'Removal of group service accounts success notification title',
+  },
+  removeGroupServiceAccountSuccessTitle: {
+    id: 'removeGroupServiceAccountSuccessTitle',
+    defaultMessage: 'Success removing service account from the group',
+    description: 'Removal of group service account success notification title',
+  },
+  removeGroupServiceAccountsErrorTitle: {
+    id: 'removeGroupServiceAccountsErrorTitle',
+    defaultMessage: 'Failed removing service accounts from group',
+    description: 'Removal of  group service accounts error notification title',
+  },
+  removeGroupServiceAccountErrorTitle: {
+    id: 'removeGroupServiceAccountErrorTitle',
+    defaultMessage: 'Failed removing service account from group',
+    description: 'Removal of  group service account error notification title',
+  },
+});
 
 // ============================================================================
 // Response Types
@@ -185,8 +248,8 @@ export const groupsKeys = {
 // ============================================================================
 
 const DEFAULT_GROUP_LABELS = {
-  allUsers: messages.allUsers.defaultMessage,
-  allOrgAdmins: messages.allOrgAdmins.defaultMessage,
+  allUsers: 'All users',
+  allOrgAdmins: 'All org admins',
 } as const;
 
 function normalizeDefaultGroupCount<T extends { platform_default?: boolean; admin_default?: boolean; principalCount?: number }>(group: T): T {
@@ -645,10 +708,20 @@ export function useCreateGroupMutation(options?: MutationOptions) {
       },
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: groupsKeys.all });
-        notify('success', intl.formatMessage(messages.addGroupSuccessTitle));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'addGroupSuccessTitle',
+            defaultMessage: 'Success adding group',
+            description: 'Add group success notification title',
+          }),
+        );
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.addGroupErrorTitle));
+        notify(
+          'danger',
+          intl.formatMessage({ id: 'addGroupErrorTitle', defaultMessage: 'Failed adding group', description: 'Add group error notification title' }),
+        );
       },
     },
     options?.queryClient,
@@ -686,10 +759,34 @@ export function useUpdateGroupMutation(options?: MutationOptions) {
       },
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: groupsKeys.all });
-        notify('success', intl.formatMessage(messages.editGroupSuccessTitle), intl.formatMessage(messages.editGroupSuccessDescription));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'editGroupSuccessTitle',
+            defaultMessage: 'Success updating group',
+            description: 'Edit group success notification title',
+          }),
+          intl.formatMessage({
+            id: 'editGroupSuccessDescription',
+            defaultMessage: 'The group was updated successfully.',
+            description: 'Edit group success notification description',
+          }),
+        );
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.editGroupErrorTitle), intl.formatMessage(messages.editGroupErrorDescription));
+        notify(
+          'danger',
+          intl.formatMessage({
+            id: 'editGroupErrorTitle',
+            defaultMessage: 'Failed updating group',
+            description: 'Edit group error notification title',
+          }),
+          intl.formatMessage({
+            id: 'editGroupErrorDescription',
+            defaultMessage: 'The group was not updated successfully.',
+            description: 'Edit group error notification description',
+          }),
+        );
       },
     },
     options?.queryClient,
@@ -714,10 +811,24 @@ export function useDeleteGroupMutation(options?: MutationOptions) {
       },
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: groupsKeys.all });
-        notify('success', intl.formatMessage(messages.removeGroupSuccess));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'removeGroupSuccess',
+            defaultMessage: 'Group deleted successfully',
+            description: 'Remove group success notification title',
+          }),
+        );
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.removeGroupError));
+        notify(
+          'danger',
+          intl.formatMessage({
+            id: 'removeGroupError',
+            defaultMessage: 'There was an error deleting the group. Please try again.',
+            description: 'Remove group error notification title',
+          }),
+        );
       },
     },
     options?.queryClient,
@@ -801,13 +912,33 @@ export function useRemoveMembersFromGroupMutation(options?: MutationOptions) {
         // Always use plural form
         notify(
           'success',
-          intl.formatMessage(messages.removeGroupMembersSuccessTitle),
-          intl.formatMessage(messages.removeGroupMembersSuccessDescription),
+          intl.formatMessage({
+            id: 'removeGroupMembersSuccessTitle',
+            defaultMessage: 'Success removing members from group',
+            description: 'Remove group members success notification title',
+          }),
+          intl.formatMessage({
+            id: 'removeGroupMembersSuccessDescription',
+            defaultMessage: 'The members were successfully removed from the group.',
+            description: 'Remove group members success notification description',
+          }),
         );
       },
       onError: () => {
         // Always use plural form
-        notify('danger', intl.formatMessage(messages.removeGroupMembersErrorTitle), intl.formatMessage(messages.removeGroupMembersErrorDescription));
+        notify(
+          'danger',
+          intl.formatMessage({
+            id: 'removeGroupMembersErrorTitle',
+            defaultMessage: 'Failed removing members from the group',
+            description: 'Remove group members error notification title',
+          }),
+          intl.formatMessage({
+            id: 'removeGroupMembersErrorDescription',
+            defaultMessage: 'The members were not removed successfully.',
+            description: 'Remove group members error notification description',
+          }),
+        );
       },
     },
     options?.queryClient,
@@ -846,10 +977,24 @@ export function useAddRolesToGroupMutation(options?: MutationOptions) {
         qc.invalidateQueries({ queryKey: groupsKeys.detail(variables.groupId) });
         qc.invalidateQueries({ queryKey: groupsKeys.roles(variables.groupId) });
         qc.invalidateQueries({ queryKey: groupsKeys.lists() });
-        notify('success', intl.formatMessage(messages.addGroupRolesSuccessTitle));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'addGrouprolesSuccessTitle',
+            defaultMessage: 'Success adding roles to group',
+            description: 'Add group roles success notification title',
+          }),
+        );
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.addGroupRolesErrorTitle));
+        notify(
+          'danger',
+          intl.formatMessage({
+            id: 'addGroupRolesErrorTitle',
+            defaultMessage: 'Failed adding roles to group',
+            description: 'Add group roles error notification title',
+          }),
+        );
       },
     },
     options?.queryClient,
@@ -883,10 +1028,24 @@ export function useRemoveRolesFromGroupMutation(options?: MutationOptions) {
       onSuccess: (_, variables) => {
         qc.invalidateQueries({ queryKey: groupsKeys.roles(variables.groupId) });
         qc.invalidateQueries({ queryKey: groupsKeys.lists() });
-        notify('success', intl.formatMessage(messages.removeGroupRolesSuccessTitle));
+        notify(
+          'success',
+          intl.formatMessage({
+            id: 'removeGroupRolesSuccessTitle',
+            defaultMessage: 'Success removing roles from group',
+            description: 'Remove group roles success notification title',
+          }),
+        );
       },
       onError: () => {
-        notify('danger', intl.formatMessage(messages.removeGroupRolesErrorTitle));
+        notify(
+          'danger',
+          intl.formatMessage({
+            id: 'removeGroupRolesErrorTitle',
+            defaultMessage: 'Failed removing roles from the group',
+            description: 'Remove group roles error notification title',
+          }),
+        );
       },
     },
     options?.queryClient,

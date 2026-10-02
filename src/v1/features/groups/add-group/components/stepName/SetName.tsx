@@ -10,7 +10,7 @@ import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextAre
 import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { debouncedAsyncValidator } from '../../../validators';
 import { trimAll } from '../../../../../../shared/helpers/stringUtilities';
-import messages from '../../../../../../Messages';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface SetNameProps {
   name: string;
@@ -63,7 +63,7 @@ export const SetName: React.FC<SetNameProps> = (props) => {
   return (
     <Stack hasGutter>
       <StackItem>
-        <FormGroup label={intl.formatMessage(messages.name)} isRequired fieldId="group-name">
+        <FormGroup label={intl.formatMessage(commonMessages.name)} isRequired fieldId="group-name">
           <TextInput
             type="text"
             id="group-name"
@@ -78,7 +78,7 @@ export const SetName: React.FC<SetNameProps> = (props) => {
             <HelperText>
               {groupNameError && <HelperTextItem variant="error">{groupNameError}</HelperTextItem>}
               {groupName?.length > 150 && (
-                <HelperTextItem variant="error">{intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}</HelperTextItem>
+                <HelperTextItem variant="error">{intl.formatMessage(commonMessages.maxCharactersWarning, { number: 150 })}</HelperTextItem>
               )}
               {!groupNameError && groupName?.length <= 150 && <HelperTextItem>{'Provide a unique name for the group'}</HelperTextItem>}
             </HelperText>
@@ -86,7 +86,7 @@ export const SetName: React.FC<SetNameProps> = (props) => {
         </FormGroup>
       </StackItem>
       <StackItem>
-        <FormGroup label={intl.formatMessage(messages.description)} fieldId="group-description">
+        <FormGroup label={intl.formatMessage(commonMessages.description)} fieldId="group-description">
           <TextArea
             type="text"
             id="group-description"
@@ -102,7 +102,7 @@ export const SetName: React.FC<SetNameProps> = (props) => {
           <FormHelperText>
             <HelperText>
               {(groupDescription?.length ?? 0) > 150 && (
-                <HelperTextItem variant="error">{intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}</HelperTextItem>
+                <HelperTextItem variant="error">{intl.formatMessage(commonMessages.maxCharactersWarning, { number: 150 })}</HelperTextItem>
               )}
               {(groupDescription?.length ?? 0) <= 150 && <HelperTextItem>{'Optional field'}</HelperTextItem>}
             </HelperText>

@@ -2,9 +2,10 @@ import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 import type { GroupState, OutletContext } from '../types';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface UseGroupNavigationProps {
   groupId?: string;
@@ -36,12 +37,15 @@ export const useGroupNavigation = ({
   const breadcrumbsList = useMemo(
     () => [
       {
-        title: intl.formatMessage(messages.groups),
+        title: intl.formatMessage(commonMessages.groups),
         to: pathnames.groups.link(),
       },
       groupExists
         ? { title: isGroupLoading ? undefined : group?.name, isActive: true }
-        : { title: intl.formatMessage(messages.invalidGroup), isActive: true },
+        : {
+            title: intl.formatMessage({ id: 'invalidGroup', defaultMessage: 'Invalid group', description: 'Invalid group message' }),
+            isActive: true,
+          },
     ],
     [intl, groupExists, isGroupLoading, group?.name],
   );

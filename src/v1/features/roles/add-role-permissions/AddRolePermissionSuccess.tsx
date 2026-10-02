@@ -7,7 +7,7 @@ import { EmptyStateFooter } from '@patternfly/react-core/dist/dynamic/components
 import CheckCircleIcon from '@patternfly/react-icons/dist/js/icons/check-circle-icon';
 import { useIntl } from 'react-intl';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 
 interface AddRolePermissionSuccessProps {
@@ -18,12 +18,24 @@ const AddRolePermissionSuccess: React.FC<AddRolePermissionSuccessProps> = ({ cur
   const intl = useIntl();
   return (
     <>
-      <EmptyState headingLevel="h4" icon={CheckCircleIcon} titleText={<>{intl.formatMessage(messages.permissionsAddedSuccessfully)}</>}>
+      <EmptyState
+        headingLevel="h4"
+        icon={CheckCircleIcon}
+        titleText={
+          <>
+            {intl.formatMessage({
+              id: 'permissionsAddedSuccessfully',
+              defaultMessage: 'You have successfully added permissions to the role',
+              description: 'Permissions added successfully message',
+            })}
+          </>
+        }
+      >
         <EmptyStateBody />
         <EmptyStateFooter>
           <AppLink to={pathnames['role-detail'].link(currentRoleID)}>
             {/* Button is only for styling - AppLink handles navigation, mutation already invalidated cache */}
-            <Button>{intl.formatMessage(messages.exit)}</Button>
+            <Button>{intl.formatMessage({ id: 'exit', defaultMessage: 'Exit', description: 'Exit button text' })}</Button>
           </AppLink>
         </EmptyStateFooter>
       </EmptyState>

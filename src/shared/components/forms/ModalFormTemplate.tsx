@@ -7,8 +7,9 @@ import { Modal } from '@patternfly/react-core/dist/js/deprecated/components/Moda
 import { ActionGroup } from '@patternfly/react-core/dist/js/components/Form/ActionGroup';
 import { Button } from '@patternfly/react-core/dist/js/components/Button';
 import { Form } from '@patternfly/react-core/dist/js/components/Form/Form';
-import messages from '../../../Messages';
+
 import { getModalContainer } from '../../helpers/modal-container';
+import { commonMessages } from '../../messages/common';
 
 /**
  * This id is required to submit form by a button outside of the form element
@@ -42,10 +43,10 @@ const CustomButtons: React.FC<CustomButtonsProps> = ({ saveLabel, cancelLabel })
               type="submit"
               isDisabled={pristine || validating || submitting || invalid}
             >
-              {saveLabel || intl.formatMessage(messages.save)}
+              {saveLabel || intl.formatMessage({ id: 'save', defaultMessage: 'Save', description: 'Save button text' })}
             </Button>
             <Button ouiaId="secondary-cancel-button" variant="link" onClick={onCancel} id="cancel-modal">
-              {cancelLabel || intl.formatMessage(messages.cancel)}
+              {cancelLabel || intl.formatMessage(commonMessages.cancel)}
             </Button>
           </ActionGroup>
         </div>

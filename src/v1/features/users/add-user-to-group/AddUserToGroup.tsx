@@ -13,10 +13,11 @@ import { TableView } from '@redhat-cloud-services/frontend-components/TableView'
 import { useTableState } from '@redhat-cloud-services/frontend-components/TableView';
 import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-cloud-services/frontend-components/TableView';
 import { useAddMembersToGroupMutation, useGroupsQuery } from '../../../../shared/data/queries/groups';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
 import type { ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface AddUserToGroupProps {
   username?: string;
@@ -94,16 +95,24 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
   const redirectToUserDetail = () => {
     addNotification({
       variant: 'warning',
-      title: intl.formatMessage(messages.addingGroupMemberTitle),
-      description: intl.formatMessage(messages.addingGroupMemberCancelled),
+      title: intl.formatMessage({
+        id: 'addingGroupMemberTitle',
+        defaultMessage: 'Adding member to group',
+        description: 'Adding group member notification title',
+      }),
+      description: intl.formatMessage({
+        id: 'addingGroupMemberCancelled',
+        defaultMessage: 'Adding member to group was canceled by the user.',
+        description: 'Adding group member cancelled notification description',
+      }),
     });
     navigate(pathnames['user-detail'].link(username!));
   };
 
   // Column config
   const columnConfig: ColumnConfigMap<typeof COLUMNS> = {
-    name: { label: intl.formatMessage(messages.name) },
-    description: { label: intl.formatMessage(messages.description) },
+    name: { label: intl.formatMessage(commonMessages.name) },
+    description: { label: intl.formatMessage(commonMessages.description) },
   };
 
   // Cell renderers
@@ -117,7 +126,7 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
     {
       type: 'search',
       id: 'name',
-      placeholder: intl.formatMessage(messages.name).toLowerCase(),
+      placeholder: intl.formatMessage(commonMessages.name).toLowerCase(),
     },
   ];
 
@@ -127,19 +136,25 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
   return (
     <Fragment>
       <WarningModal
-        title={intl.formatMessage(messages.exitItemAdding, { item: intl.formatMessage(messages.users).toLocaleLowerCase() })}
+        title={intl.formatMessage(
+          { id: 'exitItemAdding', defaultMessage: 'Exit {item} adding?', description: 'Exit item adding modal title' },
+          { item: intl.formatMessage(commonMessages.users).toLocaleLowerCase() },
+        )}
         isOpen={cancelWarningVisible}
         onClose={() => setCancelWarningVisible(false)}
-        confirmButtonLabel={intl.formatMessage(messages.discard)}
+        confirmButtonLabel={intl.formatMessage(commonMessages.discard)}
         onConfirm={redirectToUserDetail}
       >
-        {intl.formatMessage(messages.changesWillBeLost)}
+        {intl.formatMessage({ id: 'changesWillBeLost', defaultMessage: 'All changes will be lost', description: 'All changes will be lost message' })}
       </WarningModal>
       <Modal
         appendTo={getModalContainer()}
         variant={ModalVariant.medium}
         isOpen={!cancelWarningVisible}
-        title={intl.formatMessage(messages.addSpecificUserToGroup, { username })}
+        title={intl.formatMessage(
+          { id: 'addSpecificUserToGroup', defaultMessage: 'Add {username} to a group', description: 'Add user to a group wizard title' },
+          { username },
+        )}
         onClose={onCancel}
         actions={[
           <Button
@@ -151,14 +166,23 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
             onClick={onSubmit}
             isDisabled={tableState.selectedRows.length === 0}
           >
-            {intl.formatMessage(messages.addToGroup)}
+            {intl.formatMessage({ id: 'addToGroup', defaultMessage: 'Add to group', description: 'Add to group label' })}
           </Button>,
           <Button aria-label="Cancel" ouiaId="secondary-cancel-button" variant="link" key="cancel" onClick={onCancel}>
-            {intl.formatMessage(messages.cancel)}
+            {intl.formatMessage(commonMessages.cancel)}
           </Button>,
         ]}
       >
-        <Alert variant="info" isInline title={intl.formatMessage(messages.onlyNonUserGroupsVisible)} className="pf-v6-u-mb-md" />
+        <Alert
+          variant="info"
+          isInline
+          title={intl.formatMessage({
+            id: 'onlyNonUserGroupsVisible',
+            defaultMessage: 'This group list has been filtered to only show groups that the user is not currently a member of.',
+            description: 'Message warning that only groups that the user is not a member of has been filtered',
+          })}
+          className="pf-v6-u-mb-md"
+        />
         <TableView
           columns={COLUMNS}
           columnConfig={columnConfig}
@@ -184,16 +208,18 @@ const AddUserToGroup: React.FC<AddUserToGroupProps> = ({ username }) => {
           onFiltersChange={tableState.onFiltersChange}
           clearAllFilters={tableState.clearAllFilters}
           // Empty states
-          emptyStateNoData={<DefaultEmptyStateNoData title={intl.formatMessage(messages.noGroups)} />}
+          emptyStateNoData={
+            <DefaultEmptyStateNoData title={intl.formatMessage({ id: 'noGroups', defaultMessage: 'No groups', description: 'No groups label' })} />
+          }
           emptyStateNoResults={
             <DefaultEmptyStateNoResults
-              title={intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.groups).toLowerCase() })}
-              body={intl.formatMessage(messages.tryChangingFilters)}
+              title={intl.formatMessage(commonMessages.noMatchingItemsFound, { items: intl.formatMessage(commonMessages.groups).toLowerCase() })}
+              body={intl.formatMessage(commonMessages.tryChangingFilters)}
               onClearFilters={tableState.clearAllFilters}
             />
           }
           ouiaId="available-user-groups-table"
-          ariaLabel={intl.formatMessage(messages.groups)}
+          ariaLabel={intl.formatMessage(commonMessages.groups)}
         />
       </Modal>
     </Fragment>

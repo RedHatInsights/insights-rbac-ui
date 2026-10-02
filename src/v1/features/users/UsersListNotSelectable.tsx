@@ -5,7 +5,7 @@ import { useTableState } from '@redhat-cloud-services/frontend-components/TableV
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import paths from '../../utilities/pathnames';
 import { useIntl } from 'react-intl';
-import messages from '../../../Messages';
+
 import { useCommonAuthModel } from '../../../capabilities/useCommonAuthModel';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
 import useUserData from '../../hooks/useUserData';
@@ -25,6 +25,7 @@ import { OrgAdminToggle } from './OrgAdminToggle';
 import { ActivateToggle } from './components/ActivateToggle';
 import pathnames from '../../utilities/pathnames';
 import { useChangeUserStatusMutation, useUsersQuery } from '../../../shared/data/queries/users';
+import { commonMessages } from '../../../shared/messages/common';
 
 interface UsersListNotSelectableProps {
   userLinks: boolean;
@@ -137,12 +138,14 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
   // Column configuration
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      org_admin: { label: intl.formatMessage(messages.orgAdministrator) },
-      username: { label: intl.formatMessage(messages.username), sortable: true },
-      email: { label: intl.formatMessage(messages.email) },
-      first_name: { label: intl.formatMessage(messages.firstName) },
-      last_name: { label: intl.formatMessage(messages.lastName) },
-      status: { label: intl.formatMessage(messages.status) },
+      org_admin: {
+        label: intl.formatMessage({ id: 'orgAdministrator', defaultMessage: 'Org. Administrator', description: 'Org. Administrator name' }),
+      },
+      username: { label: intl.formatMessage(commonMessages.username), sortable: true },
+      email: { label: intl.formatMessage(commonMessages.email) },
+      first_name: { label: intl.formatMessage(commonMessages.firstName) },
+      last_name: { label: intl.formatMessage(commonMessages.lastName) },
+      status: { label: intl.formatMessage(commonMessages.status) },
     }),
     [intl],
   );
@@ -171,12 +174,12 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         return user.is_org_admin ? (
           <Fragment>
             <CheckIcon key="yes-icon" className="pf-v6-u-mr-sm" />
-            <span key="yes">{intl.formatMessage(messages.yes)}</span>
+            <span key="yes">{intl.formatMessage(commonMessages.yes)}</span>
           </Fragment>
         ) : (
           <Fragment>
             <CloseIcon key="no-icon" className="pf-v6-u-mr-sm" />
-            <span key="no">{intl.formatMessage(messages.no)}</span>
+            <span key="no">{intl.formatMessage(commonMessages.no)}</span>
           </Fragment>
         );
       },
@@ -199,7 +202,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         }
         return (
           <Label key="status" color={user.is_active ? 'green' : 'grey'}>
-            {intl.formatMessage(user.is_active ? messages.active : messages.inactive)}
+            {intl.formatMessage(user.is_active ? commonMessages.active : commonMessages.inactive)}
           </Label>
         );
       },
@@ -213,22 +216,22 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       {
         type: 'text',
         id: 'username',
-        label: intl.formatMessage(messages.username),
-        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
+        label: intl.formatMessage(commonMessages.username),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, { key: intl.formatMessage(commonMessages.username).toLowerCase() }),
       },
       {
         type: 'text',
         id: 'email',
-        label: intl.formatMessage(messages.email),
-        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
+        label: intl.formatMessage(commonMessages.email),
+        placeholder: intl.formatMessage(commonMessages.filterByKey, { key: intl.formatMessage(commonMessages.email).toLowerCase() }),
       },
       {
         type: 'checkbox',
         id: 'status',
-        label: intl.formatMessage(messages.status),
+        label: intl.formatMessage(commonMessages.status),
         options: [
-          { id: 'Active', label: intl.formatMessage(messages.active) },
-          { id: 'Inactive', label: intl.formatMessage(messages.inactive) },
+          { id: 'Active', label: intl.formatMessage(commonMessages.active) },
+          { id: 'Inactive', label: intl.formatMessage(commonMessages.inactive) },
         ],
       },
     ],
@@ -255,7 +258,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       <>
         <AppLink to={paths['invite-users'].link()} key="invite-users" className="rbac-m-hide-on-sm">
           <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
-            {intl.formatMessage(messages.inviteUsers)}
+            {intl.formatMessage({ id: 'inviteUsers', defaultMessage: 'Invite users', description: 'Invite users' })}
           </Button>
         </AppLink>
       </>
@@ -289,10 +292,10 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
       >
         <DropdownList>
           <DropdownItem key="activate" onClick={() => setIsActivateModalOpen(true)}>
-            {intl.formatMessage(messages.activateUsersButton)}
+            {intl.formatMessage({ id: 'activateUsersButton', defaultMessage: 'Activate users', description: 'activate users button text' })}
           </DropdownItem>
           <DropdownItem key="deactivate" onClick={() => setIsDeactivateModalOpen(true)}>
-            {intl.formatMessage(messages.deactivateUsersButton)}
+            {intl.formatMessage({ id: 'deactivateUsersButton', defaultMessage: 'Deactivate users', description: 'deactivate users button text' })}
           </DropdownItem>
         </DropdownList>
       </Dropdown>
@@ -305,15 +308,31 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         <WarningModal
           ouiaId="toggle-status-modal"
           isOpen={isActivateModalOpen}
-          title={intl.formatMessage(messages.activateUsersConfirmationModalTitle)}
-          confirmButtonLabel={intl.formatMessage(messages.activateUsersConfirmationButton)}
+          title={intl.formatMessage({
+            id: 'activateUsersConfirmationModalTitle',
+            defaultMessage: 'Activate users',
+            description: 'activate users confirmation modal title text',
+          })}
+          confirmButtonLabel={intl.formatMessage({
+            id: 'activateUsersConfirmationButton',
+            defaultMessage: 'Activate user(s)',
+            description: 'activate users confirmation button text',
+          })}
           confirmButtonVariant={ButtonVariant.danger}
           onClose={() => setIsActivateModalOpen(false)}
           onConfirm={() => handleBulkActivation(true)}
           withCheckbox
-          checkboxLabel={intl.formatMessage(messages.activateUsersConfirmationModalCheckboxText)}
+          checkboxLabel={intl.formatMessage({
+            id: 'activateUsersConfirmationModalCheckboxText',
+            defaultMessage: 'Yes, I confirm that I want to add these users',
+            description: 'activate users confirmation modal checkbox text',
+          })}
         >
-          {intl.formatMessage(messages.activateUsersConfirmationModalDescription)}
+          {intl.formatMessage({
+            id: 'activateUsersConfirmationModalDescription',
+            defaultMessage: 'Are you sure you want to activate the user(s) below for your Red Hat organization?',
+            description: 'activate users confirmation modal description text',
+          })}
 
           <List isPlain isBordered className="pf-u-p-md">
             {tableState.selectedRows.map((user) => (
@@ -326,15 +345,31 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         <WarningModal
           ouiaId="toggle-status-modal"
           isOpen={isDeactivateModalOpen}
-          title={intl.formatMessage(messages.deactivateUsersConfirmationModalTitle)}
-          confirmButtonLabel={intl.formatMessage(messages.deactivateUsersConfirmationButton)}
+          title={intl.formatMessage({
+            id: 'deactivateUsersConfirmationModalTitle',
+            defaultMessage: 'Deactivate users',
+            description: 'deactivate users confirmation modal title text',
+          })}
+          confirmButtonLabel={intl.formatMessage({
+            id: 'deactivateUsersConfirmationButton',
+            defaultMessage: 'Deactivate user(s)',
+            description: 'deactivate users confirmation button text',
+          })}
           confirmButtonVariant={ButtonVariant.danger}
           onClose={() => setIsDeactivateModalOpen(false)}
           onConfirm={() => handleBulkActivation(false)}
           withCheckbox
-          checkboxLabel={intl.formatMessage(messages.deactivateUsersConfirmationModalCheckboxText)}
+          checkboxLabel={intl.formatMessage({
+            id: 'deactivateUsersConfirmationModalCheckboxText',
+            defaultMessage: 'Yes, I confirm that I want to deactivate these users',
+            description: 'deactivate users confirmation modal checkbox text',
+          })}
         >
-          {intl.formatMessage(messages.deactivateUsersConfirmationModalDescription)}
+          {intl.formatMessage({
+            id: 'deactivateUsersConfirmationModalDescription',
+            defaultMessage: 'Are you sure you want to deactivate the user(s) below from your Red Hat organization?',
+            description: 'deactivate users confirmation modal description text',
+          })}
 
           <List isPlain isBordered className="pf-u-p-md">
             {tableState.selectedRows.map((user) => (
@@ -357,14 +392,17 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectableProps> = ({ userLin
         bulkActions={bulkActions}
         emptyStateNoData={
           <DefaultEmptyStateNoData
-            title={intl.formatMessage(messages.configureItems, { items: intl.formatMessage(messages.users) })}
-            body={`${intl.formatMessage(messages.toConfigureUserAccess)} ${intl.formatMessage(messages.createAtLeastOneItem, { item: intl.formatMessage(messages.user) })}`}
+            title={intl.formatMessage(
+              { id: 'configureItems', defaultMessage: 'Configure {items}', description: 'Configure items message' },
+              { items: intl.formatMessage(commonMessages.users) },
+            )}
+            body={`${intl.formatMessage(commonMessages.toConfigureUserAccess)} ${intl.formatMessage(commonMessages.createAtLeastOneItem, { item: intl.formatMessage({ id: 'user', defaultMessage: 'user', description: 'User label' }) })}`}
           />
         }
         emptyStateNoResults={
           <DefaultEmptyStateNoResults
-            title={intl.formatMessage(messages.noMatchingItemsFound, { items: intl.formatMessage(messages.users) })}
-            body={`${intl.formatMessage(messages.filterMatchesNoItems, { items: intl.formatMessage(messages.users) })} ${intl.formatMessage(messages.tryChangingFilters)}`}
+            title={intl.formatMessage(commonMessages.noMatchingItemsFound, { items: intl.formatMessage(commonMessages.users) })}
+            body={`${intl.formatMessage(commonMessages.filterMatchesNoItems, { items: intl.formatMessage(commonMessages.users) })} ${intl.formatMessage(commonMessages.tryChangingFilters)}`}
           />
         }
         variant={props.isCompact ? 'compact' : undefined}

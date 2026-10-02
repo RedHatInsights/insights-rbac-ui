@@ -16,10 +16,37 @@ import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip'
 import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage, defineMessages, useIntl } from 'react-intl';
 import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import { useInventoryGroupsQuery } from '../../../../shared/data/queries/inventory';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
+
+const messages = defineMessages({
+  workspacesTooltip: {
+    id: 'workspacesTooltip',
+    defaultMessage: 'Add permission to these workspaces.',
+    description: 'Tooltip for workspaces role permissions',
+  },
+  inventoryGroupsTooltip: {
+    id: 'inventoryGroupsTooltip',
+    defaultMessage: 'Add permission to these groups.',
+    description: 'Tooltip for inventory group role permissions',
+  },
+  workspacesLabel: {
+    id: 'workspacesLabel',
+    defaultMessage: 'Select workspaces to add permissions for',
+    description: 'Type ahead label for workspaces role permissions',
+  },
+  invGroupsLabel: {
+    id: 'invGroupsLabel',
+    defaultMessage: 'Select a group to add permissions for',
+    description: 'Type ahead label for inventory groups role permissions',
+  },
+  selectWorkspaces: { id: 'selectWorkspaces', defaultMessage: 'Select workspaces', description: 'Select workspaces label' },
+  selectGroups: { id: 'selectGroups', defaultMessage: 'Select groups', description: 'Select groups label' },
+  workspacesDefinition: { id: 'workspacesDefinition', defaultMessage: 'Workspaces definition', description: 'Group workspaces label' },
+  groupDefinition: { id: 'groupDefinition', defaultMessage: 'Group definition', description: 'Group definition label' },
+});
 
 const MAX_DISPLAYED_OPTIONS = 50;
 
@@ -228,7 +255,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
     <Tooltip content={<div>{intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesTooltip : messages.inventoryGroupsTooltip)}</div>}>
       <MenuToggle
         variant="typeahead"
-        aria-label={intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesTypeAheadLabel : messages.inventoryGroupsTypeAheadLabel)}
+        aria-label={intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesLabel : messages.invGroupsLabel)}
         onClick={() => onToggleClick(permissionID)}
         innerRef={toggleRef as React.Ref<HTMLButtonElement>}
         isExpanded={state[permissionID]?.isOpen || false}
@@ -315,7 +342,9 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
                     {options.length > 0 ? (
                       <SelectOption className="pf-v6-u-link-color" key={`${permissionID}-all`} value="select-all">
                         <FormattedMessage
-                          {...messages.selectAll}
+                          id={'selectAll'}
+                          defaultMessage={'Select all ({length})'}
+                          description={'Select all button label'}
                           values={{
                             length: options.length + Number(isHosts(permissionID)),
                           }}
@@ -330,7 +359,11 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
                           hasCheckbox
                           isSelected={state[permissionID]?.selected?.some((item) => item.name === 'null') || false}
                         >
-                          <FormattedMessage {...messages.ungroupedSystems} />
+                          <FormattedMessage
+                            id={'ungroupedSystems'}
+                            defaultMessage={'Ungrouped systems'}
+                            description={'Ungrouped systems button label'}
+                          />
                         </SelectOption>
                         {options.length > 0 ? <Divider component="li" key={`${permissionID}-divider`} /> : null}
                       </>
@@ -348,7 +381,12 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
                     ))}
                     {hasMore ? (
                       <SelectOption isDisabled value="hint" key={`${permissionID}-hint`}>
-                        <FormattedMessage {...messages.typeToRefineResults} values={{ shown: MAX_DISPLAYED_OPTIONS, total: filtered.length }} />
+                        <FormattedMessage
+                          id={'typeToRefineResults'}
+                          defaultMessage={'Showing {shown} of {total} — type to refine'}
+                          description={'Hint shown when dropdown results are capped'}
+                          values={{ shown: MAX_DISPLAYED_OPTIONS, total: filtered.length }}
+                        />
                       </SelectOption>
                     ) : null}
                   </>
@@ -359,7 +397,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
           <GridItem md={2}>
             {index <= 0 && permissions.length > 1 && (
               <Button key={`${permissionID}-copy`} variant="link" isInline onClick={() => dispatchLocally({ type: 'copyToAll', permissions })}>
-                {intl.formatMessage(messages.copyToAll)}
+                {intl.formatMessage({ id: 'copyToAllPermissions', defaultMessage: 'Copy to all', description: 'Copy to all label' })}
               </Button>
             )}
           </GridItem>
@@ -372,7 +410,7 @@ const InventoryGroupsRole: React.FC<InventoryGroupsRoleProps> = (props) => {
     <Grid hasGutter>
       <GridItem md={3} className="rbac-m-hide-on-sm">
         <Content component={ContentVariants.h4} className="pf-v6-u-mt-sm">
-          {intl.formatMessage(messages.permissions)}
+          {intl.formatMessage(commonMessages.permissions)}
         </Content>
       </GridItem>
       <GridItem lg={9} md={6} className="rbac-m-hide-on-sm">

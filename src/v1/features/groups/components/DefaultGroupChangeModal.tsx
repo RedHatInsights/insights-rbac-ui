@@ -2,7 +2,7 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
 
 interface DefaultGroupChangeModalProps {
@@ -17,9 +17,13 @@ export const DefaultGroupChangeModal: React.FC<DefaultGroupChangeModalProps> = (
     <WarningModal
       withCheckbox
       isOpen={isOpen}
-      title={intl.formatMessage(messages.warning)}
-      checkboxLabel={intl.formatMessage(messages.confirmCheckMessage)}
-      confirmButtonLabel={intl.formatMessage(messages.continue)}
+      title={intl.formatMessage({ id: 'warning', defaultMessage: 'Warning', description: 'Waring label' })}
+      checkboxLabel={intl.formatMessage({
+        id: 'confirmCheckMessage',
+        defaultMessage: 'I understand, and I want to continue',
+        description: 'Confirm modal check message',
+      })}
+      confirmButtonLabel={intl.formatMessage({ id: 'continue', defaultMessage: 'Continue', description: 'Continue label' })}
       onClose={onClose}
       onConfirm={onSubmit}
       appendTo={getModalContainer()}
@@ -27,7 +31,11 @@ export const DefaultGroupChangeModal: React.FC<DefaultGroupChangeModalProps> = (
       <Content>
         <Content component="p">
           <FormattedMessage
-            {...messages.defaultAccessGroupEditWarning}
+            id={'defaultAccessGroupEditWarning'}
+            defaultMessage={
+              'Once you edit the <b>Default access</b> group, the system will no longer update it with new default access roles. The group name will change to <b>Custom default access</b>.'
+            }
+            description={'Message warning that editing a Default access group will rename it'}
             values={{
               b: (text) => <b>{text}</b>,
             }}

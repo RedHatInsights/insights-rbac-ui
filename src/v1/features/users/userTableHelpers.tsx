@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { IntlShape } from 'react-intl';
-import messages from '../../../Messages';
+
 import pathnames from '../../utilities/pathnames';
 import { AppLink } from '../../../shared/components/navigation/AppLink';
 import { OrgAdminToggle } from './OrgAdminToggle';
@@ -8,6 +8,8 @@ import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import { ActivateToggle } from './components/ActivateToggle';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
+import { commonMessages } from '../../../shared/messages/common';
+
 export interface UserProps {
   isSelected: boolean;
   email: string;
@@ -100,12 +102,12 @@ export const createRows = (
           ) : isOrgAdmin ? (
             <Fragment>
               <CheckIcon key="yes-icon" className="pf-v6-u-mr-sm" />
-              <span key="yes">{intl.formatMessage(messages.yes)}</span>
+              <span key="yes">{intl.formatMessage(commonMessages.yes)}</span>
             </Fragment>
           ) : (
             <Fragment>
               <CloseIcon key="no-icon" className="pf-v6-u-mr-sm" />
-              <span key="no">{intl.formatMessage(messages.no)}</span>
+              <span key="no">{intl.formatMessage(commonMessages.no)}</span>
             </Fragment>
           ),
           {
@@ -127,7 +129,7 @@ export const createRows = (
                 {
                   title: (
                     <Label key="status" color={isActive ? 'green' : 'grey'}>
-                      {intl.formatMessage(isActive ? messages.active : messages.inactive)}
+                      {intl.formatMessage(isActive ? commonMessages.active : commonMessages.inactive)}
                     </Label>
                   ),
                   props: {

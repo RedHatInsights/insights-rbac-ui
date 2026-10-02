@@ -1,6 +1,6 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+
 import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 
 // Minimal user type for ActivateToggle - subset of full UserProps
@@ -28,7 +28,7 @@ export const ActivateToggle: React.FC<ActivateToggleProps> = ({ user, onToggle, 
       isChecked={user.is_active}
       isDisabled={user.external_source_id + '' === accountId}
       onChange={(e, value) => onToggle(value, user)}
-      label={intl.formatMessage(messages['usersAndUserGroupsActive'])}
+      label={intl.formatMessage({ id: 'usersAndUserGroupsActive', defaultMessage: 'Active', description: 'User is active label' })}
     />
   ) : (
     <></>

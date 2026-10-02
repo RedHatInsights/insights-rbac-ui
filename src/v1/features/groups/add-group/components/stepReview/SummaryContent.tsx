@@ -8,8 +8,9 @@ import {
 import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/Stack';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
-import messages from '../../../../../../Messages';
+
 import { useServiceAccountsFlag } from '../../../../../../capabilities/useServiceAccountsFlag';
+import { commonMessages } from '../../../../../../shared/messages/common';
 
 interface SummaryContentProps {
   name?: string;
@@ -53,7 +54,9 @@ export const SummaryContent: React.FC<SummaryContentProps> = () => {
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.groupName)}</DescriptionListTerm>
+            <DescriptionListTerm>
+              {intl.formatMessage({ id: 'groupName', defaultMessage: 'Group name', description: 'Group name label' })}
+            </DescriptionListTerm>
             <DescriptionListDescription>{name}</DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
@@ -61,15 +64,17 @@ export const SummaryContent: React.FC<SummaryContentProps> = () => {
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.description)}</DescriptionListTerm>
-            <DescriptionListDescription>{description || intl.formatMessage(messages.none)}</DescriptionListDescription>
+            <DescriptionListTerm>{intl.formatMessage(commonMessages.description)}</DescriptionListTerm>
+            <DescriptionListDescription>
+              {description || intl.formatMessage({ id: 'none', defaultMessage: 'None', description: 'None select option text' })}
+            </DescriptionListDescription>
           </DescriptionListGroup>
         </DescriptionList>
       </StackItem>
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.roles)}</DescriptionListTerm>
+            <DescriptionListTerm>{intl.formatMessage(commonMessages.roles)}</DescriptionListTerm>
             <DescriptionListDescription>
               {selectedRoles && selectedRoles.length > 0 ? (
                 <ul style={{ margin: 0, paddingLeft: '1rem' }}>
@@ -87,7 +92,7 @@ export const SummaryContent: React.FC<SummaryContentProps> = () => {
       <StackItem>
         <DescriptionList>
           <DescriptionListGroup>
-            <DescriptionListTerm>{intl.formatMessage(messages.members)}</DescriptionListTerm>
+            <DescriptionListTerm>{intl.formatMessage(commonMessages.members)}</DescriptionListTerm>
             <DescriptionListDescription>
               {selectedUsers && selectedUsers.length > 0 ? (
                 <ul style={{ margin: 0, paddingLeft: '1rem' }}>

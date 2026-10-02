@@ -8,7 +8,6 @@ import { ContentVariants } from '@patternfly/react-core/dist/dynamic/components/
 
 import { useDeleteRoleMutation, useRoleQuery } from '../../data/queries/roles';
 import useAppNavigate from '../../../shared/hooks/useAppNavigate';
-import messages from '../../../Messages';
 
 type RouteLocation =
   | string
@@ -63,16 +62,20 @@ const RemoveRoleModal: React.FC<RemoveRoleModalProps> = ({ cancelRoute, submitRo
       withCheckbox
       isOpen={!isLoading}
       aria-label="delete-role"
-      title={intl.formatMessage(messages.deleteRoleQuestion)}
+      title={intl.formatMessage({ id: 'deleteRoleQuestion', defaultMessage: 'Delete role?', description: 'Delete role question message' })}
       onClose={onCancel}
       onConfirm={onSubmit}
-      confirmButtonLabel={intl.formatMessage(messages.deleteRole)}
+      confirmButtonLabel={intl.formatMessage({ id: 'deleteRole', defaultMessage: 'Delete role', description: 'Delete role message' })}
       confirmButtonVariant={ButtonVariant.danger}
     >
       <Content>
         <Content component={ContentVariants.p}>
           <FormattedMessage
-            {...messages.roleWilBeRemovedWithPermissions}
+            id={'roleWilBeRemovedWithPermissions'}
+            defaultMessage={
+              "{count, plural, one {The} other {These}} <strong>{name}</strong> {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role."
+            }
+            description={'Role will be removed with permissions message'}
             values={{
               strong: (text: React.ReactNode) => <strong>{text}</strong>,
               name: roleName,

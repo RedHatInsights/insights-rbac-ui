@@ -8,7 +8,7 @@ import { Chip, ChipGroup } from '@patternfly/react-core/deprecated';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+import { commonMessages } from '../../../../shared/messages/common';
 
 interface Permission {
   uuid: string;
@@ -44,7 +44,13 @@ const AddPermissionTemplate: React.FC<AddPermissionTemplateProps> = ({ formField
     <Stack hasGutter>
       {selectedPermissions.length > 0 && (
         <StackItem>
-          <ChipGroup categoryName={intl.formatMessage(messages.selectedPermissions)}>
+          <ChipGroup
+            categoryName={intl.formatMessage({
+              id: 'selectedPermissions',
+              defaultMessage: 'Selected permissions',
+              description: 'Selected permissions label',
+            })}
+          >
             {/* immutable reverse */}
             {selectedPermissions
               .reduce((acc: Permission[], i) => [i, ...acc], [])
@@ -58,19 +64,36 @@ const AddPermissionTemplate: React.FC<AddPermissionTemplateProps> = ({ formField
       )}
       <StackItem>
         <Title headingLevel="h1" size="xl">
-          {intl.formatMessage(messages.addPermissions)}
+          {intl.formatMessage(commonMessages.addPermissions)}
         </Title>
       </StackItem>
       <StackItem>
         <p>
-          {intl.formatMessage(messages.selectPermissionsForRole)}
+          {intl.formatMessage({
+            id: 'selectPermissionsForRole',
+            defaultMessage: 'Select permissions to add to your role',
+            description: 'Select permissions for role label',
+          })}
           {unresolvedSplats.length !== 0 && (
             <Popover
-              headerContent={intl.formatMessage(messages.onlyGranularPermissions)}
-              bodyContent={intl.formatMessage(messages.noWildcardPermissions)}
+              headerContent={intl.formatMessage({
+                id: 'onlyGranularPermissions',
+                defaultMessage: 'Custom roles only support granular permissions',
+                description: 'Only granular permissions message',
+              })}
+              bodyContent={intl.formatMessage({
+                id: 'noWildcardPermissions',
+                defaultMessage:
+                  'Wildcard permissions (for example, approval:*:*) aren’t included in this table and can’t be added to your custom role.',
+                description: 'No wildcard permissions message',
+              })}
             >
               <Button icon={<QuestionCircleIcon />} variant="link">
-                {intl.formatMessage(messages.whyNotSeeingAllPermissions)}
+                {intl.formatMessage({
+                  id: 'whyNotSeeingAllPermissions',
+                  defaultMessage: 'Why am I not seeing all of my permissions?',
+                  description: 'Why am I not seeing all of my permissions message',
+                })}
               </Button>
             </Popover>
           )}
@@ -81,7 +104,7 @@ const AddPermissionTemplate: React.FC<AddPermissionTemplateProps> = ({ formField
           <Alert
             variant="custom"
             isInline
-            title={`${intl.formatMessage(messages.followingPermissionsCannotBeAdded)} ${notAllowedBasePermissions.join(', ')}`}
+            title={`${intl.formatMessage({ id: 'followingPermissionsCannotBeAdded', defaultMessage: 'The following permissions can not be added to a custom role and were removed from the copied role:', description: 'Following permissions cannot be added message' })} ${notAllowedBasePermissions.join(', ')}`}
             actionClose={<AlertActionCloseButton onClose={() => setAlertClosed(true)} />}
           />
         </StackItem>

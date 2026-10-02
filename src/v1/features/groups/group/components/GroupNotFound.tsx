@@ -3,7 +3,6 @@ import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { EmptyWithAction } from '../../../../../shared/components/ui-states/EmptyState';
 import { RbacBreadcrumbs } from '../../../../../shared/components/navigation/Breadcrumbs';
-import messages from '../../../../../Messages';
 
 interface GroupNotFoundProps {
   /**
@@ -39,8 +38,17 @@ export const GroupNotFound: React.FC<GroupNotFoundProps> = ({ groupId, breadcrum
         <RbacBreadcrumbs breadcrumbs={breadcrumbsList} />
       </section>
       <EmptyWithAction
-        title={intl.formatMessage(messages.groupNotFound)}
-        description={[intl.formatMessage(messages.groupDoesNotExist, { id: groupId })]}
+        title={intl.formatMessage({ id: 'groupNotFound', defaultMessage: 'Group not found', description: 'Group not found message' })}
+        description={[
+          intl.formatMessage(
+            {
+              id: 'groupDoesNotExist',
+              defaultMessage: 'Group with ID {id} does not exist.',
+              description: 'Group with given ID does not exist message',
+            },
+            { id: groupId },
+          ),
+        ]}
         actions={[
           <Button
             key="back-button"
@@ -50,7 +58,7 @@ export const GroupNotFound: React.FC<GroupNotFoundProps> = ({ groupId, breadcrum
             aria-label="Back to previous page"
             onClick={onNavigateBack}
           >
-            {intl.formatMessage(messages.backToPreviousPage)}
+            {intl.formatMessage({ id: 'backToPreviousPage', defaultMessage: 'Back to previous page', description: 'Back to previous page label' })}
           </Button>,
         ]}
       />

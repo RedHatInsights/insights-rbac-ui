@@ -17,25 +17,40 @@ import { Content } from '@patternfly/react-core/dist/dynamic/components/Content'
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import SkeletonTableBody from '@patternfly/react-component-groups/dist/dynamic/SkeletonTableBody';
 import SkeletonTableHead from '@patternfly/react-component-groups/dist/dynamic/SkeletonTableHead';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
 import { getDateFormat } from '../../../../shared/helpers/stringUtilities';
 import { AppLink } from '../../../../shared/components/navigation/AppLink';
 import pathnames from '../../../utilities/pathnames';
 import { DefaultInfoPopover } from './DefaultInfoPopover';
-import messages from '../../../../Messages';
+
 import { EmptyGroupsState } from './EmptyGroupsState';
 import type { GroupRole, Member } from '../../../../shared/data/queries/groups';
 import type { Group, GroupsTableProps } from '../types';
+import { commonMessages } from '../../../../shared/messages/common';
+
+const messages = defineMessages({
+  orgAdminInheritedRoles: {
+    id: 'orgAdminInheritedRoles',
+    defaultMessage:
+      'This group contains the roles that all org admin users inherit by default. The roles within this group are managed and maintained by Red Hat and cannot be edited.',
+    description: 'Org. Admin inherited roles message',
+  },
+  usersInheritedRoles: {
+    id: 'usersInheritedRoles',
+    defaultMessage: 'This group contains the roles that all users in your organization inherit by default.',
+    description: 'Users inherited roles message',
+  },
+});
 
 // Nested table for expanded roles
 const RolesTable: React.FC<{ group: Group }> = ({ group }) => {
   const intl = useIntl();
 
   const compoundRolesCells = [
-    intl.formatMessage(messages.roleName),
-    intl.formatMessage(messages.description),
-    intl.formatMessage(messages.lastModified),
+    intl.formatMessage(commonMessages.roleName),
+    intl.formatMessage(commonMessages.description),
+    intl.formatMessage(commonMessages.lastModified),
   ];
 
   if (!group.roles || group.isLoadingRoles) {
@@ -77,7 +92,11 @@ const RolesTable: React.FC<{ group: Group }> = ({ group }) => {
           <Tr>
             <Td colSpan={compoundRolesCells.length}>
               <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-                {intl.formatMessage(messages.noGroupRoles)}
+                {intl.formatMessage({
+                  id: 'noGroupRoles',
+                  defaultMessage: 'There are no roles in this group',
+                  description: 'No roles in a group message',
+                })}
               </Content>
             </Td>
           </Tr>
@@ -92,12 +111,12 @@ const MembersTable: React.FC<{ group: Group }> = ({ group }) => {
   const intl = useIntl();
 
   const compoundMembersCells = [
-    intl.formatMessage(messages.orgAdmin),
-    intl.formatMessage(messages.firstName),
-    intl.formatMessage(messages.lastName),
-    intl.formatMessage(messages.username),
-    intl.formatMessage(messages.email),
-    intl.formatMessage(messages.status),
+    intl.formatMessage({ id: 'orgAdmin', defaultMessage: 'Org. Admin', description: 'Org. Admin name' }),
+    intl.formatMessage(commonMessages.firstName),
+    intl.formatMessage(commonMessages.lastName),
+    intl.formatMessage(commonMessages.username),
+    intl.formatMessage(commonMessages.email),
+    intl.formatMessage(commonMessages.status),
   ];
 
   if (!group.members || group.isLoadingMembers) {
@@ -140,7 +159,11 @@ const MembersTable: React.FC<{ group: Group }> = ({ group }) => {
           <Tr>
             <Td colSpan={compoundMembersCells.length}>
               <Content component="p" className="pf-v6-u-mx-lg pf-v6-u-my-sm">
-                {intl.formatMessage(messages.noGroupMembers)}
+                {intl.formatMessage({
+                  id: 'noGroupMembers',
+                  defaultMessage: 'There are no members in this group',
+                  description: 'No members in a given group title',
+                })}
               </Content>
             </Td>
           </Tr>
@@ -196,10 +219,10 @@ const GroupRowActions: React.FC<{
     >
       <DropdownList>
         <DropdownItem key="edit" onClick={handleEdit}>
-          {intl.formatMessage(messages.edit)}
+          {intl.formatMessage(commonMessages.edit)}
         </DropdownItem>
         <DropdownItem key="delete" onClick={handleDelete}>
-          {intl.formatMessage(messages.delete)}
+          {intl.formatMessage(commonMessages.delete)}
         </DropdownItem>
       </DropdownList>
     </Dropdown>
@@ -223,10 +246,13 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
   const intl = useIntl();
 
   const columns: Array<{ title: string; key: string; screenReaderText?: string }> = [
-    { title: intl.formatMessage(messages.name), key: 'name' },
-    { title: intl.formatMessage(messages.roles), key: 'roles' },
-    { title: intl.formatMessage(messages.members), key: 'members' },
-    { title: intl.formatMessage(messages.lastModified), key: 'modified' },
+    { title: intl.formatMessage(commonMessages.name), key: 'name' },
+    { title: intl.formatMessage(commonMessages.roles), key: 'roles' },
+    { title: intl.formatMessage(commonMessages.members), key: 'members' },
+    {
+      title: intl.formatMessage(commonMessages.lastModified),
+      key: 'modified',
+    },
   ];
 
   // Add selection and actions columns for admin users
@@ -278,7 +304,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <Table aria-label={intl.formatMessage(messages.groups)}>
+      <Table aria-label={intl.formatMessage(commonMessages.groups)}>
         <SkeletonTableHead columns={allColumns.map((col) => col.title)} />
         <SkeletonTableBody rowsCount={10} columnsCount={allColumns.length} />
       </Table>
@@ -288,7 +314,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
   // Empty state
   if (groups.length === 0) {
     return (
-      <Table aria-label={intl.formatMessage(messages.groups)}>
+      <Table aria-label={intl.formatMessage(commonMessages.groups)}>
         <Thead>
           <Tr>
             {allColumns.map((column, index) => (
@@ -314,7 +340,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
   // const someSelectableSelected = selectableGroups.some((group) => isRowSelected(group));
 
   return (
-    <Table aria-label={intl.formatMessage(messages.groups)}>
+    <Table aria-label={intl.formatMessage(commonMessages.groups)}>
       <Thead>
         <Tr>
           {isAdmin && (
