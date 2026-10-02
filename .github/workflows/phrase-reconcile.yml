@@ -17,7 +17,7 @@ jobs:
   reconcile:
     # TEMPORARY POC GUARD — restore to master before merge.
     if: github.ref == 'refs/heads/RHCLOUD-51618'
-    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-reconcile.yml@10bb01762e61252c916808f87b68fad077bc2cf1
+    uses: RedHatInsights/i18n-tooling/.github/workflows/phrase-reconcile.yml@af54af16d72c9d9f49da3b5a7f88d4246994f3f5
     with:
       config-path: .github/i18n/phrase-tms.json
       environment: phrase-pilot
