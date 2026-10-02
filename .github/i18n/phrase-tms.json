@@ -12,7 +12,7 @@
     "path": "locales/translation-template.json",
     "adapter": "formatjs-json",
     "locale": "en",
-    "ensureJsonIcuImportSettings": { "name": "rbac-ui-formatjs-json-icu" }
+    "useProjectFileImportSettings": true
   },
   "targetAdapter": "formatjs-json",
   "targetLocales": [
