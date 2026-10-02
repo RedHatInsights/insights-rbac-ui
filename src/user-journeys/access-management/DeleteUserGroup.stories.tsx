@@ -156,7 +156,7 @@ const verifyDeleteModal = async (groupName: string): Promise<ScopedQueries> => {
 
   // Verify modal content shows group info
   await expect(modalScope.findByText(/delete.*user group/i)).resolves.toBeInTheDocument();
-  await expect(modalScope.findByText(groupName)).resolves.toBeInTheDocument();
+  await expect(modalScope.findByText((text) => text.includes(groupName))).resolves.toBeInTheDocument();
 
   return modalScope;
 };

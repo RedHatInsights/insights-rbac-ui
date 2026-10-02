@@ -1060,7 +1060,7 @@
     "description": "Delete button text"
   },
   "deleteCustomRoleModalBody": {
-    "defaultMessage": "Deleting the {count, plural, one {the <b>{name}</b> role} other {{count} roles}} may remove acess to certain user groups in your organization",
+    "defaultMessage": "Deleting the {count, plural, one {the {name} role} other {{count} roles}} may remove acess to certain user groups in your organization",
     "description": "Modal body text for deleting custom role"
   },
   "deleteCustomRoleModalHeader": {
@@ -1100,7 +1100,7 @@
     "description": "delete roles"
   },
   "deleteUserGroupModalBody": {
-    "defaultMessage": "Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.",
+    "defaultMessage": "Deleting {count, plural, one {the {name} user group} other {{count} user groups}} will impact user access configuration.",
     "description": "Modal body text for delete user group"
   },
   "deleteUserGroupModalTitle": {
@@ -1120,7 +1120,7 @@
     "description": "Delete workspace error notification title"
   },
   "deleteWorkspaceModalBody": {
-    "defaultMessage": "{count, plural, one {<b>{name}</b> workspace and all its} other {<b>{count} workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.",
+    "defaultMessage": "{count, plural, one {{name} workspace and all its} other {{count} workspaces and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.",
     "description": "Modal body text for deleting a workspace"
   },
   "deleteWorkspaceModalHeader": {
@@ -2387,7 +2387,7 @@
     "description": "Remove service accounts button label"
   },
   "removeServiceAccountsText": {
-    "defaultMessage": "{count, plural, one {<b>{name}</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.",
+    "defaultMessage": "{count, plural, one {{name} service account} other {# service accounts}} will be removed from {group} group.",
     "description": "Remove service accounts description"
   },
   "requester": {
@@ -2515,7 +2515,7 @@
     "description": "Role service card title"
   },
   "roleWilBeRemovedWithPermissions": {
-    "defaultMessage": "{count, plural, one {The} other {These}} <strong>{name}</strong> {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
+    "defaultMessage": "{count, plural, one {The} other {These}} {name} {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
     "description": "Role will be removed with permissions message"
   },
   "roleWithNameExists": {
