@@ -61,10 +61,11 @@ export const Default: Story = {
       const emailInput = body.getByRole('textbox');
       expect(emailInput).toBeInTheDocument();
 
-      // Admin checkbox should be present and unchecked
-      const adminCheckbox = body.getByRole('checkbox');
-      expect(adminCheckbox).toBeInTheDocument();
-      expect(adminCheckbox).not.toBeChecked();
+      // Both checkboxes should be present and unchecked (admin + manage support cases)
+      const checkboxes = body.getAllByRole('checkbox');
+      expect(checkboxes).toHaveLength(2);
+      expect(checkboxes[0]).not.toBeChecked();
+      expect(checkboxes[1]).not.toBeChecked();
 
       // Save button should be disabled (no emails entered)
       const saveButton = body.getByRole('button', { name: /save/i });
@@ -138,8 +139,9 @@ export const ToggleAdminCheckbox: Story = {
     const body = within(document.body);
 
     await step('Toggle admin checkbox', async () => {
-      // Find and verify admin checkbox
-      const adminCheckbox = body.getByRole('checkbox');
+      // Find and verify admin checkbox (first checkbox)
+      const checkboxes = body.getAllByRole('checkbox');
+      const adminCheckbox = checkboxes[0];
       expect(adminCheckbox).not.toBeChecked();
 
       // Click to check
@@ -204,8 +206,9 @@ export const SaveButtonEnabledWithValidEmails: Story = {
       const emailInput = body.getByRole('textbox');
       await userEvent.type(emailInput, 'user1@example.com, user2@example.com');
 
-      // Check admin checkbox
-      const adminCheckbox = body.getByRole('checkbox');
+      // Check admin checkbox (first checkbox)
+      const checkboxes = body.getAllByRole('checkbox');
+      const adminCheckbox = checkboxes[0];
       await userEvent.click(adminCheckbox);
       expect(adminCheckbox).toBeChecked();
 
@@ -248,8 +251,9 @@ export const AdminCheckboxUncheckedByDefault: Story = {
     const body = within(document.body);
 
     await step('Verify admin unchecked and save enabled with valid email', async () => {
-      // Admin checkbox should be unchecked by default
-      const adminCheckbox = body.getByRole('checkbox');
+      // Admin checkbox should be unchecked by default (first checkbox)
+      const checkboxes = body.getAllByRole('checkbox');
+      const adminCheckbox = checkboxes[0];
       expect(adminCheckbox).not.toBeChecked();
 
       // Enter valid email
@@ -261,6 +265,81 @@ export const AdminCheckboxUncheckedByDefault: Story = {
       await waitFor(() => {
         expect(saveButton).toBeEnabled();
       });
+    });
+  },
+};
+
+/**
+ * Toggle manage support cases checkbox
+ */
+export const ToggleManageSupportCases: Story = {
+  play: async ({ step }) => {
+    const body = within(document.body);
+
+    await step('Toggle manage support cases checkbox', async () => {
+      // Find manage support cases checkbox (second checkbox)
+      const checkboxes = body.getAllByRole('checkbox');
+      expect(checkboxes).toHaveLength(2);
+      const supportCasesCheckbox = checkboxes[1];
+      expect(supportCasesCheckbox).not.toBeChecked();
+
+      // Click to check
+      await userEvent.click(supportCasesCheckbox);
+      expect(supportCasesCheckbox).toBeChecked();
+
+      // Click to uncheck
+      await userEvent.click(supportCasesCheckbox);
+      expect(supportCasesCheckbox).not.toBeChecked();
+    });
+  },
+};
+
+/**
+ * Expand manage support cases description section
+ */
+export const ExpandSupportCasesDescription: Story = {
+  play: async ({ step }) => {
+    const body = within(document.body);
+
+    await step('Expand support cases description', async () => {
+      // Find the expandable toggle button for manage support cases
+      const expandToggle = body.getByRole('button', { name: /manage support cases/i });
+      expect(expandToggle).toBeInTheDocument();
+
+      // Click to expand
+      await userEvent.click(expandToggle);
+
+      // Description should be visible after expansion
+      await waitFor(() => {
+        expect(body.queryByText(/create, view, and manage support cases/i)).toBeInTheDocument();
+      });
+    });
+  },
+};
+
+/**
+ * ITLess mode - Manage Support Cases checkbox is hidden
+ */
+export const ITLessHidesSupportCases: Story = {
+  parameters: {
+    featureFlags: {
+      'platform.rbac.itless': true,
+    },
+  },
+  play: async ({ step }) => {
+    const body = within(document.body);
+
+    await step('Verify only admin checkbox visible in ITLess mode', async () => {
+      // Modal should be visible
+      const modal = await body.findByRole('dialog');
+      expect(modal).toBeInTheDocument();
+
+      // Only admin checkbox should be present (support cases hidden in ITLess)
+      const checkboxes = body.getAllByRole('checkbox');
+      expect(checkboxes).toHaveLength(1);
+
+      // Manage Support Cases text should not be present
+      expect(body.queryByText(/manage support cases/i)).not.toBeInTheDocument();
     });
   },
 };

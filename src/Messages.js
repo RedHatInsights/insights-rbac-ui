@@ -31,13 +31,12 @@ export default defineMessages({
   inviteUsersFormManageSupportCasesFieldTitle: {
     id: 'inviteUsersFormManageSupportCasesFieldTitle',
     description: 'Invite users form manage support cases field title',
-    defaultMessage: 'Organization administrators',
+    defaultMessage: 'Manage Support Cases',
   },
   inviteUsersFormManageSupportCasesFieldDescription: {
     id: 'inviteUsersFormManageSupportCasesFieldDescription',
     description: 'Invite users form manage support cases field description',
-    defaultMessage:
-      'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
+    defaultMessage: 'Grant this user the ability to create, view, and manage support cases on behalf of the organization.',
   },
   inviteUsersFormDownloadSoftwareUpdatesFieldTitle: {
     id: 'inviteUsersFormDownloadSoftwareUpdatesFieldTitle',
