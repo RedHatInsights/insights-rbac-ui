@@ -19,11 +19,19 @@ import type { Environment } from '@redhat-cloud-services/hcc-storybook-hub';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import messages from '../src/locales/data.json';
+import messages from '../src/locales/translations.json';
 import { locale } from '../src/locales/locale';
+import zhCNDemoMessages from './locales/zh-CN.demo.json';
 import { ServiceProvider, createBrowserServices } from '../src/shared/services';
 import type { AddNotificationFn } from '../src/shared/entry/browser';
 import { ApiErrorProvider } from '../src/shared/contexts/ApiErrorContext';
+
+// Storybook-only locale switcher (toolbar "Locale" or story-level `globals: { locale }`).
+// zh-CN is a small demo catalog; IDs it does not translate fall back to the English message.
+const storyCatalogs: Record<string, Record<string, string>> = {
+  en: messages,
+  'zh-CN': { ...messages, ...zhCNDemoMessages },
+};
 
 // Wrapper that provides all providers for component stories (non-journey)
 // This must be inside NotificationsProvider, StorybookMockProvider, and FeatureFlagsProvider
@@ -85,8 +93,25 @@ const preview: Preview = {
     // NOTE: Kessel access checks use workspacePermissions (all 5 relations → workspace ID arrays)
     // e.g., workspacePermissions: { view: ['ws-1'], edit: ['ws-1'], delete: [], create: ['ws-1'], move: [] }
   },
+  globalTypes: {
+    locale: {
+      description: 'UI locale for component stories',
+      toolbar: {
+        title: 'Locale',
+        icon: 'globe',
+        items: [
+          { value: 'en', title: 'English' },
+          { value: 'zh-CN', title: '简体中文 (demo)' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+  initialGlobals: {
+    locale,
+  },
   decorators: [
-    (Story, { parameters, args }) => {
+    (Story, { parameters, args, globals }) => {
       // Derive mock state from story args/parameters
       // Support both legacy object format (parameters.permissions.orgAdmin) and direct params
       const legacyPermissions = typeof parameters.permissions === 'object' && !Array.isArray(parameters.permissions) ? parameters.permissions : {};
@@ -180,6 +205,7 @@ const preview: Preview = {
       }
 
       // Component stories get full provider wrapping (QueryClient, ServiceProvider, etc.)
+      const storyLocale: string = globals.locale in storyCatalogs ? globals.locale : locale;
       return (
         <StorybookMockProvider
           environment={environment}
@@ -191,7 +217,7 @@ const preview: Preview = {
           userIdentity={userIdentity}
         >
           <FeatureFlagsProvider value={featureFlags}>
-            <IntlProvider locale={locale} messages={messages[locale]}>
+            <IntlProvider locale={storyLocale} messages={storyCatalogs[storyLocale]}>
               <NotificationsProvider>
                 <ComponentProviders>
                   <Story />
