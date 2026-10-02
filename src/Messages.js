@@ -1602,11 +1602,6 @@ export default defineMessages({
     description: 'View Default Groups link',
     defaultMessage: 'View your default groups',
   },
-  recommendedContentTitle: {
-    id: 'recommendedContentTitle',
-    description: 'Recommended Content title',
-    defaultMessage: 'Recommended content',
-  },
   recommendedContentItem1: {
     id: 'recommendedContentItem1',
     description: 'Recommended content',
