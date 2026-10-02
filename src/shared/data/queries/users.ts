@@ -479,6 +479,10 @@ export function useAccountUserDetailQuery(userId: string | undefined, options?: 
       },
       enabled: !isITLess && !!userId && !!identity?.org_id && (options?.enabled ?? true),
       staleTime: 30_000,
+      // This query runs once per table row (one GET per user — an N+1 against the account API).
+      // Cap retries so a down endpoint doesn't multiply into retries × rows before settling into
+      // the error state (which disables the toggle).
+      retry: 1,
     },
     options?.queryClient,
   );

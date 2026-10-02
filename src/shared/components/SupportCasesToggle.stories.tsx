@@ -2,7 +2,11 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { fn } from 'storybook/test';
 import { SupportCasesToggle } from './SupportCasesToggle';
-import { accountManagementHandlers, supportCasesTogglePostErrorHandlers } from '../data/mocks/accountManagement.handlers';
+import {
+  accountManagementErrorHandlers,
+  accountManagementHandlers,
+  supportCasesTogglePostErrorHandlers,
+} from '../data/mocks/accountManagement.handlers';
 import { createResettableMap } from '../data/mocks/db';
 import { DEFAULT_USER_PERMISSIONS, USER_JANE, USER_JOHN } from '../data/mocks/seed';
 
@@ -255,6 +259,40 @@ export const ToggleError: Story = {
 
       // Optimistic update flips it on, then onError rolls it back off.
       await waitFor(() => expect(toggle).not.toBeChecked());
+    });
+  },
+};
+
+export const QueryError: Story = {
+  args: {
+    userId: JOHN_ID,
+    username: USER_JOHN.username,
+    isDisabled: false,
+    isActive: true,
+  },
+  parameters: {
+    msw: {
+      handlers: [...accountManagementErrorHandlers(500)],
+    },
+    docs: {
+      description: {
+        story:
+          'When the account detail GET fails, the toggle settles into a disabled state (not a stuck spinner) so a click can never POST permissions built from an empty base.',
+      },
+    },
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+
+    await step('Toggle renders disabled when the account detail query errors', async () => {
+      // Allow the query (with retry) to settle into its error state before asserting.
+      const toggle = await canvas.findByRole(
+        'switch',
+        { name: new RegExp(`toggle manage support cases for ${USER_JOHN.username}`, 'i') },
+        { timeout: 5000 },
+      );
+      await expect(toggle).toBeDisabled();
+      await expect(toggle).not.toBeChecked();
     });
   },
 };

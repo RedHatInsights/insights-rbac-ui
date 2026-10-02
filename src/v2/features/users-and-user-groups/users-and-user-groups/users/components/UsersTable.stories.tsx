@@ -735,10 +735,17 @@ const supportCasesUsers = [
   }),
 ];
 
+// Aliases so play functions and handler seeds reference the seed data instead of
+// re-typing usernames / external IDs (non-negotiable #17).
+const [johnUser, janeUser] = supportCasesUsers;
+const johnExternalId = String(johnUser.external_source_id);
+const janeExternalId = String(janeUser.external_source_id);
+const toggleNameFor = (username: string) => new RegExp(`toggle manage support cases for ${username}`, 'i');
+
 // Resettable so the POST handler's mutation doesn't leak across play-function reruns.
 const supportCasesColumnPermissions = createResettableMap<string, string[]>([
-  ['12345', ['portal_download']],
-  ['67890', ['portal_manage_cases', 'portal_download']],
+  [johnExternalId, ['portal_download']],
+  [janeExternalId, ['portal_manage_cases', 'portal_download']],
 ]);
 
 export const SupportCasesColumn: Story = {
@@ -786,24 +793,24 @@ export const SupportCasesColumn: Story = {
 
     await step('Verify toggle states match permissions', async () => {
       const johnToggle = await canvas.findByRole('switch', {
-        name: /toggle manage support cases for john\.doe/i,
+        name: toggleNameFor(johnUser.username),
       });
       await expect(johnToggle).not.toBeChecked();
 
       const janeToggle = await canvas.findByRole('switch', {
-        name: /toggle manage support cases for jane\.smith/i,
+        name: toggleNameFor(janeUser.username),
       });
       await expect(janeToggle).toBeChecked();
     });
 
     await step('Toggle on for a user without the permission', async () => {
       const johnToggle = await canvas.findByRole('switch', {
-        name: /toggle manage support cases for john\.doe/i,
+        name: toggleNameFor(johnUser.username),
       });
       await userEvent.click(johnToggle);
 
       await waitFor(() => {
-        expect(supportCasesToggleSpy).toHaveBeenCalledWith(expect.objectContaining({ userId: '12345', grant: true }));
+        expect(supportCasesToggleSpy).toHaveBeenCalledWith(expect.objectContaining({ userId: johnExternalId, grant: true }));
       });
     });
   },
@@ -831,7 +838,7 @@ export const SupportCasesHiddenInITLess: Story = {
     const canvas = within(canvasElement);
 
     await step('Verify column is hidden in ITLess', async () => {
-      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(johnUser.username)).resolves.toBeInTheDocument();
 
       expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
     });
@@ -857,7 +864,7 @@ export const SupportCasesHiddenForNonAdmin: Story = {
     const canvas = within(canvasElement);
 
     await step('Verify column is hidden for non-admin', async () => {
-      await expect(canvas.findByText('john.doe')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText(johnUser.username)).resolves.toBeInTheDocument();
 
       expect(canvas.queryByText('Manage Support Cases')).not.toBeInTheDocument();
     });

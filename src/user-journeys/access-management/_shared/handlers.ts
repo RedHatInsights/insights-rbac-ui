@@ -330,6 +330,13 @@ const journeyV1RoleHandlers = [
  * placed BEFORE factory handlers — MSW uses first-match, so the journey-specific
  * handlers override the factory defaults for the same endpoints.
  */
+// Portal permissions per user (keyed by external_source_id) so the account-API GET returns a
+// defined state and the Manage Support Cases toggles reflect it. Org admins start with the
+// permission granted; everyone else starts without it.
+const journeyUserPermissions = new Map<string, string[]>(
+  mockUsers.map((user) => [String(user.external_source_id), user.is_org_admin ? ['portal_manage_cases'] : []]),
+);
+
 const sharedApiHandlers = [
   ...journeySpecificUsersHandlers,
   ...journeySpecificGroupsHandlers,
@@ -340,7 +347,7 @@ const sharedApiHandlers = [
   ...groupMembersHandlers(),
   ...groupRolesHandlers(),
   ...serviceAccountsHandlers(),
-  ...accountManagementHandlers(),
+  ...accountManagementHandlers({ userPermissions: journeyUserPermissions }),
   http.get('*/api/rbac/v1/cross-account-requests/', async () => {
     await delay(NETWORK_DELAY);
     return HttpResponse.json({ data: [], meta: { count: 0 } });

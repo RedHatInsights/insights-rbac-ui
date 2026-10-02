@@ -7,20 +7,30 @@ import type { User } from '../../../../../../shared/data/queries/users';
 import { SupportCasesToggle } from '../../../../../../shared/components/SupportCasesToggle';
 import messages from '../../../../../../Messages';
 
-export const standardColumns = ['username', 'email', 'first_name', 'last_name', 'is_active', 'is_org_admin'] as const;
-export const standardColumnsWithSupportCases = [
-  'username',
-  'email',
-  'first_name',
-  'last_name',
-  'is_active',
-  'is_org_admin',
-  'manage_support_cases',
-] as const;
+/**
+ * The master set of every column the users table can render. This is the single source
+ * of truth: `columnConfig`/`cellRenderers` are keyed to it and therefore checked
+ * exhaustively (miss a key and it won't compile). Visible columns are a runtime subset of
+ * this set, so a rendered column can never lack a config/renderer entry.
+ *
+ * Add a column: add it here, then the compiler forces an entry in both maps below.
+ */
+export const allColumns = ['is_org_admin', 'manage_support_cases', 'username', 'email', 'first_name', 'last_name', 'is_active'] as const;
 
-// Auth model columns (authModel=true): org admin column moves first
-export const authModelColumns = ['is_org_admin', 'username', 'email', 'first_name', 'last_name', 'is_active'] as const;
-export const authModelColumnsWithSupportCases = [
+export type AllColumnId = (typeof allColumns)[number];
+
+// Display orderings (subsets of allColumns). authModel moves the org-admin / support-cases
+// columns to the front; `manage_support_cases` is filtered out at runtime when hidden.
+const standardOrder = [
+  'username',
+  'email',
+  'first_name',
+  'last_name',
+  'is_active',
+  'is_org_admin',
+  'manage_support_cases',
+] as const satisfies readonly AllColumnId[];
+const authModelOrder = [
   'is_org_admin',
   'manage_support_cases',
   'username',
@@ -28,19 +38,15 @@ export const authModelColumnsWithSupportCases = [
   'first_name',
   'last_name',
   'is_active',
-] as const;
+] as const satisfies readonly AllColumnId[];
 
 export const sortableColumns = ['username'] as const;
 
-export type StandardColumnId = (typeof standardColumns)[number];
-export type AuthModelColumnId = (typeof authModelColumns)[number];
 export type SortableColumnId = (typeof sortableColumns)[number];
-
-type AllColumnIds = StandardColumnId | AuthModelColumnId | 'manage_support_cases';
-type AnyColumns = readonly AllColumnIds[];
 
 interface UseUsersTableConfigOptions {
   intl: IntlShape;
+  /** `platform.rbac.common-auth-model` flag — gates the support-cases column and column ordering */
   authModel: boolean;
   orgAdmin: boolean;
   isITLess: boolean;
@@ -66,18 +72,19 @@ export function useUsersTableConfig({
   ouiaId,
   onToggleUserStatus,
   onToggleOrgAdmin,
-}: UseUsersTableConfigOptions): UseUsersTableConfigReturn<AnyColumns> {
-  // Show support cases column only for non-ITLess org admins
-  const showSupportCases = orgAdmin && !isITLess;
+}: UseUsersTableConfigOptions): UseUsersTableConfigReturn<readonly AllColumnId[]> {
+  // Support-cases column requires the common-auth-model flag, an org admin, and a non-ITLess
+  // environment (the account API is unavailable in ITLess/FedRAMP). Mirrors the V1 gate.
+  const showSupportCases = authModel && orgAdmin && !isITLess;
 
-  const columns = useMemo(() => {
-    if (authModel) {
-      return showSupportCases ? authModelColumnsWithSupportCases : authModelColumns;
-    }
-    return showSupportCases ? standardColumnsWithSupportCases : standardColumns;
+  const columns = useMemo<readonly AllColumnId[]>(() => {
+    const order = authModel ? authModelOrder : standardOrder;
+    return showSupportCases ? order : order.filter((column) => column !== 'manage_support_cases');
   }, [authModel, showSupportCases]);
 
-  const allColumnConfig: ColumnConfigMap<AnyColumns> = useMemo(
+  // Keyed to the full master set — exhaustiveness is enforced here once. The visible `columns`
+  // above are always a subset, so every rendered column is guaranteed a config entry.
+  const columnConfig: ColumnConfigMap<typeof allColumns> = useMemo(
     () => ({
       username: { label: intl.formatMessage(messages.username), sortable: true },
       email: { label: intl.formatMessage(messages.email) },
@@ -90,7 +97,7 @@ export function useUsersTableConfig({
     [intl],
   );
 
-  const allCellRenderers: CellRendererMap<AnyColumns, User> = useMemo(
+  const cellRenderers: CellRendererMap<typeof allColumns, User> = useMemo(
     () => ({
       username: (user) => (focusedUser?.username === user.username ? <strong>{user.username}</strong> : user.username),
       email: (user) => user.email,
@@ -152,8 +159,8 @@ export function useUsersTableConfig({
 
   return {
     columns,
-    columnConfig: allColumnConfig,
-    cellRenderers: allCellRenderers,
+    columnConfig,
+    cellRenderers,
     filterConfig,
   };
 }
