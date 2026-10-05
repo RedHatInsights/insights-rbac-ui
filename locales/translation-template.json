@@ -1060,7 +1060,7 @@
     "description": "Delete button text"
   },
   "deleteCustomRoleModalBody": {
-    "defaultMessage": "Deleting the {count, plural, one {the <b>{name}</b> role} other {{count} roles}} may remove acess to certain user groups in your organization",
+    "defaultMessage": "Deleting {count, plural, =1 {the <b>{name}</b> role} one {# role} other {# roles}} may remove access to certain user groups in your organization.",
     "description": "Modal body text for deleting custom role"
   },
   "deleteCustomRoleModalHeader": {
@@ -1100,7 +1100,7 @@
     "description": "delete roles"
   },
   "deleteUserGroupModalBody": {
-    "defaultMessage": "Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.",
+    "defaultMessage": "Deleting {count, plural, =1 {the <b>{name}</b> user group} one {# user group} other {# user groups}} will impact user access configuration.",
     "description": "Modal body text for delete user group"
   },
   "deleteUserGroupModalTitle": {
@@ -1120,7 +1120,7 @@
     "description": "Delete workspace error notification title"
   },
   "deleteWorkspaceModalBody": {
-    "defaultMessage": "{count, plural, one {<b>{name}</b> workspace and all its} other {<b>{count} workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.",
+    "defaultMessage": "{count, plural, =1 {<b>{name}</b> workspace and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.} one {<b># workspace</b> and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.} other {<b># workspaces</b> and all their data will be permanently deleted. All access granted to user groups via these workspaces will be removed.}}",
     "description": "Modal body text for deleting a workspace"
   },
   "deleteWorkspaceModalHeader": {
@@ -2387,7 +2387,7 @@
     "description": "Remove service accounts button label"
   },
   "removeServiceAccountsText": {
-    "defaultMessage": "{count, plural, one {<b>{name}</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.",
+    "defaultMessage": "{count, plural, =1 {<b>{name}</b> service account} one {<b>#</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.",
     "description": "Remove service accounts description"
   },
   "requester": {
