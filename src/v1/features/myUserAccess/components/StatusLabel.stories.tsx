@@ -16,8 +16,8 @@ It shows different colored labels based on the user's administrative privileges:
 - **User Access Administrator**: Purple label with tooltip explaining user access admin privileges  
 - **No Admin Roles**: Renders nothing (empty fragment)
 
-The component uses PatternFly's Label and Tooltip components and reads localized text
-from the Messages file for internationalization support.
+The component uses PatternFly's Label and Tooltip components and declares inline
+FormatJS descriptors for localized text.
 
 ### Usage
 This component is typically used in user listings and profile displays to quickly

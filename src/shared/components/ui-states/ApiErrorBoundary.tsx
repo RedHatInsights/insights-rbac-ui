@@ -15,8 +15,8 @@ import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/
 import UnavailableContent from '@patternfly/react-component-groups/dist/dynamic/UnavailableContent';
 import { AppLink } from '../navigation/AppLink';
 
-import messages from '../../../Messages';
 import { useApiError } from '../../contexts/ApiErrorContext';
+import messages from '../../../Messages';
 
 // Re-export for backward compatibility
 export { useApiError } from '../../contexts/ApiErrorContext';

@@ -3,13 +3,14 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React from 'react';
 import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
-import providerMessages from '../../../../locales/data.json';
+import providerMessages from '../../../../locales/translations.json';
 import { locale } from '../../../../locales/locale';
-import messages from '../../../../Messages';
+
 import InputHelpPopover from '../../../../shared/components/forms/InputHelpPopover';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
 import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
+import messages from '../../../../Messages';
 
 /**
  * Placeholder bundle options for the billing features flow.
@@ -53,7 +54,7 @@ export interface CreateWorkspaceFormValues {
  */
 export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceNames: string[] = [], skipParentStep = false) => {
   const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
 
   return {
     fields: [
@@ -98,8 +99,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceN
                       bodyContent={
                         <Content component="p">
                           <FormattedMessage
-                            id={messages.workspaceNamingGuidelines.id}
-                            defaultMessage={messages.workspaceNamingGuidelines.defaultMessage}
+                            {...messages.workspaceNamingGuidelines}
                             values={{
                               link: '', // RHCLOUD-40659: Temporarily hidden link until Learn More section is ready
                             }}

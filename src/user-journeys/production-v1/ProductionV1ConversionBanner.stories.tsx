@@ -1,6 +1,6 @@
 import { expect, within } from 'storybook/test';
 import { waitForContentReady } from '../../test-utils/interactionHelpers';
-import messages from '../../Messages';
+
 import { Story, meta } from './_v1OrgAdminSetup';
 
 export default {
@@ -28,13 +28,13 @@ export const BannerVisibleForOrgAdmin: Story = {
     });
 
     await step('Verify banner is visible with correct content', async () => {
-      await expect(canvas.findByText(messages.conversionBannerAdminTitle.defaultMessage)).resolves.toBeInTheDocument();
-      await expect(canvas.findByText(messages.conversionBannerAdminGetStarted.defaultMessage)).resolves.toBeInTheDocument();
-      await expect(canvas.findByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false })).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Elevate your infrastructure with workspace-based access management')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Get started now')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Learn more about the benefits', { exact: false })).resolves.toBeInTheDocument();
     });
 
     await step('Verify learn more link opens in new tab', async () => {
-      const learnMoreLink = await canvas.findByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false });
+      const learnMoreLink = await canvas.findByText('Learn more about the benefits', { exact: false });
       const anchor = learnMoreLink.closest('a');
       await expect(anchor).toHaveAttribute('target', '_blank');
       await expect(anchor).toHaveAttribute('rel', 'noopener noreferrer');
@@ -61,8 +61,8 @@ export const BannerHiddenWhenFlagDisabled: Story = {
     });
 
     await step('Verify overview loads but banner is absent', async () => {
-      await expect(canvas.findByRole('heading', { name: messages.overview.defaultMessage })).resolves.toBeInTheDocument();
-      await expect(canvas.queryByText(messages.conversionBannerAdminTitle.defaultMessage)).not.toBeInTheDocument();
+      await expect(canvas.findByRole('heading', { name: 'User Access' })).resolves.toBeInTheDocument();
+      await expect(canvas.queryByText('Elevate your infrastructure with workspace-based access management')).not.toBeInTheDocument();
     });
   },
 };

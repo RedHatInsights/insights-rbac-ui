@@ -14,8 +14,8 @@ interface StatusLabelProps {
 const StatusLabel: React.FC<StatusLabelProps> = ({ isOrgAdmin, isUserAccessAdmin }) => {
   const intl = useIntl();
 
-  const tootltipLabel = intl.formatMessage(messages[isOrgAdmin ? 'orgAdministrator' : 'userAccessAdmin']);
-  const tooltipContent = <span>{intl.formatMessage(messages[isOrgAdmin ? 'orgAdminHint' : 'userAccessAdminHint'])}</span>;
+  const tootltipLabel = isOrgAdmin ? intl.formatMessage(messages.orgAdministrator) : intl.formatMessage(messages.userAccessAdmin);
+  const tooltipContent = <span>{isOrgAdmin ? intl.formatMessage(messages.orgAdminHint) : intl.formatMessage(messages.userAccessAdminHint)}</span>;
 
   if (isOrgAdmin || isUserAccessAdmin) {
     return (

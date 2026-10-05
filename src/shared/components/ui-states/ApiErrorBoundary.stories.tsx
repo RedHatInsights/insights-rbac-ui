@@ -6,7 +6,7 @@ import { groupsErrorHandlers, groupsHandlers } from '../../data/mocks/groups.han
 import { MemoryRouter } from 'react-router-dom';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import { IntlProvider } from 'react-intl';
-import messages from '../../../locales/data.json';
+import messages from '../../../locales/translations.json';
 import { locale } from '../../../locales/locale';
 import { ApiErrorBoundary } from './ApiErrorBoundary';
 import { useGroupsQuery } from '../../data/queries/groups';
@@ -258,11 +258,11 @@ export const Visual403State: Story = {
     // Direct render of the 403 error component for visual testing
     const UnauthorizedAccess = require('@patternfly/react-component-groups/dist/dynamic/UnauthorizedAccess').default;
     const { FormattedMessage } = require('react-intl');
-    const messagesModule = require('../../../Messages').default;
+
     const { AppLink } = require('../navigation/AppLink');
 
     return (
-      <IntlProvider locale={locale} messages={messages[locale]}>
+      <IntlProvider locale={locale} messages={messages}>
         <MemoryRouter>
           <div style={{ padding: '20px' }}>
             <Alert variant="info" title="Visual Test" style={{ marginBottom: '16px' }}>
@@ -273,7 +273,11 @@ export const Visual403State: Story = {
               serviceName="Users"
               bodyText={
                 <FormattedMessage
-                  {...messagesModule.contactOrgAdmin}
+                  id={'contactOrgAdmin'}
+                  defaultMessage={
+                    'Contact your organization administrator(s) for more information or visit {link} to learn more about your permissions.'
+                  }
+                  description={'Contact organization administrator message for not authorized state'}
                   values={{
                     link: (
                       <AppLink to="/" linkBasename="/iam">
@@ -306,7 +310,7 @@ export const Visual500State: Story = {
     const UnavailableContent = require('@patternfly/react-component-groups/dist/dynamic/UnavailableContent').default;
 
     return (
-      <IntlProvider locale={locale} messages={messages[locale]}>
+      <IntlProvider locale={locale} messages={messages}>
         <MemoryRouter>
           <div style={{ padding: '20px' }}>
             <Alert variant="info" title="Visual Test" style={{ marginBottom: '16px' }}>

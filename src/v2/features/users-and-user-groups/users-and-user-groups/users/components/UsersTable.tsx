@@ -109,7 +109,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
               onClick={() => onAddUserToGroup(selectedRows)}
               ouiaId={`${ouiaId}-add-user-button`}
             >
-              {intl.formatMessage(messages['addToUserGroup'])}
+              {intl.formatMessage(messages.addToUserGroup)}
             </Button>
           </SplitItem>
           <SplitItem>
@@ -178,7 +178,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   items={[
                     {
                       key: 'add-to-group',
-                      label: intl.formatMessage(messages['addToUserGroup']),
+                      label: intl.formatMessage(messages.addToUserGroup),
                       onClick: () => onAddUserToGroup([user]),
                     },
                     {

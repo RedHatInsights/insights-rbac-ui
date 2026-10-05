@@ -140,14 +140,14 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
                       ? [
                           {
                             key: 'edit',
-                            label: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']),
+                            label: intl.formatMessage(messages.usersAndUserGroupsEditUserGroup),
                             onClick: () => onEditGroup?.(group),
                           },
                         ]
                       : []),
                     {
                       key: 'delete',
-                      label: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']),
+                      label: intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup),
                       onClick: () => onDeleteGroup?.(group),
                       isDisabled: !isGroupDeletable(group),
                     },

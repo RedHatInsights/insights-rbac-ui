@@ -20,14 +20,14 @@
 
 import React from 'react';
 import { IntlProvider } from 'react-intl';
-import messages from '../locales/data.json';
+import messages from '../locales/translations.json';
 import { ConversionOptInBanner as ConversionOptInBannerInner, ConversionOptInBannerProps } from '../v1/components/ConversionOptInBanner';
 
 export const locale = 'en';
 
 const ConversionOptInBanner: React.FC<ConversionOptInBannerProps> = (props) => {
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
+    <IntlProvider locale={locale} messages={messages}>
       <ConversionOptInBannerInner {...props} />
     </IntlProvider>
   );

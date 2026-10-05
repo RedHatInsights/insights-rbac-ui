@@ -17,8 +17,9 @@ import { asyncValidator } from '../validators';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { WizardError } from '../../../../shared/components/ui-states/WizardError';
 import pathnames from '../../../utilities/pathnames';
-import messages from '../../../../Messages';
+
 import { AddGroupWizardContext } from './add-group-wizard-context';
+import messages from '../../../../Messages';
 
 const ReviewTemplate = ({ formFields }) => {
   const intl = useIntl();

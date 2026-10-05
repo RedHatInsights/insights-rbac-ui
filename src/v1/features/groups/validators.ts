@@ -1,9 +1,10 @@
 import { groupsApi } from '../../../shared/data/api/groups';
 import { debounce } from '../../../shared/utilities/debounce';
 import { createIntl, createIntlCache } from 'react-intl';
-import messages from '../../../Messages';
-import providerMessages from '../../../locales/data.json';
+
+import providerMessages from '../../../locales/translations.json';
 import { locale } from '../../../locales/locale';
+import messages from '../../../Messages';
 
 export const asyncValidator = async (groupName: string, idKey: string, id?: string): Promise<void> => {
   const cache = createIntlCache();

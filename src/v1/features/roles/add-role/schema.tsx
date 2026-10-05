@@ -8,13 +8,14 @@ import { ValidatorReset } from './validators';
 import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { createIntl, createIntlCache } from 'react-intl';
-import messages from '../../../../Messages';
-import providerMessages from '../../../../locales/data.json';
+
+import providerMessages from '../../../../locales/translations.json';
 import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
 import InventoryGroupsRoleTemplate from './InventoryGroupsRoleTemplate';
 import { locale } from '../../../../locales/locale';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import messages from '../../../../Messages';
 
 interface FormValues {
   'role-type'?: string;
@@ -24,7 +25,7 @@ interface FormValues {
 
 export const schemaBuilder = (featureFlag: boolean) => {
   const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
 
   return {
     fields: [

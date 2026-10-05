@@ -3,7 +3,6 @@ import { expect, within } from 'storybook/test';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import Overview from './overview';
-import messages from '../../../Messages';
 
 const meta: Meta<typeof Overview> = {
   component: Overview,
@@ -54,9 +53,9 @@ export const WithConversionBanner: Story = {
     const canvas = within(canvasElement);
 
     await step('Verify banner is visible for org admin', async () => {
-      await expect(canvas.findByText(messages.conversionBannerAdminTitle.defaultMessage)).resolves.toBeInTheDocument();
-      await expect(canvas.findByText(messages.conversionBannerAdminGetStarted.defaultMessage)).resolves.toBeInTheDocument();
-      await expect(canvas.findByText(messages.conversionBannerAdminLearnMore.defaultMessage, { exact: false })).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Elevate your infrastructure with workspace-based access management')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Get started now')).resolves.toBeInTheDocument();
+      await expect(canvas.findByText('Learn more about the benefits', { exact: false })).resolves.toBeInTheDocument();
     });
   },
 };
@@ -72,7 +71,7 @@ export const ConversionBannerHiddenNonAdmin: Story = {
 
     await step('Verify overview loads but banner is absent', async () => {
       await expect(canvas.findByRole('heading', { level: 1 })).resolves.toBeInTheDocument();
-      expect(canvas.queryByText(messages.conversionBannerAdminTitle.defaultMessage)).not.toBeInTheDocument();
+      expect(canvas.queryByText('Elevate your infrastructure with workspace-based access management')).not.toBeInTheDocument();
     });
   },
 };

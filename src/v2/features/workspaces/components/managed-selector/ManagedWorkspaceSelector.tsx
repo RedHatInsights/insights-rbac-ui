@@ -8,6 +8,7 @@ import { WorkspaceMenuToggle } from './components/WorkspaceMenuToggle';
 import { WorkspaceSelector } from './components/WorkspaceSelector';
 import { type WorkspaceRelation, type WorkspaceWithPermissions } from '../../../../data/queries/workspaces';
 import { useWorkspacesWithPermissions } from '../../hooks/useWorkspacesWithPermissions';
+import messages from '../../../../../Messages';
 
 /**
  * Recursively filters workspace tree items based on search input.
@@ -99,14 +100,7 @@ export const ManagedWorkspaceSelector: React.FC<ManagedWorkspaceSelectorProps> =
   // Tooltip message shown on hover over disabled workspace tree items
   const disabledTooltip = React.useMemo(() => {
     if (!requiredPermission) return undefined;
-    return intl.formatMessage(
-      {
-        id: 'workspaceSelectorDisabledTooltip',
-        description: 'Tooltip shown on disabled workspace tree items when the user lacks the required permission',
-        defaultMessage: 'You do not have {permission} permission on this workspace',
-      },
-      { permission: requiredPermission },
-    );
+    return intl.formatMessage(messages.workspaceSelectorDisabledTooltip, { permission: requiredPermission });
   }, [requiredPermission, intl]);
 
   // Build workspace tree from flat list, excluding source workspace if provided

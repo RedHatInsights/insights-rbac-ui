@@ -28,7 +28,7 @@ import { createStandaloneQueryClient } from '../shared/components/QueryClientSet
 import { ServiceProvider } from '../shared/contexts/ServiceContext';
 import type { AppServices } from '../shared/services/types';
 import { browserApiClient } from '../shared/entry/browser';
-import messages from '../locales/data.json';
+import messages from '../locales/translations.json';
 import {
   ManagedWorkspaceSelector,
   ManagedWorkspaceSelectorProps,
@@ -60,7 +60,7 @@ export type WorkspaceSelectorProps = ManagedWorkspaceSelectorProps;
 
 const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = (props) => {
   return (
-    <IntlProvider locale={locale} messages={messages[locale]}>
+    <IntlProvider locale={locale} messages={messages}>
       <AccessCheck.Provider baseUrl={accessCheckBaseUrl} apiPath={accessCheckApiPath}>
         <ServiceProvider value={moduleServices}>
           <QueryClientProvider client={moduleQueryClient}>

@@ -1,0 +1,6 @@
+{
+  "delete": "删除",
+  "deleteUserGroupModalTitle": "{count, plural, other {删除用户组？}}",
+  "deleteUserGroupModalBody": "{count, plural, =1 {删除用户组 <b>{name}</b> 将影响用户访问配置。} other {删除 {count} 个用户组将影响用户访问配置。}}",
+  "workspaceEmptyStateTitle": "未找到工作区"
+}

@@ -99,7 +99,7 @@ export const BaseGroupAssignmentsTable: React.FC<BaseGroupAssignmentsTableProps>
             <span>{row.description.length > 23 ? `${row.description.slice(0, 20)}...` : row.description}</span>
           </Tooltip>
         ) : (
-          <div className="pf-v6-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+          <div className="pf-v6-u-color-400">{intl.formatMessage(messages.usersAndUserGroupsNoDescription)}</div>
         ),
       userCount: (row) => row.userCount,
       roleCount: (row) => row.roleCount,

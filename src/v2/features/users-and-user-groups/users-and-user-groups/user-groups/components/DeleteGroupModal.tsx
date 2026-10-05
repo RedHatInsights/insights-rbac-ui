@@ -20,7 +20,6 @@ export const DeleteGroupModal: React.FC<DeleteGroupModalProps> = ({ isOpen, grou
     return null;
   }
 
-  const isMultiple = groups.length > 1;
   const groupNames = groups.map((group) => group.name).join(', ');
 
   return (
@@ -28,13 +27,13 @@ export const DeleteGroupModal: React.FC<DeleteGroupModalProps> = ({ isOpen, grou
       ouiaId={ouiaId}
       isOpen={isOpen}
       withCheckbox
-      title={intl.formatMessage(isMultiple ? messages.deleteUserGroupModalTitle : messages.deleteUserGroupModalTitle, { count: groups.length })}
+      title={intl.formatMessage(messages.deleteUserGroupModalTitle, { count: groups.length })}
       confirmButtonLabel={intl.formatMessage(messages.delete)}
       confirmButtonVariant={ButtonVariant.danger}
       onClose={onClose}
       onConfirm={onConfirm}
     >
-      {intl.formatMessage(isMultiple ? messages.deleteUserGroupModalBody : messages.deleteUserGroupModalBody, {
+      {intl.formatMessage(messages.deleteUserGroupModalBody, {
         count: groups.length,
         name: groupNames,
         b: (text: React.ReactNode) => <strong>{text}</strong>,

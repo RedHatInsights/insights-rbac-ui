@@ -7,7 +7,7 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
-import type { IntlShape } from 'react-intl';
+import { type IntlShape } from 'react-intl';
 
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { AppLink } from '../../../shared/components/navigation/AppLink';

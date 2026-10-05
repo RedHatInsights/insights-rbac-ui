@@ -7,8 +7,9 @@ import { asyncValidator } from './validators';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { WizardError } from '../../../../shared/components/ui-states/WizardError';
 import { useIntl } from 'react-intl';
-import messages from '../../../../Messages';
+
 import { AddRoleWizardContext } from './AddRoleWizardContext';
+import messages from '../../../../Messages';
 
 interface ReviewTemplateProps {
   formFields: React.ReactNode[][];

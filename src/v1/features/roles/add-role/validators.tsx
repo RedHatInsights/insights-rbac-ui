@@ -3,13 +3,14 @@ import { debounce } from '../../../../shared/utilities/debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { createIntl, createIntlCache } from 'react-intl';
 import { rolesApi } from '../../../data/api/roles';
-import messages from '../../../../Messages';
-import providerMessages from '../../../../locales/data.json';
+
+import providerMessages from '../../../../locales/translations.json';
 import { locale } from '../../../../locales/locale';
+import messages from '../../../../Messages';
 
 export const asyncValidator = async (roleName: string): Promise<undefined> => {
   const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages[locale as keyof typeof providerMessages] }, cache);
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   if (!roleName) {
     return undefined;
   }

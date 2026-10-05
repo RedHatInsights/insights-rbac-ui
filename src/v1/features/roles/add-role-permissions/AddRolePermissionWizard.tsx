@@ -14,9 +14,10 @@ import CostResources from '../add-role/CostResources';
 import InventoryGroupsRole from '../add-role/InventoryGroupsRole';
 import { schemaBuilder } from './schema';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-import messages from '../../../../Messages';
+
 import pathnames from '../../../utilities/pathnames';
 import { AddRolePermissionWizardContext } from './AddRolePermissionWizardContext';
+import messages from '../../../../Messages';
 
 interface AddRolePermissionWizardProps {
   role: RoleWithAccess;

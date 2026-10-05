@@ -14,11 +14,12 @@ import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
-import Messages from '../../../Messages';
+
 import { RolePermissionsTable } from './components/RolePermissionsTable';
 import { AssignedUserGroupsTable } from './components/AssignedUserGroupsTable';
 import { useRoleQuery, useRoleUsageQuery } from '../../data/queries/roles';
 import type { RoleBindingsGroupSubject } from '../../data/api/roles';
+import messages from '../../../Messages';
 
 interface RolesDetailProps {
   selectedRole?: Role;
@@ -72,8 +73,8 @@ const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole,
   const assignedUserGroupsPopover = (
     <Popover
       triggerAction="hover"
-      headerContent={intl.formatMessage(Messages.assignedUserGroupsTooltipHeader)}
-      bodyContent={intl.formatMessage(Messages.assignedUserGroupsTooltipBody)}
+      headerContent={intl.formatMessage(messages.assignedUserGroupsTooltipHeader)}
+      bodyContent={intl.formatMessage(messages.assignedUserGroupsTooltipBody)}
     >
       <OutlinedQuestionCircleIcon />
     </Popover>

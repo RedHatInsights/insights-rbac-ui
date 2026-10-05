@@ -19,16 +19,7 @@ export const WorkspacesEmptyState: React.FC<WorkspacesEmptyStateProps> = ({ titl
 
   return (
     <EmptyState headingLevel="h4" icon={SearchIcon} titleText={titleText || intl.formatMessage(messages.workspaceEmptyStateTitle)}>
-      <EmptyStateBody>
-        {subtitleContent || (
-          <FormattedMessage
-            {...messages['workspaceEmptyStateSubtitle']}
-            values={{
-              br: <br />,
-            }}
-          />
-        )}
-      </EmptyStateBody>
+      <EmptyStateBody>{subtitleContent || <FormattedMessage {...messages.workspaceEmptyStateSubtitle} />}</EmptyStateBody>
     </EmptyState>
   );
 };

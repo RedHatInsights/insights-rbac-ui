@@ -185,8 +185,8 @@ export const groupsKeys = {
 // ============================================================================
 
 const DEFAULT_GROUP_LABELS = {
-  allUsers: messages.allUsers.defaultMessage,
-  allOrgAdmins: messages.allOrgAdmins.defaultMessage,
+  allUsers: 'All users',
+  allOrgAdmins: 'All org admins',
 } as const;
 
 function normalizeDefaultGroupCount<T extends { platform_default?: boolean; admin_default?: boolean; principalCount?: number }>(group: T): T {

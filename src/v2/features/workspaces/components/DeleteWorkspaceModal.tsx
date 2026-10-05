@@ -40,7 +40,6 @@ export const DeleteWorkspaceModal: React.FC<DeleteWorkspaceModalProps> = ({ isOp
           values={{
             b: (text) => <b>{text}</b>,
             count: workspaces.length,
-            plural: workspaces.length > 1 ? intl.formatMessage(messages.workspaces) : intl.formatMessage(messages.workspace),
             name: workspaces[0]?.name,
           }}
         />

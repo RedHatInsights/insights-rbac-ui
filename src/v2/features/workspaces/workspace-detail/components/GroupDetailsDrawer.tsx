@@ -488,7 +488,11 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                   {/* TODO: re-enable when removal flow is confirmed
                   {onRemoveFromWorkspace && (
                     <Button variant="secondary" isDanger isDisabled={!canRevokeAccess} onClick={() => group && onRemoveFromWorkspace?.(group)}>
-                      {intl.formatMessage(messages.removeGroupFromWorkspace)}
+                      {intl.formatMessage({
+                        id: 'removeGroupFromWorkspace',
+                        defaultMessage: 'Remove from workspace',
+                        description: 'Remove group from workspace action label',
+                      })}
                     </Button>
                   )} */}
                 </Flex>

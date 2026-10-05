@@ -8,7 +8,7 @@ import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from '@redhat-clo
 import type { CellRendererMap, ColumnConfigMap, FilterConfig } from '@redhat-cloud-services/frontend-components/TableView';
 import { type User, useUsersQuery } from '../../../../../../shared/data/queries/users';
 import type { TableState } from './EditUserGroupTableState';
-import Messages from '../../../../../../Messages';
+import messages from '../../../../../../Messages';
 
 interface EditGroupUsersTableProps {
   onChange: (userDiff: TableState) => void;
@@ -46,24 +46,24 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
 
   const columnConfig: ColumnConfigMap<typeof columns> = useMemo(
     () => ({
-      orgAdmin: { label: intl.formatMessage(Messages.orgAdmin) },
-      username: { label: intl.formatMessage(Messages.username), sortable: true },
-      email: { label: intl.formatMessage(Messages.email) },
-      firstName: { label: intl.formatMessage(Messages.firstName) },
-      lastName: { label: intl.formatMessage(Messages.lastName) },
-      status: { label: intl.formatMessage(Messages.status) },
+      orgAdmin: { label: intl.formatMessage(messages.orgAdmin) },
+      username: { label: intl.formatMessage(messages.username), sortable: true },
+      email: { label: intl.formatMessage(messages.email) },
+      firstName: { label: intl.formatMessage(messages.firstName) },
+      lastName: { label: intl.formatMessage(messages.lastName) },
+      status: { label: intl.formatMessage(messages.status) },
     }),
     [intl],
   );
 
   const cellRenderers: CellRendererMap<typeof columns, User> = useMemo(
     () => ({
-      orgAdmin: (user) => (user.is_org_admin ? intl.formatMessage(Messages.yes) : intl.formatMessage(Messages.no)),
+      orgAdmin: (user) => (user.is_org_admin ? intl.formatMessage(messages.yes) : intl.formatMessage(messages.no)),
       username: (user) => user.username,
       email: (user) => user.email,
       firstName: (user) => user.first_name,
       lastName: (user) => user.last_name,
-      status: (user) => (user.is_active ? intl.formatMessage(Messages.active) : intl.formatMessage(Messages.inactive)),
+      status: (user) => (user.is_active ? intl.formatMessage(messages.active) : intl.formatMessage(messages.inactive)),
     }),
     [intl],
   );
@@ -73,8 +73,8 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
       {
         type: 'text',
         id: 'username',
-        label: intl.formatMessage(Messages.username),
-        placeholder: intl.formatMessage(Messages.filterByKey, { key: intl.formatMessage(Messages.username) }),
+        label: intl.formatMessage(messages.username),
+        placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username) }),
       },
     ],
     [intl],
@@ -186,19 +186,12 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
       error={hasError ? new Error('Failed to load users') : null}
       emptyStateNoData={
         <DefaultEmptyStateNoData
-          title={intl.formatMessage(Messages.usersEmptyStateTitle)}
-          body={
-            <FormattedMessage
-              {...Messages['usersEmptyStateSubtitle']}
-              values={{
-                br: <br />,
-              }}
-            />
-          }
+          title={intl.formatMessage(messages.usersEmptyStateTitle)}
+          body={<FormattedMessage {...messages.usersEmptyStateSubtitle} />}
         />
       }
       emptyStateNoResults={
-        <DefaultEmptyStateNoResults title={intl.formatMessage(Messages.usersEmptyStateTitle)} onClearFilters={tableState.clearAllFilters} />
+        <DefaultEmptyStateNoResults title={intl.formatMessage(messages.usersEmptyStateTitle)} onClearFilters={tableState.clearAllFilters} />
       }
       emptyStateError={
         <DefaultEmptyStateNoData title="Failed to load users" body="Please try refreshing the page or contact support if the problem persists." />
@@ -207,14 +200,14 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
         <>
           <ToggleGroup aria-label="Toggle between all users and selected users">
             <ToggleGroupItem
-              text={intl.formatMessage(Messages.all)}
+              text={intl.formatMessage(messages.all)}
               buttonId={TOGGLE_ALL}
               isSelected={selectedToggle === TOGGLE_ALL}
               onChange={handleToggleClick}
             />
             <span ref={selectedToggleRef}>
               <ToggleGroupItem
-                text={`${intl.formatMessage(Messages.selected)} (${selectedCount})`}
+                text={`${intl.formatMessage(messages.selected)} (${selectedCount})`}
                 buttonId={TOGGLE_SELECTED}
                 isSelected={selectedToggle === TOGGLE_SELECTED}
                 onChange={handleToggleClick}
@@ -222,7 +215,7 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
               />
             </span>
           </ToggleGroup>
-          {selectedCount === 0 && <Tooltip content={intl.formatMessage(Messages.selectAtLeastOneRowToFilter)} triggerRef={selectedToggleRef} />}
+          {selectedCount === 0 && <Tooltip content={intl.formatMessage(messages.selectAtLeastOneRowToFilter)} triggerRef={selectedToggleRef} />}
         </>
       }
       variant="compact"

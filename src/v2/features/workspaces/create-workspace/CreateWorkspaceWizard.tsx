@@ -12,7 +12,7 @@ import { useLocation } from 'react-router-dom';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useWorkspacesBillingFeatures } from '../../../../capabilities/useWorkspacesFlag';
 import pathnames from '../../../utilities/pathnames';
-import messages from '../../../../Messages';
+
 import { type WorkspacesWorkspace, useCreateWorkspaceMutation, useWorkspacesQuery, workspacesKeys } from '../../../data/queries/workspaces';
 import { ReviewStep as Review } from './components/Review';
 import { WaitForWorkspaceReady } from './components/WaitForWorkspaceReady';
@@ -20,6 +20,7 @@ import { WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT, schemaBuilder 
 import { SelectParentWorkspace } from './components/SelectParentWorkspace';
 import { SetDetails } from './components/SetDetails';
 import { SetEarMark } from './components/SetEarMark';
+import messages from '../../../../Messages';
 
 export interface CreateWorkspaceWizardProps {
   afterSubmit?: () => void;

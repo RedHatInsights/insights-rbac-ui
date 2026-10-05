@@ -5,11 +5,12 @@ import ReviewTemplate from './review-template';
 import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { createIntl, createIntlCache } from 'react-intl';
-import messages from '../../../../Messages';
-import providerMessages from '../../../../locales/data.json';
+
+import providerMessages from '../../../../locales/translations.json';
 import { locale } from '../../../../locales/locale';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
+import messages from '../../../../Messages';
 
 export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
   const cache = createIntlCache();
