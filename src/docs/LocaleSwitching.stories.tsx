@@ -32,13 +32,13 @@ const meta: Meta<typeof DeleteGroupModal> = {
     docs: {
       description: {
         component: `
-Demonstrates locale switching in Storybook; the application runtime still selects English.
+Demonstrates independent locale-catalog loading in Storybook; the application runtime still selects English.
 
-The preview decorator picks the \`IntlProvider\` locale and catalog from the **Locale** toolbar (or a story's
-\`globals.locale\`). \`zh-CN\` uses the small demo catalog in \`.storybook/locales/zh-CN.demo.json\`, a flat
-ID-to-ICU map kept outside the production catalogs. IDs it does not translate fall back to English (see
-**Chinese Partial Translation**). \`src/docs/localeDemoCatalog.test.ts\` keeps its IDs and placeholders in sync with the
-English source.
+The preview decorator dynamically loads only the catalog selected by the **Locale** toolbar (or a story's
+\`globals.locale\`). English uses \`src/locales/en.json\`; \`zh-CN\` loads the small demo catalog in
+\`.storybook/locales/zh-CN.demo.json\`, kept outside production catalogs. Missing IDs fall back through each descriptor's
+English \`defaultMessage\` (see **Chinese Partial Translation**). \`src/docs/localeDemoCatalog.test.ts\` keeps demo IDs and
+ICU placeholders in sync with the English source.
 
 Chinese has only the \`other\` plural category, so the demo body uses \`=1\` to keep the single-group wording. The
 Cancel button and checkbox label are PatternFly \`WarningModal\` defaults that the app does not translate yet.
@@ -86,6 +86,7 @@ export const ChineseMultipleGroups: Story = {
 // so the subtitle falls back to the English source message.
 export const ChinesePartialTranslation: Story = {
   globals: { locale: 'zh-CN' },
+  tags: ['locale-catalog'],
   render: () => <WorkspacesEmptyState />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

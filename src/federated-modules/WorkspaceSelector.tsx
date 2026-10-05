@@ -14,7 +14,7 @@
  * ```
  *
  * Providers included:
- * - IntlProvider (i18n)
+ * - IntlMessagesProvider (loads the selected locale catalog)
  * - AccessCheck.Provider (Kessel permissions)
  * - ServiceProvider (axios instance)
  * - QueryClientProvider (react-query)
@@ -22,19 +22,19 @@
 
 import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { IntlProvider } from 'react-intl';
 import { AccessCheck } from '@project-kessel/react-kessel-access-check';
 import { createStandaloneQueryClient } from '../shared/components/QueryClientSetup';
 import { ServiceProvider } from '../shared/contexts/ServiceContext';
 import type { AppServices } from '../shared/services/types';
 import { browserApiClient } from '../shared/entry/browser';
-import messages from '../locales/translations.json';
+import { locale } from '../locales/locale';
+import { IntlMessagesProvider } from '../shared/i18n/IntlMessagesProvider';
 import {
   ManagedWorkspaceSelector,
   ManagedWorkspaceSelectorProps,
 } from '../v2/features/workspaces/components/managed-selector/ManagedWorkspaceSelector';
 
-export const locale = 'en';
+export { locale };
 
 // Create a standalone query client for the module
 const moduleQueryClient = createStandaloneQueryClient();
@@ -60,7 +60,7 @@ export type WorkspaceSelectorProps = ManagedWorkspaceSelectorProps;
 
 const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = (props) => {
   return (
-    <IntlProvider locale={locale} messages={messages}>
+    <IntlMessagesProvider locale={locale}>
       <AccessCheck.Provider baseUrl={accessCheckBaseUrl} apiPath={accessCheckApiPath}>
         <ServiceProvider value={moduleServices}>
           <QueryClientProvider client={moduleQueryClient}>
@@ -68,7 +68,7 @@ const WorkspaceSelector: React.FC<WorkspaceSelectorProps> = (props) => {
           </QueryClientProvider>
         </ServiceProvider>
       </AccessCheck.Provider>
-    </IntlProvider>
+    </IntlMessagesProvider>
   );
 };
 

@@ -356,3 +356,15 @@ export const TenantScoped: Story = {
     });
   },
 };
+
+export const PartialChineseCatalogFallback: Story = {
+  ...Default,
+  globals: { locale: 'zh-CN' },
+  tags: ['locale-catalog'],
+  play: async ({ step }) => {
+    await step('Verify descriptor default fallback in the wizard title', async () => {
+      const modal = await waitForModal();
+      await expect(modal.findByText(new RegExp(`grant access in workspace ${WORKSPACE_NAME}`, 'i'))).resolves.toBeInTheDocument();
+    });
+  },
+};

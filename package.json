@@ -192,7 +192,7 @@
     "static": "fec static",
     "translations": "npm-run-all translations:extract translations:compile",
     "translations:extract": "npx formatjs extract 'src/**/*.{js,jsx,ts,tsx}' --ignore 'src/**/*.d.ts' 'src/**/*.stories.*' 'src/**/*.test.*' 'src/**/*.spec.*' --out-file ./locales/translation-template.json",
-    "translations:compile": "npx formatjs compile ./locales/translation-template.json --out-file ./src/locales/translations.json",
+    "translations:compile": "npx formatjs compile ./locales/translation-template.json --out-file ./src/locales/en.json",
     "translations:prepare": "npm-run-all translations:compile",
     "verify": "npm-run-all lint build test test:storybook",
     "postinstall": "ts-patch install && rm -rf .cache",

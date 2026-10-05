@@ -422,3 +422,10 @@ export const ErrorNotification: Story = {
     });
   },
 };
+
+export const PartialChineseCatalogFallback: Story = {
+  ...Default,
+  args: { ...Default.args, group: mockGroup },
+  globals: { locale: 'zh-CN' },
+  tags: ['locale-catalog'],
+};

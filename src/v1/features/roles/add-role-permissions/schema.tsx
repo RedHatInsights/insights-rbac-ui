@@ -2,24 +2,18 @@ import React from 'react';
 import AddPermissionTemplate from '../add-role/AddPermissionTemplate';
 import ReviewTemplate from './ReviewTemplate';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
-import { createIntl, createIntlCache } from 'react-intl';
-
-import providerMessages from '../../../../locales/translations.json';
+import type { IntlShape } from 'react-intl';
+import messages from '../../../../Messages';
 import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
 import InventoryGroupsRoleTemplate from '../add-role/InventoryGroupsRoleTemplate';
-import { locale } from '../../../../locales/locale';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
-import messages from '../../../../Messages';
 
 interface FormValues {
   'add-permissions-table'?: { uuid: string }[];
   [key: string]: unknown;
 }
 
-export const schemaBuilder = (featureFlag: boolean) => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages }, cache);
-
+export const schemaBuilder = (featureFlag: boolean, intl: IntlShape) => {
   return {
     fields: [
       {

@@ -7,15 +7,12 @@ import CostResourcesTemplate from './CostResourcesTemplate';
 import { ValidatorReset } from './validators';
 import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
-import { createIntl, createIntlCache } from 'react-intl';
-
-import providerMessages from '../../../../locales/translations.json';
+import type { IntlShape } from 'react-intl';
+import messages from '../../../../Messages';
 import { validateNextAddRolePermissionStep } from '../permissionWizardHelper';
 import InventoryGroupsRoleTemplate from './InventoryGroupsRoleTemplate';
-import { locale } from '../../../../locales/locale';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
-import messages from '../../../../Messages';
 
 interface FormValues {
   'role-type'?: string;
@@ -23,10 +20,7 @@ interface FormValues {
   [key: string]: unknown;
 }
 
-export const schemaBuilder = (featureFlag: boolean) => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages }, cache);
-
+export const schemaBuilder = (featureFlag: boolean, intl: IntlShape) => {
   return {
     fields: [
       {

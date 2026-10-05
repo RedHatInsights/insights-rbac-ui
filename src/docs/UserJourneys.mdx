@@ -249,7 +249,7 @@ If a selector pattern is used in more than one story, add it to `tableHelpers.ts
 
 Use distinct IDs for singular and plural variants, such as `addGroupMembersSuccessTitle` and `addGroupMemberSuccessTitle`, or `addGroupServiceAccountsSuccessTitle` and `addGroupServiceAccountSuccessTitle`.
 
-Declare each FormatJS descriptor beside its usage. Do not edit generated catalogs by hand. After changing descriptors, run `npm run translations` and commit the regenerated `locales/translation-template.json` and `src/locales/translations.json`.
+Reference FormatJS descriptors from `src/Messages.js`; do not declare them beside their usage or edit generated catalogs by hand. After changing descriptors, run `npm run translations` and commit the regenerated `locales/translation-template.json` and `src/locales/en.json`.
 
 ---
 

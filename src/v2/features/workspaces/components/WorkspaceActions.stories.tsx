@@ -4,7 +4,6 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceActions } from './WorkspaceActions';
 import { type WorkspaceActionCallbacks, useWorkspaceActionItems } from './useWorkspaceActionItems';
 import { BrowserRouter } from 'react-router-dom';
-import { IntlProvider } from 'react-intl';
 import type { WorkspacePermissions, WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import { workspacesHandlers } from '../../../data/mocks/workspaces.handlers';
 
@@ -56,11 +55,9 @@ const WorkspaceActionsWithHook: React.FC<{
 const withProviders = (Story: StoryFn) => {
   return (
     <BrowserRouter>
-      <IntlProvider locale="en" messages={{}}>
-        <div style={{ padding: '16px', height: '400px' }}>
-          <Story />
-        </div>
-      </IntlProvider>
+      <div style={{ padding: '16px', height: '400px' }}>
+        <Story />
+      </div>
     </BrowserRouter>
   );
 };

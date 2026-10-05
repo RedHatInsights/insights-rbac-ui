@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { IntlProvider } from 'react-intl';
 import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import { UserGroupsEmptyState } from './UserGroupsEmptyState';
 
@@ -49,18 +48,16 @@ The component automatically handles:
   },
   decorators: [
     (Story) => (
-      <IntlProvider locale="en">
-        <DataView>
-          <DataViewTable
-            aria-label="Example user groups table"
-            columns={[{ cell: 'Group Name' }, { cell: 'Members' }, { cell: 'Roles' }, { cell: 'Actions' }]}
-            rows={[]}
-            bodyStates={{
-              empty: <Story />,
-            }}
-          />
-        </DataView>
-      </IntlProvider>
+      <DataView>
+        <DataViewTable
+          aria-label="Example user groups table"
+          columns={[{ cell: 'Group Name' }, { cell: 'Members' }, { cell: 'Roles' }, { cell: 'Actions' }]}
+          rows={[]}
+          bodyStates={{
+            empty: <Story />,
+          }}
+        />
+      </DataView>
     ),
   ],
   tags: ['autodocs'],

@@ -4,17 +4,11 @@ import componentTypes from '@data-driven-forms/react-form-renderer/component-typ
 import ReviewTemplate from './review-template';
 import ReviewStepButtons from '../../../../shared/components/review-step-buttons';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
-import { createIntl, createIntlCache } from 'react-intl';
-
-import providerMessages from '../../../../locales/translations.json';
-import { locale } from '../../../../locales/locale';
+import messages from '../../../../Messages';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
-import messages from '../../../../Messages';
 
-export const schemaBuilder = (enableServiceAccounts, enableRoles) => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages }, cache);
+export const schemaBuilder = (enableServiceAccounts, enableRoles, intl) => {
   return {
     fields: [
       {

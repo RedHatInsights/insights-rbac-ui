@@ -41,7 +41,7 @@ const SetName: React.FC<SetNameProps> = (props) => {
   const processRoleName = (value: string) => {
     const trimmedValue = trimAll(value);
     input.onChange(undefined);
-    debouncedAsyncValidator(trimmedValue)
+    debouncedAsyncValidator(trimmedValue, intl)
       .then(() => {
         input.onChange(trimmedValue);
         setRoleNameError(undefined);

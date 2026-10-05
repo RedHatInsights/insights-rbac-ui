@@ -7,9 +7,8 @@ import { asyncValidator } from './validators';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { WizardError } from '../../../../shared/components/ui-states/WizardError';
 import { useIntl } from 'react-intl';
-
-import { AddRoleWizardContext } from './AddRoleWizardContext';
 import messages from '../../../../Messages';
+import { AddRoleWizardContext } from './AddRoleWizardContext';
 
 interface ReviewTemplateProps {
   formFields: React.ReactNode[][];
@@ -23,10 +22,10 @@ const ReviewTemplate: React.FC<ReviewTemplateProps> = ({ formFields }) => {
     setWizardError?.(undefined);
     const roleType = getState().values['role-type'];
     const roleName = roleType === 'create' ? getState().values['role-name'] : getState().values['role-copy-name'];
-    asyncValidator(roleName as string)
+    asyncValidator(roleName as string, intl)
       .then(() => setWizardError?.(false))
       .catch(() => setWizardError?.(true));
-  }, []);
+  }, [intl]);
 
   if (typeof error === 'undefined' || submitting) {
     return (

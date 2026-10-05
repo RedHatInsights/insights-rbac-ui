@@ -37,7 +37,7 @@ export const SetName: React.FC<SetNameProps> = (props) => {
   const processGroupName = (value: string) => {
     const trimmedValue = trimAll(value);
     input.onChange(undefined);
-    debouncedAsyncValidator(trimmedValue, 'uuid', '')
+    debouncedAsyncValidator(trimmedValue, 'uuid', intl)
       .then(() => {
         input.onChange(trimmedValue);
         setGroupNameError(undefined);

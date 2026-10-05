@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
@@ -30,6 +31,7 @@ interface EditGroupModalProps {
  * Component is self-contained with React Query data fetching.
  */
 export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, submitRoute = cancelRoute, group: propGroup, onClose }) => {
+  const intl = useIntl();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
 
@@ -85,7 +87,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
               message: 'Group name must start with alphanumeric character and can contain alphanumeric characters, spaces, hyphens, and underscores',
             },
             // Pass current group UUID to validator to exclude it from "already taken" check
-            (value: string) => debouncedAsyncValidator(value, 'uuid', group?.uuid),
+            (value: string) => debouncedAsyncValidator(value, 'uuid', intl, group?.uuid),
           ],
         },
         {
@@ -98,7 +100,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
         },
       ],
     }),
-    [group?.uuid],
+    [group?.uuid, intl],
   );
 
   const onCancel = () => {

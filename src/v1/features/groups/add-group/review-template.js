@@ -17,9 +17,8 @@ import { asyncValidator } from '../validators';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { WizardError } from '../../../../shared/components/ui-states/WizardError';
 import pathnames from '../../../utilities/pathnames';
-
-import { AddGroupWizardContext } from './add-group-wizard-context';
 import messages from '../../../../Messages';
+import { AddGroupWizardContext } from './add-group-wizard-context';
 
 const ReviewTemplate = ({ formFields }) => {
   const intl = useIntl();
@@ -29,10 +28,10 @@ const ReviewTemplate = ({ formFields }) => {
   useEffect(() => {
     setWizardError(undefined);
     const groupName = getState().values['group-name'];
-    asyncValidator(groupName, 'uuid')
+    asyncValidator(groupName, 'uuid', intl)
       .then(() => setWizardError(false))
       .catch(() => setWizardError(true));
-  }, []);
+  }, [intl]);
 
   if (typeof error === 'undefined' || (submittingGroup && !submittingServiceAccounts)) {
     return (

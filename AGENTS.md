@@ -172,6 +172,9 @@ src/
 │   └── utilities/
 │       └── pathnames.ts              # V2-specific URL paths
 ├── shared/                           # Code shared between V1 and V2
+│   ├── i18n/
+│   │   ├── IntlMessagesProvider.tsx   # Loads selected locale catalog for react-intl
+│   │   └── localeCatalogs.ts          # Dynamic imports for compiled runtime catalogs
 │   ├── components/                   # TableView is from @redhat-cloud-services/frontend-components/TableView
 │   ├── hooks/
 │   │   ├── useIdentity.ts            # Chrome-only identity (orgAdmin, identity, ready) — shared primitive
@@ -197,7 +200,7 @@ src/
 ├── user-journeys/                    # End-to-end journey stories
 └── locales/
     ├── locale.ts                    # Active locale (currently en)
-    └── translations.json             # Compiled English runtime catalog
+    └── en.json                       # Compiled English runtime catalog
 
 eslint-rules/
 ├── (in experience-ui-governance)      # require-use-table-state rule

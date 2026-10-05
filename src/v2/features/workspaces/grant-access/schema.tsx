@@ -1,19 +1,13 @@
-import { createIntl, createIntlCache } from 'react-intl';
-import { locale } from '../../../../locales/locale';
-
-import providerMessages from '../../../../locales/translations.json';
+import type { IntlShape } from 'react-intl';
+import messages from '../../../../Messages';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
-import messages from '../../../../Messages';
 
 export interface GrantAccessFormValues {
   // Add form fields here when needed
 }
 
-export const schemaBuilder = (workspaceName: string, workspaceId?: string, resourceType?: 'workspace' | 'tenant') => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages }, cache);
-
+export const schemaBuilder = (intl: IntlShape, workspaceName: string, workspaceId?: string, resourceType?: 'workspace' | 'tenant') => {
   const requireNonEmptyArray = (message: string) => (value: unknown) => (!Array.isArray(value) || value.length === 0 ? message : undefined);
 
   return {

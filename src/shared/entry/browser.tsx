@@ -150,7 +150,7 @@ interface BrowserAppWrapperProps {
 /**
  * Browser application wrapper with ServiceProvider.
  *
- * Note: IntlProvider and NotificationsProvider should be added by the
+ * Note: IntlMessagesProvider and NotificationsProvider should be added by the
  * consuming code (AppEntry.tsx) as they may have app-specific configuration.
  *
  * @example

@@ -1,16 +1,11 @@
 import { useEffect } from 'react';
 import { debounce } from '../../../../shared/utilities/debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { createIntl, createIntlCache } from 'react-intl';
+import type { IntlShape } from 'react-intl';
 import { rolesApi } from '../../../data/api/roles';
-
-import providerMessages from '../../../../locales/translations.json';
-import { locale } from '../../../../locales/locale';
 import messages from '../../../../Messages';
 
-export const asyncValidator = async (roleName: string): Promise<undefined> => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages }, cache);
+export const asyncValidator = async (roleName: string, intl: IntlShape): Promise<undefined> => {
   if (!roleName) {
     return undefined;
   }

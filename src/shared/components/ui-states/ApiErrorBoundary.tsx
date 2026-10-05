@@ -15,8 +15,8 @@ import UnauthorizedAccess from '@patternfly/react-component-groups/dist/dynamic/
 import UnavailableContent from '@patternfly/react-component-groups/dist/dynamic/UnavailableContent';
 import { AppLink } from '../navigation/AppLink';
 
-import { useApiError } from '../../contexts/ApiErrorContext';
 import messages from '../../../Messages';
+import { useApiError } from '../../contexts/ApiErrorContext';
 
 // Re-export for backward compatibility
 export { useApiError } from '../../contexts/ApiErrorContext';
@@ -67,7 +67,7 @@ interface ApiErrorBoundaryProps {
  * Must be used within:
  * - ApiErrorProvider (for error state)
  * - Router (for useLocation)
- * - IntlProvider (for messages)
+ * - IntlMessagesProvider (for the selected locale catalog)
  *
  * Usage:
  * ```tsx

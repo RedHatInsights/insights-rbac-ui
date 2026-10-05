@@ -1,11 +1,10 @@
 import React from 'react';
-import { IntlProvider } from 'react-intl';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { createStore } from '@redhat-cloud-services/frontend-components-notifications/state';
 
-import messages from './locales/translations.json';
 import { locale } from './locales/locale';
+import { IntlMessagesProvider } from './shared/i18n/IntlMessagesProvider';
 import { ApiErrorProvider } from './shared/contexts/ApiErrorContext';
 import { QueryClientSetup } from './shared/components/QueryClientSetup';
 import ApiErrorBoundary from './shared/components/ui-states/ApiErrorBoundary';
@@ -69,7 +68,7 @@ const VersionRouter: React.FC = () => {
  * Main application entry point for IAM.
  *
  * Provider hierarchy:
- * - IntlProvider (i18n)
+ * - IntlMessagesProvider (loads the selected locale catalog)
  * - NotificationsProvider (toast notifications)
  * - SharedProviders (error handling, services, query client)
  * - VersionRouter → IamV1 or IamV2
@@ -83,12 +82,12 @@ export const Iam: React.FC<IamProps> = ({ testMode = false }) => {
   }, []);
 
   return (
-    <IntlProvider locale={locale} messages={messages}>
+    <IntlMessagesProvider locale={locale}>
       <NotificationsProvider store={notificationStore}>
         <SharedProviders testMode={testMode}>
           <VersionRouter />
         </SharedProviders>
       </NotificationsProvider>
-    </IntlProvider>
+    </IntlMessagesProvider>
   );
 };

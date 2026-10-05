@@ -21,11 +21,10 @@ import SetName from './SetName';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { useWorkspacesRenameFlag } from '../../../../capabilities/useWorkspacesRenameFlag';
 import { SilentErrorBoundary } from '../../../../shared/components/ui-states/SilentErrorBoundary';
-
+import messages from '../../../../Messages';
 import paths from '../../../utilities/pathnames';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 import type Schema from '@data-driven-forms/react-form-renderer/common-types/schema';
-import messages from '../../../../Messages';
 
 interface PaginationProps {
   limit: number;
@@ -103,8 +102,8 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const [schema, setSchema] = useState<Schema | undefined>();
 
   useEffect(() => {
-    setSchema(schemaBuilder(enableWorkspacesNameChange));
-  }, [enableWorkspacesNameChange]);
+    setSchema(schemaBuilder(enableWorkspacesNameChange, intl));
+  }, [enableWorkspacesNameChange, intl]);
 
   const rolesPath = paths['access-management-roles'].link();
   const userGroupsPath = paths['user-groups'].link();

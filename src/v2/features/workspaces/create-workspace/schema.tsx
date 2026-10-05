@@ -2,15 +2,13 @@ import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { Content } from '@patternfly/react-core/dist/dynamic/components/Content';
 import React from 'react';
-import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
-import providerMessages from '../../../../locales/translations.json';
-import { locale } from '../../../../locales/locale';
-
+import { FormattedMessage } from 'react-intl';
+import type { IntlShape } from 'react-intl';
+import messages from '../../../../Messages';
 import InputHelpPopover from '../../../../shared/components/forms/InputHelpPopover';
 import WizardButtons from '../../../../shared/components/wizard/WizardButtons';
 import { getModalContainer } from '../../../../shared/helpers/modal-container';
 import { type WorkspacesWorkspace } from '../../../data/queries/workspaces';
-import messages from '../../../../Messages';
 
 /**
  * Placeholder bundle options for the billing features flow.
@@ -52,10 +50,7 @@ export interface CreateWorkspaceFormValues {
  * @param existingWorkspaceNames - List of existing workspace names for duplicate validation
  * @param skipParentStep - When true, omits the parent selection step (parent is pre-set by caller)
  */
-export const schemaBuilder = (enableBillingFeatures: boolean, existingWorkspaceNames: string[] = [], skipParentStep = false) => {
-  const cache = createIntlCache();
-  const intl = createIntl({ locale, messages: providerMessages }, cache);
-
+export const schemaBuilder = (intl: IntlShape, enableBillingFeatures: boolean, existingWorkspaceNames: string[] = [], skipParentStep = false) => {
   return {
     fields: [
       {

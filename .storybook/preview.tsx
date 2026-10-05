@@ -3,8 +3,10 @@ import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/patternfly/patternfly-addons.css';
 import '@redhat-cloud-services/hcc-storybook-hub/css/storybook.css';
 import React, { useContext } from 'react';
+import { type IntlConfig } from 'react-intl';
 import { createPortal } from 'react-dom';
-import { IntlProvider } from 'react-intl';
+import { IntlMessagesProvider, preloadLocaleMessages } from '../src/shared/i18n/IntlMessagesProvider';
+import { type LocaleMessages, loadLocaleMessages } from '../src/shared/i18n/localeCatalogs';
 import { QueryClientSetup } from '../src/shared/components/QueryClientSetup';
 import {
   type FeatureFlagsConfig,
@@ -19,18 +21,27 @@ import type { Environment } from '@redhat-cloud-services/hcc-storybook-hub';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import NotificationsProvider from '@redhat-cloud-services/frontend-components-notifications/NotificationsProvider';
 import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
-import messages from '../src/locales/translations.json';
 import { locale } from '../src/locales/locale';
-import zhCNDemoMessages from './locales/zh-CN.demo.json';
 import { ServiceProvider, createBrowserServices } from '../src/shared/services';
 import type { AddNotificationFn } from '../src/shared/entry/browser';
 import { ApiErrorProvider } from '../src/shared/contexts/ApiErrorContext';
 
 // Storybook-only locale switcher (toolbar "Locale" or story-level `globals: { locale }`).
-// zh-CN is a small demo catalog; IDs it does not translate fall back to the English message.
-const storyCatalogs: Record<string, Record<string, string>> = {
-  en: messages,
-  'zh-CN': { ...messages, ...zhCNDemoMessages },
+// Each option loads its own catalog; the partial zh-CN demo relies on descriptor defaultMessage fallbacks.
+const storyCatalogLoaders: Record<string, () => Promise<LocaleMessages>> = {
+  [locale]: () => loadLocaleMessages(locale),
+  'zh-CN': async () => (await import('./locales/zh-CN.demo.json')).default,
+};
+
+const loadStoryCatalog = (selectedLocale: string): Promise<LocaleMessages> => storyCatalogLoaders[selectedLocale]?.() ?? loadLocaleMessages(locale);
+
+const resolveStoryLocale = (selectedLocale: unknown): string =>
+  typeof selectedLocale === 'string' && Object.hasOwn(storyCatalogLoaders, selectedLocale) ? selectedLocale : locale;
+
+const handleStoryIntlError: NonNullable<IntlConfig['onError']> = (error) => {
+  if (error.code !== 'MISSING_TRANSLATION') {
+    console.error(error);
+  }
 };
 
 // Wrapper that provides all providers for component stories (non-journey)
@@ -110,6 +121,13 @@ const preview: Preview = {
   initialGlobals: {
     locale,
   },
+  loaders: [
+    ...(hccPreviewDefaults.loaders ?? []),
+    async ({ globals, parameters }) => {
+      const storyLocale = parameters.noWrapping ? locale : resolveStoryLocale(globals.locale);
+      await preloadLocaleMessages(storyLocale, loadStoryCatalog);
+    },
+  ],
   decorators: [
     (Story, { parameters, args, globals }) => {
       // Derive mock state from story args/parameters
@@ -205,7 +223,7 @@ const preview: Preview = {
       }
 
       // Component stories get full provider wrapping (QueryClient, ServiceProvider, etc.)
-      const storyLocale: string = globals.locale in storyCatalogs ? globals.locale : locale;
+      const storyLocale = resolveStoryLocale(globals.locale);
       return (
         <StorybookMockProvider
           environment={environment}
@@ -217,13 +235,17 @@ const preview: Preview = {
           userIdentity={userIdentity}
         >
           <FeatureFlagsProvider value={featureFlags}>
-            <IntlProvider locale={storyLocale} messages={storyCatalogs[storyLocale]}>
+            <IntlMessagesProvider
+              locale={storyLocale}
+              loadMessages={loadStoryCatalog}
+              onError={storyLocale === 'zh-CN' ? handleStoryIntlError : undefined}
+            >
               <NotificationsProvider>
                 <ComponentProviders>
                   <Story />
                 </ComponentProviders>
               </NotificationsProvider>
-            </IntlProvider>
+            </IntlMessagesProvider>
           </FeatureFlagsProvider>
         </StorybookMockProvider>
       );

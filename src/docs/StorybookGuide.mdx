@@ -38,7 +38,7 @@ npm run test-storybook:ci -- --includeTags="my-feature"
 ### Context Providers
 
 All stories are automatically wrapped with:
-- `IntlProvider` — i18n with the compiled English catalog from `src/locales/translations.json`
+- `IntlMessagesProvider` — loads selected catalog; the Locale toolbar switches Storybook demos
 - `PermissionsContext` — user access control simulation
 - `ChromeProvider` — Red Hat Cloud Services chrome environment
 - `FeatureFlagsProvider` — feature flag testing

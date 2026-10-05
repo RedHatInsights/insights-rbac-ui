@@ -21,7 +21,7 @@ import TypeSelector from './TypeSelector';
 import SetName from './SetName';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
 import { SilentErrorBoundary } from '../../../../shared/components/ui-states/SilentErrorBoundary';
-
+import messages from '../../../../Messages';
 import paths from '../../../utilities/pathnames';
 import { AddRoleWizardContext } from './AddRoleWizardContext';
 // RoleIn type removed - RoleData interface now matches it directly
@@ -75,7 +75,6 @@ interface FormData {
 // Use types from rbac-client for type safety
 import type { Access, ResourceDefinition } from '../../../data/api/roles';
 import type Schema from '@data-driven-forms/react-form-renderer/common-types/schema';
-import messages from '../../../../Messages';
 
 /**
  * Role data structure matching RoleIn from rbac-client.
@@ -127,8 +126,8 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const [schema, setSchema] = useState<Schema | undefined>();
 
   useEffect(() => {
-    setSchema(schemaBuilder(enableWorkspacesNameChange));
-  }, [enableWorkspacesNameChange]);
+    setSchema(schemaBuilder(enableWorkspacesNameChange, intl));
+  }, [enableWorkspacesNameChange, intl]);
 
   const onClose = () =>
     navigate({

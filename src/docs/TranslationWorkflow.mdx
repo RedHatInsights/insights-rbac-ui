@@ -4,7 +4,7 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Translation Workflow
 
-RBAC UI stores FormatJS descriptors in `src/Messages.js`, with the generated source catalog in `locales/translation-template.json` and compiled English runtime messages in `src/locales/translations.json`. Do not edit generated catalogs by hand.
+RBAC UI stores FormatJS descriptors in `src/Messages.js`, with the generated source catalog in `locales/translation-template.json` and compiled runtime catalogs in `src/locales/<locale>.json` (currently `en.json`). Do not edit generated catalogs by hand.
 
 ## Author messages
 
@@ -44,13 +44,16 @@ npm run translations
 npm run lint
 ```
 
-`npm run translations` extracts descriptors from application JS/TS (sourced from `src/Messages.js`) into `locales/translation-template.json` and compiles `src/locales/translations.json`. Review both generated files and commit them with the source changes. `translations:prepare` compiles the checked-in source catalog before `npm start`, `npm run start:no-proxy`, and `npm run build`.
+`npm run translations` extracts descriptors from application JS/TS (sourced from `src/Messages.js`) into `locales/translation-template.json` and compiles the English runtime catalog to `src/locales/en.json`. `translations:prepare` compiles the checked-in English source catalog before `npm start`, `npm run start:no-proxy`, and `npm run build`. When a translated catalog is available, compile it to its own `src/locales/<locale>.json` file; do not merge it with English at runtime.
 
 | Path                                | Role                                                 |
 | ----------------------------------- | ---------------------------------------------------- |
 | `locales/translation-template.json` | Generated English descriptors and translator context |
-| `src/locales/translations.json`     | Compiled flat English runtime messages               |
+| `src/locales/en.json`               | Compiled English runtime messages                    |
+| `src/locales/<locale>.json`         | Compiled runtime messages for each added language    |
 
 ## Runtime locale support
 
-`src/locales/locale.ts` currently selects `en` unconditionally. The Storybook **Locale** toolbar demonstrates locale switching for component stories; journey stories continue using the app's English provider. The `zh-CN` demo catalog lives in `.storybook/locales/zh-CN.demo.json`, outside production catalogs. It exercises ICU messages and falls back to English for IDs it does not contain. Runtime locale selection remains a separate product change.
+`src/locales/locale.ts` currently selects `en`. `IntlMessagesProvider` uses the dynamic imports registered in `src/shared/i18n/localeCatalogs.ts`, so the selected runtime locale loads as its own bundle instead of eagerly importing every catalog. To add a production locale, add its compiled catalog, register its locale in `supportedLocales` and `localeCatalogLoaders`, and connect the app's locale selection to that locale. Missing translated IDs fall back to the descriptor's English `defaultMessage`; runtime catalogs are not merged.
+
+The Storybook **Locale** toolbar uses the same provider with a separate loader. Its partial `zh-CN` demo lives in `.storybook/locales/zh-CN.demo.json`, outside production catalogs, and is loaded only when selected. It exercises ICU messages and descriptor-default fallbacks without claiming that a production Chinese catalog exists.

@@ -39,7 +39,7 @@ This story validates that \`ConversionOptInBanner\` renders as a federated modul
 
 ### Providers Included
 
-- **IntlProvider** - internationalization
+- **IntlMessagesProvider** - loads the selected locale catalog
 
 ### Props (ConversionOptInBannerProps)
 

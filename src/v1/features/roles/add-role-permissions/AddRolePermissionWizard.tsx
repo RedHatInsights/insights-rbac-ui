@@ -14,10 +14,9 @@ import CostResources from '../add-role/CostResources';
 import InventoryGroupsRole from '../add-role/InventoryGroupsRole';
 import { schemaBuilder } from './schema';
 import useAppNavigate from '../../../../shared/hooks/useAppNavigate';
-
+import messages from '../../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import { AddRolePermissionWizardContext } from './AddRolePermissionWizardContext';
-import messages from '../../../../Messages';
 
 interface AddRolePermissionWizardProps {
   role: RoleWithAccess;
@@ -85,7 +84,7 @@ const AddRolePermissionWizard: React.FC<AddRolePermissionWizardProps> = ({ role 
   const setWizardError = (error: string | undefined) => setWizardContextValue((prev) => ({ ...prev, error }));
   const setWizardSuccess = (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm: boolean) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
-  const schema = useMemo(() => schemaBuilder(enableWorkspacesNameChange), [enableWorkspacesNameChange]);
+  const schema = useMemo(() => schemaBuilder(enableWorkspacesNameChange, intl), [enableWorkspacesNameChange, intl]);
 
   useEffect(() => {
     setCurrentRoleID(role.uuid);

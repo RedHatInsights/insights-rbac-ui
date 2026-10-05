@@ -3,12 +3,9 @@ import React from 'react';
 import { getSkeletonCount } from '../../../../test-utils/interactionHelpers';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceHeader } from './WorkspaceHeader';
-import { IntlProvider } from 'react-intl';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { WorkspacesWorkspace } from '../../../data/queries/workspaces';
 import type { WorkspaceActionCallbacks } from './useWorkspaceActionItems';
-import messages from '../../../../locales/translations.json';
-import { locale } from '../../../../locales/locale';
 import { workspacesHandlers } from '../../../data/mocks/workspaces.handlers';
 
 const NOOP_CALLBACKS: WorkspaceActionCallbacks = {
@@ -52,14 +49,12 @@ const withProviders = (Story: React.ComponentType, context: { parameters?: { rou
   const route = context.parameters?.route || '/iam/access-management/workspaces/detail/workspace-1';
   return (
     <MemoryRouter initialEntries={[route]}>
-      <IntlProvider locale={locale} messages={messages}>
-        <div style={{ minHeight: '300px', padding: '16px' }}>
-          <Routes>
-            <Route path="/iam/access-management/workspaces/detail/:workspaceId" element={<Story />} />
-            <Route path="*" element={<Story />} />
-          </Routes>
-        </div>
-      </IntlProvider>
+      <div style={{ minHeight: '300px', padding: '16px' }}>
+        <Routes>
+          <Route path="/iam/access-management/workspaces/detail/:workspaceId" element={<Story />} />
+          <Route path="*" element={<Story />} />
+        </Routes>
+      </div>
     </MemoryRouter>
   );
 };

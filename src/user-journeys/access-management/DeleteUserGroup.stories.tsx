@@ -242,7 +242,7 @@ Tests the complete "Delete user group" workflow:
       await waitFor(() => {
         expect(within(document.body).queryByRole('dialog')).toBeNull();
       });
-      expect(listGroupsSpy).toHaveBeenCalled();
+      await waitFor(() => expect(listGroupsSpy).toHaveBeenCalled(), { timeout: TEST_TIMEOUTS.NOTIFICATION_WAIT });
       await waitFor(
         async () => {
           const tableAfter = await getUserGroupsTable(canvas);
